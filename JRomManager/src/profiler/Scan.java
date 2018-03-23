@@ -195,7 +195,7 @@ public class Scan
 				Container c;
 				if(null!=(c=containers_byname.get(m.name+".zip")))
 				{
-					OpenSet updateset = new OpenSet(new Archive(new File(dir,m.name+".zip")));
+					OpenSet updateset = null;
 					for(Rom r : m.roms)
 					{
 						if((r.bios==null || m.isbios) && !r.status.equals("nodump") && !(m.romof != null && r.merge!=null))
@@ -234,6 +234,8 @@ public class Scan
 								if(null!=(found=entries_bycrc.get(r.crc)))
 								{
 									submsg += "\t["+m.name+"] "+r.name+" <- "+found.parent.file.getName()+"@"+found.file+"\n";
+									if(updateset==null)
+										updateset = new OpenSet(new Archive(new File(dir,m.name+".zip")));
 									updateset.addRomAction(new AddRom(r, found));
 									roms_found.add(found);
 								}
@@ -251,7 +253,7 @@ public class Scan
 							}
 						}
 					}
-					if(updateset.roms.size()>0)
+					if(updateset !=null && updateset.roms.size()>0)
 						update_actions.add(updateset);
 				}
 				else
@@ -260,8 +262,7 @@ public class Scan
 					ArrayList<Entry> roms_found = new ArrayList<>();
 					boolean partial = false;
 					String submsg = "";
-					CreateSet createset = new CreateSet(new Archive(new File(dir,m.name+".zip")));
-					create_actions.add(createset);
+					CreateSet createset = null;
 					for(Rom r : m.roms)
 					{
 						if((r.bios==null || m.isbios) && !r.status.equals("nodump") && !(m.romof != null && r.merge!=null))
@@ -270,6 +271,8 @@ public class Scan
 							if(r.crc !=null && !r.crc.equals("0") && null!=(found=entries_bycrc.get(r.crc)))
 							{
 								submsg += "\t["+m.name+"] "+r.name+" <- "+found.parent.file.getName()+"@"+found.file+"\n";
+								if(createset==null)
+									createset=new CreateSet(new Archive(new File(dir,m.name+".zip"),true));
 								createset.addRomAction(new AddRom(r, found));
 								roms_found.add(found);
 							}
@@ -280,6 +283,8 @@ public class Scan
 							}
 						}
 					}
+					if(createset!=null && createset.roms.size()>0)
+						create_actions.add(createset);
 					String msg = "["+m.name+"] is missing";
 					if(roms_found.size()>0)
 						msg += ", but can "+(partial?"partially":"totally")+" be recreated :\n"+submsg;

@@ -1,8 +1,3 @@
-/actions/
-/data/
-/misc/
-/profiler/
-/ui/
 /JRomManager$1.class
 /JRomManager$2$1.class
 /JRomManager$2.class
@@ -15,3 +10,8 @@
 /JRomManager$5$1.class
 /JRomManager$5.class
 /JRomManager.class
+/actions/
+/data/
+/misc/
+/profiler/
+/ui/

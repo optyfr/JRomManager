@@ -24,12 +24,12 @@ public class Progress extends JDialog implements ProgressHandler
 	{
 		super(owner, "Progression", Dialog.ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 450, 124);
+		setBounds(100, 100, 525, 129);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 0, 0, 0};
-		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0};
+		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
 		gridBagLayout.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		getContentPane().setLayout(gridBagLayout);
 		
 		Component horizontalStrut = Box.createHorizontalStrut(20);
@@ -64,7 +64,8 @@ public class Progress extends JDialog implements ProgressHandler
 		getContentPane().add(verticalStrut_1, gbc_verticalStrut_1);
 		
 		progressBar = new JProgressBar();
-		progressBar.setPreferredSize(new Dimension(146, 20));
+		progressBar.setMinimumSize(new Dimension(300, 20));
+		progressBar.setPreferredSize(new Dimension(450, 20));
 		progressBar.setStringPainted(true);
 		GridBagConstraints gbc_progressBar = new GridBagConstraints();
 		gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
@@ -73,13 +74,29 @@ public class Progress extends JDialog implements ProgressHandler
 		gbc_progressBar.gridy = 2;
 		getContentPane().add(progressBar, gbc_progressBar);
 		
+		Component horizontalStrut_1 = Box.createHorizontalStrut(20);
+		GridBagConstraints gbc_horizontalStrut_1 = new GridBagConstraints();
+		gbc_horizontalStrut_1.insets = new Insets(0, 0, 5, 5);
+		gbc_horizontalStrut_1.gridx = 1;
+		gbc_horizontalStrut_1.gridy = 3;
+		getContentPane().add(horizontalStrut_1, gbc_horizontalStrut_1);
+		
 		JButton btnCancel = new JButton("Cancel");
 		GridBagConstraints gbc_btnCancel = new GridBagConstraints();
-		gbc_btnCancel.insets = new Insets(0, 0, 0, 5);
+		gbc_btnCancel.anchor = GridBagConstraints.NORTH;
+		gbc_btnCancel.insets = new Insets(0, 0, 5, 5);
 		gbc_btnCancel.gridx = 1;
-		gbc_btnCancel.gridy = 3;
+		gbc_btnCancel.gridy = 4;
 		getContentPane().add(btnCancel, gbc_btnCancel);
-
+		
+		Component horizontalStrut_2 = Box.createHorizontalStrut(20);
+		GridBagConstraints gbc_horizontalStrut_2 = new GridBagConstraints();
+		gbc_horizontalStrut_2.insets = new Insets(0, 0, 0, 5);
+		gbc_horizontalStrut_2.gridx = 1;
+		gbc_horizontalStrut_2.gridy = 5;
+		getContentPane().add(horizontalStrut_2, gbc_horizontalStrut_2);
+		
+		pack();
 	}
 
 	@Override

@@ -22,11 +22,17 @@ public class Container implements Serializable
 
 	private Type type;
 	
-	protected Container(Type type, File file)
+	protected Container(Type type, File file, boolean create)
 	{
 		this.type = type;
 		this.file = file;
-		this.modified = file.lastModified();
+		if(!create)
+			this.modified = file.lastModified();
+	}
+
+	protected Container(Type type, File file)
+	{
+		this(type,file,false);
 	}
 
 	public void add(Entry e)

@@ -20,7 +20,7 @@ import ui.Progress;
 public class JRomManager
 {
 
-	private JFrame frame;
+	private JFrame frmJrommanager;
 	
 	private Profile curr_profile;
 	private Scan curr_scan;
@@ -40,7 +40,7 @@ public class JRomManager
 				try
 				{
 					JRomManager window = new JRomManager();
-					window.frame.setVisible(true);
+					window.frmJrommanager.setVisible(true);
 				}
 				catch(Exception e)
 				{
@@ -63,10 +63,11 @@ public class JRomManager
 	 */
 	private void initialize()
 	{
-		frame = new JFrame();
-		frame.setBounds(100, 100, 478, 74);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		frmJrommanager = new JFrame();
+		frmJrommanager.setTitle("JRomManager");
+		frmJrommanager.setBounds(100, 100, 478, 74);
+		frmJrommanager.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmJrommanager.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		JButton btnImport = new JButton("Import Dat");
 		btnImport.addActionListener(new ActionListener() {
@@ -76,12 +77,12 @@ public class JRomManager
 				{{
 					addChoosableFileFilter(new FileNameExtensionFilter("Dat file", "dat", "xml"));
 					addChoosableFileFilter(new FileNameExtensionFilter("Mame executable", "exe"));
-					if(showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
+					if(showOpenDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
 						new Import(getSelectedFile());
 				}};
 			}
 		});
-		frame.getContentPane().add(btnImport);
+		frmJrommanager.getContentPane().add(btnImport);
 		
 		JButton btnLoad = new JButton("Load Profile");
 		btnLoad.addActionListener(new ActionListener() {
@@ -92,9 +93,9 @@ public class JRomManager
 					File workdir = Paths.get("./xmlfiles").toAbsolutePath().normalize().toFile();
 					setCurrentDirectory(workdir);
 					addChoosableFileFilter(new FileNameExtensionFilter("Dat file", "dat", "xml"));
-					if(showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
+					if(showOpenDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
 					{
-						final Progress progress = new Progress(frame);
+						final Progress progress = new Progress(frmJrommanager);
 						SwingWorker<Void,Void> worker = new SwingWorker<Void,Void>(){
 
 							@Override
@@ -118,7 +119,7 @@ public class JRomManager
 				}};
 			}
 		});
-		frame.getContentPane().add(btnLoad);
+		frmJrommanager.getContentPane().add(btnLoad);
 		
 		btnScan = new JButton("Scan");
 		btnScan.setEnabled(false);
@@ -130,9 +131,9 @@ public class JRomManager
 					File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
 					setCurrentDirectory(workdir);
 					setFileSelectionMode(DIRECTORIES_ONLY);
-					if(showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
+					if(showOpenDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
 					{
-						final Progress progress = new Progress(frame);
+						final Progress progress = new Progress(frmJrommanager);
 						SwingWorker<Void,Void> worker = new SwingWorker<Void,Void>(){
 
 							@Override
@@ -155,12 +156,12 @@ public class JRomManager
 				}};
 			}
 		});
-		frame.getContentPane().add(btnScan);
+		frmJrommanager.getContentPane().add(btnScan);
 		
 		btnFix = new JButton("Fix");
 		btnFix.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				final Progress progress = new Progress(frame);
+				final Progress progress = new Progress(frmJrommanager);
 				SwingWorker<Void,Void> worker = new SwingWorker<Void,Void>(){
 
 					@Override
@@ -187,7 +188,8 @@ public class JRomManager
 			}
 		});
 		btnFix.setEnabled(false);
-		frame.getContentPane().add(btnFix);
+		frmJrommanager.getContentPane().add(btnFix);
+		frmJrommanager.pack();
 	}
 
 }

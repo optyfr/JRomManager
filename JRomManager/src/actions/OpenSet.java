@@ -21,7 +21,9 @@ public class OpenSet extends SetAction
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
-		Map<String,?> env = new HashMap<>(Collections.singletonMap("create", "false"));
+		Map<String,Object> env = new HashMap<>();
+		env.put("create", "false");
+		env.put("useTempFile", Boolean.TRUE);
 		try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+container.file.toURI()), env);)
 		{
 			handler.setProgress("Fixing "+container.file.getName());

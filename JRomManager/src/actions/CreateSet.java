@@ -21,7 +21,9 @@ public class CreateSet extends SetAction
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
-		Map<String,?> env = new HashMap<>(Collections.singletonMap("create", "true"));
+		Map<String,Object> env = new HashMap<>();
+		env.put("create", "true");
+		env.put("useTempFile", Boolean.TRUE);
 		try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+container.file.toURI()), env);)
 		{
 			handler.setProgress("Fixing "+container.file.getName());
