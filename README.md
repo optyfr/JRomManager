@@ -30,7 +30,8 @@ _Minimal usage requirements_:
 - Non-Merged Fix/Rebuild
 - CHD support
 - Software List support
-- More options (what to fix, how to scan, ...)
+- General settings
+- Per profile settings (what to fix, how to scan, ...)
 - Enhanced Gui with Report
 
 ## Middle Term Planned Features
