@@ -3,7 +3,7 @@
 A Rom Manager entirely written in Java and released under GPL v3
 
 ## Technical
-_Minimal developpement requirements_:
+_Minimal developement requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature
 - Java 8
 - Apache Commons IO 2.6
