@@ -25,6 +25,7 @@ A Rom Manager entirely written in Java
 
 ## Middle Term Planned Features
 - 7z support (at least decompression)
+- TorrentZip support
 - Dir2Dat, Dat2Dat
 - Multi Core support (at least for archive manipulation and checksum calculation)
 
