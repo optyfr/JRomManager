@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+@SuppressWarnings("serial")
 public class Container implements Serializable
 {
-	private static final long serialVersionUID = -6589746482843591315L;
-	
 	public File file;
 	public long modified;
+	public long size = 0;
 	public ArrayList<Entry> entries = new ArrayList<>();
 	
 	public transient boolean up2date = false;
@@ -27,7 +27,11 @@ public class Container implements Serializable
 		this.type = type;
 		this.file = file;
 		if(!create)
+		{
 			this.modified = file.lastModified();
+			if(type==Type.ARC)
+				this.size = file.length();
+		}
 	}
 
 	protected Container(Type type, File file)

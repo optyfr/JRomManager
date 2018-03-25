@@ -1,11 +1,12 @@
 package data;
 
 import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+@SuppressWarnings("serial")
 public class Entry implements Serializable
 {
-	private static final long serialVersionUID = 833774163282972425L;
-
 	public String file;
 	public long size = 0;
 	public String crc = null;
@@ -17,4 +18,10 @@ public class Entry implements Serializable
 		this.file = file;
 	}
 
+	public String getName()
+	{
+		Path path = Paths.get(file);
+		return path.subpath(0, path.getNameCount()).toString();
+	}
+	
 }

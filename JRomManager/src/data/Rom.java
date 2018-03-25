@@ -2,10 +2,9 @@ package data;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class Rom implements Serializable
 {
-	private static final long serialVersionUID = 1L;
-
 	public String name;
 	public long size = 0;
 	public String crc = null;
@@ -18,4 +17,9 @@ public class Rom implements Serializable
 	{
 	}
 
+	public String getName()
+	{
+		return name;
+	}
+	
 }

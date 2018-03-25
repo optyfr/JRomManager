@@ -3,10 +3,9 @@ package data;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+@SuppressWarnings("serial")
 public class Machine implements Serializable
 {
-	private static final long serialVersionUID = 1L;
-
 	public String name;
 	public String romof = null;
 	public String cloneof = null;

@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Common IO 2.6"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Commons IO 2.6"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Commons Lang3 3.7"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

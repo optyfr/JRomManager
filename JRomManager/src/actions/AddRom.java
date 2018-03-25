@@ -25,16 +25,17 @@ public class AddRom extends RomAction
 	{
 		Path dstpath = dstfs.getPath(rom.name);
 		handler.setProgress(null,null,null,"Adding "+dstpath.getFileName());
+		Path srcpath = null;
 		try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
 		{
 			
-			Path srcpath = srcfs.getPath(entry.file);
+			srcpath = srcfs.getPath(entry.file);
 			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			return true;
 		}
 		catch(Throwable e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("add from "+entry.parent.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath+" failed");
 		}
 		return false;
 	}

@@ -3,7 +3,6 @@ package actions;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +27,12 @@ public class CreateSet extends SetAction
 		{
 			handler.setProgress("Fixing "+container.file.getName());
 			for(RomAction rom : roms)
-				rom.doAction(fs, handler);
+				if(!rom.doAction(fs, handler))
+				{
+					System.err.println("copy to "+container.file.getName()+"@"+rom.entry.file+" failed");
+					return false;
+				}
+			return true;
 		}
 		catch(Throwable e)
 		{

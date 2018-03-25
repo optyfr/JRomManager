@@ -7,9 +7,9 @@ import java.nio.file.Path;
 import data.Entry;
 import ui.ProgressHandler;
 
-public class DelRom extends RomAction
+public class DeleteRom extends RomAction
 {
-	public DelRom(Entry entry)
+	public DeleteRom(Entry entry)
 	{
 		super(entry);
 	}
@@ -17,16 +17,17 @@ public class DelRom extends RomAction
 	@Override
 	public boolean doAction(FileSystem dstfs, ProgressHandler handler)
 	{
+		Path path = null;
 		try
 		{
 			handler.setProgress(null,null,null,"Deleting "+entry.file);
-			Path path = dstfs.getPath(entry.file);
+			path = dstfs.getPath(entry.file);
 			Files.delete(path);
+			return true;
 		}
 		catch(Throwable e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("delete "+parent.container.file.getName()+"@"+path+" failed");
 		}
 		return false;
 	}

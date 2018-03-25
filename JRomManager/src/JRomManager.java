@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -131,15 +133,24 @@ public class JRomManager
 					File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
 					setCurrentDirectory(workdir);
 					setFileSelectionMode(DIRECTORIES_ONLY);
+					setDialogTitle("Choose Roms Destination");
 					if(showOpenDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
 					{
+						File dstdir = getSelectedFile();
+						ArrayList<File> srcdirs = new ArrayList<>();
+						new JFileChooser() {{
+							setFileSelectionMode(DIRECTORIES_ONLY);
+							setDialogTitle("Choose Roms Source");
+							if(showOpenDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
+								srcdirs.add(getSelectedFile());
+						}};
 						final Progress progress = new Progress(frmJrommanager);
 						SwingWorker<Void,Void> worker = new SwingWorker<Void,Void>(){
 
 							@Override
 							protected Void doInBackground() throws Exception
 							{
-								curr_scan = new Scan(curr_profile, getSelectedFile(), progress);
+								curr_scan = new Scan(curr_profile, dstdir, srcdirs, progress);
 								btnFix.setEnabled(curr_scan.actions.size()>0);
 								return null;
 							}
@@ -169,11 +180,15 @@ public class JRomManager
 					{
 						int i = 0;
 						progress.setProgress("Fixing...", i, curr_scan.actions.size());
-						for(SetAction action : curr_scan.actions)
+						Iterator<SetAction> actionsIterator = curr_scan.actions.iterator();
+						while (actionsIterator.hasNext())
 						{
-							action.doAction(progress);
+							if (!actionsIterator.next().doAction(progress))
+								break;
+							actionsIterator.remove();
 							progress.setProgress(null, ++i);
 						}
+						btnFix.setEnabled(curr_scan.actions.size()>0);
 						return null;
 					}
 					
