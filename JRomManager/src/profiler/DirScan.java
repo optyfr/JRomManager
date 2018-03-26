@@ -1,0 +1,216 @@
+package profiler;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.CRC32;
+
+import org.apache.commons.io.FilenameUtils;
+
+import data.Archive;
+import data.Container;
+import data.Directory;
+import data.Entry;
+import data.Rom;
+import misc.Log;
+import ui.ProgressHandler;
+
+public class DirScan
+{
+
+	ArrayList<Container> containers = new ArrayList<>();
+	HashMap<String, Container> containers_byname = new HashMap<>();
+	HashMap<String, Entry> entries_byhash = new HashMap<>();
+
+	public DirScan(File dir, ProgressHandler handler)
+	{
+		Path path = Paths.get(dir.getAbsolutePath());
+
+		/*
+		 * Loading scan cache
+		 */
+		containers_byname = load(dir, handler);
+
+		/*
+		 * List files;
+		 */
+		
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path))
+		{
+			handler.setProgress("Listing files in '" + dir + "' ...", 0, (int)Files.list(path).count());
+			Container c;
+			for (Path p : stream)
+			{
+				File file = p.toFile();
+				if (null == (c = containers_byname.get(file.getName())) || c.modified != file.lastModified() || (c instanceof Archive && c.size != file.length()))
+				{
+					if (file.isFile())
+						containers.add(c = new Archive(file));
+					else if (file.isDirectory())
+						containers.add(c = new Directory(file));
+					else
+						c = null;
+					if (c != null)
+					{
+						c.up2date = true;
+						containers_byname.put(file.getName(), c);
+					}
+				}
+				else
+				{
+					c.up2date = true;
+					containers.add(c);
+				}
+				handler.setProgress("Listing files in '" + dir + "'... (" + containers.size() + ")", containers.size());
+			}
+			if (containers_byname.entrySet().removeIf(entry -> !entry.getValue().up2date))
+				Log.info("Removed some scache elements");
+		}
+		catch (IOException e)
+		{
+			Log.err("IOException when listing", e);
+		}
+		catch (Throwable e)
+		{
+			Log.err("Other Exception when listing", e);
+		}
+		try
+		{
+			int i = 0;
+			handler.setProgress("Scanning files in '" + dir + "'...", i, containers.size());
+			for (Container c : containers)
+			{
+				File f = c.file;
+				if (c instanceof Archive)
+				{
+					if (c.loaded == 0)
+					{
+						String ext = FilenameUtils.getExtension(f.toString());
+						if (ext.equalsIgnoreCase("zip"))
+						{
+							try (FileSystem fs = FileSystems.newFileSystem(f.toPath(), null);)
+							{
+								final Path root = fs.getPath("/");
+								Files.walkFileTree(root, new SimpleFileVisitor<Path>()
+								{
+									@Override
+									public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+									{
+										Map<String, Object> attr = Files.readAttributes(file, "zip:*");
+										Entry entry = new Entry(file.toString());
+										c.add(entry);
+										entry.size = (Long) attr.get("size");
+										entry.crc = String.format("%08x", attr.get("crc"));
+										entries_byhash.put(entry.crc + "." + entry.size, entry);
+										if (entry.sha1 != null)
+											entries_byhash.put(entry.sha1, entry);
+										return FileVisitResult.CONTINUE;
+									}
+
+									@Override
+									public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+									{
+										return FileVisitResult.CONTINUE;
+									}
+								});
+								c.loaded = 1;
+							}
+						}
+					}
+					else
+					{
+						for (Entry entry : c.entries)
+						{
+							entries_byhash.put(entry.crc + "." + entry.size, entry);
+							if (entry.sha1 != null)
+								entries_byhash.put(entry.sha1, entry);
+						}
+					}
+
+				}
+				else if (c instanceof Directory)
+				{
+
+				}
+				handler.setProgress("Scanning " + f.getName(), ++i, null, i + "/" + containers.size() + " (" + (int) (i * 100.0 / containers.size()) + "%)");
+			}
+
+		}
+		catch (IOException e)
+		{
+			Log.err("IOException when scanning", e);
+		}
+		catch (Throwable e)
+		{
+			Log.err("Other Exception when listing", e);
+		}
+
+		save(dir, containers_byname);
+
+	}
+
+	public Entry find_byhash(Rom r)
+	{
+		if (r.sha1 != null)
+		{
+			Entry entry = null;
+			if (null != (entry = entries_byhash.get(r.sha1)))
+				return entry;
+		}
+		return entries_byhash.get(r.crc + "." + r.size);
+	}
+	
+	private static File getCacheFile(File file)
+	{
+		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
+		File cachedir = new File(workdir, "cache");
+		cachedir.mkdirs();
+		CRC32 crc = new CRC32();
+		crc.update(file.getAbsolutePath().getBytes());
+		return new File(cachedir, String.format("%08x", crc.getValue()) + ".scache");
+	}
+
+	private void save(File file, Object obj)
+	{
+		try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file)))))
+		{
+			oos.writeObject(obj);
+		}
+		catch (Throwable e)
+		{
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static HashMap<String, Container> load(File file, ProgressHandler handler)
+	{
+		File cachefile = getCacheFile(file);
+		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
+		{
+			handler.setProgress("Loading scan cache for '"+file+"'...", -1);
+			return (HashMap<String, Container>) ois.readObject();
+		}
+		catch (Throwable e)
+		{
+		}
+		return new HashMap<>();
+	}
+
+}
