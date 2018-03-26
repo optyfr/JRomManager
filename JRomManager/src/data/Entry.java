@@ -24,4 +24,17 @@ public class Entry implements Serializable
 		return path.subpath(0, path.getNameCount()).toString();
 	}
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof Entry)
+		{
+			if(((Entry)obj).sha1!=null && this.sha1 !=null)
+				return ((Entry)obj).sha1.equals(this.sha1);
+			if(((Entry)obj).crc!=null && this.crc !=null)
+				return ((Entry)obj).crc.equals(this.crc) && ((Entry)obj).size==this.size;
+		}
+		return super.equals(obj);
+	}
+	
 }

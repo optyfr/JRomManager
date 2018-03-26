@@ -20,11 +20,16 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.StreamSupport;
 import java.util.zip.CRC32;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.codec.binary.Hex;
 
 import data.Archive;
@@ -32,15 +37,17 @@ import data.Container;
 import data.Directory;
 import data.Entry;
 import data.Rom;
+import jdk.nashorn.internal.ir.annotations.Immutable;
 import misc.Log;
 import ui.ProgressHandler;
 
 public class DirScan
 {
 
-	ArrayList<Container> containers = new ArrayList<>();
-	HashMap<String, Container> containers_byname = new HashMap<>();
-	HashMap<String, Entry> entries_byhash = new HashMap<>();
+	List<Container> containers = Collections.synchronizedList(new ArrayList<>());
+	Map<String, Container> containers_byname = Collections.synchronizedMap(new HashMap<>());
+	Map<String, Entry> entries_bycrc = Collections.synchronizedMap(new HashMap<>());
+	Map<String, Entry> entries_bysha1 = Collections.synchronizedMap(new HashMap<>());
 
 	public DirScan(File dir, ProgressHandler handler)
 	{
@@ -54,13 +61,12 @@ public class DirScan
 		/*
 		 * List files;
 		 */
-		
+
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path))
 		{
-			handler.setProgress("Listing files in '" + dir + "' ...", 0, (int)Files.list(path).count());
-			Container c;
-			for (Path p : stream)
-			{
+			handler.setProgress("Listing files in '" + dir + "' ...", 0, (int) Files.list(path).count());
+			StreamSupport.stream(stream.spliterator(), true).forEach(p -> {
+				Container c;
 				File file = p.toFile();
 				if (null == (c = containers_byname.get(file.getName())) || c.modified != file.lastModified() || (c instanceof Archive && c.size != file.length()))
 				{
@@ -82,7 +88,8 @@ public class DirScan
 					containers.add(c);
 				}
 				handler.setProgress("Listing files in '" + dir + "'... (" + containers.size() + ")", containers.size());
-			}
+				
+			});
 			if (containers_byname.entrySet().removeIf(entry -> !entry.getValue().up2date))
 				Log.info("Removed some scache elements");
 		}
@@ -94,17 +101,16 @@ public class DirScan
 		{
 			Log.err("Other Exception when listing", e);
 		}
-		try
-		{
-			int i = 0;
-			boolean need_sha1 = true;
-			handler.setProgress("Scanning files in '" + dir + "'...", i, containers.size());
-			for (Container c : containers)
+		AtomicInteger i = new AtomicInteger(0);
+		boolean need_sha1 = true;
+		handler.setProgress("Scanning files in '" + dir + "'...", i.get(), containers.size());
+		containers.parallelStream().forEach(c -> {
+			try
 			{
 				File f = c.file;
 				if (c instanceof Archive)
 				{
-					if (c.loaded < 1 || (need_sha1 && c.loaded <2))
+					if (c.loaded < 1 || (need_sha1 && c.loaded < 2))
 					{
 						String ext = FilenameUtils.getExtension(f.toString());
 						if (ext.equalsIgnoreCase("zip"))
@@ -122,24 +128,25 @@ public class DirScan
 										c.add(entry);
 										entry.size = (Long) attr.get("size");
 										entry.crc = String.format("%08x", attr.get("crc"));
-										try(InputStream is = new BufferedInputStream(Files.newInputStream(file)))
+										try (InputStream is = new BufferedInputStream(Files.newInputStream(file)))
 										{
 											MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-									        byte[] buffer = new byte[8192];
-									        int len = is.read(buffer);
-									        while (len != -1) {
-									            sha1.update(buffer, 0, len);
-									            len = is.read(buffer);
-									        }
-									        entry.sha1 = Hex.encodeHexString(sha1.digest());
+											byte[] buffer = new byte[8192];
+											int len = is.read(buffer);
+											while (len != -1)
+											{
+												sha1.update(buffer, 0, len);
+												len = is.read(buffer);
+											}
+											entry.sha1 = Hex.encodeHexString(sha1.digest());
 										}
 										catch (Exception e)
 										{
 											e.printStackTrace();
 										}
-										entries_byhash.put(entry.crc + "." + entry.size, entry);
+										entries_bycrc.put(entry.crc + "." + entry.size, entry);
 										if (entry.sha1 != null)
-											entries_byhash.put(entry.sha1, entry);
+											entries_bysha1.put(entry.sha1, entry);
 										return FileVisitResult.CONTINUE;
 									}
 
@@ -149,7 +156,7 @@ public class DirScan
 										return FileVisitResult.CONTINUE;
 									}
 								});
-								c.loaded = need_sha1?2:1;
+								c.loaded = need_sha1 ? 2 : 1;
 							}
 						}
 					}
@@ -157,9 +164,9 @@ public class DirScan
 					{
 						for (Entry entry : c.entries)
 						{
-							entries_byhash.put(entry.crc + "." + entry.size, entry);
+							entries_bycrc.put(entry.crc + "." + entry.size, entry);
 							if (entry.sha1 != null)
-								entries_byhash.put(entry.sha1, entry);
+								entries_bysha1.put(entry.sha1, entry);
 						}
 					}
 
@@ -168,18 +175,17 @@ public class DirScan
 				{
 
 				}
-				handler.setProgress("Scanning " + f.getName(), ++i, null, i + "/" + containers.size() + " (" + (int) (i * 100.0 / containers.size()) + "%)");
+				handler.setProgress("Scanned " + f.getName(), i.incrementAndGet(), null, i.get() + "/" + containers.size() + " (" + (int) (i.get() * 100.0 / containers.size()) + "%)");
 			}
-
-		}
-		catch (IOException e)
-		{
-			Log.err("IOException when scanning", e);
-		}
-		catch (Throwable e)
-		{
-			Log.err("Other Exception when listing", e);
-		}
+			catch (IOException e)
+			{
+				Log.err("IOException when scanning", e);
+			}
+			catch (Throwable e)
+			{
+				Log.err("Other Exception when listing", e);
+			}
+		});
 
 		save(dir, containers_byname);
 
@@ -190,12 +196,12 @@ public class DirScan
 		if (r.sha1 != null)
 		{
 			Entry entry = null;
-			if (null != (entry = entries_byhash.get(r.sha1)))
+			if (null != (entry = entries_bysha1.get(r.sha1)))
 				return entry;
 		}
-		return entries_byhash.get(r.crc + "." + r.size);
+		return entries_bycrc.get(r.crc + "." + r.size);
 	}
-	
+
 	private static File getCacheFile(File file)
 	{
 		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
@@ -223,7 +229,7 @@ public class DirScan
 		File cachefile = getCacheFile(file);
 		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 		{
-			handler.setProgress("Loading scan cache for '"+file+"'...", -1);
+			handler.setProgress("Loading scan cache for '" + file + "'...", -1);
 			return (HashMap<String, Container>) ois.readObject();
 		}
 		catch (Throwable e)

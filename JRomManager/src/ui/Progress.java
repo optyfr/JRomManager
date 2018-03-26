@@ -134,7 +134,7 @@ public class Progress extends JDialog implements ProgressHandler
 	private JLabel lblTimeleft;
 	
 	@Override
-	public void setProgress(String msg, Integer val, Integer max, String submsg)
+	public synchronized void setProgress(String msg, Integer val, Integer max, String submsg)
 	{
 		if (msg != null)
 			textField.setText(msg);

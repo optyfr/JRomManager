@@ -126,7 +126,7 @@ public class Scan
 										}
 										else
 										{
-											// report_w.println("["+m.name+"] "+r.name+" ("+e.file+") OK ");
+											//report_w.println("["+m.name+"] "+r.name+" ("+e.file+") OK ");
 											found = e;
 											break;
 										}
@@ -160,13 +160,16 @@ public class Scan
 										report_w.println("[" + m.name + "] " + r.name + " is missing and not fixable");
 								}
 								else
+								{
+									//report_w.println("["+m.name+"] "+r.name+" ("+found.file+") OK ");
 									roms_found.add(found);
+								}
 							}
 							List<Entry> unneeded = c.entries.stream().filter(not(new HashSet<>(roms_found)::contains)).collect(Collectors.toList());
 							for (Entry e : unneeded)
 							{
 								String efile = Paths.get(e.file).subpath(0, Paths.get(e.file).getNameCount()).toString();
-								report_w.println("[" + m.name + "] " + efile + " unneeded (" + e.crc + ")");
+								report_w.println("[" + m.name + "] " + efile + " unneeded (crc=" + e.crc + ", sha1=" + e.sha1 + ")");
 								if (rename_before_set == null)
 									rename_before_set = new OpenSet(new Archive(new File(dstdir, m.name + ".zip")));
 								rename_before_set.addRomAction(new RenameRom(e));
@@ -232,7 +235,7 @@ public class Scan
 				}
 			}
 			report_w.println("Missing sets : " + missing_set + "/" + profile.machines.size());
-			report_w.println("Missing roms : " + missing_roms + "/" + profile.roms_bycrc.size());
+			report_w.println("Missing roms : " + missing_roms + "/" + profile.roms_bysha1.size());
 		}
 		catch (FileNotFoundException e)
 		{
