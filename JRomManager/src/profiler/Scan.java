@@ -65,17 +65,18 @@ public class Scan
 			handler.setProgress("Searching for fixes...", i, profile.machines.size());
 			for (Machine m : profile.machines)
 			{
-				if (!m.isdevice)
+			//	if (!m.isdevice)
 				{
 					Container c;
 					List<Rom> roms = m.roms.stream().filter(r -> {
+						if(r.status.equals("nodump"))
+							return false;
 						if (r.crc == null)
 						{
-							if(!r.status.equals("nodump"))
-								report_w.println("[" + m.name + "] " + r.name + " has no crc");
+							report_w.println("[" + m.name + "] " + r.name + " has no crc");
 							return false;
 						}
-						return !r.status.equals("nodump") && !(!m.isbios && m.romof != null && r.merge != null);
+						return m.isbios || m.romof == null || r.merge == null;
 					}).collect(Collectors.toList());
 					if (null != (c = dstscan.containers_byname.get(m.name + ".zip")))
 					{
@@ -92,7 +93,7 @@ public class Scan
 								for (Entry e : c.entries)
 								{
 									String efile = Paths.get(e.file).subpath(0, Paths.get(e.file).getNameCount()).toString();
-									if (r.crc.equals(e.crc))
+									if (r.crc.equals(e.crc) && (e.sha1==null || e.sha1.equals(r.sha1)))
 									{
 										if (!r.name.equals(efile))
 										{
@@ -132,7 +133,10 @@ public class Scan
 									}
 									else if (r.name.equals(efile))
 									{
-										report_w.println("[" + m.name + "] wrong crc (got " + e.crc + " vs " + r.crc + ")");
+										if(e.sha1==null)
+											report_w.println("[" + m.name + "] wrong crc (got " + e.crc + " vs " + r.crc + ")");
+										else
+											report_w.println("[" + m.name + "] wrong sha1 (got " + e.sha1 + " vs " + r.sha1 + ")");
 										found = e;
 										break;
 									}

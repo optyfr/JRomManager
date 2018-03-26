@@ -1,11 +1,5 @@
 package actions;
 
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.util.HashMap;
-import java.util.Map;
-
 import data.Container;
 import ui.ProgressHandler;
 

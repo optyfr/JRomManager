@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.DirectoryStream;
@@ -17,12 +18,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.CRC32;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.codec.binary.Hex;
 
 import data.Archive;
 import data.Container;
@@ -94,13 +97,14 @@ public class DirScan
 		try
 		{
 			int i = 0;
+			boolean need_sha1 = true;
 			handler.setProgress("Scanning files in '" + dir + "'...", i, containers.size());
 			for (Container c : containers)
 			{
 				File f = c.file;
 				if (c instanceof Archive)
 				{
-					if (c.loaded == 0)
+					if (c.loaded < 1 || (need_sha1 && c.loaded <2))
 					{
 						String ext = FilenameUtils.getExtension(f.toString());
 						if (ext.equalsIgnoreCase("zip"))
@@ -118,6 +122,21 @@ public class DirScan
 										c.add(entry);
 										entry.size = (Long) attr.get("size");
 										entry.crc = String.format("%08x", attr.get("crc"));
+										try(InputStream is = new BufferedInputStream(Files.newInputStream(file)))
+										{
+											MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+									        byte[] buffer = new byte[8192];
+									        int len = is.read(buffer);
+									        while (len != -1) {
+									            sha1.update(buffer, 0, len);
+									            len = is.read(buffer);
+									        }
+									        entry.sha1 = Hex.encodeHexString(sha1.digest());
+										}
+										catch (Exception e)
+										{
+											e.printStackTrace();
+										}
 										entries_byhash.put(entry.crc + "." + entry.size, entry);
 										if (entry.sha1 != null)
 											entries_byhash.put(entry.sha1, entry);
@@ -130,7 +149,7 @@ public class DirScan
 										return FileVisitResult.CONTINUE;
 									}
 								});
-								c.loaded = 1;
+								c.loaded = need_sha1?2:1;
 							}
 						}
 					}
