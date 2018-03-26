@@ -1,6 +1,16 @@
 # JRomManager
 
-A Rom Manager entirely written in Java
+A Rom Manager entirely written in Java and released under GPL v3
+
+## Technical
+_Minimal developement requirements_:
+- Eclipse Oxygen for Java with WindowBuilder feature
+- Java 8
+- Apache Commons IO 2.6
+
+_Minimal usage requirements_:
+- 1GB Free Ram (2GB or more with Software Lists and/or MultiCore feature)
+- Any OS with Java 8 or better 
 
 ## Current Features
 - Zip support
@@ -20,7 +30,8 @@ A Rom Manager entirely written in Java
 - Non-Merged Fix/Rebuild
 - CHD support
 - Software List support
-- More options (what to fix, how to scan, ...)
+- General settings
+- Per profile settings (what to fix, how to scan, ...)
 - Enhanced Gui with Report
 
 ## Middle Term Planned Features
@@ -33,3 +44,4 @@ A Rom Manager entirely written in Java
 - Other Dat formats
 - Interoperability with other managers?
 - Batch mode?
+
