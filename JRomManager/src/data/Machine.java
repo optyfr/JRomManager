@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class Machine implements Serializable
 {
 	public String name;
+	public StringBuffer description = new StringBuffer();
 	public String romof = null;
 	public String cloneof = null;
 	public String sampleof = null;

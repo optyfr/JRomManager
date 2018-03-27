@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -28,16 +29,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.StreamSupport;
 import java.util.zip.CRC32;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FilenameUtils;
 
 import data.Archive;
 import data.Container;
 import data.Directory;
 import data.Entry;
 import data.Rom;
-import jdk.nashorn.internal.ir.annotations.Immutable;
 import misc.Log;
 import ui.ProgressHandler;
 
@@ -49,8 +48,14 @@ public class DirScan
 	Map<String, Entry> entries_bycrc = Collections.synchronizedMap(new HashMap<>());
 	Map<String, Entry> entries_bysha1 = Collections.synchronizedMap(new HashMap<>());
 
-	public DirScan(File dir, ProgressHandler handler)
+	boolean need_sha1 = true;
+	boolean use_parallelism = true;
+
+	public DirScan(Profile profile, File dir, ProgressHandler handler)
 	{
+		need_sha1 = profile.getProperty("need_sha1", false);
+		use_parallelism = profile.getProperty("use_parallelism", false);
+		
 		Path path = Paths.get(dir.getAbsolutePath());
 
 		/*
@@ -65,7 +70,7 @@ public class DirScan
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path))
 		{
 			handler.setProgress("Listing files in '" + dir + "' ...", 0, (int) Files.list(path).count());
-			StreamSupport.stream(stream.spliterator(), true).forEach(p -> {
+			StreamSupport.stream(stream.spliterator(), use_parallelism).forEach(p -> {
 				Container c;
 				File file = p.toFile();
 				if (null == (c = containers_byname.get(file.getName())) || c.modified != file.lastModified() || (c instanceof Archive && c.size != file.length()))
@@ -102,9 +107,8 @@ public class DirScan
 			Log.err("Other Exception when listing", e);
 		}
 		AtomicInteger i = new AtomicInteger(0);
-		boolean need_sha1 = true;
 		handler.setProgress("Scanning files in '" + dir + "'...", i.get(), containers.size());
-		containers.parallelStream().forEach(c -> {
+		(use_parallelism?containers.stream():containers.parallelStream()).forEach(c -> {
 			try
 			{
 				File f = c.file;
@@ -115,7 +119,9 @@ public class DirScan
 						String ext = FilenameUtils.getExtension(f.toString());
 						if (ext.equalsIgnoreCase("zip"))
 						{
-							try (FileSystem fs = FileSystems.newFileSystem(f.toPath(), null);)
+							Map<String,Object> env = new HashMap<>();
+							env.put("useTempFile", Boolean.TRUE);
+							try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+f.toURI()), env);)
 							{
 								final Path root = fs.getPath("/");
 								Files.walkFileTree(root, new SimpleFileVisitor<Path>()
@@ -128,7 +134,7 @@ public class DirScan
 										c.add(entry);
 										entry.size = (Long) attr.get("size");
 										entry.crc = String.format("%08x", attr.get("crc"));
-										try (InputStream is = new BufferedInputStream(Files.newInputStream(file)))
+										if(need_sha1) try (InputStream is = new BufferedInputStream(Files.newInputStream(file),8192))
 										{
 											MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
 											byte[] buffer = new byte[8192];

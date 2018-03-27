@@ -36,11 +36,11 @@ public class Scan
 
 	public Scan(Profile profile, File dstdir, List<File> srcdirs, ProgressHandler handler)
 	{
-		DirScan dstscan = new DirScan(dstdir, handler);
+		DirScan dstscan = new DirScan(profile, dstdir, handler);
 		List<DirScan> allscans = new ArrayList<>();
 		allscans.add(dstscan);
 		for(File dir : srcdirs)
-			allscans.add(new DirScan(dir, handler));
+			allscans.add(new DirScan(profile, dir, handler));
 
 		ArrayList<Container> unknown = new ArrayList<>();
 		for (Container c : dstscan.containers)
@@ -234,8 +234,8 @@ public class Scan
 					handler.setProgress(null, ++i);
 				}
 			}
-			report_w.println("Missing sets : " + missing_set + "/" + profile.machines.size());
-			report_w.println("Missing roms : " + missing_roms + "/" + profile.roms_bysha1.size());
+			report_w.println("Missing sets : " + missing_set + "/" + profile.machines_cnt);
+			report_w.println("Missing roms : " + missing_roms + "/" + profile.roms_cnt);
 		}
 		catch (FileNotFoundException e)
 		{

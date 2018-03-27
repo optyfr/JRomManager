@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import misc.Log;
 
 public class Import
 {
+	public File file;
+	
 	public Import(File file)
 	{
 		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
@@ -27,7 +28,7 @@ public class Import
 				tmpfile.deleteOnExit();
 				Process process = new ProcessBuilder(file.getAbsolutePath(),"-listxml").directory(file.getAbsoluteFile().getParentFile()).redirectOutput(tmpfile).start();
 				process.waitFor();
-				FileUtils.copyFileToDirectory(tmpfile, xmldir);
+				this.file = tmpfile;
 			}
 			catch(IOException e)
 			{
@@ -39,15 +40,8 @@ public class Import
 			}
 		}
 		else
-			try
-			{
-				FileUtils.copyFileToDirectory(file, xmldir);
-			}
-			catch(IOException e)
-			{
-				Log.err("Caught IO Exception", e);
-			}
+			this.file = file;
+		
+	
 	}
-	
-	
 }
