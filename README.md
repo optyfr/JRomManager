@@ -24,9 +24,10 @@ _Minimal usage requirements_:
 - Split Scan and Fix/Rebuild
 - Full SHA1 scan or on-need SHA1 scan in case of suspicious CRC32
 - Retain SHA1 in cache until zip file change
-- CHD support
+- CHD support (no separate dir from roms yet)
 - Per profile settings (what to fix, how to scan, ...)
-- MultiThreading support (at least for archive manipulation and checksum calculation)
+- MultiThreading support (at least for archive manipulation and checksum calculation, fast disks required)
+- MD5 support (for old dats)
 
 ## Short Term Planned Features
 - Better Dat Managing (with gui)
@@ -39,7 +40,6 @@ _Minimal usage requirements_:
 
 ## Middle Term Planned Features
 - 7z support
-- MD5 support (old dats)
 - TorrentZip support
 - Dir2Dat, Dat2Dat
 
