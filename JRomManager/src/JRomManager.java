@@ -55,7 +55,7 @@ import jrm.ui.Progress;
 public class JRomManager
 {
 
-	private JFrame frmJrommanager;
+	private JFrame mainFrame;
 	
 	private Profile curr_profile;
 	private Scan curr_scan;
@@ -63,22 +63,22 @@ public class JRomManager
 	private JButton btnScan;
 	private JButton btnFix;
 	private JTabbedPane tabbedPane;
-	private JPanel Profiles;
-	private JPanel scanner;
-	private JPanel panel;
+	private JPanel profilesTab;
+	private JPanel scannerTab;
+	private JPanel scannerSettingsPanel;
 	private JCheckBox chckbxNeedSHA1;
 	private JCheckBox chckbxUseParallelism;
 	private JComboBox<MergeOptions> cbbxMergeMode;
-	private JTree tree;
-	private JList<Object> list_1;
-	private JPanel panel_1;
-	private JButton button;
-	private JButton button_1;
-	private JSplitPane splitPane;
+	private JTree profilesTree;
+	private JList<Object> profilesList;
+	private JPanel profilesBtnPanel;
+	private JButton btnLoadProfile;
+	private JButton btnImportDat;
+	private JSplitPane profilesPanel;
 	private JTextField txtRomsDest;
 	private JButton btnRomsDest;
 	private JLabel lblRomsDest;
-	private JPanel panel_3;
+	private JPanel scannerBtnPanel;
 	private JPanel panel_4;
 	private JLabel lblMergeMode;
 	private JTextField textSrcDir;
@@ -97,7 +97,7 @@ public class JRomManager
 				try
 				{
 					JRomManager window = new JRomManager();
-					window.frmJrommanager.setVisible(true);
+					window.mainFrame.setVisible(true);
 				}
 				catch(Exception e)
 				{
@@ -138,98 +138,98 @@ public class JRomManager
 	@SuppressWarnings("serial")
 	private void initialize()
 	{
-		frmJrommanager = new JFrame();
-		frmJrommanager.setTitle("JRomManager");
-		frmJrommanager.setBounds(100, 100, 458, 313);
-		frmJrommanager.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmJrommanager.getContentPane().setLayout(new BorderLayout(0, 0));
+		mainFrame = new JFrame();
+		mainFrame.setTitle("JRomManager");
+		mainFrame.setBounds(100, 100, 458, 313);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		frmJrommanager.getContentPane().add(tabbedPane);
+		mainFrame.getContentPane().add(tabbedPane);
 		
-		Profiles = new JPanel();
-		tabbedPane.addTab("Profiles", null, Profiles, null);
-		GridBagLayout gbl_Profiles = new GridBagLayout();
-		gbl_Profiles.columnWidths = new int[]{0, 0};
-		gbl_Profiles.rowHeights = new int[]{0, 0, 0};
-		gbl_Profiles.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_Profiles.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-		Profiles.setLayout(gbl_Profiles);
+		profilesTab = new JPanel();
+		tabbedPane.addTab("Profiles", null, profilesTab, null);
+		GridBagLayout gbl_profilesTab = new GridBagLayout();
+		gbl_profilesTab.columnWidths = new int[]{0, 0};
+		gbl_profilesTab.rowHeights = new int[]{0, 0, 0};
+		gbl_profilesTab.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_profilesTab.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+		profilesTab.setLayout(gbl_profilesTab);
 		
-		splitPane = new JSplitPane();
-		splitPane.setResizeWeight(0.25);
-		splitPane.setOneTouchExpandable(true);
-		GridBagConstraints gbc_splitPane = new GridBagConstraints();
-		gbc_splitPane.insets = new Insets(0, 0, 5, 0);
-		gbc_splitPane.fill = GridBagConstraints.BOTH;
-		gbc_splitPane.gridx = 0;
-		gbc_splitPane.gridy = 0;
-		Profiles.add(splitPane, gbc_splitPane);
+		profilesPanel = new JSplitPane();
+		profilesPanel.setResizeWeight(0.25);
+		profilesPanel.setOneTouchExpandable(true);
+		GridBagConstraints gbc_profilesPanel = new GridBagConstraints();
+		gbc_profilesPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_profilesPanel.fill = GridBagConstraints.BOTH;
+		gbc_profilesPanel.gridx = 0;
+		gbc_profilesPanel.gridy = 0;
+		profilesTab.add(profilesPanel, gbc_profilesPanel);
 		
-		tree = new JTree();
-		splitPane.setLeftComponent(tree);
-		tree.setSelectionRows(new int[] {5});
-		tree.setModel(new DefaultTreeModel(
+		profilesTree = new JTree();
+		profilesPanel.setLeftComponent(profilesTree);
+		profilesTree.setSelectionRows(new int[] {5});
+		profilesTree.setModel(new DefaultTreeModel(
 			new DefaultMutableTreeNode("JTree") {
 				{
 				}
 			}
 		));
-		tree.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		tree.setRootVisible(false);
-		tree.setEditable(true);
+		profilesTree.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		profilesTree.setRootVisible(false);
+		profilesTree.setEditable(true);
 		
-		list_1 = new JList<Object>();
-		splitPane.setRightComponent(list_1);
-		list_1.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		profilesList = new JList<Object>();
+		profilesPanel.setRightComponent(profilesList);
+		profilesList.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		
-		panel_1 = new JPanel();
-		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
-		gbc_panel_1.fill = GridBagConstraints.HORIZONTAL;
-		gbc_panel_1.gridx = 0;
-		gbc_panel_1.gridy = 1;
-		Profiles.add(panel_1, gbc_panel_1);
+		profilesBtnPanel = new JPanel();
+		GridBagConstraints gbc_profilesBtnPanel = new GridBagConstraints();
+		gbc_profilesBtnPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_profilesBtnPanel.gridx = 0;
+		gbc_profilesBtnPanel.gridy = 1;
+		profilesTab.add(profilesBtnPanel, gbc_profilesBtnPanel);
 		
-		button = new JButton("Load Profile");
-		button.addActionListener(new ActionListener() {
+		btnLoadProfile = new JButton("Load Profile");
+		btnLoadProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loadProfile();
 			}
 		});
-		panel_1.add(button);
+		profilesBtnPanel.add(btnLoadProfile);
 		
-		button_1 = new JButton("Import Dat");
-		button_1.addActionListener(new ActionListener() {
+		btnImportDat = new JButton("Import Dat");
+		btnImportDat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				importDat();
 			}
 		});
-		panel_1.add(button_1);
+		profilesBtnPanel.add(btnImportDat);
 		
-		scanner = new JPanel();
-		tabbedPane.addTab("Scanner", null, scanner, null);
+		scannerTab = new JPanel();
+		tabbedPane.addTab("Scanner", null, scannerTab, null);
 		tabbedPane.setEnabledAt(1, false);
-		GridBagLayout gbl_scanner = new GridBagLayout();
-		gbl_scanner.columnWidths = new int[]{104, 0};
-		gbl_scanner.rowHeights = new int[]{0, 33, 0};
-		gbl_scanner.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_scanner.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		scanner.setLayout(gbl_scanner);
+		GridBagLayout gbl_scannerTab = new GridBagLayout();
+		gbl_scannerTab.columnWidths = new int[]{104, 0};
+		gbl_scannerTab.rowHeights = new int[]{0, 33, 0};
+		gbl_scannerTab.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_scannerTab.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		scannerTab.setLayout(gbl_scannerTab);
 		
-		panel_3 = new JPanel();
-		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
-		gbc_panel_3.insets = new Insets(0, 0, 5, 0);
-		gbc_panel_3.fill = GridBagConstraints.BOTH;
-		gbc_panel_3.gridx = 0;
-		gbc_panel_3.gridy = 0;
-		scanner.add(panel_3, gbc_panel_3);
+		scannerBtnPanel = new JPanel();
+		GridBagConstraints gbc_scannerBtnPanel = new GridBagConstraints();
+		gbc_scannerBtnPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_scannerBtnPanel.fill = GridBagConstraints.BOTH;
+		gbc_scannerBtnPanel.gridx = 0;
+		gbc_scannerBtnPanel.gridy = 0;
+		scannerTab.add(scannerBtnPanel, gbc_scannerBtnPanel);
 		
 		btnScan = new JButton("Scan");
-		panel_3.add(btnScan);
+		scannerBtnPanel.add(btnScan);
 		btnScan.setEnabled(false);
 		
 		btnFix = new JButton("Fix");
-		panel_3.add(btnFix);
+		scannerBtnPanel.add(btnFix);
 		btnFix.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				fix();
@@ -242,21 +242,21 @@ public class JRomManager
 			}
 		});
 		
-		panel = new JPanel();
-		panel.setBorder(new TitledBorder(null, "Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.ipady = 20;
-		gbc_panel.insets = new Insets(0, 0, 5, 0);
-		gbc_panel.fill = GridBagConstraints.BOTH;
-		gbc_panel.gridx = 0;
-		gbc_panel.gridy = 1;
-		scanner.add(panel, gbc_panel);
-		GridBagLayout gbl_panel = new GridBagLayout();
-		gbl_panel.columnWidths = new int[]{301, 0};
-		gbl_panel.rowHeights = new int[]{20, 20, 20, 0, 20, 0};
-		gbl_panel.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		panel.setLayout(gbl_panel);
+		scannerSettingsPanel = new JPanel();
+		scannerSettingsPanel.setBorder(new TitledBorder(null, "Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_scannerSettingsPanel = new GridBagConstraints();
+		gbc_scannerSettingsPanel.ipady = 20;
+		gbc_scannerSettingsPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_scannerSettingsPanel.fill = GridBagConstraints.BOTH;
+		gbc_scannerSettingsPanel.gridx = 0;
+		gbc_scannerSettingsPanel.gridy = 1;
+		scannerTab.add(scannerSettingsPanel, gbc_scannerSettingsPanel);
+		GridBagLayout gbl_scannerSettingsPanel = new GridBagLayout();
+		gbl_scannerSettingsPanel.columnWidths = new int[]{301, 0};
+		gbl_scannerSettingsPanel.rowHeights = new int[]{20, 20, 20, 0, 20, 0};
+		gbl_scannerSettingsPanel.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_scannerSettingsPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		scannerSettingsPanel.setLayout(gbl_scannerSettingsPanel);
 		
 		chckbxNeedSHA1 = new JCheckBox("Calculate all SHA1");
 		chckbxNeedSHA1.addItemListener(new ItemListener() {
@@ -270,7 +270,7 @@ public class JRomManager
 		gbc_chckbxNeedSHA1.insets = new Insets(0, 0, 5, 0);
 		gbc_chckbxNeedSHA1.gridx = 0;
 		gbc_chckbxNeedSHA1.gridy = 0;
-		panel.add(chckbxNeedSHA1, gbc_chckbxNeedSHA1);
+		scannerSettingsPanel.add(chckbxNeedSHA1, gbc_chckbxNeedSHA1);
 		
 		chckbxUseParallelism = new JCheckBox("Enable MultiThreading");
 		chckbxUseParallelism.addItemListener(new ItemListener() {
@@ -284,7 +284,7 @@ public class JRomManager
 		gbc_chckbxUseParallelism.fill = GridBagConstraints.BOTH;
 		gbc_chckbxUseParallelism.gridx = 0;
 		gbc_chckbxUseParallelism.gridy = 1;
-		panel.add(chckbxUseParallelism, gbc_chckbxUseParallelism);
+		scannerSettingsPanel.add(chckbxUseParallelism, gbc_chckbxUseParallelism);
 		
 		panel_4 = new JPanel();
 		GridBagConstraints gbc_panel_4 = new GridBagConstraints();
@@ -292,7 +292,7 @@ public class JRomManager
 		gbc_panel_4.fill = GridBagConstraints.BOTH;
 		gbc_panel_4.gridx = 0;
 		gbc_panel_4.gridy = 2;
-		panel.add(panel_4, gbc_panel_4);
+		scannerSettingsPanel.add(panel_4, gbc_panel_4);
 		GridBagLayout gbl_panel_4 = new GridBagLayout();
 		gbl_panel_4.columnWidths = new int[]{0, 0, 0, 0};
 		gbl_panel_4.rowHeights = new int[]{0, 8, 0, 0};
@@ -352,7 +352,7 @@ public class JRomManager
 					setFileSelectionMode(DIRECTORIES_ONLY);
 					setSelectedFile(new File(txtRomsDest.getText()));
 					setDialogTitle("Choose Roms Destination");
-					if(showOpenDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
+					if(showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION)
 					{
 						txtRomsDest.setText(getSelectedFile().getAbsolutePath());
 						curr_profile.setProperty("roms_dest_dir", txtRomsDest.getText());
@@ -398,7 +398,7 @@ public class JRomManager
 					setFileSelectionMode(DIRECTORIES_ONLY);
 					setSelectedFile(new File(textSrcDir.getText()));
 					setDialogTitle("Choose Source Dir");
-					if(showOpenDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
+					if(showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION)
 					{
 						textSrcDir.setText(getSelectedFile().getAbsolutePath());
 						curr_profile.setProperty("src_dir", textSrcDir.getText());
@@ -412,7 +412,11 @@ public class JRomManager
 		gbc_btnSrcDir.gridy = 2;
 		panel_4.add(btnSrcDir, gbc_btnSrcDir);
 		
-		frmJrommanager.pack();
+		settingsTab = new JPanel();
+		tabbedPane.addTab("Settings", null, settingsTab, null);
+		tabbedPane.setEnabledAt(2, true);
+		
+		mainFrame.pack();
 	}
 
 	@SuppressWarnings("serial")
@@ -424,7 +428,7 @@ public class JRomManager
 			{{
 				addChoosableFileFilter(new FileNameExtensionFilter("Dat file", "dat", "xml"));
 				addChoosableFileFilter(new FileNameExtensionFilter("Mame executable", "exe"));
-				if(showOpenDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
+				if(showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION)
 				{
 					Import imprt = new Import(getSelectedFile());
 					new JFileChooser()
@@ -432,7 +436,7 @@ public class JRomManager
 						setFileSelectionMode(JFileChooser.FILES_ONLY);
 						setDialogType(JFileChooser.SAVE_DIALOG);
 						setSelectedFile(imprt.file);
-						if(showSaveDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
+						if(showSaveDialog(mainFrame) == JFileChooser.APPROVE_OPTION)
 						{
 							FileUtils.copyFile(imprt.file, getSelectedFile());
 						}
@@ -457,9 +461,9 @@ public class JRomManager
 			File workdir = Paths.get("./xmlfiles").toAbsolutePath().normalize().toFile();
 			setCurrentDirectory(workdir);
 			addChoosableFileFilter(new FileNameExtensionFilter("Dat file", "dat", "xml"));
-			if(showOpenDialog(frmJrommanager) == JFileChooser.APPROVE_OPTION)
+			if(showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION)
 			{
-				final Progress progress = new Progress(frmJrommanager);
+				final Progress progress = new Progress(mainFrame);
 				SwingWorker<Void,Void> worker = new SwingWorker<Void,Void>(){
 					boolean success = false;
 					
@@ -514,7 +518,7 @@ public class JRomManager
 			srcdirs.add(srcdir);
 		}
 
-		final Progress progress = new Progress(frmJrommanager);
+		final Progress progress = new Progress(mainFrame);
 		SwingWorker<Void,Void> worker = new SwingWorker<Void,Void>(){
 
 			@Override
@@ -539,7 +543,7 @@ public class JRomManager
 	
 	private void fix()
 	{
-		final Progress progress = new Progress(frmJrommanager);
+		final Progress progress = new Progress(mainFrame);
 		SwingWorker<Void,Void> worker = new SwingWorker<Void,Void>(){
 
 			@Override
@@ -586,6 +590,7 @@ public class JRomManager
 	}
 
 	private Properties settings = null;
+	private JPanel settingsTab;
 	
 	private File getSettingsFile()
 	{
