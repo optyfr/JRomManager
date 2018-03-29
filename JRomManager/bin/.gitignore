@@ -20,10 +20,11 @@
 /JRomManager$8.class
 /JRomManager$9.class
 /JRomManager.class
-/actions/
-/data/
-/io/
-/misc/
-/profiler/
-/ui/
+/jrm.actions/
+/jrm.data/
+/jrm.io/
+/jrm.misc/
+/jrm.profiler/
+/jrm.ui/
 /JRomManager$16$1.class
+/jrm/

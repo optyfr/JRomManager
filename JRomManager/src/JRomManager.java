@@ -43,14 +43,14 @@ import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.commons.io.FileUtils;
 
-import actions.ContainerAction;
-import misc.BreakException;
-import misc.Log;
-import profiler.Import;
-import profiler.Profile;
-import profiler.Scan;
-import profiler.scan.MergeOptions;
-import ui.Progress;
+import jrm.actions.ContainerAction;
+import jrm.misc.BreakException;
+import jrm.misc.Log;
+import jrm.profiler.Import;
+import jrm.profiler.Profile;
+import jrm.profiler.Scan;
+import jrm.profiler.scan.MergeOptions;
+import jrm.ui.Progress;
 
 public class JRomManager
 {
@@ -261,7 +261,7 @@ public class JRomManager
 		chckbxNeedSHA1 = new JCheckBox("Calculate all SHA1");
 		chckbxNeedSHA1.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				curr_profile.setProperty("need_sha1", e.getStateChange()==ItemEvent.SELECTED);
+				curr_profile.setProperty("need_sha1_or_md5", e.getStateChange()==ItemEvent.SELECTED);
 			}
 		});
 		chckbxNeedSHA1.setToolTipText("Calculate SHA1 while scanning new files, even if CRC is not suspicious (Slow process)");
@@ -579,7 +579,7 @@ public class JRomManager
 	
 	public void initScanSettings()
 	{
-		chckbxNeedSHA1.setSelected(curr_profile.getProperty("need_sha1", false));
+		chckbxNeedSHA1.setSelected(curr_profile.getProperty("need_sha1_or_md5", false));
 		chckbxUseParallelism.setSelected(curr_profile.getProperty("use_parallelism", false));
 		txtRomsDest.setText(curr_profile.getProperty("roms_dest_dir", ""));
 		textSrcDir.setText(curr_profile.getProperty("src_dir", ""));
