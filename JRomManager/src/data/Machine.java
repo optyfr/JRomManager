@@ -16,6 +16,7 @@ public class Machine implements Serializable
 	public boolean isdevice =false;
 	
 	public ArrayList<Rom> roms = new ArrayList<>();
+	public ArrayList<Disk> disks = new ArrayList<>();
 	
 	public Machine()
 	{

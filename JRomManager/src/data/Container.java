@@ -2,7 +2,9 @@ package data;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collection;
+import java.util.HashMap;
 
 @SuppressWarnings("serial")
 public class Container implements Serializable
@@ -10,44 +12,56 @@ public class Container implements Serializable
 	public File file;
 	public long modified;
 	public long size = 0;
-	public ArrayList<Entry> entries = new ArrayList<>();
-	
+	public HashMap<String, Entry> entries_byname = new HashMap<>();
+
 	public transient boolean up2date = false;
 	public int loaded = 0;
-	
-	protected enum Type
+
+	public enum Type
 	{
-		ARC, DIR
+		ZIP, DIR
 	};
 
 	private Type type;
-	
-	protected Container(Type type, File file, boolean create)
-	{
-		this.type = type;
-		this.file = file;
-		if(!create)
-		{
-			this.modified = file.lastModified();
-			if(type==Type.ARC)
-				this.size = file.length();
-		}
-	}
 
 	protected Container(Type type, File file)
 	{
-		this(type,file,false);
+		this.type = type;
+		this.file = file;
 	}
 
-	public void add(Entry e)
+	protected Container(Type type, File file, BasicFileAttributes attr)
 	{
-		entries.add(e);
+		this(type, file);
+		this.modified = attr.lastModifiedTime().toMillis();
+		if (type == Type.ZIP)
+			this.size = attr.size();
+	}
+
+	public Entry add(Entry e)
+	{
+		Entry old_e;
+		if(null!=(old_e=entries_byname.get(e.file)))
+			if(old_e.modified  == e.modified && old_e.size == e.size)
+				return old_e;
+		entries_byname.put(e.file, e);
 		e.parent = this;
+		return e;
+	}
+
+	public Entry find(Entry e)
+	{
+		return entries_byname.get(e.file);
+	}
+
+	public Collection<Entry> getEntries()
+	{
+		return entries_byname.values();
 	}
 	
-	protected Type getType()
+	public Type getType()
 	{
 		return type;
 	}
-	
+
 }

@@ -11,12 +11,11 @@ import java.awt.Window;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
-
-import javax.swing.JLabel;
 
 public class Progress extends JDialog implements ProgressHandler
 {
@@ -151,9 +150,9 @@ public class Progress extends JDialog implements ProgressHandler
 			if(val==0)
 				startTime = System.currentTimeMillis();
 			if(val>0)
-				lblTimeleft.setText(DurationFormatUtils.formatDuration((long)((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val), "HH:mm:ss"));
+				lblTimeleft.setText(DurationFormatUtils.formatDuration((long)((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val), "HH:mm:ss")+" / "+DurationFormatUtils.formatDuration((long)((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val), "HH:mm:ss"));
 			else
-				lblTimeleft.setText("--:--:--");
+				lblTimeleft.setText("--:--:-- / --:--:--");
 		}
 		// if(submsg!=null)
 		progressBar.setString(submsg);

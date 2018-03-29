@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,6 +24,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import data.Disk;
 import data.Machine;
 import data.Rom;
 import misc.Log;
@@ -35,11 +37,12 @@ public class Profile implements Serializable
 
 	long machines_cnt = 0;
 	long roms_cnt = 0;
+	long disks_cnt = 0;
 
 	String build;
 	ArrayList<Machine> machines = new ArrayList<>();
 	HashMap<String, Machine> machines_byname = new HashMap<>();
-	// HashMap<String,Rom> roms_bycrc = new HashMap<>();
+	HashSet<String> suspicious_crc = new HashSet<>();
 	// HashMap<String,Rom> roms_bysha1 = new HashMap<>();
 	
 	transient Properties settings = null;
@@ -59,10 +62,12 @@ public class Profile implements Serializable
 			SAXParser parser = factory.newSAXParser();
 			parser.parse(file, new DefaultHandler()
 			{
+				private HashMap<String,Rom> roms_bycrc = new HashMap<>();
 				private boolean in_machine = false;
 				private boolean in_description = false;
 				private Machine curr_machine = null;
 				private Rom curr_rom = null;
+				private Disk curr_disk = null;
 
 				@Override
 				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
@@ -118,18 +123,16 @@ public class Profile implements Serializable
 								switch (attributes.getQName(i))
 								{
 									case "name":
-										curr_rom.name = attributes.getValue(i);
+										curr_rom.setName(attributes.getValue(i));
 										break;
 									case "size":
 										curr_rom.size = Long.decode(attributes.getValue(i));
 										break;
 									case "crc":
 										curr_rom.crc = attributes.getValue(i);
-										// roms_bycrc.put(curr_rom.crc, curr_rom);
 										break;
 									case "sha1":
 										curr_rom.sha1 = attributes.getValue(i);
-										// roms_bysha1.put(curr_rom.sha1, curr_rom);
 										break;
 									case "merge":
 										curr_rom.merge = attributes.getValue(i);
@@ -144,6 +147,32 @@ public class Profile implements Serializable
 							}
 						}
 					}
+					else if (qName.equals("disk"))
+					{
+						if (in_machine)
+						{
+							curr_machine.disks.add(curr_disk = new Disk());
+							disks_cnt++;
+							for (int i = 0; i < attributes.getLength(); i++)
+							{
+								switch (attributes.getQName(i))
+								{
+									case "name":
+										curr_disk.setName(attributes.getValue(i));
+										break;
+									case "sha1":
+										curr_disk.sha1 = attributes.getValue(i);
+										break;
+									case "merge":
+										curr_disk.merge = attributes.getValue(i);
+										break;
+									case "status":
+										curr_disk.status = attributes.getValue(i);
+										break;
+								}
+							}
+						}
+					}
 				}
 
 				@Override
@@ -153,6 +182,18 @@ public class Profile implements Serializable
 					{
 						in_machine = false;
 						handler.setProgress(String.format("Loaded Sets/Roms %d/%d", machines_cnt, roms_cnt));
+					}
+					else if (qName.equals("rom"))
+					{
+						if(curr_rom.crc!=null)
+						{
+							Rom old_rom = roms_bycrc.put(curr_rom.crc, curr_rom);
+							if (old_rom != null && old_rom.sha1 != null && curr_rom.sha1 != null && !old_rom.equals(curr_rom))
+								suspicious_crc.add(curr_rom.crc);
+						}
+					}
+					else if (qName.equals("disk"))
+					{
 					}
 					else if (qName.equals("description"))
 					{
@@ -178,6 +219,10 @@ public class Profile implements Serializable
 		catch (IOException e)
 		{
 			Log.err("IO Exception", e);
+		}
+		catch (Throwable e)
+		{
+			Log.err("Other Exception", e);
 		}
 		return false;
 	}

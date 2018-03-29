@@ -39,7 +39,7 @@ import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.commons.io.FileUtils;
 
-import actions.SetAction;
+import actions.ContainerAction;
 import misc.Log;
 import profiler.Import;
 import profiler.Profile;
@@ -244,13 +244,13 @@ public class JRomManager
 		gbl_panel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel.setLayout(gbl_panel);
 		
-		chckbxNeedSHA1 = new JCheckBox("Calculate SHA1");
+		chckbxNeedSHA1 = new JCheckBox("Calculate all SHA1");
 		chckbxNeedSHA1.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				curr_profile.setProperty("need_sha1", e.getStateChange()==ItemEvent.SELECTED);
 			}
 		});
-		chckbxNeedSHA1.setToolTipText("Calculate SHA1 while scanning new files (Slow process)");
+		chckbxNeedSHA1.setToolTipText("Calculate SHA1 while scanning new files, even if CRC is not suspicious (Slow process)");
 		GridBagConstraints gbc_chckbxNeedSHA1 = new GridBagConstraints();
 		gbc_chckbxNeedSHA1.fill = GridBagConstraints.BOTH;
 		gbc_chckbxNeedSHA1.insets = new Insets(0, 0, 5, 0);
@@ -264,7 +264,7 @@ public class JRomManager
 				curr_profile.setProperty("use_parallelism", e.getStateChange()==ItemEvent.SELECTED);
 			}
 		});
-		chckbxUseParallelism.setToolTipText("Use all CPU (SSD recommended)");
+		chckbxUseParallelism.setToolTipText("Use all CPU while scanning and fixing, SSD is STRONGLY recommended otherwise you may get slower results!");
 		GridBagConstraints gbc_chckbxUseParallelism = new GridBagConstraints();
 		gbc_chckbxUseParallelism.insets = new Insets(0, 0, 5, 0);
 		gbc_chckbxUseParallelism.fill = GridBagConstraints.BOTH;
@@ -361,7 +361,12 @@ public class JRomManager
 		panel_4.add(lblSrcDir, gbc_lblSrcDir);
 		
 		textSrcDir = new JTextField();
-		textSrcDir.setColumns(10);
+		textSrcDir.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				curr_profile.setProperty("src_dir", textSrcDir.getText());
+			}
+		});
 		GridBagConstraints gbc_textSrcDir = new GridBagConstraints();
 		gbc_textSrcDir.insets = new Insets(0, 0, 5, 0);
 		gbc_textSrcDir.fill = GridBagConstraints.BOTH;
@@ -526,7 +531,7 @@ public class JRomManager
 			{
 				int i = 0;
 				progress.setProgress("Fixing...", i, curr_scan.actions.size());
-				Iterator<SetAction> actionsIterator = curr_scan.actions.iterator();
+				Iterator<ContainerAction> actionsIterator = curr_scan.actions.iterator();
 				while (actionsIterator.hasNext())
 				{
 					if (!actionsIterator.next().doAction(progress))
