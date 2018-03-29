@@ -20,9 +20,9 @@ _Minimal usage requirements_:
 - Import from Mame executable
 - Dat parsing caching via Java Serialization
 - Optimized to permit scan over shared network
-- Dir scan caching via Java Serialization based on FileMDate+FileSize, one cache file by romdir, reusable between Dat if same romdir
-- Split Fix/Rebuild
-- SHA1 optional scan (instead of CRC32 + FileSize comparison)
+- Dir scan caching via Java Serialization based on FileMDate+FileSize, one cache file per romdir, reusable between different Dat Scans if same dir used
+- Split Scan and Fix/Rebuild
+- Full SHA1 scan or on-need SHA1 scan in case of suspicious CRC32
 - Retain SHA1 in cache until zip file change
 - CHD support
 - Per profile settings (what to fix, how to scan, ...)
@@ -38,12 +38,14 @@ _Minimal usage requirements_:
 - Enhanced Gui with Report
 
 ## Middle Term Planned Features
-- 7z support (at least decompression)
+- 7z support
+- MD5 support (old dats)
 - TorrentZip support
 - Dir2Dat, Dat2Dat
 
 ## Long Term Planned Features and Ideas
 - Other Dat formats
 - Interoperability with other managers?
+- Torrent7Z support ?
 - Batch mode?
 
