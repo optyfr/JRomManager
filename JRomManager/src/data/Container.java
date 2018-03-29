@@ -5,6 +5,9 @@ import java.io.Serializable;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("serial")
 public class Container implements Serializable
@@ -19,10 +22,10 @@ public class Container implements Serializable
 
 	public enum Type
 	{
-		ZIP, DIR
+		UNK, ZIP, DIR
 	};
 
-	private Type type;
+	private Type type = Type.UNK;
 
 	protected Container(Type type, File file)
 	{
@@ -57,6 +60,11 @@ public class Container implements Serializable
 	public Collection<Entry> getEntries()
 	{
 		return entries_byname.values();
+	}
+	
+	public Map<String,Entry> getEntriesByName()
+	{
+		return entries_byname.values().stream().collect(Collectors.toMap(Entry::getName, Function.identity(), (n, e) -> n));		
 	}
 	
 	public Type getType()

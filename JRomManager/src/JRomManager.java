@@ -10,11 +10,15 @@ import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -40,6 +44,7 @@ import javax.swing.tree.DefaultTreeModel;
 import org.apache.commons.io.FileUtils;
 
 import actions.ContainerAction;
+import misc.BreakException;
 import misc.Log;
 import profiler.Import;
 import profiler.Profile;
@@ -107,6 +112,15 @@ public class JRomManager
 	 */
 	public JRomManager()
 	{
+		try
+		{
+			loadSettings();
+		//	UIManager.setLookAndFeel(getProperty("LookAndFeel",  UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName()*/));
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 		initialize();
 		Runtime.getRuntime().addShutdownHook(new Thread()
 		{
@@ -507,7 +521,9 @@ public class JRomManager
 			protected Void doInBackground() throws Exception
 			{
 				curr_scan = new Scan(curr_profile, dstdir, srcdirs, progress);
-				btnFix.setEnabled(curr_scan.actions.size()>0);
+				AtomicInteger actions_todo = new AtomicInteger(0);
+				curr_scan.actions.forEach(actions -> actions_todo.addAndGet(actions.size()));
+				btnFix.setEnabled(actions_todo.get()>0);
 				return null;
 			}
 			
@@ -529,17 +545,25 @@ public class JRomManager
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				int i = 0;
-				progress.setProgress("Fixing...", i, curr_scan.actions.size());
-				Iterator<ContainerAction> actionsIterator = curr_scan.actions.iterator();
-				while (actionsIterator.hasNext())
-				{
-					if (!actionsIterator.next().doAction(progress))
-						break;
-					actionsIterator.remove();
-					progress.setProgress(null, ++i);
-				}
-				btnFix.setEnabled(curr_scan.actions.size()>0);
+				boolean use_parallelism = curr_profile.getProperty("use_parallelism", false);
+				AtomicInteger i = new AtomicInteger(0), max = new AtomicInteger(0);
+				curr_scan.actions.forEach(actions -> max.addAndGet(actions.size()));
+				progress.setProgress("Fixing...", i.get(), max.get());
+				curr_scan.actions.forEach(actions -> {
+					List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
+					(use_parallelism?actions.parallelStream():actions.stream()).forEach(action -> {
+						if (!action.doAction(progress))
+							throw new BreakException();
+						done.add(action);
+						if(progress.isCancel())
+							throw new BreakException();
+						progress.setProgress(null, i.incrementAndGet());
+					});
+					actions.removeAll(done);
+				});
+				AtomicInteger actions_remain = new AtomicInteger(0);
+				curr_scan.actions.forEach(actions -> actions_remain.addAndGet(actions.size()));
+				btnFix.setEnabled(actions_remain.get()>0);
 				return null;
 			}
 			
@@ -559,5 +583,68 @@ public class JRomManager
 		chckbxUseParallelism.setSelected(curr_profile.getProperty("use_parallelism", false));
 		txtRomsDest.setText(curr_profile.getProperty("roms_dest_dir", ""));
 		textSrcDir.setText(curr_profile.getProperty("src_dir", ""));
+	}
+
+	private Properties settings = null;
+	
+	private File getSettingsFile()
+	{
+		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
+		File cachedir = new File(workdir, "settings");
+		File settingsfile = new File(cachedir, getClass().getCanonicalName() + ".xml");
+		settingsfile.getParentFile().mkdirs();
+		return settingsfile;
+		
+	}
+
+	public void saveSettings()
+	{
+		if(settings==null)
+			settings = new Properties();
+		try(FileOutputStream os = new FileOutputStream(getSettingsFile()))
+		{
+			settings.storeToXML(os, null);
+		}
+		catch (IOException e)
+		{
+			Log.err("IO", e);
+		}
+	}
+	
+	public void loadSettings()
+	{
+		if(settings==null)
+			settings = new Properties();
+		if(getSettingsFile().exists())
+		{
+			try(FileInputStream is = new FileInputStream(getSettingsFile()))
+			{
+				settings.loadFromXML(is);
+			}
+			catch (IOException e)
+			{
+				Log.err("IO", e);
+			}
+		}
+	}
+	
+	public void setProperty(String property, boolean value)
+	{
+		settings.setProperty(property, Boolean.toString(value));
+	}
+	
+	public void setProperty(String property, String value)
+	{
+		settings.setProperty(property, value);
+	}
+	
+	public boolean getProperty(String property, boolean def)
+	{
+		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
+	}
+	
+	public String getProperty(String property, String def)
+	{
+		return settings.getProperty(property, def);
 	}
 }

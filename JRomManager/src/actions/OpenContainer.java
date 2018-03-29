@@ -17,6 +17,13 @@ public class OpenContainer extends ContainerAction
 	{
 		super(container);
 	}
+	
+	public static OpenContainer getInstance(OpenContainer action, Container container)
+	{
+		if(action == null)
+			action = new OpenContainer(container);
+		return action;
+	}
 
 	@Override
 	public boolean doAction(ProgressHandler handler)

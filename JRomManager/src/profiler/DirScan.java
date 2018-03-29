@@ -39,6 +39,7 @@ import data.Disk;
 import data.Entry;
 import data.Rom;
 import io.CHDInfoReader;
+import misc.BreakException;
 import misc.Log;
 import ui.ProgressHandler;
 
@@ -49,11 +50,12 @@ public class DirScan
 	Map<String, Container> containers_byname = Collections.synchronizedMap(new HashMap<>());
 	Map<String, Entry> entries_bycrc = Collections.synchronizedMap(new HashMap<>());
 	Map<String, Entry> entries_bysha1 = Collections.synchronizedMap(new HashMap<>());
+	Map<String, Entry> entries_bymd5 = Collections.synchronizedMap(new HashMap<>());
 
 	boolean need_sha1 = true;
 	boolean use_parallelism = true;
 
-	public DirScan(Profile profile, File dir, ProgressHandler handler)
+	public DirScan(Profile profile, File dir, ProgressHandler handler) throws BreakException
 	{
 		need_sha1 = profile.getProperty("need_sha1", false);
 		use_parallelism = profile.getProperty("use_parallelism", false);
@@ -98,6 +100,8 @@ public class DirScan
 						containers.add(c);
 					}
 					handler.setProgress("Listing files in '" + dir + "'... (" + containers.size() + ")", containers.size());
+					if(handler.isCancel())
+						throw new BreakException();
 				}
 				catch (IOException e)
 				{
@@ -112,6 +116,10 @@ public class DirScan
 		catch (IOException e)
 		{
 			Log.err("IOException when listing", e);
+		}
+		catch (BreakException e)
+		{
+			throw e;
 		}
 		catch (Throwable e)
 		{
@@ -181,10 +189,16 @@ public class DirScan
 					c.loaded = need_sha1 ? 2 : 1;
 				}
 				handler.setProgress("Scanned " + f.getName(), i.incrementAndGet(), null, i.get() + "/" + containers.size() + " (" + (int) (i.get() * 100.0 / containers.size()) + "%)");
+				if(handler.isCancel())
+					throw new BreakException();
 			}
 			catch (IOException e)
 			{
 				Log.err("IOException when scanning", e);
+			}
+			catch (BreakException e)
+			{
+				throw e;
 			}
 			catch (Throwable e)
 			{
@@ -211,37 +225,61 @@ public class DirScan
 			entry.crc = String.format("%08x", entry_zip_attrs.get("crc"));
 			entries_bycrc.put(entry.crc + "." + entry.size, entry);
 		}
-		if (entry.sha1 == null && (need_sha1 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
+		if (entry.sha1 == null && entry.md5 == null && (need_sha1 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
 		{
 			if (entry_path == null)
 				entry_path = getPath(entry);
 			if(entry.type==Entry.Type.CHD)
 			{
 				CHDInfoReader chd_info = new CHDInfoReader(entry_path.toFile());
-				entry.sha1 = chd_info.getSHA1();
-				entries_bysha1.put(entry.sha1, entry);
+				if(profile.sha1_disks)
+					if(null!=(entry.sha1 = chd_info.getSHA1()))
+						entries_bysha1.put(entry.sha1, entry);
+				if(profile.md5_disks)
+					if(null!=(entry.md5 = chd_info.getMD5()))
+						entries_bymd5.put(entry.md5, entry);
 			}
 			else
 			{
-				try (InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
-				{
-					MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-					byte[] buffer = new byte[8192];
-					int len = is.read(buffer);
-					while (len != -1)
-					{
-						sha1.update(buffer, 0, len);
-						len = is.read(buffer);
-					}
-					entry.sha1 = Hex.encodeHexString(sha1.digest());
-					entries_bysha1.put(entry.sha1, entry);
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
+				if(profile.sha1_roms) 
+					if(null!=(entry.sha1 = computeSHA1(entry_path)))
+						entries_bysha1.put(entry.sha1, entry);
+				if(profile.md5_roms) 
+					if(null!=(entry.md5 = computeMD5(entry_path)))
+						entries_bymd5.put(entry.sha1, entry);
 			}
 		}
+	}
+	
+	private String computeSHA1(Path entry_path)
+	{
+		return computeHash(entry_path, "SHA-1");
+	}
+	
+	private String computeMD5(Path entry_path)
+	{
+		return computeHash(entry_path, "MD5");
+	}
+	
+	private String computeHash(Path entry_path, String algorithm)
+	{
+		try (InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
+		{
+			MessageDigest digest = MessageDigest.getInstance(algorithm);
+			byte[] buffer = new byte[8192];
+			int len = is.read(buffer);
+			while (len != -1)
+			{
+				digest.update(buffer, 0, len);
+				len = is.read(buffer);
+			}
+			return Hex.encodeHexString(digest.digest());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	private Path getPath(Entry entry) throws IOException
@@ -254,18 +292,23 @@ public class DirScan
 	
 	public Entry find_byhash(Rom r)
 	{
+		Entry entry = null;
 		if (r.sha1 != null)
-		{
-			Entry entry = null;
 			if (null != (entry = entries_bysha1.get(r.sha1)))
 				return entry;
-		}
+		if (r.md5 != null)
+			if (null != (entry = entries_bymd5.get(r.md5)))
+				return entry;
 		return entries_bycrc.get(r.crc + "." + r.size);
 	}
 
 	public Entry find_byhash(Disk d)
 	{
-		return entries_bysha1.get(d.sha1);
+		Entry entry = null;
+		if (d.sha1 != null)
+			if (null != (entry = entries_bysha1.get(d.sha1)))
+				return entry;
+		return entries_bymd5.get(d.md5);
 	}
 
 	private static File getCacheFile(File file)

@@ -15,6 +15,13 @@ public class DeleteContainer extends ContainerAction
 		super(container);
 	}
 
+	public static DeleteContainer getInstance(DeleteContainer action, Container container)
+	{
+		if(action == null)
+			action = new DeleteContainer(container);
+		return action;
+	}
+
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
@@ -33,6 +40,8 @@ public class DeleteContainer extends ContainerAction
 				return false;
 			}
 		}
+		else if(container.getType()==Container.Type.UNK)
+			return container.file.delete();
 		return false;
 	}
 

@@ -26,7 +26,7 @@ public class Archive extends Container implements Serializable
 		{
 			case "zip": return Type.ZIP;
 		}
-		return null;
+		return Type.UNK;
 	}
 
 }

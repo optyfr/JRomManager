@@ -27,6 +27,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import data.Disk;
 import data.Machine;
 import data.Rom;
+import misc.BreakException;
 import misc.Log;
 import ui.ProgressHandler;
 
@@ -38,12 +39,16 @@ public class Profile implements Serializable
 	long machines_cnt = 0;
 	long roms_cnt = 0;
 	long disks_cnt = 0;
+	
+	boolean md5_roms = false;
+	boolean md5_disks = false;
+	boolean sha1_roms = false;
+	boolean sha1_disks = false;
 
 	String build;
 	ArrayList<Machine> machines = new ArrayList<>();
 	HashMap<String, Machine> machines_byname = new HashMap<>();
 	HashSet<String> suspicious_crc = new HashSet<>();
-	// HashMap<String,Rom> roms_bysha1 = new HashMap<>();
 	
 	transient Properties settings = null;
 
@@ -77,8 +82,7 @@ public class Profile implements Serializable
 					else if (qName.equals("machine"))
 					{
 						in_machine = true;
-						machines.add(curr_machine = new Machine());
-						machines_cnt++;
+						curr_machine = new Machine();
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
 							switch (attributes.getQName(i))
@@ -116,8 +120,7 @@ public class Profile implements Serializable
 					{
 						if (in_machine)
 						{
-							curr_machine.roms.add(curr_rom = new Rom());
-							roms_cnt++;
+							curr_rom = new Rom();
 							for (int i = 0; i < attributes.getLength(); i++)
 							{
 								switch (attributes.getQName(i))
@@ -133,6 +136,11 @@ public class Profile implements Serializable
 										break;
 									case "sha1":
 										curr_rom.sha1 = attributes.getValue(i);
+										sha1_roms = true;
+										break;
+									case "md5":
+										curr_rom.md5 = attributes.getValue(i);
+										md5_roms = true;
 										break;
 									case "merge":
 										curr_rom.merge = attributes.getValue(i);
@@ -151,8 +159,7 @@ public class Profile implements Serializable
 					{
 						if (in_machine)
 						{
-							curr_machine.disks.add(curr_disk = new Disk());
-							disks_cnt++;
+							curr_disk = new Disk();
 							for (int i = 0; i < attributes.getLength(); i++)
 							{
 								switch (attributes.getQName(i))
@@ -162,6 +169,11 @@ public class Profile implements Serializable
 										break;
 									case "sha1":
 										curr_disk.sha1 = attributes.getValue(i);
+										sha1_disks = true;
+										break;
+									case "md5":
+										curr_disk.md5 = attributes.getValue(i);
+										md5_disks = true;
 										break;
 									case "merge":
 										curr_disk.merge = attributes.getValue(i);
@@ -180,20 +192,35 @@ public class Profile implements Serializable
 				{
 					if (qName.equals("machine"))
 					{
+						machines.add(curr_machine);
+						machines_cnt++;
 						in_machine = false;
 						handler.setProgress(String.format("Loaded Sets/Roms %d/%d", machines_cnt, roms_cnt));
+						if(handler.isCancel())
+							throw new BreakException();
 					}
 					else if (qName.equals("rom"))
 					{
+						curr_machine.roms.add(curr_rom);
+						roms_cnt++;
 						if(curr_rom.crc!=null)
 						{
 							Rom old_rom = roms_bycrc.put(curr_rom.crc, curr_rom);
-							if (old_rom != null && old_rom.sha1 != null && curr_rom.sha1 != null && !old_rom.equals(curr_rom))
-								suspicious_crc.add(curr_rom.crc);
+							if (old_rom != null)
+							{
+								if(old_rom.sha1 != null && curr_rom.sha1 != null)
+									if(!old_rom.equals(curr_rom))
+										suspicious_crc.add(curr_rom.crc);
+								if(old_rom.md5 != null && curr_rom.md5 != null)
+									if(!old_rom.equals(curr_rom))
+										suspicious_crc.add(curr_rom.crc);
+							}
 						}
 					}
 					else if (qName.equals("disk"))
 					{
+						curr_machine.disks.add(curr_disk);
+						disks_cnt++;
 					}
 					else if (qName.equals("description"))
 					{
@@ -219,6 +246,10 @@ public class Profile implements Serializable
 		catch (IOException e)
 		{
 			Log.err("IO Exception", e);
+		}
+		catch (BreakException e)
+		{
+			return false;
 		}
 		catch (Throwable e)
 		{

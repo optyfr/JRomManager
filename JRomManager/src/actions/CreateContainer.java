@@ -20,6 +20,13 @@ public class CreateContainer extends ContainerAction
 		super(container);
 	}
 
+	public static CreateContainer getInstance(CreateContainer action, Container container)
+	{
+		if(action == null)
+			action = new CreateContainer(container);
+		return action;
+	}
+
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
