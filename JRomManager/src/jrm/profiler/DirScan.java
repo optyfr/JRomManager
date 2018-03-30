@@ -10,9 +10,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,20 +20,25 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.CRC32;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
 import jrm.data.Archive;
 import jrm.data.Container;
+import jrm.data.Container.Type;
 import jrm.data.Directory;
 import jrm.data.Disk;
 import jrm.data.Entry;
@@ -55,7 +60,7 @@ public class DirScan
 	boolean need_sha1_or_md5 = true;
 	boolean use_parallelism = true;
 
-	public DirScan(Profile profile, File dir, ProgressHandler handler) throws BreakException
+	public DirScan(Profile profile, File dir, ProgressHandler handler, boolean is_dest) throws BreakException
 	{
 		need_sha1_or_md5 = profile.getProperty("need_sha1_or_md5", false);
 		use_parallelism = profile.getProperty("use_parallelism", false);
@@ -71,41 +76,84 @@ public class DirScan
 		 * List files;
 		 */
 
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path))
+		try(Stream<Path> stream = Files.walk(path, is_dest?1:100, FileVisitOption.FOLLOW_LINKS))
 		{
-			handler.setProgress("Listing files in '" + dir + "' ...", 0, (int) Files.list(path).count());
+			AtomicInteger i = new AtomicInteger();
+			handler.setProgress("Listing files in '" + dir + "' ...", -1);
 			StreamSupport.stream(stream.spliterator(), use_parallelism).forEach(p -> {
-				Container c;
+				Container c = null;
 				File file = p.toFile();
 				try
 				{
 					BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
-					if (null == (c = containers_byname.get(file.getName())) || c.modified != attr.lastModifiedTime().toMillis() || (c instanceof Archive && c.size != attr.size()))
+					if(is_dest)
 					{
-						if (attr.isRegularFile())
-							containers.add(c = new Archive(file, attr));
-						else if (attr.isDirectory())
-							containers.add(c = new Directory(file, attr));
+						if (null == (c = containers_byname.get(file.getName())) || c.modified != attr.lastModifiedTime().toMillis() || (c instanceof Archive && c.size != attr.size()))
+						{
+							if (attr.isRegularFile())
+								containers.add(c = new Archive(file, attr));
+							else
+								containers.add(c = new Directory(file, attr));
+							if (c != null)
+							{
+								c.up2date = true;
+								containers_byname.put(file.getName(), c);
+							}
+						}
 						else
-							c = null;
-						if (c != null)
 						{
 							c.up2date = true;
-							containers_byname.put(file.getName(), c);
+							containers.add(c);
 						}
 					}
 					else
 					{
-						c.up2date = true;
-						containers.add(c);
+						if (attr.isRegularFile())
+						{
+							if(Container.getType(file)==Type.UNK)
+							{
+								File parent_dir = file.getParentFile();
+								BasicFileAttributes parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
+								if (null == (c = containers_byname.get(parent_dir.getAbsolutePath())) || c.modified != parent_attr.lastModifiedTime().toMillis())
+								{
+									containers.add(c = new Directory(parent_dir, attr));
+									if (c != null)
+									{
+										c.up2date = true;
+										containers_byname.put(parent_dir.getAbsolutePath(), c);
+									}
+								}
+								else
+								{
+									c.up2date = true;
+									containers.add(c);
+								}
+							}
+							else
+							{
+								if (null == (c = containers_byname.get(file.getName())) || c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size())
+								{
+									containers.add(c = new Archive(file, attr));
+									if (c != null)
+									{
+										c.up2date = true;
+										containers_byname.put(file.getName(), c);
+									}
+								}
+								else
+								{
+									c.up2date = true;
+									containers.add(c);
+								}
+							}
+						}
 					}
-					handler.setProgress("Listing files in '" + dir + "'... (" + containers.size() + ")", containers.size());
+					handler.setProgress("Listing files in '" + dir + "'... (" + i.incrementAndGet() + ")");
 					if(handler.isCancel())
 						throw new BreakException();
 				}
 				catch (IOException e)
 				{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
@@ -130,17 +178,15 @@ public class DirScan
 		(use_parallelism?containers.stream():containers.parallelStream()).forEach(c -> {
 			try
 			{
-				File f = c.file;
-				if (c instanceof Archive)
+				switch(c.getType())
 				{
-					if (c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
+					case ZIP:
 					{
-						String ext = FilenameUtils.getExtension(f.toString());
-						if (ext.equalsIgnoreCase("zip"))
+						if (c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
 						{
 							Map<String,Object> env = new HashMap<>();
 							env.put("useTempFile", Boolean.TRUE);
-							try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+f.toURI()), env);)
+							try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+c.file.toURI()), env);)
 							{
 								final Path root = fs.getPath("/");
 								Files.walkFileTree(root, new SimpleFileVisitor<Path>()
@@ -161,34 +207,59 @@ public class DirScan
 								c.loaded = need_sha1_or_md5 ? 2 : 1;
 							}
 						}
-					}
-					else
-					{
-						for (Entry entry : c.getEntries())
-							update_entry(profile, entry);
-					}
-
-				}
-				else if (c instanceof Directory)
-				{
-					Files.walkFileTree(f.toPath(), new SimpleFileVisitor<Path>()
-					{
-						@Override
-						public FileVisitResult visitFile(Path entry_path, BasicFileAttributes attrs) throws IOException
+						else
 						{
-							update_entry(profile, c.add(new Entry(entry_path.toString(),attrs)), entry_path);
-							return FileVisitResult.CONTINUE;
+							for (Entry entry : c.getEntries())
+								update_entry(profile, entry);
 						}
-
-						@Override
-						public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+						break;
+					}
+					case SEVENZIP:
+					{
+						if (c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
 						{
-							return FileVisitResult.CONTINUE;
+							try(SevenZFile archive = new SevenZFile(c.file))
+							{
+								
+								for(SevenZArchiveEntry archive_entry:archive.getEntries())
+								{
+									if(archive_entry.isDirectory())
+										continue;
+									update_entry(profile, c.add(new Entry(archive_entry.getName())), archive_entry);
+								}
+							}
 						}
-					});
-					c.loaded = need_sha1_or_md5 ? 2 : 1;
+						else
+						{
+							for (Entry entry : c.getEntries())
+								update_entry(profile, entry, (SevenZArchiveEntry)null);
+						}
+						break;
+					}
+					case DIR:
+					{
+						Files.walkFileTree(c.file.toPath(), new SimpleFileVisitor<Path>()
+						{
+							@Override
+							public FileVisitResult visitFile(Path entry_path, BasicFileAttributes attrs) throws IOException
+							{
+								update_entry(profile, c.add(new Entry(entry_path.toString(),attrs)), entry_path);
+								return FileVisitResult.CONTINUE;
+							}
+
+							@Override
+							public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+							{
+								return FileVisitResult.CONTINUE;
+							}
+						});
+						c.loaded = need_sha1_or_md5 ? 2 : 1;
+						break;
+					}
+					default:
+						break;
 				}
-				handler.setProgress("Scanned " + f.getName(), i.incrementAndGet(), null, i.get() + "/" + containers.size() + " (" + (int) (i.get() * 100.0 / containers.size()) + "%)");
+				handler.setProgress("Scanned " + c.file.getName(), i.incrementAndGet(), null, i.get() + "/" + containers.size() + " (" + (int) (i.get() * 100.0 / containers.size()) + "%)");
 				if(handler.isCancel())
 					throw new BreakException();
 			}
@@ -210,20 +281,37 @@ public class DirScan
 
 	}
 
+	private void update_entry(Profile profile, Entry entry, SevenZArchiveEntry archive_entry) throws IOException
+	{
+		if(entry.size == 0 && entry.crc == null && archive_entry!=null)
+		{
+			entry.size = archive_entry.getSize();
+			entry.crc = String.format("%08x",archive_entry.getCrcValue());
+			entries_bycrc.put(entry.crc + "." + entry.size, entry);
+		}
+		if (entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
+		{
+			//TODO Compute Hash for 7z
+		}
+	}
+	
 	private void update_entry(Profile profile, Entry entry) throws IOException
 	{
-		update_entry(profile, entry, null);
+		update_entry(profile, entry, (Path)null);
 	}
 	private void update_entry(Profile profile, Entry entry, Path entry_path) throws IOException
 	{
 		if (entry.size == 0 && entry.crc == null)
 		{
-			if (entry_path == null)
-				entry_path = getPath(entry);
-			Map<String, Object> entry_zip_attrs = Files.readAttributes(entry_path, "zip:*");
-			entry.size = (Long) entry_zip_attrs.get("size");
-			entry.crc = String.format("%08x", entry_zip_attrs.get("crc"));
-			entries_bycrc.put(entry.crc + "." + entry.size, entry);
+			if(entry.parent.getType()==Type.ZIP)
+			{
+				if (entry_path == null)
+					entry_path = getPath(entry);
+				Map<String, Object> entry_zip_attrs = Files.readAttributes(entry_path, "zip:*");
+				entry.size = (Long) entry_zip_attrs.get("size");
+				entry.crc = String.format("%08x", entry_zip_attrs.get("crc"));
+				entries_bycrc.put(entry.crc + "." + entry.size, entry);
+			}
 		}
 		if (entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
 		{
@@ -244,7 +332,7 @@ public class DirScan
 			}
 			else
 			{
-				if(profile.sha1_disks || profile.md5_disks)
+				if(profile.sha1_roms || profile.md5_roms)
 				{
 					if (entry_path == null)
 						entry_path = getPath(entry);

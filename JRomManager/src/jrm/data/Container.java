@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
+
 @SuppressWarnings("serial")
 public class Container implements Serializable
 {
@@ -22,7 +24,7 @@ public class Container implements Serializable
 
 	public enum Type
 	{
-		UNK, ZIP, DIR
+		UNK, DIR, ZIP, SEVENZIP, RAR
 	};
 
 	private Type type = Type.UNK;
@@ -37,7 +39,7 @@ public class Container implements Serializable
 	{
 		this(type, file);
 		this.modified = attr.lastModifiedTime().toMillis();
-		if (type == Type.ZIP)
+		if (type != Type.DIR)
 			this.size = attr.size();
 	}
 
@@ -70,6 +72,18 @@ public class Container implements Serializable
 	public Type getType()
 	{
 		return type;
+	}
+
+	public static Type getType(File file)
+	{
+		String ext = FilenameUtils.getExtension(file.getName());
+		switch(ext.toLowerCase())
+		{
+			case "zip": return Type.ZIP;
+			case "7z" : return Type.SEVENZIP;
+			case "rar": return Type.RAR;
+		}
+		return Type.UNK;
 	}
 
 }

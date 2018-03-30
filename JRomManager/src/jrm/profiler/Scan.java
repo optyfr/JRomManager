@@ -39,11 +39,11 @@ public class Scan
 
 	public Scan(Profile profile, File dstdir, List<File> srcdirs, ProgressHandler handler) throws BreakException
 	{
-		DirScan dstscan = new DirScan(profile, dstdir, handler);
+		DirScan dstscan = new DirScan(profile, dstdir, handler, true);
 		List<DirScan> allscans = new ArrayList<>();
 		allscans.add(dstscan);
 		for(File dir : srcdirs)
-			allscans.add(new DirScan(profile, dir, handler));
+			allscans.add(new DirScan(profile, dir, handler, false));
 
 		ArrayList<Container> unknown = new ArrayList<>();
 		for (Container c : dstscan.containers)

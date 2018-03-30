@@ -1,7 +1,10 @@
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +24,8 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -33,7 +38,9 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
@@ -44,13 +51,21 @@ import javax.swing.tree.DefaultTreeModel;
 import org.apache.commons.io.FileUtils;
 
 import jrm.actions.ContainerAction;
+import jrm.compressors.SevenZipAddOptions;
+import jrm.compressors.SevenZipDeleteOptions;
+import jrm.compressors.SevenZipRenameOptions;
+import jrm.compressors.ZipAddOptions;
+import jrm.compressors.ZipDeleteOptions;
+import jrm.compressors.ZipRenameOptions;
 import jrm.misc.BreakException;
+import jrm.misc.FindCmd;
 import jrm.misc.Log;
 import jrm.profiler.Import;
 import jrm.profiler.Profile;
 import jrm.profiler.Scan;
 import jrm.profiler.scan.MergeOptions;
 import jrm.ui.Progress;
+import jrm.compressors.SevenZipExtractOptions;
 
 public class JRomManager
 {
@@ -128,6 +143,7 @@ public class JRomManager
 			{
 				if(curr_profile!=null)
 					curr_profile.saveSettings();
+				saveSettings();
 			}
 		});
 	}
@@ -414,6 +430,405 @@ public class JRomManager
 		
 		settingsTab = new JPanel();
 		tabbedPane.addTab("Settings", null, settingsTab, null);
+		settingsTab.setLayout(new BorderLayout(0, 0));
+		
+		tabbedPane_1 = new JTabbedPane(JTabbedPane.TOP);
+		settingsTab.add(tabbedPane_1);
+		
+		panel = new JPanel();
+		tabbedPane_1.addTab("Compressors", null, panel, null);
+		tabbedPane_1.setEnabledAt(0, true);
+		panel.setLayout(new BorderLayout(0, 0));
+		
+		tabbedPane_2 = new JTabbedPane(JTabbedPane.TOP);
+		panel.add(tabbedPane_2);
+		
+		panel_1 = new JPanel();
+		tabbedPane_2.addTab("Zip", null, panel_1, null);
+		panel_1.setLayout(new GridLayout(0, 1, 0, 0));
+		
+		chckbxZipUseTemp = new JCheckBox("Use temporary files (recommended)");
+		chckbxZipUseTemp.setHorizontalAlignment(SwingConstants.CENTER);
+		chckbxZipUseTemp.setSelected(true);
+		panel_1.add(chckbxZipUseTemp);
+		
+		lblZipWarn = new JLabel();
+		lblZipWarn.setVerticalAlignment(SwingConstants.TOP);
+		lblZipWarn.setHorizontalAlignment(SwingConstants.CENTER);
+		lblZipWarn.setBackground(UIManager.getColor("Panel.background"));
+		lblZipWarn.setText("<html><center>There is no compression method choice available, <br>if you need to specify one then you will have to use zip (external)</center></html>");
+		lblZipWarn.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 11));
+		panel_1.add(lblZipWarn);
+		
+		panel_2 = new JPanel();
+		tabbedPane_2.addTab("Zip (external)", null, panel_2, null);
+		GridBagLayout gbl_panel_2 = new GridBagLayout();
+		gbl_panel_2.columnWidths = new int[]{85, 246, 40, 0};
+		gbl_panel_2.rowHeights = new int[]{0, 28, 28, 28, 28, 0, 0};
+		gbl_panel_2.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_2.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		panel_2.setLayout(gbl_panel_2);
+		
+		lblZipCmd = new JLabel("Path to command");
+		GridBagConstraints gbc_lblZipCmd = new GridBagConstraints();
+		gbc_lblZipCmd.anchor = GridBagConstraints.EAST;
+		gbc_lblZipCmd.insets = new Insets(5, 5, 5, 5);
+		gbc_lblZipCmd.gridx = 0;
+		gbc_lblZipCmd.gridy = 1;
+		panel_2.add(lblZipCmd, gbc_lblZipCmd);
+		
+		tfZipCmd = new JTextField();
+		tfZipCmd.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				settings.setProperty("zip_cmd", tfZipCmd.getText());
+			}
+		});
+		tfZipCmd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				settings.setProperty("zip_cmd", tfZipCmd.getText());
+			}
+		});
+		tfZipCmd.setText(settings.getProperty("zip_cmd", FindCmd.find7z()));
+		GridBagConstraints gbc_tfZipCmd = new GridBagConstraints();
+		gbc_tfZipCmd.insets = new Insets(0, 0, 5, 0);
+		gbc_tfZipCmd.fill = GridBagConstraints.BOTH;
+		gbc_tfZipCmd.gridx = 1;
+		gbc_tfZipCmd.gridy = 1;
+		panel_2.add(tfZipCmd, gbc_tfZipCmd);
+		tfZipCmd.setColumns(30);
+		
+		btZipCmd = new JButton("");
+		btZipCmd.setIcon(new ImageIcon(JRomManager.class.getResource("/javax/swing/plaf/metal/icons/ocean/floppy.gif")));
+		GridBagConstraints gbc_btZipCmd = new GridBagConstraints();
+		gbc_btZipCmd.fill = GridBagConstraints.BOTH;
+		gbc_btZipCmd.insets = new Insets(0, 0, 5, 5);
+		gbc_btZipCmd.gridx = 2;
+		gbc_btZipCmd.gridy = 1;
+		panel_2.add(btZipCmd, gbc_btZipCmd);
+		
+		lblZipAddArgs = new JLabel("Add args");
+		GridBagConstraints gbc_lblZipAddArgs = new GridBagConstraints();
+		gbc_lblZipAddArgs.anchor = GridBagConstraints.EAST;
+		gbc_lblZipAddArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_lblZipAddArgs.gridx = 0;
+		gbc_lblZipAddArgs.gridy = 2;
+		panel_2.add(lblZipAddArgs, gbc_lblZipAddArgs);
+		
+		cbZipAddArgs = new JComboBox<>();
+		cbZipAddArgs.setModel(new DefaultComboBoxModel<ZipAddOptions>(ZipAddOptions.values()));
+		cbZipAddArgs.setRenderer(new DefaultListCellRenderer()
+		{
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				setText(((ZipAddOptions)value).getName());
+				return this;
+			}
+		});
+		cbZipAddArgs.setEditable(true);
+		GridBagConstraints gbc_cbZipAddArgs = new GridBagConstraints();
+		gbc_cbZipAddArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_cbZipAddArgs.gridwidth = 2;
+		gbc_cbZipAddArgs.fill = GridBagConstraints.BOTH;
+		gbc_cbZipAddArgs.gridx = 1;
+		gbc_cbZipAddArgs.gridy = 2;
+		panel_2.add(cbZipAddArgs, gbc_cbZipAddArgs);
+		
+		lblZipDelArgs = new JLabel("Delete args");
+		GridBagConstraints gbc_lblZipDelArgs = new GridBagConstraints();
+		gbc_lblZipDelArgs.anchor = GridBagConstraints.EAST;
+		gbc_lblZipDelArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_lblZipDelArgs.gridx = 0;
+		gbc_lblZipDelArgs.gridy = 3;
+		panel_2.add(lblZipDelArgs, gbc_lblZipDelArgs);
+		
+		cbZipDelArgs = new JComboBox<>();
+		cbZipDelArgs.setModel(new DefaultComboBoxModel<ZipDeleteOptions>(ZipDeleteOptions.values()));
+		cbZipDelArgs.setRenderer(new DefaultListCellRenderer()
+		{
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				setText(((ZipDeleteOptions)value).getName());
+				return this;
+			}
+		});
+		cbZipDelArgs.setEditable(true);
+		GridBagConstraints gbc_cbZipDelArgs = new GridBagConstraints();
+		gbc_cbZipDelArgs.gridwidth = 2;
+		gbc_cbZipDelArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_cbZipDelArgs.fill = GridBagConstraints.BOTH;
+		gbc_cbZipDelArgs.gridx = 1;
+		gbc_cbZipDelArgs.gridy = 3;
+		panel_2.add(cbZipDelArgs, gbc_cbZipDelArgs);
+		
+		lblZipRenArgs = new JLabel("Rename args");
+		GridBagConstraints gbc_lblZipRenArgs = new GridBagConstraints();
+		gbc_lblZipRenArgs.anchor = GridBagConstraints.EAST;
+		gbc_lblZipRenArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_lblZipRenArgs.gridx = 0;
+		gbc_lblZipRenArgs.gridy = 4;
+		panel_2.add(lblZipRenArgs, gbc_lblZipRenArgs);
+		
+		cbZipRenArgs = new JComboBox<ZipRenameOptions>();
+		cbZipRenArgs.setModel(new DefaultComboBoxModel<ZipRenameOptions>(ZipRenameOptions.values()));
+		cbZipRenArgs.setRenderer(new DefaultListCellRenderer()
+		{
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				setText(((ZipRenameOptions)value).getName());
+				return this;
+			}
+		});
+		cbZipRenArgs.setEditable(true);
+		GridBagConstraints gbc_cbZipRenArgs = new GridBagConstraints();
+		gbc_cbZipRenArgs.gridwidth = 2;
+		gbc_cbZipRenArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_cbZipRenArgs.fill = GridBagConstraints.BOTH;
+		gbc_cbZipRenArgs.gridx = 1;
+		gbc_cbZipRenArgs.gridy = 4;
+		panel_2.add(cbZipRenArgs, gbc_cbZipRenArgs);
+		
+		lblInternalMethodsAre = new JLabel();
+		lblInternalMethodsAre.setVerticalAlignment(SwingConstants.TOP);
+		lblInternalMethodsAre.setText("<html>\r\n<center>\r\nInternal methods are still used for listing and decompression...<br>\r\n%1 is archive, %2 is file, %3 is new file\r\n</center>\r\n</html>");
+		lblInternalMethodsAre.setHorizontalAlignment(SwingConstants.CENTER);
+		lblInternalMethodsAre.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 11));
+		lblInternalMethodsAre.setBackground(UIManager.getColor("Button.background"));
+		GridBagConstraints gbc_lblInternalMethodsAre = new GridBagConstraints();
+		gbc_lblInternalMethodsAre.gridwidth = 3;
+		gbc_lblInternalMethodsAre.insets = new Insets(0, 0, 0, 5);
+		gbc_lblInternalMethodsAre.gridx = 0;
+		gbc_lblInternalMethodsAre.gridy = 5;
+		panel_2.add(lblInternalMethodsAre, gbc_lblInternalMethodsAre);
+		
+		panel_6 = new JPanel();
+		tabbedPane_2.addTab("7z (external)", null, panel_6, null);
+		tabbedPane_2.setEnabledAt(2, true);
+		GridBagLayout gbl_panel_6 = new GridBagLayout();
+		gbl_panel_6.columnWidths = new int[]{85, 246, 40, 0};
+		gbl_panel_6.rowHeights = new int[]{0, 28, 0, 28, 28, 28, 0, 0};
+		gbl_panel_6.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_6.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		panel_6.setLayout(gbl_panel_6);
+		
+		lbl7zCmd = new JLabel("Path to command");
+		GridBagConstraints gbc_lbl7zCmd = new GridBagConstraints();
+		gbc_lbl7zCmd.anchor = GridBagConstraints.EAST;
+		gbc_lbl7zCmd.insets = new Insets(5, 5, 5, 5);
+		gbc_lbl7zCmd.gridx = 0;
+		gbc_lbl7zCmd.gridy = 1;
+		panel_6.add(lbl7zCmd, gbc_lbl7zCmd);
+		
+		tf7zCmd = new JTextField();
+		tf7zCmd.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				settings.setProperty("7z_cmd", tf7zCmd.getText());
+			}
+		});
+		tf7zCmd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				settings.setProperty("7z_cmd", tf7zCmd.getText());
+			}
+		});
+		tf7zCmd.setText(settings.getProperty("7z_cmd", FindCmd.find7z()));
+		tf7zCmd.setColumns(30);
+		GridBagConstraints gbc_tf7zCmd = new GridBagConstraints();
+		gbc_tf7zCmd.fill = GridBagConstraints.BOTH;
+		gbc_tf7zCmd.insets = new Insets(0, 0, 5, 0);
+		gbc_tf7zCmd.gridx = 1;
+		gbc_tf7zCmd.gridy = 1;
+		panel_6.add(tf7zCmd, gbc_tf7zCmd);
+		
+		btn7zCmd = new JButton("");
+		btn7zCmd.setIcon(new ImageIcon(JRomManager.class.getResource("/javax/swing/plaf/metal/icons/ocean/floppy.gif")));
+		GridBagConstraints gbc_btn7zCmd = new GridBagConstraints();
+		gbc_btn7zCmd.fill = GridBagConstraints.BOTH;
+		gbc_btn7zCmd.insets = new Insets(0, 0, 5, 5);
+		gbc_btn7zCmd.gridx = 2;
+		gbc_btn7zCmd.gridy = 1;
+		panel_6.add(btn7zCmd, gbc_btn7zCmd);
+		
+		lbl7zExtractArgs = new JLabel("Extract args");
+		GridBagConstraints gbc_lbl7zExtractArgs = new GridBagConstraints();
+		gbc_lbl7zExtractArgs.anchor = GridBagConstraints.EAST;
+		gbc_lbl7zExtractArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_lbl7zExtractArgs.gridx = 0;
+		gbc_lbl7zExtractArgs.gridy = 2;
+		panel_6.add(lbl7zExtractArgs, gbc_lbl7zExtractArgs);
+		
+		cb7zExtractArgs = new JComboBox<SevenZipExtractOptions>();
+		cb7zExtractArgs.setModel(new DefaultComboBoxModel<SevenZipExtractOptions>(SevenZipExtractOptions.values()));
+		cb7zExtractArgs.setRenderer(new DefaultListCellRenderer()
+		{
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				setText(((SevenZipExtractOptions)value).getName());
+				return this;
+			}
+		});
+		cb7zExtractArgs.setEditable(true);
+		GridBagConstraints gbc_cb7zExtractArgs = new GridBagConstraints();
+		gbc_cb7zExtractArgs.gridwidth = 2;
+		gbc_cb7zExtractArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_cb7zExtractArgs.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cb7zExtractArgs.gridx = 1;
+		gbc_cb7zExtractArgs.gridy = 2;
+		panel_6.add(cb7zExtractArgs, gbc_cb7zExtractArgs);
+		
+		lbl7zAddArgs = new JLabel("Add args");
+		GridBagConstraints gbc_lbl7zAddArgs = new GridBagConstraints();
+		gbc_lbl7zAddArgs.anchor = GridBagConstraints.EAST;
+		gbc_lbl7zAddArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_lbl7zAddArgs.gridx = 0;
+		gbc_lbl7zAddArgs.gridy = 3;
+		panel_6.add(lbl7zAddArgs, gbc_lbl7zAddArgs);
+		
+		cb7zAddArgs = new JComboBox<SevenZipAddOptions>();
+		cb7zAddArgs.setModel(new DefaultComboBoxModel<SevenZipAddOptions>(SevenZipAddOptions.values()));
+		cb7zAddArgs.setRenderer(new DefaultListCellRenderer()
+		{
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				setText(((SevenZipAddOptions)value).getName());
+				return this;
+			}
+		});
+		cb7zAddArgs.setEditable(true);
+		GridBagConstraints gbc_cb7zAddArgs = new GridBagConstraints();
+		gbc_cb7zAddArgs.fill = GridBagConstraints.BOTH;
+		gbc_cb7zAddArgs.gridwidth = 2;
+		gbc_cb7zAddArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_cb7zAddArgs.gridx = 1;
+		gbc_cb7zAddArgs.gridy = 3;
+		panel_6.add(cb7zAddArgs, gbc_cb7zAddArgs);
+		
+		lbl7zDelArgs = new JLabel("Delete args");
+		GridBagConstraints gbc_lbl7zDelArgs = new GridBagConstraints();
+		gbc_lbl7zDelArgs.anchor = GridBagConstraints.EAST;
+		gbc_lbl7zDelArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_lbl7zDelArgs.gridx = 0;
+		gbc_lbl7zDelArgs.gridy = 4;
+		panel_6.add(lbl7zDelArgs, gbc_lbl7zDelArgs);
+		
+		cb7zDelArgs = new JComboBox<SevenZipDeleteOptions>();
+		cb7zDelArgs.setModel(new DefaultComboBoxModel<SevenZipDeleteOptions>(SevenZipDeleteOptions.values()));
+		cb7zDelArgs.setRenderer(new DefaultListCellRenderer()
+		{
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				setText(((SevenZipDeleteOptions)value).getName());
+				return this;
+			}
+		});
+		cb7zDelArgs.setEditable(true);
+		GridBagConstraints gbc_cb7zDelArgs = new GridBagConstraints();
+		gbc_cb7zDelArgs.fill = GridBagConstraints.BOTH;
+		gbc_cb7zDelArgs.gridwidth = 2;
+		gbc_cb7zDelArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_cb7zDelArgs.gridx = 1;
+		gbc_cb7zDelArgs.gridy = 4;
+		panel_6.add(cb7zDelArgs, gbc_cb7zDelArgs);
+		
+		lbl7zRenArgs = new JLabel("Rename args");
+		GridBagConstraints gbc_lbl7zRenArgs = new GridBagConstraints();
+		gbc_lbl7zRenArgs.anchor = GridBagConstraints.EAST;
+		gbc_lbl7zRenArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_lbl7zRenArgs.gridx = 0;
+		gbc_lbl7zRenArgs.gridy = 5;
+		panel_6.add(lbl7zRenArgs, gbc_lbl7zRenArgs);
+		
+		cb7zRenArgs = new JComboBox<SevenZipRenameOptions>();
+		cb7zRenArgs.setModel(new DefaultComboBoxModel<SevenZipRenameOptions>(SevenZipRenameOptions.values()));
+		cb7zRenArgs.setRenderer(new DefaultListCellRenderer()
+		{
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				setText(((SevenZipRenameOptions)value).getName());
+				return this;
+			}
+		});
+		cb7zRenArgs.setEditable(true);
+		GridBagConstraints gbc_cb7zRenArgs = new GridBagConstraints();
+		gbc_cb7zRenArgs.fill = GridBagConstraints.BOTH;
+		gbc_cb7zRenArgs.gridwidth = 2;
+		gbc_cb7zRenArgs.insets = new Insets(0, 0, 5, 5);
+		gbc_cb7zRenArgs.gridx = 1;
+		gbc_cb7zRenArgs.gridy = 5;
+		panel_6.add(cb7zRenArgs, gbc_cb7zRenArgs);
+		
+		lblInternalMethodsAre_1 = new JLabel();
+		lblInternalMethodsAre_1.setVerticalAlignment(SwingConstants.TOP);
+		lblInternalMethodsAre_1.setText("<html>\r\n<center>\r\nInternal methods are still used for listing...<br>\r\n%1 is archive, %2 is file, %3 is new file, %4 is a temp dir\r\n</center>\r\n</html>");
+		lblInternalMethodsAre_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblInternalMethodsAre_1.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 11));
+		lblInternalMethodsAre_1.setBackground(UIManager.getColor("Button.background"));
+		GridBagConstraints gbc_lblInternalMethodsAre_1 = new GridBagConstraints();
+		gbc_lblInternalMethodsAre_1.gridwidth = 3;
+		gbc_lblInternalMethodsAre_1.gridx = 0;
+		gbc_lblInternalMethodsAre_1.gridy = 6;
+		panel_6.add(lblInternalMethodsAre_1, gbc_lblInternalMethodsAre_1);
+		
+		panel_3 = new JPanel();
+		tabbedPane_2.addTab("TorrentZip (external)", null, panel_3, null);
+		GridBagLayout gbl_panel_3 = new GridBagLayout();
+		gbl_panel_3.columnWidths = new int[]{100, 334, 34, 0};
+		gbl_panel_3.rowHeights = new int[]{0, 20, 0, 0};
+		gbl_panel_3.columnWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_3.rowWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
+		panel_3.setLayout(gbl_panel_3);
+		
+		lblTZipCmd = new JLabel("Path to command");
+		GridBagConstraints gbc_lblTZipCmd = new GridBagConstraints();
+		gbc_lblTZipCmd.anchor = GridBagConstraints.WEST;
+		gbc_lblTZipCmd.insets = new Insets(0, 5, 5, 5);
+		gbc_lblTZipCmd.gridx = 0;
+		gbc_lblTZipCmd.gridy = 1;
+		panel_3.add(lblTZipCmd, gbc_lblTZipCmd);
+		
+		tfTZipCmd = new JTextField();
+		tfTZipCmd.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				settings.setProperty("tzip_cmd", tfTZipCmd.getText());
+			}
+		});
+		tfTZipCmd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				settings.setProperty("tzip_cmd", tfTZipCmd.getText());
+			}
+		});
+		tfTZipCmd.setHorizontalAlignment(SwingConstants.LEFT);
+		tfTZipCmd.setText(settings.getProperty("tzip_cmd", FindCmd.findTZip()));
+		tfTZipCmd.setColumns(30);
+		GridBagConstraints gbc_tfTZipCmd = new GridBagConstraints();
+		gbc_tfTZipCmd.fill = GridBagConstraints.BOTH;
+		gbc_tfTZipCmd.insets = new Insets(0, 0, 5, 0);
+		gbc_tfTZipCmd.gridx = 1;
+		gbc_tfTZipCmd.gridy = 1;
+		panel_3.add(tfTZipCmd, gbc_tfTZipCmd);
+		
+		btTZipCmd = new JButton("");
+		btTZipCmd.setIcon(new ImageIcon(JRomManager.class.getResource("/javax/swing/plaf/metal/icons/ocean/floppy.gif")));
+		GridBagConstraints gbc_btTZipCmd = new GridBagConstraints();
+		gbc_btTZipCmd.insets = new Insets(0, 0, 5, 5);
+		gbc_btTZipCmd.anchor = GridBagConstraints.WEST;
+		gbc_btTZipCmd.gridx = 2;
+		gbc_btTZipCmd.gridy = 1;
+		panel_3.add(btTZipCmd, gbc_btTZipCmd);
 		tabbedPane.setEnabledAt(2, true);
 		
 		mainFrame.pack();
@@ -591,6 +1006,40 @@ public class JRomManager
 
 	private Properties settings = null;
 	private JPanel settingsTab;
+	private JTabbedPane tabbedPane_1;
+	private JPanel panel;
+	private JTabbedPane tabbedPane_2;
+	private JPanel panel_1;
+	private JCheckBox chckbxZipUseTemp;
+	private JPanel panel_2;
+	private JPanel panel_3;
+	private JLabel lblZipCmd;
+	private JTextField tfZipCmd;
+	private JButton btZipCmd;
+	private JLabel lblZipAddArgs;
+	private JComboBox<ZipAddOptions> cbZipAddArgs;
+	private JLabel lblZipDelArgs;
+	private JComboBox<ZipDeleteOptions> cbZipDelArgs;
+	private JLabel lblZipRenArgs;
+	private JComboBox<ZipRenameOptions> cbZipRenArgs;
+	private JLabel lblZipWarn;
+	private JPanel panel_6;
+	private JLabel lbl7zCmd;
+	private JTextField tf7zCmd;
+	private JButton btn7zCmd;
+	private JLabel lbl7zAddArgs;
+	private JComboBox<SevenZipAddOptions> cb7zAddArgs;
+	private JLabel lbl7zDelArgs;
+	private JComboBox<SevenZipDeleteOptions> cb7zDelArgs;
+	private JLabel lbl7zRenArgs;
+	private JComboBox<SevenZipRenameOptions> cb7zRenArgs;
+	private JLabel lblTZipCmd;
+	private JTextField tfTZipCmd;
+	private JButton btTZipCmd;
+	private JLabel lblInternalMethodsAre;
+	private JLabel lblInternalMethodsAre_1;
+	private JLabel lbl7zExtractArgs;
+	private JComboBox<SevenZipExtractOptions> cb7zExtractArgs;
 	
 	private File getSettingsFile()
 	{
