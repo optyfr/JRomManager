@@ -13,14 +13,11 @@ import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.DefaultComboBoxModel;
@@ -53,6 +50,7 @@ import org.apache.commons.io.FileUtils;
 import jrm.actions.ContainerAction;
 import jrm.compressors.SevenZipAddOptions;
 import jrm.compressors.SevenZipDeleteOptions;
+import jrm.compressors.SevenZipExtractOptions;
 import jrm.compressors.SevenZipRenameOptions;
 import jrm.compressors.ZipAddOptions;
 import jrm.compressors.ZipDeleteOptions;
@@ -60,12 +58,12 @@ import jrm.compressors.ZipRenameOptions;
 import jrm.misc.BreakException;
 import jrm.misc.FindCmd;
 import jrm.misc.Log;
+import jrm.misc.Settings;
 import jrm.profiler.Import;
 import jrm.profiler.Profile;
 import jrm.profiler.Scan;
 import jrm.profiler.scan.MergeOptions;
 import jrm.ui.Progress;
-import jrm.compressors.SevenZipExtractOptions;
 
 public class JRomManager
 {
@@ -129,7 +127,7 @@ public class JRomManager
 	{
 		try
 		{
-			loadSettings();
+			Settings.loadSettings();
 		//	UIManager.setLookAndFeel(getProperty("LookAndFeel",  UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName()*/));
 		}
 		catch (Exception e)
@@ -143,7 +141,7 @@ public class JRomManager
 			{
 				if(curr_profile!=null)
 					curr_profile.saveSettings();
-				saveSettings();
+				Settings.saveSettings();
 			}
 		});
 	}
@@ -481,15 +479,15 @@ public class JRomManager
 		tfZipCmd.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				settings.setProperty("zip_cmd", tfZipCmd.getText());
+				Settings.setProperty("zip_cmd", tfZipCmd.getText());
 			}
 		});
 		tfZipCmd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				settings.setProperty("zip_cmd", tfZipCmd.getText());
+				Settings.setProperty("zip_cmd", tfZipCmd.getText());
 			}
 		});
-		tfZipCmd.setText(settings.getProperty("zip_cmd", FindCmd.find7z()));
+		tfZipCmd.setText(Settings.getProperty("zip_cmd", FindCmd.find7z()));
 		GridBagConstraints gbc_tfZipCmd = new GridBagConstraints();
 		gbc_tfZipCmd.insets = new Insets(0, 0, 5, 0);
 		gbc_tfZipCmd.fill = GridBagConstraints.BOTH;
@@ -629,15 +627,15 @@ public class JRomManager
 		tf7zCmd.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent arg0) {
-				settings.setProperty("7z_cmd", tf7zCmd.getText());
+				Settings.setProperty("7z_cmd", tf7zCmd.getText());
 			}
 		});
 		tf7zCmd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				settings.setProperty("7z_cmd", tf7zCmd.getText());
+				Settings.setProperty("7z_cmd", tf7zCmd.getText());
 			}
 		});
-		tf7zCmd.setText(settings.getProperty("7z_cmd", FindCmd.find7z()));
+		tf7zCmd.setText(Settings.getProperty("7z_cmd", FindCmd.find7z()));
 		tf7zCmd.setColumns(30);
 		GridBagConstraints gbc_tf7zCmd = new GridBagConstraints();
 		gbc_tf7zCmd.fill = GridBagConstraints.BOTH;
@@ -664,6 +662,7 @@ public class JRomManager
 		panel_6.add(lbl7zExtractArgs, gbc_lbl7zExtractArgs);
 		
 		cb7zExtractArgs = new JComboBox<SevenZipExtractOptions>();
+		cb7zExtractArgs.setEditable(true);
 		cb7zExtractArgs.setModel(new DefaultComboBoxModel<SevenZipExtractOptions>(SevenZipExtractOptions.values()));
 		cb7zExtractArgs.setRenderer(new DefaultListCellRenderer()
 		{
@@ -674,7 +673,7 @@ public class JRomManager
 				return this;
 			}
 		});
-		cb7zExtractArgs.setEditable(true);
+		cb7zExtractArgs.setSelectedItem(Settings.getProperty("7z_extract_args", SevenZipExtractOptions.SEVENZIP.toString()));
 		GridBagConstraints gbc_cb7zExtractArgs = new GridBagConstraints();
 		gbc_cb7zExtractArgs.gridwidth = 2;
 		gbc_cb7zExtractArgs.insets = new Insets(0, 0, 5, 5);
@@ -692,6 +691,7 @@ public class JRomManager
 		panel_6.add(lbl7zAddArgs, gbc_lbl7zAddArgs);
 		
 		cb7zAddArgs = new JComboBox<SevenZipAddOptions>();
+		cb7zAddArgs.setEditable(true);
 		cb7zAddArgs.setModel(new DefaultComboBoxModel<SevenZipAddOptions>(SevenZipAddOptions.values()));
 		cb7zAddArgs.setRenderer(new DefaultListCellRenderer()
 		{
@@ -703,7 +703,7 @@ public class JRomManager
 				return this;
 			}
 		});
-		cb7zAddArgs.setEditable(true);
+		cb7zAddArgs.setSelectedItem(Settings.getProperty("7z_add_args", SevenZipAddOptions.SEVENZIP_ULTRA.toString()));
 		GridBagConstraints gbc_cb7zAddArgs = new GridBagConstraints();
 		gbc_cb7zAddArgs.fill = GridBagConstraints.BOTH;
 		gbc_cb7zAddArgs.gridwidth = 2;
@@ -721,6 +721,7 @@ public class JRomManager
 		panel_6.add(lbl7zDelArgs, gbc_lbl7zDelArgs);
 		
 		cb7zDelArgs = new JComboBox<SevenZipDeleteOptions>();
+		cb7zDelArgs.setEditable(true);
 		cb7zDelArgs.setModel(new DefaultComboBoxModel<SevenZipDeleteOptions>(SevenZipDeleteOptions.values()));
 		cb7zDelArgs.setRenderer(new DefaultListCellRenderer()
 		{
@@ -732,7 +733,7 @@ public class JRomManager
 				return this;
 			}
 		});
-		cb7zDelArgs.setEditable(true);
+		cb7zDelArgs.setSelectedItem(Settings.getProperty("7z_del_args", SevenZipDeleteOptions.SEVENZIP_ULTRA.toString()));
 		GridBagConstraints gbc_cb7zDelArgs = new GridBagConstraints();
 		gbc_cb7zDelArgs.fill = GridBagConstraints.BOTH;
 		gbc_cb7zDelArgs.gridwidth = 2;
@@ -750,6 +751,7 @@ public class JRomManager
 		panel_6.add(lbl7zRenArgs, gbc_lbl7zRenArgs);
 		
 		cb7zRenArgs = new JComboBox<SevenZipRenameOptions>();
+		cb7zRenArgs.setEditable(true);
 		cb7zRenArgs.setModel(new DefaultComboBoxModel<SevenZipRenameOptions>(SevenZipRenameOptions.values()));
 		cb7zRenArgs.setRenderer(new DefaultListCellRenderer()
 		{
@@ -761,7 +763,7 @@ public class JRomManager
 				return this;
 			}
 		});
-		cb7zRenArgs.setEditable(true);
+		cb7zRenArgs.setSelectedItem(Settings.getProperty("7z_ren_args", SevenZipRenameOptions.SEVENZIP_ULTRA.toString()));
 		GridBagConstraints gbc_cb7zRenArgs = new GridBagConstraints();
 		gbc_cb7zRenArgs.fill = GridBagConstraints.BOTH;
 		gbc_cb7zRenArgs.gridwidth = 2;
@@ -803,16 +805,16 @@ public class JRomManager
 		tfTZipCmd.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				settings.setProperty("tzip_cmd", tfTZipCmd.getText());
+				Settings.setProperty("tzip_cmd", tfTZipCmd.getText());
 			}
 		});
 		tfTZipCmd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				settings.setProperty("tzip_cmd", tfTZipCmd.getText());
+				Settings.setProperty("tzip_cmd", tfTZipCmd.getText());
 			}
 		});
 		tfTZipCmd.setHorizontalAlignment(SwingConstants.LEFT);
-		tfTZipCmd.setText(settings.getProperty("tzip_cmd", FindCmd.findTZip()));
+		tfTZipCmd.setText(Settings.getProperty("tzip_cmd", FindCmd.findTZip()));
 		tfTZipCmd.setColumns(30);
 		GridBagConstraints gbc_tfTZipCmd = new GridBagConstraints();
 		gbc_tfTZipCmd.fill = GridBagConstraints.BOTH;
@@ -1004,7 +1006,6 @@ public class JRomManager
 		textSrcDir.setText(curr_profile.getProperty("src_dir", ""));
 	}
 
-	private Properties settings = null;
 	private JPanel settingsTab;
 	private JTabbedPane tabbedPane_1;
 	private JPanel panel;
@@ -1041,64 +1042,4 @@ public class JRomManager
 	private JLabel lbl7zExtractArgs;
 	private JComboBox<SevenZipExtractOptions> cb7zExtractArgs;
 	
-	private File getSettingsFile()
-	{
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-		File cachedir = new File(workdir, "settings");
-		File settingsfile = new File(cachedir, getClass().getCanonicalName() + ".xml");
-		settingsfile.getParentFile().mkdirs();
-		return settingsfile;
-		
-	}
-
-	public void saveSettings()
-	{
-		if(settings==null)
-			settings = new Properties();
-		try(FileOutputStream os = new FileOutputStream(getSettingsFile()))
-		{
-			settings.storeToXML(os, null);
-		}
-		catch (IOException e)
-		{
-			Log.err("IO", e);
-		}
-	}
-	
-	public void loadSettings()
-	{
-		if(settings==null)
-			settings = new Properties();
-		if(getSettingsFile().exists())
-		{
-			try(FileInputStream is = new FileInputStream(getSettingsFile()))
-			{
-				settings.loadFromXML(is);
-			}
-			catch (IOException e)
-			{
-				Log.err("IO", e);
-			}
-		}
-	}
-	
-	public void setProperty(String property, boolean value)
-	{
-		settings.setProperty(property, Boolean.toString(value));
-	}
-	
-	public void setProperty(String property, String value)
-	{
-		settings.setProperty(property, value);
-	}
-	
-	public boolean getProperty(String property, boolean def)
-	{
-		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
-	}
-	
-	public String getProperty(String property, String def)
-	{
-		return settings.getProperty(property, def);
-	}
 }

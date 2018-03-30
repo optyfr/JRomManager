@@ -2,7 +2,7 @@ package jrm.compressors;
 
 public enum SevenZipExtractOptions
 {
-	SEVENZIP("Extract with '7z' command","x -y -o%4 %1");
+	SEVENZIP("Extract with '7z' command","x -y -o%4 %1 %2");
 	
 	private String desc;
 	private String args;

@@ -20,8 +20,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,6 +34,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
+import jrm.compressors.SevenZipArchive;
 import jrm.data.Archive;
 import jrm.data.Container;
 import jrm.data.Container.Type;
@@ -227,6 +226,7 @@ public class DirScan
 										continue;
 									update_entry(profile, c.add(new Entry(archive_entry.getName())), archive_entry);
 								}
+								c.loaded = need_sha1_or_md5 ? 2 : 1;
 							}
 						}
 						else
@@ -291,7 +291,19 @@ public class DirScan
 		}
 		if (entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
 		{
-			//TODO Compute Hash for 7z
+			try(SevenZipArchive archive = new SevenZipArchive(entry.parent.file))
+			{
+				if(profile.sha1_roms || profile.md5_roms)
+				{
+					Path entry_path = archive.extract(archive_entry.getName()).toPath();
+					if(profile.sha1_roms) 
+						if(null!=(entry.sha1 = computeSHA1(entry_path)))
+							entries_bysha1.put(entry.sha1, entry);
+					if(profile.md5_roms) 
+						if(null!=(entry.md5 = computeMD5(entry_path)))
+							entries_bymd5.put(entry.sha1, entry);
+				}
+			}
 		}
 	}
 	
