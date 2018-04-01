@@ -1,10 +1,12 @@
 package jrm.data;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import jrm.profiler.scan.MergeOptions;
 
 @SuppressWarnings("serial")
 public class Rom extends Entity implements Serializable
@@ -17,16 +19,19 @@ public class Rom extends Entity implements Serializable
 	public String bios = null;
 	public String status = "";
 	
-	public Rom()
+	public Rom(Machine parent)
 	{
+		super(parent);
 	}
 
 	@Override
 	public String getName()
 	{
+		if(merge!=null && EnumSet.of(MergeOptions.MERGE,MergeOptions.FULLMERGE).contains(Machine.merge_mode))
+			return merge;
 		return name;
 	}
-	
+
 	@Override
 	public void setName(String name)
 	{
@@ -50,6 +55,6 @@ public class Rom extends Entity implements Serializable
 
 	public static Map<String,Rom> getRomsByName(List<Rom> roms)
 	{
-		return roms.stream().collect(Collectors.toMap(Rom::getName, Function.identity(), (n, r) -> n));
+		return roms.stream().collect(Collectors.toMap(Rom::getName, r -> r, (n, r) -> n));
 	}
 }

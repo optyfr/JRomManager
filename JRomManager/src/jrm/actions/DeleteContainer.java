@@ -5,20 +5,21 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 
 import jrm.data.Container;
+import jrm.profiler.scan.FormatOptions;
 import jrm.ui.ProgressHandler;
 
 public class DeleteContainer extends ContainerAction
 {
 
-	public DeleteContainer(Container container)
+	public DeleteContainer(Container container, FormatOptions format)
 	{
-		super(container);
+		super(container, format);
 	}
 
-	public static DeleteContainer getInstance(DeleteContainer action, Container container)
+	public static DeleteContainer getInstance(DeleteContainer action, Container container, FormatOptions format)
 	{
 		if(action == null)
-			action = new DeleteContainer(container);
+			action = new DeleteContainer(container, format);
 		return action;
 	}
 
@@ -26,6 +27,8 @@ public class DeleteContainer extends ContainerAction
 	public boolean doAction(ProgressHandler handler)
 	{
 		if(container.getType()==Container.Type.ZIP)
+			return container.file.delete();
+		else if(container.getType()==Container.Type.SEVENZIP)
 			return container.file.delete();
 		else if(container.getType()==Container.Type.DIR)
 		{

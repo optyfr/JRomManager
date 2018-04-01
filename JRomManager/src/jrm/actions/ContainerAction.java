@@ -4,16 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jrm.data.Container;
+import jrm.profiler.scan.FormatOptions;
 import jrm.ui.ProgressHandler;
 
 abstract public class ContainerAction
 {
 	public Container container;
+	public FormatOptions format;
 	public ArrayList<EntryAction> entry_actions = new ArrayList<>();
 	
-	public ContainerAction(Container container)
+	public ContainerAction(Container container, FormatOptions format)
 	{
 		this.container = container;
+		this.format = format;
 	}
 
 	public void addAction(EntryAction entryAction)

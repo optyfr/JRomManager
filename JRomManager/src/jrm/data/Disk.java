@@ -1,10 +1,13 @@
 package jrm.data;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import jrm.profiler.scan.MergeOptions;
 
 @SuppressWarnings("serial")
 public class Disk extends Entity implements Serializable
@@ -14,13 +17,16 @@ public class Disk extends Entity implements Serializable
 	public String merge = null;
 	public String status = "";
 	
-	public Disk()
+	public Disk(Machine parent)
 	{
+		super(parent);
 	}
 
 	@Override
 	public String getName()
 	{
+		if(merge!=null && EnumSet.of(MergeOptions.MERGE,MergeOptions.FULLMERGE).contains(Machine.merge_mode))
+			return merge+".chd";
 		return name+".chd";
 	}
 	

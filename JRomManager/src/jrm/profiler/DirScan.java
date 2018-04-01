@@ -46,6 +46,7 @@ import jrm.io.CHDInfoReader;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.ui.ProgressHandler;
+import one.util.streamex.StreamEx;
 
 public class DirScan
 {
@@ -79,8 +80,10 @@ public class DirScan
 		{
 			AtomicInteger i = new AtomicInteger();
 			handler.setProgress("Listing files in '" + dir + "' ...", -1);
-			StreamSupport.stream(stream.spliterator(), use_parallelism).forEach(p -> {
+			StreamEx.of(StreamSupport.stream(stream.spliterator(), use_parallelism)).unordered().takeWhile((p)->!handler.isCancel()).forEach(p -> {
 				Container c = null;
+				if(path.equals(p))
+					return;
 				File file = p.toFile();
 				try
 				{
@@ -148,8 +151,6 @@ public class DirScan
 						}
 					}
 					handler.setProgress("Listing files in '" + dir + "'... (" + i.incrementAndGet() + ")");
-					if(handler.isCancel())
-						throw new BreakException();
 				}
 				catch (IOException e)
 				{
@@ -164,17 +165,13 @@ public class DirScan
 		{
 			Log.err("IOException when listing", e);
 		}
-		catch (BreakException e)
-		{
-			throw e;
-		}
 		catch (Throwable e)
 		{
 			Log.err("Other Exception when listing", e);
 		}
 		AtomicInteger i = new AtomicInteger(0);
 		handler.setProgress("Scanning files in '" + dir + "'...", i.get(), containers.size());
-		(use_parallelism?containers.stream():containers.parallelStream()).forEach(c -> {
+		StreamEx.of(use_parallelism?containers.parallelStream().unordered():containers.stream()).takeWhile((c)->!handler.isCancel()).forEach(c -> {
 			try
 			{
 				switch(c.getType())
@@ -260,8 +257,6 @@ public class DirScan
 						break;
 				}
 				handler.setProgress("Scanned " + c.file.getName(), i.incrementAndGet(), null, i.get() + "/" + containers.size() + " (" + (int) (i.get() * 100.0 / containers.size()) + "%)");
-				if(handler.isCancel())
-					throw new BreakException();
 			}
 			catch (IOException e)
 			{
@@ -269,7 +264,7 @@ public class DirScan
 			}
 			catch (BreakException e)
 			{
-				throw e;
+				handler.cancel();
 			}
 			catch (Throwable e)
 			{
@@ -287,21 +282,25 @@ public class DirScan
 		{
 			entry.size = archive_entry.getSize();
 			entry.crc = String.format("%08x",archive_entry.getCrcValue());
-			entries_bycrc.put(entry.crc + "." + entry.size, entry);
 		}
+		entries_bycrc.put(entry.crc + "." + entry.size, entry);
 		if (entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
 		{
 			try(SevenZipArchive archive = new SevenZipArchive(entry.parent.file))
 			{
 				if(profile.sha1_roms || profile.md5_roms)
 				{
-					Path entry_path = archive.extract(archive_entry.getName()).toPath();
-					if(profile.sha1_roms) 
-						if(null!=(entry.sha1 = computeSHA1(entry_path)))
-							entries_bysha1.put(entry.sha1, entry);
-					if(profile.md5_roms) 
-						if(null!=(entry.md5 = computeMD5(entry_path)))
-							entries_bymd5.put(entry.sha1, entry);
+					ArrayList<String> algorithms = new ArrayList<>();
+					if(profile.sha1_roms)
+						algorithms.add("SHA-1");
+					if(profile.md5_roms)
+						algorithms.add("MD5");
+					computeHash(archive.extract_stdout(archive_entry.getName()),algorithms).forEach((n,r)->{
+						if(n.equals("SHA-1"))
+							entries_bysha1.put(entry.sha1 = r, entry);
+						if(n.equals("MD5"))
+							entries_bymd5.put(entry.md5 = r, entry);
+					});
 				}
 			}
 		}
@@ -313,17 +312,17 @@ public class DirScan
 	}
 	private void update_entry(Profile profile, Entry entry, Path entry_path) throws IOException
 	{
-		if (entry.size == 0 && entry.crc == null)
+		if(entry.parent.getType()==Type.ZIP)
 		{
-			if(entry.parent.getType()==Type.ZIP)
+			if (entry.size == 0 && entry.crc == null)
 			{
 				if (entry_path == null)
 					entry_path = getPath(entry);
 				Map<String, Object> entry_zip_attrs = Files.readAttributes(entry_path, "zip:*");
 				entry.size = (Long) entry_zip_attrs.get("size");
 				entry.crc = String.format("%08x", entry_zip_attrs.get("crc"));
-				entries_bycrc.put(entry.crc + "." + entry.size, entry);
 			}
+			entries_bycrc.put(entry.crc + "." + entry.size, entry);
 		}
 		if (entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
 		{
@@ -357,6 +356,32 @@ public class DirScan
 				}
 			}
 		}
+	}
+	
+	private Map<String,String> computeHash(InputStream is, List<String> algorithms)
+	{
+		HashMap<String, String> result = new HashMap<>();
+		try(BufferedInputStream bis = new BufferedInputStream(is))
+		{
+			MessageDigest[] digest = new MessageDigest[algorithms.size()];
+			for(int i = 0; i < algorithms.size(); i++)
+				digest[i] = MessageDigest.getInstance(algorithms.get(i));
+			byte[] buffer = new byte[8192];
+			int len = is.read(buffer);
+			while (len != -1)
+			{
+				for(int i = 0; i < algorithms.size(); i++)
+					digest[i].update(buffer, 0, len);
+				len = is.read(buffer);
+			}
+			for(int i = 0; i < algorithms.size(); i++)
+				result.put(algorithms.get(i), Hex.encodeHexString(digest[i].digest()));
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	private String computeSHA1(Path entry_path)

@@ -103,10 +103,10 @@ public class Progress extends JDialog implements ProgressHandler
 		gbc_horizontalStrut_1.gridy = 3;
 		getContentPane().add(horizontalStrut_1, gbc_horizontalStrut_1);
 
-		JButton btnCancel = new JButton("Cancel");
+		btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cancel = true;
+				cancel();
 			}
 		});
 		GridBagConstraints gbc_btnCancel = new GridBagConstraints();
@@ -147,6 +147,7 @@ public class Progress extends JDialog implements ProgressHandler
 
 	long startTime = 0;
 	private JLabel lblTimeleft;
+	private JButton btnCancel;
 	
 	@Override
 	public synchronized void setProgress(String msg, Integer val, Integer max, String submsg)
@@ -177,6 +178,13 @@ public class Progress extends JDialog implements ProgressHandler
 	public boolean isCancel()
 	{
 		return cancel;
+	}
+	
+	public void cancel()
+	{
+		this.cancel = true;
+		btnCancel.setEnabled(false);
+		btnCancel.setText("Canceling...");
 	}
 
 }

@@ -7,4 +7,5 @@ public interface ProgressHandler
 	public void setProgress(String msg, Integer val, Integer max);
 	public void setProgress(String msg, Integer val, Integer max, String submsg);
 	public boolean isCancel();
+	public void cancel();
 }

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import jrm.compressors.Archive;
 import jrm.data.Entry;
 import jrm.ui.ProgressHandler;
 
@@ -47,6 +48,23 @@ public class DuplicateEntry extends EntryAction
 			Path srcpath = target.resolve(entry.file);
 			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES);
 			return true;
+		}
+		catch(Throwable e)
+		{
+			System.err.println("duplicate "+parent.container.file.getName()+"@"+entry.file+" to "+parent.container.file.getName()+"@"+newname+" failed");
+		}
+		return false;
+	}
+
+	@Override
+	public boolean doAction(Archive archive, ProgressHandler handler)
+	{
+		try
+		{
+			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
+			if(archive.extract(entry.file)!=null)			// extract original file to tempdir
+				if(archive.rename(entry.file, newname)==0)	// rename original file to new name in archive
+					return archive.add(entry.file) == 0;	// readd original file from tempdir
 		}
 		catch(Throwable e)
 		{

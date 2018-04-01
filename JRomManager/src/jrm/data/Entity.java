@@ -6,10 +6,12 @@ import java.io.Serializable;
 public abstract class Entity implements Serializable
 {
 	protected String name;
+	
+	protected Machine parent;
 
-	public Entity()
+	public Entity(Machine parent)
 	{
-		// TODO Auto-generated constructor stub
+		this.parent = parent;
 	}
 
 	public abstract String getName();

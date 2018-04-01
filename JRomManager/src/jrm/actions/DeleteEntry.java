@@ -4,6 +4,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import jrm.compressors.Archive;
 import jrm.data.Entry;
 import jrm.ui.ProgressHandler;
 
@@ -47,7 +48,21 @@ public class DeleteEntry extends EntryAction
 		{
 			System.err.println("delete "+parent.container.file.getName()+"@"+path+" failed");
 		}
-		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean doAction(Archive archive, ProgressHandler handler)
+	{
+		try
+		{
+			handler.setProgress(null,null,null,"Deleting "+entry.file);
+			return archive.delete(entry.file) == 0;
+		}
+		catch (Throwable e)
+		{
+			System.err.println("delete "+parent.container.file.getName()+"@"+entry.file+" failed");
+		}
 		return false;
 	}
 

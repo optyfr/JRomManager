@@ -50,7 +50,7 @@ public class Profile implements Serializable
 	HashMap<String, Machine> machines_byname = new HashMap<>();
 	HashSet<String> suspicious_crc = new HashSet<>();
 	
-	transient Properties settings = null;
+	public transient Properties settings = null;
 
 	public Profile()
 	{
@@ -120,7 +120,7 @@ public class Profile implements Serializable
 					{
 						if (in_machine)
 						{
-							curr_rom = new Rom();
+							curr_rom = new Rom(curr_machine);
 							for (int i = 0; i < attributes.getLength(); i++)
 							{
 								switch (attributes.getQName(i))
@@ -159,7 +159,7 @@ public class Profile implements Serializable
 					{
 						if (in_machine)
 						{
-							curr_disk = new Disk();
+							curr_disk = new Disk(curr_machine);
 							for (int i = 0; i < attributes.getLength(); i++)
 							{
 								switch (attributes.getQName(i))
@@ -234,6 +234,10 @@ public class Profile implements Serializable
 					if (in_machine && in_description)
 						curr_machine.description.append(ch, start, length);
 				}
+			});
+			machines.forEach(machine -> {
+				if(machine.romof!=null)
+					machine.parent = machines_byname.get(machine.romof);
 			});
 			handler.setProgress("Saving cache...", -1);
 			save();

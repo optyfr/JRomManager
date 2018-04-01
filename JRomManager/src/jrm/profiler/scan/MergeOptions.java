@@ -3,8 +3,9 @@ package jrm.profiler.scan;
 public enum MergeOptions
 {
 	FULLMERGE("Full Merge (with BIOS)"),
-	MERGE("Merged"),
-	NOMERGE("Non Merged"),
+	MERGE("Merged (no BIOS)"),
+	FULLNOMERGE("Non Merged (with BIOS)"),
+	NOMERGE("Non Merged (no BIOS)"),
 	SPLIT("Split (default)");
 	
 	private String name;
@@ -14,8 +15,7 @@ public enum MergeOptions
 		this.name = name;
 	}
 	
-	@Override
-	public String toString()
+	public String getDesc()
 	{
 		return name;
 	}

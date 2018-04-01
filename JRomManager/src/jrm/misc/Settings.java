@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import javax.swing.JRadioButtonMenuItem;
-
 public class Settings
 {
 	public static Properties settings = new Properties();
