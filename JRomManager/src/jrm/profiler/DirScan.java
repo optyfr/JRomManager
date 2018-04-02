@@ -304,6 +304,13 @@ public class DirScan
 				}
 			}
 		}
+		else
+		{
+			if(entry.sha1 !=null )
+				entries_bysha1.put(entry.sha1, entry);
+			if(entry.md5 !=null )
+				entries_bymd5.put(entry.md5, entry);
+		}
 	}
 	
 	private void update_entry(Profile profile, Entry entry) throws IOException
@@ -352,9 +359,16 @@ public class DirScan
 							entries_bysha1.put(entry.sha1, entry);
 					if(profile.md5_roms) 
 						if(null!=(entry.md5 = computeMD5(entry_path)))
-							entries_bymd5.put(entry.sha1, entry);
+							entries_bymd5.put(entry.md5, entry);
 				}
 			}
+		}
+		else
+		{
+			if(entry.sha1 !=null )
+				entries_bysha1.put(entry.sha1, entry);
+			if(entry.md5 !=null )
+				entries_bymd5.put(entry.md5, entry);
 		}
 	}
 	
@@ -423,15 +437,23 @@ public class DirScan
 		}
 	}
 	
-	public Entry find_byhash(Rom r)
+	public Entry find_byhash(Profile profile, Rom r)
 	{
 		Entry entry = null;
 		if (r.sha1 != null)
+		{
 			if (null != (entry = entries_bysha1.get(r.sha1)))
 				return entry;
+			if(profile.suspicious_crc.contains(r.crc))
+				return null;
+		}
 		if (r.md5 != null)
+		{
 			if (null != (entry = entries_bymd5.get(r.md5)))
 				return entry;
+			if(profile.suspicious_crc.contains(r.crc))
+				return null;
+		}
 		return entries_bycrc.get(r.crc + "." + r.size);
 	}
 

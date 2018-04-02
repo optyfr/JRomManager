@@ -1,5 +1,6 @@
 package jrm.actions;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -34,6 +35,8 @@ public class AddEntry extends EntryAction
 		{
 			
 			srcpath = srcfs.getPath(entry.file);
+			if(dstpath.getParent()!=null)
+				Files.createDirectories(dstpath.getParent());
 			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		}
@@ -52,12 +55,45 @@ public class AddEntry extends EntryAction
 		Path srcpath = null;
 		try
 		{
-			srcpath = entry.parent.file.toPath().resolve(entry.file);
-			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			if(entry.parent.getType()==Type.ZIP)
+			{
+				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+				{
+					srcpath = srcfs.getPath(entry.file);
+					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				}
+				catch(Throwable e)
+				{
+					System.err.println("add from "+entry.parent.file.getName()+"@"+entry.file+" to "+parent.container.file.getName()+"@"+entity.getName()+" failed");
+				}
+				
+			}
+			else if(entry.parent.getType()==Type.SEVENZIP)
+			{
+				try(Archive srcarchive = new SevenZipArchive(entry.parent.file))
+				{
+					if(srcarchive.extract(entry.file)!=null)
+					{
+						srcpath = new File(srcarchive.getTempDir(), entry.file).toPath();
+						Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+					}
+				//	return archive.add_stdin(srcarchive.extract_stdout(entry.file) , entity.getName()) == 0;
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			else
+			{
+				srcpath = entry.parent.file.toPath().resolve(entry.file);
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			}
 			return true;
 		}
 		catch (Throwable e)
 		{
+			e.printStackTrace();
 			System.err.println("add from "+entry.parent.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath+" failed");
 		}
 		return false;

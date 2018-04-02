@@ -27,11 +27,14 @@ public class DuplicateEntry extends EntryAction
 		{
 			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
 			Path srcpath = fs.getPath(entry.file);
-			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES);
+			if(dstpath.getParent()!=null)
+				Files.createDirectories(dstpath.getParent());
+			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		}
 		catch(Throwable e)
 		{
+			e.printStackTrace();
 			System.err.println("duplicate "+parent.container.file.getName()+"@"+entry.file+" to "+parent.container.file.getName()+"@"+newname+" failed");
 		}
 		return false;

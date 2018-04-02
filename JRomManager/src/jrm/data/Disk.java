@@ -1,13 +1,10 @@
 package jrm.data;
 
 import java.io.Serializable;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import jrm.profiler.scan.MergeOptions;
 
 @SuppressWarnings("serial")
 public class Disk extends Entity implements Serializable
@@ -25,8 +22,14 @@ public class Disk extends Entity implements Serializable
 	@Override
 	public String getName()
 	{
-		if(merge!=null && EnumSet.of(MergeOptions.MERGE,MergeOptions.FULLMERGE).contains(Machine.merge_mode))
+		if(merge!=null && Machine.merge_mode.isMerge())
+		{
+			if(isCollisionMode())
+				return parent.name+"/"+merge+".chd";
 			return merge+".chd";
+		}
+		if(isCollisionMode())
+			return parent.name+"/"+name+".chd";
 		return name+".chd";
 	}
 	
@@ -47,6 +50,25 @@ public class Disk extends Entity implements Serializable
 				return ((Disk)obj).md5.equals(this.md5);
 		}
 		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		if(this.sha1!=null)
+			return this.sha1.hashCode();
+		if(this.md5!=null)
+			return this.md5.hashCode();
+		return super.hashCode();
+	}
+
+	public String hashString()
+	{
+		if(this.sha1!=null)
+			return this.sha1;
+		if(this.md5!=null)
+			return this.md5;
+		return this.getName();
 	}
 	
 	public static Map<String,Disk> getDisksByName(List<Disk> disks)

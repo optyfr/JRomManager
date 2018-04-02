@@ -2,10 +2,14 @@ package jrm.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import jrm.profiler.scan.HashCollisionOptions;
 import jrm.profiler.scan.MergeOptions;
+import one.util.streamex.StreamEx;
 
 @SuppressWarnings("serial")
 public class Machine implements Serializable
@@ -23,17 +27,50 @@ public class Machine implements Serializable
 	public ArrayList<Disk> disks = new ArrayList<>();
 	
 	public Machine parent = null;
+	public HashMap<String,Machine> clones = new HashMap<>();
 	
 	public static transient MergeOptions merge_mode;
+	public static transient HashCollisionOptions hash_collision_mode;
+	private transient boolean collision = false;
 	
 	public Machine()
 	{
 	}
 
-	public List<Disk> filterDisks(MergeOptions merge_mode)
+	public void setCollisionMode(boolean parent)
+	{
+		if(parent)
+			getDestMachine(merge_mode).clones.forEach((n,m)->m.collision=true);
+		collision = true;
+	}
+	
+	public boolean isCollisionMode()
+	{
+		return collision;
+	}
+
+	public void resetCollisionMode()
+	{
+		collision = false;
+		roms.forEach(Rom::resetCollisionMode);
+		disks.forEach(Disk::resetCollisionMode);
+	}
+	
+	public List<Disk> filterDisks(MergeOptions merge_mode, HashCollisionOptions hash_collision_mode)
 	{
 		Machine.merge_mode = merge_mode;
-		return disks.stream().filter(d -> {
+		Machine.hash_collision_mode = hash_collision_mode;
+		Stream<Disk> stream;
+		if(merge_mode.isMerge())
+		{
+			if(isClone())
+				stream = Stream.empty();
+			else
+				stream = StreamEx.of(disks).append(StreamEx.of(clones.values()).flatMap(m -> m.disks.stream())).distinct((d)->d.hashString()+"_"+d.getName());//Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).distinct();
+		}
+		else
+			stream = disks.stream();
+		return stream.filter(d -> {
 			if(d.status.equals("nodump"))
 				return false;
 			if(merge_mode==MergeOptions.SPLIT && d.merge!=null)
@@ -44,10 +81,44 @@ public class Machine implements Serializable
 		}).collect(Collectors.toList());
 	}
 	
-	public List<Rom> filterRoms(MergeOptions merge_mode)
+	public boolean isClone()
+	{
+		return (parent!=null && !parent.isbios);
+	}
+	
+	public List<Rom> filterRoms(MergeOptions merge_mode, HashCollisionOptions hash_collision_mode)
 	{
 		Machine.merge_mode = merge_mode;
-		return roms.stream().filter(r -> {
+		Machine.hash_collision_mode = hash_collision_mode;
+		Stream<Rom> stream;
+		if(merge_mode.isMerge())
+		{
+			if(isClone())
+				stream = Stream.empty();
+			else
+			{
+				StreamEx.of(roms).append(StreamEx.of(clones.values()).flatMap(m -> m.roms.stream())).groupingBy((r)->r.getName()).values().forEach((l)->{
+					if(l.size()>1)
+					{
+						if(StreamEx.of(l).distinct(Rom::hashString).count()>1)
+						{
+							l.forEach((r)->{
+								r.setCollisionMode();
+							//	report_w.println("\t"+r.getName()+" ("+r.hashString()+") parent="+r.getParent().name+", isclone="+r.getParent().isClone());
+							});
+						}
+					}
+				});
+				stream = StreamEx.of(roms).append(StreamEx.of(clones.values()).flatMap(m -> m.roms.stream())).distinct((r)->{
+				/*	if(r.isCollisionMode())
+						return r.parent.name+"/"+r.getName()+"_"+r.hashString();*/
+					return r.getName();
+				});//Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).distinct();
+			}
+		}
+		else
+			stream = roms.stream();
+		return stream.filter(r -> {
 			if(r.status.equals("nodump"))
 				return false;
 			if (r.crc == null)
@@ -77,14 +148,8 @@ public class Machine implements Serializable
 	public Machine getDestMachine(MergeOptions merge_mode)
 	{
 		Machine.merge_mode = merge_mode;
-		switch(merge_mode)
-		{
-			case SPLIT: 		return this;
-			case FULLNOMERGE:	return this;
-			case NOMERGE:		return this;
-			case MERGE:			return parent!=null&&!parent.isbios?parent.getDestMachine(merge_mode):this;
-			case FULLMERGE:		return parent!=null&&!parent.isbios?parent.getDestMachine(merge_mode):this;
-		}
+		if (merge_mode.isMerge() && isClone())
+			return parent.getDestMachine(merge_mode);
 		return this;
 	}
 }

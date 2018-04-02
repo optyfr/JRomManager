@@ -1,5 +1,7 @@
 package jrm.profiler.scan;
 
+import java.util.EnumSet;
+
 public enum MergeOptions
 {
 	FULLMERGE("Full Merge (with BIOS)"),
@@ -18,5 +20,10 @@ public enum MergeOptions
 	public String getDesc()
 	{
 		return name;
+	}
+	
+	public boolean isMerge()
+	{
+		return EnumSet.of(MERGE,FULLMERGE).contains(this);
 	}
 }

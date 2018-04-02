@@ -31,8 +31,10 @@ import jrm.data.Rom;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profiler.scan.FormatOptions;
+import jrm.profiler.scan.HashCollisionOptions;
 import jrm.profiler.scan.MergeOptions;
 import jrm.ui.ProgressHandler;
+import one.util.streamex.StreamEx;
 
 public class Scan
 {
@@ -43,17 +45,19 @@ public class Scan
 	{
 		FormatOptions format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString()));
 		MergeOptions merge_mode = MergeOptions.valueOf(profile.getProperty("merge_mode", MergeOptions.SPLIT.toString()));
-		
+		boolean create_mode = profile.getProperty("create_mode", true);
+		HashCollisionOptions hash_collision_mode = HashCollisionOptions.valueOf(profile.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()));
+
 		DirScan dstscan = new DirScan(profile, dstdir, handler, true);
 		List<DirScan> allscans = new ArrayList<>();
 		allscans.add(dstscan);
-		for(File dir : srcdirs)
+		for (File dir : srcdirs)
 			allscans.add(new DirScan(profile, dir, handler, false));
 
 		ArrayList<Container> unknown = new ArrayList<>();
 		for (Container c : dstscan.containers)
 		{
-			if(c.getType()==Container.Type.UNK)
+			if (c.getType() == Container.Type.UNK)
 				unknown.add(c);
 			else if (!profile.machines_byname.containsKey(FilenameUtils.getBaseName(c.file.toString())))
 				unknown.add(c);
@@ -71,300 +75,365 @@ public class Scan
 		File report = new File(reportdir, "report.log");
 		try (PrintWriter report_w = new PrintWriter(report))
 		{
-			unknown.forEach((c)->{
-				report_w.println("Uneeded " + (c.getType()==Container.Type.DIR?"Directory":"File") + " : " + c.file);
+			unknown.forEach((c) -> {
+				report_w.println("Uneeded " + (c.getType() == Container.Type.DIR ? "Directory" : "File") + " : " + c.file);
 				delete_actions.add(new DeleteContainer(c, format));
 			});
-			profile.suspicious_crc.forEach((crc)->report_w.println("Detected suspicious CRC : " + crc + " (SHA1 has been calculated for theses roms"));
+			profile.suspicious_crc.forEach((crc) -> report_w.println("Detected suspicious CRC : " + crc + " (SHA1 has been calculated for theses roms)"));
 
 			int i = 0;
 			int missing_set_cnt = 0;
 			int missing_roms_cnt = 0;
 			int missing_disks_cnt = 0;
 			handler.setProgress("Searching for fixes...", i, profile.machines.size());
+			profile.machines.forEach(Machine::resetCollisionMode);
 			for (Machine m : profile.machines)
 			{
 				boolean missing_set = true;
-			//	if (!m.isdevice)
-				{
-					Container c;
-					List<Disk> disks = m.filterDisks(merge_mode);
-					List<Rom> roms = m.filterRoms(merge_mode);
-					Directory directory  = new Directory(new File(dstdir, m.getDestMachine(merge_mode).name));
-					if (null != (c = dstscan.containers_byname.get(m.getDestMachine(merge_mode).name)))
+				Container c;
+				List<Disk> disks = m.filterDisks(merge_mode, hash_collision_mode);
+				List<Rom> roms = m.filterRoms(merge_mode, hash_collision_mode);
+			/*	roms.stream().filter((r)->Collections.frequency(roms, r)>1).forEach((r)->{
+					report_w.println("Collision hash detected in "+m.name+" for "+r.getName()+" ("+r.hashString()+")");
+				});*/
+/*				StreamEx.of(StreamEx.of(roms).groupingBy(Rom::getName).values()).forEach((l)->{
+					if(l.size()>1)
 					{
-						missing_set = false;
-						if(disks.size() > 0)
+					//	report_w.println("Collision hash detected in "+m.name+" : ");
+						l.forEach((r)->{
+							r.setCollisionMode();
+						//	report_w.println("\t"+r.getName()+" ("+r.hashString()+") parent="+r.getParent().name+", isclone="+r.getParent().isClone());
+						});
+					}
+				});*/
+				StreamEx.of(StreamEx.of(disks).groupingBy(Disk::getName).values()).forEach((l)->{
+					if(l.size()>1)
+					{
+					//	report_w.println("Collision hash detected in "+m.name+" : ");
+						l.forEach((d)->{
+							d.setCollisionMode();
+						//	report_w.println("\t"+d.getName()+" ("+d.hashString()+")");
+						});
+					}
+				});
+				Directory directory = new Directory(new File(dstdir, m.getDestMachine(merge_mode).name));
+				if (null != (c = dstscan.containers_byname.get(m.getDestMachine(merge_mode).name)))
+				{
+					missing_set = false;
+					if (disks.size() > 0)
+					{
+						ArrayList<Entry> disks_found = new ArrayList<>();
+						Map<String, Disk> disks_byname = Disk.getDisksByName(disks);
+						OpenContainer update_set = null, delete_set = null, rename_before_set = null, rename_after_set = null;
+						for (Disk d : disks)
 						{
-							ArrayList<Entry> disks_found = new ArrayList<>();
-							Map<String, Disk> disks_byname = Disk.getDisksByName(disks);
-							OpenContainer update_set = null, delete_set = null, rename_before_set = null, rename_after_set = null;
-							for(Disk d : disks)
+							Entry found = null;
+							Map<String, Entry> entries_byname = c.getEntriesByName();
+							for (Entry e : c.getEntries())
 							{
-								Entry found = null;
-								Map<String, Entry> entries_byname = c.getEntriesByName();
-								for (Entry e : c.getEntries())
+								if (e.equals(d))
 								{
-									if (e.equals(d))
+									if (!d.getName().equals(e.getName()))
 									{
-										if (!d.getName().equals(e.getName()))
+										if (disks_byname.containsKey(new File(e.file).getName()))
 										{
-											if (disks_byname.containsKey(new File(e.file).getName()))
+											if (entries_byname.containsKey(d.getName()))
 											{
-												if (!entries_byname.containsKey(d.getName()))
-												{
-													report_w.println("[" + m.name + "] " + d.getName() + " <- " + e.file);
-													(update_set = OpenContainer.getInstance(update_set, directory, format)).addAction(new DuplicateEntry(d.getName(), e));
-												}
-												else
-												{
-												//	report_w.println("["+m.name+"] "+d.getName()+" == "+e.file);
-												}
+												// report_w.println("["+m.name+"] "+d.getName()+" == "+e.file);
 											}
-											else
+/*											else
 											{
-												report_w.println("[" + m.name + "] wrong named rom (" + e.getName() + "->" + d.getName() + ")");
-												(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(e));
-												(rename_after_set = OpenContainer.getInstance(rename_after_set, directory, format)).addAction(new RenameEntry(d.getName(), e));
-												found = e;
-												break;
-											}
+												report_w.println("[" + m.name + "] " + d.getName() + " <- " + e.file);
+												(update_set = OpenContainer.getInstance(update_set, directory, format)).addAction(new DuplicateEntry(d.getName(), e));
+											}*/
 										}
 										else
 										{
-										//	report_w.println("["+m.name+"] "+d.getName()+" ("+e.file+") OK ");
+											report_w.println("[" + m.name + "] wrong named rom (" + e.getName() + "->" + d.getName() + ")");
+											(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(e));
+											(rename_after_set = OpenContainer.getInstance(rename_after_set, directory, format)).addAction(new RenameEntry(d.getName(), e));
 											found = e;
 											break;
 										}
 									}
-									else if (d.getName().equals(e.getName()))
+									else
 									{
-										if(e.sha1==null)
-											report_w.println("[" + m.name + "] "+e.file+" has wrong md5 (got " + e.md5 + " vs " + d.md5 + ")");
-										else
-											report_w.println("[" + m.name + "] "+e.file+" has wrong sha1 (got " + e.sha1 + " vs " + d.sha1 + ")");
-										//found = e;
+										// report_w.println("["+m.name+"] "+d.getName()+" ("+e.file+") OK ");
+										found = e;
 										break;
 									}
-								}								
-								if (found == null)
-								{
-									missing_disks_cnt++;
-									for(DirScan scan : allscans)
-									{
-										if (null != (found = scan.find_byhash(d)))
-										{
-											report_w.println("[" + m.name + "] " + d.getName() + " <- " + found.parent.file.getName() + "@" + found.file);
-											(update_set = OpenContainer.getInstance(update_set, directory, format)).addAction(new AddEntry(d, found));
-											break;
-										}
-									}
-									if(found==null)
-										report_w.println("[" + m.name + "] " + d.getName() + " is missing and not fixable");
 								}
-								else
+								else if (d.getName().equals(e.getName()))
 								{
-								//	report_w.println("["+m.name+"] "+d.getName()+" ("+found.file+") OK ");
-									disks_found.add(found);
+									if (e.sha1 == null)
+										report_w.println("[" + m.name + "] " + e.file + " has wrong md5 (got " + e.md5 + " vs " + d.md5 + ")");
+									else
+										report_w.println("[" + m.name + "] " + e.file + " has wrong sha1 (got " + e.sha1 + " vs " + d.sha1 + ")");
+									// found = e;
+									break;
 								}
 							}
-							List<Entry> unneeded = c.getEntries().stream().filter(not(new HashSet<>(disks_found)::contains)).collect(Collectors.toList());
-							for (Entry e : unneeded)
-							{
-								report_w.println("[" + m.name + "] " + e.file + " unneeded (sha1=" + e.sha1 + ")");
-								(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(e));
-								(delete_set = OpenContainer.getInstance(delete_set, directory, format)).addAction(new DeleteEntry(e));
-							}
-							ContainerAction.addToList(rename_before_actions, rename_before_set);
-							ContainerAction.addToList(update_actions, update_set);
-							ContainerAction.addToList(delete_actions, delete_set);
-							ContainerAction.addToList(rename_after_actions, rename_after_set);
-						}
-						else
-						{
-							report_w.println("[" + m.name + "] "+c.file.getName()+" is unneeded");
-							delete_actions.add(new DeleteContainer(c, format));							
-						}
-					}
-					else
-					{
-						if (disks.size() > 0)
-						{
-							int disks_found = 0;
-							boolean partial = false;
-							String submsg = "";
-							CreateContainer createset = null;
-							for (Disk d : disks)
+							if (found == null)
 							{
 								missing_disks_cnt++;
-								Entry found = null;
-								for(DirScan scan : allscans)
+								for (DirScan scan : allscans)
 								{
 									if (null != (found = scan.find_byhash(d)))
 									{
-										submsg += "\t[" + m.name + "] " + d.getName() + " <- " + found.parent.file.getName() + "@" + found.file + "\n";
-										(createset = CreateContainer.getInstance(createset, directory, format)).addAction(new AddEntry(d, found));
-										disks_found++;
-										break;
-									}
-								}
-								if(found==null)
-								{
-									submsg += "\t[" + m.name + "] " + d.getName() + " is missing and not fixable\n";
-									partial = true;
-								}
-							}
-							ContainerAction.addToList(create_actions, createset);
-							String msg = "[" + m.name + "] is missing";
-							if (disks_found > 0)
-								msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
-							report_w.println(msg);
-						}
-					}
-					Archive archive = new Archive(new File(dstdir, m.getDestMachine(merge_mode).name + format.getExt()));
-					if (null != (c = dstscan.containers_byname.get(m.getDestMachine(merge_mode).name + format.getExt())))
-					{
-						missing_set = false;
-						if (roms.size() > 0)
-						{
-							ArrayList<Entry> roms_found = new ArrayList<>();
-							Map<String, Rom> roms_byname = Rom.getRomsByName(roms);
-							OpenContainer update_set = null, delete_set = null, rename_before_set = null, rename_after_set = null;
-							for (Rom r : roms)
-							{
-								Entry found = null;
-								Map<String, Entry> entries_byname = c.getEntriesByName();
-								for (Entry e : c.getEntries())
-								{
-									String efile = Paths.get(e.file).subpath(0, Paths.get(e.file).getNameCount()).toString();
-									if (e.equals(r))
-									{
-										if (!r.getName().equals(efile))
-										{
-											if (roms_byname.containsKey(new File(e.file).getName()))
-											{
-												if (!entries_byname.containsKey(r.getName()))
-												{
-													report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " <- " + e.file);
-													(update_set = OpenContainer.getInstance(update_set, archive, format)).addAction(new DuplicateEntry(r.getName(), e));
-												}
-												else
-												{
-													// report_w.println("["+m.name+"] "+r.name+" == "+e.file);
-												}
-											}
-											else
-											{
-												report_w.println("[" + m.name + "] wrong named rom (" + archive.file.getName() +"@"+ efile + "->" + r.getName() + ")");
-												(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
-												(rename_after_set = OpenContainer.getInstance(rename_after_set, archive, format)).addAction(new RenameEntry(r.getName(), e));
-												found = e;
-												break;
-											}
-										}
-										else
-										{
-											//report_w.println("["+m.name+"] "+r.name+" ("+e.file+") OK ");
-											found = e;
-											break;
-										}
-									}
-									else if (r.getName().equals(efile))
-									{
-										if(e.md5==null && e.sha1==null)
-											report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + e.file+" has wrong crc (got " + e.crc + " vs " + r.crc + ")");
-										else if(e.sha1==null)
-											report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + e.file+" has wrong md5 (got " + e.md5 + " vs " + r.md5 + ")");
-										else
-											report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + e.file+" has wrong sha1 (got " + e.sha1 + " vs " + r.sha1 + ")");
-										//found = e;
+										report_w.println("[" + m.name + "] " + d.getName() + " <- " + found.parent.file.getName() + "@" + found.file);
+										(update_set = OpenContainer.getInstance(update_set, directory, format)).addAction(new AddEntry(d, found));
 										break;
 									}
 								}
 								if (found == null)
+									report_w.println("[" + m.name + "] " + d.getName() + " is missing and not fixable");
+							}
+							else
+							{
+								// report_w.println("["+m.name+"] "+d.getName()+" ("+found.file+") OK ");
+								disks_found.add(found);
+							}
+						}
+						List<Entry> unneeded = c.getEntries().stream().filter(not(new HashSet<>(disks_found)::contains)).collect(Collectors.toList());
+						for (Entry e : unneeded)
+						{
+							report_w.println("[" + m.name + "] " + e.file + " unneeded (sha1=" + e.sha1 + ")");
+							(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(e));
+							(delete_set = OpenContainer.getInstance(delete_set, directory, format)).addAction(new DeleteEntry(e));
+						}
+						ContainerAction.addToList(rename_before_actions, rename_before_set);
+						ContainerAction.addToList(update_actions, update_set);
+						ContainerAction.addToList(delete_actions, delete_set);
+						ContainerAction.addToList(rename_after_actions, rename_after_set);
+					}
+				}
+				else if(create_mode)
+				{
+					if (disks.size() > 0)
+					{
+						int disks_found = 0;
+						boolean partial = false;
+						String submsg = "";
+						CreateContainer createset = null;
+						for (Disk d : disks)
+						{
+							missing_disks_cnt++;
+							Entry found = null;
+							for (DirScan scan : allscans)
+							{
+								if (null != (found = scan.find_byhash(d)))
 								{
-									missing_roms_cnt++;
-									for(DirScan scan : allscans)
+									submsg += "\t[" + m.name + "] " + d.getName() + " <- " + found.parent.file.getName() + "@" + found.file + "\n";
+									(createset = CreateContainer.getInstance(createset, directory, format)).addAction(new AddEntry(d, found));
+									disks_found++;
+									break;
+								}
+							}
+							if (found == null)
+							{
+								submsg += "\t[" + m.name + "] " + d.getName() + " is missing and not fixable\n";
+								partial = true;
+							}
+						}
+						ContainerAction.addToList(create_actions, createset);
+						String msg = "[" + m.name + "] is missing";
+						if (disks_found > 0)
+							msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
+						report_w.println(msg);
+					}
+				}
+				Container archive = new Archive(new File(dstdir, m.getDestMachine(merge_mode).name + format.getExt()));
+				if(format.getExt().isDir()) archive = directory;
+				if (null != (c = dstscan.containers_byname.get(m.getDestMachine(merge_mode).name + format.getExt())))
+				{
+					missing_set = false;
+					if (roms.size() > 0)
+					{
+						ArrayList<Entry> roms_found = new ArrayList<>();
+						Map<String, Rom> roms_byname = Rom.getRomsByName(roms);
+						OpenContainer update_set = null, delete_set = null, rename_before_set = null,
+								rename_after_set = null;
+						for (Rom r : roms)
+						{
+							Entry found = null;
+							Map<String, Entry> entries_byname = c.getEntriesByName();
+							for (Entry e : c.getEntries())
+							{
+								String efile = e.getName();
+							//	String efile = Paths.get(e.file).subpath(0, Paths.get(e.file).getNameCount()).toString();
+								if (e.equals(r))	// The entry 'e' match hash from rom 'r'
+								{
+									if (!r.getName().equals(efile))	// but this entry name does not match the rom name
 									{
-										if (null != (found = scan.find_byhash(r)))
+										if (roms_byname.containsKey(efile))	// and entry name correspond to another rom name in the set
 										{
-											report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " <- " + found.parent.file.getName() + "@" + found.file);
-											(update_set = OpenContainer.getInstance(update_set, archive, format)).addAction(new AddEntry(r, found));
-											// roms_found.add(found);
+											if (entries_byname.containsKey(r.getName()))	// and rom name is in the entries
+											{
+										//		report_w.println("[" + m.name + "] " + r.getName() + " == " + e.file);
+											}
+											else
+											{
+												// we must duplicate
+												report_w.println("[" + m.name + "] duplicate " + e.file + " >>> " + r.getName());
+												(update_set = OpenContainer.getInstance(update_set, archive, format)).addAction(new DuplicateEntry(r.getName(), e));
+												found = e;
+											}
+										}
+										else
+										{
+											report_w.println("[" + m.name + "] wrong named rom (" + archive.file.getName() + "@" + efile + "->" + r.getName() + ")");
+											(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
+											(rename_after_set = OpenContainer.getInstance(rename_after_set, archive, format)).addAction(new RenameEntry(r.getName(), e));
+											found = e;
 											break;
 										}
 									}
-									if(found==null)
-										report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " is missing and not fixable");
-								}
-								else
-								{
-									//report_w.println("["+m.name+"] "+r.name+" ("+found.file+") OK ");
-									roms_found.add(found);
-								}
-							}
-							List<Entry> unneeded = c.getEntries().stream().filter(not(new HashSet<>(roms_found)::contains)).collect(Collectors.toList());
-							for (Entry e : unneeded)
-							{
-								String efile = Paths.get(e.file).subpath(0, Paths.get(e.file).getNameCount()).toString();
-								report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + efile + " unneeded (crc=" + e.crc + ", sha1=" + e.sha1 + ")");
-								(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
-								(delete_set = OpenContainer.getInstance(delete_set, archive, format)).addAction(new DeleteEntry(e));
-							}
-							ContainerAction.addToList(rename_before_actions, rename_before_set);
-							ContainerAction.addToList(update_actions, update_set);
-							ContainerAction.addToList(delete_actions, delete_set);
-							ContainerAction.addToList(rename_after_actions, rename_after_set);
-						}
-						else
-						{
-							report_w.println("[" + m.name + "] "+c.file.getName()+" is unneeded");
-							delete_actions.add(new DeleteContainer(c, format));
-						}
-					}
-					else
-					{
-						if (roms.size() > 0)
-						{
-							int roms_found = 0;
-							boolean partial = false;
-							String submsg = "";
-							CreateContainer createset = null;
-							for (Rom r : roms)
-							{
-								missing_roms_cnt++;
-								Entry found = null;
-								for(DirScan scan : allscans)
-								{
-									if (null != (found = scan.find_byhash(r)))
+									else
 									{
-										submsg += "\t[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " <- " + found.parent.file.getName() + "@" + found.file + "\n";
-										(createset = CreateContainer.getInstance(createset, archive, format)).addAction(new AddEntry(r, found));
-										roms_found++;
+										found = e;
 										break;
 									}
 								}
-								if(found==null)
+								else if (r.getName().equals(efile))
 								{
-									submsg += "\t[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " is missing and not fixable\n";
-									partial = true;
+									if (e.md5 == null && e.sha1 == null)
+										report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + efile + " has wrong crc (got " + e.crc + " vs " + r.crc + ")");
+									else if (e.sha1 == null)
+										report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + efile + " has wrong md5 (got " + e.md5 + " vs " + r.md5 + ")");
+									else
+										report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + efile + " has wrong sha1 (got " + e.sha1 + " vs " + r.sha1 + ")");
+									// found = e;
+									break;
 								}
 							}
-							ContainerAction.addToList(create_actions, createset);
-							String msg = "[" + m.name + "] is missing";
-							if (roms_found > 0)
-								msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
-							report_w.println(msg);
+							if (found == null)
+							{
+								missing_roms_cnt++;
+								for (DirScan scan : allscans)
+								{
+									if (null != (found = scan.find_byhash(profile,r)))
+									{
+										report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " <- " + found.parent.file.getName() + "@" + found.file);
+										(update_set = OpenContainer.getInstance(update_set, archive, format)).addAction(new AddEntry(r, found));
+										// roms_found.add(found);
+										break;
+									}
+								}
+								if (found == null)
+									report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " is missing and not fixable");
+							}
+							else
+							{
+							//	report_w.println("[" + m.name + "] " + r.getName() + " (" + found.file + ") OK ");
+								roms_found.add(found);
+							}
+						}
+						List<Entry> unneeded = c.getEntries().stream().filter(not(new HashSet<>(roms_found)::contains)).collect(Collectors.toList());
+						for (Entry e : unneeded)
+						{
+							String efile = Paths.get(e.file).subpath(0, Paths.get(e.file).getNameCount()).toString();
+							report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + efile + " unneeded (crc=" + e.crc + ", sha1=" + e.sha1 + ")");
+							(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
+							(delete_set = OpenContainer.getInstance(delete_set, archive, format)).addAction(new DeleteEntry(e));
+						}
+						ContainerAction.addToList(rename_before_actions, rename_before_set);
+						ContainerAction.addToList(update_actions, update_set);
+						ContainerAction.addToList(delete_actions, delete_set);
+						ContainerAction.addToList(rename_after_actions, rename_after_set);
+					}
+				}
+				else if(create_mode)
+				{
+					if (roms.size() > 0)
+					{
+						int roms_found = 0;
+						boolean partial = false;
+						String submsg = "";
+						CreateContainer createset = null;
+						for (Rom r : roms)
+						{
+							missing_roms_cnt++;
+							Entry found = null;
+							for (DirScan scan : allscans)
+							{
+								if (null != (found = scan.find_byhash(profile,r)))
+								{
+									submsg += "\t[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " <- " + found.parent.file.getName() + "@" + found.file + "\n";
+									(createset = CreateContainer.getInstance(createset, archive, format)).addAction(new AddEntry(r, found));
+									roms_found++;
+									break;
+								}
+							}
+							if (found == null)
+							{
+								submsg += "\t[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " is missing and not fixable\n";
+								partial = true;
+							}
+						}
+						ContainerAction.addToList(create_actions, createset);
+						String msg = "[" + m.name + "] is missing";
+						if (roms_found > 0)
+							msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
+						report_w.println(msg);
+					}
+				}
+				if(format==FormatOptions.DIR)
+				{
+					if(disks.size()==0 && roms.size()==0)
+					{
+						Machine m2 = m;
+						if(!(merge_mode.isMerge() && m.isClone()))
+							m2 = m.getDestMachine(merge_mode);
+						Container c2 = dstscan.containers_byname.get(m2.name);
+						if(c2 != null)
+						{
+							report_w.println("[" + m2.name + "] " + c2.file.getName() + " is unneeded");
+							delete_actions.add(new DeleteContainer(c2, format));
 						}
 					}
-					handler.setProgress(null, ++i);
-					if(handler.isCancel())
-						throw new BreakException();
-					if(roms.size()==0 && disks.size()==0)
-						missing_set=false;
-					if(missing_set)
-						missing_set_cnt++; 
 				}
+				else
+				{
+					if(disks.size()==0)
+					{
+						Machine m2 = m;
+						if(!(merge_mode.isMerge() && m.isClone()))
+							m2 = m.getDestMachine(merge_mode);
+						Container c2 = dstscan.containers_byname.get(m2.name);
+						if(c2 != null)
+						{
+							report_w.println("[" + m2.name + "] " + c2.file.getName() + " is unneeded");
+							delete_actions.add(new DeleteContainer(c2, format));
+						}
+					}
+					if(roms.size()==0)
+					{
+						Machine m2 = m;
+						if(!(merge_mode.isMerge() && m.isClone()))
+							m2 = m.getDestMachine(merge_mode);
+						Container c2 = dstscan.containers_byname.get(m2.name+format.getExt());
+						if(c2 != null)
+						{
+							report_w.println("[" + m2.name + "] " + c2.file.getName() + " is unneeded");
+							delete_actions.add(new DeleteContainer(c2, format));
+						}
+					}
+				}
+				format.getExt().allExcept().forEach((e)->{
+					Container c2 = dstscan.containers_byname.get(m.name+e);
+					if(c2 != null)
+					{
+						report_w.println("[" + m.name + "] " + c2.file.getName() + " is unneeded");
+						delete_actions.add(new DeleteContainer(c2, format));
+					}
+				});
+				handler.setProgress(null, ++i);
+				if (handler.isCancel())
+					throw new BreakException();
+				if (roms.size() == 0 && disks.size() == 0)
+					missing_set = false;
+				if (missing_set)
+					missing_set_cnt++;
 			}
 			report_w.println("Missing sets : " + missing_set_cnt + "/" + profile.machines_cnt);
 			report_w.println("Missing roms : " + missing_roms_cnt + "/" + profile.roms_cnt);
@@ -374,7 +443,7 @@ public class Scan
 		{
 			Log.err("Report Exception", e);
 		}
-		catch(BreakException e)
+		catch (BreakException e)
 		{
 			throw e;
 		}

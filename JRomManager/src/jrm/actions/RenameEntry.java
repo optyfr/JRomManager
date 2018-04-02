@@ -31,9 +31,11 @@ public class RenameEntry extends EntryAction
 		Path dstpath = null;
 		try
 		{
-			dstpath = fs.getPath(newname);
 			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
 			Path srcpath = fs.getPath(entry.file);
+			dstpath = fs.getPath(newname);
+			if(dstpath.getParent()!=null)
+				Files.createDirectories(dstpath.getParent());
 			Files.move(srcpath, dstpath);
 			entry.file = dstpath.toString();
 			//System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);

@@ -61,6 +61,7 @@ import jrm.profiler.scan.MergeOptions;
 import jrm.ui.Progress;
 import one.util.streamex.StreamEx;
 import jrm.profiler.scan.FormatOptions;
+import jrm.profiler.scan.HashCollisionOptions;
 
 public class JRomManager
 {
@@ -263,9 +264,9 @@ public class JRomManager
 		gbc_scannerSettingsPanel.gridy = 1;
 		scannerTab.add(scannerSettingsPanel, gbc_scannerSettingsPanel);
 		GridBagLayout gbl_scannerSettingsPanel = new GridBagLayout();
-		gbl_scannerSettingsPanel.columnWidths = new int[]{301, 0};
+		gbl_scannerSettingsPanel.columnWidths = new int[]{0, 0, 0};
 		gbl_scannerSettingsPanel.rowHeights = new int[]{20, 20, 20, 0, 20, 0};
-		gbl_scannerSettingsPanel.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_scannerSettingsPanel.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
 		gbl_scannerSettingsPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		scannerSettingsPanel.setLayout(gbl_scannerSettingsPanel);
 		
@@ -278,7 +279,7 @@ public class JRomManager
 		chckbxNeedSHA1.setToolTipText("Calculate SHA1 while scanning new files, even if CRC is not suspicious (Slow process)");
 		GridBagConstraints gbc_chckbxNeedSHA1 = new GridBagConstraints();
 		gbc_chckbxNeedSHA1.fill = GridBagConstraints.BOTH;
-		gbc_chckbxNeedSHA1.insets = new Insets(0, 0, 5, 0);
+		gbc_chckbxNeedSHA1.insets = new Insets(0, 0, 5, 5);
 		gbc_chckbxNeedSHA1.gridx = 0;
 		gbc_chckbxNeedSHA1.gridy = 0;
 		scannerSettingsPanel.add(chckbxNeedSHA1, gbc_chckbxNeedSHA1);
@@ -289,9 +290,22 @@ public class JRomManager
 				curr_profile.setProperty("use_parallelism", e.getStateChange()==ItemEvent.SELECTED);
 			}
 		});
+		
+		chckbxCreateMissingSets = new JCheckBox("Create missing sets");
+		chckbxCreateMissingSets.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				curr_profile.setProperty("create_mode", e.getStateChange()==ItemEvent.SELECTED);
+			}
+		});
+		GridBagConstraints gbc_chckbxCreateMissingSets = new GridBagConstraints();
+		gbc_chckbxCreateMissingSets.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxCreateMissingSets.insets = new Insets(0, 0, 5, 0);
+		gbc_chckbxCreateMissingSets.gridx = 1;
+		gbc_chckbxCreateMissingSets.gridy = 0;
+		scannerSettingsPanel.add(chckbxCreateMissingSets, gbc_chckbxCreateMissingSets);
 		chckbxUseParallelism.setToolTipText("Use all CPU while scanning and fixing, SSD is STRONGLY recommended otherwise you may get slower results!");
 		GridBagConstraints gbc_chckbxUseParallelism = new GridBagConstraints();
-		gbc_chckbxUseParallelism.insets = new Insets(0, 0, 5, 0);
+		gbc_chckbxUseParallelism.insets = new Insets(0, 0, 5, 5);
 		gbc_chckbxUseParallelism.fill = GridBagConstraints.BOTH;
 		gbc_chckbxUseParallelism.gridx = 0;
 		gbc_chckbxUseParallelism.gridy = 1;
@@ -299,16 +313,17 @@ public class JRomManager
 		
 		panel_4 = new JPanel();
 		GridBagConstraints gbc_panel_4 = new GridBagConstraints();
-		gbc_panel_4.insets = new Insets(0, 0, 5, 0);
+		gbc_panel_4.gridwidth = 2;
+		gbc_panel_4.insets = new Insets(0, 0, 5, 5);
 		gbc_panel_4.fill = GridBagConstraints.BOTH;
 		gbc_panel_4.gridx = 0;
 		gbc_panel_4.gridy = 2;
 		scannerSettingsPanel.add(panel_4, gbc_panel_4);
 		GridBagLayout gbl_panel_4 = new GridBagLayout();
 		gbl_panel_4.columnWidths = new int[]{0, 0, 0, 0};
-		gbl_panel_4.rowHeights = new int[]{0, 0, 8, 0, 0};
+		gbl_panel_4.rowHeights = new int[]{0, 0, 0, 8, 0, 0};
 		gbl_panel_4.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_4.rowWeights = new double[]{0.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_4.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};
 		panel_4.setLayout(gbl_panel_4);
 		
 		lblCompression = new JLabel("Compression");
@@ -376,11 +391,43 @@ public class JRomManager
 			}
 		});
 		
+		lblHashCollision = new JLabel("Hash collision");
+		GridBagConstraints gbc_lblHashCollision = new GridBagConstraints();
+		gbc_lblHashCollision.insets = new Insets(0, 0, 5, 5);
+		gbc_lblHashCollision.anchor = GridBagConstraints.EAST;
+		gbc_lblHashCollision.gridx = 0;
+		gbc_lblHashCollision.gridy = 2;
+		panel_4.add(lblHashCollision, gbc_lblHashCollision);
+		
+		cbHashCollision = new JComboBox<HashCollisionOptions>();
+		cbHashCollision.setModel(new DefaultComboBoxModel<HashCollisionOptions>(HashCollisionOptions.values()));
+		cbHashCollision.setRenderer(new DefaultListCellRenderer()
+		{
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				setText(((HashCollisionOptions)value).getDesc());
+				return this;
+			}
+		});
+		cbHashCollision.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				curr_profile.settings.setProperty("hash_collision_mode", cbHashCollision.getSelectedItem().toString());
+			}
+		});
+		GridBagConstraints gbc_cbHashCollision = new GridBagConstraints();
+		gbc_cbHashCollision.gridwidth = 2;
+		gbc_cbHashCollision.insets = new Insets(0, 0, 5, 5);
+		gbc_cbHashCollision.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cbHashCollision.gridx = 1;
+		gbc_cbHashCollision.gridy = 2;
+		panel_4.add(cbHashCollision, gbc_cbHashCollision);
+		
 		lblRomsDest = new JLabel("Roms Dest.");
 		GridBagConstraints gbc_lblRomsDest = new GridBagConstraints();
 		gbc_lblRomsDest.insets = new Insets(0, 0, 5, 5);
 		gbc_lblRomsDest.gridx = 0;
-		gbc_lblRomsDest.gridy = 2;
+		gbc_lblRomsDest.gridy = 3;
 		panel_4.add(lblRomsDest, gbc_lblRomsDest);
 		
 		txtRomsDest = new JTextField();
@@ -394,7 +441,7 @@ public class JRomManager
 		gbc_txtRomsDest.insets = new Insets(0, 0, 5, 0);
 		gbc_txtRomsDest.fill = GridBagConstraints.BOTH;
 		gbc_txtRomsDest.gridx = 1;
-		gbc_txtRomsDest.gridy = 2;
+		gbc_txtRomsDest.gridy = 3;
 		panel_4.add(txtRomsDest, gbc_txtRomsDest);
 		txtRomsDest.setColumns(10);
 		
@@ -419,7 +466,7 @@ public class JRomManager
 		GridBagConstraints gbc_btnRomsDest = new GridBagConstraints();
 		gbc_btnRomsDest.insets = new Insets(0, 0, 5, 5);
 		gbc_btnRomsDest.gridx = 2;
-		gbc_btnRomsDest.gridy = 2;
+		gbc_btnRomsDest.gridy = 3;
 		panel_4.add(btnRomsDest, gbc_btnRomsDest);
 		
 		lblSrcDir = new JLabel("Src Dir.");
@@ -427,7 +474,7 @@ public class JRomManager
 		gbc_lblSrcDir.insets = new Insets(0, 0, 0, 5);
 		gbc_lblSrcDir.anchor = GridBagConstraints.EAST;
 		gbc_lblSrcDir.gridx = 0;
-		gbc_lblSrcDir.gridy = 3;
+		gbc_lblSrcDir.gridy = 4;
 		panel_4.add(lblSrcDir, gbc_lblSrcDir);
 		
 		textSrcDir = new JTextField();
@@ -440,7 +487,7 @@ public class JRomManager
 		GridBagConstraints gbc_textSrcDir = new GridBagConstraints();
 		gbc_textSrcDir.fill = GridBagConstraints.BOTH;
 		gbc_textSrcDir.gridx = 1;
-		gbc_textSrcDir.gridy = 3;
+		gbc_textSrcDir.gridy = 4;
 		panel_4.add(textSrcDir, gbc_textSrcDir);
 		
 		btnSrcDir = new JButton("...");
@@ -464,7 +511,7 @@ public class JRomManager
 		GridBagConstraints gbc_btnSrcDir = new GridBagConstraints();
 		gbc_btnSrcDir.insets = new Insets(0, 0, 0, 5);
 		gbc_btnSrcDir.gridx = 2;
-		gbc_btnSrcDir.gridy = 3;
+		gbc_btnSrcDir.gridy = 4;
 		panel_4.add(btnSrcDir, gbc_btnSrcDir);
 		
 		settingsTab = new JPanel();
@@ -924,10 +971,12 @@ public class JRomManager
 	{
 		chckbxNeedSHA1.setSelected(curr_profile.getProperty("need_sha1_or_md5", false));
 		chckbxUseParallelism.setSelected(curr_profile.getProperty("use_parallelism", false));
+		chckbxCreateMissingSets.setSelected(curr_profile.getProperty("create_mode", false));
 		txtRomsDest.setText(curr_profile.getProperty("roms_dest_dir", ""));
 		textSrcDir.setText(curr_profile.getProperty("src_dir", ""));
 		cbCompression.setSelectedItem(FormatOptions.valueOf(curr_profile.settings.getProperty("format", FormatOptions.ZIP.toString())));
 		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(curr_profile.settings.getProperty("merge_mode", MergeOptions.SPLIT.toString())));
+		cbHashCollision.setSelectedItem(HashCollisionOptions.valueOf(curr_profile.settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString())));
 	}
 
 	private JPanel settingsTab;
@@ -957,5 +1006,8 @@ public class JRomManager
 	private JLabel lblInternalMethodsAre_1;
 	private JLabel lblCompression;
 	private JComboBox<FormatOptions> cbCompression;
+	private JCheckBox chckbxCreateMissingSets;
+	private JComboBox<HashCollisionOptions> cbHashCollision;
+	private JLabel lblHashCollision;
 	
 }

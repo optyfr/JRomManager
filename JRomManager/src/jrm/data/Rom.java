@@ -1,12 +1,11 @@
 package jrm.data;
 
 import java.io.Serializable;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jrm.profiler.scan.MergeOptions;
+import jrm.profiler.scan.HashCollisionOptions;
 
 @SuppressWarnings("serial")
 public class Rom extends Entity implements Serializable
@@ -27,11 +26,32 @@ public class Rom extends Entity implements Serializable
 	@Override
 	public String getName()
 	{
-		if(merge!=null && EnumSet.of(MergeOptions.MERGE,MergeOptions.FULLMERGE).contains(Machine.merge_mode))
-			return merge;
+		if(Machine.merge_mode.isMerge())
+		{
+			if(merge!=null)
+			{
+				if(isCollisionMode() && parent.isClone())
+					return parent.name+"/"+merge;
+				return merge;
+			}
+			else
+				if(isCollisionMode() && parent.isClone())
+					return parent.name+"/"+name;
+		}
 		return name;
 	}
 
+	public String getFullName()
+	{
+		if(Machine.merge_mode.isMerge())
+		{
+			if(merge!=null)
+				return parent.name+"/"+merge;
+			return parent.name+"/"+name;		
+		}
+		return name;
+	}
+	
 	@Override
 	public void setName(String name)
 	{
@@ -52,7 +72,30 @@ public class Rom extends Entity implements Serializable
 		}
 		return super.equals(obj);
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		if(this.sha1!=null)
+			return this.sha1.hashCode();
+		if(this.md5!=null)
+			return this.md5.hashCode();
+		if(this.crc!=null)
+			return this.crc.hashCode();
+		return super.hashCode();
+	}
 
+	public String hashString()
+	{
+		if(this.sha1!=null)
+			return this.sha1;
+		if(this.md5!=null)
+			return this.md5;
+		if(this.crc!=null)
+			return this.crc;
+		return this.getName();
+	}
+	
 	public static Map<String,Rom> getRomsByName(List<Rom> roms)
 	{
 		return roms.stream().collect(Collectors.toMap(Rom::getName, r -> r, (n, r) -> n));

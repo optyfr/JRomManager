@@ -109,7 +109,10 @@ public class CreateContainer extends ContainerAction
 			try
 			{
 				Path target = container.file.toPath();
-				Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+				if(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"))
+					Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+				else
+					Files.createDirectories(target);
 				handler.setProgress("Fixing "+container.file.getName());
 				for(EntryAction action : entry_actions)
 					if(!action.doAction(target, handler))

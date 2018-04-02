@@ -235,9 +235,14 @@ public class Profile implements Serializable
 						curr_machine.description.append(ch, start, length);
 				}
 			});
+			handler.setProgress("Building parent/clones relations...", -1);
 			machines.forEach(machine -> {
 				if(machine.romof!=null)
+				{
 					machine.parent = machines_byname.get(machine.romof);
+					if(!machine.parent.isbios)
+						machine.parent.clones.put(machine.name, machine);
+				}
 			});
 			handler.setProgress("Saving cache...", -1);
 			save();
