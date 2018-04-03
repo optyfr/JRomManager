@@ -64,10 +64,8 @@ public class DuplicateEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
-			if(archive.extract(entry.file)!=null)			// extract original file to tempdir
-				if(archive.rename(entry.file, newname)==0)	// rename original file to new name in archive
-					return archive.add(entry.file) == 0;	// readd original file from tempdir
+			handler.setProgress(null,null,null,"Duplicating "+entry.file+" to "+newname);
+			return archive.duplicate(entry.file, newname) == 0;
 		}
 		catch(Throwable e)
 		{

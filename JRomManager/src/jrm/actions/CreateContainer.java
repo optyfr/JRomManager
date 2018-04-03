@@ -39,6 +39,7 @@ public class CreateContainer extends ContainerAction
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
+		handler.setProgress("<html><nobr>Fixing <span color='blue'>"+container.file.getName()+"</span> <span color='purple'>["+container.m.description+"]</span></nobr></html>");
 		if(container.getType()==Container.Type.ZIP)
 		{
 			if(format==FormatOptions.ZIP || format==FormatOptions.TZIP)
@@ -48,7 +49,6 @@ public class CreateContainer extends ContainerAction
 				env.put("useTempFile", Boolean.TRUE);
 				try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+container.file.toURI()), env);)
 				{
-					handler.setProgress("Fixing "+container.file.getName());
 					for(EntryAction action : entry_actions)
 						if(!action.doAction(fs, handler))
 						{
@@ -71,7 +71,6 @@ public class CreateContainer extends ContainerAction
 			{
 				try(Archive archive = new ZipArchive(container.file))
 				{
-					handler.setProgress("Fixing "+container.file.getName());
 					for(EntryAction action : entry_actions)
 						if(!action.doAction(archive, handler))
 						{
@@ -90,7 +89,6 @@ public class CreateContainer extends ContainerAction
 		{
 			try(Archive archive = new SevenZipArchive(container.file))
 			{
-				handler.setProgress("Fixing "+container.file.getName());
 				for(EntryAction action : entry_actions)
 					if(!action.doAction(archive, handler))
 					{
@@ -113,7 +111,6 @@ public class CreateContainer extends ContainerAction
 					Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
 				else
 					Files.createDirectories(target);
-				handler.setProgress("Fixing "+container.file.getName());
 				for(EntryAction action : entry_actions)
 					if(!action.doAction(target, handler))
 					{

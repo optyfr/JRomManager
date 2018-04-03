@@ -23,7 +23,7 @@ public class DeleteEntry extends EntryAction
 		{
 			handler.setProgress(null,null,null,"Deleting "+entry.file);
 			path = dstfs.getPath(entry.file);
-			Files.delete(path);
+			Files.deleteIfExists(path);
 			return true;
 		}
 		catch(Throwable e)
@@ -41,7 +41,7 @@ public class DeleteEntry extends EntryAction
 		{
 			handler.setProgress(null,null,null,"Deleting "+entry.file);
 			path = target.resolve(entry.file);
-			Files.delete(path);
+			Files.deleteIfExists(path);
 			return true;
 		}
 		catch (Throwable e)

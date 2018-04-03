@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jrm.profiler.scan.HashCollisionOptions;
-
 @SuppressWarnings("serial")
 public class Rom extends Entity implements Serializable
 {
@@ -28,15 +26,12 @@ public class Rom extends Entity implements Serializable
 	{
 		if(Machine.merge_mode.isMerge())
 		{
-			if(merge!=null)
-			{
-				if(isCollisionMode() && parent.isClone())
-					return parent.name+"/"+merge;
-				return merge;
+			if(merge==null)
+			{	if(isCollisionMode() && parent.isClone())
+					return parent.name+"/"+name;
 			}
 			else
-				if(isCollisionMode() && parent.isClone())
-					return parent.name+"/"+name;
+				return merge;
 		}
 		return name;
 	}
@@ -49,6 +44,11 @@ public class Rom extends Entity implements Serializable
 				return parent.name+"/"+merge;
 			return parent.name+"/"+name;		
 		}
+		return name;
+	}
+	
+	public String getOriginalName()
+	{
 		return name;
 	}
 	

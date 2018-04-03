@@ -15,4 +15,5 @@ public interface Archive extends Closeable, AutoCloseable
 	public int add_stdin(InputStream src, String entry) throws IOException;
 	public int delete(String entry) throws IOException;
 	public int rename(String entry, String newname) throws IOException;
+	public int duplicate(String entry, String newname) throws IOException;
 }

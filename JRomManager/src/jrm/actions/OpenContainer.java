@@ -37,6 +37,7 @@ public class OpenContainer extends ContainerAction
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
+		handler.setProgress("<html><nobr>Fixing <span color='blue'>"+container.file.getName()+"</span> <span color='purple'>["+container.m.description+"]</span></nobr></html>");
 		if(container.getType()==Container.Type.ZIP)
 		{
 			if(format==FormatOptions.ZIP)
@@ -46,7 +47,6 @@ public class OpenContainer extends ContainerAction
 				env.put("useTempFile", Boolean.TRUE);
 				try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+container.file.toURI()), env);)
 				{
-					handler.setProgress("Fixing "+container.file.getName());
 					for(EntryAction action : entry_actions)
 						if(!action.doAction(fs, handler))
 						{
@@ -69,7 +69,6 @@ public class OpenContainer extends ContainerAction
 			{
 				try(Archive archive = new ZipArchive(container.file))
 				{
-					handler.setProgress("Fixing "+container.file.getName());
 					for(EntryAction action : entry_actions)
 						if(!action.doAction(archive, handler))
 						{
@@ -80,7 +79,6 @@ public class OpenContainer extends ContainerAction
 				}
 				catch(Throwable e)
 				{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -89,7 +87,6 @@ public class OpenContainer extends ContainerAction
 		{
 			try(Archive archive = new SevenZipArchive(container.file))
 			{
-				handler.setProgress("Fixing "+container.file.getName());
 				for(EntryAction action : entry_actions)
 					if(!action.doAction(archive, handler))
 					{
@@ -100,14 +97,12 @@ public class OpenContainer extends ContainerAction
 			}
 			catch(Throwable e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		else if(container.getType()==Container.Type.DIR)
 		{
 			Path target = container.file.toPath();
-			handler.setProgress("Fixing "+container.file.getName());
 			for(EntryAction action : entry_actions)
 				if(!action.doAction(target, handler))
 				{

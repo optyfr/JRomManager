@@ -66,7 +66,14 @@ public class Machine implements Serializable
 			if(isClone())
 				stream = Stream.empty();
 			else
-				stream = StreamEx.of(disks).append(StreamEx.of(clones.values()).flatMap(m -> m.disks.stream())).distinct((d)->d.hashString()+"_"+d.getName());//Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).distinct();
+			{
+				List<Disk> disks_with_clones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).collect(Collectors.toList());
+				StreamEx.of(disks_with_clones).groupingBy(Disk::getName).forEach((n,l) -> {
+					if (l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
+							l.forEach(Disk::setCollisionMode);
+				});
+				stream = StreamEx.of(disks_with_clones).distinct(Disk::getName);
+			}
 		}
 		else
 			stream = disks.stream();
@@ -97,23 +104,12 @@ public class Machine implements Serializable
 				stream = Stream.empty();
 			else
 			{
-				StreamEx.of(roms).append(StreamEx.of(clones.values()).flatMap(m -> m.roms.stream())).groupingBy((r)->r.getName()).values().forEach((l)->{
-					if(l.size()>1)
-					{
-						if(StreamEx.of(l).distinct(Rom::hashString).count()>1)
-						{
-							l.forEach((r)->{
-								r.setCollisionMode();
-							//	report_w.println("\t"+r.getName()+" ("+r.hashString()+") parent="+r.getParent().name+", isclone="+r.getParent().isClone());
-							});
-						}
-					}
+				List<Rom> roms_with_clones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
+				StreamEx.of(roms_with_clones).groupingBy(Rom::getName).forEach((n,l) -> {
+					if (l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
+							l.forEach(Rom::setCollisionMode);
 				});
-				stream = StreamEx.of(roms).append(StreamEx.of(clones.values()).flatMap(m -> m.roms.stream())).distinct((r)->{
-				/*	if(r.isCollisionMode())
-						return r.parent.name+"/"+r.getName()+"_"+r.hashString();*/
-					return r.getName();
-				});//Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).distinct();
+				stream = StreamEx.of(roms_with_clones).distinct(Rom::getName);
 			}
 		}
 		else

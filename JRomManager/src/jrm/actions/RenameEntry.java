@@ -3,6 +3,7 @@ package jrm.actions;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import jrm.compressors.Archive;
@@ -36,7 +37,7 @@ public class RenameEntry extends EntryAction
 			dstpath = fs.getPath(newname);
 			if(dstpath.getParent()!=null)
 				Files.createDirectories(dstpath.getParent());
-			Files.move(srcpath, dstpath);
+			Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			entry.file = dstpath.toString();
 			//System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);
 			return true;
@@ -57,7 +58,9 @@ public class RenameEntry extends EntryAction
 			dstpath = target.resolve(newname);
 			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
 			Path srcpath = target.resolve(entry.file);
-			Files.move(srcpath, dstpath);
+			if(dstpath.getParent()!=null)
+				Files.createDirectories(dstpath.getParent());
+			Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			entry.file = dstpath.toString();
 			//System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);
 			return true;
@@ -75,7 +78,11 @@ public class RenameEntry extends EntryAction
 		try
 		{
 			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
-			return archive.rename(entry.file, newname) == 0;
+			if(archive.rename(entry.file, newname) == 0)
+			{
+				entry.file = newname;
+				return true;
+			}
 		}
 		catch(Throwable e)
 		{

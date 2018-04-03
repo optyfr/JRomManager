@@ -21,6 +21,8 @@ public class Container implements Serializable
 
 	public transient boolean up2date = false;
 	public int loaded = 0;
+	
+	public transient Machine m;
 
 	public enum Type
 	{
@@ -29,15 +31,16 @@ public class Container implements Serializable
 
 	private Type type = Type.UNK;
 
-	protected Container(Type type, File file)
+	protected Container(Type type, File file, Machine m)
 	{
 		this.type = type;
 		this.file = file;
+		this.m = m;
 	}
 
 	protected Container(Type type, File file, BasicFileAttributes attr)
 	{
-		this(type, file);
+		this(type, file, (Machine)null);
 		this.modified = attr.lastModifiedTime().toMillis();
 		if (type != Type.DIR)
 			this.size = attr.size();

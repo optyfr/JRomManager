@@ -234,4 +234,11 @@ public class ZipArchive  implements Archive
 		}
 		return -1;
 	}
+
+	@Override
+	public int duplicate(String entry, String newname) throws IOException
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
