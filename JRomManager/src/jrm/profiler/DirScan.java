@@ -286,7 +286,7 @@ public class DirScan
 		entries_bycrc.put(entry.crc + "." + entry.size, entry);
 		if (entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
 		{
-			try(SevenZipArchive archive = new SevenZipArchive(entry.parent.file))
+			try(SevenZipArchive archive = new SevenZipArchive(entry.parent.file, true))
 			{
 				if(profile.sha1_roms || profile.md5_roms)
 				{

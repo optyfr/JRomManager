@@ -1,15 +1,15 @@
 package jrm.compressors;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -22,88 +22,79 @@ public class SevenZipArchive implements Archive
 	private File tempDir = null;
 	private File archive;
 	private String cmd;
+	private boolean readonly;
 
+	private static HashMap<String,File> archives = new HashMap<>();
 
 	public SevenZipArchive(File archive) throws IOException
 	{
-		this.archive = archive;
+		this(archive, false);
+	}
+	
+	public SevenZipArchive(File archive, boolean readonly) throws IOException
+	{
+		this.readonly = readonly;
 		this.cmd = Settings.getProperty("7z_cmd", FindCmd.find7z());
-		if(!new File(this.cmd).exists() && !new File(this.cmd+".exe").exists())
-			throw new IOException(this.cmd+" does not exists");
+		if (!new File(this.cmd).exists() && !new File(this.cmd + ".exe").exists())
+			throw new IOException(this.cmd + " does not exists");
+		if (null==(this.archive=archives.get(archive.getAbsolutePath())))
+			archives.put(archive.getAbsolutePath(), this.archive = archive);
 	}
 
 	@Override
 	public void close() throws IOException
 	{
-		if(tempDir != null)
+		if (tempDir != null)
 		{
-			int err = -1;
-			List<String> cmd_add = new ArrayList<>();
-			Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z");
-			tmpfile.toFile().delete();
-			Collections.addAll(cmd_add, Settings.getProperty("7z_cmd", FindCmd.find7z()), "a", "-r", "-t7z");
-			Collections.addAll(cmd_add, Settings.getProperty("7z_args", SevenZipOptions.SEVENZIP_ULTRA.toString()).split("\\s"));
-			Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*");
-			Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
-			BufferedInputStream is = new BufferedInputStream(process.getInputStream());
-			StringBuffer lines = new StringBuffer();
-			try
+			if(readonly)
 			{
-				new Thread(new Runnable(){
-				    public void run(){
-				    	   try {
-				               InputStreamReader isr = new InputStreamReader(is);
-				               BufferedReader br = new BufferedReader(isr);
-				               String line = null;
-				               while ((line = br.readLine()) != null)
-				                   lines.append(line).append("\n");
-				           }
-				           catch (IOException ioe) {
-				               ioe.printStackTrace();
-				           }
-				    }
-				}).start();
-				err = process.waitFor();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-			FileUtils.deleteDirectory(tempDir);
-			if(err!=0)
-			{
-				Files.deleteIfExists(tmpfile);
-				System.out.println(lines);
-				throw new IOException("Process returned "+err);
+				FileUtils.deleteDirectory(tempDir);
 			}
 			else
 			{
-				Files.deleteIfExists(archive.toPath());
-				Files.move(tmpfile, archive.toPath());
-			}
-		}
-	}
-
-	public File getTempDir() throws IOException
-	{
-		if(tempDir == null)
-		{
-			if(archive.exists())
-			{
-				this.tempDir = Files.createTempDirectory("JRM").toFile();
-				List<String> cmd = new ArrayList<>();
-				Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath());
-				ProcessBuilder pb = new ProcessBuilder(cmd).directory(getTempDir());
-				Process process = pb.start();
+				int err = -1;
+				List<String> cmd_add = new ArrayList<>();
+				Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z");
+				tmpfile.toFile().delete();
+				Collections.addAll(cmd_add, Settings.getProperty("7z_cmd", FindCmd.find7z()), "a", "-r", "-t7z");
+				Collections.addAll(cmd_add, Settings.getProperty("7z_args", SevenZipOptions.SEVENZIP_ULTRA.toString()).split("\\s"));
+				Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*");
+				Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
 				try
 				{
-					if(process.waitFor()==0)
-						return tempDir;
+					err = process.waitFor();
 				}
 				catch (InterruptedException e)
 				{
 					e.printStackTrace();
 				}
+				FileUtils.deleteDirectory(tempDir);
+				if (err != 0)
+				{
+					Files.deleteIfExists(tmpfile);
+					throw new IOException("Process returned " + err);
+				}
+				else
+				{
+					synchronized(archive)
+					{
+						Files.move(tmpfile, archive.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					}
+				}
+			}
+			tempDir = null;
+		}
+	}
+
+	public File getTempDir() throws IOException
+	{
+		if (tempDir == null)
+		{
+			tempDir = Files.createTempDirectory("JRM").toFile();
+			if (archive.exists() && !readonly)
+			{
+				if(extract(tempDir,null) == 0)
+					return tempDir;
 				FileUtils.deleteDirectory(tempDir);
 				tempDir = null;
 			}
@@ -111,19 +102,43 @@ public class SevenZipArchive implements Archive
 		return tempDir;
 	}
 	
+	private int extract(File baseDir, String entry) throws IOException
+	{
+		List<String> cmd = new ArrayList<>();
+		Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath());
+		if(entry!=null && !entry.isEmpty())
+			cmd.add(entry);
+		ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);
+		synchronized(archive)
+		{
+			Process process = pb.start();
+			try
+			{
+				 return process.waitFor();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return -1;
+	}
+
 	public File extract(String entry) throws IOException
 	{
-		File result = new File(getTempDir(),entry);
-		if(result.exists())
+		if(readonly)
+			extract(getTempDir(), entry);
+		File result = new File(getTempDir(), entry);
+		if (result.exists())
 			return result;
 		return null;
 	}
 
 	public InputStream extract_stdout(String entry) throws IOException
 	{
-		List<String> cmd = new ArrayList<>();
-		Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", "-so", archive.getAbsolutePath(), entry);
-		return new ProcessBuilder(cmd).start().getInputStream();
+		if(readonly)
+			extract(getTempDir(), entry);
+		return new FileInputStream(new File(getTempDir(),entry));
 	}
 
 	public int add(String entry) throws IOException
@@ -133,25 +148,33 @@ public class SevenZipArchive implements Archive
 
 	public int add(File baseDir, String entry) throws IOException
 	{
-		if(!baseDir.equals(getTempDir()))
+		if(readonly)
+			return -1;
+		if (!baseDir.equals(getTempDir()))
 			FileUtils.copyFile(new File(baseDir, entry), new File(getTempDir(), entry));
 		return 0;
 	}
 
 	public int add_stdin(InputStream src, String entry) throws IOException
 	{
-		FileUtils.copyInputStreamToFile(src, new File(getTempDir(),entry));
+		if(readonly)
+			return -1;
+		FileUtils.copyInputStreamToFile(src, new File(getTempDir(), entry));
 		return 0;
 	}
 
 	public int delete(String entry) throws IOException
 	{
+		if(readonly)
+			return -1;
 		FileUtils.deleteQuietly(new File(getTempDir(), entry));
 		return 0;
 	}
 
 	public int rename(String entry, String newname) throws IOException
 	{
+		if(readonly)
+			return -1;
 		FileUtils.moveFile(new File(getTempDir(), entry), new File(getTempDir(), newname));
 		return 0;
 	}
@@ -159,6 +182,8 @@ public class SevenZipArchive implements Archive
 	@Override
 	public int duplicate(String entry, String newname) throws IOException
 	{
+		if(readonly)
+			return -1;
 		FileUtils.copyFile(new File(getTempDir(), entry), new File(getTempDir(), newname));
 		return 0;
 	}
