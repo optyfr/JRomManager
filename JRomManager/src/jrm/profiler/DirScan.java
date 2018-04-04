@@ -2,6 +2,7 @@ package jrm.profiler;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -20,9 +22,11 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,9 +50,20 @@ import jrm.io.CHDInfoReader;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.ui.ProgressHandler;
+import net.sf.sevenzipjbinding.ExtractAskMode;
+import net.sf.sevenzipjbinding.ExtractOperationResult;
+import net.sf.sevenzipjbinding.IArchiveExtractCallback;
+import net.sf.sevenzipjbinding.IInArchive;
+import net.sf.sevenzipjbinding.ISequentialOutStream;
+import net.sf.sevenzipjbinding.SevenZip;
+import net.sf.sevenzipjbinding.SevenZipException;
+import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
+import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
+import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
+import one.util.streamex.IntStreamEx;
 import one.util.streamex.StreamEx;
 
-public class DirScan
+public final class DirScan
 {
 
 	List<Container> containers = Collections.synchronizedList(new ArrayList<>());
@@ -60,8 +75,25 @@ public class DirScan
 	boolean need_sha1_or_md5 = true;
 	boolean use_parallelism = true;
 
+	private DirScan()
+	{
+		if(!SevenZip.isInitializedSuccessfully())
+		{
+			try
+			{
+				SevenZip.initSevenZipFromPlatformJAR();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public DirScan(Profile profile, File dir, ProgressHandler handler, boolean is_dest) throws BreakException
 	{
+		this();
+		
 		need_sha1_or_md5 = profile.getProperty("need_sha1_or_md5", false);
 		use_parallelism = profile.getProperty("use_parallelism", false);
 		
@@ -212,24 +244,9 @@ public class DirScan
 					}
 					case SEVENZIP:
 					{
-						if (c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
+						try(SevenZUpdateEntries entries = new SevenZUpdateEntries(profile, c))
 						{
-							try(SevenZFile archive = new SevenZFile(c.file))
-							{
-								
-								for(SevenZArchiveEntry archive_entry:archive.getEntries())
-								{
-									if(archive_entry.isDirectory())
-										continue;
-									update_entry(profile, c.add(new Entry(archive_entry.getName())), archive_entry);
-								}
-								c.loaded = need_sha1_or_md5 ? 2 : 1;
-							}
-						}
-						else
-						{
-							for (Entry entry : c.getEntries())
-								update_entry(profile, entry, (SevenZArchiveEntry)null);
+							entries.updateEntries();
 						}
 						break;
 					}
@@ -275,41 +292,266 @@ public class DirScan
 		save(dir, containers_byname);
 
 	}
-
-	private void update_entry(Profile profile, Entry entry, SevenZArchiveEntry archive_entry) throws IOException
+	
+	class SevenZUpdateEntries implements Closeable
 	{
-		if(entry.size == 0 && entry.crc == null && archive_entry!=null)
+		RandomAccessFile randomAccessFile = null; 
+		Profile profile;
+		Container container;
+		ArrayList<String> algorithms;
+		MessageDigest[] digest;
+		IInArchive nArchive = null;
+		SevenZFile jArchive = null;
+		SevenZipArchive jArchive2 = null;
+
+		public SevenZUpdateEntries(Profile profile, Container container) throws NoSuchAlgorithmException
 		{
-			entry.size = archive_entry.getSize();
-			entry.crc = String.format("%08x",archive_entry.getCrcValue());
+			this.profile = profile;
+			this.container = container;
+			this.algorithms = new ArrayList<>();
+			if(profile.sha1_roms)
+				algorithms.add("SHA-1");
+			if(profile.md5_roms)
+				algorithms.add("MD5");
+			digest = new MessageDigest[algorithms.size()];
+			for(int i = 0; i < algorithms.size(); i++)
+				digest[i] = MessageDigest.getInstance(algorithms.get(i));
 		}
-		entries_bycrc.put(entry.crc + "." + entry.size, entry);
-		if (entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
+		
+		@Override
+		public void close() throws IOException
 		{
-			try(SevenZipArchive archive = new SevenZipArchive(entry.parent.file, true))
+            if (jArchive2 != null)
+                jArchive2.close();
+            if (jArchive != null)
+                jArchive.close();
+            if (nArchive != null)
+            	nArchive.close();
+            if (randomAccessFile != null)
+            	randomAccessFile.close();
+		}
+		
+		private IInArchive getNArchive() throws IOException
+		{
+			if(randomAccessFile == null)
+				randomAccessFile = new RandomAccessFile(container.file, "r");
+			if(nArchive == null)
+				nArchive = SevenZip.openInArchive(null, new RandomAccessFileInStream(randomAccessFile));
+			return nArchive;
+		}
+		
+		private SevenZFile getJArchive() throws IOException
+		{
+			if(jArchive == null)
+				jArchive = new SevenZFile(container.file);
+			return jArchive;
+		}
+		
+		private ISimpleInArchive getNInterface() throws IOException
+		{
+			return getNArchive().getSimpleInterface();
+		}
+		
+		private SevenZipArchive getJInterface() throws IOException
+		{
+			if(jArchive2 == null)
+				jArchive2 = new SevenZipArchive(container.file);
+			return jArchive2;
+		}
+		
+		public void updateEntries() throws IOException, NoSuchAlgorithmException
+		{
+			if(SevenZip.isInitializedSuccessfully())
 			{
-				if(profile.sha1_roms || profile.md5_roms)
+				Map<Integer,Entry> entries = new HashMap<>();
+				if (container.loaded < 1 || (need_sha1_or_md5 && container.loaded < 2))
 				{
-					ArrayList<String> algorithms = new ArrayList<>();
-					if(profile.sha1_roms)
-						algorithms.add("SHA-1");
-					if(profile.md5_roms)
-						algorithms.add("MD5");
-					computeHash(archive.extract_stdout(archive_entry.getName()),algorithms).forEach((n,r)->{
-						if(n.equals("SHA-1"))
-							entries_bysha1.put(entry.sha1 = r, entry);
-						if(n.equals("MD5"))
-							entries_bymd5.put(entry.md5 = r, entry);
-					});
+					for(ISimpleInArchiveItem item: getNInterface().getArchiveItems())
+					{
+						if(item.isFolder())
+							continue;
+						updateEntry(container.add(new Entry(item.getPath())), entries, item);
+						
+					}
+					container.loaded = need_sha1_or_md5 ? 2 : 1;
 				}
+				else
+				{
+					for (Entry entry : container.getEntries())
+						updateEntry(entry, entries, null);
+				}
+				computeHashes(entries);
+			}
+			else
+			{
+				HashSet<Entry> entries = new HashSet<>();
+				if (container.loaded < 1 || (need_sha1_or_md5 && container.loaded < 2))
+				{
+					for(SevenZArchiveEntry archive_entry:getJArchive().getEntries())
+					{
+						if(archive_entry.isDirectory())
+							continue;
+						updateEntry(container.add(new Entry(archive_entry.getName())), entries, archive_entry);
+					}
+					container.loaded = need_sha1_or_md5 ? 2 : 1;
+				}
+				else
+				{
+					for (Entry entry : container.getEntries())
+						updateEntry(entry, entries, (SevenZArchiveEntry)null);
+				}
+				computeHashes(entries);
 			}
 		}
-		else
+		
+		private void updateEntry(Entry entry, Map<Integer,Entry> entries, ISimpleInArchiveItem item) throws IOException
 		{
-			if(entry.sha1 !=null )
-				entries_bysha1.put(entry.sha1, entry);
-			if(entry.md5 !=null )
-				entries_bymd5.put(entry.md5, entry);
+			if(entry.size == 0 && entry.crc == null && item!=null)
+			{
+				entry.size = item.getSize();
+				entry.crc = String.format("%08x",item.getCRC());
+			}
+			entries_bycrc.put(entry.crc + "." + entry.size, entry);
+			if (entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
+			{
+				if(item==null)
+				{
+					for(ISimpleInArchiveItem itm: getNInterface().getArchiveItems())
+					{
+						if(entry.file.equals(itm.getPath()))
+						{
+							item = itm;
+							break;
+						}
+					}
+					
+				}
+				if(item!=null)
+					entries.put(item.getItemIndex(), entry);
+			}
+			else
+			{
+				if(entry.sha1 !=null )
+					entries_bysha1.put(entry.sha1, entry);
+				if(entry.md5 !=null )
+					entries_bymd5.put(entry.md5, entry);
+			}
+		}
+		
+		private void updateEntry(Entry entry, HashSet<Entry> entries, SevenZArchiveEntry archive_entry) throws IOException
+		{
+			if(entry.size == 0 && entry.crc == null && archive_entry!=null)
+			{
+				entry.size = archive_entry.getSize();
+				entry.crc = String.format("%08x",archive_entry.getCrcValue());
+			}
+			entries_bycrc.put(entry.crc + "." + entry.size, entry);
+			if (entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc==null || profile.suspicious_crc.contains(entry.crc)))
+			{
+				entries.add(entry);
+			}
+			else
+			{
+				if(entry.sha1 !=null )
+					entries_bysha1.put(entry.sha1, entry);
+				if(entry.md5 !=null )
+					entries_bymd5.put(entry.md5, entry);
+			}
+		}
+		
+		private void computeHashes(Map<Integer,Entry> entries) throws NoSuchAlgorithmException, IOException
+		{
+			if(entries.size()>0)
+			{
+				getNArchive().extract(IntStreamEx.of(entries.keySet()).toArray(), false, new IArchiveExtractCallback()
+				{
+					Entry entry;
+					@Override
+					public void setTotal(long total) throws SevenZipException
+					{
+					}
+					
+					@Override
+					public void setCompleted(long complete) throws SevenZipException
+					{
+					}
+					
+					@Override
+					public void setOperationResult(ExtractOperationResult extractOperationResult) throws SevenZipException
+					{
+				           if (extractOperationResult == ExtractOperationResult.OK)
+				           {
+								for(MessageDigest d : digest)
+								{
+									if(d.getAlgorithm().equals("SHA-1"))
+										entries_bysha1.put(entry.sha1 = Hex.encodeHexString(d.digest()), entry);
+									if(d.getAlgorithm().equals("MD5"))
+										entries_bymd5.put(entry.md5 = Hex.encodeHexString(d.digest()), entry);		
+									d.reset();
+								}
+				           }
+					}
+					
+					@Override
+					public void prepareOperation(ExtractAskMode extractAskMode) throws SevenZipException
+					{
+					}
+					
+					@Override
+					public ISequentialOutStream getStream(int index, ExtractAskMode extractAskMode) throws SevenZipException
+					{
+						entry = entries.get(index); 
+						if(extractAskMode != ExtractAskMode.EXTRACT)
+							return null;
+						return new ISequentialOutStream()
+						{
+							@Override
+							public int write(byte[] data) throws SevenZipException
+							{
+								for(MessageDigest d : digest)
+									d.update(data);
+			                    return data.length; // Return amount of proceed data
+							}
+			            };
+					}
+				});
+			}
+		}
+		
+		private void computeHashes(HashSet<Entry> entries) throws IOException
+		{
+			for(Entry entry:entries)
+			{
+				for(MessageDigest d : computeHash(getJInterface().extract_stdout(entry.getName())))
+				{
+					if(d.getAlgorithm().equals("SHA-1"))
+						entries_bysha1.put(entry.sha1 = Hex.encodeHexString(d.digest()), entry);
+					if(d.getAlgorithm().equals("MD5"))
+						entries_bymd5.put(entry.md5 = Hex.encodeHexString(d.digest()), entry);
+					d.reset();
+				}
+			}
+			
+		}
+		
+		private MessageDigest[] computeHash(InputStream is)
+		{
+			try(BufferedInputStream bis = new BufferedInputStream(is))
+			{
+				byte[] buffer = new byte[8192];
+				int len = is.read(buffer);
+				while (len != -1)
+				{
+					for(MessageDigest d : digest)
+						d.update(buffer, 0, len);
+					len = is.read(buffer);
+				}
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			return digest;
 		}
 	}
 	
@@ -372,31 +614,6 @@ public class DirScan
 		}
 	}
 	
-	private Map<String,String> computeHash(InputStream is, List<String> algorithms)
-	{
-		HashMap<String, String> result = new HashMap<>();
-		try(BufferedInputStream bis = new BufferedInputStream(is))
-		{
-			MessageDigest[] digest = new MessageDigest[algorithms.size()];
-			for(int i = 0; i < algorithms.size(); i++)
-				digest[i] = MessageDigest.getInstance(algorithms.get(i));
-			byte[] buffer = new byte[8192];
-			int len = is.read(buffer);
-			while (len != -1)
-			{
-				for(int i = 0; i < algorithms.size(); i++)
-					digest[i].update(buffer, 0, len);
-				len = is.read(buffer);
-			}
-			for(int i = 0; i < algorithms.size(); i++)
-				result.put(algorithms.get(i), Hex.encodeHexString(digest[i].digest()));
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		return result;
-	}
 	
 	private String computeSHA1(Path entry_path)
 	{
@@ -501,5 +718,6 @@ public class DirScan
 		}
 		return new HashMap<>();
 	}
+
 
 }

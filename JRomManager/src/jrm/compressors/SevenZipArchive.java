@@ -16,6 +16,8 @@ import org.apache.commons.io.FileUtils;
 
 import jrm.misc.FindCmd;
 import jrm.misc.Settings;
+import net.sf.sevenzipjbinding.SevenZip;
+import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 public class SevenZipArchive implements Archive
 {
@@ -26,6 +28,7 @@ public class SevenZipArchive implements Archive
 
 	private static HashMap<String,File> archives = new HashMap<>();
 
+	
 	public SevenZipArchive(File archive) throws IOException
 	{
 		this(archive, false);
@@ -33,6 +36,17 @@ public class SevenZipArchive implements Archive
 	
 	public SevenZipArchive(File archive, boolean readonly) throws IOException
 	{
+		if(!SevenZip.isInitializedSuccessfully())
+		{
+			try
+			{
+				SevenZip.initSevenZipFromPlatformJAR();
+			}
+			catch (SevenZipNativeInitializationException e)
+			{
+				e.printStackTrace();
+			}
+		}
 		this.readonly = readonly;
 		this.cmd = Settings.getProperty("7z_cmd", FindCmd.find7z());
 		if (!new File(this.cmd).exists() && !new File(this.cmd + ".exe").exists())
