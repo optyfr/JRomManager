@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jrm.compressors.Archive;
-import jrm.compressors.SevenZipArchive;
+import jrm.compressors.SevenZipNArchive;
 import jrm.compressors.ZipArchive;
 import jrm.data.Container;
 import jrm.misc.FindCmd;
@@ -85,7 +85,7 @@ public class OpenContainer extends ContainerAction
 		}
 		else if(container.getType()==Container.Type.SEVENZIP)
 		{
-			try(Archive archive = new SevenZipArchive(container.file))
+			try(Archive archive = new SevenZipNArchive(container.file))
 			{
 				for(EntryAction action : entry_actions)
 					if(!action.doAction(archive, handler))
