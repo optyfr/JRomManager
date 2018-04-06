@@ -57,6 +57,11 @@ public class Settings
 		settings.setProperty(property, Boolean.toString(value));
 	}
 	
+	public static void setProperty(String property, int value)
+	{
+		settings.setProperty(property, Integer.toString(value));
+	}
+	
 	public static void setProperty(String property, String value)
 	{
 		settings.setProperty(property, value);
@@ -65,6 +70,11 @@ public class Settings
 	public static boolean getProperty(String property, boolean def)
 	{
 		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
+	}
+	
+	public static int getProperty(String property, int def)
+	{
+		return Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
 	}
 	
 	public static String getProperty(String property, String def)

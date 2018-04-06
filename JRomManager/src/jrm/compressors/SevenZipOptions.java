@@ -2,18 +2,18 @@ package jrm.compressors;
 
 public enum SevenZipOptions
 {
-	SEVENZIP_STORE("STORE presets","-ms=off -mx=0"),
-	SEVENZIP_FAST("FAST presets","-ms=off -mx=1"),
-	SEVENZIP_NORMAL("NORMAL presets","-ms=off -mx=5"),
-	SEVENZIP_ULTRA("ULTRA presets","-ms=off -mx=9");
+	STORE("STORE method",0),
+	FAST("FAST presets",1),
+	NORMAL("NORMAL presets",5),
+	ULTRA("ULTRA presets",9);
 	
 	private String desc;
-	private String args;
+	private int level;
 	
-	private SevenZipOptions(String desc, String args)
+	private SevenZipOptions(String desc, int level)
 	{
 		this.desc = desc;
-		this.args = args;
+		this.level = level;
 	}
 	
 	public String getName()
@@ -21,9 +21,8 @@ public enum SevenZipOptions
 		return desc;
 	}
 	
-	@Override
-	public String toString()
+	public int getLevel()
 	{
-		return args;
+		return level;
 	}
 }

@@ -10,12 +10,10 @@ import java.nio.file.StandardCopyOption;
 
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
-import jrm.compressors.SevenZipNArchive;
 import jrm.data.Container.Type;
 import jrm.data.Entity;
 import jrm.data.Entry;
 import jrm.ui.ProgressHandler;
-import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 public class AddEntry extends EntryAction
 {
@@ -118,7 +116,7 @@ public class AddEntry extends EntryAction
 		}
 		else if(entry.parent.getType()==Type.SEVENZIP)
 		{
-			try(Archive srcarchive = new SevenZipNArchive(entry.parent.file))
+			try(Archive srcarchive = new SevenZipArchive(entry.parent.file))
 			{
 				if(srcarchive.extract(entry.file)!=null)
 					return archive.add(srcarchive.getTempDir(), entry.file)==0;
@@ -127,11 +125,6 @@ public class AddEntry extends EntryAction
 			catch (IOException e)
 			{
 				e.printStackTrace();
-			}
-			catch (SevenZipNativeInitializationException e1)
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
 			}
 		}
 		
