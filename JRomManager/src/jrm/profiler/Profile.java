@@ -29,6 +29,7 @@ import jrm.data.Machine;
 import jrm.data.Rom;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.Settings;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -290,7 +291,7 @@ public class Profile implements Serializable
 	public static Profile load(File file, ProgressHandler handler)
 	{
 		File cachefile = getCacheFile(file);
-		if (cachefile.lastModified() >= file.lastModified())
+		if (cachefile.lastModified() >= file.lastModified() && !Settings.getProperty("debug_nocache", false))
 		{
 			handler.setProgress("Loading cache...", -1);
 			try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))

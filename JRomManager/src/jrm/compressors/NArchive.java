@@ -103,14 +103,15 @@ abstract class NArchive implements Archive
 	{
 		if (!to_add.isEmpty() || !to_rename.isEmpty() || !to_delete.isEmpty() || !to_duplicate.isEmpty())
 		{
+			HashMap<Integer,RandomAccessFile> rafs = new HashMap<>();
+			HashMap<Integer,File> tmpfiles = new HashMap<>();
+
 			IOutCreateCallback<IOutItemAllFormats> callback = new IOutCreateCallback<IOutItemAllFormats>()
 			{
 				HashMap<Integer,String> idx_to_delete = new HashMap<>();
 				HashMap<Integer,String> idx_to_rename = new HashMap<>();
 				ArrayList<Object[]> idx_to_duplicate = new ArrayList<>();
 				int old_idx = 0, old_tot = 0;
-				HashMap<Integer,RandomAccessFile> rafs = new HashMap<>();
-				HashMap<Integer,File> tmpfiles = new HashMap<>();
 				int curr_index = -1;
 				
 				// anonymous constructor
@@ -167,11 +168,12 @@ abstract class NArchive implements Archive
 				@Override
 				public void setOperationResult(boolean operationResultOk) throws SevenZipException
 				{
+	/*				System.out.println("setOperationResult "+curr_index);
 					try
 					{
 						if (curr_index >= 0)
 						{
-							if (rafs.containsKey(curr_index))
+							if (rafs.containsKey(-1))
 								rafs.remove(curr_index).close();
 							if (tmpfiles.containsKey(curr_index))
 								tmpfiles.remove(curr_index).delete();
@@ -181,17 +183,19 @@ abstract class NArchive implements Archive
 					catch (IOException e)
 					{
 						e.printStackTrace();
-					}
+					}*/
 				}
 				
 				@Override
 				public ISequentialInStream getStream(int index) throws SevenZipException
 				{
+					System.out.println("getStream "+index);
 					curr_index = index;
 					if(index + idx_to_delete.size() - old_tot < to_add.size())
 					{
 						try
 						{
+							System.out.println("create raf for "+new File(getTempDir(),to_add.get(index + idx_to_delete.size() - old_tot)));
 							rafs.put(index, new RandomAccessFile(new File(getTempDir(),to_add.get(index + idx_to_delete.size() - old_tot)), "r"));
 							return new RandomAccessFileInStream(rafs.get(index));
 						}
@@ -367,6 +371,8 @@ abstract class NArchive implements Archive
 					c.close();
 				closeables.clear();
 			}
+			for(RandomAccessFile raf :rafs.values()) raf.close();
+			for(File tmpfile :tmpfiles.values()) tmpfile.delete();
 		}
 		else
 		{
@@ -475,7 +481,7 @@ abstract class NArchive implements Archive
 	{
 		if(readonly)
 			return -1;
-	//	System.out.println("add stdin to "+new File(getTempDir(), entry));
+		System.out.println("add stdin to "+new File(getTempDir(), entry));
 		FileUtils.copyInputStreamToFile(src, new File(getTempDir(), entry));
 		to_add.add(entry);
 		return 0;

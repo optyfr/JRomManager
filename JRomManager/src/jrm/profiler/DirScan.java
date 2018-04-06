@@ -49,6 +49,7 @@ import jrm.data.Rom;
 import jrm.io.CHDInfoReader;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.Settings;
 import jrm.ui.ProgressHandler;
 import net.sf.sevenzipjbinding.ExtractAskMode;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
@@ -102,7 +103,8 @@ public final class DirScan
 		/*
 		 * Loading scan cache
 		 */
-		containers_byname = load(dir, handler);
+		if(!Settings.getProperty("debug_nocache", false))
+			containers_byname = load(dir, handler);
 
 		/*
 		 * List files;
@@ -289,7 +291,8 @@ public final class DirScan
 			}
 		});
 
-		save(dir, containers_byname);
+		if(!handler.isCancel())
+			save(dir, containers_byname);
 
 	}
 	
