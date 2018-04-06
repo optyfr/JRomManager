@@ -393,13 +393,13 @@ abstract class NArchive implements Archive
 				if(iout instanceof IOutFeatureSetSolid)
 					((IOutFeatureSetSolid)iout).setSolid(Settings.getProperty("7z_solid", false));
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel)iout).setLevel(Settings.getProperty("7z_level", SevenZipOptions.NORMAL.getLevel()));
+					((IOutFeatureSetLevel)iout).setLevel(SevenZipOptions.valueOf(Settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())).getLevel());
 				if(iout instanceof IOutFeatureSetMultithreading)
 					((IOutFeatureSetMultithreading)iout).setThreadCount(Settings.getProperty("7z_threads", 1));
 				break;
 			case ZIP:
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel)iout).setLevel(Settings.getProperty("zip_level", ZipOptions.NORMAL.getLevel()));
+					((IOutFeatureSetLevel)iout).setLevel(ZipOptions.valueOf(Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel());
 				if(iout instanceof IOutFeatureSetMultithreading)
 					((IOutFeatureSetMultithreading)iout).setThreadCount(Settings.getProperty("zip_threads", 1));
 			default:
