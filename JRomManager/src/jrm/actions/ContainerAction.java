@@ -32,4 +32,5 @@ abstract public class ContainerAction
 	}
 	
 	public abstract boolean doAction(ProgressHandler handler);
+	
 }

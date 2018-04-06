@@ -66,4 +66,9 @@ public class DeleteEntry extends EntryAction
 		return false;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Delete "+entry;
+	}
 }

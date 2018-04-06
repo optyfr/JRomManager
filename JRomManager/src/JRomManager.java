@@ -939,6 +939,7 @@ public class JRomManager
 					StreamEx.of(use_parallelism?actions.parallelStream().unordered():actions.stream()).takeWhile((action)->!progress.isCancel()).forEach(action -> {
 						try
 						{
+							System.out.println(action);
 							if (!action.doAction(progress))
 								progress.cancel();
 							done.add(action);

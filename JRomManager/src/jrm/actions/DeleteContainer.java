@@ -48,4 +48,9 @@ public class DeleteContainer extends ContainerAction
 		return false;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Delete "+container;
+	}
 }

@@ -91,4 +91,9 @@ public class Entry implements Serializable
 		return super.equals(obj);
 	}
 
+	@Override
+	public String toString()
+	{
+		return parent.file+"::"+file;
+	}
 }

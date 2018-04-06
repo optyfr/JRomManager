@@ -74,4 +74,9 @@ public class DuplicateEntry extends EntryAction
 		return false;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Duplicate "+entry+" to "+newname;
+	}
 }

@@ -127,5 +127,14 @@ public class CreateContainer extends ContainerAction
 		}
 		return false;
 	}
+	
+	@Override
+	public String toString()
+	{
+		String str = "Create " + container;
+		for(EntryAction action : entry_actions)
+			str += "\n\t"+action;
+		return str;
+	}
 
 }

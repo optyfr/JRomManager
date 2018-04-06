@@ -91,4 +91,9 @@ public class RenameEntry extends EntryAction
 		return false;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Rename "+entry+" to "+newname;
+	}
 }

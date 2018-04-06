@@ -114,4 +114,12 @@ public class OpenContainer extends ContainerAction
 		return false;
 	}
 
+	@Override
+	public String toString()
+	{
+		String str = "Open "+container;
+		for(EntryAction action : entry_actions)
+			str += "\n\t"+action;
+		return str;
+	}
 }

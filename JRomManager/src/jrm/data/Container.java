@@ -89,4 +89,10 @@ public class Container implements Serializable
 		return Type.UNK;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Container "+file;
+	
+	}
 }

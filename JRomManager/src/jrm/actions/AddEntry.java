@@ -130,4 +130,9 @@ public class AddEntry extends EntryAction
 		return false;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Add " + entry + " to " + entity;
+	}
 }
