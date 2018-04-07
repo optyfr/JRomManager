@@ -3,8 +3,10 @@ package jrm.compressors;
 public enum ZipOptions
 {
 	STORE("STORE method",0),
-	FAST("FAST presets",1),
+	FASTEST("FASTEST presets",1),
+	FAST("FAST presets",3),
 	NORMAL("NORMAL presets",5),
+	MAXIMUM("MAXIMUM presets",7),
 	ULTRA("ULTRA presets",9);
 	
 	private String desc;

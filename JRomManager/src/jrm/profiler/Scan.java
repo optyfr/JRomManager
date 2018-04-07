@@ -45,6 +45,7 @@ public class Scan
 		FormatOptions format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString()));
 		MergeOptions merge_mode = MergeOptions.valueOf(profile.getProperty("merge_mode", MergeOptions.SPLIT.toString()));
 		boolean create_mode = profile.getProperty("create_mode", true);
+		boolean createfull_mode = profile.getProperty("createfull_mode", true);
 		HashCollisionOptions hash_collision_mode = HashCollisionOptions.valueOf(profile.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()));
 
 		DirScan dstscan = new DirScan(profile, dstdir, handler, true);
@@ -215,10 +216,15 @@ public class Scan
 								partial = true;
 							}
 						}
-						ContainerAction.addToList(create_actions, createset);
 						String msg = "[" + m.name + "] is missing";
 						if (disks_found > 0)
-							msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
+						{
+							if(!createfull_mode || !partial)
+							{
+								ContainerAction.addToList(create_actions, createset);
+								msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
+							}
+						}
 						report_w.println(msg);
 					}
 				}
@@ -356,10 +362,15 @@ public class Scan
 								partial = true;
 							}
 						}
-						ContainerAction.addToList(create_actions, createset);
 						String msg = "[" + m.name + "] is missing";
 						if (roms_found > 0)
-							msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
+						{
+							if(!createfull_mode || !partial)
+							{
+								ContainerAction.addToList(create_actions, createset);
+								msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
+							}
+						}
 						report_w.println(msg);
 					}
 				}

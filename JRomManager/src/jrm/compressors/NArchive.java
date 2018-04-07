@@ -112,7 +112,7 @@ abstract class NArchive implements Archive
 				HashMap<Integer,String> idx_to_rename = new HashMap<>();
 				ArrayList<Object[]> idx_to_duplicate = new ArrayList<>();
 				int old_idx = 0, old_tot = 0;
-				int curr_index = -1;
+			//	int curr_index = -1;
 				
 				// anonymous constructor
 				{
@@ -189,13 +189,13 @@ abstract class NArchive implements Archive
 				@Override
 				public ISequentialInStream getStream(int index) throws SevenZipException
 				{
-					System.out.println("getStream "+index);
-					curr_index = index;
+				//	System.out.println("getStream "+index);
+				//	curr_index = index;
 					if(index + idx_to_delete.size() - old_tot < to_add.size())
 					{
 						try
 						{
-							System.out.println("create raf for "+new File(getTempDir(),to_add.get(index + idx_to_delete.size() - old_tot)));
+						//	System.out.println("create raf for "+new File(getTempDir(),to_add.get(index + idx_to_delete.size() - old_tot)));
 							rafs.put(index, new RandomAccessFile(new File(getTempDir(),to_add.get(index + idx_to_delete.size() - old_tot)), "r"));
 							return new RandomAccessFileInStream(rafs.get(index));
 						}
@@ -397,17 +397,17 @@ abstract class NArchive implements Archive
 		{
 			case SEVEN_ZIP:
 				if(iout instanceof IOutFeatureSetSolid)
-					((IOutFeatureSetSolid)iout).setSolid(Settings.getProperty("7z_solid", false));
+					((IOutFeatureSetSolid)iout).setSolid(Settings.getProperty("7z_solid", true));
 				if(iout instanceof IOutFeatureSetLevel)
 					((IOutFeatureSetLevel)iout).setLevel(SevenZipOptions.valueOf(Settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())).getLevel());
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading)iout).setThreadCount(Settings.getProperty("7z_threads", 1));
+					((IOutFeatureSetMultithreading)iout).setThreadCount(Settings.getProperty("7z_threads", -1));
 				break;
 			case ZIP:
 				if(iout instanceof IOutFeatureSetLevel)
 					((IOutFeatureSetLevel)iout).setLevel(ZipOptions.valueOf(Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel());
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading)iout).setThreadCount(Settings.getProperty("zip_threads", 1));
+					((IOutFeatureSetMultithreading)iout).setThreadCount(Settings.getProperty("zip_threads", -1));
 			default:
 				break;
 		}
@@ -481,7 +481,7 @@ abstract class NArchive implements Archive
 	{
 		if(readonly)
 			return -1;
-		System.out.println("add stdin to "+new File(getTempDir(), entry));
+	//	System.out.println("add stdin to "+new File(getTempDir(), entry));
 		FileUtils.copyInputStreamToFile(src, new File(getTempDir(), entry));
 		to_add.add(entry);
 		return 0;

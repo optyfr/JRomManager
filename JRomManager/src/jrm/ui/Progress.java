@@ -1,16 +1,17 @@
 package jrm.ui;
 
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -29,7 +30,8 @@ public class Progress extends JDialog implements ProgressHandler
 
 	public Progress(Window owner)
 	{
-		super(owner, "Progression", Dialog.ModalityType.APPLICATION_MODAL);
+		super(owner, "Progression", ModalityType.APPLICATION_MODAL);
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/jrm/resources/rom.png")));
 		getContentPane().setBackground(UIManager.getColor("Panel.background"));
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -75,6 +77,7 @@ public class Progress extends JDialog implements ProgressHandler
 		getContentPane().add(lblTimeleft, gbc_lblTimeleft);
 
 		btnCancel = new JButton("Cancel");
+		btnCancel.setIcon(new ImageIcon(Progress.class.getResource("/jrm/resources/icons/stop.png")));
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				cancel();

@@ -29,7 +29,7 @@ public class AddEntry extends EntryAction
 	public boolean doAction(FileSystem dstfs, ProgressHandler handler)
 	{
 		Path dstpath = dstfs.getPath(entity.getName());
-		handler.setProgress(null,null,null,"Adding "+dstpath.getFileName());
+		handler.setProgress(null,null,null,"Adding "+entity.getName());
 		Path srcpath = null;
 		try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
 		{
@@ -51,7 +51,7 @@ public class AddEntry extends EntryAction
 	public boolean doAction(Path target, ProgressHandler handler)
 	{
 		Path dstpath = target.resolve(entity.getName());
-		handler.setProgress(null,null,null,"Adding "+dstpath.getFileName());
+		handler.setProgress(null,null,null,"Adding "+entity.getName());
 		Path srcpath = null;
 		try
 		{
@@ -103,6 +103,7 @@ public class AddEntry extends EntryAction
 	@Override
 	public boolean doAction(Archive archive, ProgressHandler handler)
 	{	
+		handler.setProgress(null,null,null,"Adding "+entity.getName());
 		if(entry.parent.getType()==Type.ZIP)
 		{
 			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
