@@ -69,6 +69,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.commons.io.FileUtils;
@@ -275,10 +276,12 @@ public class JRomManager
 				if(selectedNode!=null)
 				{
 					DirNode newnode = new DirNode(new DirNode.Dir(new File(selectedNode.dir.getFile(),"new folder")));
-					System.out.println(newnode.dir.getFile());
+					//System.out.println(newnode.dir.getFile());
 					selectedNode.add(newnode);
 					profilesTreeModel.reload(selectedNode);
-					//profilesTree.startEditingAtPath(path);
+					TreePath path = new TreePath(newnode.getPath());
+					profilesTree.setSelectionPath(path);
+					profilesTree.startEditingAtPath(path);
 				}
 			}
 		});

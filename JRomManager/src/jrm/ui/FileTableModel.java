@@ -22,8 +22,11 @@ public class FileTableModel extends DefaultTableModel
 
 	public void populate(DirNode.Dir dir)
 	{
-		Object[][] objs = Arrays.asList(dir.getFile().listFiles()).stream().filter(File::isFile).map(f->new Object[] {f}).collect(Collectors.toList()).toArray(new Object[][] {});
-		setDataVector(objs,new String[] {"Profile"});
+		if(dir.getFile().exists())
+		{
+			Object[][] objs = Arrays.asList(dir.getFile().listFiles()).stream().filter(File::isFile).map(f->new Object[] {f}).collect(Collectors.toList()).toArray(new Object[][] {});
+			setDataVector(objs,new String[] {"Profile"});
+		}
 	}
 	
 	@Override
