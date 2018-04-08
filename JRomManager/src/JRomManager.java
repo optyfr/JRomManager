@@ -63,12 +63,9 @@ import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -89,6 +86,7 @@ import jrm.profiler.scan.FormatOptions;
 import jrm.profiler.scan.HashCollisionOptions;
 import jrm.profiler.scan.MergeOptions;
 import jrm.ui.DirNode;
+import jrm.ui.DirTreeCellEditor;
 import jrm.ui.DirTreeCellRenderer;
 import jrm.ui.DirTreeModel;
 import jrm.ui.FileTableCellRenderer;
@@ -253,8 +251,10 @@ public class JRomManager
 		profilesTree.setRootVisible(true);
 		profilesTree.setShowsRootHandles(true);
 		profilesTree.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		profilesTree.setEditable(false);
-		profilesTree.setCellRenderer(new DirTreeCellRenderer());
+		profilesTree.setEditable(true);
+		DirTreeCellRenderer profilesTreeRenderer = new DirTreeCellRenderer();
+		profilesTree.setCellRenderer(profilesTreeRenderer);
+		profilesTree.setCellEditor(new DirTreeCellEditor(profilesTree, profilesTreeRenderer));
 		
 		popupMenu_1 = new JPopupMenu();
 		popupMenu_1.addPopupMenuListener(new PopupMenuListener() {
@@ -276,7 +276,6 @@ public class JRomManager
 				if(selectedNode!=null)
 				{
 					DirNode newnode = new DirNode(new DirNode.Dir(new File(selectedNode.dir.getFile(),"new folder")));
-					//System.out.println(newnode.dir.getFile());
 					selectedNode.add(newnode);
 					profilesTreeModel.reload(selectedNode);
 					TreePath path = new TreePath(newnode.getPath());
@@ -581,7 +580,8 @@ public class JRomManager
 		scannerSubSettingsPanel.add(txtRomsDest, gbc_txtRomsDest);
 		txtRomsDest.setColumns(10);
 		
-		btnRomsDest = new JButton("...");
+		btnRomsDest = new JButton("");
+		btnRomsDest.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/disk.png")));
 		btnRomsDest.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				new JFileChooser()
@@ -794,7 +794,7 @@ public class JRomManager
 		tfZipECmd.setColumns(30);
 		
 		btZipECmd = new JButton("");
-		btZipECmd.setIcon(new ImageIcon(JRomManager.class.getResource("/javax/swing/plaf/metal/icons/ocean/floppy.gif")));
+		btZipECmd.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/disk.png")));
 		GridBagConstraints gbc_btZipECmd = new GridBagConstraints();
 		gbc_btZipECmd.fill = GridBagConstraints.BOTH;
 		gbc_btZipECmd.insets = new Insets(0, 0, 5, 5);
@@ -910,7 +910,7 @@ public class JRomManager
 		panel7Zip.add(tf7zCmd, gbc_tf7zCmd);
 		
 		btn7zCmd = new JButton("");
-		btn7zCmd.setIcon(new ImageIcon(JRomManager.class.getResource("/javax/swing/plaf/metal/icons/ocean/floppy.gif")));
+		btn7zCmd.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/disk.png")));
 		GridBagConstraints gbc_btn7zCmd = new GridBagConstraints();
 		gbc_btn7zCmd.fill = GridBagConstraints.BOTH;
 		gbc_btn7zCmd.insets = new Insets(0, 0, 5, 5);
@@ -1050,7 +1050,7 @@ public class JRomManager
 		panelTZip.add(tfTZipCmd, gbc_tfTZipCmd);
 		
 		btTZipCmd = new JButton("");
-		btTZipCmd.setIcon(new ImageIcon(JRomManager.class.getResource("/javax/swing/plaf/metal/icons/ocean/floppy.gif")));
+		btTZipCmd.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/disk.png")));
 		GridBagConstraints gbc_btTZipCmd = new GridBagConstraints();
 		gbc_btTZipCmd.insets = new Insets(0, 0, 5, 5);
 		gbc_btTZipCmd.anchor = GridBagConstraints.WEST;
