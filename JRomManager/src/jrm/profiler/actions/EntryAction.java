@@ -1,10 +1,10 @@
-package jrm.actions;
+package jrm.profiler.actions;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
 import jrm.compressors.Archive;
-import jrm.data.Entry;
+import jrm.profiler.data.Entry;
 import jrm.ui.ProgressHandler;
 
 abstract public class EntryAction

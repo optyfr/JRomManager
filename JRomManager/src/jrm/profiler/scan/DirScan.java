@@ -1,4 +1,4 @@
-package jrm.profiler;
+package jrm.profiler.scan;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -39,17 +39,18 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
 import jrm.compressors.SevenZipArchive;
-import jrm.data.Archive;
-import jrm.data.Container;
-import jrm.data.Container.Type;
-import jrm.data.Directory;
-import jrm.data.Disk;
-import jrm.data.Entry;
-import jrm.data.Rom;
 import jrm.io.CHDInfoReader;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
+import jrm.profiler.Profile;
+import jrm.profiler.data.Archive;
+import jrm.profiler.data.Container;
+import jrm.profiler.data.Directory;
+import jrm.profiler.data.Disk;
+import jrm.profiler.data.Entry;
+import jrm.profiler.data.Rom;
+import jrm.profiler.data.Container.Type;
 import jrm.ui.ProgressHandler;
 import net.sf.sevenzipjbinding.ExtractAskMode;
 import net.sf.sevenzipjbinding.ExtractOperationResult;

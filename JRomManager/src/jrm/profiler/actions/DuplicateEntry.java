@@ -1,4 +1,4 @@
-package jrm.actions;
+package jrm.profiler.actions;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import jrm.compressors.Archive;
-import jrm.data.Entry;
+import jrm.profiler.data.Entry;
 import jrm.ui.ProgressHandler;
 
 public class DuplicateEntry extends EntryAction

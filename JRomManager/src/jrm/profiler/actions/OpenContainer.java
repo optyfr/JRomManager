@@ -1,36 +1,34 @@
-package jrm.actions;
+package jrm.profiler.actions;
 
 import java.io.File;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.Map;
 
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
-import jrm.data.Container;
 import jrm.misc.FindCmd;
 import jrm.misc.Settings;
+import jrm.profiler.data.Container;
 import jrm.profiler.scan.FormatOptions;
 import jrm.ui.ProgressHandler;
 
-public class CreateContainer extends ContainerAction
+public class OpenContainer extends ContainerAction
 {
 
-	public CreateContainer(Container container, FormatOptions format)
+	public OpenContainer(Container container, FormatOptions format)
 	{
 		super(container, format);
 	}
-
-	public static CreateContainer getInstance(CreateContainer action, Container container, FormatOptions format)
+	
+	public static OpenContainer getInstance(OpenContainer action, Container container, FormatOptions format)
 	{
 		if(action == null)
-			action = new CreateContainer(container, format);
+			action = new OpenContainer(container, format);
 		return action;
 	}
 
@@ -42,10 +40,10 @@ public class CreateContainer extends ContainerAction
 		handler.setProgress("<html><nobr>Fixing <span color='blue'>"+container.file.getName()+"</span> <span color='purple'>["+container.m.description+"]</span></nobr></html>");
 		if(container.getType()==Container.Type.ZIP)
 		{
-			if(format==FormatOptions.ZIP || format==FormatOptions.TZIP)
+			if(format==FormatOptions.ZIP)
 			{
 				Map<String,Object> env = new HashMap<>();
-				env.put("create", "true");
+				env.put("create", "false");
 				env.put("useTempFile", Boolean.TRUE);
 				try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+container.file.toURI()), env);)
 				{
@@ -104,36 +102,24 @@ public class CreateContainer extends ContainerAction
 		}
 		else if(container.getType()==Container.Type.DIR)
 		{
-			try
-			{
-				Path target = container.file.toPath();
-				if(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"))
-					Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-				else
-					Files.createDirectories(target);
-				for(EntryAction action : entry_actions)
-					if(!action.doAction(target, handler))
-					{
-						System.err.println("action to "+container.file.getName()+"@"+action.entry.file+" failed");
-						return false;
-					}
-				return true;
-			}
-			catch (Throwable e)
-			{
-				e.printStackTrace();
-			}
+			Path target = container.file.toPath();
+			for(EntryAction action : entry_actions)
+				if(!action.doAction(target, handler))
+				{
+					System.err.println("action to "+container.file.getName()+"@"+action.entry.file+" failed");
+					return false;
+				}
+			return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		String str = "Create " + container;
+		String str = "Open "+container;
 		for(EntryAction action : entry_actions)
 			str += "\n\t"+action;
 		return str;
 	}
-
 }

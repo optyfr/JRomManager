@@ -1,4 +1,4 @@
-package jrm.data;
+package jrm.profiler.data;
 
 import java.io.Serializable;
 import java.nio.file.Path;

@@ -1,4 +1,4 @@
-package jrm.profiler;
+package jrm.profiler.scan;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,32 +13,30 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 
-import jrm.actions.AddEntry;
-import jrm.actions.ContainerAction;
-import jrm.actions.CreateContainer;
-import jrm.actions.DeleteContainer;
-import jrm.actions.DeleteEntry;
-import jrm.actions.DuplicateEntry;
-import jrm.actions.OpenContainer;
-import jrm.actions.RenameEntry;
-import jrm.data.Archive;
-import jrm.data.Container;
-import jrm.data.Directory;
-import jrm.data.Disk;
-import jrm.data.Entry;
-import jrm.data.Machine;
-import jrm.data.Rom;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.profiler.scan.FormatOptions;
-import jrm.profiler.scan.HashCollisionOptions;
-import jrm.profiler.scan.MergeOptions;
+import jrm.profiler.Profile;
+import jrm.profiler.actions.AddEntry;
+import jrm.profiler.actions.ContainerAction;
+import jrm.profiler.actions.CreateContainer;
+import jrm.profiler.actions.DeleteContainer;
+import jrm.profiler.actions.DeleteEntry;
+import jrm.profiler.actions.DuplicateEntry;
+import jrm.profiler.actions.OpenContainer;
+import jrm.profiler.actions.RenameEntry;
+import jrm.profiler.data.Archive;
+import jrm.profiler.data.Container;
+import jrm.profiler.data.Directory;
+import jrm.profiler.data.Disk;
+import jrm.profiler.data.Entry;
+import jrm.profiler.data.Machine;
+import jrm.profiler.data.Rom;
 import jrm.ui.ProgressHandler;
 
 public class Scan
 {
 
-	public ArrayList<ArrayList<jrm.actions.ContainerAction>> actions = new ArrayList<>();
+	public ArrayList<ArrayList<jrm.profiler.actions.ContainerAction>> actions = new ArrayList<>();
 
 	public Scan(Profile profile, File dstdir, List<File> srcdirs, ProgressHandler handler) throws BreakException
 	{
@@ -63,12 +61,12 @@ public class Scan
 				unknown.add(c);
 		}
 
-		ArrayList<jrm.actions.ContainerAction> create_actions = new ArrayList<>();
-		ArrayList<jrm.actions.ContainerAction> rename_before_actions = new ArrayList<>();
-		ArrayList<jrm.actions.ContainerAction> add_actions = new ArrayList<>();
-		ArrayList<jrm.actions.ContainerAction> delete_actions = new ArrayList<>();
-		ArrayList<jrm.actions.ContainerAction> rename_after_actions = new ArrayList<>();
-		ArrayList<jrm.actions.ContainerAction> duplicate_actions = new ArrayList<>();
+		ArrayList<jrm.profiler.actions.ContainerAction> create_actions = new ArrayList<>();
+		ArrayList<jrm.profiler.actions.ContainerAction> rename_before_actions = new ArrayList<>();
+		ArrayList<jrm.profiler.actions.ContainerAction> add_actions = new ArrayList<>();
+		ArrayList<jrm.profiler.actions.ContainerAction> delete_actions = new ArrayList<>();
+		ArrayList<jrm.profiler.actions.ContainerAction> rename_after_actions = new ArrayList<>();
+		ArrayList<jrm.profiler.actions.ContainerAction> duplicate_actions = new ArrayList<>();
 
 		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
 		File reportdir = new File(workdir, "reports");

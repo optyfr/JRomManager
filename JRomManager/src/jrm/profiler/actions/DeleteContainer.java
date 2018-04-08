@@ -1,10 +1,10 @@
-package jrm.actions;
+package jrm.profiler.actions;
 
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
-import jrm.data.Container;
+import jrm.profiler.data.Container;
 import jrm.profiler.scan.FormatOptions;
 import jrm.ui.ProgressHandler;
 

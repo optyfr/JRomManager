@@ -24,12 +24,12 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import jrm.data.Disk;
-import jrm.data.Machine;
-import jrm.data.Rom;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
+import jrm.profiler.data.Disk;
+import jrm.profiler.data.Machine;
+import jrm.profiler.data.Rom;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -37,19 +37,19 @@ public class Profile implements Serializable
 {
 	File file;
 
-	long machines_cnt = 0;
-	long roms_cnt = 0;
-	long disks_cnt = 0;
+	public long machines_cnt = 0;
+	public long roms_cnt = 0;
+	public long disks_cnt = 0;
 	
-	boolean md5_roms = false;
-	boolean md5_disks = false;
-	boolean sha1_roms = false;
-	boolean sha1_disks = false;
+	public boolean md5_roms = false;
+	public boolean md5_disks = false;
+	public boolean sha1_roms = false;
+	public boolean sha1_disks = false;
 
 	String build;
-	ArrayList<Machine> machines = new ArrayList<>();
-	HashMap<String, Machine> machines_byname = new HashMap<>();
-	HashSet<String> suspicious_crc = new HashSet<>();
+	public ArrayList<Machine> machines = new ArrayList<>();
+	public HashMap<String, Machine> machines_byname = new HashMap<>();
+	public HashSet<String> suspicious_crc = new HashSet<>();
 	
 	public transient Properties settings = null;
 

@@ -63,8 +63,6 @@ import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -72,7 +70,6 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import jrm.actions.ContainerAction;
 import jrm.compressors.SevenZipOptions;
 import jrm.compressors.ZipOptions;
 import jrm.misc.BreakException;
@@ -81,15 +78,16 @@ import jrm.misc.Log;
 import jrm.misc.Settings;
 import jrm.profiler.Import;
 import jrm.profiler.Profile;
-import jrm.profiler.Scan;
+import jrm.profiler.actions.ContainerAction;
 import jrm.profiler.scan.FormatOptions;
 import jrm.profiler.scan.HashCollisionOptions;
 import jrm.profiler.scan.MergeOptions;
+import jrm.profiler.scan.Scan;
 import jrm.ui.DirNode;
 import jrm.ui.DirTreeCellEditor;
 import jrm.ui.DirTreeCellRenderer;
 import jrm.ui.DirTreeModel;
-import jrm.ui.FileTableCellRenderer;
+import jrm.ui.DirTreeSelectionListener;
 import jrm.ui.FileTableModel;
 import jrm.ui.Progress;
 import one.util.streamex.StreamEx;
@@ -291,22 +289,7 @@ public class JRomManager
 		mntmDeleteFolder.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/folder_delete.png")));
 		popupMenu_1.add(mntmDeleteFolder);
 		profilesTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		profilesTree.addTreeSelectionListener(new TreeSelectionListener()
-		{
-			
-			@Override
-			public void valueChanged(TreeSelectionEvent e)
-			{
-				JTree tree = (JTree)e.getSource();
-				DirNode selectedNode = (DirNode) tree.getLastSelectedPathComponent();
-				if(selectedNode!=null)
-				{
-					filemodel.populate((DirNode.Dir)selectedNode.getUserObject());
-					profilesList.getColumn("Profile").setCellRenderer(new FileTableCellRenderer());
-				}
-
-			}
-		});
+		profilesTree.addTreeSelectionListener(new DirTreeSelectionListener(profilesList));
 		
 		profilesBtnPanel = new JPanel();
 		GridBagConstraints gbc_profilesBtnPanel = new GridBagConstraints();
@@ -340,7 +323,7 @@ public class JRomManager
 		gbl_scannerTab.columnWidths = new int[]{104, 0};
 		gbl_scannerTab.rowHeights = new int[]{0, 33, 0};
 		gbl_scannerTab.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_scannerTab.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_scannerTab.rowWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
 		scannerTab.setLayout(gbl_scannerTab);
 		
 		scannerBtnPanel = new JPanel();

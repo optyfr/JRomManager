@@ -1,4 +1,4 @@
-package jrm.actions;
+package jrm.profiler.actions;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,9 +10,9 @@ import java.nio.file.StandardCopyOption;
 
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
-import jrm.data.Container.Type;
-import jrm.data.Entity;
-import jrm.data.Entry;
+import jrm.profiler.data.Entity;
+import jrm.profiler.data.Entry;
+import jrm.profiler.data.Container.Type;
 import jrm.ui.ProgressHandler;
 
 public class AddEntry extends EntryAction
