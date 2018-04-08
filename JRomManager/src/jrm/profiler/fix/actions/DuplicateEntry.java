@@ -1,4 +1,4 @@
-package jrm.profiler.actions;
+package jrm.profiler.fix.actions;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -25,9 +25,9 @@ public class DuplicateEntry extends EntryAction
 		Path dstpath = fs.getPath(newname);
 		try
 		{
-			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
+			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
 			Path srcpath = fs.getPath(entry.file);
-			if(dstpath.getParent()!=null)
+			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
 			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 			return true;
@@ -35,7 +35,7 @@ public class DuplicateEntry extends EntryAction
 		catch(Throwable e)
 		{
 			e.printStackTrace();
-			System.err.println("duplicate "+parent.container.file.getName()+"@"+entry.file+" to "+parent.container.file.getName()+"@"+newname+" failed");
+			System.err.println("duplicate " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed");
 		}
 		return false;
 	}
@@ -47,14 +47,14 @@ public class DuplicateEntry extends EntryAction
 		try
 		{
 			dstpath = target.resolve(newname);
-			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
+			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
 			Path srcpath = target.resolve(entry.file);
 			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES);
 			return true;
 		}
 		catch(Throwable e)
 		{
-			System.err.println("duplicate "+parent.container.file.getName()+"@"+entry.file+" to "+parent.container.file.getName()+"@"+newname+" failed");
+			System.err.println("duplicate " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed");
 		}
 		return false;
 	}
@@ -64,12 +64,12 @@ public class DuplicateEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null,null,null,"Duplicating "+entry.file+" to "+newname);
+			handler.setProgress(null, null, null, "Duplicating " + entry.file + " to " + newname);
 			return archive.duplicate(entry.file, newname) == 0;
 		}
 		catch(Throwable e)
 		{
-			System.err.println("duplicate "+parent.container.file.getName()+"@"+entry.file+" to "+parent.container.file.getName()+"@"+newname+" failed");
+			System.err.println("duplicate " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed");
 		}
 		return false;
 	}
@@ -77,6 +77,6 @@ public class DuplicateEntry extends EntryAction
 	@Override
 	public String toString()
 	{
-		return "Duplicate "+entry+" to "+newname;
+		return "Duplicate " + entry + " to " + newname;
 	}
 }

@@ -12,10 +12,10 @@ class ZipNArchive extends NArchive
 	{
 		super(archive, false);
 	}
-	
+
 	public ZipNArchive(File archive, boolean readonly) throws IOException, SevenZipNativeInitializationException
 	{
 		super(archive, readonly);
 	}
-	
+
 }

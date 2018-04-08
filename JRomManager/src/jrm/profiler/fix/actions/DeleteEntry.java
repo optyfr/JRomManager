@@ -1,4 +1,4 @@
-package jrm.profiler.actions;
+package jrm.profiler.fix.actions;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -21,14 +21,14 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null,null,null,"Deleting "+entry.file);
+			handler.setProgress(null, null, null, "Deleting " + entry.file);
 			path = dstfs.getPath(entry.file);
 			Files.deleteIfExists(path);
 			return true;
 		}
 		catch(Throwable e)
 		{
-			System.err.println("delete "+parent.container.file.getName()+"@"+path+" failed");
+			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed");
 		}
 		return false;
 	}
@@ -39,14 +39,14 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null,null,null,"Deleting "+entry.file);
+			handler.setProgress(null, null, null, "Deleting " + entry.file);
 			path = target.resolve(entry.file);
 			Files.deleteIfExists(path);
 			return true;
 		}
-		catch (Throwable e)
+		catch(Throwable e)
 		{
-			System.err.println("delete "+parent.container.file.getName()+"@"+path+" failed");
+			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed");
 		}
 		return false;
 	}
@@ -56,12 +56,12 @@ public class DeleteEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null,null,null,"Deleting "+entry.file);
+			handler.setProgress(null, null, null, "Deleting " + entry.file);
 			return archive.delete(entry.file) == 0;
 		}
-		catch (Throwable e)
+		catch(Throwable e)
 		{
-			System.err.println("delete "+parent.container.file.getName()+"@"+entry.file+" failed");
+			System.err.println("delete " + parent.container.file.getName() + "@" + entry.file + " failed");
 		}
 		return false;
 	}
@@ -69,6 +69,6 @@ public class DeleteEntry extends EntryAction
 	@Override
 	public String toString()
 	{
-		return "Delete "+entry;
+		return "Delete " + entry;
 	}
 }

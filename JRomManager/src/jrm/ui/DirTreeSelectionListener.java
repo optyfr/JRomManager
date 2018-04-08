@@ -8,7 +8,7 @@ import javax.swing.event.TreeSelectionListener;
 public class DirTreeSelectionListener implements TreeSelectionListener
 {
 	JTable profilesList;
-	
+
 	public DirTreeSelectionListener(JTable profilesList)
 	{
 		this.profilesList = profilesList;
@@ -17,11 +17,11 @@ public class DirTreeSelectionListener implements TreeSelectionListener
 	@Override
 	public void valueChanged(TreeSelectionEvent e)
 	{
-		JTree tree = (JTree)e.getSource();
+		JTree tree = (JTree) e.getSource();
 		DirNode selectedNode = (DirNode) tree.getLastSelectedPathComponent();
-		if(selectedNode!=null)
+		if(selectedNode != null)
 		{
-			((FileTableModel)profilesList.getModel()).populate((DirNode.Dir)selectedNode.getUserObject());
+			((FileTableModel) profilesList.getModel()).populate((DirNode.Dir) selectedNode.getUserObject());
 			profilesList.getColumn("Profile").setCellRenderer(new FileTableCellRenderer());
 		}
 	}

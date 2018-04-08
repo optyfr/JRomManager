@@ -33,9 +33,11 @@ public class Progress extends JDialog implements ProgressHandler
 		super(owner, "Progression", ModalityType.APPLICATION_MODAL);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/jrm/resources/rom.png")));
 		getContentPane().setBackground(UIManager.getColor("Panel.background"));
-		addWindowListener(new WindowAdapter() {
+		addWindowListener(new WindowAdapter()
+		{
 			@Override
-			public void windowClosing(WindowEvent e) {
+			public void windowClosing(WindowEvent e)
+			{
 				cancel = true;
 			}
 		});
@@ -68,7 +70,7 @@ public class Progress extends JDialog implements ProgressHandler
 		gbc_progressBar.gridx = 0;
 		gbc_progressBar.gridy = 1;
 		getContentPane().add(progressBar, gbc_progressBar);
-		
+
 		lblTimeleft = new JLabel("--:--:--");
 		GridBagConstraints gbc_lblTimeleft = new GridBagConstraints();
 		gbc_lblTimeleft.insets = new Insets(0, 0, 5, 5);
@@ -78,8 +80,10 @@ public class Progress extends JDialog implements ProgressHandler
 
 		btnCancel = new JButton("Cancel");
 		btnCancel.setIcon(new ImageIcon(Progress.class.getResource("/jrm/resources/icons/stop.png")));
-		btnCancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		btnCancel.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				cancel();
 			}
 		});
@@ -115,38 +119,38 @@ public class Progress extends JDialog implements ProgressHandler
 	long startTime = 0;
 	private JLabel lblTimeleft;
 	private JButton btnCancel;
-	
+
 	@Override
 	public synchronized void setProgress(String msg, Integer val, Integer max, String submsg)
 	{
-		if (msg != null)
+		if(msg != null)
 			lblInfo.setText(msg);
-		if (val != null)
+		if(val != null)
 		{
 			progressBar.setIndeterminate(val < 0);
 			progressBar.setStringPainted(val >= 0);
-			if (max != null)
+			if(max != null)
 				progressBar.setMaximum(max);
-			if (val >= 0)
+			if(val >= 0)
 			{
 				progressBar.setValue(val);
 			}
-			if(val==0)
+			if(val == 0)
 				startTime = System.currentTimeMillis();
-			if(val>0)
-				lblTimeleft.setText(DurationFormatUtils.formatDuration((long)((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val), "HH:mm:ss")+" / "+DurationFormatUtils.formatDuration((long)((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val), "HH:mm:ss"));
+			if(val > 0)
+				lblTimeleft.setText(DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val), "HH:mm:ss") + " / " + DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val), "HH:mm:ss"));
 			else
 				lblTimeleft.setText("--:--:-- / --:--:--");
 		}
 		// if(submsg!=null)
 		progressBar.setString(submsg);
 	}
-	
+
 	public boolean isCancel()
 	{
 		return cancel;
 	}
-	
+
 	public void cancel()
 	{
 		this.cancel = true;

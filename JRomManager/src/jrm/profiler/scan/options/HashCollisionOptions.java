@@ -1,4 +1,4 @@
-package jrm.profiler.scan;
+package jrm.profiler.scan.options;
 
 public enum HashCollisionOptions
 {
@@ -6,14 +6,14 @@ public enum HashCollisionOptions
 	SINGLECLONE("Single clone"),
 	ALLCLONES("All clones"),
 	DUMB("All clones even if no collision");
-	
+
 	private String name;
-	
+
 	private HashCollisionOptions(String name)
 	{
 		this.name = name;
 	}
-	
+
 	public String getDesc()
 	{
 		return name;

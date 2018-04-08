@@ -1,4 +1,4 @@
-package jrm.profiler.actions;
+package jrm.profiler.fix.actions;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -17,7 +17,7 @@ public class RenameEntry extends EntryAction
 	public RenameEntry(Entry entry)
 	{
 		super(entry);
-		this.newname =  UUID.randomUUID()+"_"+entry.size+".tmp";
+		this.newname = UUID.randomUUID() + "_" + entry.size + ".tmp";
 	}
 
 	public RenameEntry(String newname, Entry entry)
@@ -32,19 +32,19 @@ public class RenameEntry extends EntryAction
 		Path dstpath = null;
 		try
 		{
-			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
+			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
 			Path srcpath = fs.getPath(entry.file);
 			dstpath = fs.getPath(newname);
-			if(dstpath.getParent()!=null)
+			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
 			Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			entry.file = dstpath.toString();
-			//System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);
+			// System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);
 			return true;
 		}
 		catch(Throwable e)
 		{
-			System.err.println("rename "+parent.container.file.getName()+"@"+entry.file+" to "+parent.container.file.getName()+"@"+newname+" failed");
+			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed");
 		}
 		return false;
 	}
@@ -56,18 +56,18 @@ public class RenameEntry extends EntryAction
 		try
 		{
 			dstpath = target.resolve(newname);
-			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
+			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
 			Path srcpath = target.resolve(entry.file);
-			if(dstpath.getParent()!=null)
+			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
 			Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			entry.file = dstpath.toString();
-			//System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);
+			// System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);
 			return true;
 		}
 		catch(Throwable e)
 		{
-			System.err.println("rename "+parent.container.file.getName()+"@"+entry.file+" to "+parent.container.file.getName()+"@"+newname+" failed");
+			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed");
 		}
 		return false;
 	}
@@ -77,7 +77,7 @@ public class RenameEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null,null,null,"Renaming "+entry.file+" to "+newname);
+			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
 			if(archive.rename(entry.file, newname) == 0)
 			{
 				entry.file = newname;
@@ -86,7 +86,7 @@ public class RenameEntry extends EntryAction
 		}
 		catch(Throwable e)
 		{
-			System.err.println("rename "+parent.container.file.getName()+"@"+entry.file+" to "+parent.container.file.getName()+"@"+newname+" failed");
+			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed");
 		}
 		return false;
 	}
@@ -94,6 +94,6 @@ public class RenameEntry extends EntryAction
 	@Override
 	public String toString()
 	{
-		return "Rename "+entry+" to "+newname;
+		return "Rename " + entry + " to " + newname;
 	}
 }

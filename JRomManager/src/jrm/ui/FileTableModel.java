@@ -17,22 +17,22 @@ public class FileTableModel extends DefaultTableModel
 
 	public FileTableModel()
 	{
-		super(new String[0][1], new String[] {"Profile"});
+		super(new String[0][1], new String[] { "Profile" });
 	}
 
 	public void populate(DirNode.Dir dir)
 	{
 		if(dir.getFile().exists())
 		{
-			Object[][] objs = Arrays.asList(dir.getFile().listFiles()).stream().filter(File::isFile).map(f->new Object[] {f}).collect(Collectors.toList()).toArray(new Object[][] {});
-			setDataVector(objs,new String[] {"Profile"});
+			Object[][] objs = Arrays.asList(dir.getFile().listFiles()).stream().filter(File::isFile).map(f -> new Object[] { f }).collect(Collectors.toList()).toArray(new Object[][] {});
+			setDataVector(objs, new String[] { "Profile" });
 		}
 	}
-	
+
 	@Override
 	public boolean isCellEditable(int row, int column)
 	{
 		return false;
 	}
-	
+
 }

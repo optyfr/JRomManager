@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jrm.profiler.scan.HashCollisionOptions;
-import jrm.profiler.scan.MergeOptions;
+import jrm.profiler.scan.options.HashCollisionOptions;
+import jrm.profiler.scan.options.MergeOptions;
 import one.util.streamex.StreamEx;
 
 @SuppressWarnings("serial")
@@ -19,20 +19,20 @@ public class Machine implements Serializable
 	public String romof = null;
 	public String cloneof = null;
 	public String sampleof = null;
-	public boolean isbios =false;
-	public boolean ismechanical =false;
-	public boolean isdevice =false;
-	
+	public boolean isbios = false;
+	public boolean ismechanical = false;
+	public boolean isdevice = false;
+
 	public ArrayList<Rom> roms = new ArrayList<>();
 	public ArrayList<Disk> disks = new ArrayList<>();
-	
+
 	public Machine parent = null;
-	public HashMap<String,Machine> clones = new HashMap<>();
-	
+	public HashMap<String, Machine> clones = new HashMap<>();
+
 	public static transient MergeOptions merge_mode;
 	public static transient HashCollisionOptions hash_collision_mode;
 	private transient boolean collision = false;
-	
+
 	public Machine()
 	{
 	}
@@ -40,10 +40,10 @@ public class Machine implements Serializable
 	public void setCollisionMode(boolean parent)
 	{
 		if(parent)
-			getDestMachine(merge_mode).clones.forEach((n,m)->m.collision=true);
+			getDestMachine(merge_mode).clones.forEach((n, m) -> m.collision = true);
 		collision = true;
 	}
-	
+
 	public boolean isCollisionMode()
 	{
 		return collision;
@@ -55,7 +55,7 @@ public class Machine implements Serializable
 		roms.forEach(Rom::resetCollisionMode);
 		disks.forEach(Disk::resetCollisionMode);
 	}
-	
+
 	public List<Disk> filterDisks(MergeOptions merge_mode, HashCollisionOptions hash_collision_mode)
 	{
 		Machine.merge_mode = merge_mode;
@@ -68,9 +68,9 @@ public class Machine implements Serializable
 			else
 			{
 				List<Disk> disks_with_clones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).collect(Collectors.toList());
-				StreamEx.of(disks_with_clones).groupingBy(Disk::getName).forEach((n,l) -> {
-					if (l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
-							l.forEach(Disk::setCollisionMode);
+				StreamEx.of(disks_with_clones).groupingBy(Disk::getName).forEach((n, l) -> {
+					if(l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
+						l.forEach(Disk::setCollisionMode);
 				});
 				stream = StreamEx.of(disks_with_clones).distinct(Disk::getName);
 			}
@@ -80,19 +80,19 @@ public class Machine implements Serializable
 		return stream.filter(d -> {
 			if(d.status.equals("nodump"))
 				return false;
-			if(merge_mode==MergeOptions.SPLIT && d.merge!=null)
+			if(merge_mode == MergeOptions.SPLIT && d.merge != null)
 				return false;
-			if(merge_mode==MergeOptions.NOMERGE && d.merge!=null)
+			if(merge_mode == MergeOptions.NOMERGE && d.merge != null)
 				return true;
-			return this.isbios || this.romof == null || d.merge==null;
+			return this.isbios || this.romof == null || d.merge == null;
 		}).collect(Collectors.toList());
 	}
-	
+
 	public boolean isClone()
 	{
-		return (parent!=null && !parent.isbios);
+		return (parent != null && !parent.isbios);
 	}
-	
+
 	public List<Rom> filterRoms(MergeOptions merge_mode, HashCollisionOptions hash_collision_mode)
 	{
 		Machine.merge_mode = merge_mode;
@@ -105,9 +105,9 @@ public class Machine implements Serializable
 			else
 			{
 				List<Rom> roms_with_clones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
-				StreamEx.of(roms_with_clones).groupingBy(Rom::getName).forEach((n,l) -> {
-					if (l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
-							l.forEach(Rom::setCollisionMode);
+				StreamEx.of(roms_with_clones).groupingBy(Rom::getName).forEach((n, l) -> {
+					if(l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
+						l.forEach(Rom::setCollisionMode);
 				});
 				stream = StreamEx.of(roms_with_clones).distinct(Rom::getName);
 			}
@@ -117,34 +117,34 @@ public class Machine implements Serializable
 		return stream.filter(r -> {
 			if(r.status.equals("nodump"))
 				return false;
-			if (r.crc == null)
+			if(r.crc == null)
 				return false;
-			if(merge_mode==MergeOptions.SPLIT && r.merge!=null)
+			if(merge_mode == MergeOptions.SPLIT && r.merge != null)
 				return false;
-			if(merge_mode==MergeOptions.NOMERGE && r.bios!=null)
+			if(merge_mode == MergeOptions.NOMERGE && r.bios != null)
 				return false;
-			if(merge_mode==MergeOptions.NOMERGE && r.merge!=null)
+			if(merge_mode == MergeOptions.NOMERGE && r.merge != null)
 				return true;
-			if(merge_mode==MergeOptions.FULLNOMERGE && r.bios!=null)
+			if(merge_mode == MergeOptions.FULLNOMERGE && r.bios != null)
 				return true;
-			if(merge_mode==MergeOptions.FULLNOMERGE && r.merge!=null)
+			if(merge_mode == MergeOptions.FULLNOMERGE && r.merge != null)
 				return true;
-			if(merge_mode==MergeOptions.MERGE && r.bios!=null)
+			if(merge_mode == MergeOptions.MERGE && r.bios != null)
 				return false;
-			if(merge_mode==MergeOptions.MERGE && r.merge!=null)
+			if(merge_mode == MergeOptions.MERGE && r.merge != null)
 				return true;
-			if(merge_mode==MergeOptions.FULLMERGE && r.bios!=null)
+			if(merge_mode == MergeOptions.FULLMERGE && r.bios != null)
 				return true;
-			if(merge_mode==MergeOptions.FULLMERGE && r.merge!=null)
+			if(merge_mode == MergeOptions.FULLMERGE && r.merge != null)
 				return true;
-			return isbios || romof == null || r.merge==null;
-		}).collect(Collectors.toList());		
+			return isbios || romof == null || r.merge == null;
+		}).collect(Collectors.toList());
 	}
-	
+
 	public Machine getDestMachine(MergeOptions merge_mode)
 	{
 		Machine.merge_mode = merge_mode;
-		if (merge_mode.isMerge() && isClone())
+		if(merge_mode.isMerge() && isClone())
 			return parent.getDestMachine(merge_mode);
 		return this;
 	}

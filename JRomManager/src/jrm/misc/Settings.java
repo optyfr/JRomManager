@@ -18,26 +18,26 @@ public class Settings
 		File settingsfile = new File(cachedir, "JRomManager.xml");
 		settingsfile.getParentFile().mkdirs();
 		return settingsfile;
-		
+
 	}
 
 	public static void saveSettings()
 	{
-		if(settings==null)
+		if(settings == null)
 			settings = new Properties();
 		try(FileOutputStream os = new FileOutputStream(getSettingsFile()))
 		{
 			settings.storeToXML(os, null);
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			Log.err("IO", e);
 		}
 	}
-	
+
 	public static void loadSettings()
 	{
-		if(settings==null)
+		if(settings == null)
 			settings = new Properties();
 		if(getSettingsFile().exists())
 		{
@@ -45,38 +45,38 @@ public class Settings
 			{
 				settings.loadFromXML(is);
 			}
-			catch (IOException e)
+			catch(IOException e)
 			{
 				Log.err("IO", e);
 			}
 		}
 	}
-	
+
 	public static void setProperty(String property, boolean value)
 	{
 		settings.setProperty(property, Boolean.toString(value));
 	}
-	
+
 	public static void setProperty(String property, int value)
 	{
 		settings.setProperty(property, Integer.toString(value));
 	}
-	
+
 	public static void setProperty(String property, String value)
 	{
 		settings.setProperty(property, value);
 	}
-	
+
 	public static boolean getProperty(String property, boolean def)
 	{
 		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
 	}
-	
+
 	public static int getProperty(String property, int def)
 	{
 		return Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
 	}
-	
+
 	public static String getProperty(String property, String def)
 	{
 		return settings.getProperty(property, def);

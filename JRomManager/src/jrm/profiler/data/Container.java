@@ -21,12 +21,16 @@ public class Container implements Serializable
 
 	public transient boolean up2date = false;
 	public int loaded = 0;
-	
+
 	public transient Machine m;
 
 	public enum Type
 	{
-		UNK, DIR, ZIP, SEVENZIP, RAR
+		UNK,
+		DIR,
+		ZIP,
+		SEVENZIP,
+		RAR
 	};
 
 	private Type type = Type.UNK;
@@ -40,17 +44,17 @@ public class Container implements Serializable
 
 	protected Container(Type type, File file, BasicFileAttributes attr)
 	{
-		this(type, file, (Machine)null);
+		this(type, file, (Machine) null);
 		this.modified = attr.lastModifiedTime().toMillis();
-		if (type != Type.DIR)
+		if(type != Type.DIR)
 			this.size = attr.size();
 	}
 
 	public Entry add(Entry e)
 	{
 		Entry old_e;
-		if(null!=(old_e=entries_byname.get(e.file)))
-			if(old_e.modified  == e.modified && old_e.size == e.size)
+		if(null != (old_e = entries_byname.get(e.file)))
+			if(old_e.modified == e.modified && old_e.size == e.size)
 				return old_e;
 		entries_byname.put(e.file, e);
 		e.parent = this;
@@ -66,12 +70,12 @@ public class Container implements Serializable
 	{
 		return entries_byname.values();
 	}
-	
-	public Map<String,Entry> getEntriesByName()
+
+	public Map<String, Entry> getEntriesByName()
 	{
-		return entries_byname.values().stream().collect(Collectors.toMap(Entry::getName, Function.identity(), (n, e) -> n));		
+		return entries_byname.values().stream().collect(Collectors.toMap(Entry::getName, Function.identity(), (n, e) -> n));
 	}
-	
+
 	public Type getType()
 	{
 		return type;
@@ -82,9 +86,12 @@ public class Container implements Serializable
 		String ext = FilenameUtils.getExtension(file.getName());
 		switch(ext.toLowerCase())
 		{
-			case "zip": return Type.ZIP;
-			case "7z" : return Type.SEVENZIP;
-			case "rar": return Type.RAR;
+			case "zip":
+				return Type.ZIP;
+			case "7z":
+				return Type.SEVENZIP;
+			case "rar":
+				return Type.RAR;
 		}
 		return Type.UNK;
 	}
@@ -92,7 +99,7 @@ public class Container implements Serializable
 	@Override
 	public String toString()
 	{
-		return "Container "+file;
-	
+		return "Container " + file;
+
 	}
 }

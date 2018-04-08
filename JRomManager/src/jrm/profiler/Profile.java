@@ -40,7 +40,7 @@ public class Profile implements Serializable
 	public long machines_cnt = 0;
 	public long roms_cnt = 0;
 	public long disks_cnt = 0;
-	
+
 	public boolean md5_roms = false;
 	public boolean md5_disks = false;
 	public boolean sha1_roms = false;
@@ -50,7 +50,7 @@ public class Profile implements Serializable
 	public ArrayList<Machine> machines = new ArrayList<>();
 	public HashMap<String, Machine> machines_byname = new HashMap<>();
 	public HashSet<String> suspicious_crc = new HashSet<>();
-	
+
 	public transient Properties settings = null;
 
 	public Profile()
@@ -68,7 +68,7 @@ public class Profile implements Serializable
 			SAXParser parser = factory.newSAXParser();
 			parser.parse(file, new DefaultHandler()
 			{
-				private HashMap<String,Rom> roms_bycrc = new HashMap<>();
+				private HashMap<String, Rom> roms_bycrc = new HashMap<>();
 				private boolean in_machine = false;
 				private boolean in_description = false;
 				private Machine curr_machine = null;
@@ -78,15 +78,15 @@ public class Profile implements Serializable
 				@Override
 				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
 				{
-					if (qName.equals("mame"))
+					if(qName.equals("mame"))
 						build = attributes.getValue("build");
-					else if (qName.equals("machine"))
+					else if(qName.equals("machine"))
 					{
 						in_machine = true;
 						curr_machine = new Machine();
-						for (int i = 0; i < attributes.getLength(); i++)
+						for(int i = 0; i < attributes.getLength(); i++)
 						{
-							switch (attributes.getQName(i))
+							switch(attributes.getQName(i))
 							{
 								case "name":
 									curr_machine.name = attributes.getValue(i);
@@ -113,18 +113,18 @@ public class Profile implements Serializable
 							}
 						}
 					}
-					else if (qName.equals("description"))
+					else if(qName.equals("description"))
 					{
 						in_description = true;
 					}
-					else if (qName.equals("rom"))
+					else if(qName.equals("rom"))
 					{
-						if (in_machine)
+						if(in_machine)
 						{
 							curr_rom = new Rom(curr_machine);
-							for (int i = 0; i < attributes.getLength(); i++)
+							for(int i = 0; i < attributes.getLength(); i++)
 							{
-								switch (attributes.getQName(i))
+								switch(attributes.getQName(i))
 								{
 									case "name":
 										curr_rom.setName(attributes.getValue(i));
@@ -156,14 +156,14 @@ public class Profile implements Serializable
 							}
 						}
 					}
-					else if (qName.equals("disk"))
+					else if(qName.equals("disk"))
 					{
-						if (in_machine)
+						if(in_machine)
 						{
 							curr_disk = new Disk(curr_machine);
-							for (int i = 0; i < attributes.getLength(); i++)
+							for(int i = 0; i < attributes.getLength(); i++)
 							{
-								switch (attributes.getQName(i))
+								switch(attributes.getQName(i))
 								{
 									case "name":
 										curr_disk.setName(attributes.getValue(i));
@@ -191,7 +191,7 @@ public class Profile implements Serializable
 				@Override
 				public void endElement(String uri, String localName, String qName) throws SAXException
 				{
-					if (qName.equals("machine"))
+					if(qName.equals("machine"))
 					{
 						machines.add(curr_machine);
 						machines_cnt++;
@@ -200,14 +200,14 @@ public class Profile implements Serializable
 						if(handler.isCancel())
 							throw new BreakException();
 					}
-					else if (qName.equals("rom"))
+					else if(qName.equals("rom"))
 					{
 						curr_machine.roms.add(curr_rom);
 						roms_cnt++;
-						if(curr_rom.crc!=null)
+						if(curr_rom.crc != null)
 						{
 							Rom old_rom = roms_bycrc.put(curr_rom.crc, curr_rom);
-							if (old_rom != null)
+							if(old_rom != null)
 							{
 								if(old_rom.sha1 != null && curr_rom.sha1 != null)
 									if(!old_rom.equals(curr_rom))
@@ -218,12 +218,12 @@ public class Profile implements Serializable
 							}
 						}
 					}
-					else if (qName.equals("disk"))
+					else if(qName.equals("disk"))
 					{
 						curr_machine.disks.add(curr_disk);
 						disks_cnt++;
 					}
-					else if (qName.equals("description"))
+					else if(qName.equals("description"))
 					{
 						in_description = false;
 					}
@@ -232,13 +232,13 @@ public class Profile implements Serializable
 				@Override
 				public void characters(char[] ch, int start, int length) throws SAXException
 				{
-					if (in_machine && in_description)
+					if(in_machine && in_description)
 						curr_machine.description.append(ch, start, length);
 				}
 			});
 			handler.setProgress("Building parent/clones relations...", -1);
 			machines.forEach(machine -> {
-				if(machine.romof!=null)
+				if(machine.romof != null)
 				{
 					machine.parent = machines_byname.get(machine.romof);
 					if(!machine.parent.isbios)
@@ -249,19 +249,19 @@ public class Profile implements Serializable
 			save();
 			return true;
 		}
-		catch (ParserConfigurationException | SAXException e)
+		catch(ParserConfigurationException | SAXException e)
 		{
 			Log.err("Parser Exception", e);
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			Log.err("IO Exception", e);
 		}
-		catch (BreakException e)
+		catch(BreakException e)
 		{
 			return false;
 		}
-		catch (Throwable e)
+		catch(Throwable e)
 		{
 			Log.err("Other Exception", e);
 		}
@@ -278,11 +278,11 @@ public class Profile implements Serializable
 
 	public void save()
 	{
-		try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file)))))
+		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file)))))
 		{
 			oos.writeObject(this);
 		}
-		catch (Throwable e)
+		catch(Throwable e)
 		{
 
 		}
@@ -291,29 +291,29 @@ public class Profile implements Serializable
 	public static Profile load(File file, ProgressHandler handler)
 	{
 		File cachefile = getCacheFile(file);
-		if (cachefile.lastModified() >= file.lastModified() && !Settings.getProperty("debug_nocache", false))
+		if(cachefile.lastModified() >= file.lastModified() && !Settings.getProperty("debug_nocache", false))
 		{
 			handler.setProgress("Loading cache...", -1);
-			try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
+			try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 			{
 				Profile profile = (Profile) ois.readObject();
 				profile.loadSettings();
 				return profile;
 			}
-			catch (Throwable e)
+			catch(Throwable e)
 			{
 
 			}
 		}
 		Profile profile = new Profile();
-		if (profile._load(file, handler))
+		if(profile._load(file, handler))
 		{
 			profile.loadSettings();
 			return profile;
 		}
 		return null;
 	}
-	
+
 	private File getSettingsFile(File file)
 	{
 		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
@@ -321,26 +321,26 @@ public class Profile implements Serializable
 		File settingsfile = new File(cachedir, FilenameUtils.getBaseName(file.getName()) + ".xml");
 		settingsfile.getParentFile().mkdirs();
 		return settingsfile;
-		
+
 	}
 
 	public void saveSettings()
 	{
-		if(settings==null)
+		if(settings == null)
 			settings = new Properties();
 		try(FileOutputStream os = new FileOutputStream(getSettingsFile(file)))
 		{
 			settings.storeToXML(os, null);
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			Log.err("IO", e);
 		}
 	}
-	
+
 	public void loadSettings()
 	{
-		if(settings==null)
+		if(settings == null)
 			settings = new Properties();
 		if(getSettingsFile(file).exists())
 		{
@@ -348,31 +348,31 @@ public class Profile implements Serializable
 			{
 				settings.loadFromXML(is);
 			}
-			catch (IOException e)
+			catch(IOException e)
 			{
 				Log.err("IO", e);
 			}
 		}
 	}
-	
+
 	public void setProperty(String property, boolean value)
 	{
 		settings.setProperty(property, Boolean.toString(value));
 	}
-	
+
 	public void setProperty(String property, String value)
 	{
 		settings.setProperty(property, value);
 	}
-	
+
 	public boolean getProperty(String property, boolean def)
 	{
 		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
 	}
-	
+
 	public String getProperty(String property, String def)
 	{
 		return settings.getProperty(property, def);
 	}
-	
+
 }

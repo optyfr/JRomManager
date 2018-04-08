@@ -11,11 +11,11 @@ import jrm.misc.Log;
 public class Import
 {
 	public File file;
-	
+
 	public Import(File file)
 	{
 		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-		File xmldir  = new File(workdir,"xmlfiles");
+		File xmldir = new File(workdir, "xmlfiles");
 		xmldir.mkdir();
 
 		String ext = FilenameUtils.getExtension(file.getName());
@@ -26,7 +26,7 @@ public class Import
 			{
 				File tmpfile = File.createTempFile("JRM", ".xml");
 				tmpfile.deleteOnExit();
-				Process process = new ProcessBuilder(file.getAbsolutePath(),"-listxml").directory(file.getAbsoluteFile().getParentFile()).redirectOutput(tmpfile).start();
+				Process process = new ProcessBuilder(file.getAbsolutePath(), "-listxml").directory(file.getAbsoluteFile().getParentFile()).redirectOutput(tmpfile).start();
 				process.waitFor();
 				this.file = tmpfile;
 			}
@@ -41,7 +41,6 @@ public class Import
 		}
 		else
 			this.file = file;
-		
-	
+
 	}
 }

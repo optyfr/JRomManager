@@ -1,4 +1,4 @@
-package jrm.profiler.actions;
+package jrm.profiler.fix.actions;
 
 import java.io.File;
 import java.net.URI;
@@ -16,7 +16,7 @@ import jrm.compressors.ZipArchive;
 import jrm.misc.FindCmd;
 import jrm.misc.Settings;
 import jrm.profiler.data.Container;
-import jrm.profiler.scan.FormatOptions;
+import jrm.profiler.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
 
 public class CreateContainer extends ContainerAction
@@ -39,24 +39,24 @@ public class CreateContainer extends ContainerAction
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
-		handler.setProgress("<html><nobr>Fixing <span color='blue'>"+container.file.getName()+"</span> <span color='purple'>["+container.m.description+"]</span></nobr></html>");
-		if(container.getType()==Container.Type.ZIP)
+		handler.setProgress("<html><nobr>Fixing <span color='blue'>" + container.file.getName() + "</span> <span color='purple'>[" + container.m.description + "]</span></nobr></html>");
+		if(container.getType() == Container.Type.ZIP)
 		{
-			if(format==FormatOptions.ZIP || format==FormatOptions.TZIP)
+			if(format == FormatOptions.ZIP || format == FormatOptions.TZIP)
 			{
-				Map<String,Object> env = new HashMap<>();
+				Map<String, Object> env = new HashMap<>();
 				env.put("create", "true");
 				env.put("useTempFile", Boolean.TRUE);
-				try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+container.file.toURI()), env);)
+				try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + container.file.toURI()), env);)
 				{
 					for(EntryAction action : entry_actions)
 						if(!action.doAction(fs, handler))
 						{
-							System.err.println("action to "+container.file.getName()+"@"+action.entry.file+" failed");
+							System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed");
 							return false;
 						}
 					fs.close();
-					if(format==FormatOptions.TZIP && tzip_cmd.exists())
+					if(format == FormatOptions.TZIP && tzip_cmd.exists())
 					{
 						return new ProcessBuilder(tzip_cmd.getPath(), container.file.getAbsolutePath()).directory(tzip_cmd.getParentFile()).start().waitFor() == 0;
 					}
@@ -67,14 +67,14 @@ public class CreateContainer extends ContainerAction
 					e.printStackTrace();
 				}
 			}
-			else if(format==FormatOptions.ZIPE)
+			else if(format == FormatOptions.ZIPE)
 			{
 				try(Archive archive = new ZipArchive(container.file))
 				{
 					for(EntryAction action : entry_actions)
 						if(!action.doAction(archive, handler))
 						{
-							System.err.println("action to "+container.file.getName()+"@"+action.entry.file+" failed");
+							System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed");
 							return false;
 						}
 					return true;
@@ -85,14 +85,14 @@ public class CreateContainer extends ContainerAction
 				}
 			}
 		}
-		else if(container.getType()==Container.Type.SEVENZIP)
+		else if(container.getType() == Container.Type.SEVENZIP)
 		{
 			try(Archive archive = new SevenZipArchive(container.file))
 			{
 				for(EntryAction action : entry_actions)
 					if(!action.doAction(archive, handler))
 					{
-						System.err.println("action to "+container.file.getName()+"@"+action.entry.file+" failed");
+						System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed");
 						return false;
 					}
 				return true;
@@ -102,7 +102,7 @@ public class CreateContainer extends ContainerAction
 				e.printStackTrace();
 			}
 		}
-		else if(container.getType()==Container.Type.DIR)
+		else if(container.getType() == Container.Type.DIR)
 		{
 			try
 			{
@@ -114,25 +114,25 @@ public class CreateContainer extends ContainerAction
 				for(EntryAction action : entry_actions)
 					if(!action.doAction(target, handler))
 					{
-						System.err.println("action to "+container.file.getName()+"@"+action.entry.file+" failed");
+						System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed");
 						return false;
 					}
 				return true;
 			}
-			catch (Throwable e)
+			catch(Throwable e)
 			{
 				e.printStackTrace();
 			}
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		String str = "Create " + container;
 		for(EntryAction action : entry_actions)
-			str += "\n\t"+action;
+			str += "\n\t" + action;
 		return str;
 	}
 
