@@ -1,6 +1,7 @@
 package jrm.ui;
 
 import java.io.File;
+import java.util.Enumeration;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -34,7 +35,34 @@ public class DirNode extends DefaultMutableTreeNode
 
 		}
 	}
+	
+	public void reload()
+	{
+		this.removeAllChildren();
+		buildDirTree(dir, this);
+	}
 
+	public DirNode find(File file)
+	{
+		return find(this, file);
+	}
+
+	public static DirNode find(DirNode root, File file)
+	{
+		File parent = file.isFile()?file.getParentFile():file;
+		if(parent != null)
+		{
+			for (Enumeration<?> e = root.depthFirstEnumeration(); e.hasMoreElements();)
+			{
+				DirNode node = (DirNode) e.nextElement();
+			    if (((DirNode.Dir)node.getUserObject()).getFile().equals(parent))
+			        return node;
+			}
+			return find(root, parent.getParentFile());
+		}
+		return null;
+	}
+	
 	public static class Dir
 	{
 		private File file;
@@ -44,6 +72,8 @@ public class DirNode extends DefaultMutableTreeNode
 		{
 			this.file = file;
 			this.name = file.getName();
+			if(!this.file.exists())
+				this.file.mkdirs();
 		}
 
 		public Dir(File file, String name)

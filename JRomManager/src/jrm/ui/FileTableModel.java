@@ -1,14 +1,17 @@
 package jrm.ui;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.io.FilenameUtils;
+
 @SuppressWarnings("serial")
 public class FileTableModel extends DefaultTableModel
 {
+	DirNode.Dir curr_dir = null;
+	
 	public FileTableModel(DirNode.Dir dir)
 	{
 		this();
@@ -20,13 +23,21 @@ public class FileTableModel extends DefaultTableModel
 		super(new String[0][1], new String[] { "Profile" });
 	}
 
+	public void populate()
+	{
+		populate(curr_dir);
+	}
+
 	public void populate(DirNode.Dir dir)
 	{
-		if(dir.getFile().exists())
+		this.curr_dir = dir;
+		if(dir!=null && dir.getFile().exists())
 		{
-			Object[][] objs = Arrays.asList(dir.getFile().listFiles()).stream().filter(File::isFile).map(f -> new Object[] { f }).collect(Collectors.toList()).toArray(new Object[][] {});
+			Object[][] objs = Arrays.asList(dir.getFile().listFiles()).stream().filter(f -> f.isFile() && !Arrays.asList("cache", "properties").contains(FilenameUtils.getExtension(f.getName()))).map(f -> new Object[] { f }).collect(Collectors.toList()).toArray(new Object[][] {});
 			setDataVector(objs, new String[] { "Profile" });
 		}
+		else
+			setDataVector(new Object[][] {}, new String[] { "Profile" });
 	}
 
 	@Override

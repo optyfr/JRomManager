@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,7 +18,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.io.FilenameUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -46,7 +44,9 @@ public class Profile implements Serializable
 	public boolean sha1_roms = false;
 	public boolean sha1_disks = false;
 
-	String build;
+	public String build = null;
+	public HashMap<String, StringBuffer> header = new HashMap<>();
+	
 	public ArrayList<Machine> machines = new ArrayList<>();
 	public HashMap<String, Machine> machines_byname = new HashMap<>();
 	public HashSet<String> suspicious_crc = new HashSet<>();
@@ -71,16 +71,33 @@ public class Profile implements Serializable
 				private HashMap<String, Rom> roms_bycrc = new HashMap<>();
 				private boolean in_machine = false;
 				private boolean in_description = false;
+				private boolean in_header = false;
 				private Machine curr_machine = null;
 				private Rom curr_rom = null;
 				private Disk curr_disk = null;
+				
+				private String curr_tag;
 
 				@Override
 				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
 				{
-					if(qName.equals("mame"))
-						build = attributes.getValue("build");
-					else if(qName.equals("machine"))
+					curr_tag = qName;
+					if(qName.equals("mame")||qName.equals("datafile"))
+					{
+						for(int i = 0; i < attributes.getLength(); i++)
+						{
+							switch(attributes.getQName(i))
+							{
+								case "build":
+									build = attributes.getValue(i);
+							}
+						}
+					}
+					else if(qName.equals("header"))
+					{
+						in_header = true;
+					}
+					else if(qName.equals("machine")||qName.equals("game"))
 					{
 						in_machine = true;
 						curr_machine = new Machine();
@@ -113,7 +130,7 @@ public class Profile implements Serializable
 							}
 						}
 					}
-					else if(qName.equals("description"))
+					else if(qName.equals("description") && in_machine)
 					{
 						in_description = true;
 					}
@@ -191,7 +208,11 @@ public class Profile implements Serializable
 				@Override
 				public void endElement(String uri, String localName, String qName) throws SAXException
 				{
-					if(qName.equals("machine"))
+					if(qName.equals("header"))
+					{
+						in_header = false;
+					}
+					if(qName.equals("machine")||qName.equals("game"))
 					{
 						machines.add(curr_machine);
 						machines_cnt++;
@@ -223,7 +244,7 @@ public class Profile implements Serializable
 						curr_machine.disks.add(curr_disk);
 						disks_cnt++;
 					}
-					else if(qName.equals("description"))
+					else if(qName.equals("description") && in_machine)
 					{
 						in_description = false;
 					}
@@ -234,6 +255,12 @@ public class Profile implements Serializable
 				{
 					if(in_machine && in_description)
 						curr_machine.description.append(ch, start, length);
+					else if(in_header)
+					{
+						if(!header.containsKey(curr_tag))
+							header.put(curr_tag, new StringBuffer());
+						header.get(curr_tag).append(ch, start, length);
+					}
 				}
 			});
 			handler.setProgress("Building parent/clones relations...", -1);
@@ -241,8 +268,11 @@ public class Profile implements Serializable
 				if(machine.romof != null)
 				{
 					machine.parent = machines_byname.get(machine.romof);
-					if(!machine.parent.isbios)
-						machine.parent.clones.put(machine.name, machine);
+					if(machine.parent!=null)
+					{
+						if(!machine.parent.isbios)
+							machine.parent.clones.put(machine.name, machine);
+					}
 				}
 			});
 			handler.setProgress("Saving cache...", -1);
@@ -270,10 +300,7 @@ public class Profile implements Serializable
 
 	private static File getCacheFile(File file)
 	{
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-		File cachedir = new File(workdir, "cache");
-		cachedir.mkdirs();
-		return new File(cachedir, file.getName() + ".cache");
+		return new File(file.getParentFile(), file.getName() + ".cache");
 	}
 
 	public void save()
@@ -316,12 +343,7 @@ public class Profile implements Serializable
 
 	private File getSettingsFile(File file)
 	{
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-		File cachedir = new File(workdir, "settings");
-		File settingsfile = new File(cachedir, FilenameUtils.getBaseName(file.getName()) + ".xml");
-		settingsfile.getParentFile().mkdirs();
-		return settingsfile;
-
+		return new File(file.getParentFile(), file.getName() + ".properties");
 	}
 
 	public void saveSettings()

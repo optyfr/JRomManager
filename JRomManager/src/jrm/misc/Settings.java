@@ -15,7 +15,7 @@ public class Settings
 	{
 		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
 		File cachedir = new File(workdir, "settings");
-		File settingsfile = new File(cachedir, "JRomManager.xml");
+		File settingsfile = new File(cachedir, "JRomManager.properties");
 		settingsfile.getParentFile().mkdirs();
 		return settingsfile;
 

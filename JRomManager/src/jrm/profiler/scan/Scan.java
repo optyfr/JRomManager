@@ -424,7 +424,7 @@ public class Scan
 							}
 						}
 						if(found == null)
-							report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " is missing and not fixable");
+							report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " (" + r.crc + ") is missing and not fixable");
 					}
 					else
 					{

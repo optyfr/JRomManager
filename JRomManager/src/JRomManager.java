@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -72,7 +73,6 @@ import org.apache.commons.io.FileUtils;
 import jrm.compressors.SevenZipOptions;
 import jrm.compressors.ZipOptions;
 import jrm.misc.FindCmd;
-import jrm.misc.Log;
 import jrm.misc.Settings;
 import jrm.profiler.Import;
 import jrm.profiler.Profile;
@@ -87,6 +87,7 @@ import jrm.ui.DirTreeCellRenderer;
 import jrm.ui.DirTreeModel;
 import jrm.ui.DirTreeSelectionListener;
 import jrm.ui.FileTableModel;
+import jrm.ui.JRMFileChooser;
 import jrm.ui.Progress;
 
 public class JRomManager
@@ -151,7 +152,10 @@ public class JRomManager
 		try
 		{
 			Settings.loadSettings();
-			// UIManager.setLookAndFeel(getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName()*/));
+			UIManager.setLookAndFeel(Settings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName()*/));
+			File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
+			File xmldir = new File(workdir, "xmlfiles");
+			xmldir.mkdir();
 		}
 		catch(Exception e)
 		{
@@ -250,6 +254,38 @@ public class JRomManager
 		DirTreeCellRenderer profilesTreeRenderer = new DirTreeCellRenderer();
 		profilesTree.setCellRenderer(profilesTreeRenderer);
 		profilesTree.setCellEditor(new DirTreeCellEditor(profilesTree, profilesTreeRenderer));
+		profilesTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		profilesTree.addTreeSelectionListener(new DirTreeSelectionListener(profilesList));
+		
+		popupMenu_2 = new JPopupMenu();
+		popupMenu_2.addPopupMenuListener(new PopupMenuListener() {
+			public void popupMenuCanceled(PopupMenuEvent e) {
+			}
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+			}
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+				mntmDeleteProfile.setEnabled(profilesList.getSelectedRowCount() > 0);
+			}
+		});
+		addPopup(profilesList, popupMenu_2);
+		
+		mntmDeleteProfile = new JMenuItem("Delete profile");
+		mntmDeleteProfile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int row = profilesList.getSelectedRow();
+				if(row >= 0)
+				{
+					File to_delete = (File)filemodel.getValueAt(row, 0);
+					to_delete.delete();
+					new File(to_delete.getAbsolutePath()+".cache").delete();
+					new File(to_delete.getAbsolutePath()+".properties").delete();
+					filemodel.populate();
+				}
+			}
+		});
+		mntmDeleteProfile.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/script_delete.png")));
+		popupMenu_2.add(mntmDeleteProfile);
+		profilesTree.setSelectionRow(0);
 
 		popupMenu_1 = new JPopupMenu();
 		popupMenu_1.addPopupMenuListener(new PopupMenuListener()
@@ -291,10 +327,20 @@ public class JRomManager
 		popupMenu_1.add(mntmCreateFolder);
 
 		mntmDeleteFolder = new JMenuItem("Delete folder");
+		mntmDeleteFolder.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DirNode selectedNode = (DirNode) profilesTree.getLastSelectedPathComponent();
+				if(selectedNode != null)
+				{
+					DirNode parent = (DirNode)selectedNode.getParent();
+					profilesTreeModel.removeNodeFromParent(selectedNode);
+					TreePath path = new TreePath(parent.getPath());
+					profilesTree.setSelectionPath(path);
+				}
+			}
+		});
 		mntmDeleteFolder.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/folder_delete.png")));
 		popupMenu_1.add(mntmDeleteFolder);
-		profilesTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		profilesTree.addTreeSelectionListener(new DirTreeSelectionListener(profilesList));
 
 		profilesBtnPanel = new JPanel();
 		GridBagConstraints gbc_profilesBtnPanel = new GridBagConstraints();
@@ -305,6 +351,7 @@ public class JRomManager
 
 		btnLoadProfile = new JButton("Load Profile");
 		btnLoadProfile.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/add.png")));
+		btnLoadProfile.setEnabled(false);
 		btnLoadProfile.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -656,7 +703,8 @@ public class JRomManager
 						List<File> files = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
 						for(File file : files)
 							modelSrcDir.addElement(file);
-						curr_profile.setProperty("src_dir", String.join("|", Collections.list(modelSrcDir.elements()).stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())));
+						String joined = String.join("|", Collections.list(modelSrcDir.elements()).stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()));
+						curr_profile.setProperty("src_dir", joined);
 
 						dtde.getDropTargetContext().dropComplete(true);
 					}
@@ -1142,39 +1190,63 @@ public class JRomManager
 		mainFrame.pack();
 	}
 
-	@SuppressWarnings("serial")
 	private void importDat()
 	{
-		try
+		List<FileNameExtensionFilter> filters = Arrays.asList(
+			new FileNameExtensionFilter("Dat file", "dat", "xml"),
+			new FileNameExtensionFilter("Mame executable", "exe")
+		);
+		new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, null, filters, "Choose an EXE or a DAT file to import")
+		.show(mainFrame, new JRMFileChooser.CallBack<Void>()
 		{
-			new JFileChooser()
+			
+			@Override
+			public Void call(JRMFileChooser<Void> chooser)
 			{
-				{
-					addChoosableFileFilter(new FileNameExtensionFilter("Dat file", "dat", "xml"));
-					addChoosableFileFilter(new FileNameExtensionFilter("Mame executable", "exe"));
-					if(showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION)
+				Import imprt = new Import(chooser.getSelectedFile());
+				File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
+				File xmldir = new File(workdir, "xmlfiles");
+				new JRMFileChooser<>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, xmldir, imprt.file, null, "Choose File Name")
+				.show(mainFrame, 
+					new JRMFileChooser.CallBack<Object>()
 					{
-						Import imprt = new Import(getSelectedFile());
-						new JFileChooser()
+						@Override
+						public Object call(JRMFileChooser<Object> chooser)
 						{
+							try
 							{
-								setFileSelectionMode(JFileChooser.FILES_ONLY);
-								setDialogType(JFileChooser.SAVE_DIALOG);
-								setSelectedFile(imprt.file);
-								if(showSaveDialog(mainFrame) == JFileChooser.APPROVE_OPTION)
+								File file = chooser.getSelectedFile();
+								File parent = file.getParentFile();
+								FileUtils.copyFile(imprt.file, file);
+								DirTreeModel model = (DirTreeModel)profilesTree.getModel();
+								DirNode root = (DirNode)model.getRoot();
+								DirNode theNode = root.find(parent);
+								if(theNode!=null)
 								{
-									FileUtils.copyFile(imprt.file, getSelectedFile());
+									
+									theNode.reload();
+									model.reload(theNode);
+									if((theNode = root.find(parent))!=null)
+									{
+										profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
+									}
+									else
+										System.err.println("Final Node not found");
 								}
+								else
+									System.err.println("Node not found");
 							}
-						};
+							catch(IOException e)
+							{
+								e.printStackTrace();
+							}
+							return null;
+						}
 					}
-				}
-			};
-		}
-		catch(IOException e)
-		{
-			Log.err("Encountered IO Exception", e);
-		}
+				);
+				return null;
+			}
+		});
 
 	}
 
@@ -1310,8 +1382,10 @@ public class JRomManager
 		chckbxCreateOnlyComplete.setSelected(curr_profile.getProperty("createfull_mode", false) && chckbxCreateMissingSets.isSelected());
 		chckbxCreateOnlyComplete.setEnabled(chckbxCreateMissingSets.isSelected());
 		txtRomsDest.setText(curr_profile.getProperty("roms_dest_dir", ""));
+		((DefaultListModel<File>) listSrcDir.getModel()).removeAllElements();
 		for(String s : curr_profile.getProperty("src_dir", "").split("\\|"))
-			((DefaultListModel<File>) listSrcDir.getModel()).addElement(new File(s));
+			if(!s.isEmpty())
+				((DefaultListModel<File>) listSrcDir.getModel()).addElement(new File(s));
 		cbCompression.setSelectedItem(FormatOptions.valueOf(curr_profile.settings.getProperty("format", FormatOptions.ZIP.toString())));
 		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(curr_profile.settings.getProperty("merge_mode", MergeOptions.SPLIT.toString())));
 		cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
@@ -1365,6 +1439,8 @@ public class JRomManager
 	private JPopupMenu popupMenu_1;
 	private JMenuItem mntmCreateFolder;
 	private JMenuItem mntmDeleteFolder;
+	private JPopupMenu popupMenu_2;
+	private JMenuItem mntmDeleteProfile;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{
