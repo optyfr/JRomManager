@@ -32,9 +32,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -213,6 +215,8 @@ public class JRomManager
 		profilesPanel.setRightComponent(scrollPane);
 
 		profilesList = new JTable();
+		DefaultCellEditor editor = (DefaultCellEditor) profilesList.getDefaultEditor(Object.class);
+		editor.setClickCountToStart(3);
 		profilesList.setShowVerticalLines(false);
 		profilesList.setShowHorizontalLines(false);
 		profilesList.setShowGrid(false);
@@ -233,9 +237,11 @@ public class JRomManager
 					JTable target = (JTable) e.getSource();
 					int row = target.getSelectedRow();
 					if(row >= 0)
-						loadProfile((File) target.getModel().getValueAt(row, 0));
+					{
+						loadProfile(filemodel.getFileAt(row));
+					}
 				}
-				super.mouseClicked(e);
+				//super.mouseClicked(e);
 			}
 		});
 
@@ -285,6 +291,19 @@ public class JRomManager
 		});
 		mntmDeleteProfile.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/script_delete.png")));
 		popupMenu_2.add(mntmDeleteProfile);
+		
+		mntmRenameProfile = new JMenuItem("Rename profile");
+		mntmRenameProfile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int row = profilesList.getSelectedRow();
+				if(row >= 0)
+				{
+					profilesList.editCellAt(row, 0);
+				}
+			}
+		});
+		mntmRenameProfile.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/script_edit.png")));
+		popupMenu_2.add(mntmRenameProfile);
 		profilesTree.setSelectionRow(0);
 
 		popupMenu_1 = new JPopupMenu();
@@ -377,9 +396,9 @@ public class JRomManager
 		mainPane.setEnabledAt(1, false);
 		GridBagLayout gbl_scannerTab = new GridBagLayout();
 		gbl_scannerTab.columnWidths = new int[] { 104, 0 };
-		gbl_scannerTab.rowHeights = new int[] { 0, 33, 0 };
+		gbl_scannerTab.rowHeights = new int[] { 0, 33, 24, 0 };
 		gbl_scannerTab.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_scannerTab.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
+		gbl_scannerTab.rowWeights = new double[] { 0.0, 1.0, 0.0, Double.MIN_VALUE };
 		scannerTab.setLayout(gbl_scannerTab);
 
 		scannerBtnPanel = new JPanel();
@@ -419,7 +438,7 @@ public class JRomManager
 		scannerSettingsPanel.setBorder(new TitledBorder(null, "Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_scannerSettingsPanel = new GridBagConstraints();
 		gbc_scannerSettingsPanel.ipady = 20;
-		gbc_scannerSettingsPanel.insets = new Insets(0, 5, 5, 5);
+		gbc_scannerSettingsPanel.insets = new Insets(0, 5, 5, 0);
 		gbc_scannerSettingsPanel.fill = GridBagConstraints.BOTH;
 		gbc_scannerSettingsPanel.gridx = 0;
 		gbc_scannerSettingsPanel.gridy = 1;
@@ -803,6 +822,15 @@ public class JRomManager
 		gbc_listSrcDir.gridx = 1;
 		gbc_listSrcDir.gridy = 4;
 		scannerSubSettingsPanel.add(listSrcDir, gbc_listSrcDir);
+		
+		lblProfileinfo = new JLabel("");
+		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		GridBagConstraints gbc_lblProfileinfo = new GridBagConstraints();
+		gbc_lblProfileinfo.insets = new Insets(0, 2, 2, 2);
+		gbc_lblProfileinfo.fill = GridBagConstraints.BOTH;
+		gbc_lblProfileinfo.gridx = 0;
+		gbc_lblProfileinfo.gridy = 2;
+		scannerTab.add(lblProfileinfo, gbc_lblProfileinfo);
 
 		settingsTab = new JPanel();
 		mainPane.addTab("Settings", new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/cog.png")), settingsTab, null);
@@ -1203,47 +1231,74 @@ public class JRomManager
 			@Override
 			public Void call(JRMFileChooser<Void> chooser)
 			{
-				Import imprt = new Import(chooser.getSelectedFile());
-				File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-				File xmldir = new File(workdir, "xmlfiles");
-				new JRMFileChooser<>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, xmldir, imprt.file, null, "Choose File Name")
-				.show(mainFrame, 
-					new JRMFileChooser.CallBack<Object>()
+				final Progress progress = new Progress(mainFrame);
+				SwingWorker<Import, Void> worker = new SwingWorker<Import, Void>()
+				{
+					@Override
+					protected Import doInBackground() throws Exception
 					{
-						@Override
-						public Object call(JRMFileChooser<Object> chooser)
+						progress.setProgress("Importing from Mame...", -1);
+						return new Import(chooser.getSelectedFile());
+					}
+					
+					@Override
+					protected void done()
+					{
+						progress.dispose();
+					}
+				};
+				worker.execute();
+				progress.setVisible(true);
+				try
+				{
+					Import imprt = worker.get();
+					File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
+					File xmldir = new File(workdir, "xmlfiles");
+					new JRMFileChooser<>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, xmldir, imprt.file, null, "Choose File Name")
+					.show(mainFrame, 
+						new JRMFileChooser.CallBack<Object>()
 						{
-							try
+							@Override
+							public Object call(JRMFileChooser<Object> chooser)
 							{
-								File file = chooser.getSelectedFile();
-								File parent = file.getParentFile();
-								FileUtils.copyFile(imprt.file, file);
-								DirTreeModel model = (DirTreeModel)profilesTree.getModel();
-								DirNode root = (DirNode)model.getRoot();
-								DirNode theNode = root.find(parent);
-								if(theNode!=null)
+								try
 								{
-									
-									theNode.reload();
-									model.reload(theNode);
-									if((theNode = root.find(parent))!=null)
+									File file = chooser.getSelectedFile();
+									File parent = file.getParentFile();
+									FileUtils.copyFile(imprt.file, file);
+									DirTreeModel model = (DirTreeModel)profilesTree.getModel();
+									DirNode root = (DirNode)model.getRoot();
+									DirNode theNode = root.find(parent);
+									if(theNode!=null)
 									{
-										profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
+										
+										theNode.reload();
+										model.reload(theNode);
+										if((theNode = root.find(parent))!=null)
+										{
+											profilesTree.clearSelection();
+											profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
+										}
+										else
+											System.err.println("Final Node not found");
 									}
 									else
-										System.err.println("Final Node not found");
+										System.err.println("Node not found");
 								}
-								else
-									System.err.println("Node not found");
+								catch(IOException e)
+								{
+									e.printStackTrace();
+								}
+								return null;
 							}
-							catch(IOException e)
-							{
-								e.printStackTrace();
-							}
-							return null;
 						}
-					}
-				);
+					);
+				}
+				catch(InterruptedException|ExecutionException e1)
+				{
+					e1.printStackTrace();
+				}
+				
 				return null;
 			}
 		});
@@ -1266,6 +1321,7 @@ public class JRomManager
 				mainPane.setEnabledAt(1, success);
 				btnScan.setEnabled(success);
 				btnFix.setEnabled(false);
+				lblProfileinfo.setText(curr_profile.getName());
 				return null;
 			}
 
@@ -1441,6 +1497,8 @@ public class JRomManager
 	private JMenuItem mntmDeleteFolder;
 	private JPopupMenu popupMenu_2;
 	private JMenuItem mntmDeleteProfile;
+	private JLabel lblProfileinfo;
+	private JMenuItem mntmRenameProfile;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

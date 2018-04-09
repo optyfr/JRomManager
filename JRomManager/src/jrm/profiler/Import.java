@@ -21,7 +21,7 @@ public class Import
 		String ext = FilenameUtils.getExtension(file.getName());
 		if(ext.equalsIgnoreCase("exe"))
 		{
-			Log.info("Get dat file from Mame...");
+		//	Log.info("Get dat file from Mame...");
 			try
 			{
 				File tmpfile = File.createTempFile("JRM", ".xml");

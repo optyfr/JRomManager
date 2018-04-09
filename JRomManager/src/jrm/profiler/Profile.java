@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -397,4 +398,23 @@ public class Profile implements Serializable
 		return settings.getProperty(property, def);
 	}
 
+	public String getName()
+	{
+		String name = "<html><body>[<span color='blue'>"+Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(file.toPath())+"</span>] ";
+		if(build!=null)
+			name += "<b>"+build+"</b>";
+		else if(header.size() > 0)
+		{
+			if(header.containsKey("description"))
+				name += "<b>"+header.get("description")+"</b>";
+			else if(header.containsKey("name"))
+			{
+				name += "<b>"+header.get("name")+"</b>";
+				if(header.containsKey("version"))
+					name += " ("+header.get("version")+")";
+			}
+		}
+		name += "</body></html>";
+		return name;
+	}
 }
