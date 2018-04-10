@@ -21,7 +21,7 @@ _Minimal usage requirements_:
 
 ## Current Features
 - Zip support
-- Mame Dat format
+- Mame and Logiqx Dat formats
 - Import from Mame executable
 - Dat parsing caching via Java Serialization
 - Optimized to permit scan over shared network
@@ -37,19 +37,19 @@ _Minimal usage requirements_:
 - MD5 support (for old dats)
 - 7z support via SevenZipJBinding + 7z command line as functional backup
 - TorrentZip support via trrntzip command line
+- Multiple Source Dir
 
 ## Short Term Planned Features
 - Better Dat Managing (with gui)
-- Multiple Source Dir
-- Software List support
 - General settings
+- Software List support
 - Enhanced Gui with Report
 
 ## Middle Term Planned Features
 - Dir2Dat, Dat2Dat
 
 ## Long Term Planned Features and Ideas
-- Other Dat formats
+- Other Dat formats ?
 - Interoperability with other managers?
 - Torrent7Z support ?
 - Batch mode?
