@@ -8,10 +8,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings("serial")
 public class Rom extends Entity implements Serializable
 {
-	public long size = 0;
-	public String crc = null;
-	public String sha1 = null;
-	public String md5 = null;
 	public String merge = null;
 	public String bios = null;
 	public String status = "";
@@ -101,4 +97,5 @@ public class Rom extends Entity implements Serializable
 	{
 		return roms.stream().collect(Collectors.toMap(Rom::getName, r -> r, (n, r) -> n));
 	}
+
 }

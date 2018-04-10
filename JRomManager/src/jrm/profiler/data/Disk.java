@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings("serial")
 public class Disk extends Entity implements Serializable
 {
-	public String sha1 = null;
-	public String md5 = null;
 	public String merge = null;
 	public String status = "";
 
@@ -75,4 +73,5 @@ public class Disk extends Entity implements Serializable
 	{
 		return disks.stream().collect(Collectors.toMap(Disk::getName, Function.identity(), (n, r) -> n));
 	}
+
 }

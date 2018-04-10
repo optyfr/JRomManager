@@ -8,6 +8,10 @@ import jrm.profiler.scan.options.HashCollisionOptions;
 public abstract class Entity implements Serializable
 {
 	protected String name;
+	public long size = 0;
+	public String crc = null;
+	public String sha1 = null;
+	public String md5 = null;
 
 	protected Machine parent;
 
@@ -51,6 +55,26 @@ public abstract class Entity implements Serializable
 	public abstract String getName();
 
 	public abstract void setName(String name);
+	
+	public String getCRC()
+	{
+		return crc;
+	}
+
+	public String getMD5()
+	{
+		return md5;
+	}
+
+	public String getSHA1()
+	{
+		return sha1;
+	}
+	
+	public long getSize()
+	{
+		return size;
+	}
 
 	@Override
 	public String toString()

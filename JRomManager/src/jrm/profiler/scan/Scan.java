@@ -1,13 +1,11 @@
 package jrm.profiler.scan;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -31,6 +29,17 @@ import jrm.profiler.fix.actions.DeleteEntry;
 import jrm.profiler.fix.actions.DuplicateEntry;
 import jrm.profiler.fix.actions.OpenContainer;
 import jrm.profiler.fix.actions.RenameEntry;
+import jrm.profiler.report.ContainerUnknown;
+import jrm.profiler.report.ContainerUnneeded;
+import jrm.profiler.report.EntryAdd;
+import jrm.profiler.report.EntryMissing;
+import jrm.profiler.report.EntryMissingDuplicate;
+import jrm.profiler.report.EntryUnneeded;
+import jrm.profiler.report.EntryWrongHash;
+import jrm.profiler.report.EntryWrongName;
+import jrm.profiler.report.Report;
+import jrm.profiler.report.RomSuspiciousCRC;
+import jrm.profiler.report.SubjectSet;
 import jrm.profiler.scan.options.FormatOptions;
 import jrm.profiler.scan.options.HashCollisionOptions;
 import jrm.profiler.scan.options.MergeOptions;
@@ -39,7 +48,7 @@ import jrm.ui.ProgressHandler;
 public class Scan
 {
 	public ArrayList<ArrayList<jrm.profiler.fix.actions.ContainerAction>> actions = new ArrayList<>();
-
+	public Report report;
 	private Profile profile;
 
 	private MergeOptions merge_mode;
@@ -56,13 +65,10 @@ public class Scan
 	private ArrayList<jrm.profiler.fix.actions.ContainerAction> rename_after_actions = new ArrayList<>();
 	private ArrayList<jrm.profiler.fix.actions.ContainerAction> duplicate_actions = new ArrayList<>();
 
-	private int missing_set_cnt = 0;
-	private int missing_roms_cnt = 0;
-	private int missing_disks_cnt = 0;
-
 	public Scan(Profile profile, File dstdir, List<File> srcdirs, ProgressHandler handler) throws BreakException
 	{
 		this.profile = profile;
+		this.report = new Report(profile);
 		format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString()));
 		merge_mode = MergeOptions.valueOf(profile.getProperty("merge_mode", MergeOptions.SPLIT.toString()));
 		create_mode = profile.getProperty("create_mode", true);
@@ -83,33 +89,32 @@ public class Scan
 				unknown.add(c);
 		}
 
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-		File reportdir = new File(workdir, "reports");
-		reportdir.mkdirs();
-		File report = new File(reportdir, "report.log");
-		try(PrintWriter report_w = new PrintWriter(report))
+		try
 		{
 			unknown.forEach((c) -> {
-				report_w.println("Uneeded " + (c.getType() == Container.Type.DIR ? "Directory" : "File") + " : " + c.file);
+				report.add(new ContainerUnknown(c));
 				delete_actions.add(new DeleteContainer(c, format));
 			});
-			profile.suspicious_crc.forEach((crc) -> report_w.println("Detected suspicious CRC : " + crc + " (SHA1 has been calculated for theses roms)"));
+			profile.suspicious_crc.forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
 
 			int i = 0;
 			handler.setProgress("Searching for fixes...", i, profile.machines.size());
 			profile.machines.forEach(Machine::resetCollisionMode);
 			for(Machine m : profile.machines)
 			{
-				List<Disk> disks = m.filterDisks(merge_mode, hash_collision_mode);
-				Directory directory = new Directory(new File(dstdir, m.getDestMachine(merge_mode).name), m);
+				SubjectSet report_subject = new SubjectSet(m);
+				report.add(report_subject);
+				
 				boolean missing_set = true;
-				if(!scanDisks(m, disks, directory, report_w))
-					missing_set = false;
+				Directory directory = new Directory(new File(dstdir, m.getDestMachine(merge_mode).name), m);
 				Container archive = new Archive(new File(dstdir, m.getDestMachine(merge_mode).name + format.getExt()), m);
 				if(format.getExt().isDir())
 					archive = directory;
 				List<Rom> roms = m.filterRoms(merge_mode, hash_collision_mode);
-				if(!scanRoms(m, roms, archive, report_w))
+				if(!scanRoms(m, roms, archive, report_subject))
+					missing_set = false;
+				List<Disk> disks = m.filterDisks(merge_mode, hash_collision_mode);
+				if(!scanDisks(m, disks, directory, report_subject))
 					missing_set = false;
 				if(format == FormatOptions.DIR)
 				{
@@ -121,7 +126,7 @@ public class Scan
 						Container c2 = dstscan.containers_byname.get(m2.name);
 						if(c2 != null)
 						{
-							report_w.println("[" + m2.name + "] " + c2.file.getName() + " is unneeded");
+							Optional.ofNullable(report.findSubject(m2)).ifPresent(s->s.add(new ContainerUnneeded(c2)));;
 							delete_actions.add(new DeleteContainer(c2, format));
 						}
 					}
@@ -136,7 +141,7 @@ public class Scan
 						Container c2 = dstscan.containers_byname.get(m2.name);
 						if(c2 != null)
 						{
-							report_w.println("[" + m2.name + "] " + c2.file.getName() + " is unneeded");
+							Optional.ofNullable(report.findSubject(m2)).ifPresent(s->s.add(new ContainerUnneeded(c2)));;
 							delete_actions.add(new DeleteContainer(c2, format));
 						}
 					}
@@ -148,7 +153,7 @@ public class Scan
 						Container c2 = dstscan.containers_byname.get(m2.name + format.getExt());
 						if(c2 != null)
 						{
-							report_w.println("[" + m2.name + "] " + c2.file.getName() + " is unneeded");
+							Optional.ofNullable(report.findSubject(m2)).ifPresent(s->s.add(new ContainerUnneeded(c2)));;
 							delete_actions.add(new DeleteContainer(c2, format));
 						}
 					}
@@ -157,7 +162,7 @@ public class Scan
 					Container c2 = dstscan.containers_byname.get(m.name + e);
 					if(c2 != null)
 					{
-						report_w.println("[" + m.name + "] " + c2.file.getName() + " is unneeded");
+						Optional.ofNullable(report.findSubject(m)).ifPresent(s->s.add(new ContainerUnneeded(c2)));;
 						delete_actions.add(new DeleteContainer(c2, format));
 					}
 				});
@@ -167,15 +172,8 @@ public class Scan
 				if(roms.size() == 0 && disks.size() == 0)
 					missing_set = false;
 				if(missing_set)
-					missing_set_cnt++;
+					report.stats.missing_set_cnt++;
 			}
-			report_w.println("Missing sets : " + missing_set_cnt + "/" + profile.machines_cnt);
-			report_w.println("Missing roms : " + missing_roms_cnt + "/" + profile.roms_cnt);
-			report_w.println("Missing disks : " + missing_disks_cnt + "/" + profile.disks_cnt);
-		}
-		catch(FileNotFoundException e)
-		{
-			Log.err("Report Exception", e);
 		}
 		catch(BreakException e)
 		{
@@ -185,7 +183,12 @@ public class Scan
 		{
 			Log.err("Other Exception when listing", e);
 		}
+		finally
+		{
+			report.write();
+		}
 
+		
 		actions.add(create_actions);
 		actions.add(rename_before_actions);
 		actions.add(add_actions);
@@ -196,19 +199,20 @@ public class Scan
 	}
 
 	@SuppressWarnings("unlikely-arg-type")
-	private boolean scanDisks(Machine m, List<Disk> disks, Directory directory, PrintWriter report_w)
+	private boolean scanDisks(Machine m, List<Disk> disks, Directory directory, SubjectSet report_subject)
 	{
 		boolean missing_set = true;
 		Container c;
 		if(null != (c = dstscan.containers_byname.get(m.getDestMachine(merge_mode).name)))
 		{
+			report_subject.setFound();
+			
 			missing_set = false;
 			if(disks.size() > 0)
 			{
 				ArrayList<Entry> disks_found = new ArrayList<>();
 				Map<String, Disk> disks_byname = Disk.getDisksByName(disks);
-				OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null,
-						duplicate_set = null;
+				OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null, duplicate_set = null;
 				for(Disk d : disks)
 				{
 					Entry found = null;
@@ -228,14 +232,14 @@ public class Scan
 									else
 									{
 										// we must duplicate
-										report_w.println("[" + m.name + "] duplicate " + e.file + " >>> " + d.getName());
+										report_subject.add(new EntryMissingDuplicate(d,e));
 										(duplicate_set = OpenContainer.getInstance(duplicate_set, directory, format)).addAction(new DuplicateEntry(d.getName(), e));
 										found = e;
 									}
 								}
 								else
 								{
-									report_w.println("[" + m.name + "] wrong named rom (" + e.getName() + "->" + d.getName() + ")");
+									report_subject.add(new EntryWrongName(d,e));
 									(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(e));
 									(rename_after_set = OpenContainer.getInstance(rename_after_set, directory, format)).addAction(new RenameEntry(d.getName(), e));
 									found = e;
@@ -244,35 +248,31 @@ public class Scan
 							}
 							else
 							{
-								// report_w.println("["+m.name+"] "+d.getName()+" ("+e.file+") OK ");
 								found = e;
 								break;
 							}
 						}
 						else if(d.getName().equals(e.getName()))
 						{
-							if(e.sha1 == null)
-								report_w.println("[" + m.name + "] " + e.file + " has wrong md5 (got " + e.md5 + " vs " + d.md5 + ")");
-							else
-								report_w.println("[" + m.name + "] " + e.file + " has wrong sha1 (got " + e.sha1 + " vs " + d.sha1 + ")");
+							report_subject.add(new EntryWrongHash(d,e));
 							// found = e;
 							break;
 						}
 					}
 					if(found == null)
 					{
-						missing_disks_cnt++;
+						report.stats.missing_disks_cnt++;
 						for(DirScan scan : allscans)
 						{
 							if(null != (found = scan.find_byhash(d)))
 							{
-								report_w.println("[" + m.name + "] " + d.getName() + " <- " + found.parent.file.getName() + "@" + found.file);
+								report_subject.add(new EntryAdd(d,found));
 								(add_set = OpenContainer.getInstance(add_set, directory, format)).addAction(new AddEntry(d, found));
 								break;
 							}
 						}
 						if(found == null)
-							report_w.println("[" + m.name + "] " + d.getName() + " is missing and not fixable");
+							report_subject.add(new EntryMissing(d));
 					}
 					else
 					{
@@ -283,7 +283,7 @@ public class Scan
 				List<Entry> unneeded = c.getEntries().stream().filter(not(new HashSet<>(disks_found)::contains)).collect(Collectors.toList());
 				for(Entry e : unneeded)
 				{
-					report_w.println("[" + m.name + "] " + e.file + " unneeded (sha1=" + e.sha1 + ")");
+					report_subject.add(new EntryUnneeded(e));
 					(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(e));
 					(delete_set = OpenContainer.getInstance(delete_set, directory, format)).addAction(new DeleteEntry(e));
 				}
@@ -300,17 +300,16 @@ public class Scan
 			{
 				int disks_found = 0;
 				boolean partial = false;
-				String submsg = "";
 				CreateContainer createset = null;
 				for(Disk d : disks)
 				{
-					missing_disks_cnt++;
+					report.stats.missing_disks_cnt++;
 					Entry found = null;
 					for(DirScan scan : allscans)
 					{
 						if(null != (found = scan.find_byhash(d)))
 						{
-							submsg += "\t[" + m.name + "] " + d.getName() + " <- " + found.parent.file.getName() + "@" + found.file + "\n";
+							report_subject.add(new EntryAdd(d, found));
 							(createset = CreateContainer.getInstance(createset, directory, format)).addAction(new AddEntry(d, found));
 							disks_found++;
 							break;
@@ -318,39 +317,40 @@ public class Scan
 					}
 					if(found == null)
 					{
-						submsg += "\t[" + m.name + "] " + d.getName() + " is missing and not fixable\n";
+						report_subject.add(new EntryMissing(d));
 						partial = true;
 					}
 				}
-				String msg = "[" + m.name + "] is missing";
 				if(disks_found > 0)
 				{
 					if(!createfull_mode || !partial)
 					{
+						report_subject.setCreateFull();
+						if(partial)
+							report_subject.setCreate();
 						ContainerAction.addToList(create_actions, createset);
-						msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
 					}
 				}
-				report_w.println(msg);
 			}
 		}
 		return missing_set;
 	}
 
 	@SuppressWarnings("unlikely-arg-type")
-	private boolean scanRoms(Machine m, List<Rom> roms, Container archive, PrintWriter report_w)
+	private boolean scanRoms(Machine m, List<Rom> roms, Container archive, SubjectSet report_subject)
 	{
 		boolean missing_set = true;
 		Container c;
 		if(null != (c = dstscan.containers_byname.get(m.getDestMachine(merge_mode).name + format.getExt())))
 		{
+			report_subject.setFound();
+			
 			missing_set = false;
 			if(roms.size() > 0)
 			{
 				ArrayList<Entry> roms_found = new ArrayList<>();
 				Map<String, Rom> roms_byname = Rom.getRomsByName(roms);
-				OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null,
-						duplicate_set = null;
+				OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null, duplicate_set = null;
 				for(Rom r : roms)
 				{
 					Entry found = null;
@@ -372,7 +372,7 @@ public class Scan
 									else
 									{
 										// we must duplicate
-										report_w.println("[" + m.name + "] duplicate " + e.file + " >>> " + r.getName());
+										report_subject.add(new EntryMissingDuplicate(r, e));
 										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format)).addAction(new DuplicateEntry(r.getName(), e));
 										found = e;
 										break;
@@ -382,7 +382,7 @@ public class Scan
 								{
 									if(!entries_byname.containsKey(r.getName())) // and rom name is not in the entries
 									{
-										report_w.println("[" + m.name + "] wrong named rom (" + archive.file.getName() + "@" + efile + "->" + r.getName() + ")");
+										report_subject.add(new EntryWrongName(r, e));
 										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
 										// (rename_after_set = OpenContainer.getInstance(rename_after_set, archive, format)).addAction(new RenameEntry(r.getName(), e));
 										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format)).addAction(new DuplicateEntry(r.getName(), e));
@@ -400,31 +400,26 @@ public class Scan
 						}
 						else if(r.getName().equals(efile))
 						{
-							if(e.md5 == null && e.sha1 == null)
-								report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + efile + " has wrong crc (got " + e.crc + " vs " + r.crc + ")");
-							else if(e.sha1 == null)
-								report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + efile + " has wrong md5 (got " + e.md5 + " vs " + r.md5 + ")");
-							else
-								report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + efile + " has wrong sha1 (got " + e.sha1 + " vs " + r.sha1 + ")");
+							report_subject.add(new EntryWrongHash(r, e));
 							// found = e;
 							break;
 						}
 					}
 					if(found == null)
 					{
-						missing_roms_cnt++;
+						report.stats.missing_roms_cnt++;
 						for(DirScan scan : allscans)
 						{
 							if(null != (found = scan.find_byhash(profile, r)))
 							{
-								report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " <- " + found.parent.file.getName() + "@" + found.file);
+								report_subject.add(new EntryAdd(r, found));
 								(add_set = OpenContainer.getInstance(add_set, archive, format)).addAction(new AddEntry(r, found));
 								// roms_found.add(found);
 								break;
 							}
 						}
 						if(found == null)
-							report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " (" + r.crc + ") is missing and not fixable");
+							report_subject.add(new EntryMissing(r));
 					}
 					else
 					{
@@ -435,8 +430,7 @@ public class Scan
 				List<Entry> unneeded = c.getEntries().stream().filter(not(new HashSet<>(roms_found)::contains)).collect(Collectors.toList());
 				for(Entry e : unneeded)
 				{
-					String efile = Paths.get(e.file).subpath(0, Paths.get(e.file).getNameCount()).toString();
-					report_w.println("[" + m.name + "] " + archive.file.getName() + "@" + efile + " unneeded (crc=" + e.crc + ", sha1=" + e.sha1 + ")");
+					report_subject.add(new EntryUnneeded(e));
 					(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
 					(delete_set = OpenContainer.getInstance(delete_set, archive, format)).addAction(new DeleteEntry(e));
 				}
@@ -453,17 +447,16 @@ public class Scan
 			{
 				int roms_found = 0;
 				boolean partial = false;
-				String submsg = "";
 				CreateContainer createset = null;
 				for(Rom r : roms)
 				{
-					missing_roms_cnt++;
+					report.stats.missing_roms_cnt++;
 					Entry found = null;
 					for(DirScan scan : allscans)
 					{
 						if(null != (found = scan.find_byhash(profile, r)))
 						{
-							submsg += "\t[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " <- " + found.parent.file.getName() + "@" + found.file + "\n";
+							report_subject.add(new EntryAdd(r, found));
 							(createset = CreateContainer.getInstance(createset, archive, format)).addAction(new AddEntry(r, found));
 							roms_found++;
 							break;
@@ -471,20 +464,20 @@ public class Scan
 					}
 					if(found == null)
 					{
-						submsg += "\t[" + m.name + "] " + archive.file.getName() + "@" + r.getName() + " is missing and not fixable\n";
+						report_subject.add(new EntryMissing(r));
 						partial = true;
 					}
 				}
-				String msg = "[" + m.name + "] is missing";
 				if(roms_found > 0)
 				{
 					if(!createfull_mode || !partial)
 					{
+						report_subject.setCreateFull();
+						if(partial)
+							report_subject.setCreate();
 						ContainerAction.addToList(create_actions, createset);
-						msg += ", but can " + (partial ? "partially" : "totally") + " be recreated :\n" + submsg;
 					}
 				}
-				report_w.println(msg);
 			}
 		}
 		return missing_set;
