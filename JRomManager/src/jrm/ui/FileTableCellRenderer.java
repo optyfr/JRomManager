@@ -1,7 +1,6 @@
 package jrm.ui;
 
 import java.awt.Component;
-import java.io.File;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
