@@ -49,8 +49,12 @@ _Minimal usage requirements_:
 - Dir2Dat, Dat2Dat
 
 ## Long Term Planned Features and Ideas
-- Other Dat formats ?
 - Interoperability with other managers?
 - Torrent7Z support ?
 - Batch mode?
 
+## Not planned features
+- Inverted/complemented CRC: obsolete replaced by "status" attribute since Mame 0.68
+- Old ClrMamePro non-xml format: even considered as deprecated by ClrMamePro
+- CHD verification: data won't be verified, only header is read to get md5/sha1, maybe the data size will be verified later but no hashing nor chdman
+- Rom resizing
