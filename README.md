@@ -6,15 +6,15 @@ A Rom Manager entirely written in Java and released under GPL v3
 _Minimal developement requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature
 - Java 8
-- Apache Commons Codec 1.11
+- Apache Commons Codec 1.11 
 - Apache Commons IO 2.6
 - Apache Commons Lang3 3.7
-- Apache Commons Compress 1.16
+- Apache Commons Compress 1.16 (used solely to list 7zip content)
 - StreamEx 0.6.6
-- SevenZipJBinding 9.20-2.00
+- SevenZipJBinding 9.20-2.00 (faster than using 7z cmd line)
 
 _Minimal usage requirements_:
-- 1GB Free Ram (2GB or more with Software Lists and/or MultiCore feature)
+- 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)
 - Any OS with Java 8 runtime
 - (optional) 7zip or p7zip cmdline program if you need 7z format and only if SevenZipJBinding doesn't work on your platform
 - (optional) trrntzip cmdline program if you want to torrentzip your files
