@@ -44,9 +44,11 @@ _Minimal usage requirements_:
 - General settings
 - Software List support
 - Enhanced Gui with Report
+- Translatable
 
 ## Middle Term Planned Features
 - Dir2Dat, Dat2Dat
+- More Translations
 
 ## Long Term Planned Features and Ideas
 - Interoperability with other managers?
