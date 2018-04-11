@@ -1,14 +1,20 @@
 package jrm.profiler.report;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+
+import javax.swing.tree.TreeNode;
 
 import jrm.profiler.data.Machine;
 
-public abstract class Subject
+public abstract class Subject implements TreeNode
 {
 	protected Machine machine;
 	
 	protected ArrayList<Note> notes = new ArrayList<>();
+	
+	protected Report parent;
 
 	public Subject(Machine machine)
 	{
@@ -18,8 +24,51 @@ public abstract class Subject
 	public boolean add(Note note)
 	{
 		note.parent = this;
-		return notes.add(note);
+		boolean result = notes.add(note);
+		return result;
 	}
 	
 	public abstract String toString();
+
+	@Override
+	public TreeNode getChildAt(int childIndex)
+	{
+		return notes.get(childIndex);
+	}
+
+	@Override
+	public int getChildCount()
+	{
+		return notes.size();
+	}
+
+	@Override
+	public TreeNode getParent()
+	{
+		return parent;
+	}
+
+	@Override
+	public int getIndex(TreeNode node)
+	{
+		return notes.indexOf(node);
+	}
+
+	@Override
+	public boolean getAllowsChildren()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean isLeaf()
+	{
+		return notes.size()==0;
+	}
+
+	@Override
+	public Enumeration<Note> children()
+	{
+		return Collections.enumeration(notes);
+	}
 }

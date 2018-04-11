@@ -21,16 +21,16 @@ import javax.swing.border.BevelBorder;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+@SuppressWarnings("serial")
 public class Progress extends JDialog implements ProgressHandler
 {
-	private static final long serialVersionUID = -1378025750737673375L;
 	private JLabel lblInfo;
 	private JProgressBar progressBar;
 	private boolean cancel = false;
 
 	public Progress(Window owner)
 	{
-		super(owner, "Progression", ModalityType.APPLICATION_MODAL);
+		super(owner, "Progression", ModalityType.MODELESS);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/jrm/resources/rom.png")));
 		getContentPane().setBackground(UIManager.getColor("Panel.background"));
 		addWindowListener(new WindowAdapter()
@@ -39,6 +39,15 @@ public class Progress extends JDialog implements ProgressHandler
 			public void windowClosing(WindowEvent e)
 			{
 				cancel = true;
+			}
+			@Override
+			public void windowOpened(WindowEvent e) {
+				owner.setEnabled(false);
+			}
+			@Override
+			public void windowClosed(WindowEvent e)
+			{
+				owner.setEnabled(true);
 			}
 		});
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);

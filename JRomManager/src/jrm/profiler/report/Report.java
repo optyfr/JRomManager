@@ -6,20 +6,26 @@ import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+
 import jrm.profiler.Profile;
 import jrm.profiler.data.Machine;
 
-public class Report
+public class Report implements TreeNode
 {
 	private Profile profile;
 	private List<Subject> subjects = Collections.synchronizedList(new ArrayList<>());
 	private Map<String, Subject> subject_hash = Collections.synchronizedMap(new HashMap<>());
 	public Stats stats = new Stats();
-
+	
+	DefaultTreeModel model = null;
+	
 	public class Stats
 	{
 		public int missing_set_cnt = 0;
@@ -27,11 +33,25 @@ public class Report
 		public int missing_disks_cnt = 0;
 	}
 	
-	public Report(Profile profile)
+	public Report()
 	{
-		this.profile = profile;
+		model = new DefaultTreeModel(this);
 	}
 
+	public void setProfile(Profile profile)
+	{
+		this.profile = profile;
+		subject_hash.clear();
+		subjects.clear();
+		if(model!=null)
+			model.reload();
+	}
+	
+	public DefaultTreeModel getModel()
+	{
+		return model;
+	}
+	
 	public Subject findSubject(Machine m)
 	{
 		return m != null ? subject_hash.get(m.name) : null;
@@ -39,9 +59,13 @@ public class Report
 
 	public boolean add(Subject subject)
 	{
+		subject.parent = this;
 		if(subject.machine != null)
 			subject_hash.put(subject.machine.name, subject);
-		return subjects.add(subject);
+		boolean result = subjects.add(subject);
+		if(0==(subjects.size()%100))
+			model.reload();
+		return result;
 	}
 	
 	public void write()
@@ -68,6 +92,48 @@ public class Report
 			e.printStackTrace();
 		}
 		
+	}
+
+	@Override
+	public TreeNode getChildAt(int childIndex)
+	{
+		return subjects.get(childIndex);
+	}
+
+	@Override
+	public int getChildCount()
+	{
+		return subjects.size();
+	}
+
+	@Override
+	public TreeNode getParent()
+	{
+		return null;
+	}
+
+	@Override
+	public int getIndex(TreeNode node)
+	{
+		return subjects.indexOf(node);
+	}
+
+	@Override
+	public boolean getAllowsChildren()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean isLeaf()
+	{
+		return subjects.size()==0;
+	}
+
+	@Override
+	public Enumeration<Subject> children()
+	{
+		return Collections.enumeration(subjects);
 	}
 
 }

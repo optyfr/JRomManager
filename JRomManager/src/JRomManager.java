@@ -91,6 +91,7 @@ import jrm.ui.DirTreeSelectionListener;
 import jrm.ui.FileTableModel;
 import jrm.ui.JRMFileChooser;
 import jrm.ui.Progress;
+import jrm.ui.ReportFrame;
 
 public class JRomManager
 {
@@ -413,6 +414,14 @@ public class JRomManager
 		btnScan.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/magnifier.png")));
 		scannerBtnPanel.add(btnScan);
 		btnScan.setEnabled(false);
+		
+		btnReport = new JButton("Report");
+		btnReport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new ReportFrame(mainFrame);
+			}
+		});
+		scannerBtnPanel.add(btnReport);
 
 		btnFix = new JButton("Fix");
 		btnFix.setIcon(new ImageIcon(JRomManager.class.getResource("/jrm/resources/icons/tick.png")));
@@ -1499,6 +1508,7 @@ public class JRomManager
 	private JMenuItem mntmDeleteProfile;
 	private JLabel lblProfileinfo;
 	private JMenuItem mntmRenameProfile;
+	private JButton btnReport;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

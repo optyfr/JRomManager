@@ -17,5 +17,4 @@ public class ContainerUnknown extends Subject
 	{
 		return "Unknown " + (container.getType() == Container.Type.DIR ? "Directory" : "File") + " : " + container.file;
 	}
-
 }
