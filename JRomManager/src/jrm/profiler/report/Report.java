@@ -19,7 +19,6 @@ import javax.swing.tree.TreeNode;
 import jrm.profiler.Profile;
 import jrm.profiler.data.Machine;
 import jrm.ui.ReportTreeModel;
-import jrm.ui.ReportTreeModel.FilterOptions;
 
 public class Report implements TreeNode
 {
@@ -42,12 +41,12 @@ public class Report implements TreeNode
 		model = new ReportTreeModel(this);
 	}
 
-	public Report(Report report, ReportTreeModel.FilterOptions... filterOptions)
+	public Report(Report report, FilterOptions... filterOptions)
 	{
 		this(report,Arrays.asList(filterOptions));
 	}
 	
-	public Report(Report report, List<ReportTreeModel.FilterOptions> filterOptions)
+	public Report(Report report, List<FilterOptions> filterOptions)
 	{
 		this.model = report.model;
 		this.profile = report.profile;
@@ -57,13 +56,13 @@ public class Report implements TreeNode
 		this.model = report.model;
 	}
 	
-	public List<Subject> filter(ReportTreeModel.FilterOptions... filterOptions)
+	public List<Subject> filter(FilterOptions... filterOptions)
 	{
 		return filter(Arrays.asList(filterOptions));
 		
 	}
 	
-	public List<Subject> filter(List<ReportTreeModel.FilterOptions> filterOptions)
+	public List<Subject> filter(List<FilterOptions> filterOptions)
 	{
 		return subjects.stream().filter(s -> {
 			if(!filterOptions.contains(FilterOptions.SHOWOK) && s instanceof SubjectSet && ((SubjectSet)s).isOK())

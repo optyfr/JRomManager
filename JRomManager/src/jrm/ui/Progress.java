@@ -48,6 +48,7 @@ public class Progress extends JDialog implements ProgressHandler
 			public void windowClosed(WindowEvent e)
 			{
 				owner.setEnabled(true);
+				owner.toFront();
 			}
 		});
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -166,5 +167,5 @@ public class Progress extends JDialog implements ProgressHandler
 		btnCancel.setEnabled(false);
 		btnCancel.setText("Canceling...");
 	}
-
+	
 }

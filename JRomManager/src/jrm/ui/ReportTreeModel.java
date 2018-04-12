@@ -8,6 +8,7 @@ import java.util.List;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
+import jrm.profiler.report.FilterOptions;
 import jrm.profiler.report.Report;
 
 @SuppressWarnings("serial")
@@ -15,11 +16,6 @@ public final class ReportTreeModel extends DefaultTreeModel
 {
 	private Report org_root;
 	private List<FilterOptions> filterOptions = new ArrayList<>();
-	
-	public enum FilterOptions {
-		SHOWOK,
-		HIDEMISSING
-	}
 	
 	public ReportTreeModel(Report root)
 	{

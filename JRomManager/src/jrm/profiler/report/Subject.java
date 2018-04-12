@@ -8,7 +8,6 @@ import java.util.List;
 import javax.swing.tree.TreeNode;
 
 import jrm.profiler.data.Machine;
-import jrm.ui.ReportTreeModel.FilterOptions;
 
 public abstract class Subject implements TreeNode
 {

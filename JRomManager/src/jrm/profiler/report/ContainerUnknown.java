@@ -3,7 +3,6 @@ package jrm.profiler.report;
 import java.util.List;
 
 import jrm.profiler.data.Container;
-import jrm.ui.ReportTreeModel.FilterOptions;
 
 public class ContainerUnknown extends Subject
 {

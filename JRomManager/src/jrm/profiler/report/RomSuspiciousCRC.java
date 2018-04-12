@@ -2,8 +2,6 @@ package jrm.profiler.report;
 
 import java.util.List;
 
-import jrm.ui.ReportTreeModel.FilterOptions;
-
 public class RomSuspiciousCRC extends Subject
 {
 	String crc;

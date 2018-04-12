@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jrm.profiler.data.Machine;
-import jrm.ui.ReportTreeModel.FilterOptions;
 
 public class SubjectSet extends Subject
 {

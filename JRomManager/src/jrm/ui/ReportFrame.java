@@ -1,41 +1,14 @@
 package jrm.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.HeadlessException;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.EnumSet;
 
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JDialog;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import jrm.profiler.report.ContainerUnknown;
-import jrm.profiler.report.EntryAdd;
-import jrm.profiler.report.EntryMissing;
-import jrm.profiler.report.EntryMissingDuplicate;
-import jrm.profiler.report.EntryOK;
-import jrm.profiler.report.EntryUnneeded;
-import jrm.profiler.report.EntryWrongHash;
-import jrm.profiler.report.EntryWrongName;
-import jrm.profiler.report.RomSuspiciousCRC;
-import jrm.profiler.report.SubjectSet;
+import jrm.profiler.report.*;
 import jrm.profiler.scan.Scan;
-import jrm.ui.ReportTreeModel.FilterOptions;
 
 @SuppressWarnings("serial")
 public class ReportFrame extends JDialog
