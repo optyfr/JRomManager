@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profiler.Profile;
@@ -70,11 +71,11 @@ public class Scan
 	{
 		this.profile = profile;
 		report.setProfile(profile);
-		format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString()));
-		merge_mode = MergeOptions.valueOf(profile.getProperty("merge_mode", MergeOptions.SPLIT.toString()));
-		create_mode = profile.getProperty("create_mode", true);
-		createfull_mode = profile.getProperty("createfull_mode", true);
-		HashCollisionOptions hash_collision_mode = HashCollisionOptions.valueOf(profile.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()));
+		format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
+		merge_mode = MergeOptions.valueOf(profile.getProperty("merge_mode", MergeOptions.SPLIT.toString())); //$NON-NLS-1$
+		create_mode = profile.getProperty("create_mode", true); //$NON-NLS-1$
+		createfull_mode = profile.getProperty("createfull_mode", true); //$NON-NLS-1$
+		HashCollisionOptions hash_collision_mode = HashCollisionOptions.valueOf(profile.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString())); //$NON-NLS-1$
 
 		dstscan = new DirScan(profile, dstdir, handler, true);
 		for(File dir : srcdirs)
@@ -99,7 +100,7 @@ public class Scan
 			profile.suspicious_crc.forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
 
 			int i = 0;
-			handler.setProgress("Searching for fixes...", i, profile.machines.size());
+			handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i, profile.machines.size()); //$NON-NLS-1$
 			profile.machines.forEach(Machine::resetCollisionMode);
 			for(Machine m : profile.machines)
 			{
@@ -189,7 +190,7 @@ public class Scan
 		}
 		catch(Throwable e)
 		{
-			Log.err("Other Exception when listing", e);
+			Log.err("Other Exception when listing", e); //$NON-NLS-1$
 		}
 		finally
 		{

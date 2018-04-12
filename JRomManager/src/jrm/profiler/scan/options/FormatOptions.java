@@ -2,19 +2,21 @@ package jrm.profiler.scan.options;
 
 import java.util.EnumSet;
 
+import jrm.Messages;
+
 public enum FormatOptions
 {
-	DIR("Directories", Ext.DIR),
-	ZIP("Zip archive", Ext.ZIP),
-	ZIPE("Zip archive (external)", Ext.ZIP),
-	SEVENZIP("7Zip archive (external)", Ext.SEVENZIP),
-	TZIP("TorrentZip archive (external)", Ext.ZIP);
+	DIR(Messages.getString("FormatOptions.Directories"), Ext.DIR), //$NON-NLS-1$
+	ZIP(Messages.getString("FormatOptions.Zip"), Ext.ZIP), //$NON-NLS-1$
+	ZIPE(Messages.getString("FormatOptions.ZipExternal"), Ext.ZIP), //$NON-NLS-1$
+	SEVENZIP(Messages.getString("FormatOptions.SevenZip"), Ext.SEVENZIP), //$NON-NLS-1$
+	TZIP(Messages.getString("FormatOptions.TorrentZip"), Ext.ZIP); //$NON-NLS-1$
 
 	public enum Ext
 	{
-		DIR(""),
-		ZIP(".zip"),
-		SEVENZIP(".7z");
+		DIR(""), //$NON-NLS-1$
+		ZIP(".zip"), //$NON-NLS-1$
+		SEVENZIP(".7z"); //$NON-NLS-1$
 
 		private String ext;
 

@@ -43,9 +43,9 @@ public class SevenZipArchive implements Archive
 		catch(SevenZipNativeInitializationException e)
 		{
 			this.readonly = readonly;
-			this.cmd = Settings.getProperty("7z_cmd", FindCmd.find7z());
-			if(!new File(this.cmd).exists() && !new File(this.cmd + ".exe").exists())
-				throw new IOException(this.cmd + " does not exists");
+			this.cmd = Settings.getProperty("7z_cmd", FindCmd.find7z()); //$NON-NLS-1$
+			if(!new File(this.cmd).exists() && !new File(this.cmd + ".exe").exists()) //$NON-NLS-1$
+				throw new IOException(this.cmd + " does not exists"); //$NON-NLS-1$
 			if(null == (this.archive = archives.get(archive.getAbsolutePath())))
 				archives.put(archive.getAbsolutePath(), this.archive = archive);
 		}
@@ -66,11 +66,11 @@ public class SevenZipArchive implements Archive
 			{
 				int err = -1;
 				List<String> cmd_add = new ArrayList<>();
-				Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z");
+				Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 				tmpfile.toFile().delete();
-				Collections.addAll(cmd_add, Settings.getProperty("7z_cmd", FindCmd.find7z()), "a", "-r", "-t7z");
-				Collections.addAll(cmd_add, "-ms=" + (Settings.getProperty("7z_solid", false) ? "on" : "off"), "-mx=" + Settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString()));
-				Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*");
+				Collections.addAll(cmd_add, Settings.getProperty("7z_cmd", FindCmd.find7z()), "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				Collections.addAll(cmd_add, "-ms=" + (Settings.getProperty("7z_solid", false) ? "on" : "off"), "-mx=" + Settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
 				try
 				{
@@ -84,7 +84,7 @@ public class SevenZipArchive implements Archive
 				if(err != 0)
 				{
 					Files.deleteIfExists(tmpfile);
-					throw new IOException("Process returned " + err);
+					throw new IOException("Process returned " + err); //$NON-NLS-1$
 				}
 				else
 				{
@@ -104,7 +104,7 @@ public class SevenZipArchive implements Archive
 			return native_7zip.getTempDir();
 		if(tempDir == null)
 		{
-			tempDir = Files.createTempDirectory("JRM").toFile();
+			tempDir = Files.createTempDirectory("JRM").toFile(); //$NON-NLS-1$
 			if(archive.exists() && !readonly)
 			{
 				if(extract(tempDir, null) == 0)
@@ -119,7 +119,7 @@ public class SevenZipArchive implements Archive
 	private int extract(File baseDir, String entry) throws IOException
 	{
 		List<String> cmd = new ArrayList<>();
-		Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath());
+		Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		if(entry != null && !entry.isEmpty())
 			cmd.add(entry);
 		ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);

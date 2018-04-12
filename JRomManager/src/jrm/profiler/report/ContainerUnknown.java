@@ -2,6 +2,7 @@ package jrm.profiler.report;
 
 import java.util.List;
 
+import jrm.Messages;
 import jrm.profiler.data.Container;
 
 public class ContainerUnknown extends Subject
@@ -17,7 +18,7 @@ public class ContainerUnknown extends Subject
 	@Override
 	public String toString()
 	{
-		return "Unknown " + (container.getType() == Container.Type.DIR ? "Directory" : "File") + " : " + container.file;
+		return String.format(Messages.getString("ContainerUnknown.Unknown"), container.getType() == Container.Type.DIR ? Messages.getString("ContainerUnknown.Directory") : Messages.getString("ContainerUnknown.File"), container.file); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	@Override

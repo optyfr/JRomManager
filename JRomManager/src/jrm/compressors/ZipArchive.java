@@ -51,12 +51,12 @@ public class ZipArchive implements Archive
 		{
 			this.readonly = readonly;
 			this.archive = archive;
-			this.cmd = Settings.getProperty("zip_cmd", FindCmd.find7z());
-			if(!new File(this.cmd).exists() && !new File(this.cmd + ".exe").exists())
-				throw new IOException(this.cmd + " does not exists");
+			this.cmd = Settings.getProperty("zip_cmd", FindCmd.find7z()); //$NON-NLS-1$
+			if(!new File(this.cmd).exists() && !new File(this.cmd + ".exe").exists()) //$NON-NLS-1$
+				throw new IOException(this.cmd + " does not exists"); //$NON-NLS-1$
 			if(null == (this.archive = archives.get(archive.getAbsolutePath())))
 				archives.put(archive.getAbsolutePath(), this.archive = archive);
-			this.is_7z = this.cmd.endsWith("7z") || this.cmd.endsWith("7z.exe");
+			this.is_7z = this.cmd.endsWith("7z") || this.cmd.endsWith("7z.exe"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -75,19 +75,19 @@ public class ZipArchive implements Archive
 			{
 				int err = -1;
 				List<String> cmd_add = new ArrayList<>();
-				Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z");
+				Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 				tmpfile.toFile().delete();
 				if(is_7z)
 				{
-					Collections.addAll(cmd_add, this.cmd, "a", "-r", "-t7z");
-					Collections.addAll(cmd_add, "-mx=" + Settings.getProperty("zip_level", ZipOptions.NORMAL.toString()));
-					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*");
+					Collections.addAll(cmd_add, this.cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Collections.addAll(cmd_add, "-mx=" + Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				else
 				{
-					Collections.addAll(cmd_add, this.cmd, "-r");
-					Collections.addAll(cmd_add, "-" + Settings.getProperty("zip_level", ZipOptions.NORMAL.toString()));
-					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*");
+					Collections.addAll(cmd_add, this.cmd, "-r"); //$NON-NLS-1$
+					Collections.addAll(cmd_add, "-" + Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
 				try
@@ -102,7 +102,7 @@ public class ZipArchive implements Archive
 				if(err != 0)
 				{
 					Files.deleteIfExists(tmpfile);
-					throw new IOException("Process returned " + err);
+					throw new IOException("Process returned " + err); //$NON-NLS-1$
 				}
 				else
 				{
@@ -122,7 +122,7 @@ public class ZipArchive implements Archive
 			return native_zip.getTempDir();
 		if(tempDir == null)
 		{
-			tempDir = Files.createTempDirectory("JRM").toFile();
+			tempDir = Files.createTempDirectory("JRM").toFile(); //$NON-NLS-1$
 			if(archive.exists() && !readonly)
 			{
 				if(extract(tempDir, null) == 0)
@@ -139,7 +139,7 @@ public class ZipArchive implements Archive
 		List<String> cmd = new ArrayList<>();
 		if(is_7z)
 		{
-			Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath());
+			Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if(entry != null && !entry.isEmpty())
 				cmd.add(entry);
 			ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);
@@ -164,7 +164,7 @@ public class ZipArchive implements Archive
 					Files.copy(srcfs.getPath(entry), baseDir.toPath().resolve(entry));
 				else
 				{
-					Path sourcePath = srcfs.getPath("/");
+					Path sourcePath = srcfs.getPath("/"); //$NON-NLS-1$
 					Path targetPath = baseDir.toPath();
 					Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
 					{

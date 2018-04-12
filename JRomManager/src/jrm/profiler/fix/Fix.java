@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.profiler.Profile;
 import jrm.profiler.fix.actions.ContainerAction;
@@ -22,10 +23,10 @@ public class Fix
 	{
 		this.curr_scan = curr_scan;
 
-		boolean use_parallelism = curr_profile.getProperty("use_parallelism", false);
+		boolean use_parallelism = curr_profile.getProperty("use_parallelism", false); //$NON-NLS-1$
 		AtomicInteger i = new AtomicInteger(0), max = new AtomicInteger(0);
 		curr_scan.actions.forEach(actions -> max.addAndGet(actions.size()));
-		progress.setProgress("Fixing...", i.get(), max.get());
+		progress.setProgress(Messages.getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
 		long start = System.currentTimeMillis();
 		curr_scan.actions.forEach(actions -> {
 			List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
@@ -45,7 +46,7 @@ public class Fix
 			});
 			actions.removeAll(done);
 		});
-		System.out.println("Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start));
+		System.out.println("Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
 	}
 
 	public int getActionsRemain()

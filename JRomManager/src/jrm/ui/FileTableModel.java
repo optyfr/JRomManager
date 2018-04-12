@@ -12,6 +12,8 @@ import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.Messages;
+
 @SuppressWarnings("serial")
 public class FileTableModel extends DefaultTableModel implements TableModelListener
 {
@@ -26,7 +28,7 @@ public class FileTableModel extends DefaultTableModel implements TableModelListe
 
 	public FileTableModel()
 	{
-		super(new String[0][1], new String[] { "Profile" });
+		super(new String[0][1], new String[] { Messages.getString("FileTableModel.Profile") }); //$NON-NLS-1$
 		addTableModelListener(this);
 	}
 
@@ -49,7 +51,7 @@ public class FileTableModel extends DefaultTableModel implements TableModelListe
 				{
 					File f = new File(dir,name);
 					if(f.isFile())
-						if(!Arrays.asList("cache", "properties").contains(FilenameUtils.getExtension(name)))
+						if(!Arrays.asList("cache", "properties").contains(FilenameUtils.getExtension(name))) //$NON-NLS-1$ //$NON-NLS-2$
 							return true;
 					return false;
 				}
@@ -80,7 +82,7 @@ public class FileTableModel extends DefaultTableModel implements TableModelListe
 			if(e.getColumn()==0)
 			{
 				String newname = getValueAt(e.getFirstRow(), 0).toString();
-				Arrays.asList("",".cache",".properties").forEach(ext -> {
+				Arrays.asList("",".cache",".properties").forEach(ext -> { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					File oldfile = new File(curr_dir.getFile(), backup.get(e.getFirstRow())+ext);
 					File newfile = new File(curr_dir.getFile(), newname+ext);
 					oldfile.renameTo(newfile);

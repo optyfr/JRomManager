@@ -1,11 +1,13 @@
 package jrm.profiler.scan.options;
 
+import jrm.Messages;
+
 public enum HashCollisionOptions
 {
-	SINGLEFILE("Single file"),
-	SINGLECLONE("Single clone"),
-	ALLCLONES("All clones"),
-	DUMB("All clones even if no collision");
+	SINGLEFILE(Messages.getString("HashCollisionOptions.SingleFile")), //$NON-NLS-1$
+	SINGLECLONE(Messages.getString("HashCollisionOptions.SingleClone")), //$NON-NLS-1$
+	ALLCLONES(Messages.getString("HashCollisionOptions.AllClones")), //$NON-NLS-1$
+	DUMB(Messages.getString("HashCollisionOptions.AllClonesDumb")); //$NON-NLS-1$
 
 	private String name;
 

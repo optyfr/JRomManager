@@ -12,7 +12,7 @@ public class DirNode extends DefaultMutableTreeNode
 
 	public DirNode(File root)
 	{
-		super(new Dir(root, "/"), true);
+		super(new Dir(root, "/"), true); //$NON-NLS-1$
 		buildDirTree(this.dir = (Dir) getUserObject(), this);
 	}
 

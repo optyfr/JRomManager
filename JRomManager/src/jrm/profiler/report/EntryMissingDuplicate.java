@@ -17,7 +17,7 @@ public class EntryMissingDuplicate extends Note
 	@Override
 	public String toString()
 	{
-		return "[" + parent.machine.name + "] duplicate " + entry.file + " >>> " + entity.getName();
+		return String.format("[%s] duplicate %s >>> %s", parent.machine.name, entry.file, entity.getName());
 	}
 
 }

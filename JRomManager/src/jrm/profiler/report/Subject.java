@@ -35,7 +35,7 @@ public abstract class Subject implements TreeNode
 	{
 		if(machine!=null)
 			return machine.name;
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 	
 	public abstract String toString();

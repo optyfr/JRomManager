@@ -61,7 +61,7 @@ abstract class NArchive implements Archive
 	private HashMap<String, String> to_duplicate = new HashMap<>();
 
 	private ArchiveFormat format = ArchiveFormat.SEVEN_ZIP;
-	private String ext = "7z";
+	private String ext = "7z"; //$NON-NLS-1$
 
 	public NArchive(File archive) throws IOException, SevenZipNativeInitializationException
 	{
@@ -76,7 +76,7 @@ abstract class NArchive implements Archive
 		ext = FilenameUtils.getExtension(archive.getName());
 		if(archive.exists())
 		{
-			closeables.add(iinstream = new RandomAccessFileInStream(new RandomAccessFile(archive, "r")));
+			closeables.add(iinstream = new RandomAccessFileInStream(new RandomAccessFile(archive, "r"))); //$NON-NLS-1$
 			closeables.add(iinarchive = SevenZip.openInArchive(null, iinstream));
 			format = iinarchive.getArchiveFormat();
 		}
@@ -84,10 +84,10 @@ abstract class NArchive implements Archive
 		{
 			switch(ext.toLowerCase())
 			{
-				case "zip":
+				case "zip": //$NON-NLS-1$
 					format = ArchiveFormat.ZIP;
 					break;
-				case "7z":
+				case "7z": //$NON-NLS-1$
 				default:
 					format = ArchiveFormat.SEVEN_ZIP;
 					break;
@@ -147,11 +147,11 @@ abstract class NArchive implements Archive
 							}
 						}
 						if(to_delete.size() != idx_to_delete.size())
-							System.err.println("to_delete:" + to_delete.size() + "!=" + idx_to_delete.size());
+							System.err.println("to_delete:" + to_delete.size() + "!=" + idx_to_delete.size()); //$NON-NLS-1$ //$NON-NLS-2$
 						if(to_rename.size() != idx_to_rename.size())
-							System.err.println("to_rename:" + to_rename.size() + "!=" + idx_to_rename.size());
+							System.err.println("to_rename:" + to_rename.size() + "!=" + idx_to_rename.size()); //$NON-NLS-1$ //$NON-NLS-2$
 						if(to_duplicate.size() != idx_to_duplicate.size())
-							System.err.println("to_duplicate:" + to_duplicate.size() + "!=" + idx_to_duplicate.size());
+							System.err.println("to_duplicate:" + to_duplicate.size() + "!=" + idx_to_duplicate.size()); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
 
@@ -184,7 +184,7 @@ abstract class NArchive implements Archive
 						try
 						{
 							// System.out.println("create raf for "+new File(getTempDir(),to_add.get(index + idx_to_delete.size() - old_tot)));
-							rafs.put(index, new RandomAccessFile(new File(getTempDir(), to_add.get(index + idx_to_delete.size() - old_tot)), "r"));
+							rafs.put(index, new RandomAccessFile(new File(getTempDir(), to_add.get(index + idx_to_delete.size() - old_tot)), "r")); //$NON-NLS-1$
 							return new RandomAccessFileInStream(rafs.get(index));
 						}
 						catch(FileNotFoundException e)
@@ -207,12 +207,12 @@ abstract class NArchive implements Archive
 								for(Object[] o : idx_to_duplicate)
 								{
 									if(!tmpfiles_by_oldindex.containsKey(o[0]))
-										tmpfiles_by_oldindex.put((Integer) o[0], Files.createTempFile("JRM", null).toFile());
+										tmpfiles_by_oldindex.put((Integer) o[0], Files.createTempFile("JRM", null).toFile()); //$NON-NLS-1$
 									tmpfiles.put((Integer) o[2], tmpfiles_by_oldindex.get(o[0]));
 
 								}
 								for(Entry<Integer, File> entry : tmpfiles_by_oldindex.entrySet())
-									rafs2.put(entry.getKey(), new RandomAccessFile(entry.getValue(), "rw"));
+									rafs2.put(entry.getKey(), new RandomAccessFile(entry.getValue(), "rw")); //$NON-NLS-1$
 
 								int[] indices = idx_to_duplicate.stream().flatMapToInt(objs -> IntStream.of((Integer) objs[0])).toArray();
 								// idx_to_duplicate.forEach(objs->System.out.println("will extract for "+objs[1]));
@@ -250,7 +250,7 @@ abstract class NArchive implements Archive
 								for(RandomAccessFile raf2 : rafs2.values())
 									raf2.close();
 								for(Entry<Integer, File> entry : tmpfiles.entrySet())
-									rafs.put(entry.getKey(), new RandomAccessFile(entry.getValue(), "r"));
+									rafs.put(entry.getKey(), new RandomAccessFile(entry.getValue(), "r")); //$NON-NLS-1$
 							}
 							rafs.get(index).seek(0);
 							return new RandomAccessFileInStream(rafs.get(index));
@@ -321,9 +321,9 @@ abstract class NArchive implements Archive
 			if(archive.exists() && iinarchive != null)
 			{
 				// System.out.println("modifying archive "+archive);
-				File tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", "." + ext).toFile();
+				File tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", "." + ext).toFile(); //$NON-NLS-1$ //$NON-NLS-2$
 				tmpfile.delete();
-				try(RandomAccessFile raf = new RandomAccessFile(tmpfile, "rw"))
+				try(RandomAccessFile raf = new RandomAccessFile(tmpfile, "rw")) //$NON-NLS-1$
 				{
 					IOutUpdateArchive<IOutItemAllFormats> iout = iinarchive.getConnectedOutArchive();
 					SetOptions(iout);
@@ -347,7 +347,7 @@ abstract class NArchive implements Archive
 			else
 			{
 				// System.out.println("creating archive "+archive);
-				try(IOutCreateArchive<IOutItemAllFormats> iout = SevenZip.openOutArchive(format); RandomAccessFile raf = new RandomAccessFile(archive, "rw"))
+				try(IOutCreateArchive<IOutItemAllFormats> iout = SevenZip.openOutArchive(format); RandomAccessFile raf = new RandomAccessFile(archive, "rw")) //$NON-NLS-1$
 				{
 					SetOptions(iout);
 
@@ -387,17 +387,17 @@ abstract class NArchive implements Archive
 		{
 			case SEVEN_ZIP:
 				if(iout instanceof IOutFeatureSetSolid)
-					((IOutFeatureSetSolid) iout).setSolid(Settings.getProperty("7z_solid", true));
+					((IOutFeatureSetSolid) iout).setSolid(Settings.getProperty("7z_solid", true)); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(Settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())).getLevel());
+					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(Settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(Settings.getProperty("7z_threads", -1));
+					((IOutFeatureSetMultithreading) iout).setThreadCount(Settings.getProperty("7z_threads", -1)); //$NON-NLS-1$
 				break;
 			case ZIP:
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel());
+					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(Settings.getProperty("zip_threads", -1));
+					((IOutFeatureSetMultithreading) iout).setThreadCount(Settings.getProperty("zip_threads", -1)); //$NON-NLS-1$
 			default:
 				break;
 		}
@@ -408,7 +408,7 @@ abstract class NArchive implements Archive
 	public File getTempDir() throws IOException
 	{
 		if(tempDir == null)
-			tempDir = Files.createTempDirectory("JRM").toFile();
+			tempDir = Files.createTempDirectory("JRM").toFile(); //$NON-NLS-1$
 		return tempDir;
 	}
 
@@ -419,7 +419,7 @@ abstract class NArchive implements Archive
 		{
 			if(item.getPath().equals(entry))
 			{
-				try(RandomAccessFile out = new RandomAccessFile(new File(baseDir, entry), "rw"))
+				try(RandomAccessFile out = new RandomAccessFile(new File(baseDir, entry), "rw")) //$NON-NLS-1$
 				{
 					if(item.extractSlow(new RandomAccessFileOutStream(out)) == ExtractOperationResult.OK)
 						return 0;

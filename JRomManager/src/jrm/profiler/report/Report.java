@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.tree.TreeNode;
 
+import jrm.Messages;
 import jrm.profiler.Profile;
 import jrm.profiler.data.Machine;
 import jrm.ui.ReportTreeModel;
@@ -105,22 +106,22 @@ public class Report implements TreeNode
 	
 	public void write()
 	{
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-		File reportdir = new File(workdir, "reports");
+		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
 		reportdir.mkdirs();
-		File report_file = new File(reportdir, "report.log");
+		File report_file = new File(reportdir, "report.log"); //$NON-NLS-1$
 		try(PrintWriter report_w = new PrintWriter(report_file))
 		{
 			subjects.forEach(subject->{
 				report_w.println(subject);
 				subject.notes.forEach(note->{
-					report_w.println("\t"+note);
+					report_w.println("\t"+note); //$NON-NLS-1$
 				});
 			});
 			report_w.println();
-			report_w.println("Missing sets : " + stats.missing_set_cnt + "/" + profile.machines_cnt);
-			report_w.println("Missing roms : " + stats.missing_roms_cnt + "/" + profile.roms_cnt);
-			report_w.println("Missing disks : " + stats.missing_disks_cnt + "/" + profile.disks_cnt);
+			report_w.println(String.format(Messages.getString("Report.MissingSets"), stats.missing_set_cnt, profile.machines_cnt)); //$NON-NLS-1$
+			report_w.println(String.format(Messages.getString("Report.MissingRoms"), stats.missing_roms_cnt, profile.roms_cnt)); //$NON-NLS-1$
+			report_w.println(String.format(Messages.getString("Report.MissingDisks"), stats.missing_disks_cnt, profile.disks_cnt)); //$NON-NLS-1$
 		}
 		catch(FileNotFoundException e)
 		{

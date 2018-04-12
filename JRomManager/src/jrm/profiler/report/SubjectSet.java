@@ -3,6 +3,7 @@ package jrm.profiler.report;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import jrm.Messages;
 import jrm.profiler.data.Machine;
 
 public class SubjectSet extends Subject
@@ -100,38 +101,28 @@ public class SubjectSet extends Subject
 	@Override
 	public String toString()
 	{
-		String ret = "["+machine.name+"] ["+machine.description+"]";
 		switch(status)
 		{
 			case MISSING:
-				ret += " is missing";
-				break;
+				return String.format(Messages.getString("SubjectSet.Missing"), machine.name, machine.description); //$NON-NLS-1$
 			case UNNEEDED:
-				ret += " is unneeded";
-				break;
+				return String.format(Messages.getString("SubjectSet.Unneeded"), machine.name, machine.description); //$NON-NLS-1$
 			case FOUND:
 				if(hasNotes())
 				{
 					if(isFixable())
-						ret += " found, but need fixes";
-					else
-						ret += " found, but is incomplete and not fully fixable";
+						return String.format(Messages.getString("SubjectSet.FoundNeedFixes"), machine.name, machine.description); //$NON-NLS-1$
+					return String.format(Messages.getString("SubjectSet.FoundIncomplete"), machine.name, machine.description); //$NON-NLS-1$
 				}
-				else
-					ret += " found";
-				break;
+				return String.format(Messages.getString("SubjectSet.Found"), machine.name, machine.description); //$NON-NLS-1$
 			case CREATE:
 			case CREATEFULL:
 				if(isFixable())
-					ret += " is missing but can be totally created";
-				else
-					ret += " is missing but can be partially created";
-				break;
+					return String.format(Messages.getString("SubjectSet.MissingTotallyCreated"), machine.name, machine.description); //$NON-NLS-1$
+				return String.format(Messages.getString("SubjectSet.MissingPartiallyCreated"), machine.name, machine.description); //$NON-NLS-1$
 			default:
-				ret += " is unknown";
-				break;
+				return String.format(Messages.getString("SubjectSet.Unknown"), machine.name, machine.description); //$NON-NLS-1$
 		}
-		return ret;
 	}
 
 }

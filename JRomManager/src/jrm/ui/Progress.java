@@ -21,18 +21,23 @@ import javax.swing.border.BevelBorder;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+import jrm.Messages;
+
+import java.util.ResourceBundle;
+
 @SuppressWarnings("serial")
 public class Progress extends JDialog implements ProgressHandler
 {
+	private static final ResourceBundle MSGS = ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
 	private JLabel lblInfo;
 	private JProgressBar progressBar;
 	private boolean cancel = false;
 
 	public Progress(Window owner)
 	{
-		super(owner, "Progression", ModalityType.MODELESS);
-		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/jrm/resources/rom.png")));
-		getContentPane().setBackground(UIManager.getColor("Panel.background"));
+		super(owner, Messages.getString("Progress.Title"), ModalityType.MODELESS); //$NON-NLS-1$
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
+		getContentPane().setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
 		addWindowListener(new WindowAdapter()
 		{
 			@Override
@@ -81,15 +86,15 @@ public class Progress extends JDialog implements ProgressHandler
 		gbc_progressBar.gridy = 1;
 		getContentPane().add(progressBar, gbc_progressBar);
 
-		lblTimeleft = new JLabel("--:--:--");
+		lblTimeleft = new JLabel("--:--:--"); //$NON-NLS-1$
 		GridBagConstraints gbc_lblTimeleft = new GridBagConstraints();
 		gbc_lblTimeleft.insets = new Insets(0, 0, 5, 5);
 		gbc_lblTimeleft.gridx = 1;
 		gbc_lblTimeleft.gridy = 1;
 		getContentPane().add(lblTimeleft, gbc_lblTimeleft);
 
-		btnCancel = new JButton("Cancel");
-		btnCancel.setIcon(new ImageIcon(Progress.class.getResource("/jrm/resources/icons/stop.png")));
+		btnCancel = new JButton(MSGS.getString("Progress.btnCancel.text")); //$NON-NLS-1$
+		btnCancel.setIcon(new ImageIcon(Progress.class.getResource("/jrm/resources/icons/stop.png"))); //$NON-NLS-1$
 		btnCancel.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -148,9 +153,9 @@ public class Progress extends JDialog implements ProgressHandler
 			if(val == 0)
 				startTime = System.currentTimeMillis();
 			if(val > 0)
-				lblTimeleft.setText(DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val), "HH:mm:ss") + " / " + DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val), "HH:mm:ss"));
+				lblTimeleft.setText(DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val), "HH:mm:ss") + " / " + DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val), "HH:mm:ss")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			else
-				lblTimeleft.setText("--:--:-- / --:--:--");
+				lblTimeleft.setText("--:--:-- / --:--:--"); //$NON-NLS-1$
 		}
 		// if(submsg!=null)
 		progressBar.setString(submsg);
@@ -165,7 +170,7 @@ public class Progress extends JDialog implements ProgressHandler
 	{
 		this.cancel = true;
 		btnCancel.setEnabled(false);
-		btnCancel.setText("Canceling...");
+		btnCancel.setText(Messages.getString("Progress.Canceling")); //$NON-NLS-1$
 	}
 	
 }

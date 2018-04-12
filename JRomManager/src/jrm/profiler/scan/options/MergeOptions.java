@@ -2,13 +2,15 @@ package jrm.profiler.scan.options;
 
 import java.util.EnumSet;
 
+import jrm.Messages;
+
 public enum MergeOptions
 {
-	FULLMERGE("Full Merge (with BIOS)"),
-	MERGE("Merged (no BIOS)"),
-	FULLNOMERGE("Non Merged (with BIOS)"),
-	NOMERGE("Non Merged (no BIOS)"),
-	SPLIT("Split (default)");
+	FULLMERGE(Messages.getString("MergeOptions.FullMerge")), //$NON-NLS-1$
+	MERGE(Messages.getString("MergeOptions.Merge")), //$NON-NLS-1$
+	FULLNOMERGE(Messages.getString("MergeOptions.NoMergeInclBios")), //$NON-NLS-1$
+	NOMERGE(Messages.getString("MergeOptions.NoMerge")), //$NON-NLS-1$
+	SPLIT(Messages.getString("MergeOptions.Split")); //$NON-NLS-1$
 
 	private String name;
 

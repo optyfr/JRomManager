@@ -7,21 +7,24 @@ import java.util.EnumSet;
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import jrm.Messages;
 import jrm.profiler.report.*;
 import jrm.profiler.scan.Scan;
+import java.util.ResourceBundle;
 
 @SuppressWarnings("serial")
 public class ReportFrame extends JDialog
 {
+	private static final ResourceBundle MSGS = ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
 
 	public ReportFrame(Window owner) throws HeadlessException
 	{
-		super(owner, "Report", ModalityType.MODELESS);
+		super(owner, Messages.getString("ReportFrame.Title"), ModalityType.MODELESS); //$NON-NLS-1$
 		setBounds(new Rectangle(100, 100, 0, 0));
 		setVisible(true);
 		setPreferredSize(new Dimension(800, 600));
 		setMinimumSize(new Dimension(400, 300));
-		setIconImage(Toolkit.getDefaultToolkit().getImage(ReportFrame.class.getResource("/jrm/resources/rom.png")));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(ReportFrame.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
 		
 		JScrollPane scrollPane = new JScrollPane();
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -33,30 +36,30 @@ public class ReportFrame extends JDialog
 			{
 				super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 				if(value instanceof RomSuspiciousCRC)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/information.png")));
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/information.png"))); //$NON-NLS-1$
 				else if(value instanceof ContainerUnknown)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/error.png")));
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/error.png"))); //$NON-NLS-1$
 				else if(value instanceof EntryOK)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png")));
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png"))); //$NON-NLS-1$
 				else if(value instanceof EntryAdd)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_blue.png")));
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_blue.png"))); //$NON-NLS-1$
 				else if(value instanceof EntryMissingDuplicate)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_purple.png")));
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_purple.png"))); //$NON-NLS-1$
 				else if(value instanceof EntryMissing)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_red.png")));
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_red.png"))); //$NON-NLS-1$
 				else if(value instanceof EntryUnneeded)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_black.png")));
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_black.png"))); //$NON-NLS-1$
 				else if(value instanceof EntryWrongHash)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_orange.png")));
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_orange.png"))); //$NON-NLS-1$
 				else if(value instanceof EntryWrongName)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_pink.png")));
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_pink.png"))); //$NON-NLS-1$
 				else if(!leaf)
 				{
-					String icon = "/jrm/resources/folder";
+					String icon = "/jrm/resources/folder"; //$NON-NLS-1$
 					if(expanded)
-						icon += "_open";
+						icon += "_open"; //$NON-NLS-1$
 					else
-						icon += "_closed";
+						icon += "_closed"; //$NON-NLS-1$
 					if(value instanceof SubjectSet)
 					{
 						switch(((SubjectSet)value).getStatus())
@@ -65,31 +68,31 @@ public class ReportFrame extends JDialog
 								if(((SubjectSet)value).hasNotes())
 								{
 									if(((SubjectSet)value).isFixable())
-										icon += "_purple";
+										icon += "_purple"; //$NON-NLS-1$
 									else
-										icon += "_orange";
+										icon += "_orange"; //$NON-NLS-1$
 								}
 								else
-									icon += "_green";
+									icon += "_green"; //$NON-NLS-1$
 								break;
 							case CREATE:
 							case CREATEFULL:
 								if(((SubjectSet)value).isFixable())
-									icon += "_blue";
+									icon += "_blue"; //$NON-NLS-1$
 								else
-									icon += "_orange";
+									icon += "_orange"; //$NON-NLS-1$
 								break;
 							case MISSING:
-								icon += "_red";
+								icon += "_red"; //$NON-NLS-1$
 								break;
 							case UNNEEDED:
-								icon += "_gray";
+								icon += "_gray"; //$NON-NLS-1$
 								break;
 							default:
 								break;
 						}
 					}
-					icon += ".png";
+					icon += ".png"; //$NON-NLS-1$
 					setIcon(new ImageIcon(ReportFrame.class.getResource(icon)));
 				}
 				else
@@ -99,7 +102,7 @@ public class ReportFrame extends JDialog
 						switch(((SubjectSet)value).getStatus())
 						{
 							case FOUND:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png")));
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png"))); //$NON-NLS-1$
 								break;
 							default:
 								break;
@@ -118,7 +121,7 @@ public class ReportFrame extends JDialog
 		JPopupMenu popupMenu = new JPopupMenu();
 		addPopup(tree, popupMenu);
 		
-		JMenuItem mntmOpenAllNodes = new JMenuItem("Open all nodes");
+		JMenuItem mntmOpenAllNodes = new JMenuItem(MSGS.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
 		mntmOpenAllNodes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			    int j = tree.getRowCount();
@@ -132,7 +135,7 @@ public class ReportFrame extends JDialog
 		});
 		popupMenu.add(mntmOpenAllNodes);
 		
-		JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem("Show OK Entries");
+		JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(MSGS.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
@@ -145,7 +148,7 @@ public class ReportFrame extends JDialog
 		});
 		popupMenu.add(chckbxmntmShowOkEntries);
 		
-		JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem("Hide Fully Missing");
+		JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(MSGS.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();

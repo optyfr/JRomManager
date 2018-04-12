@@ -1,5 +1,6 @@
 package jrm.profiler.report;
 
+import jrm.Messages;
 import jrm.profiler.data.Entity;
 
 public class EntryMissing extends Note
@@ -14,7 +15,7 @@ public class EntryMissing extends Note
 	@Override
 	public String toString()
 	{
-		return "[" + parent.machine.name + "] " + entity.getName() + " is missing and not fixable";
+		return String.format(Messages.getString("EntryMissing.Missing"), parent.machine.name, entity.getName()); //$NON-NLS-1$
 	}
 
 }

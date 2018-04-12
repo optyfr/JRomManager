@@ -13,8 +13,8 @@ public class DirTreeCellRenderer extends DefaultTreeCellRenderer
 	public DirTreeCellRenderer()
 	{
 		super();
-		setOpenIcon(new ImageIcon(getClass().getResource("/jrm/resources/folder_open.png")));
-		setClosedIcon(new ImageIcon(getClass().getResource("/jrm/resources/folder_closed.png")));
+		setOpenIcon(new ImageIcon(getClass().getResource("/jrm/resources/folder_open.png"))); //$NON-NLS-1$
+		setClosedIcon(new ImageIcon(getClass().getResource("/jrm/resources/folder_closed.png"))); //$NON-NLS-1$
 	}
 
 	@Override

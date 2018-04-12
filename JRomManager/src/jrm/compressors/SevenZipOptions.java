@@ -1,13 +1,15 @@
 package jrm.compressors;
 
+import jrm.Messages;
+
 public enum SevenZipOptions
 {
-	STORE("STORE method", 0),
-	FASTEST("FASTEST presets", 1),
-	FAST("FAST presets", 3),
-	NORMAL("NORMAL presets", 5),
-	MAXIMUM("MAXIMUM presets", 7),
-	ULTRA("ULTRA presets", 9);
+	STORE(Messages.getString("SevenZipOptions.STORE"), 0), //$NON-NLS-1$
+	FASTEST(Messages.getString("SevenZipOptions.FASTEST"), 1), //$NON-NLS-1$
+	FAST(Messages.getString("SevenZipOptions.FAST"), 3), //$NON-NLS-1$
+	NORMAL(Messages.getString("SevenZipOptions.NORMAL"), 5), //$NON-NLS-1$
+	MAXIMUM(Messages.getString("SevenZipOptions.MAXIMUM"), 7), //$NON-NLS-1$
+	ULTRA(Messages.getString("SevenZipOptions.ULTRA"), 9); //$NON-NLS-1$
 
 	private String desc;
 	private int level;

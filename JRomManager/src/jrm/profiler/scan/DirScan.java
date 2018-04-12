@@ -38,6 +38,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
+import jrm.Messages;
 import jrm.compressors.SevenZipArchive;
 import jrm.io.CHDInfoReader;
 import jrm.misc.BreakException;
@@ -96,15 +97,15 @@ public final class DirScan
 	{
 		this();
 
-		need_sha1_or_md5 = profile.getProperty("need_sha1_or_md5", false);
-		use_parallelism = profile.getProperty("use_parallelism", false);
+		need_sha1_or_md5 = profile.getProperty("need_sha1_or_md5", false); //$NON-NLS-1$
+		use_parallelism = profile.getProperty("use_parallelism", false); //$NON-NLS-1$
 
 		Path path = Paths.get(dir.getAbsolutePath());
 
 		/*
 		 * Loading scan cache
 		 */
-		if(!Settings.getProperty("debug_nocache", false))
+		if(!Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 			containers_byname = load(dir, handler);
 
 		/*
@@ -114,7 +115,7 @@ public final class DirScan
 		try(Stream<Path> stream = Files.walk(path, is_dest ? 1 : 100, FileVisitOption.FOLLOW_LINKS))
 		{
 			AtomicInteger i = new AtomicInteger();
-			handler.setProgress("Listing files in '" + dir + "' ...", -1);
+			handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles"), dir), -1); //$NON-NLS-1$
 			StreamEx.of(StreamSupport.stream(stream.spliterator(), use_parallelism)).unordered().takeWhile((p) -> !handler.isCancel()).forEach(p -> {
 				Container c = null;
 				if(path.equals(p))
@@ -185,7 +186,7 @@ public final class DirScan
 							}
 						}
 					}
-					handler.setProgress("Listing files in '" + dir + "'... (" + i.incrementAndGet() + ")");
+					handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles2"), dir, i.incrementAndGet()) ); //$NON-NLS-1$
 				}
 				catch(IOException e)
 				{
@@ -194,18 +195,18 @@ public final class DirScan
 
 			});
 			if(containers_byname.entrySet().removeIf(entry -> !entry.getValue().up2date))
-				Log.info("Removed some scache elements");
+				Log.info("Removed some scache elements"); //$NON-NLS-1$
 		}
 		catch(IOException e)
 		{
-			Log.err("IOException when listing", e);
+			Log.err("IOException when listing", e); //$NON-NLS-1$
 		}
 		catch(Throwable e)
 		{
-			Log.err("Other Exception when listing", e);
+			Log.err("Other Exception when listing", e); //$NON-NLS-1$
 		}
 		AtomicInteger i = new AtomicInteger(0);
-		handler.setProgress("Scanning files in '" + dir + "'...", i.get(), containers.size());
+		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), dir) , i.get(), containers.size()); //$NON-NLS-1$
 		StreamEx.of(use_parallelism ? containers.parallelStream().unordered() : containers.stream()).takeWhile((c) -> !handler.isCancel()).forEach(c -> {
 			try
 			{
@@ -216,10 +217,10 @@ public final class DirScan
 						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
 						{
 							Map<String, Object> env = new HashMap<>();
-							env.put("useTempFile", Boolean.TRUE);
-							try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + c.file.toURI()), env);)
+							env.put("useTempFile", Boolean.TRUE); //$NON-NLS-1$
+							try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + c.file.toURI()), env);) //$NON-NLS-1$
 							{
-								final Path root = fs.getPath("/");
+								final Path root = fs.getPath("/"); //$NON-NLS-1$
 								Files.walkFileTree(root, new SimpleFileVisitor<Path>()
 								{
 									@Override
@@ -276,11 +277,11 @@ public final class DirScan
 					default:
 						break;
 				}
-				handler.setProgress("Scanned " + c.file.getName(), i.incrementAndGet(), null, i.get() + "/" + containers.size() + " (" + (int) (i.get() * 100.0 / containers.size()) + "%)");
+				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.file.getName()) , i.incrementAndGet(), null, String.format("%d/%d (%d%%)", i.get(), containers.size(), (int)(i.get() * 100.0 / containers.size()))); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			catch(IOException e)
 			{
-				Log.err("IOException when scanning", e);
+				Log.err("IOException when scanning", e); //$NON-NLS-1$
 			}
 			catch(BreakException e)
 			{
@@ -288,7 +289,7 @@ public final class DirScan
 			}
 			catch(Throwable e)
 			{
-				Log.err("Other Exception when listing", e);
+				Log.err("Other Exception when listing", e); //$NON-NLS-1$
 			}
 		});
 
@@ -314,9 +315,9 @@ public final class DirScan
 			this.container = container;
 			this.algorithms = new ArrayList<>();
 			if(profile.sha1_roms)
-				algorithms.add("SHA-1");
+				algorithms.add("SHA-1"); //$NON-NLS-1$
 			if(profile.md5_roms)
-				algorithms.add("MD5");
+				algorithms.add("MD5"); //$NON-NLS-1$
 			digest = new MessageDigest[algorithms.size()];
 			for(int i = 0; i < algorithms.size(); i++)
 				digest[i] = MessageDigest.getInstance(algorithms.get(i));
@@ -338,7 +339,7 @@ public final class DirScan
 		private IInArchive getNArchive() throws IOException
 		{
 			if(randomAccessFile == null)
-				randomAccessFile = new RandomAccessFile(container.file, "r");
+				randomAccessFile = new RandomAccessFile(container.file, "r"); //$NON-NLS-1$
 			if(nArchive == null)
 				nArchive = SevenZip.openInArchive(null, new RandomAccessFileInStream(randomAccessFile));
 			return nArchive;
@@ -413,9 +414,9 @@ public final class DirScan
 			if(entry.size == 0 && entry.crc == null && item != null)
 			{
 				entry.size = item.getSize();
-				entry.crc = String.format("%08x", item.getCRC());
+				entry.crc = String.format("%08x", item.getCRC()); //$NON-NLS-1$
 			}
-			entries_bycrc.put(entry.crc + "." + entry.size, entry);
+			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || profile.suspicious_crc.contains(entry.crc)))
 			{
 				if(item == null)
@@ -447,9 +448,9 @@ public final class DirScan
 			if(entry.size == 0 && entry.crc == null && archive_entry != null)
 			{
 				entry.size = archive_entry.getSize();
-				entry.crc = String.format("%08x", archive_entry.getCrcValue());
+				entry.crc = String.format("%08x", archive_entry.getCrcValue()); //$NON-NLS-1$
 			}
-			entries_bycrc.put(entry.crc + "." + entry.size, entry);
+			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || profile.suspicious_crc.contains(entry.crc)))
 			{
 				entries.add(entry);
@@ -488,9 +489,9 @@ public final class DirScan
 						{
 							for(MessageDigest d : digest)
 							{
-								if(d.getAlgorithm().equals("SHA-1"))
+								if(d.getAlgorithm().equals("SHA-1")) //$NON-NLS-1$
 									entries_bysha1.put(entry.sha1 = Hex.encodeHexString(d.digest()), entry);
-								if(d.getAlgorithm().equals("MD5"))
+								if(d.getAlgorithm().equals("MD5")) //$NON-NLS-1$
 									entries_bymd5.put(entry.md5 = Hex.encodeHexString(d.digest()), entry);
 								d.reset();
 							}
@@ -529,9 +530,9 @@ public final class DirScan
 			{
 				for(MessageDigest d : computeHash(getJInterface().extract_stdout(entry.getName())))
 				{
-					if(d.getAlgorithm().equals("SHA-1"))
+					if(d.getAlgorithm().equals("SHA-1")) //$NON-NLS-1$
 						entries_bysha1.put(entry.sha1 = Hex.encodeHexString(d.digest()), entry);
-					if(d.getAlgorithm().equals("MD5"))
+					if(d.getAlgorithm().equals("MD5")) //$NON-NLS-1$
 						entries_bymd5.put(entry.md5 = Hex.encodeHexString(d.digest()), entry);
 					d.reset();
 				}
@@ -573,11 +574,11 @@ public final class DirScan
 			{
 				if(entry_path == null)
 					entry_path = getPath(entry);
-				Map<String, Object> entry_zip_attrs = Files.readAttributes(entry_path, "zip:*");
-				entry.size = (Long) entry_zip_attrs.get("size");
-				entry.crc = String.format("%08x", entry_zip_attrs.get("crc"));
+				Map<String, Object> entry_zip_attrs = Files.readAttributes(entry_path, "zip:*"); //$NON-NLS-1$
+				entry.size = (Long) entry_zip_attrs.get("size"); //$NON-NLS-1$
+				entry.crc = String.format("%08x", entry_zip_attrs.get("crc")); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			entries_bycrc.put(entry.crc + "." + entry.size, entry);
+			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 		}
 		if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || profile.suspicious_crc.contains(entry.crc)))
 		{
@@ -622,12 +623,12 @@ public final class DirScan
 
 	private String computeSHA1(Path entry_path)
 	{
-		return computeHash(entry_path, "SHA-1");
+		return computeHash(entry_path, "SHA-1"); //$NON-NLS-1$
 	}
 
 	private String computeMD5(Path entry_path)
 	{
-		return computeHash(entry_path, "MD5");
+		return computeHash(entry_path, "MD5"); //$NON-NLS-1$
 	}
 
 	private String computeHash(Path entry_path, String algorithm)
@@ -676,7 +677,7 @@ public final class DirScan
 			if(profile.suspicious_crc.contains(r.crc))
 				return null;
 		}
-		return entries_bycrc.get(r.crc + "." + r.size);
+		return entries_bycrc.get(r.crc + "." + r.size); //$NON-NLS-1$
 	}
 
 	public Entry find_byhash(Disk d)
@@ -690,12 +691,12 @@ public final class DirScan
 
 	private static File getCacheFile(File file)
 	{
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-		File cachedir = new File(workdir, "cache");
+		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		File cachedir = new File(workdir, "cache"); //$NON-NLS-1$
 		cachedir.mkdirs();
 		CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		return new File(cachedir, String.format("%08x", crc.getValue()) + ".scache");
+		return new File(cachedir, String.format("%08x", crc.getValue()) + ".scache"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void save(File file, Object obj)
@@ -715,7 +716,7 @@ public final class DirScan
 		File cachefile = getCacheFile(file);
 		try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 		{
-			handler.setProgress("Loading scan cache for '" + file + "'...", -1);
+			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), file) , -1); //$NON-NLS-1$
 			return (HashMap<String, Container>) ois.readObject();
 		}
 		catch(Throwable e)

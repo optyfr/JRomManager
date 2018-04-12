@@ -1,5 +1,6 @@
 package jrm.profiler.report;
 
+import jrm.Messages;
 import jrm.profiler.data.Entity;
 
 public class EntryOK extends Note
@@ -14,7 +15,7 @@ public class EntryOK extends Note
 	@Override
 	public String toString()
 	{
-		return "[" + parent.machine.name + "] " + entity.getName() + " is OK";
+		return String.format(Messages.getString("EntryOK.OK"), parent.machine.name, entity.getName()); //$NON-NLS-1$
 	}
 
 }

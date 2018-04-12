@@ -22,7 +22,7 @@ public class DirTreeSelectionListener implements TreeSelectionListener
 		if(selectedNode != null)
 		{
 			((FileTableModel) profilesList.getModel()).populate((DirNode.Dir) selectedNode.getUserObject());
-			profilesList.getColumn("Profile").setCellRenderer(new FileTableCellRenderer());
+			profilesList.getColumn(profilesList.getColumnName(0)).setCellRenderer(new FileTableCellRenderer());
 		}
 	}
 

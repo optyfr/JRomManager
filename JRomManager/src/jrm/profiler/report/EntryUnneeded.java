@@ -1,5 +1,6 @@
 package jrm.profiler.report;
 
+import jrm.Messages;
 import jrm.profiler.data.Entry;
 
 public class EntryUnneeded extends Note
@@ -14,7 +15,7 @@ public class EntryUnneeded extends Note
 	@Override
 	public String toString()
 	{
-		return "[" + parent.machine.name + "] " + entry.file + " unneeded (sha1=" + entry.sha1 + ")";
+		return String.format(Messages.getString("EntryUnneeded.Unneeded"), parent.machine.name, entry.file, entry.sha1); //$NON-NLS-1$
 	}
 
 }

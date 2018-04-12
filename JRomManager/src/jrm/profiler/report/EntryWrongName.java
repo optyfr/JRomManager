@@ -1,5 +1,6 @@
 package jrm.profiler.report;
 
+import jrm.Messages;
 import jrm.profiler.data.Entity;
 import jrm.profiler.data.Entry;
 
@@ -17,7 +18,7 @@ public class EntryWrongName extends Note
 	@Override
 	public String toString()
 	{
-		return "[" + parent.machine.name + "] wrong named rom (" + entry.getName() + "->" + entity.getName() + ")";
+		return String.format(Messages.getString("EntryWrongName.Wrong"), parent.machine.name, entry.getName(), entity.getName()); //$NON-NLS-1$
 	}
 
 }
