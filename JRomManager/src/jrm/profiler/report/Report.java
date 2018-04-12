@@ -5,17 +5,21 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
 import jrm.profiler.Profile;
 import jrm.profiler.data.Machine;
+import jrm.ui.ReportTreeModel;
+import jrm.ui.ReportTreeModel.FilterOptions;
 
 public class Report implements TreeNode
 {
@@ -24,7 +28,7 @@ public class Report implements TreeNode
 	private Map<String, Subject> subject_hash = Collections.synchronizedMap(new HashMap<>());
 	public Stats stats = new Stats();
 	
-	DefaultTreeModel model = null;
+	ReportTreeModel model = null;
 	
 	public class Stats
 	{
@@ -35,9 +39,41 @@ public class Report implements TreeNode
 	
 	public Report()
 	{
-		model = new DefaultTreeModel(this);
+		model = new ReportTreeModel(this);
 	}
 
+	public Report(Report report, ReportTreeModel.FilterOptions... filterOptions)
+	{
+		this(report,Arrays.asList(filterOptions));
+	}
+	
+	public Report(Report report, List<ReportTreeModel.FilterOptions> filterOptions)
+	{
+		this.model = report.model;
+		this.profile = report.profile;
+		this.subjects = report.filter(filterOptions);
+		this.subject_hash = this.subjects.stream().collect(Collectors.toMap(Subject::getMachineName, Function.identity(), (o,n)->null));
+		this.stats = report.stats;
+		this.model = report.model;
+	}
+	
+	public List<Subject> filter(ReportTreeModel.FilterOptions... filterOptions)
+	{
+		return filter(Arrays.asList(filterOptions));
+		
+	}
+	
+	public List<Subject> filter(List<ReportTreeModel.FilterOptions> filterOptions)
+	{
+		return subjects.stream().filter(s -> {
+			if(!filterOptions.contains(FilterOptions.SHOWOK) && s instanceof SubjectSet && ((SubjectSet)s).isOK())
+				return false;
+			if(filterOptions.contains(FilterOptions.HIDEMISSING) && s instanceof SubjectSet && ((SubjectSet)s).isMissing())
+				return false;
+			return true;
+		}).map(s->s.clone(filterOptions)).collect(Collectors.toList());
+	}
+	
 	public void setProfile(Profile profile)
 	{
 		this.profile = profile;
@@ -47,7 +83,7 @@ public class Report implements TreeNode
 			model.reload();
 	}
 	
-	public DefaultTreeModel getModel()
+	public ReportTreeModel getModel()
 	{
 		return model;
 	}

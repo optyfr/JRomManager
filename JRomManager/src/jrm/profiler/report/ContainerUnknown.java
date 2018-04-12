@@ -1,6 +1,9 @@
 package jrm.profiler.report;
 
+import java.util.List;
+
 import jrm.profiler.data.Container;
+import jrm.ui.ReportTreeModel.FilterOptions;
 
 public class ContainerUnknown extends Subject
 {
@@ -17,4 +20,11 @@ public class ContainerUnknown extends Subject
 	{
 		return "Unknown " + (container.getType() == Container.Type.DIR ? "Directory" : "File") + " : " + container.file;
 	}
+
+	@Override
+	public Subject clone(List<FilterOptions> filterOptions)
+	{
+		return new ContainerUnknown(container);
+	}
+
 }

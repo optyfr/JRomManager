@@ -33,6 +33,7 @@ import jrm.profiler.report.ContainerUnknown;
 import jrm.profiler.report.EntryAdd;
 import jrm.profiler.report.EntryMissing;
 import jrm.profiler.report.EntryMissingDuplicate;
+import jrm.profiler.report.EntryOK;
 import jrm.profiler.report.EntryUnneeded;
 import jrm.profiler.report.EntryWrongHash;
 import jrm.profiler.report.EntryWrongName;
@@ -177,7 +178,7 @@ public class Scan
 					report_subject.setMissing();
 				if(missing_set)
 					report.stats.missing_set_cnt++;
-				if((report_subject.getStatus()!=Status.FOUND || report_subject.getChildCount()>0) && report_subject.getStatus()!=Status.UNKNOWN)
+//				if((report_subject.getStatus()!=Status.FOUND || report_subject.getChildCount()>0) && report_subject.getStatus()!=Status.UNKNOWN)
 					report.add(report_subject);
 					
 			}
@@ -284,6 +285,7 @@ public class Scan
 					}
 					else
 					{
+						report_subject.add(new EntryOK(d));
 						// report_w.println("["+m.name+"] "+d.getName()+" ("+found.file+") OK ");
 						disks_found.add(found);
 					}
@@ -432,6 +434,7 @@ public class Scan
 					else
 					{
 						// report_w.println("[" + m.name + "] " + r.getName() + " (" + found.file + ") OK ");
+						report_subject.add(new EntryOK(r));
 						roms_found.add(found);
 					}
 				}

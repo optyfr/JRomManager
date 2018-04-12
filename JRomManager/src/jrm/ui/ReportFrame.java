@@ -9,10 +9,14 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.EnumSet;
 
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -24,12 +28,14 @@ import jrm.profiler.report.ContainerUnknown;
 import jrm.profiler.report.EntryAdd;
 import jrm.profiler.report.EntryMissing;
 import jrm.profiler.report.EntryMissingDuplicate;
+import jrm.profiler.report.EntryOK;
 import jrm.profiler.report.EntryUnneeded;
 import jrm.profiler.report.EntryWrongHash;
 import jrm.profiler.report.EntryWrongName;
 import jrm.profiler.report.RomSuspiciousCRC;
 import jrm.profiler.report.SubjectSet;
 import jrm.profiler.scan.Scan;
+import jrm.ui.ReportTreeModel.FilterOptions;
 
 @SuppressWarnings("serial")
 public class ReportFrame extends JDialog
@@ -57,6 +63,8 @@ public class ReportFrame extends JDialog
 					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/information.png")));
 				else if(value instanceof ContainerUnknown)
 					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/error.png")));
+				else if(value instanceof EntryOK)
+					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png")));
 				else if(value instanceof EntryAdd)
 					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_blue.png")));
 				else if(value instanceof EntryMissingDuplicate)
@@ -111,6 +119,21 @@ public class ReportFrame extends JDialog
 					icon += ".png";
 					setIcon(new ImageIcon(ReportFrame.class.getResource(icon)));
 				}
+				else
+				{
+					if(value instanceof SubjectSet)
+					{
+						switch(((SubjectSet)value).getStatus())
+						{
+							case FOUND:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png")));
+								break;
+							default:
+								break;
+						}
+					}
+					
+				}
 				return this;
 			}
 		});
@@ -135,6 +158,32 @@ public class ReportFrame extends JDialog
 			}
 		});
 		popupMenu.add(mntmOpenAllNodes);
+		
+		JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem("Show OK Entries");
+		chckbxmntmShowOkEntries.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
+				if(e.getStateChange()==ItemEvent.SELECTED)
+					options.add(FilterOptions.SHOWOK);
+				else
+					options.remove(FilterOptions.SHOWOK);
+				Scan.report.getModel().filter(options.toArray(new FilterOptions[0]));
+			}
+		});
+		popupMenu.add(chckbxmntmShowOkEntries);
+		
+		JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem("Hide Fully Missing");
+		chckbxmntmHideFullyMissing.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
+				if(e.getStateChange()==ItemEvent.SELECTED)
+					options.add(FilterOptions.HIDEMISSING);
+				else
+					options.remove(FilterOptions.HIDEMISSING);
+				Scan.report.getModel().filter(options.toArray(new FilterOptions[0]));
+			}
+		});
+		popupMenu.add(chckbxmntmHideFullyMissing);
 		
 		pack();
 	}

@@ -3,16 +3,18 @@ package jrm.profiler.report;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
 import jrm.profiler.data.Machine;
+import jrm.ui.ReportTreeModel.FilterOptions;
 
 public abstract class Subject implements TreeNode
 {
 	protected Machine machine;
 	
-	protected ArrayList<Note> notes = new ArrayList<>();
+	protected List<Note> notes = new ArrayList<>();
 	
 	protected Report parent;
 
@@ -21,11 +23,20 @@ public abstract class Subject implements TreeNode
 		this.machine = machine;
 	}
 	
+	public abstract Subject clone(List<FilterOptions> filterOptions);
+	
 	public boolean add(Note note)
 	{
 		note.parent = this;
 		boolean result = notes.add(note);
 		return result;
+	}
+	
+	public String getMachineName()
+	{
+		if(machine!=null)
+			return machine.name;
+		return "";
 	}
 	
 	public abstract String toString();

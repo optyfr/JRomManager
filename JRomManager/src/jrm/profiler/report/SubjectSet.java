@@ -1,6 +1,10 @@
 package jrm.profiler.report;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import jrm.profiler.data.Machine;
+import jrm.ui.ReportTreeModel.FilterOptions;
 
 public class SubjectSet extends Subject
 {
@@ -19,7 +23,26 @@ public class SubjectSet extends Subject
 	{
 		super(machine);
 	}
+	
+	@Override
+	public Subject clone(List<FilterOptions> filterOptions)
+	{
+		SubjectSet clone;
+		clone = new SubjectSet(machine);
+		clone.status = this.status;
+		clone.notes = this.filter(filterOptions);
+		return clone;
+	}
 
+	public List<Note> filter(List<FilterOptions> filterOptions)
+	{
+		return notes.stream().filter(n->{
+			if(!filterOptions.contains(FilterOptions.SHOWOK) && n instanceof EntryOK)
+				return false;
+			return true;
+		}).collect(Collectors.toList());
+	}
+	
 	public void setMissing()
 	{
 		status = Status.MISSING;
@@ -52,12 +75,27 @@ public class SubjectSet extends Subject
 	
 	public boolean hasNotes()
 	{
-		return notes.size()>0;
+		return notes.stream().filter(n -> !(n instanceof EntryOK)).count()>0;
 	}
 	
 	public boolean isFixable()
 	{
 		return notes.stream().filter(n -> {return n instanceof EntryMissing || n instanceof EntryWrongHash;}).count()==0;
+	}
+	
+	public boolean isFound()
+	{
+		return status==Status.FOUND;
+	}
+	
+	public boolean isMissing()
+	{
+		return status==Status.MISSING;
+	}
+	
+	public boolean isOK()
+	{
+		return isFound() && !hasNotes();
 	}
 	
 	@Override
