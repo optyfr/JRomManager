@@ -9,6 +9,7 @@ _Minimal developement requirements_:
 - Apache Commons Codec 1.11 
 - Apache Commons IO 2.6
 - Apache Commons Lang3 3.7
+- Apache Commons Text 1.3
 - Apache Commons Compress 1.16 (used solely to list 7zip content)
 - StreamEx 0.6.6
 - SevenZipJBinding 9.20-2.00 (faster than using 7z cmd line)
@@ -38,13 +39,13 @@ _Minimal usage requirements_:
 - 7z support via SevenZipJBinding + 7z command line as functional backup
 - TorrentZip support via trrntzip command line
 - Multiple Source Dir
+- Enhanced Gui with Report
+- Translated to English and French
 
 ## Short Term Planned Features
 - Better Dat Managing (with gui)
-- General settings
 - Software List support
-- Enhanced Gui with Report
-- Translatable
+- General settings
 
 ## Middle Term Planned Features
 - Dir2Dat, Dat2Dat
