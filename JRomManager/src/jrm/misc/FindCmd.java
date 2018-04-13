@@ -1,8 +1,9 @@
 package jrm.misc;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+
+import org.apache.commons.io.IOUtils;
 
 public class FindCmd
 {
@@ -17,27 +18,9 @@ public class FindCmd
 		{
 			pb.redirectError();
 			Process process = pb.start();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			StringBuffer output = new StringBuffer();
-			new Thread()
-			{
-				@Override
-				public void run()
-				{
-					String line;
-					try
-					{
-						while(null!=(line=reader.readLine()))
-							output.append(line);
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-				};
-			}.start();
+			String output = IOUtils.toString(process.getInputStream(),(Charset)null).trim();
 			if(process.waitFor()==0)
-				return output.toString();
+				return output;
 		}
 		catch (IOException | InterruptedException exp)
 		{

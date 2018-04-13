@@ -60,10 +60,12 @@ public class ReportFrame extends JDialog implements StatusHandler
 		addPopup(tree, popupMenu);
 
 		JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
+		mntmOpenAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_open.png")));
 		mntmOpenAllNodes.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
+				tree.invalidate();
 				int j = tree.getRowCount();
 				int i = 0;
 				while(i < j)
@@ -72,11 +74,13 @@ public class ReportFrame extends JDialog implements StatusHandler
 					i += 1;
 					j = tree.getRowCount();
 				}
+				tree.validate();
 			}
 		});
 		popupMenu.add(mntmOpenAllNodes);
 
 		JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
+		chckbxmntmShowOkEntries.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
 		chckbxmntmShowOkEntries.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)
@@ -89,9 +93,29 @@ public class ReportFrame extends JDialog implements StatusHandler
 				Scan.report.getModel().filter(options.toArray(new FilterOptions[0]));
 			}
 		});
+		
+		JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
+		mntmCloseAllNodes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+				tree.invalidate();
+				int j = tree.getRowCount();
+				int i = 0;
+				while(i < j)
+				{
+					tree.collapseRow(i);
+					i += 1;
+					j = tree.getRowCount();
+				}
+				tree.validate();
+			}
+		});
+		mntmCloseAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed.png")));
+		popupMenu.add(mntmCloseAllNodes);
 		popupMenu.add(chckbxmntmShowOkEntries);
 
 		JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
+		chckbxmntmHideFullyMissing.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
 		chckbxmntmHideFullyMissing.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)

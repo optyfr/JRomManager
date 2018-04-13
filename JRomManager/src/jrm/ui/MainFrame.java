@@ -123,7 +123,7 @@ public class MainFrame extends JFrame
 	private void initialize()
 	{
 		setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
-		setTitle(Messages.getString("MainFrame.Title")); //$NON-NLS-1$
+		setTitle(Messages.getString("MainFrame.Title")+" "+this.getClass().getPackage().getSpecificationVersion()+" "+this.getClass().getPackage().getImplementationVersion()); //$NON-NLS-1$
 		setBounds(100, 100, 458, 313);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));

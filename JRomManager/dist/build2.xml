@@ -5,7 +5,7 @@
     <!--define folder properties-->
     <property name="dir.buildfile" value=".."/>
     <property name="dir.workspace" value="D:/eclipse-workspace"/>
-    <property name="dir.jarfile" value="D:/JRomManager"/>
+    <property name="dir.jarfile" value="I:/JRomManager"/>
     <property name="dir.dist" value="."/>
     <property name="dir.lib" value="../../.."/>
     <target name="create_run_jar">
