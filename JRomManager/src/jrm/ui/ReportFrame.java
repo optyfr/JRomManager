@@ -51,8 +51,8 @@ public class ReportFrame extends JDialog implements StatusHandler
 		JTree tree = new JTree();
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
-		tree.setCellRenderer(new ReportTreeCellRenderer());
 		tree.setModel(Scan.report.getModel());
+		tree.setCellRenderer(new ReportTreeCellRenderer());
 		Scan.report.setStatusHandler(this);
 		scrollPane.setViewportView(tree);
 

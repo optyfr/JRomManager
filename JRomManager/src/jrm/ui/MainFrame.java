@@ -110,7 +110,6 @@ public class MainFrame extends JFrame
 		{
 			public void run()
 			{
-				report_frame.dispose();
 				if(curr_profile != null)
 					curr_profile.saveSettings();
 				Settings.saveSettings();

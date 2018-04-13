@@ -4,25 +4,26 @@
     <!--ANT 1.7 is required-->
     <!--define folder properties-->
     <property name="dir.buildfile" value="."/>
-    <property name="dir.workspace" value="D:/eclipse-workspace"/>
-    <property name="dir.jarfile" value="D:/Git/Distrib"/>
+    <property name="dir.workspace" value="E:/Src/Java/workspace"/>
+    <property name="dir.jarfile" value="E:/Src/Java/JRomManager.work"/>
     <target name="create_run_jar">
         <jar destfile="${dir.jarfile}/JRomManager.jar">
             <manifest>
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="JRomManager"/>
                 <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ commons-io-2.6.jar commons-lang3-3.7.jar commons-codec-1.11.jar commons-compress-1.16.1.jar streamex-0.6.6.jar sevenzipjbinding.jar sevenzipjbinding-AllPlatforms.jar"/>
+                <attribute name="Rsrc-Class-Path" value="./ commons-io-2.6.jar commons-lang3-3.7.jar commons-codec-1.11.jar commons-compress-1.16.1.jar streamex-0.6.6.jar sevenzipjbinding.jar sevenzipjbinding-AllPlatforms.jar commons-text-1.3.jar"/>
             </manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
             <fileset dir="${dir.buildfile}/bin"/>
-            <zipfileset dir="D:/Git/commons-io-2.6" includes="commons-io-2.6.jar"/>
-            <zipfileset dir="D:/Git/commons-lang3-3.7" includes="commons-lang3-3.7.jar"/>
-            <zipfileset dir="D:/Git/commons-codec-1.11" includes="commons-codec-1.11.jar"/>
-            <zipfileset dir="D:/Git/commons-compress-1.16.1" includes="commons-compress-1.16.1.jar"/>
-            <zipfileset dir="D:/Git/StreamEx 0.6.6" includes="streamex-0.6.6.jar"/>
-            <zipfileset dir="D:/Git/sevenzipjbinding-9.20-2.00beta-AllPlatforms/lib" includes="sevenzipjbinding.jar"/>
-            <zipfileset dir="D:/Git/sevenzipjbinding-9.20-2.00beta-AllPlatforms/lib" includes="sevenzipjbinding-AllPlatforms.jar"/>
+            <zipfileset dir="E:/Src/Java/lib/commons-io-2.6" includes="commons-io-2.6.jar"/>
+            <zipfileset dir="E:/Src/Java/lib/commons-lang3-3.7" includes="commons-lang3-3.7.jar"/>
+            <zipfileset dir="E:/Src/Java/lib/commons-codec-1.11" includes="commons-codec-1.11.jar"/>
+            <zipfileset dir="E:/Src/Java/lib/commons-compress-1.16.1" includes="commons-compress-1.16.1.jar"/>
+            <zipfileset dir="E:/Src/Java/lib/StreamEx 0.6.6" includes="streamex-0.6.6.jar"/>
+            <zipfileset dir="E:/Src/Java/lib/sevenzipjbinding-9.20-2.00beta-AllPlatforms/lib" includes="sevenzipjbinding.jar"/>
+            <zipfileset dir="E:/Src/Java/lib/sevenzipjbinding-9.20-2.00beta-AllPlatforms/lib" includes="sevenzipjbinding-AllPlatforms.jar"/>
+            <zipfileset dir="E:/Src/Java/lib/commons-text-1.3" includes="commons-text-1.3.jar"/>
         </jar>
     </target>
 </project>
