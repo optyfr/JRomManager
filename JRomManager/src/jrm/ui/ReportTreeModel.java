@@ -6,7 +6,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 
 import jrm.profiler.report.FilterOptions;
 import jrm.profiler.report.Report;
@@ -23,16 +22,20 @@ public final class ReportTreeModel extends DefaultTreeModel
 		org_root = root;
 	}
 	
+	public void initClone()
+	{
+		setRoot(org_root.clone(filterOptions));
+	}
+	
 	public void filter(FilterOptions... filterOptions)
 	{
-		this.filterOptions = Arrays.asList(filterOptions);
-		setRoot(new Report(org_root, filterOptions));
+		filter(Arrays.asList(filterOptions));
 	}
 	
 	public void filter(List<FilterOptions> filterOptions)
 	{
 		this.filterOptions = filterOptions;
-		setRoot(new Report(org_root, filterOptions));
+		setRoot(org_root.clone(filterOptions));
 	}
 	
 	public EnumSet<FilterOptions> getFilterOptions()
@@ -40,13 +43,6 @@ public final class ReportTreeModel extends DefaultTreeModel
 		if(filterOptions.size()==0)
 			return EnumSet.noneOf(FilterOptions.class);
 		return EnumSet.copyOf(filterOptions);
-	}
-	
-	@Override
-	public void reload(TreeNode node)
-	{
-		filter(filterOptions);
-		//super.reload(node);
 	}
 
 }

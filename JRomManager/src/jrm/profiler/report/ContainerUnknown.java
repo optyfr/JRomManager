@@ -27,4 +27,11 @@ public class ContainerUnknown extends Subject
 		return new ContainerUnknown(container);
 	}
 
+	@Override
+	public void updateStats()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
 }

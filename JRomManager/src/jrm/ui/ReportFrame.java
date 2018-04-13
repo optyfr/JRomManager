@@ -5,141 +5,84 @@ import java.awt.event.*;
 import java.util.EnumSet;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.border.BevelBorder;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.Messages;
-import jrm.profiler.report.*;
+import jrm.misc.Settings;
+import jrm.profiler.report.FilterOptions;
 import jrm.profiler.scan.Scan;
-import java.util.ResourceBundle;
 
 @SuppressWarnings("serial")
-public class ReportFrame extends JDialog
+public class ReportFrame extends JDialog implements StatusHandler 
 {
-	private static final ResourceBundle MSGS = ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
+	private final JLabel lblStatus = new JLabel("");
 
 	public ReportFrame(Window owner) throws HeadlessException
 	{
 		super(owner, Messages.getString("ReportFrame.Title"), ModalityType.MODELESS); //$NON-NLS-1$
-		setBounds(new Rectangle(100, 100, 0, 0));
-		setVisible(true);
-		setPreferredSize(new Dimension(800, 600));
-		setMinimumSize(new Dimension(400, 300));
-		setIconImage(Toolkit.getDefaultToolkit().getImage(ReportFrame.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
-		
-		JScrollPane scrollPane = new JScrollPane();
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
-		
-		JTree tree = new JTree();
-		tree.setCellRenderer(new DefaultTreeCellRenderer() {
+		addWindowListener(new WindowAdapter() {
 			@Override
-			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus)
-			{
-				super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-				if(value instanceof RomSuspiciousCRC)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/information.png"))); //$NON-NLS-1$
-				else if(value instanceof ContainerUnknown)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/error.png"))); //$NON-NLS-1$
-				else if(value instanceof EntryOK)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png"))); //$NON-NLS-1$
-				else if(value instanceof EntryAdd)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_blue.png"))); //$NON-NLS-1$
-				else if(value instanceof EntryMissingDuplicate)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_purple.png"))); //$NON-NLS-1$
-				else if(value instanceof EntryMissing)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_red.png"))); //$NON-NLS-1$
-				else if(value instanceof EntryUnneeded)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_black.png"))); //$NON-NLS-1$
-				else if(value instanceof EntryWrongHash)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_orange.png"))); //$NON-NLS-1$
-				else if(value instanceof EntryWrongName)
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_pink.png"))); //$NON-NLS-1$
-				else if(!leaf)
-				{
-					String icon = "/jrm/resources/folder"; //$NON-NLS-1$
-					if(expanded)
-						icon += "_open"; //$NON-NLS-1$
-					else
-						icon += "_closed"; //$NON-NLS-1$
-					if(value instanceof SubjectSet)
-					{
-						switch(((SubjectSet)value).getStatus())
-						{
-							case FOUND:
-								if(((SubjectSet)value).hasNotes())
-								{
-									if(((SubjectSet)value).isFixable())
-										icon += "_purple"; //$NON-NLS-1$
-									else
-										icon += "_orange"; //$NON-NLS-1$
-								}
-								else
-									icon += "_green"; //$NON-NLS-1$
-								break;
-							case CREATE:
-							case CREATEFULL:
-								if(((SubjectSet)value).isFixable())
-									icon += "_blue"; //$NON-NLS-1$
-								else
-									icon += "_orange"; //$NON-NLS-1$
-								break;
-							case MISSING:
-								icon += "_red"; //$NON-NLS-1$
-								break;
-							case UNNEEDED:
-								icon += "_gray"; //$NON-NLS-1$
-								break;
-							default:
-								break;
-						}
-					}
-					icon += ".png"; //$NON-NLS-1$
-					setIcon(new ImageIcon(ReportFrame.class.getResource(icon)));
-				}
-				else
-				{
-					if(value instanceof SubjectSet)
-					{
-						switch(((SubjectSet)value).getStatus())
-						{
-							case FOUND:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png"))); //$NON-NLS-1$
-								break;
-							default:
-								break;
-						}
-					}
-					
-				}
-				return this;
+			public void windowClosing(WindowEvent e) {
+				Settings.setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())));
 			}
 		});
-		tree.setModel(Scan.report.getModel());
+		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
+		setPreferredSize(new Dimension(800, 600));
+		setMinimumSize(new Dimension(400, 300));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(ReportFrame.class.getResource("/jrm/resources/rom.png")));
+		GridBagLayout gridBagLayout = new GridBagLayout();
+		gridBagLayout.columnWidths = new int[] { 784, 0 };
+		gridBagLayout.rowHeights = new int[] { 280, 24, 0 };
+		gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+		getContentPane().setLayout(gridBagLayout);
+
+		JScrollPane scrollPane = new JScrollPane();
+		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane.gridx = 0;
+		gbc_scrollPane.gridy = 0;
+		getContentPane().add(scrollPane, gbc_scrollPane);
+
+		JTree tree = new JTree();
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
+		tree.setCellRenderer(new ReportTreeCellRenderer());
+		tree.setModel(Scan.report.getModel());
+		Scan.report.setStatusHandler(this);
 		scrollPane.setViewportView(tree);
-		
+
 		JPopupMenu popupMenu = new JPopupMenu();
 		addPopup(tree, popupMenu);
-		
-		JMenuItem mntmOpenAllNodes = new JMenuItem(MSGS.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
-		mntmOpenAllNodes.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			    int j = tree.getRowCount();
-			    int i = 0;
-			    while(i < j) {
-			        tree.expandRow(i);
-			        i += 1;
-			        j = tree.getRowCount();
-			    }
+
+		JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
+		mntmOpenAllNodes.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				int j = tree.getRowCount();
+				int i = 0;
+				while(i < j)
+				{
+					tree.expandRow(i);
+					i += 1;
+					j = tree.getRowCount();
+				}
 			}
 		});
 		popupMenu.add(mntmOpenAllNodes);
-		
-		JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(MSGS.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
-		chckbxmntmShowOkEntries.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+
+		JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
+		chckbxmntmShowOkEntries.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
 				EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
-				if(e.getStateChange()==ItemEvent.SELECTED)
+				if(e.getStateChange() == ItemEvent.SELECTED)
 					options.add(FilterOptions.SHOWOK);
 				else
 					options.remove(FilterOptions.SHOWOK);
@@ -147,12 +90,14 @@ public class ReportFrame extends JDialog
 			}
 		});
 		popupMenu.add(chckbxmntmShowOkEntries);
-		
-		JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(MSGS.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
-		chckbxmntmHideFullyMissing.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+
+		JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
+		chckbxmntmHideFullyMissing.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
 				EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
-				if(e.getStateChange()==ItemEvent.SELECTED)
+				if(e.getStateChange() == ItemEvent.SELECTED)
 					options.add(FilterOptions.HIDEMISSING);
 				else
 					options.remove(FilterOptions.HIDEMISSING);
@@ -160,25 +105,57 @@ public class ReportFrame extends JDialog
 			}
 		});
 		popupMenu.add(chckbxmntmHideFullyMissing);
-		
+		GridBagConstraints gbc_lblStatus = new GridBagConstraints();
+		gbc_lblStatus.ipadx = 2;
+		gbc_lblStatus.insets = new Insets(2, 2, 2, 2);
+		gbc_lblStatus.fill = GridBagConstraints.BOTH;
+		gbc_lblStatus.gridx = 0;
+		gbc_lblStatus.gridy = 1;
+		lblStatus.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		getContentPane().add(lblStatus, gbc_lblStatus);
+
 		pack();
+
+		try
+		{
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10,10,800,600)))))));
+		}
+		catch(DecoderException e1)
+		{
+			e1.printStackTrace();
+		}
 	}
 
-	private static void addPopup(Component component, final JPopupMenu popup) {
-		component.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				if (e.isPopupTrigger()) {
+	private static void addPopup(Component component, final JPopupMenu popup)
+	{
+		component.addMouseListener(new MouseAdapter()
+		{
+			public void mousePressed(MouseEvent e)
+			{
+				if(e.isPopupTrigger())
+				{
 					showMenu(e);
 				}
 			}
-			public void mouseReleased(MouseEvent e) {
-				if (e.isPopupTrigger()) {
+
+			public void mouseReleased(MouseEvent e)
+			{
+				if(e.isPopupTrigger())
+				{
 					showMenu(e);
 				}
 			}
-			private void showMenu(MouseEvent e) {
+
+			private void showMenu(MouseEvent e)
+			{
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
 		});
+	}
+
+	@Override
+	public void setStatus(String text)
+	{
+		lblStatus.setText(text);
 	}
 }

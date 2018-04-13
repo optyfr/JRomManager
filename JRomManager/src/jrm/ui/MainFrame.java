@@ -1,30 +1,10 @@
 package jrm.ui;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.dnd.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -37,31 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
@@ -71,7 +27,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.Messages;
 import jrm.compressors.SevenZipOptions;
@@ -89,11 +48,10 @@ import jrm.profiler.scan.options.MergeOptions;
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
 {
-	private static final ResourceBundle MSGS = ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
-
 
 	private Profile curr_profile;
 	private Scan curr_scan;
+	private ReportFrame report_frame = null;
 
 	private JButton btnScan;
 	private JButton btnFix;
@@ -128,6 +86,12 @@ public class MainFrame extends JFrame
 	public MainFrame()
 	{
 		super();
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				Settings.setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())));
+			}
+		});
 		try
 		{
 			Settings.loadSettings();
@@ -146,6 +110,7 @@ public class MainFrame extends JFrame
 		{
 			public void run()
 			{
+				report_frame.dispose();
 				if(curr_profile != null)
 					curr_profile.saveSettings();
 				Settings.saveSettings();
@@ -166,6 +131,8 @@ public class MainFrame extends JFrame
 
 		mainPane = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(mainPane);
+
+		report_frame = new ReportFrame(MainFrame.this);
 
 		profilesTab = new JPanel();
 		mainPane.addTab(Messages.getString("MainFrame.Profiles"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script.png")), profilesTab, null); //$NON-NLS-1$ //$NON-NLS-2$
@@ -251,7 +218,7 @@ public class MainFrame extends JFrame
 		});
 		addPopup(profilesList, popupMenu_2);
 		
-		mntmDeleteProfile = new JMenuItem(MSGS.getString("MainFrame.mntmDeleteProfile.text")); //$NON-NLS-1$
+		mntmDeleteProfile = new JMenuItem(Messages.getString("MainFrame.mntmDeleteProfile.text")); //$NON-NLS-1$
 		mntmDeleteProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = profilesList.getSelectedRow();
@@ -268,7 +235,7 @@ public class MainFrame extends JFrame
 		mntmDeleteProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_delete.png"))); //$NON-NLS-1$
 		popupMenu_2.add(mntmDeleteProfile);
 		
-		mntmRenameProfile = new JMenuItem(MSGS.getString("MainFrame.mntmRenameProfile.text")); //$NON-NLS-1$
+		mntmRenameProfile = new JMenuItem(Messages.getString("MainFrame.mntmRenameProfile.text")); //$NON-NLS-1$
 		mntmRenameProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = profilesList.getSelectedRow();
@@ -301,7 +268,7 @@ public class MainFrame extends JFrame
 		});
 		addPopup(profilesTree, popupMenu_1);
 
-		mntmCreateFolder = new JMenuItem(MSGS.getString("MainFrame.mntmCreateFolder.text")); //$NON-NLS-1$
+		mntmCreateFolder = new JMenuItem(Messages.getString("MainFrame.mntmCreateFolder.text")); //$NON-NLS-1$
 		mntmCreateFolder.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -321,7 +288,7 @@ public class MainFrame extends JFrame
 		mntmCreateFolder.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/folder_add.png"))); //$NON-NLS-1$
 		popupMenu_1.add(mntmCreateFolder);
 
-		mntmDeleteFolder = new JMenuItem(MSGS.getString("MainFrame.mntmDeleteFolder.text")); //$NON-NLS-1$
+		mntmDeleteFolder = new JMenuItem(Messages.getString("MainFrame.mntmDeleteFolder.text")); //$NON-NLS-1$
 		mntmDeleteFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				DirNode selectedNode = (DirNode) profilesTree.getLastSelectedPathComponent();
@@ -344,7 +311,7 @@ public class MainFrame extends JFrame
 		gbc_profilesBtnPanel.gridy = 1;
 		profilesTab.add(profilesBtnPanel, gbc_profilesBtnPanel);
 
-		btnLoadProfile = new JButton(MSGS.getString("MainFrame.btnLoadProfile.text")); //$NON-NLS-1$
+		btnLoadProfile = new JButton(Messages.getString("MainFrame.btnLoadProfile.text")); //$NON-NLS-1$
 		btnLoadProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/add.png"))); //$NON-NLS-1$
 		btnLoadProfile.setEnabled(false);
 		btnLoadProfile.addActionListener(new ActionListener()
@@ -356,7 +323,7 @@ public class MainFrame extends JFrame
 		});
 		profilesBtnPanel.add(btnLoadProfile);
 
-		btnImportDat = new JButton(MSGS.getString("MainFrame.btnImportDat.text")); //$NON-NLS-1$
+		btnImportDat = new JButton(Messages.getString("MainFrame.btnImportDat.text")); //$NON-NLS-1$
 		btnImportDat.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_go.png"))); //$NON-NLS-1$
 		btnImportDat.addActionListener(new ActionListener()
 		{
@@ -385,20 +352,28 @@ public class MainFrame extends JFrame
 		gbc_scannerBtnPanel.gridy = 0;
 		scannerTab.add(scannerBtnPanel, gbc_scannerBtnPanel);
 
-		btnScan = new JButton(MSGS.getString("MainFrame.btnScan.text")); //$NON-NLS-1$
+		btnScan = new JButton(Messages.getString("MainFrame.btnScan.text")); //$NON-NLS-1$
 		btnScan.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/magnifier.png"))); //$NON-NLS-1$
 		scannerBtnPanel.add(btnScan);
 		btnScan.setEnabled(false);
 		
-		btnReport = new JButton(MSGS.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
+		btnReport = new JButton(Messages.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
+		btnReport.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/report.png")));
 		btnReport.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new ReportFrame(MainFrame.this);
+				EventQueue.invokeLater(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						report_frame.setVisible(true);
+					}
+				});
 			}
 		});
 		scannerBtnPanel.add(btnReport);
 
-		btnFix = new JButton(MSGS.getString("MainFrame.btnFix.text")); //$NON-NLS-1$
+		btnFix = new JButton(Messages.getString("MainFrame.btnFix.text")); //$NON-NLS-1$
 		btnFix.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/tick.png"))); //$NON-NLS-1$
 		scannerBtnPanel.add(btnFix);
 		btnFix.addActionListener(new ActionListener()
@@ -419,7 +394,7 @@ public class MainFrame extends JFrame
 
 		scannerSettingsPanel = new JPanel();
 		scannerSettingsPanel.setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
-		scannerSettingsPanel.setBorder(new TitledBorder(null, MSGS.getString("MainFrame.scannerSettingsPanel.borderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
+		scannerSettingsPanel.setBorder(new TitledBorder(null, Messages.getString("MainFrame.scannerSettingsPanel.borderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		GridBagConstraints gbc_scannerSettingsPanel = new GridBagConstraints();
 		gbc_scannerSettingsPanel.ipady = 20;
 		gbc_scannerSettingsPanel.insets = new Insets(0, 5, 5, 0);
@@ -434,7 +409,7 @@ public class MainFrame extends JFrame
 		gbl_scannerSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		scannerSettingsPanel.setLayout(gbl_scannerSettingsPanel);
 
-		chckbxNeedSHA1 = new JCheckBox(MSGS.getString("MainFrame.chckbxNeedSHA1.text")); //$NON-NLS-1$
+		chckbxNeedSHA1 = new JCheckBox(Messages.getString("MainFrame.chckbxNeedSHA1.text")); //$NON-NLS-1$
 		chckbxNeedSHA1.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)
@@ -442,7 +417,7 @@ public class MainFrame extends JFrame
 				curr_profile.setProperty("need_sha1_or_md5", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			}
 		});
-		chckbxNeedSHA1.setToolTipText(MSGS.getString("MainFrame.chckbxNeedSHA1.toolTipText")); //$NON-NLS-1$
+		chckbxNeedSHA1.setToolTipText(Messages.getString("MainFrame.chckbxNeedSHA1.toolTipText")); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxNeedSHA1 = new GridBagConstraints();
 		gbc_chckbxNeedSHA1.fill = GridBagConstraints.BOTH;
 		gbc_chckbxNeedSHA1.insets = new Insets(0, 0, 5, 5);
@@ -450,7 +425,7 @@ public class MainFrame extends JFrame
 		gbc_chckbxNeedSHA1.gridy = 0;
 		scannerSettingsPanel.add(chckbxNeedSHA1, gbc_chckbxNeedSHA1);
 
-		chckbxUseParallelism = new JCheckBox(MSGS.getString("MainFrame.chckbxUseParallelism.text")); //$NON-NLS-1$
+		chckbxUseParallelism = new JCheckBox(Messages.getString("MainFrame.chckbxUseParallelism.text")); //$NON-NLS-1$
 		chckbxUseParallelism.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)
@@ -459,7 +434,7 @@ public class MainFrame extends JFrame
 			}
 		});
 
-		chckbxCreateMissingSets = new JCheckBox(MSGS.getString("MainFrame.chckbxCreateMissingSets.text")); //$NON-NLS-1$
+		chckbxCreateMissingSets = new JCheckBox(Messages.getString("MainFrame.chckbxCreateMissingSets.text")); //$NON-NLS-1$
 		chckbxCreateMissingSets.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)
@@ -476,7 +451,7 @@ public class MainFrame extends JFrame
 		gbc_chckbxCreateMissingSets.gridx = 1;
 		gbc_chckbxCreateMissingSets.gridy = 0;
 		scannerSettingsPanel.add(chckbxCreateMissingSets, gbc_chckbxCreateMissingSets);
-		chckbxUseParallelism.setToolTipText(MSGS.getString("MainFrame.chckbxUseParallelism.toolTipText")); //$NON-NLS-1$
+		chckbxUseParallelism.setToolTipText(Messages.getString("MainFrame.chckbxUseParallelism.toolTipText")); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxUseParallelism = new GridBagConstraints();
 		gbc_chckbxUseParallelism.insets = new Insets(0, 0, 5, 5);
 		gbc_chckbxUseParallelism.fill = GridBagConstraints.BOTH;
@@ -484,7 +459,7 @@ public class MainFrame extends JFrame
 		gbc_chckbxUseParallelism.gridy = 1;
 		scannerSettingsPanel.add(chckbxUseParallelism, gbc_chckbxUseParallelism);
 
-		chckbxCreateOnlyComplete = new JCheckBox(MSGS.getString("MainFrame.chckbxCreateOnlyComplete.text")); //$NON-NLS-1$
+		chckbxCreateOnlyComplete = new JCheckBox(Messages.getString("MainFrame.chckbxCreateOnlyComplete.text")); //$NON-NLS-1$
 		chckbxCreateOnlyComplete.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)
@@ -513,7 +488,7 @@ public class MainFrame extends JFrame
 		gbl_scannerSubSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		scannerSubSettingsPanel.setLayout(gbl_scannerSubSettingsPanel);
 
-		lblCompression = new JLabel(MSGS.getString("MainFrame.lblCompression.text")); //$NON-NLS-1$
+		lblCompression = new JLabel(Messages.getString("MainFrame.lblCompression.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblCompression = new GridBagConstraints();
 		gbc_lblCompression.anchor = GridBagConstraints.EAST;
 		gbc_lblCompression.insets = new Insets(0, 5, 5, 5);
@@ -547,7 +522,7 @@ public class MainFrame extends JFrame
 		gbc_cbCompression.gridy = 0;
 		scannerSubSettingsPanel.add(cbCompression, gbc_cbCompression);
 
-		lblMergeMode = new JLabel(MSGS.getString("MainFrame.lblMergeMode.text")); //$NON-NLS-1$
+		lblMergeMode = new JLabel(Messages.getString("MainFrame.lblMergeMode.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblMergeMode = new GridBagConstraints();
 		gbc_lblMergeMode.insets = new Insets(0, 0, 5, 5);
 		gbc_lblMergeMode.anchor = GridBagConstraints.EAST;
@@ -563,7 +538,7 @@ public class MainFrame extends JFrame
 		gbc_cbbxMergeMode.gridx = 1;
 		gbc_cbbxMergeMode.gridy = 1;
 		scannerSubSettingsPanel.add(cbbxMergeMode, gbc_cbbxMergeMode);
-		cbbxMergeMode.setToolTipText(MSGS.getString("MainFrame.cbbxMergeMode.toolTipText")); //$NON-NLS-1$
+		cbbxMergeMode.setToolTipText(Messages.getString("MainFrame.cbbxMergeMode.toolTipText")); //$NON-NLS-1$
 		cbbxMergeMode.setModel(new DefaultComboBoxModel<MergeOptions>(MergeOptions.values()));
 		cbbxMergeMode.setRenderer(new DefaultListCellRenderer()
 		{
@@ -583,7 +558,7 @@ public class MainFrame extends JFrame
 			}
 		});
 
-		lblHashCollision = new JLabel(MSGS.getString("MainFrame.lblHashCollision.text")); //$NON-NLS-1$
+		lblHashCollision = new JLabel(Messages.getString("MainFrame.lblHashCollision.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblHashCollision = new GridBagConstraints();
 		gbc_lblHashCollision.insets = new Insets(0, 0, 5, 5);
 		gbc_lblHashCollision.anchor = GridBagConstraints.EAST;
@@ -617,7 +592,7 @@ public class MainFrame extends JFrame
 		gbc_cbHashCollision.gridy = 2;
 		scannerSubSettingsPanel.add(cbHashCollision, gbc_cbHashCollision);
 
-		lblRomsDest = new JLabel(MSGS.getString("MainFrame.lblRomsDest.text")); //$NON-NLS-1$
+		lblRomsDest = new JLabel(Messages.getString("MainFrame.lblRomsDest.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblRomsDest = new GridBagConstraints();
 		gbc_lblRomsDest.anchor = GridBagConstraints.EAST;
 		gbc_lblRomsDest.fill = GridBagConstraints.VERTICAL;
@@ -673,7 +648,7 @@ public class MainFrame extends JFrame
 		gbc_btnRomsDest.gridy = 3;
 		scannerSubSettingsPanel.add(btnRomsDest, gbc_btnRomsDest);
 
-		lblSrcDir = new JLabel(MSGS.getString("MainFrame.lblSrcDir.text")); //$NON-NLS-1$
+		lblSrcDir = new JLabel(Messages.getString("MainFrame.lblSrcDir.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblSrcDir = new GridBagConstraints();
 		gbc_lblSrcDir.insets = new Insets(0, 0, 0, 5);
 		gbc_lblSrcDir.anchor = GridBagConstraints.NORTHEAST;
@@ -761,7 +736,7 @@ public class MainFrame extends JFrame
 		});
 		addPopup(listSrcDir, popupMenu);
 
-		mntmDeleteSelected = new JMenuItem(MSGS.getString("MainFrame.mntmDeleteSelected.text")); //$NON-NLS-1$
+		mntmDeleteSelected = new JMenuItem(Messages.getString("MainFrame.mntmDeleteSelected.text")); //$NON-NLS-1$
 		mntmDeleteSelected.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -775,7 +750,7 @@ public class MainFrame extends JFrame
 		mntmDeleteSelected.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/folder_delete.png"))); //$NON-NLS-1$
 		popupMenu.add(mntmDeleteSelected);
 
-		mntmAddDirectory = new JMenuItem(MSGS.getString("MainFrame.mntmAddDirectory.text")); //$NON-NLS-1$
+		mntmAddDirectory = new JMenuItem(Messages.getString("MainFrame.mntmAddDirectory.text")); //$NON-NLS-1$
 		mntmAddDirectory.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -836,7 +811,7 @@ public class MainFrame extends JFrame
 		compressorsPane.addTab("Zip", null, panelZip, null); //$NON-NLS-1$
 		panelZip.setLayout(new GridLayout(0, 1, 0, 0));
 
-		chkbxZipUseTemp = new JCheckBox(MSGS.getString("MainFrame.chkbxZipUseTemp.text")); //$NON-NLS-1$
+		chkbxZipUseTemp = new JCheckBox(Messages.getString("MainFrame.chkbxZipUseTemp.text")); //$NON-NLS-1$
 		chkbxZipUseTemp.setHorizontalAlignment(SwingConstants.CENTER);
 		chkbxZipUseTemp.setSelected(true);
 		panelZip.add(chkbxZipUseTemp);
@@ -845,7 +820,7 @@ public class MainFrame extends JFrame
 		lblZipWarn.setVerticalAlignment(SwingConstants.TOP);
 		lblZipWarn.setHorizontalAlignment(SwingConstants.CENTER);
 		lblZipWarn.setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
-		lblZipWarn.setText(MSGS.getString("MainFrame.lblZipWarn.text")); //$NON-NLS-1$
+		lblZipWarn.setText(Messages.getString("MainFrame.lblZipWarn.text")); //$NON-NLS-1$
 		lblZipWarn.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 11)); //$NON-NLS-1$
 		panelZip.add(lblZipWarn);
 
@@ -858,7 +833,7 @@ public class MainFrame extends JFrame
 		gbl_panelZipE.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		panelZipE.setLayout(gbl_panelZipE);
 
-		lblZipECmd = new JLabel(MSGS.getString("MainFrame.lblZipECmd.text")); //$NON-NLS-1$
+		lblZipECmd = new JLabel(Messages.getString("MainFrame.lblZipECmd.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblZipECmd = new GridBagConstraints();
 		gbc_lblZipECmd.anchor = GridBagConstraints.EAST;
 		gbc_lblZipECmd.insets = new Insets(5, 5, 5, 5);
@@ -900,7 +875,7 @@ public class MainFrame extends JFrame
 		gbc_btZipECmd.gridy = 1;
 		panelZipE.add(btZipECmd, gbc_btZipECmd);
 
-		lblZipEArgs = new JLabel(MSGS.getString("MainFrame.lblZipEArgs.text")); //$NON-NLS-1$
+		lblZipEArgs = new JLabel(Messages.getString("MainFrame.lblZipEArgs.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblZipEArgs = new GridBagConstraints();
 		gbc_lblZipEArgs.anchor = GridBagConstraints.EAST;
 		gbc_lblZipEArgs.insets = new Insets(0, 5, 5, 5);
@@ -937,7 +912,7 @@ public class MainFrame extends JFrame
 		gbc_cbZipEArgs.gridy = 2;
 		panelZipE.add(cbZipEArgs, gbc_cbZipEArgs);
 
-		lblZipEThreads = new JLabel(MSGS.getString("MainFrame.lblZipEThreads.text")); //$NON-NLS-1$
+		lblZipEThreads = new JLabel(Messages.getString("MainFrame.lblZipEThreads.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblZipEThreads = new GridBagConstraints();
 		gbc_lblZipEThreads.insets = new Insets(0, 0, 5, 5);
 		gbc_lblZipEThreads.anchor = GridBagConstraints.EAST;
@@ -958,7 +933,7 @@ public class MainFrame extends JFrame
 
 		lblZipEWarning = new JLabel();
 		lblZipEWarning.setVerticalAlignment(SwingConstants.TOP);
-		lblZipEWarning.setText(MSGS.getString("MainFrame.lblZipEWarning.text")); //$NON-NLS-1$
+		lblZipEWarning.setText(Messages.getString("MainFrame.lblZipEWarning.text")); //$NON-NLS-1$
 		lblZipEWarning.setHorizontalAlignment(SwingConstants.CENTER);
 		lblZipEWarning.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 11)); //$NON-NLS-1$
 		lblZipEWarning.setBackground(UIManager.getColor("Button.background")); //$NON-NLS-1$
@@ -978,7 +953,7 @@ public class MainFrame extends JFrame
 		gbl_panel7Zip.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		panel7Zip.setLayout(gbl_panel7Zip);
 
-		lbl7zCmd = new JLabel(MSGS.getString("MainFrame.lbl7zCmd.text")); //$NON-NLS-1$
+		lbl7zCmd = new JLabel(Messages.getString("MainFrame.lbl7zCmd.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lbl7zCmd = new GridBagConstraints();
 		gbc_lbl7zCmd.anchor = GridBagConstraints.EAST;
 		gbc_lbl7zCmd.insets = new Insets(5, 5, 5, 5);
@@ -1021,7 +996,7 @@ public class MainFrame extends JFrame
 		gbc_btn7zCmd.gridy = 1;
 		panel7Zip.add(btn7zCmd, gbc_btn7zCmd);
 
-		lbl7zArgs = new JLabel(MSGS.getString("MainFrame.lbl7zArgs.text")); //$NON-NLS-1$
+		lbl7zArgs = new JLabel(Messages.getString("MainFrame.lbl7zArgs.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lbl7zArgs = new GridBagConstraints();
 		gbc_lbl7zArgs.anchor = GridBagConstraints.EAST;
 		gbc_lbl7zArgs.insets = new Insets(0, 5, 5, 5);
@@ -1058,7 +1033,7 @@ public class MainFrame extends JFrame
 		gbc_cb7zArgs.gridy = 2;
 		panel7Zip.add(cb7zArgs, gbc_cb7zArgs);
 
-		lbl7zThreads = new JLabel(MSGS.getString("MainFrame.lbl7zThreads.text")); //$NON-NLS-1$
+		lbl7zThreads = new JLabel(Messages.getString("MainFrame.lbl7zThreads.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lbl7zThreads = new GridBagConstraints();
 		gbc_lbl7zThreads.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl7zThreads.anchor = GridBagConstraints.EAST;
@@ -1092,7 +1067,7 @@ public class MainFrame extends JFrame
 		panel7Zip.add(tf7zThreads, gbc_tf7zThreads);
 		tf7zThreads.setColumns(4);
 
-		ckbx7zSolid = new JCheckBox(MSGS.getString("MainFrame.ckbx7zSolid.text")); //$NON-NLS-1$
+		ckbx7zSolid = new JCheckBox(Messages.getString("MainFrame.ckbx7zSolid.text")); //$NON-NLS-1$
 		ckbx7zSolid.setSelected(Settings.getProperty("7z_solid", true)); //$NON-NLS-1$
 		cb7zArgs.setEnabled(ckbx7zSolid.isSelected());
 		ckbx7zSolid.addActionListener(new ActionListener()
@@ -1111,7 +1086,7 @@ public class MainFrame extends JFrame
 
 		lbl7zWarning = new JLabel();
 		lbl7zWarning.setVerticalAlignment(SwingConstants.TOP);
-		lbl7zWarning.setText(MSGS.getString("MainFrame.lbl7zWarning.text")); //$NON-NLS-1$
+		lbl7zWarning.setText(Messages.getString("MainFrame.lbl7zWarning.text")); //$NON-NLS-1$
 		lbl7zWarning.setHorizontalAlignment(SwingConstants.CENTER);
 		lbl7zWarning.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 11)); //$NON-NLS-1$
 		lbl7zWarning.setBackground(UIManager.getColor("Button.background")); //$NON-NLS-1$
@@ -1130,7 +1105,7 @@ public class MainFrame extends JFrame
 		gbl_panelTZip.rowWeights = new double[] { 1.0, 0.0, 1.0, Double.MIN_VALUE };
 		panelTZip.setLayout(gbl_panelTZip);
 
-		lblTZipCmd = new JLabel(MSGS.getString("MainFrame.lblTZipCmd.text")); //$NON-NLS-1$
+		lblTZipCmd = new JLabel(Messages.getString("MainFrame.lblTZipCmd.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblTZipCmd = new GridBagConstraints();
 		gbc_lblTZipCmd.anchor = GridBagConstraints.WEST;
 		gbc_lblTZipCmd.insets = new Insets(0, 5, 5, 5);
@@ -1182,7 +1157,7 @@ public class MainFrame extends JFrame
 		gbl_debug.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 		debug.setLayout(gbl_debug);
 
-		lblLogLevel = new JLabel(MSGS.getString("MainFrame.lblLogLevel.text")); //$NON-NLS-1$
+		lblLogLevel = new JLabel(Messages.getString("MainFrame.lblLogLevel.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblLogLevel = new GridBagConstraints();
 		gbc_lblLogLevel.anchor = GridBagConstraints.EAST;
 		gbc_lblLogLevel.fill = GridBagConstraints.VERTICAL;
@@ -1201,6 +1176,15 @@ public class MainFrame extends JFrame
 		mainPane.setEnabledAt(2, true);
 
 		pack();
+
+		try
+		{
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50,50,640,400)))))));
+		}
+		catch(DecoderException e1)
+		{
+			e1.printStackTrace();
+		}
 	}
 
 	private void importDat()

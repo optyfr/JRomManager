@@ -1,5 +1,7 @@
 package jrm.profiler.report;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import jrm.Messages;
 import jrm.profiler.data.Entity;
 
@@ -16,6 +18,12 @@ public class EntryOK extends Note
 	public String toString()
 	{
 		return String.format(Messages.getString("EntryOK.OK"), parent.machine.name, entity.getName()); //$NON-NLS-1$
+	}
+
+	@Override
+	public String getHTML()
+	{
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryOK.OK")), toBlue(parent.machine.name), toBold(entity.getName()))); //$NON-NLS-1$
 	}
 
 }

@@ -1,5 +1,8 @@
 package jrm.profiler.report;
 
+import org.apache.commons.text.StringEscapeUtils;
+
+import jrm.Messages;
 import jrm.profiler.data.Entity;
 import jrm.profiler.data.Entry;
 
@@ -17,7 +20,13 @@ public class EntryMissingDuplicate extends Note
 	@Override
 	public String toString()
 	{
-		return String.format("[%s] duplicate %s >>> %s", parent.machine.name, entry.file, entity.getName());
+		return String.format(Messages.getString("EntryMissingDuplicate.MissingDuplicate"), parent.machine.name, entry.file, entity.getName()); //$NON-NLS-1$
+	}
+
+	@Override
+	public String getHTML()
+	{
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissingDuplicate.MissingDuplicate")), toBlue(parent.machine.name), toBold(entry.file), toBold(entity.getName()))); //$NON-NLS-1$
 	}
 
 }

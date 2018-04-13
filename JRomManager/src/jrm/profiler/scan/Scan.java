@@ -1,11 +1,7 @@
 package jrm.profiler.scan;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -15,32 +11,9 @@ import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profiler.Profile;
-import jrm.profiler.data.Archive;
-import jrm.profiler.data.Container;
-import jrm.profiler.data.Directory;
-import jrm.profiler.data.Disk;
-import jrm.profiler.data.Entry;
-import jrm.profiler.data.Machine;
-import jrm.profiler.data.Rom;
-import jrm.profiler.fix.actions.AddEntry;
-import jrm.profiler.fix.actions.ContainerAction;
-import jrm.profiler.fix.actions.CreateContainer;
-import jrm.profiler.fix.actions.DeleteContainer;
-import jrm.profiler.fix.actions.DeleteEntry;
-import jrm.profiler.fix.actions.DuplicateEntry;
-import jrm.profiler.fix.actions.OpenContainer;
-import jrm.profiler.fix.actions.RenameEntry;
-import jrm.profiler.report.ContainerUnknown;
-import jrm.profiler.report.EntryAdd;
-import jrm.profiler.report.EntryMissing;
-import jrm.profiler.report.EntryMissingDuplicate;
-import jrm.profiler.report.EntryOK;
-import jrm.profiler.report.EntryUnneeded;
-import jrm.profiler.report.EntryWrongHash;
-import jrm.profiler.report.EntryWrongName;
-import jrm.profiler.report.Report;
-import jrm.profiler.report.RomSuspiciousCRC;
-import jrm.profiler.report.SubjectSet;
+import jrm.profiler.data.*;
+import jrm.profiler.fix.actions.*;
+import jrm.profiler.report.*;
 import jrm.profiler.report.SubjectSet.Status;
 import jrm.profiler.scan.options.FormatOptions;
 import jrm.profiler.scan.options.HashCollisionOptions;
@@ -114,12 +87,17 @@ public class Scan
 					archive = directory;
 				List<Rom> roms = m.filterRoms(merge_mode, hash_collision_mode);
 				List<Disk> disks = m.filterDisks(merge_mode, hash_collision_mode);
-				if(roms.size()==0 && disks.size()==0)
-					report_subject.setFound();
 				if(!scanRoms(m, roms, archive, report_subject))
 					missing_set = false;
 				if(!scanDisks(m, disks, directory, report_subject))
 					missing_set = false;
+				if(roms.size()==0 && disks.size()==0)
+				{
+					if(!missing_set)
+						report_subject.setUnneeded();
+					else
+						report_subject.setFound();
+				}
 				if(format == FormatOptions.DIR)
 				{
 					if(disks.size() == 0 && roms.size() == 0)
@@ -179,7 +157,7 @@ public class Scan
 					report_subject.setMissing();
 				if(missing_set)
 					report.stats.missing_set_cnt++;
-//				if((report_subject.getStatus()!=Status.FOUND || report_subject.getChildCount()>0) && report_subject.getStatus()!=Status.UNKNOWN)
+				if(report_subject.getStatus()!=Status.UNKNOWN)
 					report.add(report_subject);
 					
 			}
@@ -194,8 +172,8 @@ public class Scan
 		}
 		finally
 		{
-			report.getModel().reload();
 			report.write();
+			report.flush();
 		}
 
 		

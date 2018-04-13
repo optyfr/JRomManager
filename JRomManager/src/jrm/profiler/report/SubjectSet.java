@@ -3,6 +3,8 @@ package jrm.profiler.report;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import jrm.Messages;
 import jrm.profiler.data.Machine;
 
@@ -122,6 +124,71 @@ public class SubjectSet extends Subject
 				return String.format(Messages.getString("SubjectSet.MissingPartiallyCreated"), machine.name, machine.description); //$NON-NLS-1$
 			default:
 				return String.format(Messages.getString("SubjectSet.Unknown"), machine.name, machine.description); //$NON-NLS-1$
+		}
+	}
+	
+	@Override
+	public String getHTML()
+	{
+		String machine_name = toBlue(machine.name);
+		String machine_description = toPurple(machine.description);
+		switch(status)
+		{
+			case MISSING:
+				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.Missing")), machine_name, machine_description)); //$NON-NLS-1$
+			case UNNEEDED:
+				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.Unneeded")), machine_name, machine_description)); //$NON-NLS-1$
+			case FOUND:
+				if(hasNotes())
+				{
+					if(isFixable())
+						return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.FoundNeedFixes")), machine_name, machine_description)); //$NON-NLS-1$
+					return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.FoundIncomplete")), machine_name, machine_description)); //$NON-NLS-1$
+				}
+				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.Found")), machine_name, machine_description)); //$NON-NLS-1$
+			case CREATE:
+			case CREATEFULL:
+				if(isFixable())
+					return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.MissingTotallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
+				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.MissingPartiallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
+			default:
+				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.Unknown")), machine_name, machine_description)); //$NON-NLS-1$
+		}
+	}
+
+	@Override
+	public void updateStats()
+	{
+		switch(status)
+		{
+			case MISSING:
+				parent.stats.set_missing++;
+				break;
+			case UNNEEDED:
+				parent.stats.set_unneeded++;
+				break;
+			case FOUND:
+				parent.stats.set_found++;
+				if(hasNotes())
+				{
+					if(isFixable())
+						parent.stats.set_found_fixcomplete++;
+					else
+						parent.stats.set_found_fixpartial++;
+				}
+				else
+					parent.stats.set_found_ok++;
+				break;
+			case CREATE:
+			case CREATEFULL:
+				parent.stats.set_create++;
+				if(isFixable())
+					parent.stats.set_create_complete++;
+				else
+					parent.stats.set_create_partial++;
+				break;
+			default:
+				break;
 		}
 	}
 

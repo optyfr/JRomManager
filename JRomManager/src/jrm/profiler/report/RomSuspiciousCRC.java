@@ -25,4 +25,10 @@ public class RomSuspiciousCRC extends Subject
 	{
 		return new RomSuspiciousCRC(crc);
 	}
+
+	@Override
+	public void updateStats()
+	{
+		
+	}
 }

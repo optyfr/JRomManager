@@ -1,5 +1,7 @@
 package jrm.profiler.report;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import jrm.Messages;
 import jrm.profiler.data.Entity;
 import jrm.profiler.data.Entry;
@@ -21,4 +23,9 @@ public class EntryWrongName extends Note
 		return String.format(Messages.getString("EntryWrongName.Wrong"), parent.machine.name, entry.getName(), entity.getName()); //$NON-NLS-1$
 	}
 
+	@Override
+	public String getHTML()
+	{
+		return String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongName.Wrong")), toBlue(parent.machine.name), toBold(entry.getName()), toBold(entity.getName())); //$NON-NLS-1$
+	}
 }

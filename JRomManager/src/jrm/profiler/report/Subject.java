@@ -9,7 +9,7 @@ import javax.swing.tree.TreeNode;
 
 import jrm.profiler.data.Machine;
 
-public abstract class Subject implements TreeNode
+public abstract class Subject implements TreeNode,HTMLRenderer
 {
 	protected Machine machine;
 	
@@ -37,6 +37,8 @@ public abstract class Subject implements TreeNode
 			return machine.name;
 		return ""; //$NON-NLS-1$
 	}
+	
+	public abstract void updateStats();
 	
 	public abstract String toString();
 

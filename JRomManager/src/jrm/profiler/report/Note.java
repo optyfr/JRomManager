@@ -4,7 +4,7 @@ import java.util.Enumeration;
 
 import javax.swing.tree.TreeNode;
 
-public abstract class Note implements TreeNode
+public abstract class Note implements TreeNode,HTMLRenderer
 {
 	Subject parent;
 	

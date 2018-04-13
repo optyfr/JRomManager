@@ -4,51 +4,85 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
 
 import jrm.Messages;
 import jrm.profiler.Profile;
 import jrm.profiler.data.Machine;
 import jrm.ui.ReportTreeModel;
+import jrm.ui.StatusHandler;
+import one.util.streamex.IntStreamEx;
 
-public class Report implements TreeNode
+public class Report implements TreeNode,HTMLRenderer
 {
 	private Profile profile;
 	private List<Subject> subjects = Collections.synchronizedList(new ArrayList<>());
 	private Map<String, Subject> subject_hash = Collections.synchronizedMap(new HashMap<>());
 	public Stats stats = new Stats();
 	
-	ReportTreeModel model = null;
+	private ReportTreeModel model = null;
 	
 	public class Stats
 	{
 		public int missing_set_cnt = 0;
 		public int missing_roms_cnt = 0;
 		public int missing_disks_cnt = 0;
+		
+		public int set_unneeded = 0;
+		public int set_missing = 0;
+		public int set_found = 0;
+		public int set_found_ok = 0;
+		public int set_found_fixpartial = 0;
+		public int set_found_fixcomplete = 0;
+		public int set_create = 0;
+		public int set_create_partial = 0;
+		public int set_create_complete = 0;
+		
+		public String getStatus()
+		{
+			return String.format(Messages.getString("Report.Status"), set_found, set_found_ok, set_found_fixpartial, set_found_fixcomplete, set_create, set_create_complete, set_create_partial, set_missing, set_unneeded, set_found+set_create, set_found+set_create+set_missing); //$NON-NLS-1$
+		}
 	}
 	
 	public Report()
 	{
 		model = new ReportTreeModel(this);
+		model.initClone();
 	}
 
-	public Report(Report report, FilterOptions... filterOptions)
+	class FilterPredicate implements Predicate<Subject>
 	{
-		this(report,Arrays.asList(filterOptions));
+		List<FilterOptions> filterOptions;
+		
+		public FilterPredicate(List<FilterOptions> filterOptions)
+		{
+			this.filterOptions = filterOptions;
+		}
+		
+		@Override
+		public boolean test(Subject t)
+		{
+			if(!filterOptions.contains(FilterOptions.SHOWOK) && t instanceof SubjectSet && ((SubjectSet)t).isOK())
+				return false;
+			if(filterOptions.contains(FilterOptions.HIDEMISSING) && t instanceof SubjectSet && ((SubjectSet)t).isMissing())
+				return false;
+			return true;
+		}
+		
 	}
+
+	private FilterPredicate filterPredicate = new FilterPredicate(new ArrayList<>());
 	
-	public Report(Report report, List<FilterOptions> filterOptions)
+	private Report(Report report, List<FilterOptions> filterOptions)
 	{
+		this.filterPredicate = new FilterPredicate(filterOptions);
 		this.model = report.model;
 		this.profile = report.profile;
 		this.subjects = report.filter(filterOptions);
@@ -57,30 +91,39 @@ public class Report implements TreeNode
 		this.model = report.model;
 	}
 	
-	public List<Subject> filter(FilterOptions... filterOptions)
+	public Report clone(List<FilterOptions> filterOptions)
 	{
-		return filter(Arrays.asList(filterOptions));
-		
+		return new Report(this, filterOptions);
 	}
 	
 	public List<Subject> filter(List<FilterOptions> filterOptions)
 	{
-		return subjects.stream().filter(s -> {
-			if(!filterOptions.contains(FilterOptions.SHOWOK) && s instanceof SubjectSet && ((SubjectSet)s).isOK())
-				return false;
-			if(filterOptions.contains(FilterOptions.HIDEMISSING) && s instanceof SubjectSet && ((SubjectSet)s).isMissing())
-				return false;
-			return true;
-		}).map(s->s.clone(filterOptions)).collect(Collectors.toList());
+		this.filterPredicate = new FilterPredicate(filterOptions);
+		return subjects.stream().filter(filterPredicate).map(s->s.clone(filterOptions)).collect(Collectors.toList());
 	}
 	
 	public void setProfile(Profile profile)
 	{
 		this.profile = profile;
+		reset();
+	}
+	
+	public void reset()
+	{
 		subject_hash.clear();
 		subjects.clear();
+		insert_object_cache.clear();
+		stats = new Stats();
 		if(model!=null)
-			model.reload();
+			model.filter(filterPredicate.filterOptions);
+		flush();
+	}
+	
+	private StatusHandler statusHandler = null;
+	
+	public void setStatusHandler(StatusHandler handler)
+	{
+		statusHandler = handler;
 	}
 	
 	public ReportTreeModel getModel()
@@ -93,15 +136,41 @@ public class Report implements TreeNode
 		return m != null ? subject_hash.get(m.name) : null;
 	}
 
+	private Map<Integer,Object> insert_object_cache = new LinkedHashMap<>(); 
+	
 	public boolean add(Subject subject)
 	{
 		subject.parent = this;
 		if(subject.machine != null)
 			subject_hash.put(subject.machine.name, subject);
 		boolean result = subjects.add(subject);
-		if(0==(subjects.size()%100))
-			model.reload();
+		subject.updateStats();
+		if(filterPredicate.test(subject))
+		{
+			Report clone = (Report)model.getRoot();
+			if(this != clone)
+			{
+				Subject cloned_subject = subject.clone(filterPredicate.filterOptions);
+				clone.add(cloned_subject);
+				insert_object_cache.put(clone.subjects.size()-1, cloned_subject);
+				if(insert_object_cache.size()>=100)
+					flush();
+			}
+		}
 		return result;
+	}
+	
+	public void flush()
+	{
+		if(statusHandler!=null)
+			statusHandler.setStatus(stats.getStatus());
+		if(insert_object_cache.size()>0)
+		{
+			TreeModelEvent event = new TreeModelEvent(model, model.getPathToRoot((Report)model.getRoot()), IntStreamEx.of(insert_object_cache.keySet()).toArray(), insert_object_cache.values().toArray());
+			for(TreeModelListener l : model.getTreeModelListeners())
+				l.treeNodesInserted(event);
+		}
+		insert_object_cache.clear();
 	}
 	
 	public void write()
@@ -163,7 +232,7 @@ public class Report implements TreeNode
 	@Override
 	public boolean isLeaf()
 	{
-		return subjects.size()==0;
+		return false;
 	}
 
 	@Override
