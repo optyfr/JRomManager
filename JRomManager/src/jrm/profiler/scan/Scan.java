@@ -81,8 +81,8 @@ public class Scan
 		//		report.add(report_subject);
 				
 				boolean missing_set = true;
-				Directory directory = new Directory(new File(dstdir, m.getDestMachine(merge_mode).name), m);
-				Container archive = new Archive(new File(dstdir, m.getDestMachine(merge_mode).name + format.getExt()), m);
+				Directory directory = new Directory(new File(dstdir, m.getDest(merge_mode).name), m);
+				Container archive = new Archive(new File(dstdir, m.getDest(merge_mode).name + format.getExt()), m);
 				if(format.getExt().isDir())
 					archive = directory;
 				List<Rom> roms = m.filterRoms(merge_mode, hash_collision_mode);
@@ -102,9 +102,9 @@ public class Scan
 				{
 					if(disks.size() == 0 && roms.size() == 0)
 					{
-						Machine m2 = m;
+						Anyware m2 = m;
 						if(!(merge_mode.isMerge() && m.isClone()))
-							m2 = m.getDestMachine(merge_mode);
+							m2 = m.getDest(merge_mode);
 						Container c2 = dstscan.containers_byname.get(m2.name);
 						if(c2 != null)
 						{
@@ -117,9 +117,9 @@ public class Scan
 				{
 					if(disks.size() == 0)
 					{
-						Machine m2 = m;
+						Anyware m2 = m;
 						if(!(merge_mode.isMerge() && m.isClone()))
-							m2 = m.getDestMachine(merge_mode);
+							m2 = m.getDest(merge_mode);
 						Container c2 = dstscan.containers_byname.get(m2.name);
 						if(c2 != null)
 						{
@@ -129,9 +129,9 @@ public class Scan
 					}
 					if(roms.size() == 0)
 					{
-						Machine m2 = m;
+						Anyware m2 = m;
 						if(!(merge_mode.isMerge() && m.isClone()))
-							m2 = m.getDestMachine(merge_mode);
+							m2 = m.getDest(merge_mode);
 						Container c2 = dstscan.containers_byname.get(m2.name + format.getExt());
 						if(c2 != null)
 						{
@@ -191,7 +191,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		Container c;
-		if(null != (c = dstscan.containers_byname.get(m.getDestMachine(merge_mode).name)))
+		if(null != (c = dstscan.containers_byname.get(m.getDest(merge_mode).name)))
 		{
 			missing_set = false;
 			if(disks.size() > 0)
@@ -330,7 +330,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		Container c;
-		if(null != (c = dstscan.containers_byname.get(m.getDestMachine(merge_mode).name + format.getExt())))
+		if(null != (c = dstscan.containers_byname.get(m.getDest(merge_mode).name + format.getExt())))
 		{
 			missing_set = false;
 			if(roms.size() > 0)

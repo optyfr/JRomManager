@@ -23,6 +23,7 @@ import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -30,6 +31,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.Messages;
@@ -1188,9 +1190,22 @@ public class MainFrame extends JFrame
 
 	private void importDat()
 	{
-		List<FileNameExtensionFilter> filters = Arrays.asList(
+		List<FileFilter> filters = Arrays.asList(
 			new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			new FileNameExtensionFilter(Messages.getString("MainFrame.MameExecutable"), "exe") //$NON-NLS-1$ //$NON-NLS-2$
+			new FileFilter()
+			{
+				@Override
+				public String getDescription()
+				{
+					return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
+				}
+				
+				@Override
+				public boolean accept(File f)
+				{
+					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute();
+				}
+			}
 		);
 		new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport")) //$NON-NLS-1$
 		.show(MainFrame.this, new JRMFileChooser.CallBack<Void>()

@@ -7,17 +7,25 @@ import jrm.profiler.scan.options.HashCollisionOptions;
 @SuppressWarnings("serial")
 public abstract class Entity implements Serializable
 {
-	protected String name;
+	protected String name;	// required
 	public long size = 0;
 	public String crc = null;
 	public String sha1 = null;
 	public String md5 = null;
+	public Status status = Status.good;
 
-	protected Machine parent;
+	public enum Status implements Serializable
+	{
+		baddump,
+		nodump,
+		good
+	}
+	
+	protected Anyware parent;
 
 	private transient boolean collision = false;
 
-	public Entity(Machine parent)
+	public Entity(Anyware parent)
 	{
 		this.parent = parent;
 	}
@@ -47,7 +55,7 @@ public abstract class Entity implements Serializable
 		collision = false;
 	}
 
-	public Machine getParent()
+	public Anyware getParent()
 	{
 		return parent;
 	}

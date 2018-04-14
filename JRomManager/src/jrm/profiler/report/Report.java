@@ -4,7 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -15,7 +21,7 @@ import javax.swing.tree.TreeNode;
 
 import jrm.Messages;
 import jrm.profiler.Profile;
-import jrm.profiler.data.Machine;
+import jrm.profiler.data.Anyware;
 import jrm.ui.ReportTreeModel;
 import jrm.ui.StatusHandler;
 import one.util.streamex.IntStreamEx;
@@ -131,7 +137,7 @@ public class Report implements TreeNode,HTMLRenderer
 		return model;
 	}
 	
-	public Subject findSubject(Machine m)
+	public Subject findSubject(Anyware m)
 	{
 		return m != null ? subject_hash.get(m.name) : null;
 	}

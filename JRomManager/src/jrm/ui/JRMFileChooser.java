@@ -5,7 +5,7 @@ import java.io.File;
 import java.util.List;
 
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 
 @SuppressWarnings("serial")
 public class JRMFileChooser<V> extends JFileChooser
@@ -30,7 +30,7 @@ public class JRMFileChooser<V> extends JFileChooser
 		this(type, mode, currdir, null, null, null);
 	}
 
-	public JRMFileChooser(Integer type, Integer mode, File currdir, File selected, List<FileNameExtensionFilter> filters, String title)
+	public JRMFileChooser(Integer type, Integer mode, File currdir, File selected, List<FileFilter> filters, String title)
 	{
 		super();
 		if(type!=null)
@@ -47,7 +47,7 @@ public class JRMFileChooser<V> extends JFileChooser
 				setCurrentDirectory(currdir);
 		}
 		if(filters != null)
-			for(FileNameExtensionFilter filter : filters)
+			for(FileFilter filter : filters)
 				addChoosableFileFilter(filter);
 		if(title != null)
 			setDialogTitle(title);

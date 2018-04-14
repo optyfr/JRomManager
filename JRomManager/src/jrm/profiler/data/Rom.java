@@ -10,7 +10,6 @@ public class Rom extends Entity implements Serializable
 {
 	public String merge = null;
 	public String bios = null;
-	public String status = "";
 
 	public Rom(Machine parent)
 	{

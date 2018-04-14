@@ -19,6 +19,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -28,6 +29,7 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
 import jrm.profiler.data.Disk;
+import jrm.profiler.data.Entity;
 import jrm.profiler.data.Machine;
 import jrm.profiler.data.Rom;
 import jrm.ui.ProgressHandler;
@@ -121,13 +123,13 @@ public class Profile implements Serializable
 									curr_machine.sampleof = attributes.getValue(i);
 									break;
 								case "isbios": //$NON-NLS-1$
-									curr_machine.isbios = attributes.getValue(i).equals("yes"); //$NON-NLS-1$
+									curr_machine.isbios =  BooleanUtils.toBoolean(attributes.getValue(i)); //$NON-NLS-1$
 									break;
 								case "ismechanical": //$NON-NLS-1$
-									curr_machine.ismechanical = attributes.getValue(i).equals("yes"); //$NON-NLS-1$
+									curr_machine.ismechanical = BooleanUtils.toBoolean(attributes.getValue(i)); //$NON-NLS-1$
 									break;
 								case "isdevice": //$NON-NLS-1$
-									curr_machine.isdevice = attributes.getValue(i).equals("yes"); //$NON-NLS-1$
+									curr_machine.isdevice = BooleanUtils.toBoolean(attributes.getValue(i)); //$NON-NLS-1$
 									break;
 							}
 						}
@@ -169,7 +171,7 @@ public class Profile implements Serializable
 										curr_rom.bios = attributes.getValue(i);
 										break;
 									case "status": //$NON-NLS-1$
-										curr_rom.status = attributes.getValue(i);
+										curr_rom.status = Entity.Status.valueOf(attributes.getValue(i));
 										break;
 								}
 							}
@@ -199,7 +201,7 @@ public class Profile implements Serializable
 										curr_disk.merge = attributes.getValue(i);
 										break;
 									case "status": //$NON-NLS-1$
-										curr_disk.status = attributes.getValue(i);
+										curr_disk.status = Entity.Status.valueOf(attributes.getValue(i));
 										break;
 								}
 							}
@@ -272,8 +274,8 @@ public class Profile implements Serializable
 					machine.parent = machines_byname.get(machine.romof);
 					if(machine.parent!=null)
 					{
-						if(!machine.parent.isbios)
-							machine.parent.clones.put(machine.name, machine);
+						if(!machine.getParent().isbios)
+							machine.getParent().clones.put(machine.name, machine);
 					}
 				}
 			});

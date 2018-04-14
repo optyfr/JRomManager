@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 public class Disk extends Entity implements Serializable
 {
 	public String merge = null;
-	public String status = "";
 
 	public Disk(Machine parent)
 	{
