@@ -152,13 +152,14 @@ public final class DirScan
 							{
 								File parent_dir = file.getParentFile();
 								BasicFileAttributes parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
-								if(null == (c = containers_byname.get(parent_dir.getAbsolutePath())) || c.modified != parent_attr.lastModifiedTime().toMillis())
+								Path relative  = path.relativize(p.getParent());
+								if(null == (c = containers_byname.get(relative.toString())) || c.modified != parent_attr.lastModifiedTime().toMillis())
 								{
 									containers.add(c = new Directory(parent_dir, attr));
 									if(c != null)
 									{
 										c.up2date = true;
-										containers_byname.put(parent_dir.getAbsolutePath(), c);
+										containers_byname.put(relative.toString(), c);
 									}
 								}
 								else
@@ -169,13 +170,14 @@ public final class DirScan
 							}
 							else
 							{
-								if(null == (c = containers_byname.get(file.getName())) || c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size())
+								Path relative  = path.relativize(p);
+								if(null == (c = containers_byname.get(relative.toString())) || c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size())
 								{
 									containers.add(c = new Archive(file, attr));
 									if(c != null)
 									{
 										c.up2date = true;
-										containers_byname.put(file.getName(), c);
+										containers_byname.put(relative.toString(), c);
 									}
 								}
 								else

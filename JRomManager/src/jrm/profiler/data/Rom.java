@@ -11,7 +11,7 @@ public class Rom extends Entity implements Serializable
 	public String merge = null;
 	public String bios = null;
 
-	public Rom(Machine parent)
+	public Rom(Anyware parent)
 	{
 		super(parent);
 	}

@@ -22,7 +22,7 @@ public class Container implements Serializable
 	public transient boolean up2date = false;
 	public int loaded = 0;
 
-	public transient Machine m;
+	public transient Anyware m;
 
 	public enum Type
 	{
@@ -35,7 +35,7 @@ public class Container implements Serializable
 
 	private Type type = Type.UNK;
 
-	protected Container(Type type, File file, Machine m)
+	protected Container(Type type, File file, Anyware m)
 	{
 		this.type = type;
 		this.file = file;

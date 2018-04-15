@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.Messages;
-import jrm.profiler.data.Machine;
+import jrm.profiler.data.Anyware;
 
 public class SubjectSet extends Subject
 {
@@ -21,7 +21,7 @@ public class SubjectSet extends Subject
 		MISSING;
 	};
 	
-	public SubjectSet(Machine machine)
+	public SubjectSet(Anyware machine)
 	{
 		super(machine);
 	}

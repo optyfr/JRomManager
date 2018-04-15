@@ -47,4 +47,16 @@ public class Software extends Anyware implements Serializable
 		return getParent(Software.class);
 	}
 
+	@Override
+	public boolean isBios()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isRomOf()
+	{
+		return false;
+	}
+
 }

@@ -32,6 +32,8 @@ import jrm.profiler.data.Disk;
 import jrm.profiler.data.Entity;
 import jrm.profiler.data.Machine;
 import jrm.profiler.data.Rom;
+import jrm.profiler.data.Software;
+import jrm.profiler.data.SoftwareList;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -40,6 +42,8 @@ public class Profile implements Serializable
 	File file;
 
 	public long machines_cnt = 0;
+	public long softwares_list_cnt = 0;
+	public long softwares_cnt = 0;
 	public long roms_cnt = 0;
 	public long disks_cnt = 0;
 
@@ -53,6 +57,10 @@ public class Profile implements Serializable
 	
 	public ArrayList<Machine> machines = new ArrayList<>();
 	public HashMap<String, Machine> machines_byname = new HashMap<>();
+
+	public ArrayList<SoftwareList> software_lists = new ArrayList<>();
+	public HashMap<String, SoftwareList> software_list_byname = new HashMap<>();
+
 	public HashSet<String> suspicious_crc = new HashSet<>();
 
 	public transient Properties settings = null;
@@ -73,9 +81,13 @@ public class Profile implements Serializable
 			parser.parse(file, new DefaultHandler()
 			{
 				private HashMap<String, Rom> roms_bycrc = new HashMap<>();
+				private boolean in_softwares_list = false;
+				private boolean in_software = false;
 				private boolean in_machine = false;
 				private boolean in_description = false;
 				private boolean in_header = false;
+				private SoftwareList curr_software_list = null;
+				private Software curr_software = null;
 				private Machine curr_machine = null;
 				private Rom curr_rom = null;
 				private Disk curr_disk = null;
@@ -101,6 +113,41 @@ public class Profile implements Serializable
 					{
 						in_header = true;
 					}
+					else if(qName.equals("softwarelist")) //$NON-NLS-1$
+					{
+						in_softwares_list = true;
+						curr_software_list = new SoftwareList();
+						for(int i = 0; i < attributes.getLength(); i++)
+						{
+							switch(attributes.getQName(i))
+							{
+								case "name": //$NON-NLS-1$
+									curr_software_list.name = attributes.getValue(i);
+									software_list_byname.put(curr_software_list.name, curr_software_list);
+									break;
+							}
+						}
+					}
+					else if(qName.equals("software")) //$NON-NLS-1$
+					{
+						in_software = true;
+						curr_software = new Software();
+						for(int i = 0; i < attributes.getLength(); i++)
+						{
+							switch(attributes.getQName(i))
+							{
+								case "name": //$NON-NLS-1$
+									curr_software.name = attributes.getValue(i);
+									break;
+								case "cloneof": //$NON-NLS-1$
+									curr_software.cloneof = attributes.getValue(i);
+									break;
+								case "supported": //$NON-NLS-1$
+									curr_software.supported = Software.Supported.valueOf(attributes.getValue(i));
+									break;
+							}
+						}
+					}
 					else if(qName.equals("machine")||qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						in_machine = true;
@@ -123,26 +170,26 @@ public class Profile implements Serializable
 									curr_machine.sampleof = attributes.getValue(i);
 									break;
 								case "isbios": //$NON-NLS-1$
-									curr_machine.isbios =  BooleanUtils.toBoolean(attributes.getValue(i)); //$NON-NLS-1$
+									curr_machine.isbios =  BooleanUtils.toBoolean(attributes.getValue(i));
 									break;
 								case "ismechanical": //$NON-NLS-1$
-									curr_machine.ismechanical = BooleanUtils.toBoolean(attributes.getValue(i)); //$NON-NLS-1$
+									curr_machine.ismechanical = BooleanUtils.toBoolean(attributes.getValue(i));
 									break;
 								case "isdevice": //$NON-NLS-1$
-									curr_machine.isdevice = BooleanUtils.toBoolean(attributes.getValue(i)); //$NON-NLS-1$
+									curr_machine.isdevice = BooleanUtils.toBoolean(attributes.getValue(i));
 									break;
 							}
 						}
 					}
-					else if(qName.equals("description") && in_machine) //$NON-NLS-1$
+					else if(qName.equals("description") && (in_machine || in_software || in_softwares_list)) //$NON-NLS-1$
 					{
 						in_description = true;
 					}
 					else if(qName.equals("rom")) //$NON-NLS-1$
 					{
-						if(in_machine)
+						if(in_machine || in_software)
 						{
-							curr_rom = new Rom(curr_machine);
+							curr_rom = new Rom(in_machine?curr_machine:curr_software);
 							for(int i = 0; i < attributes.getLength(); i++)
 							{
 								switch(attributes.getQName(i))
@@ -179,9 +226,9 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("disk")) //$NON-NLS-1$
 					{
-						if(in_machine)
+						if(in_machine || in_software)
 						{
-							curr_disk = new Disk(curr_machine);
+							curr_disk = new Disk(in_machine?curr_machine:curr_software);
 							for(int i = 0; i < attributes.getLength(); i++)
 							{
 								switch(attributes.getQName(i))
@@ -216,7 +263,22 @@ public class Profile implements Serializable
 					{
 						in_header = false;
 					}
-					if(qName.equals("machine")||qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
+					else if(qName.equals("softwarelist")) //$NON-NLS-1$
+					{
+						software_lists.add(curr_software_list);
+						softwares_list_cnt++;
+						in_softwares_list = false;
+					}
+					else if(qName.equals("software")) //$NON-NLS-1$
+					{
+						curr_software_list.add(curr_software);
+						softwares_cnt++;
+						in_software = false;
+						handler.setProgress(String.format(Messages.getString("Profile.Loaded"), softwares_cnt, roms_cnt)); //$NON-NLS-1$
+						if(handler.isCancel())
+							throw new BreakException();
+					}
+					else if(qName.equals("machine")||qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						machines.add(curr_machine);
 						machines_cnt++;
@@ -227,7 +289,7 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("rom")) //$NON-NLS-1$
 					{
-						curr_machine.roms.add(curr_rom);
+						(in_machine?curr_machine:curr_software).roms.add(curr_rom);
 						roms_cnt++;
 						if(curr_rom.crc != null)
 						{
@@ -245,10 +307,10 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("disk")) //$NON-NLS-1$
 					{
-						curr_machine.disks.add(curr_disk);
+						(in_machine?curr_machine:curr_software).disks.add(curr_disk);
 						disks_cnt++;
 					}
-					else if(qName.equals("description") && in_machine) //$NON-NLS-1$
+					else if(qName.equals("description") && (in_machine || in_software || in_softwares_list)) //$NON-NLS-1$
 					{
 						in_description = false;
 					}
@@ -257,8 +319,15 @@ public class Profile implements Serializable
 				@Override
 				public void characters(char[] ch, int start, int length) throws SAXException
 				{
-					if(in_machine && in_description)
-						curr_machine.description.append(ch, start, length);
+					if(in_description)
+					{
+						if(in_machine)
+							curr_machine.description.append(ch, start, length);
+						else if(in_software)
+							curr_software.description.append(ch, start, length);
+						else if(in_softwares_list)
+							curr_software_list.description.append(ch, start, length);
+					}
 					else if(in_header)
 					{
 						if(!header.containsKey(curr_tag))
@@ -275,9 +344,19 @@ public class Profile implements Serializable
 					if(machine.parent!=null)
 					{
 						if(!machine.getParent().isbios)
-							machine.getParent().clones.put(machine.name, machine);
+							machine.parent.clones.put(machine.name, machine);
 					}
 				}
+			});
+			software_lists.forEach(software_list -> {
+				software_list.softwares.forEach(software -> {
+					if(software.cloneof != null)
+					{
+						software.parent = software_list.softwares_byname.get(software.cloneof);
+						if(software.parent!=null)
+							software.parent.clones.put(software.name, software);
+					}
+				});
 			});
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			save();
@@ -417,6 +496,10 @@ public class Profile implements Serializable
 					name += " ("+header.get("version")+")"; //$NON-NLS-2$
 			}
 		}
+		if(machines.size()>0)
+			name += " ("+machines_cnt+" Machines)";
+		else if(software_lists.size()>0)
+			name += " ("+softwares_list_cnt+" Software Lists, "+softwares_cnt+" Softwares)";
 		name += "</body></html>";
 		return name;
 	}

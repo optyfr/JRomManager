@@ -11,7 +11,7 @@ public class Disk extends Entity implements Serializable
 {
 	public String merge = null;
 
-	public Disk(Machine parent)
+	public Disk(Anyware parent)
 	{
 		super(parent);
 	}

@@ -129,14 +129,17 @@ public class Progress extends JDialog implements ProgressHandler
 			lblInfo.setText(msg);
 		if(val != null)
 		{
-			progressBar.setIndeterminate(val < 0);
+			if(val<0)
+			{
+				progressBar.setValue(0);
+				progressBar.setMaximum(100);
+				progressBar.setIndeterminate(val < 0);
+			}
 			progressBar.setStringPainted(val >= 0);
 			if(max != null)
 				progressBar.setMaximum(max);
 			if(val >= 0)
-			{
 				progressBar.setValue(val);
-			}
 			if(val == 0)
 				startTime = System.currentTimeMillis();
 			if(val > 0)
@@ -144,8 +147,10 @@ public class Progress extends JDialog implements ProgressHandler
 			else
 				lblTimeleft.setText("--:--:-- / --:--:--"); //$NON-NLS-1$
 		}
-		// if(submsg!=null)
-		progressBar.setString(submsg);
+		if(submsg!=null)
+			progressBar.setString(submsg);
+		else if(progressBar.isIndeterminate())
+			progressBar.setStringPainted(false);
 	}
 
 	public boolean isCancel()

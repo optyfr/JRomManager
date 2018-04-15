@@ -7,17 +7,17 @@ import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
-import jrm.profiler.data.Machine;
+import jrm.profiler.data.Anyware;
 
 public abstract class Subject implements TreeNode,HTMLRenderer
 {
-	protected Machine machine;
+	protected Anyware machine;
 	
 	protected List<Note> notes = new ArrayList<>();
 	
 	protected Report parent;
 
-	public Subject(Machine machine)
+	public Subject(Anyware machine)
 	{
 		this.machine = machine;
 	}

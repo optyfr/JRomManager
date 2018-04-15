@@ -15,7 +15,7 @@ public class CHDInfoReader implements CHDHeaderIntf
 	{
 		try(FileInputStream is = new FileInputStream(chdfile))
 		{
-			MappedByteBuffer bb = is.getChannel().map(MapMode.READ_ONLY, 0, 1024);
+			MappedByteBuffer bb = is.getChannel().map(MapMode.READ_ONLY, 0, Math.min(1024, chdfile.length()));
 			CHDHeader header = new CHDHeader(bb);
 			this.header = header;
 			if(header.isValidTag())

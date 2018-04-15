@@ -10,9 +10,9 @@ import java.nio.file.StandardCopyOption;
 
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
+import jrm.profiler.data.Container.Type;
 import jrm.profiler.data.Entity;
 import jrm.profiler.data.Entry;
-import jrm.profiler.data.Container.Type;
 import jrm.ui.ProgressHandler;
 
 public class AddEntry extends EntryAction
@@ -60,6 +60,8 @@ public class AddEntry extends EntryAction
 				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
 				{
 					srcpath = srcfs.getPath(entry.file);
+					if(dstpath.getParent() != null)
+						Files.createDirectories(dstpath.getParent());
 					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				}
 				catch(Throwable e)
@@ -76,6 +78,8 @@ public class AddEntry extends EntryAction
 					if(srcarchive.extract(entry.file) != null)
 					{
 						srcpath = new File(srcarchive.getTempDir(), entry.file).toPath();
+						if(dstpath.getParent() != null)
+							Files.createDirectories(dstpath.getParent());
 						Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 					}
 					// return archive.add_stdin(srcarchive.extract_stdout(entry.file) , entity.getName()) == 0;
@@ -88,6 +92,8 @@ public class AddEntry extends EntryAction
 			else
 			{
 				srcpath = entry.parent.file.toPath().resolve(entry.file);
+				if(dstpath.getParent() != null)
+					Files.createDirectories(dstpath.getParent());
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 			}
 			return true;

@@ -49,6 +49,8 @@ public class DuplicateEntry extends EntryAction
 			dstpath = target.resolve(newname);
 			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
 			Path srcpath = target.resolve(entry.file);
+			if(dstpath.getParent() != null)
+				Files.createDirectories(dstpath.getParent());
 			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES);
 			return true;
 		}
