@@ -106,31 +106,31 @@ public class SubjectSet extends Subject
 		switch(status)
 		{
 			case MISSING:
-				return String.format(Messages.getString("SubjectSet.Missing"), machine.name, machine.description); //$NON-NLS-1$
+				return String.format(Messages.getString("SubjectSet.Missing"), machine.getFullName(), machine.description); //$NON-NLS-1$
 			case UNNEEDED:
-				return String.format(Messages.getString("SubjectSet.Unneeded"), machine.name, machine.description); //$NON-NLS-1$
+				return String.format(Messages.getString("SubjectSet.Unneeded"), machine.getFullName(), machine.description); //$NON-NLS-1$
 			case FOUND:
 				if(hasNotes())
 				{
 					if(isFixable())
-						return String.format(Messages.getString("SubjectSet.FoundNeedFixes"), machine.name, machine.description); //$NON-NLS-1$
-					return String.format(Messages.getString("SubjectSet.FoundIncomplete"), machine.name, machine.description); //$NON-NLS-1$
+						return String.format(Messages.getString("SubjectSet.FoundNeedFixes"), machine.getFullName(), machine.description); //$NON-NLS-1$
+					return String.format(Messages.getString("SubjectSet.FoundIncomplete"), machine.getFullName(), machine.description); //$NON-NLS-1$
 				}
-				return String.format(Messages.getString("SubjectSet.Found"), machine.name, machine.description); //$NON-NLS-1$
+				return String.format(Messages.getString("SubjectSet.Found"), machine.getFullName(), machine.description); //$NON-NLS-1$
 			case CREATE:
 			case CREATEFULL:
 				if(isFixable())
-					return String.format(Messages.getString("SubjectSet.MissingTotallyCreated"), machine.name, machine.description); //$NON-NLS-1$
-				return String.format(Messages.getString("SubjectSet.MissingPartiallyCreated"), machine.name, machine.description); //$NON-NLS-1$
+					return String.format(Messages.getString("SubjectSet.MissingTotallyCreated"), machine.getFullName(), machine.description); //$NON-NLS-1$
+				return String.format(Messages.getString("SubjectSet.MissingPartiallyCreated"), machine.getFullName(), machine.description); //$NON-NLS-1$
 			default:
-				return String.format(Messages.getString("SubjectSet.Unknown"), machine.name, machine.description); //$NON-NLS-1$
+				return String.format(Messages.getString("SubjectSet.Unknown"), machine.getFullName(), machine.description); //$NON-NLS-1$
 		}
 	}
 	
 	@Override
 	public String getHTML()
 	{
-		String machine_name = toBlue(machine.name);
+		String machine_name = toBlue(machine.getFullName());
 		String machine_description = toPurple(machine.description);
 		switch(status)
 		{

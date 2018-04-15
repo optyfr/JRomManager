@@ -26,6 +26,18 @@ public class Machine extends Anyware implements Serializable
 	{
 		return getParent(Machine.class);
 	}
+	
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+	
+	@Override
+	public String getFullName()
+	{
+		return name;
+	}
 
 	@Override
 	public boolean isBios()

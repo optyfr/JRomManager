@@ -1,6 +1,7 @@
 package jrm.profiler.data;
 
 import java.io.Serializable;
+import java.io.ObjectInputStream.GetField;
 
 @SuppressWarnings("serial")
 public class Software extends Anyware implements Serializable
@@ -47,6 +48,18 @@ public class Software extends Anyware implements Serializable
 		return getParent(Software.class);
 	}
 
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+	
+	@Override
+	public String getFullName()
+	{
+		return list.name+"/"+name;
+	}
+	
 	@Override
 	public boolean isBios()
 	{

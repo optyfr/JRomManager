@@ -42,6 +42,9 @@ public abstract class Anyware implements Serializable
 	
 	public abstract Anyware getParent();
 	
+	public abstract String getName();
+	public abstract String getFullName();
+	
 	public boolean isCollisionMode()
 	{
 		return collision;

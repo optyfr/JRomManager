@@ -64,7 +64,6 @@ public class Progress extends JDialog implements ProgressHandler
 		progressBar = new JProgressBar();
 		progressBar.setMinimumSize(new Dimension(300, 20));
 		progressBar.setPreferredSize(new Dimension(450, 20));
-		progressBar.setStringPainted(true);
 		GridBagConstraints gbc_progressBar = new GridBagConstraints();
 		gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
 		gbc_progressBar.insets = new Insets(0, 5, 5, 5);
@@ -122,6 +121,8 @@ public class Progress extends JDialog implements ProgressHandler
 	private JLabel lblTimeleft;
 	private JButton btnCancel;
 
+	boolean indeterminate = false;
+	
 	@Override
 	public synchronized void setProgress(String msg, Integer val, Integer max, String submsg)
 	{
@@ -129,16 +130,11 @@ public class Progress extends JDialog implements ProgressHandler
 			lblInfo.setText(msg);
 		if(val != null)
 		{
-			if(val<0)
-			{
-				progressBar.setValue(0);
-				progressBar.setMaximum(100);
-			}
-			progressBar.setIndeterminate(val < 0);
-			progressBar.setStringPainted(val >= 0);
+			progressBar.setStringPainted(val > 0);
+//			progressBar.setIndeterminate(val <= 0);
 			if(max != null)
 				progressBar.setMaximum(max);
-			if(val >= 0)
+			if(val > 0)
 				progressBar.setValue(val);
 			if(val == 0)
 				startTime = System.currentTimeMillis();
@@ -147,10 +143,7 @@ public class Progress extends JDialog implements ProgressHandler
 			else
 				lblTimeleft.setText("--:--:-- / --:--:--"); //$NON-NLS-1$
 		}
-		if(submsg!=null)
-			progressBar.setString(submsg);
-		else if(progressBar.isIndeterminate())
-			progressBar.setStringPainted(false);
+		progressBar.setString(submsg);
 	}
 
 	public boolean isCancel()
