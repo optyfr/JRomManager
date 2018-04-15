@@ -133,8 +133,8 @@ public class Progress extends JDialog implements ProgressHandler
 			{
 				progressBar.setValue(0);
 				progressBar.setMaximum(100);
-				progressBar.setIndeterminate(val < 0);
 			}
+			progressBar.setIndeterminate(val < 0);
 			progressBar.setStringPainted(val >= 0);
 			if(max != null)
 				progressBar.setMaximum(max);

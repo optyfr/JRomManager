@@ -54,7 +54,11 @@ public class Scan
 
 		ArrayList<Container> unknown = new ArrayList<>();
 		for(File dir : srcdirs)
+		{
 			allscans.add(new DirScan(profile, dir, handler, false));
+			if(handler.isCancel())
+				throw new BreakException();
+		}
 		if(profile.machines.size()>0)
 		{
 			allscans.add(dstscan = new DirScan(profile, dstdir, handler, true));
@@ -65,6 +69,8 @@ public class Scan
 				else if(!profile.machines_byname.containsKey(FilenameUtils.getBaseName(c.file.toString())))
 					unknown.add(c);
 			}
+			if(handler.isCancel())
+				throw new BreakException();
 		}
 		else
 		{
@@ -86,11 +92,15 @@ public class Scan
 							unknown.add(c);
 					}
 				}
+				if(handler.isCancel())
+					throw new BreakException();
 			}
 			for(File f : dstdir.listFiles())
 			{
 				if(!dstscans.containsKey(f.getName()))
 					unknown.add(f.isDirectory()?new Directory(f, (Machine)null):new Archive(f, (Machine)null));
+				if(handler.isCancel())
+					throw new BreakException();
 			}
 		}
 		
