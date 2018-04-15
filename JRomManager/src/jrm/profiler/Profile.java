@@ -289,26 +289,32 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("rom")) //$NON-NLS-1$
 					{
-						(in_machine?curr_machine:curr_software).roms.add(curr_rom);
-						roms_cnt++;
-						if(curr_rom.crc != null)
+						if(curr_rom.getName()!=null)
 						{
-							Rom old_rom = roms_bycrc.put(curr_rom.crc, curr_rom);
-							if(old_rom != null)
+							(in_machine?curr_machine:curr_software).roms.add(curr_rom);
+							roms_cnt++;
+							if(curr_rom.crc != null)
 							{
-								if(old_rom.sha1 != null && curr_rom.sha1 != null)
-									if(!old_rom.equals(curr_rom))
-										suspicious_crc.add(curr_rom.crc);
-								if(old_rom.md5 != null && curr_rom.md5 != null)
-									if(!old_rom.equals(curr_rom))
-										suspicious_crc.add(curr_rom.crc);
+								Rom old_rom = roms_bycrc.put(curr_rom.crc, curr_rom);
+								if(old_rom != null)
+								{
+									if(old_rom.sha1 != null && curr_rom.sha1 != null)
+										if(!old_rom.equals(curr_rom))
+											suspicious_crc.add(curr_rom.crc);
+									if(old_rom.md5 != null && curr_rom.md5 != null)
+										if(!old_rom.equals(curr_rom))
+											suspicious_crc.add(curr_rom.crc);
+								}
 							}
 						}
 					}
 					else if(qName.equals("disk")) //$NON-NLS-1$
 					{
-						(in_machine?curr_machine:curr_software).disks.add(curr_disk);
-						disks_cnt++;
+						if(curr_disk.getName()!=null)
+						{
+							(in_machine?curr_machine:curr_software).disks.add(curr_disk);
+							disks_cnt++;
+						}
 					}
 					else if(qName.equals("description") && (in_machine || in_software || in_softwares_list)) //$NON-NLS-1$
 					{

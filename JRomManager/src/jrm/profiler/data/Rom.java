@@ -24,7 +24,9 @@ public class Rom extends Entity implements Serializable
 			if(merge == null)
 			{
 				if(isCollisionMode() && parent.isClone())
+				{
 					return parent.name + "/" + name;
+				}
 			}
 			else
 				return merge;

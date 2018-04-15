@@ -39,7 +39,7 @@ public class CreateContainer extends ContainerAction
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
-		handler.setProgress("<html><nobr>Fixing <span color='blue'>" + container.file.getName() + "</span> <span color='purple'>[" + container.m.description + "]</span></nobr></html>");
+		handler.setProgress("<html><nobr>Fixing <span color='blue'>" + container.m.getFullName(container.file.getName()) + "</span> <span color='purple'>[" + container.m.description + "]</span></nobr></html>");
 		if(container.getType() == Container.Type.ZIP)
 		{
 			if(format == FormatOptions.ZIP || format == FormatOptions.TZIP)

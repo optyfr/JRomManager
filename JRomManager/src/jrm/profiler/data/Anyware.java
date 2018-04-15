@@ -26,13 +26,12 @@ public abstract class Anyware implements Serializable
 	
 	public Anyware parent = null;
 
-	public static transient MergeOptions merge_mode;
-	public static transient HashCollisionOptions hash_collision_mode;
+	public static transient MergeOptions merge_mode = MergeOptions.SPLIT;
+	public static transient HashCollisionOptions hash_collision_mode = HashCollisionOptions.SINGLEFILE;
 	protected transient boolean collision = false;
 
 	public Anyware()
 	{
-		// TODO Auto-generated constructor stub
 	}
 
 	public <T extends Anyware> T getParent(Class<T> type)
@@ -44,6 +43,7 @@ public abstract class Anyware implements Serializable
 	
 	public abstract String getName();
 	public abstract String getFullName();
+	public abstract String getFullName(String filename);
 	
 	public boolean isCollisionMode()
 	{
@@ -64,7 +64,10 @@ public abstract class Anyware implements Serializable
 		disks.forEach(Disk::resetCollisionMode);
 	}
 
-	public abstract boolean isClone();
+	public boolean isClone()
+	{
+		return (parent != null && !getParent().isBios());
+	}
 
 	public Anyware getDest(MergeOptions merge_mode)
 	{

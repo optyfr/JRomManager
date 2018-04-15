@@ -68,7 +68,6 @@ import one.util.streamex.StreamEx;
 
 public final class DirScan
 {
-
 	List<Container> containers = Collections.synchronizedList(new ArrayList<>());
 	Map<String, Container> containers_byname = Collections.synchronizedMap(new HashMap<>());
 	Map<String, Entry> entries_bycrc = Collections.synchronizedMap(new HashMap<>());
@@ -77,6 +76,8 @@ public final class DirScan
 
 	boolean need_sha1_or_md5 = true;
 	boolean use_parallelism = true;
+	
+	File dir;
 
 	private DirScan()
 	{
@@ -96,9 +97,10 @@ public final class DirScan
 	public DirScan(Profile profile, File dir, ProgressHandler handler, boolean is_dest) throws BreakException
 	{
 		this();
-
-		need_sha1_or_md5 = profile.getProperty("need_sha1_or_md5", false); //$NON-NLS-1$
-		use_parallelism = profile.getProperty("use_parallelism", false); //$NON-NLS-1$
+		
+		this.dir = dir;
+		this.need_sha1_or_md5 = profile.getProperty("need_sha1_or_md5", false); //$NON-NLS-1$
+		this.use_parallelism = profile.getProperty("use_parallelism", false); //$NON-NLS-1$
 
 		Path path = Paths.get(dir.getAbsolutePath());
 

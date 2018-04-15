@@ -16,12 +16,6 @@ public class Machine extends Anyware implements Serializable
 	}
 
 	@Override
-	public boolean isClone()
-	{
-		return (parent != null && !getParent().isbios);
-	}
-
-	@Override
 	public Machine getParent()
 	{
 		return getParent(Machine.class);
@@ -37,6 +31,12 @@ public class Machine extends Anyware implements Serializable
 	public String getFullName()
 	{
 		return name;
+	}
+
+	@Override
+	public String getFullName(String filename)
+	{
+		return filename;
 	}
 
 	@Override

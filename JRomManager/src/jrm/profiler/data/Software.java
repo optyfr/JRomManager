@@ -1,7 +1,7 @@
 package jrm.profiler.data;
 
+import java.io.File;
 import java.io.Serializable;
-import java.io.ObjectInputStream.GetField;
 
 @SuppressWarnings("serial")
 public class Software extends Anyware implements Serializable
@@ -22,27 +22,6 @@ public class Software extends Anyware implements Serializable
 	}
 
 	@Override
-	public void setCollisionMode(boolean parent)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean isCollisionMode()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isClone()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public Software getParent()
 	{
 		return getParent(Software.class);
@@ -57,7 +36,13 @@ public class Software extends Anyware implements Serializable
 	@Override
 	public String getFullName()
 	{
-		return list.name+"/"+name;
+		return list.name + File.separator + name;
+	}
+	
+	@Override
+	public String getFullName(String filename)
+	{
+		return list.name + File.separator + filename;
 	}
 	
 	@Override
