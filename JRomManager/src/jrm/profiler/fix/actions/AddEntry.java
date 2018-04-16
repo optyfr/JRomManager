@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.profiler.data.Container.Type;
@@ -29,20 +30,44 @@ public class AddEntry extends EntryAction
 	public boolean doAction(FileSystem dstfs, ProgressHandler handler)
 	{
 		Path dstpath = dstfs.getPath(entity.getName());
-		handler.setProgress(null, null, null, "Adding " + entity.getName());
+		handler.setProgress(null, null, null, String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
 		Path srcpath = null;
-		try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+		try
 		{
-
-			srcpath = srcfs.getPath(entry.file);
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
-			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-			return true;
+			if(entry.parent.getType() == Type.DIR)
+			{
+				srcpath = entry.parent.file.toPath().resolve(entry.file);
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				return true;
+			}
+			else if(entry.parent.getType() == Type.ZIP)
+			{
+				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+				{
+					srcpath = srcfs.getPath(entry.file);
+					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+					return true;
+				}
+			}
+			else if(entry.parent.getType() == Type.SEVENZIP)
+			{
+				try(Archive srcarchive = new SevenZipArchive(entry.parent.file))
+				{
+					if(srcarchive.extract(entry.file) != null)
+					{
+						srcpath = new File(srcarchive.getTempDir(), entry.file).toPath();
+						Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+						return true;
+					}
+				}
+			}
 		}
 		catch(Throwable e)
 		{
-			System.err.println("add from " + entry.parent.file.getName() + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed");
+			e.printStackTrace();
+			System.err.println("add from " + entry.parent.file + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed");
 		}
 		return false;
 	}
@@ -51,7 +76,7 @@ public class AddEntry extends EntryAction
 	public boolean doAction(Path target, ProgressHandler handler)
 	{
 		Path dstpath = target.resolve(entity.getName());
-		handler.setProgress(null, null, null, "Adding " + entity.getName());
+		handler.setProgress(null, null, null, String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
 		Path srcpath = null;
 		try
 		{
@@ -109,7 +134,7 @@ public class AddEntry extends EntryAction
 	@Override
 	public boolean doAction(Archive archive, ProgressHandler handler)
 	{
-		handler.setProgress(null, null, null, "Adding " + entity.getName());
+		handler.setProgress(null, null, null, String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
 		if(entry.parent.getType() == Type.ZIP)
 		{
 			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
@@ -141,6 +166,6 @@ public class AddEntry extends EntryAction
 	@Override
 	public String toString()
 	{
-		return "Add " + entry + " to " + entity;
+		return String.format(Messages.getString("AddEntry.Add"), entry, entity); //$NON-NLS-1$
 	}
 }

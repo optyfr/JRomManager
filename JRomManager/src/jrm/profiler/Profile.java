@@ -124,7 +124,7 @@ public class Profile implements Serializable
 							switch(attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_software.name = attributes.getValue(i).trim();
+									curr_software.setName(attributes.getValue(i).trim());
 									break;
 								case "cloneof": //$NON-NLS-1$
 									curr_software.cloneof = attributes.getValue(i);
@@ -144,17 +144,17 @@ public class Profile implements Serializable
 							switch(attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_machine.name = attributes.getValue(i).trim();
-									machines_byname.put(curr_machine.name, curr_machine);
+									curr_machine.setName(attributes.getValue(i).trim());
+									machines_byname.put(curr_machine.getName(), curr_machine);
 									break;
 								case "romof": //$NON-NLS-1$
-									curr_machine.romof = attributes.getValue(i);
+									curr_machine.romof = attributes.getValue(i).trim();
 									break;
 								case "cloneof": //$NON-NLS-1$
-									curr_machine.cloneof = attributes.getValue(i);
+									curr_machine.cloneof = attributes.getValue(i).trim();
 									break;
 								case "sampleof": //$NON-NLS-1$
-									curr_machine.sampleof = attributes.getValue(i);
+									curr_machine.sampleof = attributes.getValue(i).trim();
 									break;
 								case "isbios": //$NON-NLS-1$
 									curr_machine.isbios =  BooleanUtils.toBoolean(attributes.getValue(i));
@@ -199,7 +199,7 @@ public class Profile implements Serializable
 										md5_roms = true;
 										break;
 									case "merge": //$NON-NLS-1$
-										curr_rom.merge = attributes.getValue(i);
+										curr_rom.merge = attributes.getValue(i).trim();
 										break;
 									case "bios": //$NON-NLS-1$
 										curr_rom.bios = attributes.getValue(i);
@@ -232,7 +232,7 @@ public class Profile implements Serializable
 										md5_disks = true;
 										break;
 									case "merge": //$NON-NLS-1$
-										curr_disk.merge = attributes.getValue(i);
+										curr_disk.merge = attributes.getValue(i).trim();
 										break;
 									case "status": //$NON-NLS-1$
 										curr_disk.status = Entity.Status.valueOf(attributes.getValue(i));
@@ -337,7 +337,7 @@ public class Profile implements Serializable
 					if(machine.parent!=null)
 					{
 						if(!machine.getParent().isbios)
-							machine.parent.clones.put(machine.name, machine);
+							machine.parent.clones.put(machine.getName(), machine);
 					}
 				}
 			});
@@ -347,7 +347,7 @@ public class Profile implements Serializable
 					{
 						software.parent = software_list.softwares_byname.get(software.cloneof);
 						if(software.parent!=null)
-							software.parent.clones.put(software.name, software);
+							software.parent.clones.put(software.getName(), software);
 					}
 				});
 			});

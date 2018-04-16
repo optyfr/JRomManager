@@ -3,11 +3,12 @@ package jrm.profiler.fix.actions;
 import java.util.ArrayList;
 import java.util.List;
 
+import jrm.misc.HTMLRenderer;
 import jrm.profiler.data.Container;
 import jrm.profiler.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
 
-abstract public class ContainerAction
+abstract public class ContainerAction implements HTMLRenderer
 {
 	public Container container;
 	public FormatOptions format;

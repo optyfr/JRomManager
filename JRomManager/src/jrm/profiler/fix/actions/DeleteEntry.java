@@ -4,6 +4,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.profiler.data.Entry;
 import jrm.ui.ProgressHandler;
@@ -21,7 +22,7 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, "Deleting " + entry.file);
+			handler.setProgress(null, null, null, String.format(Messages.getString("DeleteEntry.Deleting"), entry.file)); //$NON-NLS-1$
 			path = dstfs.getPath(entry.file);
 			Files.deleteIfExists(path);
 			return true;
@@ -39,7 +40,7 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, "Deleting " + entry.file);
+			handler.setProgress(null, null, null, String.format(Messages.getString("DeleteEntry.Deleting"), entry.file)); //$NON-NLS-1$
 			path = target.resolve(entry.file);
 			Files.deleteIfExists(path);
 			return true;
@@ -56,7 +57,7 @@ public class DeleteEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, "Deleting " + entry.file);
+			handler.setProgress(null, null, null, String.format(Messages.getString("DeleteEntry.Deleting"), entry.file)); //$NON-NLS-1$
 			return archive.delete(entry.file) == 0;
 		}
 		catch(Throwable e)
@@ -69,6 +70,6 @@ public class DeleteEntry extends EntryAction
 	@Override
 	public String toString()
 	{
-		return "Delete " + entry;
+		return String.format(Messages.getString("DeleteEntry.Delete"), entry); //$NON-NLS-1$
 	}
 }

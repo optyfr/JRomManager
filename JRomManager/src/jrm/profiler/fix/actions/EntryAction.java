@@ -4,10 +4,11 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
 import jrm.compressors.Archive;
+import jrm.misc.HTMLRenderer;
 import jrm.profiler.data.Entry;
 import jrm.ui.ProgressHandler;
 
-abstract public class EntryAction
+abstract public class EntryAction implements HTMLRenderer
 {
 	Entry entry;
 	ContainerAction parent;

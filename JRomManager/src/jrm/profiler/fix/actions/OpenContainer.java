@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
@@ -35,20 +36,20 @@ public class OpenContainer extends ContainerAction
 		return action;
 	}
 
-	static File tzip_cmd = new File(Settings.getProperty("tzip_cmd", FindCmd.findTZip()));
+	static File tzip_cmd = new File(Settings.getProperty("tzip_cmd", FindCmd.findTZip())); //$NON-NLS-1$
 
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
-		handler.setProgress("<html><nobr>Fixing <span color='blue'>" + container.m.getFullName(container.file.getName()) + "</span> <span color='purple'>[" + container.m.description + "]</span></nobr></html>");
+		handler.setProgress(toHTML(toNoBR(String.format(Messages.getString("OpenContainer.Fixing"), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.description))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)
 		{
 			if(format == FormatOptions.ZIP)
 			{
 				Map<String, Object> env = new HashMap<>();
-				env.put("create", "false");
-				env.put("useTempFile", Boolean.TRUE);
-				try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + container.file.toURI()), env);)
+				env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+				env.put("useTempFile", Boolean.TRUE); //$NON-NLS-1$
+				try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + container.file.toURI()), env);) //$NON-NLS-1$
 				{
 					for(EntryAction action : entry_actions)
 					{
@@ -58,7 +59,7 @@ public class OpenContainer extends ContainerAction
 							return false;
 						}
 					}
-					deleteEmptyFolders(fs.getPath("/"));
+					deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
 					fs.close();
 					if(format == FormatOptions.TZIP && tzip_cmd.exists())
 					{
@@ -167,9 +168,9 @@ public class OpenContainer extends ContainerAction
 	@Override
 	public String toString()
 	{
-		String str = "Open " + container;
+		String str = Messages.getString("OpenContainer.Open") + container; //$NON-NLS-1$
 		for(EntryAction action : entry_actions)
-			str += "\n\t" + action;
+			str += "\n\t" + action; //$NON-NLS-1$
 		return str;
 	}
 }

@@ -20,13 +20,13 @@ public class EntryMissingDuplicate extends Note
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("EntryMissingDuplicate.MissingDuplicate"), parent.machine.name, entry.file, entity.getName()); //$NON-NLS-1$
+		return String.format(Messages.getString("EntryMissingDuplicate.MissingDuplicate"), parent.machine.getFullName(), entry.file, entity.getName()); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getHTML()
 	{
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissingDuplicate.MissingDuplicate")), toBlue(parent.machine.name), toBold(entry.file), toBold(entity.getName()))); //$NON-NLS-1$
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissingDuplicate.MissingDuplicate")), toBlue(parent.machine.getFullName()), toBold(entry.file), toBold(entity.getName()))); //$NON-NLS-1$
 	}
 
 }

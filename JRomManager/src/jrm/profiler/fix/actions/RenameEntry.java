@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
+import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.profiler.data.Entry;
 import jrm.ui.ProgressHandler;
@@ -17,7 +18,7 @@ public class RenameEntry extends EntryAction
 	public RenameEntry(Entry entry)
 	{
 		super(entry);
-		this.newname = UUID.randomUUID() + "_" + entry.size + ".tmp";
+		this.newname = UUID.randomUUID() + "_" + entry.size + ".tmp"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public RenameEntry(String newname, Entry entry)
@@ -32,7 +33,7 @@ public class RenameEntry extends EntryAction
 		Path dstpath = null;
 		try
 		{
-			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
+			handler.setProgress(null, null, null, String.format(Messages.getString("RenameEntry.Renaming"), entry.file, newname)); //$NON-NLS-1$
 			Path srcpath = fs.getPath(entry.file);
 			dstpath = fs.getPath(newname);
 			if(dstpath.getParent() != null)
@@ -56,7 +57,7 @@ public class RenameEntry extends EntryAction
 		try
 		{
 			dstpath = target.resolve(newname);
-			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
+			handler.setProgress(null, null, null, String.format(Messages.getString("RenameEntry.Renaming"), entry.file, newname)); //$NON-NLS-1$
 			Path srcpath = target.resolve(entry.file);
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
@@ -77,7 +78,7 @@ public class RenameEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
+			handler.setProgress(null, null, null, String.format(Messages.getString("RenameEntry.Renaming"), entry.file, newname)); //$NON-NLS-1$
 			if(archive.rename(entry.file, newname) == 0)
 			{
 				entry.file = newname;
@@ -94,6 +95,6 @@ public class RenameEntry extends EntryAction
 	@Override
 	public String toString()
 	{
-		return "Rename " + entry + " to " + newname;
+		return String.format(Messages.getString("RenameEntry.Rename"), entry, newname); //$NON-NLS-1$
 	}
 }

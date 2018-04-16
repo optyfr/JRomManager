@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.profiler.data.Entry;
 import jrm.ui.ProgressHandler;
@@ -25,7 +26,7 @@ public class DuplicateEntry extends EntryAction
 		Path dstpath = fs.getPath(newname);
 		try
 		{
-			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
+			handler.setProgress(null, null, null, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
 			Path srcpath = fs.getPath(entry.file);
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
@@ -47,7 +48,7 @@ public class DuplicateEntry extends EntryAction
 		try
 		{
 			dstpath = target.resolve(newname);
-			handler.setProgress(null, null, null, "Renaming " + entry.file + " to " + newname);
+			handler.setProgress(null, null, null, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
 			Path srcpath = target.resolve(entry.file);
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
@@ -66,7 +67,7 @@ public class DuplicateEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, "Duplicating " + entry.file + " to " + newname);
+			handler.setProgress(null, null, null, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
 			return archive.duplicate(entry.file, newname) == 0;
 		}
 		catch(Throwable e)
@@ -79,6 +80,6 @@ public class DuplicateEntry extends EntryAction
 	@Override
 	public String toString()
 	{
-		return "Duplicate " + entry + " to " + newname;
+		return String.format(Messages.getString("DuplicateEntry.Duplicate"), entry, newname); //$NON-NLS-1$
 	}
 }

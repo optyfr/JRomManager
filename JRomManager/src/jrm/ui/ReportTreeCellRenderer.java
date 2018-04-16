@@ -6,6 +6,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import jrm.misc.HTMLRenderer;
 import jrm.profiler.report.*;
 
 @SuppressWarnings("serial")

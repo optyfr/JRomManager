@@ -20,6 +20,7 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
 
 import jrm.Messages;
+import jrm.misc.HTMLRenderer;
 import jrm.profiler.Profile;
 import jrm.profiler.data.Anyware;
 import jrm.ui.ReportTreeModel;
@@ -139,7 +140,7 @@ public class Report implements TreeNode, HTMLRenderer
 
 	public Subject findSubject(Anyware m)
 	{
-		return m != null ? subject_hash.get(m.name) : null;
+		return m != null ? subject_hash.get(m.getFullName()) : null;
 	}
 
 	private Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
@@ -148,7 +149,7 @@ public class Report implements TreeNode, HTMLRenderer
 	{
 		subject.parent = this;
 		if(subject.machine != null)
-			subject_hash.put(subject.machine.name, subject);
+			subject_hash.put(subject.machine.getFullName(), subject);
 		boolean result = subjects.add(subject);
 		Report clone = (Report) model.getRoot();
 		if(this != clone)

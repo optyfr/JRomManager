@@ -21,21 +21,21 @@ public class EntryWrongHash extends Note
 	public String toString()
 	{
 		if(entry.md5 == null && entry.sha1 == null)
-			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.machine.name, entry.file, "CRC", entry.crc, entity.crc); //$NON-NLS-1$ //$NON-NLS-2$
+			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.machine.getFullName(), entry.file, "CRC", entry.crc, entity.crc); //$NON-NLS-1$ //$NON-NLS-2$
 		else if(entry.sha1 == null)
-			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.machine.name, entry.file, "MD5", entry.md5, entity.md5); //$NON-NLS-1$ //$NON-NLS-2$
+			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.machine.getFullName(), entry.file, "MD5", entry.md5, entity.md5); //$NON-NLS-1$ //$NON-NLS-2$
 		else
-			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.machine.name, entry.file, "SHA-1", entry.sha1, entity.sha1); //$NON-NLS-1$ //$NON-NLS-2$
+			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.machine.getFullName(), entry.file, "SHA-1", entry.sha1, entity.sha1); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
 	public String getHTML()
 	{
 		if(entry.md5 == null && entry.sha1 == null)
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.machine.name), toBold(entry.file), "CRC", entry.crc, entity.crc)); //$NON-NLS-1$ //$NON-NLS-2$
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.machine.getFullName()), toBold(entry.file), "CRC", entry.crc, entity.crc)); //$NON-NLS-1$ //$NON-NLS-2$
 		else if(entry.sha1 == null)
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.machine.name), toBold(entry.file), "MD5", entry.md5, entity.md5)); //$NON-NLS-1$ //$NON-NLS-2$
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.machine.getFullName()), toBold(entry.file), "MD5", entry.md5, entity.md5)); //$NON-NLS-1$ //$NON-NLS-2$
 		else
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.machine.name), toBold(entry.file), "SHA-1", entry.sha1, entity.sha1)); //$NON-NLS-1$ //$NON-NLS-2$
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.machine.getFullName()), toBold(entry.file), "SHA-1", entry.sha1, entity.sha1)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

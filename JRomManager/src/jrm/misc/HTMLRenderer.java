@@ -1,4 +1,4 @@
-package jrm.profiler.report;
+package jrm.misc;
 
 public interface HTMLRenderer
 {
@@ -10,6 +10,11 @@ public interface HTMLRenderer
 	public default String toHTML(CharSequence str)
 	{
 		return "<html>"+str+"</html>";
+	}
+
+	public default String toNoBR(CharSequence str)
+	{
+		return "<nobr>"+str+"</nobr>";
 	}
 
 	public default String toBlue(CharSequence str)

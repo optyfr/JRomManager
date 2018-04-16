@@ -20,12 +20,12 @@ public class EntryWrongName extends Note
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("EntryWrongName.Wrong"), parent.machine.name, entry.getName(), entity.getName()); //$NON-NLS-1$
+		return String.format(Messages.getString("EntryWrongName.Wrong"), parent.machine.getFullName(), entry.getName(), entity.getName()); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getHTML()
 	{
-		return String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongName.Wrong")), toBlue(parent.machine.name), toBold(entry.getName()), toBold(entity.getName())); //$NON-NLS-1$
+		return String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongName.Wrong")), toBlue(parent.machine.getFullName()), toBold(entry.getName()), toBold(entity.getName())); //$NON-NLS-1$
 	}
 }

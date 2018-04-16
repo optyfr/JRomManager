@@ -4,6 +4,8 @@ import java.util.Enumeration;
 
 import javax.swing.tree.TreeNode;
 
+import jrm.misc.HTMLRenderer;
+
 public abstract class Note implements TreeNode,HTMLRenderer
 {
 	Subject parent;

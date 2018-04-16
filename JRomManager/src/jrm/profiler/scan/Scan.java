@@ -229,7 +229,7 @@ public class Scan
 				Anyware ware_dest = ware;
 				if(!(merge_mode.isMerge() && ware.isClone()))
 					ware_dest = ware.getDest(merge_mode);
-				Container c_dest = dstscan.containers_byname.get(ware_dest.name);
+				Container c_dest = dstscan.containers_byname.get(ware_dest.getName());
 				if(c_dest != null)
 				{
 					Optional.ofNullable(report.findSubject(ware_dest)).ifPresent(s->((SubjectSet)s).setUnneeded());
@@ -244,7 +244,7 @@ public class Scan
 				Anyware ware_dest = ware;
 				if(!(merge_mode.isMerge() && ware.isClone()))
 					ware_dest = ware.getDest(merge_mode);
-				Container c_dest = dstscan.containers_byname.get(ware_dest.name);
+				Container c_dest = dstscan.containers_byname.get(ware_dest.getName());
 				if(c_dest != null)
 				{
 					Optional.ofNullable(report.findSubject(ware_dest)).ifPresent(s->((SubjectSet)s).setUnneeded());
@@ -256,7 +256,7 @@ public class Scan
 				Anyware ware_dest = ware;
 				if(!(merge_mode.isMerge() && ware.isClone()))
 					ware_dest = ware.getDest(merge_mode);
-				Container c_dest = dstscan.containers_byname.get(ware_dest.name + format.getExt());
+				Container c_dest = dstscan.containers_byname.get(ware_dest.getName() + format.getExt());
 				if(c_dest != null)
 				{
 					Optional.ofNullable(report.findSubject(ware_dest)).ifPresent(s->((SubjectSet)s).setUnneeded());
@@ -265,7 +265,7 @@ public class Scan
 			}
 		}
 		format.getExt().allExcept().forEach((e) -> {
-			Container c_dest = dstscan.containers_byname.get(ware.name + e);
+			Container c_dest = dstscan.containers_byname.get(ware.getName() + e);
 			if(c_dest != null)
 			{
 				Optional.ofNullable(report.findSubject(ware)).ifPresent(s->((SubjectSet)s).setUnneeded());
@@ -289,7 +289,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		Container container;
-		if(null != (container = dstscan.containers_byname.get(ware.getDest(merge_mode).name)))
+		if(null != (container = dstscan.containers_byname.get(ware.getDest(merge_mode).getName())))
 		{
 			missing_set = false;
 			if(disks.size() > 0)
@@ -428,7 +428,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		Container container;
-		if(null != (container = dstscan.containers_byname.get(ware.getDest(merge_mode).name + format.getExt())))
+		if(null != (container = dstscan.containers_byname.get(ware.getDest(merge_mode).getName() + format.getExt())))
 		{
 			missing_set = false;
 			if(roms.size() > 0)

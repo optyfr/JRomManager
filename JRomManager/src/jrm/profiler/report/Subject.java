@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
+import jrm.misc.HTMLRenderer;
 import jrm.profiler.data.Anyware;
 
 public abstract class Subject implements TreeNode,HTMLRenderer
@@ -34,7 +35,7 @@ public abstract class Subject implements TreeNode,HTMLRenderer
 	public String getMachineName()
 	{
 		if(machine!=null)
-			return machine.name;
+			return machine.getFullName();
 		return ""; //$NON-NLS-1$
 	}
 	

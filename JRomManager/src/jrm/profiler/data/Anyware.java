@@ -15,7 +15,7 @@ import one.util.streamex.StreamEx;
 @SuppressWarnings("serial")
 public abstract class Anyware implements Serializable
 {
-	public String name;	// required
+	protected String name;	// required
 	public String cloneof = null;
 	public StringBuffer description = new StringBuffer();
 
@@ -42,6 +42,10 @@ public abstract class Anyware implements Serializable
 	public abstract Anyware getParent();
 	
 	public abstract String getName();
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 	public abstract String getFullName();
 	public abstract String getFullName(String filename);
 	
