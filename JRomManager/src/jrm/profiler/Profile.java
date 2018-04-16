@@ -1,14 +1,6 @@
 package jrm.profiler;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,12 +20,7 @@ import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
-import jrm.profiler.data.Disk;
-import jrm.profiler.data.Entity;
-import jrm.profiler.data.Machine;
-import jrm.profiler.data.Rom;
-import jrm.profiler.data.Software;
-import jrm.profiler.data.SoftwareList;
+import jrm.profiler.data.*;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -122,7 +109,7 @@ public class Profile implements Serializable
 							switch(attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_software_list.name = attributes.getValue(i);
+									curr_software_list.name = attributes.getValue(i).trim();
 									software_list_byname.put(curr_software_list.name, curr_software_list);
 									break;
 							}
@@ -137,7 +124,7 @@ public class Profile implements Serializable
 							switch(attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_software.name = attributes.getValue(i);
+									curr_software.name = attributes.getValue(i).trim();
 									break;
 								case "cloneof": //$NON-NLS-1$
 									curr_software.cloneof = attributes.getValue(i);
@@ -157,7 +144,7 @@ public class Profile implements Serializable
 							switch(attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_machine.name = attributes.getValue(i);
+									curr_machine.name = attributes.getValue(i).trim();
 									machines_byname.put(curr_machine.name, curr_machine);
 									break;
 								case "romof": //$NON-NLS-1$
@@ -195,7 +182,7 @@ public class Profile implements Serializable
 								switch(attributes.getQName(i))
 								{
 									case "name": //$NON-NLS-1$
-										curr_rom.setName(attributes.getValue(i));
+										curr_rom.setName(attributes.getValue(i).trim());
 										break;
 									case "size": //$NON-NLS-1$
 										curr_rom.size = Long.decode(attributes.getValue(i));
@@ -234,7 +221,7 @@ public class Profile implements Serializable
 								switch(attributes.getQName(i))
 								{
 									case "name": //$NON-NLS-1$
-										curr_disk.setName(attributes.getValue(i));
+										curr_disk.setName(attributes.getValue(i).trim());
 										break;
 									case "sha1": //$NON-NLS-1$
 										curr_disk.sha1 = attributes.getValue(i);

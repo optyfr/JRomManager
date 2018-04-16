@@ -1,4 +1,5 @@
 package jrm.ui;
+
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -13,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -88,16 +88,18 @@ public class MainFrame extends JFrame
 	public MainFrame()
 	{
 		super();
-		addWindowListener(new WindowAdapter() {
+		addWindowListener(new WindowAdapter()
+		{
 			@Override
-			public void windowClosing(WindowEvent e) {
+			public void windowClosing(WindowEvent e)
+			{
 				Settings.setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())));
 			}
 		});
 		try
 		{
 			Settings.loadSettings();
-			UIManager.setLookAndFeel(Settings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName()*/)); //$NON-NLS-1$
+			UIManager.setLookAndFeel(Settings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName() */)); //$NON-NLS-1$
 			File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 			File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 			xmldir.mkdir();
@@ -119,13 +121,24 @@ public class MainFrame extends JFrame
 		});
 	}
 
+	private String getVersion()
+	{
+		String version="";
+		Package pkg = this.getClass().getPackage();
+		if(pkg.getSpecificationVersion()!=null)
+			version += " " + pkg.getSpecificationVersion();
+		if(pkg.getImplementationVersion()!=null)
+			version += " " + pkg.getImplementationVersion();
+		return version;
+	}
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize()
 	{
 		setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
-		setTitle(Messages.getString("MainFrame.Title")+" "+this.getClass().getPackage().getSpecificationVersion()+" "+this.getClass().getPackage().getImplementationVersion()); //$NON-NLS-1$
+		setTitle(Messages.getString("MainFrame.Title") + this.getVersion()); //$NON-NLS-1$
 		setBounds(100, 100, 458, 313);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -185,7 +198,7 @@ public class MainFrame extends JFrame
 						loadProfile(filemodel.getFileAt(row));
 					}
 				}
-				//super.mouseClicked(e);
+				// super.mouseClicked(e);
 			}
 		});
 
@@ -206,39 +219,49 @@ public class MainFrame extends JFrame
 		profilesTree.setCellEditor(new DirTreeCellEditor(profilesTree, profilesTreeRenderer));
 		profilesTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		profilesTree.addTreeSelectionListener(new DirTreeSelectionListener(profilesList));
-		
+
 		popupMenu_2 = new JPopupMenu();
-		popupMenu_2.addPopupMenuListener(new PopupMenuListener() {
-			public void popupMenuCanceled(PopupMenuEvent e) {
+		popupMenu_2.addPopupMenuListener(new PopupMenuListener()
+		{
+			public void popupMenuCanceled(PopupMenuEvent e)
+			{
 			}
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+			{
 			}
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+			{
 				mntmDeleteProfile.setEnabled(profilesList.getSelectedRowCount() > 0);
 			}
 		});
 		addPopup(profilesList, popupMenu_2);
-		
+
 		mntmDeleteProfile = new JMenuItem(Messages.getString("MainFrame.mntmDeleteProfile.text")); //$NON-NLS-1$
-		mntmDeleteProfile.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		mntmDeleteProfile.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				int row = profilesList.getSelectedRow();
 				if(row >= 0)
 				{
-					File to_delete = (File)filemodel.getValueAt(row, 0);
+					File to_delete = (File) filemodel.getValueAt(row, 0);
 					to_delete.delete();
-					new File(to_delete.getAbsolutePath()+".cache").delete(); //$NON-NLS-1$
-					new File(to_delete.getAbsolutePath()+".properties").delete(); //$NON-NLS-1$
+					new File(to_delete.getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
+					new File(to_delete.getAbsolutePath() + ".properties").delete(); //$NON-NLS-1$
 					filemodel.populate();
 				}
 			}
 		});
 		mntmDeleteProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_delete.png"))); //$NON-NLS-1$
 		popupMenu_2.add(mntmDeleteProfile);
-		
+
 		mntmRenameProfile = new JMenuItem(Messages.getString("MainFrame.mntmRenameProfile.text")); //$NON-NLS-1$
-		mntmRenameProfile.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		mntmRenameProfile.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				int row = profilesList.getSelectedRow();
 				if(row >= 0)
 				{
@@ -290,12 +313,14 @@ public class MainFrame extends JFrame
 		popupMenu_1.add(mntmCreateFolder);
 
 		mntmDeleteFolder = new JMenuItem(Messages.getString("MainFrame.mntmDeleteFolder.text")); //$NON-NLS-1$
-		mntmDeleteFolder.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		mntmDeleteFolder.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				DirNode selectedNode = (DirNode) profilesTree.getLastSelectedPathComponent();
 				if(selectedNode != null)
 				{
-					DirNode parent = (DirNode)selectedNode.getParent();
+					DirNode parent = (DirNode) selectedNode.getParent();
 					profilesTreeModel.removeNodeFromParent(selectedNode);
 					TreePath path = new TreePath(parent.getPath());
 					profilesTree.setSelectionPath(path);
@@ -330,10 +355,21 @@ public class MainFrame extends JFrame
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				importDat();
+				importDat(false);
 			}
 		});
 		profilesBtnPanel.add(btnImportDat);
+
+		btnImportSL = new JButton(Messages.getString("MainFrame.btnImportSL.text")); //$NON-NLS-1$
+		btnImportSL.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				importDat(true);
+			}
+		});
+		btnImportSL.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_go.png")));
+		profilesBtnPanel.add(btnImportSL);
 
 		scannerTab = new JPanel();
 		mainPane.addTab(Messages.getString("MainFrame.Scanner"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/drive_magnify.png")), scannerTab, null); //$NON-NLS-1$ //$NON-NLS-2$
@@ -357,11 +393,13 @@ public class MainFrame extends JFrame
 		btnScan.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/magnifier.png"))); //$NON-NLS-1$
 		scannerBtnPanel.add(btnScan);
 		btnScan.setEnabled(false);
-		
+
 		btnReport = new JButton(Messages.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
 		btnReport.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/report.png")));
-		btnReport.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		btnReport.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				EventQueue.invokeLater(new Runnable()
 				{
 					@Override
@@ -783,7 +821,7 @@ public class MainFrame extends JFrame
 		gbc_listSrcDir.gridx = 1;
 		gbc_listSrcDir.gridy = 4;
 		scannerSubSettingsPanel.add(listSrcDir, gbc_listSrcDir);
-		
+
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
 		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		GridBagConstraints gbc_lblProfileinfo = new GridBagConstraints();
@@ -1180,7 +1218,7 @@ public class MainFrame extends JFrame
 
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50,50,640,400)))))));
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 640, 400)))))));
 		}
 		catch(DecoderException e1)
 		{
@@ -1188,103 +1226,84 @@ public class MainFrame extends JFrame
 		}
 	}
 
-	private void importDat()
+	private void importDat(boolean sl)
 	{
-		List<FileFilter> filters = Arrays.asList(
-			new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			new FileFilter()
-			{
-				@Override
-				public String getDescription()
-				{
-					return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
-				}
-				
-				@Override
-				public boolean accept(File f)
-				{
-					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute();
-				}
-			}
-		);
-		new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport")) //$NON-NLS-1$
-		.show(MainFrame.this, new JRMFileChooser.CallBack<Void>()
+		new Thread(new Runnable()
 		{
-			
 			@Override
-			public Void call(JRMFileChooser<Void> chooser)
+			public void run()
 			{
-				final Progress progress = new Progress(MainFrame.this);
-				SwingWorker<Import, Void> worker = new SwingWorker<Import, Void>()
-				{
-					@Override
-					protected Import doInBackground() throws Exception
-					{
-						progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
-						return new Import(chooser.getSelectedFile());
-					}
-					
-					@Override
-					protected void done()
-					{
-						progress.dispose();
-					}
-				};
-				worker.execute();
-				progress.setVisible(true);
-				try
-				{
-					Import imprt = worker.get();
-					File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-					File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
-					new JRMFileChooser<>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, xmldir, imprt.file, null, Messages.getString("MainFrame.ChooseFileName")) //$NON-NLS-1$
-					.show(MainFrame.this, 
-						new JRMFileChooser.CallBack<Object>()
+				List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						new FileFilter()
 						{
 							@Override
-							public Object call(JRMFileChooser<Object> chooser)
+							public String getDescription()
 							{
-								try
-								{
-									File file = chooser.getSelectedFile();
-									File parent = file.getParentFile();
-									FileUtils.copyFile(imprt.file, file);
-									DirTreeModel model = (DirTreeModel)profilesTree.getModel();
-									DirNode root = (DirNode)model.getRoot();
-									DirNode theNode = root.find(parent);
-									if(theNode!=null)
-									{
-										
-										theNode.reload();
-										model.reload(theNode);
-										if((theNode = root.find(parent))!=null)
+								return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
+							}
+
+							@Override
+							public boolean accept(File f)
+							{
+								return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute();
+							}
+						});
+				new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport")) //$NON-NLS-1$
+						.show(MainFrame.this, new JRMFileChooser.CallBack<Void>()
+						{
+
+							@Override
+							public Void call(JRMFileChooser<Void> chooser)
+							{
+								final Progress progress = new Progress(MainFrame.this);
+								progress.setVisible(true);
+								progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+								Import imprt = new Import(chooser.getSelectedFile(), sl);
+								progress.dispose();
+								File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+								File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
+								new JRMFileChooser<>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, xmldir, imprt.file, null, Messages.getString("MainFrame.ChooseFileName")) //$NON-NLS-1$
+										.show(MainFrame.this, new JRMFileChooser.CallBack<Object>()
 										{
-											profilesTree.clearSelection();
-											profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
-										}
-										else
-											System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
-									}
-									else
-										System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
-								}
-								catch(IOException e)
-								{
-									e.printStackTrace();
-								}
+											@Override
+											public Object call(JRMFileChooser<Object> chooser)
+											{
+												try
+												{
+													File file = chooser.getSelectedFile();
+													File parent = file.getParentFile();
+													FileUtils.copyFile(imprt.file, file);
+													DirTreeModel model = (DirTreeModel) profilesTree.getModel();
+													DirNode root = (DirNode) model.getRoot();
+													DirNode theNode = root.find(parent);
+													if(theNode != null)
+													{
+
+														theNode.reload();
+														model.reload(theNode);
+														if((theNode = root.find(parent)) != null)
+														{
+															profilesTree.clearSelection();
+															profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
+														}
+														else
+															System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
+													}
+													else
+														System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
+												}
+												catch(IOException e)
+												{
+													e.printStackTrace();
+												}
+												return null;
+											}
+										});
 								return null;
 							}
-						}
-					);
-				}
-				catch(InterruptedException|ExecutionException e1)
-				{
-					e1.printStackTrace();
-				}
-				
-				return null;
+						});
 			}
-		});
+		}).start();
 
 	}
 
@@ -1482,6 +1501,7 @@ public class MainFrame extends JFrame
 	private JLabel lblProfileinfo;
 	private JMenuItem mntmRenameProfile;
 	private JButton btnReport;
+	private JButton btnImportSL;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

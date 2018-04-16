@@ -12,7 +12,7 @@ public class Import
 {
 	public File file;
 
-	public Import(File file)
+	public Import(File file, boolean sl)
 	{
 		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 		File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
@@ -26,7 +26,7 @@ public class Import
 			{
 				File tmpfile = File.createTempFile("JRM", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$
 				tmpfile.deleteOnExit();
-				Process process = new ProcessBuilder(file.getAbsolutePath(), "-listxml").directory(file.getAbsoluteFile().getParentFile()).redirectOutput(tmpfile).start(); //$NON-NLS-1$
+				Process process = new ProcessBuilder(file.getAbsolutePath(), sl?"-listsoftware":"-listxml").directory(file.getAbsoluteFile().getParentFile()).redirectOutput(tmpfile).start(); //$NON-NLS-1$
 				process.waitFor();
 				this.file = tmpfile;
 			}
