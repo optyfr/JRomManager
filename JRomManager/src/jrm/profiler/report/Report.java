@@ -93,7 +93,7 @@ public class Report implements TreeNode, HTMLRenderer
 		this.model = report.model;
 		this.profile = report.profile;
 		this.subjects = report.filter(filterOptions);
-		this.subject_hash = this.subjects.stream().collect(Collectors.toMap(Subject::getMachineName, Function.identity(), (o, n) -> null));
+		this.subject_hash = this.subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		this.stats = report.stats;
 		this.model = report.model;
 	}
@@ -138,9 +138,9 @@ public class Report implements TreeNode, HTMLRenderer
 		return model;
 	}
 
-	public Subject findSubject(Anyware m)
+	public Subject findSubject(Anyware ware)
 	{
-		return m != null ? subject_hash.get(m.getFullName()) : null;
+		return ware != null ? subject_hash.get(ware.getFullName()) : null;
 	}
 
 	private Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
@@ -148,8 +148,8 @@ public class Report implements TreeNode, HTMLRenderer
 	public synchronized boolean add(Subject subject)
 	{
 		subject.parent = this;
-		if(subject.machine != null)
-			subject_hash.put(subject.machine.getFullName(), subject);
+		if(subject.ware != null)
+			subject_hash.put(subject.ware.getFullName(), subject);
 		boolean result = subjects.add(subject);
 		Report clone = (Report) model.getRoot();
 		if(this != clone)

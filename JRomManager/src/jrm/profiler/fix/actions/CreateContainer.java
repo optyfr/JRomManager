@@ -10,6 +10,8 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
@@ -40,7 +42,7 @@ public class CreateContainer extends ContainerAction
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
-		handler.setProgress(toHTML(toNoBR(String.format(Messages.getString("CreateContainer.Creating"), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.description))))); //$NON-NLS-1$
+		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("CreateContainer.Creating")), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.description))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)
 		{
 			if(format == FormatOptions.ZIP || format == FormatOptions.TZIP)

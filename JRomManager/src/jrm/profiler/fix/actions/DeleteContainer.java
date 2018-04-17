@@ -3,6 +3,7 @@ package jrm.profiler.fix.actions;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.Messages;
 import jrm.profiler.data.Container;
@@ -27,7 +28,7 @@ public class DeleteContainer extends ContainerAction
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
-		handler.setProgress(toHTML(toNoBR(String.format(Messages.getString("DeleteContainer.Deleting"), toBlue(container.file.getName()))))); //$NON-NLS-1$
+		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("DeleteContainer.Deleting")), toBlue(container.file.getName()))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)
 			return container.file.delete();
 		else if(container.getType() == Container.Type.SEVENZIP)

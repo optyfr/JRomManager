@@ -12,7 +12,7 @@ import jrm.profiler.data.Anyware;
 
 public abstract class Subject implements TreeNode,HTMLRenderer
 {
-	protected Anyware machine;
+	protected Anyware ware;
 	
 	protected List<Note> notes = new ArrayList<>();
 	
@@ -20,7 +20,7 @@ public abstract class Subject implements TreeNode,HTMLRenderer
 
 	public Subject(Anyware machine)
 	{
-		this.machine = machine;
+		this.ware = machine;
 	}
 	
 	public abstract Subject clone(List<FilterOptions> filterOptions);
@@ -32,10 +32,10 @@ public abstract class Subject implements TreeNode,HTMLRenderer
 		return result;
 	}
 	
-	public String getMachineName()
+	public String getWareName()
 	{
-		if(machine!=null)
-			return machine.getFullName();
+		if(ware!=null)
+			return ware.getFullName();
 		return ""; //$NON-NLS-1$
 	}
 	

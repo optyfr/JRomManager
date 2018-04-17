@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
@@ -41,7 +43,7 @@ public class OpenContainer extends ContainerAction
 	@Override
 	public boolean doAction(ProgressHandler handler)
 	{
-		handler.setProgress(toHTML(toNoBR(String.format(Messages.getString("OpenContainer.Fixing"), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.description))))); //$NON-NLS-1$
+		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("OpenContainer.Fixing")), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.description))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)
 		{
 			if(format == FormatOptions.ZIP)

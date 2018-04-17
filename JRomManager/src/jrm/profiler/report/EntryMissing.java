@@ -17,13 +17,13 @@ public class EntryMissing extends Note
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("EntryMissing.Missing"), parent.machine.getFullName(), entity.getName()); //$NON-NLS-1$
+		return String.format(Messages.getString("EntryMissing.Missing"), parent.ware.getFullName(), entity.getName()); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getHTML()
 	{
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissing.Missing")), toBlue(parent.machine.getFullName()), toBold(entity.getName()))); //$NON-NLS-2$
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissing.Missing")), toBlue(parent.ware.getFullName()), toBold(entity.getName()))); //$NON-NLS-2$
 	}
 	
 }

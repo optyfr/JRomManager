@@ -1,34 +1,13 @@
 package jrm.profiler.scan;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.URI;
+import java.nio.file.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -45,21 +24,10 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
 import jrm.profiler.Profile;
-import jrm.profiler.data.Archive;
-import jrm.profiler.data.Container;
-import jrm.profiler.data.Directory;
-import jrm.profiler.data.Disk;
-import jrm.profiler.data.Entry;
-import jrm.profiler.data.Rom;
+import jrm.profiler.data.*;
 import jrm.profiler.data.Container.Type;
 import jrm.ui.ProgressHandler;
-import net.sf.sevenzipjbinding.ExtractAskMode;
-import net.sf.sevenzipjbinding.ExtractOperationResult;
-import net.sf.sevenzipjbinding.IArchiveExtractCallback;
-import net.sf.sevenzipjbinding.IInArchive;
-import net.sf.sevenzipjbinding.ISequentialOutStream;
-import net.sf.sevenzipjbinding.SevenZip;
-import net.sf.sevenzipjbinding.SevenZipException;
+import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
@@ -117,7 +85,7 @@ public final class DirScan
 		try(Stream<Path> stream = Files.walk(path, is_dest ? 1 : 100, FileVisitOption.FOLLOW_LINKS))
 		{
 			AtomicInteger i = new AtomicInteger();
-			handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles"), dir), -1); //$NON-NLS-1$
+			handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles"), dir), 0); //$NON-NLS-1$
 			StreamEx.of(StreamSupport.stream(stream.spliterator(), use_parallelism)).unordered().takeWhile((p) -> !handler.isCancel()).forEach(p -> {
 				Container c = null;
 				if(path.equals(p))
@@ -128,7 +96,7 @@ public final class DirScan
 					BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
 					if(is_dest)
 					{
-						if(null == (c = containers_byname.get(file.getName())) || c.modified != attr.lastModifiedTime().toMillis() || (c instanceof Archive && c.size != attr.size()))
+						if(null == (c = containers_byname.get(file.getName())) || ((c.modified != attr.lastModifiedTime().toMillis() || (c instanceof Archive && c.size != attr.size())) && !c.up2date))
 						{
 							if(attr.isRegularFile())
 								containers.add(c = new Archive(file, attr));
@@ -140,7 +108,7 @@ public final class DirScan
 								containers_byname.put(file.getName(), c);
 							}
 						}
-						else
+						else if(!c.up2date)
 						{
 							c.up2date = true;
 							containers.add(c);
@@ -152,10 +120,12 @@ public final class DirScan
 						{
 							if(Container.getType(file) == Type.UNK)
 							{
+								if(path.equals(file.getParentFile().toPath()))
+									return;
 								File parent_dir = file.getParentFile();
 								BasicFileAttributes parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
 								Path relative  = path.relativize(p.getParent());
-								if(null == (c = containers_byname.get(relative.toString())) || c.modified != parent_attr.lastModifiedTime().toMillis())
+								if(null == (c = containers_byname.get(relative.toString())) || (c.modified != parent_attr.lastModifiedTime().toMillis() && !c.up2date))
 								{
 									containers.add(c = new Directory(parent_dir, attr));
 									if(c != null)
@@ -164,7 +134,7 @@ public final class DirScan
 										containers_byname.put(relative.toString(), c);
 									}
 								}
-								else
+								else if(!c.up2date)
 								{
 									c.up2date = true;
 									containers.add(c);
@@ -173,7 +143,7 @@ public final class DirScan
 							else
 							{
 								Path relative  = path.relativize(p);
-								if(null == (c = containers_byname.get(relative.toString())) || c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size())
+								if(null == (c = containers_byname.get(relative.toString())) || ((c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size()) && !c.up2date))
 								{
 									containers.add(c = new Archive(file, attr));
 									if(c != null)
@@ -182,7 +152,7 @@ public final class DirScan
 										containers_byname.put(relative.toString(), c);
 									}
 								}
-								else
+								else if(!c.up2date)
 								{
 									c.up2date = true;
 									containers.add(c);
@@ -720,7 +690,7 @@ public final class DirScan
 		File cachefile = getCacheFile(file);
 		try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 		{
-			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), file) , -1); //$NON-NLS-1$
+			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), file) , 0); //$NON-NLS-1$
 			return (HashMap<String, Container>) ois.readObject();
 		}
 		catch(Throwable e)

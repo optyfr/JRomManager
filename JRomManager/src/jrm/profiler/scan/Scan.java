@@ -1,12 +1,7 @@
 package jrm.profiler.scan;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -18,35 +13,9 @@ import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profiler.Profile;
-import jrm.profiler.data.Anyware;
-import jrm.profiler.data.Archive;
-import jrm.profiler.data.Container;
-import jrm.profiler.data.Directory;
-import jrm.profiler.data.Disk;
-import jrm.profiler.data.Entry;
-import jrm.profiler.data.Machine;
-import jrm.profiler.data.Rom;
-import jrm.profiler.data.Software;
-import jrm.profiler.data.SoftwareList;
-import jrm.profiler.fix.actions.AddEntry;
-import jrm.profiler.fix.actions.ContainerAction;
-import jrm.profiler.fix.actions.CreateContainer;
-import jrm.profiler.fix.actions.DeleteContainer;
-import jrm.profiler.fix.actions.DeleteEntry;
-import jrm.profiler.fix.actions.DuplicateEntry;
-import jrm.profiler.fix.actions.OpenContainer;
-import jrm.profiler.fix.actions.RenameEntry;
-import jrm.profiler.report.ContainerUnknown;
-import jrm.profiler.report.EntryAdd;
-import jrm.profiler.report.EntryMissing;
-import jrm.profiler.report.EntryMissingDuplicate;
-import jrm.profiler.report.EntryOK;
-import jrm.profiler.report.EntryUnneeded;
-import jrm.profiler.report.EntryWrongHash;
-import jrm.profiler.report.EntryWrongName;
-import jrm.profiler.report.Report;
-import jrm.profiler.report.RomSuspiciousCRC;
-import jrm.profiler.report.SubjectSet;
+import jrm.profiler.data.*;
+import jrm.profiler.fix.actions.*;
+import jrm.profiler.report.*;
 import jrm.profiler.report.SubjectSet.Status;
 import jrm.profiler.scan.options.FormatOptions;
 import jrm.profiler.scan.options.HashCollisionOptions;
@@ -107,6 +76,8 @@ public class Scan
 		}
 		else
 		{
+			AtomicInteger j = new AtomicInteger();
+			handler.setProgress2(String.format("%d/%d", j.get(), profile.software_lists.size()), j.get(), profile.software_lists.size()); //$NON-NLS-1$
 			for(SoftwareList sl : profile.software_lists)
 			{
 				File sldir = new File(dstdir,sl.name);
@@ -125,9 +96,11 @@ public class Scan
 							unknown.add(c);
 					}
 				}
+				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.software_lists.size(), sl.name), j.get(), profile.software_lists.size()); //$NON-NLS-1$
 				if(handler.isCancel())
 					throw new BreakException();
 			}
+			handler.setProgress2(null, null);
 			for(File f : dstdir.listFiles())
 			{
 				if(!dstscans.containsKey(f.getName()))
@@ -154,14 +127,16 @@ public class Scan
 				for(Machine m : profile.machines)
 				{
 					scanWare(m);
-					handler.setProgress(null, i.incrementAndGet());
+					handler.setProgress(null, i.incrementAndGet(), null, m.getFullName());
 					if(handler.isCancel())
 						throw new BreakException();
 				}
 			}
 			else
 			{
+				AtomicInteger j = new AtomicInteger();
 				handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.software_lists.stream().flatMapToInt(sl->IntStream.of(sl.softwares.size())).sum()); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d", j.get(), profile.software_lists.size()), j.get(), profile.software_lists.size()); //$NON-NLS-1$
 				for(SoftwareList sl : profile.software_lists)
 				{
 					dstscan = dstscans.get(sl.name);
@@ -169,11 +144,13 @@ public class Scan
 					for(Software s : sl.softwares)
 					{
 						scanWare(s);
-						handler.setProgress(null, i.incrementAndGet());
+						handler.setProgress(null, i.incrementAndGet(), null, s.getFullName());
 						if(handler.isCancel())
 							throw new BreakException();
 					}
+					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.software_lists.size(), sl.name), j.get(), profile.software_lists.size()); //$NON-NLS-1$
 				}
+				handler.setProgress2(null, null);
 			}
 		}
 		catch(BreakException e)
@@ -217,71 +194,63 @@ public class Scan
 			missing_set = false;
 		if(roms.size()==0 && disks.size()==0)
 		{
-			if(!missing_set)
-				report_subject.setUnneeded();
-			else
-				report_subject.setFound();
-		}
-		if(format == FormatOptions.DIR)
-		{
-			if(disks.size() == 0 && roms.size() == 0)
+			if(!(merge_mode.isMerge() && ware.isClone()))
 			{
-				Anyware ware_dest = ware;
-				if(!(merge_mode.isMerge() && ware.isClone()))
-					ware_dest = ware.getDest(merge_mode);
-				Container c_dest = dstscan.containers_byname.get(ware_dest.getName());
-				if(c_dest != null)
-				{
-					Optional.ofNullable(report.findSubject(ware_dest)).ifPresent(s->((SubjectSet)s).setUnneeded());
-					delete_actions.add(new DeleteContainer(c_dest, format));
-				}
+				if(!missing_set)
+					report_subject.setUnneeded();
+				else
+					report_subject.setFound();
 			}
+			missing_set = false;
 		}
 		else
-		{
-			if(disks.size() == 0)
-			{
-				Anyware ware_dest = ware;
-				if(!(merge_mode.isMerge() && ware.isClone()))
-					ware_dest = ware.getDest(merge_mode);
-				Container c_dest = dstscan.containers_byname.get(ware_dest.getName());
-				if(c_dest != null)
-				{
-					Optional.ofNullable(report.findSubject(ware_dest)).ifPresent(s->((SubjectSet)s).setUnneeded());
-					delete_actions.add(new DeleteContainer(c_dest, format));
-				}
-			}
-			if(roms.size() == 0)
-			{
-				Anyware ware_dest = ware;
-				if(!(merge_mode.isMerge() && ware.isClone()))
-					ware_dest = ware.getDest(merge_mode);
-				Container c_dest = dstscan.containers_byname.get(ware_dest.getName() + format.getExt());
-				if(c_dest != null)
-				{
-					Optional.ofNullable(report.findSubject(ware_dest)).ifPresent(s->((SubjectSet)s).setUnneeded());
-					delete_actions.add(new DeleteContainer(c_dest, format));
-				}
-			}
-		}
-		format.getExt().allExcept().forEach((e) -> {
-			Container c_dest = dstscan.containers_byname.get(ware.getName() + e);
-			if(c_dest != null)
-			{
-				Optional.ofNullable(report.findSubject(ware)).ifPresent(s->((SubjectSet)s).setUnneeded());
-				delete_actions.add(new DeleteContainer(c_dest, format));
-			}
-		});
-		if(roms.size() == 0 && disks.size() == 0)
-			missing_set = false;
-		else if(create_mode && report_subject.getStatus()==Status.UNKNOWN)
-			report_subject.setMissing();
+			if(create_mode && report_subject.getStatus() == Status.UNKNOWN)
+				report_subject.setMissing();
+		removeUnneededClone(ware, disks, roms);
+		removeOtherFormats(ware);
 		if(missing_set)
 			report.stats.missing_set_cnt++;
 		if(report_subject.getStatus()!=Status.UNKNOWN)
 			report.add(report_subject);
 			
 		
+	}
+	
+	public void removeUnneededClone(Anyware ware, List<Disk> disks, List<Rom> roms)
+	{
+		if(merge_mode.isMerge() && ware.isClone())
+		{
+			if((format == FormatOptions.DIR && disks.size() == 0 && roms.size() == 0) || (format != FormatOptions.DIR && disks.size() == 0))
+			{
+				Container c = dstscan.containers_byname.get(ware.getName());
+				if(c != null)
+				{
+					Optional.ofNullable(report.findSubject(ware)).ifPresent(s->((SubjectSet)s).setUnneeded());
+					delete_actions.add(new DeleteContainer(c, format));
+				}
+			}
+			else if(format != FormatOptions.DIR && roms.size() == 0)
+			{
+				Container c = dstscan.containers_byname.get(ware.getName() + format.getExt());
+				if(c != null)
+				{
+					Optional.ofNullable(report.findSubject(ware)).ifPresent(s->((SubjectSet)s).setUnneeded());
+					delete_actions.add(new DeleteContainer(c, format));
+				}
+			}
+		}
+	}
+	
+	public void removeOtherFormats(Anyware ware)
+	{
+		format.getExt().allExcept().forEach((e) -> {	// set other formats with the same set name as unneeded
+			Container c = dstscan.containers_byname.get(ware.getName() + e);
+			if(c != null)
+			{
+				Optional.ofNullable(report.findSubject(ware)).ifPresent(s -> ((SubjectSet) s).setUnneeded());
+				delete_actions.add(new DeleteContainer(c, format));
+			}
+		});
 	}
 	
 	@SuppressWarnings("unlikely-arg-type")
@@ -307,9 +276,10 @@ public class Scan
 					{
 						if(candidate_entry.equals(disk))
 						{
-							if(!disk.getName().equals(candidate_entry.getName()))
+							Disk another_disk;
+							if(null != (another_disk = disks_byname.get(candidate_entry.getName())) && candidate_entry.equals(another_disk)) // and entry name correspond to another disk name in the set
 							{
-								if(disks_byname.containsKey(new File(candidate_entry.file).getName()))
+								if(disks_byname.containsKey(candidate_entry.getName()))
 								{
 									if(entries_byname.containsKey(disk.getName()))
 									{
@@ -325,11 +295,14 @@ public class Scan
 								}
 								else
 								{
-									report_subject.add(new EntryWrongName(disk,candidate_entry));
-									(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(candidate_entry));
-									(rename_after_set = OpenContainer.getInstance(rename_after_set, directory, format)).addAction(new RenameEntry(disk.getName(), candidate_entry));
-									found_entry = candidate_entry;
-									break;
+									if(!entries_byname.containsKey(disk.getName())) // and disk name is not in the entries
+									{
+										report_subject.add(new EntryWrongName(disk,candidate_entry));
+										(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(candidate_entry));
+										(rename_after_set = OpenContainer.getInstance(rename_after_set, directory, format)).addAction(new RenameEntry(disk.getName(), candidate_entry));
+										found_entry = candidate_entry;
+										break;
+									}
 								}
 							}
 							else
@@ -488,7 +461,6 @@ public class Scan
 						else if(rom.getName().equals(efile))
 						{
 							report_subject.add(new EntryWrongHash(rom, candidate_entry));
-							// found = e;
 							break;
 						}
 					}
