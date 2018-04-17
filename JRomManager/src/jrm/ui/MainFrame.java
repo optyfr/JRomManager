@@ -1206,6 +1206,7 @@ public class MainFrame extends JFrame
 		debug.add(lblLogLevel, gbc_lblLogLevel);
 
 		cbLogLevel = new JComboBox<>();
+		cbLogLevel.setEnabled(false);
 		GridBagConstraints gbc_cbLogLevel = new GridBagConstraints();
 		gbc_cbLogLevel.insets = new Insets(0, 0, 0, 5);
 		gbc_cbLogLevel.fill = GridBagConstraints.HORIZONTAL;
