@@ -388,6 +388,15 @@ public class MainFrame extends JFrame
 		gbc_scannerBtnPanel.gridx = 0;
 		gbc_scannerBtnPanel.gridy = 0;
 		scannerTab.add(scannerBtnPanel, gbc_scannerBtnPanel);
+		
+		btnInfo = new JButton(Messages.getString("MainFrame.btnInfo.text")); //$NON-NLS-1$
+		btnInfo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new ProfileViewer(MainFrame.this,curr_profile);
+			}
+		});
+		btnInfo.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/information.png")));
+		scannerBtnPanel.add(btnInfo);
 
 		btnScan = new JButton(Messages.getString("MainFrame.btnScan.text")); //$NON-NLS-1$
 		btnScan.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/magnifier.png"))); //$NON-NLS-1$
@@ -1503,6 +1512,7 @@ public class MainFrame extends JFrame
 	private JMenuItem mntmRenameProfile;
 	private JButton btnReport;
 	private JButton btnImportSL;
+	private JButton btnInfo;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

@@ -1,11 +1,8 @@
 package jrm.profiler.data;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
@@ -13,47 +10,23 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
 @SuppressWarnings("serial")
-public class SoftwareList implements Serializable,Comparable<SoftwareList>,TableModel
+public final class MachineList implements Serializable, TableModel
 {
-	private transient EventListenerList listenerList = new EventListenerList();
-	private transient String[] columns = {"name","description","cloneof"};
-	private transient Class<?>[] columnsTypes = {String.class,String.class,String.class};
-	
-	public String name;	// required
-	public StringBuffer description = new StringBuffer();
-	
-	public List<Software> s_list = new ArrayList<>();
-	public Map<String, Software> s_byname = new HashMap<>();
+	private EventListenerList listenerList = new EventListenerList();
+	private String[] columns = { "name", "description", "cloneof"};
+	private Class<?>[] columnsTypes = { String.class,String.class,String.class};
+	public ArrayList<Machine> m_list = new ArrayList<>();
+	public HashMap<String, Machine> m_byname = new HashMap<>();
 
-	public SoftwareList()
+	public MachineList()
 	{
-	}
-
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		in.defaultReadObject();
-		listenerList = new EventListenerList();
-		columns = new String[] {"name","description","cloneof"};
-		columnsTypes = new Class<?>[] {String.class,String.class,String.class};
-	}
-	
-	public boolean add(Software software)
-	{
-		software.sl = this;
-		s_byname.put(software.name, software);
-		return s_list.add(software);
-	}
-
-	@Override
-	public int compareTo(SoftwareList o)
-	{
-		return this.name.compareTo(o.name);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public int getRowCount()
 	{
-		return s_list.size();
+		return m_list.size();
 	}
 
 	@Override
@@ -85,16 +58,16 @@ public class SoftwareList implements Serializable,Comparable<SoftwareList>,Table
 	{
 		switch(columnIndex)
 		{
-			case 0:	return s_list.get(rowIndex).name;
-			case 1:	return s_list.get(rowIndex).description.toString();
-			case 2:	return s_list.get(rowIndex).cloneof;
+			case 0: return m_list.get(rowIndex).name;
+			case 1: return m_list.get(rowIndex).description.toString();
+			case 2: return m_list.get(rowIndex).cloneof;
 		}
 		return null;
 	}
-	
+
 	public Anyware getWare(int rowIndex)
 	{
-		return s_list.get(rowIndex);
+		return m_list.get(rowIndex);
 	}
 
 	@Override
@@ -124,6 +97,7 @@ public class SoftwareList implements Serializable,Comparable<SoftwareList>,Table
 	
 	public void sort()
 	{
-		s_list.sort(null);
+		m_list.sort(null);
 	}
+
 }

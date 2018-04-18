@@ -5,7 +5,7 @@ import java.io.Serializable;
 import jrm.profiler.scan.options.HashCollisionOptions;
 
 @SuppressWarnings("serial")
-public abstract class Entity implements Serializable
+public abstract class Entity implements Serializable,Comparable<Entity>
 {
 	protected String name;	// required
 	public long size = 0;
@@ -13,6 +13,7 @@ public abstract class Entity implements Serializable
 	public String sha1 = null;
 	public String md5 = null;
 	public Status status = Status.good;
+	public OwnStatus own_status = OwnStatus.UNKNOWN;
 
 	public enum Status implements Serializable
 	{
@@ -20,6 +21,13 @@ public abstract class Entity implements Serializable
 		nodump,
 		good
 	}
+
+	public enum OwnStatus implements Serializable {
+		UNKNOWN,
+		KO,
+		OK
+	}
+	
 	
 	protected Anyware parent;
 
@@ -88,5 +96,11 @@ public abstract class Entity implements Serializable
 	public String toString()
 	{
 		return getName();
+	}
+
+	@Override
+	public int compareTo(Entity o)
+	{
+		return this.name.compareTo(o.name);
 	}
 }

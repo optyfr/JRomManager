@@ -50,4 +50,5 @@ public class Machine extends Anyware implements Serializable
 	{
 		return romof != null;
 	}
+
 }

@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
@@ -13,19 +11,16 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
 @SuppressWarnings("serial")
-public class SoftwareList implements Serializable,Comparable<SoftwareList>,TableModel
+public final class SoftwareListList implements Serializable, TableModel
 {
 	private transient EventListenerList listenerList = new EventListenerList();
-	private transient String[] columns = {"name","description","cloneof"};
-	private transient Class<?>[] columnsTypes = {String.class,String.class,String.class};
+	private transient String[] columns = { "name", "description" };
+	private transient Class<?>[] columnsTypes = { String.class, String.class };
 	
-	public String name;	// required
-	public StringBuffer description = new StringBuffer();
-	
-	public List<Software> s_list = new ArrayList<>();
-	public Map<String, Software> s_byname = new HashMap<>();
+	public ArrayList<SoftwareList> sl_list = new ArrayList<>();
+	public HashMap<String, SoftwareList> sl_byname = new HashMap<>();
 
-	public SoftwareList()
+	public SoftwareListList()
 	{
 	}
 
@@ -33,33 +28,20 @@ public class SoftwareList implements Serializable,Comparable<SoftwareList>,Table
 	{
 		in.defaultReadObject();
 		listenerList = new EventListenerList();
-		columns = new String[] {"name","description","cloneof"};
-		columnsTypes = new Class<?>[] {String.class,String.class,String.class};
+		columns = new String[] {"name","description"};
+		columnsTypes = new Class<?>[] {String.class,String.class};
 	}
 	
-	public boolean add(Software software)
-	{
-		software.sl = this;
-		s_byname.put(software.name, software);
-		return s_list.add(software);
-	}
-
-	@Override
-	public int compareTo(SoftwareList o)
-	{
-		return this.name.compareTo(o.name);
-	}
-
 	@Override
 	public int getRowCount()
 	{
-		return s_list.size();
+		return sl_list.size();
 	}
 
 	@Override
 	public int getColumnCount()
 	{
-		return columns.length;
+		return 2;
 	}
 
 	@Override
@@ -85,16 +67,10 @@ public class SoftwareList implements Serializable,Comparable<SoftwareList>,Table
 	{
 		switch(columnIndex)
 		{
-			case 0:	return s_list.get(rowIndex).name;
-			case 1:	return s_list.get(rowIndex).description.toString();
-			case 2:	return s_list.get(rowIndex).cloneof;
+			case 0: return sl_list.get(rowIndex).name;
+			case 1: return sl_list.get(rowIndex).description.toString();
 		}
 		return null;
-	}
-	
-	public Anyware getWare(int rowIndex)
-	{
-		return s_list.get(rowIndex);
 	}
 
 	@Override
@@ -105,17 +81,23 @@ public class SoftwareList implements Serializable,Comparable<SoftwareList>,Table
 	@Override
 	public void addTableModelListener(TableModelListener l)
 	{
+		if(listenerList==null)
+			listenerList = new EventListenerList();
 		listenerList.add(TableModelListener.class, l);
 	}
 
 	@Override
 	public void removeTableModelListener(TableModelListener l)
 	{
+		if(listenerList==null)
+			listenerList = new EventListenerList();
 		listenerList.remove(TableModelListener.class, l);
 	}
 
 	public void fireTableChanged(TableModelEvent e)
 	{
+		if(listenerList==null)
+			listenerList = new EventListenerList();
 		Object[] listeners = listenerList.getListenerList();
 		for(int i = listeners.length - 2; i >= 0; i -= 2)
 			if(listeners[i] == TableModelListener.class)
@@ -124,6 +106,7 @@ public class SoftwareList implements Serializable,Comparable<SoftwareList>,Table
 	
 	public void sort()
 	{
-		s_list.sort(null);
+		sl_list.sort(null);
 	}
+
 }

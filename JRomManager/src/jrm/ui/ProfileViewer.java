@@ -1,28 +1,28 @@
 package jrm.ui;
 
-import javax.swing.JDialog;
-import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JToolBar;
-import javax.swing.JToggleButton;
-import javax.swing.JCheckBox;
-import javax.swing.ImageIcon;
-import java.awt.Toolkit;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
 import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.Window;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableModel;
+
+import jrm.profiler.Profile;
+import jrm.profiler.data.MachineList;
+import jrm.profiler.data.MachineListList;
+import jrm.profiler.data.SoftwareList;
+import jrm.profiler.data.SoftwareListList;
 
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog
 {
 	private JTable tableEntity;
 	private JTable tableS;
-	public ProfileViewer() {
+	public ProfileViewer(Window owner, Profile profile) {
+		super(owner);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png")));
 		setTitle("Profile Viewer");
 		
@@ -62,47 +62,76 @@ public class ProfileViewer extends JDialog
 		JScrollPane scrollPaneS = new JScrollPane();
 		splitPaneSLS.setRightComponent(scrollPaneS);
 		
-		tableS = new JTable();
-		tableS.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Name", "Description", "Size", "CloneOf" })
-		{
-			Class<?>[] columnTypes = new Class[] { Object.class, String.class, Long.class, Object.class };
+		tableEntity = new JTable();
+		tableEntity.setShowGrid(false);
+		tableEntity.setShowHorizontalLines(false);
+		tableEntity.setShowVerticalLines(false);
+		tableEntity.setRowSelectionAllowed(false);
+		tableEntity.setFillsViewportHeight(true);
 
-			@Override
-			public Class<?> getColumnClass(int columnIndex)
-			{
-				return columnTypes[columnIndex];
-			}
-		});
+		tableS = new JTable();
+		tableS.setPreferredScrollableViewportSize(new Dimension(500, 400));
 		tableS.setFillsViewportHeight(true);
 		tableS.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tableS.setShowGrid(false);
 		tableS.setShowHorizontalLines(false);
 		tableS.setShowVerticalLines(false);
+		tableS.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+		{
+			@Override
+			public void valueChanged(ListSelectionEvent e)
+			{
+				if(!e.getValueIsAdjusting())
+				{
+					ListSelectionModel model = (ListSelectionModel)e.getSource();
+					TableModel tablemodel = (TableModel)tableS.getModel();
+					if(model != null && tablemodel != null && !model.isSelectionEmpty())
+					{
+						if(tablemodel instanceof SoftwareList)
+							tableEntity.setModel(((SoftwareList) tablemodel).getWare(model.getMinSelectionIndex()));
+						else
+							tableEntity.setModel(((MachineList) tablemodel).getWare(model.getMinSelectionIndex()));
+					}
+				}
+			}
+		});
 		scrollPaneS.setViewportView(tableS);
 		
 		JScrollPane scrollPaneSL = new JScrollPane();
 		splitPaneSLS.setLeftComponent(scrollPaneSL);
 		
 		JTable tableSL = new JTable();
-		tableSL.setPreferredScrollableViewportSize(new Dimension(150, 400));
-		tableSL.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Name", "Description" })
-		{
-			boolean[] columnEditables = new boolean[] { false, false };
-
-			@Override
-			public boolean isCellEditable(int row, int column)
-			{
-				return columnEditables[column];
-			}
-		});
-		tableSL.getColumnModel().getColumn(0).setPreferredWidth(20);
-		tableSL.getColumnModel().getColumn(0).setMinWidth(20);
-		tableSL.getColumnModel().getColumn(1).setPreferredWidth(60);
+		tableSL.setPreferredScrollableViewportSize(new Dimension(300, 400));
+		tableSL.setModel(profile.softwarelist_list.sl_list.size()>0?profile.softwarelist_list:profile.machinelist_list);
+		tableSL.getColumnModel().getColumn(0).setPreferredWidth(100);
+		tableSL.getColumnModel().getColumn(1).setPreferredWidth(200);
 		tableSL.setFillsViewportHeight(true);
 		tableSL.setShowGrid(false);
 		tableSL.setShowHorizontalLines(false);
 		tableSL.setShowVerticalLines(false);
 		tableSL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tableSL.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+		{
+			@Override
+			public void valueChanged(ListSelectionEvent e)
+			{
+				if(!e.getValueIsAdjusting())
+				{
+					ListSelectionModel model = (ListSelectionModel)e.getSource();
+					TableModel tablemodel = (TableModel)tableSL.getModel();
+					if(model != null && tablemodel != null && !model.isSelectionEmpty())
+					{
+						if(tablemodel instanceof SoftwareListList)
+							tableS.setModel(((SoftwareListList)tablemodel).sl_list.get(model.getMinSelectionIndex()));
+						else
+							tableS.setModel(((MachineListList)tablemodel).ml_list.get(model.getMinSelectionIndex()));
+						if(tableS.getRowCount()>0)
+							tableS.setRowSelectionInterval(0, 0);
+					}
+				}
+			}
+		});
+		tableSL.setRowSelectionInterval(0, 0);
 		scrollPaneSL.setViewportView(tableSL);
 		
 		JPanel panelEntity = new JPanel();
@@ -125,29 +154,10 @@ public class ProfileViewer extends JDialog
 		JScrollPane scrollPaneEntity = new JScrollPane();
 		panelEntity.add(scrollPaneEntity, BorderLayout.CENTER);
 		
-		tableEntity = new JTable();
-		tableEntity.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Name", "Size", "CRC", "MD5", "SHA-1" })
-		{
-			Class<?>[] columnTypes = new Class[] { Object.class, Long.class, String.class, String.class, String.class };
-
-			@Override
-			public Class<?> getColumnClass(int columnIndex)
-			{
-				return columnTypes[columnIndex];
-			}
-
-			@Override
-			public boolean isCellEditable(int row, int column)
-			{
-				return false;
-			}
-		});
-		tableEntity.setShowGrid(false);
-		tableEntity.setShowHorizontalLines(false);
-		tableEntity.setShowVerticalLines(false);
-		tableEntity.setRowSelectionAllowed(false);
-		tableEntity.setFillsViewportHeight(true);
 		scrollPaneEntity.setViewportView(tableEntity);
+		
+		pack();
+		setVisible(true);
 	}
 
 }

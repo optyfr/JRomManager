@@ -1,5 +1,6 @@
 package jrm.profiler.data;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,13 +8,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.swing.event.EventListenerList;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
+
 import jrm.profiler.data.Entity.Status;
 import jrm.profiler.scan.options.HashCollisionOptions;
 import jrm.profiler.scan.options.MergeOptions;
 import one.util.streamex.StreamEx;
 
 @SuppressWarnings("serial")
-public abstract class Anyware implements Serializable
+public abstract class Anyware implements Serializable,Comparable<Anyware>,TableModel
 {
 	protected String name;	// required
 	public String cloneof = null;
@@ -29,9 +35,36 @@ public abstract class Anyware implements Serializable
 	public static transient MergeOptions merge_mode = MergeOptions.SPLIT;
 	public static transient HashCollisionOptions hash_collision_mode = HashCollisionOptions.SINGLEFILE;
 	protected transient boolean collision = false;
+	private transient List<Entity> table_entities = null;
+	private transient String[] columns = {"name","size","CRC","MD5","SHA-1"};
+	private transient Class<?>[] columnsTypes = {String.class, Long.class, String.class, String.class, String.class};
+	private transient EventListenerList listenerList = new EventListenerList();
+	
 
+	public OwnStatus own_status = OwnStatus.UNKNOWN;
+
+	public enum OwnStatus implements Serializable {
+		UNKNOWN,
+		MISSING,
+		PARTIAL,
+		COMPLETE
+	}
+	
+	
 	public Anyware()
 	{
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		in.defaultReadObject();
+		merge_mode = MergeOptions.SPLIT;
+		hash_collision_mode = HashCollisionOptions.SINGLEFILE;
+		collision = false;
+		table_entities = null;
+		columns = new String[]{"name","size","CRC","MD5","SHA-1"};
+		columnsTypes = new Class<?>[]{String.class, Long.class, String.class, String.class, String.class};
+		listenerList = new EventListenerList();
 	}
 
 	public <T extends Anyware> T getParent(Class<T> type)
@@ -164,4 +197,90 @@ public abstract class Anyware implements Serializable
 		}).collect(Collectors.toList());
 	}
 
+	private List<Entity> getEntities()
+	{
+		if(table_entities==null)
+		{
+			table_entities = new ArrayList<>();
+			Stream.of(roms,disks).forEach(table_entities::addAll);
+			table_entities.sort(null);
+		}
+		return table_entities;
+	}
+	
+	@Override
+	public int getRowCount()
+	{
+		return getEntities().size();
+	}
+
+	@Override
+	public int getColumnCount()
+	{
+		return columns.length;
+	}
+
+	@Override
+	public String getColumnName(int columnIndex)
+	{
+		return columns[columnIndex];
+	}
+
+	@Override
+	public Class<?> getColumnClass(int columnIndex)
+	{
+		return columnsTypes[columnIndex];
+	}
+
+	@Override
+	public boolean isCellEditable(int rowIndex, int columnIndex)
+	{
+		return false;
+	}
+
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex)
+	{
+		switch(columnIndex)
+		{
+			case 0: return getEntities().get(rowIndex).name;
+			case 1: return getEntities().get(rowIndex).size;
+			case 2: return getEntities().get(rowIndex).crc;
+			case 3: return getEntities().get(rowIndex).md5;
+			case 4: return getEntities().get(rowIndex).sha1;
+		}
+		return null;
+	}
+
+	@Override
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+	{
+	}
+
+	@Override
+	public void addTableModelListener(TableModelListener l)
+	{
+		listenerList.add(TableModelListener.class, l);
+	}
+
+	@Override
+	public void removeTableModelListener(TableModelListener l)
+	{
+		listenerList.remove(TableModelListener.class, l);
+	}
+
+	public void fireTableChanged(TableModelEvent e)
+	{
+		Object[] listeners = listenerList.getListenerList();
+		for(int i = listeners.length - 2; i >= 0; i -= 2)
+			if(listeners[i] == TableModelListener.class)
+				((TableModelListener) listeners[i + 1]).tableChanged(e);
+	}
+	
+
+	@Override
+	public int compareTo(Anyware o)
+	{
+		return this.name.compareTo(o.name);
+	}
 }

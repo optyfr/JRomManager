@@ -2,7 +2,6 @@ package jrm.profiler;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
@@ -42,12 +41,9 @@ public class Profile implements Serializable
 	public String build = null;
 	public HashMap<String, StringBuffer> header = new HashMap<>();
 	
-	public ArrayList<Machine> machines = new ArrayList<>();
-	public HashMap<String, Machine> machines_byname = new HashMap<>();
-
-	public ArrayList<SoftwareList> software_lists = new ArrayList<>();
-	public HashMap<String, SoftwareList> software_list_byname = new HashMap<>();
-
+	public MachineListList machinelist_list = new MachineListList();
+	public SoftwareListList softwarelist_list = new SoftwareListList();
+	
 	public HashSet<String> suspicious_crc = new HashSet<>();
 
 	public transient Properties settings = null;
@@ -68,7 +64,7 @@ public class Profile implements Serializable
 			parser.parse(file, new DefaultHandler()
 			{
 				private HashMap<String, Rom> roms_bycrc = new HashMap<>();
-				private boolean in_softwares_list = false;
+				private boolean in_software_list = false;
 				private boolean in_software = false;
 				private boolean in_machine = false;
 				private boolean in_description = false;
@@ -100,9 +96,9 @@ public class Profile implements Serializable
 					{
 						in_header = true;
 					}
-					else if(qName.equals("softwarelist")) //$NON-NLS-1$
+					else if(qName.equals("softwarelist") && !in_machine) //$NON-NLS-1$
 					{
-						in_softwares_list = true;
+						in_software_list = true;
 						curr_software_list = new SoftwareList();
 						for(int i = 0; i < attributes.getLength(); i++)
 						{
@@ -110,7 +106,10 @@ public class Profile implements Serializable
 							{
 								case "name": //$NON-NLS-1$
 									curr_software_list.name = attributes.getValue(i).trim();
-									software_list_byname.put(curr_software_list.name, curr_software_list);
+									softwarelist_list.sl_byname.put(curr_software_list.name, curr_software_list);
+									break;
+								case "description": //$NON-NLS-1$
+									curr_software_list.description = new StringBuffer(attributes.getValue(i).trim());
 									break;
 							}
 						}
@@ -145,7 +144,7 @@ public class Profile implements Serializable
 							{
 								case "name": //$NON-NLS-1$
 									curr_machine.setName(attributes.getValue(i).trim());
-									machines_byname.put(curr_machine.getName(), curr_machine);
+									machinelist_list.ml_list.get(0).m_byname.put(curr_machine.getName(), curr_machine);
 									break;
 								case "romof": //$NON-NLS-1$
 									curr_machine.romof = attributes.getValue(i).trim();
@@ -168,7 +167,7 @@ public class Profile implements Serializable
 							}
 						}
 					}
-					else if(qName.equals("description") && (in_machine || in_software || in_softwares_list)) //$NON-NLS-1$
+					else if(qName.equals("description") && (in_machine || in_software || in_software_list)) //$NON-NLS-1$
 					{
 						in_description = true;
 					}
@@ -204,7 +203,7 @@ public class Profile implements Serializable
 									case "bios": //$NON-NLS-1$
 										curr_rom.bios = attributes.getValue(i);
 										break;
-									case "status": //$NON-NLS-1$
+									case "own_status": //$NON-NLS-1$
 										curr_rom.status = Entity.Status.valueOf(attributes.getValue(i));
 										break;
 								}
@@ -234,7 +233,7 @@ public class Profile implements Serializable
 									case "merge": //$NON-NLS-1$
 										curr_disk.merge = attributes.getValue(i).trim();
 										break;
-									case "status": //$NON-NLS-1$
+									case "own_status": //$NON-NLS-1$
 										curr_disk.status = Entity.Status.valueOf(attributes.getValue(i));
 										break;
 								}
@@ -250,11 +249,11 @@ public class Profile implements Serializable
 					{
 						in_header = false;
 					}
-					else if(qName.equals("softwarelist")) //$NON-NLS-1$
+					else if(qName.equals("softwarelist") && in_software_list) //$NON-NLS-1$
 					{
-						software_lists.add(curr_software_list);
+						softwarelist_list.sl_list.add(curr_software_list);
 						softwares_list_cnt++;
-						in_softwares_list = false;
+						in_software_list = false;
 					}
 					else if(qName.equals("software")) //$NON-NLS-1$
 					{
@@ -267,7 +266,7 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("machine")||qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
-						machines.add(curr_machine);
+						machinelist_list.ml_list.get(0).m_list.add(curr_machine);
 						machines_cnt++;
 						in_machine = false;
 						handler.setProgress(String.format(Messages.getString("Profile.Loaded"), machines_cnt, roms_cnt)); //$NON-NLS-1$
@@ -303,7 +302,7 @@ public class Profile implements Serializable
 							disks_cnt++;
 						}
 					}
-					else if(qName.equals("description") && (in_machine || in_software || in_softwares_list)) //$NON-NLS-1$
+					else if(qName.equals("description") && (in_machine || in_software || in_software_list)) //$NON-NLS-1$
 					{
 						in_description = false;
 					}
@@ -318,7 +317,7 @@ public class Profile implements Serializable
 							curr_machine.description.append(ch, start, length);
 						else if(in_software)
 							curr_software.description.append(ch, start, length);
-						else if(in_softwares_list)
+						else if(in_software_list)
 							curr_software_list.description.append(ch, start, length);
 					}
 					else if(in_header)
@@ -330,10 +329,10 @@ public class Profile implements Serializable
 				}
 			});
 			handler.setProgress(Messages.getString("Profile.BuildingParentClonesRelations"), -1); //$NON-NLS-1$
-			machines.forEach(machine -> {
+			machinelist_list.ml_list.get(0).m_list.forEach(machine -> {
 				if(machine.romof != null)
 				{
-					machine.parent = machines_byname.get(machine.romof);
+					machine.parent = machinelist_list.ml_list.get(0).m_byname.get(machine.romof);
 					if(machine.parent!=null)
 					{
 						if(!machine.getParent().isbios)
@@ -341,11 +340,13 @@ public class Profile implements Serializable
 					}
 				}
 			});
-			software_lists.forEach(software_list -> {
-				software_list.softwares.forEach(software -> {
+			softwarelist_list.sort();
+			softwarelist_list.sl_list.forEach(software_list -> {
+				software_list.sort();
+				software_list.s_list.forEach(software -> {
 					if(software.cloneof != null)
 					{
-						software.parent = software_list.softwares_byname.get(software.cloneof);
+						software.parent = software_list.s_byname.get(software.cloneof);
 						if(software.parent!=null)
 							software.parent.clones.put(software.getName(), software);
 					}
@@ -489,9 +490,9 @@ public class Profile implements Serializable
 					name += " ("+header.get("version")+")"; //$NON-NLS-2$
 			}
 		}
-		if(machines.size()>0)
+		if(machinelist_list.ml_list.get(0).m_list.size()>0)
 			name += " ("+machines_cnt+" Machines)";
-		else if(software_lists.size()>0)
+		else if(softwarelist_list.sl_list.size()>0)
 			name += " ("+softwares_list_cnt+" Software Lists, "+softwares_cnt+" Softwares)";
 		name += "</body></html>";
 		return name;

@@ -8,7 +8,7 @@ public class Software extends Anyware implements Serializable
 {
 	public Supported supported = Supported.yes;
 
-	SoftwareList list = null;
+	SoftwareList sl = null;
 	
 	public enum Supported implements Serializable
 	{
@@ -36,13 +36,13 @@ public class Software extends Anyware implements Serializable
 	@Override
 	public String getFullName()
 	{
-		return list.name + File.separator + name;
+		return sl.name + File.separator + name;
 	}
 	
 	@Override
 	public String getFullName(String filename)
 	{
-		return list.name + File.separator + filename;
+		return sl.name + File.separator + filename;
 	}
 	
 	@Override
@@ -56,5 +56,4 @@ public class Software extends Anyware implements Serializable
 	{
 		return false;
 	}
-
 }
