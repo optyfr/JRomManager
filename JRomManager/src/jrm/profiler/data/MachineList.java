@@ -34,9 +34,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	protected void initTransient()
 	{
 		super.initTransient();
-		columns = new String[] { "", "name", "description", "cloneof", "romof" };
-		columnsTypes = new Class<?>[] {Object.class,  Object.class, String.class, Object.class, Object.class};
-		columnsWidths = new int[] {-20, 40, 200, 40, 40};
+		columns = new String[] { "", "name", "description", "have", "cloneof", "romof", "sampleof"};
+		columnsTypes = new Class<?>[] {Object.class,  Object.class, String.class, String.class, Object.class, Object.class, String.class};
+		columnsWidths = new int[] {-20, 40, 200, -45, 40, 40, 40};
 		columnsRenderers = new TableCellRenderer[] {
 			new DefaultTableCellRenderer() {
 				@Override
@@ -45,7 +45,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 					if(value instanceof Machine)
 					{
 						super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
-						switch(((Machine)value).own_status)
+						switch(((Machine)value).getStatus())
 						{
 							case COMPLETE:
 								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
@@ -89,6 +89,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 				}
 			},
 			null, 
+			new DefaultTableCellRenderer() {{setHorizontalAlignment(CENTER);}},
 			new DefaultTableCellRenderer() {
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
@@ -96,7 +97,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 					if(value instanceof Machine)
 					{
 						super.getTableCellRendererComponent(table, ((Machine)value).name, isSelected, hasFocus, row, column);
-						switch(((Machine)value).own_status)
+						switch(((Machine)value).getStatus())
 						{
 							case COMPLETE:
 								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
@@ -125,7 +126,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 					if(value instanceof Machine)
 					{
 						super.getTableCellRendererComponent(table, ((Machine)value).name, isSelected, hasFocus, row, column);
-						switch(((Machine)value).own_status)
+						switch(((Machine)value).getStatus())
 						{
 							case COMPLETE:
 								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
@@ -146,7 +147,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 					setIcon(null);
 					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				}
-			}
+			},
+			null
 		}; 
 	}
 	
@@ -159,13 +161,16 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
+		Machine machine = getFilteredList().get(rowIndex);
 		switch(columnIndex)
 		{
-			case 0:	return getFilteredList().get(rowIndex);
-			case 1:	return getFilteredList().get(rowIndex);
-			case 2:	return getFilteredList().get(rowIndex).description.toString();
-			case 3:	return getFilteredList().get(rowIndex).cloneof!=null?m_byname.get(getFilteredList().get(rowIndex).cloneof):null;
-			case 4:	return getFilteredList().get(rowIndex).romof!=null&&!getFilteredList().get(rowIndex).romof.equals(getFilteredList().get(rowIndex).cloneof)?m_byname.get(getFilteredList().get(rowIndex).romof):null;
+			case 0:	return machine;
+			case 1:	return machine;
+			case 2:	return machine.description.toString();
+			case 3: return String.format("%d/%d", machine.countHave(), machine.roms.size()+machine.disks.size());
+			case 4:	return machine.cloneof!=null?m_byname.get(getFilteredList().get(rowIndex).cloneof):null;
+			case 5:	return machine.romof!=null&&!machine.romof.equals(machine.cloneof)?m_byname.get(machine.romof):null;
+			case 6: return machine.sampleof;
 		}
 		return null;
 	}

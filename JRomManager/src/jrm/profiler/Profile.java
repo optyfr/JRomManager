@@ -203,7 +203,7 @@ public class Profile implements Serializable
 									case "bios": //$NON-NLS-1$
 										curr_rom.bios = attributes.getValue(i);
 										break;
-									case "own_status": //$NON-NLS-1$
+									case "status": //$NON-NLS-1$
 										curr_rom.status = Entity.Status.valueOf(attributes.getValue(i));
 										break;
 								}
@@ -233,7 +233,7 @@ public class Profile implements Serializable
 									case "merge": //$NON-NLS-1$
 										curr_disk.merge = attributes.getValue(i).trim();
 										break;
-									case "own_status": //$NON-NLS-1$
+									case "status": //$NON-NLS-1$
 										curr_disk.status = Entity.Status.valueOf(attributes.getValue(i));
 										break;
 								}
@@ -340,7 +340,6 @@ public class Profile implements Serializable
 					}
 				}
 			});
-			softwarelist_list.sort();
 			softwarelist_list.forEach(software_list -> {
 				software_list.forEach(software -> {
 					if(software.cloneof != null)

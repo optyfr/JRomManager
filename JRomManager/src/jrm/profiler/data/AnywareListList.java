@@ -7,10 +7,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 @SuppressWarnings("serial")
@@ -18,19 +21,32 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 {
 	private transient EventListenerList listenerList;
 	protected transient String[] columns;
-	protected transient Class<?>[] columnsTypes;
+	private transient List<T> filtered_list;
 
 	public AnywareListList()
 	{
-		listenerList = new EventListenerList();
+		initTransient();
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
-		listenerList = new EventListenerList();
+		initTransient();
 	}
 
+	protected void initTransient()
+	{
+		listenerList = new EventListenerList();
+		filtered_list = null;
+	}
+	
+	protected List<T> getFilteredList()
+	{
+		if(filtered_list==null)
+			filtered_list = getList().stream().sorted().collect(Collectors.toList());
+		return filtered_list;
+	}
+	
 	@Override
 	public int getColumnCount()
 	{
@@ -41,12 +57,6 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	public String getColumnName(int columnIndex)
 	{
 		return columns[columnIndex];
-	}
-
-	@Override
-	public Class<?> getColumnClass(int columnIndex)
-	{
-		return columnsTypes[columnIndex];
 	}
 
 	@Override

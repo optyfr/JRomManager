@@ -73,4 +73,33 @@ public class Disk extends Entity implements Serializable
 		return disks.stream().collect(Collectors.toMap(Disk::getName, Function.identity(), (n, r) -> n));
 	}
 
+	private OwnStatus findDiskStatus(Anyware parent, Disk disk)
+	{
+		if(parent.parent!=null)
+		{
+			for(Disk d : parent.parent.disks)
+			{
+				if(disk.equals(d))
+					return d.getStatus();
+			}
+		}
+		return null;
+	}
+	
+	public OwnStatus getStatus()
+	{
+		if(status != Status.good)
+			return OwnStatus.OK;
+		if(own_status==OwnStatus.UNKNOWN)
+		{
+			if(this.merge != null)
+			{
+				OwnStatus status = findDiskStatus(parent, this);
+				if(status != null)
+					return status;
+			}
+		}
+		return own_status;
+	}
+
 }

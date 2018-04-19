@@ -89,16 +89,24 @@ public class ProfileViewer extends JDialog
 					if(model != null && tablemodel != null && !model.isSelectionEmpty())
 					{
 						if(tablemodel instanceof SoftwareList)
-							tableEntity.setModel(((SoftwareList) tablemodel).get(model.getMinSelectionIndex()));
+							tableEntity.setModel((Anyware)tablemodel.getValueAt(model.getMinSelectionIndex(),0));
 						else
-							tableEntity.setModel(((MachineList) tablemodel).get(model.getMinSelectionIndex()));
+							tableEntity.setModel((Anyware)tablemodel.getValueAt(model.getMinSelectionIndex(),0));
 						for(int i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++)
 						{
 							TableColumn column = tableEntity.getColumnModel().getColumn(i);
 							column.setCellRenderer(Anyware.getColumnRenderer(i));
 							int width = Anyware.getColumnWidth(i);
 							if(width>0)
+							{
+								column.setMinWidth(width/2);
 								column.setPreferredWidth(width);
+							}
+							else if(width<0)
+							{
+								column.setMinWidth(-width);
+								column.setMaxWidth(-width);
+							}
 						}
 					}
 				}
@@ -112,8 +120,22 @@ public class ProfileViewer extends JDialog
 		JTable tableSL = new JTable();
 		tableSL.setPreferredScrollableViewportSize(new Dimension(200, 400));
 		tableSL.setModel(profile.softwarelist_list.size()>0?profile.softwarelist_list:profile.machinelist_list);
-		tableSL.getColumnModel().getColumn(0).setPreferredWidth(50);
-		tableSL.getColumnModel().getColumn(1).setPreferredWidth(150);
+		for(int i = 0; i < tableSL.getColumnModel().getColumnCount(); i++)
+		{
+			TableColumn column = tableSL.getColumnModel().getColumn(i);
+			column.setCellRenderer(profile.softwarelist_list.size()>0?SoftwareListList.getColumnRenderer(i):MachineListList.getColumnRenderer(i));
+			int width = profile.softwarelist_list.size()>0?SoftwareListList.getColumnWidth(i):MachineListList.getColumnWidth(i);
+			if(width>0)
+			{
+				column.setMinWidth(width/2);
+				column.setPreferredWidth(width);
+			}
+			else if(width<0)
+			{
+				column.setMinWidth(-width);
+				column.setMaxWidth(-width);
+			}
+		}
 		tableSL.setFillsViewportHeight(true);
 		tableSL.setShowGrid(false);
 		tableSL.setShowHorizontalLines(false);
@@ -131,9 +153,9 @@ public class ProfileViewer extends JDialog
 					if(model != null && tablemodel != null && !model.isSelectionEmpty())
 					{
 						if(tablemodel instanceof SoftwareListList)
-							tableS.setModel(((SoftwareListList)tablemodel).get(model.getMinSelectionIndex()));
+							tableS.setModel((SoftwareList)tablemodel.getValueAt(model.getMinSelectionIndex(),0));
 						else
-							tableS.setModel(((MachineListList)tablemodel).get(model.getMinSelectionIndex()));
+							tableS.setModel((MachineList)tablemodel.getValueAt(model.getMinSelectionIndex(),0));
 						if(tableS.getRowCount()>0)
 							tableS.setRowSelectionInterval(0, 0);
 						for(int i = 0; i < tableS.getColumnModel().getColumnCount(); i++)

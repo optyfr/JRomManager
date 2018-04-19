@@ -75,10 +75,31 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		hash_collision_mode = HashCollisionOptions.SINGLEFILE;
 		collision = false;
 		table_entities = null;
-		columns = new String[] { "name", "size", "CRC", "MD5", "SHA-1" };
-		columnsTypes = new Class<?>[] { Object.class, Long.class, String.class, String.class, String.class };
-		columnsWidths = new int[] { 256, 80, 64, 256, 320};
+		columns = new String[] {"", "name", "size", "CRC", "MD5", "SHA-1" };
+		columnsTypes = new Class<?>[] { Object.class, Object.class, Long.class, String.class, String.class, String.class };
+		columnsWidths = new int[] {-20, 256, 80, 64, 256, 320};
 		columnsRenderers = new TableCellRenderer[] { 
+			new DefaultTableCellRenderer() {
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+				{
+					super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
+					switch(((Entity)value).getStatus())
+					{
+						case OK:
+							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png")));
+							break;
+						case KO:
+							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_red.png")));
+							break;
+						case UNKNOWN:
+						default:
+							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_black.png")));
+							break;
+					}
+					return this;
+				}
+			},
 			new DefaultTableCellRenderer() {
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
@@ -240,7 +261,6 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 
 	private List<Entity> getEntities()
 	{
-		System.out.println(getName()+":"+roms.size()+","+disks.size());
 		if(table_entities==null)
 			table_entities = Stream.concat(roms.stream(), disks.stream()).sorted().collect(Collectors.toList());
 		return table_entities;
@@ -292,10 +312,11 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		switch(columnIndex)
 		{
 			case 0: return getEntities().get(rowIndex);
-			case 1: return getEntities().get(rowIndex).size;
-			case 2: return getEntities().get(rowIndex).crc;
-			case 3: return getEntities().get(rowIndex).md5;
-			case 4: return getEntities().get(rowIndex).sha1;
+			case 1: return getEntities().get(rowIndex);
+			case 2: return getEntities().get(rowIndex).size;
+			case 3: return getEntities().get(rowIndex).crc;
+			case 4: return getEntities().get(rowIndex).md5;
+			case 5: return getEntities().get(rowIndex).sha1;
 		}
 		return null;
 	}
@@ -331,4 +352,52 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	{
 		return this.name.compareTo(o.name);
 	}
+	
+	public OwnStatus getStatus()
+	{
+		OwnStatus status = OwnStatus.COMPLETE;
+		boolean ok = false;
+		for(Disk disk : disks)
+		{
+			Entity.OwnStatus estatus = disk.getStatus();
+			if(estatus == Entity.OwnStatus.KO)
+				status = OwnStatus.PARTIAL;
+			else if(estatus == Entity.OwnStatus.OK)
+				ok = true;
+			else if(estatus == Entity.OwnStatus.UNKNOWN)
+			{
+				status = OwnStatus.UNKNOWN;
+				break;
+			}
+		}
+		for(Rom rom : roms)
+		{
+			Entity.OwnStatus estatus = rom.getStatus();
+			if(estatus == Entity.OwnStatus.KO)
+				status = OwnStatus.PARTIAL;
+			else if(estatus == Entity.OwnStatus.OK)
+				ok = true;
+			else if(estatus == Entity.OwnStatus.UNKNOWN)
+			{
+				status = OwnStatus.UNKNOWN;
+				break;
+			}
+		}
+		if(status == OwnStatus.PARTIAL && !ok)
+			status = OwnStatus.MISSING;
+		return status;
+	}
+	
+	public int countHave()
+	{
+		int have = 0;
+		for(Disk disk : disks)
+			if(disk.getStatus()==Entity.OwnStatus.OK)
+				have++;
+		for(Rom rom : roms)
+			if(rom.getStatus()==Entity.OwnStatus.OK)
+				have++;
+		return have;
+	}
+
 }

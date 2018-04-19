@@ -103,4 +103,6 @@ public abstract class Entity implements Serializable,Comparable<Entity>
 	{
 		return this.name.compareTo(o.name);
 	}
+	
+	public abstract OwnStatus getStatus();
 }

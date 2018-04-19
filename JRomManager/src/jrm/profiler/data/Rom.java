@@ -99,4 +99,30 @@ public class Rom extends Entity implements Serializable
 		return roms.stream().collect(Collectors.toMap(Rom::getName, r -> r, (n, r) -> n));
 	}
 
+	private OwnStatus findRomStatus(Anyware parent, Rom rom)
+	{
+		if(parent.parent != null)
+		{
+			for(Rom r : parent.parent.roms)
+			{
+				if(rom.equals(r))
+					return r.getStatus();
+			}
+		}
+		return null;
+	}
+
+	public OwnStatus getStatus()
+	{
+		if(status != Status.good)
+			return OwnStatus.OK;
+		if(own_status == OwnStatus.UNKNOWN)
+		{
+			OwnStatus status = findRomStatus(parent, this);
+			if(status != null)
+				return status;
+		}
+		return own_status;
+	}
+
 }
