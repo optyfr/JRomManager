@@ -10,7 +10,7 @@ import jrm.profiler.data.Anyware;
 
 public class SubjectSet extends Subject
 {
-	private Status status;
+	private Status status = Status.UNKNOWN;
 	
 	public enum Status {
 		UNKNOWN,
@@ -31,6 +31,7 @@ public class SubjectSet extends Subject
 	{
 		SubjectSet clone;
 		clone = new SubjectSet(ware);
+		clone.status = this.status;
 		clone.notes = this.filter(filterOptions);
 		return clone;
 	}

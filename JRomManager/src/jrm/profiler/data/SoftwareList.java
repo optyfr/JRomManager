@@ -1,5 +1,6 @@
 package jrm.profiler.data;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,34 +8,115 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.event.EventListenerList;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
+import javax.swing.ImageIcon;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+
+import jrm.ui.ReportFrame;
 
 @SuppressWarnings("serial")
-public class SoftwareList implements Serializable,Comparable<SoftwareList>,TableModel
+public class SoftwareList extends AnywareList<Software> implements Serializable,Comparable<SoftwareList>
 {
-	private transient EventListenerList listenerList = new EventListenerList();
-	private transient String[] columns = {"name","description","cloneof"};
-	private transient Class<?>[] columnsTypes = {String.class,String.class,String.class};
-	
 	public String name;	// required
 	public StringBuffer description = new StringBuffer();
 	
-	public List<Software> s_list = new ArrayList<>();
+	private List<Software> s_list = new ArrayList<>();
 	public Map<String, Software> s_byname = new HashMap<>();
 
 	public SoftwareList()
 	{
+		initTransient();
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
-		listenerList = new EventListenerList();
-		columns = new String[] {"name","description","cloneof"};
-		columnsTypes = new Class<?>[] {String.class,String.class,String.class};
+		initTransient();
+	}
+	
+	protected void initTransient()
+	{
+		super.initTransient();
+		columns = new String[] {"", "name","description","cloneof"};
+		columnsTypes = new Class<?>[] { Object.class,  Object.class, String.class, Object.class };
+		columnsWidths = new int[] {-20, 40, 200, 40};
+		columnsRenderers = new TableCellRenderer[] {
+			new DefaultTableCellRenderer() {
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+				{
+					if(value instanceof Software)
+					{
+						super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
+						switch(((Software)value).own_status)
+						{
+							case COMPLETE:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
+								break;
+							case PARTIAL:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_orange.png")));
+								break;
+							case MISSING:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
+								break;
+							case UNKNOWN:
+							default:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_gray.png")));
+								break;
+						}
+						return this;
+					}
+					setIcon(null);
+					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				}
+			},
+			new DefaultTableCellRenderer() {
+				{
+					setIcon(null);
+				}
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+				{
+					if(value instanceof Software)
+					{
+						super.getTableCellRendererComponent(table, ((Software)value).name, isSelected, hasFocus, row, column);
+						return this;
+					}
+					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				}
+			},
+			null, 
+			new DefaultTableCellRenderer() {
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+				{
+					if(value instanceof Software)
+					{
+						super.getTableCellRendererComponent(table, ((Software)value).name, isSelected, hasFocus, row, column);
+						switch(((Software)value).own_status)
+						{
+							case COMPLETE:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
+								break;
+							case PARTIAL:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_orange.png")));
+								break;
+							case MISSING:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
+								break;
+							case UNKNOWN:
+							default:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_gray.png")));
+								break;
+						}
+						return this;
+					}
+					setIcon(null);
+					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				}
+			}
+		}; 
 	}
 	
 	public boolean add(Software software)
@@ -53,31 +135,7 @@ public class SoftwareList implements Serializable,Comparable<SoftwareList>,Table
 	@Override
 	public int getRowCount()
 	{
-		return s_list.size();
-	}
-
-	@Override
-	public int getColumnCount()
-	{
-		return columns.length;
-	}
-
-	@Override
-	public String getColumnName(int columnIndex)
-	{
-		return columns[columnIndex];
-	}
-
-	@Override
-	public Class<?> getColumnClass(int columnIndex)
-	{
-		return columnsTypes[columnIndex];
-	}
-
-	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex)
-	{
-		return false;
+		return getFilteredList().size();
 	}
 
 	@Override
@@ -85,45 +143,17 @@ public class SoftwareList implements Serializable,Comparable<SoftwareList>,Table
 	{
 		switch(columnIndex)
 		{
-			case 0:	return s_list.get(rowIndex).name;
-			case 1:	return s_list.get(rowIndex).description.toString();
-			case 2:	return s_list.get(rowIndex).cloneof;
+			case 0:	return getFilteredList().get(rowIndex);
+			case 1:	return getFilteredList().get(rowIndex);
+			case 2:	return getFilteredList().get(rowIndex).description.toString();
+			case 3:	return getFilteredList().get(rowIndex).cloneof!=null?s_byname.get(getFilteredList().get(rowIndex).cloneof):null;
 		}
 		return null;
 	}
 	
-	public Anyware getWare(int rowIndex)
-	{
-		return s_list.get(rowIndex);
-	}
-
 	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+	protected List<Software> getList()
 	{
-	}
-
-	@Override
-	public void addTableModelListener(TableModelListener l)
-	{
-		listenerList.add(TableModelListener.class, l);
-	}
-
-	@Override
-	public void removeTableModelListener(TableModelListener l)
-	{
-		listenerList.remove(TableModelListener.class, l);
-	}
-
-	public void fireTableChanged(TableModelEvent e)
-	{
-		Object[] listeners = listenerList.getListenerList();
-		for(int i = listeners.length - 2; i >= 0; i -= 2)
-			if(listeners[i] == TableModelListener.class)
-				((TableModelListener) listeners[i + 1]).tableChanged(e);
-	}
-	
-	public void sort()
-	{
-		s_list.sort(null);
+		return s_list;
 	}
 }

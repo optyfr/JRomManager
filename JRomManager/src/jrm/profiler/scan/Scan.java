@@ -61,14 +61,14 @@ public class Scan
 			if(handler.isCancel())
 				throw new BreakException();
 		}
-		if(profile.machinelist_list.ml_list.get(0).m_list.size()>0)
+		if(profile.machinelist_list.get(0).size()>0)
 		{
 			allscans.add(dstscan = new DirScan(profile, dstdir, handler, true));
 			for(Container c : dstscan.containers)
 			{
 				if(c.getType() == Container.Type.UNK)
 					unknown.add(c);
-				else if(!profile.machinelist_list.ml_list.get(0).m_byname.containsKey(FilenameUtils.getBaseName(c.file.toString())))
+				else if(!profile.machinelist_list.get(0).m_byname.containsKey(FilenameUtils.getBaseName(c.file.toString())))
 					unknown.add(c);
 			}
 			if(handler.isCancel())
@@ -77,8 +77,8 @@ public class Scan
 		else
 		{
 			AtomicInteger j = new AtomicInteger();
-			handler.setProgress2(String.format("%d/%d", j.get(), profile.softwarelist_list.sl_list.size()), j.get(), profile.softwarelist_list.sl_list.size()); //$NON-NLS-1$
-			for(SoftwareList sl : profile.softwarelist_list.sl_list)
+			handler.setProgress2(String.format("%d/%d", j.get(), profile.softwarelist_list.size()), j.get(), profile.softwarelist_list.size()); //$NON-NLS-1$
+			for(SoftwareList sl : profile.softwarelist_list)
 			{
 				File sldir = new File(dstdir,sl.name);
 				if(!sldir.exists())
@@ -96,7 +96,7 @@ public class Scan
 							unknown.add(c);
 					}
 				}
-				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.softwarelist_list.sl_list.size(), sl.name), j.get(), profile.softwarelist_list.sl_list.size()); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.softwarelist_list.size(), sl.name), j.get(), profile.softwarelist_list.size()); //$NON-NLS-1$
 				if(handler.isCancel())
 					throw new BreakException();
 			}
@@ -120,11 +120,11 @@ public class Scan
 			profile.suspicious_crc.forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
 
 			AtomicInteger i = new AtomicInteger();
-			if(profile.machinelist_list.ml_list.get(0).m_list.size()>0)
+			if(profile.machinelist_list.get(0).size()>0)
 			{
-				handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.machinelist_list.ml_list.get(0).m_list.size()); //$NON-NLS-1$
-				profile.machinelist_list.ml_list.get(0).m_list.forEach(Machine::resetCollisionMode);
-				for(Machine m : profile.machinelist_list.ml_list.get(0).m_list)
+				handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.machinelist_list.get(0).size()); //$NON-NLS-1$
+				profile.machinelist_list.get(0).forEach(Machine::resetCollisionMode);
+				for(Machine m : profile.machinelist_list.get(0))
 				{
 					scanWare(m);
 					handler.setProgress(null, i.incrementAndGet(), null, m.getFullName());
@@ -135,20 +135,20 @@ public class Scan
 			else
 			{
 				AtomicInteger j = new AtomicInteger();
-				handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.softwarelist_list.sl_list.stream().flatMapToInt(sl->IntStream.of(sl.s_list.size())).sum()); //$NON-NLS-1$
-				handler.setProgress2(String.format("%d/%d", j.get(), profile.softwarelist_list.sl_list.size()), j.get(), profile.softwarelist_list.sl_list.size()); //$NON-NLS-1$
-				for(SoftwareList sl : profile.softwarelist_list.sl_list)
+				handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.softwarelist_list.stream().flatMapToInt(sl->IntStream.of(sl.size())).sum()); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d", j.get(), profile.softwarelist_list.size()), j.get(), profile.softwarelist_list.size()); //$NON-NLS-1$
+				for(SoftwareList sl : profile.softwarelist_list)
 				{
 					dstscan = dstscans.get(sl.name);
-					sl.s_list.forEach(Software::resetCollisionMode);
-					for(Software s : sl.s_list)
+					sl.forEach(Software::resetCollisionMode);
+					for(Software s : sl)
 					{
 						scanWare(s);
 						handler.setProgress(null, i.incrementAndGet(), null, s.getFullName());
 						if(handler.isCancel())
 							throw new BreakException();
 					}
-					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.softwarelist_list.sl_list.size(), sl.name), j.get(), profile.softwarelist_list.sl_list.size()); //$NON-NLS-1$
+					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.softwarelist_list.size(), sl.name), j.get(), profile.softwarelist_list.size()); //$NON-NLS-1$
 				}
 				handler.setProgress2(null, null);
 			}

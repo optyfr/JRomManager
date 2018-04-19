@@ -8,13 +8,11 @@ import java.awt.Window;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import jrm.profiler.Profile;
-import jrm.profiler.data.MachineList;
-import jrm.profiler.data.MachineListList;
-import jrm.profiler.data.SoftwareList;
-import jrm.profiler.data.SoftwareListList;
+import jrm.profiler.data.*;
 
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog
@@ -63,11 +61,13 @@ public class ProfileViewer extends JDialog
 		splitPaneSLS.setRightComponent(scrollPaneS);
 		
 		tableEntity = new JTable();
+		tableEntity.setPreferredScrollableViewportSize(new Dimension(1000, 300));
 		tableEntity.setShowGrid(false);
 		tableEntity.setShowHorizontalLines(false);
 		tableEntity.setShowVerticalLines(false);
 		tableEntity.setRowSelectionAllowed(false);
 		tableEntity.setFillsViewportHeight(true);
+		tableEntity.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
 		tableS = new JTable();
 		tableS.setPreferredScrollableViewportSize(new Dimension(500, 400));
@@ -76,6 +76,7 @@ public class ProfileViewer extends JDialog
 		tableS.setShowGrid(false);
 		tableS.setShowHorizontalLines(false);
 		tableS.setShowVerticalLines(false);
+		tableS.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		tableS.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 		{
 			@Override
@@ -88,9 +89,17 @@ public class ProfileViewer extends JDialog
 					if(model != null && tablemodel != null && !model.isSelectionEmpty())
 					{
 						if(tablemodel instanceof SoftwareList)
-							tableEntity.setModel(((SoftwareList) tablemodel).getWare(model.getMinSelectionIndex()));
+							tableEntity.setModel(((SoftwareList) tablemodel).get(model.getMinSelectionIndex()));
 						else
-							tableEntity.setModel(((MachineList) tablemodel).getWare(model.getMinSelectionIndex()));
+							tableEntity.setModel(((MachineList) tablemodel).get(model.getMinSelectionIndex()));
+						for(int i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++)
+						{
+							TableColumn column = tableEntity.getColumnModel().getColumn(i);
+							column.setCellRenderer(Anyware.getColumnRenderer(i));
+							int width = Anyware.getColumnWidth(i);
+							if(width>0)
+								column.setPreferredWidth(width);
+						}
 					}
 				}
 			}
@@ -101,10 +110,10 @@ public class ProfileViewer extends JDialog
 		splitPaneSLS.setLeftComponent(scrollPaneSL);
 		
 		JTable tableSL = new JTable();
-		tableSL.setPreferredScrollableViewportSize(new Dimension(300, 400));
-		tableSL.setModel(profile.softwarelist_list.sl_list.size()>0?profile.softwarelist_list:profile.machinelist_list);
-		tableSL.getColumnModel().getColumn(0).setPreferredWidth(100);
-		tableSL.getColumnModel().getColumn(1).setPreferredWidth(200);
+		tableSL.setPreferredScrollableViewportSize(new Dimension(200, 400));
+		tableSL.setModel(profile.softwarelist_list.size()>0?profile.softwarelist_list:profile.machinelist_list);
+		tableSL.getColumnModel().getColumn(0).setPreferredWidth(50);
+		tableSL.getColumnModel().getColumn(1).setPreferredWidth(150);
 		tableSL.setFillsViewportHeight(true);
 		tableSL.setShowGrid(false);
 		tableSL.setShowHorizontalLines(false);
@@ -122,11 +131,27 @@ public class ProfileViewer extends JDialog
 					if(model != null && tablemodel != null && !model.isSelectionEmpty())
 					{
 						if(tablemodel instanceof SoftwareListList)
-							tableS.setModel(((SoftwareListList)tablemodel).sl_list.get(model.getMinSelectionIndex()));
+							tableS.setModel(((SoftwareListList)tablemodel).get(model.getMinSelectionIndex()));
 						else
-							tableS.setModel(((MachineListList)tablemodel).ml_list.get(model.getMinSelectionIndex()));
+							tableS.setModel(((MachineListList)tablemodel).get(model.getMinSelectionIndex()));
 						if(tableS.getRowCount()>0)
 							tableS.setRowSelectionInterval(0, 0);
+						for(int i = 0; i < tableS.getColumnModel().getColumnCount(); i++)
+						{
+							TableColumn column = tableS.getColumnModel().getColumn(i);
+							column.setCellRenderer(AnywareList.getColumnRenderer(i));
+							int width = AnywareList.getColumnWidth(i);
+							if(width>0)
+							{
+								column.setMinWidth(width/2);
+								column.setPreferredWidth(width);
+							}
+							else if(width<0)
+							{
+								column.setMinWidth(-width);
+								column.setMaxWidth(-width);
+							}
+						}
 					}
 				}
 			}

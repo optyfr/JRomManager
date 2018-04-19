@@ -1,5 +1,6 @@
 package jrm.profiler.data;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,18 +9,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.swing.ImageIcon;
+import javax.swing.JTable;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import jrm.profiler.data.Entity.Status;
 import jrm.profiler.scan.options.HashCollisionOptions;
 import jrm.profiler.scan.options.MergeOptions;
+import jrm.ui.ReportFrame;
 import one.util.streamex.StreamEx;
 
 @SuppressWarnings("serial")
-public abstract class Anyware implements Serializable,Comparable<Anyware>,TableModel
+public abstract class Anyware implements Serializable, Comparable<Anyware>, TableModel
 {
 	protected String name;	// required
 	public String cloneof = null;
@@ -32,16 +38,17 @@ public abstract class Anyware implements Serializable,Comparable<Anyware>,TableM
 	
 	public Anyware parent = null;
 
-	public static transient MergeOptions merge_mode = MergeOptions.SPLIT;
-	public static transient HashCollisionOptions hash_collision_mode = HashCollisionOptions.SINGLEFILE;
-	protected transient boolean collision = false;
-	private transient List<Entity> table_entities = null;
-	private transient String[] columns = {"name","size","CRC","MD5","SHA-1"};
-	private transient Class<?>[] columnsTypes = {String.class, Long.class, String.class, String.class, String.class};
-	private transient EventListenerList listenerList = new EventListenerList();
-	
-
 	public OwnStatus own_status = OwnStatus.UNKNOWN;
+
+	public static transient MergeOptions merge_mode;
+	public static transient HashCollisionOptions hash_collision_mode;
+	protected transient boolean collision;
+	private transient List<Entity> table_entities;
+	private transient String[] columns;
+	private static transient Class<?>[] columnsTypes;
+	private static transient TableCellRenderer[] columnsRenderers;
+	private static transient int[] columnsWidths;
+	private transient EventListenerList listenerList;
 
 	public enum OwnStatus implements Serializable {
 		UNKNOWN,
@@ -53,20 +60,54 @@ public abstract class Anyware implements Serializable,Comparable<Anyware>,TableM
 	
 	public Anyware()
 	{
+		initTransient();
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
+		initTransient();
+	}
+
+	private void initTransient()
+	{
 		merge_mode = MergeOptions.SPLIT;
 		hash_collision_mode = HashCollisionOptions.SINGLEFILE;
 		collision = false;
 		table_entities = null;
-		columns = new String[]{"name","size","CRC","MD5","SHA-1"};
-		columnsTypes = new Class<?>[]{String.class, Long.class, String.class, String.class, String.class};
+		columns = new String[] { "name", "size", "CRC", "MD5", "SHA-1" };
+		columnsTypes = new Class<?>[] { Object.class, Long.class, String.class, String.class, String.class };
+		columnsWidths = new int[] { 256, 80, 64, 256, 320};
+		columnsRenderers = new TableCellRenderer[] { 
+			new DefaultTableCellRenderer() {
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+				{
+					super.getTableCellRendererComponent(table, (value!=null&&value instanceof Anyware)?((Anyware)value).getName():value, isSelected, hasFocus, row, column);
+					if(value instanceof Rom)
+						setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/rom_small.png")));
+					else if(value instanceof Disk)
+						setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/drive.png")));
+					return this;
+				}
+			},
+			new DefaultTableCellRenderer() {
+				{// anonymous constructor
+					setHorizontalAlignment(TRAILING);
+				}
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+				{
+					return super.getTableCellRendererComponent(table, (value!=null&&value instanceof Long)?((Long)value>0?value:null):value, isSelected, hasFocus, row, column);
+				}
+			}, 
+			new DefaultTableCellRenderer() {{setHorizontalAlignment(TRAILING);}},
+			new DefaultTableCellRenderer() {{setHorizontalAlignment(TRAILING);}},
+			new DefaultTableCellRenderer() {{setHorizontalAlignment(TRAILING);}}
+		};
 		listenerList = new EventListenerList();
 	}
-
+	
 	public <T extends Anyware> T getParent(Class<T> type)
 	{
 		return type.cast(parent);
@@ -199,12 +240,9 @@ public abstract class Anyware implements Serializable,Comparable<Anyware>,TableM
 
 	private List<Entity> getEntities()
 	{
+		System.out.println(getName()+":"+roms.size()+","+disks.size());
 		if(table_entities==null)
-		{
-			table_entities = new ArrayList<>();
-			Stream.of(roms,disks).forEach(table_entities::addAll);
-			table_entities.sort(null);
-		}
+			table_entities = Stream.concat(roms.stream(), disks.stream()).sorted().collect(Collectors.toList());
 		return table_entities;
 	}
 	
@@ -232,6 +270,16 @@ public abstract class Anyware implements Serializable,Comparable<Anyware>,TableM
 		return columnsTypes[columnIndex];
 	}
 
+	public static TableCellRenderer getColumnRenderer(int columnIndex)
+	{
+		return columnsRenderers[columnIndex]!=null?columnsRenderers[columnIndex]:new DefaultTableCellRenderer();
+	}
+
+	public static int getColumnWidth(int columnIndex)
+	{
+		return columnsWidths[columnIndex];
+	}
+
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex)
 	{
@@ -243,7 +291,7 @@ public abstract class Anyware implements Serializable,Comparable<Anyware>,TableM
 	{
 		switch(columnIndex)
 		{
-			case 0: return getEntities().get(rowIndex).name;
+			case 0: return getEntities().get(rowIndex);
 			case 1: return getEntities().get(rowIndex).size;
 			case 2: return getEntities().get(rowIndex).crc;
 			case 3: return getEntities().get(rowIndex).md5;

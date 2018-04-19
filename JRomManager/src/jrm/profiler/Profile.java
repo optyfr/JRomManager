@@ -144,7 +144,7 @@ public class Profile implements Serializable
 							{
 								case "name": //$NON-NLS-1$
 									curr_machine.setName(attributes.getValue(i).trim());
-									machinelist_list.ml_list.get(0).m_byname.put(curr_machine.getName(), curr_machine);
+									machinelist_list.get(0).m_byname.put(curr_machine.getName(), curr_machine);
 									break;
 								case "romof": //$NON-NLS-1$
 									curr_machine.romof = attributes.getValue(i).trim();
@@ -251,7 +251,7 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("softwarelist") && in_software_list) //$NON-NLS-1$
 					{
-						softwarelist_list.sl_list.add(curr_software_list);
+						softwarelist_list.add(curr_software_list);
 						softwares_list_cnt++;
 						in_software_list = false;
 					}
@@ -266,7 +266,7 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("machine")||qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
-						machinelist_list.ml_list.get(0).m_list.add(curr_machine);
+						machinelist_list.get(0).add(curr_machine);
 						machines_cnt++;
 						in_machine = false;
 						handler.setProgress(String.format(Messages.getString("Profile.Loaded"), machines_cnt, roms_cnt)); //$NON-NLS-1$
@@ -329,10 +329,10 @@ public class Profile implements Serializable
 				}
 			});
 			handler.setProgress(Messages.getString("Profile.BuildingParentClonesRelations"), -1); //$NON-NLS-1$
-			machinelist_list.ml_list.get(0).m_list.forEach(machine -> {
+			machinelist_list.get(0).forEach(machine -> {
 				if(machine.romof != null)
 				{
-					machine.parent = machinelist_list.ml_list.get(0).m_byname.get(machine.romof);
+					machine.parent = machinelist_list.get(0).m_byname.get(machine.romof);
 					if(machine.parent!=null)
 					{
 						if(!machine.getParent().isbios)
@@ -341,9 +341,8 @@ public class Profile implements Serializable
 				}
 			});
 			softwarelist_list.sort();
-			softwarelist_list.sl_list.forEach(software_list -> {
-				software_list.sort();
-				software_list.s_list.forEach(software -> {
+			softwarelist_list.forEach(software_list -> {
+				software_list.forEach(software -> {
 					if(software.cloneof != null)
 					{
 						software.parent = software_list.s_byname.get(software.cloneof);
@@ -490,9 +489,9 @@ public class Profile implements Serializable
 					name += " ("+header.get("version")+")"; //$NON-NLS-2$
 			}
 		}
-		if(machinelist_list.ml_list.get(0).m_list.size()>0)
+		if(machinelist_list.get(0).size()>0)
 			name += " ("+machines_cnt+" Machines)";
-		else if(softwarelist_list.sl_list.size()>0)
+		else if(softwarelist_list.size()>0)
 			name += " ("+softwares_list_cnt+" Software Lists, "+softwares_cnt+" Softwares)";
 		name += "</body></html>";
 		return name;
