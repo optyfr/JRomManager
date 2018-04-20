@@ -2,23 +2,21 @@ package jrm.profiler.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 @SuppressWarnings("serial")
 public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> implements Serializable, TableModel, List<T>
 {
-	private transient EventListenerList listenerList;
-	protected transient String[] columns;
+	private static transient EventListenerList listenerList;
+	private static transient EnumSet<AnywareStatus> filter = null;
 	private transient List<T> filtered_list;
 
 	public AnywareListList()
@@ -34,35 +32,36 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 
 	protected void initTransient()
 	{
-		listenerList = new EventListenerList();
+		if(listenerList == null)
+			listenerList = new EventListenerList();
+		if(filter == null)
+			filter = EnumSet.allOf(AnywareStatus.class);
 		filtered_list = null;
 	}
-	
-	protected List<T> getFilteredList()
+
+	public void setFilter(EnumSet<AnywareStatus> filter)
 	{
-		if(filtered_list==null)
-			filtered_list = getList().stream().sorted().collect(Collectors.toList());
-		return filtered_list;
-	}
-	
-	@Override
-	public int getColumnCount()
-	{
-		return 2;
+		AnywareListList.filter = filter;
+		this.filtered_list = null;
+		fireTableChanged(new TableModelEvent(this));
 	}
 
-	@Override
-	public String getColumnName(int columnIndex)
+	protected List<T> getFilteredList()
 	{
-		return columns[columnIndex];
+		if(filtered_list == null)
+			filtered_list = getList().stream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+		return filtered_list;
 	}
+
+	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
+
+	public abstract int getColumnWidth(int columnIndex);
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex)
 	{
 		return false;
 	}
-
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
@@ -72,7 +71,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	@Override
 	public void addTableModelListener(TableModelListener l)
 	{
-		if(listenerList==null)
+		if(listenerList == null)
 			listenerList = new EventListenerList();
 		listenerList.add(TableModelListener.class, l);
 	}
@@ -80,14 +79,14 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	@Override
 	public void removeTableModelListener(TableModelListener l)
 	{
-		if(listenerList==null)
+		if(listenerList == null)
 			listenerList = new EventListenerList();
 		listenerList.remove(TableModelListener.class, l);
 	}
 
 	public void fireTableChanged(TableModelEvent e)
 	{
-		if(listenerList==null)
+		if(listenerList == null)
 			listenerList = new EventListenerList();
 		Object[] listeners = listenerList.getListenerList();
 		for(int i = listeners.length - 2; i >= 0; i -= 2)
@@ -102,25 +101,25 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	{
 		return getList().get(index);
 	}
-	
+
 	@Override
 	public boolean add(T list)
 	{
 		return getList().add(list);
 	}
-	
+
 	@Override
 	public void forEach(Consumer<? super T> action)
 	{
 		getList().forEach(action);
 	}
-	
+
 	@Override
 	public int size()
 	{
 		return getList().size();
 	}
-	
+
 	@Override
 	public boolean isEmpty()
 	{
