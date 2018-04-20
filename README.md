@@ -52,6 +52,7 @@ _Behavior compared to other Rom managers_
 - Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
 - Exclude CHDs and Samples scanning
 - General settings
+- Filtering functionalities (clone, machine, ...)
 
 ## Middle Term Planned Features
 - Dir2Dat, Dat2Dat
