@@ -20,6 +20,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	private ArrayList<Machine> m_list = new ArrayList<>();
 	public HashMap<String, Machine> m_byname = new HashMap<>();
 
+	protected static transient String[] columns;
+	protected static transient Class<?>[] columnsTypes;
+	protected static transient TableCellRenderer[] columnsRenderers;
+	protected static transient int[] columnsWidths;
+
 	public MachineList()
 	{
 		initTransient();
@@ -34,18 +39,22 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	protected void initTransient()
 	{
 		super.initTransient();
-		columns = new String[] { "", "name", "description", "have", "cloneof", "romof", "sampleof"};
-		columnsTypes = new Class<?>[] {Object.class,  Object.class, String.class, String.class, Object.class, Object.class, String.class};
-		columnsWidths = new int[] {-20, 40, 200, -45, 40, 40, 40};
-		columnsRenderers = new TableCellRenderer[] {
-			new DefaultTableCellRenderer() {
+		if(columns == null)
+			columns = new String[] { "", "name", "description", "have", "cloneof", "romof", "sampleof" };
+		if(columnsTypes == null)
+			columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Object.class, String.class };
+		if(columnsWidths == null)
+			columnsWidths = new int[] { -20, 40, 200, -45, 40, 40, 40 };
+		if(columnsRenderers == null)
+			columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
+			{
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 				{
 					if(value instanceof Machine)
 					{
 						super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
-						switch(((Machine)value).getStatus())
+						switch(((Machine) value).getStatus())
 						{
 							case COMPLETE:
 								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
@@ -66,19 +75,19 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 					setIcon(null);
 					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				}
-			},
-			new DefaultTableCellRenderer() {
+			}, new DefaultTableCellRenderer()
+			{
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 				{
 					if(value instanceof Machine)
 					{
-						super.getTableCellRendererComponent(table, ((Machine)value).name, isSelected, hasFocus, row, column);
-						if(((Machine)value).isbios)
+						super.getTableCellRendererComponent(table, ((Machine) value).name, isSelected, hasFocus, row, column);
+						if(((Machine) value).isbios)
 							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/application_osx_terminal.png")));
-						else if(((Machine)value).isdevice)
+						else if(((Machine) value).isdevice)
 							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/computer.png")));
-						else if(((Machine)value).ismechanical)
+						else if(((Machine) value).ismechanical)
 							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/wrench.png")));
 						else
 							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/joystick.png")));
@@ -87,17 +96,20 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 					setIcon(null);
 					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				}
-			},
-			null, 
-			new DefaultTableCellRenderer() {{setHorizontalAlignment(CENTER);}},
-			new DefaultTableCellRenderer() {
+			}, null, new DefaultTableCellRenderer()
+			{
+				{
+					setHorizontalAlignment(CENTER);
+				}
+			}, new DefaultTableCellRenderer()
+			{
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 				{
 					if(value instanceof Machine)
 					{
-						super.getTableCellRendererComponent(table, ((Machine)value).name, isSelected, hasFocus, row, column);
-						switch(((Machine)value).getStatus())
+						super.getTableCellRendererComponent(table, ((Machine) value).name, isSelected, hasFocus, row, column);
+						switch(((Machine) value).getStatus())
 						{
 							case COMPLETE:
 								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
@@ -118,15 +130,15 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 					setIcon(null);
 					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				}
-			}, 
-			new DefaultTableCellRenderer() {
+			}, new DefaultTableCellRenderer()
+			{
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 				{
 					if(value instanceof Machine)
 					{
-						super.getTableCellRendererComponent(table, ((Machine)value).name, isSelected, hasFocus, row, column);
-						switch(((Machine)value).getStatus())
+						super.getTableCellRendererComponent(table, ((Machine) value).name, isSelected, hasFocus, row, column);
+						switch(((Machine) value).getStatus())
 						{
 							case COMPLETE:
 								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
@@ -147,11 +159,37 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 					setIcon(null);
 					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				}
-			},
-			null
-		}; 
+			}, null };
 	}
-	
+
+	@Override
+	public int getColumnCount()
+	{
+		return columns.length;
+	}
+
+	@Override
+	public String getColumnName(int columnIndex)
+	{
+		return columns[columnIndex];
+	}
+
+	@Override
+	public Class<?> getColumnClass(int columnIndex)
+	{
+		return columnsTypes[columnIndex];
+	}
+
+	public TableCellRenderer getColumnRenderer(int columnIndex)
+	{
+		return columnsRenderers[columnIndex] != null ? columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+	}
+
+	public int getColumnWidth(int columnIndex)
+	{
+		return columnsWidths[columnIndex];
+	}
+
 	@Override
 	public int getRowCount()
 	{
@@ -164,13 +202,20 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		Machine machine = getFilteredList().get(rowIndex);
 		switch(columnIndex)
 		{
-			case 0:	return machine;
-			case 1:	return machine;
-			case 2:	return machine.description.toString();
-			case 3: return String.format("%d/%d", machine.countHave(), machine.roms.size()+machine.disks.size());
-			case 4:	return machine.cloneof!=null?m_byname.get(getFilteredList().get(rowIndex).cloneof):null;
-			case 5:	return machine.romof!=null&&!machine.romof.equals(machine.cloneof)?m_byname.get(machine.romof):null;
-			case 6: return machine.sampleof;
+			case 0:
+				return machine;
+			case 1:
+				return machine;
+			case 2:
+				return machine.description.toString();
+			case 3:
+				return String.format("%d/%d", machine.countHave(), machine.roms.size() + machine.disks.size());
+			case 4:
+				return machine.cloneof != null ? m_byname.get(getFilteredList().get(rowIndex).cloneof) : null;
+			case 5:
+				return machine.romof != null && !machine.romof.equals(machine.cloneof) ? m_byname.get(machine.romof) : null;
+			case 6:
+				return machine.sampleof;
 		}
 		return null;
 	}

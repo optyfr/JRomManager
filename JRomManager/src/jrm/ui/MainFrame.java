@@ -53,7 +53,8 @@ public class MainFrame extends JFrame
 
 	private Profile curr_profile;
 	private Scan curr_scan;
-	private ReportFrame report_frame = null;
+	public static ReportFrame report_frame = null;
+	public static ProfileViewer profile_viewer = null;
 
 	private JButton btnScan;
 	private JButton btnFix;
@@ -392,7 +393,9 @@ public class MainFrame extends JFrame
 		btnInfo = new JButton(Messages.getString("MainFrame.btnInfo.text")); //$NON-NLS-1$
 		btnInfo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new ProfileViewer(MainFrame.this,curr_profile);
+				if(profile_viewer==null)
+					profile_viewer = new ProfileViewer(MainFrame.this,curr_profile);
+				profile_viewer.setVisible(true);
 			}
 		});
 		btnInfo.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/information.png")));
@@ -1329,7 +1332,12 @@ public class MainFrame extends JFrame
 			@Override
 			protected Void doInBackground() throws Exception
 			{
+				if(profile_viewer!=null)
+					profile_viewer.clear();
 				success = (null != (curr_profile = Profile.load(profile, progress)));
+				Scan.report.setProfile(curr_profile);
+				if(profile_viewer!=null)
+					profile_viewer.reset(curr_profile);
 				mainPane.setEnabledAt(1, success);
 				btnScan.setEnabled(success);
 				btnFix.setEnabled(false);

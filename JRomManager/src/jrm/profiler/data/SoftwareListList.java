@@ -19,6 +19,8 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 {
 	private ArrayList<SoftwareList> sl_list = new ArrayList<>();
 	public HashMap<String, SoftwareList> sl_byname = new HashMap<>();
+
+	protected static transient String[] columns;
 	protected static transient Class<?>[] columnsTypes;
 	protected static transient TableCellRenderer[] columnsRenderers;
 	protected static transient int[] columnsWidths;
@@ -33,45 +35,86 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		in.defaultReadObject();
 		initTransient();
 	}
-	
+
 	protected void initTransient()
 	{
 		super.initTransient();
-		columns = new String[] {"name","description"};
-		columnsTypes = new Class<?>[] {Object.class,String.class};
-		columnsWidths = new int[] {50, 150};
-		columnsRenderers = new TableCellRenderer[] {
-			new DefaultTableCellRenderer() {
+		if(columns == null)
+			columns = new String[] { "name", "description", "have" };
+		if(columnsTypes == null)
+			columnsTypes = new Class<?>[] { Object.class, String.class, String.class };
+		if(columnsWidths == null)
+			columnsWidths = new int[] { 70, 150, -80 };
+		if(columnsRenderers == null)
+			columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
+			{
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 				{
-					setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/disk_multiple.png")));
-					return super.getTableCellRendererComponent(table, value instanceof SoftwareList?((SoftwareList)value).name:value, isSelected, hasFocus, row, column);
+					if(value instanceof SoftwareList)
+					{
+						super.getTableCellRendererComponent(table, ((SoftwareList) value).name, isSelected, hasFocus, row, column);
+						switch(((SoftwareList) value).getStatus())
+						{
+							case COMPLETE:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/disk_multiple_green.png")));
+								break;
+							case MISSING:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/disk_multiple_red.png")));
+								break;
+							case PARTIAL:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/disk_multiple_orange.png")));
+								break;
+							case UNKNOWN:
+							default:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/disk_multiple_gray.png")));
+								break;
+
+						}
+						return this;
+					}
+					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				}
-			},
-			new DefaultTableCellRenderer() {
+			}, new DefaultTableCellRenderer()
+			{
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 				{
 					setIcon(null);
 					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				}
-			}
-		}; 
+			}, new DefaultTableCellRenderer()
+			{
+				{
+					setHorizontalAlignment(CENTER);
+				}
+			} };
 	}
-	
+
+	@Override
+	public int getColumnCount()
+	{
+		return columns.length;
+	}
+
+	@Override
+	public String getColumnName(int columnIndex)
+	{
+		return columns[columnIndex];
+	}
+
 	@Override
 	public Class<?> getColumnClass(int columnIndex)
 	{
 		return columnsTypes[columnIndex];
 	}
 
-	public static TableCellRenderer getColumnRenderer(int columnIndex)
+	public TableCellRenderer getColumnRenderer(int columnIndex)
 	{
-		return columnsRenderers[columnIndex]!=null?columnsRenderers[columnIndex]:new DefaultTableCellRenderer();
+		return columnsRenderers[columnIndex] != null ? columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
-	public static int getColumnWidth(int columnIndex)
+	public int getColumnWidth(int columnIndex)
 	{
 		return columnsWidths[columnIndex];
 	}
@@ -87,8 +130,12 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	{
 		switch(columnIndex)
 		{
-			case 0: return getFilteredList().get(rowIndex);
-			case 1: return getFilteredList().get(rowIndex).description.toString();
+			case 0:
+				return getFilteredList().get(rowIndex);
+			case 1:
+				return getFilteredList().get(rowIndex).description.toString();
+			case 2:
+				return String.format("%d/%d", getFilteredList().get(rowIndex).countHave(), getFilteredList().get(rowIndex).countAll());
 		}
 		return null;
 	}
@@ -98,6 +145,5 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	{
 		return sl_list;
 	}
-	
 
 }

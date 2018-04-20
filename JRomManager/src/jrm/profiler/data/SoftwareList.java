@@ -24,6 +24,11 @@ public class SoftwareList extends AnywareList<Software> implements Serializable,
 	private List<Software> s_list = new ArrayList<>();
 	public Map<String, Software> s_byname = new HashMap<>();
 
+	protected static transient String[] columns;
+	protected static transient Class<?>[] columnsTypes;
+	protected static transient TableCellRenderer[] columnsRenderers;
+	protected static transient int[] columnsWidths;
+
 	public SoftwareList()
 	{
 		initTransient();
@@ -38,89 +43,93 @@ public class SoftwareList extends AnywareList<Software> implements Serializable,
 	protected void initTransient()
 	{
 		super.initTransient();
-		columns = new String[] { "", "name", "description", "have", "cloneof" };
-		columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class };
-		columnsWidths = new int[] { -20, 40, 200, -45, 40 };
-		columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
-		{
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		if(columns == null)
+			columns = new String[] { "", "name", "description", "have", "cloneof" };
+		if(columnsTypes == null)
+			columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class };
+		if(columnsWidths == null)
+			columnsWidths = new int[] { -20, 40, 200, -45, 40 };
+		if(columnsRenderers == null)
+			columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 			{
-				if(value instanceof Software)
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 				{
-					super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
-					switch(((Software) value).getStatus())
+					if(value instanceof Software)
 					{
-						case COMPLETE:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
-							break;
-						case PARTIAL:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_orange.png")));
-							break;
-						case MISSING:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
-							break;
-						case UNKNOWN:
-						default:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_gray.png")));
-							break;
+						super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
+						switch(((Software) value).getStatus())
+						{
+							case COMPLETE:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
+								break;
+							case PARTIAL:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_orange.png")));
+								break;
+							case MISSING:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
+								break;
+							case UNKNOWN:
+							default:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_gray.png")));
+								break;
+						}
+						return this;
 					}
-					return this;
+					setIcon(null);
+					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				}
-				setIcon(null);
-				return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			}
-		}, new DefaultTableCellRenderer()
-		{
+			}, new DefaultTableCellRenderer()
 			{
-				setIcon(null);
-			}
+				{
+					setIcon(null);
+				}
 
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-			{
-				if(value instanceof Software)
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 				{
-					super.getTableCellRendererComponent(table, ((Software) value).name, isSelected, hasFocus, row, column);
-					return this;
-				}
-				return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			}
-		}, null, new DefaultTableCellRenderer()
-		{
-			{
-				setHorizontalAlignment(CENTER);
-			}
-		}, new DefaultTableCellRenderer()
-		{
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-			{
-				if(value instanceof Software)
-				{
-					super.getTableCellRendererComponent(table, ((Software) value).name, isSelected, hasFocus, row, column);
-					switch(((Software) value).getStatus())
+					if(value instanceof Software)
 					{
-						case COMPLETE:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
-							break;
-						case PARTIAL:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_orange.png")));
-							break;
-						case MISSING:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
-							break;
-						case UNKNOWN:
-						default:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_gray.png")));
-							break;
+						super.getTableCellRendererComponent(table, ((Software) value).name, isSelected, hasFocus, row, column);
+						return this;
 					}
-					return this;
+					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				}
-				setIcon(null);
-				return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			}
-		} };
+			}, null, new DefaultTableCellRenderer()
+			{
+				{
+					setHorizontalAlignment(CENTER);
+				}
+			}, new DefaultTableCellRenderer()
+			{
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+				{
+					if(value instanceof Software)
+					{
+						super.getTableCellRendererComponent(table, ((Software) value).name, isSelected, hasFocus, row, column);
+						switch(((Software) value).getStatus())
+						{
+							case COMPLETE:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
+								break;
+							case PARTIAL:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_orange.png")));
+								break;
+							case MISSING:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
+								break;
+							case UNKNOWN:
+							default:
+								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_gray.png")));
+								break;
+						}
+						return this;
+					}
+					setIcon(null);
+					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				}
+			} };
 	}
 
 	public boolean add(Software software)
@@ -134,6 +143,34 @@ public class SoftwareList extends AnywareList<Software> implements Serializable,
 	public int compareTo(SoftwareList o)
 	{
 		return this.name.compareTo(o.name);
+	}
+
+	@Override
+	public int getColumnCount()
+	{
+		return columns.length;
+	}
+
+	@Override
+	public String getColumnName(int columnIndex)
+	{
+		return columns[columnIndex];
+	}
+
+	@Override
+	public Class<?> getColumnClass(int columnIndex)
+	{
+		return columnsTypes[columnIndex];
+	}
+
+	public TableCellRenderer getColumnRenderer(int columnIndex)
+	{
+		return columnsRenderers[columnIndex] != null ? columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+	}
+
+	public int getColumnWidth(int columnIndex)
+	{
+		return columnsWidths[columnIndex];
 	}
 
 	@Override

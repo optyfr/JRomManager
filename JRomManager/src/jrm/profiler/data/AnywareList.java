@@ -2,27 +2,21 @@ package jrm.profiler.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 @SuppressWarnings("serial")
 public abstract class AnywareList<T extends Anyware> implements Serializable, TableModel, List<T>
 {
-	private transient EventListenerList listenerList;
-	protected transient String[] columns;
-	protected static transient Class<?>[] columnsTypes;
-	protected static transient TableCellRenderer[] columnsRenderers;
-	protected static transient int[] columnsWidths;
+	private static transient EventListenerList listenerList;
+	private static transient EnumSet<AnywareStatus> filter = null;
+	private transient List<T> filtered_list;
 
 	public AnywareList()
 	{
@@ -37,47 +31,31 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	
 	protected void initTransient()
 	{
-		listenerList = new EventListenerList();
+		if(listenerList==null)
+			listenerList = new EventListenerList();
+		if(filter==null)
+			filter = EnumSet.allOf(AnywareStatus.class);
+		filtered_list = null;
 	}
 	
 	protected abstract List<T> getList();
 
-	private List<T> filtered_list = null;
+	public void setFilter(EnumSet<AnywareStatus> filter)
+	{
+		AnywareList.filter = filter;
+		this.filtered_list = null;
+		fireTableChanged(new TableModelEvent(this));
+	}
+	
 	protected List<T> getFilteredList()
 	{
 		if(filtered_list==null)
-			filtered_list = getList().stream().sorted().collect(Collectors.toList());
+			filtered_list = getList().stream().filter(t->filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
 	
-
-	@Override
-	public int getColumnCount()
-	{
-		return columns.length;
-	}
-
-	@Override
-	public String getColumnName(int columnIndex)
-	{
-		return columns[columnIndex];
-	}
-
-	@Override
-	public Class<?> getColumnClass(int columnIndex)
-	{
-		return columnsTypes[columnIndex];
-	}
-
-	public static TableCellRenderer getColumnRenderer(int columnIndex)
-	{
-		return columnsRenderers[columnIndex]!=null?columnsRenderers[columnIndex]:new DefaultTableCellRenderer();
-	}
-
-	public static int getColumnWidth(int columnIndex)
-	{
-		return columnsWidths[columnIndex];
-	}
+	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
+	public abstract int getColumnWidth(int columnIndex);
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -248,4 +226,43 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 		return getList().subList(fromIndex, toIndex);
 	}
 	
+	public AnywareStatus getStatus()
+	{
+		AnywareStatus status = AnywareStatus.COMPLETE;
+		boolean ok = false;
+		for(T t : getList())
+		{
+			AnywareStatus estatus = t.getStatus();
+			if(estatus == AnywareStatus.PARTIAL || estatus == AnywareStatus.MISSING)
+				status = AnywareStatus.PARTIAL;
+			else if(estatus == AnywareStatus.COMPLETE)
+				ok = true;
+			else if(estatus == AnywareStatus.UNKNOWN)
+			{
+				status = AnywareStatus.UNKNOWN;
+				break;
+			}
+		}
+		if(status == AnywareStatus.PARTIAL && !ok)
+			status = AnywareStatus.MISSING;
+		return status;
+	}
+	
+	public int countHave()
+	{
+		int have = 0;
+		for(T t : getList())
+			have += t.getStatus()==AnywareStatus.COMPLETE?1:0;
+		return have;
+	}
+
+	public int countAll()
+	{
+		return getList().size();
+	}
+	
+	public int find(Anyware anyware)
+	{
+		return getFilteredList().indexOf(anyware);
+	}
 }

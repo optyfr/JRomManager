@@ -99,9 +99,14 @@ public class Rom extends Entity implements Serializable
 		return roms.stream().collect(Collectors.toMap(Rom::getName, r -> r, (n, r) -> n));
 	}
 
-	private OwnStatus findRomStatus(Anyware parent, Rom rom)
+	private EntityStatus findRomStatus(Anyware parent, Rom rom)
 	{
-		if(parent.parent != null)
+		for(Rom r : parent.roms)	// case when there is a duplicate declaration of the same rom
+		{
+			if(rom.equals(r) && rom.name.equals(r.name) && r.own_status != EntityStatus.UNKNOWN)
+				return r.own_status;
+		}
+		if(parent.parent != null)	// find same rom in parent clone (if any and recursively)
 		{
 			for(Rom r : parent.parent.roms)
 			{
@@ -112,13 +117,13 @@ public class Rom extends Entity implements Serializable
 		return null;
 	}
 
-	public OwnStatus getStatus()
+	public EntityStatus getStatus()
 	{
 		if(status != Status.good)
-			return OwnStatus.OK;
-		if(own_status == OwnStatus.UNKNOWN)
+			return EntityStatus.OK;
+		if(own_status == EntityStatus.UNKNOWN)
 		{
-			OwnStatus status = findRomStatus(parent, this);
+			EntityStatus status = findRomStatus(parent, this);
 			if(status != null)
 				return status;
 		}

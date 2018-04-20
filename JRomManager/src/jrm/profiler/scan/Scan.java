@@ -14,13 +14,13 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profiler.Profile;
 import jrm.profiler.data.*;
-import jrm.profiler.data.Entity.OwnStatus;
 import jrm.profiler.fix.actions.*;
 import jrm.profiler.report.*;
 import jrm.profiler.report.SubjectSet.Status;
 import jrm.profiler.scan.options.FormatOptions;
 import jrm.profiler.scan.options.HashCollisionOptions;
 import jrm.profiler.scan.options.MergeOptions;
+import jrm.ui.MainFrame;
 import jrm.ui.ProgressHandler;
 
 public class Scan
@@ -48,7 +48,7 @@ public class Scan
 
 	public Scan(Profile profile, File dstdir, List<File> srcdirs, ProgressHandler handler) throws BreakException
 	{
-		report.setProfile(this.profile = profile);
+		this.profile = profile;
 		format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
 		merge_mode = MergeOptions.valueOf(profile.getProperty("merge_mode", MergeOptions.SPLIT.toString())); //$NON-NLS-1$
 		create_mode = profile.getProperty("create_mode", true); //$NON-NLS-1$
@@ -166,6 +166,9 @@ public class Scan
 		{
 			report.write();
 			report.flush();
+			if(MainFrame.profile_viewer!=null)
+				MainFrame.profile_viewer.reload();	// update entries in profile viewer
+			profile.save();	// save again profile cache with scan entity status
 		}
 
 		
@@ -271,7 +274,7 @@ public class Scan
 				OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null, duplicate_set = null;
 				for(Disk disk : disks)
 				{
-					disk.own_status = OwnStatus.KO;
+					disk.own_status = EntityStatus.KO;
 					Entry found_entry = null;
 					Map<String, Entry> entries_byname = container.getEntriesByName();
 					for(Entry candidate_entry : container.getEntries())
@@ -337,7 +340,7 @@ public class Scan
 					}
 					else
 					{
-						disk.own_status = OwnStatus.OK;
+						disk.own_status = EntityStatus.OK;
 						report_subject.add(new EntryOK(disk));
 						// report_w.println("["+m.name+"] "+d.getName()+" ("+found.file+") OK ");
 						disks_found.add(found_entry);
@@ -360,7 +363,7 @@ public class Scan
 		else
 		{
 			for(Disk disk : disks)
-				disk.own_status = OwnStatus.KO;
+				disk.own_status = EntityStatus.KO;
 			if(create_mode)
 			{
 				if(disks.size() > 0)
@@ -421,7 +424,7 @@ public class Scan
 				OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null, duplicate_set = null;
 				for(Rom rom : roms)
 				{
-					rom.own_status = OwnStatus.KO;
+					rom.own_status = EntityStatus.KO;
 					Entry found_entry = null;
 					Map<String, Entry> entries_byname = container.getEntriesByName();
 					for(Entry candidate_entry : container.getEntries())
@@ -492,7 +495,7 @@ public class Scan
 					else
 					{
 						// report_w.println("[" + m.name + "] " + r.getName() + " (" + found.file + ") OK ");
-						rom.own_status = OwnStatus.OK;
+						rom.own_status = EntityStatus.OK;
 						report_subject.add(new EntryOK(rom));
 						roms_found.add(found_entry);
 					}
@@ -514,7 +517,7 @@ public class Scan
 		else
 		{
 			for(Rom rom : roms)
-				rom.own_status = OwnStatus.KO;
+				rom.own_status = EntityStatus.KO;
 			if(create_mode)
 			{
 				if(roms.size() > 0)

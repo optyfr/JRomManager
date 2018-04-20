@@ -73,9 +73,14 @@ public class Disk extends Entity implements Serializable
 		return disks.stream().collect(Collectors.toMap(Disk::getName, Function.identity(), (n, r) -> n));
 	}
 
-	private OwnStatus findDiskStatus(Anyware parent, Disk disk)
+	private EntityStatus findDiskStatus(Anyware parent, Disk disk)
 	{
-		if(parent.parent!=null)
+		for(Disk d : parent.disks)	// case when there is a duplicate declaration of the same disk
+		{
+			if(disk.equals(d) && disk.name.equals(d.name) && d.own_status != EntityStatus.UNKNOWN)
+				return d.own_status;
+		}
+		if(parent.parent!=null)	// find same disk in parent clone (if any and recursively)
 		{
 			for(Disk d : parent.parent.disks)
 			{
@@ -86,15 +91,15 @@ public class Disk extends Entity implements Serializable
 		return null;
 	}
 	
-	public OwnStatus getStatus()
+	public EntityStatus getStatus()
 	{
 		if(status != Status.good)
-			return OwnStatus.OK;
-		if(own_status==OwnStatus.UNKNOWN)
+			return EntityStatus.OK;
+		if(own_status==EntityStatus.UNKNOWN)
 		{
 			if(this.merge != null)
 			{
-				OwnStatus status = findDiskStatus(parent, this);
+				EntityStatus status = findDiskStatus(parent, this);
 				if(status != null)
 					return status;
 			}

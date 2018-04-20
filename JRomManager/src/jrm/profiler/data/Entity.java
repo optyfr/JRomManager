@@ -13,7 +13,7 @@ public abstract class Entity implements Serializable,Comparable<Entity>
 	public String sha1 = null;
 	public String md5 = null;
 	public Status status = Status.good;
-	public OwnStatus own_status = OwnStatus.UNKNOWN;
+	public EntityStatus own_status = EntityStatus.UNKNOWN;
 
 	public enum Status implements Serializable
 	{
@@ -22,13 +22,6 @@ public abstract class Entity implements Serializable,Comparable<Entity>
 		good
 	}
 
-	public enum OwnStatus implements Serializable {
-		UNKNOWN,
-		KO,
-		OK
-	}
-	
-	
 	protected Anyware parent;
 
 	private transient boolean collision = false;
@@ -104,5 +97,5 @@ public abstract class Entity implements Serializable,Comparable<Entity>
 		return this.name.compareTo(o.name);
 	}
 	
-	public abstract OwnStatus getStatus();
+	public abstract EntityStatus getStatus();
 }
