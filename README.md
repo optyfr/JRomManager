@@ -67,3 +67,7 @@ _Behavior compared to other Rom managers_
 - Old ClrMamePro non-xml format: even considered as deprecated by ClrMamePro
 - CHD verification: data won't be verified, only header is read to get md5/sha1, maybe the data size will be verified later but no hashing nor chdman
 - Rom resizing
+
+## Known issues
+- Never ever launch multiple instances of JRomManager, because 7zJBinding does have problem with this , and also because you may get stranges other things
+- JRomManager is still in early developpement stage, do not complain if it broke your romset and you didn't make any copy or backup
