@@ -9,7 +9,10 @@ import java.util.stream.Collectors;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+<<<<<<< HEAD
 import javax.swing.table.TableCellRenderer;
+=======
+>>>>>>> branch 'master' of https://github.com/optyfr/JRomManager
 import javax.swing.table.TableModel;
 
 @SuppressWarnings("serial")
