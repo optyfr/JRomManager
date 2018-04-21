@@ -47,7 +47,6 @@ _Behavior compared to other Rom managers_
 - Software List support
 
 ## Short Term Planned Features
-- Use JUnique to avoid launching app twice
 - Better Dat Managing (with gui)
 - Optional Separate Dest dir between Roms and CHDs
 - Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
