@@ -13,8 +13,8 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.Messages;
 import jrm.misc.Settings;
-import jrm.profiler.report.FilterOptions;
-import jrm.profiler.scan.Scan;
+import jrm.profile.report.FilterOptions;
+import jrm.profile.scan.Scan;
 
 @SuppressWarnings("serial")
 public class ReportFrame extends JDialog implements StatusHandler 

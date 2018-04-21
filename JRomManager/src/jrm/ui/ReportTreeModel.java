@@ -7,8 +7,8 @@ import java.util.List;
 
 import javax.swing.tree.DefaultTreeModel;
 
-import jrm.profiler.report.FilterOptions;
-import jrm.profiler.report.Report;
+import jrm.profile.report.FilterOptions;
+import jrm.profile.report.Report;
 
 @SuppressWarnings("serial")
 public final class ReportTreeModel extends DefaultTreeModel

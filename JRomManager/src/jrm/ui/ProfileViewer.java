@@ -18,9 +18,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import jrm.profiler.Profile;
-import jrm.profiler.data.*;
 import jrm.Messages;
+import jrm.profile.Profile;
+import jrm.profile.data.*;
 
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog

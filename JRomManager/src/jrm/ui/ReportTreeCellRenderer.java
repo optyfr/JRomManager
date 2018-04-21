@@ -7,7 +7,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import jrm.misc.HTMLRenderer;
-import jrm.profiler.report.*;
+import jrm.profile.report.*;
 
 @SuppressWarnings("serial")
 public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
