@@ -71,6 +71,6 @@ _Behavior compared to other Rom managers_
 - Rom resizing
 
 ## Known issues
-- Never ever launch multiple instances of JRomManager, because 7zJBinding does have problem with this , and also because you may get stranges other things
+- ~~Never ever launch multiple instances of JRomManager, because 7zJBinding does have problem with this , and also because you may get stranges other things~~ *Prevented app to launch twice*
 - JRomManager is still in early developpement stage, do not complain if it broke your romset and you didn't make any copy or backup
-- Zip integrated in java leaves useless directory entries in zip central directory, it is by design, and this implementation is the fastest available, this will not disturb Mame or any emulator, but clrmamepro will complain about useless dirs, and trrntzip will remove those entries as expected ;-)
+- Zip integrated in java leaves useless directory entries in zip central directory, it is by design, and this implementation is the fastest available, this will not disturb Mame or any emulator, but clrmamepro will complain about useless dirs, and trrntzip will remove those entries as expected :wink:
