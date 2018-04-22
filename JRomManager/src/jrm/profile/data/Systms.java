@@ -1,15 +1,16 @@
 package jrm.profile.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.swing.AbstractListModel;
 
 @SuppressWarnings("serial")
-public class Systems extends AbstractListModel<System>
+public class Systms extends AbstractListModel<Systm> implements Serializable
 {
-	ArrayList<System> systems = new ArrayList<>();
+	ArrayList<Systm> systems = new ArrayList<>();
 
-	public Systems()
+	public Systms()
 	{
 	}
 
@@ -20,12 +21,12 @@ public class Systems extends AbstractListModel<System>
 	}
 
 	@Override
-	public System getElementAt(int index)
+	public Systm getElementAt(int index)
 	{
 		return systems.get(index);
 	}
 
-	public boolean add(System system)
+	public boolean add(Systm system)
 	{
 		return systems.add(system);
 	}

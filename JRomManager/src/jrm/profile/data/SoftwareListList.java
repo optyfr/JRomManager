@@ -1,29 +1,21 @@
 package jrm.profile.data;
 
-import java.awt.Component;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import jrm.ui.ReportFrame;
+import jrm.ui.SoftwareListListRenderer;
 
 @SuppressWarnings("serial")
 public final class SoftwareListList extends AnywareListList<SoftwareList> implements Serializable
 {
 	private ArrayList<SoftwareList> sl_list = new ArrayList<>();
 	public HashMap<String, SoftwareList> sl_byname = new HashMap<>();
-
-	protected static transient String[] columns;
-	protected static transient Class<?>[] columnsTypes;
-	protected static transient TableCellRenderer[] columnsRenderers;
-	protected static transient int[] columnsWidths;
 
 	public SoftwareListList()
 	{
@@ -39,84 +31,34 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	protected void initTransient()
 	{
 		super.initTransient();
-		if(columns == null)
-			columns = new String[] { "name", "description", "have" };
-		if(columnsTypes == null)
-			columnsTypes = new Class<?>[] { Object.class, String.class, String.class };
-		if(columnsWidths == null)
-			columnsWidths = new int[] { 70, 150, -80 };
-		if(columnsRenderers == null)
-			columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
-			{
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					if(value instanceof SoftwareList)
-					{
-						super.getTableCellRendererComponent(table, ((SoftwareList) value).name, isSelected, hasFocus, row, column);
-						switch(((SoftwareList) value).getStatus())
-						{
-							case COMPLETE:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/disk_multiple_green.png")));
-								break;
-							case MISSING:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/disk_multiple_red.png")));
-								break;
-							case PARTIAL:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/disk_multiple_orange.png")));
-								break;
-							case UNKNOWN:
-							default:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/disk_multiple_gray.png")));
-								break;
-
-						}
-						return this;
-					}
-					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					setIcon(null);
-					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				{
-					setHorizontalAlignment(CENTER);
-				}
-			} };
 	}
 
 	@Override
 	public int getColumnCount()
 	{
-		return columns.length;
+		return SoftwareListListRenderer.columns.length;
 	}
 
 	@Override
 	public String getColumnName(int columnIndex)
 	{
-		return columns[columnIndex];
+		return SoftwareListListRenderer.columns[columnIndex];
 	}
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex)
 	{
-		return columnsTypes[columnIndex];
+		return SoftwareListListRenderer.columnsTypes[columnIndex];
 	}
 
 	public TableCellRenderer getColumnRenderer(int columnIndex)
 	{
-		return columnsRenderers[columnIndex] != null ? columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+		return SoftwareListListRenderer.columnsRenderers[columnIndex] != null ? SoftwareListListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
 	public int getColumnWidth(int columnIndex)
 	{
-		return columnsWidths[columnIndex];
+		return SoftwareListListRenderer.columnsWidths[columnIndex];
 	}
 
 	@Override

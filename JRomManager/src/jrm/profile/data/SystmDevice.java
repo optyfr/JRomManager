@@ -1,10 +1,13 @@
 package jrm.profile.data;
 
-public class SystemDevice implements System
-{
-	public static SystemDevice DEVICE = new SystemDevice();
+import java.io.Serializable;
 
-	public SystemDevice()
+@SuppressWarnings("serial")
+public class SystmDevice implements Systm, Serializable
+{
+	public static SystmDevice DEVICE = new SystmDevice();
+
+	public SystmDevice()
 	{
 	}
 
@@ -15,7 +18,7 @@ public class SystemDevice implements System
 	}
 
 	@Override
-	public System getSystem()
+	public Systm getSystem()
 	{
 		return DEVICE;
 	}

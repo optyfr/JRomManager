@@ -38,6 +38,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -900,9 +903,9 @@ public class MainFrame extends JFrame
 		scannerCfgTab.addTab(Messages.getString("MainFrame.panel.title"), null, scannerFilters, null); //$NON-NLS-1$
 		GridBagLayout gbl_scannerFilters = new GridBagLayout();
 		gbl_scannerFilters.columnWidths = new int[] { 0, 0, 0, 0 };
-		gbl_scannerFilters.rowHeights = new int[] { 24, 0, 0 };
+		gbl_scannerFilters.rowHeights = new int[] { 24, 0, 0, 0 };
 		gbl_scannerFilters.columnWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		gbl_scannerFilters.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+		gbl_scannerFilters.rowWeights = new double[] { 1.0, 1.0, 1.0, Double.MIN_VALUE };
 		scannerFilters.setLayout(gbl_scannerFilters);
 
 		chckbxIncludeClones = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeClones.text")); //$NON-NLS-1$
@@ -915,18 +918,20 @@ public class MainFrame extends JFrame
 		scannerFilters.add(chckbxIncludeClones, gbc_chckbxIncludeClones);
 
 		scrollPane_2 = new JScrollPane();
-		scrollPane_2.setViewportBorder(new TitledBorder(null, "Systems", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		scrollPane_2.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.scrollPane_2.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
-		gbc_scrollPane_2.gridheight = 2;
+		gbc_scrollPane_2.gridheight = 3;
 		gbc_scrollPane_2.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane_2.gridx = 2;
 		gbc_scrollPane_2.gridy = 0;
 		scannerFilters.add(scrollPane_2, gbc_scrollPane_2);
 
-		checkBoxListSystems = new CheckBoxList<jrm.profile.data.System>();
-		checkBoxListSystems.setCellRenderer(checkBoxListSystems.new CellRenderer() {
-			public Component getListCellRendererComponent(javax.swing.JList<? extends jrm.profile.data.System> list, jrm.profile.data.System value, int index, boolean isSelected, boolean cellHasFocus) {
-				JCheckBox checkbox = (JCheckBox)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		checkBoxListSystems = new CheckBoxList<jrm.profile.data.Systm>();
+		checkBoxListSystems.setCellRenderer(checkBoxListSystems.new CellRenderer()
+		{
+			public Component getListCellRendererComponent(javax.swing.JList<? extends jrm.profile.data.Systm> list, jrm.profile.data.Systm value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				checkbox.setSelected(value.isSelected());
 				return checkbox;
 			}
@@ -940,18 +945,27 @@ public class MainFrame extends JFrame
 				{
 					int index = e.getFirstIndex();
 					if(index != -1)
-						Profile.curr_profile.setProperty("filter."+checkBoxListSystems.getModel().getElementAt(index).getName(), checkBoxListSystems.isSelectedIndex(index));
+						Profile.curr_profile.setProperty("filter." + checkBoxListSystems.getModel().getElementAt(index).getName(), checkBoxListSystems.isSelectedIndex(index));
 				}
 			}
 		});
 		scrollPane_2.setViewportView(checkBoxListSystems);
+		
+		chckbxIncludeDisks = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeDisks.text")); //$NON-NLS-1$
+		chckbxIncludeDisks.setSelected(true);
+		GridBagConstraints gbc_chckbxIncludeDisks = new GridBagConstraints();
+		gbc_chckbxIncludeDisks.gridwidth = 2;
+		gbc_chckbxIncludeDisks.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxIncludeDisks.gridx = 0;
+		gbc_chckbxIncludeDisks.gridy = 1;
+		scannerFilters.add(chckbxIncludeDisks, gbc_chckbxIncludeDisks);
 
 		lblDriverStatus = new JLabel(Messages.getString("MainFrame.lblDriverStatus.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDriverStatus = new GridBagConstraints();
 		gbc_lblDriverStatus.insets = new Insets(0, 5, 0, 5);
 		gbc_lblDriverStatus.anchor = GridBagConstraints.EAST;
 		gbc_lblDriverStatus.gridx = 0;
-		gbc_lblDriverStatus.gridy = 1;
+		gbc_lblDriverStatus.gridy = 2;
 		scannerFilters.add(lblDriverStatus, gbc_lblDriverStatus);
 
 		comboBox = new JComboBox<Driver.StatusType>();
@@ -960,7 +974,7 @@ public class MainFrame extends JFrame
 		gbc_comboBox.insets = new Insets(0, 0, 0, 5);
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBox.gridx = 1;
-		gbc_comboBox.gridy = 1;
+		gbc_comboBox.gridy = 2;
 		scannerFilters.add(comboBox, gbc_comboBox);
 
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
@@ -1331,29 +1345,64 @@ public class MainFrame extends JFrame
 		debug = new JPanel();
 		settingsPane.addTab(Messages.getString("MainFrame.Debug"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bug.png")), debug, null); //$NON-NLS-1$ //$NON-NLS-2$
 		GridBagLayout gbl_debug = new GridBagLayout();
-		gbl_debug.columnWidths = new int[] { 100, 0, 0 };
-		gbl_debug.rowHeights = new int[] { 0, 0 };
-		gbl_debug.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
-		gbl_debug.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gbl_debug.columnWidths = new int[] { 100, 0, 0, 0 };
+		gbl_debug.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
+		gbl_debug.columnWeights = new double[] { 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		gbl_debug.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		debug.setLayout(gbl_debug);
 
 		lblLogLevel = new JLabel(Messages.getString("MainFrame.lblLogLevel.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblLogLevel = new GridBagConstraints();
 		gbc_lblLogLevel.anchor = GridBagConstraints.EAST;
 		gbc_lblLogLevel.fill = GridBagConstraints.VERTICAL;
-		gbc_lblLogLevel.insets = new Insets(0, 0, 0, 5);
+		gbc_lblLogLevel.insets = new Insets(0, 0, 5, 5);
 		gbc_lblLogLevel.gridx = 0;
-		gbc_lblLogLevel.gridy = 0;
+		gbc_lblLogLevel.gridy = 1;
 		debug.add(lblLogLevel, gbc_lblLogLevel);
 
 		cbLogLevel = new JComboBox<>();
 		cbLogLevel.setEnabled(false);
 		GridBagConstraints gbc_cbLogLevel = new GridBagConstraints();
-		gbc_cbLogLevel.insets = new Insets(0, 0, 0, 5);
+		gbc_cbLogLevel.gridwidth = 2;
+		gbc_cbLogLevel.insets = new Insets(0, 0, 5, 5);
 		gbc_cbLogLevel.fill = GridBagConstraints.HORIZONTAL;
 		gbc_cbLogLevel.gridx = 1;
-		gbc_cbLogLevel.gridy = 0;
+		gbc_cbLogLevel.gridy = 1;
 		debug.add(cbLogLevel, gbc_cbLogLevel);
+
+		lblMemory = new JLabel(Messages.getString("MainFrame.lblMemory.text")); //$NON-NLS-1$
+		lblMemory.setHorizontalAlignment(SwingConstants.TRAILING);
+		GridBagConstraints gbc_lblMemory = new GridBagConstraints();
+		gbc_lblMemory.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblMemory.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMemory.gridx = 0;
+		gbc_lblMemory.gridy = 2;
+		debug.add(lblMemory, gbc_lblMemory);
+
+		lblMemoryUsage = new JLabel(Messages.getString("MainFrame.lblMemoryUsage.text")); //$NON-NLS-1$
+		lblMemoryUsage.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		GridBagConstraints gbc_lblMemoryUsage = new GridBagConstraints();
+		gbc_lblMemoryUsage.fill = GridBagConstraints.BOTH;
+		gbc_lblMemoryUsage.insets = new Insets(0, 0, 5, 2);
+		gbc_lblMemoryUsage.gridx = 1;
+		gbc_lblMemoryUsage.gridy = 2;
+		debug.add(lblMemoryUsage, gbc_lblMemoryUsage);
+
+		btnGc = new JButton(Messages.getString("MainFrame.btnGc.text")); //$NON-NLS-1$
+		btnGc.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				System.gc();
+				updateMemory();
+			}
+		});
+		GridBagConstraints gbc_btnGc = new GridBagConstraints();
+		gbc_btnGc.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnGc.insets = new Insets(0, 0, 5, 5);
+		gbc_btnGc.gridx = 2;
+		gbc_btnGc.gridy = 2;
+		debug.add(btnGc, gbc_btnGc);
 		mainPane.setEnabledAt(2, true);
 
 		pack();
@@ -1366,6 +1415,23 @@ public class MainFrame extends JFrame
 		{
 			e1.printStackTrace();
 		}
+
+		scheduler.scheduleAtFixedRate(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				updateMemory();
+			}
+		}, 0, 1, TimeUnit.MINUTES);
+	}
+
+	final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+	private void updateMemory()
+	{
+		Runtime rt = Runtime.getRuntime();
+		lblMemoryUsage.setText(String.format("Total:%s, Used:%s, Free:%s, Max:%s", FileUtils.byteCountToDisplaySize(rt.totalMemory()), FileUtils.byteCountToDisplaySize(rt.totalMemory() - rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.maxMemory())));
 	}
 
 	private void importDat(boolean sl)
@@ -1655,10 +1721,14 @@ public class MainFrame extends JFrame
 	private JPanel scannerFilters;
 	private JPanel scannerDirectories;
 	private JCheckBox chckbxIncludeClones;
-	private CheckBoxList<jrm.profile.data.System> checkBoxListSystems;
+	private CheckBoxList<jrm.profile.data.Systm> checkBoxListSystems;
 	private JScrollPane scrollPane_2;
 	private JComboBox<Driver.StatusType> comboBox;
 	private JLabel lblDriverStatus;
+	private JButton btnGc;
+	private JLabel lblMemoryUsage;
+	private JLabel lblMemory;
+	private JCheckBox chckbxIncludeDisks;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

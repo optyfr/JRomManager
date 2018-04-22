@@ -95,7 +95,6 @@ public class Report implements TreeNode, HTMLRenderer
 		this.subjects = report.filter(filterOptions);
 		this.subject_hash = this.subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		this.stats = report.stats;
-		this.model = report.model;
 	}
 
 	public Report clone(List<FilterOptions> filterOptions)

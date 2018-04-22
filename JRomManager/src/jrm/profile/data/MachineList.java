@@ -1,30 +1,22 @@
 package jrm.profile.data;
 
-import java.awt.Component;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import jrm.ui.ReportFrame;
+import jrm.ui.MachineListRenderer;
 
 @SuppressWarnings("serial")
 public final class MachineList extends AnywareList<Machine> implements Serializable
 {
 	private ArrayList<Machine> m_list = new ArrayList<>();
 	public HashMap<String, Machine> m_byname = new HashMap<>();
-
-	protected static transient String[] columns;
-	protected static transient Class<?>[] columnsTypes;
-	protected static transient TableCellRenderer[] columnsRenderers;
-	protected static transient int[] columnsWidths;
-
+	
 	public MachineList()
 	{
 		initTransient();
@@ -39,155 +31,34 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	protected void initTransient()
 	{
 		super.initTransient();
-		if(columns == null)
-			columns = new String[] { "", "name", "description", "have", "cloneof", "romof", "sampleof" };
-		if(columnsTypes == null)
-			columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Object.class, String.class };
-		if(columnsWidths == null)
-			columnsWidths = new int[] { -20, 40, 200, -45, 40, 40, 40 };
-		if(columnsRenderers == null)
-			columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
-			{
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					if(value instanceof Machine)
-					{
-						super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
-						switch(((Machine) value).getStatus())
-						{
-							case COMPLETE:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
-								break;
-							case PARTIAL:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_orange.png")));
-								break;
-							case MISSING:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
-								break;
-							case UNKNOWN:
-							default:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_gray.png")));
-								break;
-						}
-						return this;
-					}
-					setIcon(null);
-					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					if(value instanceof Machine)
-					{
-						super.getTableCellRendererComponent(table, ((Machine) value).name, isSelected, hasFocus, row, column);
-						if(((Machine) value).isbios)
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/application_osx_terminal.png")));
-						else if(((Machine) value).isdevice)
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/computer.png")));
-						else if(((Machine) value).ismechanical)
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/wrench.png")));
-						else
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/joystick.png")));
-						return this;
-					}
-					setIcon(null);
-					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				}
-			}, null, new DefaultTableCellRenderer()
-			{
-				{
-					setHorizontalAlignment(CENTER);
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					if(value instanceof Machine)
-					{
-						super.getTableCellRendererComponent(table, ((Machine) value).name, isSelected, hasFocus, row, column);
-						switch(((Machine) value).getStatus())
-						{
-							case COMPLETE:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
-								break;
-							case PARTIAL:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_orange.png")));
-								break;
-							case MISSING:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
-								break;
-							case UNKNOWN:
-							default:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_gray.png")));
-								break;
-						}
-						return this;
-					}
-					setIcon(null);
-					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					if(value instanceof Machine)
-					{
-						super.getTableCellRendererComponent(table, ((Machine) value).name, isSelected, hasFocus, row, column);
-						switch(((Machine) value).getStatus())
-						{
-							case COMPLETE:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
-								break;
-							case PARTIAL:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_orange.png")));
-								break;
-							case MISSING:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
-								break;
-							case UNKNOWN:
-							default:
-								setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_gray.png")));
-								break;
-						}
-						return this;
-					}
-					setIcon(null);
-					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				}
-			}, null };
 	}
 
 	@Override
 	public int getColumnCount()
 	{
-		return columns.length;
+		return MachineListRenderer.columns.length;
 	}
 
 	@Override
 	public String getColumnName(int columnIndex)
 	{
-		return columns[columnIndex];
+		return MachineListRenderer.columns[columnIndex];
 	}
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex)
 	{
-		return columnsTypes[columnIndex];
+		return MachineListRenderer.columnsTypes[columnIndex];
 	}
 
 	public TableCellRenderer getColumnRenderer(int columnIndex)
 	{
-		return columnsRenderers[columnIndex] != null ? columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+		return MachineListRenderer.columnsRenderers[columnIndex] != null ? MachineListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
 	public int getColumnWidth(int columnIndex)
 	{
-		return columnsWidths[columnIndex];
+		return MachineListRenderer.columnsWidths[columnIndex];
 	}
 
 	@Override

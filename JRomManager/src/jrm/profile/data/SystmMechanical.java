@@ -1,10 +1,13 @@
 package jrm.profile.data;
 
-public class SystemMechanical implements System
-{
-	public static SystemMechanical MECHANICAL = new SystemMechanical();
+import java.io.Serializable;
 
-	public SystemMechanical()
+@SuppressWarnings("serial")
+public class SystmMechanical implements Systm, Serializable
+{
+	public static SystmMechanical MECHANICAL = new SystmMechanical();
+
+	public SystmMechanical()
 	{
 	}
 
@@ -15,7 +18,7 @@ public class SystemMechanical implements System
 	}
 
 	@Override
-	public System getSystem()
+	public Systm getSystem()
 	{
 		return MECHANICAL;
 	}

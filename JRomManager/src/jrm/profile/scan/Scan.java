@@ -49,6 +49,7 @@ public class Scan
 	public Scan(Profile profile, File dstdir, List<File> srcdirs, ProgressHandler handler) throws BreakException
 	{
 		this.profile = profile;
+		report.reset();
 		format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
 		merge_mode = MergeOptions.valueOf(profile.getProperty("merge_mode", MergeOptions.SPLIT.toString())); //$NON-NLS-1$
 		create_mode = profile.getProperty("create_mode", true); //$NON-NLS-1$

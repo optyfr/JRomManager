@@ -1,10 +1,13 @@
 package jrm.profile.data;
 
-public class SystemStandard implements System
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class SystmStandard implements Systm, Serializable
 {
-	public static SystemStandard STANDARD = new SystemStandard();
+	public static SystmStandard STANDARD = new SystmStandard();
 	
-	public SystemStandard()
+	public SystmStandard()
 	{
 	}
 
@@ -15,7 +18,7 @@ public class SystemStandard implements System
 	}
 
 	@Override
-	public System getSystem()
+	public Systm getSystem()
 	{
 		return STANDARD;
 	}

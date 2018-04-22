@@ -36,10 +36,10 @@ import jrm.profile.data.Rom;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
 import jrm.profile.data.SoftwareListList;
-import jrm.profile.data.SystemDevice;
-import jrm.profile.data.SystemMechanical;
-import jrm.profile.data.SystemStandard;
-import jrm.profile.data.Systems;
+import jrm.profile.data.SystmDevice;
+import jrm.profile.data.SystmMechanical;
+import jrm.profile.data.SystmStandard;
+import jrm.profile.data.Systms;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -68,7 +68,7 @@ public class Profile implements Serializable
 
 	public transient Properties settings = null;
 	
-	public transient Systems systems;
+	public transient Systms systems;
 
 	public Profile()
 	{
@@ -517,10 +517,10 @@ public class Profile implements Serializable
 	
 	public void loadSystems()
 	{
-		systems = new Systems();
-		systems.add(SystemStandard.STANDARD);
-		systems.add(SystemMechanical.MECHANICAL);
-		systems.add(SystemDevice.DEVICE);
+		systems = new Systms();
+		systems.add(SystmStandard.STANDARD);
+		systems.add(SystmMechanical.MECHANICAL);
+		systems.add(SystmDevice.DEVICE);
 		ArrayList<Machine> machines = new ArrayList<>();
 		machinelist_list.get(0).forEach(m->{if(m.isbios)machines.add(m);});
 		machines.sort((a,b)->a.getName().compareTo(b.getName()));

@@ -1,8 +1,10 @@
 package jrm.profile.data;
 
+import java.io.Serializable;
+
 import jrm.profile.Profile;
 
-public interface System
+public interface Systm extends Serializable
 {
 	public enum Type
 	{
@@ -14,7 +16,7 @@ public interface System
 	}
 	
 	public Type getType();
-	public System getSystem();
+	public Systm getSystem();
 	public String getName();
 	public default boolean isSelected()
 	{

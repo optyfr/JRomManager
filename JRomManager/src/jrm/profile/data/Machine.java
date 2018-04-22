@@ -67,7 +67,7 @@ public class Machine extends Anyware implements Serializable
 
 
 	@Override
-	public System getSystem()
+	public Systm getSystem()
 	{
 		switch(getType())
 		{
@@ -76,12 +76,12 @@ public class Machine extends Anyware implements Serializable
 					return parent.getSystem();
 				return this;
 			case DEVICE:
-				return SystemDevice.DEVICE;
+				return SystmDevice.DEVICE;
 			case MECHANICAL:
-				return SystemMechanical.MECHANICAL;
+				return SystmMechanical.MECHANICAL;
 			case STANDARD:
 			default:
-				return SystemStandard.STANDARD;
+				return SystmStandard.STANDARD;
 		}
 	}
 

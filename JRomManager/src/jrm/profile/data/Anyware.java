@@ -1,7 +1,5 @@
 package jrm.profile.data;
 
-import java.awt.Component;
-import java.awt.Font;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,8 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.swing.ImageIcon;
-import javax.swing.JTable;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -23,13 +19,13 @@ import javax.swing.table.TableModel;
 import jrm.profile.data.Entity.Status;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
-import jrm.ui.ReportFrame;
+import jrm.ui.AnywareRenderer;
 import one.util.streamex.StreamEx;
 
 @SuppressWarnings("serial")
-public abstract class Anyware implements Serializable, Comparable<Anyware>, TableModel, System
+public abstract class Anyware implements Serializable, Comparable<Anyware>, TableModel, Systm
 {
-	protected String name; // required
+	public String name; // required
 	public String cloneof = null;
 	public StringBuffer description = new StringBuffer();
 
@@ -43,11 +39,6 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public static transient MergeOptions merge_mode;
 	public static transient HashCollisionOptions hash_collision_mode;
 	protected transient boolean collision;
-
-	private static transient String[] columns;
-	private static transient Class<?>[] columnsTypes;
-	private static transient TableCellRenderer[] columnsRenderers;
-	private static transient int[] columnsWidths;
 
 	private static transient EventListenerList listenerList;
 	private static transient EnumSet<EntityStatus> filter = null;
@@ -76,98 +67,6 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 			listenerList = new EventListenerList();
 		if(filter == null)
 			filter = EnumSet.allOf(EntityStatus.class);
-		if(columns == null)
-			columns = new String[] { "", "name", "size", "CRC", "MD5", "SHA-1" };
-		if(columnsTypes == null)
-			columnsTypes = new Class<?>[] { Object.class, Object.class, Long.class, String.class, String.class, String.class };
-		if(columnsWidths == null)
-			columnsWidths = new int[] { -20, 256, 80, 64, 256, 320 };
-		if(columnsRenderers == null)
-			columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
-			{
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
-					switch(((Entity) value).getStatus())
-					{
-						case OK:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png")));
-							break;
-						case KO:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_red.png")));
-							break;
-						case UNKNOWN:
-						default:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_black.png")));
-							break;
-					}
-					return this;
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					super.getTableCellRendererComponent(table, (value != null && value instanceof Anyware) ? ((Anyware) value).getName() : value, isSelected, hasFocus, row, column);
-					if(value instanceof Rom)
-						setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/rom_small.png")));
-					else if(value instanceof Disk)
-						setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/drive.png")));
-					return this;
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				{// anonymous constructor
-					setHorizontalAlignment(TRAILING);
-				}
-
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					return super.getTableCellRendererComponent(table, (value != null && value instanceof Long) ? ((Long) value > 0 ? value : null) : value, isSelected, hasFocus, row, column);
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				{
-					setHorizontalAlignment(TRAILING);
-				}
-
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-					this.setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-					return this;
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				{
-					setHorizontalAlignment(TRAILING);
-					setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-				}
-
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-					this.setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-					return this;
-				}
-			}, new DefaultTableCellRenderer()
-			{
-				{
-					setHorizontalAlignment(TRAILING);
-				}
-
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-				{
-					super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-					this.setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-					return this;
-				}
-			} };
 	}
 
 	public <T extends Anyware> T getParent(Class<T> type)
@@ -327,29 +226,29 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	@Override
 	public int getColumnCount()
 	{
-		return columns.length;
+		return AnywareRenderer.columns.length;
 	}
 
 	@Override
 	public String getColumnName(int columnIndex)
 	{
-		return columns[columnIndex];
+		return AnywareRenderer.columns[columnIndex];
 	}
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex)
 	{
-		return columnsTypes[columnIndex];
+		return AnywareRenderer.columnsTypes[columnIndex];
 	}
 
 	public static TableCellRenderer getColumnRenderer(int columnIndex)
 	{
-		return columnsRenderers[columnIndex] != null ? columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+		return AnywareRenderer.columnsRenderers[columnIndex] != null ? AnywareRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
 	public static int getColumnWidth(int columnIndex)
 	{
-		return columnsWidths[columnIndex];
+		return AnywareRenderer.columnsWidths[columnIndex];
 	}
 
 	@Override

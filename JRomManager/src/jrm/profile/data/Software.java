@@ -64,7 +64,7 @@ public class Software extends Anyware implements Serializable
 	}
 
 	@Override
-	public System getSystem()
+	public Systm getSystem()
 	{
 		return sl;
 	}
