@@ -4,11 +4,7 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JCheckBox;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -29,13 +25,14 @@ public class CheckBoxList<E> extends JList<E>
 			{
 				int index = locationToIndex(e.getPoint());
 
-				if(index != -1)
+				if(index != -1 && e.getButton()==MouseEvent.BUTTON1)
 				{
 					checkboxes[index].setSelected(!checkboxes[index].isSelected());
 					for(ListSelectionListener l : getListSelectionListeners())
 						l.valueChanged(new ListSelectionEvent(this, index, index, false));
 					repaint();
 				}
+				super.mousePressed(e);
 			}
 		});
 		
@@ -46,6 +43,33 @@ public class CheckBoxList<E> extends JList<E>
 	public boolean isSelectedIndex(int index)
 	{
 		return checkboxes[index].isSelected();
+	}
+	
+	public void selectAll()
+	{
+		for(JCheckBox checkbox : checkboxes)
+			checkbox.setSelected(true);
+		for(ListSelectionListener l : getListSelectionListeners())
+			l.valueChanged(new ListSelectionEvent(this, 0, checkboxes.length-1, false));
+		repaint();
+	}
+	
+	public void selectNone()
+	{
+		for(JCheckBox checkbox : checkboxes)
+			checkbox.setSelected(false);
+		for(ListSelectionListener l : getListSelectionListeners())
+			l.valueChanged(new ListSelectionEvent(this, 0, checkboxes.length-1, false));
+		repaint();
+	}
+	
+	public void selectInvert()
+	{
+		for(JCheckBox checkbox : checkboxes)
+			checkbox.setSelected(!checkbox.isSelected());
+		for(ListSelectionListener l : getListSelectionListeners())
+			l.valueChanged(new ListSelectionEvent(this, 0, checkboxes.length-1, false));
+		repaint();
 	}
 	
 	JCheckBox checkboxes[] = null; 

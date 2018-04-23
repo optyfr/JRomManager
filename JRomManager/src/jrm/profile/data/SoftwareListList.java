@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -86,6 +88,23 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	protected List<SoftwareList> getList()
 	{
 		return sl_list;
+	}
+
+	public Stream<SoftwareList> getFilteredStream()
+	{
+		return getList().stream().filter(t -> {
+			if(!t.getSystem().isSelected())
+				return false;
+			return true;
+		});
+	}
+
+	@Override
+	protected List<SoftwareList> getFilteredList()
+	{
+		if(filtered_list == null)
+			filtered_list = getFilteredStream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+		return filtered_list;
 	}
 
 }

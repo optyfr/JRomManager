@@ -10,6 +10,9 @@ public class Machine extends Anyware implements Serializable
 	public boolean isbios = false;
 	public boolean ismechanical = false;
 	public boolean isdevice = false;
+	public StringBuffer manufacturer = new StringBuffer();
+	public Driver driver = new Driver();
+	public Input input = new Input();
 
 	public Machine()
 	{

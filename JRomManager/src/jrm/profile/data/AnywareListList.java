@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
@@ -16,8 +16,8 @@ import javax.swing.table.TableModel;
 public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> implements Serializable, TableModel, List<T>
 {
 	private static transient EventListenerList listenerList;
-	private static transient EnumSet<AnywareStatus> filter = null;
-	private transient List<T> filtered_list;
+	protected static transient EnumSet<AnywareStatus> filter = null;
+	protected transient List<T> filtered_list;
 
 	public AnywareListList()
 	{
@@ -39,19 +39,21 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 		filtered_list = null;
 	}
 
-	public void setFilter(EnumSet<AnywareStatus> filter)
+	public void reset()
 	{
-		AnywareListList.filter = filter;
 		this.filtered_list = null;
 		fireTableChanged(new TableModelEvent(this));
 	}
 
-	protected List<T> getFilteredList()
+	public void setFilter(EnumSet<AnywareStatus> filter)
 	{
-		if(filtered_list == null)
-			filtered_list = getList().stream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
-		return filtered_list;
+		AnywareListList.filter = filter;
+		reset();
 	}
+
+	public abstract Stream<T> getFilteredStream();
+
+	protected abstract List<T> getFilteredList();
 
 	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
 

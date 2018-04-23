@@ -14,16 +14,20 @@ public interface Systm extends Serializable
 		BIOS,
 		SOFTWARELIST
 	}
-	
+
 	public Type getType();
+
 	public Systm getSystem();
+
 	public String getName();
+
 	public default boolean isSelected()
 	{
-		return Profile.curr_profile.getProperty("filter."+getName(), true);
+		return Profile.curr_profile.getProperty("filter." + getName(), true);
 	}
+
 	public default void setSelected(boolean selected)
 	{
-		Profile.curr_profile.setProperty("filter."+getName(), selected);
+		Profile.curr_profile.setProperty("filter." + getName(), selected);
 	}
 }

@@ -1,35 +1,11 @@
 package jrm.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.dnd.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -44,31 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
@@ -95,6 +47,7 @@ import jrm.misc.Settings;
 import jrm.profile.Import;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver;
+import jrm.profile.data.Systm;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.FormatOptions;
@@ -909,7 +862,13 @@ public class MainFrame extends JFrame
 		scannerFilters.setLayout(gbl_scannerFilters);
 
 		chckbxIncludeClones = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeClones.text")); //$NON-NLS-1$
-		chckbxIncludeClones.setSelected(true);
+		chckbxIncludeClones.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				Profile.curr_profile.setProperty("filter.InclClones", e.getStateChange()==ItemEvent.SELECTED);
+				if(profile_viewer!=null)
+					profile_viewer.reset(Profile.curr_profile);
+			}
+		});
 		GridBagConstraints gbc_chckbxIncludeClones = new GridBagConstraints();
 		gbc_chckbxIncludeClones.gridwidth = 2;
 		gbc_chckbxIncludeClones.insets = new Insets(0, 0, 5, 5);
@@ -929,7 +888,7 @@ public class MainFrame extends JFrame
 		checkBoxListSystems = new CheckBoxList<jrm.profile.data.Systm>();
 		checkBoxListSystems.setCellRenderer(checkBoxListSystems.new CellRenderer()
 		{
-			public Component getListCellRendererComponent(javax.swing.JList<? extends jrm.profile.data.Systm> list, jrm.profile.data.Systm value, int index, boolean isSelected, boolean cellHasFocus)
+			public Component getListCellRendererComponent(JList<? extends Systm> list, Systm value, int index, boolean isSelected, boolean cellHasFocus)
 			{
 				JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				checkbox.setSelected(value.isSelected());
@@ -943,16 +902,56 @@ public class MainFrame extends JFrame
 			{
 				if(!e.getValueIsAdjusting())
 				{
-					int index = e.getFirstIndex();
-					if(index != -1)
-						Profile.curr_profile.setProperty("filter." + checkBoxListSystems.getModel().getElementAt(index).getName(), checkBoxListSystems.isSelectedIndex(index));
+					if(e.getFirstIndex() != -1)
+					{
+						for(int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
+						{
+							Systm system = checkBoxListSystems.getModel().getElementAt(index);
+							Profile.curr_profile.setProperty("filter." + system.getName(), checkBoxListSystems.isSelectedIndex(index));
+						}
+						if(profile_viewer!=null)
+							profile_viewer.reset(Profile.curr_profile);
+					}
 				}
 			}
 		});
 		scrollPane_2.setViewportView(checkBoxListSystems);
 		
+		popupMenu_3 = new JPopupMenu();
+		addPopup(checkBoxListSystems, popupMenu_3);
+		
+		mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
+		mntmSelectAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				checkBoxListSystems.selectAll();
+			}
+		});
+		popupMenu_3.add(mntmSelectAll);
+		
+		mntmSelectNone = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
+		mntmSelectNone.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				checkBoxListSystems.selectNone();
+			}
+		});
+		popupMenu_3.add(mntmSelectNone);
+		
+		mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
+		mntmInvertSelection.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				checkBoxListSystems.selectInvert();
+			}
+		});
+		popupMenu_3.add(mntmInvertSelection);
+		
 		chckbxIncludeDisks = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeDisks.text")); //$NON-NLS-1$
-		chckbxIncludeDisks.setSelected(true);
+		chckbxIncludeDisks.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				Profile.curr_profile.setProperty("filter.InclDisks", e.getStateChange()==ItemEvent.SELECTED);
+				if(profile_viewer!=null)
+					profile_viewer.reset(Profile.curr_profile);
+			}
+		});
 		GridBagConstraints gbc_chckbxIncludeDisks = new GridBagConstraints();
 		gbc_chckbxIncludeDisks.gridwidth = 2;
 		gbc_chckbxIncludeDisks.insets = new Insets(0, 0, 5, 5);
@@ -968,14 +967,27 @@ public class MainFrame extends JFrame
 		gbc_lblDriverStatus.gridy = 2;
 		scannerFilters.add(lblDriverStatus, gbc_lblDriverStatus);
 
-		comboBox = new JComboBox<Driver.StatusType>();
-		comboBox.setModel(new DefaultComboBoxModel<Driver.StatusType>(Driver.StatusType.values()));
-		GridBagConstraints gbc_comboBox = new GridBagConstraints();
-		gbc_comboBox.insets = new Insets(0, 0, 0, 5);
-		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBox.gridx = 1;
-		gbc_comboBox.gridy = 2;
-		scannerFilters.add(comboBox, gbc_comboBox);
+		cbbxDriverStatus = new JComboBox<Driver.StatusType>();
+		cbbxDriverStatus.setModel(new DefaultComboBoxModel<Driver.StatusType>(Driver.StatusType.values()));
+		cbbxDriverStatus.addItemListener(new ItemListener()
+		{
+			@Override
+			public void itemStateChanged(ItemEvent e)
+			{
+				if(e.getStateChange()==ItemEvent.SELECTED)
+				{
+					Profile.curr_profile.setProperty("filter.DriverStatus", e.getItem().toString());
+					if(profile_viewer!=null)
+						profile_viewer.reset(Profile.curr_profile);
+				}
+			}
+		});
+		GridBagConstraints gbc_cbbxDriverStatus = new GridBagConstraints();
+		gbc_cbbxDriverStatus.insets = new Insets(0, 0, 0, 5);
+		gbc_cbbxDriverStatus.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cbbxDriverStatus.gridx = 1;
+		gbc_cbbxDriverStatus.gridy = 2;
+		scannerFilters.add(cbbxDriverStatus, gbc_cbbxDriverStatus);
 
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
 		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -1661,6 +1673,9 @@ public class MainFrame extends JFrame
 		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(Profile.curr_profile.settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()))); //$NON-NLS-1$
 		cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
 		cbHashCollision.setSelectedItem(HashCollisionOptions.valueOf(Profile.curr_profile.settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()))); //$NON-NLS-1$
+		chckbxIncludeClones.setSelected(Profile.curr_profile.getProperty("filter.InclClones", true));
+		chckbxIncludeDisks.setSelected(Profile.curr_profile.getProperty("filter.InclDisks", true));
+		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString())));
 	}
 
 	private JPanel settingsTab;
@@ -1721,14 +1736,18 @@ public class MainFrame extends JFrame
 	private JPanel scannerFilters;
 	private JPanel scannerDirectories;
 	private JCheckBox chckbxIncludeClones;
-	private CheckBoxList<jrm.profile.data.Systm> checkBoxListSystems;
+	private CheckBoxList<Systm> checkBoxListSystems;
 	private JScrollPane scrollPane_2;
-	private JComboBox<Driver.StatusType> comboBox;
+	private JComboBox<Driver.StatusType> cbbxDriverStatus;
 	private JLabel lblDriverStatus;
 	private JButton btnGc;
 	private JLabel lblMemoryUsage;
 	private JLabel lblMemory;
 	private JCheckBox chckbxIncludeDisks;
+	private JPopupMenu popupMenu_3;
+	private JMenuItem mntmSelectAll;
+	private JMenuItem mntmSelectNone;
+	private JMenuItem mntmInvertSelection;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

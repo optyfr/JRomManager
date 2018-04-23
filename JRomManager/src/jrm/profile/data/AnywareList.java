@@ -3,7 +3,7 @@ package jrm.profile.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
@@ -15,8 +15,8 @@ import javax.swing.table.TableModel;
 public abstract class AnywareList<T extends Anyware> implements Serializable, TableModel, List<T>
 {
 	private static transient EventListenerList listenerList;
-	private static transient EnumSet<AnywareStatus> filter = null;
-	private transient List<T> filtered_list;
+	protected static transient EnumSet<AnywareStatus> filter = null;
+	protected transient List<T> filtered_list;
 
 	public AnywareList()
 	{
@@ -28,33 +28,36 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 		in.defaultReadObject();
 		initTransient();
 	}
-	
+
 	protected void initTransient()
 	{
-		if(listenerList==null)
+		if(listenerList == null)
 			listenerList = new EventListenerList();
-		if(filter==null)
+		if(filter == null)
 			filter = EnumSet.allOf(AnywareStatus.class);
 		filtered_list = null;
 	}
-	
+
 	protected abstract List<T> getList();
+
+	public void reset()
+	{
+		this.filtered_list = null;
+		fireTableChanged(new TableModelEvent(this));
+	}
 
 	public void setFilter(EnumSet<AnywareStatus> filter)
 	{
 		AnywareList.filter = filter;
-		this.filtered_list = null;
-		fireTableChanged(new TableModelEvent(this));
+		reset();
 	}
-	
-	protected List<T> getFilteredList()
-	{
-		if(filtered_list==null)
-			filtered_list = getList().stream().filter(t->filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
-		return filtered_list;
-	}
-	
+
+	public abstract Stream<T> getFilteredStream();
+
+	protected abstract List<T> getFilteredList();
+
 	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
+
 	public abstract int getColumnWidth(int columnIndex);
 
 	@Override
@@ -225,14 +228,14 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	{
 		return getList().subList(fromIndex, toIndex);
 	}
-	
+
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
 		boolean ok = false;
-		for(T t : getList())
+		for(Iterator<T> iterator = getFilteredStream().iterator(); iterator.hasNext(); )
 		{
-			AnywareStatus estatus = t.getStatus();
+			AnywareStatus estatus = iterator.next().getStatus();
 			if(estatus == AnywareStatus.PARTIAL || estatus == AnywareStatus.MISSING)
 				status = AnywareStatus.PARTIAL;
 			else if(estatus == AnywareStatus.COMPLETE)
@@ -247,20 +250,11 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 			status = AnywareStatus.MISSING;
 		return status;
 	}
-	
-	public int countHave()
-	{
-		int have = 0;
-		for(T t : getList())
-			have += t.getStatus()==AnywareStatus.COMPLETE?1:0;
-		return have;
-	}
 
-	public int countAll()
-	{
-		return getList().size();
-	}
-	
+	public abstract long countHave();
+
+	public abstract long countAll();
+
 	public int find(Anyware anyware)
 	{
 		return getFilteredList().indexOf(anyware);

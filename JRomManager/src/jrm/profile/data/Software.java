@@ -6,6 +6,7 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class Software extends Anyware implements Serializable
 {
+	public StringBuffer publisher = new StringBuffer();
 	public Supported supported = Supported.yes;
 
 	SoftwareList sl = null;

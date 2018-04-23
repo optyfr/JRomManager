@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.profile.Profile;
 import jrm.ui.SoftwareListRenderer;
 
 @SuppressWarnings("serial")
@@ -121,17 +124,52 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 	{
 		return this;
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return "["+getType()+"] "+description.toString();
+		return "[" + getType() + "] " + description.toString();
 	}
 
 	@Override
 	public String getName()
 	{
 		return name;
+	}
+
+	public Stream<Software> getFilteredStream()
+	{
+		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true);
+		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true);
+		return getList().stream().filter(t -> {
+			if(!filterIncludeClones && t.isClone())
+				return false;
+			if(!filterIncludeDisks && t.disks.size()>0)
+				return false;
+			if(!t.getSystem().isSelected())
+				return false;
+			return true;
+		});
+	}
+	
+	@Override
+	protected List<Software> getFilteredList()
+	{
+		if(filtered_list == null)
+			filtered_list = getFilteredStream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+		return filtered_list;
+	}
+
+	@Override
+	public long countAll()
+	{
+		return getFilteredStream().count();
+	}
+
+	@Override
+	public long countHave()
+	{
+		return getFilteredStream().filter(t -> t.getStatus()==AnywareStatus.COMPLETE).count();
 	}
 
 }

@@ -28,6 +28,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public String name; // required
 	public String cloneof = null;
 	public StringBuffer description = new StringBuffer();
+	public StringBuffer year = new StringBuffer();
 
 	public ArrayList<Rom> roms = new ArrayList<>();
 	public ArrayList<Disk> disks = new ArrayList<>();
@@ -203,11 +204,16 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		}).collect(Collectors.toList());
 	}
 
+	public void reset()
+	{
+		this.table_entities = null;
+		fireTableChanged(new TableModelEvent(this));
+	}
+	
 	public void setFilter(EnumSet<EntityStatus> filter)
 	{
 		Anyware.filter = filter;
-		this.table_entities = null;
-		fireTableChanged(new TableModelEvent(this));
+		reset();
 	}
 
 	private List<Entity> getEntities()

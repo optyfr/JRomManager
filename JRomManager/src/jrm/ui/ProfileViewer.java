@@ -194,6 +194,7 @@ public class ProfileViewer extends JDialog
 						if(!model.isSelectionEmpty())
 						{
 							AnywareList<?> anywarelist = (AnywareList<?>) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
+							anywarelist.reset();
 							tableW.setModel(anywarelist);
 							if(tableW.getRowCount() > 0)
 								tableW.setRowSelectionInterval(0, 0);
@@ -262,10 +263,9 @@ public class ProfileViewer extends JDialog
 					{
 						if(!model.isSelectionEmpty())
 						{
-							if(tablemodel instanceof SoftwareList)
-								tableEntity.setModel((Anyware) tablemodel.getValueAt(model.getMinSelectionIndex(), 0));
-							else
-								tableEntity.setModel((Anyware) tablemodel.getValueAt(model.getMinSelectionIndex(), 0));
+							Anyware anyware = (Anyware) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
+							anyware.reset();
+							tableEntity.setModel(anyware);
 							for(int i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++)
 							{
 								TableColumn column = tableEntity.getColumnModel().getColumn(i);
@@ -386,6 +386,7 @@ public class ProfileViewer extends JDialog
 	public void reset(Profile profile)
 	{
 		AnywareListList<?> model = profile.softwarelist_list.size() > 0 ? profile.softwarelist_list : profile.machinelist_list;
+		model.reset();
 		tableWL.setModel(model);
 		for(int i = 0; i < tableWL.getColumnModel().getColumnCount(); i++)
 		{
@@ -403,7 +404,8 @@ public class ProfileViewer extends JDialog
 				column.setMaxWidth(-width);
 			}
 		}
-		tableWL.setRowSelectionInterval(0, 0);
+		if(tableWL.getRowCount()>0)
+			tableWL.setRowSelectionInterval(0, 0);
 	}
 
 	public void reload()

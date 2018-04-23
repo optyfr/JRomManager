@@ -1,14 +1,6 @@
 package jrm.profile;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,18 +20,7 @@ import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
-import jrm.profile.data.Disk;
-import jrm.profile.data.Entity;
-import jrm.profile.data.Machine;
-import jrm.profile.data.MachineListList;
-import jrm.profile.data.Rom;
-import jrm.profile.data.Software;
-import jrm.profile.data.SoftwareList;
-import jrm.profile.data.SoftwareListList;
-import jrm.profile.data.SystmDevice;
-import jrm.profile.data.SystmMechanical;
-import jrm.profile.data.SystmStandard;
-import jrm.profile.data.Systms;
+import jrm.profile.data.*;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -90,6 +71,9 @@ public class Profile implements Serializable
 				private boolean in_software = false;
 				private boolean in_machine = false;
 				private boolean in_description = false;
+				private boolean in_year = false;
+				private boolean in_manufacturer = false;
+				private boolean in_publisher = false;
 				private boolean in_header = false;
 				private SoftwareList curr_software_list = null;
 				private Software curr_software = null;
@@ -192,6 +176,66 @@ public class Profile implements Serializable
 					else if(qName.equals("description") && (in_machine || in_software || in_software_list)) //$NON-NLS-1$
 					{
 						in_description = true;
+					}
+					else if(qName.equals("year") && (in_machine || in_software)) //$NON-NLS-1$
+					{
+						in_year = true;
+					}
+					else if(qName.equals("manufacturer") && (in_machine)) //$NON-NLS-1$
+					{
+						in_manufacturer = true;
+					}
+					else if(qName.equals("publisher") && (in_software)) //$NON-NLS-1$
+					{
+						in_publisher = true;
+					}
+					else if(qName.equals("driver")) //$NON-NLS-1$
+					{
+						if(in_machine)
+						{
+							for(int i = 0; i < attributes.getLength(); i++)
+							{
+								switch(attributes.getQName(i))
+								{
+									case "status": //$NON-NLS-1$
+										curr_machine.driver.setStatus(attributes.getValue(i));
+										break;
+									case "emulation": //$NON-NLS-1$
+										curr_machine.driver.setEmulation(attributes.getValue(i));
+										break;
+									case "cocktail": //$NON-NLS-1$
+										curr_machine.driver.setCocktail(attributes.getValue(i));
+										break;
+									case "savestate": //$NON-NLS-1$
+										curr_machine.driver.setSaveState(attributes.getValue(i));
+										break;
+								}
+							}
+						}
+					}
+					else if(qName.equals("input")) //$NON-NLS-1$
+					{
+						if(in_machine)
+						{
+							for(int i = 0; i < attributes.getLength(); i++)
+							{
+								switch(attributes.getQName(i))
+								{
+									case "players": //$NON-NLS-1$
+										curr_machine.input.setPlayers(attributes.getValue(i));
+										break;
+									case "coins": //$NON-NLS-1$
+										curr_machine.input.setCoins(attributes.getValue(i));
+										break;
+									case "service": //$NON-NLS-1$
+										curr_machine.input.setService(attributes.getValue(i));
+										break;
+									case "tilt": //$NON-NLS-1$
+										curr_machine.input.setTilt(attributes.getValue(i));
+										break;
+								}
+							}
+						}
 					}
 					else if(qName.equals("rom")) //$NON-NLS-1$
 					{
@@ -328,6 +372,18 @@ public class Profile implements Serializable
 					{
 						in_description = false;
 					}
+					else if(qName.equals("year") && (in_machine || in_software)) //$NON-NLS-1$
+					{
+						in_year = false;
+					}
+					else if(qName.equals("manufacturer") && (in_machine)) //$NON-NLS-1$
+					{
+						in_manufacturer = false;
+					}
+					else if(qName.equals("publisher") && (in_software)) //$NON-NLS-1$
+					{
+						in_publisher = false;
+					}
 				}
 
 				@Override
@@ -341,6 +397,21 @@ public class Profile implements Serializable
 							curr_software.description.append(ch, start, length);
 						else if(in_software_list)
 							curr_software_list.description.append(ch, start, length);
+					}
+					else if(in_year)
+					{
+						if(in_machine)
+							curr_machine.year.append(ch, start, length);
+						else if(in_software)
+							curr_software.year.append(ch, start, length);
+					}
+					else if(in_manufacturer && in_machine)
+					{
+						curr_machine.manufacturer.append(ch, start, length);
+					}
+					else if(in_publisher && in_software)
+					{
+						curr_software.publisher.append(ch, start, length);
 					}
 					else if(in_header)
 					{

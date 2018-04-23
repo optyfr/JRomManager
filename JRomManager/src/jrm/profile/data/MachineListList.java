@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -84,6 +86,19 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	protected List<MachineList> getList()
 	{
 		return ml_list;
+	}
+
+	public Stream<MachineList> getFilteredStream()
+	{
+		return getList().stream();
+	}
+
+	@Override
+	protected List<MachineList> getFilteredList()
+	{
+		if(filtered_list == null)
+			filtered_list = getFilteredStream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+		return filtered_list;
 	}
 
 }
