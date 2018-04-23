@@ -2,9 +2,9 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,8 +30,8 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public StringBuffer description = new StringBuffer();
 	public StringBuffer year = new StringBuffer();
 
-	public ArrayList<Rom> roms = new ArrayList<>();
-	public ArrayList<Disk> disks = new ArrayList<>();
+	public HashSet<Rom> roms = new HashSet<>();
+	public HashSet<Disk> disks = new HashSet<>();
 
 	public HashMap<String, Anyware> clones = new HashMap<>();
 

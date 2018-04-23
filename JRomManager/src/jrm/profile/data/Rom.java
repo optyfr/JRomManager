@@ -101,11 +101,6 @@ public class Rom extends Entity implements Serializable
 
 	private EntityStatus findRomStatus(Anyware parent, Rom rom)
 	{
-		for(Rom r : parent.roms)	// case when there is a duplicate declaration of the same rom
-		{
-			if(rom.equals(r) && rom.name.equals(r.name) && r.own_status != EntityStatus.UNKNOWN)
-				return r.own_status;
-		}
 		if(parent.parent != null)	// find same rom in parent clone (if any and recursively)
 		{
 			for(Rom r : parent.parent.roms)

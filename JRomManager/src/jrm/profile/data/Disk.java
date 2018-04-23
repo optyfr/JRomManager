@@ -75,11 +75,6 @@ public class Disk extends Entity implements Serializable
 
 	private EntityStatus findDiskStatus(Anyware parent, Disk disk)
 	{
-		for(Disk d : parent.disks)	// case when there is a duplicate declaration of the same disk
-		{
-			if(disk.equals(d) && disk.name.equals(d.name) && d.own_status != EntityStatus.UNKNOWN)
-				return d.own_status;
-		}
 		if(parent.parent!=null)	// find same disk in parent clone (if any and recursively)
 		{
 			for(Disk d : parent.parent.disks)
