@@ -343,7 +343,7 @@ public class Profile implements Serializable
 					{
 						if(curr_rom.getName()!=null)
 						{
-							(in_machine?curr_machine:curr_software).roms.add(curr_rom);
+							(in_machine?curr_machine:curr_software).roms.put(curr_rom.name, curr_rom);
 							roms_cnt++;
 							if(curr_rom.crc != null)
 							{
@@ -364,7 +364,7 @@ public class Profile implements Serializable
 					{
 						if(curr_disk.getName()!=null)
 						{
-							(in_machine?curr_machine:curr_software).disks.add(curr_disk);
+							(in_machine?curr_machine:curr_software).disks.put(curr_disk.name, curr_disk);
 							disks_cnt++;
 						}
 					}

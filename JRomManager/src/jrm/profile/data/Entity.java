@@ -7,7 +7,7 @@ import jrm.profile.scan.options.HashCollisionOptions;
 @SuppressWarnings("serial")
 public abstract class Entity implements Serializable,Comparable<Entity>
 {
-	protected String name;	// required
+	public String name;	// required
 	public long size = 0;
 	public String crc = null;
 	public String sha1 = null;

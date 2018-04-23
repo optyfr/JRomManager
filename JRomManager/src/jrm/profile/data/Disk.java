@@ -77,7 +77,7 @@ public class Disk extends Entity implements Serializable
 	{
 		if(parent.parent!=null)	// find same disk in parent clone (if any and recursively)
 		{
-			for(Disk d : parent.parent.disks)
+			for(Disk d : parent.parent.disks.values())
 			{
 				if(disk.equals(d))
 					return d.getStatus();

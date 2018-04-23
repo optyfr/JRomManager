@@ -103,7 +103,7 @@ public class Rom extends Entity implements Serializable
 	{
 		if(parent.parent != null)	// find same rom in parent clone (if any and recursively)
 		{
-			for(Rom r : parent.parent.roms)
+			for(Rom r : parent.parent.roms.values())
 			{
 				if(rom.equals(r))
 					return r.getStatus();
