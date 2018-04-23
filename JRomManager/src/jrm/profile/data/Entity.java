@@ -19,7 +19,8 @@ public abstract class Entity implements Serializable,Comparable<Entity>
 	{
 		baddump,
 		nodump,
-		good
+		good,
+		verified
 	}
 
 	protected Anyware parent;
