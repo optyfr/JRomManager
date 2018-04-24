@@ -45,14 +45,13 @@ _Behavior compared to other Rom managers_
 - Enhanced Gui with Report
 - Translated to English and French
 - Software List support
+- Filtering functionalities (clone, chds, systems list, display mode, cabinet type, driver status, ...)
 
 ## Short Term Planned Features
 - Better Dat Managing (with gui)
 - Optional Separate Dest dir between Roms and CHDs
 - Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
-- Exclude CHDs and Samples scanning
-- General settings
-- Filtering functionalities (clone, machine, ...)
+- More Filtering functionalities (categories, samples, ...)
 
 ## Middle Term Planned Features
 - Dir2Dat, Dat2Dat
