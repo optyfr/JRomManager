@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -706,12 +707,13 @@ public class MainFrame extends JFrame
 				{
 					{
 						File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-						setCurrentDirectory(workdir);
+						setCurrentDirectory(new File(Profile.curr_profile.getProperty("MainFrame.ChooseRomsDestination", workdir.getAbsolutePath())));
 						setFileSelectionMode(DIRECTORIES_ONLY);
 						setSelectedFile(new File(txtRomsDest.getText()));
 						setDialogTitle(Messages.getString("MainFrame.ChooseRomsDestination")); //$NON-NLS-1$
 						if(showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION)
 						{
+							Profile.curr_profile.setProperty("MainFrame.ChooseRomsDestination", getCurrentDirectory().getAbsolutePath());
 							txtRomsDest.setText(getSelectedFile().getAbsolutePath());
 							Profile.curr_profile.setProperty("roms_dest_dir", txtRomsDest.getText()); //$NON-NLS-1$
 						}
@@ -899,11 +901,12 @@ public class MainFrame extends JFrame
 				{
 					{
 						File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-						setCurrentDirectory(workdir);
+						setCurrentDirectory(new File(Profile.curr_profile.getProperty("MainFrame.ChooseRomsSource", workdir.getAbsolutePath())));
 						setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 						setMultiSelectionEnabled(true);
 						if(showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION)
 						{
+							Profile.curr_profile.setProperty("MainFrame.ChooseRomsSource", getCurrentDirectory().getAbsolutePath());
 							for(File f : getSelectedFiles())
 								modelSrcDir.addElement(f);
 							Profile.curr_profile.setProperty("src_dir", String.join("|", Collections.list(modelSrcDir.elements()).stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1643,7 +1646,7 @@ public class MainFrame extends JFrame
 								return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute();
 							}
 						});
-				new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport")) //$NON-NLS-1$
+				new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport")) //$NON-NLS-1$
 						.show(MainFrame.this, new JRMFileChooser.CallBack<Void>()
 						{
 
@@ -1651,13 +1654,14 @@ public class MainFrame extends JFrame
 							public Void call(JRMFileChooser<Void> chooser)
 							{
 								final Progress progress = new Progress(MainFrame.this);
+								Settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath());
 								progress.setVisible(true);
 								progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
 								Import imprt = new Import(chooser.getSelectedFile(), sl);
 								progress.dispose();
 								File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 								File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
-								new JRMFileChooser<>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, xmldir, imprt.file, null, Messages.getString("MainFrame.ChooseFileName")) //$NON-NLS-1$
+								new JRMFileChooser<>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), null, Messages.getString("MainFrame.ChooseFileName")) //$NON-NLS-1$
 										.show(MainFrame.this, new JRMFileChooser.CallBack<Object>()
 										{
 											@Override

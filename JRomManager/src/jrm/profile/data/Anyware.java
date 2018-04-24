@@ -181,7 +181,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				return false;
 			if(merge_mode == MergeOptions.SPLIT && r.merge != null)
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && r.bios != null)
+			if(merge_mode == MergeOptions.NOMERGE && (r.bios != null || (r.merge!=null && this.isRomOf() && this.getParent().isBios())))
 				return false;
 			if(merge_mode == MergeOptions.NOMERGE && r.merge != null)
 				return true;
@@ -189,7 +189,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				return true;
 			if(merge_mode == MergeOptions.FULLNOMERGE && r.merge != null)
 				return true;
-			if(merge_mode == MergeOptions.MERGE && r.bios != null)
+			if(merge_mode == MergeOptions.MERGE && (r.bios != null || (r.merge!=null && this.isRomOf() && this.getParent().isBios())))
 				return false;
 			if(merge_mode == MergeOptions.MERGE && r.merge != null)
 				return true;

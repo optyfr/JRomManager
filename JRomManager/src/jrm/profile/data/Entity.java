@@ -55,6 +55,7 @@ public abstract class Entity implements Serializable,Comparable<Entity>
 	void resetCollisionMode()
 	{
 		collision = false;
+		own_status = EntityStatus.UNKNOWN;
 	}
 
 	public Anyware getParent()
