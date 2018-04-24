@@ -13,9 +13,9 @@ public class Software extends Anyware implements Serializable
 	
 	public enum Supported implements Serializable
 	{
-		yes,
+		no,
 		partial,
-		no;
+		yes;
 	};
 	
 	public Software()

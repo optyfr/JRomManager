@@ -2,9 +2,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,8 +27,8 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public StringBuffer description = new StringBuffer();
 	public StringBuffer year = new StringBuffer();
 
-	public HashMap<String,Rom> roms = new HashMap<>();
-	public HashMap<String,Disk> disks = new HashMap<>();
+	public Collection<Rom> roms = new ArrayList<>();
+	public Collection<Disk> disks = new ArrayList<>();
 
 	public HashMap<String, Anyware> clones = new HashMap<>();
 
@@ -102,8 +100,8 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public void resetCollisionMode()
 	{
 		collision = false;
-		roms.values().forEach(Rom::resetCollisionMode);
-		disks.values().forEach(Disk::resetCollisionMode);
+		roms.forEach(Rom::resetCollisionMode);
+		disks.forEach(Disk::resetCollisionMode);
 	}
 
 	public boolean isClone()
@@ -134,7 +132,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				stream = Stream.empty();
 			else
 			{
-				List<Disk> disks_with_clones = Stream.concat(disks.values().stream(), clones.values().stream().flatMap(m -> m.disks.values().stream())).collect(Collectors.toList());
+				List<Disk> disks_with_clones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).collect(Collectors.toList());
 				StreamEx.of(disks_with_clones).groupingBy(Disk::getName).forEach((n, l) -> {
 					if(l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
 						l.forEach(Disk::setCollisionMode);
@@ -143,7 +141,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 			}
 		}
 		else
-			stream = disks.values().stream();
+			stream = disks.stream();
 		return stream.filter(d -> {
 			if(d.status == Status.nodump)
 				return false;
@@ -166,7 +164,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				stream = Stream.empty();
 			else
 			{
-				List<Rom> roms_with_clones = Stream.concat(roms.values().stream(), clones.values().stream().flatMap(m -> m.roms.values().stream())).collect(Collectors.toList());
+				List<Rom> roms_with_clones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
 				StreamEx.of(roms_with_clones).groupingBy(Rom::getName).forEach((n, l) -> {
 					if(l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
 						l.forEach(Rom::setCollisionMode);
@@ -175,7 +173,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 			}
 		}
 		else
-			stream = roms.values().stream();
+			stream = roms.stream();
 		return stream.filter(r -> {
 			if(r.status == Status.nodump)
 				return false;
@@ -218,7 +216,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	private List<Entity> getEntities()
 	{
 		if(table_entities == null)
-			table_entities = Stream.concat(roms.values().stream(), disks.values().stream()).filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			table_entities = Stream.concat(roms.stream(), disks.stream()).filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return table_entities;
 	}
 
@@ -318,7 +316,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
 		boolean ok = false;
-		for(Disk disk : disks.values())
+		for(Disk disk : disks)
 		{
 			EntityStatus estatus = disk.getStatus();
 			if(estatus == EntityStatus.KO)
@@ -331,7 +329,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				break;
 			}
 		}
-		for(Rom rom : roms.values())
+		for(Rom rom : roms)
 		{
 			EntityStatus estatus = rom.getStatus();
 			if(estatus == EntityStatus.KO)
@@ -352,10 +350,10 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public int countHave()
 	{
 		int have = 0;
-		for(Disk disk : disks.values())
+		for(Disk disk : disks)
 			if(disk.getStatus() == EntityStatus.OK)
 				have++;
-		for(Rom rom : roms.values())
+		for(Rom rom : roms)
 			if(rom.getStatus() == EntityStatus.OK)
 				have++;
 		return have;

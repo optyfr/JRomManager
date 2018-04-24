@@ -13,6 +13,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import jrm.profile.Profile;
+import jrm.profile.data.Software.Supported;
 import jrm.ui.SoftwareListRenderer;
 
 @SuppressWarnings("serial")
@@ -141,7 +142,12 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 	{
 		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true);
 		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true);
+		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString()));
 		return getList().stream().filter(t -> {
+			if(filterMinSoftwareSupportedLevel==Supported.partial && t.supported==Supported.no)
+				return false;
+			if(filterMinSoftwareSupportedLevel==Supported.yes && t.supported!=Supported.yes)
+				return false;
 			if(!filterIncludeClones && t.isClone())
 				return false;
 			if(!filterIncludeDisks && t.disks.size()>0)

@@ -2,10 +2,7 @@ package jrm.profile;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Properties;
+import java.util.*;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -21,6 +18,7 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
 import jrm.profile.data.*;
+import jrm.profile.data.Machine.CabinetType;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -75,11 +73,15 @@ public class Profile implements Serializable
 				private boolean in_manufacturer = false;
 				private boolean in_publisher = false;
 				private boolean in_header = false;
+				private boolean in_cabinet_dipsw = false;
+				private EnumSet<CabinetType> cabtype_set = EnumSet.noneOf(CabinetType.class);
 				private SoftwareList curr_software_list = null;
 				private Software curr_software = null;
 				private Machine curr_machine = null;
 				private Rom curr_rom = null;
 				private Disk curr_disk = null;
+				private HashMap<String,Rom> roms = new HashMap<>(); 
+				private HashMap<String,Disk> disks = new HashMap<>(); 
 				
 				private String curr_tag;
 
@@ -213,6 +215,33 @@ public class Profile implements Serializable
 							}
 						}
 					}
+					else if(qName.equals("display")) //$NON-NLS-1$
+					{
+						if(in_machine)
+						{
+							for(int i = 0; i < attributes.getLength(); i++)
+							{
+								switch(attributes.getQName(i))
+								{
+									case "rotate":
+									{
+										try
+										{
+											Integer orientation = Integer.parseInt(attributes.getValue(i));
+											if(orientation==0 || orientation==180)
+												curr_machine.orientation = Machine.DisplayOrientation.horizontal;
+											if(orientation==90 || orientation==270)
+												curr_machine.orientation = Machine.DisplayOrientation.vertical;
+										}
+										catch(NumberFormatException e)
+										{
+										}
+										break;
+									}
+								}
+							}
+						}
+					}
 					else if(qName.equals("input")) //$NON-NLS-1$
 					{
 						if(in_machine)
@@ -235,6 +264,39 @@ public class Profile implements Serializable
 										break;
 								}
 							}
+						}
+					}
+					else if(qName.equals("dipswitch")) //$NON-NLS-1$
+					{
+						if(in_machine)
+						{
+							for(int i = 0; i < attributes.getLength(); i++)
+							{
+								switch(attributes.getQName(i))
+								{
+									case "name":
+										if("cabinet".equalsIgnoreCase(attributes.getValue(i)))
+											in_cabinet_dipsw = true;
+								}
+							}
+						}
+					}
+					else if(qName.equals("dipvalue")) //$NON-NLS-1$
+					{
+						if(in_machine && in_cabinet_dipsw)
+						{
+							for(int i = 0; i < attributes.getLength(); i++)
+							{
+								switch(attributes.getQName(i))
+								{
+									case "name":
+										if("cocktail".equalsIgnoreCase(attributes.getValue(i)))
+											cabtype_set.add(CabinetType.cocktail);
+										else if("upright".equalsIgnoreCase(attributes.getValue(i)))
+											cabtype_set.add(CabinetType.upright);
+								}
+							}
+							
 						}
 					}
 					else if(qName.equals("rom")) //$NON-NLS-1$
@@ -323,6 +385,10 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("software")) //$NON-NLS-1$
 					{
+						curr_software.roms = new ArrayList<>(roms.values());
+						roms.clear();
+						curr_software.disks = new ArrayList<>(disks.values());
+						disks.clear();
 						curr_software_list.add(curr_software);
 						softwares_cnt++;
 						in_software = false;
@@ -332,6 +398,10 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("machine")||qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
+						curr_machine.roms = new ArrayList<>(roms.values());
+						roms.clear();
+						curr_machine.disks = new ArrayList<>(disks.values());
+						disks.clear();
 						machinelist_list.get(0).add(curr_machine);
 						machines_cnt++;
 						in_machine = false;
@@ -343,7 +413,7 @@ public class Profile implements Serializable
 					{
 						if(curr_rom.getName()!=null)
 						{
-							(in_machine?curr_machine:curr_software).roms.put(curr_rom.name, curr_rom);
+							roms.put(curr_rom.name, curr_rom);
 							roms_cnt++;
 							if(curr_rom.crc != null)
 							{
@@ -364,7 +434,7 @@ public class Profile implements Serializable
 					{
 						if(curr_disk.getName()!=null)
 						{
-							(in_machine?curr_machine:curr_software).disks.put(curr_disk.name, curr_disk);
+							disks.put(curr_disk.name, curr_disk);
 							disks_cnt++;
 						}
 					}
@@ -383,6 +453,20 @@ public class Profile implements Serializable
 					else if(qName.equals("publisher") && (in_software)) //$NON-NLS-1$
 					{
 						in_publisher = false;
+					}
+					else if(qName.equals("dipswitch") && in_cabinet_dipsw) //$NON-NLS-1$
+					{
+						if(cabtype_set.contains(CabinetType.cocktail))
+						{
+							if(cabtype_set.contains(CabinetType.upright))
+								curr_machine.cabinetType = CabinetType.any;
+							else
+								curr_machine.cabinetType = CabinetType.cocktail;
+						}
+						else
+							curr_machine.cabinetType = CabinetType.upright;
+						cabtype_set.clear();
+						in_cabinet_dipsw = false;
 					}
 				}
 

@@ -13,6 +13,22 @@ public class Machine extends Anyware implements Serializable
 	public StringBuffer manufacturer = new StringBuffer();
 	public Driver driver = new Driver();
 	public Input input = new Input();
+	public DisplayOrientation orientation = DisplayOrientation.any;
+	public CabinetType cabinetType = CabinetType.upright;
+	
+	public enum DisplayOrientation
+	{
+		any,
+		horizontal,
+		vertical;
+	}
+
+	public enum CabinetType
+	{
+		any,
+		upright,
+		cocktail;
+	}
 
 	public Machine()
 	{

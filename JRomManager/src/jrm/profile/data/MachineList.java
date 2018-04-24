@@ -13,6 +13,8 @@ import javax.swing.table.TableCellRenderer;
 
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
+import jrm.profile.data.Machine.CabinetType;
+import jrm.profile.data.Machine.DisplayOrientation;
 import jrm.ui.MachineListRenderer;
 
 @SuppressWarnings("serial")
@@ -106,21 +108,41 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true);
 		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true);
 		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString()));
+		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString()));
+		final CabinetType filterCabinetType = CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString()));
+
 		return getList().stream().filter(t -> {
-			if(filterMinDriverStatus==StatusType.imperfect && t.driver.getStatus()==StatusType.preliminary)
-				return false;
-			if(filterMinDriverStatus==StatusType.good && t.driver.getStatus()!=StatusType.good)
-				return false;
+			if(!t.isdevice)
+			{
+				if(filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary)
+					return false;
+				if(filterMinDriverStatus == StatusType.good && t.driver.getStatus() != StatusType.good)
+					return false;
+				if(!t.ismechanical)
+				{
+					if(filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical)
+						return false;
+					if(filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal)
+						return false;
+					if(!t.isbios)
+					{
+						if(filterCabinetType == CabinetType.upright && t.cabinetType == CabinetType.cocktail)
+							return false;
+						if(filterCabinetType == CabinetType.cocktail && t.cabinetType == CabinetType.upright)
+							return false;
+					}
+				}
+			}
 			if(!filterIncludeClones && t.isClone())
 				return false;
-			if(!filterIncludeDisks && t.disks.size()>0)
+			if(!filterIncludeDisks && t.disks.size() > 0)
 				return false;
 			if(!t.getSystem().isSelected())
 				return false;
 			return true;
 		});
 	}
-	
+
 	@Override
 	protected List<Machine> getFilteredList()
 	{
