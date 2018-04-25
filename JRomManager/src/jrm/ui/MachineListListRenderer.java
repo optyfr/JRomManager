@@ -7,27 +7,28 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.Messages;
 import jrm.profile.data.MachineList;
 
 @SuppressWarnings("serial")
 public final class MachineListListRenderer
 {
-	public final static String[] columns = new String[] { "name", "description", "have" };
+	public final static String[] columns = new String[] { Messages.getString("MachineListListRenderer.Name"), Messages.getString("MachineListListRenderer.Description"), Messages.getString("MachineListListRenderer.Have") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	public final static Class<?>[] columnsTypes = new Class<?>[] { Object.class, String.class, String.class };
 	public final static int[] columnsWidths = new int[] { 70, 150, -80 };
 	public final static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
-		ImageIcon disk_multiple_green = new ImageIcon(MachineListListRenderer.class.getResource("/jrm/resources/disk_multiple_green.png"));
-		ImageIcon disk_multiple_red = new ImageIcon(MachineListListRenderer.class.getResource("/jrm/resources/disk_multiple_red.png"));
-		ImageIcon disk_multiple_orange = new ImageIcon(MachineListListRenderer.class.getResource("/jrm/resources/disk_multiple_orange.png"));
-		ImageIcon disk_multiple_gray = new ImageIcon(MachineListListRenderer.class.getResource("/jrm/resources/disk_multiple_gray.png"));
+		ImageIcon disk_multiple_green = new ImageIcon(MachineListListRenderer.class.getResource("/jrm/resources/disk_multiple_green.png")); //$NON-NLS-1$
+		ImageIcon disk_multiple_red = new ImageIcon(MachineListListRenderer.class.getResource("/jrm/resources/disk_multiple_red.png")); //$NON-NLS-1$
+		ImageIcon disk_multiple_orange = new ImageIcon(MachineListListRenderer.class.getResource("/jrm/resources/disk_multiple_orange.png")); //$NON-NLS-1$
+		ImageIcon disk_multiple_gray = new ImageIcon(MachineListListRenderer.class.getResource("/jrm/resources/disk_multiple_gray.png")); //$NON-NLS-1$
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
 			if(value instanceof MachineList)
 			{
-				super.getTableCellRendererComponent(table, "*", isSelected, hasFocus, row, column);
+				super.getTableCellRendererComponent(table, Messages.getString("MachineListListRenderer.*"), isSelected, hasFocus, row, column); //$NON-NLS-1$
 				switch(((MachineList) value).getStatus())
 				{
 					case COMPLETE:
@@ -50,7 +51,14 @@ public final class MachineListListRenderer
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
 	},
-	null,
+	new DefaultTableCellRenderer()
+	{
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			setToolTipText(getText());
+			return this;
+		};
+	}, 
 	new DefaultTableCellRenderer()
 	{
 		{

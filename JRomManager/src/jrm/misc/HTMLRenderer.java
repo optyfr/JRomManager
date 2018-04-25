@@ -22,6 +22,26 @@ public interface HTMLRenderer
 		return "<span color='blue'>"+str+"</span>";
 	}
 
+	public default String toRed(CharSequence str)
+	{
+		return "<span color='red'>"+str+"</span>";
+	}
+
+	public default String toGreen(CharSequence str)
+	{
+		return "<span color='green'>"+str+"</span>";
+	}
+
+	public default String toGray(CharSequence str)
+	{
+		return "<span color='gray'>"+str+"</span>";
+	}
+
+	public default String toOrange(CharSequence str)
+	{
+		return "<span color='orange'>"+str+"</span>";
+	}
+
 	public default String toPurple(CharSequence str)
 	{
 		return "<span color='purple'>"+str+"</span>";

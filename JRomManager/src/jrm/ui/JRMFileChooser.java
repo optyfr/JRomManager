@@ -17,20 +17,20 @@ public class JRMFileChooser<V> extends JFileChooser
 
 	public JRMFileChooser()
 	{
-		this(null, null, null, null, null, null);
+		this(null, null, null, null, null, null, false);
 	}
 
 	public JRMFileChooser(int type, int mode)
 	{
-		this(type, mode, null, null, null, null);
+		this(type, mode, null, null, null, null, false);
 	}
 
 	public JRMFileChooser(int type, int mode, File currdir)
 	{
-		this(type, mode, currdir, null, null, null);
+		this(type, mode, currdir, null, null, null, false);
 	}
 
-	public JRMFileChooser(Integer type, Integer mode, File currdir, File selected, List<FileFilter> filters, String title)
+	public JRMFileChooser(Integer type, Integer mode, File currdir, File selected, List<FileFilter> filters, String title, boolean multi)
 	{
 		super();
 		if(type!=null)
@@ -51,6 +51,8 @@ public class JRMFileChooser<V> extends JFileChooser
 				addChoosableFileFilter(filter);
 		if(title != null)
 			setDialogTitle(title);
+		if(multi)
+			setMultiSelectionEnabled(multi);
 	}
 
 	public V show(Component parent, CallBack<V> callback)

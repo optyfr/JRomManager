@@ -621,6 +621,7 @@ public final class DirScan
 		}
 		catch(Exception e)
 		{
+			System.err.println(entry_path);
 			e.printStackTrace();
 		}
 		return null;

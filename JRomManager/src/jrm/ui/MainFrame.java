@@ -9,12 +9,8 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +27,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -47,6 +44,7 @@ import jrm.misc.FindCmd;
 import jrm.misc.Settings;
 import jrm.profile.Import;
 import jrm.profile.Profile;
+import jrm.profile.ProfileNFO;
 import jrm.profile.data.Driver;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
@@ -170,7 +168,7 @@ public class MainFrame extends JFrame
 
 		profilesPanel = new JSplitPane();
 		profilesPanel.setContinuousLayout(true);
-		profilesPanel.setResizeWeight(0.3);
+		profilesPanel.setResizeWeight(0.2);
 		profilesPanel.setOneTouchExpandable(true);
 		GridBagConstraints gbc_profilesPanel = new GridBagConstraints();
 		gbc_profilesPanel.insets = new Insets(0, 0, 5, 0);
@@ -194,7 +192,21 @@ public class MainFrame extends JFrame
 		scrollPane.setViewportView(profilesList);
 		FileTableModel filemodel = new FileTableModel();
 		profilesList.setModel(filemodel);
-		profilesList.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		for(int i = 0; i < profilesList.getColumnCount(); i++)
+		{
+			TableColumn column = profilesList.getColumnModel().getColumn(i);
+			column.setCellRenderer(new FileTableCellRenderer());
+			if(filemodel.columnsWidths[i] >= 0)
+			{
+				column.setPreferredWidth(filemodel.columnsWidths[i]);
+			}
+			else
+			{
+				int width = profilesList.getFontMetrics(profilesList.getFont()).stringWidth(String.format("%0" + (-filemodel.columnsWidths[i]) + "d", 0));
+				column.setMinWidth(width);
+				column.setMaxWidth(width);
+			}
+		}
 		profilesList.addMouseListener(new MouseAdapter()
 		{
 			@Override
@@ -206,7 +218,7 @@ public class MainFrame extends JFrame
 					int row = target.getSelectedRow();
 					if(row >= 0)
 					{
-						loadProfile(filemodel.getFileAt(row));
+						loadProfile(filemodel.getNfoAt(row));
 					}
 				}
 				// super.mouseClicked(e);
@@ -214,7 +226,7 @@ public class MainFrame extends JFrame
 		});
 
 		scrollPane_1 = new JScrollPane();
-		scrollPane_1.setMinimumSize(new Dimension(100, 22));
+		scrollPane_1.setMinimumSize(new Dimension(80, 22));
 		profilesPanel.setLeftComponent(scrollPane_1);
 
 		profilesTree = new JTree();
@@ -223,7 +235,6 @@ public class MainFrame extends JFrame
 		profilesTree.setModel(profilesTreeModel);
 		profilesTree.setRootVisible(true);
 		profilesTree.setShowsRootHandles(true);
-		profilesTree.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		profilesTree.setEditable(true);
 		DirTreeCellRenderer profilesTreeRenderer = new DirTreeCellRenderer();
 		profilesTree.setCellRenderer(profilesTreeRenderer);
@@ -245,6 +256,7 @@ public class MainFrame extends JFrame
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
 				mntmDeleteProfile.setEnabled(profilesList.getSelectedRowCount() > 0);
+				mntmDropCache.setEnabled(profilesList.getSelectedRowCount() > 0);
 			}
 		});
 		addPopup(profilesList, popupMenu_2);
@@ -282,6 +294,19 @@ public class MainFrame extends JFrame
 		});
 		mntmRenameProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_edit.png"))); //$NON-NLS-1$
 		popupMenu_2.add(mntmRenameProfile);
+
+		mntmDropCache = new JMenuItem(Messages.getString("MainFrame.mntmDropCache.text")); //$NON-NLS-1$
+		mntmDropCache.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				int row = profilesList.getSelectedRow();
+				if(row >= 0)
+					new File(filemodel.getFileAt(row).getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
+			}
+		});
+		mntmDropCache.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bin.png")));
+		popupMenu_2.add(mntmDropCache);
 		profilesTree.setSelectionRow(0);
 
 		popupMenu_1 = new JPopupMenu();
@@ -355,7 +380,7 @@ public class MainFrame extends JFrame
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				chooseProfile();
+				// chooseProfile();
 			}
 		});
 		profilesBtnPanel.add(btnLoadProfile);
@@ -1646,7 +1671,7 @@ public class MainFrame extends JFrame
 								return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute();
 							}
 						});
-				new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport")) //$NON-NLS-1$
+				new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$
 						.show(MainFrame.this, new JRMFileChooser.CallBack<Void>()
 						{
 
@@ -1655,49 +1680,52 @@ public class MainFrame extends JFrame
 							{
 								final Progress progress = new Progress(MainFrame.this);
 								Settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath());
-								progress.setVisible(true);
-								progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
-								Import imprt = new Import(chooser.getSelectedFile(), sl);
-								progress.dispose();
-								File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-								File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
-								new JRMFileChooser<>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), null, Messages.getString("MainFrame.ChooseFileName")) //$NON-NLS-1$
-										.show(MainFrame.this, new JRMFileChooser.CallBack<Object>()
-										{
-											@Override
-											public Object call(JRMFileChooser<Object> chooser)
+								for(File selectedfile : chooser.getSelectedFiles())
+								{
+									progress.setVisible(true);
+									progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+									Import imprt = new Import(selectedfile, sl);
+									progress.dispose();
+									File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+									File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
+									new JRMFileChooser<>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), null, Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$
+											.show(MainFrame.this, new JRMFileChooser.CallBack<Object>()
 											{
-												try
+												@Override
+												public Object call(JRMFileChooser<Object> chooser)
 												{
-													File file = chooser.getSelectedFile();
-													File parent = file.getParentFile();
-													FileUtils.copyFile(imprt.file, file);
-													DirTreeModel model = (DirTreeModel) profilesTree.getModel();
-													DirNode root = (DirNode) model.getRoot();
-													DirNode theNode = root.find(parent);
-													if(theNode != null)
+													try
 													{
-
-														theNode.reload();
-														model.reload(theNode);
-														if((theNode = root.find(parent)) != null)
+														File file = chooser.getSelectedFile();
+														File parent = file.getParentFile();
+														FileUtils.copyFile(imprt.file, file);
+														DirTreeModel model = (DirTreeModel) profilesTree.getModel();
+														DirNode root = (DirNode) model.getRoot();
+														DirNode theNode = root.find(parent);
+														if(theNode != null)
 														{
-															profilesTree.clearSelection();
-															profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
+
+															theNode.reload();
+															model.reload(theNode);
+															if((theNode = root.find(parent)) != null)
+															{
+																profilesTree.clearSelection();
+																profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
+															}
+															else
+																System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
 														}
 														else
-															System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
+															System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
 													}
-													else
-														System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
+													catch(IOException e)
+													{
+														e.printStackTrace();
+													}
+													return null;
 												}
-												catch(IOException e)
-												{
-													e.printStackTrace();
-												}
-												return null;
-											}
-										});
+											});
+								}
 								return null;
 							}
 						});
@@ -1706,7 +1734,7 @@ public class MainFrame extends JFrame
 
 	}
 
-	private void loadProfile(File profile)
+	private void loadProfile(ProfileNFO profile)
 	{
 		if(Profile.curr_profile != null)
 			Profile.curr_profile.saveSettings();
@@ -1748,22 +1776,10 @@ public class MainFrame extends JFrame
 		progress.setVisible(true);
 	}
 
-	private void chooseProfile()
-	{
-		new JFileChooser()
-		{
-			{
-				File workdir = Paths.get("./xmlfiles").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-				setCurrentDirectory(workdir);
-				addChoosableFileFilter(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				if(showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION)
-				{
-					loadProfile(getSelectedFile());
-				}
-			}
-		};
-	}
-
+	/*
+	 * private void chooseProfile() { new JFileChooser() { { File workdir = Paths.get("./xmlfiles").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$ setCurrentDirectory(workdir); addChoosableFileFilter(new
+	 * FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ if(showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) { loadProfile(getSelectedFile()); } } }; }
+	 */
 	private void scan()
 	{
 		String txtdstdir = txtRomsDest.getText();
@@ -1943,6 +1959,7 @@ public class MainFrame extends JFrame
 	private JCheckBox lblSamplesDest;
 	private JComboBox<Supported> cbbxSWMinSupportedLvl;
 	private JLabel lblSwMinSupportedLvl;
+	private JMenuItem mntmDropCache;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

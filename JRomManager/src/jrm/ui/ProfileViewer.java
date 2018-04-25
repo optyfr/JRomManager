@@ -1,9 +1,6 @@
 package jrm.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -15,6 +12,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
@@ -131,6 +129,13 @@ public class ProfileViewer extends JDialog
 		scrollPaneWL.setViewportView(tableWL);
 		tableWL.setPreferredScrollableViewportSize(new Dimension(300, 400));
 		tableWL.setModel(profile.softwarelist_list.size() > 0 ? profile.softwarelist_list : profile.machinelist_list);
+		tableWL.setTableHeader(new JTableHeader(tableWL.getColumnModel())
+		{
+			public String getToolTipText(MouseEvent e)
+			{
+				return columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getHeaderValue().toString();
+			}
+		});
 		tableWL.setFillsViewportHeight(true);
 		tableWL.setShowGrid(false);
 		tableWL.setShowHorizontalLines(false);
@@ -196,6 +201,13 @@ public class ProfileViewer extends JDialog
 							AnywareList<?> anywarelist = (AnywareList<?>) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
 							anywarelist.reset();
 							tableW.setModel(anywarelist);
+							tableW.setTableHeader(new JTableHeader(tableW.getColumnModel())
+							{
+								public String getToolTipText(MouseEvent e)
+								{
+									return columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getHeaderValue().toString();
+								}
+							});
 							if(tableW.getRowCount() > 0)
 								tableW.setRowSelectionInterval(0, 0);
 							for(int i = 0; i < tableW.getColumnModel().getColumnCount(); i++)
@@ -266,6 +278,13 @@ public class ProfileViewer extends JDialog
 							Anyware anyware = (Anyware) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
 							anyware.reset();
 							tableEntity.setModel(anyware);
+							tableEntity.setTableHeader(new JTableHeader(tableEntity.getColumnModel())
+							{
+								public String getToolTipText(MouseEvent e)
+								{
+									return columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getHeaderValue().toString();
+								}
+							});
 							for(int i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++)
 							{
 								TableColumn column = tableEntity.getColumnModel().getColumn(i);
@@ -278,8 +297,11 @@ public class ProfileViewer extends JDialog
 								}
 								else if(width < 0)
 								{
-									column.setMinWidth(-width);
-									column.setMaxWidth(-width);
+									Component component = column.getCellRenderer().getTableCellRendererComponent(tableEntity, null, false, false, 0, i);
+									int pixwidth = component.getFontMetrics(component.getFont()).stringWidth(String.format("%0"+(-width)+"d", 0));
+									column.setMinWidth(pixwidth/2);
+									column.setPreferredWidth(pixwidth);
+									column.setMaxWidth(pixwidth);
 								}
 							}
 						}
@@ -404,7 +426,7 @@ public class ProfileViewer extends JDialog
 				column.setMaxWidth(-width);
 			}
 		}
-		if(tableWL.getRowCount()>0)
+		if(tableWL.getRowCount() > 0)
 			tableWL.setRowSelectionInterval(0, 0);
 	}
 

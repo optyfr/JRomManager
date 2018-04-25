@@ -12,6 +12,7 @@ public abstract class Entity implements Serializable,Comparable<Entity>
 	public String crc = null;
 	public String sha1 = null;
 	public String md5 = null;
+	public String merge = null;
 	public Status status = Status.good;
 	public EntityStatus own_status = EntityStatus.UNKNOWN;
 

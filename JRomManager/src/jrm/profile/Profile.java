@@ -24,7 +24,6 @@ import jrm.ui.ProgressHandler;
 @SuppressWarnings("serial")
 public class Profile implements Serializable
 {
-	File file;
 
 	public long machines_cnt = 0;
 	public long softwares_list_cnt = 0;
@@ -39,24 +38,22 @@ public class Profile implements Serializable
 
 	public String build = null;
 	public HashMap<String, StringBuffer> header = new HashMap<>();
-	
 	public MachineListList machinelist_list = new MachineListList();
 	public SoftwareListList softwarelist_list = new SoftwareListList();
-	
 	public HashSet<String> suspicious_crc = new HashSet<>();
 
 	public transient Properties settings = null;
-	
 	public transient Systms systems;
+	public transient ProfileNFO nfo;
+	public static transient Profile curr_profile;
 
-	public Profile()
+	private Profile()
 	{
 
 	}
 
 	public boolean _load(File file, ProgressHandler handler)
 	{
-		this.file = file;
 		handler.setProgress(String.format(Messages.getString("Profile.Parsing"), file), -1); //$NON-NLS-1$
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		try
@@ -413,8 +410,8 @@ public class Profile implements Serializable
 					{
 						if(curr_rom.getName()!=null)
 						{
-							roms.put(curr_rom.name, curr_rom);
-							roms_cnt++;
+							if(null==roms.put(curr_rom.name, curr_rom))
+								roms_cnt++;
 							if(curr_rom.crc != null)
 							{
 								Rom old_rom = roms_bycrc.put(curr_rom.crc, curr_rom);
@@ -434,8 +431,8 @@ public class Profile implements Serializable
 					{
 						if(curr_disk.getName()!=null)
 						{
-							disks.put(curr_disk.name, curr_disk);
-							disks_cnt++;
+							if(null==disks.put(curr_disk.name, curr_disk))
+								disks_cnt++;
 						}
 					}
 					else if(qName.equals("description") && (in_machine || in_software || in_software_list)) //$NON-NLS-1$
@@ -557,7 +554,7 @@ public class Profile implements Serializable
 
 	public void save()
 	{
-		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file)))))
+		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(nfo.file)))))
 		{
 			oos.writeObject(this);
 		}
@@ -569,22 +566,36 @@ public class Profile implements Serializable
 
 	public static Profile load(File file, ProgressHandler handler)
 	{
+		return load(ProfileNFO.load(file), handler);
+	}
+	
+	public static Profile load(ProfileNFO nfo, ProgressHandler handler)
+	{
 		Profile profile = null;
-		File cachefile = getCacheFile(file);
-		if(cachefile.lastModified() >= file.lastModified() && !Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
+		File cachefile = getCacheFile(nfo.file);
+		if(cachefile.lastModified() >= nfo.file.lastModified() && !Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 		{
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
 			try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 			{
 				profile = (Profile) ois.readObject();
+				profile.nfo = nfo;
 			}
 			catch(Throwable e)
 			{
 			}
 		}
 		if(profile == null)
-			if(!(profile = new Profile())._load(file, handler))
+		{
+			profile = new Profile();
+			profile.nfo = nfo;
+			if(!profile._load(nfo.file, handler))
 				return null;
+		}
+		profile.nfo.version = profile.build!=null?profile.build:(profile.header.containsKey("version")?profile.header.get("version").toString():null);
+		profile.nfo.totalSets = profile.softwares_cnt>0?profile.softwares_cnt:profile.machines_cnt;
+		profile.nfo.totalRoms = profile.roms_cnt;
+		profile.nfo.totalDisks = profile.disks_cnt;
 		profile.loadSettings();
 		profile.loadSystems();
 		return profile;
@@ -599,9 +610,10 @@ public class Profile implements Serializable
 	{
 		if(settings == null)
 			settings = new Properties();
-		try(FileOutputStream os = new FileOutputStream(getSettingsFile(file)))
+		try(FileOutputStream os = new FileOutputStream(getSettingsFile(nfo.file)))
 		{
 			settings.storeToXML(os, null);
+			nfo.save();
 		}
 		catch(IOException e)
 		{
@@ -613,9 +625,9 @@ public class Profile implements Serializable
 	{
 		if(settings == null)
 			settings = new Properties();
-		if(getSettingsFile(file).exists())
+		if(getSettingsFile(nfo.file).exists())
 		{
-			try(FileInputStream is = new FileInputStream(getSettingsFile(file)))
+			try(FileInputStream is = new FileInputStream(getSettingsFile(nfo.file)))
 			{
 				settings.loadFromXML(is);
 			}
@@ -648,7 +660,7 @@ public class Profile implements Serializable
 
 	public String getName()
 	{
-		String name = "<html><body>[<span color='blue'>"+Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(file.toPath())+"</span>] "; //$NON-NLS-2$ //$NON-NLS-3$
+		String name = "<html><body>[<span color='blue'>"+Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath())+"</span>] "; //$NON-NLS-2$ //$NON-NLS-3$
 		if(build!=null)
 			name += "<b>"+build+"</b>";
 		else if(header.size() > 0)
@@ -686,5 +698,4 @@ public class Profile implements Serializable
 		softwarelists.forEach(systems::add);
 	}
 	
-	public static transient Profile curr_profile;
 }

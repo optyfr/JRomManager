@@ -181,7 +181,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				return false;
 			if(merge_mode == MergeOptions.SPLIT && r.merge != null)
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && (r.bios != null || (r.merge!=null && this.isRomOf() && this.getParent().isBios())))
+			if(merge_mode == MergeOptions.NOMERGE && (r.bios != null || (r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios())))
 				return false;
 			if(merge_mode == MergeOptions.NOMERGE && r.merge != null)
 				return true;
@@ -189,7 +189,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				return true;
 			if(merge_mode == MergeOptions.FULLNOMERGE && r.merge != null)
 				return true;
-			if(merge_mode == MergeOptions.MERGE && (r.bios != null || (r.merge!=null && this.isRomOf() && this.getParent().isBios())))
+			if(merge_mode == MergeOptions.MERGE && (r.bios != null || (r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios())))
 				return false;
 			if(merge_mode == MergeOptions.MERGE && r.merge != null)
 				return true;
@@ -206,7 +206,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		this.table_entities = null;
 		fireTableChanged(new TableModelEvent(this));
 	}
-	
+
 	public void setFilter(EnumSet<EntityStatus> filter)
 	{
 		Anyware.filter = filter;
@@ -246,7 +246,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 
 	public static TableCellRenderer getColumnRenderer(int columnIndex)
 	{
-		return AnywareRenderer.columnsRenderers[columnIndex] != null ? AnywareRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+		return columnIndex < AnywareRenderer.columnsRenderers.length && AnywareRenderer.columnsRenderers[columnIndex] != null ? AnywareRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
 	public static int getColumnWidth(int columnIndex)
@@ -277,6 +277,10 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				return getEntities().get(rowIndex).md5;
 			case 5:
 				return getEntities().get(rowIndex).sha1;
+			case 6:
+				return getEntities().get(rowIndex).merge;
+			case 7:
+				return getEntities().get(rowIndex).status;
 		}
 		return null;
 	}
@@ -349,20 +353,22 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 
 	public int countHave()
 	{
-		int have = 0;
-		for(Disk disk : disks)
-			if(disk.getStatus() == EntityStatus.OK)
-				have++;
-		for(Rom rom : roms)
-			if(rom.getStatus() == EntityStatus.OK)
-				have++;
-		return have;
+		return countHaveRoms() + countHaveDisks();
+	}
+
+	public int countHaveRoms()
+	{
+		return roms.stream().mapToInt(r -> r.getStatus() == EntityStatus.OK ? 1 : 0).sum();
+	}
+
+	public int countHaveDisks()
+	{
+		return disks.stream().mapToInt(d -> d.getStatus() == EntityStatus.OK ? 1 : 0).sum();
 	}
 
 	public int countAll()
 	{
 		return roms.size() + disks.size();
 	}
-	
 
 }

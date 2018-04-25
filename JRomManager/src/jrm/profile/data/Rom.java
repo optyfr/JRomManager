@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings("serial")
 public class Rom extends Entity implements Serializable
 {
-	public String merge = null;
 	public String bios = null;
 
 	public Rom(Anyware parent)
