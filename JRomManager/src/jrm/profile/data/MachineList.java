@@ -88,9 +88,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			case 3:
 				return String.format("%d/%d", machine.countHave(), machine.roms.size() + machine.disks.size());
 			case 4:
-				return machine.cloneof != null ? m_byname.get(getFilteredList().get(rowIndex).cloneof) : null;
+				return machine.cloneof != null ? (m_byname.containsKey(machine.cloneof) ? m_byname.get(machine.cloneof) : machine.cloneof) : null;
 			case 5:
-				return machine.romof != null && !machine.romof.equals(machine.cloneof) ? m_byname.get(machine.romof) : null;
+				return machine.romof != null && !machine.romof.equals(machine.cloneof) ? (m_byname.containsKey(machine.romof) ? m_byname.get(machine.romof) : machine.romof) : null;
 			case 6:
 				return machine.sampleof;
 		}

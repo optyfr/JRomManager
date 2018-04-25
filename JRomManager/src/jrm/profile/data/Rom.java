@@ -107,7 +107,11 @@ public class Rom extends Entity implements Serializable
 				if(rom.equals(r))
 					return r.getStatus();
 			}
+			if(parent.parent.parent!=null)
+				return findRomStatus(parent.parent, rom);
 		}
+		else if(parent.isRomOf() && merge!=null)
+			return EntityStatus.OK;
 		return null;
 	}
 

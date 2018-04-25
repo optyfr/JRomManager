@@ -179,25 +179,25 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				return false;
 			if(r.crc == null)
 				return false;
-			if(merge_mode == MergeOptions.SPLIT && r.merge != null)
+			if(merge_mode == MergeOptions.SPLIT && r.merge != null && isRomOf() && getParent()!=null && getParent().roms.contains(r))
 				return false;
 			if(merge_mode == MergeOptions.NOMERGE && (r.bios != null || (r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios())))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && r.merge != null)
+			if(merge_mode == MergeOptions.NOMERGE && r.merge != null && isRomOf() && getParent()!=null)
 				return true;
 			if(merge_mode == MergeOptions.FULLNOMERGE && r.bios != null)
 				return true;
-			if(merge_mode == MergeOptions.FULLNOMERGE && r.merge != null)
+			if(merge_mode == MergeOptions.FULLNOMERGE && r.merge != null && isRomOf() && getParent()!=null)
 				return true;
 			if(merge_mode == MergeOptions.MERGE && (r.bios != null || (r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios())))
 				return false;
-			if(merge_mode == MergeOptions.MERGE && r.merge != null)
+			if(merge_mode == MergeOptions.MERGE && r.merge != null && isRomOf() && getParent()!=null)
 				return true;
 			if(merge_mode == MergeOptions.FULLMERGE && r.bios != null)
 				return true;
-			if(merge_mode == MergeOptions.FULLMERGE && r.merge != null)
+			if(merge_mode == MergeOptions.FULLMERGE && r.merge != null && isRomOf() && getParent()!=null)
 				return true;
-			return this.isBios() || !this.isRomOf() || r.merge == null;
+			return this.isBios() || !this.isRomOf() || r.merge == null || (getParent()!=null && !getParent().roms.contains(r));
 		}).collect(Collectors.toList());
 	}
 

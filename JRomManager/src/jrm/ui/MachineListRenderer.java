@@ -117,6 +117,8 @@ public final class MachineListRenderer
 				return this;
 			}
 			setIcon(null);
+			if(value!=null)
+				setIcon(folder_closed_gray);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
 	}, new DefaultTableCellRenderer()
@@ -146,6 +148,8 @@ public final class MachineListRenderer
 				return this;
 			}
 			setIcon(null);
+			if(value!=null)
+				setIcon(folder_closed_gray);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
 	}, null };
