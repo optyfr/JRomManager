@@ -11,6 +11,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
+import one.util.streamex.StreamEx;
+
 @SuppressWarnings("serial")
 public abstract class AnywareList<T extends Anyware> implements Serializable, TableModel, List<T>
 {
@@ -233,7 +235,7 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
 		boolean ok = false;
-		for(Iterator<T> iterator = getFilteredStream().iterator(); iterator.hasNext(); )
+		for(Iterator<T> iterator = getFilteredStream().iterator(); iterator.hasNext();)
 		{
 			AnywareStatus estatus = iterator.next().getStatus();
 			if(estatus == AnywareStatus.PARTIAL || estatus == AnywareStatus.MISSING)
@@ -258,5 +260,10 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	public int find(Anyware anyware)
 	{
 		return getFilteredList().indexOf(anyware);
+	}
+
+	public int find(String search)
+	{
+		return find(StreamEx.of(getFilteredStream()).findFirst(s -> s.getName().toLowerCase().startsWith(search.toLowerCase())).orElse(null));
 	}
 }

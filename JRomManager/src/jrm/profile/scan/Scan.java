@@ -1,7 +1,12 @@
 package jrm.profile.scan;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -13,9 +18,37 @@ import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profile.Profile;
-import jrm.profile.data.*;
-import jrm.profile.fix.actions.*;
-import jrm.profile.report.*;
+import jrm.profile.data.Anyware;
+import jrm.profile.data.AnywareList;
+import jrm.profile.data.Archive;
+import jrm.profile.data.Container;
+import jrm.profile.data.Directory;
+import jrm.profile.data.Disk;
+import jrm.profile.data.EntityStatus;
+import jrm.profile.data.Entry;
+import jrm.profile.data.Machine;
+import jrm.profile.data.Rom;
+import jrm.profile.data.Software;
+import jrm.profile.fix.actions.AddEntry;
+import jrm.profile.fix.actions.ContainerAction;
+import jrm.profile.fix.actions.CreateContainer;
+import jrm.profile.fix.actions.DeleteContainer;
+import jrm.profile.fix.actions.DeleteEntry;
+import jrm.profile.fix.actions.DuplicateEntry;
+import jrm.profile.fix.actions.OpenContainer;
+import jrm.profile.fix.actions.RenameEntry;
+import jrm.profile.report.ContainerUnknown;
+import jrm.profile.report.ContainerUnneeded;
+import jrm.profile.report.EntryAdd;
+import jrm.profile.report.EntryMissing;
+import jrm.profile.report.EntryMissingDuplicate;
+import jrm.profile.report.EntryOK;
+import jrm.profile.report.EntryUnneeded;
+import jrm.profile.report.EntryWrongHash;
+import jrm.profile.report.EntryWrongName;
+import jrm.profile.report.Report;
+import jrm.profile.report.RomSuspiciousCRC;
+import jrm.profile.report.SubjectSet;
 import jrm.profile.report.SubjectSet.Status;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
@@ -168,6 +201,7 @@ public class Scan
 		}
 		finally
 		{
+			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			report.write();
 			report.flush();
 			if(MainFrame.profile_viewer != null)
@@ -238,7 +272,7 @@ public class Scan
 				Container c = dstscan.containers_byname.get(ware.getName());
 				if(c != null)
 				{
-					Optional.ofNullable(report.findSubject(ware)).ifPresent(s -> ((SubjectSet) s).setUnneeded());
+					report.add(new ContainerUnneeded(c));
 					delete_actions.add(new DeleteContainer(c, format));
 				}
 			}
@@ -247,7 +281,7 @@ public class Scan
 				Container c = dstscan.containers_byname.get(ware.getName() + format.getExt());
 				if(c != null)
 				{
-					Optional.ofNullable(report.findSubject(ware)).ifPresent(s -> ((SubjectSet) s).setUnneeded());
+					report.add(new ContainerUnneeded(c));
 					delete_actions.add(new DeleteContainer(c, format));
 				}
 			}
@@ -260,7 +294,7 @@ public class Scan
 			Container c = dstscan.containers_byname.get(ware.getName() + e);
 			if(c != null)
 			{
-				Optional.ofNullable(report.findSubject(ware)).ifPresent(s -> ((SubjectSet) s).setUnneeded());
+				report.add(new ContainerUnneeded(c));
 				delete_actions.add(new DeleteContainer(c, format));
 			}
 		});

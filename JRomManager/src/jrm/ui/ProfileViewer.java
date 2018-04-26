@@ -19,6 +19,8 @@ import javax.swing.table.TableModel;
 import jrm.Messages;
 import jrm.profile.Profile;
 import jrm.profile.data.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog
@@ -26,6 +28,7 @@ public class ProfileViewer extends JDialog
 	private JTable tableEntity;
 	private JTable tableW;
 	private JTable tableWL;
+	private JTextField txtSearch;
 
 	public ProfileViewer(Window owner, Profile profile)
 	{
@@ -82,6 +85,47 @@ public class ProfileViewer extends JDialog
 		tglbtnCompleteW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_green.png")));
 		tglbtnCompleteW.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteW.toolTipText")); //$NON-NLS-1$
 		toolBarW.add(tglbtnCompleteW);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBorder(null);
+		toolBarW.add(panel_1);
+		GridBagLayout gbl_panel_1 = new GridBagLayout();
+		gbl_panel_1.columnWidths = new int[]{286, 166, 0};
+		gbl_panel_1.rowHeights = new int[]{20, 0};
+		gbl_panel_1.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_1.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+		panel_1.setLayout(gbl_panel_1);
+		
+		JLabel lblSearch = new JLabel(Messages.getString("ProfileViewer.lblSearch.text")); //$NON-NLS-1$
+		GridBagConstraints gbc_lblSearch = new GridBagConstraints();
+		gbc_lblSearch.insets = new Insets(0, 0, 0, 5);
+		gbc_lblSearch.anchor = GridBagConstraints.EAST;
+		gbc_lblSearch.gridx = 0;
+		gbc_lblSearch.gridy = 0;
+		panel_1.add(lblSearch, gbc_lblSearch);
+		
+		txtSearch = new JTextField();
+		txtSearch.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String search = txtSearch.getText();
+				@SuppressWarnings("unchecked")
+				int row = ((AnywareList<Anyware>)tableW.getModel()).find(search);
+				if(row >= 0)
+				{
+					tableW.setRowSelectionInterval(row, row);
+					tableW.scrollRectToVisible(tableW.getCellRect(row, 0, true));
+				}
+			}
+		});
+		GridBagConstraints gbc_txtSearch = new GridBagConstraints();
+		gbc_txtSearch.fill = GridBagConstraints.VERTICAL;
+		gbc_txtSearch.anchor = GridBagConstraints.WEST;
+		gbc_txtSearch.gridx = 1;
+		gbc_txtSearch.gridy = 0;
+		panel_1.add(txtSearch, gbc_txtSearch);
+		txtSearch.setText("");
+		txtSearch.setColumns(20);
 
 		tglbtnMissingW.addItemListener(new ItemListener()
 		{

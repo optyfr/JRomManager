@@ -142,6 +142,18 @@ public class Report implements TreeNode, HTMLRenderer
 		return ware != null ? subject_hash.get(ware.getFullName()) : null;
 	}
 
+	public Subject findSubject(Anyware ware, Subject def)
+	{
+		if(ware != null)
+		{
+			if(subject_hash.containsKey(ware.getFullName()))
+				return subject_hash.get(ware.getFullName());
+			add(def);
+			return def;
+		}
+		return null;
+	}
+
 	private Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
 
 	public synchronized boolean add(Subject subject)
