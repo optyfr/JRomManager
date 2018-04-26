@@ -172,10 +172,10 @@ public class Scan
 			report.flush();
 			if(MainFrame.profile_viewer != null)
 				MainFrame.profile_viewer.reload(); // update entries in profile viewer
-			profile.nfo.scanned = new Date();
-			profile.nfo.haveSets = (profile.softwarelist_list.size()>0?profile.softwarelist_list:profile.machinelist_list).stream().mapToLong(AnywareList::countHave).sum();
-			profile.nfo.haveRoms = (profile.softwarelist_list.size()>0?profile.softwarelist_list:profile.machinelist_list).stream().flatMap(l->l.stream()).mapToLong(Anyware::countHaveRoms).sum();
-			profile.nfo.haveDisks= (profile.softwarelist_list.size()>0?profile.softwarelist_list:profile.machinelist_list).stream().flatMap(l->l.stream()).mapToLong(Anyware::countHaveDisks).sum();
+			profile.nfo.stats.scanned = new Date();
+			profile.nfo.stats.haveSets = (profile.softwarelist_list.size()>0?profile.softwarelist_list:profile.machinelist_list).stream().mapToLong(AnywareList::countHave).sum();
+			profile.nfo.stats.haveRoms = (profile.softwarelist_list.size()>0?profile.softwarelist_list:profile.machinelist_list).stream().flatMap(l->l.stream()).mapToLong(Anyware::countHaveRoms).sum();
+			profile.nfo.stats.haveDisks= (profile.softwarelist_list.size()>0?profile.softwarelist_list:profile.machinelist_list).stream().flatMap(l->l.stream()).mapToLong(Anyware::countHaveDisks).sum();
 			profile.nfo.save();
 			profile.save(); // save again profile cache with scan entity status
 		}

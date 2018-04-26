@@ -592,10 +592,10 @@ public class Profile implements Serializable
 			if(!profile._load(nfo.file, handler))
 				return null;
 		}
-		profile.nfo.version = profile.build!=null?profile.build:(profile.header.containsKey("version")?profile.header.get("version").toString():null);
-		profile.nfo.totalSets = profile.softwares_cnt>0?profile.softwares_cnt:profile.machines_cnt;
-		profile.nfo.totalRoms = profile.roms_cnt;
-		profile.nfo.totalDisks = profile.disks_cnt;
+		profile.nfo.stats.version = profile.build!=null?profile.build:(profile.header.containsKey("version")?profile.header.get("version").toString():null);
+		profile.nfo.stats.totalSets = profile.softwares_cnt>0?profile.softwares_cnt:profile.machines_cnt;
+		profile.nfo.stats.totalRoms = profile.roms_cnt;
+		profile.nfo.stats.totalDisks = profile.disks_cnt;
 		profile.loadSettings();
 		profile.loadSystems();
 		return profile;

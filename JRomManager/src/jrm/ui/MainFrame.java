@@ -45,6 +45,7 @@ import jrm.misc.Settings;
 import jrm.profile.Import;
 import jrm.profile.Profile;
 import jrm.profile.ProfileNFO;
+import jrm.profile.ProfileNFOMame.MameStatus;
 import jrm.profile.data.Driver;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
@@ -55,6 +56,7 @@ import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
+import jrm.ui.JRMFileChooser.CallBack;
 
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
@@ -257,6 +259,7 @@ public class MainFrame extends JFrame
 			{
 				mntmDeleteProfile.setEnabled(profilesList.getSelectedRowCount() > 0);
 				mntmDropCache.setEnabled(profilesList.getSelectedRowCount() > 0);
+				mntmUpdateFromMame.setEnabled(profilesList.getSelectedRowCount() > 0 && EnumSet.of(MameStatus.NEEDUPDATE, MameStatus.NOTFOUND).contains(filemodel.getNfoAt(profilesList.getSelectedRow()).mame.getStatus()));
 			}
 		});
 		addPopup(profilesList, popupMenu_2);
@@ -270,14 +273,16 @@ public class MainFrame extends JFrame
 				if(row >= 0)
 				{
 					ProfileNFO nfo = filemodel.getNfoAt(row);
-					if(Profile.curr_profile==null || !Profile.curr_profile.nfo.equals(nfo))
+					if(Profile.curr_profile == null || !Profile.curr_profile.nfo.equals(nfo))
 					{
 						File to_delete = (File) filemodel.getFileAt(row);
-						to_delete.delete();
-						new File(to_delete.getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
-						new File(to_delete.getAbsolutePath() + ".nfo").delete(); //$NON-NLS-1$
-						new File(to_delete.getAbsolutePath() + ".properties").delete(); //$NON-NLS-1$
-						filemodel.populate();
+						if(to_delete.delete())
+						{
+							new File(to_delete.getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
+							new File(to_delete.getAbsolutePath() + ".nfo").delete(); //$NON-NLS-1$
+							new File(to_delete.getAbsolutePath() + ".properties").delete(); //$NON-NLS-1$
+							filemodel.populate();
+						}
 					}
 				}
 			}
@@ -312,6 +317,47 @@ public class MainFrame extends JFrame
 		});
 		mntmDropCache.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bin.png")));
 		popupMenu_2.add(mntmDropCache);
+
+		separator = new JSeparator();
+		popupMenu_2.add(separator);
+
+		mntmUpdateFromMame = new JMenuItem(Messages.getString("MainFrame.mntmUpdateFromMame.text")); //$NON-NLS-1$
+		mntmUpdateFromMame.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				int row = profilesList.getSelectedRow();
+				if(row >= 0)
+				{
+					try
+					{
+						ProfileNFO nfo = filemodel.getNfoAt(row);
+						if(nfo.mame.getStatus() == MameStatus.NEEDUPDATE || (nfo.mame.getStatus() == MameStatus.NOTFOUND && new JRMFileChooser<MameStatus>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, nfo.mame.getFile(), null, "Choose mame executable new location", false).show(MainFrame.this, new CallBack<MameStatus>()
+						{
+							@Override
+							public MameStatus call(JRMFileChooser<MameStatus> chooser)
+							{
+								if(chooser.getSelectedFile().exists())
+									return nfo.mame.relocate(chooser.getSelectedFile());
+								return MameStatus.NOTFOUND;
+							}
+						}) == MameStatus.NEEDUPDATE))
+						{
+							Import imprt = new Import(nfo.mame.getFile(), nfo.mame.isSL());
+							FileUtils.copyFile(imprt.file, nfo.file);
+							nfo.mame.setUpdated();
+							nfo.stats.reset();
+						}
+						nfo.save();
+					}
+					catch(Exception e1)
+					{
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		popupMenu_2.add(mntmUpdateFromMame);
 		profilesTree.setSelectionRow(0);
 
 		popupMenu_1 = new JPopupMenu();
@@ -567,10 +613,12 @@ public class MainFrame extends JFrame
 		gbc_chckbxCreateOnlyComplete.gridx = 1;
 		gbc_chckbxCreateOnlyComplete.gridy = 1;
 		scannerSettingsPanel.add(chckbxCreateOnlyComplete, gbc_chckbxCreateOnlyComplete);
-		
+
 		chckbxIgnoreUnneededContainers = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreUnneededContainers.text")); //$NON-NLS-1$
-		chckbxIgnoreUnneededContainers.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+		chckbxIgnoreUnneededContainers.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
 				Profile.curr_profile.setProperty("ignore_unneeded_containers", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			}
 		});
@@ -580,10 +628,12 @@ public class MainFrame extends JFrame
 		gbc_chckbxIgnoreUnneededContainers.gridx = 0;
 		gbc_chckbxIgnoreUnneededContainers.gridy = 2;
 		scannerSettingsPanel.add(chckbxIgnoreUnneededContainers, gbc_chckbxIgnoreUnneededContainers);
-		
+
 		chckbxIgnoreUnneededEntries = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreUnneededEntries.text")); //$NON-NLS-1$
-		chckbxIgnoreUnneededEntries.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+		chckbxIgnoreUnneededEntries.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
 				Profile.curr_profile.setProperty("ignore_unneeded_entries", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			}
 		});
@@ -593,10 +643,12 @@ public class MainFrame extends JFrame
 		gbc_chckbxIgnoreUnneededEntries.gridx = 1;
 		gbc_chckbxIgnoreUnneededEntries.gridy = 2;
 		scannerSettingsPanel.add(chckbxIgnoreUnneededEntries, gbc_chckbxIgnoreUnneededEntries);
-		
+
 		chckbxIgnoreUnknownContainers = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreUnknownContainers.text")); //$NON-NLS-1$
-		chckbxIgnoreUnknownContainers.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+		chckbxIgnoreUnknownContainers.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
 				Profile.curr_profile.setProperty("ignore_unknown_containers", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			}
 		});
@@ -1743,6 +1795,12 @@ public class MainFrame extends JFrame
 														File file = chooser.getSelectedFile();
 														File parent = file.getParentFile();
 														FileUtils.copyFile(imprt.file, file);
+														if(imprt.is_mame)
+														{
+															ProfileNFO pnfo = ProfileNFO.load(file);
+															pnfo.mame.set(imprt.org_file, sl);
+															pnfo.save();
+														}
 														DirTreeModel model = (DirTreeModel) profilesTree.getModel();
 														DirNode root = (DirNode) model.getRoot();
 														DirNode theNode = root.find(parent);
@@ -1918,7 +1976,7 @@ public class MainFrame extends JFrame
 		chckbxIncludeClones.setSelected(Profile.curr_profile.getProperty("filter.InclClones", true));
 		chckbxIncludeDisks.setSelected(Profile.curr_profile.getProperty("filter.InclDisks", true));
 		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString())));
-		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.upright.toString())));
+		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString())));
 		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString())));
 		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString())));
 	}
@@ -2010,6 +2068,8 @@ public class MainFrame extends JFrame
 	private JCheckBox chckbxIgnoreUnneededContainers;
 	private JCheckBox chckbxIgnoreUnneededEntries;
 	private JCheckBox chckbxIgnoreUnknownContainers;
+	private JSeparator separator;
+	private JMenuItem mntmUpdateFromMame;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

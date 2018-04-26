@@ -22,7 +22,7 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 	public DirNode.Dir curr_dir = null;
 
 	private String[] columns = new String[] { Messages.getString("FileTableModel.Profile"), "Version", "HaveSets", "HaveRoms", "HaveDisks", "Created", "Scanned", "Fixed" };
-	private Class<?>[] columnsClass = new Class<?>[] { String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class };
+	private Class<?>[] columnsClass = new Class<?>[] { Object.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class };
 	public int[] columnsWidths = new int[] { 100, 50, -12, -14, -9, -19, -19, -19 };
 	private List<ProfileNFO> rows = new ArrayList<>();
 
@@ -76,7 +76,7 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 
 	public File getFileAt(int row)
 	{
-		return new File(curr_dir.getFile(), getValueAt(row, 0).toString());
+		return getNfoAt(row).file;
 	}
 
 	public ProfileNFO getNfoAt(int row)
@@ -102,14 +102,14 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 		ProfileNFO pnfo = rows.get(rowIndex);
 		switch(columnIndex)
 		{
-			case 0: return pnfo.name;
-			case 1: return toHTML(pnfo.version==null?toGray("???"):pnfo.version);
-			case 2: return toHTML(pnfo.haveSets==null?(pnfo.totalSets==null?toGray("?/?"):String.format("%s/%d", toGray("?"), pnfo.totalSets)):String.format("%s/%d", pnfo.haveSets==0&&pnfo.totalSets>0?toRed("0"):(pnfo.haveSets.equals(pnfo.totalSets)?toGreen(pnfo.haveSets+""):toOrange(pnfo.haveSets+"")), pnfo.totalSets));
-			case 3: return toHTML(pnfo.haveRoms==null?(pnfo.totalRoms==null?toGray("?/?"):String.format("%s/%d", toGray("?"), pnfo.totalRoms)):String.format("%s/%d", pnfo.haveRoms==0&&pnfo.totalRoms>0?toRed("0"):(pnfo.haveRoms.equals(pnfo.totalRoms)?toGreen(pnfo.haveRoms+""):toOrange(pnfo.haveRoms+"")), pnfo.totalRoms));
-			case 4: return toHTML(pnfo.haveDisks==null?(pnfo.totalDisks==null?toGray("?/?"):String.format("%s/%d", toGray("?"), pnfo.totalDisks)):String.format("%s/%d", pnfo.haveDisks==0&&pnfo.totalDisks>0?toRed("0"):(pnfo.haveDisks.equals(pnfo.totalDisks)?toGreen(pnfo.haveDisks+""):toOrange(pnfo.haveDisks+"")), pnfo.totalDisks));
-			case 5: return toHTML(pnfo.created==null?toGray("????-??-?? ??:??:??"):new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pnfo.created));
-			case 6: return toHTML(pnfo.scanned==null?toGray("????-??-?? ??:??:??"):new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pnfo.scanned));
-			case 7: return toHTML(pnfo.fixed==null?toGray("????-??-?? ??:??:??"):new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pnfo.fixed));
+			case 0: return pnfo;
+			case 1: return toHTML(pnfo.stats.version==null?toGray("???"):pnfo.stats.version);
+			case 2: return toHTML(pnfo.stats.haveSets==null?(pnfo.stats.totalSets==null?toGray("?/?"):String.format("%s/%d", toGray("?"), pnfo.stats.totalSets)):String.format("%s/%d", pnfo.stats.haveSets==0&&pnfo.stats.totalSets>0?toRed("0"):(pnfo.stats.haveSets.equals(pnfo.stats.totalSets)?toGreen(pnfo.stats.haveSets+""):toOrange(pnfo.stats.haveSets+"")), pnfo.stats.totalSets));
+			case 3: return toHTML(pnfo.stats.haveRoms==null?(pnfo.stats.totalRoms==null?toGray("?/?"):String.format("%s/%d", toGray("?"), pnfo.stats.totalRoms)):String.format("%s/%d", pnfo.stats.haveRoms==0&&pnfo.stats.totalRoms>0?toRed("0"):(pnfo.stats.haveRoms.equals(pnfo.stats.totalRoms)?toGreen(pnfo.stats.haveRoms+""):toOrange(pnfo.stats.haveRoms+"")), pnfo.stats.totalRoms));
+			case 4: return toHTML(pnfo.stats.haveDisks==null?(pnfo.stats.totalDisks==null?toGray("?/?"):String.format("%s/%d", toGray("?"), pnfo.stats.totalDisks)):String.format("%s/%d", pnfo.stats.haveDisks==0&&pnfo.stats.totalDisks>0?toRed("0"):(pnfo.stats.haveDisks.equals(pnfo.stats.totalDisks)?toGreen(pnfo.stats.haveDisks+""):toOrange(pnfo.stats.haveDisks+"")), pnfo.stats.totalDisks));
+			case 5: return toHTML(pnfo.stats.created==null?toGray("????-??-?? ??:??:??"):new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pnfo.stats.created));
+			case 6: return toHTML(pnfo.stats.scanned==null?toGray("????-??-?? ??:??:??"):new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pnfo.stats.scanned));
+			case 7: return toHTML(pnfo.stats.fixed==null?toGray("????-??-?? ??:??:??"):new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pnfo.stats.fixed));
 		}
 		return null;
 	}

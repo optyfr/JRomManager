@@ -10,10 +10,13 @@ import jrm.misc.Log;
 
 public class Import
 {
+	public File org_file;
 	public File file;
+	public boolean is_mame = false;
 
 	public Import(File file, boolean sl)
 	{
+		org_file = file;
 		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 		File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 		xmldir.mkdir();
@@ -28,6 +31,7 @@ public class Import
 				tmpfile.deleteOnExit();
 				Process process = new ProcessBuilder(file.getAbsolutePath(), sl?"-listsoftware":"-listxml").directory(file.getAbsoluteFile().getParentFile()).redirectOutput(tmpfile).start(); //$NON-NLS-1$
 				process.waitFor();
+				this.is_mame = true;
 				this.file = tmpfile;
 			}
 			catch(IOException e)

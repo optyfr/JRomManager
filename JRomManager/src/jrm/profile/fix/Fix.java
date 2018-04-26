@@ -47,7 +47,7 @@ public class Fix
 			});
 			actions.removeAll(done);
 		});
-		curr_profile.nfo.fixed = new Date();
+		curr_profile.nfo.stats.fixed = new Date();
 		System.out.println("Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
 	}
 
