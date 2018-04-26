@@ -33,6 +33,9 @@ public class Scan
 	private FormatOptions format;
 	private boolean create_mode;
 	private boolean createfull_mode;
+	private boolean ignore_unneeded_containers;
+	private boolean ignore_unneeded_entries;
+	private boolean ignore_unknown_containers;
 	private HashCollisionOptions hash_collision_mode;
 	private DirScan dstscan = null;
 	private Map<String, DirScan> dstscans = new HashMap<String, DirScan>();
@@ -54,6 +57,9 @@ public class Scan
 		create_mode = profile.getProperty("create_mode", true); //$NON-NLS-1$
 		createfull_mode = profile.getProperty("createfull_mode", true); //$NON-NLS-1$
 		hash_collision_mode = HashCollisionOptions.valueOf(profile.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString())); //$NON-NLS-1$
+		ignore_unneeded_containers = profile.getProperty("ignore_unneeded_containers", false); //$NON-NLS-1$
+		ignore_unneeded_entries = profile.getProperty("ignore_unneeded_entries", false); //$NON-NLS-1$
+		ignore_unknown_containers = profile.getProperty("ignore_unknown_containers", false); //$NON-NLS-1$
 
 		ArrayList<Container> unknown = new ArrayList<>();
 		for(File dir : srcdirs)
@@ -112,10 +118,13 @@ public class Scan
 
 		try
 		{
-			unknown.forEach((c) -> {
-				report.add(new ContainerUnknown(c));
-				delete_actions.add(new DeleteContainer(c, format));
-			});
+			if(!ignore_unknown_containers)
+			{
+				unknown.forEach((c) -> {
+					report.add(new ContainerUnknown(c));
+					delete_actions.add(new DeleteContainer(c, format));
+				});
+			}
 			profile.suspicious_crc.forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
 
 			AtomicInteger i = new AtomicInteger();
@@ -208,8 +217,11 @@ public class Scan
 		}
 		else if(create_mode && report_subject.getStatus() == Status.UNKNOWN)
 			report_subject.setMissing();
-		removeUnneededClone(ware, disks, roms);
-		removeOtherFormats(ware);
+		if(!ignore_unneeded_containers)
+		{
+			removeUnneededClone(ware, disks, roms);
+			removeOtherFormats(ware);
+		}
 		if(missing_set)
 			report.stats.missing_set_cnt++;
 		if(report_subject.getStatus() != Status.UNKNOWN)
@@ -343,12 +355,15 @@ public class Scan
 						disks_found.add(found_entry);
 					}
 				}
-				List<Entry> unneeded = container.getEntries().stream().filter(not(new HashSet<>(disks_found)::contains)).collect(Collectors.toList());
-				for(Entry unneeded_entry : unneeded)
+				if(!ignore_unneeded_entries)
 				{
-					report_subject.add(new EntryUnneeded(unneeded_entry));
-					(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(unneeded_entry));
-					(delete_set = OpenContainer.getInstance(delete_set, directory, format)).addAction(new DeleteEntry(unneeded_entry));
+					List<Entry> unneeded = container.getEntries().stream().filter(not(new HashSet<>(disks_found)::contains)).collect(Collectors.toList());
+					for(Entry unneeded_entry : unneeded)
+					{
+						report_subject.add(new EntryUnneeded(unneeded_entry));
+						(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(unneeded_entry));
+						(delete_set = OpenContainer.getInstance(delete_set, directory, format)).addAction(new DeleteEntry(unneeded_entry));
+					}
 				}
 				ContainerAction.addToList(rename_before_actions, rename_before_set);
 				ContainerAction.addToList(add_actions, add_set);
@@ -497,12 +512,15 @@ public class Scan
 						roms_found.add(found_entry);
 					}
 				}
-				List<Entry> unneeded = container.getEntries().stream().filter(not(new HashSet<>(roms_found)::contains)).collect(Collectors.toList());
-				for(Entry unneeded_entry : unneeded)
+				if(!ignore_unneeded_entries)
 				{
-					report_subject.add(new EntryUnneeded(unneeded_entry));
-					(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(unneeded_entry));
-					(delete_set = OpenContainer.getInstance(delete_set, archive, format)).addAction(new DeleteEntry(unneeded_entry));
+					List<Entry> unneeded = container.getEntries().stream().filter(not(new HashSet<>(roms_found)::contains)).collect(Collectors.toList());
+					for(Entry unneeded_entry : unneeded)
+					{
+						report_subject.add(new EntryUnneeded(unneeded_entry));
+						(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(unneeded_entry));
+						(delete_set = OpenContainer.getInstance(delete_set, archive, format)).addAction(new DeleteEntry(unneeded_entry));
+					}
 				}
 				ContainerAction.addToList(rename_before_actions, rename_before_set);
 				ContainerAction.addToList(add_actions, add_set);

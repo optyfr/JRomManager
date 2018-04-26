@@ -269,11 +269,16 @@ public class MainFrame extends JFrame
 				int row = profilesList.getSelectedRow();
 				if(row >= 0)
 				{
-					File to_delete = (File) filemodel.getValueAt(row, 0);
-					to_delete.delete();
-					new File(to_delete.getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
-					new File(to_delete.getAbsolutePath() + ".properties").delete(); //$NON-NLS-1$
-					filemodel.populate();
+					ProfileNFO nfo = filemodel.getNfoAt(row);
+					if(Profile.curr_profile==null || !Profile.curr_profile.nfo.equals(nfo))
+					{
+						File to_delete = (File) filemodel.getFileAt(row);
+						to_delete.delete();
+						new File(to_delete.getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
+						new File(to_delete.getAbsolutePath() + ".nfo").delete(); //$NON-NLS-1$
+						new File(to_delete.getAbsolutePath() + ".properties").delete(); //$NON-NLS-1$
+						filemodel.populate();
+					}
 				}
 			}
 		});
@@ -493,9 +498,9 @@ public class MainFrame extends JFrame
 		scannerSettingsPanel.setBackground(UIManager.getColor("Panel.background"));
 		GridBagLayout gbl_scannerSettingsPanel = new GridBagLayout();
 		gbl_scannerSettingsPanel.columnWidths = new int[] { 0, 0, 0 };
-		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 20, 0 };
+		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 0, 0, 20, 0 };
 		gbl_scannerSettingsPanel.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gbl_scannerSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl_scannerSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		scannerSettingsPanel.setLayout(gbl_scannerSettingsPanel);
 
 		chckbxNeedSHA1 = new JCheckBox(Messages.getString("MainFrame.chckbxNeedSHA1.text")); //$NON-NLS-1$
@@ -562,13 +567,52 @@ public class MainFrame extends JFrame
 		gbc_chckbxCreateOnlyComplete.gridx = 1;
 		gbc_chckbxCreateOnlyComplete.gridy = 1;
 		scannerSettingsPanel.add(chckbxCreateOnlyComplete, gbc_chckbxCreateOnlyComplete);
+		
+		chckbxIgnoreUnneededContainers = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreUnneededContainers.text")); //$NON-NLS-1$
+		chckbxIgnoreUnneededContainers.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				Profile.curr_profile.setProperty("ignore_unneeded_containers", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			}
+		});
+		GridBagConstraints gbc_chckbxIgnoreUnneededContainers = new GridBagConstraints();
+		gbc_chckbxIgnoreUnneededContainers.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxIgnoreUnneededContainers.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxIgnoreUnneededContainers.gridx = 0;
+		gbc_chckbxIgnoreUnneededContainers.gridy = 2;
+		scannerSettingsPanel.add(chckbxIgnoreUnneededContainers, gbc_chckbxIgnoreUnneededContainers);
+		
+		chckbxIgnoreUnneededEntries = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreUnneededEntries.text")); //$NON-NLS-1$
+		chckbxIgnoreUnneededEntries.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				Profile.curr_profile.setProperty("ignore_unneeded_entries", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			}
+		});
+		GridBagConstraints gbc_chckbxIgnoreUnneededEntries = new GridBagConstraints();
+		gbc_chckbxIgnoreUnneededEntries.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxIgnoreUnneededEntries.insets = new Insets(0, 0, 5, 0);
+		gbc_chckbxIgnoreUnneededEntries.gridx = 1;
+		gbc_chckbxIgnoreUnneededEntries.gridy = 2;
+		scannerSettingsPanel.add(chckbxIgnoreUnneededEntries, gbc_chckbxIgnoreUnneededEntries);
+		
+		chckbxIgnoreUnknownContainers = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreUnknownContainers.text")); //$NON-NLS-1$
+		chckbxIgnoreUnknownContainers.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				Profile.curr_profile.setProperty("ignore_unknown_containers", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			}
+		});
+		GridBagConstraints gbc_chckbxIgnoreUnknownContainers = new GridBagConstraints();
+		gbc_chckbxIgnoreUnknownContainers.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxIgnoreUnknownContainers.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxIgnoreUnknownContainers.gridx = 0;
+		gbc_chckbxIgnoreUnknownContainers.gridy = 3;
+		scannerSettingsPanel.add(chckbxIgnoreUnknownContainers, gbc_chckbxIgnoreUnknownContainers);
 
 		scannerSubSettingsPanel = new JPanel();
 		GridBagConstraints gbc_scannerSubSettingsPanel = new GridBagConstraints();
 		gbc_scannerSubSettingsPanel.gridwidth = 2;
 		gbc_scannerSubSettingsPanel.fill = GridBagConstraints.BOTH;
 		gbc_scannerSubSettingsPanel.gridx = 0;
-		gbc_scannerSubSettingsPanel.gridy = 2;
+		gbc_scannerSubSettingsPanel.gridy = 4;
 		scannerSettingsPanel.add(scannerSubSettingsPanel, gbc_scannerSubSettingsPanel);
 		GridBagLayout gbl_scannerSubSettingsPanel = new GridBagLayout();
 		gbl_scannerSubSettingsPanel.columnWidths = new int[] { 0, 0, 0, 0 };
@@ -1858,6 +1902,9 @@ public class MainFrame extends JFrame
 		chckbxUseParallelism.setSelected(Profile.curr_profile.getProperty("use_parallelism", false)); //$NON-NLS-1$
 		chckbxCreateMissingSets.setSelected(Profile.curr_profile.getProperty("create_mode", false)); //$NON-NLS-1$
 		chckbxCreateOnlyComplete.setSelected(Profile.curr_profile.getProperty("createfull_mode", false) && chckbxCreateMissingSets.isSelected()); //$NON-NLS-1$
+		chckbxIgnoreUnneededContainers.setSelected(Profile.curr_profile.getProperty("ignore_unneeded_containers", false)); //$NON-NLS-1$
+		chckbxIgnoreUnneededEntries.setSelected(Profile.curr_profile.getProperty("ignore_unneeded_entries", false)); //$NON-NLS-1$
+		chckbxIgnoreUnknownContainers.setSelected(Profile.curr_profile.getProperty("ignore_unknown_containers", false)); //$NON-NLS-1$
 		chckbxCreateOnlyComplete.setEnabled(chckbxCreateMissingSets.isSelected());
 		txtRomsDest.setText(Profile.curr_profile.getProperty("roms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		((DefaultListModel<File>) listSrcDir.getModel()).removeAllElements();
@@ -1960,6 +2007,9 @@ public class MainFrame extends JFrame
 	private JComboBox<Supported> cbbxSWMinSupportedLvl;
 	private JLabel lblSwMinSupportedLvl;
 	private JMenuItem mntmDropCache;
+	private JCheckBox chckbxIgnoreUnneededContainers;
+	private JCheckBox chckbxIgnoreUnneededEntries;
+	private JCheckBox chckbxIgnoreUnknownContainers;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

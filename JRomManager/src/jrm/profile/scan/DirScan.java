@@ -76,7 +76,7 @@ public final class DirScan
 		 * Loading scan cache
 		 */
 		if(!Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
-			containers_byname = load(dir, handler);
+			containers_byname = load(dir, is_dest, handler);
 
 		/*
 		 * List files;
@@ -268,7 +268,7 @@ public final class DirScan
 		});
 
 		if(!handler.isCancel())
-			save(dir, containers_byname);
+			save(dir, containers_byname, is_dest);
 
 	}
 
@@ -671,19 +671,19 @@ public final class DirScan
 		return entries_bymd5.get(d.md5);
 	}
 
-	private static File getCacheFile(File file)
+	private static File getCacheFile(File file, boolean is_dest)
 	{
 		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 		File cachedir = new File(workdir, "cache"); //$NON-NLS-1$
 		cachedir.mkdirs();
 		CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		return new File(cachedir, String.format("%08x", crc.getValue()) + ".scache"); //$NON-NLS-1$ //$NON-NLS-2$
+		return new File(cachedir, String.format("%08x", crc.getValue()) + (is_dest?".dcache":".scache")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private void save(File file, Object obj)
+	private void save(File file, Object obj, boolean is_dest)
 	{
-		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file)))))
+		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file,is_dest)))))
 		{
 			oos.writeObject(obj);
 		}
@@ -693,9 +693,9 @@ public final class DirScan
 	}
 
 	@SuppressWarnings("unchecked")
-	public static HashMap<String, Container> load(File file, ProgressHandler handler)
+	public static HashMap<String, Container> load(File file, boolean is_dest, ProgressHandler handler)
 	{
-		File cachefile = getCacheFile(file);
+		File cachefile = getCacheFile(file, is_dest);
 		try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 		{
 			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), file) , 0); //$NON-NLS-1$

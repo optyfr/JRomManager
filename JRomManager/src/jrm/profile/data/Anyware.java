@@ -179,25 +179,21 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				return false;
 			if(r.crc == null)
 				return false;
-			if(merge_mode == MergeOptions.SPLIT && r.merge != null && isRomOf() && getParent()!=null && getParent().roms.contains(r))
+			if(merge_mode == MergeOptions.FULLNOMERGE)
+				return true;
+			if(merge_mode == MergeOptions.FULLMERGE)
+				return true;
+			if(merge_mode == MergeOptions.SPLIT && r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().roms.contains(r))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && (r.bios != null || (r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios())))
+			if(merge_mode == MergeOptions.NOMERGE && r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios() && this.getParent().roms.contains(r))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && r.merge != null && isRomOf() && getParent()!=null)
+			if(merge_mode == MergeOptions.NOMERGE && r.merge != null && this.isRomOf() && this.getParent()!=null)
 				return true;
-			if(merge_mode == MergeOptions.FULLNOMERGE && r.bios != null)
-				return true;
-			if(merge_mode == MergeOptions.FULLNOMERGE && r.merge != null && isRomOf() && getParent()!=null)
-				return true;
-			if(merge_mode == MergeOptions.MERGE && (r.bios != null || (r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios())))
+			if(merge_mode == MergeOptions.MERGE && r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios() && this.getParent().roms.contains(r))
 				return false;
-			if(merge_mode == MergeOptions.MERGE && r.merge != null && isRomOf() && getParent()!=null)
+			if(merge_mode == MergeOptions.MERGE && r.merge != null && this.isRomOf() && this.getParent()!=null)
 				return true;
-			if(merge_mode == MergeOptions.FULLMERGE && r.bios != null)
-				return true;
-			if(merge_mode == MergeOptions.FULLMERGE && r.merge != null && isRomOf() && getParent()!=null)
-				return true;
-			return this.isBios() || !this.isRomOf() || r.merge == null || (getParent()!=null && !getParent().roms.contains(r));
+			return this.isBios() || !this.isRomOf() || r.merge == null || this.getParent()==null || !this.getParent().roms.contains(r);
 		}).collect(Collectors.toList());
 	}
 
