@@ -2,6 +2,7 @@ package jrm.profile.fix;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,6 +47,7 @@ public class Fix
 			});
 			actions.removeAll(done);
 		});
+		curr_profile.nfo.fixed = new Date();
 		System.out.println("Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
 	}
 

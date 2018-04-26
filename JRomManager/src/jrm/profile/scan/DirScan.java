@@ -546,11 +546,14 @@ public final class DirScan
 		{
 			if(entry.size == 0 && entry.crc == null)
 			{
+				Path path = entry_path;
 				if(entry_path == null)
-					entry_path = getPath(entry);
-				Map<String, Object> entry_zip_attrs = Files.readAttributes(entry_path, "zip:*"); //$NON-NLS-1$
+					path = getPath(entry);
+				Map<String, Object> entry_zip_attrs = Files.readAttributes(path, "zip:*"); //$NON-NLS-1$
 				entry.size = (Long) entry_zip_attrs.get("size"); //$NON-NLS-1$
 				entry.crc = String.format("%08x", entry_zip_attrs.get("crc")); //$NON-NLS-1$ //$NON-NLS-2$
+				if(entry_path == null)
+					path.getFileSystem().close();
 			}
 			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 		}
@@ -560,29 +563,35 @@ public final class DirScan
 			{
 				if(profile.sha1_disks || profile.md5_disks)
 				{
+					Path path = entry_path;
 					if(entry_path == null)
-						entry_path = getPath(entry);
-					CHDInfoReader chd_info = new CHDInfoReader(entry_path.toFile());
+						path = getPath(entry);
+					CHDInfoReader chd_info = new CHDInfoReader(path.toFile());
 					if(profile.sha1_disks)
 						if(null != (entry.sha1 = chd_info.getSHA1()))
 							entries_bysha1.put(entry.sha1, entry);
 					if(profile.md5_disks)
 						if(null != (entry.md5 = chd_info.getMD5()))
 							entries_bymd5.put(entry.md5, entry);
+					if(entry_path == null)
+						path.getFileSystem().close();
 				}
 			}
 			else
 			{
 				if(profile.sha1_roms || profile.md5_roms)
 				{
+					Path path = entry_path;
 					if(entry_path == null)
-						entry_path = getPath(entry);
+						path = getPath(entry);
 					if(profile.sha1_roms)
-						if(null != (entry.sha1 = computeSHA1(entry_path)))
+						if(null != (entry.sha1 = computeSHA1(path)))
 							entries_bysha1.put(entry.sha1, entry);
 					if(profile.md5_roms)
-						if(null != (entry.md5 = computeMD5(entry_path)))
+						if(null != (entry.md5 = computeMD5(path)))
 							entries_bymd5.put(entry.md5, entry);
+					if(entry_path == null)
+						path.getFileSystem().close();
 				}
 			}
 		}
@@ -629,10 +638,8 @@ public final class DirScan
 
 	private Path getPath(Entry entry) throws IOException
 	{
-		try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
-		{
-			return srcfs.getPath(entry.file);
-		}
+		FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);
+		return srcfs.getPath(entry.file);
 	}
 
 	public Entry find_byhash(Profile profile, Rom r)
