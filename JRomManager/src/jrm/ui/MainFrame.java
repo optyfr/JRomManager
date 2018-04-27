@@ -333,7 +333,7 @@ public class MainFrame extends JFrame
 					try
 					{
 						ProfileNFO nfo = filemodel.getNfoAt(row);
-						if(nfo.mame.getStatus() == MameStatus.NEEDUPDATE || (nfo.mame.getStatus() == MameStatus.NOTFOUND && new JRMFileChooser<MameStatus>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, nfo.mame.getFile(), null, "Choose mame executable new location", false).show(MainFrame.this, new CallBack<MameStatus>()
+						if(nfo.mame.getStatus() == MameStatus.NEEDUPDATE || (nfo.mame.getStatus() == MameStatus.NOTFOUND && new JRMFileChooser<MameStatus>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, nfo.mame.getFile(), null, Messages.getString("MainFrame.ChooseMameNewLocation"), false).show(MainFrame.this, new CallBack<MameStatus>() //$NON-NLS-1$
 						{
 							@Override
 							public MameStatus call(JRMFileChooser<MameStatus> chooser)
@@ -559,6 +559,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(lblRomsDest, gbc_lblRomsDest);
 
 		txtRomsDest = new JTextField();
+		txtRomsDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		GridBagConstraints gbc_txtRomsDest = new GridBagConstraints();
 		gbc_txtRomsDest.fill = GridBagConstraints.BOTH;
 		gbc_txtRomsDest.insets = new Insets(0, 0, 5, 0);
@@ -666,6 +667,7 @@ public class MainFrame extends JFrame
 
 		tfDisksDest = new JTextField();
 		tfDisksDest.setEnabled(false);
+		tfDisksDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfDisksDest.setText("");
 		GridBagConstraints gbc_tfDisksDest = new GridBagConstraints();
 		gbc_tfDisksDest.insets = new Insets(0, 0, 5, 0);
@@ -739,13 +741,13 @@ public class MainFrame extends JFrame
 				{
 					{
 						File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-						setCurrentDirectory(new File(Profile.curr_profile.getProperty("MainFrame.ChooseDiksDestination", workdir.getAbsolutePath())));
+						setCurrentDirectory(new File(Profile.curr_profile.getProperty("MainFrame.ChooseDisksDestination", workdir.getAbsolutePath())));
 						setFileSelectionMode(DIRECTORIES_ONLY);
 						setSelectedFile(new File(txtRomsDest.getText()));
 						setDialogTitle("Choose disks destination directory"); //$NON-NLS-1$
 						if(showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION)
 						{
-							Profile.curr_profile.setProperty("MainFrame.ChooseDiksDestination", getCurrentDirectory().getAbsolutePath());
+							Profile.curr_profile.setProperty("MainFrame.ChooseDisksDestination", getCurrentDirectory().getAbsolutePath());
 							tfDisksDest.setText(getSelectedFile().getAbsolutePath());
 							Profile.curr_profile.setProperty("disks_dest_dir", tfDisksDest.getText()); //$NON-NLS-1$
 						}
@@ -767,6 +769,7 @@ public class MainFrame extends JFrame
 
 		tfSamplesDest = new JTextField();
 		tfSamplesDest.setEnabled(false);
+		tfSamplesDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfSamplesDest.setText("");
 		GridBagConstraints gbc_tfSamplesDest = new GridBagConstraints();
 		gbc_tfSamplesDest.insets = new Insets(0, 0, 5, 0);
@@ -796,6 +799,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(lblSrcDir, gbc_lblSrcDir);
 
 		listSrcDir = new JList<>();
+		listSrcDir.setUI(new JListHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		GridBagConstraints gbc_listSrcDir = new GridBagConstraints();
 		gbc_listSrcDir.insets = new Insets(0, 0, 0, 5);
 		gbc_listSrcDir.gridwidth = 2;
@@ -1861,7 +1865,7 @@ public class MainFrame extends JFrame
 	private void updateMemory()
 	{
 		Runtime rt = Runtime.getRuntime();
-		lblMemoryUsage.setText(String.format("Total:%s, Used:%s, Free:%s, Max:%s", FileUtils.byteCountToDisplaySize(rt.totalMemory()), FileUtils.byteCountToDisplaySize(rt.totalMemory() - rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.maxMemory())));
+		lblMemoryUsage.setText(String.format(Messages.getString("MainFrame.MemoryUsage"), FileUtils.byteCountToDisplaySize(rt.totalMemory()), FileUtils.byteCountToDisplaySize(rt.totalMemory() - rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.maxMemory()))); //$NON-NLS-1$
 	}
 
 	private void importDat(boolean sl)
