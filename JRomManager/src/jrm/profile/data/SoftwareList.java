@@ -178,4 +178,10 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 		return getFilteredStream().filter(t -> t.getStatus()==AnywareStatus.COMPLETE).count();
 	}
 
+	@Override
+	public boolean containsName(String name)
+	{
+		return s_byname.containsKey(name);
+	}
+
 }

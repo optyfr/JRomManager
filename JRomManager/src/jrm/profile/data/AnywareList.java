@@ -41,6 +41,7 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	}
 
 	protected abstract List<T> getList();
+	public abstract boolean containsName(String name);
 
 	public void reset()
 	{

@@ -10,7 +10,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import jrm.Messages;
-import jrm.profile.data.Anyware;
 import jrm.profile.data.Disk;
 import jrm.profile.data.Entity;
 import jrm.profile.data.Rom;
@@ -59,7 +58,7 @@ public final class AnywareRenderer
 				setIcon(rom_small);
 			else if(value instanceof Disk)
 				setIcon(drive);
-			setText((value != null) ? (value instanceof Anyware ? ((Anyware) value).getName() : value.toString()) : null);
+			setText((value != null) ? (value instanceof Entity ? ((Entity) value).name : value.toString()) : null);
 			setToolTipText(getText());
 			setBackground(AnywareRenderer.getBackground(row, column));
 			return this;

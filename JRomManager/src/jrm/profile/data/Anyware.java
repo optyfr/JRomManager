@@ -35,6 +35,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public Anyware parent = null;
 
 	public static transient MergeOptions merge_mode;
+	public static transient Boolean implicit_merge;
 	public static transient HashCollisionOptions hash_collision_mode;
 	protected transient boolean collision;
 
@@ -57,6 +58,8 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	{
 		if(merge_mode == null)
 			merge_mode = MergeOptions.SPLIT;
+		if(implicit_merge == null)
+			implicit_merge = false;
 		if(hash_collision_mode == null)
 			hash_collision_mode = HashCollisionOptions.SINGLEFILE;
 		collision = false;
@@ -93,7 +96,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public void setCollisionMode(boolean parent)
 	{
 		if(parent)
-			getDest(merge_mode).clones.forEach((n, m) -> m.collision = true);
+			getDest().clones.forEach((n, m) -> m.collision = true);
 		this.collision = true;
 	}
 
@@ -109,11 +112,17 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		return (parent != null && !getParent().isBios());
 	}
 
-	public Anyware getDest(MergeOptions merge_mode)
+	public Anyware getDest(MergeOptions merge_mode, boolean implicit_merge)
 	{
-		Machine.merge_mode = merge_mode;
+		Anyware.merge_mode = merge_mode;
+		Anyware.implicit_merge = implicit_merge;
+		return getDest();
+	}
+	
+	private Anyware getDest()
+	{
 		if(merge_mode.isMerge() && isClone())
-			return getParent().getDest(merge_mode);
+			return getParent().getDest(merge_mode, implicit_merge);
 		return this;
 	}
 
@@ -145,11 +154,11 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		return stream.filter(d -> {
 			if(d.status == Status.nodump)
 				return false;
-			if(merge_mode == MergeOptions.SPLIT && d.merge != null)
+			if(merge_mode == MergeOptions.SPLIT && containsInParent(this, d))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && d.merge != null)
+			if(merge_mode == MergeOptions.NOMERGE && containsInParent(this, d))
 				return true;
-			return this.isBios() || !this.isRomOf() || d.merge == null;
+			return this.isBios() || !containsInParent(this, d);
 		}).collect(Collectors.toList());
 	}
 
@@ -183,18 +192,56 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				return true;
 			if(merge_mode == MergeOptions.FULLMERGE)
 				return true;
-			if(merge_mode == MergeOptions.SPLIT && r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().roms.contains(r))
+			if(merge_mode == MergeOptions.SPLIT && containsInParent(this, r, false))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios() && this.getParent().roms.contains(r))
+			if(merge_mode == MergeOptions.NOMERGE && containsInParent(this, r, true))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && r.merge != null && this.isRomOf() && this.getParent()!=null)
+			if(merge_mode == MergeOptions.NOMERGE && wouldMerge(this, r))
 				return true;
-			if(merge_mode == MergeOptions.MERGE && r.merge != null && this.isRomOf() && this.getParent()!=null && this.getParent().isBios() && this.getParent().roms.contains(r))
+			if(merge_mode == MergeOptions.MERGE && containsInParent(this, r, true))
 				return false;
-			if(merge_mode == MergeOptions.MERGE && r.merge != null && this.isRomOf() && this.getParent()!=null)
+			if(merge_mode == MergeOptions.MERGE && wouldMerge(this, r))
 				return true;
-			return this.isBios() || !this.isRomOf() || r.merge == null || this.getParent()==null || !this.getParent().roms.contains(r);
+			return this.isBios() || !containsInParent(this, r, false);
 		}).collect(Collectors.toList());
+	}
+
+	public static boolean wouldMerge(Anyware ware, Entity e)
+	{
+		if(e.merge!=null)
+			if(ware.isRomOf())
+				if(ware.getParent()!=null)
+					return true;
+		return false;
+	}
+	
+	public static boolean containsInParent(Anyware ware, Rom r, boolean onlyBios)
+	{
+		if(r.merge!=null || implicit_merge)
+		{
+			if(ware.getParent()!=null)
+			{
+				if(!onlyBios || ware.getParent().isBios())
+					if(ware.getParent().roms.contains(r))
+						return true;
+				return containsInParent(ware.getParent(), r, onlyBios);
+			}
+		}
+		return false;
+	}
+	
+	public static boolean containsInParent(Anyware ware, Disk d)
+	{
+		if(d.merge!=null || implicit_merge)
+		{
+			if(ware.getParent()!=null)
+			{
+				if(ware.getParent().disks.contains(d))
+					return true;
+				return containsInParent(ware.getParent(), d);
+			}
+		}
+		return false;
 	}
 
 	public void reset()

@@ -167,4 +167,10 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		}).count();
 	}
 
+	@Override
+	public boolean containsName(String name)
+	{
+		return m_byname.containsKey(name);
+	}
+
 }

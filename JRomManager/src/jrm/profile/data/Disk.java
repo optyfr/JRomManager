@@ -17,14 +17,18 @@ public class Disk extends Entity implements Serializable
 	@Override
 	public String getName()
 	{
-		if(merge != null && Machine.merge_mode.isMerge())
+		if(Machine.merge_mode.isMerge())
 		{
-			if(isCollisionMode())
-				return parent.name + "/" + merge + ".chd";
-			return merge + ".chd";
+			if(merge == null)
+			{
+				if(isCollisionMode() && parent.isClone())
+				{
+					return parent.name + "/" + name + ".chd";
+				}
+			}
+			else
+				return merge + ".chd";
 		}
-		if(isCollisionMode())
-			return parent.name + "/" + name + ".chd";
 		return name + ".chd";
 	}
 
@@ -90,12 +94,9 @@ public class Disk extends Entity implements Serializable
 			return EntityStatus.OK;
 		if(own_status==EntityStatus.UNKNOWN)
 		{
-			if(this.merge != null)
-			{
-				EntityStatus status = findDiskStatus(parent, this);
-				if(status != null)
-					return status;
-			}
+			EntityStatus status = findDiskStatus(parent, this);
+			if(status != null)
+				return status;
 		}
 		return own_status;
 	}

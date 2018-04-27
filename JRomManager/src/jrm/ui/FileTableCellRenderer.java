@@ -19,9 +19,9 @@ public class FileTableCellRenderer extends DefaultTableCellRenderer
 
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		if(value instanceof ProfileNFO)
+		if(column==0 && table.getModel() instanceof FileTableModel)
 		{
-			ProfileNFO nfo = (ProfileNFO)value;
+			ProfileNFO nfo = ((FileTableModel)table.getModel()).getNfoAt(row);
 			super.getTableCellRendererComponent(table, nfo.name, isSelected, hasFocus, row, column);
 			switch(nfo.mame.getStatus())
 			{
