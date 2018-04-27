@@ -21,7 +21,7 @@ _Minimal usage requirements_:
 - (optional) trrntzip cmdline program if you want to torrentzip your files
 
 _Behavior compared to other Rom managers_
-- Split mode may differ from ClrMamePro, it's because JRomManager is respectful of the merge attribute, whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD (and that's not innocent), so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also respectful of the merge attribute
+- By default, Split mode may differ from ClrMamePro, it's because JRomManager is respectful of the merge attribute, whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also respectful of the merge attribute. To reproduce the same behaviour you will have to select "implicit merge" option in profile settings
 
 ## Current Features
 - Zip support
@@ -46,10 +46,10 @@ _Behavior compared to other Rom managers_
 - Translated to English and French
 - Software List support
 - Filtering functionalities (clone, chds, systems list, display mode, cabinet type, driver status, ...)
+- Optional Separate Dest dir between Roms and CHDs
+- Dat manager with stats and mame update check (if imported from mame)
 
 ## Short Term Planned Features
-- Better Dat Managing (with gui)
-- Optional Separate Dest dir between Roms and CHDs
 - Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
 - More Filtering functionalities (categories, samples, ...)
 
