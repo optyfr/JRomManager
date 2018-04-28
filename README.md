@@ -46,11 +46,16 @@ _Behavior compared to other Rom managers_
 - Translated to English and French
 - Software List support
 - Filtering functionalities (clone, chds, systems list, display mode, cabinet type, driver status, ...)
-- Optional Separate Dest dir between Roms and CHDs
+- Optional Separate Dest dir between Roms, CHDs, Software Roms, Software CHDs
 - Dat manager with stats and mame update check (if imported from mame)
+- Drag & Drop on src/dest dirs controls
+- Double click on game name in profile viewer will launch game if (Mame is linked with profile and item is green)
+- Double click on software name in profile viewer will launch software with a valid machine (if Mame is linked with profile and item is green)
+- Double click on cloneof or romof item in profile viewer will jump to that item definition
 
 ## Short Term Planned Features
 - Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
+- More Drag & Drop
 - More Filtering functionalities (categories, samples, ...)
 
 ## Middle Term Planned Features
