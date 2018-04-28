@@ -3,7 +3,10 @@ package jrm.profile.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,7 +21,9 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	private List<MachineList> ml_list = Collections.singletonList(new MachineList());
 
 	public SoftwareListList softwarelist_list = new SoftwareListList();
-
+	
+	public Map<String,List<Machine>> softwarelist_defs = new HashMap<>();
+	
 	public MachineListList()
 	{
 		initTransient();
@@ -107,6 +112,35 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		if(filtered_list == null)
 			filtered_list = getFilteredStream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
+	}
+	
+	public Machine findMachine(String softwarelist, String compatibility)
+	{
+		if(softwarelist_defs.containsKey(softwarelist))
+			return softwarelist_defs.get(softwarelist).stream().filter(m->m.isCompatible(softwarelist, compatibility)>0).sorted(new Comparator<Machine>()
+			{
+
+				@Override
+				public int compare(Machine o1, Machine o2)
+				{
+					int c1 = o1.isCompatible(softwarelist, compatibility);
+					int c2 = o2.isCompatible(softwarelist, compatibility);
+					if(o1.driver.getStatus()==Driver.StatusType.good)
+						c1+=2;
+					if(o1.driver.getStatus()==Driver.StatusType.imperfect)
+						c1+=1;
+					if(o2.driver.getStatus()==Driver.StatusType.good)
+						c2+=2;
+					if(o2.driver.getStatus()==Driver.StatusType.imperfect)
+						c2+=1;
+					if(c1<c2)
+						return 1;
+					if(c1>c2)
+						return -1;
+					return 0;
+				}
+			}).findFirst().orElse(null);
+		return null;
 	}
 
 }

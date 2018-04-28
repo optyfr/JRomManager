@@ -14,8 +14,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -49,6 +51,7 @@ import jrm.profile.data.AnywareList;
 import jrm.profile.data.AnywareListList;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.EntityStatus;
+import jrm.profile.data.Machine;
 import jrm.profile.data.Software;
 
 @SuppressWarnings("serial")
@@ -345,10 +348,23 @@ public class ProfileViewer extends JDialog
 									if(profile.nfo.mame.getStatus() == MameStatus.UPTODATE)
 									{
 										ProfileNFOMame mame = profile.nfo.mame;
-										String[] args;
+										String[] args = null;
 										if(ware instanceof Software)
 										{
-											args = new String[] {mame.getFile().getAbsolutePath()};
+											List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty("roms_dest_dir", "")));
+											if(profile.getProperty("swroms_dest_dir_enabled", false))
+												rompaths.add(profile.getProperty("swroms_dest_dir", ""));
+											if(profile.getProperty("disks_dest_dir_enabled", false))
+												rompaths.add(profile.getProperty("disks_dest_dir", ""));
+											if(profile.getProperty("swdisks_dest_dir_enabled", false))
+												rompaths.add(profile.getProperty("swdisks_dest_dir", ""));
+											System.out.println(((Software)ware).sl.name+", "+((Software)ware).compatibility);
+											Machine machine = profile.machinelist_list.findMachine(((Software)ware).sl.name, ((Software)ware).compatibility); 
+											if(machine!=null)
+											{
+												System.out.println("-> "+machine.name+" "+ware.name);
+												args = new String[] {mame.getFile().getAbsolutePath(), machine.name, ware.name, "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";"))};
+											}
 										}
 										else
 										{
@@ -357,15 +373,19 @@ public class ProfileViewer extends JDialog
 												rompaths.add(profile.getProperty("disks_dest_dir", ""));
 											args = new String[] {mame.getFile().getAbsolutePath(), ware.name, "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";"))};
 										}
-										ProcessBuilder pb = new ProcessBuilder(args);
-										try
+										if(args != null)
 										{
-											pb.start().waitFor();
-										}
-										catch(InterruptedException | IOException e1)
-										{
-											//TODO show error dialog
-											e1.printStackTrace();
+											System.out.println(Arrays.asList(args).stream().collect(Collectors.joining(" ")));
+											ProcessBuilder pb = new ProcessBuilder(args).directory(mame.getFile().getParentFile()).redirectErrorStream(true).redirectOutput(new File(mame.getFile().getParentFile(), "JRomManager.log"));
+											try
+											{
+												pb.start().waitFor();
+											}
+											catch(InterruptedException | IOException e1)
+											{
+												//TODO show error dialog
+												e1.printStackTrace();
+											}
 										}
 									}
 									else

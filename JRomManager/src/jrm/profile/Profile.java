@@ -20,6 +20,7 @@ import jrm.misc.Settings;
 import jrm.profile.data.*;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.SWList;
+import jrm.profile.data.Machine.SWStatus;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -122,7 +123,6 @@ public class Profile implements Serializable
 					else if(qName.equals("softwarelist")) //$NON-NLS-1$
 					{
 						SWList swlist = curr_machine.new SWList();
-						curr_machine.swlists.add(swlist);
 						for(int i = 0; i < attributes.getLength(); i++)
 						{
 							switch(attributes.getQName(i))
@@ -131,13 +131,17 @@ public class Profile implements Serializable
 									swlist.name = attributes.getValue(i);
 									break;
 								case "status": //$NON-NLS-1$
-									swlist.status = attributes.getValue(i);
+									swlist.status = SWStatus.valueOf(attributes.getValue(i));
 									break;
 								case "filter": //$NON-NLS-1$
 									swlist.filter = attributes.getValue(i);
 									break;
 							}
 						}
+						curr_machine.swlists.put(swlist.name,swlist);
+						if(!machinelist_list.softwarelist_defs.containsKey(swlist.name))
+							machinelist_list.softwarelist_defs.put(swlist.name, new ArrayList<>());
+						machinelist_list.softwarelist_defs.get(swlist.name).add(curr_machine);
 					}
 					else if(qName.equals("software")) //$NON-NLS-1$
 					{
@@ -158,6 +162,11 @@ public class Profile implements Serializable
 									break;
 							}
 						}
+					}
+					else if(qName.equals("feature") && in_software) //$NON-NLS-1$
+					{
+						if(attributes.getValue("name").equalsIgnoreCase("compatibility"))
+							curr_software.compatibility = attributes.getValue("value");
 					}
 					else if(qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{

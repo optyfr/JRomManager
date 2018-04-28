@@ -1,8 +1,10 @@
 package jrm.profile.data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 @SuppressWarnings("serial")
 public class Machine extends Anyware implements Serializable
@@ -17,13 +19,19 @@ public class Machine extends Anyware implements Serializable
 	public Input input = new Input();
 	public DisplayOrientation orientation = DisplayOrientation.any;
 	public CabinetType cabinetType = CabinetType.upright;
-	public List<SWList> swlists = new ArrayList<>();
+	public Map<String,SWList> swlists = new HashMap<>();
 	
-	public class SWList
+	public class SWList implements Serializable
 	{
 		public String name;
-		public String status;
+		public SWStatus status;
 		public String filter;
+	}
+	
+	public enum SWStatus
+	{
+		original,
+		compatible
 	}
 	
 	public enum DisplayOrientation
@@ -118,5 +126,13 @@ public class Machine extends Anyware implements Serializable
 	public String toString()
 	{
 		return "["+getType()+"] "+description.toString();
+	}
+	
+	public int isCompatible(String softwarelist, String compatibility)
+	{
+		if(compatibility!=null)
+			if(new HashSet<String>(Arrays.asList(compatibility.split(","))).contains(swlists.get(softwarelist).filter))
+				return swlists.get(softwarelist).status==SWStatus.original?20:10;
+		return swlists.get(softwarelist).status==SWStatus.original?2:1;
 	}
 }

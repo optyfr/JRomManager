@@ -8,8 +8,9 @@ public class Software extends Anyware implements Serializable
 {
 	public StringBuffer publisher = new StringBuffer();
 	public Supported supported = Supported.yes;
+	public String compatibility = null;
 
-	SoftwareList sl = null;
+	public SoftwareList sl = null;
 	
 	public enum Supported implements Serializable
 	{
