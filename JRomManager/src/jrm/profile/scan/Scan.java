@@ -40,8 +40,8 @@ public class Scan
 	private HashCollisionOptions hash_collision_mode;
 	private DirScan roms_dstscan = null;
 	private DirScan disks_dstscan = null;
-	private Map<String, DirScan> roms_dstscans = new HashMap<String, DirScan>();
-	private Map<String, DirScan> disks_dstscans = new HashMap<String, DirScan>();
+	private Map<String, DirScan> swroms_dstscans = new HashMap<String, DirScan>();
+	private Map<String, DirScan> swdisks_dstscans = new HashMap<String, DirScan>();
 	private List<DirScan> allscans = new ArrayList<>();
 
 	private ArrayList<jrm.profile.fix.actions.ContainerAction> create_actions = new ArrayList<>();
@@ -71,13 +71,29 @@ public class Scan
 		File roms_dstdir = new File(dstdir_txt);
 		if(!roms_dstdir.isDirectory())
 			return;
-		File disks_dstdir = roms_dstdir;
+		File disks_dstdir = new File(roms_dstdir.getAbsolutePath());
 		if(profile.getProperty("disks_dest_dir_enabled", false))
 		{
 			String disks_dstdir_txt = profile.getProperty("disks_dest_dir", "");
 			if(disks_dstdir_txt.isEmpty())
 				return;
 			disks_dstdir = new File(disks_dstdir_txt);
+		}
+		File swroms_dstdir = new File(roms_dstdir.getAbsolutePath());
+		if(profile.getProperty("swroms_dest_dir_enabled", false))
+		{
+			String swroms_dstdir_txt = profile.getProperty("swroms_dest_dir", "");
+			if(swroms_dstdir_txt.isEmpty())
+				return;
+			swroms_dstdir = new File(swroms_dstdir_txt);
+		}
+		File swdisks_dstdir = new File(swroms_dstdir.getAbsolutePath());
+		if(profile.getProperty("swdisks_dest_dir_enabled", false))
+		{
+			String swdisks_dstdir_txt = profile.getProperty("swdisks_dest_dir", "");
+			if(swdisks_dstdir_txt.isEmpty())
+				return;
+			swdisks_dstdir = new File(swdisks_dstdir_txt);
 		}
 		ArrayList<File> srcdirs = new ArrayList<>();
 		for(String s : profile.getProperty("src_dir", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -107,38 +123,48 @@ public class Scan
 			if(handler.isCancel())
 				throw new BreakException();
 		}
-		else
+		if(profile.machinelist_list.softwarelist_list.size() > 0)
 		{
 			AtomicInteger j = new AtomicInteger();
-			handler.setProgress2(String.format("%d/%d", j.get(), profile.softwarelist_list.size()), j.get(), profile.softwarelist_list.size()); //$NON-NLS-1$
-			for(SoftwareList sl : profile.softwarelist_list.getFilteredStream().collect(Collectors.toList()))
+			handler.setProgress2(String.format("%d/%d", j.get(), profile.machinelist_list.softwarelist_list.size()), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
+			for(SoftwareList sl : profile.machinelist_list.softwarelist_list.getFilteredStream().collect(Collectors.toList()))
 			{
-				File sldir = new File(roms_dstdir, sl.name);
+				File sldir = new File(swroms_dstdir, sl.name);
 				if(!sldir.exists())
 					sldir.mkdirs();
 				if(sldir.isDirectory())
-					roms_dstscans.put(sl.name, dirscan(sl, sldir, unknown, handler));
-				if(roms_dstdir.equals(disks_dstdir))
-					disks_dstscans = roms_dstscans;
+					swroms_dstscans.put(sl.name, dirscan(sl, sldir, unknown, handler));
+				if(swroms_dstdir.equals(swdisks_dstdir))
+					swdisks_dstscans = swroms_dstscans;
 				else
 				{
-					sldir = new File(disks_dstdir, sl.name);
+					sldir = new File(swdisks_dstdir, sl.name);
 					if(!sldir.exists())
 						sldir.mkdirs();
 					if(sldir.isDirectory())
-						disks_dstscans.put(sl.name, dirscan(sl, sldir, unknown, handler));
+						swdisks_dstscans.put(sl.name, dirscan(sl, sldir, unknown, handler));
 				}
-				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.softwarelist_list.size(), sl.name), j.get(), profile.softwarelist_list.size()); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size(), sl.name), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
 				if(handler.isCancel())
 					throw new BreakException();
 			}
 			handler.setProgress2(null, null);
-			for(File f : roms_dstdir.listFiles())
+			for(File f : swroms_dstdir.listFiles())
 			{
-				if(!roms_dstscans.containsKey(f.getName()))
+				if(!swroms_dstscans.containsKey(f.getName()))
 					unknown.add(f.isDirectory() ? new Directory(f, (Machine) null) : new Archive(f, (Machine) null));
 				if(handler.isCancel())
 					throw new BreakException();
+			}
+			if(!swroms_dstdir.equals(swdisks_dstdir))
+			{
+				for(File f : swdisks_dstdir.listFiles())
+				{
+					if(!swdisks_dstscans.containsKey(f.getName()))
+						unknown.add(f.isDirectory() ? new Directory(f, (Machine) null) : new Archive(f, (Machine) null));
+					if(handler.isCancel())
+						throw new BreakException();
+				}
 			}
 		}
 
@@ -154,36 +180,36 @@ public class Scan
 			profile.suspicious_crc.forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
 
 			AtomicInteger i = new AtomicInteger();
+			AtomicInteger j = new AtomicInteger();
+			handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.machinelist_list.get(0).size()+profile.machinelist_list.softwarelist_list.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
+			handler.setProgress2(String.format("%d/%d", j.get(), profile.machinelist_list.softwarelist_list.size()+1), j.get(), profile.machinelist_list.softwarelist_list.size()+1); //$NON-NLS-1$
 			if(profile.machinelist_list.get(0).size() > 0)
 			{
-				handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.machinelist_list.get(0).size()); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size()+1), j.get(), profile.machinelist_list.softwarelist_list.size()+1); //$NON-NLS-1$
 				profile.machinelist_list.get(0).forEach(Machine::resetCollisionMode);
 				profile.machinelist_list.get(0).getFilteredStream().forEach(m -> {
-					scanWare(m);
 					handler.setProgress(null, i.incrementAndGet(), null, m.getFullName());
+					scanWare(m);
 					if(handler.isCancel())
 						throw new BreakException();
 				});
 			}
-			else
+			if(profile.machinelist_list.softwarelist_list.size()>0)
 			{
-				AtomicInteger j = new AtomicInteger();
-				handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.softwarelist_list.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
-				handler.setProgress2(String.format("%d/%d", j.get(), profile.softwarelist_list.size()), j.get(), profile.softwarelist_list.size()); //$NON-NLS-1$
-				profile.softwarelist_list.getFilteredStream().forEach(sl -> {
-					roms_dstscan = roms_dstscans.get(sl.name);
-					disks_dstscan = disks_dstscans.get(sl.name);
+				profile.machinelist_list.softwarelist_list.getFilteredStream().forEach(sl -> {
+					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size()+1, sl.name), j.get(), profile.machinelist_list.softwarelist_list.size()+1); //$NON-NLS-1$
+					roms_dstscan = swroms_dstscans.get(sl.name);
+					disks_dstscan = swdisks_dstscans.get(sl.name);
 					sl.getFilteredStream().forEach(Software::resetCollisionMode);
 					sl.getFilteredStream().forEach(s -> {
-						scanWare(s);
 						handler.setProgress(null, i.incrementAndGet(), null, s.getFullName());
+						scanWare(s);
 						if(handler.isCancel())
 							throw new BreakException();
 					});
-					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.softwarelist_list.size(), sl.name), j.get(), profile.softwarelist_list.size()); //$NON-NLS-1$
 				});
-				handler.setProgress2(null, null);
 			}
+			handler.setProgress2(null, null);
 		}
 		catch(BreakException e)
 		{
@@ -201,9 +227,9 @@ public class Scan
 			if(MainFrame.profile_viewer != null)
 				MainFrame.profile_viewer.reload(); // update entries in profile viewer
 			profile.nfo.stats.scanned = new Date();
-			profile.nfo.stats.haveSets = (profile.softwarelist_list.size() > 0 ? profile.softwarelist_list : profile.machinelist_list).stream().mapToLong(AnywareList::countHave).sum();
-			profile.nfo.stats.haveRoms = (profile.softwarelist_list.size() > 0 ? profile.softwarelist_list : profile.machinelist_list).stream().flatMap(l -> l.stream()).mapToLong(Anyware::countHaveRoms).sum();
-			profile.nfo.stats.haveDisks = (profile.softwarelist_list.size() > 0 ? profile.softwarelist_list : profile.machinelist_list).stream().flatMap(l -> l.stream()).mapToLong(Anyware::countHaveDisks).sum();
+			profile.nfo.stats.haveSets = (profile.machinelist_list.softwarelist_list.size() > 0 ? profile.machinelist_list.softwarelist_list : profile.machinelist_list).stream().mapToLong(AnywareList::countHave).sum();
+			profile.nfo.stats.haveRoms = (profile.machinelist_list.softwarelist_list.size() > 0 ? profile.machinelist_list.softwarelist_list : profile.machinelist_list).stream().flatMap(l -> l.stream()).mapToLong(Anyware::countHaveRoms).sum();
+			profile.nfo.stats.haveDisks = (profile.machinelist_list.softwarelist_list.size() > 0 ? profile.machinelist_list.softwarelist_list : profile.machinelist_list).stream().flatMap(l -> l.stream()).mapToLong(Anyware::countHaveDisks).sum();
 			profile.nfo.save();
 			profile.save(); // save again profile cache with scan entity status
 		}

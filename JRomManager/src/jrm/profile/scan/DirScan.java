@@ -169,7 +169,7 @@ public final class DirScan
 
 			});
 			if(containers_byname.entrySet().removeIf(entry -> !entry.getValue().up2date))
-				Log.info("Removed some scache elements"); //$NON-NLS-1$
+				/*Log.info("Removed some scache elements")*/; //$NON-NLS-1$
 		}
 		catch(IOException e)
 		{

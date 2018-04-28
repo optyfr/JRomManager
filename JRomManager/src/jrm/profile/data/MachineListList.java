@@ -10,12 +10,14 @@ import java.util.stream.Stream;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import jrm.ui.MachineListListRenderer;
+import jrm.ui.AnywareListListRenderer;
 
 @SuppressWarnings("serial")
 public final class MachineListList extends AnywareListList<MachineList> implements Serializable
 {
 	private List<MachineList> ml_list = Collections.singletonList(new MachineList());
+
+	public SoftwareListList softwarelist_list = new SoftwareListList();
 
 	public MachineListList()
 	{
@@ -36,49 +38,54 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	@Override
 	public int getColumnCount()
 	{
-		return MachineListListRenderer.columns.length;
+		return AnywareListListRenderer.columns.length;
 	}
 
 	@Override
 	public String getColumnName(int columnIndex)
 	{
-		return MachineListListRenderer.columns[columnIndex];
+		return AnywareListListRenderer.columns[columnIndex];
 	}
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex)
 	{
-		return MachineListListRenderer.columnsTypes[columnIndex];
+		return AnywareListListRenderer.columnsTypes[columnIndex];
 	}
 
 	public TableCellRenderer getColumnRenderer(int columnIndex)
 	{
-		return MachineListListRenderer.columnsRenderers[columnIndex] != null ? MachineListListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+		return AnywareListListRenderer.columnsRenderers[columnIndex] != null ? AnywareListListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
 	public int getColumnWidth(int columnIndex)
 	{
-		return MachineListListRenderer.columnsWidths[columnIndex];
+		return AnywareListListRenderer.columnsWidths[columnIndex];
 	}
 
 	@Override
 	public int getRowCount()
 	{
-		return ml_list.size();
+		return ml_list.size() + softwarelist_list.getRowCount();
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		switch(columnIndex)
+		if(rowIndex < ml_list.size())
 		{
-			case 0:
-				return ml_list.get(rowIndex);
-			case 1:
-				return "All Machines";
-			case 2:
-				return String.format("%d/%d", ml_list.get(rowIndex).countHave(), ml_list.get(rowIndex).countAll());
+			switch(columnIndex)
+			{
+				case 0:
+					return ml_list.get(rowIndex);
+				case 1:
+					return "All Machines";
+				case 2:
+					return String.format("%d/%d", ml_list.get(rowIndex).countHave(), ml_list.get(rowIndex).countAll());
+			}
 		}
+		else
+			return softwarelist_list.getValueAt(rowIndex - ml_list.size(), columnIndex);
 		return null;
 	}
 
@@ -88,6 +95,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		return ml_list;
 	}
 
+	@Override
 	public Stream<MachineList> getFilteredStream()
 	{
 		return getList().stream();

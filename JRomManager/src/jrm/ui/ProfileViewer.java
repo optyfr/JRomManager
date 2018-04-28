@@ -1,13 +1,37 @@
 package jrm.ui;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -18,9 +42,14 @@ import javax.swing.table.TableModel;
 
 import jrm.Messages;
 import jrm.profile.Profile;
-import jrm.profile.data.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import jrm.profile.ProfileNFOMame;
+import jrm.profile.ProfileNFOMame.MameStatus;
+import jrm.profile.data.Anyware;
+import jrm.profile.data.AnywareList;
+import jrm.profile.data.AnywareListList;
+import jrm.profile.data.AnywareStatus;
+import jrm.profile.data.EntityStatus;
+import jrm.profile.data.Software;
 
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog
@@ -85,17 +114,17 @@ public class ProfileViewer extends JDialog
 		tglbtnCompleteW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_green.png")));
 		tglbtnCompleteW.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteW.toolTipText")); //$NON-NLS-1$
 		toolBarW.add(tglbtnCompleteW);
-		
+
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(null);
 		toolBarW.add(panel_1);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
-		gbl_panel_1.columnWidths = new int[]{286, 166, 0};
-		gbl_panel_1.rowHeights = new int[]{20, 0};
-		gbl_panel_1.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_1.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panel_1.columnWidths = new int[] { 286, 166, 0 };
+		gbl_panel_1.rowHeights = new int[] { 20, 0 };
+		gbl_panel_1.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_1.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 		panel_1.setLayout(gbl_panel_1);
-		
+
 		JLabel lblSearch = new JLabel(Messages.getString("ProfileViewer.lblSearch.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblSearch = new GridBagConstraints();
 		gbc_lblSearch.insets = new Insets(0, 0, 0, 5);
@@ -103,14 +132,16 @@ public class ProfileViewer extends JDialog
 		gbc_lblSearch.gridx = 0;
 		gbc_lblSearch.gridy = 0;
 		panel_1.add(lblSearch, gbc_lblSearch);
-		
+
 		txtSearch = new JTextField();
-		txtSearch.addKeyListener(new KeyAdapter() {
+		txtSearch.addKeyListener(new KeyAdapter()
+		{
 			@Override
-			public void keyReleased(KeyEvent e) {
+			public void keyReleased(KeyEvent e)
+			{
 				String search = txtSearch.getText();
 				@SuppressWarnings("unchecked")
-				int row = ((AnywareList<Anyware>)tableW.getModel()).find(search);
+				int row = ((AnywareList<Anyware>) tableW.getModel()).find(search);
 				if(row >= 0)
 				{
 					tableW.setRowSelectionInterval(row, row);
@@ -172,7 +203,7 @@ public class ProfileViewer extends JDialog
 		tableWL = new JTable();
 		scrollPaneWL.setViewportView(tableWL);
 		tableWL.setPreferredScrollableViewportSize(new Dimension(300, 400));
-		tableWL.setModel(profile.softwarelist_list.size() > 0 ? profile.softwarelist_list : profile.machinelist_list);
+		tableWL.setModel(profile.machinelist_list);
 		tableWL.setTableHeader(new JTableHeader(tableWL.getColumnModel())
 		{
 			public String getToolTipText(MouseEvent e)
@@ -292,14 +323,65 @@ public class ProfileViewer extends JDialog
 					if(row >= 0)
 					{
 						AnywareList<?> tablemodel = (AnywareList<?>) target.getModel();
-						Object obj = tablemodel.getValueAt(row, target.columnAtPoint(e.getPoint()));
+						int column = target.columnAtPoint(e.getPoint());
+						Object obj = tablemodel.getValueAt(row, column);
 						if(obj instanceof Anyware)
 						{
-							row = tablemodel.find((Anyware) obj);
-							if(row >= 0)
+							Anyware ware = (Anyware) obj;
+							if(column > 1)
 							{
-								target.setRowSelectionInterval(row, row);
-								target.scrollRectToVisible(target.getCellRect(row, 0, true));
+								row = tablemodel.find(ware);
+								if(row >= 0)
+								{
+									target.setRowSelectionInterval(row, row);
+									target.scrollRectToVisible(target.getCellRect(row, 0, true));
+								}
+							}
+							else if(ware.getStatus()==AnywareStatus.COMPLETE)
+							{
+								if(Profile.curr_profile != null)
+								{
+									Profile profile = Profile.curr_profile;
+									if(profile.nfo.mame.getStatus() == MameStatus.UPTODATE)
+									{
+										ProfileNFOMame mame = profile.nfo.mame;
+										String[] args;
+										if(ware instanceof Software)
+										{
+											args = new String[] {mame.getFile().getAbsolutePath()};
+										}
+										else
+										{
+											List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty("roms_dest_dir", "")));
+											if(profile.getProperty("disks_dest_dir_enabled", false))
+												rompaths.add(profile.getProperty("disks_dest_dir", ""));
+											args = new String[] {mame.getFile().getAbsolutePath(), ware.name, "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";"))};
+										}
+										ProcessBuilder pb = new ProcessBuilder(args);
+										try
+										{
+											pb.start().waitFor();
+										}
+										catch(InterruptedException | IOException e1)
+										{
+											//TODO show error dialog
+											e1.printStackTrace();
+										}
+									}
+									else
+									{
+										System.out.println(profile.nfo.mame.getStatus());										
+									}
+								}
+								else
+								{
+									System.out.println("no profile");
+								}
+							}
+							else
+							{
+								//TODO show error dialog
+								System.out.println(ware.getStatus());
 							}
 						}
 					}
@@ -342,8 +424,8 @@ public class ProfileViewer extends JDialog
 								else if(width < 0)
 								{
 									Component component = column.getCellRenderer().getTableCellRendererComponent(tableEntity, null, false, false, 0, i);
-									int pixwidth = component.getFontMetrics(component.getFont()).stringWidth(String.format("%0"+(-width)+"d", 0));
-									column.setMinWidth(pixwidth/2);
+									int pixwidth = component.getFontMetrics(component.getFont()).stringWidth(String.format("%0" + (-width) + "d", 0));
+									column.setMinWidth(pixwidth / 2);
 									column.setPreferredWidth(pixwidth);
 									column.setMaxWidth(pixwidth);
 								}
@@ -451,7 +533,7 @@ public class ProfileViewer extends JDialog
 
 	public void reset(Profile profile)
 	{
-		AnywareListList<?> model = profile.softwarelist_list.size() > 0 ? profile.softwarelist_list : profile.machinelist_list;
+		AnywareListList<?> model = profile.machinelist_list;
 		model.reset();
 		tableWL.setModel(model);
 		for(int i = 0; i < tableWL.getColumnModel().getColumnCount(); i++)

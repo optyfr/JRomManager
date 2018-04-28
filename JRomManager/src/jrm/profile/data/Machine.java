@@ -1,6 +1,8 @@
 package jrm.profile.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class Machine extends Anyware implements Serializable
@@ -15,6 +17,14 @@ public class Machine extends Anyware implements Serializable
 	public Input input = new Input();
 	public DisplayOrientation orientation = DisplayOrientation.any;
 	public CabinetType cabinetType = CabinetType.upright;
+	public List<SWList> swlists = new ArrayList<>();
+	
+	public class SWList
+	{
+		public String name;
+		public String status;
+		public String filter;
+	}
 	
 	public enum DisplayOrientation
 	{

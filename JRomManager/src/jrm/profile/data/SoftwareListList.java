@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import jrm.ui.SoftwareListListRenderer;
+import jrm.ui.AnywareListListRenderer;
 
 @SuppressWarnings("serial")
 public final class SoftwareListList extends AnywareListList<SoftwareList> implements Serializable
@@ -38,29 +38,29 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	@Override
 	public int getColumnCount()
 	{
-		return SoftwareListListRenderer.columns.length;
+		return AnywareListListRenderer.columns.length;
 	}
 
 	@Override
 	public String getColumnName(int columnIndex)
 	{
-		return SoftwareListListRenderer.columns[columnIndex];
+		return AnywareListListRenderer.columns[columnIndex];
 	}
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex)
 	{
-		return SoftwareListListRenderer.columnsTypes[columnIndex];
+		return AnywareListListRenderer.columnsTypes[columnIndex];
 	}
 
 	public TableCellRenderer getColumnRenderer(int columnIndex)
 	{
-		return SoftwareListListRenderer.columnsRenderers[columnIndex] != null ? SoftwareListListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+		return AnywareListListRenderer.columnsRenderers[columnIndex] != null ? AnywareListListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
 	public int getColumnWidth(int columnIndex)
 	{
-		return SoftwareListListRenderer.columnsWidths[columnIndex];
+		return AnywareListListRenderer.columnsWidths[columnIndex];
 	}
 
 	@Override

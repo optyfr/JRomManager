@@ -1,10 +1,29 @@
 package jrm.profile;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FilenameUtils;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import jrm.misc.Log;
 
@@ -12,6 +31,7 @@ public class Import
 {
 	public File org_file;
 	public File file;
+	public File roms_file, sl_file;
 	public boolean is_mame = false;
 
 	public Import(File file, boolean sl)
@@ -22,42 +42,78 @@ public class Import
 		xmldir.mkdir();
 
 		String ext = FilenameUtils.getExtension(file.getName());
-		if(ext.equalsIgnoreCase("exe")) //$NON-NLS-1$
+		if(!Sets.newHashSet("xml", "dat").contains(ext.toLowerCase()) && file.canExecute()) //$NON-NLS-1$
 		{
-			// Log.info("Get dat file from Mame...");
 			try
 			{
-				File tmpfile = File.createTempFile("JRM", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$
-				tmpfile.deleteOnExit();
-				Process process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$
-
-				try(BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpfile), Charset.forName("UTF-8"))); BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));)
+				if((roms_file = importMame(file, false)) != null)
 				{
-					String line;
-					boolean xml = false;
-					while(null != (line = in.readLine()))
+					File tmpfile = File.createTempFile("JRM", ".jrm"); //$NON-NLS-1$ //$NON-NLS-2$
+					DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+					DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+					Document doc = docBuilder.newDocument();
+					Element rootElement = doc.createElement("JRomManager");
+					doc.appendChild(rootElement);
+					Element profile = doc.createElement("Profile");
+					profile.setAttribute("roms", roms_file.getName());
+					if(sl)
 					{
-						if(line.startsWith("<?xml"))
-							xml = true;
-						if(xml)
-							out.write(line + "\n");
+						if((sl_file = importMame(file, true)) != null)
+							profile.setAttribute("sl", sl_file.getName());
 					}
+					rootElement.appendChild(profile);
+					TransformerFactory transformerFactory = TransformerFactory.newInstance();
+					Transformer transformer = transformerFactory.newTransformer();
+					DOMSource source = new DOMSource(doc);
+					StreamResult result = new StreamResult(tmpfile);
+					transformer.transform(source, result);
+					this.file = tmpfile;
+					this.is_mame = true;
 				}
-				process.waitFor();
-				this.is_mame = true;
-				this.file = tmpfile;
+
 			}
-			catch(IOException e)
+			catch(DOMException | ParserConfigurationException | TransformerException | IOException e)
 			{
-				Log.err("Caught IO Exception", e); //$NON-NLS-1$
-			}
-			catch(InterruptedException e)
-			{
-				Log.err("Caught Interrupted Exception", e); //$NON-NLS-1$
+				e.printStackTrace();
 			}
 		}
 		else
 			this.file = file;
 
+	}
+
+	public File importMame(File file, boolean sl)
+	{
+		// Log.info("Get dat file from Mame...");
+		try
+		{
+			File tmpfile = File.createTempFile("JRM", sl ? ".jrm2" : ".jrm1"); //$NON-NLS-1$ //$NON-NLS-2$
+			tmpfile.deleteOnExit();
+			Process process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$
+
+			try(BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpfile), Charset.forName("UTF-8"))); BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));)
+			{
+				String line;
+				boolean xml = false;
+				while(null != (line = in.readLine()))
+				{
+					if(line.startsWith("<?xml"))
+						xml = true;
+					if(xml)
+						out.write(line + "\n");
+				}
+			}
+			process.waitFor();
+			return tmpfile;
+		}
+		catch(IOException e)
+		{
+			Log.err("Caught IO Exception", e); //$NON-NLS-1$
+		}
+		catch(InterruptedException e)
+		{
+			Log.err("Caught Interrupted Exception", e); //$NON-NLS-1$
+		}
+		return null;
 	}
 }
