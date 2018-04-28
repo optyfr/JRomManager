@@ -1,6 +1,5 @@
 package jrm.profile.fix.actions;
 
-import java.io.File;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -16,8 +15,6 @@ import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
-import jrm.misc.FindCmd;
-import jrm.misc.Settings;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
@@ -36,8 +33,6 @@ public class CreateContainer extends ContainerAction
 			action = new CreateContainer(container, format);
 		return action;
 	}
-
-	static File tzip_cmd = new File(Settings.getProperty("tzip_cmd", FindCmd.findTZip())); //$NON-NLS-1$
 
 	@Override
 	public boolean doAction(ProgressHandler handler)
@@ -59,10 +54,6 @@ public class CreateContainer extends ContainerAction
 							return false;
 						}
 					fs.close();
-					if(format == FormatOptions.TZIP && tzip_cmd.exists())
-					{
-						return new ProcessBuilder(tzip_cmd.getPath(), container.file.getAbsolutePath()).directory(tzip_cmd.getParentFile()).start().waitFor() == 0;
-					}
 					return true;
 				}
 				catch(Throwable e)

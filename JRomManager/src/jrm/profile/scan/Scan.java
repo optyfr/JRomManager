@@ -50,6 +50,7 @@ public class Scan
 	private ArrayList<jrm.profile.fix.actions.ContainerAction> delete_actions = new ArrayList<>();
 	private ArrayList<jrm.profile.fix.actions.ContainerAction> rename_after_actions = new ArrayList<>();
 	private ArrayList<jrm.profile.fix.actions.ContainerAction> duplicate_actions = new ArrayList<>();
+	private ArrayList<jrm.profile.fix.actions.ContainerAction> tzip_actions = new ArrayList<>();
 
 	public Scan(Profile profile, ProgressHandler handler) throws BreakException
 	{
@@ -240,6 +241,7 @@ public class Scan
 		actions.add(duplicate_actions);
 		actions.add(delete_actions);
 		actions.add(rename_after_actions);
+		actions.add(tzip_actions);
 
 	}
 
@@ -654,6 +656,8 @@ public class Scan
 				}
 			}
 		}
+		if(!report_subject.isMissing() && !report_subject.isUnneeded())
+			tzip_actions.add(new TZipContainer(archive, format));
 		return missing_set;
 	}
 

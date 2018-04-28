@@ -30,8 +30,8 @@ public class Profile implements Serializable
 	public long machines_cnt = 0;
 	public long softwares_list_cnt = 0;
 	public long softwares_cnt = 0;
-	public long roms_cnt = 0;
-	public long disks_cnt = 0;
+	public long roms_cnt = 0, swroms_cnt = 0;
+	public long disks_cnt = 0, swdisks_cnt = 0;
 
 	public boolean md5_roms = false;
 	public boolean md5_disks = false;
@@ -165,8 +165,8 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("feature") && in_software) //$NON-NLS-1$
 					{
-						if(attributes.getValue("name").equalsIgnoreCase("compatibility"))
-							curr_software.compatibility = attributes.getValue("value");
+						if(attributes.getValue("name").equalsIgnoreCase("compatibility")) //$NON-NLS-1$ //$NON-NLS-2$
+							curr_software.compatibility = attributes.getValue("value"); //$NON-NLS-1$
 					}
 					else if(qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
@@ -249,7 +249,7 @@ public class Profile implements Serializable
 							{
 								switch(attributes.getQName(i))
 								{
-									case "rotate":
+									case "rotate": //$NON-NLS-1$
 									{
 										try
 										{
@@ -300,8 +300,8 @@ public class Profile implements Serializable
 							{
 								switch(attributes.getQName(i))
 								{
-									case "name":
-										if("cabinet".equalsIgnoreCase(attributes.getValue(i)))
+									case "name": //$NON-NLS-1$
+										if("cabinet".equalsIgnoreCase(attributes.getValue(i))) //$NON-NLS-1$
 											in_cabinet_dipsw = true;
 								}
 							}
@@ -315,10 +315,10 @@ public class Profile implements Serializable
 							{
 								switch(attributes.getQName(i))
 								{
-									case "name":
-										if("cocktail".equalsIgnoreCase(attributes.getValue(i)))
+									case "name": //$NON-NLS-1$
+										if("cocktail".equalsIgnoreCase(attributes.getValue(i))) //$NON-NLS-1$
 											cabtype_set.add(CabinetType.cocktail);
-										else if("upright".equalsIgnoreCase(attributes.getValue(i)))
+										else if("upright".equalsIgnoreCase(attributes.getValue(i))) //$NON-NLS-1$
 											cabtype_set.add(CabinetType.upright);
 								}
 							}
@@ -418,7 +418,7 @@ public class Profile implements Serializable
 						curr_software_list.add(curr_software);
 						softwares_cnt++;
 						in_software = false;
-						handler.setProgress(String.format(Messages.getString("Profile.Loaded"), softwares_cnt, roms_cnt)); //$NON-NLS-1$
+						handler.setProgress(String.format(Messages.getString("Profile.SWLoaded"), softwares_cnt, disks_cnt, roms_cnt)); //$NON-NLS-1$
 						if(handler.isCancel())
 							throw new BreakException();
 					}
@@ -431,7 +431,7 @@ public class Profile implements Serializable
 						machinelist_list.get(0).add(curr_machine);
 						machines_cnt++;
 						in_machine = false;
-						handler.setProgress(String.format(Messages.getString("Profile.Loaded"), machines_cnt, roms_cnt)); //$NON-NLS-1$
+						handler.setProgress(String.format(Messages.getString("Profile.Loaded"), machines_cnt, swdisks_cnt, swroms_cnt)); //$NON-NLS-1$
 						if(handler.isCancel())
 							throw new BreakException();
 					}
@@ -440,7 +440,12 @@ public class Profile implements Serializable
 						if(curr_rom.getName() != null)
 						{
 							if(null == roms.put(curr_rom.name, curr_rom))
-								roms_cnt++;
+							{
+								if(in_machine)
+									roms_cnt++;
+								else
+									swroms_cnt++;
+							}
 							if(curr_rom.crc != null)
 							{
 								Rom old_rom = roms_bycrc.put(curr_rom.crc, curr_rom);
@@ -461,7 +466,12 @@ public class Profile implements Serializable
 						if(curr_disk.getName() != null)
 						{
 							if(null == disks.put(curr_disk.name, curr_disk))
-								disks_cnt++;
+							{
+								if(in_machine)
+									disks_cnt++;
+								else
+									swdisks_cnt++;
+							}
 						}
 					}
 					else if(qName.equals("description") && (in_machine || in_software || in_software_list)) //$NON-NLS-1$
@@ -614,10 +624,10 @@ public class Profile implements Serializable
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			profile.save();
 		}
-		profile.nfo.stats.version = profile.build != null ? profile.build : (profile.header.containsKey("version") ? profile.header.get("version").toString() : null);
-		profile.nfo.stats.totalSets = profile.softwares_cnt > 0 ? profile.softwares_cnt : profile.machines_cnt;
-		profile.nfo.stats.totalRoms = profile.roms_cnt;
-		profile.nfo.stats.totalDisks = profile.disks_cnt;
+		profile.nfo.stats.version = profile.build != null ? profile.build : (profile.header.containsKey("version") ? profile.header.get("version").toString() : null); //$NON-NLS-1$ //$NON-NLS-2$
+		profile.nfo.stats.totalSets = profile.softwares_cnt + profile.machines_cnt;
+		profile.nfo.stats.totalRoms = profile.roms_cnt + profile.swroms_cnt;
+		profile.nfo.stats.totalDisks = profile.disks_cnt + profile.swdisks_cnt;
 		profile.loadSettings();
 		profile.loadSystems();
 		return profile;
@@ -709,25 +719,26 @@ public class Profile implements Serializable
 
 	public String getName()
 	{
-		String name = "<html><body>[<span color='blue'>" + Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-2$ //$NON-NLS-3$
+		String name = "<html><body>[<span color='blue'>" + Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] ";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if(build != null)
-			name += "<b>" + build + "</b>";
+			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if(header.size() > 0)
 		{
 			if(header.containsKey("description")) //$NON-NLS-1$
-				name += "<b>" + header.get("description") + "</b>"; //$NON-NLS-2$
+				name += "<b>" + header.get("description") + "</b>";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			else if(header.containsKey("name")) //$NON-NLS-1$
 			{
-				name += "<b>" + header.get("name") + "</b>"; //$NON-NLS-2$
+				name += "<b>" + header.get("name") + "</b>";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 				if(header.containsKey("version")) //$NON-NLS-1$
-					name += " (" + header.get("version") + ")"; //$NON-NLS-2$
+					name += " (" + header.get("version") + ")";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
+		String strcnt = ""; //$NON-NLS-1$
 		if(machinelist_list.get(0).size() > 0)
-			name += " (" + machines_cnt + " Machines)";
+			strcnt += machines_cnt + " Machines"; //$NON-NLS-1$
 		if(machinelist_list.softwarelist_list.size() > 0)
-			name += " (" + softwares_list_cnt + " Software Lists, " + softwares_cnt + " Softwares)";
-		name += "</body></html>";
+			strcnt += (strcnt.isEmpty()?"":", ")+softwares_list_cnt + " Software Lists, " + softwares_cnt + " Softwares"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		name += "("+strcnt+")</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
 		return name;
 	}
 

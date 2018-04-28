@@ -17,8 +17,6 @@ import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
-import jrm.misc.FindCmd;
-import jrm.misc.Settings;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
@@ -37,8 +35,6 @@ public class OpenContainer extends ContainerAction
 			action = new OpenContainer(container, format);
 		return action;
 	}
-
-	static File tzip_cmd = new File(Settings.getProperty("tzip_cmd", FindCmd.findTZip())); //$NON-NLS-1$
 
 	@Override
 	public boolean doAction(ProgressHandler handler)
@@ -63,10 +59,6 @@ public class OpenContainer extends ContainerAction
 					}
 					deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
 					fs.close();
-					if(format == FormatOptions.TZIP && tzip_cmd.exists())
-					{
-						return new ProcessBuilder(tzip_cmd.getPath(), container.file.getAbsolutePath()).directory(tzip_cmd.getParentFile()).start().waitFor() == 0;
-					}
 					return true;
 				}
 				catch(Throwable e)

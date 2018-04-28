@@ -95,6 +95,11 @@ public class SubjectSet extends Subject
 		return status==Status.MISSING;
 	}
 	
+	public boolean isUnneeded()
+	{
+		return status==Status.UNNEEDED;
+	}
+	
 	public boolean isOK()
 	{
 		return isFound() && !hasNotes();

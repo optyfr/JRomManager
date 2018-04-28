@@ -840,8 +840,8 @@ public class MainFrame extends JFrame
 						if(showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION)
 						{
 							Profile.curr_profile.setProperty("MainFrame.ChooseSWRomsDestination", getCurrentDirectory().getAbsolutePath());
-							tfDisksDest.setText(getSelectedFile().getAbsolutePath());
-							Profile.curr_profile.setProperty("swroms_dest_dir", tfDisksDest.getText()); //$NON-NLS-1$
+							tfSWDest.setText(getSelectedFile().getAbsolutePath());
+							Profile.curr_profile.setProperty("swroms_dest_dir", tfSWDest.getText()); //$NON-NLS-1$
 						}
 					}
 				};
