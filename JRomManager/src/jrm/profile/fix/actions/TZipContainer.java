@@ -1,8 +1,11 @@
 package jrm.profile.fix.actions;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.misc.FindCmd;
@@ -32,7 +35,23 @@ public class TZipContainer extends ContainerAction
 				try
 				{
 					if(container.file.exists())
-						return new ProcessBuilder(tzip_cmd.getPath(), container.file.getAbsolutePath()).directory(tzip_cmd.getParentFile()).start().waitFor() == 0;
+					{
+				//		System.out.println(container.file);
+						ProcessBuilder pb = new ProcessBuilder(tzip_cmd.getPath(), container.file.getAbsolutePath()).directory(tzip_cmd.getParentFile()).redirectErrorStream(true);
+						Process process = pb.start();
+						try(BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream())))
+						{
+							@SuppressWarnings("unused")
+							String line;
+							while((line = in.readLine()) != null)
+							{
+								// System.out.println(line);
+							}
+							for(File log : tzip_cmd.getParentFile().getParentFile().listFiles((dir, name) -> FilenameUtils.getExtension(name).equals("log")))
+								log.delete();
+						}
+						return process.waitFor() == 0;
+					}
 					return true;
 				}
 				catch(InterruptedException | IOException e)

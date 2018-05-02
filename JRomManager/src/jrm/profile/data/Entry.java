@@ -47,13 +47,13 @@ public class Entry implements Serializable
 	public String getName()
 	{
 		Path path = Paths.get(file);
-		if(type == Type.CHD)
-			return path.getFileName().toString();
 		if(parent.getType() == Container.Type.DIR)
 		{
-			// System.out.println(parent.file.toPath().relativize(path));
-			return parent.file.toPath().relativize(path).toString();
+		//	System.out.println(parent.file.toPath().relativize(path).toString().replace('\\', '/'));
+			return parent.file.toPath().relativize(path).toString().replace('\\', '/');
 		}
+		if(type == Type.CHD)
+			return path.getFileName().toString();
 		return path.subpath(0, path.getNameCount()).toString().replace('\\', '/');
 	}
 
