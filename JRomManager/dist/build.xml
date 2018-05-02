@@ -4,11 +4,6 @@
     <!--ANT 1.7 is required                                        -->
     <!--define folder properties-->
 	<property file="ver.properties"/>
-	<property name="dir.buildfile" value=".."/>
-    <property name="dir.workspace" value="D:/eclipse-workspace"/>
-    <property name="dir.jarfile" value="E:/src/java/JRomManager.work"/>
-    <property name="dir.dist" value="."/>
-    <property name="dir.lib" value="E:/src/java/lib"/>
     <target name="create_run_jar">
         <jar destfile="${dir.jarfile}/JRomManager.jar">
             <manifest>
