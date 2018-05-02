@@ -18,7 +18,7 @@ _Minimal usage requirements_:
 - 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)
 - Any OS with Java 8 runtime
 - (optional) 7zip or p7zip cmdline program if you need 7z format and only if SevenZipJBinding doesn't work on your platform
-- (optional) trrntzip cmdline program if you want to torrentzip your files
+- ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~
 
 _Behavior compared to other Rom managers_
 - By default, Split mode may differ from ClrMamePro, it's because JRomManager is respectful of the merge attribute, whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also respectful of the merge attribute. To reproduce the same behaviour you will have to select "implicit merge" option in profile settings
@@ -52,6 +52,7 @@ _Behavior compared to other Rom managers_
 - Double click on game name in profile viewer will launch game if (Mame is linked with profile and item is green)
 - Double click on software name in profile viewer will launch software with a valid machine (if Mame is linked with profile and item is green)
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
+- Integrated TorrentZip support using [Jtrrentzip](https://github.com/optyfr/Jtrrntzip)
 
 ## Short Term Planned Features
 - Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
