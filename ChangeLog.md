@@ -3,7 +3,7 @@
   - Roms are displayed with software lists in profile viewer
   - There is a jrm profile format (xml inside), that tell where to find the two mame xml files (roms + swlists)
   - Roms ans SWLists are scanned at the same time
-  - The is now an optional software dir and an even more optional software disks dir
+  - There is now an optional software dir and an even more optional software disks dir
 - Double click on game name in profile viewer will launch game if (Mame is linked with profile and item is green)
 - Double click on software name in profile viewer will launch software with a valid machine (if Mame is linked with profile and item is green)
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
