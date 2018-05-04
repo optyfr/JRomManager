@@ -1,4 +1,4 @@
-## Release v1.2 build ?
+## Release v1.2 build 8
 - When Importing Software List, Roms will be also imported... As a consequence:
   - Roms are displayed with software lists in profile viewer
   - There is a jrm profile format (xml inside), that tell where to find the two mame xml files (roms + swlists)
