@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -11,17 +12,22 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 
+import JTrrntzip.TrrntZipStatus;
+
 @SuppressWarnings("serial")
 public class Container implements Serializable
 {
 	public File file;
-	public long modified;
-	public long size = 0;
+	public long modified = 0L;
+	public long size = 0L;
 	public HashMap<String, Entry> entries_byname = new HashMap<>();
 
 	public transient boolean up2date = false;
 	public int loaded = 0;
 
+	public long lastTZipCheck = 0L;
+	public EnumSet<TrrntZipStatus> lastTZipStatus = EnumSet.noneOf(TrrntZipStatus.class);
+	
 	public transient Anyware m;
 
 	public enum Type

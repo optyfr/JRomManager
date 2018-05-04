@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.io.FilenameUtils;
 
+import JTrrntzip.TrrntZipStatus;
 import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
@@ -25,7 +26,7 @@ import jrm.ui.ProgressHandler;
 
 public class Scan
 {
-	public ArrayList<ArrayList<jrm.profile.fix.actions.ContainerAction>> actions = new ArrayList<>();
+	public ArrayList<Collection<jrm.profile.fix.actions.ContainerAction>> actions = new ArrayList<>();
 	public static Report report = new Report();
 	private Profile profile;
 
@@ -50,7 +51,7 @@ public class Scan
 	private ArrayList<jrm.profile.fix.actions.ContainerAction> delete_actions = new ArrayList<>();
 	private ArrayList<jrm.profile.fix.actions.ContainerAction> rename_after_actions = new ArrayList<>();
 	private ArrayList<jrm.profile.fix.actions.ContainerAction> duplicate_actions = new ArrayList<>();
-	private ArrayList<jrm.profile.fix.actions.ContainerAction> tzip_actions = new ArrayList<>();
+	private Map<String, jrm.profile.fix.actions.ContainerAction> tzip_actions = new HashMap<>();
 
 	public Scan(Profile profile, ProgressHandler handler) throws BreakException
 	{
@@ -182,11 +183,11 @@ public class Scan
 
 			AtomicInteger i = new AtomicInteger();
 			AtomicInteger j = new AtomicInteger();
-			handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.machinelist_list.get(0).size()+profile.machinelist_list.softwarelist_list.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
-			handler.setProgress2(String.format("%d/%d", j.get(), profile.machinelist_list.softwarelist_list.size()+1), j.get(), profile.machinelist_list.softwarelist_list.size()+1); //$NON-NLS-1$
+			handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.machinelist_list.get(0).size() + profile.machinelist_list.softwarelist_list.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
+			handler.setProgress2(String.format("%d/%d", j.get(), profile.machinelist_list.softwarelist_list.size() + 1), j.get(), profile.machinelist_list.softwarelist_list.size() + 1); //$NON-NLS-1$
 			if(profile.machinelist_list.get(0).size() > 0)
 			{
-				handler.setProgress2(String.format("%d/%d", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size()+1), j.get(), profile.machinelist_list.softwarelist_list.size()+1); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size() + 1), j.get(), profile.machinelist_list.softwarelist_list.size() + 1); //$NON-NLS-1$
 				profile.machinelist_list.get(0).forEach(Machine::resetCollisionMode);
 				profile.machinelist_list.get(0).getFilteredStream().forEach(m -> {
 					handler.setProgress(null, i.incrementAndGet(), null, m.getFullName());
@@ -195,10 +196,10 @@ public class Scan
 						throw new BreakException();
 				});
 			}
-			if(profile.machinelist_list.softwarelist_list.size()>0)
+			if(profile.machinelist_list.softwarelist_list.size() > 0)
 			{
 				profile.machinelist_list.softwarelist_list.getFilteredStream().forEach(sl -> {
-					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size()+1, sl.name), j.get(), profile.machinelist_list.softwarelist_list.size()+1); //$NON-NLS-1$
+					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size() + 1, sl.name), j.get(), profile.machinelist_list.softwarelist_list.size() + 1); //$NON-NLS-1$
 					roms_dstscan = swroms_dstscans.get(sl.name);
 					disks_dstscan = swdisks_dstscans.get(sl.name);
 					sl.getFilteredStream().forEach(Software::resetCollisionMode);
@@ -241,7 +242,7 @@ public class Scan
 		actions.add(duplicate_actions);
 		actions.add(delete_actions);
 		actions.add(rename_after_actions);
-		actions.add(tzip_actions);
+		actions.add(tzip_actions.values());
 
 	}
 
@@ -264,10 +265,10 @@ public class Scan
 		SubjectSet report_subject = new SubjectSet(ware);
 
 		boolean missing_set = true;
-		Directory directory = new Directory(new File(disks_dstscan.dir, ware.getDest(merge_mode,implicit_merge).getName()), ware);
-		Container archive = new Archive(new File(roms_dstscan.dir, ware.getDest(merge_mode,implicit_merge).getName() + format.getExt()), ware);
+		Directory directory = new Directory(new File(disks_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName()), ware);
+		Container archive = new Archive(new File(roms_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName() + format.getExt()), ware);
 		if(format.getExt().isDir())
-			archive = new Directory(new File(roms_dstscan.dir, ware.getDest(merge_mode,implicit_merge).getName()), ware);
+			archive = new Directory(new File(roms_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName()), ware);
 		List<Rom> roms = ware.filterRoms(merge_mode, hash_collision_mode);
 		List<Disk> disks = ware.filterDisks(merge_mode, hash_collision_mode);
 		if(!scanRoms(ware, roms, archive, report_subject))
@@ -292,6 +293,7 @@ public class Scan
 			removeUnneededClone(ware, disks, roms);
 			removeOtherFormats(ware);
 		}
+		prepTZip(report_subject, archive, ware, roms);
 		if(missing_set)
 			report.stats.missing_set_cnt++;
 		if(report_subject.getStatus() != Status.UNKNOWN)
@@ -349,12 +351,39 @@ public class Scan
 		});
 	}
 
+	private void prepTZip(SubjectSet report_subject, Container archive, Anyware ware, List<Rom> roms)
+	{
+		if(format == FormatOptions.TZIP)
+		{
+			if(!merge_mode.isMerge() || !ware.isClone())
+			{
+				if(!report_subject.isMissing() && !report_subject.isUnneeded() && roms.size()>0)
+				{
+					Container tzipcontainer = null;
+					Container container = roms_dstscan.containers_byname.get(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt());
+					if(container != null)
+					{
+						if(container.lastTZipCheck < container.file.lastModified())
+							tzipcontainer = container;
+						else if(!container.lastTZipStatus.contains(TrrntZipStatus.ValidTrrntzip))
+							tzipcontainer = container;
+							
+					}
+					else if(create_mode)
+						tzipcontainer = archive;
+					if(tzipcontainer != null)
+						tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
+				}
+			}
+		}
+	}
+
 	@SuppressWarnings("unlikely-arg-type")
 	private boolean scanDisks(Anyware ware, List<Disk> disks, Directory directory, SubjectSet report_subject)
 	{
 		boolean missing_set = true;
 		Container container;
-		if(null != (container = disks_dstscan.containers_byname.get(ware.getDest(merge_mode,implicit_merge).getName())))
+		if(null != (container = disks_dstscan.containers_byname.get(ware.getDest(merge_mode, implicit_merge).getName())))
 		{
 			missing_set = false;
 			if(disks.size() > 0)
@@ -507,7 +536,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		Container container;
-		if(null != (container = roms_dstscan.containers_byname.get(ware.getDest(merge_mode,implicit_merge).getName() + format.getExt())))
+		if(null != (container = roms_dstscan.containers_byname.get(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt())))
 		{
 			missing_set = false;
 			if(roms.size() > 0)
@@ -656,8 +685,6 @@ public class Scan
 				}
 			}
 		}
-		if(!report_subject.isMissing() && !report_subject.isUnneeded())
-			tzip_actions.add(new TZipContainer(archive, format));
 		return missing_set;
 	}
 

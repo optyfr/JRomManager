@@ -17,6 +17,9 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
+import JTrrntzip.DummyLogCallback;
+import JTrrntzip.SimpleTorrentZipOptions;
+import JTrrntzip.TorrentZip;
 import jrm.Messages;
 import jrm.compressors.SevenZipArchive;
 import jrm.io.CHDInfoReader;
@@ -26,6 +29,7 @@ import jrm.misc.Settings;
 import jrm.profile.Profile;
 import jrm.profile.data.*;
 import jrm.profile.data.Container.Type;
+import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
 import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
@@ -42,8 +46,9 @@ public final class DirScan
 	Map<String, Entry> entries_bysha1 = Collections.synchronizedMap(new HashMap<>());
 	Map<String, Entry> entries_bymd5 = Collections.synchronizedMap(new HashMap<>());
 
-	boolean need_sha1_or_md5 = true;
-	boolean use_parallelism = true;
+	private boolean need_sha1_or_md5 = true;
+	private boolean use_parallelism = true;
+	private FormatOptions format = FormatOptions.ZIP;
 	
 	File dir;
 
@@ -69,6 +74,7 @@ public final class DirScan
 		this.dir = dir;
 		this.need_sha1_or_md5 = profile.getProperty("need_sha1_or_md5", false); //$NON-NLS-1$
 		this.use_parallelism = profile.getProperty("use_parallelism", false); //$NON-NLS-1$
+		this.format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
 
 		Path path = Paths.get(dir.getAbsolutePath());
 
@@ -217,6 +223,12 @@ public final class DirScan
 						{
 							for(Entry entry : c.getEntries())
 								update_entry(profile, entry);
+						}
+						if(is_dest && format==FormatOptions.TZIP && c.lastTZipCheck < c.modified)
+						{
+							c.lastTZipStatus = new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions(false, true)).Process(c.file);
+							c.lastTZipCheck = System.currentTimeMillis();
+							System.out.println("Check "+c.file+":"+c.lastTZipStatus);
 						}
 						break;
 					}
