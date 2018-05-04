@@ -17,7 +17,6 @@
 - Option to do implicit merging (like ClrMamePro)
 - Drag & Drop on src/dest dirs controls
 - Added garbage filter when importing xml from mame executable
-- Search field in profile viewer
 - Extra code to handle bad or incomplete Dats
 - Bug Fixes
 ## Release v1.1 build 3
