@@ -85,6 +85,11 @@ public class SubjectSet extends Subject
 		return notes.stream().filter(n -> {return n instanceof EntryMissing || n instanceof EntryWrongHash;}).count()==0;
 	}
 	
+	public boolean hasFix()
+	{
+		return notes.stream().filter(n -> {return !(n instanceof EntryOK || n instanceof EntryMissing || n instanceof EntryWrongHash);}).count()>0;
+	}
+	
 	public boolean isFound()
 	{
 		return status==Status.FOUND;

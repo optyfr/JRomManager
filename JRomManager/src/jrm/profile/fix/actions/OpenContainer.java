@@ -42,7 +42,7 @@ public class OpenContainer extends ContainerAction
 		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("OpenContainer.Fixing")), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.description))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)
 		{
-			if(format == FormatOptions.ZIP)
+			if(format == FormatOptions.ZIP || format == FormatOptions.TZIP)
 			{
 				Map<String, Object> env = new HashMap<>();
 				env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$

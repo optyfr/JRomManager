@@ -1923,58 +1923,6 @@ public class MainFrame extends JFrame
 		gbc_lbl7zWarning.gridy = 4;
 		panel7Zip.add(lbl7zWarning, gbc_lbl7zWarning);
 
-		panelTZip = new JPanel();
-		compressorsPane.addTab(Messages.getString("MainFrame.TorrentZipExternal"), null, panelTZip, null); //$NON-NLS-1$
-		GridBagLayout gbl_panelTZip = new GridBagLayout();
-		gbl_panelTZip.columnWidths = new int[] { 100, 334, 34, 0 };
-		gbl_panelTZip.rowHeights = new int[] { 0, 20, 0, 0 };
-		gbl_panelTZip.columnWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		gbl_panelTZip.rowWeights = new double[] { 1.0, 0.0, 1.0, Double.MIN_VALUE };
-		panelTZip.setLayout(gbl_panelTZip);
-
-		lblTZipCmd = new JLabel(Messages.getString("MainFrame.lblTZipCmd.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblTZipCmd = new GridBagConstraints();
-		gbc_lblTZipCmd.anchor = GridBagConstraints.WEST;
-		gbc_lblTZipCmd.insets = new Insets(0, 5, 5, 5);
-		gbc_lblTZipCmd.gridx = 0;
-		gbc_lblTZipCmd.gridy = 1;
-		panelTZip.add(lblTZipCmd, gbc_lblTZipCmd);
-
-		tfTZipCmd = new JTextField();
-		tfTZipCmd.addFocusListener(new FocusAdapter()
-		{
-			@Override
-			public void focusLost(FocusEvent e)
-			{
-				Settings.setProperty("tzip_cmd", tfTZipCmd.getText()); //$NON-NLS-1$
-			}
-		});
-		tfTZipCmd.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				Settings.setProperty("tzip_cmd", tfTZipCmd.getText()); //$NON-NLS-1$
-			}
-		});
-		tfTZipCmd.setHorizontalAlignment(SwingConstants.LEFT);
-		tfTZipCmd.setText(Settings.getProperty("tzip_cmd", FindCmd.findTZip())); //$NON-NLS-1$
-		tfTZipCmd.setColumns(30);
-		GridBagConstraints gbc_tfTZipCmd = new GridBagConstraints();
-		gbc_tfTZipCmd.fill = GridBagConstraints.BOTH;
-		gbc_tfTZipCmd.insets = new Insets(0, 0, 5, 0);
-		gbc_tfTZipCmd.gridx = 1;
-		gbc_tfTZipCmd.gridy = 1;
-		panelTZip.add(tfTZipCmd, gbc_tfTZipCmd);
-
-		btTZipCmd = new JButton(""); //$NON-NLS-1$
-		btTZipCmd.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
-		GridBagConstraints gbc_btTZipCmd = new GridBagConstraints();
-		gbc_btTZipCmd.insets = new Insets(0, 0, 5, 5);
-		gbc_btTZipCmd.anchor = GridBagConstraints.WEST;
-		gbc_btTZipCmd.gridx = 2;
-		gbc_btTZipCmd.gridy = 1;
-		panelTZip.add(btTZipCmd, gbc_btTZipCmd);
-
 		debug = new JPanel();
 		settingsPane.addTab(Messages.getString("MainFrame.Debug"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bug.png")), debug, null); //$NON-NLS-1$ //$NON-NLS-2$
 		GridBagLayout gbl_debug = new GridBagLayout();
@@ -2316,7 +2264,6 @@ public class MainFrame extends JFrame
 	private JPanel panelZip;
 	private JCheckBox chkbxZipUseTemp;
 	private JPanel panelZipE;
-	private JPanel panelTZip;
 	private JLabel lblZipECmd;
 	private JTextField tfZipECmd;
 	private JButton btZipECmd;
@@ -2329,9 +2276,6 @@ public class MainFrame extends JFrame
 	private JButton btn7zCmd;
 	private JLabel lbl7zArgs;
 	private JComboBox<SevenZipOptions> cb7zArgs;
-	private JLabel lblTZipCmd;
-	private JTextField tfTZipCmd;
-	private JButton btTZipCmd;
 	private JLabel lblZipEWarning;
 	private JLabel lbl7zWarning;
 	private JLabel lblCompression;

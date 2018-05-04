@@ -367,12 +367,17 @@ public class Scan
 							tzipcontainer = container;
 						else if(!container.lastTZipStatus.contains(TrrntZipStatus.ValidTrrntzip))
 							tzipcontainer = container;
+						else if(report_subject.hasFix())
+							tzipcontainer = container;
 							
 					}
-					else if(create_mode)
+					else if(create_mode && report_subject.hasFix())
 						tzipcontainer = archive;
 					if(tzipcontainer != null)
+					{
+						tzipcontainer.m = ware;
 						tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
+					}
 				}
 			}
 		}

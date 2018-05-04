@@ -228,7 +228,6 @@ public final class DirScan
 						{
 							c.lastTZipStatus = new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions(false, true)).Process(c.file);
 							c.lastTZipCheck = System.currentTimeMillis();
-							System.out.println("Check "+c.file+":"+c.lastTZipStatus);
 						}
 						break;
 					}

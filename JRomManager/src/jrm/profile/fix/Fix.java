@@ -34,7 +34,6 @@ public class Fix
 			StreamEx.of(use_parallelism ? actions.parallelStream().unordered() : actions.stream()).takeWhile((action) -> !progress.isCancel()).forEach(action -> {
 				try
 				{
-					// System.out.println(action);
 					if(!action.doAction(progress))
 						progress.cancel();
 					done.add(action);
@@ -42,7 +41,11 @@ public class Fix
 				}
 				catch(BreakException be)
 				{
+					be.printStackTrace();
 					progress.cancel();
+				}
+				catch (Throwable e) {
+					e.printStackTrace();
 				}
 			});
 			actions.removeAll(done);
