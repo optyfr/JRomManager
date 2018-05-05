@@ -11,16 +11,16 @@
 - Complete profile manager with stats
 - TorrentZip support is now integrated and optimized (with [Jtrrntzip](https://github.com/optyfr/Jtrrntzip))
 - Optional Separate Dest dir between Roms, CHDs, Software Roms, Software CHDs
-- Option to ignore unknown containers
-- Option to ignore unneeded containers
-- Option to ignore unneeded entries
-- Option to do implicit merging (like ClrMamePro)
-- Drag & Drop on src/dest dirs controls
-- Added garbage filter when importing xml from mame executable
-- Extra code to handle bad or incomplete Dats
-- Bug Fixes
+- Option pour ignorer les fichiers inconnus
+- Option pour ignorer les archives inutiles
+- Option pour ignorer les entrées d'archives inutiles
+- Option pour faire du fusionnage implicite (comme ClrMamePro)
+- Drag & Drop sur les contrôles des répertoires sources/destinations
+- Ajout d'un filtre de lignes inutiles à l'import xml à partir de l'executable MAME
+- Code supplémentaire pour gérer les DATs malformés ou incomplets
+- Correction de bogues
 ## Release v1.1 build 3
-- Added filter support
-- Bug fixes
+- Ajout du support du filtre
+- Correction de bogues
 ## Release v1.0 build 2
-- Initial release
+- Version initiale
