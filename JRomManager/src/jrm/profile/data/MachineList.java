@@ -10,12 +10,15 @@ import java.util.stream.Stream;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.xml.stream.XMLStreamException;
 
+import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
 import jrm.ui.MachineListRenderer;
+import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
 public final class MachineList extends AnywareList<Machine> implements Serializable
@@ -173,4 +176,20 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		return m_byname.containsKey(name);
 	}
 
+	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean is_mame) throws XMLStreamException, IOException
+	{
+		if(is_mame)
+			writer.writeStartElement("mame");
+		else
+			writer.writeStartElement("datafile");
+		List<Machine> list = getFilteredStream().collect(Collectors.toList());
+		int i = 0;
+		progress.setProgress("Exporting", i, list.size());
+		for(Machine m : list)
+		{
+			progress.setProgress(String.format("Exporting %s", m.name), ++i);
+			m.export(writer, is_mame);
+		}
+		writer.writeEndElement();
+	}
 }

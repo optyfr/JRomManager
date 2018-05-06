@@ -34,6 +34,7 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -43,8 +44,10 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import jrm.Messages;
+import jrm.profile.Export;
 import jrm.profile.Profile;
 import jrm.profile.ProfileNFOMame;
+import jrm.profile.Export.ExportType;
 import jrm.profile.ProfileNFOMame.MameStatus;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
@@ -53,6 +56,13 @@ import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.EntityStatus;
 import jrm.profile.data.Machine;
 import jrm.profile.data.Software;
+import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JMenu;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.event.PopupMenuEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog
@@ -219,6 +229,74 @@ public class ProfileViewer extends JDialog
 		tableWL.setShowHorizontalLines(false);
 		tableWL.setShowVerticalLines(false);
 		tableWL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		JPopupMenu popupMenu = new JPopupMenu();
+		popupMenu.addPopupMenuListener(new PopupMenuListener() {
+			public void popupMenuCanceled(PopupMenuEvent e) {
+			}
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+			}
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+			}
+		});
+		addPopup(tableWL, popupMenu);
+		
+		JMenu mnExportAll = new JMenu(Messages.getString("ProfileViewer.mnExportAll.text")); //$NON-NLS-1$
+		popupMenu.add(mnExportAll);
+		
+		JMenuItem mntmAllAsMameDat = new JMenuItem("as Mame dat");
+		mntmAllAsMameDat.setEnabled(false);
+		mnExportAll.add(mntmAllAsMameDat);
+		
+		JMenuItem mntmAllAsSoftwareLists = new JMenuItem("as Software Lists dat");
+		mntmAllAsSoftwareLists.setEnabled(false);
+		mnExportAll.add(mntmAllAsSoftwareLists);
+		
+		JMenuItem mntmAllAsLogiqxDat = new JMenuItem("as Logiqx dat");
+		mntmAllAsLogiqxDat.setEnabled(false);
+		mnExportAll.add(mntmAllAsLogiqxDat);
+		
+		JMenu mnExportFiltered = new JMenu(Messages.getString("ProfileViewer.mnExportFiltered.text")); //$NON-NLS-1$
+		popupMenu.add(mnExportFiltered);
+		
+		JMenuItem mntmFilteredAsMameDat = new JMenuItem("as Mame dat");
+		mntmFilteredAsMameDat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.MAME);
+			}
+		});
+		mnExportFiltered.add(mntmFilteredAsMameDat);
+		
+		JMenuItem mntmFilteredAsSoftwareLists = new JMenuItem("as Software Lists dat");
+		mntmFilteredAsSoftwareLists.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.SOFTWARELIST);
+			}
+		});
+		mnExportFiltered.add(mntmFilteredAsSoftwareLists);
+		
+		JMenuItem mntmFilteredAsLogiqxDat = new JMenuItem("as Logiqx dat");
+		mntmFilteredAsLogiqxDat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.DATAFILE);
+			}
+		});
+		mnExportFiltered.add(mntmFilteredAsLogiqxDat);
+		
+		JMenu mnExportSelected = new JMenu(Messages.getString("ProfileViewer.mnExportSelected.text")); //$NON-NLS-1$
+		popupMenu.add(mnExportSelected);
+		
+		JMenuItem mntmSelectedAsMameDat = new JMenuItem("as Mame dat");
+		mntmSelectedAsMameDat.setEnabled(false);
+		mnExportSelected.add(mntmSelectedAsMameDat);
+		
+		JMenuItem mntmSelectedAsSoftwareLists = new JMenuItem("as Software Lists dat");
+		mntmSelectedAsSoftwareLists.setEnabled(false);
+		mnExportSelected.add(mntmSelectedAsSoftwareLists);
+		
+		JMenuItem mntmSelectedAsLogiqxDat = new JMenuItem("as Logiqx dat");
+		mntmSelectedAsLogiqxDat.setEnabled(false);
+		mnExportSelected.add(mntmSelectedAsLogiqxDat);
 
 		JToolBar toolBarWL = new JToolBar();
 		panel.add(toolBarWL, BorderLayout.SOUTH);
@@ -504,6 +582,30 @@ public class ProfileViewer extends JDialog
 		setVisible(true);
 	}
 
+	private void export(ExportType type)
+	{
+		final Progress progress = new Progress(ProfileViewer.this);
+		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+		{
+
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				new Export(Profile.curr_profile, new File("dat.xml"), type, progress);
+				return null;
+			}
+
+			@Override
+			protected void done()
+			{
+				progress.dispose();
+			}
+
+		};
+		worker.execute();
+		progress.setVisible(true);
+	}
+
 	public void setFilterWL(boolean missing, boolean partial, boolean complete)
 	{
 		EnumSet<AnywareStatus> filter = EnumSet.of(AnywareStatus.UNKNOWN);
@@ -589,4 +691,21 @@ public class ProfileViewer extends JDialog
 			((Anyware) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((Anyware) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 	}
 
+	private static void addPopup(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
+	}
 }

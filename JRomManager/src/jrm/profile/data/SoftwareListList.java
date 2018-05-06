@@ -2,16 +2,24 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.xml.stream.XMLStreamException;
 
+import org.apache.commons.io.IOUtils;
+
+import jrm.profile.Export;
+import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.ui.AnywareListListRenderer;
+import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
 public final class SoftwareListList extends AnywareListList<SoftwareList> implements Serializable
@@ -105,6 +113,30 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		if(filtered_list == null)
 			filtered_list = getFilteredStream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
+	}
+
+	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress) throws XMLStreamException, IOException
+	{
+		List<SoftwareList> lists = getFilteredStream().collect(Collectors.toList());
+		if(lists.size() > 0)
+		{
+			writer.writeStartDocument("UTF-8","1.0");
+			if(lists.size() > 1)
+			{
+				writer.writeDTD("<!DOCTYPE softwarelists [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelists.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
+				writer.writeStartElement("softwarelists");
+			}
+			else
+				writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
+			progress.setProgress("Exporting", 0, lists.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
+			progress.setProgress2(String.format("%d/%d", 0, lists.size()), 0, lists.size()); //$NON-NLS-1$
+			for(SoftwareList list : lists)
+			{
+				list.export(writer, progress);
+				progress.setProgress2(String.format("%d/%d", progress.getValue2()+1, lists.size()), progress.getValue2()+1); //$NON-NLS-1$
+			}
+			writer.writeEndDocument();
+		}
 	}
 
 }

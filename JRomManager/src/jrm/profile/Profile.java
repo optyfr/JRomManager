@@ -21,6 +21,11 @@ import jrm.profile.data.*;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.SWList;
 import jrm.profile.data.Machine.SWStatus;
+import jrm.profile.data.Rom.LoadFlag;
+import jrm.profile.data.Software.Part;
+import jrm.profile.data.Software.Part.DataArea;
+import jrm.profile.data.Software.Part.DataArea.Endianness;
+import jrm.profile.data.Software.Part.DiskArea;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -75,6 +80,9 @@ public class Profile implements Serializable
 				private EnumSet<CabinetType> cabtype_set = EnumSet.noneOf(CabinetType.class);
 				private SoftwareList curr_software_list = null;
 				private Software curr_software = null;
+				private Software.Part curr_part = null;
+				private Software.Part.DataArea curr_dataarea = null;
+				private Software.Part.DiskArea curr_diskarea = null;
 				private Machine curr_machine = null;
 				private Rom curr_rom = null;
 				private Disk curr_disk = null;
@@ -167,6 +175,57 @@ public class Profile implements Serializable
 					{
 						if(attributes.getValue("name").equalsIgnoreCase("compatibility")) //$NON-NLS-1$ //$NON-NLS-2$
 							curr_software.compatibility = attributes.getValue("value"); //$NON-NLS-1$
+					}
+					else if(qName.equals("part") && in_software) //$NON-NLS-1$
+					{
+						curr_software.parts.add(curr_part=new Part());
+						for(int i = 0; i < attributes.getLength(); i++)
+						{
+							switch(attributes.getQName(i))
+							{
+								case "name": //$NON-NLS-1$
+									curr_part.name = attributes.getValue(i).trim();
+									break;
+								case "interface": //$NON-NLS-1$
+									curr_part.intrface = attributes.getValue(i).trim();
+									break;
+							}
+						}
+					}
+					else if(qName.equals("dataarea") && in_software) //$NON-NLS-1$
+					{
+						curr_part.dataareas.add(curr_dataarea=new DataArea());
+						for(int i = 0; i < attributes.getLength(); i++)
+						{
+							switch(attributes.getQName(i))
+							{
+								case "name": //$NON-NLS-1$
+									curr_dataarea.name = attributes.getValue(i).trim();
+									break;
+								case "size": //$NON-NLS-1$
+									curr_dataarea.size = Integer.valueOf(attributes.getValue(i));
+									break;
+								case "width": //$NON-NLS-1$
+									curr_dataarea.width = Integer.valueOf(attributes.getValue(i));
+									break;
+								case "endianness": //$NON-NLS-1$
+									curr_dataarea.endianness = Endianness.valueOf(attributes.getValue(i));
+									break;
+							}
+						}
+					}
+					else if(qName.equals("diskarea") && in_software) //$NON-NLS-1$
+					{
+						curr_part.diskareas.add(curr_diskarea=new DiskArea());
+						for(int i = 0; i < attributes.getLength(); i++)
+						{
+							switch(attributes.getQName(i))
+							{
+								case "name": //$NON-NLS-1$
+									curr_diskarea.name = attributes.getValue(i).trim();
+									break;
+							}
+						}
 					}
 					else if(qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
@@ -330,6 +389,8 @@ public class Profile implements Serializable
 						if(in_machine || in_software)
 						{
 							curr_rom = new Rom(in_machine ? curr_machine : curr_software);
+							if(in_software && curr_dataarea!=null)
+								curr_dataarea.roms.add(curr_rom);
 							for(int i = 0; i < attributes.getLength(); i++)
 							{
 								switch(attributes.getQName(i))
@@ -339,6 +400,19 @@ public class Profile implements Serializable
 										break;
 									case "size": //$NON-NLS-1$
 										curr_rom.size = Long.decode(attributes.getValue(i));
+										break;
+									case "offset": //$NON-NLS-1$
+										try
+										{
+											curr_rom.offset = Integer.decode(attributes.getValue(i));
+										}
+										catch(NumberFormatException e)
+										{
+											curr_rom.offset = Integer.decode("0x"+attributes.getValue(i));
+										}
+										break;
+									case "value": //$NON-NLS-1$
+										curr_rom.value = attributes.getValue(i);
 										break;
 									case "crc": //$NON-NLS-1$
 										curr_rom.crc = attributes.getValue(i);
@@ -357,8 +431,20 @@ public class Profile implements Serializable
 									case "bios": //$NON-NLS-1$
 										curr_rom.bios = attributes.getValue(i);
 										break;
+									case "region": //$NON-NLS-1$
+										curr_rom.region = attributes.getValue(i);
+										break;
+									case "date": //$NON-NLS-1$
+										curr_rom.date = attributes.getValue(i);
+										break;
+									case "optional": //$NON-NLS-1$
+										curr_rom.optional = BooleanUtils.toBoolean(attributes.getValue(i));
+										break;
 									case "status": //$NON-NLS-1$
 										curr_rom.status = Entity.Status.valueOf(attributes.getValue(i));
+										break;
+									case "loadflag": //$NON-NLS-1$
+										curr_rom.loadflag = LoadFlag.getEnum(attributes.getValue(i));
 										break;
 								}
 							}
@@ -369,6 +455,8 @@ public class Profile implements Serializable
 						if(in_machine || in_software)
 						{
 							curr_disk = new Disk(in_machine ? curr_machine : curr_software);
+							if(in_software && curr_diskarea!=null)
+								curr_diskarea.disks.add(curr_disk);
 							for(int i = 0; i < attributes.getLength(); i++)
 							{
 								switch(attributes.getQName(i))
@@ -386,6 +474,18 @@ public class Profile implements Serializable
 										break;
 									case "merge": //$NON-NLS-1$
 										curr_disk.merge = attributes.getValue(i).trim();
+										break;
+									case "index": //$NON-NLS-1$
+										curr_disk.index = Integer.decode(attributes.getValue(i));
+										break;
+									case "optional": //$NON-NLS-1$
+										curr_disk.optional = BooleanUtils.toBoolean(attributes.getValue(i));
+										break;
+									case "writeable": //$NON-NLS-1$
+										curr_disk.writeable = BooleanUtils.toBoolean(attributes.getValue(i));
+										break;
+									case "region": //$NON-NLS-1$
+										curr_disk.region = attributes.getValue(i);
 										break;
 									case "status": //$NON-NLS-1$
 										curr_disk.status = Entity.Status.valueOf(attributes.getValue(i));

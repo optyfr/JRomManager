@@ -14,6 +14,10 @@ public interface ProgressHandler
 
 	public void setProgress2(String msg, Integer val, Integer max);
 
+	public int getValue();
+	
+	public int getValue2();
+
 	public boolean isCancel();
 
 	public void cancel();

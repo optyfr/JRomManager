@@ -2,6 +2,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,8 +13,14 @@ import java.util.stream.Stream;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.xml.stream.XMLStreamException;
 
+import org.apache.commons.io.IOUtils;
+
+import jrm.profile.Export;
+import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.ui.AnywareListListRenderer;
+import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
 public final class MachineListList extends AnywareListList<MachineList> implements Serializable
@@ -21,9 +28,9 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	private List<MachineList> ml_list = Collections.singletonList(new MachineList());
 
 	public SoftwareListList softwarelist_list = new SoftwareListList();
-	
-	public Map<String,List<Machine>> softwarelist_defs = new HashMap<>();
-	
+
+	public Map<String, List<Machine>> softwarelist_defs = new HashMap<>();
+
 	public MachineListList()
 	{
 		initTransient();
@@ -113,11 +120,11 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 			filtered_list = getFilteredStream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
-	
+
 	public Machine findMachine(String softwarelist, String compatibility)
 	{
 		if(softwarelist_defs.containsKey(softwarelist))
-			return softwarelist_defs.get(softwarelist).stream().filter(m->m.isCompatible(softwarelist, compatibility)>0).sorted(new Comparator<Machine>()
+			return softwarelist_defs.get(softwarelist).stream().filter(m -> m.isCompatible(softwarelist, compatibility) > 0).sorted(new Comparator<Machine>()
 			{
 
 				@Override
@@ -125,17 +132,17 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 				{
 					int c1 = o1.isCompatible(softwarelist, compatibility);
 					int c2 = o2.isCompatible(softwarelist, compatibility);
-					if(o1.driver.getStatus()==Driver.StatusType.good)
-						c1+=2;
-					if(o1.driver.getStatus()==Driver.StatusType.imperfect)
-						c1+=1;
-					if(o2.driver.getStatus()==Driver.StatusType.good)
-						c2+=2;
-					if(o2.driver.getStatus()==Driver.StatusType.imperfect)
-						c2+=1;
-					if(c1<c2)
+					if(o1.driver.getStatus() == Driver.StatusType.good)
+						c1 += 2;
+					if(o1.driver.getStatus() == Driver.StatusType.imperfect)
+						c1 += 1;
+					if(o2.driver.getStatus() == Driver.StatusType.good)
+						c2 += 2;
+					if(o2.driver.getStatus() == Driver.StatusType.imperfect)
+						c2 += 1;
+					if(c1 < c2)
 						return 1;
-					if(c1>c2)
+					if(c1 > c2)
 						return -1;
 					return 0;
 				}
@@ -143,4 +150,23 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		return null;
 	}
 
+	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean is_mame) throws XMLStreamException, IOException
+	{
+		List<MachineList> lists = getFilteredStream().collect(Collectors.toList());
+		if(lists.size() > 0)
+		{
+			writer.writeStartDocument("UTF-8","1.0");
+			if(is_mame)
+			{
+				writer.writeDTD("<!DOCTYPE mame [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/mame.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
+			}
+			else
+			{
+				writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
+			}
+			for(MachineList list : lists)
+				list.export(writer, progress, is_mame);
+			writer.writeEndDocument();
+		}
+	}
 }

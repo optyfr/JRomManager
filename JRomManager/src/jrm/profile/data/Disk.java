@@ -1,14 +1,25 @@
 package jrm.profile.data;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.xml.stream.XMLStreamException;
+
+import jrm.profile.Export.EnhancedXMLStreamWriter;
+import jrm.profile.Export.SimpleAttribute;
+
 @SuppressWarnings("serial")
 public class Disk extends Entity implements Serializable
 {
+	public boolean writeable = false;
+	public Integer index = null;
+	public boolean optional = false;
+	public String region = null;
+	
 	public Disk(Anyware parent)
 	{
 		super(parent);
@@ -101,4 +112,40 @@ public class Disk extends Entity implements Serializable
 		return own_status;
 	}
 
+	
+	public void export(EnhancedXMLStreamWriter writer, boolean is_mame) throws XMLStreamException, IOException
+	{
+		if(parent instanceof Software)
+		{
+			writer.writeElement("disk",
+				new SimpleAttribute("name",name),
+				new SimpleAttribute("sha1",sha1),
+				new SimpleAttribute("status",status.getXML(is_mame)),
+				new SimpleAttribute("writeable",writeable?"yes":null)
+			);
+		}
+		else if(is_mame)
+		{
+			writer.writeElement("disk",
+				new SimpleAttribute("name",name),
+				new SimpleAttribute("sha1",sha1),
+				new SimpleAttribute("merge",merge),
+				new SimpleAttribute("status",status.getXML(is_mame)),
+				new SimpleAttribute("optional",optional),
+				new SimpleAttribute("region",region),
+				new SimpleAttribute("writable",writeable?"yes":null),
+				new SimpleAttribute("index",index)
+			);
+		}
+		else
+		{
+			writer.writeElement("disk",
+				new SimpleAttribute("name",name),
+				new SimpleAttribute("sha1",sha1),
+				new SimpleAttribute("md5",md5),
+				new SimpleAttribute("merge",merge),
+				new SimpleAttribute("status",status.getXML(is_mame))
+			);
+		}
+	}
 }

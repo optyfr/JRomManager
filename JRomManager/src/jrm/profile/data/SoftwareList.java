@@ -11,9 +11,13 @@ import java.util.stream.Stream;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.xml.stream.XMLStreamException;
 
 import jrm.profile.Profile;
+import jrm.profile.Export.EnhancedXMLStreamWriter;
+import jrm.profile.Export.SimpleAttribute;
 import jrm.profile.data.Software.Supported;
+import jrm.ui.ProgressHandler;
 import jrm.ui.SoftwareListRenderer;
 
 @SuppressWarnings("serial")
@@ -184,4 +188,18 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 		return s_byname.containsKey(name);
 	}
 
+	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress) throws XMLStreamException, IOException
+	{
+		writer.writeStartElement("softwarelist", 
+				new SimpleAttribute("name",name),
+				new SimpleAttribute("description",description)
+		);
+		List<Software> list = getFilteredStream().collect(Collectors.toList());
+		for(Software s : list)
+		{
+			progress.setProgress(String.format("Exporting %s", s.getFullName()), progress.getValue()+1);
+			s.export(writer);
+		}
+		writer.writeEndElement();
+	}
 }

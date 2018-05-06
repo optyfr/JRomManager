@@ -32,15 +32,22 @@ public class Progress extends JDialog implements ProgressHandler
 			{
 				cancel = true;
 			}
+
 			@Override
-			public void windowOpened(WindowEvent e) {
+			public void windowOpened(WindowEvent e)
+			{
 				owner.setEnabled(false);
+				if(owner.getOwner()!=null)
+					owner.getOwner().setEnabled(false);
 			}
+
 			@Override
 			public void windowClosed(WindowEvent e)
 			{
 				owner.setEnabled(true);
 				owner.toFront();
+				if(owner.getOwner()!=null)
+					owner.getOwner().setEnabled(true);
 			}
 		});
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -62,7 +69,7 @@ public class Progress extends JDialog implements ProgressHandler
 		gbc_lblInfo.gridx = 0;
 		gbc_lblInfo.gridy = 0;
 		getContentPane().add(lblInfo, gbc_lblInfo);
-		
+
 		lblSubInfo = new JLabel();
 		lblSubInfo.setPreferredSize(new Dimension(0, 20));
 		lblSubInfo.setMinimumSize(new Dimension(0, 20));
@@ -103,7 +110,7 @@ public class Progress extends JDialog implements ProgressHandler
 				cancel();
 			}
 		});
-		
+
 		progressBar2 = new JProgressBar();
 		progressBar2.setMaximumSize(new Dimension(32767, 20));
 		progressBar2.setVisible(false);
@@ -115,7 +122,7 @@ public class Progress extends JDialog implements ProgressHandler
 		gbc_progressBar2.gridx = 0;
 		gbc_progressBar2.gridy = 3;
 		getContentPane().add(progressBar2, gbc_progressBar2);
-		
+
 		lblTimeLeft2 = new JLabel("--:--:--");
 		lblTimeLeft2.setVisible(false);
 		GridBagConstraints gbc_lblTimeLeft2 = new GridBagConstraints();
@@ -157,7 +164,7 @@ public class Progress extends JDialog implements ProgressHandler
 	private JLabel lblTimeleft;
 	private JLabel lblSubInfo;
 	private JButton btnCancel;
-	
+
 	private long startTime = 0;
 	private JProgressBar progressBar2;
 	private JLabel lblTimeLeft2;
@@ -169,13 +176,13 @@ public class Progress extends JDialog implements ProgressHandler
 			lblInfo.setText(msg);
 		if(val != null)
 		{
-			if(val<0 && progressBar.isVisible())
+			if(val < 0 && progressBar.isVisible())
 			{
 				progressBar.setVisible(false);
 				lblTimeleft.setVisible(false);
 				packHeight();
 			}
-			else if(val>0 && !progressBar.isVisible())
+			else if(val > 0 && !progressBar.isVisible())
 			{
 				progressBar.setVisible(true);
 				lblTimeleft.setVisible(true);
@@ -223,7 +230,7 @@ public class Progress extends JDialog implements ProgressHandler
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
-		if(msg!=null && val != null)
+		if(msg != null && val != null)
 		{
 			if(!progressBar2.isVisible())
 			{
@@ -255,12 +262,22 @@ public class Progress extends JDialog implements ProgressHandler
 			packHeight();
 		}
 	}
-	
+
 	public void packHeight()
 	{
 		Dimension newSize = getPreferredSize();
 		Rectangle rect = getBounds();
 		rect.height = newSize.height;
 		setBounds(rect);
+	}
+
+	public int getValue()
+	{
+		return progressBar.getValue();
+	}
+
+	public int getValue2()
+	{
+		return progressBar2.getValue();
 	}
 }
