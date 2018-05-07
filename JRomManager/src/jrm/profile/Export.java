@@ -12,6 +12,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import jrm.profile.data.SoftwareList;
 import jrm.ui.ProgressHandler;
 
 public class Export
@@ -359,7 +360,7 @@ public class Export
 		SOFTWARELIST
 	}
 
-	public Export(Profile profile, File file, ExportType type, ProgressHandler progress)
+	public Export(Profile profile, File file, ExportType type, boolean filtered, SoftwareList selection, ProgressHandler progress)
 	{
 		EnhancedXMLStreamWriter writer = null;
 		try(FileOutputStream fos = new FileOutputStream(file))
@@ -368,13 +369,13 @@ public class Export
 			switch(type)
 			{
 				case MAME:
-					profile.machinelist_list.export(writer, progress, true);
+					profile.machinelist_list.export(writer, progress, true, filtered);
 					break;
 				case DATAFILE:
-					profile.machinelist_list.export(writer, progress, false);
+					profile.machinelist_list.export(writer, progress, false, filtered);
 					break;
 				case SOFTWARELIST:
-					profile.machinelist_list.softwarelist_list.export(writer, progress);
+					profile.machinelist_list.softwarelist_list.export(writer, progress, filtered, selection);
 					break;
 			}
 			writer.close();

@@ -55,7 +55,10 @@ import jrm.profile.data.AnywareListList;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.EntityStatus;
 import jrm.profile.data.Machine;
+import jrm.profile.data.MachineList;
 import jrm.profile.data.Software;
+import jrm.profile.data.SoftwareList;
+
 import javax.swing.JPopupMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
@@ -231,72 +234,107 @@ public class ProfileViewer extends JDialog
 		tableWL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		JPopupMenu popupMenu = new JPopupMenu();
+		addPopup(tableWL, popupMenu);
+		
+		JMenu mnExportAll = new JMenu(Messages.getString("ProfileViewer.mnExportAll.text")); //$NON-NLS-1$
+		popupMenu.add(mnExportAll);
+		
+		JMenu mnExportAllFiltered = new JMenu("Filtered");
+		mnExportAll.add(mnExportAllFiltered);
+		
+		JMenuItem mntmFilteredAsLogiqxDat = new JMenuItem("as Logiqx dat");
+		mnExportAllFiltered.add(mntmFilteredAsLogiqxDat);
+		mntmFilteredAsLogiqxDat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.DATAFILE, true, null);
+			}
+		});
+		
+		JMenuItem mntmFilteredAsMameDat = new JMenuItem("as Mame dat");
+		mnExportAllFiltered.add(mntmFilteredAsMameDat);
+		mntmFilteredAsMameDat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.MAME, true, null);
+			}
+		});
+		
+		JMenuItem mntmFilteredAsSoftwareLists = new JMenuItem("as Software Lists dat");
+		mnExportAllFiltered.add(mntmFilteredAsSoftwareLists);
+		mntmFilteredAsSoftwareLists.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.SOFTWARELIST, true, null);
+			}
+		});
+		
+		JMenuItem mntmAllAsLogiqxDat = new JMenuItem("as Logiqx dat");
+		mntmAllAsLogiqxDat.setEnabled(false);
+		mnExportAll.add(mntmAllAsLogiqxDat);
+		mntmAllAsLogiqxDat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.DATAFILE, false, null);
+			}
+		});
+		
+		JMenuItem mntmAllAsMameDat = new JMenuItem("as Mame dat");
+		mntmAllAsMameDat.setEnabled(false);
+		mnExportAll.add(mntmAllAsMameDat);
+		mntmAllAsMameDat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.MAME, false, null);
+			}
+		});
+		
+		JMenuItem mntmAllAsSoftwareLists = new JMenuItem("as Software Lists dat");
+		mntmAllAsSoftwareLists.setEnabled(false);
+		mnExportAll.add(mntmAllAsSoftwareLists);
+		mntmAllAsSoftwareLists.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.SOFTWARELIST, false, null);
+			}
+		});
+		
+		JMenu mnExportSelected = new JMenu(Messages.getString("ProfileViewer.mnExportSelected.text")); //$NON-NLS-1$
+		popupMenu.add(mnExportSelected);
+		
+		JMenu mnExportSelectedFiltered = new JMenu("Filtered");
+		mnExportSelected.add(mnExportSelectedFiltered);
+		
+		JMenuItem mntmSelectedFilteredAsSoftwareList = new JMenuItem("as Software List dat");
+		mnExportSelectedFiltered.add(mntmSelectedFilteredAsSoftwareList);
+		mntmSelectedFilteredAsSoftwareList.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.SOFTWARELIST, true, (SoftwareList)tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0));
+			}
+		});
+		
+		JMenuItem mntmSelectedAsSoftwareLists = new JMenuItem("as Software Lists dat");
+		mntmSelectedAsSoftwareLists.setEnabled(false);
+		mnExportSelected.add(mntmSelectedAsSoftwareLists);
+		mntmSelectedAsSoftwareLists.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				export(ExportType.SOFTWARELIST, false, (SoftwareList)tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0));
+			}
+		});
+
 		popupMenu.addPopupMenuListener(new PopupMenuListener() {
 			public void popupMenuCanceled(PopupMenuEvent e) {
 			}
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 			}
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+				boolean has_machines = Profile.curr_profile.machinelist_list.getList().stream().mapToInt(ml->ml.getList().size()).sum()>0;
+				boolean has_filtered_machines = Profile.curr_profile.machinelist_list.getFilteredStream().mapToInt(m->(int)m.countAll()).sum()>0;
+				boolean has_selected_swlist = tableWL.getSelectedRowCount()==1 && tableWL.getModel() instanceof AnywareListList<?> && ((AnywareListList<?>)tableWL.getModel()).getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
+				mntmAllAsMameDat.setEnabled(has_machines);
+				mntmAllAsLogiqxDat.setEnabled(has_machines);
+				mntmAllAsSoftwareLists.setEnabled(Profile.curr_profile.machinelist_list.softwarelist_list.size()>0);
+				mntmFilteredAsMameDat.setEnabled(has_filtered_machines);
+				mntmFilteredAsLogiqxDat.setEnabled(has_filtered_machines);
+				mntmFilteredAsSoftwareLists.setEnabled(Profile.curr_profile.machinelist_list.softwarelist_list.getFilteredStream().count()>0);
+				mntmSelectedAsSoftwareLists.setEnabled(has_selected_swlist);
+				mntmSelectedFilteredAsSoftwareList.setEnabled(has_selected_swlist);
 			}
 		});
-		addPopup(tableWL, popupMenu);
-		
-		JMenu mnExportAll = new JMenu(Messages.getString("ProfileViewer.mnExportAll.text")); //$NON-NLS-1$
-		popupMenu.add(mnExportAll);
-		
-		JMenuItem mntmAllAsMameDat = new JMenuItem("as Mame dat");
-		mntmAllAsMameDat.setEnabled(false);
-		mnExportAll.add(mntmAllAsMameDat);
-		
-		JMenuItem mntmAllAsSoftwareLists = new JMenuItem("as Software Lists dat");
-		mntmAllAsSoftwareLists.setEnabled(false);
-		mnExportAll.add(mntmAllAsSoftwareLists);
-		
-		JMenuItem mntmAllAsLogiqxDat = new JMenuItem("as Logiqx dat");
-		mntmAllAsLogiqxDat.setEnabled(false);
-		mnExportAll.add(mntmAllAsLogiqxDat);
-		
-		JMenu mnExportFiltered = new JMenu(Messages.getString("ProfileViewer.mnExportFiltered.text")); //$NON-NLS-1$
-		popupMenu.add(mnExportFiltered);
-		
-		JMenuItem mntmFilteredAsMameDat = new JMenuItem("as Mame dat");
-		mntmFilteredAsMameDat.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				export(ExportType.MAME);
-			}
-		});
-		mnExportFiltered.add(mntmFilteredAsMameDat);
-		
-		JMenuItem mntmFilteredAsSoftwareLists = new JMenuItem("as Software Lists dat");
-		mntmFilteredAsSoftwareLists.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				export(ExportType.SOFTWARELIST);
-			}
-		});
-		mnExportFiltered.add(mntmFilteredAsSoftwareLists);
-		
-		JMenuItem mntmFilteredAsLogiqxDat = new JMenuItem("as Logiqx dat");
-		mntmFilteredAsLogiqxDat.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				export(ExportType.DATAFILE);
-			}
-		});
-		mnExportFiltered.add(mntmFilteredAsLogiqxDat);
-		
-		JMenu mnExportSelected = new JMenu(Messages.getString("ProfileViewer.mnExportSelected.text")); //$NON-NLS-1$
-		popupMenu.add(mnExportSelected);
-		
-		JMenuItem mntmSelectedAsMameDat = new JMenuItem("as Mame dat");
-		mntmSelectedAsMameDat.setEnabled(false);
-		mnExportSelected.add(mntmSelectedAsMameDat);
-		
-		JMenuItem mntmSelectedAsSoftwareLists = new JMenuItem("as Software Lists dat");
-		mntmSelectedAsSoftwareLists.setEnabled(false);
-		mnExportSelected.add(mntmSelectedAsSoftwareLists);
-		
-		JMenuItem mntmSelectedAsLogiqxDat = new JMenuItem("as Logiqx dat");
-		mntmSelectedAsLogiqxDat.setEnabled(false);
-		mnExportSelected.add(mntmSelectedAsLogiqxDat);
 
 		JToolBar toolBarWL = new JToolBar();
 		panel.add(toolBarWL, BorderLayout.SOUTH);
@@ -582,7 +620,7 @@ public class ProfileViewer extends JDialog
 		setVisible(true);
 	}
 
-	private void export(ExportType type)
+	private void export(ExportType type, boolean filtered, SoftwareList selection)
 	{
 		final Progress progress = new Progress(ProfileViewer.this);
 		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
@@ -591,7 +629,7 @@ public class ProfileViewer extends JDialog
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				new Export(Profile.curr_profile, new File("dat.xml"), type, progress);
+				new Export(Profile.curr_profile, new File("dat.xml"), type, filtered, selection, progress);
 				return null;
 			}
 

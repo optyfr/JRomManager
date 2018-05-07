@@ -101,7 +101,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	@Override
-	protected List<Machine> getList()
+	public List<Machine> getList()
 	{
 		return m_list;
 	}
@@ -176,13 +176,13 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		return m_byname.containsKey(name);
 	}
 
-	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean is_mame) throws XMLStreamException, IOException
+	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean is_mame, boolean filtered) throws XMLStreamException, IOException
 	{
 		if(is_mame)
 			writer.writeStartElement("mame");
 		else
 			writer.writeStartElement("datafile");
-		List<Machine> list = getFilteredStream().collect(Collectors.toList());
+		List<Machine> list = filtered?getFilteredStream().collect(Collectors.toList()):getList();
 		int i = 0;
 		progress.setProgress("Exporting", i, list.size());
 		for(Machine m : list)

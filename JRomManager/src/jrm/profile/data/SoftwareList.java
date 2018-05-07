@@ -113,7 +113,7 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 	}
 
 	@Override
-	protected List<Software> getList()
+	public List<Software> getList()
 	{
 		return s_list;
 	}

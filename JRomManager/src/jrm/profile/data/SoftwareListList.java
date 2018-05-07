@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,7 +94,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	}
 
 	@Override
-	protected List<SoftwareList> getList()
+	public List<SoftwareList> getList()
 	{
 		return sl_list;
 	}
@@ -115,9 +116,9 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		return filtered_list;
 	}
 
-	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress) throws XMLStreamException, IOException
+	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean filtered, SoftwareList selection) throws XMLStreamException, IOException
 	{
-		List<SoftwareList> lists = getFilteredStream().collect(Collectors.toList());
+		List<SoftwareList> lists = selection!=null?Collections.singletonList(selection):(filtered?getFilteredStream().collect(Collectors.toList()):getList());
 		if(lists.size() > 0)
 		{
 			writer.writeStartDocument("UTF-8","1.0");

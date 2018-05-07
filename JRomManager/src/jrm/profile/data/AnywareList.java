@@ -40,7 +40,8 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 		filtered_list = null;
 	}
 
-	protected abstract List<T> getList();
+	public abstract List<T> getList();
+	
 	public abstract boolean containsName(String name);
 
 	public void reset()

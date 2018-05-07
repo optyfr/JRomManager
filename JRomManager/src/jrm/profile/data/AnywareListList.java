@@ -96,7 +96,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 				((TableModelListener) listeners[i + 1]).tableChanged(e);
 	}
 
-	protected abstract List<T> getList();
+	public abstract List<T> getList();
 
 	@Override
 	public T get(int index)

@@ -102,7 +102,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	}
 
 	@Override
-	protected List<MachineList> getList()
+	public List<MachineList> getList()
 	{
 		return ml_list;
 	}
@@ -150,7 +150,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		return null;
 	}
 
-	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean is_mame) throws XMLStreamException, IOException
+	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean is_mame, boolean filtered) throws XMLStreamException, IOException
 	{
 		List<MachineList> lists = getFilteredStream().collect(Collectors.toList());
 		if(lists.size() > 0)
@@ -165,7 +165,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 				writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
 			}
 			for(MachineList list : lists)
-				list.export(writer, progress, is_mame);
+				list.export(writer, progress, is_mame, filtered);
 			writer.writeEndDocument();
 		}
 	}
