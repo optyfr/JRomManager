@@ -8,6 +8,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
@@ -26,7 +28,10 @@ import java.util.stream.Collectors;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -37,6 +42,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -45,9 +52,9 @@ import javax.swing.table.TableModel;
 
 import jrm.Messages;
 import jrm.profile.Export;
+import jrm.profile.Export.ExportType;
 import jrm.profile.Profile;
 import jrm.profile.ProfileNFOMame;
-import jrm.profile.Export.ExportType;
 import jrm.profile.ProfileNFOMame.MameStatus;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
@@ -55,17 +62,8 @@ import jrm.profile.data.AnywareListList;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.EntityStatus;
 import jrm.profile.data.Machine;
-import jrm.profile.data.MachineList;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
-
-import javax.swing.JPopupMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JMenu;
-import javax.swing.event.PopupMenuListener;
-import javax.swing.event.PopupMenuEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog

@@ -23,7 +23,7 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 
 	private String[] columns = new String[] { Messages.getString("FileTableModel.Profile"), Messages.getString("FileTableModel.Version"), Messages.getString("FileTableModel.HaveSets"), Messages.getString("FileTableModel.HaveRoms"), Messages.getString("FileTableModel.HaveDisks"), Messages.getString("FileTableModel.Created"), Messages.getString("FileTableModel.Scanned"), Messages.getString("FileTableModel.Fixed") }; //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 	private Class<?>[] columnsClass = new Class<?>[] { Object.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class };
-	public int[] columnsWidths = new int[] { 100, 50, -12, -14, -9, -19, -19, -19 };
+	public int[] columnsWidths = new int[] { 100, 50, -14, -14, -9, -19, -19, -19 };
 	private List<ProfileNFO> rows = new ArrayList<>();
 
 	public FileTableModel(DirNode.Dir dir)

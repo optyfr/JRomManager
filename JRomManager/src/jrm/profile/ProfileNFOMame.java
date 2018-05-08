@@ -2,6 +2,8 @@ package jrm.profile;
 
 import java.io.*;
 
+import jrm.Messages;
+
 public final class ProfileNFOMame implements Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -43,10 +45,22 @@ public final class ProfileNFOMame implements Serializable
 
 	public enum MameStatus
 	{
-		UNKNOWN,
-		UPTODATE,
-		NEEDUPDATE,
-		NOTFOUND
+		UNKNOWN(Messages.getString("ProfileNFOMame.Unknown")), //$NON-NLS-1$
+		UPTODATE(Messages.getString("ProfileNFOMame.UpToDate")), //$NON-NLS-1$
+		NEEDUPDATE(Messages.getString("ProfileNFOMame.NeedUpdate")), //$NON-NLS-1$
+		NOTFOUND(Messages.getString("ProfileNFOMame.NotFound")); //$NON-NLS-1$
+		
+		private final String msg;
+		
+		private MameStatus(String msg)
+		{
+			this.msg = msg;
+		}
+		
+		public String getMsg()
+		{
+			return msg;
+		}
 	}
 
 	public void set(File mame, boolean sl)

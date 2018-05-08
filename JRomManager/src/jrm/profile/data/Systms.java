@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import javax.swing.AbstractListModel;
 
 @SuppressWarnings("serial")
-public class Systms extends AbstractListModel<Systm> implements Serializable
+public final class Systms extends AbstractListModel<Systm> implements Serializable
 {
-	ArrayList<Systm> systems = new ArrayList<>();
+	private final ArrayList<Systm> systems = new ArrayList<>();
 
 	public Systms()
 	{

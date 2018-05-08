@@ -113,6 +113,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString()));
 		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString()));
 		final CabinetType filterCabinetType = CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString()));
+		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", "");
+		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????");
 
 		return getList().stream().filter(t -> {
 			if(!t.isdevice)
@@ -135,6 +137,13 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 							return false;
 					}
 				}
+			}
+			if(t.year.length()>0)
+			{
+				if(filterYearMin.compareTo(t.year.toString())>0)
+					return false;
+				if(filterYearMax.compareTo(t.year.toString())<0)
+					return false;
 			}
 			if(!filterIncludeClones && t.isClone())
 				return false;

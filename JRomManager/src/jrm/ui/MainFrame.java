@@ -104,6 +104,7 @@ import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
 import jrm.profile.data.Software.Supported;
 import jrm.profile.data.Systm;
+import jrm.profile.data.Years;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.FormatOptions;
@@ -312,8 +313,13 @@ public class MainFrame extends JFrame
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
 				mntmDeleteProfile.setEnabled(profilesList.getSelectedRowCount() > 0);
+				mntmRenameProfile.setEnabled(profilesList.getSelectedRowCount() > 0);
 				mntmDropCache.setEnabled(profilesList.getSelectedRowCount() > 0);
 				mntmUpdateFromMame.setEnabled(profilesList.getSelectedRowCount() > 0 && EnumSet.of(MameStatus.NEEDUPDATE, MameStatus.NOTFOUND).contains(filemodel.getNfoAt(profilesList.getSelectedRow()).mame.getStatus()));
+				if(profilesList.getSelectedRowCount() > 0)
+					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text") + " (" + filemodel.getNfoAt(profilesList.getSelectedRow()).mame.getStatus().getMsg() + ")");
+				else
+					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text"));
 			}
 		});
 		addPopup(profilesList, popupMenu_2);
@@ -588,7 +594,7 @@ public class MainFrame extends JFrame
 		scannerTab.add(scannerCfgTab, gbc_scannerCfgTab);
 
 		scannerDirectories = new JPanel();
-		scannerCfgTab.addTab(Messages.getString("MainFrame.panel_1.title"), null, scannerDirectories, null);
+		scannerCfgTab.addTab(Messages.getString("MainFrame.scannerDirectories.title"), null, scannerDirectories, null); //$NON-NLS-1$
 		GridBagLayout gbl_scannerDirectories = new GridBagLayout();
 		gbl_scannerDirectories.columnWidths = new int[] { 109, 65, 0, 0 };
 		gbl_scannerDirectories.rowHeights = new int[] { 26, 0, 0, 0, 0, 0, 0 };
@@ -803,10 +809,12 @@ public class MainFrame extends JFrame
 			}
 		});
 		scannerDirectories.add(btDisksDest, gbc_btDisksDest);
-		
+
 		lblSWDest = new JCheckBox(Messages.getString("MainFrame.chckbxSoftwareDest.text")); //$NON-NLS-1$
-		lblSWDest.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+		lblSWDest.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
 				tfSWDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 				btnSWDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 				Profile.curr_profile.setProperty("swroms_dest_dir_enabled", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
@@ -819,11 +827,13 @@ public class MainFrame extends JFrame
 		gbc_lblSWDest.gridx = 0;
 		gbc_lblSWDest.gridy = 2;
 		scannerDirectories.add(lblSWDest, gbc_lblSWDest);
-		
+
 		tfSWDest = new JTextField();
-		tfSWDest.addFocusListener(new FocusAdapter() {
+		tfSWDest.addFocusListener(new FocusAdapter()
+		{
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void focusLost(FocusEvent e)
+			{
 				Profile.curr_profile.setProperty("swroms_dest_dir", tfSWDest.getText()); //$NON-NLS-1$
 			}
 		});
@@ -878,10 +888,12 @@ public class MainFrame extends JFrame
 			}
 		});
 		tfSWDest.setColumns(10);
-		
+
 		btnSWDest = new JButton("");
-		btnSWDest.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		btnSWDest.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				new JFileChooser()
 				{
 					{
@@ -907,10 +919,12 @@ public class MainFrame extends JFrame
 		gbc_btnSWDest.gridx = 2;
 		gbc_btnSWDest.gridy = 2;
 		scannerDirectories.add(btnSWDest, gbc_btnSWDest);
-		
+
 		lblSWDisksDest = new JCheckBox(Messages.getString("MainFrame.chckbxSwdisksdest.text")); //$NON-NLS-1$
-		lblSWDisksDest.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+		lblSWDisksDest.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
 				tfSWDisksDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 				btSWDisksDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 				Profile.curr_profile.setProperty("swdisks_dest_dir_enabled", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
@@ -921,11 +935,13 @@ public class MainFrame extends JFrame
 		gbc_lblSWDisksDest.gridx = 0;
 		gbc_lblSWDisksDest.gridy = 3;
 		scannerDirectories.add(lblSWDisksDest, gbc_lblSWDisksDest);
-		
+
 		tfSWDisksDest = new JTextField();
-		tfSWDisksDest.addFocusListener(new FocusAdapter() {
+		tfSWDisksDest.addFocusListener(new FocusAdapter()
+		{
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void focusLost(FocusEvent e)
+			{
 				Profile.curr_profile.setProperty("swdisks_dest_dir", tfSWDisksDest.getText()); //$NON-NLS-1$
 			}
 		});
@@ -980,10 +996,12 @@ public class MainFrame extends JFrame
 			}
 		});
 		tfSWDisksDest.setColumns(10);
-		
+
 		btSWDisksDest = new JButton("");
-		btSWDisksDest.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		btSWDisksDest.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				new JFileChooser()
 				{
 					{
@@ -1414,23 +1432,15 @@ public class MainFrame extends JFrame
 		gbc_cbHashCollision.gridy = 2;
 		scannerSubSettingsPanel.add(cbHashCollision, gbc_cbHashCollision);
 
-		scannerFilters = new JPanel();
-		scannerCfgTab.addTab(Messages.getString("MainFrame.panel.title"), null, scannerFilters, null); //$NON-NLS-1$
-		GridBagLayout gbl_scannerFilters = new GridBagLayout();
-		gbl_scannerFilters.columnWidths = new int[] { 0, 0, 0, 0 };
-		gbl_scannerFilters.rowHeights = new int[] { 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gbl_scannerFilters.columnWeights = new double[] { 0.0, 1.0, 1.0, Double.MIN_VALUE };
-		gbl_scannerFilters.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		scannerFilters.setLayout(gbl_scannerFilters);
+		scannerFilters = new JSplitPane();
+		scannerFilters.setResizeWeight(0.5);
+		scannerFilters.setOneTouchExpandable(true);
+		scannerFilters.setContinuousLayout(true);
+		scannerCfgTab.addTab(Messages.getString("MainFrame.Filters"), null, scannerFilters, null); //$NON-NLS-1$
 
 		scrollPane_2 = new JScrollPane();
-		scrollPane_2.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.scrollPane_2.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
-		GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
-		gbc_scrollPane_2.gridheight = 9;
-		gbc_scrollPane_2.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane_2.gridx = 2;
-		gbc_scrollPane_2.gridy = 0;
-		scannerFilters.add(scrollPane_2, gbc_scrollPane_2);
+		scannerFilters.setRightComponent(scrollPane_2);
+		scrollPane_2.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.scrollPane_2.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
 		checkBoxListSystems = new CheckBoxList<jrm.profile.data.Systm>();
 		checkBoxListSystems.setCellRenderer(checkBoxListSystems.new CellRenderer()
@@ -1497,60 +1507,62 @@ public class MainFrame extends JFrame
 		});
 		popupMenu_3.add(mntmInvertSelection);
 
-		chckbxIncludeDisks = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeDisks.text")); //$NON-NLS-1$
-		chckbxIncludeDisks.addItemListener(new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent e)
-			{
-				Profile.curr_profile.setProperty("filter.InclDisks", e.getStateChange() == ItemEvent.SELECTED);
-				if(profile_viewer != null)
-					profile_viewer.reset(Profile.curr_profile);
-			}
-		});
+		panel_1 = new JPanel();
+		scannerFilters.setLeftComponent(panel_1);
+		GridBagLayout gbl_panel_1 = new GridBagLayout();
+		gbl_panel_1.columnWidths = new int[] { 20, 100, 0, 100, 20, 0 };
+		gbl_panel_1.rowHeights = new int[] { 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gbl_panel_1.columnWeights = new double[] { 1.0, 1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE };
+		gbl_panel_1.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		panel_1.setLayout(gbl_panel_1);
 
 		chckbxIncludeClones = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeClones.text")); //$NON-NLS-1$
-		chckbxIncludeClones.addItemListener(new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent e)
-			{
-				Profile.curr_profile.setProperty("filter.InclClones", e.getStateChange() == ItemEvent.SELECTED);
-				if(profile_viewer != null)
-					profile_viewer.reset(Profile.curr_profile);
-			}
-		});
 		GridBagConstraints gbc_chckbxIncludeClones = new GridBagConstraints();
-		gbc_chckbxIncludeClones.gridwidth = 2;
+		gbc_chckbxIncludeClones.gridwidth = 3;
+		gbc_chckbxIncludeClones.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxIncludeClones.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxIncludeClones.gridx = 0;
+		gbc_chckbxIncludeClones.anchor = GridBagConstraints.NORTH;
+		gbc_chckbxIncludeClones.gridx = 1;
 		gbc_chckbxIncludeClones.gridy = 1;
-		scannerFilters.add(chckbxIncludeClones, gbc_chckbxIncludeClones);
+		panel_1.add(chckbxIncludeClones, gbc_chckbxIncludeClones);
+
+		chckbxIncludeDisks = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeDisks.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxIncludeDisks = new GridBagConstraints();
-		gbc_chckbxIncludeDisks.gridwidth = 2;
+		gbc_chckbxIncludeDisks.gridwidth = 3;
+		gbc_chckbxIncludeDisks.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxIncludeDisks.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxIncludeDisks.gridx = 0;
+		gbc_chckbxIncludeDisks.gridx = 1;
 		gbc_chckbxIncludeDisks.gridy = 2;
-		scannerFilters.add(chckbxIncludeDisks, gbc_chckbxIncludeDisks);
+		panel_1.add(chckbxIncludeDisks, gbc_chckbxIncludeDisks);
 
 		chckbxIncludeSamples = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeSamples.text"));
+		GridBagConstraints gbc_chckbxIncludeSamples = new GridBagConstraints();
+		gbc_chckbxIncludeSamples.gridwidth = 3;
+		gbc_chckbxIncludeSamples.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxIncludeSamples.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxIncludeSamples.gridx = 1;
+		gbc_chckbxIncludeSamples.gridy = 3;
+		panel_1.add(chckbxIncludeSamples, gbc_chckbxIncludeSamples);
 		chckbxIncludeSamples.setSelected(true);
 		chckbxIncludeSamples.setEnabled(false);
-		GridBagConstraints gbc_chckbxIncludeSamples = new GridBagConstraints();
-		gbc_chckbxIncludeSamples.gridwidth = 2;
-		gbc_chckbxIncludeSamples.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxIncludeSamples.gridx = 0;
-		gbc_chckbxIncludeSamples.gridy = 3;
-		scannerFilters.add(chckbxIncludeSamples, gbc_chckbxIncludeSamples);
 
 		lblCabinetType = new JLabel(Messages.getString("MainFrame.lblMachineType.text")); //$NON-NLS-1$
-		lblCabinetType.setHorizontalAlignment(SwingConstants.TRAILING);
 		GridBagConstraints gbc_lblCabinetType = new GridBagConstraints();
+		gbc_lblCabinetType.gridwidth = 2;
+		gbc_lblCabinetType.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lblCabinetType.insets = new Insets(0, 0, 5, 5);
-		gbc_lblCabinetType.anchor = GridBagConstraints.EAST;
-		gbc_lblCabinetType.gridx = 0;
+		gbc_lblCabinetType.gridx = 1;
 		gbc_lblCabinetType.gridy = 4;
-		scannerFilters.add(lblCabinetType, gbc_lblCabinetType);
+		panel_1.add(lblCabinetType, gbc_lblCabinetType);
+		lblCabinetType.setHorizontalAlignment(SwingConstants.TRAILING);
 
 		cbbxFilterCabinetType = new JComboBox<CabinetType>();
+		GridBagConstraints gbc_cbbxFilterCabinetType = new GridBagConstraints();
+		gbc_cbbxFilterCabinetType.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cbbxFilterCabinetType.insets = new Insets(0, 0, 5, 5);
+		gbc_cbbxFilterCabinetType.gridx = 3;
+		gbc_cbbxFilterCabinetType.gridy = 4;
+		panel_1.add(cbbxFilterCabinetType, gbc_cbbxFilterCabinetType);
 		cbbxFilterCabinetType.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)
@@ -1564,23 +1576,24 @@ public class MainFrame extends JFrame
 			}
 		});
 		cbbxFilterCabinetType.setModel(new DefaultComboBoxModel<CabinetType>(CabinetType.values()));
-		GridBagConstraints gbc_cbbxFilterCabinetType = new GridBagConstraints();
-		gbc_cbbxFilterCabinetType.insets = new Insets(0, 0, 5, 5);
-		gbc_cbbxFilterCabinetType.fill = GridBagConstraints.HORIZONTAL;
-		gbc_cbbxFilterCabinetType.gridx = 1;
-		gbc_cbbxFilterCabinetType.gridy = 4;
-		scannerFilters.add(cbbxFilterCabinetType, gbc_cbbxFilterCabinetType);
 
 		lblDisplayOrientation = new JLabel(Messages.getString("MainFrame.lblOrientation.text")); //$NON-NLS-1$
-		lblDisplayOrientation.setHorizontalAlignment(SwingConstants.TRAILING);
 		GridBagConstraints gbc_lblDisplayOrientation = new GridBagConstraints();
-		gbc_lblDisplayOrientation.insets = new Insets(0, 5, 5, 5);
-		gbc_lblDisplayOrientation.anchor = GridBagConstraints.EAST;
-		gbc_lblDisplayOrientation.gridx = 0;
+		gbc_lblDisplayOrientation.gridwidth = 2;
+		gbc_lblDisplayOrientation.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblDisplayOrientation.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDisplayOrientation.gridx = 1;
 		gbc_lblDisplayOrientation.gridy = 5;
-		scannerFilters.add(lblDisplayOrientation, gbc_lblDisplayOrientation);
+		panel_1.add(lblDisplayOrientation, gbc_lblDisplayOrientation);
+		lblDisplayOrientation.setHorizontalAlignment(SwingConstants.TRAILING);
 
 		cbbxFilterDisplayOrientation = new JComboBox<DisplayOrientation>();
+		GridBagConstraints gbc_cbbxFilterDisplayOrientation = new GridBagConstraints();
+		gbc_cbbxFilterDisplayOrientation.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cbbxFilterDisplayOrientation.insets = new Insets(0, 0, 5, 5);
+		gbc_cbbxFilterDisplayOrientation.gridx = 3;
+		gbc_cbbxFilterDisplayOrientation.gridy = 5;
+		panel_1.add(cbbxFilterDisplayOrientation, gbc_cbbxFilterDisplayOrientation);
 		cbbxFilterDisplayOrientation.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)
@@ -1594,54 +1607,43 @@ public class MainFrame extends JFrame
 			}
 		});
 		cbbxFilterDisplayOrientation.setModel(new DefaultComboBoxModel<DisplayOrientation>(DisplayOrientation.values()));
-		GridBagConstraints gbc_cbbxFilterDisplayOrientation = new GridBagConstraints();
-		gbc_cbbxFilterDisplayOrientation.insets = new Insets(0, 0, 5, 5);
-		gbc_cbbxFilterDisplayOrientation.fill = GridBagConstraints.HORIZONTAL;
-		gbc_cbbxFilterDisplayOrientation.gridx = 1;
-		gbc_cbbxFilterDisplayOrientation.gridy = 5;
-		scannerFilters.add(cbbxFilterDisplayOrientation, gbc_cbbxFilterDisplayOrientation);
-
-		cbbxDriverStatus = new JComboBox<Driver.StatusType>();
-		cbbxDriverStatus.setModel(new DefaultComboBoxModel<Driver.StatusType>(Driver.StatusType.values()));
-		cbbxDriverStatus.addItemListener(new ItemListener()
-		{
-			@Override
-			public void itemStateChanged(ItemEvent e)
-			{
-				if(e.getStateChange() == ItemEvent.SELECTED)
-				{
-					Profile.curr_profile.setProperty("filter.DriverStatus", e.getItem().toString());
-					if(profile_viewer != null)
-						profile_viewer.reset(Profile.curr_profile);
-				}
-			}
-		});
 
 		lblDriverStatus = new JLabel(Messages.getString("MainFrame.lblDriverStatus.text")); //$NON-NLS-1$
-		lblDriverStatus.setHorizontalAlignment(SwingConstants.TRAILING);
 		GridBagConstraints gbc_lblDriverStatus = new GridBagConstraints();
-		gbc_lblDriverStatus.insets = new Insets(0, 5, 5, 5);
-		gbc_lblDriverStatus.anchor = GridBagConstraints.EAST;
-		gbc_lblDriverStatus.gridx = 0;
+		gbc_lblDriverStatus.gridwidth = 2;
+		gbc_lblDriverStatus.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblDriverStatus.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDriverStatus.gridx = 1;
 		gbc_lblDriverStatus.gridy = 6;
-		scannerFilters.add(lblDriverStatus, gbc_lblDriverStatus);
+		panel_1.add(lblDriverStatus, gbc_lblDriverStatus);
+		lblDriverStatus.setHorizontalAlignment(SwingConstants.TRAILING);
+
+		cbbxDriverStatus = new JComboBox<Driver.StatusType>();
 		GridBagConstraints gbc_cbbxDriverStatus = new GridBagConstraints();
-		gbc_cbbxDriverStatus.insets = new Insets(0, 0, 5, 5);
 		gbc_cbbxDriverStatus.fill = GridBagConstraints.HORIZONTAL;
-		gbc_cbbxDriverStatus.gridx = 1;
+		gbc_cbbxDriverStatus.insets = new Insets(0, 0, 5, 5);
+		gbc_cbbxDriverStatus.gridx = 3;
 		gbc_cbbxDriverStatus.gridy = 6;
-		scannerFilters.add(cbbxDriverStatus, gbc_cbbxDriverStatus);
+		panel_1.add(cbbxDriverStatus, gbc_cbbxDriverStatus);
+		cbbxDriverStatus.setModel(new DefaultComboBoxModel<Driver.StatusType>(Driver.StatusType.values()));
 
 		lblSwMinSupportedLvl = new JLabel(Messages.getString("MainFrame.lblSwMinSupport.text")); //$NON-NLS-1$
-		lblSwMinSupportedLvl.setHorizontalAlignment(SwingConstants.TRAILING);
 		GridBagConstraints gbc_lblSwMinSupportedLvl = new GridBagConstraints();
-		gbc_lblSwMinSupportedLvl.insets = new Insets(0, 5, 5, 5);
-		gbc_lblSwMinSupportedLvl.anchor = GridBagConstraints.EAST;
-		gbc_lblSwMinSupportedLvl.gridx = 0;
+		gbc_lblSwMinSupportedLvl.gridwidth = 2;
+		gbc_lblSwMinSupportedLvl.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblSwMinSupportedLvl.insets = new Insets(0, 0, 5, 5);
+		gbc_lblSwMinSupportedLvl.gridx = 1;
 		gbc_lblSwMinSupportedLvl.gridy = 7;
-		scannerFilters.add(lblSwMinSupportedLvl, gbc_lblSwMinSupportedLvl);
+		panel_1.add(lblSwMinSupportedLvl, gbc_lblSwMinSupportedLvl);
+		lblSwMinSupportedLvl.setHorizontalAlignment(SwingConstants.TRAILING);
 
 		cbbxSWMinSupportedLvl = new JComboBox<Supported>();
+		GridBagConstraints gbc_cbbxSWMinSupportedLvl = new GridBagConstraints();
+		gbc_cbbxSWMinSupportedLvl.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cbbxSWMinSupportedLvl.insets = new Insets(0, 0, 5, 5);
+		gbc_cbbxSWMinSupportedLvl.gridx = 3;
+		gbc_cbbxSWMinSupportedLvl.gridy = 7;
+		panel_1.add(cbbxSWMinSupportedLvl, gbc_cbbxSWMinSupportedLvl);
 		cbbxSWMinSupportedLvl.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)
@@ -1656,12 +1658,84 @@ public class MainFrame extends JFrame
 		});
 		cbbxSWMinSupportedLvl.setModel(new DefaultComboBoxModel<Supported>(Supported.values()));
 		cbbxSWMinSupportedLvl.setSelectedIndex(0);
-		GridBagConstraints gbc_cbbxSWMinSupportedLvl = new GridBagConstraints();
-		gbc_cbbxSWMinSupportedLvl.insets = new Insets(0, 0, 5, 5);
-		gbc_cbbxSWMinSupportedLvl.fill = GridBagConstraints.HORIZONTAL;
-		gbc_cbbxSWMinSupportedLvl.gridx = 1;
-		gbc_cbbxSWMinSupportedLvl.gridy = 7;
-		scannerFilters.add(cbbxSWMinSupportedLvl, gbc_cbbxSWMinSupportedLvl);
+
+		cbbxYearMin = new JComboBox<>();
+		cbbxYearMin.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED)
+				{
+					Profile.curr_profile.setProperty("filter.YearMin", e.getItem().toString());
+					if(profile_viewer != null)
+						profile_viewer.reset(Profile.curr_profile);
+				}
+			}
+		});
+		GridBagConstraints gbc_cbbxYearMin = new GridBagConstraints();
+		gbc_cbbxYearMin.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cbbxYearMin.insets = new Insets(0, 0, 5, 5);
+		gbc_cbbxYearMin.gridx = 1;
+		gbc_cbbxYearMin.gridy = 8;
+		panel_1.add(cbbxYearMin, gbc_cbbxYearMin);
+
+		lblYear = new JLabel(Messages.getString("MainFrame.lblYear.text")); //$NON-NLS-1$
+		GridBagConstraints gbc_lblYear = new GridBagConstraints();
+		gbc_lblYear.insets = new Insets(0, 0, 5, 5);
+		gbc_lblYear.gridx = 2;
+		gbc_lblYear.gridy = 8;
+		panel_1.add(lblYear, gbc_lblYear);
+		lblYear.setHorizontalAlignment(SwingConstants.CENTER);
+
+		cbbxYearMax = new JComboBox<>();
+		cbbxYearMax.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED)
+				{
+					Profile.curr_profile.setProperty("filter.YearMax", e.getItem().toString());
+					if(profile_viewer != null)
+						profile_viewer.reset(Profile.curr_profile);
+				}
+			}
+		});
+		GridBagConstraints gbc_cbbxYearMax = new GridBagConstraints();
+		gbc_cbbxYearMax.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cbbxYearMax.insets = new Insets(0, 0, 5, 5);
+		gbc_cbbxYearMax.gridx = 3;
+		gbc_cbbxYearMax.gridy = 8;
+		panel_1.add(cbbxYearMax, gbc_cbbxYearMax);
+		cbbxDriverStatus.addItemListener(new ItemListener()
+		{
+			@Override
+			public void itemStateChanged(ItemEvent e)
+			{
+				if(e.getStateChange() == ItemEvent.SELECTED)
+				{
+					Profile.curr_profile.setProperty("filter.DriverStatus", e.getItem().toString());
+					if(profile_viewer != null)
+						profile_viewer.reset(Profile.curr_profile);
+				}
+			}
+		});
+		chckbxIncludeDisks.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
+				Profile.curr_profile.setProperty("filter.InclDisks", e.getStateChange() == ItemEvent.SELECTED);
+				if(profile_viewer != null)
+					profile_viewer.reset(Profile.curr_profile);
+			}
+		});
+		chckbxIncludeClones.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
+				Profile.curr_profile.setProperty("filter.InclClones", e.getStateChange() == ItemEvent.SELECTED);
+				if(profile_viewer != null)
+					profile_viewer.reset(Profile.curr_profile);
+			}
+		});
+
+		scannerAdvFilters = new JPanel();
+		scannerCfgTab.addTab(Messages.getString("MainFrame.AdvFilters"), null, scannerAdvFilters, null);
 
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
 		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -2013,7 +2087,7 @@ public class MainFrame extends JFrame
 		gbc_lblMemory.gridy = 2;
 		debug.add(lblMemory, gbc_lblMemory);
 
-		lblMemoryUsage = new JLabel(Messages.getString("MainFrame.lblMemoryUsage.text")); //$NON-NLS-1$
+		lblMemoryUsage = new JLabel(" ");
 		lblMemoryUsage.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		GridBagConstraints gbc_lblMemoryUsage = new GridBagConstraints();
 		gbc_lblMemoryUsage.fill = GridBagConstraints.BOTH;
@@ -2122,11 +2196,11 @@ public class MainFrame extends JFrame
 														{
 															ProfileNFO pnfo = ProfileNFO.load(file);
 															pnfo.mame.set(imprt.org_file, sl);
-															if(imprt.roms_file!=null)
+															if(imprt.roms_file != null)
 															{
 																FileUtils.copyFileToDirectory(imprt.roms_file, parent);
 																pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
-																if(imprt.sl_file!=null)
+																if(imprt.sl_file != null)
 																{
 																	FileUtils.copyFileToDirectory(imprt.sl_file, parent);
 																	pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
@@ -2308,6 +2382,10 @@ public class MainFrame extends JFrame
 		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString())));
 		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString())));
 		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString())));
+		cbbxYearMin.setModel(new Years(Profile.curr_profile.years));
+		cbbxYearMin.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMin", cbbxYearMin.getModel().getElementAt(0)));
+		cbbxYearMax.setModel(new Years(Profile.curr_profile.years));
+		cbbxYearMax.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMax", cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1)));
 	}
 
 	private JPanel settingsTab;
@@ -2361,7 +2439,6 @@ public class MainFrame extends JFrame
 	private JButton btnImportSL;
 	private JButton btnInfo;
 	private JTabbedPane scannerCfgTab;
-	private JPanel scannerFilters;
 	private JPanel scannerDirectories;
 	private JCheckBox chckbxIncludeClones;
 	private CheckBoxList<Systm> checkBoxListSystems;
@@ -2402,6 +2479,12 @@ public class MainFrame extends JFrame
 	private JCheckBox lblSWDisksDest;
 	private JTextField tfSWDisksDest;
 	private JButton btSWDisksDest;
+	private JPanel scannerAdvFilters;
+	private JComboBox<String> cbbxYearMin;
+	private JLabel lblYear;
+	private JComboBox<String> cbbxYearMax;
+	private JSplitPane scannerFilters;
+	private JPanel panel_1;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

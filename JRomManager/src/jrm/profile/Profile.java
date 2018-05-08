@@ -9,6 +9,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -50,6 +51,7 @@ public class Profile implements Serializable
 
 	public transient Properties settings = null;
 	public transient Systms systems;
+	public transient Collection<String> years;
 	public transient ProfileNFO nfo;
 	public static transient Profile curr_profile;
 
@@ -146,7 +148,7 @@ public class Profile implements Serializable
 									break;
 							}
 						}
-						curr_machine.swlists.put(swlist.name,swlist);
+						curr_machine.swlists.put(swlist.name, swlist);
 						if(!machinelist_list.softwarelist_defs.containsKey(swlist.name))
 							machinelist_list.softwarelist_defs.put(swlist.name, new ArrayList<>());
 						machinelist_list.softwarelist_defs.get(swlist.name).add(curr_machine);
@@ -178,7 +180,7 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("part") && in_software) //$NON-NLS-1$
 					{
-						curr_software.parts.add(curr_part=new Part());
+						curr_software.parts.add(curr_part = new Part());
 						for(int i = 0; i < attributes.getLength(); i++)
 						{
 							switch(attributes.getQName(i))
@@ -194,7 +196,7 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("dataarea") && in_software) //$NON-NLS-1$
 					{
-						curr_part.dataareas.add(curr_dataarea=new DataArea());
+						curr_part.dataareas.add(curr_dataarea = new DataArea());
 						for(int i = 0; i < attributes.getLength(); i++)
 						{
 							switch(attributes.getQName(i))
@@ -216,7 +218,7 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("diskarea") && in_software) //$NON-NLS-1$
 					{
-						curr_part.diskareas.add(curr_diskarea=new DiskArea());
+						curr_part.diskareas.add(curr_diskarea = new DiskArea());
 						for(int i = 0; i < attributes.getLength(); i++)
 						{
 							switch(attributes.getQName(i))
@@ -389,7 +391,7 @@ public class Profile implements Serializable
 						if(in_machine || in_software)
 						{
 							curr_rom = new Rom(in_machine ? curr_machine : curr_software);
-							if(in_software && curr_dataarea!=null)
+							if(in_software && curr_dataarea != null)
 								curr_dataarea.roms.add(curr_rom);
 							for(int i = 0; i < attributes.getLength(); i++)
 							{
@@ -408,7 +410,7 @@ public class Profile implements Serializable
 										}
 										catch(NumberFormatException e)
 										{
-											curr_rom.offset = Integer.decode("0x"+attributes.getValue(i));
+											curr_rom.offset = Integer.decode("0x" + attributes.getValue(i));
 										}
 										break;
 									case "value": //$NON-NLS-1$
@@ -455,7 +457,7 @@ public class Profile implements Serializable
 						if(in_machine || in_software)
 						{
 							curr_disk = new Disk(in_machine ? curr_machine : curr_software);
-							if(in_software && curr_diskarea!=null)
+							if(in_software && curr_diskarea != null)
 								curr_diskarea.disks.add(curr_disk);
 							for(int i = 0; i < attributes.getLength(); i++)
 							{
@@ -728,8 +730,12 @@ public class Profile implements Serializable
 		profile.nfo.stats.totalSets = profile.softwares_cnt + profile.machines_cnt;
 		profile.nfo.stats.totalRoms = profile.roms_cnt + profile.swroms_cnt;
 		profile.nfo.stats.totalDisks = profile.disks_cnt + profile.swdisks_cnt;
+		handler.setProgress("Loading settings...", -1); //$NON-NLS-1$
 		profile.loadSettings();
+		handler.setProgress("Creating Systems filters...", -1); //$NON-NLS-1$
 		profile.loadSystems();
+		handler.setProgress("Creating Years filters...", -1); //$NON-NLS-1$
+		profile.loadYears();
 		return profile;
 	}
 
@@ -759,7 +765,7 @@ public class Profile implements Serializable
 			});
 		});
 	}
-	
+
 	private File getSettingsFile(File file)
 	{
 		return new File(file.getParentFile(), file.getName() + ".properties"); //$NON-NLS-1$
@@ -819,26 +825,26 @@ public class Profile implements Serializable
 
 	public String getName()
 	{
-		String name = "<html><body>[<span color='blue'>" + Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] ";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String name = "<html><body>[<span color='blue'>" + Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if(build != null)
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if(header.size() > 0)
 		{
 			if(header.containsKey("description")) //$NON-NLS-1$
-				name += "<b>" + header.get("description") + "</b>";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+				name += "<b>" + header.get("description") + "</b>"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			else if(header.containsKey("name")) //$NON-NLS-1$
 			{
-				name += "<b>" + header.get("name") + "</b>";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+				name += "<b>" + header.get("name") + "</b>"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 				if(header.containsKey("version")) //$NON-NLS-1$
-					name += " (" + header.get("version") + ")";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					name += " (" + header.get("version") + ")"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
 		String strcnt = ""; //$NON-NLS-1$
 		if(machinelist_list.get(0).size() > 0)
 			strcnt += machines_cnt + " Machines"; //$NON-NLS-1$
 		if(machinelist_list.softwarelist_list.size() > 0)
-			strcnt += (strcnt.isEmpty()?"":", ")+softwares_list_cnt + " Software Lists, " + softwares_cnt + " Softwares"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		name += "("+strcnt+")</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
+			strcnt += (strcnt.isEmpty() ? "" : ", ") + softwares_list_cnt + " Software Lists, " + softwares_cnt + " Softwares"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		name += "(" + strcnt + ")</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
 		return name;
 	}
 
@@ -859,6 +865,16 @@ public class Profile implements Serializable
 		machinelist_list.softwarelist_list.forEach(softwarelists::add);
 		softwarelists.sort((a, b) -> a.name.compareTo(b.name));
 		softwarelists.forEach(systems::add);
+	}
+
+	public void loadYears()
+	{
+		HashSet<String> years = new HashSet<>();
+		years.add("");
+		machinelist_list.get(0).forEach(m -> years.add(m.year.toString()));
+		machinelist_list.softwarelist_list.forEach(sl -> sl.forEach(s -> years.add(s.year.toString())));
+		years.add("????");
+		this.years = years;
 	}
 
 }

@@ -147,7 +147,16 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true);
 		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true);
 		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString()));
+		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", "");
+		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????");
 		return getList().stream().filter(t -> {
+			if(t.year.length()>0)
+			{
+				if(filterYearMin.compareTo(t.year.toString())>0)
+					return false;
+				if(filterYearMax.compareTo(t.year.toString())<0)
+					return false;
+			}
 			if(filterMinSoftwareSupportedLevel==Supported.partial && t.supported==Supported.no)
 				return false;
 			if(filterMinSoftwareSupportedLevel==Supported.yes && t.supported!=Supported.yes)
