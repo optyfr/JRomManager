@@ -112,6 +112,9 @@ import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.JRMFileChooser.CallBack;
 import jrm.ui.JRMFileChooser.OneRootFileSystemView;
+import jrm.ui.controls.JCheckBoxList;
+import jrm.ui.controls.JListHintUI;
+import jrm.ui.controls.JTextFieldHintUI;
 
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
@@ -1442,7 +1445,7 @@ public class MainFrame extends JFrame
 		scannerFilters.setRightComponent(scrollPane_2);
 		scrollPane_2.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.scrollPane_2.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
-		checkBoxListSystems = new CheckBoxList<jrm.profile.data.Systm>();
+		checkBoxListSystems = new JCheckBoxList<jrm.profile.data.Systm>();
 		checkBoxListSystems.setCellRenderer(checkBoxListSystems.new CellRenderer()
 		{
 			public Component getListCellRendererComponent(JList<? extends Systm> list, Systm value, int index, boolean isSelected, boolean cellHasFocus)
@@ -2441,7 +2444,7 @@ public class MainFrame extends JFrame
 	private JTabbedPane scannerCfgTab;
 	private JPanel scannerDirectories;
 	private JCheckBox chckbxIncludeClones;
-	private CheckBoxList<Systm> checkBoxListSystems;
+	private JCheckBoxList<Systm> checkBoxListSystems;
 	private JScrollPane scrollPane_2;
 	private JComboBox<Driver.StatusType> cbbxDriverStatus;
 	private JLabel lblDriverStatus;

@@ -1,15 +1,27 @@
 package jrm.profile;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -18,15 +30,25 @@ import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
-import jrm.profile.data.*;
+import jrm.profile.data.Disk;
+import jrm.profile.data.Entity;
+import jrm.profile.data.Machine;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.SWList;
 import jrm.profile.data.Machine.SWStatus;
+import jrm.profile.data.MachineListList;
+import jrm.profile.data.Rom;
 import jrm.profile.data.Rom.LoadFlag;
+import jrm.profile.data.Software;
 import jrm.profile.data.Software.Part;
 import jrm.profile.data.Software.Part.DataArea;
 import jrm.profile.data.Software.Part.DataArea.Endianness;
 import jrm.profile.data.Software.Part.DiskArea;
+import jrm.profile.data.SoftwareList;
+import jrm.profile.data.SystmDevice;
+import jrm.profile.data.SystmMechanical;
+import jrm.profile.data.SystmStandard;
+import jrm.profile.data.Systms;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")

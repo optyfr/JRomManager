@@ -1,4 +1,4 @@
-package jrm.ui;
+package jrm.ui.controls;
 
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
@@ -11,11 +11,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 @SuppressWarnings("serial")
-public class CheckBoxList<E> extends JList<E>
+public class JCheckBoxList<E> extends JList<E>
 {
 	protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
 
-	public CheckBoxList()
+	public JCheckBoxList()
 	{
 		setCellRenderer(new CellRenderer());
 

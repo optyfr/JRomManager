@@ -1,4 +1,4 @@
-package jrm.ui;
+package jrm.ui.controls;
 
 import java.awt.Color;
 import java.awt.Font;
