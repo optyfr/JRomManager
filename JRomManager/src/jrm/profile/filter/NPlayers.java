@@ -12,18 +12,21 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
+import javax.swing.AbstractListModel;
 
-public class NPlayers
+import org.apache.commons.lang3.StringUtils;
+
+@SuppressWarnings("serial")
+public class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayers.NPlayer>
 {
-	Map<String,NPlayer> nplayers = new TreeMap<>();
-	
-	class NPlayer implements List<String>
+	Map<String, NPlayer> nplayers = new TreeMap<>();
+	List<NPlayer> list_nplayers;
+
+	public class NPlayer implements List<String>
 	{
 		String name;
 		List<String> games = new ArrayList<>();
-		
+
 		public NPlayer(String name)
 		{
 			this.name = name;
@@ -166,11 +169,16 @@ public class NPlayers
 		{
 			return games.subList(fromIndex, toIndex);
 		}
+
+		@Override
+		public String toString()
+		{
+			return name + " (" + games.size() + ")";
+		}
 	}
 
 	private NPlayers(File file)
 	{
-		long start = System.currentTimeMillis();
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
 			String line;
@@ -194,25 +202,33 @@ public class NPlayers
 						else
 							nplayer = nplayers.get(v);
 						nplayer.add(k);
-					}					
+					}
 				}
 			}
+			list_nplayers = new ArrayList<>(nplayers.values());
 		}
 		catch(IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("nplayers duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
-		nplayers.forEach((k, games) -> {
-				System.out.format("\t%s (%d entries)\n", k, games.size());
-		});
 	}
-
 
 	public static NPlayers read(File file)
 	{
 		return new NPlayers(file);
+	}
+
+	@Override
+	public int getSize()
+	{
+		return list_nplayers.size();
+	}
+
+	@Override
+	public NPlayer getElementAt(int index)
+	{
+		return list_nplayers.get(index);
 	}
 
 }

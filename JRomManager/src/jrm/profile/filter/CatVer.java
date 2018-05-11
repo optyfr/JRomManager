@@ -18,7 +18,6 @@ import java.util.TreeMap;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import jrm.ui.AbstractNGTreeNode;
 
@@ -157,7 +156,7 @@ public class CatVer extends AbstractNGTreeNode
 		@Override
 		public Object getUserObject()
 		{
-			return name;
+			return String.format("%s (%d)", name, list_subcategories.stream().filter(SubCategory::isSelected).mapToInt(SubCategory::size).sum());
 		}
 	}
 
@@ -355,13 +354,12 @@ public class CatVer extends AbstractNGTreeNode
 		@Override
 		public Object getUserObject()
 		{
-			return name;
+			return name + " ("+games.size()+")";
 		}
 	}
 
 	private CatVer(File file)
 	{
-		long start = System.currentTimeMillis();
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
 			String line;
@@ -408,13 +406,6 @@ public class CatVer extends AbstractNGTreeNode
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("catver duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
-		categories.forEach((k, cat) -> {
-			System.out.format("%s (%d subcat) =>\n", k, cat.size());
-			cat.forEach((sk, l) -> {
-				System.out.format("\t%s (%d entries)\n", sk, l.size());
-			});
-		});
 	}
 
 	public static CatVer read(File file)
@@ -467,7 +458,7 @@ public class CatVer extends AbstractNGTreeNode
 	@Override
 	public Object getUserObject()
 	{
-		return "All Categories";
+		return String.format("%s (%d)", "All Categories", list_categories.stream().flatMap(c->c.list_subcategories.stream().filter(SubCategory::isSelected)).mapToInt(SubCategory::size).sum());
 	}
 
 }

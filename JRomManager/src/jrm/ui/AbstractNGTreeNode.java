@@ -4,6 +4,33 @@ import javax.swing.tree.TreeNode;
 
 public abstract class AbstractNGTreeNode implements NGTreeNode
 {
+	private boolean isSelected = true;
+	private boolean allChildrenSelected = true;
+
+	@Override
+	public boolean isSelected()
+	{
+		return isSelected;
+	}
+	
+	@Override
+	public void setSelected(boolean selected)
+	{
+		isSelected = selected;
+	}
+	
+	@Override
+	public boolean allChildrenSelected()
+	{
+		return allChildrenSelected;
+	}
+	
+	@Override
+	public void setAllChildrenSelected(boolean selected)
+	{
+		allChildrenSelected = selected;
+	}
+	
 	/**
 	 * Returns the path from the root, to get to this node. The last element in the path is this node.
 	 *

@@ -66,7 +66,8 @@ public class JFileDropTextField extends JTextField implements FocusListener,Drop
 	@Override
 	public void focusLost(FocusEvent e)
 	{
-		callback.call(JFileDropTextField.this.getText());
+		if(callback!=null)
+			callback.call(JFileDropTextField.this.getText());
 	}
 
 	@Override

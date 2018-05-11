@@ -72,17 +72,17 @@ public class JCheckBoxList<E> extends JList<E>
 		repaint();
 	}
 	
-	JCheckBox checkboxes[] = null; 
+	JTristateCheckBox checkboxes[] = null; 
 
 	public class CellRenderer implements ListCellRenderer<E>
 	{
 		
 		public Component getListCellRendererComponent(JList<? extends E> list, E value, int index, boolean isSelected, boolean cellHasFocus)
 		{
-			if(checkboxes==null || checkboxes.length!=list.getModel().getSize()) checkboxes = new JCheckBox[list.getModel().getSize()];
+			if(checkboxes==null || checkboxes.length!=list.getModel().getSize()) checkboxes = new JTristateCheckBox[list.getModel().getSize()];
 			if(checkboxes[index]==null)
 			{
-				checkboxes[index] = new JCheckBox(); 
+				checkboxes[index] = new JTristateCheckBox(); 
 				checkboxes[index].setFont(getFont());
 				checkboxes[index].setFocusPainted(false);
 				checkboxes[index].setBorderPainted(true);

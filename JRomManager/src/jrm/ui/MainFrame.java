@@ -98,6 +98,8 @@ import jrm.profile.data.Software.Supported;
 import jrm.profile.data.Systm;
 import jrm.profile.data.Years;
 import jrm.profile.filter.CatVer;
+import jrm.profile.filter.NPlayers;
+import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.FormatOptions;
@@ -1563,8 +1565,9 @@ public class MainFrame extends JFrame
 		gbc_scrollPane_4.gridy = 1;
 		scannerAdvFilters.add(scrollPane_4, gbc_scrollPane_4);
 		
-		checkBoxList = new JCheckBoxList();
+		checkBoxList = new JCheckBoxList<NPlayer>();
 		scrollPane_4.setViewportView(checkBoxList);
+		checkBoxList.setModel(NPlayers.read(new File("NPlayers.ini")));
 		
 		scrollPane_3 = new JScrollPane();
 		scrollPane_3.setViewportBorder(new TitledBorder(null, "Categories", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -2327,7 +2330,7 @@ public class MainFrame extends JFrame
 	private JPanel panel_1;
 	private JScrollPane scrollPane_3;
 	private JScrollPane scrollPane_4;
-	private JCheckBoxList checkBoxList;
+	private JCheckBoxList<NPlayer> checkBoxList;
 	private JCheckBoxTree treeCatVer;
 	private JFileDropTextField fileDropTextField;
 	private JFileDropTextField fileDropTextField_1;
