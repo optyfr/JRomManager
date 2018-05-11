@@ -20,21 +20,24 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import jrm.profile.filter.CatVer.Category;
+import jrm.ui.AbstractNGTreeNode;
 
-public class CatVer implements TreeNode
+public class CatVer extends AbstractNGTreeNode
 {
-	Map<String, Category> categories = new TreeMap<>();
-	List<Category> list_categories = null;
+	private Map<String, Category> categories = new TreeMap<>();
+	private List<Category> list_categories = null;
 
-	class Category implements Map<String, SubCategory>, TreeNode
+	class Category extends AbstractNGTreeNode implements Map<String, SubCategory>
 	{
 		String name;
+		private CatVer parent = null;
 		private Map<String, SubCategory> subcategories = new TreeMap<>();
+		private List<SubCategory> list_subcategories = null;
 
 		public Category(String name)
 		{
 			this.name = name;
+			this.parent = CatVer.this;
 		}
 
 		@Override
@@ -112,53 +115,53 @@ public class CatVer implements TreeNode
 		@Override
 		public TreeNode getChildAt(int childIndex)
 		{
-			// TODO Auto-generated method stub
-			return null;
+			return list_subcategories.get(childIndex);
 		}
 
 		@Override
 		public int getChildCount()
 		{
-			// TODO Auto-generated method stub
-			return 0;
+			return list_subcategories.size();
 		}
 
 		@Override
 		public TreeNode getParent()
 		{
-			return CatVer.this;
+			return parent;
 		}
 
 		@Override
 		public int getIndex(TreeNode node)
 		{
-			// TODO Auto-generated method stub
-			return 0;
+			return list_subcategories.indexOf(node);
 		}
 
 		@Override
 		public boolean getAllowsChildren()
 		{
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 
 		@Override
 		public boolean isLeaf()
 		{
-			// TODO Auto-generated method stub
-			return false;
+			return list_subcategories.size()==0;
 		}
 
 		@Override
-		public Enumeration children()
+		public Enumeration<SubCategory> children()
 		{
-			// TODO Auto-generated method stub
-			return null;
+			return Collections.enumeration(list_subcategories);
+		}
+
+		@Override
+		public Object getUserObject()
+		{
+			return name;
 		}
 	}
 
-	class SubCategory implements List<String>, TreeNode
+	class SubCategory extends AbstractNGTreeNode implements List<String>, TreeNode
 	{
 		String name;
 		Category parent;
@@ -348,6 +351,12 @@ public class CatVer implements TreeNode
 		{
 			return null;
 		}
+
+		@Override
+		public Object getUserObject()
+		{
+			return name;
+		}
 	}
 
 	private CatVer(File file)
@@ -390,6 +399,9 @@ public class CatVer implements TreeNode
 					}
 				}
 			}
+			list_categories = new ArrayList<>(categories.values());
+			for(Category cat : list_categories)
+				cat.list_subcategories = new ArrayList<>(cat.subcategories.values());
 		}
 		catch(IOException e)
 		{
@@ -403,7 +415,6 @@ public class CatVer implements TreeNode
 				System.out.format("\t%s (%d entries)\n", sk, l.size());
 			});
 		});
-		list_categories = new ArrayList<>(categories.values());
 	}
 
 	public static CatVer read(File file)
@@ -444,13 +455,19 @@ public class CatVer implements TreeNode
 	@Override
 	public boolean isLeaf()
 	{
-		return list_categories.size()>0;
+		return list_categories.size()==0;
 	}
 
 	@Override
 	public Enumeration<Category> children()
 	{
 		return Collections.enumeration(list_categories);
+	}
+
+	@Override
+	public Object getUserObject()
+	{
+		return "All Categories";
 	}
 
 }

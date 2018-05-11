@@ -18,7 +18,13 @@
 		<link>
 			<name>src2</name>
 			<type>2</type>
-			<location>D:/Git/JRomManager/Jtrrntzip/src</location>
+			<locationURI>JTRRNTZIP/src</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>JTRRNTZIP</name>
+			<value>$%7BPARENT-1-PROJECT_LOC%7D/Jtrrntzip</value>
+		</variable>
+	</variableList>
 </projectDescription>

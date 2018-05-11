@@ -17,12 +17,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.event.EventListenerList;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+
+import jrm.ui.NGTreeNode;
 
 @SuppressWarnings("serial")
 public class JCheckBoxTree extends JTree
@@ -151,7 +152,7 @@ public class JCheckBoxTree extends JTree
 	{
 		nodesCheckingState = new HashMap<TreePath, CheckedNode>();
 		checkedPaths = new HashSet<TreePath>();
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode) getModel().getRoot();
+		NGTreeNode node = (NGTreeNode) getModel().getRoot();
 		if(node == null)
 		{
 			return;
@@ -160,7 +161,7 @@ public class JCheckBoxTree extends JTree
 	}
 
 	// Creating data structure of the current model for the checking mechanism
-	private void addSubtreeToCheckingStateTracking(DefaultMutableTreeNode node)
+	private void addSubtreeToCheckingStateTracking(NGTreeNode node)
 	{
 		TreeNode[] path = node.getPath();
 		TreePath tp = new TreePath(path);
@@ -168,7 +169,7 @@ public class JCheckBoxTree extends JTree
 		nodesCheckingState.put(tp, cn);
 		for(int i = 0; i < node.getChildCount(); i++)
 		{
-			addSubtreeToCheckingStateTracking((DefaultMutableTreeNode) tp.pathByAddingChild(node.getChildAt(i)).getLastPathComponent());
+			addSubtreeToCheckingStateTracking((NGTreeNode) tp.pathByAddingChild(node.getChildAt(i)).getLastPathComponent());
 		}
 	}
 
@@ -190,7 +191,7 @@ public class JCheckBoxTree extends JTree
 		@Override
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus)
 		{
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+			NGTreeNode node = (NGTreeNode) value;
 			Object obj = node.getUserObject();
 			TreePath tp = new TreePath(node.getPath());
 			CheckedNode cn = nodesCheckingState.get(tp);
@@ -199,21 +200,21 @@ public class JCheckBoxTree extends JTree
 				return this;
 			}
 			checkBox.setSelected(cn.isSelected);
-			checkBox.setText(obj.toString());
+			checkBox.setText(obj!=null?obj.toString():null);
 			checkBox.setHalfSelected(cn.isSelected && cn.hasChildren && !cn.allChildrenSelected);
+			this.setPreferredSize(new Dimension(checkBox.getPreferredSize().width, 20));
 			return this;
 		}
 	}
 
-	public JCheckBoxTree()
+	public JCheckBoxTree(TreeModel model)
 	{
-		super();
+		super(model);
 		// Disabling toggling by double-click
 		this.setToggleClickCount(0);
 		// Overriding cell renderer by new one defined above
 		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer();
 		this.setCellRenderer(cellRenderer);
-		cellRenderer.setPreferredSize(new Dimension(getPreferredSize().width, 20));
 
 		// Overriding selection model by an empty one
 		DefaultTreeSelectionModel dtsm = new DefaultTreeSelectionModel()
@@ -283,7 +284,7 @@ public class JCheckBoxTree extends JTree
 			return;
 		}
 		CheckedNode parentCheckedNode = nodesCheckingState.get(parentPath);
-		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) parentPath.getLastPathComponent();
+		NGTreeNode parentNode = (NGTreeNode) parentPath.getLastPathComponent();
 		parentCheckedNode.allChildrenSelected = true;
 		parentCheckedNode.isSelected = false;
 		for(int i = 0; i < parentNode.getChildCount(); i++)
@@ -319,7 +320,7 @@ public class JCheckBoxTree extends JTree
 	{
 		CheckedNode cn = nodesCheckingState.get(tp);
 		cn.isSelected = check;
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent();
+		NGTreeNode node = (NGTreeNode) tp.getLastPathComponent();
 		for(int i = 0; i < node.getChildCount(); i++)
 		{
 			checkSubTree(tp.pathByAddingChild(node.getChildAt(i)), check);

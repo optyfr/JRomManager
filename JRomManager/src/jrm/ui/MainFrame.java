@@ -97,6 +97,7 @@ import jrm.profile.data.Machine.DisplayOrientation;
 import jrm.profile.data.Software.Supported;
 import jrm.profile.data.Systm;
 import jrm.profile.data.Years;
+import jrm.profile.filter.CatVer;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.FormatOptions;
@@ -1573,8 +1574,8 @@ public class MainFrame extends JFrame
 		gbc_scrollPane_3.gridy = 1;
 		scannerAdvFilters.add(scrollPane_3, gbc_scrollPane_3);
 		
-		tree = new JCheckBoxTree();
-		scrollPane_3.setViewportView(tree);
+		treeCatVer = new JCheckBoxTree(new CatVerModel(CatVer.read(new File("catver.ini"))));
+		scrollPane_3.setViewportView(treeCatVer);
 
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
 		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -2327,7 +2328,7 @@ public class MainFrame extends JFrame
 	private JScrollPane scrollPane_3;
 	private JScrollPane scrollPane_4;
 	private JCheckBoxList checkBoxList;
-	private JCheckBoxTree tree;
+	private JCheckBoxTree treeCatVer;
 	private JFileDropTextField fileDropTextField;
 	private JFileDropTextField fileDropTextField_1;
 
