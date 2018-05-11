@@ -2,6 +2,8 @@ package jrm.ui.controls;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.EventListener;
@@ -9,6 +11,8 @@ import java.util.EventObject;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTree;
@@ -39,6 +43,46 @@ public class JCheckBoxTree extends JTree
 			isSelected = isSelected_;
 			hasChildren = hasChildren_;
 			allChildrenSelected = allChildrenSelected_;
+		}
+	}
+
+	public static class TristateCheckBox extends JCheckBox
+	{
+		private boolean halfState;
+		private static Icon selected = new ImageIcon(TristateCheckBox.class.getResource("/jrm/resources/selected.png"));
+		private static Icon unselected = new ImageIcon(TristateCheckBox.class.getResource("/jrm/resources/unselected.png"));
+		private static Icon halfselected = new ImageIcon(TristateCheckBox.class.getResource("/jrm/resources/halfselected.png"));
+
+		public TristateCheckBox()
+		{
+			super();
+			setOpaque(false);
+		}
+		
+		@Override
+		public void paint(Graphics g)
+		{
+			if(isSelected())
+			{
+				halfState = false;
+			}
+			setIcon(halfState ? halfselected : isSelected() ? selected : unselected);
+			super.paint(g);
+		}
+
+		public boolean isHalfSelected()
+		{
+			return halfState;
+		}
+
+		public void setHalfSelected(boolean halfState)
+		{
+			this.halfState = halfState;
+			if(halfState)
+			{
+				setSelected(false);
+				repaint();
+			}
 		}
 	}
 
@@ -132,13 +176,13 @@ public class JCheckBoxTree extends JTree
 	// It decides how to show the nodes due to the checking-mechanism
 	private class CheckBoxCellRenderer extends JPanel implements TreeCellRenderer
 	{
-		JCheckBox checkBox;
+		TristateCheckBox checkBox;
 
 		public CheckBoxCellRenderer()
 		{
 			super();
 			this.setLayout(new BorderLayout());
-			checkBox = new JCheckBox();
+			checkBox = new TristateCheckBox();
 			add(checkBox, BorderLayout.CENTER);
 			setOpaque(false);
 		}
@@ -156,7 +200,7 @@ public class JCheckBoxTree extends JTree
 			}
 			checkBox.setSelected(cn.isSelected);
 			checkBox.setText(obj.toString());
-			checkBox.setOpaque(cn.isSelected && cn.hasChildren && !cn.allChildrenSelected);
+			checkBox.setHalfSelected(cn.isSelected && cn.hasChildren && !cn.allChildrenSelected);
 			return this;
 		}
 	}
@@ -169,12 +213,11 @@ public class JCheckBoxTree extends JTree
 		// Overriding cell renderer by new one defined above
 		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer();
 		this.setCellRenderer(cellRenderer);
+		cellRenderer.setPreferredSize(new Dimension(getPreferredSize().width, 20));
 
 		// Overriding selection model by an empty one
 		DefaultTreeSelectionModel dtsm = new DefaultTreeSelectionModel()
 		{
-			private static final long serialVersionUID = -8190634240451667286L;
-
 			// Totally disabling the selection mechanism
 			public void setSelectionPath(TreePath path)
 			{

@@ -234,7 +234,7 @@ public class ProfileViewer extends JDialog
 		JPopupMenu popupMenu = new JPopupMenu();
 		addPopup(tableWL, popupMenu);
 		
-		JMenu mnExportAll = new JMenu(Messages.getString("ProfileViewer.mnExportAll.text")); //$NON-NLS-1$
+		JMenu mnExportAll = new JMenu("Export All");
 		popupMenu.add(mnExportAll);
 		
 		JMenu mnExportAllFiltered = new JMenu("Filtered");
@@ -291,7 +291,7 @@ public class ProfileViewer extends JDialog
 			}
 		});
 		
-		JMenu mnExportSelected = new JMenu(Messages.getString("ProfileViewer.mnExportSelected.text")); //$NON-NLS-1$
+		JMenu mnExportSelected = new JMenu("Export selected");
 		popupMenu.add(mnExportSelected);
 		
 		JMenu mnExportSelectedFiltered = new JMenu("Filtered");
