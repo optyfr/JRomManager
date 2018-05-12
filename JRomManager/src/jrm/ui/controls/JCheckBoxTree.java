@@ -25,8 +25,6 @@ import jrm.ui.NGTreeNode;
 public class JCheckBoxTree extends JTree
 {
 
-	JCheckBoxTree selfPointer = this;
-
 	HashMap<TreePath, NGTreeNode> nodesCheckingState;
 	HashSet<TreePath> checkedPaths = new HashSet<TreePath>();
 
@@ -94,9 +92,7 @@ public class JCheckBoxTree extends JTree
 		checkedPaths = new HashSet<TreePath>();
 		NGTreeNode node = (NGTreeNode) getModel().getRoot();
 		if(node == null)
-		{
 			return;
-		}
 		addSubtreeToCheckingStateTracking(node);
 	}
 
@@ -107,9 +103,7 @@ public class JCheckBoxTree extends JTree
 		TreePath tp = new TreePath(path);
 		nodesCheckingState.put(tp, node);
 		for(int i = 0; i < node.getChildCount(); i++)
-		{
 			addSubtreeToCheckingStateTracking((NGTreeNode) tp.pathByAddingChild(node.getChildAt(i)).getLastPathComponent());
-		}
 	}
 
 	// Overriding cell renderer by a class that ignores the original "selection" mechanism
@@ -124,6 +118,7 @@ public class JCheckBoxTree extends JTree
 			this.setLayout(new BorderLayout());
 			checkBox = new JTristateCheckBox();
 			checkBox.setOpaque(false);
+			checkBox.setFont(getFont());
 			add(checkBox, BorderLayout.CENTER);
 			setOpaque(false);
 		}
@@ -136,13 +131,12 @@ public class JCheckBoxTree extends JTree
 			TreePath tp = new TreePath(node.getPath());
 			NGTreeNode cn = nodesCheckingState.get(tp);
 			if(cn == null)
-			{
 				return this;
-			}
+			checkBox.setEnabled(tree.isEnabled());
 			checkBox.setSelected(cn.isSelected());
 			checkBox.setText(obj!=null?obj.toString():null);
 			checkBox.setHalfSelected(cn.isSelected() && cn.getChildCount()>0 && !cn.allChildrenSelected());
-			this.setPreferredSize(new Dimension(checkBox.getPreferredSize().width, 20));
+			this.setPreferredSize(new Dimension(Math.max(this.getPreferredSize().width, checkBox.getFontMetrics(getFont()).stringWidth(checkBox.getText())+100),20));
 			return this;
 		}
 	}
@@ -181,18 +175,18 @@ public class JCheckBoxTree extends JTree
 		{
 			public void mouseClicked(MouseEvent arg0)
 			{
-				TreePath tp = selfPointer.getPathForLocation(arg0.getX(), arg0.getY());
-				if(tp == null)
-				{
+				if(!JCheckBoxTree.this.isEnabled())
 					return;
-				}
+				TreePath tp = JCheckBoxTree.this.getPathForLocation(arg0.getX(), arg0.getY());
+				if(tp == null)
+					return;
 				boolean checkMode = !nodesCheckingState.get(tp).isSelected();
 				checkSubTree(tp, checkMode);
 				updatePredecessorsWithCheckMode(tp, checkMode);
 				// Firing the check change event
 				fireCheckChangeEvent(new CheckChangeEvent(new Object()));
 				// Repainting tree after the data structures were updated
-				selfPointer.repaint();
+				JCheckBoxTree.this.repaint();
 			}
 
 			public void mouseEntered(MouseEvent arg0)
@@ -220,9 +214,7 @@ public class JCheckBoxTree extends JTree
 		TreePath parentPath = tp.getParentPath();
 		// If it is the root, stop the recursive calls and return
 		if(parentPath == null)
-		{
 			return;
-		}
 		NGTreeNode parentNode = (NGTreeNode) parentPath.getLastPathComponent();
 		parentNode.setAllChildrenSelected(true);
 		parentNode.setSelected(false);
@@ -233,23 +225,15 @@ public class JCheckBoxTree extends JTree
 			// It is enough that even one subtree is not fully selected
 			// to determine that the parent is not fully selected
 			if(!childCheckedNode.allChildrenSelected())
-			{
 				parentNode.setAllChildrenSelected(false);
-			}
 			// If at least one child is selected, selecting also the parent
 			if(childCheckedNode.isSelected())
-			{
 				parentNode.setSelected(true);
-			}
 		}
 		if(parentNode.isSelected())
-		{
 			checkedPaths.add(parentPath);
-		}
 		else
-		{
 			checkedPaths.remove(parentPath);
-		}
 		// Go to upper predecessor
 		updatePredecessorsWithCheckMode(parentPath, check);
 	}
@@ -266,13 +250,9 @@ public class JCheckBoxTree extends JTree
 		}
 		cn.setAllChildrenSelected(check);
 		if(check)
-		{
 			checkedPaths.add(tp);
-		}
 		else
-		{
 			checkedPaths.remove(tp);
-		}
 	}
 
 }

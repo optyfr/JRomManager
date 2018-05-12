@@ -2,6 +2,7 @@ package jrm.profile.filter;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,12 +22,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import jrm.ui.AbstractNGTreeNode;
 
-public class CatVer extends AbstractNGTreeNode
+public class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.filter.CatVer.Category>
 {
 	private Map<String, Category> categories = new TreeMap<>();
 	private List<Category> list_categories = null;
 
-	class Category extends AbstractNGTreeNode implements Map<String, SubCategory>
+	public class Category extends AbstractNGTreeNode implements Map<String, SubCategory>, Iterable<SubCategory>
 	{
 		String name;
 		private CatVer parent = null;
@@ -158,9 +159,15 @@ public class CatVer extends AbstractNGTreeNode
 		{
 			return String.format("%s (%d)", name, list_subcategories.stream().filter(SubCategory::isSelected).mapToInt(SubCategory::size).sum());
 		}
+
+		@Override
+		public Iterator<SubCategory> iterator()
+		{
+			return list_subcategories.iterator();
+		}
 	}
 
-	class SubCategory extends AbstractNGTreeNode implements List<String>, TreeNode
+	public class SubCategory extends AbstractNGTreeNode implements List<String>, TreeNode
 	{
 		String name;
 		Category parent;
@@ -358,7 +365,7 @@ public class CatVer extends AbstractNGTreeNode
 		}
 	}
 
-	private CatVer(File file)
+	private CatVer(File file) throws IOException
 	{
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
@@ -401,14 +408,9 @@ public class CatVer extends AbstractNGTreeNode
 			for(Category cat : list_categories)
 				cat.list_subcategories = new ArrayList<>(cat.subcategories.values());
 		}
-		catch(IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
-	public static CatVer read(File file)
+	public static CatVer read(File file) throws IOException
 	{
 		return new CatVer(file);
 	}
@@ -459,6 +461,12 @@ public class CatVer extends AbstractNGTreeNode
 	public Object getUserObject()
 	{
 		return String.format("%s (%d)", "All Categories", list_categories.stream().flatMap(c->c.list_subcategories.stream().filter(SubCategory::isSelected)).mapToInt(SubCategory::size).sum());
+	}
+
+	@Override
+	public Iterator<Category> iterator()
+	{
+		return list_categories.iterator();
 	}
 
 }

@@ -97,8 +97,6 @@ import jrm.profile.data.Machine.DisplayOrientation;
 import jrm.profile.data.Software.Supported;
 import jrm.profile.data.Systm;
 import jrm.profile.data.Years;
-import jrm.profile.filter.CatVer;
-import jrm.profile.filter.NPlayers;
 import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.Scan;
@@ -108,13 +106,13 @@ import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.JRMFileChooser.CallBack;
 import jrm.ui.JRMFileChooser.OneRootFileSystemView;
 import jrm.ui.controls.JCheckBoxList;
+import jrm.ui.controls.JCheckBoxTree;
 import jrm.ui.controls.JFileDropList;
 import jrm.ui.controls.JFileDropList.AddDelCallBack;
 import jrm.ui.controls.JFileDropTextField;
 import jrm.ui.controls.JFileDropTextField.SetCallBack;
 import jrm.ui.controls.JListHintUI;
 import jrm.ui.controls.JTextFieldHintUI;
-import jrm.ui.controls.JCheckBoxTree;
 
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
@@ -1540,45 +1538,46 @@ public class MainFrame extends JFrame
 		gbl_scannerAdvFilters.rowWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
 		scannerAdvFilters.setLayout(gbl_scannerAdvFilters);
 		
-		fileDropTextField = new JFileDropTextField((SetCallBack) null);
-		GridBagConstraints gbc_fileDropTextField = new GridBagConstraints();
-		gbc_fileDropTextField.insets = new Insets(0, 0, 5, 5);
-		gbc_fileDropTextField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_fileDropTextField.gridx = 0;
-		gbc_fileDropTextField.gridy = 0;
-		scannerAdvFilters.add(fileDropTextField, gbc_fileDropTextField);
+		tfNPlayers = new JFileDropTextField((SetCallBack) null);
+		GridBagConstraints gbc_tfNPlayers = new GridBagConstraints();
+		gbc_tfNPlayers.insets = new Insets(0, 0, 5, 5);
+		gbc_tfNPlayers.fill = GridBagConstraints.HORIZONTAL;
+		gbc_tfNPlayers.gridx = 0;
+		gbc_tfNPlayers.gridy = 0;
+		scannerAdvFilters.add(tfNPlayers, gbc_tfNPlayers);
 		
-		fileDropTextField_1 = new JFileDropTextField((SetCallBack) null);
-		GridBagConstraints gbc_fileDropTextField_1 = new GridBagConstraints();
-		gbc_fileDropTextField_1.insets = new Insets(0, 0, 5, 0);
-		gbc_fileDropTextField_1.fill = GridBagConstraints.HORIZONTAL;
-		gbc_fileDropTextField_1.gridx = 1;
-		gbc_fileDropTextField_1.gridy = 0;
-		scannerAdvFilters.add(fileDropTextField_1, gbc_fileDropTextField_1);
+		tfCatVer = new JFileDropTextField((SetCallBack) null);
+		GridBagConstraints gbc_tfCatVer = new GridBagConstraints();
+		gbc_tfCatVer.insets = new Insets(0, 0, 5, 0);
+		gbc_tfCatVer.fill = GridBagConstraints.HORIZONTAL;
+		gbc_tfCatVer.gridx = 1;
+		gbc_tfCatVer.gridy = 0;
+		scannerAdvFilters.add(tfCatVer, gbc_tfCatVer);
 		
-		scrollPane_4 = new JScrollPane();
-		scrollPane_4.setViewportBorder(new TitledBorder(null, "NPlayers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_scrollPane_4 = new GridBagConstraints();
-		gbc_scrollPane_4.insets = new Insets(0, 0, 0, 5);
-		gbc_scrollPane_4.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane_4.gridx = 0;
-		gbc_scrollPane_4.gridy = 1;
-		scannerAdvFilters.add(scrollPane_4, gbc_scrollPane_4);
+		scrollPaneNPlayers = new JScrollPane();
+		scrollPaneNPlayers.setViewportBorder(new TitledBorder(null, "NPlayers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_scrollPaneNPlayers = new GridBagConstraints();
+		gbc_scrollPaneNPlayers.insets = new Insets(0, 0, 0, 5);
+		gbc_scrollPaneNPlayers.fill = GridBagConstraints.BOTH;
+		gbc_scrollPaneNPlayers.gridx = 0;
+		gbc_scrollPaneNPlayers.gridy = 1;
+		scannerAdvFilters.add(scrollPaneNPlayers, gbc_scrollPaneNPlayers);
 		
-		checkBoxList = new JCheckBoxList<NPlayer>();
-		scrollPane_4.setViewportView(checkBoxList);
-		checkBoxList.setModel(NPlayers.read(new File("NPlayers.ini")));
+		listNPlayers = new JCheckBoxList<>();
+		listNPlayers.setEnabled(false);
+		scrollPaneNPlayers.setViewportView(listNPlayers);
 		
-		scrollPane_3 = new JScrollPane();
-		scrollPane_3.setViewportBorder(new TitledBorder(null, "Categories", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_scrollPane_3 = new GridBagConstraints();
-		gbc_scrollPane_3.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane_3.gridx = 1;
-		gbc_scrollPane_3.gridy = 1;
-		scannerAdvFilters.add(scrollPane_3, gbc_scrollPane_3);
+		scrollPaneCatVer = new JScrollPane();
+		scrollPaneCatVer.setViewportBorder(new TitledBorder(null, "Categories", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_scrollPaneCatVer = new GridBagConstraints();
+		gbc_scrollPaneCatVer.fill = GridBagConstraints.BOTH;
+		gbc_scrollPaneCatVer.gridx = 1;
+		gbc_scrollPaneCatVer.gridy = 1;
+		scannerAdvFilters.add(scrollPaneCatVer, gbc_scrollPaneCatVer);
 		
-		treeCatVer = new JCheckBoxTree(new CatVerModel(CatVer.read(new File("catver.ini"))));
-		scrollPane_3.setViewportView(treeCatVer);
+		treeCatVer = new JCheckBoxTree(new CatVerModel());
+		treeCatVer.setEnabled(false);
+		scrollPaneCatVer.setViewportView(treeCatVer);
 
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
 		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -2229,6 +2228,8 @@ public class MainFrame extends JFrame
 		cbbxYearMin.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMin", cbbxYearMin.getModel().getElementAt(0)));
 		cbbxYearMax.setModel(new Years(Profile.curr_profile.years));
 		cbbxYearMax.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMax", cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1)));
+		treeCatVer.setEnabled(Profile.curr_profile.catver!=null);
+		treeCatVer.setModel(Profile.curr_profile.catver!=null?new CatVerModel(Profile.curr_profile.catver):new CatVerModel());
 	}
 
 	private JPanel settingsTab;
@@ -2328,12 +2329,12 @@ public class MainFrame extends JFrame
 	private JComboBox<String> cbbxYearMax;
 	private JSplitPane scannerFilters;
 	private JPanel panel_1;
-	private JScrollPane scrollPane_3;
-	private JScrollPane scrollPane_4;
-	private JCheckBoxList<NPlayer> checkBoxList;
+	private JScrollPane scrollPaneCatVer;
+	private JScrollPane scrollPaneNPlayers;
+	private JCheckBoxList<NPlayer> listNPlayers;
 	private JCheckBoxTree treeCatVer;
-	private JFileDropTextField fileDropTextField;
-	private JFileDropTextField fileDropTextField_1;
+	private JFileDropTextField tfNPlayers;
+	private JFileDropTextField tfCatVer;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

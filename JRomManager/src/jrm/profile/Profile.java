@@ -49,6 +49,9 @@ import jrm.profile.data.SystmDevice;
 import jrm.profile.data.SystmMechanical;
 import jrm.profile.data.SystmStandard;
 import jrm.profile.data.Systms;
+import jrm.profile.filter.CatVer;
+import jrm.profile.filter.CatVer.Category;
+import jrm.profile.filter.CatVer.SubCategory;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -75,6 +78,7 @@ public class Profile implements Serializable
 	public transient Systms systems;
 	public transient Collection<String> years;
 	public transient ProfileNFO nfo;
+	public transient CatVer catver;
 	public static transient Profile curr_profile;
 
 	private Profile()
@@ -758,6 +762,8 @@ public class Profile implements Serializable
 		profile.loadSystems();
 		handler.setProgress("Creating Years filters...", -1); //$NON-NLS-1$
 		profile.loadYears();
+		handler.setProgress("Loading CatVer.ini ...", -1); //$NON-NLS-1$
+		profile.loadCatVer();
 		return profile;
 	}
 
@@ -897,6 +903,30 @@ public class Profile implements Serializable
 		machinelist_list.softwarelist_list.forEach(sl -> sl.forEach(s -> years.add(s.year.toString())));
 		years.add("????");
 		this.years = years;
+	}
+
+	public void loadCatVer()
+	{
+		try
+		{
+			catver = CatVer.read(new File("catver.ini"));
+			for(Category cat : catver)
+			{
+				for(SubCategory subcat : cat)
+				{
+					for(String game : subcat)
+					{
+						Machine m = machinelist_list.get(0).m_byname.get(game);
+						if(m != null)
+							m.subcat = subcat;
+					}
+				}
+			}
+		}
+		catch(IOException e)
+		{
+			catver = null;
+		}
 	}
 
 }

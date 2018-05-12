@@ -11,6 +11,7 @@ import javax.xml.stream.XMLStreamException;
 
 import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Export.SimpleAttribute;
+import jrm.profile.filter.CatVer.SubCategory;
 
 @SuppressWarnings("serial")
 public class Machine extends Anyware implements Serializable
@@ -26,6 +27,8 @@ public class Machine extends Anyware implements Serializable
 	public DisplayOrientation orientation = DisplayOrientation.any;
 	public CabinetType cabinetType = CabinetType.upright;
 	public Map<String, SWList> swlists = new HashMap<>();
+	
+	public transient SubCategory subcat = null;
 
 	public class SWList implements Serializable
 	{
