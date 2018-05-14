@@ -138,11 +138,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 					}
 				}
 			}
-			if(t.year.length()>0)
+			if(t.year.length() > 0)
 			{
-				if(filterYearMin.compareTo(t.year.toString())>0)
+				if(filterYearMin.compareTo(t.year.toString()) > 0)
 					return false;
-				if(filterYearMax.compareTo(t.year.toString())<0)
+				if(filterYearMax.compareTo(t.year.toString()) < 0)
 					return false;
 			}
 			if(!filterIncludeClones && t.isClone())
@@ -150,6 +150,10 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			if(!filterIncludeDisks && t.disks.size() > 0)
 				return false;
 			if(!t.getSystem().isSelected())
+				return false;
+			if(t.subcat != null && !t.subcat.isSelected())
+				return false;
+			if(t.nplayer != null && !t.nplayer.isSelected())
 				return false;
 			return true;
 		});
@@ -191,7 +195,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			writer.writeStartElement("mame");
 		else
 			writer.writeStartElement("datafile");
-		List<Machine> list = filtered?getFilteredStream().collect(Collectors.toList()):getList();
+		List<Machine> list = filtered ? getFilteredStream().collect(Collectors.toList()) : getList();
 		int i = 0;
 		progress.setProgress("Exporting", i, list.size());
 		for(Machine m : list)

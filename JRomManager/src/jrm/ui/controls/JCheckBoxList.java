@@ -40,6 +40,13 @@ public class JCheckBoxList<E> extends JList<E>
 	}
 
 	@Override
+	public void setModel(ListModel<E> model)
+	{
+		super.setModel(model);
+		setEnabled(model.getSize()>0);
+	}
+	
+	@Override
 	public boolean isSelectedIndex(int index)
 	{
 		return checkboxes[index].isSelected();

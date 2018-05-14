@@ -3,12 +3,10 @@ package jrm.ui.controls;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.EventListener;
 import java.util.EventObject;
-import java.util.HashMap;
-import java.util.HashSet;
 
 import javax.swing.JPanel;
 import javax.swing.JTree;
@@ -16,7 +14,6 @@ import javax.swing.event.EventListenerList;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import jrm.ui.NGTreeNode;
@@ -24,11 +21,6 @@ import jrm.ui.NGTreeNode;
 @SuppressWarnings("serial")
 public class JCheckBoxTree extends JTree
 {
-
-	HashMap<TreePath, NGTreeNode> nodesCheckingState;
-	HashSet<TreePath> checkedPaths = new HashSet<TreePath>();
-
-	// Defining a new event type for the checking mechanism and preparing event-handling mechanism
 	protected EventListenerList listenerList = new EventListenerList();
 
 	public class CheckChangeEvent extends EventObject
@@ -70,44 +62,15 @@ public class JCheckBoxTree extends JTree
 	public void setModel(TreeModel newModel)
 	{
 		super.setModel(newModel);
-		resetCheckingState();
+		setEnabled(newModel.getChildCount(newModel.getRoot()) > 0);
 	}
 
-	// New method that returns only the checked paths (totally ignores original "selection" mechanism)
-	public TreePath[] getCheckedPaths()
-	{
-		return checkedPaths.toArray(new TreePath[checkedPaths.size()]);
-	}
-
-	// Returns true in case that the node is selected, has children but not all of them are selected
 	public boolean isSelectedPartially(TreePath path)
 	{
-		NGTreeNode cn = nodesCheckingState.get(path);
-		return cn.isSelected() && cn.getChildCount()>0 && !cn.allChildrenSelected();
+		NGTreeNode cn = (NGTreeNode) path.getLastPathComponent();
+		return cn.isSelected() && cn.getChildCount() > 0 && !cn.allChildrenSelected();
 	}
 
-	private void resetCheckingState()
-	{
-		nodesCheckingState = new HashMap<TreePath, NGTreeNode>();
-		checkedPaths = new HashSet<TreePath>();
-		NGTreeNode node = (NGTreeNode) getModel().getRoot();
-		if(node == null)
-			return;
-		addSubtreeToCheckingStateTracking(node);
-	}
-
-	// Creating data structure of the current model for the checking mechanism
-	private void addSubtreeToCheckingStateTracking(NGTreeNode node)
-	{
-		TreeNode[] path = node.getPath();
-		TreePath tp = new TreePath(path);
-		nodesCheckingState.put(tp, node);
-		for(int i = 0; i < node.getChildCount(); i++)
-			addSubtreeToCheckingStateTracking((NGTreeNode) tp.pathByAddingChild(node.getChildAt(i)).getLastPathComponent());
-	}
-
-	// Overriding cell renderer by a class that ignores the original "selection" mechanism
-	// It decides how to show the nodes due to the checking-mechanism
 	private class CheckBoxCellRenderer extends JPanel implements TreeCellRenderer
 	{
 		JTristateCheckBox checkBox;
@@ -127,16 +90,14 @@ public class JCheckBoxTree extends JTree
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus)
 		{
 			NGTreeNode node = (NGTreeNode) value;
-			Object obj = node.getUserObject();
-			TreePath tp = new TreePath(node.getPath());
-			NGTreeNode cn = nodesCheckingState.get(tp);
-			if(cn == null)
+			if(node == null)
 				return this;
+			Object obj = node.getUserObject();
 			checkBox.setEnabled(tree.isEnabled());
-			checkBox.setSelected(cn.isSelected());
-			checkBox.setText(obj!=null?obj.toString():null);
-			checkBox.setHalfSelected(cn.isSelected() && cn.getChildCount()>0 && !cn.allChildrenSelected());
-			this.setPreferredSize(new Dimension(Math.max(this.getPreferredSize().width, checkBox.getFontMetrics(getFont()).stringWidth(checkBox.getText())+100),20));
+			checkBox.setSelected(node.isSelected());
+			checkBox.setText(obj != null ? obj.toString() : null);
+			checkBox.setHalfSelected(node.isSelected() && node.getChildCount() > 0 && !node.allChildrenSelected());
+			this.setPreferredSize(new Dimension(Math.max(this.getPreferredSize().width, checkBox.getFontMetrics(getFont()).stringWidth(checkBox.getText()) + 100), 20));
 			return this;
 		}
 	}
@@ -144,35 +105,34 @@ public class JCheckBoxTree extends JTree
 	public JCheckBoxTree(TreeModel model)
 	{
 		super(model);
-		// Disabling toggling by double-click
 		this.setToggleClickCount(0);
-		// Overriding cell renderer by new one defined above
-		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer();
-		this.setCellRenderer(cellRenderer);
+		this.setCellRenderer(new CheckBoxCellRenderer());
 
-		// Overriding selection model by an empty one
 		DefaultTreeSelectionModel dtsm = new DefaultTreeSelectionModel()
 		{
-			// Totally disabling the selection mechanism
+			@Override
 			public void setSelectionPath(TreePath path)
 			{
 			}
 
+			@Override
 			public void addSelectionPath(TreePath path)
 			{
 			}
 
+			@Override
 			public void removeSelectionPath(TreePath path)
 			{
 			}
 
+			@Override
 			public void setSelectionPaths(TreePath[] pPaths)
 			{
 			}
 		};
-		// Calling checking mechanism on mouse click
-		this.addMouseListener(new MouseListener()
+		this.addMouseListener(new MouseAdapter()
 		{
+			@Override
 			public void mouseClicked(MouseEvent arg0)
 			{
 				if(!JCheckBoxTree.this.isEnabled())
@@ -180,79 +140,37 @@ public class JCheckBoxTree extends JTree
 				TreePath tp = JCheckBoxTree.this.getPathForLocation(arg0.getX(), arg0.getY());
 				if(tp == null)
 					return;
-				boolean checkMode = !nodesCheckingState.get(tp).isSelected();
+				boolean checkMode = !((NGTreeNode) tp.getLastPathComponent()).isSelected();
 				checkSubTree(tp, checkMode);
-				updatePredecessorsWithCheckMode(tp, checkMode);
-				// Firing the check change event
+				updatePredecessorsWithCheckMode(tp);
 				fireCheckChangeEvent(new CheckChangeEvent(new Object()));
-				// Repainting tree after the data structures were updated
 				JCheckBoxTree.this.repaint();
-			}
-
-			public void mouseEntered(MouseEvent arg0)
-			{
-			}
-
-			public void mouseExited(MouseEvent arg0)
-			{
-			}
-
-			public void mousePressed(MouseEvent arg0)
-			{
-			}
-
-			public void mouseReleased(MouseEvent arg0)
-			{
 			}
 		});
 		this.setSelectionModel(dtsm);
 	}
 
-	// When a node is checked/unchecked, updating the states of the predecessors
-	protected void updatePredecessorsWithCheckMode(TreePath tp, boolean check)
+	protected void updatePredecessorsWithCheckMode(TreePath tp)
 	{
 		TreePath parentPath = tp.getParentPath();
-		// If it is the root, stop the recursive calls and return
 		if(parentPath == null)
 			return;
 		NGTreeNode parentNode = (NGTreeNode) parentPath.getLastPathComponent();
-		parentNode.setAllChildrenSelected(true);
 		parentNode.setSelected(false);
 		for(int i = 0; i < parentNode.getChildCount(); i++)
 		{
-			TreePath childPath = parentPath.pathByAddingChild(parentNode.getChildAt(i));
-			NGTreeNode childCheckedNode = nodesCheckingState.get(childPath);
-			// It is enough that even one subtree is not fully selected
-			// to determine that the parent is not fully selected
-			if(!childCheckedNode.allChildrenSelected())
-				parentNode.setAllChildrenSelected(false);
-			// If at least one child is selected, selecting also the parent
-			if(childCheckedNode.isSelected())
+			if(((NGTreeNode) parentNode.getChildAt(i)).isSelected())
 				parentNode.setSelected(true);
 		}
-		if(parentNode.isSelected())
-			checkedPaths.add(parentPath);
-		else
-			checkedPaths.remove(parentPath);
-		// Go to upper predecessor
-		updatePredecessorsWithCheckMode(parentPath, check);
+		updatePredecessorsWithCheckMode(parentPath);
 	}
 
-	// Recursively checks/unchecks a subtree
 	protected void checkSubTree(TreePath tp, boolean check)
 	{
-		NGTreeNode cn = nodesCheckingState.get(tp);
-		cn.setSelected(check);
 		NGTreeNode node = (NGTreeNode) tp.getLastPathComponent();
+		node.setSelected(check);
 		for(int i = 0; i < node.getChildCount(); i++)
-		{
 			checkSubTree(tp.pathByAddingChild(node.getChildAt(i)), check);
-		}
-		cn.setAllChildrenSelected(check);
-		if(check)
-			checkedPaths.add(tp);
-		else
-			checkedPaths.remove(tp);
 	}
 
 }

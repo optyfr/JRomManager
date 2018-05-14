@@ -9,5 +9,4 @@ public interface NGTreeNode extends TreeNode
 	public boolean isSelected();
 	public void setSelected(boolean selected);
 	public boolean allChildrenSelected();
-	public void setAllChildrenSelected(boolean selected);
 }

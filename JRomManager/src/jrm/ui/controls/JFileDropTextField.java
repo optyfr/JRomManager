@@ -5,12 +5,7 @@ import java.awt.HeadlessException;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
@@ -20,11 +15,11 @@ import javax.swing.JTextField;
 import javax.swing.text.Document;
 
 @SuppressWarnings("serial")
-public class JFileDropTextField extends JTextField implements FocusListener,DropTargetListener
+public class JFileDropTextField extends JTextField implements FocusListener, DropTargetListener
 {
 	private Color color;
 	private SetCallBack callback;
-	
+
 	public interface SetCallBack
 	{
 		public void call(String txt);
@@ -49,7 +44,8 @@ public class JFileDropTextField extends JTextField implements FocusListener,Drop
 	{
 		this(null, "", columns, callback);
 	}
-    public JFileDropTextField(Document doc, String text, int columns, SetCallBack callback)
+
+	public JFileDropTextField(Document doc, String text, int columns, SetCallBack callback)
 	{
 		super(doc, text, columns);
 		this.callback = callback;
@@ -66,7 +62,7 @@ public class JFileDropTextField extends JTextField implements FocusListener,Drop
 	@Override
 	public void focusLost(FocusEvent e)
 	{
-		if(callback!=null)
+		if(callback != null)
 			callback.call(JFileDropTextField.this.getText());
 	}
 

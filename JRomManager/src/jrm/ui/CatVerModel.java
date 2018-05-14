@@ -67,6 +67,20 @@ public class CatVerModel extends DefaultTreeModel
 			{
 				return "Add a catver.ini first";
 			}
+
+			@Override
+			public boolean isSelected()
+			{
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public void setSelected(boolean selected)
+			{
+				// TODO Auto-generated method stub
+				
+			}
 		});
 	}
 

@@ -5,7 +5,7 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class SystmDevice implements Systm, Serializable
 {
-	public static SystmDevice DEVICE = new SystmDevice();
+	public final static SystmDevice DEVICE = new SystmDevice();
 
 	public SystmDevice()
 	{

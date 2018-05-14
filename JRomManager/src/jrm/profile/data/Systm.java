@@ -2,9 +2,7 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 
-import jrm.profile.Profile;
-
-public interface Systm extends Serializable
+public interface Systm extends Serializable, PropertyStub
 {
 	public enum Type
 	{
@@ -21,13 +19,9 @@ public interface Systm extends Serializable
 
 	public String getName();
 
-	public default boolean isSelected()
+	@Override
+	public default String getPropertyName()
 	{
-		return Profile.curr_profile.getProperty("filter." + getName(), true);
-	}
-
-	public default void setSelected(boolean selected)
-	{
-		Profile.curr_profile.setProperty("filter." + getName(), selected);
+		return "filter.systems." + getName();
 	}
 }

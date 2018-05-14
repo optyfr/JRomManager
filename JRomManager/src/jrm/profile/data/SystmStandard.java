@@ -5,7 +5,7 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class SystmStandard implements Systm, Serializable
 {
-	public static SystmStandard STANDARD = new SystmStandard();
+	public final static SystmStandard STANDARD = new SystmStandard();
 	
 	public SystmStandard()
 	{

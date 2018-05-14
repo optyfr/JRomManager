@@ -4,28 +4,25 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.swing.AbstractListModel;
 
 import org.apache.commons.lang3.StringUtils;
 
-@SuppressWarnings("serial")
-public class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayers.NPlayer>
-{
-	Map<String, NPlayer> nplayers = new TreeMap<>();
-	List<NPlayer> list_nplayers;
+import jrm.profile.data.PropertyStub;
 
-	public class NPlayer implements List<String>
+@SuppressWarnings("serial")
+public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayers.NPlayer> implements Iterable<NPlayers.NPlayer>
+{
+	final private Map<String, NPlayer> nplayers = new TreeMap<>();
+	final private List<NPlayer> list_nplayers = new ArrayList<>();
+	public final File file;
+
+	public final class NPlayer implements List<String>,PropertyStub
 	{
-		String name;
-		List<String> games = new ArrayList<>();
+		final private String name;
+		final private List<String> games = new ArrayList<>();
 
 		public NPlayer(String name)
 		{
@@ -175,12 +172,19 @@ public class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayers.NPla
 		{
 			return name + " (" + games.size() + ")";
 		}
+
+		@Override
+		public String getPropertyName()
+		{
+			return "filter.nplayer."+name;
+		}
 	}
 
-	private NPlayers(File file)
+	private NPlayers(File file) throws IOException
 	{
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
+			this.file = file;
 			String line;
 			boolean in_section = false;
 			while(null != (line = reader.readLine()))
@@ -205,16 +209,13 @@ public class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayers.NPla
 					}
 				}
 			}
-			list_nplayers = new ArrayList<>(nplayers.values());
-		}
-		catch(IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			list_nplayers.addAll(nplayers.values());
+			if(list_nplayers.isEmpty())
+				throw new IOException("No NPlayers data");
 		}
 	}
 
-	public static NPlayers read(File file)
+	public static NPlayers read(File file) throws IOException
 	{
 		return new NPlayers(file);
 	}
@@ -229,6 +230,12 @@ public class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayers.NPla
 	public NPlayer getElementAt(int index)
 	{
 		return list_nplayers.get(index);
+	}
+
+	@Override
+	public Iterator<NPlayer> iterator()
+	{
+		return list_nplayers.iterator();
 	}
 
 }

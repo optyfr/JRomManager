@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamException;
 import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Export.SimpleAttribute;
 import jrm.profile.filter.CatVer.SubCategory;
+import jrm.profile.filter.NPlayers.NPlayer;
 
 @SuppressWarnings("serial")
 public class Machine extends Anyware implements Serializable
@@ -29,6 +30,7 @@ public class Machine extends Anyware implements Serializable
 	public Map<String, SWList> swlists = new HashMap<>();
 	
 	public transient SubCategory subcat = null;
+	public transient NPlayer nplayer = null;
 
 	public class SWList implements Serializable
 	{

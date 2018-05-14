@@ -2,42 +2,34 @@ package jrm.profile.filter;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang3.StringUtils;
 
+import jrm.profile.data.PropertyStub;
 import jrm.ui.AbstractNGTreeNode;
 
-public class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.filter.CatVer.Category>
+public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.filter.CatVer.Category>, PropertyStub
 {
-	private Map<String, Category> categories = new TreeMap<>();
-	private List<Category> list_categories = null;
+	private final Map<String, Category> categories = new TreeMap<>();
+	private final List<Category> list_categories = new ArrayList<>();
+	public final File file;
 
-	public class Category extends AbstractNGTreeNode implements Map<String, SubCategory>, Iterable<SubCategory>
+	public final static class Category extends AbstractNGTreeNode implements Map<String, SubCategory>, Iterable<SubCategory>, PropertyStub
 	{
-		String name;
-		private CatVer parent = null;
-		private Map<String, SubCategory> subcategories = new TreeMap<>();
-		private List<SubCategory> list_subcategories = null;
+		private final String name;
+		private final CatVer parent;
+		private final Map<String, SubCategory> subcategories = new TreeMap<>();
+		private final List<SubCategory> list_subcategories = new ArrayList<>();
 
-		public Category(String name)
+		public Category(String name, CatVer parent)
 		{
 			this.name = name;
-			this.parent = CatVer.this;
+			this.parent = parent;
 		}
 
 		@Override
@@ -145,7 +137,7 @@ public class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.f
 		@Override
 		public boolean isLeaf()
 		{
-			return list_subcategories.size()==0;
+			return list_subcategories.size() == 0;
 		}
 
 		@Override
@@ -165,17 +157,37 @@ public class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.f
 		{
 			return list_subcategories.iterator();
 		}
+
+		@Override
+		public String getPropertyName()
+		{
+			return "filter.cat." + name;
+		}
+
+		@Override
+		public void setSelected(boolean selected)
+		{
+			PropertyStub.super.setSelected(selected);
+		}
+
+		@Override
+		public boolean isSelected()
+		{
+			return PropertyStub.super.isSelected();
+		}
+
 	}
 
-	public class SubCategory extends AbstractNGTreeNode implements List<String>, TreeNode
+	public final static class SubCategory extends AbstractNGTreeNode implements List<String>, PropertyStub
 	{
-		String name;
-		Category parent;
-		private List<String> games = new ArrayList<>();
+		private final String name;
+		private final Category parent;
+		private final List<String> games = new ArrayList<>();
 
-		public SubCategory(String name)
+		public SubCategory(String name, Category parent)
 		{
 			this.name = name;
+			this.parent = parent;
 		}
 
 		@Override
@@ -361,7 +373,25 @@ public class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.f
 		@Override
 		public Object getUserObject()
 		{
-			return name + " ("+games.size()+")";
+			return name + " (" + games.size() + ")";
+		}
+
+		@Override
+		public String getPropertyName()
+		{
+			return "filter.cat." + parent.name + "." + name;
+		}
+
+		@Override
+		public void setSelected(boolean selected)
+		{
+			PropertyStub.super.setSelected(selected);
+		}
+
+		@Override
+		public boolean isSelected()
+		{
+			return PropertyStub.super.isSelected();
 		}
 	}
 
@@ -369,6 +399,7 @@ public class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.f
 	{
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
+			this.file = file;
 			String line;
 			boolean in_section = false;
 			while(null != (line = reader.readLine()))
@@ -390,23 +421,24 @@ public class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.f
 							String sc = v[1].trim();
 							Category cat;
 							if(!categories.containsKey(c))
-								categories.put(c, cat = new Category(c));
+								categories.put(c, cat = new Category(c, CatVer.this));
 							else
 								cat = categories.get(c);
 							SubCategory subcat;
 							if(!cat.containsKey(sc))
-								cat.put(sc, subcat = new SubCategory(sc));
+								cat.put(sc, subcat = new SubCategory(sc, cat));
 							else
 								subcat = cat.get(sc);
 							subcat.add(k);
-							subcat.parent = cat;
 						}
 					}
 				}
 			}
-			list_categories = new ArrayList<>(categories.values());
+			list_categories.addAll(categories.values());
 			for(Category cat : list_categories)
-				cat.list_subcategories = new ArrayList<>(cat.subcategories.values());
+				cat.list_subcategories.addAll(cat.subcategories.values());
+			if(list_categories.isEmpty())
+				throw new IOException("No CatVer data");
 		}
 	}
 
@@ -448,7 +480,7 @@ public class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.f
 	@Override
 	public boolean isLeaf()
 	{
-		return list_categories.size()==0;
+		return list_categories.size() == 0;
 	}
 
 	@Override
@@ -460,13 +492,31 @@ public class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.f
 	@Override
 	public Object getUserObject()
 	{
-		return String.format("%s (%d)", "All Categories", list_categories.stream().flatMap(c->c.list_subcategories.stream().filter(SubCategory::isSelected)).mapToInt(SubCategory::size).sum());
+		return String.format("%s (%d)", "All Categories", list_categories.stream().flatMap(c -> c.list_subcategories.stream().filter(SubCategory::isSelected)).mapToInt(SubCategory::size).sum());
 	}
 
 	@Override
 	public Iterator<Category> iterator()
 	{
 		return list_categories.iterator();
+	}
+
+	@Override
+	public String getPropertyName()
+	{
+		return "filter.cat";
+	}
+
+	@Override
+	public void setSelected(boolean selected)
+	{
+		PropertyStub.super.setSelected(selected);
+	}
+
+	@Override
+	public boolean isSelected()
+	{
+		return PropertyStub.super.isSelected();
 	}
 
 }

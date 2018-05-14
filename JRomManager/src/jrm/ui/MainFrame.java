@@ -1,68 +1,19 @@
 package jrm.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
@@ -105,14 +56,11 @@ import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.JRMFileChooser.CallBack;
 import jrm.ui.JRMFileChooser.OneRootFileSystemView;
-import jrm.ui.controls.JCheckBoxList;
-import jrm.ui.controls.JCheckBoxTree;
-import jrm.ui.controls.JFileDropList;
+import jrm.ui.controls.*;
+import jrm.ui.controls.JCheckBoxTree.CheckChangeEvent;
+import jrm.ui.controls.JCheckBoxTree.CheckChangeEventListener;
 import jrm.ui.controls.JFileDropList.AddDelCallBack;
-import jrm.ui.controls.JFileDropTextField;
 import jrm.ui.controls.JFileDropTextField.SetCallBack;
-import jrm.ui.controls.JListHintUI;
-import jrm.ui.controls.JTextFieldHintUI;
 
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
@@ -747,7 +695,7 @@ public class MainFrame extends JFrame
 
 		tfSWDest = new JFileDropTextField(new SetCallBack()
 		{
-			
+
 			@Override
 			public void call(String txt)
 			{
@@ -1257,10 +1205,7 @@ public class MainFrame extends JFrame
 					if(e.getFirstIndex() != -1)
 					{
 						for(int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
-						{
-							Systm system = checkBoxListSystems.getModel().getElementAt(index);
-							Profile.curr_profile.setProperty("filter." + system.getName(), checkBoxListSystems.isSelectedIndex(index));
-						}
+							checkBoxListSystems.getModel().getElementAt(index).setSelected(checkBoxListSystems.isSelectedIndex(index));
 						if(profile_viewer != null)
 							profile_viewer.reset(Profile.curr_profile);
 					}
@@ -1455,8 +1400,10 @@ public class MainFrame extends JFrame
 		cbbxSWMinSupportedLvl.setSelectedIndex(0);
 
 		cbbxYearMin = new JComboBox<>();
-		cbbxYearMin.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+		cbbxYearMin.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
 				if(e.getStateChange() == ItemEvent.SELECTED)
 				{
 					Profile.curr_profile.setProperty("filter.YearMin", e.getItem().toString());
@@ -1481,8 +1428,10 @@ public class MainFrame extends JFrame
 		lblYear.setHorizontalAlignment(SwingConstants.CENTER);
 
 		cbbxYearMax = new JComboBox<>();
-		cbbxYearMax.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+		cbbxYearMax.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
 				if(e.getStateChange() == ItemEvent.SELECTED)
 				{
 					Profile.curr_profile.setProperty("filter.YearMax", e.getItem().toString());
@@ -1532,28 +1481,52 @@ public class MainFrame extends JFrame
 		scannerAdvFilters = new JPanel();
 		scannerCfgTab.addTab(Messages.getString("MainFrame.AdvFilters"), null, scannerAdvFilters, null);
 		GridBagLayout gbl_scannerAdvFilters = new GridBagLayout();
-		gbl_scannerAdvFilters.columnWidths = new int[]{0, 0, 0};
-		gbl_scannerAdvFilters.rowHeights = new int[]{0, 0, 0};
-		gbl_scannerAdvFilters.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gbl_scannerAdvFilters.rowWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+		gbl_scannerAdvFilters.columnWidths = new int[] { 0, 0, 0 };
+		gbl_scannerAdvFilters.rowHeights = new int[] { 0, 0, 0 };
+		gbl_scannerAdvFilters.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+		gbl_scannerAdvFilters.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
 		scannerAdvFilters.setLayout(gbl_scannerAdvFilters);
-		
-		tfNPlayers = new JFileDropTextField((SetCallBack) null);
+
+		tfNPlayers = new JFileDropTextField(new SetCallBack()
+		{
+			@Override
+			public void call(String txt)
+			{
+				Profile.curr_profile.setProperty("filter.nplayers.ini", txt);
+				Profile.curr_profile.loadNPlayers();
+				Profile.curr_profile.saveSettings();
+				listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
+			}
+		});
+		tfNPlayers.setUI(new JTextFieldHintUI("Drop nplayers.ini here", Color.gray));
+		tfNPlayers.setEditable(false);
 		GridBagConstraints gbc_tfNPlayers = new GridBagConstraints();
 		gbc_tfNPlayers.insets = new Insets(0, 0, 5, 5);
 		gbc_tfNPlayers.fill = GridBagConstraints.HORIZONTAL;
 		gbc_tfNPlayers.gridx = 0;
 		gbc_tfNPlayers.gridy = 0;
 		scannerAdvFilters.add(tfNPlayers, gbc_tfNPlayers);
-		
-		tfCatVer = new JFileDropTextField((SetCallBack) null);
+
+		tfCatVer = new JFileDropTextField(new SetCallBack()
+		{
+			@Override
+			public void call(String txt)
+			{
+				Profile.curr_profile.setProperty("filter.catver.ini", txt);
+				Profile.curr_profile.loadCatVer();
+				Profile.curr_profile.saveSettings();
+				treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());
+			}
+		});
+		tfCatVer.setUI(new JTextFieldHintUI("Drop catver.ini here", Color.gray));
+		tfCatVer.setEditable(false);
 		GridBagConstraints gbc_tfCatVer = new GridBagConstraints();
 		gbc_tfCatVer.insets = new Insets(0, 0, 5, 0);
 		gbc_tfCatVer.fill = GridBagConstraints.HORIZONTAL;
 		gbc_tfCatVer.gridx = 1;
 		gbc_tfCatVer.gridy = 0;
 		scannerAdvFilters.add(tfCatVer, gbc_tfCatVer);
-		
+
 		scrollPaneNPlayers = new JScrollPane();
 		scrollPaneNPlayers.setViewportBorder(new TitledBorder(null, "NPlayers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_scrollPaneNPlayers = new GridBagConstraints();
@@ -1562,11 +1535,37 @@ public class MainFrame extends JFrame
 		gbc_scrollPaneNPlayers.gridx = 0;
 		gbc_scrollPaneNPlayers.gridy = 1;
 		scannerAdvFilters.add(scrollPaneNPlayers, gbc_scrollPaneNPlayers);
-		
+
 		listNPlayers = new JCheckBoxList<>();
+		listNPlayers.setCellRenderer(listNPlayers.new CellRenderer()
+		{
+			public Component getListCellRendererComponent(JList<? extends NPlayer> list, NPlayer value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				checkbox.setSelected(value.isSelected());
+				return checkbox;
+			}
+		});
+		listNPlayers.addListSelectionListener(new ListSelectionListener()
+		{
+			@Override
+			public void valueChanged(ListSelectionEvent e)
+			{
+				if(!e.getValueIsAdjusting())
+				{
+					if(e.getFirstIndex() != -1)
+					{
+						for(int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
+							listNPlayers.getModel().getElementAt(index).setSelected(listNPlayers.isSelectedIndex(index));
+						if(profile_viewer != null)
+							profile_viewer.reset(Profile.curr_profile);
+					}
+				}
+			}
+		});
 		listNPlayers.setEnabled(false);
 		scrollPaneNPlayers.setViewportView(listNPlayers);
-		
+
 		scrollPaneCatVer = new JScrollPane();
 		scrollPaneCatVer.setViewportBorder(new TitledBorder(null, "Categories", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_scrollPaneCatVer = new GridBagConstraints();
@@ -1574,8 +1573,18 @@ public class MainFrame extends JFrame
 		gbc_scrollPaneCatVer.gridx = 1;
 		gbc_scrollPaneCatVer.gridy = 1;
 		scannerAdvFilters.add(scrollPaneCatVer, gbc_scrollPaneCatVer);
-		
+
 		treeCatVer = new JCheckBoxTree(new CatVerModel());
+		treeCatVer.addCheckChangeEventListener(new CheckChangeEventListener()
+		{
+			@Override
+			public void checkStateChanged(CheckChangeEvent event)
+			{
+				Profile.curr_profile.saveSettings();
+				if(profile_viewer != null)
+					profile_viewer.reset(Profile.curr_profile);
+			}
+		});
 		treeCatVer.setEnabled(false);
 		scrollPaneCatVer.setViewportView(treeCatVer);
 
@@ -2228,8 +2237,10 @@ public class MainFrame extends JFrame
 		cbbxYearMin.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMin", cbbxYearMin.getModel().getElementAt(0)));
 		cbbxYearMax.setModel(new Years(Profile.curr_profile.years));
 		cbbxYearMax.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMax", cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1)));
-		treeCatVer.setEnabled(Profile.curr_profile.catver!=null);
-		treeCatVer.setModel(Profile.curr_profile.catver!=null?new CatVerModel(Profile.curr_profile.catver):new CatVerModel());
+		tfNPlayers.setText(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers.file.getAbsolutePath() : null);
+		listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
+		tfCatVer.setText(Profile.curr_profile.catver != null ? Profile.curr_profile.catver.file.getAbsolutePath() : null);
+		treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());
 	}
 
 	private JPanel settingsTab;

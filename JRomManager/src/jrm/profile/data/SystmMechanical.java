@@ -5,7 +5,7 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class SystmMechanical implements Systm, Serializable
 {
-	public static SystmMechanical MECHANICAL = new SystmMechanical();
+	public final static SystmMechanical MECHANICAL = new SystmMechanical();
 
 	public SystmMechanical()
 	{

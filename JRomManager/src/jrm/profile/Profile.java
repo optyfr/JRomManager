@@ -1,21 +1,8 @@
 package jrm.profile;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Properties;
+import java.util.*;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -30,28 +17,20 @@ import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
-import jrm.profile.data.Disk;
-import jrm.profile.data.Entity;
-import jrm.profile.data.Machine;
+import jrm.profile.data.*;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.SWList;
 import jrm.profile.data.Machine.SWStatus;
-import jrm.profile.data.MachineListList;
-import jrm.profile.data.Rom;
 import jrm.profile.data.Rom.LoadFlag;
-import jrm.profile.data.Software;
 import jrm.profile.data.Software.Part;
 import jrm.profile.data.Software.Part.DataArea;
 import jrm.profile.data.Software.Part.DataArea.Endianness;
 import jrm.profile.data.Software.Part.DiskArea;
-import jrm.profile.data.SoftwareList;
-import jrm.profile.data.SystmDevice;
-import jrm.profile.data.SystmMechanical;
-import jrm.profile.data.SystmStandard;
-import jrm.profile.data.Systms;
 import jrm.profile.filter.CatVer;
 import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.SubCategory;
+import jrm.profile.filter.NPlayers;
+import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
@@ -79,6 +58,7 @@ public class Profile implements Serializable
 	public transient Collection<String> years;
 	public transient ProfileNFO nfo;
 	public transient CatVer catver;
+	public transient NPlayers nplayers;
 	public static transient Profile curr_profile;
 
 	private Profile()
@@ -762,8 +742,10 @@ public class Profile implements Serializable
 		profile.loadSystems();
 		handler.setProgress("Creating Years filters...", -1); //$NON-NLS-1$
 		profile.loadYears();
-		handler.setProgress("Loading CatVer.ini ...", -1); //$NON-NLS-1$
+		handler.setProgress("Loading catver.ini ...", -1); //$NON-NLS-1$
 		profile.loadCatVer();
+		handler.setProgress("Loading nplayers.ini ...", -1); //$NON-NLS-1$
+		profile.loadNPlayers();
 		return profile;
 	}
 
@@ -909,7 +891,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			catver = CatVer.read(new File("catver.ini"));
+			catver = CatVer.read(new File(getProperty("filter.catver.ini", null)));
 			for(Category cat : catver)
 			{
 				for(SubCategory subcat : cat)
@@ -923,9 +905,30 @@ public class Profile implements Serializable
 				}
 			}
 		}
-		catch(IOException e)
+		catch(Throwable e)
 		{
 			catver = null;
+		}
+	}
+
+	public void loadNPlayers()
+	{
+		try
+		{
+			nplayers = NPlayers.read(new File(getProperty("filter.nplayers.ini", null)));
+			for(NPlayer nplayer : nplayers)
+			{
+				for(String game : nplayer)
+				{
+					Machine m = machinelist_list.get(0).m_byname.get(game);
+					if(m != null)
+						m.nplayer = nplayer;
+				}
+			}
+		}
+		catch(Throwable e)
+		{
+			nplayers = null;
 		}
 	}
 

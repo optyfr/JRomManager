@@ -4,31 +4,15 @@ import javax.swing.tree.TreeNode;
 
 public abstract class AbstractNGTreeNode implements NGTreeNode
 {
-	private boolean isSelected = true;
-	private boolean allChildrenSelected = true;
-
-	@Override
-	public boolean isSelected()
-	{
-		return isSelected;
-	}
-	
-	@Override
-	public void setSelected(boolean selected)
-	{
-		isSelected = selected;
-	}
-	
 	@Override
 	public boolean allChildrenSelected()
 	{
-		return allChildrenSelected;
-	}
-	
-	@Override
-	public void setAllChildrenSelected(boolean selected)
-	{
-		allChildrenSelected = selected;
+		for(int i = 0; i < getChildCount(); i++)
+		{
+			if(!((NGTreeNode)getChildAt(i)).allChildrenSelected())
+				return false;
+		}
+		return isSelected();
 	}
 	
 	/**
