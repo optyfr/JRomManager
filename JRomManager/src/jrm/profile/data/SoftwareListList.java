@@ -25,8 +25,8 @@ import jrm.ui.ProgressHandler;
 @SuppressWarnings("serial")
 public final class SoftwareListList extends AnywareListList<SoftwareList> implements Serializable
 {
-	private ArrayList<SoftwareList> sl_list = new ArrayList<>();
-	public HashMap<String, SoftwareList> sl_byname = new HashMap<>();
+	private final ArrayList<SoftwareList> sl_list = new ArrayList<>();
+	public final HashMap<String, SoftwareList> sl_byname = new HashMap<>();
 
 	public SoftwareListList()
 	{

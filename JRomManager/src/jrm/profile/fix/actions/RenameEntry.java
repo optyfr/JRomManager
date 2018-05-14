@@ -13,7 +13,7 @@ import jrm.ui.ProgressHandler;
 
 public class RenameEntry extends EntryAction
 {
-	String newname;
+	final String newname;
 
 	public RenameEntry(Entry entry)
 	{

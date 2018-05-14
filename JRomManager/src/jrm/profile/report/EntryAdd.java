@@ -8,8 +8,8 @@ import jrm.profile.data.Entry;
 
 public class EntryAdd extends Note
 {
-	Entity entity;
-	Entry entry;
+	final Entity entity;
+	final Entry entry;
 	
 	public EntryAdd(Entity entity, Entry entry)
 	{

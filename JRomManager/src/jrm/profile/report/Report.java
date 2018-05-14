@@ -4,13 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -30,9 +24,9 @@ import one.util.streamex.IntStreamEx;
 public class Report implements TreeNode, HTMLRenderer
 {
 	private Profile profile;
-	private List<Subject> subjects = Collections.synchronizedList(new ArrayList<>());
-	private Map<String, Subject> subject_hash = Collections.synchronizedMap(new HashMap<>());
-	public Stats stats = new Stats();
+	private final List<Subject> subjects;
+	private final Map<String, Subject> subject_hash;
+	public final Stats stats;
 
 	private ReportTreeModel model = null;
 
@@ -52,6 +46,23 @@ public class Report implements TreeNode, HTMLRenderer
 		public int set_create_partial = 0;
 		public int set_create_complete = 0;
 
+		public void clear()
+		{
+			missing_set_cnt = 0;
+			missing_roms_cnt = 0;
+			missing_disks_cnt = 0;
+
+			set_unneeded = 0;
+			set_missing = 0;
+			set_found = 0;
+			set_found_ok = 0;
+			set_found_fixpartial = 0;
+			set_found_fixcomplete = 0;
+			set_create = 0;
+			set_create_partial = 0;
+			set_create_complete = 0;
+		}
+		
 		public String getStatus()
 		{
 			return String.format(Messages.getString("Report.Status"), set_found, set_found_ok, set_found_fixpartial, set_found_fixcomplete, set_create, set_create_partial, set_create_complete, set_missing, set_unneeded, set_found + set_create, set_found + set_create + set_missing); //$NON-NLS-1$
@@ -60,6 +71,9 @@ public class Report implements TreeNode, HTMLRenderer
 
 	public Report()
 	{
+		subjects = Collections.synchronizedList(new ArrayList<>());
+		subject_hash = Collections.synchronizedMap(new HashMap<>());
+		stats = new Stats();
 		model = new ReportTreeModel(this);
 		model.initClone();
 	}
@@ -119,7 +133,7 @@ public class Report implements TreeNode, HTMLRenderer
 		subject_hash.clear();
 		subjects.clear();
 		insert_object_cache.clear();
-		stats = new Stats();
+		stats.clear();
 		if(model != null)
 			model.filter(filterPredicate.filterOptions);
 		flush();

@@ -8,8 +8,8 @@ import jrm.profile.data.Entry;
 
 public class EntryWrongName extends Note
 {
-	Entity entity;
-	Entry entry;
+	final Entity entity;
+	final Entry entry;
 	
 	public EntryWrongName(Entity entity, Entry entry)
 	{

@@ -2,23 +2,19 @@ package jrm.profile.fix.actions;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 
 import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
+import jrm.profile.data.Container.Type;
 import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
-import jrm.profile.data.Container.Type;
 import jrm.ui.ProgressHandler;
 
 public class AddEntry extends EntryAction
 {
-	private Entity entity;
+	private final Entity entity;
 
 	public AddEntry(Entity entity, Entry entry)
 	{

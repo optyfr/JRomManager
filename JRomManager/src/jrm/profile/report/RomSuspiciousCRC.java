@@ -6,7 +6,7 @@ import jrm.Messages;
 
 public class RomSuspiciousCRC extends Subject
 {
-	String crc;
+	final String crc;
 	
 	public RomSuspiciousCRC(String crc)
 	{

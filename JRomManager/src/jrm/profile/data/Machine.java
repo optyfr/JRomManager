@@ -22,12 +22,12 @@ public class Machine extends Anyware implements Serializable
 	public boolean isbios = false;
 	public boolean ismechanical = false;
 	public boolean isdevice = false;
-	public StringBuffer manufacturer = new StringBuffer();
-	public Driver driver = new Driver();
-	public Input input = new Input();
+	public final StringBuffer manufacturer = new StringBuffer();
+	public final Driver driver = new Driver();
+	public final Input input = new Input();
 	public DisplayOrientation orientation = DisplayOrientation.any;
 	public CabinetType cabinetType = CabinetType.upright;
-	public Map<String, SWList> swlists = new HashMap<>();
+	public final Map<String, SWList> swlists = new HashMap<>();
 	
 	public transient SubCategory subcat = null;
 	public transient NPlayer nplayer = null;

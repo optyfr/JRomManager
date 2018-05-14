@@ -12,15 +12,22 @@ import jrm.profile.data.Anyware;
 
 public abstract class Subject implements TreeNode,HTMLRenderer
 {
-	protected Anyware ware;
+	protected final Anyware ware;
 	
-	protected List<Note> notes = new ArrayList<>();
+	protected final List<Note> notes;
 	
 	protected Report parent;
 
 	public Subject(Anyware machine)
 	{
 		this.ware = machine;
+		this.notes = new ArrayList<>();
+	}
+	
+	Subject(Anyware machine, List<Note> notes)
+	{
+		this.ware = machine;
+		this.notes = notes;
 	}
 	
 	public abstract Subject clone(List<FilterOptions> filterOptions);

@@ -29,7 +29,7 @@ public abstract class Entity implements Serializable, Comparable<Entity>
 		}
 	}
 
-	protected Anyware parent;
+	protected final Anyware parent;
 
 	private transient boolean collision = false;
 

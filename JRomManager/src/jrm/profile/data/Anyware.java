@@ -24,13 +24,13 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 {
 	public String name; // required
 	public String cloneof = null;
-	public StringBuffer description = new StringBuffer();
-	public StringBuffer year = new StringBuffer();
+	public final StringBuffer description = new StringBuffer();
+	public final StringBuffer year = new StringBuffer();
 
-	public Collection<Rom> roms = new ArrayList<>();
-	public Collection<Disk> disks = new ArrayList<>();
+	public final Collection<Rom> roms = new ArrayList<>();
+	public final Collection<Disk> disks = new ArrayList<>();
 
-	public HashMap<String, Anyware> clones = new HashMap<>();
+	public final HashMap<String, Anyware> clones = new HashMap<>();
 
 	public Anyware parent = null;
 

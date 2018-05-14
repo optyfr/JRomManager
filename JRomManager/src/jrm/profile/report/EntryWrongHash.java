@@ -8,8 +8,8 @@ import jrm.profile.data.Entry;
 
 public class EntryWrongHash extends Note
 {
-	Entity entity;
-	Entry entry;
+	final Entity entity;
+	final Entry entry;
 	
 	public EntryWrongHash(Entity entity, Entry entry)
 	{

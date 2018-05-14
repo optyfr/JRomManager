@@ -23,8 +23,8 @@ import jrm.ui.ProgressHandler;
 @SuppressWarnings("serial")
 public final class MachineList extends AnywareList<Machine> implements Serializable
 {
-	private ArrayList<Machine> m_list = new ArrayList<>();
-	public HashMap<String, Machine> m_byname = new HashMap<>();
+	private final ArrayList<Machine> m_list = new ArrayList<>();
+	public final HashMap<String, Machine> m_byname = new HashMap<>();
 
 	public MachineList()
 	{

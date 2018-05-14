@@ -17,10 +17,10 @@ import JTrrntzip.TrrntZipStatus;
 @SuppressWarnings("serial")
 public class Container implements Serializable
 {
-	public File file;
+	public final File file;
 	public long modified = 0L;
 	public long size = 0L;
-	public HashMap<String, Entry> entries_byname = new HashMap<>();
+	public final HashMap<String, Entry> entries_byname = new HashMap<>();
 
 	public transient boolean up2date = false;
 	public int loaded = 0;

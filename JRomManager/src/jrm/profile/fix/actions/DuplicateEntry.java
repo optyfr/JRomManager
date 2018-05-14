@@ -12,7 +12,7 @@ import jrm.ui.ProgressHandler;
 
 public class DuplicateEntry extends EntryAction
 {
-	String newname;
+	final String newname;
 
 	public DuplicateEntry(String newname, Entry entry)
 	{

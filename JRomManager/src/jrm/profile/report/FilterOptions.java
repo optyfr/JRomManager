@@ -1,6 +1,7 @@
 package jrm.profile.report;
 
-public enum FilterOptions {
+public enum FilterOptions
+{
 	SHOWOK,
 	HIDEMISSING
 }

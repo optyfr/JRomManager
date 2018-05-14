@@ -49,16 +49,17 @@ public class Profile implements Serializable
 	public boolean sha1_disks = false;
 
 	public String build = null;
-	public HashMap<String, StringBuffer> header = new HashMap<>();
-	public MachineListList machinelist_list = new MachineListList();
-	public HashSet<String> suspicious_crc = new HashSet<>();
+	public final HashMap<String, StringBuffer> header = new HashMap<>();
+	public final MachineListList machinelist_list = new MachineListList();
+	public final HashSet<String> suspicious_crc = new HashSet<>();
 
 	public transient Properties settings = null;
-	public transient Systms systems;
-	public transient Collection<String> years;
-	public transient ProfileNFO nfo;
-	public transient CatVer catver;
-	public transient NPlayers nplayers;
+	public transient Systms systems = null;
+	public transient Collection<String> years = null;
+	public transient ProfileNFO nfo = null;
+	public transient CatVer catver = null;
+	public transient NPlayers nplayers = null;
+	
 	public static transient Profile curr_profile;
 
 	private Profile()
@@ -66,16 +67,16 @@ public class Profile implements Serializable
 
 	}
 
-	public boolean _load(File file, ProgressHandler handler)
+	public boolean _load(final File file, final ProgressHandler handler)
 	{
 		handler.setProgress(String.format(Messages.getString("Profile.Parsing"), file), -1); //$NON-NLS-1$
-		SAXParserFactory factory = SAXParserFactory.newInstance();
+		final SAXParserFactory factory = SAXParserFactory.newInstance();
 		try
 		{
-			SAXParser parser = factory.newSAXParser();
+			final SAXParser parser = factory.newSAXParser();
 			parser.parse(file, new DefaultHandler()
 			{
-				private HashMap<String, Rom> roms_bycrc = new HashMap<>();
+				private final HashMap<String, Rom> roms_bycrc = new HashMap<>();
 				private boolean in_software_list = false;
 				private boolean in_software = false;
 				private boolean in_machine = false;
@@ -94,13 +95,13 @@ public class Profile implements Serializable
 				private Machine curr_machine = null;
 				private Rom curr_rom = null;
 				private Disk curr_disk = null;
-				private HashMap<String, Rom> roms = new HashMap<>();
-				private HashMap<String, Disk> disks = new HashMap<>();
+				private final HashMap<String, Rom> roms = new HashMap<>();
+				private final HashMap<String, Disk> disks = new HashMap<>();
 
 				private String curr_tag;
 
 				@Override
-				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
+				public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException
 				{
 					curr_tag = qName;
 					if(qName.equals("mame") || qName.equals("datafile")) //$NON-NLS-1$ //$NON-NLS-2$
@@ -131,7 +132,7 @@ public class Profile implements Serializable
 									machinelist_list.softwarelist_list.sl_byname.put(curr_software_list.name, curr_software_list);
 									break;
 								case "description": //$NON-NLS-1$
-									curr_software_list.description = new StringBuffer(attributes.getValue(i).trim());
+									curr_software_list.description.append(attributes.getValue(i).trim());
 									break;
 							}
 						}
@@ -505,7 +506,7 @@ public class Profile implements Serializable
 				}
 
 				@Override
-				public void endElement(String uri, String localName, String qName) throws SAXException
+				public void endElement(final String uri, final String localName, final String qName) throws SAXException
 				{
 					if(qName.equals("header")) //$NON-NLS-1$
 					{
@@ -519,9 +520,9 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("software")) //$NON-NLS-1$
 					{
-						curr_software.roms = new ArrayList<>(roms.values());
+						curr_software.roms.addAll(roms.values());
 						roms.clear();
-						curr_software.disks = new ArrayList<>(disks.values());
+						curr_software.disks.addAll(disks.values());
 						disks.clear();
 						curr_software_list.add(curr_software);
 						softwares_cnt++;
@@ -532,9 +533,9 @@ public class Profile implements Serializable
 					}
 					else if(qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
-						curr_machine.roms = new ArrayList<>(roms.values());
+						curr_machine.roms.addAll(roms.values());
 						roms.clear();
-						curr_machine.disks = new ArrayList<>(disks.values());
+						curr_machine.disks.addAll(disks.values());
 						disks.clear();
 						machinelist_list.get(0).add(curr_machine);
 						machines_cnt++;
@@ -615,7 +616,7 @@ public class Profile implements Serializable
 				}
 
 				@Override
-				public void characters(char[] ch, int start, int length) throws SAXException
+				public void characters(final char[] ch, final int start, final int length) throws SAXException
 				{
 					if(in_description)
 					{
@@ -651,33 +652,33 @@ public class Profile implements Serializable
 			});
 			return true;
 		}
-		catch(ParserConfigurationException | SAXException e)
+		catch(final ParserConfigurationException | SAXException e)
 		{
 			Log.err("Parser Exception", e); //$NON-NLS-1$
 		}
-		catch(IOException e)
+		catch(final IOException e)
 		{
 			Log.err("IO Exception", e); //$NON-NLS-1$
 		}
-		catch(BreakException e)
+		catch(final BreakException e)
 		{
 			return false;
 		}
-		catch(Throwable e)
+		catch(final Throwable e)
 		{
 			Log.err("Other Exception", e); //$NON-NLS-1$
 		}
 		return false;
 	}
 
-	private static File getCacheFile(File file)
+	private static File getCacheFile(final File file)
 	{
 		return new File(file.getParentFile(), file.getName() + ".cache"); //$NON-NLS-1$
 	}
 
 	public void save()
 	{
-		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(nfo.file)))))
+		try(final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(nfo.file)))))
 		{
 			oos.writeObject(this);
 		}
@@ -687,24 +688,24 @@ public class Profile implements Serializable
 		}
 	}
 
-	public static Profile load(File file, ProgressHandler handler)
+	public static Profile load(final File file, final ProgressHandler handler)
 	{
 		return load(ProfileNFO.load(file), handler);
 	}
 
-	public static Profile load(ProfileNFO nfo, ProgressHandler handler)
+	public static Profile load(final ProfileNFO nfo, final ProgressHandler handler)
 	{
 		Profile profile = null;
 		File cachefile = getCacheFile(nfo.file);
 		if(cachefile.lastModified() >= nfo.file.lastModified() && !Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 		{
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
-			try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
+			try(final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 			{
 				profile = (Profile) ois.readObject();
 				profile.nfo = nfo;
 			}
-			catch(Throwable e)
+			catch(final Throwable e)
 			{
 			}
 		}
@@ -776,7 +777,7 @@ public class Profile implements Serializable
 		});
 	}
 
-	private File getSettingsFile(File file)
+	private File getSettingsFile(final File file)
 	{
 		return new File(file.getParentFile(), file.getName() + ".properties"); //$NON-NLS-1$
 	}
@@ -813,22 +814,22 @@ public class Profile implements Serializable
 		}
 	}
 
-	public void setProperty(String property, boolean value)
+	public void setProperty(final String property, final boolean value)
 	{
 		settings.setProperty(property, Boolean.toString(value));
 	}
 
-	public void setProperty(String property, String value)
+	public void setProperty(final String property, final String value)
 	{
 		settings.setProperty(property, value);
 	}
 
-	public boolean getProperty(String property, boolean def)
+	public boolean getProperty(final String property, final boolean def)
 	{
 		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
 	}
 
-	public String getProperty(String property, String def)
+	public String getProperty(final String property, final String def)
 	{
 		return settings.getProperty(property, def);
 	}
@@ -864,14 +865,14 @@ public class Profile implements Serializable
 		systems.add(SystmStandard.STANDARD);
 		systems.add(SystmMechanical.MECHANICAL);
 		systems.add(SystmDevice.DEVICE);
-		ArrayList<Machine> machines = new ArrayList<>();
+		final ArrayList<Machine> machines = new ArrayList<>();
 		machinelist_list.get(0).forEach(m -> {
 			if(m.isbios)
 				machines.add(m);
 		});
 		machines.sort((a, b) -> a.getName().compareTo(b.getName()));
 		machines.forEach(systems::add);
-		ArrayList<SoftwareList> softwarelists = new ArrayList<SoftwareList>();
+		final ArrayList<SoftwareList> softwarelists = new ArrayList<SoftwareList>();
 		machinelist_list.softwarelist_list.forEach(softwarelists::add);
 		softwarelists.sort((a, b) -> a.name.compareTo(b.name));
 		softwarelists.forEach(systems::add);
@@ -879,7 +880,7 @@ public class Profile implements Serializable
 
 	public void loadYears()
 	{
-		HashSet<String> years = new HashSet<>();
+		final HashSet<String> years = new HashSet<>();
 		years.add("");
 		machinelist_list.get(0).forEach(m -> years.add(m.year.toString()));
 		machinelist_list.softwarelist_list.forEach(sl -> sl.forEach(s -> years.add(s.year.toString())));
@@ -905,7 +906,7 @@ public class Profile implements Serializable
 				}
 			}
 		}
-		catch(Throwable e)
+		catch(final Throwable e)
 		{
 			catver = null;
 		}
@@ -926,7 +927,7 @@ public class Profile implements Serializable
 				}
 			}
 		}
-		catch(Throwable e)
+		catch(final Throwable e)
 		{
 			nplayers = null;
 		}

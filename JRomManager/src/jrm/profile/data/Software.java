@@ -16,10 +16,10 @@ import jrm.profile.data.Software.Part.DiskArea;
 @SuppressWarnings("serial")
 public class Software extends Anyware implements Serializable
 {
-	public StringBuffer publisher = new StringBuffer();
+	public final StringBuffer publisher = new StringBuffer();
 	public Supported supported = Supported.yes;
 	public String compatibility = null;
-	public List<Part> parts = new ArrayList<>();
+	public final List<Part> parts = new ArrayList<>();
 
 	public SoftwareList sl = null;
 	

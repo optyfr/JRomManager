@@ -8,8 +8,8 @@ import jrm.profile.data.Entry;
 
 public class EntryMissingDuplicate extends Note
 {
-	Entity entity;
-	Entry entry;
+	final Entity entity;
+	final Entry entry;
 	
 	public EntryMissingDuplicate(Entity entity, Entry entry)
 	{

@@ -7,7 +7,7 @@ import jrm.profile.data.Entry;
 
 public class EntryUnneeded extends Note
 {
-	Entry entry;
+	final Entry entry;
 
 	public EntryUnneeded(Entry entry)
 	{

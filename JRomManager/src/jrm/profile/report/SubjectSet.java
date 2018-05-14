@@ -26,13 +26,17 @@ public class SubjectSet extends Subject
 		super(machine);
 	}
 	
+	private SubjectSet(Anyware machine, List<Note> notes)
+	{
+		super(machine, notes);
+	}
+	
 	@Override
 	public Subject clone(List<FilterOptions> filterOptions)
 	{
 		SubjectSet clone;
-		clone = new SubjectSet(ware);
+		clone = new SubjectSet(ware, this.filter(filterOptions));
 		clone.status = this.status;
-		clone.notes = this.filter(filterOptions);
 		return clone;
 	}
 

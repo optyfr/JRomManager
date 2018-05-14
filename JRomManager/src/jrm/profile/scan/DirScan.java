@@ -40,19 +40,19 @@ import one.util.streamex.StreamEx;
 
 public final class DirScan
 {
-	List<Container> containers = Collections.synchronizedList(new ArrayList<>());
-	Map<String, Container> containers_byname = Collections.synchronizedMap(new HashMap<>());
-	Map<String, Entry> entries_bycrc = Collections.synchronizedMap(new HashMap<>());
-	Map<String, Entry> entries_bysha1 = Collections.synchronizedMap(new HashMap<>());
-	Map<String, Entry> entries_bymd5 = Collections.synchronizedMap(new HashMap<>());
+	final List<Container> containers = Collections.synchronizedList(new ArrayList<>());
+	final Map<String, Container> containers_byname;
+	final Map<String, Entry> entries_bycrc = Collections.synchronizedMap(new HashMap<>());
+	final Map<String, Entry> entries_bysha1 = Collections.synchronizedMap(new HashMap<>());
+	final Map<String, Entry> entries_bymd5 = Collections.synchronizedMap(new HashMap<>());
 
-	private boolean need_sha1_or_md5 = true;
-	private boolean use_parallelism = true;
-	private FormatOptions format = FormatOptions.ZIP;
+	private final boolean need_sha1_or_md5;
+	private final boolean use_parallelism;
+	private final FormatOptions format;
 	
-	File dir;
+	final File dir;
 
-	private DirScan()
+	private void init()
 	{
 		if(!SevenZip.isInitializedSuccessfully())
 		{
@@ -67,22 +67,24 @@ public final class DirScan
 		}
 	}
 
-	public DirScan(Profile profile, File dir, ProgressHandler handler, boolean is_dest) throws BreakException
+	public DirScan(final Profile profile, final File dir, final ProgressHandler handler, final boolean is_dest) throws BreakException
 	{
-		this();
+		init();
 		
 		this.dir = dir;
 		this.need_sha1_or_md5 = profile.getProperty("need_sha1_or_md5", false); //$NON-NLS-1$
 		this.use_parallelism = profile.getProperty("use_parallelism", false); //$NON-NLS-1$
 		this.format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
 
-		Path path = Paths.get(dir.getAbsolutePath());
+		final Path path = Paths.get(dir.getAbsolutePath());
 
 		/*
 		 * Loading scan cache
 		 */
 		if(!Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 			containers_byname = load(dir, is_dest, handler);
+		else
+			containers_byname = Collections.synchronizedMap(new HashMap<>());
 
 		/*
 		 * List files;
@@ -90,13 +92,13 @@ public final class DirScan
 
 		try(Stream<Path> stream = Files.walk(path, is_dest ? 1 : 100, FileVisitOption.FOLLOW_LINKS))
 		{
-			AtomicInteger i = new AtomicInteger();
+			final AtomicInteger i = new AtomicInteger();
 			handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles"), dir), 0); //$NON-NLS-1$
 			StreamEx.of(StreamSupport.stream(stream.spliterator(), use_parallelism)).unordered().takeWhile((p) -> !handler.isCancel()).forEach(p -> {
 				Container c = null;
 				if(path.equals(p))
 					return;
-				File file = p.toFile();
+				final File file = p.toFile();
 				try
 				{
 					BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
@@ -128,9 +130,9 @@ public final class DirScan
 							{
 								if(path.equals(file.getParentFile().toPath()))
 									return;
-								File parent_dir = file.getParentFile();
-								BasicFileAttributes parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
-								Path relative  = path.relativize(p.getParent());
+								final File parent_dir = file.getParentFile();
+								final BasicFileAttributes parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
+								final Path relative  = path.relativize(p.getParent());
 								if(null == (c = containers_byname.get(relative.toString())) || (c.modified != parent_attr.lastModifiedTime().toMillis() && !c.up2date))
 								{
 									containers.add(c = new Directory(parent_dir, attr));
@@ -148,7 +150,7 @@ public final class DirScan
 							}
 							else
 							{
-								Path relative  = path.relativize(p);
+								final Path relative  = path.relativize(p);
 								if(null == (c = containers_byname.get(relative.toString())) || ((c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size()) && !c.up2date))
 								{
 									containers.add(c = new Archive(file, attr));
@@ -185,7 +187,7 @@ public final class DirScan
 		{
 			Log.err("Other Exception when listing", e); //$NON-NLS-1$
 		}
-		AtomicInteger i = new AtomicInteger(0);
+		final AtomicInteger i = new AtomicInteger(0);
 		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), dir) , i.get(), containers.size()); //$NON-NLS-1$
 		StreamEx.of(use_parallelism ? containers.parallelStream().unordered() : containers.stream()).takeWhile((c) -> !handler.isCancel()).forEach(c -> {
 			try
@@ -196,7 +198,7 @@ public final class DirScan
 					{
 						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
 						{
-							Map<String, Object> env = new HashMap<>();
+							final Map<String, Object> env = new HashMap<>();
 							env.put("useTempFile", Boolean.TRUE); //$NON-NLS-1$
 							try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + c.file.toURI()), env);) //$NON-NLS-1$
 							{
@@ -286,15 +288,15 @@ public final class DirScan
 	class SevenZUpdateEntries implements Closeable
 	{
 		RandomAccessFile randomAccessFile = null;
-		Profile profile;
-		Container container;
-		ArrayList<String> algorithms;
-		MessageDigest[] digest;
+		final Profile profile;
+		final Container container;
+		final ArrayList<String> algorithms;
+		final MessageDigest[] digest;
 		IInArchive nArchive = null;
 		SevenZFile jArchive = null;
 		SevenZipArchive jArchive2 = null;
 
-		public SevenZUpdateEntries(Profile profile, Container container) throws NoSuchAlgorithmException
+		public SevenZUpdateEntries(final Profile profile, final Container container) throws NoSuchAlgorithmException
 		{
 			this.profile = profile;
 			this.container = container;
@@ -353,7 +355,7 @@ public final class DirScan
 		{
 			if(SevenZip.isInitializedSuccessfully())
 			{
-				Map<Integer, Entry> entries = new HashMap<>();
+				final Map<Integer, Entry> entries = new HashMap<>();
 				if(container.loaded < 1 || (need_sha1_or_md5 && container.loaded < 2))
 				{
 					for(ISimpleInArchiveItem item : getNInterface().getArchiveItems())
@@ -374,7 +376,7 @@ public final class DirScan
 			}
 			else
 			{
-				HashSet<Entry> entries = new HashSet<>();
+				final HashSet<Entry> entries = new HashSet<>();
 				if(container.loaded < 1 || (need_sha1_or_md5 && container.loaded < 2))
 				{
 					for(SevenZArchiveEntry archive_entry : getJArchive().getEntries())
@@ -394,7 +396,7 @@ public final class DirScan
 			}
 		}
 
-		private void updateEntry(Entry entry, Map<Integer, Entry> entries, ISimpleInArchiveItem item) throws IOException
+		private void updateEntry(final Entry entry, final Map<Integer, Entry> entries, ISimpleInArchiveItem item) throws IOException
 		{
 			if(entry.size == 0 && entry.crc == null && item != null)
 			{
@@ -428,7 +430,7 @@ public final class DirScan
 			}
 		}
 
-		private void updateEntry(Entry entry, HashSet<Entry> entries, SevenZArchiveEntry archive_entry) throws IOException
+		private void updateEntry(final Entry entry, final HashSet<Entry> entries, final SevenZArchiveEntry archive_entry) throws IOException
 		{
 			if(entry.size == 0 && entry.crc == null && archive_entry != null)
 			{
@@ -449,7 +451,7 @@ public final class DirScan
 			}
 		}
 
-		private void computeHashes(Map<Integer, Entry> entries) throws NoSuchAlgorithmException, IOException
+		private void computeHashes(final Map<Integer, Entry> entries) throws NoSuchAlgorithmException, IOException
 		{
 			if(entries.size() > 0)
 			{
@@ -458,17 +460,17 @@ public final class DirScan
 					Entry entry;
 
 					@Override
-					public void setTotal(long total) throws SevenZipException
+					public void setTotal(final long total) throws SevenZipException
 					{
 					}
 
 					@Override
-					public void setCompleted(long complete) throws SevenZipException
+					public void setCompleted(final long complete) throws SevenZipException
 					{
 					}
 
 					@Override
-					public void setOperationResult(ExtractOperationResult extractOperationResult) throws SevenZipException
+					public void setOperationResult(final ExtractOperationResult extractOperationResult) throws SevenZipException
 					{
 						if(extractOperationResult == ExtractOperationResult.OK)
 						{
@@ -484,12 +486,12 @@ public final class DirScan
 					}
 
 					@Override
-					public void prepareOperation(ExtractAskMode extractAskMode) throws SevenZipException
+					public void prepareOperation(final ExtractAskMode extractAskMode) throws SevenZipException
 					{
 					}
 
 					@Override
-					public ISequentialOutStream getStream(int index, ExtractAskMode extractAskMode) throws SevenZipException
+					public ISequentialOutStream getStream(final int index, final ExtractAskMode extractAskMode) throws SevenZipException
 					{
 						entry = entries.get(index);
 						if(extractAskMode != ExtractAskMode.EXTRACT)
@@ -497,7 +499,7 @@ public final class DirScan
 						return new ISequentialOutStream()
 						{
 							@Override
-							public int write(byte[] data) throws SevenZipException
+							public int write(final byte[] data) throws SevenZipException
 							{
 								for(MessageDigest d : digest)
 									d.update(data);
@@ -509,7 +511,7 @@ public final class DirScan
 			}
 		}
 
-		private void computeHashes(HashSet<Entry> entries) throws IOException
+		private void computeHashes(final HashSet<Entry> entries) throws IOException
 		{
 			for(Entry entry : entries)
 			{
@@ -525,11 +527,11 @@ public final class DirScan
 
 		}
 
-		private MessageDigest[] computeHash(InputStream is)
+		private MessageDigest[] computeHash(final InputStream is)
 		{
-			try(BufferedInputStream bis = new BufferedInputStream(is))
+			try(final BufferedInputStream bis = new BufferedInputStream(is))
 			{
-				byte[] buffer = new byte[8192];
+				final byte[] buffer = new byte[8192];
 				int len = is.read(buffer);
 				while(len != -1)
 				{
@@ -546,12 +548,12 @@ public final class DirScan
 		}
 	}
 
-	private void update_entry(Profile profile, Entry entry) throws IOException
+	private void update_entry(final Profile profile, final Entry entry) throws IOException
 	{
 		update_entry(profile, entry, (Path) null);
 	}
 
-	private void update_entry(Profile profile, Entry entry, Path entry_path) throws IOException
+	private void update_entry(final Profile profile, final Entry entry, final Path entry_path) throws IOException
 	{
 		if(entry.parent.getType() == Type.ZIP)
 		{
@@ -615,22 +617,22 @@ public final class DirScan
 		}
 	}
 
-	private String computeSHA1(Path entry_path)
+	private String computeSHA1(final Path entry_path)
 	{
 		return computeHash(entry_path, "SHA-1"); //$NON-NLS-1$
 	}
 
-	private String computeMD5(Path entry_path)
+	private String computeMD5(final Path entry_path)
 	{
 		return computeHash(entry_path, "MD5"); //$NON-NLS-1$
 	}
 
-	private String computeHash(Path entry_path, String algorithm)
+	private String computeHash(final Path entry_path, final String algorithm)
 	{
-		try(InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
+		try(final InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
 		{
-			MessageDigest digest = MessageDigest.getInstance(algorithm);
-			byte[] buffer = new byte[8192];
+			final MessageDigest digest = MessageDigest.getInstance(algorithm);
+			final byte[] buffer = new byte[8192];
 			int len = is.read(buffer);
 			while(len != -1)
 			{
@@ -647,13 +649,13 @@ public final class DirScan
 		return null;
 	}
 
-	private Path getPath(Entry entry) throws IOException
+	private Path getPath(final Entry entry) throws IOException
 	{
-		FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);
+		final FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);
 		return srcfs.getPath(entry.file);
 	}
 
-	public Entry find_byhash(Profile profile, Rom r)
+	public Entry find_byhash(final Profile profile, final Rom r)
 	{
 		Entry entry = null;
 		if(r.sha1 != null)
@@ -673,7 +675,7 @@ public final class DirScan
 		return entries_bycrc.get(r.crc + "." + r.size); //$NON-NLS-1$
 	}
 
-	public Entry find_byhash(Disk d)
+	public Entry find_byhash(final Disk d)
 	{
 		Entry entry = null;
 		if(d.sha1 != null)
@@ -682,19 +684,19 @@ public final class DirScan
 		return entries_bymd5.get(d.md5);
 	}
 
-	private static File getCacheFile(File file, boolean is_dest)
+	private static File getCacheFile(final File file, final boolean is_dest)
 	{
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-		File cachedir = new File(workdir, "cache"); //$NON-NLS-1$
+		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		final File cachedir = new File(workdir, "cache"); //$NON-NLS-1$
 		cachedir.mkdirs();
-		CRC32 crc = new CRC32();
+		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
 		return new File(cachedir, String.format("%08x", crc.getValue()) + (is_dest?".dcache":".scache")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private void save(File file, Object obj, boolean is_dest)
+	private void save(final File file, final Object obj, final boolean is_dest)
 	{
-		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file,is_dest)))))
+		try(final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file,is_dest)))))
 		{
 			oos.writeObject(obj);
 		}
@@ -704,9 +706,9 @@ public final class DirScan
 	}
 
 	@SuppressWarnings("unchecked")
-	public static HashMap<String, Container> load(File file, boolean is_dest, ProgressHandler handler)
+	public static HashMap<String, Container> load(final File file, final boolean is_dest, final ProgressHandler handler)
 	{
-		File cachefile = getCacheFile(file, is_dest);
+		final File cachefile = getCacheFile(file, is_dest);
 		try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 		{
 			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), file) , 0); //$NON-NLS-1$

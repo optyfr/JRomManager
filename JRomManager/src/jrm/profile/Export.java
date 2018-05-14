@@ -19,8 +19,8 @@ public class Export
 {
 	public final static class SimpleAttribute
 	{
-		private String name;
-		private Object value;
+		private final String name;
+		private final Object value;
 
 		public SimpleAttribute(String name, Object value)
 		{

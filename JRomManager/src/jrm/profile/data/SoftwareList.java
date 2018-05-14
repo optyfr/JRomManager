@@ -13,9 +13,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
-import jrm.profile.Profile;
 import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Export.SimpleAttribute;
+import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
 import jrm.ui.ProgressHandler;
 import jrm.ui.SoftwareListRenderer;
@@ -24,10 +24,10 @@ import jrm.ui.SoftwareListRenderer;
 public class SoftwareList extends AnywareList<Software> implements Systm, Serializable, Comparable<SoftwareList>
 {
 	public String name; // required
-	public StringBuffer description = new StringBuffer();
+	public final StringBuffer description = new StringBuffer();
 
-	private List<Software> s_list = new ArrayList<>();
-	public Map<String, Software> s_byname = new HashMap<>();
+	private final List<Software> s_list = new ArrayList<>();
+	public final Map<String, Software> s_byname = new HashMap<>();
 
 	public SoftwareList()
 	{

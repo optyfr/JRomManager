@@ -7,7 +7,7 @@ import jrm.profile.data.Container;
 
 public class ContainerUnknown extends Subject
 {
-	Container container;
+	final Container container;
 	
 	public ContainerUnknown(Container c)
 	{

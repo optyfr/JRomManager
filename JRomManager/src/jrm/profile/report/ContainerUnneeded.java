@@ -7,7 +7,7 @@ import jrm.profile.data.Container;
 
 public class ContainerUnneeded extends Subject
 {
-	Container container;
+	final Container container;
 	
 	public ContainerUnneeded(Container c)
 	{

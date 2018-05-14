@@ -1,12 +1,6 @@
 package jrm.profile;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 
@@ -29,7 +23,7 @@ import jrm.misc.Log;
 
 public class Import
 {
-	public File org_file;
+	public final File org_file;
 	public File file;
 	public File roms_file, sl_file;
 	public boolean is_mame = false;

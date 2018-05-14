@@ -3,11 +3,7 @@ package jrm.profile.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,11 +21,11 @@ import jrm.ui.ProgressHandler;
 @SuppressWarnings("serial")
 public final class MachineListList extends AnywareListList<MachineList> implements Serializable
 {
-	private List<MachineList> ml_list = Collections.singletonList(new MachineList());
+	private final List<MachineList> ml_list = Collections.singletonList(new MachineList());
 
-	public SoftwareListList softwarelist_list = new SoftwareListList();
+	public final SoftwareListList softwarelist_list = new SoftwareListList();
 
-	public Map<String, List<Machine>> softwarelist_defs = new HashMap<>();
+	public final Map<String, List<Machine>> softwarelist_defs = new HashMap<>();
 
 	public MachineListList()
 	{

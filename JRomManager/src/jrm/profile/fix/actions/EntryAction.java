@@ -10,7 +10,7 @@ import jrm.ui.ProgressHandler;
 
 abstract public class EntryAction implements HTMLRenderer
 {
-	Entry entry;
+	final Entry entry;
 	ContainerAction parent;
 
 	public EntryAction(Entry entry)

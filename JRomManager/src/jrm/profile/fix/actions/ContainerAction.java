@@ -10,9 +10,9 @@ import jrm.ui.ProgressHandler;
 
 abstract public class ContainerAction implements HTMLRenderer
 {
-	public Container container;
-	public FormatOptions format;
-	public ArrayList<EntryAction> entry_actions = new ArrayList<>();
+	public final Container container;
+	public final FormatOptions format;
+	public final ArrayList<EntryAction> entry_actions = new ArrayList<>();
 
 	public ContainerAction(Container container, FormatOptions format)
 	{

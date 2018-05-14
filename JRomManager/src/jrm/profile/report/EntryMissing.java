@@ -7,7 +7,7 @@ import jrm.profile.data.Entity;
 
 public class EntryMissing extends Note
 {
-	Entity entity;
+	final Entity entity;
 	
 	public EntryMissing(Entity entity)
 	{

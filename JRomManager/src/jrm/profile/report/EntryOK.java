@@ -7,7 +7,7 @@ import jrm.profile.data.Entity;
 
 public class EntryOK extends Note
 {
-	Entity entity;
+	final Entity entity;
 	
 	public EntryOK(Entity entity)
 	{
