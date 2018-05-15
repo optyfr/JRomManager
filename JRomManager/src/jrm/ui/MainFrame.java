@@ -48,6 +48,8 @@ import jrm.profile.data.Machine.DisplayOrientation;
 import jrm.profile.data.Software.Supported;
 import jrm.profile.data.Systm;
 import jrm.profile.data.Years;
+import jrm.profile.filter.CatVer.Category;
+import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.Scan;
@@ -1566,6 +1568,39 @@ public class MainFrame extends JFrame
 		listNPlayers.setEnabled(false);
 		scrollPaneNPlayers.setViewportView(listNPlayers);
 
+		popupMenuNPlay = new JPopupMenu();
+		addPopup(listNPlayers, popupMenuNPlay);
+
+		mntmSelectAllNPlay = new JMenuItem("Select all");
+		mntmSelectAllNPlay.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				listNPlayers.selectAll();
+			}
+		});
+		popupMenuNPlay.add(mntmSelectAllNPlay);
+
+		mntmSelectNoneNPlay = new JMenuItem("Select none");
+		mntmSelectNoneNPlay.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				listNPlayers.selectNone();
+			}
+		});
+		popupMenuNPlay.add(mntmSelectNoneNPlay);
+
+		mntmInvertSelectionNPlay = new JMenuItem("Invert selection");
+		mntmInvertSelectionNPlay.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				listNPlayers.selectInvert();
+			}
+		});
+		popupMenuNPlay.add(mntmInvertSelectionNPlay);
+
 		scrollPaneCatVer = new JScrollPane();
 		scrollPaneCatVer.setViewportBorder(new TitledBorder(null, "Categories", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_scrollPaneCatVer = new GridBagConstraints();
@@ -1587,6 +1622,89 @@ public class MainFrame extends JFrame
 		});
 		treeCatVer.setEnabled(false);
 		scrollPaneCatVer.setViewportView(treeCatVer);
+
+		popupMenuCat = new JPopupMenu();
+		popupMenuCat.addPopupMenuListener(new PopupMenuListener()
+		{
+			public void popupMenuCanceled(PopupMenuEvent e)
+			{
+			}
+
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+			{
+			}
+
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+			{
+			}
+		});
+		addPopup(treeCatVer, popupMenuCat);
+
+		mnSelectCat = new JMenu("Select");
+		popupMenuCat.add(mnSelectCat);
+
+		mntmSelectAllCat = new JMenuItem("All");
+		mntmSelectAllCat.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				treeCatVer.selectAll();
+			}
+		});
+		mnSelectCat.add(mntmSelectAllCat);
+
+		mntmSelectMatureCat = new JMenuItem("Mature");
+		mntmSelectMatureCat.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				List<NGTreeNode> mature_nodes = new ArrayList<>();
+				for(Category cat : Profile.curr_profile.catver)
+				{
+					if(cat.name.endsWith("* Mature *"))
+						mature_nodes.add(cat);
+					else
+						for(SubCategory subcat : cat)
+							if(subcat.name.endsWith("* Mature *"))
+								mature_nodes.add(subcat);
+				}
+				treeCatVer.select(mature_nodes.toArray(new NGTreeNode[0]));
+			}
+		});
+		mnSelectCat.add(mntmSelectMatureCat);
+
+		mnUnselectCat = new JMenu("Unselect");
+		popupMenuCat.add(mnUnselectCat);
+
+		mntmUnselectAllCat = new JMenuItem("All");
+		mntmUnselectAllCat.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				treeCatVer.selectNone();
+			}
+		});
+		mnUnselectCat.add(mntmUnselectAllCat);
+
+		mntmUnselectMatureCat = new JMenuItem("Mature");
+		mntmUnselectMatureCat.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				List<NGTreeNode> mature_nodes = new ArrayList<>();
+				for(Category cat : Profile.curr_profile.catver)
+				{
+					if(cat.name.endsWith("* Mature *"))
+						mature_nodes.add(cat);
+					else
+						for(SubCategory subcat : cat)
+							if(subcat.name.endsWith("* Mature *"))
+								mature_nodes.add(subcat);
+				}
+				treeCatVer.unselect(mature_nodes.toArray(new NGTreeNode[0]));
+			}
+		});
+		mnUnselectCat.add(mntmUnselectMatureCat);
 
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
 		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -2346,6 +2464,17 @@ public class MainFrame extends JFrame
 	private JCheckBoxTree treeCatVer;
 	private JFileDropTextField tfNPlayers;
 	private JFileDropTextField tfCatVer;
+	private JPopupMenu popupMenuCat;
+	private JMenu mnSelectCat;
+	private JMenu mnUnselectCat;
+	private JMenuItem mntmSelectAllCat;
+	private JMenuItem mntmSelectMatureCat;
+	private JMenuItem mntmUnselectAllCat;
+	private JMenuItem mntmUnselectMatureCat;
+	private JPopupMenu popupMenuNPlay;
+	private JMenuItem mntmSelectAllNPlay;
+	private JMenuItem mntmSelectNoneNPlay;
+	private JMenuItem mntmInvertSelectionNPlay;
 
 	private static void addPopup(Component component, final JPopupMenu popup)
 	{

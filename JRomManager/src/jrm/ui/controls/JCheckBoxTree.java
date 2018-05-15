@@ -133,23 +133,60 @@ public class JCheckBoxTree extends JTree
 		this.addMouseListener(new MouseAdapter()
 		{
 			@Override
-			public void mouseClicked(MouseEvent arg0)
+			public void mouseClicked(MouseEvent e)
 			{
-				if(!JCheckBoxTree.this.isEnabled())
-					return;
-				TreePath tp = JCheckBoxTree.this.getPathForLocation(arg0.getX(), arg0.getY());
-				if(tp == null)
-					return;
-				boolean checkMode = !((NGTreeNode) tp.getLastPathComponent()).isSelected();
-				checkSubTree(tp, checkMode);
-				updatePredecessorsWithCheckMode(tp);
-				fireCheckChangeEvent(new CheckChangeEvent(new Object()));
-				JCheckBoxTree.this.repaint();
+				if(!e.isPopupTrigger())
+				{
+					if(!JCheckBoxTree.this.isEnabled())
+						return;
+					TreePath tp = JCheckBoxTree.this.getPathForLocation(e.getX(), e.getY());
+					if(tp == null)
+						return;
+					boolean checkMode = !((NGTreeNode) tp.getLastPathComponent()).isSelected();
+					checkSubTree(tp, checkMode);
+					updatePredecessorsWithCheckMode(tp);
+					fireCheckChangeEvent(new CheckChangeEvent(new Object()));
+					JCheckBoxTree.this.repaint();
+				}
+				else
+					super.mouseClicked(e);
 			}
 		});
 		this.setSelectionModel(dtsm);
 	}
 
+	public void setSelected(boolean selected, NGTreeNode... nodes)
+	{
+		for(NGTreeNode node : nodes)
+		{
+			TreePath tp = new TreePath(node.getPath());
+			checkSubTree(tp, selected);
+			updatePredecessorsWithCheckMode(tp);
+		}
+		fireCheckChangeEvent(new CheckChangeEvent(new Object()));
+		JCheckBoxTree.this.repaint();
+	}
+	
+	public void select(NGTreeNode... nodes)
+	{
+		setSelected(true, nodes);
+	}
+	
+	public void unselect(NGTreeNode... nodes)
+	{
+		setSelected(false, nodes);
+	}
+	
+	public void selectAll()
+	{
+		select((NGTreeNode)getModel().getRoot());
+	}
+	
+	public void selectNone()
+	{
+		unselect((NGTreeNode)getModel().getRoot());
+	}
+	
 	protected void updatePredecessorsWithCheckMode(TreePath tp)
 	{
 		TreePath parentPath = tp.getParentPath();

@@ -21,7 +21,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 
 	public final static class Category extends AbstractNGTreeNode implements Map<String, SubCategory>, Iterable<SubCategory>, PropertyStub
 	{
-		private final String name;
+		public final String name;
 		private final CatVer parent;
 		private final Map<String, SubCategory> subcategories = new TreeMap<>();
 		private final List<SubCategory> list_subcategories = new ArrayList<>();
@@ -180,7 +180,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 
 	public final static class SubCategory extends AbstractNGTreeNode implements List<String>, PropertyStub
 	{
-		private final String name;
+		public final String name;
 		private final Category parent;
 		private final List<String> games = new ArrayList<>();
 
