@@ -20,7 +20,7 @@ public class SystmDevice implements Systm, Serializable
 	@Override
 	public Systm getSystem()
 	{
-		return DEVICE;
+		return SystmDevice.DEVICE;
 	}
 
 	@Override
@@ -34,5 +34,5 @@ public class SystmDevice implements Systm, Serializable
 	{
 		return "device";
 	}
-	
+
 }

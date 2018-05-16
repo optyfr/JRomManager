@@ -11,7 +11,7 @@ public interface PropertyStub
 		return Profile.curr_profile.getProperty(getPropertyName(), true);
 	}
 
-	public default void setSelected(boolean selected)
+	public default void setSelected(final boolean selected)
 	{
 		Profile.curr_profile.setProperty(getPropertyName(), selected);
 	}

@@ -4,6 +4,7 @@ import java.awt.Component;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -24,7 +25,7 @@ public final class MachineListRenderer
 	public static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			if(value instanceof Machine)
 			{
@@ -32,17 +33,17 @@ public final class MachineListRenderer
 				switch(((Machine) value).getStatus())
 				{
 					case COMPLETE:
-						setIcon(folder_closed_green);
+						setIcon(MachineListRenderer.folder_closed_green);
 						break;
 					case PARTIAL:
-						setIcon(folder_closed_orange);
+						setIcon(MachineListRenderer.folder_closed_orange);
 						break;
 					case MISSING:
-						setIcon(folder_closed_red);
+						setIcon(MachineListRenderer.folder_closed_red);
 						break;
 					case UNKNOWN:
 					default:
-						setIcon(folder_closed_gray);
+						setIcon(MachineListRenderer.folder_closed_gray);
 						break;
 				}
 				return this;
@@ -58,7 +59,7 @@ public final class MachineListRenderer
 		ImageIcon joystick = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/icons/joystick.png")); //$NON-NLS-1$
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			if(value instanceof Machine)
 			{
@@ -79,7 +80,8 @@ public final class MachineListRenderer
 		}
 	}, new DefaultTableCellRenderer()
 	{
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		@Override
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			setToolTipText(getText());
@@ -88,12 +90,12 @@ public final class MachineListRenderer
 	}, new DefaultTableCellRenderer()
 	{
 		{
-			setHorizontalAlignment(CENTER);
+			setHorizontalAlignment(SwingConstants.CENTER);
 		}
 	}, new DefaultTableCellRenderer()
 	{
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			if(value instanceof Machine)
 			{
@@ -101,30 +103,30 @@ public final class MachineListRenderer
 				switch(((Machine) value).getStatus())
 				{
 					case COMPLETE:
-						setIcon(folder_closed_green);
+						setIcon(MachineListRenderer.folder_closed_green);
 						break;
 					case PARTIAL:
-						setIcon(folder_closed_orange);
+						setIcon(MachineListRenderer.folder_closed_orange);
 						break;
 					case MISSING:
-						setIcon(folder_closed_red);
+						setIcon(MachineListRenderer.folder_closed_red);
 						break;
 					case UNKNOWN:
 					default:
-						setIcon(folder_closed_gray);
+						setIcon(MachineListRenderer.folder_closed_gray);
 						break;
 				}
 				return this;
 			}
 			setIcon(null);
 			if(value!=null)
-				setIcon(folder_closed_gray);
+				setIcon(MachineListRenderer.folder_closed_gray);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
 	}, new DefaultTableCellRenderer()
 	{
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			if(value instanceof Machine)
 			{
@@ -132,24 +134,24 @@ public final class MachineListRenderer
 				switch(((Machine) value).getStatus())
 				{
 					case COMPLETE:
-						setIcon(folder_closed_green);
+						setIcon(MachineListRenderer.folder_closed_green);
 						break;
 					case PARTIAL:
-						setIcon(folder_closed_orange);
+						setIcon(MachineListRenderer.folder_closed_orange);
 						break;
 					case MISSING:
-						setIcon(folder_closed_red);
+						setIcon(MachineListRenderer.folder_closed_red);
 						break;
 					case UNKNOWN:
 					default:
-						setIcon(folder_closed_gray);
+						setIcon(MachineListRenderer.folder_closed_gray);
 						break;
 				}
 				return this;
 			}
 			setIcon(null);
 			if(value!=null)
-				setIcon(folder_closed_gray);
+				setIcon(MachineListRenderer.folder_closed_gray);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
 	}, null };

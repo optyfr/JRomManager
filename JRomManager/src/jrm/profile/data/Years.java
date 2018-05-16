@@ -13,7 +13,7 @@ public final class Years extends AbstractListModel<String> implements ComboBoxMo
 	final ArrayList<String> years;
 	Object selectedObject = null;
 
-	public Years(Collection<String> years)
+	public Years(final Collection<String> years)
 	{
 		this.years = new ArrayList<>(years);
 		this.years.sort(String::compareTo);
@@ -26,7 +26,8 @@ public final class Years extends AbstractListModel<String> implements ComboBoxMo
 	 * @param anObject
 	 *            The combo box value or null for no selection.
 	 */
-	public void setSelectedItem(Object anObject)
+	@Override
+	public void setSelectedItem(final Object anObject)
 	{
 		if((selectedObject != null && !selectedObject.equals(anObject)) || selectedObject == null && anObject != null)
 		{
@@ -36,19 +37,22 @@ public final class Years extends AbstractListModel<String> implements ComboBoxMo
 	}
 
 	// implements javax.swing.ComboBoxModel
+	@Override
 	public Object getSelectedItem()
 	{
 		return selectedObject;
 	}
 
 	// implements javax.swing.ListModel
+	@Override
 	public int getSize()
 	{
 		return years.size();
 	}
 
 	// implements javax.swing.ListModel
-	public String getElementAt(int index)
+	@Override
+	public String getElementAt(final int index)
 	{
 		if(index >= 0 && index < years.size())
 			return years.get(index);
@@ -62,7 +66,7 @@ public final class Years extends AbstractListModel<String> implements ComboBoxMo
 	 * @param anObject
 	 * @return an int representing the index position, where 0 is the first position
 	 */
-	public int getIndexOf(Object anObject)
+	public int getIndexOf(final Object anObject)
 	{
 		return years.indexOf(anObject);
 	}

@@ -13,45 +13,46 @@ import jrm.profile.data.Anyware;
 public abstract class Subject implements TreeNode,HTMLRenderer
 {
 	protected final Anyware ware;
-	
+
 	protected final List<Note> notes;
-	
+
 	protected Report parent;
 
-	public Subject(Anyware machine)
+	public Subject(final Anyware machine)
 	{
-		this.ware = machine;
-		this.notes = new ArrayList<>();
+		ware = machine;
+		notes = new ArrayList<>();
 	}
-	
-	Subject(Anyware machine, List<Note> notes)
+
+	Subject(final Anyware machine, final List<Note> notes)
 	{
-		this.ware = machine;
+		ware = machine;
 		this.notes = notes;
 	}
-	
+
 	public abstract Subject clone(List<FilterOptions> filterOptions);
-	
-	public boolean add(Note note)
+
+	public boolean add(final Note note)
 	{
 		note.parent = this;
-		boolean result = notes.add(note);
+		final boolean result = notes.add(note);
 		return result;
 	}
-	
+
 	public String getWareName()
 	{
 		if(ware!=null)
 			return ware.getFullName();
 		return ""; //$NON-NLS-1$
 	}
-	
+
 	public abstract void updateStats();
-	
+
+	@Override
 	public abstract String toString();
 
 	@Override
-	public TreeNode getChildAt(int childIndex)
+	public TreeNode getChildAt(final int childIndex)
 	{
 		return notes.get(childIndex);
 	}
@@ -69,7 +70,7 @@ public abstract class Subject implements TreeNode,HTMLRenderer
 	}
 
 	@Override
-	public int getIndex(TreeNode node)
+	public int getIndex(final TreeNode node)
 	{
 		return notes.indexOf(node);
 	}

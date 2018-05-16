@@ -18,7 +18,7 @@ import one.util.streamex.StreamEx;
 
 public class Fix
 {
-	private Scan curr_scan;
+	private final Scan curr_scan;
 
 	public Fix(final Profile curr_profile, final Scan curr_scan, final ProgressHandler progress)
 	{
@@ -39,11 +39,11 @@ public class Fix
 					done.add(action);
 					progress.setProgress(null, i.incrementAndGet());
 				}
-				catch(BreakException be)
+				catch(final BreakException be)
 				{
 					progress.cancel();
 				}
-				catch (Throwable e)
+				catch (final Throwable e)
 				{
 					e.printStackTrace();
 				}

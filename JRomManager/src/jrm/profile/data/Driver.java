@@ -9,49 +9,49 @@ public class Driver implements Serializable
 	private StatusType emulation = StatusType.preliminary;
 	private StatusType cocktail = StatusType.preliminary;
 	private SaveStateType savestate = SaveStateType.unsupported;
-	
+
 	public enum StatusType
 	{
 		good,
 		imperfect,
 		preliminary
 	};
-	
+
 	public enum SaveStateType
 	{
 		supported,
 		unsupported
 	};
-	
+
 	Driver()
 	{
 	}
 
-	public void setStatus(String status)
+	public void setStatus(final String status)
 	{
 		this.status = StatusType.valueOf(status);
 	}
-	
-	public void setEmulation(String status)
+
+	public void setEmulation(final String status)
 	{
-		this.emulation = StatusType.valueOf(status);
+		emulation = StatusType.valueOf(status);
 	}
-	
-	public void setCocktail(String status)
+
+	public void setCocktail(final String status)
 	{
-		this.cocktail = StatusType.valueOf(status);
+		cocktail = StatusType.valueOf(status);
 	}
-	
-	public void setSaveState(String status)
+
+	public void setSaveState(final String status)
 	{
-		this.savestate = SaveStateType.valueOf(status);
+		savestate = SaveStateType.valueOf(status);
 	}
-	
+
 	public StatusType getStatus()
 	{
 		return status;
 	}
-	
+
 	public StatusType getEmulation()
 	{
 		return emulation;

@@ -9,7 +9,7 @@ import javax.swing.tree.TreeNode;
 public class CatVerModel extends DefaultTreeModel
 {
 
-	public CatVerModel(NGTreeNode root)
+	public CatVerModel(final NGTreeNode root)
 	{
 		super(root);
 	}
@@ -18,49 +18,49 @@ public class CatVerModel extends DefaultTreeModel
 	{
 		super(new AbstractNGTreeNode()
 		{
-			
+
 			@Override
 			public boolean isLeaf()
 			{
 				return true;
 			}
-			
+
 			@Override
 			public TreeNode getParent()
 			{
 				return null;
 			}
-			
+
 			@Override
-			public int getIndex(TreeNode node)
+			public int getIndex(final TreeNode node)
 			{
 				return 0;
 			}
-			
+
 			@Override
 			public int getChildCount()
 			{
 				return 0;
 			}
-			
+
 			@Override
-			public TreeNode getChildAt(int childIndex)
+			public TreeNode getChildAt(final int childIndex)
 			{
 				return null;
 			}
-			
+
 			@Override
 			public boolean getAllowsChildren()
 			{
 				return false;
 			}
-			
+
 			@Override
 			public Enumeration<?> children()
 			{
 				return null;
 			}
-			
+
 			@Override
 			public Object getUserObject()
 			{
@@ -74,7 +74,7 @@ public class CatVerModel extends DefaultTreeModel
 			}
 
 			@Override
-			public void setSelected(boolean selected)
+			public void setSelected(final boolean selected)
 			{
 			}
 		});

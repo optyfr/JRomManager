@@ -8,8 +8,8 @@ import jrm.profile.data.Entity;
 public class EntryOK extends Note
 {
 	final Entity entity;
-	
-	public EntryOK(Entity entity)
+
+	public EntryOK(final Entity entity)
 	{
 		this.entity = entity;
 	}

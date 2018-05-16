@@ -17,16 +17,16 @@ import jrm.profile.report.FilterOptions;
 import jrm.profile.scan.Scan;
 
 @SuppressWarnings("serial")
-public class ReportFrame extends JDialog implements StatusHandler 
+public class ReportFrame extends JDialog implements StatusHandler
 {
 	private final JLabel lblStatus = new JLabel("");
 
-	public ReportFrame(Window owner) throws HeadlessException
+	public ReportFrame(final Window owner) throws HeadlessException
 	{
 		super(owner, Messages.getString("ReportFrame.Title"), ModalityType.MODELESS); //$NON-NLS-1$
 		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(WindowEvent e) {
+			public void windowClosing(final WindowEvent e) {
 				Settings.setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())));
 			}
 		});
@@ -34,21 +34,21 @@ public class ReportFrame extends JDialog implements StatusHandler
 		setPreferredSize(new Dimension(800, 600));
 		setMinimumSize(new Dimension(400, 300));
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ReportFrame.class.getResource("/jrm/resources/rom.png")));
-		GridBagLayout gridBagLayout = new GridBagLayout();
+		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 784, 0 };
 		gridBagLayout.rowHeights = new int[] { 280, 24, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
 		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
-		JScrollPane scrollPane = new JScrollPane();
-		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		final JScrollPane scrollPane = new JScrollPane();
+		final GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 0;
 		getContentPane().add(scrollPane, gbc_scrollPane);
 
-		JTree tree = new JTree();
+		final JTree tree = new JTree();
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
 		tree.setModel(Scan.report.getModel());
@@ -56,80 +56,65 @@ public class ReportFrame extends JDialog implements StatusHandler
 		Scan.report.setStatusHandler(this);
 		scrollPane.setViewportView(tree);
 
-		JPopupMenu popupMenu = new JPopupMenu();
-		addPopup(tree, popupMenu);
+		final JPopupMenu popupMenu = new JPopupMenu();
+		ReportFrame.addPopup(tree, popupMenu);
 
-		JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
+		final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
 		mntmOpenAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_open.png")));
-		mntmOpenAllNodes.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
+		mntmOpenAllNodes.addActionListener(e -> {
+			tree.invalidate();
+			int j = tree.getRowCount();
+			int i = 0;
+			while(i < j)
 			{
-				tree.invalidate();
-				int j = tree.getRowCount();
-				int i = 0;
-				while(i < j)
-				{
-					tree.expandRow(i);
-					i += 1;
-					j = tree.getRowCount();
-				}
-				tree.validate();
+				tree.expandRow(i);
+				i += 1;
+				j = tree.getRowCount();
 			}
+			tree.validate();
 		});
 		popupMenu.add(mntmOpenAllNodes);
 
-		JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
+		final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
-		chckbxmntmShowOkEntries.addItemListener(new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent e)
-			{
-				EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
-				if(e.getStateChange() == ItemEvent.SELECTED)
-					options.add(FilterOptions.SHOWOK);
-				else
-					options.remove(FilterOptions.SHOWOK);
-				Scan.report.getModel().filter(options.toArray(new FilterOptions[0]));
-			}
+		chckbxmntmShowOkEntries.addItemListener(e -> {
+			final EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
+			if(e.getStateChange() == ItemEvent.SELECTED)
+				options.add(FilterOptions.SHOWOK);
+			else
+				options.remove(FilterOptions.SHOWOK);
+			Scan.report.getModel().filter(options.toArray(new FilterOptions[0]));
 		});
-		
-		JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
-		mntmCloseAllNodes.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) 
+
+		final JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
+		mntmCloseAllNodes.addActionListener(e -> {
+			tree.invalidate();
+			int j = tree.getRowCount();
+			int i = 0;
+			while(i < j)
 			{
-				tree.invalidate();
-				int j = tree.getRowCount();
-				int i = 0;
-				while(i < j)
-				{
-					tree.collapseRow(i);
-					i += 1;
-					j = tree.getRowCount();
-				}
-				tree.validate();
+				tree.collapseRow(i);
+				i += 1;
+				j = tree.getRowCount();
 			}
+			tree.validate();
 		});
 		mntmCloseAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed.png")));
 		popupMenu.add(mntmCloseAllNodes);
 		popupMenu.add(chckbxmntmShowOkEntries);
 
-		JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
+		final JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
-		chckbxmntmHideFullyMissing.addItemListener(new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent e)
-			{
-				EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
-				if(e.getStateChange() == ItemEvent.SELECTED)
-					options.add(FilterOptions.HIDEMISSING);
-				else
-					options.remove(FilterOptions.HIDEMISSING);
-				Scan.report.getModel().filter(options.toArray(new FilterOptions[0]));
-			}
+		chckbxmntmHideFullyMissing.addItemListener(e -> {
+			final EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
+			if(e.getStateChange() == ItemEvent.SELECTED)
+				options.add(FilterOptions.HIDEMISSING);
+			else
+				options.remove(FilterOptions.HIDEMISSING);
+			Scan.report.getModel().filter(options.toArray(new FilterOptions[0]));
 		});
 		popupMenu.add(chckbxmntmHideFullyMissing);
-		GridBagConstraints gbc_lblStatus = new GridBagConstraints();
+		final GridBagConstraints gbc_lblStatus = new GridBagConstraints();
 		gbc_lblStatus.ipadx = 2;
 		gbc_lblStatus.insets = new Insets(2, 2, 2, 2);
 		gbc_lblStatus.fill = GridBagConstraints.BOTH;
@@ -144,17 +129,18 @@ public class ReportFrame extends JDialog implements StatusHandler
 		{
 			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10,10,800,600)))))));
 		}
-		catch(DecoderException e1)
+		catch(final DecoderException e1)
 		{
 			e1.printStackTrace();
 		}
 	}
 
-	private static void addPopup(Component component, final JPopupMenu popup)
+	private static void addPopup(final Component component, final JPopupMenu popup)
 	{
 		component.addMouseListener(new MouseAdapter()
 		{
-			public void mousePressed(MouseEvent e)
+			@Override
+			public void mousePressed(final MouseEvent e)
 			{
 				if(e.isPopupTrigger())
 				{
@@ -162,7 +148,8 @@ public class ReportFrame extends JDialog implements StatusHandler
 				}
 			}
 
-			public void mouseReleased(MouseEvent e)
+			@Override
+			public void mouseReleased(final MouseEvent e)
 			{
 				if(e.isPopupTrigger())
 				{
@@ -170,7 +157,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 				}
 			}
 
-			private void showMenu(MouseEvent e)
+			private void showMenu(final MouseEvent e)
 			{
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
@@ -178,7 +165,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 	}
 
 	@Override
-	public void setStatus(String text)
+	public void setStatus(final String text)
 	{
 		lblStatus.setText(text);
 	}

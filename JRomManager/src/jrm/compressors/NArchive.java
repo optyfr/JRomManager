@@ -1,12 +1,6 @@
 package jrm.compressors;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,25 +13,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.Settings;
-import net.sf.sevenzipjbinding.ArchiveFormat;
-import net.sf.sevenzipjbinding.ExtractAskMode;
-import net.sf.sevenzipjbinding.ExtractOperationResult;
-import net.sf.sevenzipjbinding.IArchiveExtractCallback;
-import net.sf.sevenzipjbinding.IInArchive;
-import net.sf.sevenzipjbinding.IInStream;
-import net.sf.sevenzipjbinding.IOutCreateArchive;
-import net.sf.sevenzipjbinding.IOutCreateCallback;
-import net.sf.sevenzipjbinding.IOutFeatureSetLevel;
-import net.sf.sevenzipjbinding.IOutFeatureSetMultithreading;
-import net.sf.sevenzipjbinding.IOutFeatureSetSolid;
-import net.sf.sevenzipjbinding.IOutItemAllFormats;
-import net.sf.sevenzipjbinding.IOutUpdateArchive;
-import net.sf.sevenzipjbinding.ISequentialInStream;
-import net.sf.sevenzipjbinding.ISequentialOutStream;
-import net.sf.sevenzipjbinding.PropID;
-import net.sf.sevenzipjbinding.SevenZip;
-import net.sf.sevenzipjbinding.SevenZipException;
-import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
+import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.OutItemFactory;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileOutStream;
@@ -48,28 +24,28 @@ abstract class NArchive implements Archive
 {
 	private File archive;
 	private File tempDir = null;
-	private boolean readonly;
+	private final boolean readonly;
 	private IInArchive iinarchive = null;
 	private IInStream iinstream = null;
 
 	private static HashMap<String, File> archives = new HashMap<>();
-	private List<Closeable> closeables = new ArrayList<>();
+	private final List<Closeable> closeables = new ArrayList<>();
 
-	private List<String> to_add = new ArrayList<>();
-	private HashSet<String> to_delete = new HashSet<>();
-	private HashMap<String, String> to_rename = new HashMap<>();
-	private HashMap<String, String> to_duplicate = new HashMap<>();
+	private final List<String> to_add = new ArrayList<>();
+	private final HashSet<String> to_delete = new HashSet<>();
+	private final HashMap<String, String> to_rename = new HashMap<>();
+	private final HashMap<String, String> to_duplicate = new HashMap<>();
 
 	private ArchiveFormat format = ArchiveFormat.SEVEN_ZIP;
 	private String ext = "7z"; //$NON-NLS-1$
 
-	public NArchive(File archive) throws IOException, SevenZipNativeInitializationException
+	public NArchive(final File archive) throws IOException, SevenZipNativeInitializationException
 	{
 		this(archive, false);
 		// System.out.println("SevenZipNArchive " + archive);
 	}
 
-	public NArchive(File archive, boolean readonly) throws IOException, SevenZipNativeInitializationException
+	public NArchive(final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
 	{
 		if(!SevenZip.isInitializedSuccessfully())
 			SevenZip.initSevenZipFromPlatformJAR();
@@ -94,8 +70,8 @@ abstract class NArchive implements Archive
 			}
 		}
 		this.readonly = readonly;
-		if(null == (this.archive = archives.get(archive.getAbsolutePath())))
-			archives.put(archive.getAbsolutePath(), this.archive = archive);
+		if(null == (this.archive = NArchive.archives.get(archive.getAbsolutePath())))
+			NArchive.archives.put(archive.getAbsolutePath(), this.archive = archive);
 	}
 
 	@Override
@@ -103,10 +79,10 @@ abstract class NArchive implements Archive
 	{
 		if(!to_add.isEmpty() || !to_rename.isEmpty() || !to_delete.isEmpty() || !to_duplicate.isEmpty())
 		{
-			HashMap<Integer, RandomAccessFile> rafs = new HashMap<>();
-			HashMap<Integer, File> tmpfiles = new HashMap<>();
+			final HashMap<Integer, RandomAccessFile> rafs = new HashMap<>();
+			final HashMap<Integer, File> tmpfiles = new HashMap<>();
 
-			IOutCreateCallback<IOutItemAllFormats> callback = new IOutCreateCallback<IOutItemAllFormats>()
+			final IOutCreateCallback<IOutItemAllFormats> callback = new IOutCreateCallback<IOutItemAllFormats>()
 			{
 				HashMap<Integer, String> idx_to_delete = new HashMap<>();
 				HashMap<Integer, String> idx_to_rename = new HashMap<>();
@@ -121,8 +97,8 @@ abstract class NArchive implements Archive
 						old_tot = iinarchive.getNumberOfItems();
 						for(int i = 0; i < old_tot; i++)
 						{
-							String path = iinarchive.getProperty(i, PropID.PATH).toString();
-							for(String to_d : to_delete)
+							final String path = iinarchive.getProperty(i, PropID.PATH).toString();
+							for(final String to_d : to_delete)
 							{
 								if(path.equals(to_d))
 								{
@@ -130,7 +106,7 @@ abstract class NArchive implements Archive
 									break;
 								}
 							}
-							for(Entry<String, String> to_r : to_rename.entrySet())
+							for(final Entry<String, String> to_r : to_rename.entrySet())
 							{
 								if(path.equals(to_r.getKey()))
 								{
@@ -138,7 +114,7 @@ abstract class NArchive implements Archive
 									break;
 								}
 							}
-							for(Entry<String, String> to_p : to_duplicate.entrySet())
+							for(final Entry<String, String> to_p : to_duplicate.entrySet())
 							{
 								if(path.equals(to_p.getValue()))
 								{
@@ -156,17 +132,17 @@ abstract class NArchive implements Archive
 				}
 
 				@Override
-				public void setTotal(long total) throws SevenZipException
+				public void setTotal(final long total) throws SevenZipException
 				{
 				}
 
 				@Override
-				public void setCompleted(long complete) throws SevenZipException
+				public void setCompleted(final long complete) throws SevenZipException
 				{
 				}
 
 				@Override
-				public void setOperationResult(boolean operationResultOk) throws SevenZipException
+				public void setOperationResult(final boolean operationResultOk) throws SevenZipException
 				{
 					/*
 					 * System.out.println("setOperationResult "+curr_index); try { if (curr_index >= 0) { if (rafs.containsKey(-1)) rafs.remove(curr_index).close(); if (tmpfiles.containsKey(curr_index)) tmpfiles.remove(curr_index).delete();
@@ -175,7 +151,7 @@ abstract class NArchive implements Archive
 				}
 
 				@Override
-				public ISequentialInStream getStream(int index) throws SevenZipException
+				public ISequentialInStream getStream(final int index) throws SevenZipException
 				{
 					// System.out.println("getStream "+index);
 					// curr_index = index;
@@ -187,11 +163,11 @@ abstract class NArchive implements Archive
 							rafs.put(index, new RandomAccessFile(new File(getTempDir(), to_add.get(index + idx_to_delete.size() - old_tot)), "r")); //$NON-NLS-1$
 							return new RandomAccessFileInStream(rafs.get(index));
 						}
-						catch(FileNotFoundException e)
+						catch(final FileNotFoundException e)
 						{
 							e.printStackTrace();
 						}
-						catch(IOException e)
+						catch(final IOException e)
 						{
 							e.printStackTrace();
 						}
@@ -202,60 +178,60 @@ abstract class NArchive implements Archive
 						{
 							if(!rafs.containsKey(index))
 							{
-								HashMap<Integer, File> tmpfiles_by_oldindex = new HashMap<>();
-								HashMap<Integer, RandomAccessFile> rafs2 = new HashMap<>();
-								for(Object[] o : idx_to_duplicate)
+								final HashMap<Integer, File> tmpfiles_by_oldindex = new HashMap<>();
+								final HashMap<Integer, RandomAccessFile> rafs2 = new HashMap<>();
+								for(final Object[] o : idx_to_duplicate)
 								{
 									if(!tmpfiles_by_oldindex.containsKey(o[0]))
 										tmpfiles_by_oldindex.put((Integer) o[0], Files.createTempFile("JRM", null).toFile()); //$NON-NLS-1$
 									tmpfiles.put((Integer) o[2], tmpfiles_by_oldindex.get(o[0]));
 
 								}
-								for(Entry<Integer, File> entry : tmpfiles_by_oldindex.entrySet())
+								for(final Entry<Integer, File> entry : tmpfiles_by_oldindex.entrySet())
 									rafs2.put(entry.getKey(), new RandomAccessFile(entry.getValue(), "rw")); //$NON-NLS-1$
 
-								int[] indices = idx_to_duplicate.stream().flatMapToInt(objs -> IntStream.of((Integer) objs[0])).toArray();
+								final int[] indices = idx_to_duplicate.stream().flatMapToInt(objs -> IntStream.of((Integer) objs[0])).toArray();
 								// idx_to_duplicate.forEach(objs->System.out.println("will extract for "+objs[1]));
 								iinarchive.extract(indices, false, new IArchiveExtractCallback()
 								{
 
 									@Override
-									public void setTotal(long total) throws SevenZipException
+									public void setTotal(final long total) throws SevenZipException
 									{
 									}
 
 									@Override
-									public void setCompleted(long complete) throws SevenZipException
+									public void setCompleted(final long complete) throws SevenZipException
 									{
 									}
 
 									@Override
-									public void setOperationResult(ExtractOperationResult extractOperationResult) throws SevenZipException
+									public void setOperationResult(final ExtractOperationResult extractOperationResult) throws SevenZipException
 									{
 									}
 
 									@Override
-									public void prepareOperation(ExtractAskMode extractAskMode) throws SevenZipException
+									public void prepareOperation(final ExtractAskMode extractAskMode) throws SevenZipException
 									{
 									}
 
 									@Override
-									public ISequentialOutStream getStream(int idx, ExtractAskMode extractAskMode) throws SevenZipException
+									public ISequentialOutStream getStream(final int idx, final ExtractAskMode extractAskMode) throws SevenZipException
 									{
 										if(ExtractAskMode.EXTRACT == extractAskMode)
 											return new RandomAccessFileOutStream(rafs2.get(idx));
 										return null;
 									}
 								});
-								for(RandomAccessFile raf2 : rafs2.values())
+								for(final RandomAccessFile raf2 : rafs2.values())
 									raf2.close();
-								for(Entry<Integer, File> entry : tmpfiles.entrySet())
+								for(final Entry<Integer, File> entry : tmpfiles.entrySet())
 									rafs.put(entry.getKey(), new RandomAccessFile(entry.getValue(), "r")); //$NON-NLS-1$
 							}
 							rafs.get(index).seek(0);
 							return new RandomAccessFileInStream(rafs.get(index));
 						}
-						catch(IOException e)
+						catch(final IOException e)
 						{
 							e.printStackTrace();
 						}
@@ -264,7 +240,7 @@ abstract class NArchive implements Archive
 				}
 
 				@Override
-				public IOutItemAllFormats getItemInformation(int index, OutItemFactory<IOutItemAllFormats> outItemFactory) throws SevenZipException
+				public IOutItemAllFormats getItemInformation(final int index, final OutItemFactory<IOutItemAllFormats> outItemFactory) throws SevenZipException
 				{
 					try
 					{
@@ -272,7 +248,7 @@ abstract class NArchive implements Archive
 							old_idx++;
 						if(idx_to_rename.containsKey(old_idx))
 						{
-							IOutItemAllFormats item = outItemFactory.createOutItemAndCloneProperties(old_idx);
+							final IOutItemAllFormats item = outItemFactory.createOutItemAndCloneProperties(old_idx);
 							item.setPropertyPath(idx_to_rename.get(old_idx));
 							return item;
 						}
@@ -282,14 +258,14 @@ abstract class NArchive implements Archive
 						{
 							if(old_idx - old_tot < to_add.size())
 							{
-								String file = to_add.get(old_idx - old_tot);
-								IOutItemAllFormats item = outItemFactory.createOutItem();
+								final String file = to_add.get(old_idx - old_tot);
+								final IOutItemAllFormats item = outItemFactory.createOutItem();
 								item.setPropertyPath(file);
 								try
 								{
 									item.setDataSize(new File(getTempDir(), file).length());
 								}
-								catch(IOException e)
+								catch(final IOException e)
 								{
 									e.printStackTrace();
 								}
@@ -299,10 +275,10 @@ abstract class NArchive implements Archive
 							}
 							else
 							{
-								Object[] objects = idx_to_duplicate.get(old_idx - old_tot - to_add.size());
-								ISimpleInArchiveItem ref_item = iinarchive.getSimpleInterface().getArchiveItem((Integer) objects[0]);
+								final Object[] objects = idx_to_duplicate.get(old_idx - old_tot - to_add.size());
+								final ISimpleInArchiveItem ref_item = iinarchive.getSimpleInterface().getArchiveItem((Integer) objects[0]);
 								objects[2] = index;
-								IOutItemAllFormats item = outItemFactory.createOutItem();
+								final IOutItemAllFormats item = outItemFactory.createOutItem();
 								item.setPropertyPath((String) objects[1]);
 								item.setDataSize(ref_item.getSize());
 								item.setUpdateIsNewData(true);
@@ -321,18 +297,18 @@ abstract class NArchive implements Archive
 			if(archive.exists() && iinarchive != null)
 			{
 				// System.out.println("modifying archive "+archive);
-				File tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", "." + ext).toFile(); //$NON-NLS-1$ //$NON-NLS-2$
+				final File tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", "." + ext).toFile(); //$NON-NLS-1$ //$NON-NLS-2$
 				tmpfile.delete();
 				try(RandomAccessFile raf = new RandomAccessFile(tmpfile, "rw")) //$NON-NLS-1$
 				{
-					IOutUpdateArchive<IOutItemAllFormats> iout = iinarchive.getConnectedOutArchive();
+					final IOutUpdateArchive<IOutItemAllFormats> iout = iinarchive.getConnectedOutArchive();
 					SetOptions(iout);
 
-					int itemsCount = iinarchive.getNumberOfItems() - to_delete.size() + to_add.size() + to_duplicate.size();
+					final int itemsCount = iinarchive.getNumberOfItems() - to_delete.size() + to_add.size() + to_duplicate.size();
 					// System.err.println(itemsCount);
 					iout.updateItems(new RandomAccessFileOutStream(raf), itemsCount, callback);
 				}
-				for(Closeable c : closeables)
+				for(final Closeable c : closeables)
 					c.close();
 				closeables.clear();
 				// System.out.println("done with "+tmpfile);
@@ -351,22 +327,22 @@ abstract class NArchive implements Archive
 				{
 					SetOptions(iout);
 
-					int itemsCount = to_add.size() + to_duplicate.size();
+					final int itemsCount = to_add.size() + to_duplicate.size();
 
 					iout.createArchive(new RandomAccessFileOutStream(raf), itemsCount, callback);
 				}
-				for(Closeable c : closeables)
+				for(final Closeable c : closeables)
 					c.close();
 				closeables.clear();
 			}
-			for(RandomAccessFile raf : rafs.values())
+			for(final RandomAccessFile raf : rafs.values())
 				raf.close();
-			for(File tmpfile : tmpfiles.values())
+			for(final File tmpfile : tmpfiles.values())
 				tmpfile.delete();
 		}
 		else
 		{
-			for(Closeable c : closeables)
+			for(final Closeable c : closeables)
 				c.close();
 			closeables.clear();
 		}
@@ -375,13 +351,13 @@ abstract class NArchive implements Archive
 			if(tempDir != null)
 				FileUtils.deleteDirectory(tempDir);
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
 
-	private void SetOptions(Object iout) throws SevenZipException
+	private void SetOptions(final Object iout) throws SevenZipException
 	{
 		switch(format)
 		{
@@ -412,10 +388,10 @@ abstract class NArchive implements Archive
 		return tempDir;
 	}
 
-	private int extract(File baseDir, String entry) throws IOException
+	private int extract(final File baseDir, final String entry) throws IOException
 	{
-		ISimpleInArchive simpleInArchive = iinarchive.getSimpleInterface();
-		for(ISimpleInArchiveItem item : simpleInArchive.getArchiveItems())
+		final ISimpleInArchive simpleInArchive = iinarchive.getSimpleInterface();
+		for(final ISimpleInArchiveItem item : simpleInArchive.getArchiveItems())
 		{
 			if(item.getPath().equals(entry))
 			{
@@ -430,18 +406,18 @@ abstract class NArchive implements Archive
 	}
 
 	@Override
-	public File extract(String entry) throws IOException
+	public File extract(final String entry) throws IOException
 	{
 		// System.out.println("extract "+entry+" to "+new File(getTempDir(), entry));
 		extract(getTempDir(), entry);
-		File result = new File(getTempDir(), entry);
+		final File result = new File(getTempDir(), entry);
 		if(result.exists())
 			return result;
 		return null;
 	}
 
 	@Override
-	public InputStream extract_stdout(String entry) throws IOException
+	public InputStream extract_stdout(final String entry) throws IOException
 	{
 		// System.out.println("extract "+entry+" to "+new File(getTempDir(), entry)+" then send to stdout");
 		extract(getTempDir(), entry);
@@ -449,13 +425,13 @@ abstract class NArchive implements Archive
 	}
 
 	@Override
-	public int add(String entry) throws IOException
+	public int add(final String entry) throws IOException
 	{
 		return add(getTempDir(), entry);
 	}
 
 	@Override
-	public int add(File baseDir, String entry) throws IOException
+	public int add(final File baseDir, final String entry) throws IOException
 	{
 		if(readonly)
 			return -1;
@@ -467,7 +443,7 @@ abstract class NArchive implements Archive
 	}
 
 	@Override
-	public int add_stdin(InputStream src, String entry) throws IOException
+	public int add_stdin(final InputStream src, final String entry) throws IOException
 	{
 		if(readonly)
 			return -1;
@@ -478,7 +454,7 @@ abstract class NArchive implements Archive
 	}
 
 	@Override
-	public int delete(String entry) throws IOException
+	public int delete(final String entry) throws IOException
 	{
 		if(readonly)
 			return -1;
@@ -488,7 +464,7 @@ abstract class NArchive implements Archive
 	}
 
 	@Override
-	public int rename(String entry, String newname) throws IOException
+	public int rename(final String entry, final String newname) throws IOException
 	{
 		if(readonly)
 			return -1;
@@ -498,7 +474,7 @@ abstract class NArchive implements Archive
 	}
 
 	@Override
-	public int duplicate(String entry, String newname) throws IOException
+	public int duplicate(final String entry, final String newname) throws IOException
 	{
 		if(readonly)
 			return -1;
@@ -507,7 +483,7 @@ abstract class NArchive implements Archive
 		return 0;
 	}
 
-	private String normalize(String entry)
+	private String normalize(final String entry)
 	{
 		if(File.separatorChar == '/')
 			return entry.replace('\\', '/');

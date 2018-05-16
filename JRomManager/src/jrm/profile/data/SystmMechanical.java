@@ -20,7 +20,7 @@ public class SystmMechanical implements Systm, Serializable
 	@Override
 	public Systm getSystem()
 	{
-		return MECHANICAL;
+		return SystmMechanical.MECHANICAL;
 	}
 
 	@Override

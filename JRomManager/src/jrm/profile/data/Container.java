@@ -27,7 +27,7 @@ public class Container implements Serializable
 
 	public long lastTZipCheck = 0L;
 	public EnumSet<TrrntZipStatus> lastTZipStatus = EnumSet.noneOf(TrrntZipStatus.class);
-	
+
 	public transient Anyware m;
 
 	public enum Type
@@ -41,22 +41,22 @@ public class Container implements Serializable
 
 	private Type type = Type.UNK;
 
-	protected Container(Type type, File file, Anyware m)
+	protected Container(final Type type, final File file, final Anyware m)
 	{
 		this.type = type;
 		this.file = file;
 		this.m = m;
 	}
 
-	protected Container(Type type, File file, BasicFileAttributes attr)
+	protected Container(final Type type, final File file, final BasicFileAttributes attr)
 	{
 		this(type, file, (Machine) null);
-		this.modified = attr.lastModifiedTime().toMillis();
+		modified = attr.lastModifiedTime().toMillis();
 		if(type != Type.DIR)
-			this.size = attr.size();
+			size = attr.size();
 	}
 
-	public Entry add(Entry e)
+	public Entry add(final Entry e)
 	{
 		Entry old_e;
 		if(null != (old_e = entries_byname.get(e.file)))
@@ -67,7 +67,7 @@ public class Container implements Serializable
 		return e;
 	}
 
-	public Entry find(Entry e)
+	public Entry find(final Entry e)
 	{
 		return entries_byname.get(e.file);
 	}
@@ -87,9 +87,9 @@ public class Container implements Serializable
 		return type;
 	}
 
-	public static Type getType(File file)
+	public static Type getType(final File file)
 	{
-		String ext = FilenameUtils.getExtension(file.getName());
+		final String ext = FilenameUtils.getExtension(file.getName());
 		switch(ext.toLowerCase())
 		{
 			case "zip":

@@ -25,7 +25,7 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 		initTransient();
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		initTransient();
@@ -33,15 +33,15 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 
 	protected void initTransient()
 	{
-		if(listenerList == null)
-			listenerList = new EventListenerList();
-		if(filter == null)
-			filter = EnumSet.allOf(AnywareStatus.class);
+		if(AnywareList.listenerList == null)
+			AnywareList.listenerList = new EventListenerList();
+		if(AnywareList.filter == null)
+			AnywareList.filter = EnumSet.allOf(AnywareStatus.class);
 		filtered_list = null;
 	}
 
 	public abstract List<T> getList();
-	
+
 	public abstract boolean containsName(String name);
 
 	public void reset()
@@ -50,7 +50,7 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 		fireTableChanged(new TableModelEvent(this));
 	}
 
-	public void setFilter(EnumSet<AnywareStatus> filter)
+	public void setFilter(final EnumSet<AnywareStatus> filter)
 	{
 		AnywareList.filter = filter;
 		reset();
@@ -65,31 +65,31 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	public abstract int getColumnWidth(int columnIndex);
 
 	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex)
+	public boolean isCellEditable(final int rowIndex, final int columnIndex)
 	{
 		return false;
 	}
 
 	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
 	{
 	}
 
 	@Override
-	public void addTableModelListener(TableModelListener l)
+	public void addTableModelListener(final TableModelListener l)
 	{
-		listenerList.add(TableModelListener.class, l);
+		AnywareList.listenerList.add(TableModelListener.class, l);
 	}
 
 	@Override
-	public void removeTableModelListener(TableModelListener l)
+	public void removeTableModelListener(final TableModelListener l)
 	{
-		listenerList.remove(TableModelListener.class, l);
+		AnywareList.listenerList.remove(TableModelListener.class, l);
 	}
 
-	public void fireTableChanged(TableModelEvent e)
+	public void fireTableChanged(final TableModelEvent e)
 	{
-		Object[] listeners = listenerList.getListenerList();
+		final Object[] listeners = AnywareList.listenerList.getListenerList();
 		for(int i = listeners.length - 2; i >= 0; i -= 2)
 			if(listeners[i] == TableModelListener.class)
 				((TableModelListener) listeners[i + 1]).tableChanged(e);
@@ -108,7 +108,7 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	}
 
 	@Override
-	public boolean contains(Object o)
+	public boolean contains(final Object o)
 	{
 		return getList().contains(o);
 	}
@@ -126,49 +126,49 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	}
 
 	@Override
-	public <E> E[] toArray(E[] a)
+	public <E> E[] toArray(final E[] a)
 	{
 		return getList().toArray(a);
 	}
 
 	@Override
-	public boolean add(T e)
+	public boolean add(final T e)
 	{
 		return getList().add(e);
 	}
 
 	@Override
-	public boolean remove(Object o)
+	public boolean remove(final Object o)
 	{
 		return getList().remove(o);
 	}
 
 	@Override
-	public boolean containsAll(Collection<?> c)
+	public boolean containsAll(final Collection<?> c)
 	{
 		return getList().containsAll(c);
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends T> c)
+	public boolean addAll(final Collection<? extends T> c)
 	{
 		return getList().addAll(c);
 	}
 
 	@Override
-	public boolean addAll(int index, Collection<? extends T> c)
+	public boolean addAll(final int index, final Collection<? extends T> c)
 	{
 		return getList().addAll(index, c);
 	}
 
 	@Override
-	public boolean removeAll(Collection<?> c)
+	public boolean removeAll(final Collection<?> c)
 	{
 		return getList().removeAll(c);
 	}
 
 	@Override
-	public boolean retainAll(Collection<?> c)
+	public boolean retainAll(final Collection<?> c)
 	{
 		return getList().retainAll(c);
 	}
@@ -180,37 +180,37 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	}
 
 	@Override
-	public T get(int index)
+	public T get(final int index)
 	{
 		return getList().get(index);
 	}
 
 	@Override
-	public T set(int index, T element)
+	public T set(final int index, final T element)
 	{
 		return getList().set(index, element);
 	}
 
 	@Override
-	public void add(int index, T element)
+	public void add(final int index, final T element)
 	{
 		getList().add(index, element);
 	}
 
 	@Override
-	public T remove(int index)
+	public T remove(final int index)
 	{
 		return getList().remove(index);
 	}
 
 	@Override
-	public int indexOf(Object o)
+	public int indexOf(final Object o)
 	{
 		return getList().indexOf(o);
 	}
 
 	@Override
-	public int lastIndexOf(Object o)
+	public int lastIndexOf(final Object o)
 	{
 		return getList().lastIndexOf(o);
 	}
@@ -222,13 +222,13 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	}
 
 	@Override
-	public ListIterator<T> listIterator(int index)
+	public ListIterator<T> listIterator(final int index)
 	{
 		return getList().listIterator(index);
 	}
 
 	@Override
-	public List<T> subList(int fromIndex, int toIndex)
+	public List<T> subList(final int fromIndex, final int toIndex)
 	{
 		return getList().subList(fromIndex, toIndex);
 	}
@@ -237,9 +237,9 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
 		boolean ok = false;
-		for(Iterator<T> iterator = getFilteredStream().iterator(); iterator.hasNext();)
+		for(final Iterator<T> iterator = getFilteredStream().iterator(); iterator.hasNext();)
 		{
-			AnywareStatus estatus = iterator.next().getStatus();
+			final AnywareStatus estatus = iterator.next().getStatus();
 			if(estatus == AnywareStatus.PARTIAL || estatus == AnywareStatus.MISSING)
 				status = AnywareStatus.PARTIAL;
 			else if(estatus == AnywareStatus.COMPLETE)
@@ -259,12 +259,12 @@ public abstract class AnywareList<T extends Anyware> implements Serializable, Ta
 
 	public abstract long countAll();
 
-	public int find(Anyware anyware)
+	public int find(final Anyware anyware)
 	{
 		return getFilteredList().indexOf(anyware);
 	}
 
-	public int find(String search)
+	public int find(final String search)
 	{
 		return find(StreamEx.of(getFilteredStream()).findFirst(s -> s.getName().toLowerCase().startsWith(search.toLowerCase())).orElse(null));
 	}

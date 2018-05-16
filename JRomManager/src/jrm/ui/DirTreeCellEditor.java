@@ -10,20 +10,20 @@ import javax.swing.tree.TreePath;
 
 public class DirTreeCellEditor extends DefaultTreeCellEditor
 {
-	public DirTreeCellEditor(JTree tree, DefaultTreeCellRenderer renderer)
+	public DirTreeCellEditor(final JTree tree, final DefaultTreeCellRenderer renderer)
 	{
 		super(tree, renderer);
 	}
 
-	public DirTreeCellEditor(JTree tree, DefaultTreeCellRenderer renderer, TreeCellEditor editor)
+	public DirTreeCellEditor(final JTree tree, final DefaultTreeCellRenderer renderer, final TreeCellEditor editor)
 	{
 		super(tree, renderer, editor);
 	}
 
 	@Override
-	public Component getTreeCellEditorComponent(JTree tree, Object value, boolean isSelected, boolean expanded, boolean leaf, int row)
+	public Component getTreeCellEditorComponent(final JTree tree, final Object value, final boolean isSelected, final boolean expanded, final boolean leaf, final int row)
 	{
-		TreePath path = tree.getPathForRow(row);
+		final TreePath path = tree.getPathForRow(row);
 		if(path.getPathCount() > 1)
 			return super.getTreeCellEditorComponent(tree, value, isSelected, expanded, leaf, row);
 		return renderer.getTreeCellRendererComponent(tree, value, isSelected, expanded, leaf, row, /* hasFocus */true);

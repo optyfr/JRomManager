@@ -14,19 +14,19 @@ abstract public class ContainerAction implements HTMLRenderer
 	public final FormatOptions format;
 	public final ArrayList<EntryAction> entry_actions = new ArrayList<>();
 
-	public ContainerAction(Container container, FormatOptions format)
+	public ContainerAction(final Container container, final FormatOptions format)
 	{
 		this.container = container;
 		this.format = format;
 	}
 
-	public void addAction(EntryAction entryAction)
+	public void addAction(final EntryAction entryAction)
 	{
 		entry_actions.add(entryAction);
 		entryAction.parent = this;
 	}
 
-	public static void addToList(List<ContainerAction> list, ContainerAction action)
+	public static void addToList(final List<ContainerAction> list, final ContainerAction action)
 	{
 		if(action != null && action.entry_actions.size() > 0)
 			list.add(action);

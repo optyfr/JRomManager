@@ -6,6 +6,7 @@ import java.awt.Font;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -27,7 +28,7 @@ public final class AnywareRenderer
 		ImageIcon bullet_black = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/bullet_black.png")); //$NON-NLS-1$
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			if(value!=null) switch(((Entity) value).getStatus())
 			{
@@ -52,7 +53,7 @@ public final class AnywareRenderer
 		ImageIcon drive = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/drive.png")); //$NON-NLS-1$
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			if(value instanceof Rom)
 				setIcon(rom_small);
@@ -66,11 +67,11 @@ public final class AnywareRenderer
 	}, new DefaultTableCellRenderer()
 	{
 		{// anonymous constructor
-			setHorizontalAlignment(TRAILING);
+			setHorizontalAlignment(SwingConstants.TRAILING);
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			setText(value != null ? (value instanceof Long ? ((Long) value > 0 ? value.toString() : null) : value.toString()) : null);
 			setBackground(AnywareRenderer.getBackground(row, column));
@@ -79,11 +80,11 @@ public final class AnywareRenderer
 	}, new DefaultTableCellRenderer()
 	{
 		{
-			setHorizontalAlignment(TRAILING);
+			setHorizontalAlignment(SwingConstants.TRAILING);
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			setText(value != null ? value.toString() : null);
 			setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
@@ -93,11 +94,11 @@ public final class AnywareRenderer
 	}, new DefaultTableCellRenderer()
 	{
 		{
-			setHorizontalAlignment(TRAILING);
+			setHorizontalAlignment(SwingConstants.TRAILING);
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			setText(value != null ? value.toString() : null);
 			setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
@@ -107,11 +108,11 @@ public final class AnywareRenderer
 	}, new DefaultTableCellRenderer()
 	{
 		{
-			setHorizontalAlignment(TRAILING);
+			setHorizontalAlignment(SwingConstants.TRAILING);
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			setText(value != null ? value.toString() : null);
 			setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
@@ -121,18 +122,18 @@ public final class AnywareRenderer
 	}, new DefaultTableCellRenderer()
 	{
 		{
-			setHorizontalAlignment(LEADING);
+			setHorizontalAlignment(SwingConstants.LEADING);
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			setText(value != null ? value.toString() : null);
 			setToolTipText(getText());
 			setBackground(AnywareRenderer.getBackground(row, column));
 			return this;
 		}
-	}, 
+	},
 	new DefaultTableCellRenderer()
 	{
 		ImageIcon verified = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/star.png")); //$NON-NLS-1$
@@ -140,10 +141,10 @@ public final class AnywareRenderer
 		ImageIcon baddump = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/delete.png")); //$NON-NLS-1$
 		ImageIcon nodump = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/error.png")); //$NON-NLS-1$
 		{
-			setHorizontalAlignment(CENTER);
+			setHorizontalAlignment(SwingConstants.CENTER);
 		}
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			if(value instanceof Entity.Status)
 			{
@@ -170,7 +171,7 @@ public final class AnywareRenderer
 		}
 	} };
 
-	private static Color getBackground(int row, int col)
+	private static Color getBackground(final int row, final int col)
 	{
 		if((col%2)==0)
 		{
@@ -185,7 +186,7 @@ public final class AnywareRenderer
 			return Color.decode("0xFFFFFF");
 		}
 	}
-	
+
 	private AnywareRenderer()
 	{
 	}

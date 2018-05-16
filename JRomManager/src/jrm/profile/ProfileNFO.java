@@ -24,9 +24,9 @@ public final class ProfileNFO implements Serializable
 
 	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("file", File.class), new ObjectStreamField("name", String.class), new ObjectStreamField("stats", ProfileNFOStats.class), new ObjectStreamField("mame", ProfileNFOMame.class), };
 
-	private void writeObject(java.io.ObjectOutputStream stream) throws IOException
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
-		ObjectOutputStream.PutField fields = stream.putFields();
+		final ObjectOutputStream.PutField fields = stream.putFields();
 		fields.put("file", file);
 		fields.put("name", name);
 		fields.put("stats", stats);
@@ -34,47 +34,47 @@ public final class ProfileNFO implements Serializable
 		stream.writeFields();
 	}
 
-	private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
-		ObjectInputStream.GetField fields = stream.readFields();
+		final ObjectInputStream.GetField fields = stream.readFields();
 		file = (File) fields.get("file", null);
 		name = (String) fields.get("name", null);
 		stats = (ProfileNFOStats) fields.get("stats", new ProfileNFOStats());
 		mame = (ProfileNFOMame) fields.get("mame", new ProfileNFOMame());
 	}
 
-	private ProfileNFO(File file)
+	private ProfileNFO(final File file)
 	{
 		this.file = file;
-		this.name = file.getName();
-		this.stats.created = new Date();
+		name = file.getName();
+		stats.created = new Date();
 		if(isJRM())
 			loadJrm(file);
 	}
 
-	private static File getFileNfo(File file)
+	private static File getFileNfo(final File file)
 	{
 		return new File(file.getParentFile(), file.getName() + ".nfo");
 	}
 
-	public void relocate(File file)
+	public void relocate(final File file)
 	{
-		getFileNfo(this.file).delete();
+		ProfileNFO.getFileNfo(this.file).delete();
 		this.file = file;
-		this.name = file.getName();
-		this.save();
+		name = file.getName();
+		save();
 	}
 
-	public static ProfileNFO load(File file)
+	public static ProfileNFO load(final File file)
 	{
-		File filenfo = getFileNfo(file);
+		final File filenfo = ProfileNFO.getFileNfo(file);
 		if(filenfo.lastModified() >= file.lastModified()) // $NON-NLS-1$
 		{
 			try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(filenfo))))
 			{
 				return (ProfileNFO) ois.readObject();
 			}
-			catch(Throwable e)
+			catch(final Throwable e)
 			{
 			}
 		}
@@ -83,11 +83,11 @@ public final class ProfileNFO implements Serializable
 
 	public void save()
 	{
-		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getFileNfo(file)))))
+		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(ProfileNFO.getFileNfo(file)))))
 		{
 			oos.writeObject(this);
 		}
-		catch(Throwable e)
+		catch(final Throwable e)
 		{
 
 		}
@@ -97,19 +97,19 @@ public final class ProfileNFO implements Serializable
 	{
 		return FilenameUtils.getExtension(file.getName()).equals("jrm");
 	}
-	
-	public void loadJrm(File jrmfile)
+
+	public void loadJrm(final File jrmfile)
 	{
-		SAXParserFactory factory = SAXParserFactory.newInstance();
+		final SAXParserFactory factory = SAXParserFactory.newInstance();
 		try
 		{
-			SAXParser parser = factory.newSAXParser();
+			final SAXParser parser = factory.newSAXParser();
 			parser.parse(jrmfile, new DefaultHandler()
 			{
 				private boolean in_jrm = false;
-				
+
 				@Override
-				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
+				public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException
 				{
 					if(qName.equalsIgnoreCase("JRomManager"))
 					{
@@ -131,9 +131,9 @@ public final class ProfileNFO implements Serializable
 						}
 					}
 				}
-				
+
 				@Override
-				public void endElement(String uri, String localName, String qName) throws SAXException
+				public void endElement(final String uri, final String localName, final String qName) throws SAXException
 				{
 					if(qName.equalsIgnoreCase("JRomManager"))
 					{
@@ -148,7 +148,7 @@ public final class ProfileNFO implements Serializable
 			e.printStackTrace();
 		}
 	}
-	
+
 	public boolean delete()
 	{
 		if(file.delete())

@@ -19,20 +19,20 @@ public class Messages {
 	//
 	////////////////////////////////////////////////////////////////////////////
 	private static final String BUNDLE_NAME = "jrm.resources.Messages"; //$NON-NLS-1$
-	private static final ResourceBundle RESOURCE_BUNDLE = loadBundle();
+	private static final ResourceBundle RESOURCE_BUNDLE = Messages.loadBundle();
 	private static ResourceBundle loadBundle() {
-		return ResourceBundle.getBundle(BUNDLE_NAME);
+		return ResourceBundle.getBundle(Messages.BUNDLE_NAME);
 	}
 	////////////////////////////////////////////////////////////////////////////
 	//
 	// Strings access
 	//
 	////////////////////////////////////////////////////////////////////////////
-	public static String getString(String key) {
+	public static String getString(final String key) {
 		try {
-			ResourceBundle bundle = Beans.isDesignTime() ? loadBundle() : RESOURCE_BUNDLE;
+			final ResourceBundle bundle = Beans.isDesignTime() ? Messages.loadBundle() : Messages.RESOURCE_BUNDLE;
 			return bundle.getString(key);
-		} catch (MissingResourceException e) {
+		} catch (final MissingResourceException e) {
 			return "!" + key + "!";
 		}
 	}

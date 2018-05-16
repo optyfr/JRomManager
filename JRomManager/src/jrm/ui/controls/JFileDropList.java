@@ -4,12 +4,7 @@ import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.*;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -20,26 +15,26 @@ import javax.swing.JList;
 @SuppressWarnings("serial")
 public class JFileDropList extends JList<File> implements DropTargetListener
 {
-	private Color color;
-	private AddDelCallBack addCallBack;
+	private final Color color;
+	private final AddDelCallBack addCallBack;
 
 	public interface AddDelCallBack
 	{
 		public void call(List<File> files);
 	}
 
-	public JFileDropList(AddDelCallBack addCallBack)
+	public JFileDropList(final AddDelCallBack addCallBack)
 	{
 		super(new DefaultListModel<File>());
-		this.color = getBackground();
+		color = getBackground();
 		this.addCallBack = addCallBack;
 		new DropTarget(this, this);
 	}
 
 	@Override
-	public void dragEnter(DropTargetDragEvent dtde)
+	public void dragEnter(final DropTargetDragEvent dtde)
 	{
-		Transferable transferable = dtde.getTransferable();
+		final Transferable transferable = dtde.getTransferable();
 		if(isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 		{
 			setBackground(Color.decode("#DDFFDD"));
@@ -53,33 +48,34 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 	}
 
 	@Override
-	public void dragOver(DropTargetDragEvent dtde)
+	public void dragOver(final DropTargetDragEvent dtde)
 	{
 	}
 
 	@Override
-	public void dropActionChanged(DropTargetDragEvent dtde)
+	public void dropActionChanged(final DropTargetDragEvent dtde)
 	{
 	}
 
 	@Override
-	public void dragExit(DropTargetEvent dte)
+	public void dragExit(final DropTargetEvent dte)
 	{
 		setBackground(color);
 	}
 
 	@Override
-	public void drop(DropTargetDropEvent dtde)
+	public void drop(final DropTargetDropEvent dtde)
 	{
 		setBackground(color);
 		try
 		{
-			Transferable transferable = dtde.getTransferable();
+			final Transferable transferable = dtde.getTransferable();
 
 			if(transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 			{
 				dtde.acceptDrop(DnDConstants.ACTION_COPY);
 				@SuppressWarnings("unchecked")
+				final
 				List<File> files = (List<File>)transferable.getTransferData(DataFlavor.javaFileListFlavor);
 				add(files);
 				dtde.getDropTargetContext().dropComplete(true);
@@ -87,44 +83,44 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 			else
 				dtde.rejectDrop();
 		}
-		catch(UnsupportedFlavorException e)
+		catch(final UnsupportedFlavorException e)
 		{
 			dtde.rejectDrop();
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{
 			dtde.rejectDrop();
 		}
 	}
 
-	public void add(List<File> files)
+	public void add(final List<File> files)
 	{
-		for(File file : files)
+		for(final File file : files)
 			getModel().addElement(file);
 		addCallBack.call(Collections.list(getModel().elements()));
 	}
-	
-	public void add(File[] files)
+
+	public void add(final File[] files)
 	{
-		for(File file : files)
+		for(final File file : files)
 			getModel().addElement(file);
 		addCallBack.call(Collections.list(getModel().elements()));
 	}
-	
-	public void del(List<File> files)
+
+	public void del(final List<File> files)
 	{
-		for(File file : files)
+		for(final File file : files)
 			getModel().removeElement(file);
 		addCallBack.call(Collections.list(getModel().elements()));
 	}
-	
-	public void del(File[] files)
+
+	public void del(final File[] files)
 	{
-		for(File file : files)
+		for(final File file : files)
 			getModel().removeElement(file);
 		addCallBack.call(Collections.list(getModel().elements()));
 	}
-	
+
 	@Override
 	public DefaultListModel<File> getModel()
 	{

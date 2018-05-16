@@ -29,27 +29,27 @@ public class Import
 	public File roms_file, sl_file;
 	public boolean is_mame = false;
 
-	public Import(File file, boolean sl)
+	public Import(final File file, final boolean sl)
 	{
 		org_file = file;
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-		File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
+		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 		xmldir.mkdir();
 
-		String ext = FilenameUtils.getExtension(file.getName());
+		final String ext = FilenameUtils.getExtension(file.getName());
 		if(!Sets.newHashSet("xml", "dat").contains(ext.toLowerCase()) && file.canExecute()) //$NON-NLS-1$
 		{
 			try
 			{
 				if((roms_file = importMame(file, false)) != null)
 				{
-					File tmpfile = File.createTempFile("JRM", ".jrm"); //$NON-NLS-1$ //$NON-NLS-2$
-					DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-					DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-					Document doc = docBuilder.newDocument();
-					Element rootElement = doc.createElement("JRomManager");
+					final File tmpfile = File.createTempFile("JRM", ".jrm"); //$NON-NLS-1$ //$NON-NLS-2$
+					final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+					final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+					final Document doc = docBuilder.newDocument();
+					final Element rootElement = doc.createElement("JRomManager");
 					doc.appendChild(rootElement);
-					Element profile = doc.createElement("Profile");
+					final Element profile = doc.createElement("Profile");
 					profile.setAttribute("roms", roms_file.getName());
 					if(sl)
 					{
@@ -57,13 +57,13 @@ public class Import
 							profile.setAttribute("sl", sl_file.getName());
 					}
 					rootElement.appendChild(profile);
-					TransformerFactory transformerFactory = TransformerFactory.newInstance();
-					Transformer transformer = transformerFactory.newTransformer();
-					DOMSource source = new DOMSource(doc);
-					StreamResult result = new StreamResult(tmpfile);
+					final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+					final Transformer transformer = transformerFactory.newTransformer();
+					final DOMSource source = new DOMSource(doc);
+					final StreamResult result = new StreamResult(tmpfile);
 					transformer.transform(source, result);
 					this.file = tmpfile;
-					this.is_mame = true;
+					is_mame = true;
 				}
 
 			}
@@ -78,14 +78,14 @@ public class Import
 
 	}
 
-	public File importMame(File file, boolean sl)
+	public File importMame(final File file, final boolean sl)
 	{
 		// Log.info("Get dat file from Mame...");
 		try
 		{
-			File tmpfile = File.createTempFile("JRM", sl ? ".jrm2" : ".jrm1"); //$NON-NLS-1$ //$NON-NLS-2$
+			final File tmpfile = File.createTempFile("JRM", sl ? ".jrm2" : ".jrm1"); //$NON-NLS-1$ //$NON-NLS-2$
 			tmpfile.deleteOnExit();
-			Process process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$
+			final Process process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$
 
 			try(BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpfile), Charset.forName("UTF-8"))); BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));)
 			{
@@ -102,11 +102,11 @@ public class Import
 			process.waitFor();
 			return tmpfile;
 		}
-		catch(IOException e)
+		catch(final IOException e)
 		{
 			Log.err("Caught IO Exception", e); //$NON-NLS-1$
 		}
-		catch(InterruptedException e)
+		catch(final InterruptedException e)
 		{
 			Log.err("Caught Interrupted Exception", e); //$NON-NLS-1$
 		}

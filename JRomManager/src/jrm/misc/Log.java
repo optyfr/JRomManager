@@ -10,23 +10,23 @@ public class Log
 	{
 		Logger.getGlobal().addHandler(new ConsoleHandler());
 	}
-	
-	public static void info(String msg)
+
+	public static void info(final String msg)
 	{
 		Logger.getGlobal().info(msg);
 	}
 
-	public static void warn(String msg)
+	public static void warn(final String msg)
 	{
 		Logger.getGlobal().warning(msg);
 	}
 
-	public static void err(String msg)
+	public static void err(final String msg)
 	{
 		Logger.getGlobal().severe(msg);
 	}
-	
-	public static void err(String msg, Throwable e)
+
+	public static void err(final String msg, final Throwable e)
 	{
 		Logger.getGlobal().log(Level.SEVERE, msg, e);
 	}

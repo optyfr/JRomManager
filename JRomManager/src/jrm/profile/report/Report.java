@@ -62,7 +62,7 @@ public class Report implements TreeNode, HTMLRenderer
 			set_create_partial = 0;
 			set_create_complete = 0;
 		}
-		
+
 		public String getStatus()
 		{
 			return String.format(Messages.getString("Report.Status"), set_found, set_found_ok, set_found_fixpartial, set_found_fixcomplete, set_create, set_create_partial, set_create_complete, set_missing, set_unneeded, set_found + set_create, set_found + set_create + set_missing); //$NON-NLS-1$
@@ -82,13 +82,13 @@ public class Report implements TreeNode, HTMLRenderer
 	{
 		List<FilterOptions> filterOptions;
 
-		public FilterPredicate(List<FilterOptions> filterOptions)
+		public FilterPredicate(final List<FilterOptions> filterOptions)
 		{
 			this.filterOptions = filterOptions;
 		}
 
 		@Override
-		public boolean test(Subject t)
+		public boolean test(final Subject t)
 		{
 			if(!filterOptions.contains(FilterOptions.SHOWOK) && t instanceof SubjectSet && ((SubjectSet) t).isOK())
 				return false;
@@ -101,28 +101,28 @@ public class Report implements TreeNode, HTMLRenderer
 
 	private FilterPredicate filterPredicate = new FilterPredicate(new ArrayList<>());
 
-	private Report(Report report, List<FilterOptions> filterOptions)
+	private Report(final Report report, final List<FilterOptions> filterOptions)
 	{
-		this.filterPredicate = new FilterPredicate(filterOptions);
-		this.model = report.model;
-		this.profile = report.profile;
-		this.subjects = report.filter(filterOptions);
-		this.subject_hash = this.subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
-		this.stats = report.stats;
+		filterPredicate = new FilterPredicate(filterOptions);
+		model = report.model;
+		profile = report.profile;
+		subjects = report.filter(filterOptions);
+		subject_hash = subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
+		stats = report.stats;
 	}
 
-	public Report clone(List<FilterOptions> filterOptions)
+	public Report clone(final List<FilterOptions> filterOptions)
 	{
 		return new Report(this, filterOptions);
 	}
 
-	public List<Subject> filter(List<FilterOptions> filterOptions)
+	public List<Subject> filter(final List<FilterOptions> filterOptions)
 	{
-		this.filterPredicate = new FilterPredicate(filterOptions);
+		filterPredicate = new FilterPredicate(filterOptions);
 		return subjects.stream().filter(filterPredicate).map(s -> s.clone(filterOptions)).collect(Collectors.toList());
 	}
 
-	public void setProfile(Profile profile)
+	public void setProfile(final Profile profile)
 	{
 		this.profile = profile;
 		reset();
@@ -141,7 +141,7 @@ public class Report implements TreeNode, HTMLRenderer
 
 	private StatusHandler statusHandler = null;
 
-	public void setStatusHandler(StatusHandler handler)
+	public void setStatusHandler(final StatusHandler handler)
 	{
 		statusHandler = handler;
 	}
@@ -151,12 +151,12 @@ public class Report implements TreeNode, HTMLRenderer
 		return model;
 	}
 
-	public Subject findSubject(Anyware ware)
+	public Subject findSubject(final Anyware ware)
 	{
 		return ware != null ? subject_hash.get(ware.getFullName()) : null;
 	}
 
-	public Subject findSubject(Anyware ware, Subject def)
+	public Subject findSubject(final Anyware ware, final Subject def)
 	{
 		if(ware != null)
 		{
@@ -168,21 +168,21 @@ public class Report implements TreeNode, HTMLRenderer
 		return null;
 	}
 
-	private Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
+	private final Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
 
-	public synchronized boolean add(Subject subject)
+	public synchronized boolean add(final Subject subject)
 	{
 		subject.parent = this;
 		if(subject.ware != null)
 			subject_hash.put(subject.ware.getFullName(), subject);
-		boolean result = subjects.add(subject);
-		Report clone = (Report) model.getRoot();
+		final boolean result = subjects.add(subject);
+		final Report clone = (Report) model.getRoot();
 		if(this != clone)
 		{
 			subject.updateStats();
 			if(filterPredicate.test(subject))
 			{
-				Subject cloned_subject = subject.clone(filterPredicate.filterOptions);
+				final Subject cloned_subject = subject.clone(filterPredicate.filterOptions);
 				clone.add(cloned_subject);
 				insert_object_cache.put(clone.subjects.size() - 1, cloned_subject);
 				if(insert_object_cache.size() >= 250)
@@ -198,8 +198,8 @@ public class Report implements TreeNode, HTMLRenderer
 			statusHandler.setStatus(stats.getStatus());
 		if(insert_object_cache.size() > 0)
 		{
-			TreeModelEvent event = new TreeModelEvent(model, model.getPathToRoot((Report) model.getRoot()), IntStreamEx.of(insert_object_cache.keySet()).toArray(), insert_object_cache.values().toArray());
-			for(TreeModelListener l : model.getTreeModelListeners())
+			final TreeModelEvent event = new TreeModelEvent(model, model.getPathToRoot((Report) model.getRoot()), IntStreamEx.of(insert_object_cache.keySet()).toArray(), insert_object_cache.values().toArray());
+			for(final TreeModelListener l : model.getTreeModelListeners())
 				l.treeNodesInserted(event);
 		}
 		insert_object_cache.clear();
@@ -207,10 +207,10 @@ public class Report implements TreeNode, HTMLRenderer
 
 	public void write()
 	{
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-		File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
+		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		final File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
 		reportdir.mkdirs();
-		File report_file = new File(reportdir, "report.log"); //$NON-NLS-1$
+		final File report_file = new File(reportdir, "report.log"); //$NON-NLS-1$
 		try(PrintWriter report_w = new PrintWriter(report_file))
 		{
 			subjects.forEach(subject -> {
@@ -224,7 +224,7 @@ public class Report implements TreeNode, HTMLRenderer
 			report_w.println(String.format(Messages.getString("Report.MissingRoms"), stats.missing_roms_cnt, profile.roms_cnt)); //$NON-NLS-1$
 			report_w.println(String.format(Messages.getString("Report.MissingDisks"), stats.missing_disks_cnt, profile.disks_cnt)); //$NON-NLS-1$
 		}
-		catch(FileNotFoundException e)
+		catch(final FileNotFoundException e)
 		{
 			e.printStackTrace();
 		}
@@ -232,7 +232,7 @@ public class Report implements TreeNode, HTMLRenderer
 	}
 
 	@Override
-	public TreeNode getChildAt(int childIndex)
+	public TreeNode getChildAt(final int childIndex)
 	{
 		return subjects.get(childIndex);
 	}
@@ -250,7 +250,7 @@ public class Report implements TreeNode, HTMLRenderer
 	}
 
 	@Override
-	public int getIndex(TreeNode node)
+	public int getIndex(final TreeNode node)
 	{
 		return subjects.indexOf(node);
 	}

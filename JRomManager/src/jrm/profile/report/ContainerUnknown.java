@@ -8,8 +8,8 @@ import jrm.profile.data.Container;
 public class ContainerUnknown extends Subject
 {
 	final Container container;
-	
-	public ContainerUnknown(Container c)
+
+	public ContainerUnknown(final Container c)
 	{
 		super(null);
 		container = c;
@@ -22,7 +22,7 @@ public class ContainerUnknown extends Subject
 	}
 
 	@Override
-	public Subject clone(List<FilterOptions> filterOptions)
+	public Subject clone(final List<FilterOptions> filterOptions)
 	{
 		return new ContainerUnknown(container);
 	}

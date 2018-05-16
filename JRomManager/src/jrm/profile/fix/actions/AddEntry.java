@@ -16,16 +16,16 @@ public class AddEntry extends EntryAction
 {
 	private final Entity entity;
 
-	public AddEntry(Entity entity, Entry entry)
+	public AddEntry(final Entity entity, final Entry entry)
 	{
 		super(entry);
 		this.entity = entity;
 	}
 
 	@Override
-	public boolean doAction(FileSystem dstfs, ProgressHandler handler)
+	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler)
 	{
-		Path dstpath = dstfs.getPath(entity.getName());
+		final Path dstpath = dstfs.getPath(entity.getName());
 		handler.setProgress(null, null, null, String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
 		Path srcpath = null;
 		try
@@ -60,7 +60,7 @@ public class AddEntry extends EntryAction
 				}
 			}
 		}
-		catch(Throwable e)
+		catch(final Throwable e)
 		{
 			e.printStackTrace();
 			System.err.println("add from " + entry.parent.file + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed");
@@ -69,9 +69,9 @@ public class AddEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(Path target, ProgressHandler handler)
+	public boolean doAction(final Path target, final ProgressHandler handler)
 	{
-		Path dstpath = target.resolve(entity.getName());
+		final Path dstpath = target.resolve(entity.getName());
 		handler.setProgress(null, null, null, String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
 		Path srcpath = null;
 		try
@@ -85,7 +85,7 @@ public class AddEntry extends EntryAction
 						Files.createDirectories(dstpath.getParent());
 					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				}
-				catch(Throwable e)
+				catch(final Throwable e)
 				{
 					System.err.println("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed");
 				}
@@ -105,7 +105,7 @@ public class AddEntry extends EntryAction
 					}
 					// return archive.add_stdin(srcarchive.extract_stdout(entry.file) , entity.getName()) == 0;
 				}
-				catch(IOException e)
+				catch(final IOException e)
 				{
 					e.printStackTrace();
 				}
@@ -119,7 +119,7 @@ public class AddEntry extends EntryAction
 			}
 			return true;
 		}
-		catch(Throwable e)
+		catch(final Throwable e)
 		{
 			e.printStackTrace();
 			System.err.println("add from " + entry.parent.file.getName() + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed");
@@ -128,7 +128,7 @@ public class AddEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(Archive archive, ProgressHandler handler)
+	public boolean doAction(final Archive archive, final ProgressHandler handler)
 	{
 		handler.setProgress(null, null, null, String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
 		if(entry.parent.getType() == Type.ZIP)
@@ -137,7 +137,7 @@ public class AddEntry extends EntryAction
 			{
 				return archive.add_stdin(Files.newInputStream(srcfs.getPath(entry.file)), entity.getName()) == 0;
 			}
-			catch(Throwable e)
+			catch(final Throwable e)
 			{
 				System.err.println("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed");
 			}
@@ -150,7 +150,7 @@ public class AddEntry extends EntryAction
 					return archive.add(srcarchive.getTempDir(), entry.file) == 0;
 				// return archive.add_stdin(srcarchive.extract_stdout(entry.file) , entity.getName()) == 0;
 			}
-			catch(IOException e)
+			catch(final IOException e)
 			{
 				e.printStackTrace();
 			}

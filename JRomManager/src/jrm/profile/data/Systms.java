@@ -21,12 +21,12 @@ public final class Systms extends AbstractListModel<Systm> implements Serializab
 	}
 
 	@Override
-	public Systm getElementAt(int index)
+	public Systm getElementAt(final int index)
 	{
 		return systems.get(index);
 	}
 
-	public boolean add(Systm system)
+	public boolean add(final Systm system)
 	{
 		return systems.add(system);
 	}

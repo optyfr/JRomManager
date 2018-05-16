@@ -7,14 +7,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 @SuppressWarnings("serial")
 public class Archive extends Container implements Serializable
 {
-	public Archive(File file, Anyware m)
+	public Archive(final File file, final Anyware m)
 	{
-		super(getType(file), file, m);
+		super(Container.getType(file), file, m);
 	}
 
-	public Archive(File file, BasicFileAttributes attr)
+	public Archive(final File file, final BasicFileAttributes attr)
 	{
-		super(getType(file), file, attr);
+		super(Container.getType(file), file, attr);
 	}
 
 }

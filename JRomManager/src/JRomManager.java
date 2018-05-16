@@ -9,9 +9,9 @@ import jrm.ui.MainFrame;
 
 public final class JRomManager
 {
-	public static void main(String[] args)
+	public static void main(final String[] args)
 	{
-		if(lockInstance(FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock"))
+		if(JRomManager.lockInstance(FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock"))
 			new MainFrame().setVisible(true);
 	}
 
@@ -26,6 +26,7 @@ public final class JRomManager
 			{
 				Runtime.getRuntime().addShutdownHook(new Thread()
 				{
+					@Override
 					public void run()
 					{
 						try
@@ -34,7 +35,7 @@ public final class JRomManager
 							randomAccessFile.close();
 							file.delete();
 						}
-						catch(Exception e)
+						catch(final Exception e)
 						{
 							Log.err("Unable to remove lock file: " + lockFile, e);
 						}
@@ -43,7 +44,7 @@ public final class JRomManager
 				return true;
 			}
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{
 			Log.err("Unable to create and/or lock file: " + lockFile, e);
 		}

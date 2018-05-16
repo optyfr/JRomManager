@@ -5,18 +5,18 @@ import java.nio.MappedByteBuffer;
 
 public class CHDHeaderV4 extends CHDHeader implements CHDHeaderIntf
 {
-	private String sha1;
-	
-	public CHDHeaderV4(MappedByteBuffer bb, CHDHeader header) throws UnsupportedEncodingException
+	private final String sha1;
+
+	public CHDHeaderV4(final MappedByteBuffer bb, final CHDHeader header) throws UnsupportedEncodingException
 	{
 		super();
-		this.tag = header.tag;
-		this.len = header.len;
-		this.version = header.version;
-		byte[] sha1 = new byte[20];
+		tag = header.tag;
+		len = header.len;
+		version = header.version;
+		final byte[] sha1 = new byte[20];
 		bb.position(48);
 		bb.get(sha1);
-		this.sha1 = bytesToHex(sha1);
+		this.sha1 = CHDHeader.bytesToHex(sha1);
 	}
 
 	@Override

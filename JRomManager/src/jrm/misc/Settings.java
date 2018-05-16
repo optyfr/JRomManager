@@ -13,9 +13,9 @@ public class Settings
 
 	private static File getSettingsFile()
 	{
-		File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-		File cachedir = new File(workdir, "settings");
-		File settingsfile = new File(cachedir, "JRomManager.properties");
+		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
+		final File cachedir = new File(workdir, "settings");
+		final File settingsfile = new File(cachedir, "JRomManager.properties");
 		settingsfile.getParentFile().mkdirs();
 		return settingsfile;
 
@@ -23,13 +23,13 @@ public class Settings
 
 	public static void saveSettings()
 	{
-		if(settings == null)
-			settings = new Properties();
-		try(FileOutputStream os = new FileOutputStream(getSettingsFile()))
+		if(Settings.settings == null)
+			Settings.settings = new Properties();
+		try(FileOutputStream os = new FileOutputStream(Settings.getSettingsFile()))
 		{
-			settings.storeToXML(os, null);
+			Settings.settings.storeToXML(os, null);
 		}
-		catch(IOException e)
+		catch(final IOException e)
 		{
 			Log.err("IO", e);
 		}
@@ -37,48 +37,48 @@ public class Settings
 
 	public static void loadSettings()
 	{
-		if(settings == null)
-			settings = new Properties();
-		if(getSettingsFile().exists())
+		if(Settings.settings == null)
+			Settings.settings = new Properties();
+		if(Settings.getSettingsFile().exists())
 		{
-			try(FileInputStream is = new FileInputStream(getSettingsFile()))
+			try(FileInputStream is = new FileInputStream(Settings.getSettingsFile()))
 			{
-				settings.loadFromXML(is);
+				Settings.settings.loadFromXML(is);
 			}
-			catch(IOException e)
+			catch(final IOException e)
 			{
 				Log.err("IO", e);
 			}
 		}
 	}
 
-	public static void setProperty(String property, boolean value)
+	public static void setProperty(final String property, final boolean value)
 	{
-		settings.setProperty(property, Boolean.toString(value));
+		Settings.settings.setProperty(property, Boolean.toString(value));
 	}
 
-	public static void setProperty(String property, int value)
+	public static void setProperty(final String property, final int value)
 	{
-		settings.setProperty(property, Integer.toString(value));
+		Settings.settings.setProperty(property, Integer.toString(value));
 	}
 
-	public static void setProperty(String property, String value)
+	public static void setProperty(final String property, final String value)
 	{
-		settings.setProperty(property, value);
+		Settings.settings.setProperty(property, value);
 	}
 
-	public static boolean getProperty(String property, boolean def)
+	public static boolean getProperty(final String property, final boolean def)
 	{
-		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
+		return Boolean.parseBoolean(Settings.settings.getProperty(property, Boolean.toString(def)));
 	}
 
-	public static int getProperty(String property, int def)
+	public static int getProperty(final String property, final int def)
 	{
-		return Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
+		return Integer.parseInt(Settings.settings.getProperty(property, Integer.toString(def)));
 	}
 
-	public static String getProperty(String property, String def)
+	public static String getProperty(final String property, final String def)
 	{
-		return settings.getProperty(property, def);
+		return Settings.settings.getProperty(property, def);
 	}
 }

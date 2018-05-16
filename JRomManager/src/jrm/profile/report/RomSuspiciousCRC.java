@@ -7,8 +7,8 @@ import jrm.Messages;
 public class RomSuspiciousCRC extends Subject
 {
 	final String crc;
-	
-	public RomSuspiciousCRC(String crc)
+
+	public RomSuspiciousCRC(final String crc)
 	{
 		super(null);
 		this.crc = crc;
@@ -21,7 +21,7 @@ public class RomSuspiciousCRC extends Subject
 	}
 
 	@Override
-	public Subject clone(List<FilterOptions> filterOptions)
+	public Subject clone(final List<FilterOptions> filterOptions)
 	{
 		return new RomSuspiciousCRC(crc);
 	}
@@ -29,6 +29,6 @@ public class RomSuspiciousCRC extends Subject
 	@Override
 	public void updateStats()
 	{
-		
+
 	}
 }

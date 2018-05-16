@@ -14,17 +14,17 @@ public final class ProfileNFOMame implements Serializable
 	public File fileroms = null;
 	public File filesl = null;
 
-	private static final ObjectStreamField[] serialPersistentFields = { 
-		new ObjectStreamField("file", File.class), 
-		new ObjectStreamField("modified", Long.class),
-		new ObjectStreamField("sl", Boolean.TYPE),
-		new ObjectStreamField("fileroms", File.class),
-		new ObjectStreamField("filesl", File.class),
+	private static final ObjectStreamField[] serialPersistentFields = {
+			new ObjectStreamField("file", File.class),
+			new ObjectStreamField("modified", Long.class),
+			new ObjectStreamField("sl", Boolean.TYPE),
+			new ObjectStreamField("fileroms", File.class),
+			new ObjectStreamField("filesl", File.class),
 	};
 
-	private void writeObject(java.io.ObjectOutputStream stream) throws IOException
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
-		ObjectOutputStream.PutField fields = stream.putFields();
+		final ObjectOutputStream.PutField fields = stream.putFields();
 		fields.put("file", file);
 		fields.put("modified", modified);
 		fields.put("sl", sl);
@@ -33,9 +33,9 @@ public final class ProfileNFOMame implements Serializable
 		stream.writeFields();
 	}
 
-	private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
-		ObjectInputStream.GetField fields = stream.readFields();
+		final ObjectInputStream.GetField fields = stream.readFields();
 		file = (File) fields.get("file", null);
 		modified = (Long) fields.get("modified", null);
 		sl = fields.get("sl", false);
@@ -49,37 +49,37 @@ public final class ProfileNFOMame implements Serializable
 		UPTODATE(Messages.getString("ProfileNFOMame.UpToDate")), //$NON-NLS-1$
 		NEEDUPDATE(Messages.getString("ProfileNFOMame.NeedUpdate")), //$NON-NLS-1$
 		NOTFOUND(Messages.getString("ProfileNFOMame.NotFound")); //$NON-NLS-1$
-		
+
 		private final String msg;
-		
-		private MameStatus(String msg)
+
+		private MameStatus(final String msg)
 		{
 			this.msg = msg;
 		}
-		
+
 		public String getMsg()
 		{
 			return msg;
 		}
 	}
 
-	public void set(File mame, boolean sl)
+	public void set(final File mame, final boolean sl)
 	{
 		if(mame.exists())
 		{
-			this.file = mame;
-			this.modified = mame.lastModified();
+			file = mame;
+			modified = mame.lastModified();
 			this.sl = sl;
 		}
 	}
 
 	public MameStatus getStatus()
 	{
-		if(this.file != null)
+		if(file != null)
 		{
-			if(this.file.exists())
+			if(file.exists())
 			{
-				if(this.file.lastModified() > this.modified)
+				if(file.lastModified() > modified)
 					return MameStatus.NEEDUPDATE;
 				return MameStatus.UPTODATE;
 			}
@@ -95,17 +95,17 @@ public final class ProfileNFOMame implements Serializable
 
 	public void setUpdated()
 	{
-		this.modified = this.file.lastModified();
+		modified = file.lastModified();
 	}
 
-	public MameStatus relocate(File newFile)
+	public MameStatus relocate(final File newFile)
 	{
-		if(this.file != null && newFile != null)
+		if(file != null && newFile != null)
 		{
 			if(newFile.exists())
 			{
-				this.file = newFile;
-				if(this.file.lastModified() > this.modified)
+				file = newFile;
+				if(file.lastModified() > modified)
 					return MameStatus.NEEDUPDATE;
 				return MameStatus.UPTODATE;
 			}
@@ -118,7 +118,7 @@ public final class ProfileNFOMame implements Serializable
 	{
 		return sl;
 	}
-	
+
 	public void delete()
 	{
 		if(fileroms!=null)

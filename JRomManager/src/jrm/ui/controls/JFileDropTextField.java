@@ -17,59 +17,59 @@ import javax.swing.text.Document;
 @SuppressWarnings("serial")
 public class JFileDropTextField extends JTextField implements FocusListener, DropTargetListener
 {
-	private Color color;
-	private SetCallBack callback;
+	private final Color color;
+	private final SetCallBack callback;
 
 	public interface SetCallBack
 	{
 		public void call(String txt);
 	}
 
-	public JFileDropTextField(SetCallBack callback) throws HeadlessException
+	public JFileDropTextField(final SetCallBack callback) throws HeadlessException
 	{
 		this(null, "", 0, callback);
 	}
 
-	public JFileDropTextField(String text, SetCallBack callback) throws HeadlessException
+	public JFileDropTextField(final String text, final SetCallBack callback) throws HeadlessException
 	{
 		this(null, text, 0, callback);
 	}
 
-	public JFileDropTextField(int columns, SetCallBack callback) throws HeadlessException
+	public JFileDropTextField(final int columns, final SetCallBack callback) throws HeadlessException
 	{
 		this(null, "", columns, callback);
 	}
 
-	public JFileDropTextField(String text, int columns, SetCallBack callback) throws HeadlessException
+	public JFileDropTextField(final String text, final int columns, final SetCallBack callback) throws HeadlessException
 	{
 		this(null, "", columns, callback);
 	}
 
-	public JFileDropTextField(Document doc, String text, int columns, SetCallBack callback)
+	public JFileDropTextField(final Document doc, final String text, final int columns, final SetCallBack callback)
 	{
 		super(doc, text, columns);
 		this.callback = callback;
-		this.color = JFileDropTextField.this.getBackground();
-		this.addFocusListener(this);
+		color = JFileDropTextField.this.getBackground();
+		addFocusListener(this);
 		new DropTarget(this, this);
 	}
 
 	@Override
-	public void focusGained(FocusEvent e)
+	public void focusGained(final FocusEvent e)
 	{
 	}
 
 	@Override
-	public void focusLost(FocusEvent e)
+	public void focusLost(final FocusEvent e)
 	{
 		if(callback != null)
 			callback.call(JFileDropTextField.this.getText());
 	}
 
 	@Override
-	public void dragEnter(DropTargetDragEvent dtde)
+	public void dragEnter(final DropTargetDragEvent dtde)
 	{
-		Transferable transferable = dtde.getTransferable();
+		final Transferable transferable = dtde.getTransferable();
 		if(JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 		{
 			JFileDropTextField.this.setBackground(Color.decode("#DDFFDD"));
@@ -83,33 +83,34 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 	}
 
 	@Override
-	public void dragOver(DropTargetDragEvent dtde)
+	public void dragOver(final DropTargetDragEvent dtde)
 	{
 	}
 
 	@Override
-	public void dropActionChanged(DropTargetDragEvent dtde)
+	public void dropActionChanged(final DropTargetDragEvent dtde)
 	{
 	}
 
 	@Override
-	public void dragExit(DropTargetEvent dte)
+	public void dragExit(final DropTargetEvent dte)
 	{
 		JFileDropTextField.this.setBackground(color);
 	}
 
 	@Override
-	public void drop(DropTargetDropEvent dtde)
+	public void drop(final DropTargetDropEvent dtde)
 	{
 		JFileDropTextField.this.setBackground(color);
 		try
 		{
-			Transferable transferable = dtde.getTransferable();
+			final Transferable transferable = dtde.getTransferable();
 
 			if(JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 			{
 				dtde.acceptDrop(DnDConstants.ACTION_COPY);
 				@SuppressWarnings("unchecked")
+				final
 				List<File> files = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
 				if(files.size() == 1)
 				{
@@ -121,11 +122,11 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 			else
 				dtde.rejectDrop();
 		}
-		catch(UnsupportedFlavorException e)
+		catch(final UnsupportedFlavorException e)
 		{
 			dtde.rejectDrop();
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{
 			dtde.rejectDrop();
 		}

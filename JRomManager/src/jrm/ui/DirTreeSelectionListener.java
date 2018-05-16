@@ -9,16 +9,16 @@ public class DirTreeSelectionListener implements TreeSelectionListener
 {
 	JTable profilesList;
 
-	public DirTreeSelectionListener(JTable profilesList)
+	public DirTreeSelectionListener(final JTable profilesList)
 	{
 		this.profilesList = profilesList;
 	}
 
 	@Override
-	public void valueChanged(TreeSelectionEvent e)
+	public void valueChanged(final TreeSelectionEvent e)
 	{
-		JTree tree = (JTree) e.getSource();
-		DirNode selectedNode = (DirNode) tree.getLastSelectedPathComponent();
+		final JTree tree = (JTree) e.getSource();
+		final DirNode selectedNode = (DirNode) tree.getLastSelectedPathComponent();
 		if(selectedNode != null)
 		{
 			((FileTableModel) profilesList.getModel()).populate((DirNode.Dir) selectedNode.getUserObject());

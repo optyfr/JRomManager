@@ -48,7 +48,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		initTransient();
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		initTransient();
@@ -56,30 +56,31 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 
 	private void initTransient()
 	{
-		if(merge_mode == null)
-			merge_mode = MergeOptions.SPLIT;
-		if(implicit_merge == null)
-			implicit_merge = false;
-		if(hash_collision_mode == null)
-			hash_collision_mode = HashCollisionOptions.SINGLEFILE;
+		if(Anyware.merge_mode == null)
+			Anyware.merge_mode = MergeOptions.SPLIT;
+		if(Anyware.implicit_merge == null)
+			Anyware.implicit_merge = false;
+		if(Anyware.hash_collision_mode == null)
+			Anyware.hash_collision_mode = HashCollisionOptions.SINGLEFILE;
 		collision = false;
 		table_entities = null;
-		if(listenerList == null)
-			listenerList = new EventListenerList();
-		if(filter == null)
-			filter = EnumSet.allOf(EntityStatus.class);
+		if(Anyware.listenerList == null)
+			Anyware.listenerList = new EventListenerList();
+		if(Anyware.filter == null)
+			Anyware.filter = EnumSet.allOf(EntityStatus.class);
 	}
 
-	public <T extends Anyware> T getParent(Class<T> type)
+	public <T extends Anyware> T getParent(final Class<T> type)
 	{
 		return type.cast(parent);
 	}
 
 	public abstract Anyware getParent();
 
+	@Override
 	public abstract String getName();
 
-	public void setName(String name)
+	public void setName(final String name)
 	{
 		this.name = name;
 	}
@@ -93,11 +94,11 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		return collision;
 	}
 
-	public void setCollisionMode(boolean parent)
+	public void setCollisionMode(final boolean parent)
 	{
 		if(parent)
 			getDest().clones.forEach((n, m) -> m.collision = true);
-		this.collision = true;
+		collision = true;
 	}
 
 	public void resetCollisionMode()
@@ -112,17 +113,17 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		return (parent != null && !getParent().isBios());
 	}
 
-	public Anyware getDest(MergeOptions merge_mode, boolean implicit_merge)
+	public Anyware getDest(final MergeOptions merge_mode, final boolean implicit_merge)
 	{
 		Anyware.merge_mode = merge_mode;
 		Anyware.implicit_merge = implicit_merge;
 		return getDest();
 	}
-	
+
 	private Anyware getDest()
 	{
-		if(merge_mode.isMerge() && isClone())
-			return getParent().getDest(merge_mode, implicit_merge);
+		if(Anyware.merge_mode.isMerge() && isClone())
+			return getParent().getDest(Anyware.merge_mode, Anyware.implicit_merge);
 		return this;
 	}
 
@@ -130,10 +131,10 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 
 	public abstract boolean isRomOf();
 
-	public List<Disk> filterDisks(MergeOptions merge_mode, HashCollisionOptions hash_collision_mode)
+	public List<Disk> filterDisks(final MergeOptions merge_mode, final HashCollisionOptions hash_collision_mode)
 	{
-		Machine.merge_mode = merge_mode;
-		Machine.hash_collision_mode = hash_collision_mode;
+		Anyware.merge_mode = merge_mode;
+		Anyware.hash_collision_mode = hash_collision_mode;
 		Stream<Disk> stream;
 		if(merge_mode.isMerge())
 		{
@@ -141,7 +142,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				stream = Stream.empty();
 			else
 			{
-				List<Disk> disks_with_clones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).collect(Collectors.toList());
+				final List<Disk> disks_with_clones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).collect(Collectors.toList());
 				StreamEx.of(disks_with_clones).groupingBy(Disk::getName).forEach((n, l) -> {
 					if(l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
 						l.forEach(Disk::setCollisionMode);
@@ -154,18 +155,18 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		return stream.filter(d -> {
 			if(d.status == Status.nodump)
 				return false;
-			if(merge_mode == MergeOptions.SPLIT && containsInParent(this, d))
+			if(merge_mode == MergeOptions.SPLIT && Anyware.containsInParent(this, d))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && containsInParent(this, d))
+			if(merge_mode == MergeOptions.NOMERGE && Anyware.containsInParent(this, d))
 				return true;
-			return this.isBios() || !containsInParent(this, d);
+			return isBios() || !Anyware.containsInParent(this, d);
 		}).collect(Collectors.toList());
 	}
 
-	public List<Rom> filterRoms(MergeOptions merge_mode, HashCollisionOptions hash_collision_mode)
+	public List<Rom> filterRoms(final MergeOptions merge_mode, final HashCollisionOptions hash_collision_mode)
 	{
-		Machine.merge_mode = merge_mode;
-		Machine.hash_collision_mode = hash_collision_mode;
+		Anyware.merge_mode = merge_mode;
+		Anyware.hash_collision_mode = hash_collision_mode;
 		Stream<Rom> stream;
 		if(merge_mode.isMerge())
 		{
@@ -173,7 +174,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				stream = Stream.empty();
 			else
 			{
-				List<Rom> roms_with_clones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
+				final List<Rom> roms_with_clones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
 				StreamEx.of(roms_with_clones).groupingBy(Rom::getName).forEach((n, l) -> {
 					if(l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
 						l.forEach(Rom::setCollisionMode);
@@ -192,21 +193,21 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				return true;
 			if(merge_mode == MergeOptions.FULLMERGE)
 				return true;
-			if(merge_mode == MergeOptions.SPLIT && containsInParent(this, r, false))
+			if(merge_mode == MergeOptions.SPLIT && Anyware.containsInParent(this, r, false))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && containsInParent(this, r, true))
+			if(merge_mode == MergeOptions.NOMERGE && Anyware.containsInParent(this, r, true))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && wouldMerge(this, r))
+			if(merge_mode == MergeOptions.NOMERGE && Anyware.wouldMerge(this, r))
 				return true;
-			if(merge_mode == MergeOptions.MERGE && containsInParent(this, r, true))
+			if(merge_mode == MergeOptions.MERGE && Anyware.containsInParent(this, r, true))
 				return false;
-			if(merge_mode == MergeOptions.MERGE && wouldMerge(this, r))
+			if(merge_mode == MergeOptions.MERGE && Anyware.wouldMerge(this, r))
 				return true;
-			return this.isBios() || !containsInParent(this, r, false);
+			return isBios() || !Anyware.containsInParent(this, r, false);
 		}).collect(Collectors.toList());
 	}
 
-	public static boolean wouldMerge(Anyware ware, Entity e)
+	public static boolean wouldMerge(final Anyware ware, final Entity e)
 	{
 		if(e.merge!=null)
 			if(ware.isRomOf())
@@ -214,31 +215,31 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 					return true;
 		return false;
 	}
-	
-	public static boolean containsInParent(Anyware ware, Rom r, boolean onlyBios)
+
+	public static boolean containsInParent(final Anyware ware, final Rom r, final boolean onlyBios)
 	{
-		if(r.merge!=null || implicit_merge)
+		if(r.merge!=null || Anyware.implicit_merge)
 		{
 			if(ware.getParent()!=null)
 			{
 				if(!onlyBios || ware.getParent().isBios())
 					if(ware.getParent().roms.contains(r))
 						return true;
-				return containsInParent(ware.getParent(), r, onlyBios);
+				return Anyware.containsInParent(ware.getParent(), r, onlyBios);
 			}
 		}
 		return false;
 	}
-	
-	public static boolean containsInParent(Anyware ware, Disk d)
+
+	public static boolean containsInParent(final Anyware ware, final Disk d)
 	{
-		if(d.merge!=null || implicit_merge)
+		if(d.merge!=null || Anyware.implicit_merge)
 		{
 			if(ware.getParent()!=null)
 			{
 				if(ware.getParent().disks.contains(d))
 					return true;
-				return containsInParent(ware.getParent(), d);
+				return Anyware.containsInParent(ware.getParent(), d);
 			}
 		}
 		return false;
@@ -246,11 +247,11 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 
 	public void reset()
 	{
-		this.table_entities = null;
+		table_entities = null;
 		fireTableChanged(new TableModelEvent(this));
 	}
 
-	public void setFilter(EnumSet<EntityStatus> filter)
+	public void setFilter(final EnumSet<EntityStatus> filter)
 	{
 		Anyware.filter = filter;
 		reset();
@@ -259,7 +260,7 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	private List<Entity> getEntities()
 	{
 		if(table_entities == null)
-			table_entities = Stream.concat(roms.stream(), disks.stream()).filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			table_entities = Stream.concat(roms.stream(), disks.stream()).filter(t -> Anyware.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return table_entities;
 	}
 
@@ -276,35 +277,35 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	}
 
 	@Override
-	public String getColumnName(int columnIndex)
+	public String getColumnName(final int columnIndex)
 	{
 		return AnywareRenderer.columns[columnIndex];
 	}
 
 	@Override
-	public Class<?> getColumnClass(int columnIndex)
+	public Class<?> getColumnClass(final int columnIndex)
 	{
 		return AnywareRenderer.columnsTypes[columnIndex];
 	}
 
-	public static TableCellRenderer getColumnRenderer(int columnIndex)
+	public static TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
 		return columnIndex < AnywareRenderer.columnsRenderers.length && AnywareRenderer.columnsRenderers[columnIndex] != null ? AnywareRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
-	public static int getColumnWidth(int columnIndex)
+	public static int getColumnWidth(final int columnIndex)
 	{
 		return AnywareRenderer.columnsWidths[columnIndex];
 	}
 
 	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex)
+	public boolean isCellEditable(final int rowIndex, final int columnIndex)
 	{
 		return false;
 	}
 
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex)
+	public Object getValueAt(final int rowIndex, final int columnIndex)
 	{
 		switch(columnIndex)
 		{
@@ -329,43 +330,43 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	}
 
 	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
 	{
 	}
 
 	@Override
-	public void addTableModelListener(TableModelListener l)
+	public void addTableModelListener(final TableModelListener l)
 	{
-		listenerList.add(TableModelListener.class, l);
+		Anyware.listenerList.add(TableModelListener.class, l);
 	}
 
 	@Override
-	public void removeTableModelListener(TableModelListener l)
+	public void removeTableModelListener(final TableModelListener l)
 	{
-		listenerList.remove(TableModelListener.class, l);
+		Anyware.listenerList.remove(TableModelListener.class, l);
 	}
 
-	public void fireTableChanged(TableModelEvent e)
+	public void fireTableChanged(final TableModelEvent e)
 	{
-		Object[] listeners = listenerList.getListenerList();
+		final Object[] listeners = Anyware.listenerList.getListenerList();
 		for(int i = listeners.length - 2; i >= 0; i -= 2)
 			if(listeners[i] == TableModelListener.class)
 				((TableModelListener) listeners[i + 1]).tableChanged(e);
 	}
 
 	@Override
-	public int compareTo(Anyware o)
+	public int compareTo(final Anyware o)
 	{
-		return this.name.compareTo(o.name);
+		return name.compareTo(o.name);
 	}
 
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
 		boolean ok = false;
-		for(Disk disk : disks)
+		for(final Disk disk : disks)
 		{
-			EntityStatus estatus = disk.getStatus();
+			final EntityStatus estatus = disk.getStatus();
 			if(estatus == EntityStatus.KO)
 				status = AnywareStatus.PARTIAL;
 			else if(estatus == EntityStatus.OK)
@@ -376,9 +377,9 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				break;
 			}
 		}
-		for(Rom rom : roms)
+		for(final Rom rom : roms)
 		{
-			EntityStatus estatus = rom.getStatus();
+			final EntityStatus estatus = rom.getStatus();
 			if(estatus == EntityStatus.KO)
 				status = AnywareStatus.PARTIAL;
 			else if(estatus == EntityStatus.OK)

@@ -2,10 +2,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -28,7 +25,8 @@ public class Machine extends Anyware implements Serializable
 	public DisplayOrientation orientation = DisplayOrientation.any;
 	public CabinetType cabinetType = CabinetType.upright;
 	public final Map<String, SWList> swlists = new HashMap<>();
-	
+	public final List<String> samples = new ArrayList<>();
+
 	public transient SubCategory subcat = null;
 	public transient NPlayer nplayer = null;
 
@@ -82,7 +80,7 @@ public class Machine extends Anyware implements Serializable
 	}
 
 	@Override
-	public String getFullName(String filename)
+	public String getFullName(final String filename)
 	{
 		return filename;
 	}
@@ -138,19 +136,19 @@ public class Machine extends Anyware implements Serializable
 		return "[" + getType() + "] " + description.toString();
 	}
 
-	public int isCompatible(String softwarelist, String compatibility)
+	public int isCompatible(final String softwarelist, final String compatibility)
 	{
 		if(compatibility != null)
-			if(new HashSet<String>(Arrays.asList(compatibility.split(","))).contains(swlists.get(softwarelist).filter))
+			if(new HashSet<>(Arrays.asList(compatibility.split(","))).contains(swlists.get(softwarelist).filter))
 				return swlists.get(softwarelist).status == SWStatus.original ? 20 : 10;
 		return swlists.get(softwarelist).status == SWStatus.original ? 2 : 1;
 	}
 
-	public void export(EnhancedXMLStreamWriter writer, boolean is_mame) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException, IOException
 	{
 		if(is_mame)
 		{
-			writer.writeStartElement("machine", 
+			writer.writeStartElement("machine",
 					new SimpleAttribute("name", name),
 					new SimpleAttribute("isbios", isbios?"yes":null),
 					new SimpleAttribute("isdevice", isdevice?"yes":null),
@@ -158,54 +156,54 @@ public class Machine extends Anyware implements Serializable
 					new SimpleAttribute("cloneof", cloneof),
 					new SimpleAttribute("romof", romof),
 					new SimpleAttribute("sampleof", sampleof)
-			);
+					);
 			writer.writeElement("description", description);
 			if(year!=null && year.length()>0)
 				writer.writeElement("year", year);
 			if(manufacturer!=null && manufacturer.length()>0)
 				writer.writeElement("manufacturer", manufacturer);
-			for(Rom r : roms)
+			for(final Rom r : roms)
 				r.export(writer, is_mame);
-			for(Disk d : disks)
+			for(final Disk d : disks)
 				d.export(writer, is_mame);
-			for(SWList swlist : swlists.values())
+			for(final SWList swlist : swlists.values())
 			{
 				writer.writeElement("softwarelist",
-					new SimpleAttribute("name", swlist.name),
-					new SimpleAttribute("status", swlist.status),
-					new SimpleAttribute("filter", swlist.filter)
-				);
-				
+						new SimpleAttribute("name", swlist.name),
+						new SimpleAttribute("status", swlist.status),
+						new SimpleAttribute("filter", swlist.filter)
+						);
+
 			}
 			if(driver!=null)
 			{
 				writer.writeElement("driver",
-					new SimpleAttribute("status", driver.getStatus()),
-					new SimpleAttribute("emulation", driver.getEmulation()),
-					new SimpleAttribute("cocktail", driver.getCocktail()),
-					new SimpleAttribute("savestate", driver.getSaveState())
-				);
-				
+						new SimpleAttribute("status", driver.getStatus()),
+						new SimpleAttribute("emulation", driver.getEmulation()),
+						new SimpleAttribute("cocktail", driver.getCocktail()),
+						new SimpleAttribute("savestate", driver.getSaveState())
+						);
+
 			}
 			writer.writeEndElement();
 		}
 		else
 		{
-			writer.writeStartElement("game", 
-					new SimpleAttribute("name", name), 
+			writer.writeStartElement("game",
+					new SimpleAttribute("name", name),
 					new SimpleAttribute("isbios", isbios?"yes":null),
 					new SimpleAttribute("cloneof", cloneof),
 					new SimpleAttribute("romof", romof),
 					new SimpleAttribute("sampleof", sampleof)
-			);
+					);
 			writer.writeElement("description", description);
 			if(year!=null && year.length()>0)
 				writer.writeElement("year", year);
 			if(manufacturer!=null && manufacturer.length()>0)
 				writer.writeElement("manufacturer", manufacturer);
-			for(Rom r : roms)
+			for(final Rom r : roms)
 				r.export(writer, is_mame);
-			for(Disk d : disks)
+			for(final Disk d : disks)
 				d.export(writer, is_mame);
 			writer.writeEndElement();
 		}

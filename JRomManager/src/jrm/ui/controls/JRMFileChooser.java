@@ -1,4 +1,4 @@
-package jrm.ui;
+package jrm.ui.controls;
 
 import java.awt.Component;
 import java.io.File;
@@ -17,15 +17,15 @@ public class JRMFileChooser<V> extends JFileChooser
 	{
 		File root;
 		File[] roots = new File[1];
-		
-		public OneRootFileSystemView(File root)
+
+		public OneRootFileSystemView(final File root)
 		{
 			try
 			{
 				this.root = root.getCanonicalFile();
-				this.roots[0] = this.root;
+				roots[0] = this.root;
 			}
-			catch(IOException e1)
+			catch(final IOException e1)
 			{
 				JOptionPane.showMessageDialog(null, e1, "Exception", JOptionPane.ERROR_MESSAGE);
 				e1.printStackTrace();
@@ -33,9 +33,9 @@ public class JRMFileChooser<V> extends JFileChooser
 		}
 
 		@Override
-		public File createNewFolder(File containingDir) throws IOException
+		public File createNewFolder(final File containingDir) throws IOException
 		{
-			File folder = new File(containingDir, "New Folder");
+			final File folder = new File(containingDir, "New Folder");
 			folder.mkdir();
 			return folder;
 		}
@@ -52,12 +52,13 @@ public class JRMFileChooser<V> extends JFileChooser
 			return root;
 		}
 
+		@Override
 		public File[] getRoots()
 		{
 			return roots;
 		}
 	}
-	
+
 	public interface CallBack<V>
 	{
 		public V call(JRMFileChooser<V> chooser);
@@ -68,27 +69,27 @@ public class JRMFileChooser<V> extends JFileChooser
 		this(null, null, null, null, null, null, false);
 	}
 
-	public JRMFileChooser(int type, int mode)
+	public JRMFileChooser(final int type, final int mode)
 	{
 		this(type, mode, null, null, null, null, false);
 	}
 
-	public JRMFileChooser(int type, int mode, File currdir)
+	public JRMFileChooser(final int type, final int mode, final File currdir)
 	{
 		this(type, mode, currdir, null, null, null, false);
 	}
 
-	public JRMFileChooser(Integer type, Integer mode, File currdir, File selected, List<FileFilter> filters, String title, boolean multi)
+	public JRMFileChooser(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title, final boolean multi)
 	{
 		super();
 		setup(type, mode, currdir, selected, filters, title, multi);
 	}
-	
-	public JRMFileChooser<V> setup(Integer type, Integer mode, File currdir, File selected, List<FileFilter> filters, String title, boolean multi)
+
+	public JRMFileChooser<V> setup(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title, final boolean multi)
 	{
-		if(type!=null)
+		if(type != null)
 			setDialogType(type);
-		if(mode!=null)
+		if(mode != null)
 			setFileSelectionMode(mode);
 		if(selected != null)
 			setSelectedFile(selected);
@@ -101,16 +102,17 @@ public class JRMFileChooser<V> extends JFileChooser
 		}
 		if(filters != null)
 		{
-			if(filters.size()==1)
+			if(filters.size() == 1)
 			{
 				setFileFilter(filters.get(0));
 				setAcceptAllFileFilterUsed(false);
 			}
-			else for(FileFilter filter : filters)
-			{
-				addChoosableFileFilter(filter);
-				setAcceptAllFileFilterUsed(false);
-			}
+			else
+				for(final FileFilter filter : filters)
+				{
+					addChoosableFileFilter(filter);
+					setAcceptAllFileFilterUsed(false);
+				}
 		}
 		if(title != null)
 			setDialogTitle(title);
@@ -118,26 +120,26 @@ public class JRMFileChooser<V> extends JFileChooser
 			setMultiSelectionEnabled(multi);
 		return this;
 	}
-	
-	public JRMFileChooser(FileSystemView fsv)
+
+	public JRMFileChooser(final FileSystemView fsv)
 	{
 		super(fsv);
 	}
-	
-	public V show(Component parent, CallBack<V> callback)
+
+	public V show(final Component parent, final CallBack<V> callback)
 	{
 		if(showOpenDialog(parent) == JFileChooser.APPROVE_OPTION)
 			return callback.call(this);
 		return null;
 	}
-	
-	public V showOpen(Component parent, CallBack<V> callback)
+
+	public V showOpen(final Component parent, final CallBack<V> callback)
 	{
 		setDialogType(JFileChooser.OPEN_DIALOG);
 		return show(parent, callback);
 	}
 
-	public V showSave(Component parent, CallBack<V> callback)
+	public V showSave(final Component parent, final CallBack<V> callback)
 	{
 		setDialogType(JFileChooser.SAVE_DIALOG);
 		return show(parent, callback);

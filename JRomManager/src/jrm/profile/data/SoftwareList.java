@@ -34,18 +34,20 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 		initTransient();
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		initTransient();
 	}
 
+	@Override
 	protected void initTransient()
 	{
 		super.initTransient();
 	}
 
-	public boolean add(Software software)
+	@Override
+	public boolean add(final Software software)
 	{
 		software.sl = this;
 		s_byname.put(software.name, software);
@@ -53,9 +55,9 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 	}
 
 	@Override
-	public int compareTo(SoftwareList o)
+	public int compareTo(final SoftwareList o)
 	{
-		return this.name.compareTo(o.name);
+		return name.compareTo(o.name);
 	}
 
 	@Override
@@ -65,23 +67,25 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 	}
 
 	@Override
-	public String getColumnName(int columnIndex)
+	public String getColumnName(final int columnIndex)
 	{
 		return SoftwareListRenderer.columns[columnIndex];
 	}
 
 	@Override
-	public Class<?> getColumnClass(int columnIndex)
+	public Class<?> getColumnClass(final int columnIndex)
 	{
 		return SoftwareListRenderer.columnsTypes[columnIndex];
 	}
 
-	public TableCellRenderer getColumnRenderer(int columnIndex)
+	@Override
+	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
 		return SoftwareListRenderer.columnsRenderers[columnIndex] != null ? SoftwareListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
-	public int getColumnWidth(int columnIndex)
+	@Override
+	public int getColumnWidth(final int columnIndex)
 	{
 		return SoftwareListRenderer.columnsWidths[columnIndex];
 	}
@@ -93,9 +97,9 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 	}
 
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex)
+	public Object getValueAt(final int rowIndex, final int columnIndex)
 	{
-		Software software = getFilteredList().get(rowIndex);
+		final Software software = getFilteredList().get(rowIndex);
 		switch(columnIndex)
 		{
 			case 0:
@@ -142,6 +146,7 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 		return name;
 	}
 
+	@Override
 	public Stream<Software> getFilteredStream()
 	{
 		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true);
@@ -170,12 +175,12 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 			return true;
 		});
 	}
-	
+
 	@Override
 	protected List<Software> getFilteredList()
 	{
 		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			filtered_list = getFilteredStream().filter(t -> AnywareList.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
 
@@ -192,19 +197,19 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 	}
 
 	@Override
-	public boolean containsName(String name)
+	public boolean containsName(final String name)
 	{
 		return s_byname.containsKey(name);
 	}
 
-	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress) throws XMLStreamException, IOException
 	{
-		writer.writeStartElement("softwarelist", 
+		writer.writeStartElement("softwarelist",
 				new SimpleAttribute("name",name),
 				new SimpleAttribute("description",description)
-		);
-		List<Software> list = getFilteredStream().collect(Collectors.toList());
-		for(Software s : list)
+				);
+		final List<Software> list = getFilteredStream().collect(Collectors.toList());
+		for(final Software s : list)
 		{
 			progress.setProgress(String.format("Exporting %s", s.getFullName()), progress.getValue()+1);
 			s.export(writer);

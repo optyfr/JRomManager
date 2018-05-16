@@ -24,7 +24,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 		initTransient();
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		initTransient();
@@ -32,10 +32,10 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 
 	protected void initTransient()
 	{
-		if(listenerList == null)
-			listenerList = new EventListenerList();
-		if(filter == null)
-			filter = EnumSet.allOf(AnywareStatus.class);
+		if(AnywareListList.listenerList == null)
+			AnywareListList.listenerList = new EventListenerList();
+		if(AnywareListList.filter == null)
+			AnywareListList.filter = EnumSet.allOf(AnywareStatus.class);
 		filtered_list = null;
 	}
 
@@ -45,7 +45,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 		fireTableChanged(new TableModelEvent(this));
 	}
 
-	public void setFilter(EnumSet<AnywareStatus> filter)
+	public void setFilter(final EnumSet<AnywareStatus> filter)
 	{
 		AnywareListList.filter = filter;
 		reset();
@@ -60,37 +60,37 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	public abstract int getColumnWidth(int columnIndex);
 
 	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex)
+	public boolean isCellEditable(final int rowIndex, final int columnIndex)
 	{
 		return false;
 	}
 
 	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
 	{
 	}
 
 	@Override
-	public void addTableModelListener(TableModelListener l)
+	public void addTableModelListener(final TableModelListener l)
 	{
-		if(listenerList == null)
-			listenerList = new EventListenerList();
-		listenerList.add(TableModelListener.class, l);
+		if(AnywareListList.listenerList == null)
+			AnywareListList.listenerList = new EventListenerList();
+		AnywareListList.listenerList.add(TableModelListener.class, l);
 	}
 
 	@Override
-	public void removeTableModelListener(TableModelListener l)
+	public void removeTableModelListener(final TableModelListener l)
 	{
-		if(listenerList == null)
-			listenerList = new EventListenerList();
-		listenerList.remove(TableModelListener.class, l);
+		if(AnywareListList.listenerList == null)
+			AnywareListList.listenerList = new EventListenerList();
+		AnywareListList.listenerList.remove(TableModelListener.class, l);
 	}
 
-	public void fireTableChanged(TableModelEvent e)
+	public void fireTableChanged(final TableModelEvent e)
 	{
-		if(listenerList == null)
-			listenerList = new EventListenerList();
-		Object[] listeners = listenerList.getListenerList();
+		if(AnywareListList.listenerList == null)
+			AnywareListList.listenerList = new EventListenerList();
+		final Object[] listeners = AnywareListList.listenerList.getListenerList();
 		for(int i = listeners.length - 2; i >= 0; i -= 2)
 			if(listeners[i] == TableModelListener.class)
 				((TableModelListener) listeners[i + 1]).tableChanged(e);
@@ -99,19 +99,19 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	public abstract List<T> getList();
 
 	@Override
-	public T get(int index)
+	public T get(final int index)
 	{
 		return getList().get(index);
 	}
 
 	@Override
-	public boolean add(T list)
+	public boolean add(final T list)
 	{
 		return getList().add(list);
 	}
 
 	@Override
-	public void forEach(Consumer<? super T> action)
+	public void forEach(final Consumer<? super T> action)
 	{
 		getList().forEach(action);
 	}
@@ -129,7 +129,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	}
 
 	@Override
-	public boolean contains(Object o)
+	public boolean contains(final Object o)
 	{
 		return getList().contains(o);
 	}
@@ -147,43 +147,43 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	}
 
 	@Override
-	public <E> E[] toArray(E[] a)
+	public <E> E[] toArray(final E[] a)
 	{
 		return getList().toArray(a);
 	}
 
 	@Override
-	public boolean remove(Object o)
+	public boolean remove(final Object o)
 	{
 		return getList().remove(o);
 	}
 
 	@Override
-	public boolean containsAll(Collection<?> c)
+	public boolean containsAll(final Collection<?> c)
 	{
 		return getList().containsAll(c);
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends T> c)
+	public boolean addAll(final Collection<? extends T> c)
 	{
 		return getList().addAll(c);
 	}
 
 	@Override
-	public boolean addAll(int index, Collection<? extends T> c)
+	public boolean addAll(final int index, final Collection<? extends T> c)
 	{
 		return getList().addAll(index, c);
 	}
 
 	@Override
-	public boolean removeAll(Collection<?> c)
+	public boolean removeAll(final Collection<?> c)
 	{
 		return getList().removeAll(c);
 	}
 
 	@Override
-	public boolean retainAll(Collection<?> c)
+	public boolean retainAll(final Collection<?> c)
 	{
 		return getList().retainAll(c);
 	}
@@ -195,31 +195,31 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	}
 
 	@Override
-	public T set(int index, T element)
+	public T set(final int index, final T element)
 	{
 		return getList().set(index, element);
 	}
 
 	@Override
-	public void add(int index, T element)
+	public void add(final int index, final T element)
 	{
 		getList().add(index, element);
 	}
 
 	@Override
-	public T remove(int index)
+	public T remove(final int index)
 	{
 		return getList().remove(index);
 	}
 
 	@Override
-	public int indexOf(Object o)
+	public int indexOf(final Object o)
 	{
 		return getList().indexOf(o);
 	}
 
 	@Override
-	public int lastIndexOf(Object o)
+	public int lastIndexOf(final Object o)
 	{
 		return getList().lastIndexOf(o);
 	}
@@ -231,13 +231,13 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	}
 
 	@Override
-	public ListIterator<T> listIterator(int index)
+	public ListIterator<T> listIterator(final int index)
 	{
 		return getList().listIterator(index);
 	}
 
 	@Override
-	public List<T> subList(int fromIndex, int toIndex)
+	public List<T> subList(final int fromIndex, final int toIndex)
 	{
 		return getList().subList(fromIndex, toIndex);
 	}

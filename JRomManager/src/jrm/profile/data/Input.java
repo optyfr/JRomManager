@@ -11,27 +11,27 @@ public final class Input implements Serializable
 	public int coins = 0;
 	public boolean service = false;
 	public boolean tilt = false;
-	
+
 	Input()
 	{
 	}
-	
-	public void setPlayers(String players)
+
+	public void setPlayers(final String players)
 	{
 		this.players = Integer.parseInt(players);
 	}
-	
-	public void setCoins(String coins)
+
+	public void setCoins(final String coins)
 	{
 		this.coins = Integer.parseInt(coins);
 	}
 
-	public void setService(String service)
+	public void setService(final String service)
 	{
 		this.service = BooleanUtils.toBoolean(service);
 	}
 
-	public void setTilt(String tilt)
+	public void setTilt(final String tilt)
 	{
 		this.tilt = BooleanUtils.toBoolean(tilt);
 	}

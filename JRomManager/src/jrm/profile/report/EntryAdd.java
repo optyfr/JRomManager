@@ -10,8 +10,8 @@ public class EntryAdd extends Note
 {
 	final Entity entity;
 	final Entry entry;
-	
-	public EntryAdd(Entity entity, Entry entry)
+
+	public EntryAdd(final Entity entity, final Entry entry)
 	{
 		this.entity = entity;
 		this.entry = entry;

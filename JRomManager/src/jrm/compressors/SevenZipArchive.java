@@ -29,25 +29,25 @@ public class SevenZipArchive implements Archive
 
 	private SevenZipNArchive native_7zip = null;
 
-	public SevenZipArchive(File archive) throws IOException
+	public SevenZipArchive(final File archive) throws IOException
 	{
 		this(archive, false);
 	}
 
-	public SevenZipArchive(File archive, boolean readonly) throws IOException
+	public SevenZipArchive(final File archive, final boolean readonly) throws IOException
 	{
 		try
 		{
 			native_7zip = new SevenZipNArchive(archive, readonly);
 		}
-		catch(SevenZipNativeInitializationException e)
+		catch(final SevenZipNativeInitializationException e)
 		{
 			this.readonly = readonly;
-			this.cmd = Settings.getProperty("7z_cmd", FindCmd.find7z()); //$NON-NLS-1$
-			if(!new File(this.cmd).exists() && !new File(this.cmd + ".exe").exists()) //$NON-NLS-1$
-				throw new IOException(this.cmd + " does not exists"); //$NON-NLS-1$
-			if(null == (this.archive = archives.get(archive.getAbsolutePath())))
-				archives.put(archive.getAbsolutePath(), this.archive = archive);
+			cmd = Settings.getProperty("7z_cmd", FindCmd.find7z()); //$NON-NLS-1$
+			if(!new File(cmd).exists() && !new File(cmd + ".exe").exists()) //$NON-NLS-1$
+				throw new IOException(cmd + " does not exists"); //$NON-NLS-1$
+			if(null == (this.archive = SevenZipArchive.archives.get(archive.getAbsolutePath())))
+				SevenZipArchive.archives.put(archive.getAbsolutePath(), this.archive = archive);
 		}
 	}
 
@@ -65,18 +65,18 @@ public class SevenZipArchive implements Archive
 			else
 			{
 				int err = -1;
-				List<String> cmd_add = new ArrayList<>();
-				Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
+				final List<String> cmd_add = new ArrayList<>();
+				final Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 				tmpfile.toFile().delete();
 				Collections.addAll(cmd_add, Settings.getProperty("7z_cmd", FindCmd.find7z()), "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				Collections.addAll(cmd_add, "-ms=" + (Settings.getProperty("7z_solid", false) ? "on" : "off"), "-mx=" + Settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 				Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
-				Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
+				final Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
 				try
 				{
 					err = process.waitFor();
 				}
-				catch(InterruptedException e)
+				catch(final InterruptedException e)
 				{
 					e.printStackTrace();
 				}
@@ -98,6 +98,7 @@ public class SevenZipArchive implements Archive
 		}
 	}
 
+	@Override
 	public File getTempDir() throws IOException
 	{
 		if(native_7zip != null)
@@ -116,21 +117,21 @@ public class SevenZipArchive implements Archive
 		return tempDir;
 	}
 
-	private int extract(File baseDir, String entry) throws IOException
+	private int extract(final File baseDir, final String entry) throws IOException
 	{
-		List<String> cmd = new ArrayList<>();
+		final List<String> cmd = new ArrayList<>();
 		Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		if(entry != null && !entry.isEmpty())
 			cmd.add(entry);
-		ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);
+		final ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);
 		synchronized(archive)
 		{
-			Process process = pb.start();
+			final Process process = pb.start();
 			try
 			{
 				return process.waitFor();
 			}
-			catch(InterruptedException e)
+			catch(final InterruptedException e)
 			{
 				e.printStackTrace();
 			}
@@ -138,19 +139,21 @@ public class SevenZipArchive implements Archive
 		return -1;
 	}
 
-	public File extract(String entry) throws IOException
+	@Override
+	public File extract(final String entry) throws IOException
 	{
 		if(native_7zip != null)
 			return native_7zip.extract(entry);
 		if(readonly)
 			extract(getTempDir(), entry);
-		File result = new File(getTempDir(), entry);
+		final File result = new File(getTempDir(), entry);
 		if(result.exists())
 			return result;
 		return null;
 	}
 
-	public InputStream extract_stdout(String entry) throws IOException
+	@Override
+	public InputStream extract_stdout(final String entry) throws IOException
 	{
 		if(native_7zip != null)
 			return native_7zip.extract_stdout(entry);
@@ -159,14 +162,16 @@ public class SevenZipArchive implements Archive
 		return new FileInputStream(new File(getTempDir(), entry));
 	}
 
-	public int add(String entry) throws IOException
+	@Override
+	public int add(final String entry) throws IOException
 	{
 		if(native_7zip != null)
 			return native_7zip.add(entry);
 		return add(getTempDir(), entry);
 	}
 
-	public int add(File baseDir, String entry) throws IOException
+	@Override
+	public int add(final File baseDir, final String entry) throws IOException
 	{
 		if(native_7zip != null)
 			return native_7zip.add(baseDir, entry);
@@ -177,7 +182,8 @@ public class SevenZipArchive implements Archive
 		return 0;
 	}
 
-	public int add_stdin(InputStream src, String entry) throws IOException
+	@Override
+	public int add_stdin(final InputStream src, final String entry) throws IOException
 	{
 		if(native_7zip != null)
 			return native_7zip.add_stdin(src, entry);
@@ -187,7 +193,8 @@ public class SevenZipArchive implements Archive
 		return 0;
 	}
 
-	public int delete(String entry) throws IOException
+	@Override
+	public int delete(final String entry) throws IOException
 	{
 		if(native_7zip != null)
 			return native_7zip.delete(entry);
@@ -197,7 +204,8 @@ public class SevenZipArchive implements Archive
 		return 0;
 	}
 
-	public int rename(String entry, String newname) throws IOException
+	@Override
+	public int rename(final String entry, final String newname) throws IOException
 	{
 		if(native_7zip != null)
 			return native_7zip.rename(entry, newname);
@@ -208,7 +216,7 @@ public class SevenZipArchive implements Archive
 	}
 
 	@Override
-	public int duplicate(String entry, String newname) throws IOException
+	public int duplicate(final String entry, final String newname) throws IOException
 	{
 		if(native_7zip != null)
 			return native_7zip.duplicate(entry, newname);

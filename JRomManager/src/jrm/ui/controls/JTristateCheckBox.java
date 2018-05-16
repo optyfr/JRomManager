@@ -20,13 +20,13 @@ public class JTristateCheckBox extends JCheckBox
 	}
 
 	@Override
-	public void paint(Graphics g)
+	public void paint(final Graphics g)
 	{
 		if(isSelected())
 		{
 			halfState = false;
 		}
-		setIcon(halfState ? halfselected : isSelected() ? selected : unselected);
+		setIcon(halfState ? JTristateCheckBox.halfselected : isSelected() ? JTristateCheckBox.selected : JTristateCheckBox.unselected);
 		super.paint(g);
 	}
 
@@ -35,7 +35,7 @@ public class JTristateCheckBox extends JCheckBox
 		return halfState;
 	}
 
-	public void setHalfSelected(boolean halfState)
+	public void setHalfSelected(final boolean halfState)
 	{
 		this.halfState = halfState;
 		if(halfState)

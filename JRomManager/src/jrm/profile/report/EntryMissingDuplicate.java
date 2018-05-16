@@ -10,8 +10,8 @@ public class EntryMissingDuplicate extends Note
 {
 	final Entity entity;
 	final Entry entry;
-	
-	public EntryMissingDuplicate(Entity entity, Entry entry)
+
+	public EntryMissingDuplicate(final Entity entity, final Entry entry)
 	{
 		this.entity = entity;
 		this.entry = entry;

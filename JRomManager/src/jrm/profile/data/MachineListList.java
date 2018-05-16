@@ -3,7 +3,10 @@ package jrm.profile.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,12 +35,13 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		initTransient();
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		initTransient();
 	}
 
+	@Override
 	protected void initTransient()
 	{
 		super.initTransient();
@@ -50,23 +54,25 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	}
 
 	@Override
-	public String getColumnName(int columnIndex)
+	public String getColumnName(final int columnIndex)
 	{
 		return AnywareListListRenderer.columns[columnIndex];
 	}
 
 	@Override
-	public Class<?> getColumnClass(int columnIndex)
+	public Class<?> getColumnClass(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsTypes[columnIndex];
 	}
 
-	public TableCellRenderer getColumnRenderer(int columnIndex)
+	@Override
+	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsRenderers[columnIndex] != null ? AnywareListListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
-	public int getColumnWidth(int columnIndex)
+	@Override
+	public int getColumnWidth(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsWidths[columnIndex];
 	}
@@ -78,7 +84,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	}
 
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex)
+	public Object getValueAt(final int rowIndex, final int columnIndex)
 	{
 		if(rowIndex < ml_list.size())
 		{
@@ -113,42 +119,36 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	protected List<MachineList> getFilteredList()
 	{
 		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			filtered_list = getFilteredStream().filter(t -> AnywareListList.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
 
-	public Machine findMachine(String softwarelist, String compatibility)
+	public Machine findMachine(final String softwarelist, final String compatibility)
 	{
 		if(softwarelist_defs.containsKey(softwarelist))
-			return softwarelist_defs.get(softwarelist).stream().filter(m -> m.isCompatible(softwarelist, compatibility) > 0).sorted(new Comparator<Machine>()
-			{
-
-				@Override
-				public int compare(Machine o1, Machine o2)
-				{
-					int c1 = o1.isCompatible(softwarelist, compatibility);
-					int c2 = o2.isCompatible(softwarelist, compatibility);
-					if(o1.driver.getStatus() == Driver.StatusType.good)
-						c1 += 2;
-					if(o1.driver.getStatus() == Driver.StatusType.imperfect)
-						c1 += 1;
-					if(o2.driver.getStatus() == Driver.StatusType.good)
-						c2 += 2;
-					if(o2.driver.getStatus() == Driver.StatusType.imperfect)
-						c2 += 1;
-					if(c1 < c2)
-						return 1;
-					if(c1 > c2)
-						return -1;
-					return 0;
-				}
+			return softwarelist_defs.get(softwarelist).stream().filter(m -> m.isCompatible(softwarelist, compatibility) > 0).sorted((o1, o2) -> {
+				int c1 = o1.isCompatible(softwarelist, compatibility);
+				int c2 = o2.isCompatible(softwarelist, compatibility);
+				if(o1.driver.getStatus() == Driver.StatusType.good)
+					c1 += 2;
+				if(o1.driver.getStatus() == Driver.StatusType.imperfect)
+					c1 += 1;
+				if(o2.driver.getStatus() == Driver.StatusType.good)
+					c2 += 2;
+				if(o2.driver.getStatus() == Driver.StatusType.imperfect)
+					c2 += 1;
+				if(c1 < c2)
+					return 1;
+				if(c1 > c2)
+					return -1;
+				return 0;
 			}).findFirst().orElse(null);
 		return null;
 	}
 
-	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean is_mame, boolean filtered) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException, IOException
 	{
-		List<MachineList> lists = getFilteredStream().collect(Collectors.toList());
+		final List<MachineList> lists = getFilteredStream().collect(Collectors.toList());
 		if(lists.size() > 0)
 		{
 			writer.writeStartDocument("UTF-8","1.0");
@@ -160,7 +160,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 			{
 				writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
 			}
-			for(MachineList list : lists)
+			for(final MachineList list : lists)
 				list.export(writer, progress, is_mame, filtered);
 			writer.writeEndDocument();
 		}

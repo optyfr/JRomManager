@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,18 +26,20 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 {
 	private final ArrayList<Machine> m_list = new ArrayList<>();
 	public final HashMap<String, Machine> m_byname = new HashMap<>();
+	public final HashMap<String, HashSet<String>> samplesets = new HashMap<>();
 
 	public MachineList()
 	{
 		initTransient();
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		initTransient();
 	}
 
+	@Override
 	protected void initTransient()
 	{
 		super.initTransient();
@@ -49,23 +52,25 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	@Override
-	public String getColumnName(int columnIndex)
+	public String getColumnName(final int columnIndex)
 	{
 		return MachineListRenderer.columns[columnIndex];
 	}
 
 	@Override
-	public Class<?> getColumnClass(int columnIndex)
+	public Class<?> getColumnClass(final int columnIndex)
 	{
 		return MachineListRenderer.columnsTypes[columnIndex];
 	}
 
-	public TableCellRenderer getColumnRenderer(int columnIndex)
+	@Override
+	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
 		return MachineListRenderer.columnsRenderers[columnIndex] != null ? MachineListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
-	public int getColumnWidth(int columnIndex)
+	@Override
+	public int getColumnWidth(final int columnIndex)
 	{
 		return MachineListRenderer.columnsWidths[columnIndex];
 	}
@@ -77,9 +82,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex)
+	public Object getValueAt(final int rowIndex, final int columnIndex)
 	{
-		Machine machine = getFilteredList().get(rowIndex);
+		final Machine machine = getFilteredList().get(rowIndex);
 		switch(columnIndex)
 		{
 			case 0:
@@ -106,6 +111,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		return m_list;
 	}
 
+	@Override
 	public Stream<Machine> getFilteredStream()
 	{
 		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true);
@@ -164,7 +170,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	{
 		if(filtered_list == null)
 			filtered_list = getFilteredStream().filter(t -> {
-				return filter.contains(t.getStatus());
+				return AnywareList.filter.contains(t.getStatus());
 			}).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
@@ -184,21 +190,21 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	@Override
-	public boolean containsName(String name)
+	public boolean containsName(final String name)
 	{
 		return m_byname.containsKey(name);
 	}
 
-	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean is_mame, boolean filtered) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException, IOException
 	{
 		if(is_mame)
 			writer.writeStartElement("mame");
 		else
 			writer.writeStartElement("datafile");
-		List<Machine> list = filtered ? getFilteredStream().collect(Collectors.toList()) : getList();
+		final List<Machine> list = filtered ? getFilteredStream().collect(Collectors.toList()) : getList();
 		int i = 0;
 		progress.setProgress("Exporting", i, list.size());
-		for(Machine m : list)
+		for(final Machine m : list)
 		{
 			progress.setProgress(String.format("Exporting %s", m.name), ++i);
 			m.export(writer, is_mame);

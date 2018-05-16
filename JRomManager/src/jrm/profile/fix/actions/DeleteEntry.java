@@ -11,13 +11,13 @@ import jrm.ui.ProgressHandler;
 
 public class DeleteEntry extends EntryAction
 {
-	public DeleteEntry(Entry entry)
+	public DeleteEntry(final Entry entry)
 	{
 		super(entry);
 	}
 
 	@Override
-	public boolean doAction(FileSystem dstfs, ProgressHandler handler)
+	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler)
 	{
 		Path path = null;
 		try
@@ -27,7 +27,7 @@ public class DeleteEntry extends EntryAction
 			Files.deleteIfExists(path);
 			return true;
 		}
-		catch(Throwable e)
+		catch(final Throwable e)
 		{
 			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed");
 		}
@@ -35,7 +35,7 @@ public class DeleteEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(Path target, ProgressHandler handler)
+	public boolean doAction(final Path target, final ProgressHandler handler)
 	{
 		Path path = null;
 		try
@@ -45,7 +45,7 @@ public class DeleteEntry extends EntryAction
 			Files.deleteIfExists(path);
 			return true;
 		}
-		catch(Throwable e)
+		catch(final Throwable e)
 		{
 			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed");
 		}
@@ -53,14 +53,14 @@ public class DeleteEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(Archive archive, ProgressHandler handler)
+	public boolean doAction(final Archive archive, final ProgressHandler handler)
 	{
 		try
 		{
 			handler.setProgress(null, null, null, String.format(Messages.getString("DeleteEntry.Deleting"), entry.file)); //$NON-NLS-1$
 			return archive.delete(entry.file) == 0;
 		}
-		catch(Throwable e)
+		catch(final Throwable e)
 		{
 			System.err.println("delete " + parent.container.file.getName() + "@" + entry.file + " failed");
 		}

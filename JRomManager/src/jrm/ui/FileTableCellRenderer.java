@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import jrm.profile.ProfileNFO;
@@ -17,11 +18,12 @@ public class FileTableCellRenderer extends DefaultTableCellRenderer
 		super();
 	}
 
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+	@Override
+	public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 	{
 		if(column==0 && table.getModel() instanceof FileTableModel)
 		{
-			ProfileNFO nfo = ((FileTableModel)table.getModel()).getNfoAt(row);
+			final ProfileNFO nfo = ((FileTableModel)table.getModel()).getNfoAt(row);
 			super.getTableCellRendererComponent(table, nfo.name, isSelected, hasFocus, row, column);
 			switch(nfo.mame.getStatus())
 			{
@@ -48,7 +50,7 @@ public class FileTableCellRenderer extends DefaultTableCellRenderer
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			setForeground(Color.black);
 			if(column>1)
-				setHorizontalAlignment(CENTER);
+				setHorizontalAlignment(SwingConstants.CENTER);
 			else
 				setToolTipText(getText());
 		}

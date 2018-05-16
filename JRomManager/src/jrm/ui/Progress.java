@@ -1,8 +1,6 @@
 package jrm.ui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -16,11 +14,11 @@ import jrm.Messages;
 @SuppressWarnings("serial")
 public class Progress extends JDialog implements ProgressHandler
 {
-	private JLabel lblInfo;
-	private JProgressBar progressBar;
+	private final JLabel lblInfo;
+	private final JProgressBar progressBar;
 	private boolean cancel = false;
 
-	public Progress(Window owner)
+	public Progress(final Window owner)
 	{
 		super(owner, Messages.getString("Progress.Title"), ModalityType.MODELESS); //$NON-NLS-1$
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
@@ -28,13 +26,13 @@ public class Progress extends JDialog implements ProgressHandler
 		addWindowListener(new WindowAdapter()
 		{
 			@Override
-			public void windowClosing(WindowEvent e)
+			public void windowClosing(final WindowEvent e)
 			{
 				cancel = true;
 			}
 
 			@Override
-			public void windowOpened(WindowEvent e)
+			public void windowOpened(final WindowEvent e)
 			{
 				owner.setEnabled(false);
 				if(owner.getOwner()!=null)
@@ -42,7 +40,7 @@ public class Progress extends JDialog implements ProgressHandler
 			}
 
 			@Override
-			public void windowClosed(WindowEvent e)
+			public void windowClosed(final WindowEvent e)
 			{
 				owner.setEnabled(true);
 				owner.toFront();
@@ -50,8 +48,8 @@ public class Progress extends JDialog implements ProgressHandler
 					owner.getOwner().setEnabled(true);
 			}
 		});
-		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-		GridBagLayout gridBagLayout = new GridBagLayout();
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 26, 26, 0, 0, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
@@ -62,7 +60,7 @@ public class Progress extends JDialog implements ProgressHandler
 		lblInfo.setPreferredSize(new Dimension(0, 20));
 		lblInfo.setMinimumSize(new Dimension(0, 20));
 		lblInfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		GridBagConstraints gbc_lblInfo = new GridBagConstraints();
+		final GridBagConstraints gbc_lblInfo = new GridBagConstraints();
 		gbc_lblInfo.insets = new Insets(5, 5, 0, 5);
 		gbc_lblInfo.gridwidth = 2;
 		gbc_lblInfo.fill = GridBagConstraints.BOTH;
@@ -75,7 +73,7 @@ public class Progress extends JDialog implements ProgressHandler
 		lblSubInfo.setMinimumSize(new Dimension(0, 20));
 		lblSubInfo.setText(Messages.getString("Progress.lblSubInfo.text")); //$NON-NLS-1$
 		lblSubInfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		GridBagConstraints gbc_lblSubInfo = new GridBagConstraints();
+		final GridBagConstraints gbc_lblSubInfo = new GridBagConstraints();
 		gbc_lblSubInfo.insets = new Insets(5, 5, 0, 5);
 		gbc_lblSubInfo.gridwidth = 2;
 		gbc_lblSubInfo.fill = GridBagConstraints.BOTH;
@@ -87,7 +85,7 @@ public class Progress extends JDialog implements ProgressHandler
 		progressBar.setMaximumSize(new Dimension(32767, 20));
 		progressBar.setMinimumSize(new Dimension(300, 20));
 		progressBar.setPreferredSize(new Dimension(450, 20));
-		GridBagConstraints gbc_progressBar = new GridBagConstraints();
+		final GridBagConstraints gbc_progressBar = new GridBagConstraints();
 		gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
 		gbc_progressBar.insets = new Insets(5, 5, 0, 5);
 		gbc_progressBar.gridx = 0;
@@ -95,7 +93,7 @@ public class Progress extends JDialog implements ProgressHandler
 		getContentPane().add(progressBar, gbc_progressBar);
 
 		lblTimeleft = new JLabel("--:--:--"); //$NON-NLS-1$
-		GridBagConstraints gbc_lblTimeleft = new GridBagConstraints();
+		final GridBagConstraints gbc_lblTimeleft = new GridBagConstraints();
 		gbc_lblTimeleft.insets = new Insets(5, 0, 5, 5);
 		gbc_lblTimeleft.gridx = 1;
 		gbc_lblTimeleft.gridy = 2;
@@ -103,20 +101,14 @@ public class Progress extends JDialog implements ProgressHandler
 
 		btnCancel = new JButton(Messages.getString("Progress.btnCancel.text")); //$NON-NLS-1$
 		btnCancel.setIcon(new ImageIcon(Progress.class.getResource("/jrm/resources/icons/stop.png"))); //$NON-NLS-1$
-		btnCancel.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				cancel();
-			}
-		});
+		btnCancel.addActionListener(e -> cancel());
 
 		progressBar2 = new JProgressBar();
 		progressBar2.setMaximumSize(new Dimension(32767, 20));
 		progressBar2.setVisible(false);
 		progressBar2.setPreferredSize(new Dimension(450, 20));
 		progressBar2.setMinimumSize(new Dimension(300, 20));
-		GridBagConstraints gbc_progressBar2 = new GridBagConstraints();
+		final GridBagConstraints gbc_progressBar2 = new GridBagConstraints();
 		gbc_progressBar2.fill = GridBagConstraints.HORIZONTAL;
 		gbc_progressBar2.insets = new Insets(5, 5, 0, 5);
 		gbc_progressBar2.gridx = 0;
@@ -125,13 +117,13 @@ public class Progress extends JDialog implements ProgressHandler
 
 		lblTimeLeft2 = new JLabel("--:--:--");
 		lblTimeLeft2.setVisible(false);
-		GridBagConstraints gbc_lblTimeLeft2 = new GridBagConstraints();
+		final GridBagConstraints gbc_lblTimeLeft2 = new GridBagConstraints();
 		gbc_lblTimeLeft2.fill = GridBagConstraints.VERTICAL;
 		gbc_lblTimeLeft2.insets = new Insets(0, 0, 5, 5);
 		gbc_lblTimeLeft2.gridx = 1;
 		gbc_lblTimeLeft2.gridy = 3;
 		getContentPane().add(lblTimeLeft2, gbc_lblTimeLeft2);
-		GridBagConstraints gbc_btnCancel = new GridBagConstraints();
+		final GridBagConstraints gbc_btnCancel = new GridBagConstraints();
 		gbc_btnCancel.insets = new Insets(5, 5, 5, 0);
 		gbc_btnCancel.gridwidth = 2;
 		gbc_btnCancel.anchor = GridBagConstraints.NORTH;
@@ -144,33 +136,33 @@ public class Progress extends JDialog implements ProgressHandler
 	}
 
 	@Override
-	public void setProgress(String msg)
+	public void setProgress(final String msg)
 	{
 		setProgress(msg, null, null, null);
 	}
 
 	@Override
-	public void setProgress(String msg, Integer val)
+	public void setProgress(final String msg, final Integer val)
 	{
 		setProgress(msg, val, null, null);
 	}
 
 	@Override
-	public void setProgress(String msg, Integer val, Integer max)
+	public void setProgress(final String msg, final Integer val, final Integer max)
 	{
 		setProgress(msg, val, max, null);
 	}
 
-	private JLabel lblTimeleft;
-	private JLabel lblSubInfo;
-	private JButton btnCancel;
+	private final JLabel lblTimeleft;
+	private final JLabel lblSubInfo;
+	private final JButton btnCancel;
 
 	private long startTime = 0;
-	private JProgressBar progressBar2;
-	private JLabel lblTimeLeft2;
+	private final JProgressBar progressBar2;
+	private final JLabel lblTimeLeft2;
 
 	@Override
-	public synchronized void setProgress(String msg, Integer val, Integer max, String submsg)
+	public synchronized void setProgress(final String msg, final Integer val, final Integer max, final String submsg)
 	{
 		if(msg != null)
 			lblInfo.setText(msg);
@@ -197,8 +189,8 @@ public class Progress extends JDialog implements ProgressHandler
 				startTime = System.currentTimeMillis();
 			if(val > 0)
 			{
-				String left = DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val), "HH:mm:ss");
-				String total = DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val), "HH:mm:ss");
+				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val, "HH:mm:ss");
+				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val, "HH:mm:ss");
 				lblTimeleft.setText(String.format("%s / %s", left, total)); //$NON-NLS-1$
 			}
 			else
@@ -207,20 +199,22 @@ public class Progress extends JDialog implements ProgressHandler
 		lblSubInfo.setText(submsg);
 	}
 
+	@Override
 	public boolean isCancel()
 	{
 		return cancel;
 	}
 
+	@Override
 	public void cancel()
 	{
-		this.cancel = true;
+		cancel = true;
 		btnCancel.setEnabled(false);
 		btnCancel.setText(Messages.getString("Progress.Canceling")); //$NON-NLS-1$
 	}
 
 	@Override
-	public void setProgress2(String msg, Integer val)
+	public void setProgress2(final String msg, final Integer val)
 	{
 		setProgress2(msg, val, null);
 	}
@@ -228,7 +222,7 @@ public class Progress extends JDialog implements ProgressHandler
 	private long startTime2 = 0;
 
 	@Override
-	public void setProgress2(String msg, Integer val, Integer max)
+	public void setProgress2(final String msg, final Integer val, final Integer max)
 	{
 		if(msg != null && val != null)
 		{
@@ -248,8 +242,8 @@ public class Progress extends JDialog implements ProgressHandler
 				startTime2 = System.currentTimeMillis();
 			if(val > 0)
 			{
-				String left = DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime2) * (progressBar2.getMaximum() - val) / val), "HH:mm:ss");
-				String total = DurationFormatUtils.formatDuration((long) ((System.currentTimeMillis() - startTime2) * progressBar2.getMaximum() / val), "HH:mm:ss");
+				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime2) * (progressBar2.getMaximum() - val) / val, "HH:mm:ss");
+				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime2) * progressBar2.getMaximum() / val, "HH:mm:ss");
 				lblTimeLeft2.setText(String.format("%s / %s", left, total)); //$NON-NLS-1$
 			}
 			else
@@ -265,17 +259,19 @@ public class Progress extends JDialog implements ProgressHandler
 
 	public void packHeight()
 	{
-		Dimension newSize = getPreferredSize();
-		Rectangle rect = getBounds();
+		final Dimension newSize = getPreferredSize();
+		final Rectangle rect = getBounds();
 		rect.height = newSize.height;
 		setBounds(rect);
 	}
 
+	@Override
 	public int getValue()
 	{
 		return progressBar.getValue();
 	}
 
+	@Override
 	public int getValue2()
 	{
 		return progressBar2.getValue();

@@ -33,12 +33,13 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		initTransient();
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		initTransient();
 	}
 
+	@Override
 	protected void initTransient()
 	{
 		super.initTransient();
@@ -51,23 +52,25 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	}
 
 	@Override
-	public String getColumnName(int columnIndex)
+	public String getColumnName(final int columnIndex)
 	{
 		return AnywareListListRenderer.columns[columnIndex];
 	}
 
 	@Override
-	public Class<?> getColumnClass(int columnIndex)
+	public Class<?> getColumnClass(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsTypes[columnIndex];
 	}
 
-	public TableCellRenderer getColumnRenderer(int columnIndex)
+	@Override
+	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsRenderers[columnIndex] != null ? AnywareListListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
-	public int getColumnWidth(int columnIndex)
+	@Override
+	public int getColumnWidth(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsWidths[columnIndex];
 	}
@@ -79,7 +82,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	}
 
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex)
+	public Object getValueAt(final int rowIndex, final int columnIndex)
 	{
 		switch(columnIndex)
 		{
@@ -99,6 +102,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		return sl_list;
 	}
 
+	@Override
 	public Stream<SoftwareList> getFilteredStream()
 	{
 		return getList().stream().filter(t -> {
@@ -112,13 +116,13 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	protected List<SoftwareList> getFilteredList()
 	{
 		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			filtered_list = getFilteredStream().filter(t -> AnywareListList.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
 
-	public void export(EnhancedXMLStreamWriter writer, ProgressHandler progress, boolean filtered, SoftwareList selection) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean filtered, final SoftwareList selection) throws XMLStreamException, IOException
 	{
-		List<SoftwareList> lists = selection!=null?Collections.singletonList(selection):(filtered?getFilteredStream().collect(Collectors.toList()):getList());
+		final List<SoftwareList> lists = selection!=null?Collections.singletonList(selection):(filtered?getFilteredStream().collect(Collectors.toList()):getList());
 		if(lists.size() > 0)
 		{
 			writer.writeStartDocument("UTF-8","1.0");
@@ -131,7 +135,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 				writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
 			progress.setProgress("Exporting", 0, lists.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
 			progress.setProgress2(String.format("%d/%d", 0, lists.size()), 0, lists.size()); //$NON-NLS-1$
-			for(SoftwareList list : lists)
+			for(final SoftwareList list : lists)
 			{
 				list.export(writer, progress);
 				progress.setProgress2(String.format("%d/%d", progress.getValue2()+1, lists.size()), progress.getValue2()+1); //$NON-NLS-1$

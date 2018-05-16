@@ -23,7 +23,7 @@ public abstract class Entity implements Serializable, Comparable<Entity>
 		good,
 		verified;
 
-		public Status getXML(boolean is_mame)
+		public Status getXML(final boolean is_mame)
 		{
 			return (Status.good == this || (is_mame && Status.verified == this)) ? null : this;
 		}
@@ -33,27 +33,27 @@ public abstract class Entity implements Serializable, Comparable<Entity>
 
 	private transient boolean collision = false;
 
-	public Entity(Anyware parent)
+	public Entity(final Anyware parent)
 	{
 		this.parent = parent;
 	}
 
 	public void setCollisionMode()
 	{
-		if(Machine.hash_collision_mode == HashCollisionOptions.SINGLECLONE)
+		if(Anyware.hash_collision_mode == HashCollisionOptions.SINGLECLONE)
 			parent.setCollisionMode(false);
-		else if(Machine.hash_collision_mode == HashCollisionOptions.ALLCLONES)
+		else if(Anyware.hash_collision_mode == HashCollisionOptions.ALLCLONES)
 			parent.setCollisionMode(true);
 		collision = true;
 	}
 
 	public boolean isCollisionMode()
 	{
-		if(Machine.hash_collision_mode == HashCollisionOptions.SINGLECLONE)
+		if(Anyware.hash_collision_mode == HashCollisionOptions.SINGLECLONE)
 			return parent.isCollisionMode();
-		else if(Machine.hash_collision_mode == HashCollisionOptions.ALLCLONES)
+		else if(Anyware.hash_collision_mode == HashCollisionOptions.ALLCLONES)
 			return parent.isCollisionMode();
-		else if(Machine.hash_collision_mode == HashCollisionOptions.DUMB)
+		else if(Anyware.hash_collision_mode == HashCollisionOptions.DUMB)
 			return true;
 		return collision;
 	}
@@ -100,9 +100,9 @@ public abstract class Entity implements Serializable, Comparable<Entity>
 	}
 
 	@Override
-	public int compareTo(Entity o)
+	public int compareTo(final Entity o)
 	{
-		return this.name.compareTo(o.name);
+		return name.compareTo(o.name);
 	}
 
 	public abstract EntityStatus getStatus();

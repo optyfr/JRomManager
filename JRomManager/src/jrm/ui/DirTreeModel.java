@@ -12,47 +12,47 @@ import org.apache.commons.io.FileUtils;
 @SuppressWarnings("serial")
 public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
 {
-	public DirTreeModel(DirNode root)
+	public DirTreeModel(final DirNode root)
 	{
 		super(root);
 		addTreeModelListener(this);
 	}
 
 	@Override
-	public void treeNodesChanged(TreeModelEvent e)
+	public void treeNodesChanged(final TreeModelEvent e)
 	{
-		DirNode node = (DirNode)e.getTreePath().getLastPathComponent();
+		final DirNode node = (DirNode)e.getTreePath().getLastPathComponent();
 		try
 		{
-			int index = e.getChildIndices()[0];
-			DirNode child_node = (DirNode) node.getChildAt(index);
+			final int index = e.getChildIndices()[0];
+			final DirNode child_node = (DirNode) node.getChildAt(index);
 			if(child_node.getUserObject() instanceof String)
 			{
-				File newdir = new File(node.dir.getFile(), child_node.getUserObject().toString());
-				File olddir = child_node.dir.getFile();
+				final File newdir = new File(node.dir.getFile(), child_node.getUserObject().toString());
+				final File olddir = child_node.dir.getFile();
 				if(olddir.renameTo(newdir))
 					child_node.dir = new DirNode.Dir(newdir);
 				child_node.setUserObject(child_node.dir);
 			}
 		}
-		catch(NullPointerException exc)
+		catch(final NullPointerException exc)
 		{
 		}
 	}
 
 	@Override
-	public void treeNodesInserted(TreeModelEvent e)
+	public void treeNodesInserted(final TreeModelEvent e)
 	{
 	}
 
 	@Override
-	public void treeNodesRemoved(TreeModelEvent e)
+	public void treeNodesRemoved(final TreeModelEvent e)
 	{
 		try
 		{
-			int index = e.getChildIndices()[0];
-			Object[] children = e.getChildren();
-			DirNode child = (DirNode)children[index];
+			final int index = e.getChildIndices()[0];
+			final Object[] children = e.getChildren();
+			final DirNode child = (DirNode)children[index];
 			FileUtils.deleteDirectory(child.dir.getFile());
 		}
 		catch(NullPointerException | IOException exc)
@@ -61,7 +61,7 @@ public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
 	}
 
 	@Override
-	public void treeStructureChanged(TreeModelEvent e)
+	public void treeStructureChanged(final TreeModelEvent e)
 	{
 	}
 }

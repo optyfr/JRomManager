@@ -4,6 +4,7 @@ import java.awt.Component;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -25,7 +26,7 @@ public final class AnywareListListRenderer
 		ImageIcon disk_multiple_gray = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resources/disk_multiple_gray.png")); //$NON-NLS-1$
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
 			if(value instanceof SoftwareList)
 			{
@@ -76,7 +77,7 @@ public final class AnywareListListRenderer
 	}, new DefaultTableCellRenderer(), new DefaultTableCellRenderer()
 	{
 		{
-			setHorizontalAlignment(CENTER);
+			setHorizontalAlignment(SwingConstants.CENTER);
 		}
 	} };
 

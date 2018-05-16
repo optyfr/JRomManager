@@ -9,15 +9,16 @@ import jrm.misc.HTMLRenderer;
 public abstract class Note implements TreeNode,HTMLRenderer
 {
 	Subject parent;
-	
+
 	public Note()
 	{
 	}
 
+	@Override
 	public abstract String toString();
 
 	@Override
-	public TreeNode getChildAt(int childIndex)
+	public TreeNode getChildAt(final int childIndex)
 	{
 		return null;
 	}
@@ -35,7 +36,7 @@ public abstract class Note implements TreeNode,HTMLRenderer
 	}
 
 	@Override
-	public int getIndex(TreeNode node)
+	public int getIndex(final TreeNode node)
 	{
 		return -1;
 	}

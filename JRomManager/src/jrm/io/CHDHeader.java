@@ -8,42 +8,45 @@ public class CHDHeader implements CHDHeaderIntf
 	protected String tag;
 	protected int len;
 	protected int version;
-	
-	public CHDHeader(MappedByteBuffer bb) throws UnsupportedEncodingException
+
+	public CHDHeader(final MappedByteBuffer bb) throws UnsupportedEncodingException
 	{
-		byte[] tag = new byte[8];
+		final byte[] tag = new byte[8];
 		bb.get(tag);
 		this.tag= new String(tag,"ASCII");
-		this.len = bb.getInt();
-		this.version = bb.getInt();
+		len = bb.getInt();
+		version = bb.getInt();
 	}
 
 	protected CHDHeader() {}
 
+	@Override
 	public boolean isValidTag()
 	{
 		return tag.equals("MComprHD");
 	}
-	
+
+	@Override
 	public int getLen()
 	{
 		return len;
 	}
-	
+
+	@Override
 	public int getVersion()
 	{
 		return version;
 	}
-	
+
 	private final static char[] hexArray = "0123456789abcdef".toCharArray();
-	protected static String bytesToHex(byte[] bytes)
+	protected static String bytesToHex(final byte[] bytes)
 	{
-		char[] hexChars = new char[bytes.length * 2];
+		final char[] hexChars = new char[bytes.length * 2];
 		for (int j = 0; j < bytes.length; j++)
 		{
-			int v = bytes[j] & 0xFF;
-			hexChars[j * 2] = hexArray[v >>> 4];
-			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+			final int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = CHDHeader.hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = CHDHeader.hexArray[v & 0x0F];
 		}
 		return new String(hexChars);
 	}

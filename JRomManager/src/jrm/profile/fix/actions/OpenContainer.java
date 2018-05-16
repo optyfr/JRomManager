@@ -24,12 +24,12 @@ import jrm.ui.ProgressHandler;
 public class OpenContainer extends ContainerAction
 {
 
-	public OpenContainer(Container container, FormatOptions format)
+	public OpenContainer(final Container container, final FormatOptions format)
 	{
 		super(container, format);
 	}
 
-	public static OpenContainer getInstance(OpenContainer action, Container container, FormatOptions format)
+	public static OpenContainer getInstance(OpenContainer action, final Container container, final FormatOptions format)
 	{
 		if(action == null)
 			action = new OpenContainer(container, format);
@@ -37,19 +37,19 @@ public class OpenContainer extends ContainerAction
 	}
 
 	@Override
-	public boolean doAction(ProgressHandler handler)
+	public boolean doAction(final ProgressHandler handler)
 	{
 		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("OpenContainer.Fixing")), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.description))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)
 		{
 			if(format == FormatOptions.ZIP || format == FormatOptions.TZIP)
 			{
-				Map<String, Object> env = new HashMap<>();
+				final Map<String, Object> env = new HashMap<>();
 				env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 				env.put("useTempFile", Boolean.TRUE); //$NON-NLS-1$
 				try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + container.file.toURI()), env);) //$NON-NLS-1$
 				{
-					for(EntryAction action : entry_actions)
+					for(final EntryAction action : entry_actions)
 					{
 						if(!action.doAction(fs, handler))
 						{
@@ -61,7 +61,7 @@ public class OpenContainer extends ContainerAction
 					fs.close();
 					return true;
 				}
-				catch(Throwable e)
+				catch(final Throwable e)
 				{
 					e.printStackTrace();
 				}
@@ -70,7 +70,7 @@ public class OpenContainer extends ContainerAction
 			{
 				try(Archive archive = new ZipArchive(container.file))
 				{
-					for(EntryAction action : entry_actions)
+					for(final EntryAction action : entry_actions)
 					{
 						if(!action.doAction(archive, handler))
 						{
@@ -80,7 +80,7 @@ public class OpenContainer extends ContainerAction
 					}
 					return true;
 				}
-				catch(Throwable e)
+				catch(final Throwable e)
 				{
 					e.printStackTrace();
 				}
@@ -90,7 +90,7 @@ public class OpenContainer extends ContainerAction
 		{
 			try(Archive archive = new SevenZipArchive(container.file))
 			{
-				for(EntryAction action : entry_actions)
+				for(final EntryAction action : entry_actions)
 				{
 					if(!action.doAction(archive, handler))
 					{
@@ -100,15 +100,15 @@ public class OpenContainer extends ContainerAction
 				}
 				return true;
 			}
-			catch(Throwable e)
+			catch(final Throwable e)
 			{
 				e.printStackTrace();
 			}
 		}
 		else if(container.getType() == Container.Type.DIR)
 		{
-			Path target = container.file.toPath();
-			for(EntryAction action : entry_actions)
+			final Path target = container.file.toPath();
+			for(final EntryAction action : entry_actions)
 			{
 				if(!action.doAction(target, handler))
 				{
@@ -122,10 +122,10 @@ public class OpenContainer extends ContainerAction
 		return false;
 	}
 
-	public long deleteEmptyFolders(File baseFolder)
+	public long deleteEmptyFolders(final File baseFolder)
 	{
 		long totalSize = 0;
-		for(File folder : baseFolder.listFiles())
+		for(final File folder : baseFolder.listFiles())
 		{
 			if(folder.isDirectory())
 				totalSize += deleteEmptyFolders(folder);
@@ -136,13 +136,13 @@ public class OpenContainer extends ContainerAction
 			baseFolder.delete();
 		return totalSize;
 	}
-	
-	public long deleteEmptyFolders(Path baseFolder)
+
+	public long deleteEmptyFolders(final Path baseFolder)
 	{
 		long totalSize = 0;
 		try
 		{
-			for(Path folder : Files.list(baseFolder).collect(Collectors.toList()))
+			for(final Path folder : Files.list(baseFolder).collect(Collectors.toList()))
 			{
 				if(Files.isDirectory(folder))
 					totalSize += deleteEmptyFolders(folder);
@@ -152,18 +152,18 @@ public class OpenContainer extends ContainerAction
 			if(totalSize == 0)
 				Files.delete(baseFolder);
 		}
-		catch(IOException e)
+		catch(final IOException e)
 		{
 			e.printStackTrace();
 		}
 		return totalSize;
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		String str = Messages.getString("OpenContainer.Open") + container; //$NON-NLS-1$
-		for(EntryAction action : entry_actions)
+		for(final EntryAction action : entry_actions)
 			str += "\n\t" + action; //$NON-NLS-1$
 		return str;
 	}

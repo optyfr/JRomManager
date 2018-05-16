@@ -24,7 +24,7 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		final private String name;
 		final private List<String> games = new ArrayList<>();
 
-		public NPlayer(String name)
+		public NPlayer(final String name)
 		{
 			this.name = name;
 		}
@@ -42,7 +42,7 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		}
 
 		@Override
-		public boolean contains(Object o)
+		public boolean contains(final Object o)
 		{
 			return games.contains(o);
 		}
@@ -60,49 +60,49 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		}
 
 		@Override
-		public <T> T[] toArray(T[] a)
+		public <T> T[] toArray(final T[] a)
 		{
 			return games.toArray(a);
 		}
 
 		@Override
-		public boolean add(String e)
+		public boolean add(final String e)
 		{
 			return games.add(e);
 		}
 
 		@Override
-		public boolean remove(Object o)
+		public boolean remove(final Object o)
 		{
 			return games.remove(o);
 		}
 
 		@Override
-		public boolean containsAll(Collection<?> c)
+		public boolean containsAll(final Collection<?> c)
 		{
 			return games.containsAll(c);
 		}
 
 		@Override
-		public boolean addAll(Collection<? extends String> c)
+		public boolean addAll(final Collection<? extends String> c)
 		{
 			return games.addAll(c);
 		}
 
 		@Override
-		public boolean addAll(int index, Collection<? extends String> c)
+		public boolean addAll(final int index, final Collection<? extends String> c)
 		{
 			return games.addAll(index, c);
 		}
 
 		@Override
-		public boolean removeAll(Collection<?> c)
+		public boolean removeAll(final Collection<?> c)
 		{
 			return games.removeAll(c);
 		}
 
 		@Override
-		public boolean retainAll(Collection<?> c)
+		public boolean retainAll(final Collection<?> c)
 		{
 			return games.retainAll(c);
 		}
@@ -114,37 +114,37 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		}
 
 		@Override
-		public String get(int index)
+		public String get(final int index)
 		{
 			return games.get(index);
 		}
 
 		@Override
-		public String set(int index, String element)
+		public String set(final int index, final String element)
 		{
 			return games.set(index, element);
 		}
 
 		@Override
-		public void add(int index, String element)
+		public void add(final int index, final String element)
 		{
 			games.add(index, element);
 		}
 
 		@Override
-		public String remove(int index)
+		public String remove(final int index)
 		{
 			return games.remove(index);
 		}
 
 		@Override
-		public int indexOf(Object o)
+		public int indexOf(final Object o)
 		{
 			return games.indexOf(o);
 		}
 
 		@Override
-		public int lastIndexOf(Object o)
+		public int lastIndexOf(final Object o)
 		{
 			return games.lastIndexOf(o);
 		}
@@ -156,13 +156,13 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		}
 
 		@Override
-		public ListIterator<String> listIterator(int index)
+		public ListIterator<String> listIterator(final int index)
 		{
 			return games.listIterator(index);
 		}
 
 		@Override
-		public List<String> subList(int fromIndex, int toIndex)
+		public List<String> subList(final int fromIndex, final int toIndex)
 		{
 			return games.subList(fromIndex, toIndex);
 		}
@@ -180,7 +180,7 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		}
 	}
 
-	private NPlayers(File file) throws IOException
+	private NPlayers(final File file) throws IOException
 	{
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
@@ -195,11 +195,11 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 					break;
 				else if(in_section)
 				{
-					String[] kv = StringUtils.split(line, '=');
+					final String[] kv = StringUtils.split(line, '=');
 					if(kv.length == 2)
 					{
-						String k = kv[0].trim();
-						String v = kv[1].trim();
+						final String k = kv[0].trim();
+						final String v = kv[1].trim();
 						NPlayer nplayer;
 						if(!nplayers.containsKey(v))
 							nplayers.put(v, nplayer = new NPlayer(v));
@@ -215,7 +215,7 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		}
 	}
 
-	public static NPlayers read(File file) throws IOException
+	public static NPlayers read(final File file) throws IOException
 	{
 		return new NPlayers(file);
 	}
@@ -227,7 +227,7 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 	}
 
 	@Override
-	public NPlayer getElementAt(int index)
+	public NPlayer getElementAt(final int index)
 	{
 		return list_nplayers.get(index);
 	}

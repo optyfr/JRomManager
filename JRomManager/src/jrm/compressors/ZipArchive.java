@@ -4,13 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,27 +30,27 @@ public class ZipArchive implements Archive
 
 	private ZipNArchive native_zip = null;
 
-	public ZipArchive(File archive) throws IOException
+	public ZipArchive(final File archive) throws IOException
 	{
 		this(archive, false);
 	}
 
-	public ZipArchive(File archive, boolean readonly) throws IOException
+	public ZipArchive(final File archive, final boolean readonly) throws IOException
 	{
 		try
 		{
 			native_zip = new ZipNArchive(archive, readonly);
 		}
-		catch(SevenZipNativeInitializationException e)
+		catch(final SevenZipNativeInitializationException e)
 		{
 			this.readonly = readonly;
 			this.archive = archive;
-			this.cmd = Settings.getProperty("zip_cmd", FindCmd.find7z()); //$NON-NLS-1$
-			if(!new File(this.cmd).exists() && !new File(this.cmd + ".exe").exists()) //$NON-NLS-1$
-				throw new IOException(this.cmd + " does not exists"); //$NON-NLS-1$
-			if(null == (this.archive = archives.get(archive.getAbsolutePath())))
-				archives.put(archive.getAbsolutePath(), this.archive = archive);
-			this.is_7z = this.cmd.endsWith("7z") || this.cmd.endsWith("7z.exe"); //$NON-NLS-1$ //$NON-NLS-2$
+			cmd = Settings.getProperty("zip_cmd", FindCmd.find7z()); //$NON-NLS-1$
+			if(!new File(cmd).exists() && !new File(cmd + ".exe").exists()) //$NON-NLS-1$
+				throw new IOException(cmd + " does not exists"); //$NON-NLS-1$
+			if(null == (this.archive = ZipArchive.archives.get(archive.getAbsolutePath())))
+				ZipArchive.archives.put(archive.getAbsolutePath(), this.archive = archive);
+			is_7z = cmd.endsWith("7z") || cmd.endsWith("7z.exe"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -74,27 +68,27 @@ public class ZipArchive implements Archive
 			else
 			{
 				int err = -1;
-				List<String> cmd_add = new ArrayList<>();
-				Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
+				final List<String> cmd_add = new ArrayList<>();
+				final Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 				tmpfile.toFile().delete();
 				if(is_7z)
 				{
-					Collections.addAll(cmd_add, this.cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Collections.addAll(cmd_add, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					Collections.addAll(cmd_add, "-mx=" + Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
 					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				else
 				{
-					Collections.addAll(cmd_add, this.cmd, "-r"); //$NON-NLS-1$
+					Collections.addAll(cmd_add, cmd, "-r"); //$NON-NLS-1$
 					Collections.addAll(cmd_add, "-" + Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
 					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
-				Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
+				final Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
 				try
 				{
 					err = process.waitFor();
 				}
-				catch(InterruptedException e)
+				catch(final InterruptedException e)
 				{
 					e.printStackTrace();
 				}
@@ -116,6 +110,7 @@ public class ZipArchive implements Archive
 		}
 	}
 
+	@Override
 	public File getTempDir() throws IOException
 	{
 		if(native_zip != null)
@@ -134,23 +129,23 @@ public class ZipArchive implements Archive
 		return tempDir;
 	}
 
-	private int extract(File baseDir, String entry) throws IOException
+	private int extract(final File baseDir, final String entry) throws IOException
 	{
-		List<String> cmd = new ArrayList<>();
+		final List<String> cmd = new ArrayList<>();
 		if(is_7z)
 		{
 			Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if(entry != null && !entry.isEmpty())
 				cmd.add(entry);
-			ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);
+			final ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);
 			synchronized(archive)
 			{
-				Process process = pb.start();
+				final Process process = pb.start();
 				try
 				{
 					return process.waitFor();
 				}
-				catch(InterruptedException e)
+				catch(final InterruptedException e)
 				{
 					e.printStackTrace();
 				}
@@ -164,8 +159,8 @@ public class ZipArchive implements Archive
 					Files.copy(srcfs.getPath(entry), baseDir.toPath().resolve(entry));
 				else
 				{
-					Path sourcePath = srcfs.getPath("/"); //$NON-NLS-1$
-					Path targetPath = baseDir.toPath();
+					final Path sourcePath = srcfs.getPath("/"); //$NON-NLS-1$
+					final Path targetPath = baseDir.toPath();
 					Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
 					{
 						@Override
@@ -190,19 +185,21 @@ public class ZipArchive implements Archive
 		return -1;
 	}
 
-	public File extract(String entry) throws IOException
+	@Override
+	public File extract(final String entry) throws IOException
 	{
 		if(native_zip != null)
 			return native_zip.extract(entry);
 		if(readonly)
 			extract(getTempDir(), entry);
-		File result = new File(getTempDir(), entry);
+		final File result = new File(getTempDir(), entry);
 		if(result.exists())
 			return result;
 		return null;
 	}
 
-	public InputStream extract_stdout(String entry) throws IOException
+	@Override
+	public InputStream extract_stdout(final String entry) throws IOException
 	{
 		if(native_zip != null)
 			return native_zip.extract_stdout(entry);
@@ -211,14 +208,16 @@ public class ZipArchive implements Archive
 		return new FileInputStream(new File(getTempDir(), entry));
 	}
 
-	public int add(String entry) throws IOException
+	@Override
+	public int add(final String entry) throws IOException
 	{
 		if(native_zip != null)
 			return native_zip.add(entry);
 		return add(getTempDir(), entry);
 	}
 
-	public int add(File baseDir, String entry) throws IOException
+	@Override
+	public int add(final File baseDir, final String entry) throws IOException
 	{
 		if(native_zip != null)
 			return native_zip.add(baseDir, entry);
@@ -229,7 +228,8 @@ public class ZipArchive implements Archive
 		return 0;
 	}
 
-	public int add_stdin(InputStream src, String entry) throws IOException
+	@Override
+	public int add_stdin(final InputStream src, final String entry) throws IOException
 	{
 		if(native_zip != null)
 			return native_zip.add_stdin(src, entry);
@@ -239,7 +239,8 @@ public class ZipArchive implements Archive
 		return 0;
 	}
 
-	public int delete(String entry) throws IOException
+	@Override
+	public int delete(final String entry) throws IOException
 	{
 		if(native_zip != null)
 			return native_zip.delete(entry);
@@ -249,7 +250,8 @@ public class ZipArchive implements Archive
 		return 0;
 	}
 
-	public int rename(String entry, String newname) throws IOException
+	@Override
+	public int rename(final String entry, final String newname) throws IOException
 	{
 		if(native_zip != null)
 			return native_zip.rename(entry, newname);
@@ -260,7 +262,7 @@ public class ZipArchive implements Archive
 	}
 
 	@Override
-	public int duplicate(String entry, String newname) throws IOException
+	public int duplicate(final String entry, final String newname) throws IOException
 	{
 		if(native_zip != null)
 			return native_zip.duplicate(entry, newname);

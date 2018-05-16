@@ -10,73 +10,73 @@ public class DirNode extends DefaultMutableTreeNode
 {
 	public Dir dir;
 
-	public DirNode(File root)
+	public DirNode(final File root)
 	{
 		super(new Dir(root, "/"), true); //$NON-NLS-1$
-		buildDirTree(this.dir = (Dir) getUserObject(), this);
+		buildDirTree(dir = (Dir) getUserObject(), this);
 	}
 
-	public DirNode(Dir dir)
+	public DirNode(final Dir dir)
 	{
 		super(dir);
 		this.dir = dir;
 	}
 
-	private void buildDirTree(Dir dir, DefaultMutableTreeNode node)
+	private void buildDirTree(final Dir dir, final DefaultMutableTreeNode node)
 	{
-		for(File file : dir.file.listFiles())
+		for(final File file : dir.file.listFiles())
 		{
 			if(file.isDirectory())
 			{
-				DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
+				final DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
 				node.add(newdir);
 				buildDirTree(new Dir(file), newdir);
 			}
 
 		}
 	}
-	
+
 	public void reload()
 	{
-		this.removeAllChildren();
+		removeAllChildren();
 		buildDirTree(dir, this);
 	}
 
-	public DirNode find(File file)
+	public DirNode find(final File file)
 	{
-		return find(this, file);
+		return DirNode.find(this, file);
 	}
 
-	public static DirNode find(DirNode root, File file)
+	public static DirNode find(final DirNode root, final File file)
 	{
-		File parent = file.isFile()?file.getParentFile():file;
+		final File parent = file.isFile()?file.getParentFile():file;
 		if(parent != null)
 		{
-			for (Enumeration<?> e = root.depthFirstEnumeration(); e.hasMoreElements();)
+			for (final Enumeration<?> e = root.depthFirstEnumeration(); e.hasMoreElements();)
 			{
-				DirNode node = (DirNode) e.nextElement();
-			    if (((DirNode.Dir)node.getUserObject()).getFile().equals(parent))
-			        return node;
+				final DirNode node = (DirNode) e.nextElement();
+				if (((DirNode.Dir)node.getUserObject()).getFile().equals(parent))
+					return node;
 			}
-			return find(root, parent.getParentFile());
+			return DirNode.find(root, parent.getParentFile());
 		}
 		return null;
 	}
-	
+
 	public static class Dir
 	{
-		private File file;
-		private String name;
+		private final File file;
+		private final String name;
 
-		public Dir(File file)
+		public Dir(final File file)
 		{
 			this.file = file;
-			this.name = file.getName();
+			name = file.getName();
 			if(!this.file.exists())
 				this.file.mkdirs();
 		}
 
-		public Dir(File file, String name)
+		public Dir(final File file, final String name)
 		{
 			this.file = file;
 			this.name = name;

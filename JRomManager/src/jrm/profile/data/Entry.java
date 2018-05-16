@@ -25,10 +25,10 @@ public class Entry implements Serializable
 		CHD
 	};
 
-	public Entry(String file)
+	public Entry(final String file)
 	{
 		this.file = file;
-		String ext = FilenameUtils.getExtension(file);
+		final String ext = FilenameUtils.getExtension(file);
 		switch(ext.toLowerCase())
 		{
 			case "chd":
@@ -37,19 +37,19 @@ public class Entry implements Serializable
 		}
 	}
 
-	public Entry(String file, BasicFileAttributes attr)
+	public Entry(final String file, final BasicFileAttributes attr)
 	{
 		this(file);
-		this.size = attr.size();
-		this.modified = attr.lastModifiedTime().toMillis();
+		size = attr.size();
+		modified = attr.lastModifiedTime().toMillis();
 	}
 
 	public String getName()
 	{
-		Path path = Paths.get(file);
+		final Path path = Paths.get(file);
 		if(parent.getType() == Container.Type.DIR)
 		{
-		//	System.out.println(parent.file.toPath().relativize(path).toString().replace('\\', '/'));
+			//	System.out.println(parent.file.toPath().relativize(path).toString().replace('\\', '/'));
 			return parent.file.toPath().relativize(path).toString().replace('\\', '/');
 		}
 		if(type == Type.CHD)
@@ -58,34 +58,34 @@ public class Entry implements Serializable
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		if(obj instanceof Entry)
 		{
-			if(((Entry) obj).sha1 != null && this.sha1 != null)
-				return ((Entry) obj).sha1.equals(this.sha1);
-			if(((Entry) obj).md5 != null && this.md5 != null)
-				return ((Entry) obj).md5.equals(this.md5);
-			if(((Entry) obj).crc != null && this.crc != null)
-				return ((Entry) obj).crc.equals(this.crc) && ((Entry) obj).size == this.size;
-			if(((Entry) obj).modified != 0 && this.modified != 0)
-				return ((Entry) obj).modified == this.modified && ((Entry) obj).size == this.size;
+			if(((Entry) obj).sha1 != null && sha1 != null)
+				return ((Entry) obj).sha1.equals(sha1);
+			if(((Entry) obj).md5 != null && md5 != null)
+				return ((Entry) obj).md5.equals(md5);
+			if(((Entry) obj).crc != null && crc != null)
+				return ((Entry) obj).crc.equals(crc) && ((Entry) obj).size == size;
+			if(((Entry) obj).modified != 0 && modified != 0)
+				return ((Entry) obj).modified == modified && ((Entry) obj).size == size;
 		}
 		else if(obj instanceof Rom)
 		{
-			if(((Rom) obj).sha1 != null && this.sha1 != null)
-				return ((Rom) obj).sha1.equals(this.sha1);
-			if(((Rom) obj).md5 != null && this.md5 != null)
-				return ((Rom) obj).md5.equals(this.md5);
-			if(((Rom) obj).crc != null && this.crc != null)
-				return ((Rom) obj).crc.equals(this.crc) && ((Rom) obj).size == this.size;
+			if(((Rom) obj).sha1 != null && sha1 != null)
+				return ((Rom) obj).sha1.equals(sha1);
+			if(((Rom) obj).md5 != null && md5 != null)
+				return ((Rom) obj).md5.equals(md5);
+			if(((Rom) obj).crc != null && crc != null)
+				return ((Rom) obj).crc.equals(crc) && ((Rom) obj).size == size;
 		}
 		else if(obj instanceof Disk)
 		{
-			if(((Disk) obj).sha1 != null && this.sha1 != null)
-				return ((Disk) obj).sha1.equals(this.sha1);
-			if(((Disk) obj).md5 != null && this.md5 != null)
-				return ((Disk) obj).md5.equals(this.md5);
+			if(((Disk) obj).sha1 != null && sha1 != null)
+				return ((Disk) obj).sha1.equals(sha1);
+			if(((Disk) obj).md5 != null && md5 != null)
+				return ((Disk) obj).md5.equals(md5);
 		}
 		return super.equals(obj);
 	}

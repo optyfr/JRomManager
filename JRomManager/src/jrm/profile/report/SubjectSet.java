@@ -11,7 +11,7 @@ import jrm.profile.data.Anyware;
 public class SubjectSet extends Subject
 {
 	private Status status = Status.UNKNOWN;
-	
+
 	public enum Status {
 		UNKNOWN,
 		FOUND,
@@ -20,27 +20,27 @@ public class SubjectSet extends Subject
 		UNNEEDED,
 		MISSING;
 	}
-	
-	public SubjectSet(Anyware machine)
+
+	public SubjectSet(final Anyware machine)
 	{
 		super(machine);
 	}
-	
-	private SubjectSet(Anyware machine, List<Note> notes)
+
+	private SubjectSet(final Anyware machine, final List<Note> notes)
 	{
 		super(machine, notes);
 	}
-	
+
 	@Override
-	public Subject clone(List<FilterOptions> filterOptions)
+	public Subject clone(final List<FilterOptions> filterOptions)
 	{
 		SubjectSet clone;
-		clone = new SubjectSet(ware, this.filter(filterOptions));
-		clone.status = this.status;
+		clone = new SubjectSet(ware, filter(filterOptions));
+		clone.status = status;
 		return clone;
 	}
 
-	public List<Note> filter(List<FilterOptions> filterOptions)
+	public List<Note> filter(final List<FilterOptions> filterOptions)
 	{
 		return notes.stream().filter(n->{
 			if(!filterOptions.contains(FilterOptions.SHOWOK) && n instanceof EntryOK)
@@ -48,72 +48,72 @@ public class SubjectSet extends Subject
 			return true;
 		}).collect(Collectors.toList());
 	}
-	
+
 	public void setMissing()
 	{
 		status = Status.MISSING;
 	}
-	
+
 	public void setFound()
 	{
 		status = Status.FOUND;
 	}
-	
+
 	public void setUnneeded()
 	{
 		status = Status.UNNEEDED;
 	}
-	
+
 	public void setCreate()
 	{
 		status = Status.CREATE;
 	}
-	
+
 	public void setCreateFull()
 	{
 		status = Status.CREATEFULL;
 	}
-	
+
 	public Status getStatus()
 	{
 		return status;
 	}
-	
+
 	public boolean hasNotes()
 	{
 		return notes.stream().filter(n -> !(n instanceof EntryOK)).count()>0;
 	}
-	
+
 	public boolean isFixable()
 	{
 		return notes.stream().filter(n -> {return n instanceof EntryMissing || n instanceof EntryWrongHash;}).count()==0;
 	}
-	
+
 	public boolean hasFix()
 	{
 		return notes.stream().filter(n -> {return !(n instanceof EntryOK || n instanceof EntryMissing || n instanceof EntryWrongHash);}).count()>0;
 	}
-	
+
 	public boolean isFound()
 	{
 		return status==Status.FOUND;
 	}
-	
+
 	public boolean isMissing()
 	{
 		return status==Status.MISSING;
 	}
-	
+
 	public boolean isUnneeded()
 	{
 		return status==Status.UNNEEDED;
 	}
-	
+
 	public boolean isOK()
 	{
 		return isFound() && !hasNotes();
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -140,12 +140,12 @@ public class SubjectSet extends Subject
 				return String.format(Messages.getString("SubjectSet.Unknown"), ware.getFullName(), ware.description); //$NON-NLS-1$
 		}
 	}
-	
+
 	@Override
 	public String getHTML()
 	{
-		String machine_name = toBlue(ware.getFullName());
-		String machine_description = toPurple(ware.description);
+		final String machine_name = toBlue(ware.getFullName());
+		final String machine_description = toPurple(ware.description);
 		switch(status)
 		{
 			case MISSING:

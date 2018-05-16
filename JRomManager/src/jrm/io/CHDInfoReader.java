@@ -10,13 +10,13 @@ import java.nio.channels.FileChannel.MapMode;
 public class CHDInfoReader implements CHDHeaderIntf
 {
 	CHDHeaderIntf header;
-	
-	public CHDInfoReader(File chdfile) throws FileNotFoundException, IOException
+
+	public CHDInfoReader(final File chdfile) throws FileNotFoundException, IOException
 	{
 		try(FileInputStream is = new FileInputStream(chdfile))
 		{
-			MappedByteBuffer bb = is.getChannel().map(MapMode.READ_ONLY, 0, Math.min(1024, chdfile.length()));
-			CHDHeader header = new CHDHeader(bb);
+			final MappedByteBuffer bb = is.getChannel().map(MapMode.READ_ONLY, 0, Math.min(1024, chdfile.length()));
+			final CHDHeader header = new CHDHeader(bb);
 			this.header = header;
 			if(header.isValidTag())
 			{

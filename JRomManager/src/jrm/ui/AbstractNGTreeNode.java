@@ -14,12 +14,13 @@ public abstract class AbstractNGTreeNode implements NGTreeNode
 		}
 		return isSelected();
 	}
-	
+
 	/**
 	 * Returns the path from the root, to get to this node. The last element in the path is this node.
 	 *
 	 * @return an array of TreeNode objects giving the path, where the first element in the path is the root and the last element is this node.
 	 */
+	@Override
 	public TreeNode[] getPath()
 	{
 		return getPathToRoot(this, 0);
@@ -34,7 +35,7 @@ public abstract class AbstractNGTreeNode implements NGTreeNode
 	 *            an int giving the number of steps already taken towards the root (on recursive calls), used to size the returned array
 	 * @return an array of TreeNodes giving the path from the root to the specified node
 	 */
-	protected TreeNode[] getPathToRoot(TreeNode aNode, int depth)
+	protected TreeNode[] getPathToRoot(final TreeNode aNode, int depth)
 	{
 		TreeNode[] retNodes;
 

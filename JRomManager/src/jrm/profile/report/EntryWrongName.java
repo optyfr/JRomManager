@@ -10,8 +10,8 @@ public class EntryWrongName extends Note
 {
 	final Entity entity;
 	final Entry entry;
-	
-	public EntryWrongName(Entity entity, Entry entry)
+
+	public EntryWrongName(final Entity entity, final Entry entry)
 	{
 		this.entity = entity;
 		this.entry = entry;

@@ -11,10 +11,10 @@ import javax.swing.text.JTextComponent;
 
 public class JTextFieldHintUI extends BasicTextFieldUI implements FocusListener
 {
-	private String hint;
-	private Color hintColor;
+	private final String hint;
+	private final Color hintColor;
 
-	public JTextFieldHintUI(String hint, Color hintColor)
+	public JTextFieldHintUI(final String hint, final Color hintColor)
 	{
 		this.hint = hint;
 		this.hintColor = hintColor;
@@ -29,30 +29,30 @@ public class JTextFieldHintUI extends BasicTextFieldUI implements FocusListener
 	}
 
 	@Override
-	protected void paintSafely(Graphics g)
+	protected void paintSafely(final Graphics g)
 	{
 		// Render the default text field UI
 		super.paintSafely(g);
 		// Render the hint text
-		JTextComponent component = getComponent();
+		final JTextComponent component = getComponent();
 		if(component.getText().length() == 0 && !component.hasFocus() && component.isEnabled())
 		{
 			g.setColor(hintColor);
 			g.setFont(component.getFont().deriveFont(Font.ITALIC));
-			int padding = (component.getHeight() - component.getFont().getSize()) / 2;
-			int inset = 3;
+			final int padding = (component.getHeight() - component.getFont().getSize()) / 2;
+			final int inset = 3;
 			g.drawString(hint, inset, component.getHeight() - padding - inset);
 		}
 	}
 
 	@Override
-	public void focusGained(FocusEvent e)
+	public void focusGained(final FocusEvent e)
 	{
 		repaint();
 	}
 
 	@Override
-	public void focusLost(FocusEvent e)
+	public void focusLost(final FocusEvent e)
 	{
 		repaint();
 	}

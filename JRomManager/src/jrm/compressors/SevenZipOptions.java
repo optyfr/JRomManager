@@ -14,7 +14,7 @@ public enum SevenZipOptions
 	private String desc;
 	private int level;
 
-	private SevenZipOptions(String desc, int level)
+	private SevenZipOptions(final String desc, final int level)
 	{
 		this.desc = desc;
 		this.level = level;

@@ -16,13 +16,13 @@ import jrm.ui.ProgressHandler;
 public class TZipContainer extends ContainerAction
 {
 
-	public TZipContainer(Container container, FormatOptions format)
+	public TZipContainer(final Container container, final FormatOptions format)
 	{
 		super(container, format);
 	}
 
 	@Override
-	public boolean doAction(ProgressHandler handler)
+	public boolean doAction(final ProgressHandler handler)
 	{
 		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4("TorrentZipping %s [%s]"), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.description))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)
@@ -33,13 +33,13 @@ public class TZipContainer extends ContainerAction
 				{
 					if(container.file.exists())
 					{
-						EnumSet<TrrntZipStatus> status = new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions()).Process(container.file);
+						final EnumSet<TrrntZipStatus> status = new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions()).Process(container.file);
 						if(!status.contains(TrrntZipStatus.ValidTrrntzip))
 							System.out.format("%-64s => %s\n", container.file, status.toString());
 					}
 					return true;
 				}
-				catch(/*InterruptedException |*/ IOException e)
+				catch(/*InterruptedException |*/ final IOException e)
 				{
 					System.err.println(container.file);
 					e.printStackTrace();

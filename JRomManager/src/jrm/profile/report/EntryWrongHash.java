@@ -10,8 +10,8 @@ public class EntryWrongHash extends Note
 {
 	final Entity entity;
 	final Entry entry;
-	
-	public EntryWrongHash(Entity entity, Entry entry)
+
+	public EntryWrongHash(final Entity entity, final Entry entry)
 	{
 		this.entity = entity;
 		this.entry = entry;

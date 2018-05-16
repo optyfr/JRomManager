@@ -22,13 +22,13 @@ public class Software extends Anyware implements Serializable
 	public final List<Part> parts = new ArrayList<>();
 
 	public SoftwareList sl = null;
-	
+
 	public enum Supported implements Serializable
 	{
 		no,
 		partial,
 		yes;
-		
+
 		public Supported getXML()
 		{
 			return this==yes?null:this;
@@ -43,33 +43,33 @@ public class Software extends Anyware implements Serializable
 			{
 				big,
 				little;
-				
+
 				public Endianness getXML()
 				{
 					return this==little?null:this;
 				}
 
 			}
-			
+
 			public String name;
 			public int size;
 			public int width = 8;
 			public Endianness endianness = Endianness.little;
 			public List<Rom> roms = new ArrayList<>();
 		}
-		
+
 		public static class DiskArea implements Serializable
 		{
 			public String name;
 			public List<Disk> disks = new ArrayList<>();
 		}
-		
+
 		public String name;
 		public String intrface;
 		public List<DataArea> dataareas = new ArrayList<>();
 		public List<DiskArea> diskareas = new ArrayList<>();
 	}
-	
+
 	public Software()
 	{
 	}
@@ -85,19 +85,19 @@ public class Software extends Anyware implements Serializable
 	{
 		return name;
 	}
-	
+
 	@Override
 	public String getFullName()
 	{
 		return sl.name + File.separator + name;
 	}
-	
+
 	@Override
-	public String getFullName(String filename)
+	public String getFullName(final String filename)
 	{
 		return sl.name + File.separator + filename;
 	}
-	
+
 	@Override
 	public boolean isBios()
 	{
@@ -121,50 +121,50 @@ public class Software extends Anyware implements Serializable
 	{
 		return sl;
 	}
-	
-	public void export(EnhancedXMLStreamWriter writer) throws XMLStreamException, IOException
+
+	public void export(final EnhancedXMLStreamWriter writer) throws XMLStreamException, IOException
 	{
-		writer.writeStartElement("software", 
+		writer.writeStartElement("software",
 				new SimpleAttribute("name", name),
 				new SimpleAttribute("cloneof", cloneof),
 				new SimpleAttribute("supported", supported.getXML())
-		);
+				);
 		writer.writeElement("description", description);
 		if(year!=null && year.length()>0)
 			writer.writeElement("year", year);
 		if(publisher!=null && publisher.length()>0)
 			writer.writeElement("publisher", publisher);
-		for(Part part : parts)
+		for(final Part part : parts)
 		{
-			writer.writeStartElement("part", 
+			writer.writeStartElement("part",
 					new SimpleAttribute("name", part.name),
 					new SimpleAttribute("interface", part.intrface)
-			);
-			for(DataArea dataarea : part.dataareas)
+					);
+			for(final DataArea dataarea : part.dataareas)
 			{
-				writer.writeStartElement("dataarea", 
+				writer.writeStartElement("dataarea",
 						new SimpleAttribute("name", dataarea.name),
 						new SimpleAttribute("size", dataarea.size),
 						new SimpleAttribute("width", dataarea.width),
 						new SimpleAttribute("endianness", dataarea.endianness.getXML())
-				);
-				for(Rom r : dataarea.roms)
+						);
+				for(final Rom r : dataarea.roms)
 					r.export(writer,true);
 				writer.writeEndElement();
 			}
-			for(DiskArea diskarea : part.diskareas)
+			for(final DiskArea diskarea : part.diskareas)
 			{
-				writer.writeStartElement("diskarea", 
+				writer.writeStartElement("diskarea",
 						new SimpleAttribute("name", diskarea.name)
-				);
-				for(Disk d : diskarea.disks)
+						);
+				for(final Disk d : diskarea.disks)
 					d.export(writer,true);
 				writer.writeEndElement();
 			}
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
-		
+
 	}
 
 }

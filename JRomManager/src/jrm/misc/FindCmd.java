@@ -7,7 +7,7 @@ import org.apache.commons.io.IOUtils;
 
 public class FindCmd
 {
-	public static String findCmd(String cmd)
+	public static String findCmd(final String cmd)
 	{
 		ProcessBuilder pb;
 		if (OSValidator.isWindows())
@@ -17,8 +17,8 @@ public class FindCmd
 		try
 		{
 			pb.redirectError();
-			Process process = pb.start();
-			String output = IOUtils.toString(process.getInputStream(),(Charset)null).trim();
+			final Process process = pb.start();
+			final String output = IOUtils.toString(process.getInputStream(),(Charset)null).trim();
 			if(process.waitFor()==0)
 				return output;
 		}
@@ -32,16 +32,16 @@ public class FindCmd
 
 	public static String findZip()
 	{
-		return findCmd("7z");
+		return FindCmd.findCmd("7z");
 	}
 
 	public static String findTZip()
 	{
-		return findCmd("trrntzip");
+		return FindCmd.findCmd("trrntzip");
 	}
 
 	public static String find7z()
 	{
-		return findCmd("7z");
+		return FindCmd.findCmd("7z");
 	}
 }

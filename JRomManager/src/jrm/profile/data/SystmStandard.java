@@ -6,7 +6,7 @@ import java.io.Serializable;
 public class SystmStandard implements Systm, Serializable
 {
 	public final static SystmStandard STANDARD = new SystmStandard();
-	
+
 	public SystmStandard()
 	{
 	}
@@ -20,7 +20,7 @@ public class SystmStandard implements Systm, Serializable
 	@Override
 	public Systm getSystem()
 	{
-		return STANDARD;
+		return SystmStandard.STANDARD;
 	}
 
 	@Override

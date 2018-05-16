@@ -26,7 +26,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		private final Map<String, SubCategory> subcategories = new TreeMap<>();
 		private final List<SubCategory> list_subcategories = new ArrayList<>();
 
-		public Category(String name, CatVer parent)
+		public Category(final String name, final CatVer parent)
 		{
 			this.name = name;
 			this.parent = parent;
@@ -45,37 +45,37 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public boolean containsKey(Object key)
+		public boolean containsKey(final Object key)
 		{
 			return subcategories.containsKey(key);
 		}
 
 		@Override
-		public boolean containsValue(Object value)
+		public boolean containsValue(final Object value)
 		{
 			return subcategories.containsValue(value);
 		}
 
 		@Override
-		public SubCategory get(Object key)
+		public SubCategory get(final Object key)
 		{
 			return subcategories.get(key);
 		}
 
 		@Override
-		public SubCategory put(String key, SubCategory value)
+		public SubCategory put(final String key, final SubCategory value)
 		{
 			return subcategories.put(key, value);
 		}
 
 		@Override
-		public SubCategory remove(Object key)
+		public SubCategory remove(final Object key)
 		{
 			return subcategories.remove(key);
 		}
 
 		@Override
-		public void putAll(Map<? extends String, ? extends SubCategory> m)
+		public void putAll(final Map<? extends String, ? extends SubCategory> m)
 		{
 			subcategories.putAll(m);
 		}
@@ -105,7 +105,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public TreeNode getChildAt(int childIndex)
+		public TreeNode getChildAt(final int childIndex)
 		{
 			return list_subcategories.get(childIndex);
 		}
@@ -123,7 +123,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public int getIndex(TreeNode node)
+		public int getIndex(final TreeNode node)
 		{
 			return list_subcategories.indexOf(node);
 		}
@@ -165,7 +165,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public void setSelected(boolean selected)
+		public void setSelected(final boolean selected)
 		{
 			PropertyStub.super.setSelected(selected);
 		}
@@ -184,7 +184,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		private final Category parent;
 		private final List<String> games = new ArrayList<>();
 
-		public SubCategory(String name, Category parent)
+		public SubCategory(final String name, final Category parent)
 		{
 			this.name = name;
 			this.parent = parent;
@@ -209,7 +209,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public boolean contains(Object o)
+		public boolean contains(final Object o)
 		{
 			return games.contains(o);
 		}
@@ -221,49 +221,49 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public <T> T[] toArray(T[] a)
+		public <T> T[] toArray(final T[] a)
 		{
 			return games.toArray(a);
 		}
 
 		@Override
-		public boolean add(String e)
+		public boolean add(final String e)
 		{
 			return games.add(e);
 		}
 
 		@Override
-		public boolean remove(Object o)
+		public boolean remove(final Object o)
 		{
 			return games.remove(o);
 		}
 
 		@Override
-		public boolean containsAll(Collection<?> c)
+		public boolean containsAll(final Collection<?> c)
 		{
 			return games.containsAll(c);
 		}
 
 		@Override
-		public boolean addAll(Collection<? extends String> c)
+		public boolean addAll(final Collection<? extends String> c)
 		{
 			return games.addAll(c);
 		}
 
 		@Override
-		public boolean addAll(int index, Collection<? extends String> c)
+		public boolean addAll(final int index, final Collection<? extends String> c)
 		{
 			return games.addAll(index, c);
 		}
 
 		@Override
-		public boolean removeAll(Collection<?> c)
+		public boolean removeAll(final Collection<?> c)
 		{
 			return games.removeAll(c);
 		}
 
 		@Override
-		public boolean retainAll(Collection<?> c)
+		public boolean retainAll(final Collection<?> c)
 		{
 			return games.retainAll(c);
 		}
@@ -275,37 +275,37 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public String get(int index)
+		public String get(final int index)
 		{
 			return games.get(index);
 		}
 
 		@Override
-		public String set(int index, String element)
+		public String set(final int index, final String element)
 		{
 			return games.set(index, element);
 		}
 
 		@Override
-		public void add(int index, String element)
+		public void add(final int index, final String element)
 		{
 			games.add(index, element);
 		}
 
 		@Override
-		public String remove(int index)
+		public String remove(final int index)
 		{
 			return games.remove(index);
 		}
 
 		@Override
-		public int indexOf(Object o)
+		public int indexOf(final Object o)
 		{
 			return games.indexOf(o);
 		}
 
 		@Override
-		public int lastIndexOf(Object o)
+		public int lastIndexOf(final Object o)
 		{
 			return games.lastIndexOf(o);
 		}
@@ -317,19 +317,19 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public ListIterator<String> listIterator(int index)
+		public ListIterator<String> listIterator(final int index)
 		{
 			return games.listIterator(index);
 		}
 
 		@Override
-		public List<String> subList(int fromIndex, int toIndex)
+		public List<String> subList(final int fromIndex, final int toIndex)
 		{
 			return games.subList(fromIndex, toIndex);
 		}
 
 		@Override
-		public TreeNode getChildAt(int childIndex)
+		public TreeNode getChildAt(final int childIndex)
 		{
 			return null;
 		}
@@ -347,7 +347,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public int getIndex(TreeNode node)
+		public int getIndex(final TreeNode node)
 		{
 			return 0;
 		}
@@ -383,7 +383,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public void setSelected(boolean selected)
+		public void setSelected(final boolean selected)
 		{
 			PropertyStub.super.setSelected(selected);
 		}
@@ -395,7 +395,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 	}
 
-	private CatVer(File file) throws IOException
+	private CatVer(final File file) throws IOException
 	{
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
@@ -410,15 +410,15 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 					break;
 				else if(in_section)
 				{
-					String[] kv = StringUtils.split(line, '=');
+					final String[] kv = StringUtils.split(line, '=');
 					if(kv.length == 2)
 					{
-						String k = kv[0].trim();
-						String[] v = StringUtils.split(kv[1], '/');
+						final String k = kv[0].trim();
+						final String[] v = StringUtils.split(kv[1], '/');
 						if(v.length == 2)
 						{
-							String c = v[0].trim();
-							String sc = v[1].trim();
+							final String c = v[0].trim();
+							final String sc = v[1].trim();
 							Category cat;
 							if(!categories.containsKey(c))
 								categories.put(c, cat = new Category(c, CatVer.this));
@@ -435,20 +435,20 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 				}
 			}
 			list_categories.addAll(categories.values());
-			for(Category cat : list_categories)
+			for(final Category cat : list_categories)
 				cat.list_subcategories.addAll(cat.subcategories.values());
 			if(list_categories.isEmpty())
 				throw new IOException("No CatVer data");
 		}
 	}
 
-	public static CatVer read(File file) throws IOException
+	public static CatVer read(final File file) throws IOException
 	{
 		return new CatVer(file);
 	}
 
 	@Override
-	public TreeNode getChildAt(int childIndex)
+	public TreeNode getChildAt(final int childIndex)
 	{
 		return list_categories.get(childIndex);
 	}
@@ -466,7 +466,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	}
 
 	@Override
-	public int getIndex(TreeNode node)
+	public int getIndex(final TreeNode node)
 	{
 		return list_categories.indexOf(node);
 	}
@@ -508,7 +508,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	}
 
 	@Override
-	public void setSelected(boolean selected)
+	public void setSelected(final boolean selected)
 	{
 		PropertyStub.super.setSelected(selected);
 	}

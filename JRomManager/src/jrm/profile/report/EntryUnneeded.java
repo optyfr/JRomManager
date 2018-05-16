@@ -9,7 +9,7 @@ public class EntryUnneeded extends Note
 {
 	final Entry entry;
 
-	public EntryUnneeded(Entry entry)
+	public EntryUnneeded(final Entry entry)
 	{
 		this.entry = entry;
 	}

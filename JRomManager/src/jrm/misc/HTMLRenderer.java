@@ -6,53 +6,53 @@ public interface HTMLRenderer
 	{
 		return toString();
 	}
-	
-	public default String toHTML(CharSequence str)
+
+	public default String toHTML(final CharSequence str)
 	{
 		return "<html>"+str+"</html>";
 	}
 
-	public default String toNoBR(CharSequence str)
+	public default String toNoBR(final CharSequence str)
 	{
 		return "<nobr>"+str+"</nobr>";
 	}
 
-	public default String toBlue(CharSequence str)
+	public default String toBlue(final CharSequence str)
 	{
 		return "<span color='blue'>"+str+"</span>";
 	}
 
-	public default String toRed(CharSequence str)
+	public default String toRed(final CharSequence str)
 	{
 		return "<span color='red'>"+str+"</span>";
 	}
 
-	public default String toGreen(CharSequence str)
+	public default String toGreen(final CharSequence str)
 	{
 		return "<span color='green'>"+str+"</span>";
 	}
 
-	public default String toGray(CharSequence str)
+	public default String toGray(final CharSequence str)
 	{
 		return "<span color='gray'>"+str+"</span>";
 	}
 
-	public default String toOrange(CharSequence str)
+	public default String toOrange(final CharSequence str)
 	{
 		return "<span color='orange'>"+str+"</span>";
 	}
 
-	public default String toPurple(CharSequence str)
+	public default String toPurple(final CharSequence str)
 	{
 		return "<span color='purple'>"+str+"</span>";
 	}
 
-	public default String toBold(CharSequence str)
+	public default String toBold(final CharSequence str)
 	{
 		return "<b>"+str+"</b>";
 	}
 
-	public default String toItalic(CharSequence str)
+	public default String toItalic(final CharSequence str)
 	{
 		return "<i>"+str+"</i>";
 	}

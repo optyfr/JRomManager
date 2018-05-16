@@ -13,7 +13,7 @@ abstract public class EntryAction implements HTMLRenderer
 	final Entry entry;
 	ContainerAction parent;
 
-	public EntryAction(Entry entry)
+	public EntryAction(final Entry entry)
 	{
 		this.entry = entry;
 	}
