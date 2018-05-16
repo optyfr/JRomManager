@@ -30,8 +30,6 @@ public class ContainerUnknown extends Subject
 	@Override
 	public void updateStats()
 	{
-		// TODO Auto-generated method stub
-		
 	}
 
 }

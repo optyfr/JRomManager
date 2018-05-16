@@ -1,50 +1,17 @@
 package jrm.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingWorker;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
-import javax.swing.event.TableModelEvent;
+import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
@@ -56,14 +23,7 @@ import jrm.profile.Export.ExportType;
 import jrm.profile.Profile;
 import jrm.profile.ProfileNFOMame;
 import jrm.profile.ProfileNFOMame.MameStatus;
-import jrm.profile.data.Anyware;
-import jrm.profile.data.AnywareList;
-import jrm.profile.data.AnywareListList;
-import jrm.profile.data.AnywareStatus;
-import jrm.profile.data.EntityStatus;
-import jrm.profile.data.Machine;
-import jrm.profile.data.Software;
-import jrm.profile.data.SoftwareList;
+import jrm.profile.data.*;
 
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog
@@ -489,7 +449,6 @@ public class ProfileViewer extends JDialog
 										}
 										if(args != null)
 										{
-											System.out.println(Arrays.asList(args).stream().collect(Collectors.joining(" ")));
 											ProcessBuilder pb = new ProcessBuilder(args).directory(mame.getFile().getParentFile()).redirectErrorStream(true).redirectOutput(new File(mame.getFile().getParentFile(), "JRomManager.log"));
 											try
 											{
@@ -497,25 +456,23 @@ public class ProfileViewer extends JDialog
 											}
 											catch(InterruptedException | IOException e1)
 											{
-												//TODO show error dialog
-												e1.printStackTrace();
+												JOptionPane.showMessageDialog(ProfileViewer.this, e1.getMessage(), "Exception", JOptionPane.ERROR_MESSAGE);
 											}
 										}
 									}
 									else
 									{
-										System.out.println(profile.nfo.mame.getStatus());										
+										JOptionPane.showMessageDialog(ProfileViewer.this, "Mame is not available or is obsolete ("+profile.nfo.mame.getStatus()+")", "Error", JOptionPane.ERROR_MESSAGE);
 									}
 								}
 								else
 								{
-									System.out.println("no profile");
+									JOptionPane.showMessageDialog(ProfileViewer.this, "No profile", "Error", JOptionPane.ERROR_MESSAGE);
 								}
 							}
 							else
 							{
-								//TODO show error dialog
-								System.out.println(ware.getStatus());
+								JOptionPane.showMessageDialog(ProfileViewer.this, "Can't launch incomplete set ("+ware.getStatus()+")", "Error", JOptionPane.ERROR_MESSAGE);
 							}
 						}
 					}

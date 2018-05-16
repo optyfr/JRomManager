@@ -124,6 +124,7 @@ public class MainFrame extends JFrame
 		}
 		catch(Exception e)
 		{
+			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 		initialize();
@@ -1557,7 +1558,7 @@ public class MainFrame extends JFrame
 				{
 					if(e.getFirstIndex() != -1)
 					{
-						for(int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
+						for(int index = e.getFirstIndex(); index <= e.getLastIndex() && index < listNPlayers.getModel().getSize(); index++)
 							listNPlayers.getModel().getElementAt(index).setSelected(listNPlayers.isSelectedIndex(index));
 						if(profile_viewer != null)
 							profile_viewer.reset(Profile.curr_profile);

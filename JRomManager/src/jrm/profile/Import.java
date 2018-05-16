@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -68,6 +69,7 @@ public class Import
 			}
 			catch(DOMException | ParserConfigurationException | TransformerException | IOException e)
 			{
+				JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
 		}

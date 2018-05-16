@@ -41,10 +41,10 @@ public class Fix
 				}
 				catch(BreakException be)
 				{
-					be.printStackTrace();
 					progress.cancel();
 				}
-				catch (Throwable e) {
+				catch (Throwable e)
+				{
 					e.printStackTrace();
 				}
 			});

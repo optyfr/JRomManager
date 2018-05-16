@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import javax.swing.JOptionPane;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
@@ -382,6 +383,7 @@ public class Export
 		}
 		catch(FactoryConfigurationError | XMLStreamException | IOException e)
 		{
+			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 	}

@@ -28,7 +28,6 @@ public class CatVerModel extends DefaultTreeModel
 			@Override
 			public TreeNode getParent()
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 			
@@ -71,15 +70,12 @@ public class CatVerModel extends DefaultTreeModel
 			@Override
 			public boolean isSelected()
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			@Override
 			public void setSelected(boolean selected)
 			{
-				// TODO Auto-generated method stub
-				
 			}
 		});
 	}

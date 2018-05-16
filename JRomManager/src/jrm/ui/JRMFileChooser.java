@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
@@ -26,6 +27,7 @@ public class JRMFileChooser<V> extends JFileChooser
 			}
 			catch(IOException e1)
 			{
+				JOptionPane.showMessageDialog(null, e1, "Exception", JOptionPane.ERROR_MESSAGE);
 				e1.printStackTrace();
 			}
 		}

@@ -30,8 +30,6 @@ public class ContainerUnneeded extends Subject
 	@Override
 	public void updateStats()
 	{
-		// TODO Auto-generated method stub
-		
 	}
 
 }

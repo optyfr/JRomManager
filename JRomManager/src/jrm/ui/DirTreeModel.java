@@ -43,8 +43,6 @@ public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
 	@Override
 	public void treeNodesInserted(TreeModelEvent e)
 	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -65,7 +63,5 @@ public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
 	@Override
 	public void treeStructureChanged(TreeModelEvent e)
 	{
-		// TODO Auto-generated method stub
-		
 	}
 }

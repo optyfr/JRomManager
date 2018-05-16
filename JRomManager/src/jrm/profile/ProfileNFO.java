@@ -3,6 +3,7 @@ package jrm.profile;
 import java.io.*;
 import java.util.Date;
 
+import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -143,6 +144,7 @@ public final class ProfileNFO implements Serializable
 		}
 		catch(ParserConfigurationException | SAXException | IOException e)
 		{
+			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 	}
