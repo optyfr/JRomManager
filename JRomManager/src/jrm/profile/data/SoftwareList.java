@@ -196,12 +196,6 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 		return getFilteredStream().filter(t -> t.getStatus()==AnywareStatus.COMPLETE).count();
 	}
 
-	@Override
-	public boolean containsName(final String name)
-	{
-		return s_byname.containsKey(name);
-	}
-
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress) throws XMLStreamException, IOException
 	{
 		writer.writeStartElement("softwarelist",
@@ -215,5 +209,17 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 			s.export(writer);
 		}
 		writer.writeEndElement();
+	}
+
+	@Override
+	public boolean containsName(final String name)
+	{
+		return s_byname.containsKey(name);
+	}
+
+	@Override
+	public Software getByName(String name)
+	{
+		return s_byname.get(name);
 	}
 }

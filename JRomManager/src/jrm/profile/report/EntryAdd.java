@@ -3,15 +3,15 @@ package jrm.profile.report;
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.Messages;
-import jrm.profile.data.Entity;
+import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 
 public class EntryAdd extends Note
 {
-	final Entity entity;
+	final EntityBase entity;
 	final Entry entry;
 
-	public EntryAdd(final Entity entity, final Entry entry)
+	public EntryAdd(final EntityBase entity, final Entry entry)
 	{
 		this.entity = entity;
 		this.entry = entry;

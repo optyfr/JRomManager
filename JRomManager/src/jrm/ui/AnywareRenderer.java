@@ -59,7 +59,7 @@ public final class AnywareRenderer
 				setIcon(rom_small);
 			else if(value instanceof Disk)
 				setIcon(drive);
-			setText((value != null) ? (value instanceof Entity ? ((Entity) value).name : value.toString()) : null);
+			setText((value != null) ? (value instanceof Entity ? ((Entity) value).getOriginalName() : value.toString()) : null);
 			setToolTipText(getText());
 			setBackground(AnywareRenderer.getBackground(row, column));
 			return this;

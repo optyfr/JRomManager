@@ -8,15 +8,15 @@ import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.profile.data.Container.Type;
-import jrm.profile.data.Entity;
+import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 import jrm.ui.ProgressHandler;
 
 public class AddEntry extends EntryAction
 {
-	private final Entity entity;
+	private final EntityBase entity;
 
-	public AddEntry(final Entity entity, final Entry entry)
+	public AddEntry(final EntityBase entity, final Entry entry)
 	{
 		super(entry);
 		this.entity = entity;

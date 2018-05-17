@@ -87,6 +87,10 @@ public class Entry implements Serializable
 			if(((Disk) obj).md5 != null && md5 != null)
 				return ((Disk) obj).md5.equals(md5);
 		}
+		else if(obj instanceof Sample)
+		{
+			return ((Sample)obj).getName().equals(this.getName());
+		}
 		return super.equals(obj);
 	}
 

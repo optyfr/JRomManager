@@ -3,13 +3,13 @@ package jrm.profile.report;
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.Messages;
-import jrm.profile.data.Entity;
+import jrm.profile.data.EntityBase;
 
 public class EntryOK extends Note
 {
-	final Entity entity;
+	final EntityBase entity;
 
-	public EntryOK(final Entity entity)
+	public EntryOK(final EntityBase entity)
 	{
 		this.entity = entity;
 	}

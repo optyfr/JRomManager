@@ -32,7 +32,7 @@ public class Disk extends Entity implements Serializable
 		{
 			if(merge == null)
 			{
-				if(isCollisionMode() && parent.isClone())
+				if(isCollisionMode() && getParent().isClone())
 				{
 					return parent.name + "/" + name + ".chd";
 				}
@@ -41,12 +41,6 @@ public class Disk extends Entity implements Serializable
 				return merge + ".chd";
 		}
 		return name + ".chd";
-	}
-
-	@Override
-	public void setName(final String name)
-	{
-		this.name = name;
 	}
 
 	@Override
@@ -90,7 +84,7 @@ public class Disk extends Entity implements Serializable
 	{
 		if(parent.parent!=null)	// find same disk in parent clone (if any and recursively)
 		{
-			for(final Disk d : parent.parent.disks)
+			for(final Disk d : parent.getParent().disks)
 			{
 				if(disk.equals(d))
 					return d.getStatus();
@@ -106,7 +100,7 @@ public class Disk extends Entity implements Serializable
 			return EntityStatus.OK;
 		if(own_status==EntityStatus.UNKNOWN)
 		{
-			final EntityStatus status = findDiskStatus(parent, this);
+			final EntityStatus status = findDiskStatus(getParent(), this);
 			if(status != null)
 				return status;
 		}

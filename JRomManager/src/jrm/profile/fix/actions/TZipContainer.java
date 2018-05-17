@@ -24,7 +24,7 @@ public class TZipContainer extends ContainerAction
 	@Override
 	public boolean doAction(final ProgressHandler handler)
 	{
-		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4("TorrentZipping %s [%s]"), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.description))))); //$NON-NLS-1$
+		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4("TorrentZipping %s [%s]"), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.getDescription()))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)
 		{
 			if(format == FormatOptions.TZIP)

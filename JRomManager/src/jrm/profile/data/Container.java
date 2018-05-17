@@ -15,7 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import JTrrntzip.TrrntZipStatus;
 
 @SuppressWarnings("serial")
-public class Container implements Serializable
+public class  Container implements Serializable
 {
 	public final File file;
 	public long modified = 0L;
@@ -28,7 +28,7 @@ public class Container implements Serializable
 	public long lastTZipCheck = 0L;
 	public EnumSet<TrrntZipStatus> lastTZipStatus = EnumSet.noneOf(TrrntZipStatus.class);
 
-	public transient Anyware m;
+	public transient AnywareBase m;
 
 	public enum Type
 	{
@@ -41,7 +41,7 @@ public class Container implements Serializable
 
 	private Type type = Type.UNK;
 
-	protected Container(final Type type, final File file, final Anyware m)
+	protected Container(final Type type, final File file, final AnywareBase m)
 	{
 		this.type = type;
 		this.file = file;
@@ -50,7 +50,7 @@ public class Container implements Serializable
 
 	protected Container(final Type type, final File file, final BasicFileAttributes attr)
 	{
-		this(type, file, (Machine) null);
+		this(type, file, (AnywareBase) null);
 		modified = attr.lastModifiedTime().toMillis();
 		if(type != Type.DIR)
 			size = attr.size();

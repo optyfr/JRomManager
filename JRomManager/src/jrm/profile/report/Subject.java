@@ -8,23 +8,23 @@ import java.util.List;
 import javax.swing.tree.TreeNode;
 
 import jrm.misc.HTMLRenderer;
-import jrm.profile.data.Anyware;
+import jrm.profile.data.AnywareBase;
 
 public abstract class Subject implements TreeNode,HTMLRenderer
 {
-	protected final Anyware ware;
+	protected final AnywareBase ware;
 
 	protected final List<Note> notes;
 
 	protected Report parent;
 
-	public Subject(final Anyware machine)
+	public Subject(final AnywareBase machine)
 	{
 		ware = machine;
 		notes = new ArrayList<>();
 	}
 
-	Subject(final Anyware machine, final List<Note> notes)
+	Subject(final AnywareBase machine, final List<Note> notes)
 	{
 		ware = machine;
 		this.notes = notes;

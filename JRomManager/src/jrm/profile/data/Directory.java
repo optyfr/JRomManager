@@ -7,7 +7,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 @SuppressWarnings("serial")
 public class Directory extends Container implements Serializable
 {
-	public Directory(final File file, final Anyware m)
+	public Directory(final File file, final AnywareBase m)
 	{
 		super(Type.DIR, file, m);
 	}

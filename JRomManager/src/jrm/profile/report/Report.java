@@ -35,6 +35,7 @@ public class Report implements TreeNode, HTMLRenderer
 		public int missing_set_cnt = 0;
 		public int missing_roms_cnt = 0;
 		public int missing_disks_cnt = 0;
+		public int missing_samples_cnt = 0;
 
 		public int set_unneeded = 0;
 		public int set_missing = 0;
@@ -51,6 +52,7 @@ public class Report implements TreeNode, HTMLRenderer
 			missing_set_cnt = 0;
 			missing_roms_cnt = 0;
 			missing_disks_cnt = 0;
+			missing_samples_cnt = 0;
 
 			set_unneeded = 0;
 			set_missing = 0;

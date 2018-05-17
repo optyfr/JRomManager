@@ -167,4 +167,10 @@ public class Software extends Anyware implements Serializable
 
 	}
 
+	@Override
+	public CharSequence getDescription()
+	{
+		return description;
+	}
+
 }

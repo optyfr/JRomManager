@@ -5,16 +5,14 @@ import java.io.Serializable;
 import jrm.profile.scan.options.HashCollisionOptions;
 
 @SuppressWarnings("serial")
-public abstract class Entity implements Serializable, Comparable<Entity>
+public abstract class Entity extends EntityBase implements Serializable
 {
-	public String name; // required
 	public long size = 0;
 	public String crc = null;
 	public String sha1 = null;
 	public String md5 = null;
 	public String merge = null;
 	public Status status = Status.good;
-	public EntityStatus own_status = EntityStatus.UNKNOWN;
 
 	public enum Status implements Serializable
 	{
@@ -29,30 +27,29 @@ public abstract class Entity implements Serializable, Comparable<Entity>
 		}
 	}
 
-	protected final Anyware parent;
 
 	private transient boolean collision = false;
 
 	public Entity(final Anyware parent)
 	{
-		this.parent = parent;
+		super(parent);
 	}
 
 	public void setCollisionMode()
 	{
 		if(Anyware.hash_collision_mode == HashCollisionOptions.SINGLECLONE)
-			parent.setCollisionMode(false);
+			getParent().setCollisionMode(false);
 		else if(Anyware.hash_collision_mode == HashCollisionOptions.ALLCLONES)
-			parent.setCollisionMode(true);
+			getParent().setCollisionMode(true);
 		collision = true;
 	}
 
 	public boolean isCollisionMode()
 	{
 		if(Anyware.hash_collision_mode == HashCollisionOptions.SINGLECLONE)
-			return parent.isCollisionMode();
+			return getParent().isCollisionMode();
 		else if(Anyware.hash_collision_mode == HashCollisionOptions.ALLCLONES)
-			return parent.isCollisionMode();
+			return getParent().isCollisionMode();
 		else if(Anyware.hash_collision_mode == HashCollisionOptions.DUMB)
 			return true;
 		return collision;
@@ -64,14 +61,11 @@ public abstract class Entity implements Serializable, Comparable<Entity>
 		own_status = EntityStatus.UNKNOWN;
 	}
 
+	@Override
 	public Anyware getParent()
 	{
-		return parent;
+		return getParent(Anyware.class);
 	}
-
-	public abstract String getName();
-
-	public abstract void setName(String name);
 
 	public String getCRC()
 	{
@@ -92,18 +86,4 @@ public abstract class Entity implements Serializable, Comparable<Entity>
 	{
 		return size;
 	}
-
-	@Override
-	public String toString()
-	{
-		return getName();
-	}
-
-	@Override
-	public int compareTo(final Entity o)
-	{
-		return name.compareTo(o.name);
-	}
-
-	public abstract EntityStatus getStatus();
 }

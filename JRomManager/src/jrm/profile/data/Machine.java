@@ -25,7 +25,7 @@ public class Machine extends Anyware implements Serializable
 	public DisplayOrientation orientation = DisplayOrientation.any;
 	public CabinetType cabinetType = CabinetType.upright;
 	public final Map<String, SWList> swlists = new HashMap<>();
-	public final List<String> samples = new ArrayList<>();
+	public final List<Sample> samples = new ArrayList<>();
 
 	public transient SubCategory subcat = null;
 	public transient NPlayer nplayer = null;
@@ -118,7 +118,7 @@ public class Machine extends Anyware implements Serializable
 		{
 			case BIOS:
 				if(parent != null)
-					return parent.getSystem();
+					return getParent().getSystem();
 				return this;
 			case DEVICE:
 				return SystmDevice.DEVICE;
@@ -208,5 +208,11 @@ public class Machine extends Anyware implements Serializable
 			writer.writeEndElement();
 		}
 
+	}
+
+	@Override
+	public CharSequence getDescription()
+	{
+		return description;
 	}
 }

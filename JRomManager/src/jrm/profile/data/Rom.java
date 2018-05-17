@@ -66,7 +66,7 @@ public class Rom extends Entity implements Serializable
 		{
 			if(merge == null)
 			{
-				if(isCollisionMode() && parent.isClone())
+				if(isCollisionMode() && getParent().isClone())
 				{
 					return parent.name + "/" + name;
 				}
@@ -86,17 +86,6 @@ public class Rom extends Entity implements Serializable
 			return parent.name + "/" + name;
 		}
 		return name;
-	}
-
-	public String getOriginalName()
-	{
-		return name;
-	}
-
-	@Override
-	public void setName(final String name)
-	{
-		this.name = name;
 	}
 
 	@Override
@@ -146,13 +135,13 @@ public class Rom extends Entity implements Serializable
 	{
 		if(parent.parent != null) // find same rom in parent clone (if any and recursively)
 		{
-			for(final Rom r : parent.parent.roms)
+			for(final Rom r : parent.getParent().roms)
 			{
 				if(rom.equals(r))
 					return r.getStatus();
 			}
 			if(parent.parent.parent != null)
-				return findRomStatus(parent.parent, rom);
+				return findRomStatus(parent.getParent(), rom);
 		}
 		else if(parent.isRomOf() && merge != null)
 			return EntityStatus.OK;
@@ -166,7 +155,7 @@ public class Rom extends Entity implements Serializable
 			return EntityStatus.OK;
 		if(own_status == EntityStatus.UNKNOWN)
 		{
-			final EntityStatus status = findRomStatus(parent, this);
+			final EntityStatus status = findRomStatus(getParent(), this);
 			if(status != null)
 				return status;
 		}

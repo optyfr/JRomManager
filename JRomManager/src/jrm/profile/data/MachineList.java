@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,7 +25,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 {
 	private final ArrayList<Machine> m_list = new ArrayList<>();
 	public final HashMap<String, Machine> m_byname = new HashMap<>();
-	public final HashMap<String, HashSet<String>> samplesets = new HashMap<>();
+	public final SamplesList samplesets = new SamplesList();
+
 
 	public MachineList()
 	{
@@ -189,12 +189,6 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		}).count();
 	}
 
-	@Override
-	public boolean containsName(final String name)
-	{
-		return m_byname.containsKey(name);
-	}
-
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException, IOException
 	{
 		if(is_mame)
@@ -210,5 +204,17 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			m.export(writer, is_mame);
 		}
 		writer.writeEndElement();
+	}
+
+	@Override
+	public boolean containsName(final String name)
+	{
+		return m_byname.containsKey(name);
+	}
+
+	@Override
+	public Machine getByName(String name)
+	{
+		return m_byname.get(name);
 	}
 }

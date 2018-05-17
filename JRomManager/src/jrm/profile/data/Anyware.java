@@ -20,9 +20,8 @@ import jrm.ui.AnywareRenderer;
 import one.util.streamex.StreamEx;
 
 @SuppressWarnings("serial")
-public abstract class Anyware implements Serializable, Comparable<Anyware>, TableModel, Systm
+public abstract class Anyware extends AnywareBase implements Serializable, TableModel, Systm
 {
-	public String name; // required
 	public String cloneof = null;
 	public final StringBuffer description = new StringBuffer();
 	public final StringBuffer year = new StringBuffer();
@@ -31,8 +30,6 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public final Collection<Disk> disks = new ArrayList<>();
 
 	public final HashMap<String, Anyware> clones = new HashMap<>();
-
-	public Anyware parent = null;
 
 	public static transient MergeOptions merge_mode;
 	public static transient Boolean implicit_merge;
@@ -69,25 +66,6 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 		if(Anyware.filter == null)
 			Anyware.filter = EnumSet.allOf(EntityStatus.class);
 	}
-
-	public <T extends Anyware> T getParent(final Class<T> type)
-	{
-		return type.cast(parent);
-	}
-
-	public abstract Anyware getParent();
-
-	@Override
-	public abstract String getName();
-
-	public void setName(final String name)
-	{
-		this.name = name;
-	}
-
-	public abstract String getFullName();
-
-	public abstract String getFullName(String filename);
 
 	public boolean isCollisionMode()
 	{
@@ -354,12 +332,6 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 				((TableModelListener) listeners[i + 1]).tableChanged(e);
 	}
 
-	@Override
-	public int compareTo(final Anyware o)
-	{
-		return name.compareTo(o.name);
-	}
-
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
@@ -413,6 +385,12 @@ public abstract class Anyware implements Serializable, Comparable<Anyware>, Tabl
 	public int countAll()
 	{
 		return roms.size() + disks.size();
+	}
+
+	@Override
+	public Anyware getParent()
+	{
+		return getParent(Anyware.class);
 	}
 
 }
