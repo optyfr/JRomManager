@@ -37,7 +37,7 @@ public class Import
 		xmldir.mkdir();
 
 		final String ext = FilenameUtils.getExtension(file.getName());
-		if(!Sets.newHashSet("xml", "dat").contains(ext.toLowerCase()) && file.canExecute()) //$NON-NLS-1$
+		if(!Sets.newHashSet("xml", "dat").contains(ext.toLowerCase()) && file.canExecute()) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			try
 			{
@@ -47,14 +47,14 @@ public class Import
 					final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 					final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 					final Document doc = docBuilder.newDocument();
-					final Element rootElement = doc.createElement("JRomManager");
+					final Element rootElement = doc.createElement("JRomManager"); //$NON-NLS-1$
 					doc.appendChild(rootElement);
-					final Element profile = doc.createElement("Profile");
-					profile.setAttribute("roms", roms_file.getName());
+					final Element profile = doc.createElement("Profile"); //$NON-NLS-1$
+					profile.setAttribute("roms", roms_file.getName()); //$NON-NLS-1$
 					if(sl)
 					{
 						if((sl_file = importMame(file, true)) != null)
-							profile.setAttribute("sl", sl_file.getName());
+							profile.setAttribute("sl", sl_file.getName()); //$NON-NLS-1$
 					}
 					rootElement.appendChild(profile);
 					final TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -69,7 +69,7 @@ public class Import
 			}
 			catch(DOMException | ParserConfigurationException | TransformerException | IOException e)
 			{
-				JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 		}
@@ -83,20 +83,20 @@ public class Import
 		// Log.info("Get dat file from Mame...");
 		try
 		{
-			final File tmpfile = File.createTempFile("JRM", sl ? ".jrm2" : ".jrm1"); //$NON-NLS-1$ //$NON-NLS-2$
+			final File tmpfile = File.createTempFile("JRM", sl ? ".jrm2" : ".jrm1"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			tmpfile.deleteOnExit();
-			final Process process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$
+			final Process process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$ //$NON-NLS-2$
 
-			try(BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpfile), Charset.forName("UTF-8"))); BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));)
+			try(BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpfile), Charset.forName("UTF-8"))); BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				String line;
 				boolean xml = false;
 				while(null != (line = in.readLine()))
 				{
-					if(line.startsWith("<?xml"))
+					if(line.startsWith("<?xml")) //$NON-NLS-1$
 						xml = true;
 					if(xml)
-						out.write(line + "\n");
+						out.write(line + "\n"); //$NON-NLS-1$
 				}
 			}
 			process.waitFor();

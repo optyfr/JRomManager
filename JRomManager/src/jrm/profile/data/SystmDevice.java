@@ -26,13 +26,13 @@ public class SystmDevice implements Systm, Serializable
 	@Override
 	public String toString()
 	{
-		return "["+getType()+"]";
+		return "["+getType()+"]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
 	public String getName()
 	{
-		return "device";
+		return "device"; //$NON-NLS-1$
 	}
 
 }

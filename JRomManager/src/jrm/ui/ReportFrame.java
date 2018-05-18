@@ -19,7 +19,7 @@ import jrm.profile.scan.Scan;
 @SuppressWarnings("serial")
 public class ReportFrame extends JDialog implements StatusHandler
 {
-	private final JLabel lblStatus = new JLabel("");
+	private final JLabel lblStatus = new JLabel(""); //$NON-NLS-1$
 
 	public ReportFrame(final Window owner) throws HeadlessException
 	{
@@ -27,13 +27,13 @@ public class ReportFrame extends JDialog implements StatusHandler
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent e) {
-				Settings.setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())));
+				Settings.setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 		});
 		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
 		setPreferredSize(new Dimension(800, 600));
 		setMinimumSize(new Dimension(400, 300));
-		setIconImage(Toolkit.getDefaultToolkit().getImage(ReportFrame.class.getResource("/jrm/resources/rom.png")));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(ReportFrame.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 784, 0 };
 		gridBagLayout.rowHeights = new int[] { 280, 24, 0 };
@@ -60,7 +60,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 		ReportFrame.addPopup(tree, popupMenu);
 
 		final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
-		mntmOpenAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_open.png")));
+		mntmOpenAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_open.png"))); //$NON-NLS-1$
 		mntmOpenAllNodes.addActionListener(e -> {
 			tree.invalidate();
 			int j = tree.getRowCount();
@@ -76,7 +76,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 		popupMenu.add(mntmOpenAllNodes);
 
 		final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
-		chckbxmntmShowOkEntries.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png")));
+		chckbxmntmShowOkEntries.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png"))); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.addItemListener(e -> {
 			final EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
@@ -99,12 +99,12 @@ public class ReportFrame extends JDialog implements StatusHandler
 			}
 			tree.validate();
 		});
-		mntmCloseAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed.png")));
+		mntmCloseAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed.png"))); //$NON-NLS-1$
 		popupMenu.add(mntmCloseAllNodes);
 		popupMenu.add(chckbxmntmShowOkEntries);
 
 		final JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
-		chckbxmntmHideFullyMissing.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png")));
+		chckbxmntmHideFullyMissing.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png"))); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.addItemListener(e -> {
 			final EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
@@ -127,7 +127,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10,10,800,600)))))));
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10,10,800,600))))))); //$NON-NLS-1$
 		}
 		catch(final DecoderException e1)
 		{

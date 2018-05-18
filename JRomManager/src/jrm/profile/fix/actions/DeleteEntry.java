@@ -29,7 +29,7 @@ public class DeleteEntry extends EntryAction
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed");
+			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}
@@ -47,7 +47,7 @@ public class DeleteEntry extends EntryAction
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed");
+			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}
@@ -62,7 +62,7 @@ public class DeleteEntry extends EntryAction
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("delete " + parent.container.file.getName() + "@" + entry.file + " failed");
+			System.err.println("delete " + parent.container.file.getName() + "@" + entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}

@@ -15,6 +15,7 @@ import javax.xml.stream.XMLStreamException;
 
 import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Export.SimpleAttribute;
+import jrm.Messages;
 import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
 import jrm.ui.ProgressHandler;
@@ -103,7 +104,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 			case 2:
 				return software.description.toString();
 			case 3:
-				return String.format("%d/%d", software.countHave(), software.roms.size() + software.disks.size());
+				return String.format("%d/%d", software.countHave(), software.roms.size() + software.disks.size()); //$NON-NLS-1$
 			case 4:
 				return software.cloneof != null ? s_byname.get(software.cloneof) : null;
 		}
@@ -131,7 +132,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	@Override
 	public String toString()
 	{
-		return "[" + getType() + "] " + description.toString();
+		return "[" + getType() + "] " + description.toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -143,11 +144,11 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	@Override
 	public Stream<Software> getFilteredStream()
 	{
-		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true);
-		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true);
-		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString()));
-		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", "");
-		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????");
+		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true); //$NON-NLS-1$
+		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true); //$NON-NLS-1$
+		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString())); //$NON-NLS-1$
+		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????"); //$NON-NLS-1$ //$NON-NLS-2$
 		return getList().stream().filter(t -> {
 			if(t.year.length()>0)
 			{
@@ -192,14 +193,14 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress) throws XMLStreamException, IOException
 	{
-		writer.writeStartElement("softwarelist",
-				new SimpleAttribute("name",name),
-				new SimpleAttribute("description",description)
+		writer.writeStartElement("softwarelist", //$NON-NLS-1$
+				new SimpleAttribute("name",name), //$NON-NLS-1$
+				new SimpleAttribute("description",description) //$NON-NLS-1$
 				);
 		final List<Software> list = getFilteredStream().collect(Collectors.toList());
 		for(final Software s : list)
 		{
-			progress.setProgress(String.format("Exporting %s", s.getFullName()), progress.getValue()+1);
+			progress.setProgress(String.format(Messages.getString("SoftwareList.Exporting_%s"), s.getFullName()), progress.getValue()+1); //$NON-NLS-1$
 			s.export(writer);
 		}
 		writer.writeEndElement();

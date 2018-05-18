@@ -68,7 +68,7 @@ public class Rom extends Entity implements Serializable
 			{
 				if(isCollisionMode() && getParent().isClone())
 				{
-					return parent.name + "/" + name;
+					return parent.name + "/" + name; //$NON-NLS-1$
 				}
 			}
 			else
@@ -82,8 +82,8 @@ public class Rom extends Entity implements Serializable
 		if(Anyware.merge_mode.isMerge())
 		{
 			if(merge != null)
-				return parent.name + "/" + merge;
-			return parent.name + "/" + name;
+				return parent.name + "/" + merge; //$NON-NLS-1$
+			return parent.name + "/" + name; //$NON-NLS-1$
 		}
 		return name;
 	}
@@ -166,44 +166,44 @@ public class Rom extends Entity implements Serializable
 	{
 		if(parent instanceof Software)
 		{
-			writer.writeElement("rom",
-					new SimpleAttribute("name", name),
-					new SimpleAttribute("size", size),
-					new SimpleAttribute("crc", crc),
-					new SimpleAttribute("sha1", sha1),
-					new SimpleAttribute("merge", merge),
-					new SimpleAttribute("status", status.getXML(is_mame)),
-					new SimpleAttribute("value", value),
-					new SimpleAttribute("loadflag", loadflag),
-					new SimpleAttribute("offset", offset==null?null:("0x"+Integer.toHexString(offset)))
+			writer.writeElement("rom", //$NON-NLS-1$
+					new SimpleAttribute("name", name), //$NON-NLS-1$
+					new SimpleAttribute("size", size), //$NON-NLS-1$
+					new SimpleAttribute("crc", crc), //$NON-NLS-1$
+					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
+					new SimpleAttribute("merge", merge), //$NON-NLS-1$
+					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("value", value), //$NON-NLS-1$
+					new SimpleAttribute("loadflag", loadflag), //$NON-NLS-1$
+					new SimpleAttribute("offset", offset==null?null:("0x"+Integer.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
 					);
 		}
 		else if(is_mame)
 		{
-			writer.writeElement("rom",
-					new SimpleAttribute("name", name),
-					new SimpleAttribute("bios", bios),
-					new SimpleAttribute("size", size),
-					new SimpleAttribute("crc", crc),
-					new SimpleAttribute("sha1", sha1),
-					new SimpleAttribute("merge", merge),
-					new SimpleAttribute("status", status.getXML(is_mame)),
-					new SimpleAttribute("optional", optional?"yes":null),
-					new SimpleAttribute("region", region),
-					new SimpleAttribute("offset", offset==null?null:("0x"+Integer.toHexString(offset)))
+			writer.writeElement("rom", //$NON-NLS-1$
+					new SimpleAttribute("name", name), //$NON-NLS-1$
+					new SimpleAttribute("bios", bios), //$NON-NLS-1$
+					new SimpleAttribute("size", size), //$NON-NLS-1$
+					new SimpleAttribute("crc", crc), //$NON-NLS-1$
+					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
+					new SimpleAttribute("merge", merge), //$NON-NLS-1$
+					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("optional", optional?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute("region", region), //$NON-NLS-1$
+					new SimpleAttribute("offset", offset==null?null:("0x"+Integer.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
 					);
 		}
 		else
 		{
-			writer.writeElement("rom",
-					new SimpleAttribute("name", name),
-					new SimpleAttribute("size", size),
-					new SimpleAttribute("crc", crc),
-					new SimpleAttribute("sha1", sha1),
-					new SimpleAttribute("md5", md5),
-					new SimpleAttribute("merge", merge),
-					new SimpleAttribute("status", status.getXML(is_mame)),
-					new SimpleAttribute("date", date)
+			writer.writeElement("rom", //$NON-NLS-1$
+					new SimpleAttribute("name", name), //$NON-NLS-1$
+					new SimpleAttribute("size", size), //$NON-NLS-1$
+					new SimpleAttribute("crc", crc), //$NON-NLS-1$
+					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
+					new SimpleAttribute("md5", md5), //$NON-NLS-1$
+					new SimpleAttribute("merge", merge), //$NON-NLS-1$
+					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("date", date) //$NON-NLS-1$
 					);
 		}
 	}

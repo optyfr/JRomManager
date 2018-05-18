@@ -71,7 +71,7 @@ public class Progress extends JDialog implements ProgressHandler
 		lblSubInfo = new JLabel();
 		lblSubInfo.setPreferredSize(new Dimension(0, 20));
 		lblSubInfo.setMinimumSize(new Dimension(0, 20));
-		lblSubInfo.setText(Messages.getString("Progress.lblSubInfo.text")); //$NON-NLS-1$
+		lblSubInfo.setText("");  //$NON-NLS-1$
 		lblSubInfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		final GridBagConstraints gbc_lblSubInfo = new GridBagConstraints();
 		gbc_lblSubInfo.insets = new Insets(5, 5, 0, 5);
@@ -115,7 +115,7 @@ public class Progress extends JDialog implements ProgressHandler
 		gbc_progressBar2.gridy = 3;
 		getContentPane().add(progressBar2, gbc_progressBar2);
 
-		lblTimeLeft2 = new JLabel("--:--:--");
+		lblTimeLeft2 = new JLabel("--:--:--"); //$NON-NLS-1$
 		lblTimeLeft2.setVisible(false);
 		final GridBagConstraints gbc_lblTimeLeft2 = new GridBagConstraints();
 		gbc_lblTimeLeft2.fill = GridBagConstraints.VERTICAL;
@@ -189,8 +189,8 @@ public class Progress extends JDialog implements ProgressHandler
 				startTime = System.currentTimeMillis();
 			if(val > 0)
 			{
-				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val, "HH:mm:ss");
-				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val, "HH:mm:ss");
+				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val, "HH:mm:ss"); //$NON-NLS-1$
+				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val, "HH:mm:ss"); //$NON-NLS-1$
 				lblTimeleft.setText(String.format("%s / %s", left, total)); //$NON-NLS-1$
 			}
 			else
@@ -242,8 +242,8 @@ public class Progress extends JDialog implements ProgressHandler
 				startTime2 = System.currentTimeMillis();
 			if(val > 0)
 			{
-				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime2) * (progressBar2.getMaximum() - val) / val, "HH:mm:ss");
-				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime2) * progressBar2.getMaximum() / val, "HH:mm:ss");
+				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime2) * (progressBar2.getMaximum() - val) / val, "HH:mm:ss"); //$NON-NLS-1$
+				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime2) * progressBar2.getMaximum() / val, "HH:mm:ss"); //$NON-NLS-1$
 				lblTimeLeft2.setText(String.format("%s / %s", left, total)); //$NON-NLS-1$
 			}
 			else

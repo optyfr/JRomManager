@@ -22,25 +22,25 @@ public final class ProfileNFO implements Serializable
 	public ProfileNFOStats stats = new ProfileNFOStats();
 	public ProfileNFOMame mame = new ProfileNFOMame();
 
-	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("file", File.class), new ObjectStreamField("name", String.class), new ObjectStreamField("stats", ProfileNFOStats.class), new ObjectStreamField("mame", ProfileNFOMame.class), };
+	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("file", File.class), new ObjectStreamField("name", String.class), new ObjectStreamField("stats", ProfileNFOStats.class), new ObjectStreamField("mame", ProfileNFOMame.class), }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
-		fields.put("file", file);
-		fields.put("name", name);
-		fields.put("stats", stats);
-		fields.put("mame", mame);
+		fields.put("file", file); //$NON-NLS-1$
+		fields.put("name", name); //$NON-NLS-1$
+		fields.put("stats", stats); //$NON-NLS-1$
+		fields.put("mame", mame); //$NON-NLS-1$
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
-		file = (File) fields.get("file", null);
-		name = (String) fields.get("name", null);
-		stats = (ProfileNFOStats) fields.get("stats", new ProfileNFOStats());
-		mame = (ProfileNFOMame) fields.get("mame", new ProfileNFOMame());
+		file = (File) fields.get("file", null); //$NON-NLS-1$
+		name = (String) fields.get("name", null); //$NON-NLS-1$
+		stats = (ProfileNFOStats) fields.get("stats", new ProfileNFOStats()); //$NON-NLS-1$
+		mame = (ProfileNFOMame) fields.get("mame", new ProfileNFOMame()); //$NON-NLS-1$
 	}
 
 	private ProfileNFO(final File file)
@@ -54,7 +54,7 @@ public final class ProfileNFO implements Serializable
 
 	private static File getFileNfo(final File file)
 	{
-		return new File(file.getParentFile(), file.getName() + ".nfo");
+		return new File(file.getParentFile(), file.getName() + ".nfo"); //$NON-NLS-1$
 	}
 
 	public void relocate(final File file)
@@ -95,7 +95,7 @@ public final class ProfileNFO implements Serializable
 
 	public boolean isJRM()
 	{
-		return FilenameUtils.getExtension(file.getName()).equals("jrm");
+		return FilenameUtils.getExtension(file.getName()).equals("jrm"); //$NON-NLS-1$
 	}
 
 	public void loadJrm(final File jrmfile)
@@ -111,20 +111,20 @@ public final class ProfileNFO implements Serializable
 				@Override
 				public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException
 				{
-					if(qName.equalsIgnoreCase("JRomManager"))
+					if(qName.equalsIgnoreCase("JRomManager")) //$NON-NLS-1$
 					{
 						in_jrm = true;
 					}
-					else if(qName.equalsIgnoreCase("Profile") && in_jrm)
+					else if(qName.equalsIgnoreCase("Profile") && in_jrm) //$NON-NLS-1$
 					{
 						for(int i = 0; i < attributes.getLength(); i++)
 						{
 							switch(attributes.getQName(i).toLowerCase())
 							{
-								case "roms":
+								case "roms": //$NON-NLS-1$
 									mame.fileroms = new File(jrmfile.getParentFile(), attributes.getValue(i));
 									break;
-								case "sl":
+								case "sl": //$NON-NLS-1$
 									mame.filesl = new File(jrmfile.getParentFile(), attributes.getValue(i));
 									break;
 							}
@@ -135,7 +135,7 @@ public final class ProfileNFO implements Serializable
 				@Override
 				public void endElement(final String uri, final String localName, final String qName) throws SAXException
 				{
-					if(qName.equalsIgnoreCase("JRomManager"))
+					if(qName.equalsIgnoreCase("JRomManager")) //$NON-NLS-1$
 					{
 						in_jrm = false;
 					}
@@ -144,7 +144,7 @@ public final class ProfileNFO implements Serializable
 		}
 		catch(ParserConfigurationException | SAXException | IOException e)
 		{
-			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 			e.printStackTrace();
 		}
 	}

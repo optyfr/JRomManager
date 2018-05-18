@@ -51,7 +51,7 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 	@Override
 	public CharSequence getDescription()
 	{
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 
 	@Override

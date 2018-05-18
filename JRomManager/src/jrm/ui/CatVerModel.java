@@ -5,6 +5,8 @@ import java.util.Enumeration;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
+import jrm.Messages;
+
 @SuppressWarnings("serial")
 public class CatVerModel extends DefaultTreeModel
 {
@@ -64,7 +66,7 @@ public class CatVerModel extends DefaultTreeModel
 			@Override
 			public Object getUserObject()
 			{
-				return "Add a catver.ini first";
+				return Messages.getString("CatVerModel.AddCatVerIniFirst"); //$NON-NLS-1$
 			}
 
 			@Override

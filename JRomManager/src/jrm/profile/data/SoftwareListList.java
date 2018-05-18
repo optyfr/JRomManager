@@ -91,7 +91,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 			case 1:
 				return getFilteredList().get(rowIndex).description.toString();
 			case 2:
-				return String.format("%d/%d", getFilteredList().get(rowIndex).countHave(), getFilteredList().get(rowIndex).countAll());
+				return String.format("%d/%d", getFilteredList().get(rowIndex).countHave(), getFilteredList().get(rowIndex).countAll()); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -125,14 +125,14 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		final List<SoftwareList> lists = selection!=null?Collections.singletonList(selection):(filtered?getFilteredStream().collect(Collectors.toList()):getList());
 		if(lists.size() > 0)
 		{
-			writer.writeStartDocument("UTF-8","1.0");
+			writer.writeStartDocument("UTF-8","1.0"); //$NON-NLS-1$ //$NON-NLS-2$
 			if(lists.size() > 1)
 			{
-				writer.writeDTD("<!DOCTYPE softwarelists [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelists.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
-				writer.writeStartElement("softwarelists");
+				writer.writeDTD("<!DOCTYPE softwarelists [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelists.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				writer.writeStartElement("softwarelists"); //$NON-NLS-1$
 			}
 			else
-				writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
+				writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			progress.setProgress("Exporting", 0, lists.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
 			progress.setProgress2(String.format("%d/%d", 0, lists.size()), 0, lists.size()); //$NON-NLS-1$
 			for(final SoftwareList list : lists)

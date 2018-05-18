@@ -42,7 +42,7 @@ public class ProfileViewer extends JDialog
 	public ProfileViewer(final Window owner, final Profile profile)
 	{
 		super(owner);
-		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png")));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
 		setTitle(Messages.getString("ProfileViewer.this.title")); //$NON-NLS-1$
 
 		final JSplitPane splitPane = new JSplitPane();
@@ -77,21 +77,21 @@ public class ProfileViewer extends JDialog
 		final JToolBar toolBarW = new JToolBar();
 		panelW.add(toolBarW, BorderLayout.SOUTH);
 
-		final JToggleButton tglbtnMissingW = new JToggleButton("");
+		final JToggleButton tglbtnMissingW = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnMissingW.setSelected(true);
 		tglbtnMissingW.setToolTipText(Messages.getString("ProfileViewer.tglbtnMissingW.toolTipText")); //$NON-NLS-1$
-		tglbtnMissingW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_red.png")));
+		tglbtnMissingW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_red.png"))); //$NON-NLS-1$
 		toolBarW.add(tglbtnMissingW);
 
-		final JToggleButton tglbtnPartialW = new JToggleButton("");
+		final JToggleButton tglbtnPartialW = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnPartialW.setSelected(true);
 		tglbtnPartialW.setToolTipText(Messages.getString("ProfileViewer.tglbtnPartialW.toolTipText")); //$NON-NLS-1$
-		tglbtnPartialW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_orange.png")));
+		tglbtnPartialW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_orange.png"))); //$NON-NLS-1$
 		toolBarW.add(tglbtnPartialW);
 
-		final JToggleButton tglbtnCompleteW = new JToggleButton("");
+		final JToggleButton tglbtnCompleteW = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnCompleteW.setSelected(true);
-		tglbtnCompleteW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_green.png")));
+		tglbtnCompleteW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_green.png"))); //$NON-NLS-1$
 		tglbtnCompleteW.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteW.toolTipText")); //$NON-NLS-1$
 		toolBarW.add(tglbtnCompleteW);
 
@@ -136,7 +136,7 @@ public class ProfileViewer extends JDialog
 		gbc_txtSearch.gridx = 1;
 		gbc_txtSearch.gridy = 0;
 		panel_1.add(txtSearch, gbc_txtSearch);
-		txtSearch.setText("");
+		txtSearch.setText(""); //$NON-NLS-1$
 		txtSearch.setColumns(20);
 
 		tglbtnMissingW.addItemListener(e -> setFilterW(tglbtnMissingW.isSelected(), tglbtnPartialW.isSelected(), tglbtnCompleteW.isSelected()));
@@ -184,50 +184,50 @@ public class ProfileViewer extends JDialog
 		final JPopupMenu popupMenu = new JPopupMenu();
 		ProfileViewer.addPopup(tableWL, popupMenu);
 
-		final JMenu mnExportAll = new JMenu("Export All");
+		final JMenu mnExportAll = new JMenu(Messages.getString("ProfileViewer.ExportAll")); //$NON-NLS-1$
 		popupMenu.add(mnExportAll);
 
-		final JMenu mnExportAllFiltered = new JMenu("Filtered");
+		final JMenu mnExportAllFiltered = new JMenu(Messages.getString("ProfileViewer.Filtered")); //$NON-NLS-1$
 		mnExportAll.add(mnExportAllFiltered);
 
-		final JMenuItem mntmFilteredAsLogiqxDat = new JMenuItem("as Logiqx dat");
+		final JMenuItem mntmFilteredAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsLogiqxDat);
 		mntmFilteredAsLogiqxDat.addActionListener(e -> export(ExportType.DATAFILE, true, null));
 
-		final JMenuItem mntmFilteredAsMameDat = new JMenuItem("as Mame dat");
+		final JMenuItem mntmFilteredAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsMameDat);
 		mntmFilteredAsMameDat.addActionListener(e -> export(ExportType.MAME, true, null));
 
-		final JMenuItem mntmFilteredAsSoftwareLists = new JMenuItem("as Software Lists dat");
+		final JMenuItem mntmFilteredAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsSoftwareLists);
 		mntmFilteredAsSoftwareLists.addActionListener(e -> export(ExportType.SOFTWARELIST, true, null));
 
-		final JMenuItem mntmAllAsLogiqxDat = new JMenuItem("as Logiqx dat");
+		final JMenuItem mntmAllAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
 		mntmAllAsLogiqxDat.setEnabled(false);
 		mnExportAll.add(mntmAllAsLogiqxDat);
 		mntmAllAsLogiqxDat.addActionListener(e -> export(ExportType.DATAFILE, false, null));
 
-		final JMenuItem mntmAllAsMameDat = new JMenuItem("as Mame dat");
+		final JMenuItem mntmAllAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
 		mntmAllAsMameDat.setEnabled(false);
 		mnExportAll.add(mntmAllAsMameDat);
 		mntmAllAsMameDat.addActionListener(e -> export(ExportType.MAME, false, null));
 
-		final JMenuItem mntmAllAsSoftwareLists = new JMenuItem("as Software Lists dat");
+		final JMenuItem mntmAllAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
 		mntmAllAsSoftwareLists.setEnabled(false);
 		mnExportAll.add(mntmAllAsSoftwareLists);
 		mntmAllAsSoftwareLists.addActionListener(e -> export(ExportType.SOFTWARELIST, false, null));
 
-		final JMenu mnExportSelected = new JMenu("Export selected");
+		final JMenu mnExportSelected = new JMenu(Messages.getString("ProfileViewer.ExportSelected")); //$NON-NLS-1$
 		popupMenu.add(mnExportSelected);
 
-		final JMenu mnExportSelectedFiltered = new JMenu("Filtered");
+		final JMenu mnExportSelectedFiltered = new JMenu(Messages.getString("ProfileViewer.Filtered")); //$NON-NLS-1$
 		mnExportSelected.add(mnExportSelectedFiltered);
 
-		final JMenuItem mntmSelectedFilteredAsSoftwareList = new JMenuItem("as Software List dat");
+		final JMenuItem mntmSelectedFilteredAsSoftwareList = new JMenuItem(Messages.getString("ProfileViewer.AsSWListDat")); //$NON-NLS-1$
 		mnExportSelectedFiltered.add(mntmSelectedFilteredAsSoftwareList);
 		mntmSelectedFilteredAsSoftwareList.addActionListener(e -> export(ExportType.SOFTWARELIST, true, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
 
-		final JMenuItem mntmSelectedAsSoftwareLists = new JMenuItem("as Software Lists dat");
+		final JMenuItem mntmSelectedAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
 		mntmSelectedAsSoftwareLists.setEnabled(false);
 		mnExportSelected.add(mntmSelectedAsSoftwareLists);
 		mntmSelectedAsSoftwareLists.addActionListener(e -> export(ExportType.SOFTWARELIST, false, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
@@ -264,21 +264,21 @@ public class ProfileViewer extends JDialog
 		final JToolBar toolBarWL = new JToolBar();
 		panel.add(toolBarWL, BorderLayout.SOUTH);
 
-		final JToggleButton tglbtnMissingWL = new JToggleButton("");
+		final JToggleButton tglbtnMissingWL = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnMissingWL.setSelected(true);
-		tglbtnMissingWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/disk_multiple_red.png")));
+		tglbtnMissingWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/disk_multiple_red.png"))); //$NON-NLS-1$
 		tglbtnMissingWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnMissingWL.toolTipText")); //$NON-NLS-1$
 		toolBarWL.add(tglbtnMissingWL);
 
-		final JToggleButton tglbtnPartialWL = new JToggleButton("");
+		final JToggleButton tglbtnPartialWL = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnPartialWL.setSelected(true);
-		tglbtnPartialWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/disk_multiple_orange.png")));
+		tglbtnPartialWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/disk_multiple_orange.png"))); //$NON-NLS-1$
 		tglbtnPartialWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnPartialWL.toolTipText")); //$NON-NLS-1$
 		toolBarWL.add(tglbtnPartialWL);
 
-		final JToggleButton tglbtnCompleteWL = new JToggleButton("");
+		final JToggleButton tglbtnCompleteWL = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnCompleteWL.setSelected(true);
-		tglbtnCompleteWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/disk_multiple_green.png")));
+		tglbtnCompleteWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/disk_multiple_green.png"))); //$NON-NLS-1$
 		tglbtnCompleteWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteWL.toolTipText")); //$NON-NLS-1$
 		toolBarWL.add(tglbtnCompleteWL);
 
@@ -370,54 +370,54 @@ public class ProfileViewer extends JDialog
 										String[] args = null;
 										if(ware instanceof Software)
 										{
-											final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty("roms_dest_dir", "")));
-											if(profile.getProperty("swroms_dest_dir_enabled", false))
-												rompaths.add(profile.getProperty("swroms_dest_dir", ""));
-											if(profile.getProperty("disks_dest_dir_enabled", false))
-												rompaths.add(profile.getProperty("disks_dest_dir", ""));
-											if(profile.getProperty("swdisks_dest_dir_enabled", false))
-												rompaths.add(profile.getProperty("swdisks_dest_dir", ""));
-											System.out.println(((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility);
+											final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty("roms_dest_dir", ""))); //$NON-NLS-1$ //$NON-NLS-2$
+											if(profile.getProperty("swroms_dest_dir_enabled", false)) //$NON-NLS-1$
+												rompaths.add(profile.getProperty("swroms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
+											if(profile.getProperty("disks_dest_dir_enabled", false)) //$NON-NLS-1$
+												rompaths.add(profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
+											if(profile.getProperty("swdisks_dest_dir_enabled", false)) //$NON-NLS-1$
+												rompaths.add(profile.getProperty("swdisks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
+											System.out.println(((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility); //$NON-NLS-1$
 											final Machine machine = profile.machinelist_list.findMachine(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility);
 											if(machine != null)
 											{
-												System.out.println("-> " + machine.getBaseName() + " " + ware.getBaseName());
-												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) };
+												System.out.println("-> " + machine.getBaseName() + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$
+												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 											}
 										}
 										else
 										{
-											final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty("roms_dest_dir", "")));
-											if(profile.getProperty("disks_dest_dir_enabled", false))
-												rompaths.add(profile.getProperty("disks_dest_dir", ""));
-											args = new String[] { mame.getFile().getAbsolutePath(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) };
+											final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty("roms_dest_dir", ""))); //$NON-NLS-1$ //$NON-NLS-2$
+											if(profile.getProperty("disks_dest_dir_enabled", false)) //$NON-NLS-1$
+												rompaths.add(profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
+											args = new String[] { mame.getFile().getAbsolutePath(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 										}
 										if(args != null)
 										{
-											final ProcessBuilder pb = new ProcessBuilder(args).directory(mame.getFile().getParentFile()).redirectErrorStream(true).redirectOutput(new File(mame.getFile().getParentFile(), "JRomManager.log"));
+											final ProcessBuilder pb = new ProcessBuilder(args).directory(mame.getFile().getParentFile()).redirectErrorStream(true).redirectOutput(new File(mame.getFile().getParentFile(), "JRomManager.log")); //$NON-NLS-1$
 											try
 											{
 												pb.start().waitFor();
 											}
 											catch(InterruptedException | IOException e1)
 											{
-												JOptionPane.showMessageDialog(ProfileViewer.this, e1.getMessage(), "Exception", JOptionPane.ERROR_MESSAGE);
+												JOptionPane.showMessageDialog(ProfileViewer.this, e1.getMessage(), Messages.getString("ProfileViewer.Exception"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 											}
 										}
 									}
 									else
 									{
-										JOptionPane.showMessageDialog(ProfileViewer.this, "Mame is not available or is obsolete (" + profile.nfo.mame.getStatus() + ")", "Error", JOptionPane.ERROR_MESSAGE);
+										JOptionPane.showMessageDialog(ProfileViewer.this, String.format(Messages.getString("ProfileViewer.MameNotAvailableOrObsolete"), profile.nfo.mame.getStatus()), Messages.getString("ProfileViewer.Error"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 									}
 								}
 								else
 								{
-									JOptionPane.showMessageDialog(ProfileViewer.this, "No profile", "Error", JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(ProfileViewer.this, Messages.getString("ProfileViewer.NoProfile"), Messages.getString("ProfileViewer.Error"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 								}
 							}
 							else
 							{
-								JOptionPane.showMessageDialog(ProfileViewer.this, "Can't launch incomplete set (" + ware.getStatus() + ")", "Error", JOptionPane.ERROR_MESSAGE);
+								JOptionPane.showMessageDialog(ProfileViewer.this, String.format(Messages.getString("ProfileViewer.CantLaunchIncompleteSet"), ware.getStatus()), Messages.getString("ProfileViewer.Error"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 							}
 						}
 					}
@@ -457,7 +457,7 @@ public class ProfileViewer extends JDialog
 							else if(width < 0)
 							{
 								final Component component = column.getCellRenderer().getTableCellRendererComponent(tableEntity, null, false, false, 0, i);
-								final int pixwidth = component.getFontMetrics(component.getFont()).stringWidth(String.format("%0" + (-width) + "d", 0));
+								final int pixwidth = component.getFontMetrics(component.getFont()).stringWidth(String.format("%0" + (-width) + "d", 0)); //$NON-NLS-1$ //$NON-NLS-2$
 								column.setMinWidth(pixwidth / 2);
 								column.setPreferredWidth(pixwidth);
 								column.setMaxWidth(pixwidth);
@@ -479,16 +479,16 @@ public class ProfileViewer extends JDialog
 		final JToolBar toolBarEntity = new JToolBar();
 		panelEntity.add(toolBarEntity, BorderLayout.SOUTH);
 
-		final JToggleButton tglbtnBad = new JToggleButton("");
+		final JToggleButton tglbtnBad = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnBad.setSelected(true);
-		tglbtnBad.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/icons/bullet_red.png")));
+		tglbtnBad.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/icons/bullet_red.png"))); //$NON-NLS-1$
 		tglbtnBad.setToolTipText(Messages.getString("ProfileViewer.tglbtnBad.toolTipText")); //$NON-NLS-1$
 		toolBarEntity.add(tglbtnBad);
 
-		final JToggleButton tglbtnOK = new JToggleButton("");
+		final JToggleButton tglbtnOK = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnOK.setSelected(true);
 		tglbtnOK.setToolTipText(Messages.getString("ProfileViewer.tglbtnOK.toolTipText")); //$NON-NLS-1$
-		tglbtnOK.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/icons/bullet_green.png")));
+		tglbtnOK.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/icons/bullet_green.png"))); //$NON-NLS-1$
 		toolBarEntity.add(tglbtnOK);
 
 		tglbtnBad.addItemListener(e -> setFilterE(tglbtnBad.isSelected(), tglbtnOK.isSelected()));
@@ -507,13 +507,13 @@ public class ProfileViewer extends JDialog
 	private void export(final ExportType type, final boolean filtered, final SoftwareList selection)
 	{
 		new Thread(() -> {
-			final FileNameExtensionFilter fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat");
-			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), "Choose destination file", false).show(ProfileViewer.this, chooser -> {
+			final FileNameExtensionFilter fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> {  //$NON-NLS-1$//$NON-NLS-2$
 				final Progress progress = new Progress(ProfileViewer.this);
 				progress.setVisible(true);
-				Settings.setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath());
+				Settings.setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				final File selectedfile = chooser.getSelectedFile();
-				final File file = fnef.accept(selectedfile) ? selectedfile : new File(selectedfile.getAbsolutePath() + ".xml");
+				final File file = fnef.accept(selectedfile) ? selectedfile : new File(selectedfile.getAbsolutePath() + ".xml"); //$NON-NLS-1$
 				new Export(Profile.curr_profile, file, type, filtered, selection, progress);
 				progress.dispose();
 				return null;

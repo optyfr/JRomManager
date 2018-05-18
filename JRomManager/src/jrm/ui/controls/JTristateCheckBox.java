@@ -10,9 +10,9 @@ import javax.swing.JCheckBox;
 public class JTristateCheckBox extends JCheckBox
 {
 	private boolean halfState;
-	private static Icon selected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/selected.png"));
-	private static Icon unselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/unselected.png"));
-	private static Icon halfselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/halfselected.png"));
+	private static Icon selected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/selected.png")); //$NON-NLS-1$
+	private static Icon unselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/unselected.png")); //$NON-NLS-1$
+	private static Icon halfselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/halfselected.png")); //$NON-NLS-1$
 
 	public JTristateCheckBox()
 	{

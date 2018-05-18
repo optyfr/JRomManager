@@ -10,6 +10,8 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
+import jrm.Messages;
+
 @SuppressWarnings("serial")
 public class JRMFileChooser<V> extends JFileChooser
 {
@@ -27,7 +29,7 @@ public class JRMFileChooser<V> extends JFileChooser
 			}
 			catch(final IOException e1)
 			{
-				JOptionPane.showMessageDialog(null, e1, "Exception", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, e1, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 				e1.printStackTrace();
 			}
 		}
@@ -35,7 +37,7 @@ public class JRMFileChooser<V> extends JFileChooser
 		@Override
 		public File createNewFolder(final File containingDir) throws IOException
 		{
-			final File folder = new File(containingDir, "New Folder");
+			final File folder = new File(containingDir, Messages.getString("JRMFileChooser.NewFolder")); //$NON-NLS-1$
 			folder.mkdir();
 			return folder;
 		}

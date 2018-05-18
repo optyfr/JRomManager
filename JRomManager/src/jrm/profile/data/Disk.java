@@ -34,13 +34,13 @@ public class Disk extends Entity implements Serializable
 			{
 				if(isCollisionMode() && getParent().isClone())
 				{
-					return parent.name + "/" + name + ".chd";
+					return parent.name + "/" + name + ".chd"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 			else
-				return merge + ".chd";
+				return merge + ".chd"; //$NON-NLS-1$
 		}
-		return name + ".chd";
+		return name + ".chd"; //$NON-NLS-1$
 	}
 
 	@Override
@@ -112,34 +112,34 @@ public class Disk extends Entity implements Serializable
 	{
 		if(parent instanceof Software)
 		{
-			writer.writeElement("disk",
-					new SimpleAttribute("name",name),
-					new SimpleAttribute("sha1",sha1),
-					new SimpleAttribute("status",status.getXML(is_mame)),
-					new SimpleAttribute("writeable",writeable?"yes":null)
+			writer.writeElement("disk", //$NON-NLS-1$
+					new SimpleAttribute("name",name), //$NON-NLS-1$
+					new SimpleAttribute("sha1",sha1), //$NON-NLS-1$
+					new SimpleAttribute("status",status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("writeable",writeable?"yes":null) //$NON-NLS-1$ //$NON-NLS-2$
 					);
 		}
 		else if(is_mame)
 		{
-			writer.writeElement("disk",
-					new SimpleAttribute("name",name),
-					new SimpleAttribute("sha1",sha1),
-					new SimpleAttribute("merge",merge),
-					new SimpleAttribute("status",status.getXML(is_mame)),
-					new SimpleAttribute("optional",optional),
-					new SimpleAttribute("region",region),
-					new SimpleAttribute("writable",writeable?"yes":null),
-					new SimpleAttribute("index",index)
+			writer.writeElement("disk", //$NON-NLS-1$
+					new SimpleAttribute("name",name), //$NON-NLS-1$
+					new SimpleAttribute("sha1",sha1), //$NON-NLS-1$
+					new SimpleAttribute("merge",merge), //$NON-NLS-1$
+					new SimpleAttribute("status",status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("optional",optional), //$NON-NLS-1$
+					new SimpleAttribute("region",region), //$NON-NLS-1$
+					new SimpleAttribute("writable",writeable?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute("index",index) //$NON-NLS-1$
 					);
 		}
 		else
 		{
-			writer.writeElement("disk",
-					new SimpleAttribute("name",name),
-					new SimpleAttribute("sha1",sha1),
-					new SimpleAttribute("md5",md5),
-					new SimpleAttribute("merge",merge),
-					new SimpleAttribute("status",status.getXML(is_mame))
+			writer.writeElement("disk", //$NON-NLS-1$
+					new SimpleAttribute("name",name), //$NON-NLS-1$
+					new SimpleAttribute("sha1",sha1), //$NON-NLS-1$
+					new SimpleAttribute("md5",md5), //$NON-NLS-1$
+					new SimpleAttribute("merge",merge), //$NON-NLS-1$
+					new SimpleAttribute("status",status.getXML(is_mame)) //$NON-NLS-1$
 					);
 		}
 	}

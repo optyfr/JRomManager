@@ -10,6 +10,7 @@ import javax.swing.AbstractListModel;
 
 import org.apache.commons.lang3.StringUtils;
 
+import jrm.Messages;
 import jrm.profile.data.PropertyStub;
 
 @SuppressWarnings("serial")
@@ -170,13 +171,13 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		@Override
 		public String toString()
 		{
-			return name + " (" + games.size() + ")";
+			return name + " (" + games.size() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		@Override
 		public String getPropertyName()
 		{
-			return "filter.nplayer."+name;
+			return "filter.nplayer."+name; //$NON-NLS-1$
 		}
 	}
 
@@ -189,9 +190,9 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 			boolean in_section = false;
 			while(null != (line = reader.readLine()))
 			{
-				if(line.equalsIgnoreCase("[NPlayers]"))
+				if(line.equalsIgnoreCase("[NPlayers]")) //$NON-NLS-1$
 					in_section = true;
-				else if(line.startsWith("[") && in_section)
+				else if(line.startsWith("[") && in_section) //$NON-NLS-1$
 					break;
 				else if(in_section)
 				{
@@ -211,7 +212,7 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 			}
 			list_nplayers.addAll(nplayers.values());
 			if(list_nplayers.isEmpty())
-				throw new IOException("No NPlayers data");
+				throw new IOException(Messages.getString("NPlayers.NoNPlayersData")); //$NON-NLS-1$
 		}
 	}
 

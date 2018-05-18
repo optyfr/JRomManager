@@ -27,7 +27,7 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 
 	public JFileDropTextField(final SetCallBack callback) throws HeadlessException
 	{
-		this(null, "", 0, callback);
+		this(null, "", 0, callback); //$NON-NLS-1$
 	}
 
 	public JFileDropTextField(final String text, final SetCallBack callback) throws HeadlessException
@@ -37,12 +37,12 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 
 	public JFileDropTextField(final int columns, final SetCallBack callback) throws HeadlessException
 	{
-		this(null, "", columns, callback);
+		this(null, "", columns, callback); //$NON-NLS-1$
 	}
 
 	public JFileDropTextField(final String text, final int columns, final SetCallBack callback) throws HeadlessException
 	{
-		this(null, "", columns, callback);
+		this(null, "", columns, callback); //$NON-NLS-1$
 	}
 
 	public JFileDropTextField(final Document doc, final String text, final int columns, final SetCallBack callback)
@@ -72,12 +72,12 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 		final Transferable transferable = dtde.getTransferable();
 		if(JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 		{
-			JFileDropTextField.this.setBackground(Color.decode("#DDFFDD"));
+			JFileDropTextField.this.setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
 			dtde.acceptDrag(DnDConstants.ACTION_COPY);
 		}
 		else
 		{
-			JFileDropTextField.this.setBackground(Color.decode("#FFDDDD"));
+			JFileDropTextField.this.setBackground(Color.decode("#FFDDDD")); //$NON-NLS-1$
 			dtde.rejectDrag();
 		}
 	}

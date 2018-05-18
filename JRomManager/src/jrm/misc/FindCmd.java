@@ -11,9 +11,9 @@ public class FindCmd
 	{
 		ProcessBuilder pb;
 		if (OSValidator.isWindows())
-			pb = new ProcessBuilder("where.exe", cmd);
+			pb = new ProcessBuilder("where.exe", cmd); //$NON-NLS-1$
 		else
-			pb = new ProcessBuilder("which", cmd);
+			pb = new ProcessBuilder("which", cmd); //$NON-NLS-1$
 		try
 		{
 			pb.redirectError();
@@ -32,16 +32,16 @@ public class FindCmd
 
 	public static String findZip()
 	{
-		return FindCmd.findCmd("7z");
+		return FindCmd.findCmd("7z"); //$NON-NLS-1$
 	}
 
 	public static String findTZip()
 	{
-		return FindCmd.findCmd("trrntzip");
+		return FindCmd.findCmd("trrntzip"); //$NON-NLS-1$
 	}
 
 	public static String find7z()
 	{
-		return FindCmd.findCmd("7z");
+		return FindCmd.findCmd("7z"); //$NON-NLS-1$
 	}
 }

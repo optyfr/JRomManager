@@ -293,17 +293,17 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 			case 1:
 				return getEntities().get(rowIndex);
 			case 2:
-				return getEntities().get(rowIndex).getProperty("size");
+				return getEntities().get(rowIndex).getProperty("size"); //$NON-NLS-1$
 			case 3:
-				return getEntities().get(rowIndex).getProperty("crc");
+				return getEntities().get(rowIndex).getProperty("crc"); //$NON-NLS-1$
 			case 4:
-				return getEntities().get(rowIndex).getProperty("md5");
+				return getEntities().get(rowIndex).getProperty("md5"); //$NON-NLS-1$
 			case 5:
-				return getEntities().get(rowIndex).getProperty("sha1");
+				return getEntities().get(rowIndex).getProperty("sha1"); //$NON-NLS-1$
 			case 6:
-				return getEntities().get(rowIndex).getProperty("merge");
+				return getEntities().get(rowIndex).getProperty("merge"); //$NON-NLS-1$
 			case 7:
-				return getEntities().get(rowIndex).getProperty("status");
+				return getEntities().get(rowIndex).getProperty("status"); //$NON-NLS-1$
 		}
 		return null;
 	}

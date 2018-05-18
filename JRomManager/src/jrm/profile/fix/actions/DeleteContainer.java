@@ -42,7 +42,7 @@ public class DeleteContainer extends ContainerAction
 			}
 			catch(final IOException e)
 			{
-				System.err.println("failed to delete " + container.file.getName());
+				System.err.println("failed to delete " + container.file.getName()); //$NON-NLS-1$
 				return false;
 			}
 		}

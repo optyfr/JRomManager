@@ -13,6 +13,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
 import jrm.profile.Export.EnhancedXMLStreamWriter;
+import jrm.Messages;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
 import jrm.profile.data.Machine.CabinetType;
@@ -94,7 +95,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			case 2:
 				return machine.description.toString();
 			case 3:
-				return String.format("%d/%d", machine.countHave(), machine.countAll());
+				return String.format("%d/%d", machine.countHave(), machine.countAll()); //$NON-NLS-1$
 			case 4:
 				return machine.cloneof != null ? (m_byname.containsKey(machine.cloneof) ? m_byname.get(machine.cloneof) : machine.cloneof) : null;
 			case 5:
@@ -114,13 +115,13 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	@Override
 	public Stream<Machine> getFilteredStream()
 	{
-		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true);
-		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true);
-		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString()));
-		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString()));
-		final CabinetType filterCabinetType = CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString()));
-		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", "");
-		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????");
+		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true); //$NON-NLS-1$
+		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true); //$NON-NLS-1$
+		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString())); //$NON-NLS-1$
+		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString())); //$NON-NLS-1$
+		final CabinetType filterCabinetType = CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString())); //$NON-NLS-1$
+		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return getList().stream().filter(t -> {
 			if(!t.isdevice)
@@ -192,15 +193,15 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException, IOException
 	{
 		if(is_mame)
-			writer.writeStartElement("mame");
+			writer.writeStartElement("mame"); //$NON-NLS-1$
 		else
-			writer.writeStartElement("datafile");
+			writer.writeStartElement("datafile"); //$NON-NLS-1$
 		final List<Machine> list = filtered ? getFilteredStream().collect(Collectors.toList()) : getList();
 		int i = 0;
-		progress.setProgress("Exporting", i, list.size());
+		progress.setProgress(Messages.getString("MachineList.Exporting"), i, list.size()); //$NON-NLS-1$
 		for(final Machine m : list)
 		{
-			progress.setProgress(String.format("Exporting %s", m.name), ++i);
+			progress.setProgress(String.format(Messages.getString("MachineList.Exporting_%s"), m.name), ++i); //$NON-NLS-1$
 			m.export(writer, is_mame);
 		}
 		writer.writeEndElement();

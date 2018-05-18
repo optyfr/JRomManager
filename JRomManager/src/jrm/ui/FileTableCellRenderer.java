@@ -7,6 +7,7 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import jrm.Messages;
 import jrm.profile.ProfileNFO;
 
 @SuppressWarnings("serial")
@@ -28,16 +29,16 @@ public class FileTableCellRenderer extends DefaultTableCellRenderer
 			switch(nfo.mame.getStatus())
 			{
 				case UPTODATE:
-					setForeground(Color.decode("0x00aa00"));
-					setToolTipText(String.format("'%s' is up to date",nfo.name));
+					setForeground(Color.decode("0x00aa00")); //$NON-NLS-1$
+					setToolTipText(String.format(Messages.getString("FileTableCellRenderer.IsUpToDate"),nfo.name)); //$NON-NLS-1$
 					break;
 				case NEEDUPDATE:
-					setForeground(Color.decode("0xcc8800"));
-					setToolTipText(String.format("'%s' need to be updated from Mame executable",nfo.name));
+					setForeground(Color.decode("0xcc8800")); //$NON-NLS-1$
+					setToolTipText(String.format(Messages.getString("FileTableCellRenderer.NeedUpdateFromMame"),nfo.name)); //$NON-NLS-1$
 					break;
 				case NOTFOUND:
-					setForeground(Color.decode("0xcc0000"));
-					setToolTipText(String.format("'%s' update status is not known because Mame executable was not found",nfo.name));
+					setForeground(Color.decode("0xcc0000")); //$NON-NLS-1$
+					setToolTipText(String.format(Messages.getString("FileTableCellRenderer.StatusUnknownMameNotFound"),nfo.name)); //$NON-NLS-1$
 					break;
 				default:
 					setForeground(Color.black);
@@ -54,7 +55,7 @@ public class FileTableCellRenderer extends DefaultTableCellRenderer
 			else
 				setToolTipText(getText());
 		}
-		setBackground(isSelected?Color.decode("0xBBBBDD"):Color.white);
+		setBackground(isSelected?Color.decode("0xBBBBDD"):Color.white); //$NON-NLS-1$
 		return this;
 	}
 }

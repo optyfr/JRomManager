@@ -13,9 +13,9 @@ public class Settings
 
 	private static File getSettingsFile()
 	{
-		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile();
-		final File cachedir = new File(workdir, "settings");
-		final File settingsfile = new File(cachedir, "JRomManager.properties");
+		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		final File cachedir = new File(workdir, "settings"); //$NON-NLS-1$
+		final File settingsfile = new File(cachedir, "JRomManager.properties"); //$NON-NLS-1$
 		settingsfile.getParentFile().mkdirs();
 		return settingsfile;
 
@@ -31,7 +31,7 @@ public class Settings
 		}
 		catch(final IOException e)
 		{
-			Log.err("IO", e);
+			Log.err("IO", e); //$NON-NLS-1$
 		}
 	}
 
@@ -47,7 +47,7 @@ public class Settings
 			}
 			catch(final IOException e)
 			{
-				Log.err("IO", e);
+				Log.err("IO", e); //$NON-NLS-1$
 			}
 		}
 	}

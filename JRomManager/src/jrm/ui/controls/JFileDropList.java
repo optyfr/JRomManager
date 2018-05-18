@@ -37,12 +37,12 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 		final Transferable transferable = dtde.getTransferable();
 		if(isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 		{
-			setBackground(Color.decode("#DDFFDD"));
+			setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
 			dtde.acceptDrag(DnDConstants.ACTION_COPY);
 		}
 		else
 		{
-			setBackground(Color.decode("#FFDDDD"));
+			setBackground(Color.decode("#FFDDDD")); //$NON-NLS-1$
 			dtde.rejectDrag();
 		}
 	}

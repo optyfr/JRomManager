@@ -45,7 +45,7 @@ public class RenameEntry extends EntryAction
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed");
+			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}
@@ -68,7 +68,7 @@ public class RenameEntry extends EntryAction
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed");
+			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}
@@ -87,7 +87,7 @@ public class RenameEntry extends EntryAction
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed");
+			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}

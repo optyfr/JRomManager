@@ -35,7 +35,7 @@ public class TZipContainer extends ContainerAction
 					{
 						final EnumSet<TrrntZipStatus> status = new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions()).Process(container.file);
 						if(!status.contains(TrrntZipStatus.ValidTrrntzip))
-							System.out.format("%-64s => %s\n", container.file, status.toString());
+							System.out.format("%-64s => %s\n", container.file, status.toString()); //$NON-NLS-1$
 					}
 					return true;
 				}

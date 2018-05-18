@@ -31,7 +31,7 @@ public class Entry implements Serializable
 		final String ext = FilenameUtils.getExtension(file);
 		switch(ext.toLowerCase())
 		{
-			case "chd":
+			case "chd": //$NON-NLS-1$
 				type = Type.CHD;
 				break;
 		}
@@ -97,6 +97,6 @@ public class Entry implements Serializable
 	@Override
 	public String toString()
 	{
-		return parent.file + "::" + file;
+		return parent.file + "::" + file; //$NON-NLS-1$
 	}
 }

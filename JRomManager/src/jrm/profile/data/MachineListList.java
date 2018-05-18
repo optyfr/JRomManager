@@ -16,6 +16,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 
+import jrm.Messages;
 import jrm.profile.Export;
 import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.ui.AnywareListListRenderer;
@@ -93,9 +94,9 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 				case 0:
 					return ml_list.get(rowIndex);
 				case 1:
-					return "All Machines";
+					return Messages.getString("MachineListList.AllMachines"); //$NON-NLS-1$
 				case 2:
-					return String.format("%d/%d", ml_list.get(rowIndex).countHave(), ml_list.get(rowIndex).countAll());
+					return String.format("%d/%d", ml_list.get(rowIndex).countHave(), ml_list.get(rowIndex).countAll()); //$NON-NLS-1$
 			}
 		}
 		else
@@ -151,14 +152,14 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		final List<MachineList> lists = getFilteredStream().collect(Collectors.toList());
 		if(lists.size() > 0)
 		{
-			writer.writeStartDocument("UTF-8","1.0");
+			writer.writeStartDocument("UTF-8","1.0"); //$NON-NLS-1$ //$NON-NLS-2$
 			if(is_mame)
 			{
-				writer.writeDTD("<!DOCTYPE mame [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/mame.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
+				writer.writeDTD("<!DOCTYPE mame [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/mame.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
 			else
 			{
-				writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName("UTF-8")) + "\n]>\n");
+				writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
 			for(final MachineList list : lists)
 				list.export(writer, progress, is_mame, filtered);

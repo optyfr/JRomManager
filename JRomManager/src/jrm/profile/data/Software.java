@@ -124,29 +124,29 @@ public class Software extends Anyware implements Serializable
 
 	public void export(final EnhancedXMLStreamWriter writer) throws XMLStreamException, IOException
 	{
-		writer.writeStartElement("software",
-				new SimpleAttribute("name", name),
-				new SimpleAttribute("cloneof", cloneof),
-				new SimpleAttribute("supported", supported.getXML())
+		writer.writeStartElement("software", //$NON-NLS-1$
+				new SimpleAttribute("name", name), //$NON-NLS-1$
+				new SimpleAttribute("cloneof", cloneof), //$NON-NLS-1$
+				new SimpleAttribute("supported", supported.getXML()) //$NON-NLS-1$
 				);
-		writer.writeElement("description", description);
+		writer.writeElement("description", description); //$NON-NLS-1$
 		if(year!=null && year.length()>0)
-			writer.writeElement("year", year);
+			writer.writeElement("year", year); //$NON-NLS-1$
 		if(publisher!=null && publisher.length()>0)
-			writer.writeElement("publisher", publisher);
+			writer.writeElement("publisher", publisher); //$NON-NLS-1$
 		for(final Part part : parts)
 		{
-			writer.writeStartElement("part",
-					new SimpleAttribute("name", part.name),
-					new SimpleAttribute("interface", part.intrface)
+			writer.writeStartElement("part", //$NON-NLS-1$
+					new SimpleAttribute("name", part.name), //$NON-NLS-1$
+					new SimpleAttribute("interface", part.intrface) //$NON-NLS-1$
 					);
 			for(final DataArea dataarea : part.dataareas)
 			{
-				writer.writeStartElement("dataarea",
-						new SimpleAttribute("name", dataarea.name),
-						new SimpleAttribute("size", dataarea.size),
-						new SimpleAttribute("width", dataarea.width),
-						new SimpleAttribute("endianness", dataarea.endianness.getXML())
+				writer.writeStartElement("dataarea", //$NON-NLS-1$
+						new SimpleAttribute("name", dataarea.name), //$NON-NLS-1$
+						new SimpleAttribute("size", dataarea.size), //$NON-NLS-1$
+						new SimpleAttribute("width", dataarea.width), //$NON-NLS-1$
+						new SimpleAttribute("endianness", dataarea.endianness.getXML()) //$NON-NLS-1$
 						);
 				for(final Rom r : dataarea.roms)
 					r.export(writer,true);
@@ -154,8 +154,8 @@ public class Software extends Anyware implements Serializable
 			}
 			for(final DiskArea diskarea : part.diskareas)
 			{
-				writer.writeStartElement("diskarea",
-						new SimpleAttribute("name", diskarea.name)
+				writer.writeStartElement("diskarea", //$NON-NLS-1$
+						new SimpleAttribute("name", diskarea.name) //$NON-NLS-1$
 						);
 				for(final Disk d : diskarea.disks)
 					d.export(writer,true);

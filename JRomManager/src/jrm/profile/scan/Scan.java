@@ -68,39 +68,39 @@ public class Scan
 		ignore_unneeded_entries = profile.getProperty("ignore_unneeded_entries", false); //$NON-NLS-1$
 		ignore_unknown_containers = profile.getProperty("ignore_unknown_containers", false); //$NON-NLS-1$
 
-		final String dstdir_txt = profile.getProperty("roms_dest_dir", "");
+		final String dstdir_txt = profile.getProperty("roms_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dstdir_txt.isEmpty())
 			return;
 		final File roms_dstdir = new File(dstdir_txt);
 		if (!roms_dstdir.isDirectory())
 			return;
 		File disks_dstdir = new File(roms_dstdir.getAbsolutePath());
-		if (profile.getProperty("disks_dest_dir_enabled", false))
+		if (profile.getProperty("disks_dest_dir_enabled", false)) //$NON-NLS-1$
 		{
-			final String disks_dstdir_txt = profile.getProperty("disks_dest_dir", "");
+			final String disks_dstdir_txt = profile.getProperty("disks_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (disks_dstdir_txt.isEmpty())
 				return;
 			disks_dstdir = new File(disks_dstdir_txt);
 		}
 		File swroms_dstdir = new File(roms_dstdir.getAbsolutePath());
-		if (profile.getProperty("swroms_dest_dir_enabled", false))
+		if (profile.getProperty("swroms_dest_dir_enabled", false)) //$NON-NLS-1$
 		{
-			final String swroms_dstdir_txt = profile.getProperty("swroms_dest_dir", "");
+			final String swroms_dstdir_txt = profile.getProperty("swroms_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swroms_dstdir_txt.isEmpty())
 				return;
 			swroms_dstdir = new File(swroms_dstdir_txt);
 		}
 		File swdisks_dstdir = new File(swroms_dstdir.getAbsolutePath());
-		if (profile.getProperty("swdisks_dest_dir_enabled", false))
+		if (profile.getProperty("swdisks_dest_dir_enabled", false)) //$NON-NLS-1$
 		{
-			final String swdisks_dstdir_txt = profile.getProperty("swdisks_dest_dir", "");
+			final String swdisks_dstdir_txt = profile.getProperty("swdisks_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swdisks_dstdir_txt.isEmpty())
 				return;
 			swdisks_dstdir = new File(swdisks_dstdir_txt);
 		}
 
-		final String samples_dstdir_txt = profile.getProperty("samples_dest_dir", "");
-		final File samples_dstdir = profile.getProperty("samples_dest_dir_enabled", false) && samples_dstdir_txt.length() > 0 ? new File(samples_dstdir_txt) : null;
+		final String samples_dstdir_txt = profile.getProperty("samples_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final File samples_dstdir = profile.getProperty("samples_dest_dir_enabled", false) && samples_dstdir_txt.length() > 0 ? new File(samples_dstdir_txt) : null; //$NON-NLS-1$
 
 		final ArrayList<File> srcdirs = new ArrayList<>();
 		for (final String s : profile.getProperty("src_dir", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

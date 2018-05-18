@@ -5,7 +5,7 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 abstract class NameBase implements Serializable, Comparable<NameBase>
 {
-	protected String name = ""; // required
+	protected String name = ""; // required //$NON-NLS-1$
 
 	public abstract String getName();
 

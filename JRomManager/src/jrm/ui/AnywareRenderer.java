@@ -180,14 +180,14 @@ public final class AnywareRenderer
 		if ((col % 2) == 0)
 		{
 			if ((row % 2) == 0)
-				return Color.decode("0xDDDDEE");
-			return Color.decode("0xEEEEEE");
+				return Color.decode("0xDDDDEE"); //$NON-NLS-1$
+			return Color.decode("0xEEEEEE"); //$NON-NLS-1$
 		}
 		else
 		{
 			if ((row % 2) == 0)
-				return Color.decode("0xEEEEFF");
-			return Color.decode("0xFFFFFF");
+				return Color.decode("0xEEEEFF"); //$NON-NLS-1$
+			return Color.decode("0xFFFFFF"); //$NON-NLS-1$
 		}
 	}
 

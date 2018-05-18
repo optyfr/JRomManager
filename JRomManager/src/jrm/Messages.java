@@ -33,7 +33,7 @@ public class Messages {
 			final ResourceBundle bundle = Beans.isDesignTime() ? Messages.loadBundle() : Messages.RESOURCE_BUNDLE;
 			return bundle.getString(key);
 		} catch (final MissingResourceException e) {
-			return "!" + key + "!";
+			return "!" + key + "!"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 }

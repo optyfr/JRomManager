@@ -100,7 +100,7 @@ public class JCheckBoxList<E> extends JList<E>
 			checkboxes[index].setEnabled(isEnabled());
 			checkboxes[index].setBackground(isSelected ? getSelectionBackground() : getBackground());
 			checkboxes[index].setForeground(isSelected ? getSelectionForeground() : getForeground());
-			checkboxes[index].setBorder(isSelected ? UIManager.getBorder("List.focusCellHighlightBorder") : JCheckBoxList.noFocusBorder);
+			checkboxes[index].setBorder(isSelected ? UIManager.getBorder("List.focusCellHighlightBorder") : JCheckBoxList.noFocusBorder); //$NON-NLS-1$
 			return checkboxes[index];
 		}
 	}

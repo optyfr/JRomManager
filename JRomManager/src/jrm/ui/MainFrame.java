@@ -103,7 +103,7 @@ public class MainFrame extends JFrame
 			@Override
 			public void windowClosing(final WindowEvent e)
 			{
-				Settings.setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())));
+				Settings.setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 		});
 		try
@@ -117,7 +117,7 @@ public class MainFrame extends JFrame
 		}
 		catch(final Exception e)
 		{
-			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 			e.printStackTrace();
 		}
 		initialize();
@@ -130,12 +130,12 @@ public class MainFrame extends JFrame
 
 	private String getVersion()
 	{
-		String version = "";
+		String version = ""; //$NON-NLS-1$
 		final Package pkg = this.getClass().getPackage();
 		if(pkg.getSpecificationVersion() != null)
-			version += " " + pkg.getSpecificationVersion();
+			version += " " + pkg.getSpecificationVersion(); //$NON-NLS-1$
 		if(pkg.getImplementationVersion() != null)
-			version += " " + pkg.getImplementationVersion();
+			version += " " + pkg.getImplementationVersion(); //$NON-NLS-1$
 		return version;
 	}
 
@@ -200,7 +200,7 @@ public class MainFrame extends JFrame
 			}
 			else
 			{
-				final int width = profilesList.getFontMetrics(profilesList.getFont()).stringWidth(String.format("%0" + (-filemodel.columnsWidths[i]) + "d", 0));
+				final int width = profilesList.getFontMetrics(profilesList.getFont()).stringWidth(String.format("%0" + (-filemodel.columnsWidths[i]) + "d", 0)); //$NON-NLS-1$ //$NON-NLS-2$
 				column.setMinWidth(width);
 				column.setMaxWidth(width);
 			}
@@ -261,9 +261,9 @@ public class MainFrame extends JFrame
 				mntmDropCache.setEnabled(profilesList.getSelectedRowCount() > 0);
 				mntmUpdateFromMame.setEnabled(profilesList.getSelectedRowCount() > 0 && EnumSet.of(MameStatus.NEEDUPDATE, MameStatus.NOTFOUND).contains(filemodel.getNfoAt(profilesList.getSelectedRow()).mame.getStatus()));
 				if(profilesList.getSelectedRowCount() > 0)
-					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text") + " (" + filemodel.getNfoAt(profilesList.getSelectedRow()).mame.getStatus().getMsg() + ")");
+					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text") + " (" + filemodel.getNfoAt(profilesList.getSelectedRow()).mame.getStatus().getMsg() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				else
-					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text"));
+					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text")); //$NON-NLS-1$
 			}
 		});
 		MainFrame.addPopup(profilesList, popupMenu_2);
@@ -301,7 +301,7 @@ public class MainFrame extends JFrame
 			if(row >= 0)
 				new File(filemodel.getFileAt(row).getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
 		});
-		mntmDropCache.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bin.png")));
+		mntmDropCache.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bin.png"))); //$NON-NLS-1$
 		popupMenu_2.add(mntmDropCache);
 
 		separator = new JSeparator();
@@ -315,7 +315,7 @@ public class MainFrame extends JFrame
 				try
 				{
 					final ProfileNFO nfo = filemodel.getNfoAt(row);
-					if(nfo.mame.getStatus() == MameStatus.NEEDUPDATE || (nfo.mame.getStatus() == MameStatus.NOTFOUND && new JRMFileChooser<MameStatus>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, nfo.mame.getFile(), null, Messages.getString("MainFrame.ChooseMameNewLocation"), false).show(MainFrame.this, chooser -> {
+					if(nfo.mame.getStatus() == MameStatus.NEEDUPDATE || (nfo.mame.getStatus() == MameStatus.NOTFOUND && new JRMFileChooser<MameStatus>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, nfo.mame.getFile(), null, Messages.getString("MainFrame.ChooseMameNewLocation"), false).show(MainFrame.this, chooser -> { //$NON-NLS-1$
 						if(chooser.getSelectedFile().exists())
 							return nfo.mame.relocate(chooser.getSelectedFile());
 						return MameStatus.NOTFOUND;
@@ -411,7 +411,7 @@ public class MainFrame extends JFrame
 
 		btnImportSL = new JButton(Messages.getString("MainFrame.btnImportSL.text")); //$NON-NLS-1$
 		btnImportSL.addActionListener(e -> importDat(true));
-		btnImportSL.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_go.png")));
+		btnImportSL.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_go.png"))); //$NON-NLS-1$
 		profilesBtnPanel.add(btnImportSL);
 
 		scannerTab = new JPanel();
@@ -438,7 +438,7 @@ public class MainFrame extends JFrame
 				MainFrame.profile_viewer = new ProfileViewer(MainFrame.this, Profile.curr_profile);
 			MainFrame.profile_viewer.setVisible(true);
 		});
-		btnInfo.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/information.png")));
+		btnInfo.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/information.png"))); //$NON-NLS-1$
 		scannerBtnPanel.add(btnInfo);
 
 		btnScan = new JButton(Messages.getString("MainFrame.btnScan.text")); //$NON-NLS-1$
@@ -447,7 +447,7 @@ public class MainFrame extends JFrame
 		btnScan.setEnabled(false);
 
 		btnReport = new JButton(Messages.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
-		btnReport.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/report.png")));
+		btnReport.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/report.png"))); //$NON-NLS-1$
 		btnReport.addActionListener(e -> EventQueue.invokeLater(() -> MainFrame.report_frame.setVisible(true)));
 		scannerBtnPanel.add(btnReport);
 
@@ -474,7 +474,7 @@ public class MainFrame extends JFrame
 		gbl_scannerDirectories.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		scannerDirectories.setLayout(gbl_scannerDirectories);
 
-		lblRomsDest = new JLabel(Messages.getString("MainFrame.lblRomsDest.text"));
+		lblRomsDest = new JLabel(Messages.getString("MainFrame.lblRomsDest.text")); //$NON-NLS-1$
 		lblRomsDest.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbc_lblRomsDest = new GridBagConstraints();
 		gbc_lblRomsDest.fill = GridBagConstraints.HORIZONTAL;
@@ -503,8 +503,8 @@ public class MainFrame extends JFrame
 		btnRomsDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		btnRomsDest.addActionListener(e -> {
 			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseRomsDestination", workdir.getAbsolutePath())), new File(txtRomsDest.getText()), null, Messages.getString("MainFrame.ChooseRomsDestination"), false).show(MainFrame.this, chooser -> {
-				Profile.curr_profile.setProperty("MainFrame.ChooseRomsDestination", chooser.getCurrentDirectory().getAbsolutePath());
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseRomsDestination", workdir.getAbsolutePath())), new File(txtRomsDest.getText()), null, Messages.getString("MainFrame.ChooseRomsDestination"), false).show(MainFrame.this, chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
+				Profile.curr_profile.setProperty("MainFrame.ChooseRomsDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				txtRomsDest.setText(chooser.getSelectedFile().getAbsolutePath());
 				Profile.curr_profile.setProperty("roms_dest_dir", txtRomsDest.getText()); //$NON-NLS-1$
 				return null;
@@ -528,7 +528,7 @@ public class MainFrame extends JFrame
 		tfDisksDest = new JFileDropTextField(txt -> Profile.curr_profile.setProperty("disks_dest_dir", txt)); //$NON-NLS-1$
 		tfDisksDest.setEnabled(false);
 		tfDisksDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
-		tfDisksDest.setText("");
+		tfDisksDest.setText(""); //$NON-NLS-1$
 		final GridBagConstraints gbc_tfDisksDest = new GridBagConstraints();
 		gbc_tfDisksDest.insets = new Insets(0, 0, 5, 5);
 		gbc_tfDisksDest.fill = GridBagConstraints.BOTH;
@@ -537,17 +537,17 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(tfDisksDest, gbc_tfDisksDest);
 		tfDisksDest.setColumns(10);
 
-		btDisksDest = new JButton("");
+		btDisksDest = new JButton(""); //$NON-NLS-1$
 		btDisksDest.setEnabled(false);
-		btDisksDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png")));
+		btDisksDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		final GridBagConstraints gbc_btDisksDest = new GridBagConstraints();
 		gbc_btDisksDest.insets = new Insets(0, 0, 5, 0);
 		gbc_btDisksDest.gridx = 2;
 		gbc_btDisksDest.gridy = 1;
 		btDisksDest.addActionListener(e -> {
 			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseDisksDestination", workdir.getAbsolutePath())), new File(tfDisksDest.getText()), null, "Choose disks destination directory", false).show(MainFrame.this, chooser -> {
-				Profile.curr_profile.setProperty("MainFrame.ChooseDisksDestination", chooser.getCurrentDirectory().getAbsolutePath());
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseDisksDestination", workdir.getAbsolutePath())), new File(tfDisksDest.getText()), null, Messages.getString("MainFrame.ChooseDisksDestination"), false).show(MainFrame.this, chooser -> {  //$NON-NLS-1$//$NON-NLS-2$
+				Profile.curr_profile.setProperty("MainFrame.ChooseDisksDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfDisksDest.setText(chooser.getSelectedFile().getAbsolutePath());
 				Profile.curr_profile.setProperty("disks_dest_dir", tfDisksDest.getText()); //$NON-NLS-1$
 				return null;
@@ -572,7 +572,7 @@ public class MainFrame extends JFrame
 		tfSWDest = new JFileDropTextField(txt -> Profile.curr_profile.setProperty("swroms_dest_dir", txt)); //$NON-NLS-1$
 		tfSWDest.setEnabled(false);
 		tfSWDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
-		tfSWDest.setText("");
+		tfSWDest.setText(""); //$NON-NLS-1$
 		final GridBagConstraints gbc_tfSWDest = new GridBagConstraints();
 		gbc_tfSWDest.insets = new Insets(0, 0, 5, 5);
 		gbc_tfSWDest.fill = GridBagConstraints.BOTH;
@@ -581,18 +581,18 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(tfSWDest, gbc_tfSWDest);
 		tfSWDest.setColumns(10);
 
-		btnSWDest = new JButton("");
+		btnSWDest = new JButton(""); //$NON-NLS-1$
 		btnSWDest.addActionListener(e -> {
 			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseSWRomsDestination", workdir.getAbsolutePath())), new File(tfSWDest.getText()), null, "Choose software lists destination directory", false).show(MainFrame.this, chooser -> {
-				Profile.curr_profile.setProperty("MainFrame.ChooseSWRomsDestination", chooser.getCurrentDirectory().getAbsolutePath());
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseSWRomsDestination", workdir.getAbsolutePath())), new File(tfSWDest.getText()), null, Messages.getString("MainFrame.ChooseSWRomsDestination"), false).show(MainFrame.this, chooser -> {  //$NON-NLS-1$//$NON-NLS-2$
+				Profile.curr_profile.setProperty("MainFrame.ChooseSWRomsDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfSWDest.setText(chooser.getSelectedFile().getAbsolutePath());
 				Profile.curr_profile.setProperty("swroms_dest_dir", tfSWDest.getText()); //$NON-NLS-1$
 				return null;
 			});
 		});
 		btnSWDest.setEnabled(false);
-		btnSWDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png")));
+		btnSWDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		final GridBagConstraints gbc_btnSWDest = new GridBagConstraints();
 		gbc_btnSWDest.insets = new Insets(0, 0, 5, 0);
 		gbc_btnSWDest.gridx = 2;
@@ -614,7 +614,7 @@ public class MainFrame extends JFrame
 		tfSWDisksDest = new JFileDropTextField(txt -> Profile.curr_profile.setProperty("swdisks_dest_dir", txt)); //$NON-NLS-1$
 		tfSWDisksDest.setEnabled(false);
 		tfSWDisksDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
-		tfSWDisksDest.setText("");
+		tfSWDisksDest.setText(""); //$NON-NLS-1$
 		final GridBagConstraints gbc_tfSWDisksDest = new GridBagConstraints();
 		gbc_tfSWDisksDest.insets = new Insets(0, 0, 5, 5);
 		gbc_tfSWDisksDest.fill = GridBagConstraints.BOTH;
@@ -623,18 +623,18 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(tfSWDisksDest, gbc_tfSWDisksDest);
 		tfSWDisksDest.setColumns(10);
 
-		btSWDisksDest = new JButton("");
+		btSWDisksDest = new JButton(""); //$NON-NLS-1$
 		btSWDisksDest.addActionListener(e -> {
 			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseSWDisksDestination", workdir.getAbsolutePath())), new File(tfSWDisksDest.getText()), null, "Choose software lists disks destination directory", false).show(MainFrame.this, chooser -> {
-				Profile.curr_profile.setProperty("MainFrame.ChooseSWDisksDestination", chooser.getCurrentDirectory().getAbsolutePath());
+			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseSWDisksDestination", workdir.getAbsolutePath())), new File(tfSWDisksDest.getText()), null, Messages.getString("MainFrame.ChooseSWDisksDestination"), false).show(MainFrame.this, chooser -> {  //$NON-NLS-1$//$NON-NLS-2$
+				Profile.curr_profile.setProperty("MainFrame.ChooseSWDisksDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfSWDisksDest.setText(chooser.getSelectedFile().getAbsolutePath());
 				Profile.curr_profile.setProperty("swdisks_dest_dir", tfSWDisksDest.getText()); //$NON-NLS-1$
 				return true;
 			});
 		});
 		btSWDisksDest.setEnabled(false);
-		btSWDisksDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png")));
+		btSWDisksDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		final GridBagConstraints gbc_btSWDisksDest = new GridBagConstraints();
 		gbc_btSWDisksDest.insets = new Insets(0, 0, 5, 0);
 		gbc_btSWDisksDest.gridx = 2;
@@ -658,7 +658,7 @@ public class MainFrame extends JFrame
 		tfSamplesDest = new JFileDropTextField(txt -> Profile.curr_profile.setProperty("samples_dest_dir", txt)); //$NON-NLS-1$
 		tfSamplesDest.setEnabled(false);
 		tfSamplesDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
-		tfSamplesDest.setText("");
+		tfSamplesDest.setText(""); //$NON-NLS-1$
 		final GridBagConstraints gbc_tfSamplesDest = new GridBagConstraints();
 		gbc_tfSamplesDest.insets = new Insets(0, 0, 5, 5);
 		gbc_tfSamplesDest.fill = GridBagConstraints.BOTH;
@@ -667,25 +667,25 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(tfSamplesDest, gbc_tfSamplesDest);
 		tfSamplesDest.setColumns(10);
 
-		btSamplesDest = new JButton("");
+		btSamplesDest = new JButton(""); //$NON-NLS-1$
 		btSamplesDest.addActionListener(e -> {
 			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseSamplesDestination", workdir.getAbsolutePath())), new File(tfSamplesDest.getText()), null, "Choose samples destination directory", false).show(MainFrame.this, chooser -> {
-				Profile.curr_profile.setProperty("MainFrame.ChooseSamplesDestination", chooser.getCurrentDirectory().getAbsolutePath());
+			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseSamplesDestination", workdir.getAbsolutePath())), new File(tfSamplesDest.getText()), null, Messages.getString("MainFrame.ChooseSamplesDestination"), false).show(MainFrame.this, chooser -> {  //$NON-NLS-1$//$NON-NLS-2$
+				Profile.curr_profile.setProperty("MainFrame.ChooseSamplesDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfSamplesDest.setText(chooser.getSelectedFile().getAbsolutePath());
 				Profile.curr_profile.setProperty("samples_dest_dir", tfSamplesDest.getText()); //$NON-NLS-1$
 				return true;
 			});
 		});
 		btSamplesDest.setEnabled(false);
-		btSamplesDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png")));
+		btSamplesDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		final GridBagConstraints gbc_btSamplesDest = new GridBagConstraints();
 		gbc_btSamplesDest.insets = new Insets(0, 0, 5, 0);
 		gbc_btSamplesDest.gridx = 2;
 		gbc_btSamplesDest.gridy = 4;
 		scannerDirectories.add(btSamplesDest, gbc_btSamplesDest);
 
-		lblSrcDir = new JLabel(Messages.getString("MainFrame.lblSrcDir.text"));
+		lblSrcDir = new JLabel(Messages.getString("MainFrame.lblSrcDir.text")); //$NON-NLS-1$
 		lblSrcDir.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbc_lblSrcDir = new GridBagConstraints();
 		gbc_lblSrcDir.fill = GridBagConstraints.HORIZONTAL;
@@ -695,7 +695,7 @@ public class MainFrame extends JFrame
 		gbc_lblSrcDir.gridy = 5;
 		scannerDirectories.add(lblSrcDir, gbc_lblSrcDir);
 
-		listSrcDir = new JFileDropList(files -> Profile.curr_profile.setProperty("src_dir", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); // $NON-NLS-1$ $NON-NLS-2$
+		listSrcDir = new JFileDropList(files -> Profile.curr_profile.setProperty("src_dir", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); // $NON-NLS-1$ $NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
 		listSrcDir.setUI(new JListHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		final GridBagConstraints gbc_listSrcDir = new GridBagConstraints();
 		gbc_listSrcDir.gridwidth = 2;
@@ -734,8 +734,8 @@ public class MainFrame extends JFrame
 		mntmAddDirectory = new JMenuItem(Messages.getString("MainFrame.mntmAddDirectory.text")); //$NON-NLS-1$
 		mntmAddDirectory.addActionListener(e -> {
 			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseRomsSource", workdir.getAbsolutePath())), null, null, null, true).show(MainFrame.this, chooser -> {
-				Profile.curr_profile.setProperty("MainFrame.ChooseRomsSource", chooser.getCurrentDirectory().getAbsolutePath());
+			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseRomsSource", workdir.getAbsolutePath())), null, null, null, true).show(MainFrame.this, chooser -> { //$NON-NLS-1$
+				Profile.curr_profile.setProperty("MainFrame.ChooseRomsSource", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				listSrcDir.add(chooser.getSelectedFiles());
 				return true;
 			});
@@ -745,7 +745,7 @@ public class MainFrame extends JFrame
 
 		scannerSettingsPanel = new JPanel();
 		scannerCfgTab.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), null, scannerSettingsPanel, null); //$NON-NLS-1$
-		scannerSettingsPanel.setBackground(UIManager.getColor("Panel.background"));
+		scannerSettingsPanel.setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
 		final GridBagLayout gbl_scannerSettingsPanel = new GridBagLayout();
 		gbl_scannerSettingsPanel.columnWidths = new int[] { 0, 0, 0 };
 		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 0, 0, 20, 0 };
@@ -823,8 +823,8 @@ public class MainFrame extends JFrame
 		gbc_chckbxIgnoreUnknownContainers.gridy = 3;
 		scannerSettingsPanel.add(chckbxIgnoreUnknownContainers, gbc_chckbxIgnoreUnknownContainers);
 
-		chckbxUseImplicitMerge = new JCheckBox(Messages.getString("MainFrame.chckbxUseImplicitMerge.text"));
-		chckbxUseImplicitMerge.addItemListener(e -> Profile.curr_profile.setProperty("implicit_merge", e.getStateChange() == ItemEvent.SELECTED));
+		chckbxUseImplicitMerge = new JCheckBox(Messages.getString("MainFrame.chckbxUseImplicitMerge.text")); //$NON-NLS-1$
+		chckbxUseImplicitMerge.addItemListener(e -> Profile.curr_profile.setProperty("implicit_merge", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxUseImplicitMerge = new GridBagConstraints();
 		gbc_chckbxUseImplicitMerge.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxUseImplicitMerge.insets = new Insets(0, 0, 5, 0);
@@ -942,7 +942,7 @@ public class MainFrame extends JFrame
 
 		scrollPane_2 = new JScrollPane();
 		scannerFilters.setRightComponent(scrollPane_2);
-		scrollPane_2.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.scrollPane_2.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		scrollPane_2.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.scrollPane_2.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 
 		checkBoxListSystems = new JCheckBoxList<>();
 		checkBoxListSystems.setCellRenderer(checkBoxListSystems.new CellRenderer()
@@ -1012,7 +1012,7 @@ public class MainFrame extends JFrame
 		gbc_chckbxIncludeDisks.gridy = 2;
 		panel_1.add(chckbxIncludeDisks, gbc_chckbxIncludeDisks);
 
-		chckbxIncludeSamples = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeSamples.text"));
+		chckbxIncludeSamples = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeSamples.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxIncludeSamples = new GridBagConstraints();
 		gbc_chckbxIncludeSamples.gridwidth = 3;
 		gbc_chckbxIncludeSamples.fill = GridBagConstraints.HORIZONTAL;
@@ -1043,7 +1043,7 @@ public class MainFrame extends JFrame
 		cbbxFilterCabinetType.addItemListener(e -> {
 			if(e.getStateChange() == ItemEvent.SELECTED)
 			{
-				Profile.curr_profile.setProperty("filter.CabinetType", e.getItem().toString());
+				Profile.curr_profile.setProperty("filter.CabinetType", e.getItem().toString()); //$NON-NLS-1$
 				if(MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reset(Profile.curr_profile);
 			}
@@ -1070,7 +1070,7 @@ public class MainFrame extends JFrame
 		cbbxFilterDisplayOrientation.addItemListener(e -> {
 			if(e.getStateChange() == ItemEvent.SELECTED)
 			{
-				Profile.curr_profile.setProperty("filter.DisplayOrientation", e.getItem().toString());
+				Profile.curr_profile.setProperty("filter.DisplayOrientation", e.getItem().toString()); //$NON-NLS-1$
 				if(MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reset(Profile.curr_profile);
 			}
@@ -1116,7 +1116,7 @@ public class MainFrame extends JFrame
 		cbbxSWMinSupportedLvl.addItemListener(e -> {
 			if(e.getStateChange() == ItemEvent.SELECTED)
 			{
-				Profile.curr_profile.setProperty("filter.MinSoftwareSupportedLevel", e.getItem().toString());
+				Profile.curr_profile.setProperty("filter.MinSoftwareSupportedLevel", e.getItem().toString()); //$NON-NLS-1$
 				if(MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reset(Profile.curr_profile);
 			}
@@ -1128,7 +1128,7 @@ public class MainFrame extends JFrame
 		cbbxYearMin.addItemListener(e -> {
 			if(e.getStateChange() == ItemEvent.SELECTED)
 			{
-				Profile.curr_profile.setProperty("filter.YearMin", e.getItem().toString());
+				Profile.curr_profile.setProperty("filter.YearMin", e.getItem().toString()); //$NON-NLS-1$
 				if(MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reset(Profile.curr_profile);
 			}
@@ -1152,7 +1152,7 @@ public class MainFrame extends JFrame
 		cbbxYearMax.addItemListener(e -> {
 			if(e.getStateChange() == ItemEvent.SELECTED)
 			{
-				Profile.curr_profile.setProperty("filter.YearMax", e.getItem().toString());
+				Profile.curr_profile.setProperty("filter.YearMax", e.getItem().toString()); //$NON-NLS-1$
 				if(MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reset(Profile.curr_profile);
 			}
@@ -1166,24 +1166,24 @@ public class MainFrame extends JFrame
 		cbbxDriverStatus.addItemListener(e -> {
 			if(e.getStateChange() == ItemEvent.SELECTED)
 			{
-				Profile.curr_profile.setProperty("filter.DriverStatus", e.getItem().toString());
+				Profile.curr_profile.setProperty("filter.DriverStatus", e.getItem().toString()); //$NON-NLS-1$
 				if(MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reset(Profile.curr_profile);
 			}
 		});
 		chckbxIncludeDisks.addItemListener(e -> {
-			Profile.curr_profile.setProperty("filter.InclDisks", e.getStateChange() == ItemEvent.SELECTED);
+			Profile.curr_profile.setProperty("filter.InclDisks", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			if(MainFrame.profile_viewer != null)
 				MainFrame.profile_viewer.reset(Profile.curr_profile);
 		});
 		chckbxIncludeClones.addItemListener(e -> {
-			Profile.curr_profile.setProperty("filter.InclClones", e.getStateChange() == ItemEvent.SELECTED);
+			Profile.curr_profile.setProperty("filter.InclClones", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			if(MainFrame.profile_viewer != null)
 				MainFrame.profile_viewer.reset(Profile.curr_profile);
 		});
 
 		scannerAdvFilters = new JPanel();
-		scannerCfgTab.addTab(Messages.getString("MainFrame.AdvFilters"), null, scannerAdvFilters, null);
+		scannerCfgTab.addTab(Messages.getString("MainFrame.AdvFilters"), null, scannerAdvFilters, null); //$NON-NLS-1$
 		final GridBagLayout gbl_scannerAdvFilters = new GridBagLayout();
 		gbl_scannerAdvFilters.columnWidths = new int[] { 0, 0, 0 };
 		gbl_scannerAdvFilters.rowHeights = new int[] { 0, 0, 0 };
@@ -1192,12 +1192,12 @@ public class MainFrame extends JFrame
 		scannerAdvFilters.setLayout(gbl_scannerAdvFilters);
 
 		tfNPlayers = new JFileDropTextField(txt -> {
-			Profile.curr_profile.setProperty("filter.nplayers.ini", txt);
+			Profile.curr_profile.setProperty("filter.nplayers.ini", txt); //$NON-NLS-1$
 			Profile.curr_profile.loadNPlayers();
 			Profile.curr_profile.saveSettings();
 			listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
 		});
-		tfNPlayers.setUI(new JTextFieldHintUI("Drop nplayers.ini here", Color.gray));
+		tfNPlayers.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropNPlayersIniHere"), Color.gray)); //$NON-NLS-1$
 		tfNPlayers.setEditable(false);
 		final GridBagConstraints gbc_tfNPlayers = new GridBagConstraints();
 		gbc_tfNPlayers.insets = new Insets(0, 0, 5, 5);
@@ -1207,12 +1207,12 @@ public class MainFrame extends JFrame
 		scannerAdvFilters.add(tfNPlayers, gbc_tfNPlayers);
 
 		tfCatVer = new JFileDropTextField(txt -> {
-			Profile.curr_profile.setProperty("filter.catver.ini", txt);
+			Profile.curr_profile.setProperty("filter.catver.ini", txt); //$NON-NLS-1$
 			Profile.curr_profile.loadCatVer();
 			Profile.curr_profile.saveSettings();
 			treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());
 		});
-		tfCatVer.setUI(new JTextFieldHintUI("Drop catver.ini here", Color.gray));
+		tfCatVer.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropCatVerIniHere"), Color.gray)); //$NON-NLS-1$
 		tfCatVer.setEditable(false);
 		final GridBagConstraints gbc_tfCatVer = new GridBagConstraints();
 		gbc_tfCatVer.insets = new Insets(0, 0, 5, 0);
@@ -1222,7 +1222,7 @@ public class MainFrame extends JFrame
 		scannerAdvFilters.add(tfCatVer, gbc_tfCatVer);
 
 		scrollPaneNPlayers = new JScrollPane();
-		scrollPaneNPlayers.setViewportBorder(new TitledBorder(null, "NPlayers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		scrollPaneNPlayers.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.NPlayers"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		final GridBagConstraints gbc_scrollPaneNPlayers = new GridBagConstraints();
 		gbc_scrollPaneNPlayers.insets = new Insets(0, 0, 0, 5);
 		gbc_scrollPaneNPlayers.fill = GridBagConstraints.BOTH;
@@ -1259,20 +1259,20 @@ public class MainFrame extends JFrame
 		popupMenuNPlay = new JPopupMenu();
 		MainFrame.addPopup(listNPlayers, popupMenuNPlay);
 
-		mntmSelectAllNPlay = new JMenuItem("Select all");
+		mntmSelectAllNPlay = new JMenuItem(Messages.getString("MainFrame.SelectAll")); //$NON-NLS-1$
 		mntmSelectAllNPlay.addActionListener(e -> listNPlayers.selectAll());
 		popupMenuNPlay.add(mntmSelectAllNPlay);
 
-		mntmSelectNoneNPlay = new JMenuItem("Select none");
+		mntmSelectNoneNPlay = new JMenuItem(Messages.getString("MainFrame.SelectNone")); //$NON-NLS-1$
 		mntmSelectNoneNPlay.addActionListener(e -> listNPlayers.selectNone());
 		popupMenuNPlay.add(mntmSelectNoneNPlay);
 
-		mntmInvertSelectionNPlay = new JMenuItem("Invert selection");
+		mntmInvertSelectionNPlay = new JMenuItem(Messages.getString("MainFrame.InvertSelection")); //$NON-NLS-1$
 		mntmInvertSelectionNPlay.addActionListener(e -> listNPlayers.selectInvert());
 		popupMenuNPlay.add(mntmInvertSelectionNPlay);
 
 		scrollPaneCatVer = new JScrollPane();
-		scrollPaneCatVer.setViewportBorder(new TitledBorder(null, "Categories", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		scrollPaneCatVer.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.Categories"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		final GridBagConstraints gbc_scrollPaneCatVer = new GridBagConstraints();
 		gbc_scrollPaneCatVer.fill = GridBagConstraints.BOTH;
 		gbc_scrollPaneCatVer.gridx = 1;
@@ -1308,46 +1308,46 @@ public class MainFrame extends JFrame
 		});
 		MainFrame.addPopup(treeCatVer, popupMenuCat);
 
-		mnSelectCat = new JMenu("Select");
+		mnSelectCat = new JMenu(Messages.getString("MainFrame.Select")); //$NON-NLS-1$
 		popupMenuCat.add(mnSelectCat);
 
-		mntmSelectAllCat = new JMenuItem("All");
+		mntmSelectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
 		mntmSelectAllCat.addActionListener(e -> treeCatVer.selectAll());
 		mnSelectCat.add(mntmSelectAllCat);
 
-		mntmSelectMatureCat = new JMenuItem("Mature");
+		mntmSelectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
 		mntmSelectMatureCat.addActionListener(e -> {
 			final List<NGTreeNode> mature_nodes = new ArrayList<>();
 			for(final Category cat : Profile.curr_profile.catver)
 			{
-				if(cat.name.endsWith("* Mature *"))
+				if(cat.name.endsWith("* Mature *")) //$NON-NLS-1$
 					mature_nodes.add(cat);
 				else
 					for(final SubCategory subcat : cat)
-						if(subcat.name.endsWith("* Mature *"))
+						if(subcat.name.endsWith("* Mature *")) //$NON-NLS-1$
 							mature_nodes.add(subcat);
 			}
 			treeCatVer.select(mature_nodes.toArray(new NGTreeNode[0]));
 		});
 		mnSelectCat.add(mntmSelectMatureCat);
 
-		mnUnselectCat = new JMenu("Unselect");
+		mnUnselectCat = new JMenu(Messages.getString("MainFrame.Unselect")); //$NON-NLS-1$
 		popupMenuCat.add(mnUnselectCat);
 
-		mntmUnselectAllCat = new JMenuItem("All");
+		mntmUnselectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
 		mntmUnselectAllCat.addActionListener(e -> treeCatVer.selectNone());
 		mnUnselectCat.add(mntmUnselectAllCat);
 
-		mntmUnselectMatureCat = new JMenuItem("Mature");
+		mntmUnselectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
 		mntmUnselectMatureCat.addActionListener(e -> {
 			final List<NGTreeNode> mature_nodes = new ArrayList<>();
 			for(final Category cat : Profile.curr_profile.catver)
 			{
-				if(cat.name.endsWith("* Mature *"))
+				if(cat.name.endsWith("* Mature *")) //$NON-NLS-1$
 					mature_nodes.add(cat);
 				else
 					for(final SubCategory subcat : cat)
-						if(subcat.name.endsWith("* Mature *"))
+						if(subcat.name.endsWith("* Mature *")) //$NON-NLS-1$
 							mature_nodes.add(subcat);
 			}
 			treeCatVer.unselect(mature_nodes.toArray(new NGTreeNode[0]));
@@ -1421,7 +1421,7 @@ public class MainFrame extends JFrame
 				Settings.setProperty("zip_cmd", tfZipECmd.getText()); //$NON-NLS-1$
 			}
 		});
-		tfZipECmd.addActionListener(arg0 -> Settings.setProperty("zip_cmd", tfZipECmd.getText()));
+		tfZipECmd.addActionListener(arg0 -> Settings.setProperty("zip_cmd", tfZipECmd.getText())); //$NON-NLS-1$
 		tfZipECmd.setText(Settings.getProperty("zip_cmd", FindCmd.find7z())); //$NON-NLS-1$
 		final GridBagConstraints gbc_tfZipECmd = new GridBagConstraints();
 		gbc_tfZipECmd.insets = new Insets(0, 0, 5, 0);
@@ -1461,7 +1461,7 @@ public class MainFrame extends JFrame
 				return this;
 			}
 		});
-		cbZipEArgs.addActionListener(arg0 -> Settings.setProperty("zip_level", cbZipEArgs.getSelectedItem().toString()));
+		cbZipEArgs.addActionListener(arg0 -> Settings.setProperty("zip_level", cbZipEArgs.getSelectedItem().toString())); //$NON-NLS-1$
 		cbZipEArgs.setSelectedItem(ZipOptions.valueOf(Settings.getProperty("zip_level", ZipOptions.NORMAL.toString()))); //$NON-NLS-1$
 		final GridBagConstraints gbc_cbZipEArgs = new GridBagConstraints();
 		gbc_cbZipEArgs.insets = new Insets(0, 0, 5, 5);
@@ -1529,7 +1529,7 @@ public class MainFrame extends JFrame
 				Settings.setProperty("7z_cmd", tf7zCmd.getText()); //$NON-NLS-1$
 			}
 		});
-		tf7zCmd.addActionListener(e -> Settings.setProperty("7z_cmd", tf7zCmd.getText()));
+		tf7zCmd.addActionListener(e -> Settings.setProperty("7z_cmd", tf7zCmd.getText())); //$NON-NLS-1$
 		tf7zCmd.setText(Settings.getProperty("7z_cmd", FindCmd.find7z())); //$NON-NLS-1$
 		tf7zCmd.setColumns(30);
 		final GridBagConstraints gbc_tf7zCmd = new GridBagConstraints();
@@ -1558,7 +1558,7 @@ public class MainFrame extends JFrame
 		panel7Zip.add(lbl7zArgs, gbc_lbl7zArgs);
 
 		cb7zArgs = new JComboBox<>();
-		cb7zArgs.addActionListener(arg0 -> Settings.setProperty("7z_level", cb7zArgs.getSelectedItem().toString()));
+		cb7zArgs.addActionListener(arg0 -> Settings.setProperty("7z_level", cb7zArgs.getSelectedItem().toString())); //$NON-NLS-1$
 		cb7zArgs.setEditable(false);
 		cb7zArgs.setModel(new DefaultComboBoxModel<>(SevenZipOptions.values()));
 		cb7zArgs.setRenderer(new DefaultListCellRenderer()
@@ -1598,7 +1598,7 @@ public class MainFrame extends JFrame
 				Settings.setProperty("7z_threads", tf7zThreads.getText()); //$NON-NLS-1$
 			}
 		});
-		tf7zThreads.addActionListener(arg0 -> Settings.setProperty("7z_threads", tf7zThreads.getText()));
+		tf7zThreads.addActionListener(arg0 -> Settings.setProperty("7z_threads", tf7zThreads.getText())); //$NON-NLS-1$
 		final GridBagConstraints gbc_tf7zThreads = new GridBagConstraints();
 		gbc_tf7zThreads.fill = GridBagConstraints.VERTICAL;
 		gbc_tf7zThreads.anchor = GridBagConstraints.WEST;
@@ -1670,7 +1670,7 @@ public class MainFrame extends JFrame
 		gbc_lblMemory.gridy = 2;
 		debug.add(lblMemory, gbc_lblMemory);
 
-		lblMemoryUsage = new JLabel(" ");
+		lblMemoryUsage = new JLabel(" "); //$NON-NLS-1$
 		lblMemoryUsage.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		final GridBagConstraints gbc_lblMemoryUsage = new GridBagConstraints();
 		gbc_lblMemoryUsage.fill = GridBagConstraints.BOTH;
@@ -1696,7 +1696,7 @@ public class MainFrame extends JFrame
 
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 640, 400)))))));
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 640, 400))))))); //$NON-NLS-1$
 		}
 		catch(final DecoderException e1)
 		{
@@ -1728,14 +1728,14 @@ public class MainFrame extends JFrame
 				@Override
 				public boolean accept(final File f)
 				{
-					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute();
+					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute(); //$NON-NLS-1$
 				}
 			}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					);
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
 			.show(MainFrame.this, chooser -> {
 				final Progress progress = new Progress(MainFrame.this);
-				Settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath());
+				Settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				for(final File selectedfile : chooser.getSelectedFiles())
 				{
 					progress.setVisible(true);
@@ -1744,7 +1744,7 @@ public class MainFrame extends JFrame
 					progress.dispose();
 					final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 					final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
-					new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$
+					new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 					.show(MainFrame.this, chooser1 -> {
 						try
 						{
@@ -1916,15 +1916,15 @@ public class MainFrame extends JFrame
 		chckbxIgnoreUnneededEntries.setSelected(Profile.curr_profile.getProperty("ignore_unneeded_entries", false)); //$NON-NLS-1$
 		chckbxIgnoreUnknownContainers.setSelected(Profile.curr_profile.getProperty("ignore_unknown_containers", false)); //$NON-NLS-1$
 		chckbxCreateOnlyComplete.setEnabled(chckbxCreateMissingSets.isSelected());
-		chckbxUseImplicitMerge.setSelected(Profile.curr_profile.getProperty("implicit_merge", false));
+		chckbxUseImplicitMerge.setSelected(Profile.curr_profile.getProperty("implicit_merge", false)); //$NON-NLS-1$
 		txtRomsDest.setText(Profile.curr_profile.getProperty("roms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblDisksDest.setSelected(Profile.curr_profile.getProperty("disks_dest_dir_enabled", false));
+		lblDisksDest.setSelected(Profile.curr_profile.getProperty("disks_dest_dir_enabled", false)); //$NON-NLS-1$
 		tfDisksDest.setText(Profile.curr_profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblSWDest.setSelected(Profile.curr_profile.getProperty("swroms_dest_dir_enabled", false));
+		lblSWDest.setSelected(Profile.curr_profile.getProperty("swroms_dest_dir_enabled", false)); //$NON-NLS-1$
 		tfSWDest.setText(Profile.curr_profile.getProperty("swroms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblSWDisksDest.setSelected(Profile.curr_profile.getProperty("swdisks_dest_dir_enabled", false));
+		lblSWDisksDest.setSelected(Profile.curr_profile.getProperty("swdisks_dest_dir_enabled", false)); //$NON-NLS-1$
 		tfSWDisksDest.setText(Profile.curr_profile.getProperty("swdisks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblSamplesDest.setSelected(Profile.curr_profile.getProperty("samples_dest_dir_enabled", false));
+		lblSamplesDest.setSelected(Profile.curr_profile.getProperty("samples_dest_dir_enabled", false)); //$NON-NLS-1$
 		tfSamplesDest.setText(Profile.curr_profile.getProperty("samples_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		listSrcDir.getModel().removeAllElements();
 		for(final String s : Profile.curr_profile.getProperty("src_dir", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -1934,16 +1934,16 @@ public class MainFrame extends JFrame
 		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(Profile.curr_profile.settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()))); //$NON-NLS-1$
 		cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
 		cbHashCollision.setSelectedItem(HashCollisionOptions.valueOf(Profile.curr_profile.settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()))); //$NON-NLS-1$
-		chckbxIncludeClones.setSelected(Profile.curr_profile.getProperty("filter.InclClones", true));
-		chckbxIncludeDisks.setSelected(Profile.curr_profile.getProperty("filter.InclDisks", true));
-		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString())));
-		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString())));
-		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString())));
-		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString())));
+		chckbxIncludeClones.setSelected(Profile.curr_profile.getProperty("filter.InclClones", true)); //$NON-NLS-1$
+		chckbxIncludeDisks.setSelected(Profile.curr_profile.getProperty("filter.InclDisks", true)); //$NON-NLS-1$
+		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString()))); //$NON-NLS-1$
+		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString()))); //$NON-NLS-1$
+		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString()))); //$NON-NLS-1$
+		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString()))); //$NON-NLS-1$
 		cbbxYearMin.setModel(new Years(Profile.curr_profile.years));
-		cbbxYearMin.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMin", cbbxYearMin.getModel().getElementAt(0)));
+		cbbxYearMin.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMin", cbbxYearMin.getModel().getElementAt(0))); //$NON-NLS-1$
 		cbbxYearMax.setModel(new Years(Profile.curr_profile.years));
-		cbbxYearMax.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMax", cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1)));
+		cbbxYearMax.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMax", cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1))); //$NON-NLS-1$
 		tfNPlayers.setText(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers.file.getAbsolutePath() : null);
 		listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
 		tfCatVer.setText(Profile.curr_profile.catver != null ? Profile.curr_profile.catver.file.getAbsolutePath() : null);

@@ -434,7 +434,7 @@ public class Profile implements Serializable
 										}
 										catch (final NumberFormatException e)
 										{
-											curr_rom.offset = Integer.decode("0x" + attributes.getValue(i));
+											curr_rom.offset = Integer.decode("0x" + attributes.getValue(i)); //$NON-NLS-1$
 										}
 										break;
 									case "value": //$NON-NLS-1$
@@ -899,10 +899,10 @@ public class Profile implements Serializable
 	public void loadYears()
 	{
 		final HashSet<String> years = new HashSet<>();
-		years.add("");
+		years.add(""); //$NON-NLS-1$
 		machinelist_list.get(0).forEach(m -> years.add(m.year.toString()));
 		machinelist_list.softwarelist_list.forEach(sl -> sl.forEach(s -> years.add(s.year.toString())));
-		years.add("????");
+		years.add("????"); //$NON-NLS-1$
 		this.years = years;
 	}
 
@@ -910,7 +910,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			catver = CatVer.read(new File(getProperty("filter.catver.ini", null)));
+			catver = CatVer.read(new File(getProperty("filter.catver.ini", null))); //$NON-NLS-1$
 			for (final Category cat : catver)
 			{
 				for (final SubCategory subcat : cat)
@@ -934,7 +934,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			nplayers = NPlayers.read(new File(getProperty("filter.nplayers.ini", null)));
+			nplayers = NPlayers.read(new File(getProperty("filter.nplayers.ini", null))); //$NON-NLS-1$
 			for (final NPlayer nplayer : nplayers)
 			{
 				for (final String game : nplayer)

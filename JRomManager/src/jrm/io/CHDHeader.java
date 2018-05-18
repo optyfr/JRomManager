@@ -13,7 +13,7 @@ public class CHDHeader implements CHDHeaderIntf
 	{
 		final byte[] tag = new byte[8];
 		bb.get(tag);
-		this.tag= new String(tag,"ASCII");
+		this.tag= new String(tag,"ASCII"); //$NON-NLS-1$
 		len = bb.getInt();
 		version = bb.getInt();
 	}
@@ -23,7 +23,7 @@ public class CHDHeader implements CHDHeaderIntf
 	@Override
 	public boolean isValidTag()
 	{
-		return tag.equals("MComprHD");
+		return tag.equals("MComprHD"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class CHDHeader implements CHDHeaderIntf
 		return version;
 	}
 
-	private final static char[] hexArray = "0123456789abcdef".toCharArray();
+	private final static char[] hexArray = "0123456789abcdef".toCharArray(); //$NON-NLS-1$
 	protected static String bytesToHex(final byte[] bytes)
 	{
 		final char[] hexChars = new char[bytes.length * 2];

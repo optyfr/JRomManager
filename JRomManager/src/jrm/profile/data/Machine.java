@@ -135,13 +135,13 @@ public class Machine extends Anyware implements Serializable
 	@Override
 	public String toString()
 	{
-		return "[" + getType() + "] " + description.toString();
+		return "[" + getType() + "] " + description.toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public int isCompatible(final String softwarelist, final String compatibility)
 	{
 		if(compatibility != null)
-			if(new HashSet<>(Arrays.asList(compatibility.split(","))).contains(swlists.get(softwarelist).filter))
+			if(new HashSet<>(Arrays.asList(compatibility.split(","))).contains(swlists.get(softwarelist).filter)) //$NON-NLS-1$
 				return swlists.get(softwarelist).status == SWStatus.original ? 20 : 10;
 		return swlists.get(softwarelist).status == SWStatus.original ? 2 : 1;
 	}
@@ -150,40 +150,40 @@ public class Machine extends Anyware implements Serializable
 	{
 		if(is_mame)
 		{
-			writer.writeStartElement("machine",
-					new SimpleAttribute("name", name),
-					new SimpleAttribute("isbios", isbios?"yes":null),
-					new SimpleAttribute("isdevice", isdevice?"yes":null),
-					new SimpleAttribute("ismechanical", ismechanical?"yes":null),
-					new SimpleAttribute("cloneof", cloneof),
-					new SimpleAttribute("romof", romof),
-					new SimpleAttribute("sampleof", sampleof)
+			writer.writeStartElement("machine", //$NON-NLS-1$
+					new SimpleAttribute("name", name), //$NON-NLS-1$
+					new SimpleAttribute("isbios", isbios?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute("isdevice", isdevice?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute("ismechanical", ismechanical?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute("cloneof", cloneof), //$NON-NLS-1$
+					new SimpleAttribute("romof", romof), //$NON-NLS-1$
+					new SimpleAttribute("sampleof", sampleof) //$NON-NLS-1$
 					);
-			writer.writeElement("description", description);
+			writer.writeElement("description", description); //$NON-NLS-1$
 			if(year!=null && year.length()>0)
-				writer.writeElement("year", year);
+				writer.writeElement("year", year); //$NON-NLS-1$
 			if(manufacturer!=null && manufacturer.length()>0)
-				writer.writeElement("manufacturer", manufacturer);
+				writer.writeElement("manufacturer", manufacturer); //$NON-NLS-1$
 			for(final Rom r : roms)
 				r.export(writer, is_mame);
 			for(final Disk d : disks)
 				d.export(writer, is_mame);
 			for(final SWList swlist : swlists.values())
 			{
-				writer.writeElement("softwarelist",
-						new SimpleAttribute("name", swlist.name),
-						new SimpleAttribute("status", swlist.status),
-						new SimpleAttribute("filter", swlist.filter)
+				writer.writeElement("softwarelist", //$NON-NLS-1$
+						new SimpleAttribute("name", swlist.name), //$NON-NLS-1$
+						new SimpleAttribute("status", swlist.status), //$NON-NLS-1$
+						new SimpleAttribute("filter", swlist.filter) //$NON-NLS-1$
 						);
 
 			}
 			if(driver!=null)
 			{
-				writer.writeElement("driver",
-						new SimpleAttribute("status", driver.getStatus()),
-						new SimpleAttribute("emulation", driver.getEmulation()),
-						new SimpleAttribute("cocktail", driver.getCocktail()),
-						new SimpleAttribute("savestate", driver.getSaveState())
+				writer.writeElement("driver", //$NON-NLS-1$
+						new SimpleAttribute("status", driver.getStatus()), //$NON-NLS-1$
+						new SimpleAttribute("emulation", driver.getEmulation()), //$NON-NLS-1$
+						new SimpleAttribute("cocktail", driver.getCocktail()), //$NON-NLS-1$
+						new SimpleAttribute("savestate", driver.getSaveState()) //$NON-NLS-1$
 						);
 
 			}
@@ -191,18 +191,18 @@ public class Machine extends Anyware implements Serializable
 		}
 		else
 		{
-			writer.writeStartElement("game",
-					new SimpleAttribute("name", name),
-					new SimpleAttribute("isbios", isbios?"yes":null),
-					new SimpleAttribute("cloneof", cloneof),
-					new SimpleAttribute("romof", romof),
-					new SimpleAttribute("sampleof", sampleof)
+			writer.writeStartElement("game", //$NON-NLS-1$
+					new SimpleAttribute("name", name), //$NON-NLS-1$
+					new SimpleAttribute("isbios", isbios?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute("cloneof", cloneof), //$NON-NLS-1$
+					new SimpleAttribute("romof", romof), //$NON-NLS-1$
+					new SimpleAttribute("sampleof", sampleof) //$NON-NLS-1$
 					);
-			writer.writeElement("description", description);
+			writer.writeElement("description", description); //$NON-NLS-1$
 			if(year!=null && year.length()>0)
-				writer.writeElement("year", year);
+				writer.writeElement("year", year); //$NON-NLS-1$
 			if(manufacturer!=null && manufacturer.length()>0)
-				writer.writeElement("manufacturer", manufacturer);
+				writer.writeElement("manufacturer", manufacturer); //$NON-NLS-1$
 			for(final Rom r : roms)
 				r.export(writer, is_mame);
 			for(final Disk d : disks)

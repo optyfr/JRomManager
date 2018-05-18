@@ -15,32 +15,32 @@ public final class ProfileNFOMame implements Serializable
 	public File filesl = null;
 
 	private static final ObjectStreamField[] serialPersistentFields = {
-			new ObjectStreamField("file", File.class),
-			new ObjectStreamField("modified", Long.class),
-			new ObjectStreamField("sl", Boolean.TYPE),
-			new ObjectStreamField("fileroms", File.class),
-			new ObjectStreamField("filesl", File.class),
+			new ObjectStreamField("file", File.class), //$NON-NLS-1$
+			new ObjectStreamField("modified", Long.class), //$NON-NLS-1$
+			new ObjectStreamField("sl", Boolean.TYPE), //$NON-NLS-1$
+			new ObjectStreamField("fileroms", File.class), //$NON-NLS-1$
+			new ObjectStreamField("filesl", File.class), //$NON-NLS-1$
 	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
-		fields.put("file", file);
-		fields.put("modified", modified);
-		fields.put("sl", sl);
-		fields.put("fileroms", fileroms);
-		fields.put("filesl", filesl);
+		fields.put("file", file); //$NON-NLS-1$
+		fields.put("modified", modified); //$NON-NLS-1$
+		fields.put("sl", sl); //$NON-NLS-1$
+		fields.put("fileroms", fileroms); //$NON-NLS-1$
+		fields.put("filesl", filesl); //$NON-NLS-1$
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
-		file = (File) fields.get("file", null);
-		modified = (Long) fields.get("modified", null);
-		sl = fields.get("sl", false);
-		fileroms = (File)fields.get("fileroms", null);
-		filesl = (File)fields.get("filesl", null);
+		file = (File) fields.get("file", null); //$NON-NLS-1$
+		modified = (Long) fields.get("modified", null); //$NON-NLS-1$
+		sl = fields.get("sl", false); //$NON-NLS-1$
+		fileroms = (File)fields.get("fileroms", null); //$NON-NLS-1$
+		filesl = (File)fields.get("filesl", null); //$NON-NLS-1$
 	}
 
 	public enum MameStatus

@@ -10,6 +10,7 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang3.StringUtils;
 
+import jrm.Messages;
 import jrm.profile.data.PropertyStub;
 import jrm.ui.AbstractNGTreeNode;
 
@@ -150,7 +151,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		@Override
 		public Object getUserObject()
 		{
-			return String.format("%s (%d)", name, list_subcategories.stream().filter(SubCategory::isSelected).mapToInt(SubCategory::size).sum());
+			return String.format("%s (%d)", name, list_subcategories.stream().filter(SubCategory::isSelected).mapToInt(SubCategory::size).sum()); //$NON-NLS-1$
 		}
 
 		@Override
@@ -162,7 +163,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		@Override
 		public String getPropertyName()
 		{
-			return "filter.cat." + name;
+			return "filter.cat." + name; //$NON-NLS-1$
 		}
 
 		@Override
@@ -374,13 +375,13 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		@Override
 		public Object getUserObject()
 		{
-			return name + " (" + games.size() + ")";
+			return name + " (" + games.size() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		@Override
 		public String getPropertyName()
 		{
-			return "filter.cat." + parent.name + "." + name;
+			return "filter.cat." + parent.name + "." + name; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		@Override
@@ -405,9 +406,9 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 			boolean in_section = false;
 			while(null != (line = reader.readLine()))
 			{
-				if(line.equalsIgnoreCase("[Category]"))
+				if(line.equalsIgnoreCase("[Category]")) //$NON-NLS-1$
 					in_section = true;
-				else if(line.startsWith("[") && in_section)
+				else if(line.startsWith("[") && in_section) //$NON-NLS-1$
 					break;
 				else if(in_section)
 				{
@@ -439,7 +440,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 			for(final Category cat : list_categories)
 				cat.list_subcategories.addAll(cat.subcategories.values());
 			if(list_categories.isEmpty())
-				throw new IOException("No CatVer data");
+				throw new IOException(Messages.getString("CatVer.NoCatVerData")); //$NON-NLS-1$
 		}
 	}
 
@@ -493,7 +494,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	@Override
 	public Object getUserObject()
 	{
-		return String.format("%s (%d)", "All Categories", list_categories.stream().flatMap(c -> c.list_subcategories.stream().filter(SubCategory::isSelected)).mapToInt(SubCategory::size).sum());
+		return String.format("%s (%d)", Messages.getString("CatVer.AllCategories"), list_categories.stream().flatMap(c -> c.list_subcategories.stream().filter(SubCategory::isSelected)).mapToInt(SubCategory::size).sum()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -505,7 +506,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	@Override
 	public String getPropertyName()
 	{
-		return "filter.cat";
+		return "filter.cat"; //$NON-NLS-1$
 	}
 
 	@Override

@@ -26,12 +26,12 @@ public class SystmStandard implements Systm, Serializable
 	@Override
 	public String toString()
 	{
-		return "["+getType()+"]";
+		return "["+getType()+"]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
 	public String getName()
 	{
-		return "standard";
+		return "standard"; //$NON-NLS-1$
 	}
 }

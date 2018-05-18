@@ -686,7 +686,7 @@ public final class DirScan
 		cachedir.mkdirs();
 		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		return new File(cachedir, String.format("%08x", crc.getValue()) + (is_dest?".dcache":".scache")); //$NON-NLS-1$ //$NON-NLS-2$
+		return new File(cachedir, String.format("%08x", crc.getValue()) + (is_dest?".dcache":".scache")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	private void save(final File file, final Object obj, final boolean is_dest)

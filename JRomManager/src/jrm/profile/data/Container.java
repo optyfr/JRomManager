@@ -92,11 +92,11 @@ public class  Container implements Serializable
 		final String ext = FilenameUtils.getExtension(file.getName());
 		switch(ext.toLowerCase())
 		{
-			case "zip":
+			case "zip": //$NON-NLS-1$
 				return Type.ZIP;
-			case "7z":
+			case "7z": //$NON-NLS-1$
 				return Type.SEVENZIP;
-			case "rar":
+			case "rar": //$NON-NLS-1$
 				return Type.RAR;
 		}
 		return Type.UNK;
@@ -105,7 +105,7 @@ public class  Container implements Serializable
 	@Override
 	public String toString()
 	{
-		return "Container " + file;
+		return "Container " + file; //$NON-NLS-1$
 
 	}
 }

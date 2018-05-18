@@ -63,7 +63,7 @@ public class AddEntry extends EntryAction
 		catch(final Throwable e)
 		{
 			e.printStackTrace();
-			System.err.println("add from " + entry.parent.file + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed");
+			System.err.println("add from " + entry.parent.file + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}
@@ -87,7 +87,7 @@ public class AddEntry extends EntryAction
 				}
 				catch(final Throwable e)
 				{
-					System.err.println("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed");
+					System.err.println("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 				}
 
 			}
@@ -122,7 +122,7 @@ public class AddEntry extends EntryAction
 		catch(final Throwable e)
 		{
 			e.printStackTrace();
-			System.err.println("add from " + entry.parent.file.getName() + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed");
+			System.err.println("add from " + entry.parent.file.getName() + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}
@@ -139,7 +139,7 @@ public class AddEntry extends EntryAction
 			}
 			catch(final Throwable e)
 			{
-				System.err.println("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed");
+				System.err.println("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
 		else if(entry.parent.getType() == Type.SEVENZIP)

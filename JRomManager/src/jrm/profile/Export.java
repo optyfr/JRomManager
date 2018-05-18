@@ -47,7 +47,7 @@ public class Export
 
 		public EnhancedXMLStreamWriter(final XMLStreamWriter writer)
 		{
-			this(writer, "\t");
+			this(writer, "\t"); //$NON-NLS-1$
 		}
 
 		public EnhancedXMLStreamWriter(final XMLStreamWriter writer, final String indentStep)
@@ -286,7 +286,7 @@ public class Export
 
 		private void doNewline() throws XMLStreamException
 		{
-			writer.writeCharacters("\n");
+			writer.writeCharacters("\n"); //$NON-NLS-1$
 		}
 
 		private void onEmptyElement() throws XMLStreamException
@@ -366,7 +366,7 @@ public class Export
 		EnhancedXMLStreamWriter writer = null;
 		try(FileOutputStream fos = new FileOutputStream(file))
 		{
-			writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(fos, "UTF-8"));
+			writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(fos, "UTF-8")); //$NON-NLS-1$
 			switch(type)
 			{
 				case MAME:
@@ -383,7 +383,7 @@ public class Export
 		}
 		catch(FactoryConfigurationError | XMLStreamException | IOException e)
 		{
-			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 			e.printStackTrace();
 		}
 	}
