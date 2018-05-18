@@ -363,6 +363,19 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 				break;
 			}
 		}
+		for(final Sample sample : samples)
+		{
+			final EntityStatus estatus = sample.getStatus();
+			if(estatus == EntityStatus.KO)
+				status = AnywareStatus.PARTIAL;
+			else if(estatus == EntityStatus.OK)
+				ok = true;
+			else if(estatus == EntityStatus.UNKNOWN)
+			{
+				status = AnywareStatus.UNKNOWN;
+				break;
+			}
+		}
 		if(status == AnywareStatus.PARTIAL && !ok)
 			status = AnywareStatus.MISSING;
 		return status;
