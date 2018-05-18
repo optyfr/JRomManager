@@ -43,6 +43,7 @@ public class Profile implements Serializable
 	public long softwares_cnt = 0;
 	public long roms_cnt = 0, swroms_cnt = 0;
 	public long disks_cnt = 0, swdisks_cnt = 0;
+	public long samples_cnt = 0;
 
 	public boolean md5_roms = false;
 	public boolean md5_disks = false;
@@ -403,6 +404,7 @@ public class Profile implements Serializable
 								{
 									case "name": //$NON-NLS-1$
 										curr_machine.samples.add(curr_sampleset.add(new Sample(curr_sampleset, attributes.getValue(i))));
+										samples_cnt++;
 										break;
 								}
 							}
@@ -542,7 +544,7 @@ public class Profile implements Serializable
 						curr_software_list.add(curr_software);
 						softwares_cnt++;
 						curr_software = null;
-						handler.setProgress(String.format(Messages.getString("Profile.SWLoaded"), softwares_cnt, swdisks_cnt, swroms_cnt)); //$NON-NLS-1$
+						handler.setProgress(String.format(Messages.getString("Profile.SWLoaded"), softwares_cnt, swroms_cnt, swdisks_cnt)); //$NON-NLS-1$
 						if (handler.isCancel())
 							throw new BreakException();
 					}
@@ -556,7 +558,7 @@ public class Profile implements Serializable
 						machines_cnt++;
 						curr_machine = null;
 						curr_sampleset = null;
-						handler.setProgress(String.format(Messages.getString("Profile.Loaded"), machines_cnt, disks_cnt, roms_cnt)); //$NON-NLS-1$
+						handler.setProgress(String.format(Messages.getString("Profile.Loaded"), machines_cnt, roms_cnt, disks_cnt, samples_cnt)); //$NON-NLS-1$
 						if (handler.isCancel())
 							throw new BreakException();
 					}

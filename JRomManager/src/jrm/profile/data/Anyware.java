@@ -383,7 +383,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 
 	public int countHave()
 	{
-		return countHaveRoms() + countHaveDisks();
+		return countHaveRoms() + countHaveDisks() + countHaveSamples();
 	}
 
 	public int countHaveRoms()
@@ -396,9 +396,14 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		return disks.stream().mapToInt(d -> d.getStatus() == EntityStatus.OK ? 1 : 0).sum();
 	}
 
+	public int countHaveSamples()
+	{
+		return samples.stream().mapToInt(s -> s.getStatus() == EntityStatus.OK ? 1 : 0).sum();
+	}
+
 	public int countAll()
 	{
-		return roms.size() + disks.size();
+		return roms.size() + disks.size() + samples.size();
 	}
 
 	@Override
