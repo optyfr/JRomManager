@@ -139,22 +139,22 @@ public class Scan
 			handler.setProgress2(String.format("%d/%d", j.get(), profile.machinelist_list.softwarelist_list.size()), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
 			for (final SoftwareList sl : profile.machinelist_list.softwarelist_list.getFilteredStream().collect(Collectors.toList()))
 			{
-				File sldir = new File(swroms_dstdir, sl.name);
+				File sldir = new File(swroms_dstdir, sl.getName());
 				if (!sldir.exists())
 					sldir.mkdirs();
 				if (sldir.isDirectory())
-					swroms_dstscans.put(sl.name, dirscan(sl, sldir, unknown, handler));
+					swroms_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, handler));
 				if (swroms_dstdir.equals(swdisks_dstdir))
 					swdisks_dstscans = swroms_dstscans;
 				else
 				{
-					sldir = new File(swdisks_dstdir, sl.name);
+					sldir = new File(swdisks_dstdir, sl.getName());
 					if (!sldir.exists())
 						sldir.mkdirs();
 					if (sldir.isDirectory())
-						swdisks_dstscans.put(sl.name, dirscan(sl, sldir, unknown, handler));
+						swdisks_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, handler));
 				}
-				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size(), sl.name), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size(), sl.getName()), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
 				if (handler.isCancel())
 					throw new BreakException();
 			}
@@ -196,13 +196,14 @@ public class Scan
 			if (profile.machinelist_list.get(0).size() > 0)
 			{
 				handler.setProgress2(String.format("%d/%d", j.incrementAndGet(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
-				profile.machinelist_list.get(0).samplesets.samplesets.forEach((name, set) -> {
+				for(Samples set : profile.machinelist_list.get(0).samplesets)
+				{
 					handler.setProgress(null, i.incrementAndGet(), null, set.getName());
 					if (samples_dstscan != null)
 						scanSamples(set);
 					if (handler.isCancel())
 						throw new BreakException();
-				});
+				}
 				profile.machinelist_list.get(0).forEach(Machine::resetCollisionMode);
 				profile.machinelist_list.get(0).getFilteredStream().forEach(m -> {
 					handler.setProgress(null, i.incrementAndGet(), null, m.getFullName());
@@ -214,9 +215,9 @@ public class Scan
 			if (profile.machinelist_list.softwarelist_list.size() > 0)
 			{
 				profile.machinelist_list.softwarelist_list.getFilteredStream().forEach(sl -> {
-					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.size(), sl.name), j.get(), profile.size()); //$NON-NLS-1$
-					roms_dstscan = swroms_dstscans.get(sl.name);
-					disks_dstscan = swdisks_dstscans.get(sl.name);
+					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.size(), sl.getName()), j.get(), profile.size()); //$NON-NLS-1$
+					roms_dstscan = swroms_dstscans.get(sl.getName());
+					disks_dstscan = swdisks_dstscans.get(sl.getName());
 					sl.getFilteredStream().forEach(Software::resetCollisionMode);
 					sl.getFilteredStream().forEach(s -> {
 						handler.setProgress(null, i.incrementAndGet(), null, s.getFullName());
@@ -379,7 +380,6 @@ public class Scan
 				{
 					Scan.report.stats.missing_samples_cnt++;
 					Entry entry_found = null;
-					System.out.println("Searching to create " + set.getName());
 					for (final DirScan scan : allscans)
 					{
 						for (FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
@@ -400,7 +400,6 @@ public class Scan
 						}
 						if (null != entry_found)
 						{
-							System.out.println("Found entry " + entry_found.toString());
 							report_subject.add(new EntryAdd(sample, entry_found));
 							(createset = CreateContainer.getInstance(createset, archive, format)).addAction(new AddEntry(sample, entry_found));
 							samples_found++;

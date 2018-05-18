@@ -377,12 +377,12 @@ public class ProfileViewer extends JDialog
 												rompaths.add(profile.getProperty("disks_dest_dir", ""));
 											if(profile.getProperty("swdisks_dest_dir_enabled", false))
 												rompaths.add(profile.getProperty("swdisks_dest_dir", ""));
-											System.out.println(((Software) ware).sl.name + ", " + ((Software) ware).compatibility);
-											final Machine machine = profile.machinelist_list.findMachine(((Software) ware).sl.name, ((Software) ware).compatibility);
+											System.out.println(((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility);
+											final Machine machine = profile.machinelist_list.findMachine(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility);
 											if(machine != null)
 											{
-												System.out.println("-> " + machine.name + " " + ware.name);
-												args = new String[] { mame.getFile().getAbsolutePath(), machine.name, ware.name, "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) };
+												System.out.println("-> " + machine.getBaseName() + " " + ware.getBaseName());
+												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) };
 											}
 										}
 										else
@@ -390,7 +390,7 @@ public class ProfileViewer extends JDialog
 											final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty("roms_dest_dir", "")));
 											if(profile.getProperty("disks_dest_dir_enabled", false))
 												rompaths.add(profile.getProperty("disks_dest_dir", ""));
-											args = new String[] { mame.getFile().getAbsolutePath(), ware.name, "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) };
+											args = new String[] { mame.getFile().getAbsolutePath(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) };
 										}
 										if(args != null)
 										{

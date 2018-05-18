@@ -30,7 +30,7 @@ public final class AnywareListListRenderer
 		{
 			if(value instanceof SoftwareList)
 			{
-				super.getTableCellRendererComponent(table, ((SoftwareList) value).name, isSelected, hasFocus, row, column);
+				super.getTableCellRendererComponent(table, ((SoftwareList) value).getBaseName(), isSelected, hasFocus, row, column);
 				switch(((SoftwareList) value).getStatus())
 				{
 					case COMPLETE:

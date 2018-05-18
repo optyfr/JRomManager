@@ -24,7 +24,7 @@ import jrm.ui.ProgressHandler;
 public final class MachineList extends AnywareList<Machine> implements Serializable
 {
 	private final ArrayList<Machine> m_list = new ArrayList<>();
-	public final HashMap<String, Machine> m_byname = new HashMap<>();
+	private final HashMap<String, Machine> m_byname = new HashMap<>();
 	public final SamplesList samplesets = new SamplesList();
 
 
@@ -100,7 +100,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			case 5:
 				return machine.romof != null && !machine.romof.equals(machine.cloneof) ? (m_byname.containsKey(machine.romof) ? m_byname.get(machine.romof) : machine.romof) : null;
 			case 6:
-				return machine.sampleof;
+				return machine.sampleof != null ? (samplesets.containsName(machine.sampleof) ? samplesets.getByName(machine.sampleof) : machine.sampleof) : null;
 		}
 		return null;
 	}
@@ -216,5 +216,17 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	public Machine getByName(String name)
 	{
 		return m_byname.get(name);
+	}
+
+	@Override
+	public Machine putByName(Machine t)
+	{
+		return m_byname.put(t.getName(), t);
+	}
+
+	@Override
+	public String getName()
+	{
+		return name;
 	}
 }

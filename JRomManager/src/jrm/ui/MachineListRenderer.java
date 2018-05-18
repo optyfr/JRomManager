@@ -10,6 +10,7 @@ import javax.swing.table.TableCellRenderer;
 
 import jrm.Messages;
 import jrm.profile.data.Machine;
+import jrm.profile.data.Samples;
 
 @SuppressWarnings("serial")
 public final class MachineListRenderer
@@ -63,7 +64,7 @@ public final class MachineListRenderer
 		{
 			if(value instanceof Machine)
 			{
-				super.getTableCellRendererComponent(table, ((Machine) value).name, isSelected, hasFocus, row, column);
+				super.getTableCellRendererComponent(table, ((Machine) value).getBaseName(), isSelected, hasFocus, row, column);
 				if(((Machine) value).isbios)
 					setIcon(application_osx_terminal);
 				else if(((Machine) value).isdevice)
@@ -72,7 +73,7 @@ public final class MachineListRenderer
 					setIcon(wrench);
 				else
 					setIcon(joystick);
-				setText(((Machine) value).name);
+				setText(((Machine) value).getBaseName());
 				return this;
 			}
 			setIcon(null);
@@ -99,7 +100,7 @@ public final class MachineListRenderer
 		{
 			if(value instanceof Machine)
 			{
-				super.getTableCellRendererComponent(table, ((Machine) value).name, isSelected, hasFocus, row, column);
+				super.getTableCellRendererComponent(table, ((Machine) value).getBaseName(), isSelected, hasFocus, row, column);
 				switch(((Machine) value).getStatus())
 				{
 					case COMPLETE:
@@ -130,7 +131,7 @@ public final class MachineListRenderer
 		{
 			if(value instanceof Machine)
 			{
-				super.getTableCellRendererComponent(table, ((Machine) value).name, isSelected, hasFocus, row, column);
+				super.getTableCellRendererComponent(table, ((Machine) value).getBaseName(), isSelected, hasFocus, row, column);
 				switch(((Machine) value).getStatus())
 				{
 					case COMPLETE:
@@ -154,7 +155,38 @@ public final class MachineListRenderer
 				setIcon(MachineListRenderer.folder_closed_gray);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
-	}, null };
+	}, new DefaultTableCellRenderer()
+	{
+		@Override
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+		{
+			if(value instanceof Samples)
+			{
+				super.getTableCellRendererComponent(table, ((Samples) value).getBaseName(), isSelected, hasFocus, row, column);
+				switch(((Samples) value).getStatus())
+				{
+					case COMPLETE:
+						setIcon(MachineListRenderer.folder_closed_green);
+						break;
+					case PARTIAL:
+						setIcon(MachineListRenderer.folder_closed_orange);
+						break;
+					case MISSING:
+						setIcon(MachineListRenderer.folder_closed_red);
+						break;
+					case UNKNOWN:
+					default:
+						setIcon(MachineListRenderer.folder_closed_gray);
+						break;
+				}
+				return this;
+			}
+			setIcon(null);
+			if(value!=null)
+				setIcon(MachineListRenderer.folder_closed_gray);
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		}
+	} };
 
 	private MachineListRenderer()
 	{

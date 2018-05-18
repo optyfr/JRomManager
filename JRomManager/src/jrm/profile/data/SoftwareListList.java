@@ -23,10 +23,10 @@ import jrm.ui.AnywareListListRenderer;
 import jrm.ui.ProgressHandler;
 
 @SuppressWarnings("serial")
-public final class SoftwareListList extends AnywareListList<SoftwareList> implements Serializable
+public final class SoftwareListList extends AnywareListList<SoftwareList> implements Serializable, ByName<SoftwareList>
 {
 	private final ArrayList<SoftwareList> sl_list = new ArrayList<>();
-	public final HashMap<String, SoftwareList> sl_byname = new HashMap<>();
+	private final HashMap<String, SoftwareList> sl_byname = new HashMap<>();
 
 	public SoftwareListList()
 	{
@@ -142,6 +142,24 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 			}
 			writer.writeEndDocument();
 		}
+	}
+
+	@Override
+	public boolean containsName(String name)
+	{
+		return sl_byname.containsKey(name);
+	}
+
+	@Override
+	public SoftwareList getByName(String name)
+	{
+		return sl_byname.get(name);
+	}
+
+	@Override
+	public SoftwareList putByName(SoftwareList t)
+	{
+		return sl_byname.put(t.name, t);
 	}
 
 }

@@ -21,13 +21,13 @@ import jrm.ui.ProgressHandler;
 import jrm.ui.SoftwareListRenderer;
 
 @SuppressWarnings("serial")
-public class SoftwareList extends AnywareList<Software> implements Systm, Serializable, Comparable<SoftwareList>
+public final class SoftwareList extends AnywareList<Software> implements Systm, Serializable
 {
-	public String name; // required
+//	public String name; // required
 	public final StringBuffer description = new StringBuffer();
 
 	private final List<Software> s_list = new ArrayList<>();
-	public final Map<String, Software> s_byname = new HashMap<>();
+	private final Map<String, Software> s_byname = new HashMap<>();
 
 	public SoftwareList()
 	{
@@ -52,12 +52,6 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 		software.sl = this;
 		s_byname.put(software.name, software);
 		return s_list.add(software);
-	}
-
-	@Override
-	public int compareTo(final SoftwareList o)
-	{
-		return name.compareTo(o.name);
 	}
 
 	@Override
@@ -221,5 +215,11 @@ public class SoftwareList extends AnywareList<Software> implements Systm, Serial
 	public Software getByName(String name)
 	{
 		return s_byname.get(name);
+	}
+
+	@Override
+	public Software putByName(Software t)
+	{
+		return s_byname.put(t.name, t);
 	}
 }

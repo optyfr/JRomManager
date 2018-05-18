@@ -14,7 +14,7 @@ import javax.swing.table.TableModel;
 import one.util.streamex.StreamEx;
 
 @SuppressWarnings("serial")
-public abstract class AnywareList<T extends Anyware> implements Serializable, TableModel, List<T>, ByName<T>
+public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, TableModel, List<T>, ByName<T>
 {
 	private static transient EventListenerList listenerList;
 	protected static transient EnumSet<AnywareStatus> filter = null;

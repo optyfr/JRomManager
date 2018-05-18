@@ -100,7 +100,7 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 			case 0:
 				return pnfo.name;
 			case 1:
-				return toHTML(pnfo.stats.version == null ? toGray("???") : pnfo.stats.version);
+				return toHTML(pnfo.stats.version == null ? toGray("???") : toNoBR(pnfo.stats.version));
 			case 2:
 				return toHTML(pnfo.stats.haveSets == null ? (pnfo.stats.totalSets == null ? toGray("?/?") : String.format("%s/%d", toGray("?"), pnfo.stats.totalSets)) : String.format("%s/%d", pnfo.stats.haveSets == 0 && pnfo.stats.totalSets > 0 ? toRed("0") : (pnfo.stats.haveSets.equals(pnfo.stats.totalSets) ? toGreen(pnfo.stats.haveSets + "") : toOrange(pnfo.stats.haveSets + "")), pnfo.stats.totalSets));
 			case 3:

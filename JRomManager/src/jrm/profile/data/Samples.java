@@ -14,10 +14,14 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 		setName(name);
 	}
 
-	public void add(Sample sample)
+	public Sample add(Sample sample)
 	{
 		if (!samples.containsKey(sample.name))
+		{
 			samples.put(sample.name, sample);
+			return sample;
+		}
+		return samples.get(sample.name);
 	}
 
 	@Override
@@ -56,4 +60,25 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 		return samples.values().iterator();
 	}
 
+	public AnywareStatus getStatus()
+	{
+		AnywareStatus status = AnywareStatus.COMPLETE;
+		boolean ok = false;
+		for(final Sample sample : this)
+		{
+			final EntityStatus estatus = sample.getStatus();
+			if(estatus == EntityStatus.KO)
+				status = AnywareStatus.PARTIAL;
+			else if(estatus == EntityStatus.OK)
+				ok = true;
+			else if(estatus == EntityStatus.UNKNOWN)
+			{
+				status = AnywareStatus.UNKNOWN;
+				break;
+			}
+		}
+		if(status == AnywareStatus.PARTIAL && !ok)
+			status = AnywareStatus.MISSING;
+		return status;
+	}
 }

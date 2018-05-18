@@ -1,8 +1,10 @@
 package jrm.profile.data;
 
+import java.io.Serializable;
+
 import jrm.profile.Profile;
 
-public interface PropertyStub
+public interface PropertyStub extends Serializable
 {
 	public String getPropertyName();
 

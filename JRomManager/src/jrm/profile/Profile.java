@@ -126,8 +126,8 @@ public class Profile implements Serializable
 							switch (attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_software_list.name = attributes.getValue(i).trim();
-									machinelist_list.softwarelist_list.sl_byname.put(curr_software_list.name, curr_software_list);
+									curr_software_list.setName(attributes.getValue(i).trim());
+									machinelist_list.softwarelist_list.putByName(curr_software_list);
 									break;
 								case "description": //$NON-NLS-1$
 									curr_software_list.description.append(attributes.getValue(i).trim());
@@ -242,7 +242,7 @@ public class Profile implements Serializable
 							{
 								case "name": //$NON-NLS-1$
 									curr_machine.setName(attributes.getValue(i).trim());
-									machinelist_list.get(0).m_byname.put(curr_machine.getName(), curr_machine);
+									machinelist_list.get(0).putByName(curr_machine);
 									break;
 								case "romof": //$NON-NLS-1$
 									curr_machine.romof = attributes.getValue(i).trim();
@@ -253,7 +253,7 @@ public class Profile implements Serializable
 								case "sampleof": //$NON-NLS-1$
 									curr_machine.sampleof = attributes.getValue(i).trim();
 									if (!machinelist_list.get(0).samplesets.containsName(curr_machine.sampleof))
-										machinelist_list.get(0).samplesets.samplesets.put(curr_machine.sampleof, curr_sampleset = new Samples(curr_machine.sampleof));
+										machinelist_list.get(0).samplesets.putByName(curr_sampleset = new Samples(curr_machine.sampleof));
 									else
 										curr_sampleset = machinelist_list.get(0).samplesets.getByName(curr_machine.sampleof);
 									break;
@@ -402,9 +402,7 @@ public class Profile implements Serializable
 								switch (attributes.getQName(i))
 								{
 									case "name": //$NON-NLS-1$
-										Sample sample = new Sample(curr_sampleset, attributes.getValue(i));
-										curr_machine.samples.add(sample);
-										curr_sampleset.add(sample);
+										curr_machine.samples.add(curr_sampleset.add(new Sample(curr_sampleset, attributes.getValue(i))));
 										break;
 								}
 							}
@@ -566,7 +564,7 @@ public class Profile implements Serializable
 					{
 						if (curr_rom.getName() != null)
 						{
-							if (null == roms.put(curr_rom.getOriginalName(), curr_rom))
+							if (null == roms.put(curr_rom.getBaseName(), curr_rom))
 							{
 								if (curr_machine != null)
 									roms_cnt++;
@@ -592,7 +590,7 @@ public class Profile implements Serializable
 					{
 						if (curr_disk.getName() != null)
 						{
-							if (null == disks.put(curr_disk.getOriginalName(), curr_disk))
+							if (null == disks.put(curr_disk.getBaseName(), curr_disk))
 							{
 								if (curr_machine != null)
 									disks_cnt++;
@@ -774,7 +772,7 @@ public class Profile implements Serializable
 			machine_list.forEach(machine -> {
 				if (machine.romof != null)
 				{
-					machine.setParent(machine_list.m_byname.get(machine.romof));
+					machine.setParent(machine_list.getByName(machine.romof));
 					if (machine.parent != null)
 					{
 						if (!machine.getParent().isbios)
@@ -787,7 +785,7 @@ public class Profile implements Serializable
 			software_list.forEach(software -> {
 				if (software.cloneof != null)
 				{
-					software.setParent(software_list.s_byname.get(software.cloneof));
+					software.setParent(software_list.getByName(software.cloneof));
 					if (software.parent != null)
 						software.getParent().clones.put(software.getName(), software);
 				}
@@ -892,7 +890,7 @@ public class Profile implements Serializable
 		machines.forEach(systems::add);
 		final ArrayList<SoftwareList> softwarelists = new ArrayList<>();
 		machinelist_list.softwarelist_list.forEach(softwarelists::add);
-		softwarelists.sort((a, b) -> a.name.compareTo(b.name));
+		softwarelists.sort((a, b) -> a.getName().compareTo(b.getName()));
 		softwarelists.forEach(systems::add);
 	}
 
@@ -917,7 +915,7 @@ public class Profile implements Serializable
 				{
 					for (final String game : subcat)
 					{
-						final Machine m = machinelist_list.get(0).m_byname.get(game);
+						final Machine m = machinelist_list.get(0).getByName(game);
 						if (m != null)
 							m.subcat = subcat;
 					}
@@ -939,7 +937,7 @@ public class Profile implements Serializable
 			{
 				for (final String game : nplayer)
 				{
-					final Machine m = machinelist_list.get(0).m_byname.get(game);
+					final Machine m = machinelist_list.get(0).getByName(game);
 					if (m != null)
 						m.nplayer = nplayer;
 				}
@@ -958,6 +956,6 @@ public class Profile implements Serializable
 
 	public int subsize()
 	{
-		return machinelist_list.get(0).size() + machinelist_list.get(0).samplesets.samplesets.size() + machinelist_list.softwarelist_list.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum();
+		return machinelist_list.get(0).size() + machinelist_list.get(0).samplesets.size() + machinelist_list.softwarelist_list.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum();
 	}
 }

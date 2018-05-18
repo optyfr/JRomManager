@@ -3,9 +3,8 @@ package jrm.profile.data;
 import java.io.Serializable;
 
 @SuppressWarnings("serial")
-public abstract class AnywareBase implements Serializable, Comparable<Anyware>
+public abstract class AnywareBase extends NameBase implements Serializable
 {
-	public String name; // required
 	public AnywareBase parent = null;
 
 	public AnywareBase()
@@ -24,20 +23,10 @@ public abstract class AnywareBase implements Serializable, Comparable<Anyware>
 
 	public abstract AnywareBase getParent();
 
-	public abstract String getName();
 	public abstract String getFullName();
 	public abstract String getFullName(final String filename);
 	public abstract CharSequence getDescription();
+	public abstract AnywareStatus getStatus();
 
-	public void setName(final String name)
-	{
-		this.name = name;
-	}
-
-	@Override
-	public int compareTo(final Anyware o)
-	{
-		return name.compareTo(o.name);
-	}
 
 }

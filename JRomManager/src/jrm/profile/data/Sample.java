@@ -34,4 +34,5 @@ public final class Sample extends EntityBase implements Serializable
 	{
 		return parent;
 	}
+
 }

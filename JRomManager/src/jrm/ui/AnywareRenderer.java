@@ -11,9 +11,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import jrm.Messages;
-import jrm.profile.data.Disk;
-import jrm.profile.data.Entity;
-import jrm.profile.data.Rom;
+import jrm.profile.data.*;
 
 @SuppressWarnings("serial")
 public final class AnywareRenderer
@@ -30,19 +28,20 @@ public final class AnywareRenderer
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			if(value!=null) switch(((Entity) value).getStatus())
-			{
-				case OK:
-					setIcon(bullet_green);
-					break;
-				case KO:
-					setIcon(bullet_red);
-					break;
-				case UNKNOWN:
-				default:
-					setIcon(bullet_black);
-					break;
-			}
+			if (value != null)
+				switch (((EntityBase) value).getStatus())
+				{
+					case OK:
+						setIcon(bullet_green);
+						break;
+					case KO:
+						setIcon(bullet_red);
+						break;
+					case UNKNOWN:
+					default:
+						setIcon(bullet_black);
+						break;
+				}
 			setText(""); //$NON-NLS-1$
 			setBackground(AnywareRenderer.getBackground(row, column));
 			return this;
@@ -51,15 +50,18 @@ public final class AnywareRenderer
 	{
 		ImageIcon rom_small = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/rom_small.png")); //$NON-NLS-1$
 		ImageIcon drive = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/drive.png")); //$NON-NLS-1$
+		ImageIcon sound = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/sound.png")); //$NON-NLS-1$
 
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			if(value instanceof Rom)
+			if (value instanceof Rom)
 				setIcon(rom_small);
-			else if(value instanceof Disk)
+			else if (value instanceof Disk)
 				setIcon(drive);
-			setText((value != null) ? (value instanceof Entity ? ((Entity) value).getOriginalName() : value.toString()) : null);
+			else if (value instanceof Sample)
+				setIcon(sound);
+			setText((value != null) ? (value instanceof EntityBase ? ((EntityBase) value).getBaseName() : value.toString()) : null);
 			setToolTipText(getText());
 			setBackground(AnywareRenderer.getBackground(row, column));
 			return this;
@@ -133,8 +135,7 @@ public final class AnywareRenderer
 			setBackground(AnywareRenderer.getBackground(row, column));
 			return this;
 		}
-	},
-	new DefaultTableCellRenderer()
+	}, new DefaultTableCellRenderer()
 	{
 		ImageIcon verified = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/star.png")); //$NON-NLS-1$
 		ImageIcon good = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/tick.png")); //$NON-NLS-1$
@@ -143,12 +144,13 @@ public final class AnywareRenderer
 		{
 			setHorizontalAlignment(SwingConstants.CENTER);
 		}
+
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			if(value instanceof Entity.Status)
+			if (value instanceof Entity.Status)
 			{
-				switch((Entity.Status)value)
+				switch ((Entity.Status) value)
 				{
 					case verified:
 						setIcon(verified);
@@ -164,6 +166,8 @@ public final class AnywareRenderer
 						break;
 				}
 			}
+			else
+				setIcon(null);
 			setToolTipText(value != null ? value.toString() : null);
 			setText(""); //$NON-NLS-1$
 			setBackground(AnywareRenderer.getBackground(row, column));
@@ -173,15 +177,15 @@ public final class AnywareRenderer
 
 	private static Color getBackground(final int row, final int col)
 	{
-		if((col%2)==0)
+		if ((col % 2) == 0)
 		{
-			if((row%2)==0)
+			if ((row % 2) == 0)
 				return Color.decode("0xDDDDEE");
 			return Color.decode("0xEEEEEE");
 		}
 		else
 		{
-			if((row%2)==0)
+			if ((row % 2) == 0)
 				return Color.decode("0xEEEEFF");
 			return Color.decode("0xFFFFFF");
 		}

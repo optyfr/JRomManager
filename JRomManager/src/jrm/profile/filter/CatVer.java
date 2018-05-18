@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import jrm.profile.data.PropertyStub;
 import jrm.ui.AbstractNGTreeNode;
 
+@SuppressWarnings("serial")
 public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.filter.CatVer.Category>, PropertyStub
 {
 	private final Map<String, Category> categories = new TreeMap<>();

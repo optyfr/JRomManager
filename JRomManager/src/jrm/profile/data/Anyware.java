@@ -28,6 +28,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 
 	public final Collection<Rom> roms = new ArrayList<>();
 	public final Collection<Disk> disks = new ArrayList<>();
+	public final Collection<Sample> samples = new ArrayList<>();
 
 	public final HashMap<String, Anyware> clones = new HashMap<>();
 
@@ -38,7 +39,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 
 	private static transient EventListenerList listenerList;
 	private static transient EnumSet<EntityStatus> filter = null;
-	private transient List<Entity> table_entities;
+	private transient List<EntityBase> table_entities;
 
 	public Anyware()
 	{
@@ -235,10 +236,10 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		reset();
 	}
 
-	private List<Entity> getEntities()
+	private List<EntityBase> getEntities()
 	{
 		if(table_entities == null)
-			table_entities = Stream.concat(roms.stream(), disks.stream()).filter(t -> Anyware.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			table_entities = Stream.of(roms.stream(), disks.stream(), samples.stream()).flatMap(s->s).filter(t -> Anyware.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return table_entities;
 	}
 
@@ -292,17 +293,17 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 			case 1:
 				return getEntities().get(rowIndex);
 			case 2:
-				return getEntities().get(rowIndex).size;
+				return getEntities().get(rowIndex).getProperty("size");
 			case 3:
-				return getEntities().get(rowIndex).crc;
+				return getEntities().get(rowIndex).getProperty("crc");
 			case 4:
-				return getEntities().get(rowIndex).md5;
+				return getEntities().get(rowIndex).getProperty("md5");
 			case 5:
-				return getEntities().get(rowIndex).sha1;
+				return getEntities().get(rowIndex).getProperty("sha1");
 			case 6:
-				return getEntities().get(rowIndex).merge;
+				return getEntities().get(rowIndex).getProperty("merge");
 			case 7:
-				return getEntities().get(rowIndex).status;
+				return getEntities().get(rowIndex).getProperty("status");
 		}
 		return null;
 	}

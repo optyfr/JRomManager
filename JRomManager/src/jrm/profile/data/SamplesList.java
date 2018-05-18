@@ -2,11 +2,12 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 
 @SuppressWarnings("serial")
-public class SamplesList implements Serializable, ByName<Samples>
+public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samples>
 {
-	public final HashMap<String, Samples> samplesets = new HashMap<>();
+	protected final HashMap<String, Samples> samplesets = new HashMap<>();
 
 	public SamplesList()
 	{
@@ -24,4 +25,20 @@ public class SamplesList implements Serializable, ByName<Samples>
 		return samplesets.get(name);
 	}
 
+	@Override
+	public Samples putByName(Samples t)
+	{
+		return samplesets.put(t.name, t);
+	}
+
+	@Override
+	public Iterator<Samples> iterator()
+	{
+		return samplesets.values().iterator();
+	}
+
+	public int size()
+	{
+		return samplesets.size();
+	}
 }

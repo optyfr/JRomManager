@@ -2,7 +2,10 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -25,7 +28,6 @@ public class Machine extends Anyware implements Serializable
 	public DisplayOrientation orientation = DisplayOrientation.any;
 	public CabinetType cabinetType = CabinetType.upright;
 	public final Map<String, SWList> swlists = new HashMap<>();
-	public final List<Sample> samples = new ArrayList<>();
 
 	public transient SubCategory subcat = null;
 	public transient NPlayer nplayer = null;

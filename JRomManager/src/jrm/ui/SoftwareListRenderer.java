@@ -59,7 +59,7 @@ public final class SoftwareListRenderer
 		{
 			if(value instanceof Software)
 			{
-				return super.getTableCellRendererComponent(table, ((Software) value).name, isSelected, hasFocus, row, column);
+				return super.getTableCellRendererComponent(table, ((Software) value).getBaseName(), isSelected, hasFocus, row, column);
 			}
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
@@ -75,7 +75,7 @@ public final class SoftwareListRenderer
 		{
 			if(value instanceof Software)
 			{
-				super.getTableCellRendererComponent(table, ((Software) value).name, isSelected, hasFocus, row, column);
+				super.getTableCellRendererComponent(table, ((Software) value).getBaseName(), isSelected, hasFocus, row, column);
 				switch(((Software) value).getStatus())
 				{
 					case COMPLETE:
