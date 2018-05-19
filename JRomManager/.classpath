@@ -9,6 +9,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Commons Lang3 3.7"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Commons Text 1.3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/StreamEx 0.6.6"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/7zjbinding-9.20-2.00beta"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/7zJBinding-9.20-2.00beta"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

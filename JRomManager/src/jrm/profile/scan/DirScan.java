@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.CRC32;
+import java.util.zip.ZipError;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
@@ -219,6 +220,9 @@ public final class DirScan
 									}
 								});
 								c.loaded = need_sha1_or_md5 ? 2 : 1;
+							}
+							catch (ZipError e) {
+								System.err.println(c.file+" : "+e.getMessage());
 							}
 						}
 						else

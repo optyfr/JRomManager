@@ -403,6 +403,14 @@ public class Profile implements Serializable
 								switch (attributes.getQName(i))
 								{
 									case "name": //$NON-NLS-1$
+										if(curr_sampleset==null)
+										{
+											curr_machine.sampleof = curr_machine.getBaseName();
+											if (!machinelist_list.get(0).samplesets.containsName(curr_machine.sampleof))
+												machinelist_list.get(0).samplesets.putByName(curr_sampleset = new Samples(curr_machine.sampleof));
+											else
+												curr_sampleset = machinelist_list.get(0).samplesets.getByName(curr_machine.sampleof);
+										}
 										curr_machine.samples.add(curr_sampleset.add(new Sample(curr_sampleset, attributes.getValue(i))));
 										samples_cnt++;
 										break;

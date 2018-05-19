@@ -14,7 +14,9 @@ public final class Sample extends EntityBase implements Serializable
 	@Override
 	public String getName()
 	{
-		return name + ".wav"; //$NON-NLS-1$
+		if(!name.endsWith(".wav"))
+			return name + ".wav"; //$NON-NLS-1$
+		return name;
 	}
 
 	@Override
