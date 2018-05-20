@@ -55,10 +55,9 @@ _Behavior compared to other Rom managers_
 - Integrated TorrentZip support using [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
 - Advanced filtering functionalities when a nplayers.ini and catver.ini is associated with a mame profile
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
+- Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
 
 ## Short Term Planned Features
-- Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
-- More Drag & Drop
 
 ## Middle Term Planned Features
 - Dir2Dat
