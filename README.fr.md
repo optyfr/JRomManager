@@ -1,29 +1,29 @@
 # JRomManager
 
-A Rom Manager entirely written in Java and released under GPL v3
+Un gestionnaire de Roms entièrement écrit en Java et distribué sous la license GPL v3
 
 ## Technical
-_Minimal developement requirements_:
-- Eclipse Oxygen for Java with WindowBuilder feature
-- Java 8
+_Prérequis de développement minimum_:
+- Eclipse Oxygen pour Java avec le module WindowBuilder (module standard d'Eclipse)
+- Java SDK 8
 - Apache Commons Codec 1.11 
 - Apache Commons IO 2.6
 - Apache Commons Lang3 3.7
 - Apache Commons Text 1.3
-- Apache Commons Compress 1.16 (used solely to list 7zip content)
+- Apache Commons Compress 1.16 (utilisé uniquement pour lister le contenu des fichiers 7zip)
 - StreamEx 0.6.6
-- SevenZipJBinding 9.20-2.00 (faster than using 7z cmd line)
+- SevenZipJBinding 9.20-2.00 (plus rapide que l'usage de la commande en ligne 7z.exe)
 
-_Minimal usage requirements_:
-- 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)
-- Any OS with Java 8 runtime
-- (optional) 7zip or p7zip cmdline program if you need 7z format and only if SevenZipJBinding doesn't work on your platform
-- ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~
+_Prérequis d'utilisation minimum_:
+- 1Go de Ram libre (2Go ou plus si utilisation des Software Lists, l'option multicoeur, la compression 7z en mode ultra, ...)
+- Tout OS avec un Java 8 (minimum) installé
+- (optionnel) les programmes 7zip ou p7zip en ligne de commande si vous avez besoin de 7z et uniquement si SevenZipJBinding ne fonctionne sur votre plateforme
+- ~~(optionnel) le programme trrntzip si vous voulez torrentzipper vos fichiers~~ (désormais intégré via jtrrntzip)
 
-_Behavior compared to other Rom managers_
-- By default, Split mode may differ from ClrMamePro, it's because JRomManager is respectful of the merge attribute, whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also respectful of the merge attribute. To reproduce the same behaviour you will have to select "implicit merge" option in profile settings
+_Comportement comparé aux autres gestionnaires de Roms_
+- Par défaut, le mode Split (séparé) peut être différent de ClrMamePro, c'est parce que JRomManager est respecteux de l'attribut "merge", alors que ClrMamePro va splitter (separer) dès qu'une rom est dans un set parent avec le même CRC même si aucun attribut "merge" a été initialisé! La difference est spécialement visible pour les Software Lists où l'attribut merge n'existe pas du tout dans le DTD, donc dans ce cas le mode "Split Merged" sera le même que d'utiliser le mode "Non Merged" pour JRomManager. RomCenter est également respectueux de l'attribut merge. Pour reproduire le même comportement que ClrMamePro vous devrez donc selectionner l'option "implicit merge" (fusionnage implicite) dans les préférences du profil courant
 
-## Current Features
+## Fonctionalités actuelles
 - Zip support
 - Mame and Logiqx Dat formats
 - Import from Mame executable
@@ -57,24 +57,24 @@ _Behavior compared to other Rom managers_
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
 - Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
 
-## Short Term Planned Features
+## Fonctionalités planifiées à court terme
 
-## Middle Term Planned Features
-- Dir2Dat, Dat2Dat
-- More Translations
+## Fonctionalités planifiées à moyen terme
+- Dir2Dat
+- Plus de traductions
 
-## Long Term Planned Features and Ideas
-- Interoperability with other managers?
-- Torrent7Z support ?
-- Batch mode?
+## Fonctionalités planifiées sur le long terme et idées
+- Interopérabilité avec d'autres gestionnaires?
+- Support de Torrent7Z ?
+- Mode Batch?
 
-## Not planned features
-- Inverted/complemented CRC: obsolete replaced by "status" attribute since Mame 0.68
-- Old ClrMamePro non-xml format: even considered as deprecated by ClrMamePro
-- CHD verification: data won't be verified, only header is read to get md5/sha1, maybe the data size will be verified later but no hashing nor chdman
-- Rom resizing
+## Fonctionalités non envisagées
+- Support des CRC inversés/complémentés: obsolète remplacé par l'attribut "status" depuis Mame 0.68
+- Ancien format non XML de ClrMamePro: considéré comme déprécié par l'auteur de ClrMamePro lui même
+- CHD verification: les données ne seront pas vérifiées, seule l'entête du CHD est lue pour obtenir le md5/sha1, peut être que la taille des données sera verifié ultérieuremnet mais pas de hash ni de chdman (impliquerait une dépendance binaire ou de le reecrire en java)
+- Retaillage des Roms
 
-## Known issues
-- ~~Never ever launch multiple instances of JRomManager, because 7zJBinding does have problem with this , and also because you may get stranges other things~~ *Prevented app to launch twice*
-- JRomManager is still in early developpement stage, do not complain if it broke your romset and you didn't make any copy or backup
-- Zip integrated in java leaves useless directory entries in zip central directory, it is by design, and this implementation is the fastest available, this will not disturb Mame or any emulator, but clrmamepro will complain about useless dirs, and trrntzip will remove those entries as expected :wink:
+## Problèmes connus
+- ~~N'essayez jamais de lancer de multiples instances de JRomManager, car 7zJBinding a un problème avec ça, et aussi parce que vous pourriez avoir d'étranges comportements~~ *A été mis en oeuvre un dispositif pour empêcher de lancer plus d'une instance*
+- JRomManager est encore en phase de developpement précoce, ne venez donc pas vous plaindre si votre jeu de roms a été cassé et que vous n'aviez pas fait de backup
+- la fonctionnalité Zip intégrée dans java peut laisser des entrées de répertoire inutiles dans l'index du zip, c'est un fonctionnement considéré normal, et de plus c'est l'implémentation la plus rapide disponible, ça ne va pas déranger Mame ou n'importe quel autre émulateur, mais clrmamepro se plaindra de répertoires inutiles, et de plus trrntzip retirera ces entrées commen attendu :wink:
