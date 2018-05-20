@@ -117,6 +117,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	{
 		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true); //$NON-NLS-1$
 		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true); //$NON-NLS-1$
+		final boolean filterIncludeSamples = Profile.curr_profile.getProperty("filter.InclSamples", true); //$NON-NLS-1$
 		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString())); //$NON-NLS-1$
 		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString())); //$NON-NLS-1$
 		final CabinetType filterCabinetType = CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString())); //$NON-NLS-1$
@@ -155,6 +156,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			if(!filterIncludeClones && t.isClone())
 				return false;
 			if(!filterIncludeDisks && t.disks.size() > 0)
+				return false;
+			if(!filterIncludeSamples && t.samples.size() > 0)
 				return false;
 			if(!t.getSystem().isSelected())
 				return false;

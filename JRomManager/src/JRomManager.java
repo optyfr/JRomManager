@@ -11,7 +11,7 @@ public final class JRomManager
 {
 	public static void main(final String[] args)
 	{
-		if(JRomManager.lockInstance(FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
+		if (JRomManager.lockInstance(FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 			new MainFrame().setVisible(true);
 	}
 
@@ -22,29 +22,25 @@ public final class JRomManager
 			final File file = new File(lockFile);
 			final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw"); //$NON-NLS-1$
 			final FileLock fileLock = randomAccessFile.getChannel().tryLock();
-			if(fileLock != null)
+			if (fileLock != null)
 			{
-				Runtime.getRuntime().addShutdownHook(new Thread()
-				{
-					@Override
-					public void run()
+				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+					try
 					{
-						try
-						{
-							fileLock.release();
-							randomAccessFile.close();
-							file.delete();
-						}
-						catch(final Exception e)
-						{
-							Log.err("Unable to remove lock file: " + lockFile, e); //$NON-NLS-1$
-						}
+						fileLock.release();
+						randomAccessFile.close();
+						file.delete();
 					}
-				});
+					catch (final Exception e)
+					{
+						Log.err("Unable to remove lock file: " + lockFile, e); //$NON-NLS-1$
+					}
+
+				}));
 				return true;
 			}
 		}
-		catch(final Exception e)
+		catch (final Exception e)
 		{
 			Log.err("Unable to create and/or lock file: " + lockFile, e); //$NON-NLS-1$
 		}

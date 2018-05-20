@@ -61,40 +61,179 @@ import jrm.ui.controls.JRMFileChooser.OneRootFileSystemView;
 public class MainFrame extends JFrame
 {
 
-	private Scan curr_scan;
-	public static ReportFrame report_frame = null;
 	public static ProfileViewer profile_viewer = null;
+	public static ReportFrame report_frame = null;
+	
+	private static void addPopup(final Component component, final JPopupMenu popup)
+	{
+		component.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mousePressed(final MouseEvent e)
+			{
+				if(e.isPopupTrigger())
+				{
+					showMenu(e);
+				}
+			}
 
-	private JButton btnScan;
+			@Override
+			public void mouseReleased(final MouseEvent e)
+			{
+				if(e.isPopupTrigger())
+				{
+					showMenu(e);
+				}
+			}
+
+			private void showMenu(final MouseEvent e)
+			{
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
+	}
+
+	private JButton btDisksDest;
+	private JButton btn7zCmd;
 	private JButton btnFix;
-	private JTabbedPane mainPane;
-	private JPanel profilesTab;
-	private JPanel scannerTab;
-	private JPanel scannerSettingsPanel;
-	private JCheckBox chckbxNeedSHA1;
-	private JCheckBox chckbxUseParallelism;
-	private JComboBox<MergeOptions> cbbxMergeMode;
-	private JTree profilesTree;
-	private JTable profilesList;
-	private JPanel profilesBtnPanel;
-	private JButton btnLoadProfile;
+	private JButton btnGc;
 	private JButton btnImportDat;
-	private JSplitPane profilesPanel;
-	private JFileDropTextField txtRomsDest;
+	private JButton btnImportSL;
+	private JButton btnInfo;
+	private JButton btnLoadProfile;
+	private JButton btnReport;
 	private JButton btnRomsDest;
-	private JLabel lblRomsDest;
-	private JPanel scannerBtnPanel;
-	private JPanel scannerSubSettingsPanel;
+	private JButton btnScan;
+	private JButton btnSWDest;
+	private JButton btSamplesDest;
+	private JButton btSWDisksDest;
+	private JButton btZipECmd;
+	private JComboBox<SevenZipOptions> cb7zArgs;
+	private JComboBox<Driver.StatusType> cbbxDriverStatus;
+	private JComboBox<CabinetType> cbbxFilterCabinetType;
+	private JComboBox<DisplayOrientation> cbbxFilterDisplayOrientation;
+	private JComboBox<MergeOptions> cbbxMergeMode;
+	private JComboBox<Supported> cbbxSWMinSupportedLvl;
+	private JComboBox<String> cbbxYearMax;
+	private JComboBox<String> cbbxYearMin;
+	private JComboBox<FormatOptions> cbCompression;
+	private JComboBox<HashCollisionOptions> cbHashCollision;
+	private JComboBox<?> cbLogLevel;
+	private JComboBox<ZipOptions> cbZipEArgs;
+	private JCheckBox chckbxCreateMissingSets;
+	private JCheckBox chckbxCreateOnlyComplete;
+	private JCheckBox chckbxIgnoreUnknownContainers;
+	private JCheckBox chckbxIgnoreUnneededContainers;
+	private JCheckBox chckbxIgnoreUnneededEntries;
+	private JCheckBox chckbxIncludeClones;
+	private JCheckBox chckbxIncludeDisks;
+	private JCheckBox chckbxIncludeSamples;
+	private JCheckBox chckbxNeedSHA1;
+	private JCheckBox chckbxUseImplicitMerge;
+	private JCheckBox chckbxUseParallelism;
+	private JCheckBoxList<Systm> checkBoxListSystems;
+	private JCheckBox chkbxZipUseTemp;
+	private JCheckBox ckbx7zSolid;
+	private JPanel compressors;
+	private JTabbedPane compressorsPane;
+	private Scan curr_scan;
+	private JPanel debug;
+	private JLabel lbl7zArgs;
+	private JLabel lbl7zCmd;
+	private JLabel lbl7zThreads;
+	private JLabel lbl7zWarning;
+	private JLabel lblCabinetType;
+	private JLabel lblCompression;
+	private JCheckBox lblDisksDest;
+	private JLabel lblDisplayOrientation;
+	private JLabel lblDriverStatus;
+	private JLabel lblHashCollision;
+	private JLabel lblLogLevel;
+	private JLabel lblMemory;
+	private JLabel lblMemoryUsage;
 	private JLabel lblMergeMode;
-	private JFileDropList listSrcDir;
+	private JLabel lblProfileinfo;
+	private JLabel lblRomsDest;
+	private JCheckBox lblSamplesDest;
 	private JLabel lblSrcDir;
+	private JCheckBox lblSWDest;
+	private JCheckBox lblSWDisksDest;
+	private JLabel lblSwMinSupportedLvl;
+	private JLabel lblYear;
+	private JLabel lblZipEArgs;
+	private JLabel lblZipECmd;
+	private JLabel lblZipEThreads;
+	private JLabel lblZipEWarning;
+	private JLabel lblZipWarn;
+	private JCheckBoxList<NPlayer> listNPlayers;
+	private JFileDropList listSrcDir;
+	private JTabbedPane mainPane;
+	private JMenu mnSelectCat;
+	private JMenuItem mntmAddDirectory;
+	private JMenuItem mntmCreateFolder;
+	private JMenuItem mntmDeleteFolder;
+	private JMenuItem mntmDeleteProfile;
+	private JMenuItem mntmDeleteSelected;
+	private JMenuItem mntmDropCache;
+	private JMenuItem mntmInvertSelection;
+	private JMenuItem mntmInvertSelectionNPlay;
+	private JMenuItem mntmRenameProfile;
+	private JMenuItem mntmSelectAll;
+	private JMenuItem mntmSelectAllCat;
+	private JMenuItem mntmSelectAllNPlay;
+	private JMenuItem mntmSelectMatureCat;
+	private JMenuItem mntmSelectNone;
+	private JMenuItem mntmSelectNoneNPlay;
+	private JMenuItem mntmUnselectAllCat;
+	private JMenuItem mntmUnselectMatureCat;
+	private JMenuItem mntmUpdateFromMame;
+	private JMenu mnUnselectCat;
+	private JPanel panel_1;
+	private JPanel panel7Zip;
+	private JPanel panelZip;
+	private JPanel panelZipE;
+	private JPopupMenu popupMenu;
+	private JPopupMenu popupMenu_1;
+	private JPopupMenu popupMenu_2;
+	private JPopupMenu popupMenu_3;
+	private JPopupMenu popupMenuCat;
+	private JPopupMenu popupMenuNPlay;
+	private JPanel profilesBtnPanel;
+	private JTable profilesList;
+	private JSplitPane profilesPanel;
+	private JPanel profilesTab;
+	private JTree profilesTree;
+	private JPanel scannerAdvFilters;
+	private JPanel scannerBtnPanel;
+	private JTabbedPane scannerCfgTab;
+	private JPanel scannerDirectories;
+	private JSplitPane scannerFilters;
+	private JPanel scannerSettingsPanel;
+	private JPanel scannerSubSettingsPanel;
+	private JPanel scannerTab;
+	private JScrollPane scrollPane;
+	private JScrollPane scrollPane_1;
+	private JScrollPane scrollPane_2;
+	private JScrollPane scrollPaneCatVer;
+	private JScrollPane scrollPaneNPlayers;
+	private JSeparator separator;
+	private JTabbedPane settingsPane;
+	private JPanel settingsTab;
+	private JFileDropTextField tf7zCmd;
+	private JTextField tf7zThreads;
+	private JFileDropTextField tfCatVer;
+	private JFileDropTextField tfDisksDest;
+	private JFileDropTextField tfNPlayers;
+	private JFileDropTextField tfSamplesDest;
+	private JFileDropTextField tfSWDest;
+	private JFileDropTextField tfSWDisksDest;
+	private JFileDropTextField tfZipECmd;
+	private JTextField tfZipEThreads;
+	private JCheckBoxTree treeCatVer;
+	private JFileDropTextField txtRomsDest;
 
-	/**
-	 * Launch the application.
-	 */
-	/**
-	 * Create the application.
-	 */
+	final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
 	public MainFrame()
 	{
 		super();
@@ -127,7 +266,31 @@ public class MainFrame extends JFrame
 			Settings.saveSettings();
 		}));
 	}
+	
+	private void fix()
+	{
+		final Progress progress = new Progress(MainFrame.this);
+		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+		{
 
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				final Fix fix = new Fix(Profile.curr_profile, curr_scan, progress);
+				btnFix.setEnabled(fix.getActionsRemain() > 0);
+				return null;
+			}
+
+			@Override
+			protected void done()
+			{
+				progress.dispose();
+			}
+
+		};
+		worker.execute();
+		progress.setVisible(true);
+	}
 	private String getVersion()
 	{
 		String version = ""; //$NON-NLS-1$
@@ -138,7 +301,90 @@ public class MainFrame extends JFrame
 			version += " " + pkg.getImplementationVersion(); //$NON-NLS-1$
 		return version;
 	}
+	private void importDat(final boolean sl)
+	{
+		new Thread(() -> {
+			final List<FileFilter> filters = Arrays.asList(new FileFilter()
+			{
+				@Override
+				public boolean accept(final File f)
+				{
+					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute(); //$NON-NLS-1$
+				}
 
+				@Override
+				public String getDescription()
+				{
+					return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
+				}
+			}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					);
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
+			.show(MainFrame.this, chooser -> {
+				final Progress progress = new Progress(MainFrame.this);
+				Settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+				for(final File selectedfile : chooser.getSelectedFiles())
+				{
+					progress.setVisible(true);
+					progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+					final Import imprt = new Import(selectedfile, sl);
+					progress.dispose();
+					final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+					final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
+					new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+					.show(MainFrame.this, chooser1 -> {
+						try
+						{
+							final File file = chooser1.getSelectedFile();
+							final File parent = file.getParentFile();
+							FileUtils.copyFile(imprt.file, file);
+							if(imprt.is_mame)
+							{
+								final ProfileNFO pnfo = ProfileNFO.load(file);
+								pnfo.mame.set(imprt.org_file, sl);
+								if(imprt.roms_file != null)
+								{
+									FileUtils.copyFileToDirectory(imprt.roms_file, parent);
+									pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
+									if(imprt.sl_file != null)
+									{
+										FileUtils.copyFileToDirectory(imprt.sl_file, parent);
+										pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
+									}
+								}
+								pnfo.save();
+							}
+							final DirTreeModel model = (DirTreeModel) profilesTree.getModel();
+							final DirNode root = (DirNode) model.getRoot();
+							DirNode theNode = root.find(parent);
+							if(theNode != null)
+							{
+
+								theNode.reload();
+								model.reload(theNode);
+								if((theNode = root.find(parent)) != null)
+								{
+									profilesTree.clearSelection();
+									profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
+								}
+								else
+									System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
+							}
+							else
+								System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
+						}
+						catch(final IOException e)
+						{
+							e.printStackTrace();
+						}
+						return null;
+					});
+				}
+				return null;
+			});
+		}).start();
+
+	}
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -1027,7 +1273,6 @@ public class MainFrame extends JFrame
 		gbc_chckbxIncludeSamples.gridy = 3;
 		panel_1.add(chckbxIncludeSamples, gbc_chckbxIncludeSamples);
 		chckbxIncludeSamples.setSelected(true);
-		chckbxIncludeSamples.setEnabled(false);
 
 		lblCabinetType = new JLabel(Messages.getString("MainFrame.lblMachineType.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblCabinetType = new GridBagConstraints();
@@ -1184,6 +1429,11 @@ public class MainFrame extends JFrame
 		});
 		chckbxIncludeClones.addItemListener(e -> {
 			Profile.curr_profile.setProperty("filter.InclClones", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			if(MainFrame.profile_viewer != null)
+				MainFrame.profile_viewer.reset(Profile.curr_profile);
+		});
+		chckbxIncludeSamples.addItemListener(e -> {
+			Profile.curr_profile.setProperty("filter.InclSamples", e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			if(MainFrame.profile_viewer != null)
 				MainFrame.profile_viewer.reset(Profile.curr_profile);
 		});
@@ -1699,100 +1949,50 @@ public class MainFrame extends JFrame
 
 		scheduler.scheduleAtFixedRate(() -> updateMemory(), 0, 1, TimeUnit.MINUTES);
 	}
-
-	final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-	private void updateMemory()
+	public void initScanSettings()
 	{
-		final Runtime rt = Runtime.getRuntime();
-		lblMemoryUsage.setText(String.format(Messages.getString("MainFrame.MemoryUsage"), FileUtils.byteCountToDisplaySize(rt.totalMemory()), FileUtils.byteCountToDisplaySize(rt.totalMemory() - rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.maxMemory()))); //$NON-NLS-1$
+		chckbxNeedSHA1.setSelected(Profile.curr_profile.getProperty("need_sha1_or_md5", false)); //$NON-NLS-1$
+		chckbxUseParallelism.setSelected(Profile.curr_profile.getProperty("use_parallelism", false)); //$NON-NLS-1$
+		chckbxCreateMissingSets.setSelected(Profile.curr_profile.getProperty("create_mode", false)); //$NON-NLS-1$
+		chckbxCreateOnlyComplete.setSelected(Profile.curr_profile.getProperty("createfull_mode", false) && chckbxCreateMissingSets.isSelected()); //$NON-NLS-1$
+		chckbxIgnoreUnneededContainers.setSelected(Profile.curr_profile.getProperty("ignore_unneeded_containers", false)); //$NON-NLS-1$
+		chckbxIgnoreUnneededEntries.setSelected(Profile.curr_profile.getProperty("ignore_unneeded_entries", false)); //$NON-NLS-1$
+		chckbxIgnoreUnknownContainers.setSelected(Profile.curr_profile.getProperty("ignore_unknown_containers", false)); //$NON-NLS-1$
+		chckbxCreateOnlyComplete.setEnabled(chckbxCreateMissingSets.isSelected());
+		chckbxUseImplicitMerge.setSelected(Profile.curr_profile.getProperty("implicit_merge", false)); //$NON-NLS-1$
+		txtRomsDest.setText(Profile.curr_profile.getProperty("roms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
+		lblDisksDest.setSelected(Profile.curr_profile.getProperty("disks_dest_dir_enabled", false)); //$NON-NLS-1$
+		tfDisksDest.setText(Profile.curr_profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
+		lblSWDest.setSelected(Profile.curr_profile.getProperty("swroms_dest_dir_enabled", false)); //$NON-NLS-1$
+		tfSWDest.setText(Profile.curr_profile.getProperty("swroms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
+		lblSWDisksDest.setSelected(Profile.curr_profile.getProperty("swdisks_dest_dir_enabled", false)); //$NON-NLS-1$
+		tfSWDisksDest.setText(Profile.curr_profile.getProperty("swdisks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
+		lblSamplesDest.setSelected(Profile.curr_profile.getProperty("samples_dest_dir_enabled", false)); //$NON-NLS-1$
+		tfSamplesDest.setText(Profile.curr_profile.getProperty("samples_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
+		listSrcDir.getModel().removeAllElements();
+		for(final String s : Profile.curr_profile.getProperty("src_dir", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if(!s.isEmpty())
+				listSrcDir.getModel().addElement(new File(s));
+		cbCompression.setSelectedItem(FormatOptions.valueOf(Profile.curr_profile.settings.getProperty("format", FormatOptions.ZIP.toString()))); //$NON-NLS-1$
+		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(Profile.curr_profile.settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()))); //$NON-NLS-1$
+		cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
+		cbHashCollision.setSelectedItem(HashCollisionOptions.valueOf(Profile.curr_profile.settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()))); //$NON-NLS-1$
+		chckbxIncludeClones.setSelected(Profile.curr_profile.getProperty("filter.InclClones", true)); //$NON-NLS-1$
+		chckbxIncludeDisks.setSelected(Profile.curr_profile.getProperty("filter.InclDisks", true)); //$NON-NLS-1$
+		chckbxIncludeSamples.setSelected(Profile.curr_profile.getProperty("filter.InclSamples", true)); //$NON-NLS-1$
+		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString()))); //$NON-NLS-1$
+		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString()))); //$NON-NLS-1$
+		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString()))); //$NON-NLS-1$
+		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString()))); //$NON-NLS-1$
+		cbbxYearMin.setModel(new Years(Profile.curr_profile.years));
+		cbbxYearMin.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMin", cbbxYearMin.getModel().getElementAt(0))); //$NON-NLS-1$
+		cbbxYearMax.setModel(new Years(Profile.curr_profile.years));
+		cbbxYearMax.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMax", cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1))); //$NON-NLS-1$
+		tfNPlayers.setText(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers.file.getAbsolutePath() : null);
+		listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
+		tfCatVer.setText(Profile.curr_profile.catver != null ? Profile.curr_profile.catver.file.getAbsolutePath() : null);
+		treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());
 	}
-
-	private void importDat(final boolean sl)
-	{
-		new Thread(() -> {
-			final List<FileFilter> filters = Arrays.asList(new FileFilter()
-			{
-				@Override
-				public String getDescription()
-				{
-					return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
-				}
-
-				@Override
-				public boolean accept(final File f)
-				{
-					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute(); //$NON-NLS-1$
-				}
-			}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					);
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
-			.show(MainFrame.this, chooser -> {
-				final Progress progress = new Progress(MainFrame.this);
-				Settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
-				for(final File selectedfile : chooser.getSelectedFiles())
-				{
-					progress.setVisible(true);
-					progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
-					final Import imprt = new Import(selectedfile, sl);
-					progress.dispose();
-					final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-					final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
-					new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-					.show(MainFrame.this, chooser1 -> {
-						try
-						{
-							final File file = chooser1.getSelectedFile();
-							final File parent = file.getParentFile();
-							FileUtils.copyFile(imprt.file, file);
-							if(imprt.is_mame)
-							{
-								final ProfileNFO pnfo = ProfileNFO.load(file);
-								pnfo.mame.set(imprt.org_file, sl);
-								if(imprt.roms_file != null)
-								{
-									FileUtils.copyFileToDirectory(imprt.roms_file, parent);
-									pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
-									if(imprt.sl_file != null)
-									{
-										FileUtils.copyFileToDirectory(imprt.sl_file, parent);
-										pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
-									}
-								}
-								pnfo.save();
-							}
-							final DirTreeModel model = (DirTreeModel) profilesTree.getModel();
-							final DirNode root = (DirNode) model.getRoot();
-							DirNode theNode = root.find(parent);
-							if(theNode != null)
-							{
-
-								theNode.reload();
-								model.reload(theNode);
-								if((theNode = root.find(parent)) != null)
-								{
-									profilesTree.clearSelection();
-									profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
-								}
-								else
-									System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
-							}
-							else
-								System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
-						}
-						catch(final IOException e)
-						{
-							e.printStackTrace();
-						}
-						return null;
-					});
-				}
-				return null;
-			});
-		}).start();
-
-	}
-
 	private void loadProfile(final ProfileNFO profile)
 	{
 		if(Profile.curr_profile != null)
@@ -1834,7 +2034,6 @@ public class MainFrame extends JFrame
 		worker.execute();
 		progress.setVisible(true);
 	}
-
 	/*
 	 * private void chooseProfile() { new JFileChooser() { { File workdir = Paths.get("./xmlfiles").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$ setCurrentDirectory(workdir); addChoosableFileFilter(new
 	 * FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ if(showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) { loadProfile(getSelectedFile()); } } }; }
@@ -1875,216 +2074,9 @@ public class MainFrame extends JFrame
 		progress.setVisible(true);
 	}
 
-	private void fix()
+	private void updateMemory()
 	{
-		final Progress progress = new Progress(MainFrame.this);
-		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-		{
-
-			@Override
-			protected Void doInBackground() throws Exception
-			{
-				final Fix fix = new Fix(Profile.curr_profile, curr_scan, progress);
-				btnFix.setEnabled(fix.getActionsRemain() > 0);
-				return null;
-			}
-
-			@Override
-			protected void done()
-			{
-				progress.dispose();
-			}
-
-		};
-		worker.execute();
-		progress.setVisible(true);
-	}
-
-	public void initScanSettings()
-	{
-		chckbxNeedSHA1.setSelected(Profile.curr_profile.getProperty("need_sha1_or_md5", false)); //$NON-NLS-1$
-		chckbxUseParallelism.setSelected(Profile.curr_profile.getProperty("use_parallelism", false)); //$NON-NLS-1$
-		chckbxCreateMissingSets.setSelected(Profile.curr_profile.getProperty("create_mode", false)); //$NON-NLS-1$
-		chckbxCreateOnlyComplete.setSelected(Profile.curr_profile.getProperty("createfull_mode", false) && chckbxCreateMissingSets.isSelected()); //$NON-NLS-1$
-		chckbxIgnoreUnneededContainers.setSelected(Profile.curr_profile.getProperty("ignore_unneeded_containers", false)); //$NON-NLS-1$
-		chckbxIgnoreUnneededEntries.setSelected(Profile.curr_profile.getProperty("ignore_unneeded_entries", false)); //$NON-NLS-1$
-		chckbxIgnoreUnknownContainers.setSelected(Profile.curr_profile.getProperty("ignore_unknown_containers", false)); //$NON-NLS-1$
-		chckbxCreateOnlyComplete.setEnabled(chckbxCreateMissingSets.isSelected());
-		chckbxUseImplicitMerge.setSelected(Profile.curr_profile.getProperty("implicit_merge", false)); //$NON-NLS-1$
-		txtRomsDest.setText(Profile.curr_profile.getProperty("roms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblDisksDest.setSelected(Profile.curr_profile.getProperty("disks_dest_dir_enabled", false)); //$NON-NLS-1$
-		tfDisksDest.setText(Profile.curr_profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblSWDest.setSelected(Profile.curr_profile.getProperty("swroms_dest_dir_enabled", false)); //$NON-NLS-1$
-		tfSWDest.setText(Profile.curr_profile.getProperty("swroms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblSWDisksDest.setSelected(Profile.curr_profile.getProperty("swdisks_dest_dir_enabled", false)); //$NON-NLS-1$
-		tfSWDisksDest.setText(Profile.curr_profile.getProperty("swdisks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblSamplesDest.setSelected(Profile.curr_profile.getProperty("samples_dest_dir_enabled", false)); //$NON-NLS-1$
-		tfSamplesDest.setText(Profile.curr_profile.getProperty("samples_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-		listSrcDir.getModel().removeAllElements();
-		for(final String s : Profile.curr_profile.getProperty("src_dir", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			if(!s.isEmpty())
-				listSrcDir.getModel().addElement(new File(s));
-		cbCompression.setSelectedItem(FormatOptions.valueOf(Profile.curr_profile.settings.getProperty("format", FormatOptions.ZIP.toString()))); //$NON-NLS-1$
-		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(Profile.curr_profile.settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()))); //$NON-NLS-1$
-		cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
-		cbHashCollision.setSelectedItem(HashCollisionOptions.valueOf(Profile.curr_profile.settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()))); //$NON-NLS-1$
-		chckbxIncludeClones.setSelected(Profile.curr_profile.getProperty("filter.InclClones", true)); //$NON-NLS-1$
-		chckbxIncludeDisks.setSelected(Profile.curr_profile.getProperty("filter.InclDisks", true)); //$NON-NLS-1$
-		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString()))); //$NON-NLS-1$
-		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString()))); //$NON-NLS-1$
-		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString()))); //$NON-NLS-1$
-		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString()))); //$NON-NLS-1$
-		cbbxYearMin.setModel(new Years(Profile.curr_profile.years));
-		cbbxYearMin.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMin", cbbxYearMin.getModel().getElementAt(0))); //$NON-NLS-1$
-		cbbxYearMax.setModel(new Years(Profile.curr_profile.years));
-		cbbxYearMax.setSelectedItem(Profile.curr_profile.getProperty("filter.YearMax", cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1))); //$NON-NLS-1$
-		tfNPlayers.setText(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers.file.getAbsolutePath() : null);
-		listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
-		tfCatVer.setText(Profile.curr_profile.catver != null ? Profile.curr_profile.catver.file.getAbsolutePath() : null);
-		treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());
-	}
-
-	private JPanel settingsTab;
-	private JTabbedPane settingsPane;
-	private JPanel compressors;
-	private JTabbedPane compressorsPane;
-	private JPanel panelZip;
-	private JCheckBox chkbxZipUseTemp;
-	private JPanel panelZipE;
-	private JLabel lblZipECmd;
-	private JFileDropTextField tfZipECmd;
-	private JButton btZipECmd;
-	private JLabel lblZipEArgs;
-	private JComboBox<ZipOptions> cbZipEArgs;
-	private JLabel lblZipWarn;
-	private JPanel panel7Zip;
-	private JLabel lbl7zCmd;
-	private JFileDropTextField tf7zCmd;
-	private JButton btn7zCmd;
-	private JLabel lbl7zArgs;
-	private JComboBox<SevenZipOptions> cb7zArgs;
-	private JLabel lblZipEWarning;
-	private JLabel lbl7zWarning;
-	private JLabel lblCompression;
-	private JComboBox<FormatOptions> cbCompression;
-	private JCheckBox chckbxCreateMissingSets;
-	private JComboBox<HashCollisionOptions> cbHashCollision;
-	private JLabel lblHashCollision;
-	private JCheckBox ckbx7zSolid;
-	private JTextField tf7zThreads;
-	private JLabel lbl7zThreads;
-	private JTextField tfZipEThreads;
-	private JLabel lblZipEThreads;
-	private JPanel debug;
-	private JLabel lblLogLevel;
-	private JComboBox<?> cbLogLevel;
-	private JCheckBox chckbxCreateOnlyComplete;
-	private JPopupMenu popupMenu;
-	private JMenuItem mntmDeleteSelected;
-	private JMenuItem mntmAddDirectory;
-	private JScrollPane scrollPane;
-	private JScrollPane scrollPane_1;
-	private JPopupMenu popupMenu_1;
-	private JMenuItem mntmCreateFolder;
-	private JMenuItem mntmDeleteFolder;
-	private JPopupMenu popupMenu_2;
-	private JMenuItem mntmDeleteProfile;
-	private JLabel lblProfileinfo;
-	private JMenuItem mntmRenameProfile;
-	private JButton btnReport;
-	private JButton btnImportSL;
-	private JButton btnInfo;
-	private JTabbedPane scannerCfgTab;
-	private JPanel scannerDirectories;
-	private JCheckBox chckbxIncludeClones;
-	private JCheckBoxList<Systm> checkBoxListSystems;
-	private JScrollPane scrollPane_2;
-	private JComboBox<Driver.StatusType> cbbxDriverStatus;
-	private JLabel lblDriverStatus;
-	private JButton btnGc;
-	private JLabel lblMemoryUsage;
-	private JLabel lblMemory;
-	private JCheckBox chckbxIncludeDisks;
-	private JPopupMenu popupMenu_3;
-	private JMenuItem mntmSelectAll;
-	private JMenuItem mntmSelectNone;
-	private JMenuItem mntmInvertSelection;
-	private JComboBox<DisplayOrientation> cbbxFilterDisplayOrientation;
-	private JLabel lblDisplayOrientation;
-	private JComboBox<CabinetType> cbbxFilterCabinetType;
-	private JLabel lblCabinetType;
-	private JCheckBox chckbxIncludeSamples;
-	private JFileDropTextField tfDisksDest;
-	private JButton btDisksDest;
-	private JFileDropTextField tfSamplesDest;
-	private JButton btSamplesDest;
-	private JCheckBox lblSamplesDest;
-	private JComboBox<Supported> cbbxSWMinSupportedLvl;
-	private JLabel lblSwMinSupportedLvl;
-	private JMenuItem mntmDropCache;
-	private JCheckBox chckbxIgnoreUnneededContainers;
-	private JCheckBox chckbxIgnoreUnneededEntries;
-	private JCheckBox chckbxIgnoreUnknownContainers;
-	private JSeparator separator;
-	private JMenuItem mntmUpdateFromMame;
-	private JCheckBox lblDisksDest;
-	private JCheckBox chckbxUseImplicitMerge;
-	private JCheckBox lblSWDest;
-	private JFileDropTextField tfSWDest;
-	private JButton btnSWDest;
-	private JCheckBox lblSWDisksDest;
-	private JFileDropTextField tfSWDisksDest;
-	private JButton btSWDisksDest;
-	private JPanel scannerAdvFilters;
-	private JComboBox<String> cbbxYearMin;
-	private JLabel lblYear;
-	private JComboBox<String> cbbxYearMax;
-	private JSplitPane scannerFilters;
-	private JPanel panel_1;
-	private JScrollPane scrollPaneCatVer;
-	private JScrollPane scrollPaneNPlayers;
-	private JCheckBoxList<NPlayer> listNPlayers;
-	private JCheckBoxTree treeCatVer;
-	private JFileDropTextField tfNPlayers;
-	private JFileDropTextField tfCatVer;
-	private JPopupMenu popupMenuCat;
-	private JMenu mnSelectCat;
-	private JMenu mnUnselectCat;
-	private JMenuItem mntmSelectAllCat;
-	private JMenuItem mntmSelectMatureCat;
-	private JMenuItem mntmUnselectAllCat;
-	private JMenuItem mntmUnselectMatureCat;
-	private JPopupMenu popupMenuNPlay;
-	private JMenuItem mntmSelectAllNPlay;
-	private JMenuItem mntmSelectNoneNPlay;
-	private JMenuItem mntmInvertSelectionNPlay;
-
-	private static void addPopup(final Component component, final JPopupMenu popup)
-	{
-		component.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mousePressed(final MouseEvent e)
-			{
-				if(e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			@Override
-			public void mouseReleased(final MouseEvent e)
-			{
-				if(e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			private void showMenu(final MouseEvent e)
-			{
-				popup.show(e.getComponent(), e.getX(), e.getY());
-			}
-		});
+		final Runtime rt = Runtime.getRuntime();
+		lblMemoryUsage.setText(String.format(Messages.getString("MainFrame.MemoryUsage"), FileUtils.byteCountToDisplaySize(rt.totalMemory()), FileUtils.byteCountToDisplaySize(rt.totalMemory() - rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.maxMemory()))); //$NON-NLS-1$
 	}
 }
