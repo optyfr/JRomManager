@@ -80,7 +80,7 @@ public class MainFrame extends JFrame
 	private JButton btnLoadProfile;
 	private JButton btnImportDat;
 	private JSplitPane profilesPanel;
-	private JTextField txtRomsDest;
+	private JFileDropTextField txtRomsDest;
 	private JButton btnRomsDest;
 	private JLabel lblRomsDest;
 	private JPanel scannerBtnPanel;
@@ -484,6 +484,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(lblRomsDest, gbc_lblRomsDest);
 
 		txtRomsDest = new JFileDropTextField(txt -> Profile.curr_profile.setProperty("roms_dest_dir", txt)); //$NON-NLS-1$
+		txtRomsDest.setMode(JFileDropMode.DIRECTORY);
 		txtRomsDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		txtRomsDest.setColumns(10);
 		final GridBagConstraints gbc_txtRomsDest = new GridBagConstraints();
@@ -526,6 +527,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(lblDisksDest, gbc_lblDisksDest);
 
 		tfDisksDest = new JFileDropTextField(txt -> Profile.curr_profile.setProperty("disks_dest_dir", txt)); //$NON-NLS-1$
+		tfDisksDest.setMode(JFileDropMode.DIRECTORY);
 		tfDisksDest.setEnabled(false);
 		tfDisksDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfDisksDest.setText(""); //$NON-NLS-1$
@@ -570,6 +572,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(lblSWDest, gbc_lblSWDest);
 
 		tfSWDest = new JFileDropTextField(txt -> Profile.curr_profile.setProperty("swroms_dest_dir", txt)); //$NON-NLS-1$
+		tfSWDest.setMode(JFileDropMode.DIRECTORY);
 		tfSWDest.setEnabled(false);
 		tfSWDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfSWDest.setText(""); //$NON-NLS-1$
@@ -612,6 +615,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(lblSWDisksDest, gbc_lblSWDisksDest);
 
 		tfSWDisksDest = new JFileDropTextField(txt -> Profile.curr_profile.setProperty("swdisks_dest_dir", txt)); //$NON-NLS-1$
+		tfSWDisksDest.setMode(JFileDropMode.DIRECTORY);
 		tfSWDisksDest.setEnabled(false);
 		tfSWDisksDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfSWDisksDest.setText(""); //$NON-NLS-1$
@@ -656,6 +660,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(lblSamplesDest, gbc_lblSamplesDest);
 
 		tfSamplesDest = new JFileDropTextField(txt -> Profile.curr_profile.setProperty("samples_dest_dir", txt)); //$NON-NLS-1$
+		tfSamplesDest.setMode(JFileDropMode.DIRECTORY);
 		tfSamplesDest.setEnabled(false);
 		tfSamplesDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfSamplesDest.setText(""); //$NON-NLS-1$
@@ -696,6 +701,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(lblSrcDir, gbc_lblSrcDir);
 
 		listSrcDir = new JFileDropList(files -> Profile.curr_profile.setProperty("src_dir", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); // $NON-NLS-1$ $NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
+		listSrcDir.setMode(JFileDropMode.DIRECTORY);
 		listSrcDir.setUI(new JListHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		final GridBagConstraints gbc_listSrcDir = new GridBagConstraints();
 		gbc_listSrcDir.gridwidth = 2;
@@ -1197,6 +1203,7 @@ public class MainFrame extends JFrame
 			Profile.curr_profile.saveSettings();
 			listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
 		});
+		tfNPlayers.setMode(JFileDropMode.FILE);
 		tfNPlayers.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropNPlayersIniHere"), Color.gray)); //$NON-NLS-1$
 		tfNPlayers.setEditable(false);
 		final GridBagConstraints gbc_tfNPlayers = new GridBagConstraints();
@@ -1212,6 +1219,7 @@ public class MainFrame extends JFrame
 			Profile.curr_profile.saveSettings();
 			treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());
 		});
+		tfCatVer.setMode(JFileDropMode.FILE);
 		tfCatVer.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropCatVerIniHere"), Color.gray)); //$NON-NLS-1$
 		tfCatVer.setEditable(false);
 		final GridBagConstraints gbc_tfCatVer = new GridBagConstraints();
@@ -1412,16 +1420,9 @@ public class MainFrame extends JFrame
 		gbc_lblZipECmd.gridy = 1;
 		panelZipE.add(lblZipECmd, gbc_lblZipECmd);
 
-		tfZipECmd = new JTextField();
-		tfZipECmd.addFocusListener(new FocusAdapter()
-		{
-			@Override
-			public void focusLost(final FocusEvent e)
-			{
-				Settings.setProperty("zip_cmd", tfZipECmd.getText()); //$NON-NLS-1$
-			}
-		});
-		tfZipECmd.addActionListener(arg0 -> Settings.setProperty("zip_cmd", tfZipECmd.getText())); //$NON-NLS-1$
+		tfZipECmd = new JFileDropTextField(txt->Settings.setProperty("zip_cmd", txt));//$NON-NLS-1$
+		tfZipECmd.setMode(JFileDropMode.FILE);
+		tfZipECmd.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfZipECmd.setText(Settings.getProperty("zip_cmd", FindCmd.find7z())); //$NON-NLS-1$
 		final GridBagConstraints gbc_tfZipECmd = new GridBagConstraints();
 		gbc_tfZipECmd.insets = new Insets(0, 0, 5, 0);
@@ -1520,16 +1521,9 @@ public class MainFrame extends JFrame
 		gbc_lbl7zCmd.gridy = 1;
 		panel7Zip.add(lbl7zCmd, gbc_lbl7zCmd);
 
-		tf7zCmd = new JTextField();
-		tf7zCmd.addFocusListener(new FocusAdapter()
-		{
-			@Override
-			public void focusLost(final FocusEvent e)
-			{
-				Settings.setProperty("7z_cmd", tf7zCmd.getText()); //$NON-NLS-1$
-			}
-		});
-		tf7zCmd.addActionListener(e -> Settings.setProperty("7z_cmd", tf7zCmd.getText())); //$NON-NLS-1$
+		tf7zCmd = new JFileDropTextField(txt->Settings.setProperty("7z_cmd", txt)); //$NON-NLS-1$
+		tf7zCmd.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
+		tf7zCmd.setMode(JFileDropMode.FILE);
 		tf7zCmd.setText(Settings.getProperty("7z_cmd", FindCmd.find7z())); //$NON-NLS-1$
 		tf7zCmd.setColumns(30);
 		final GridBagConstraints gbc_tf7zCmd = new GridBagConstraints();
@@ -1958,14 +1952,14 @@ public class MainFrame extends JFrame
 	private JCheckBox chkbxZipUseTemp;
 	private JPanel panelZipE;
 	private JLabel lblZipECmd;
-	private JTextField tfZipECmd;
+	private JFileDropTextField tfZipECmd;
 	private JButton btZipECmd;
 	private JLabel lblZipEArgs;
 	private JComboBox<ZipOptions> cbZipEArgs;
 	private JLabel lblZipWarn;
 	private JPanel panel7Zip;
 	private JLabel lbl7zCmd;
-	private JTextField tf7zCmd;
+	private JFileDropTextField tf7zCmd;
 	private JButton btn7zCmd;
 	private JLabel lbl7zArgs;
 	private JComboBox<SevenZipOptions> cb7zArgs;
@@ -2020,9 +2014,9 @@ public class MainFrame extends JFrame
 	private JComboBox<CabinetType> cbbxFilterCabinetType;
 	private JLabel lblCabinetType;
 	private JCheckBox chckbxIncludeSamples;
-	private JTextField tfDisksDest;
+	private JFileDropTextField tfDisksDest;
 	private JButton btDisksDest;
-	private JTextField tfSamplesDest;
+	private JFileDropTextField tfSamplesDest;
 	private JButton btSamplesDest;
 	private JCheckBox lblSamplesDest;
 	private JComboBox<Supported> cbbxSWMinSupportedLvl;
@@ -2036,10 +2030,10 @@ public class MainFrame extends JFrame
 	private JCheckBox lblDisksDest;
 	private JCheckBox chckbxUseImplicitMerge;
 	private JCheckBox lblSWDest;
-	private JTextField tfSWDest;
+	private JFileDropTextField tfSWDest;
 	private JButton btnSWDest;
 	private JCheckBox lblSWDisksDest;
-	private JTextField tfSWDisksDest;
+	private JFileDropTextField tfSWDisksDest;
 	private JButton btSWDisksDest;
 	private JPanel scannerAdvFilters;
 	private JComboBox<String> cbbxYearMin;

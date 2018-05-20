@@ -10,6 +10,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JTextField;
 import javax.swing.text.Document;
@@ -19,6 +20,7 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 {
 	private final Color color;
 	private final SetCallBack callback;
+	private JFileDropMode mode = JFileDropMode.FILE;
 
 	public interface SetCallBack
 	{
@@ -54,6 +56,11 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 		new DropTarget(this, this);
 	}
 
+	public void setMode(JFileDropMode mode)
+	{
+		this.mode = mode;
+	}
+
 	@Override
 	public void focusGained(final FocusEvent e)
 	{
@@ -62,7 +69,7 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 	@Override
 	public void focusLost(final FocusEvent e)
 	{
-		if(callback != null)
+		if (callback != null)
 			callback.call(JFileDropTextField.this.getText());
 	}
 
@@ -70,7 +77,7 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 	public void dragEnter(final DropTargetDragEvent dtde)
 	{
 		final Transferable transferable = dtde.getTransferable();
-		if(JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+		if (JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 		{
 			JFileDropTextField.this.setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
 			dtde.acceptDrag(DnDConstants.ACTION_COPY);
@@ -106,27 +113,34 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 		{
 			final Transferable transferable = dtde.getTransferable();
 
-			if(JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+			if (JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 			{
 				dtde.acceptDrop(DnDConstants.ACTION_COPY);
 				@SuppressWarnings("unchecked")
-				final
-				List<File> files = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
-				if(files.size() == 1)
+				final List<File> files = ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor)).stream().filter(f -> {
+					if (mode == JFileDropMode.DIRECTORY && !f.isDirectory())
+						return false;
+					else if (mode == JFileDropMode.FILE && !f.isFile())
+						return false;
+					return true;
+				}).collect(Collectors.toList());
+				if (files.size() == 1)
 				{
 					JFileDropTextField.this.setText(files.get(0).getAbsolutePath());
 					callback.call(JFileDropTextField.this.getText());
+					dtde.getDropTargetContext().dropComplete(true);
 				}
-				dtde.getDropTargetContext().dropComplete(true);
+				else
+					dtde.getDropTargetContext().dropComplete(false);
 			}
 			else
 				dtde.rejectDrop();
 		}
-		catch(final UnsupportedFlavorException e)
+		catch (final UnsupportedFlavorException e)
 		{
 			dtde.rejectDrop();
 		}
-		catch(final Exception e)
+		catch (final Exception e)
 		{
 			dtde.rejectDrop();
 		}
