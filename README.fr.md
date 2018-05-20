@@ -53,11 +53,11 @@ _Behavior compared to other Rom managers_
 - Double click on software name in profile viewer will launch software with a valid machine (if Mame is linked with profile and item is green)
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
 - Integrated TorrentZip support using [Jtrrentzip](https://github.com/optyfr/Jtrrntzip)
+- Advanced filtering functionalities when a nplayers.ini and catver.ini is associated with a mame profile
+- Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
+- Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
 
 ## Short Term Planned Features
-- Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
-- More Drag & Drop
-- More Filtering functionalities (categories, samples, ...)
 
 ## Middle Term Planned Features
 - Dir2Dat, Dat2Dat
