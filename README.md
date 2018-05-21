@@ -21,43 +21,43 @@ _Minimal usage requirements_:
 - ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~
 
 _Behavior compared to other Rom managers_
-- By default, Split mode may differ from ClrMamePro, it's because JRomManager is respectful of the merge attribute, whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also respectful of the merge attribute. To reproduce the same behaviour you will have to select "implicit merge" option in profile settings
+- By default, Split mode may differ from ClrMamePro, it's because JRomManager is by default using "explicit merging" and so will split only according the merge attribute presence (as preconised in logiqx faq), whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also known to be respectful of the merge attribute. To reproduce the ClrMamePro behavior you will have to select "implicit merge" option in profile settings
 
 ## Current Features
-- Zip support
 - Mame and Logiqx Dat formats
 - Import from Mame executable
-- Dat parsing caching via Java Serialization
-- Optimized to permit scan over shared network
-- Dir scan caching via Java Serialization based on FileMDate+FileSize, one cache file per romdir, reusable between different Dat Scans if same dir used
+- Dat manager with stats and mame update check (if imported from mame)
+- Zip support
 - Split Scan/Fix/Rebuild
 - Non-Merged Scan/Fix/Rebuild
 - Merged Scan/Fix/Rebuild (with choice in case of name collision)
 - Full SHA1 scan or on-need SHA1 scan in case of suspicious CRC32
 - Retain SHA1 in cache until zip file change
-- CHD support (no separate dir from roms yet)
+- CHD support
+- Software List support
 - Per profile settings (what to fix, how to scan, ...)
 - MultiThreading support (at least for archive manipulation and checksum calculation, fast disks required)
 - MD5 support (for old dats)
 - 7z support via SevenZipJBinding + 7z command line as functional backup
-- TorrentZip support via trrntzip command line
+- TorrentZip support using [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
+- Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
 - Multiple Source Dir
+- Dat parsing caching via Java Serialization
+- Optimized to permit scan over shared network
+- Dir scan caching via Java Serialization based on FileMDate+FileSize, one cache file per romdir, reusable between different Dat Scans if same dir used
 - Enhanced Gui with Report
 - Translated to English and French
-- Software List support
 - Filtering functionalities (clone, chds, systems list, display mode, cabinet type, driver status, ...)
 - Optional Separate Dest dir between Roms, CHDs, Software Roms, Software CHDs
-- Dat manager with stats and mame update check (if imported from mame)
 - Drag & Drop on src/dest dirs controls
 - Double click on game name in profile viewer will launch game if (Mame is linked with profile and item is green)
 - Double click on software name in profile viewer will launch software with a valid machine (if Mame is linked with profile and item is green)
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
-- Integrated TorrentZip support using [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
 - Advanced filtering functionalities when a nplayers.ini and catver.ini is associated with a mame profile
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
-- Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
 
 ## Short Term Planned Features
+- Check for new version of JRomManager and option to auto update
 
 ## Middle Term Planned Features
 - Dir2Dat
@@ -67,6 +67,7 @@ _Behavior compared to other Rom managers_
 - Interoperability with other managers?
 - Torrent7Z support ?
 - Batch mode?
+- Headered Roms support?
 
 ## Not planned features
 - Inverted/complemented CRC: obsolete replaced by "status" attribute since Mame 0.68
