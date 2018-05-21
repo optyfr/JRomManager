@@ -57,6 +57,7 @@ _Comportement comparé aux autres gestionnaires de Roms_
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
 
 ## Fonctionalités planifiées à court terme
+- Check for new version of JRomManager and option to auto update
 
 ## Fonctionalités planifiées à moyen terme
 - Dir2Dat
@@ -66,6 +67,7 @@ _Comportement comparé aux autres gestionnaires de Roms_
 - Interopérabilité avec d'autres gestionnaires?
 - Support de Torrent7Z ?
 - Mode Batch?
+- Gestion des Roms avec entête?
 
 ## Fonctionalités non envisagées
 - Support des CRC inversés/complémentés: obsolète remplacé par l'attribut "status" depuis Mame 0.68
