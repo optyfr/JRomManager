@@ -10,15 +10,21 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
 	</natures>
 	<linkedResources>
 		<link>
-			<name>src2</name>
+			<name>Jtrrntzip-src</name>
 			<type>2</type>
-			<locationURI>JTRRNTZIP/src</locationURI>
+			<location>D:/Git/JRomManager/Jtrrntzip/src</location>
 		</link>
 	</linkedResources>
 	<variableList>

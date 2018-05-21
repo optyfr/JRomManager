@@ -1,0 +1,79 @@
+apply plugin: 'java'
+
+def props = new Properties()
+file("dist/ver.properties").withInputStream { props.load(it) }
+
+version = props.getProperty("Specification-Version")+props.getProperty("Implementation-Version")
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+	compile group: 'commons-io', name: 'commons-io', version: '2.6'
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+	compile group: 'org.apache.commons', name: 'commons-text', version: '1.3'
+	compile group: 'org.apache.commons', name: 'commons-compress', version: '1.16.1'
+	compile group: 'one.util', name: 'streamex', version: '0.6.7'
+	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding', version: '9.20-2.00beta'
+	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms', version: '9.20-2.00beta'
+}
+
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src", "../Jtrrntzip/src"]
+        }
+    }
+}
+
+task copyRuntimeLibs(type: Copy) {  
+    into "$buildDir/libs/lib/"
+    from configurations.compile
+}
+
+task copyLaunchScript(type: Copy) {  
+    from ('dist') {
+    	include '*.bat'
+    	include '*.sh'
+    }
+    into "$buildDir/libs/"
+}
+
+// attach to assemble task
+assemble.dependsOn copyRuntimeLibs
+assemble.dependsOn copyLaunchScript
+
+jar {
+	manifest {
+		attributes(
+			"Manifest-Version"     : "1.0",
+		    "Specification-Title"  : "JRomManager",
+		    "Specification-Version": props.getProperty("Specification-Version"),
+        	"Implementation-Title" : "jrm",
+            "Implementation-Version" : props.getProperty("Implementation-Version"),
+            "Main-Class"           : "JRomManager",
+            "Class-Path"           : configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
+		)
+		archiveName baseName + '.' + extension
+	}
+}
+
+apply plugin: 'distribution'
+
+distributions {
+    main {
+         contents {
+        	from (configurations.compile) {
+        		into('lib')
+        	}
+        	from (jar)
+        	from ('dist') {
+		    	include '*.bat'
+    			include '*.sh'
+    		}
+        }
+    }
+}
