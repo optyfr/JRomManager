@@ -57,6 +57,7 @@ public class Scan
 	public Scan(final Profile profile, final ProgressHandler handler) throws BreakException
 	{
 		this.profile = profile;
+		profile.setPropsCheckPoint();
 		Scan.report.reset();
 		format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
 		merge_mode = MergeOptions.valueOf(profile.getProperty("merge_mode", MergeOptions.SPLIT.toString())); //$NON-NLS-1$
@@ -123,6 +124,7 @@ public class Scan
 		}
 		if (profile.machinelist_list.get(0).size() > 0)
 		{
+			profile.machinelist_list.get(0).resetFilteredName();
 			roms_dstscan = dirscan(profile.machinelist_list.get(0), roms_dstdir, unknown, handler);
 			if (roms_dstdir.equals(disks_dstdir))
 				disks_dstscan = roms_dstscan;
@@ -139,6 +141,7 @@ public class Scan
 			handler.setProgress2(String.format("%d/%d", j.get(), profile.machinelist_list.softwarelist_list.size()), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
 			for (final SoftwareList sl : profile.machinelist_list.softwarelist_list.getFilteredStream().collect(Collectors.toList()))
 			{
+				sl.resetFilteredName();
 				File sldir = new File(swroms_dstdir, sl.getName());
 				if (!sldir.exists())
 					sldir.mkdirs();
@@ -270,7 +273,7 @@ public class Scan
 		{
 			if (c.getType() == Container.Type.UNK)
 				unknown.add(c);
-			else if (!byname.containsName(FilenameUtils.getBaseName(c.file.toString())))
+			else if (!byname.containsFilteredName(FilenameUtils.getBaseName(c.file.toString())))
 				unknown.add(c);
 		}
 		return dstscan;

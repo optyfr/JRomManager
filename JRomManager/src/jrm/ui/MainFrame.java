@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.swing.*;
@@ -276,6 +275,23 @@ public class MainFrame extends JFrame
 			@Override
 			protected Void doInBackground() throws Exception
 			{
+				if(Profile.curr_profile.hasPropsChanged())
+				{
+					switch(JOptionPane.showConfirmDialog(MainFrame.this, "Settings did change since last scan, you should rescan before fixing", "Rescan before fix?", JOptionPane.YES_NO_CANCEL_OPTION))
+					{
+						case JOptionPane.YES_OPTION:
+							curr_scan = new Scan(Profile.curr_profile, progress);
+							btnFix.setEnabled(curr_scan.actions.stream().mapToInt(Collection::size).sum()>0);
+							if(!btnFix.isEnabled())
+								return null;
+							break;
+						case JOptionPane.NO_OPTION:
+							break;
+						case JOptionPane.CANCEL_OPTION:
+						default:
+							return null;
+					}
+				}
 				final Fix fix = new Fix(Profile.curr_profile, curr_scan, progress);
 				btnFix.setEnabled(fix.getActionsRemain() > 0);
 				return null;
@@ -2057,9 +2073,7 @@ public class MainFrame extends JFrame
 			protected Void doInBackground() throws Exception
 			{
 				curr_scan = new Scan(Profile.curr_profile, progress);
-				final AtomicInteger actions_todo = new AtomicInteger(0);
-				curr_scan.actions.forEach(actions -> actions_todo.addAndGet(actions.size()));
-				btnFix.setEnabled(actions_todo.get() > 0);
+				btnFix.setEnabled(curr_scan.actions.stream().mapToInt(Collection::size).sum()>0);
 				return null;
 			}
 

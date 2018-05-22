@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,8 +14,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
-import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.Messages;
+import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
 import jrm.profile.data.Machine.CabinetType;
@@ -233,4 +235,29 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	{
 		return name;
 	}
+
+	private transient Map<String, Machine> m_filtered_byname = null;
+
+	@Override
+	public void resetFilteredName()
+	{
+		m_filtered_byname = getFilteredStream().collect(Collectors.toMap(Machine::getBaseName, Function.identity()));
+	}
+
+	@Override
+	public boolean containsFilteredName(String name)
+	{
+		if(m_filtered_byname==null)
+			resetFilteredName();
+		return m_filtered_byname.containsKey(name);
+	}
+
+	@Override
+	public Machine getFilteredByName(String name)
+	{
+		if(m_filtered_byname==null)
+			resetFilteredName();
+		return m_filtered_byname.get(name);
+	}
+
 }

@@ -41,4 +41,21 @@ public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samp
 	{
 		return samplesets.size();
 	}
+
+	@Override
+	public void resetFilteredName()
+	{
+	}
+
+	@Override
+	public boolean containsFilteredName(String name)
+	{
+		return containsName(name);
+	}
+
+	@Override
+	public Samples getFilteredByName(String name)
+	{
+		return getByName(name);
+	}
 }

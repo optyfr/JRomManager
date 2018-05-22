@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,9 +14,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
+import jrm.Messages;
 import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Export.SimpleAttribute;
-import jrm.Messages;
 import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
 import jrm.ui.ProgressHandler;
@@ -222,5 +223,29 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	public Software putByName(Software t)
 	{
 		return s_byname.put(t.name, t);
+	}
+	
+	private transient Map<String, Software> s_filtered_byname = null;
+
+	@Override
+	public void resetFilteredName()
+	{
+		s_filtered_byname = getFilteredStream().collect(Collectors.toMap(Software::getBaseName, Function.identity()));
+	}
+
+	@Override
+	public boolean containsFilteredName(String name)
+	{
+		if(s_filtered_byname==null)
+			resetFilteredName();
+		return s_filtered_byname.containsKey(name);
+	}
+
+	@Override
+	public Software getFilteredByName(String name)
+	{
+		if(s_filtered_byname==null)
+			resetFilteredName();
+		return s_filtered_byname.get(name);
 	}
 }

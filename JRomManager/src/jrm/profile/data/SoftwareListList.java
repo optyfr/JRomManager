@@ -3,10 +3,8 @@ package jrm.profile.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -160,6 +158,30 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	public SoftwareList putByName(SoftwareList t)
 	{
 		return sl_byname.put(t.name, t);
+	}
+
+	private transient Map<String, SoftwareList> sl_filtered_byname = null;
+
+	@Override
+	public void resetFilteredName()
+	{
+		sl_filtered_byname = getFilteredStream().collect(Collectors.toMap(SoftwareList::getBaseName, Function.identity()));
+	}
+
+	@Override
+	public boolean containsFilteredName(String name)
+	{
+		if(sl_filtered_byname==null)
+			resetFilteredName();
+		return sl_filtered_byname.containsKey(name);
+	}
+
+	@Override
+	public SoftwareList getFilteredByName(String name)
+	{
+		if(sl_filtered_byname==null)
+			resetFilteredName();
+		return sl_filtered_byname.get(name);
 	}
 
 }

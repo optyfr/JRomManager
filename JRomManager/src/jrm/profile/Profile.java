@@ -860,6 +860,18 @@ public class Profile implements Serializable
 		return settings.getProperty(property, def);
 	}
 
+	private int props_hashcode = 0;
+	
+	public void setPropsCheckPoint()
+	{
+		props_hashcode = settings.hashCode();
+	}
+	
+	public boolean hasPropsChanged()
+	{
+		return props_hashcode != settings.hashCode();
+	}
+	
 	public String getName()
 	{
 		String name = "<html><body>[<span color='blue'>" + Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
