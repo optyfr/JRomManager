@@ -22,11 +22,14 @@ dependencies {
 
 
 sourceSets {
-    main {
-        java {
-            srcDirs = ["src","../Jtrrntzip/src"]
-        }
-    }
+	main {
+		java {
+			srcDirs = ["src","../Jtrrntzip/src"]
+		}
+		resources {
+			srcDirs = ["src","../Jtrrntzip/src"]
+		}
+	}
 }
 
 task copyRuntimeLibs(type: Copy) {  
