@@ -22,6 +22,8 @@ public interface Systm extends Serializable, PropertyStub
 	@Override
 	public default String getPropertyName()
 	{
+		if(getType()==Type.SOFTWARELIST)
+			return "filter.systems.swlist." + getName();
 		return "filter.systems." + getName();
 	}
 }
