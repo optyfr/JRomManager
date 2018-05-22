@@ -367,7 +367,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 
 		@Override
-		public Enumeration<?> children()
+		public Enumeration<? extends TreeNode> children()
 		{
 			return null;
 		}

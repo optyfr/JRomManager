@@ -58,7 +58,7 @@ public class CatVerModel extends DefaultTreeModel
 			}
 
 			@Override
-			public Enumeration<?> children()
+			public Enumeration<? extends TreeNode> children()
 			{
 				return null;
 			}

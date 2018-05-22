@@ -24,7 +24,7 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDirs = ["src", "../Jtrrntzip/src"]
+            srcDirs = ["src","../Jtrrntzip/src"]
         }
     }
 }
@@ -38,6 +38,7 @@ task copyLaunchScript(type: Copy) {
     from ('dist') {
     	include '*.bat'
     	include '*.sh'
+    	fileMode = 0755
     }
     into "$buildDir/libs/"
 }
@@ -73,6 +74,7 @@ distributions {
         	from ('dist') {
 		    	include '*.bat'
     			include '*.sh'
+    			fileMode = 0755
     		}
         }
     }

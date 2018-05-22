@@ -54,7 +54,7 @@ public abstract class Note implements TreeNode,HTMLRenderer
 	}
 
 	@Override
-	public Enumeration<?> children()
+	public Enumeration<? extends TreeNode> children()
 	{
 		return null;
 	}
