@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'eclipse'
 
 def props = new Properties()
 file("dist/ver.properties").withInputStream { props.load(it) }
@@ -7,6 +8,13 @@ version = props.getProperty("Specification-Version")+props.getProperty("Implemen
 
 repositories {
 	mavenCentral()
+}
+
+eclipse {
+	classpath {
+		downloadJavadoc = true
+		downloadSources = true
+	}
 }
 
 dependencies {
@@ -18,8 +26,8 @@ dependencies {
 	compile group: 'one.util', name: 'streamex', version: '0.6.7'
 	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding', version: '9.20-2.00beta'
 	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms', version: '9.20-2.00beta'
+	compile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 }
-
 
 sourceSets {
 	main {
