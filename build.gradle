@@ -1,0 +1,38 @@
+apply plugin: "java"
+
+dependencies {
+	implementation project(':JRomManager')
+	implementation project(':Jtrrntzip')
+	implementation project(':JUpdater')
+}
+
+evaluationDependsOn(project(':JUpdater').path)
+evaluationDependsOn(project(':JRomManager').path)
+
+task myZip(type: Zip, dependsOn: [':JRomManager:assemble']) {
+	from (project(':JRomManager').configurations.compile) {
+		into('lib')
+	}
+	from (project(':JRomManager').jar)
+	archiveName 'JRomManager.zip'
+}
+
+task oneJar( type: Jar , dependsOn: [':JUpdater:assemble']) {
+    baseName = 'test'
+    from project(':JUpdater').sourceSets.main.output.classesDir
+	from project(':JUpdater').configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+	from myZip
+	manifest {
+		attributes(
+			"Manifest-Version"     : "1.0",
+			"Specification-Title"  : "JUpdater",
+			"Specification-Version": project(':JUpdater').props.getProperty("Specification-Version"),
+			"Implementation-Title" : "jrm",
+			"Implementation-Version" : project(':JUpdater').props.getProperty("Implementation-Version"),
+			"Main-Class"           : "jupdater.JUpdater",
+		)
+		archiveName baseName + '.' + extension
+	}
+}
+
+assemble.dependsOn oneJar

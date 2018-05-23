@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>JRomManager</name>
+	<name>JRomManagerDist</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -20,22 +20,4 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>JUpdater-src</name>
-			<type>2</type>
-			<location>E:/Src/Java/JRomManager/JUpdater/src</location>
-		</link>
-		<link>
-			<name>Jtrrntzip-src</name>
-			<type>2</type>
-			<location>E:/Src/Java/JRomManager/Jtrrntzip/src</location>
-		</link>
-	</linkedResources>
-	<variableList>
-		<variable>
-			<name>JTRRNTZIP</name>
-			<value>$%7BPARENT-1-PROJECT_LOC%7D/Jtrrntzip</value>
-		</variable>
-	</variableList>
 </projectDescription>
