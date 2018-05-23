@@ -9,30 +9,45 @@ dependencies {
 evaluationDependsOn(project(':JUpdater').path)
 evaluationDependsOn(project(':JRomManager').path)
 
-task myZip(type: Zip, dependsOn: [':JRomManager:assemble']) {
+task installZip(type: Zip, dependsOn: [':JRomManager:assemble']) {
 	from (project(':JRomManager').configurations.compile) {
 		into('lib')
 	}
 	from (project(':JRomManager').jar)
-	archiveName 'JRomManager.zip'
+	archiveName 'install.zip'
+	destinationDir = file("$buildDir/tmp/")
 }
 
-task oneJar( type: Jar , dependsOn: [':JUpdater:assemble']) {
-    baseName = 'test'
+task installProperties {
+   def props = new Properties()
+   props.setProperty('name','optyfr')
+   props.setProperty('project','JRomManager')
+   def writer = new FileWriter(file("$buildDir/tmp/install.properties"))
+   try {
+      props.store(writer,null)
+      writer.flush()
+   } finally {
+      writer.close()
+   }
+}
+task oneJar( type: Jar , dependsOn: [':JUpdater:assemble', installProperties]) {
+    baseName = 'JRomManager-install-'+project(':JRomManager').version
     from project(':JUpdater').sourceSets.main.output.classesDir
 	from project(':JUpdater').configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-	from myZip
+	from installZip
+	from file("$buildDir/tmp/install.properties")
 	manifest {
 		attributes(
 			"Manifest-Version"     : "1.0",
-			"Specification-Title"  : "JUpdater",
-			"Specification-Version": project(':JUpdater').props.getProperty("Specification-Version"),
+			"Specification-Title"  : "JRomManager",
+			"Specification-Version": project(':JRomManager').props.getProperty("Specification-Version"),
 			"Implementation-Title" : "jrm",
-			"Implementation-Version" : project(':JUpdater').props.getProperty("Implementation-Version"),
+			"Implementation-Version" : project(':JRomManager').props.getProperty("Implementation-Version"),
 			"Main-Class"           : "jupdater.JUpdater",
 		)
 		archiveName baseName + '.' + extension
 	}
+	destinationDir = file("$buildDir/distributions/")
 }
 
 assemble.dependsOn oneJar

@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-def props = new Properties()
+ext.props = new Properties()
 file("dist/ver.properties").withInputStream { props.load(it) }
 
 version = props.getProperty("Specification-Version")+props.getProperty("Implementation-Version")
@@ -83,6 +83,7 @@ distributions {
         		into('lib')
         	}
         	from (jar)
+        	from (project(':JUpdater').jar)
         	from ('dist') {
 		    	include '*.bat'
     			include '*.sh'
