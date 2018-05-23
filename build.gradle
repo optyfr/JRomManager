@@ -14,6 +14,12 @@ task installZip(type: Zip, dependsOn: [':JRomManager:assemble']) {
 		into('lib')
 	}
 	from (project(':JRomManager').jar)
+   	from (project(':JUpdater').jar)
+   	from (new File(project(':JRomManager').projectDir,'dist')) {
+    	include '*.bat'
+		include '*.sh'
+		fileMode = 0755
+	}
 	archiveName 'install.zip'
 	destinationDir = file("$buildDir/tmp/")
 }
