@@ -121,9 +121,8 @@ public class ProfileViewer extends JDialog
 			{
 				final String search = txtSearch.getText();
 				@SuppressWarnings("unchecked")
-				final
-				int row = ((AnywareList<Anyware>) tableW.getModel()).find(search);
-				if(row >= 0)
+				final int row = ((AnywareList<Anyware>) tableW.getModel()).find(search);
+				if (row >= 0)
 				{
 					tableW.setRowSelectionInterval(row, row);
 					tableW.scrollRectToVisible(tableW.getCellRect(row, 0, true));
@@ -287,13 +286,13 @@ public class ProfileViewer extends JDialog
 		tglbtnCompleteWL.addItemListener(e -> setFilterWL(tglbtnMissingWL.isSelected(), tglbtnPartialWL.isSelected(), tglbtnCompleteWL.isSelected()));
 
 		tableWL.getSelectionModel().addListSelectionListener(e -> {
-			if(!e.getValueIsAdjusting())
+			if (!e.getValueIsAdjusting())
 			{
 				final ListSelectionModel model = (ListSelectionModel) e.getSource();
 				final TableModel tablemodel = tableWL.getModel();
-				if(model != null && tablemodel != null)
+				if (model != null && tablemodel != null)
 				{
-					if(!model.isSelectionEmpty())
+					if (!model.isSelectionEmpty())
 					{
 						final AnywareList<?> anywarelist = (AnywareList<?>) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
 						anywarelist.reset();
@@ -306,19 +305,19 @@ public class ProfileViewer extends JDialog
 								return columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getHeaderValue().toString();
 							}
 						});
-						if(tableW.getRowCount() > 0)
+						if (tableW.getRowCount() > 0)
 							tableW.setRowSelectionInterval(0, 0);
-						for(int i = 0; i < tableW.getColumnModel().getColumnCount(); i++)
+						for (int i = 0; i < tableW.getColumnModel().getColumnCount(); i++)
 						{
 							final TableColumn column = tableW.getColumnModel().getColumn(i);
 							column.setCellRenderer(anywarelist.getColumnRenderer(i));
 							final int width = anywarelist.getColumnWidth(i);
-							if(width > 0)
+							if (width > 0)
 							{
 								column.setMinWidth(width / 2);
 								column.setPreferredWidth(width);
 							}
-							else if(width < 0)
+							else if (width < 0)
 							{
 								column.setMinWidth(-width);
 								column.setMaxWidth(-width);
@@ -338,48 +337,48 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void mouseClicked(final MouseEvent e)
 			{
-				if(e.getClickCount() == 2)
+				if (e.getClickCount() == 2)
 				{
 					final JTable target = (JTable) e.getSource();
 					int row = target.getSelectedRow();
-					if(row >= 0)
+					if (row >= 0)
 					{
 						final AnywareList<?> tablemodel = (AnywareList<?>) target.getModel();
 						final int column = target.columnAtPoint(e.getPoint());
 						final Object obj = tablemodel.getValueAt(row, column);
-						if(obj instanceof Anyware)
+						if (obj instanceof Anyware)
 						{
 							final Anyware ware = (Anyware) obj;
-							if(column > 1)
+							if (column > 1)
 							{
 								row = tablemodel.find(ware);
-								if(row >= 0)
+								if (row >= 0)
 								{
 									target.setRowSelectionInterval(row, row);
 									target.scrollRectToVisible(target.getCellRect(row, 0, true));
 								}
 							}
-							else if(ware.getStatus() == AnywareStatus.COMPLETE)
+							else if (ware.getStatus() == AnywareStatus.COMPLETE)
 							{
-								if(Profile.curr_profile != null)
+								if (Profile.curr_profile != null)
 								{
 									final Profile profile = Profile.curr_profile;
-									if(profile.nfo.mame.getStatus() == MameStatus.UPTODATE)
+									if (profile.nfo.mame.getStatus() == MameStatus.UPTODATE)
 									{
 										final ProfileNFOMame mame = profile.nfo.mame;
 										String[] args = null;
-										if(ware instanceof Software)
+										if (ware instanceof Software)
 										{
 											final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty("roms_dest_dir", ""))); //$NON-NLS-1$ //$NON-NLS-2$
-											if(profile.getProperty("swroms_dest_dir_enabled", false)) //$NON-NLS-1$
+											if (profile.getProperty("swroms_dest_dir_enabled", false)) //$NON-NLS-1$
 												rompaths.add(profile.getProperty("swroms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-											if(profile.getProperty("disks_dest_dir_enabled", false)) //$NON-NLS-1$
+											if (profile.getProperty("disks_dest_dir_enabled", false)) //$NON-NLS-1$
 												rompaths.add(profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-											if(profile.getProperty("swdisks_dest_dir_enabled", false)) //$NON-NLS-1$
+											if (profile.getProperty("swdisks_dest_dir_enabled", false)) //$NON-NLS-1$
 												rompaths.add(profile.getProperty("swdisks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 											System.out.println(((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility); //$NON-NLS-1$
 											final Machine machine = profile.machinelist_list.findMachine(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility);
-											if(machine != null)
+											if (machine != null)
 											{
 												System.out.println("-> " + machine.getBaseName() + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$
 												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -388,18 +387,18 @@ public class ProfileViewer extends JDialog
 										else
 										{
 											final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty("roms_dest_dir", ""))); //$NON-NLS-1$ //$NON-NLS-2$
-											if(profile.getProperty("disks_dest_dir_enabled", false)) //$NON-NLS-1$
+											if (profile.getProperty("disks_dest_dir_enabled", false)) //$NON-NLS-1$
 												rompaths.add(profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 											args = new String[] { mame.getFile().getAbsolutePath(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 										}
-										if(args != null)
+										if (args != null)
 										{
 											final ProcessBuilder pb = new ProcessBuilder(args).directory(mame.getFile().getParentFile()).redirectErrorStream(true).redirectOutput(new File(mame.getFile().getParentFile(), "JRomManager.log")); //$NON-NLS-1$
 											try
 											{
 												pb.start().waitFor();
 											}
-											catch(InterruptedException | IOException e1)
+											catch (InterruptedException | IOException e1)
 											{
 												JOptionPane.showMessageDialog(ProfileViewer.this, e1.getMessage(), Messages.getString("ProfileViewer.Exception"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 											}
@@ -425,13 +424,13 @@ public class ProfileViewer extends JDialog
 			}
 		});
 		tableW.getSelectionModel().addListSelectionListener(e -> {
-			if(!e.getValueIsAdjusting())
+			if (!e.getValueIsAdjusting())
 			{
 				final ListSelectionModel model = (ListSelectionModel) e.getSource();
 				final TableModel tablemodel = tableW.getModel();
-				if(model != null && tablemodel != null)
+				if (model != null && tablemodel != null)
 				{
-					if(!model.isSelectionEmpty())
+					if (!model.isSelectionEmpty())
 					{
 						final Anyware anyware = (Anyware) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
 						anyware.reset();
@@ -444,17 +443,17 @@ public class ProfileViewer extends JDialog
 								return columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getHeaderValue().toString();
 							}
 						});
-						for(int i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++)
+						for (int i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++)
 						{
 							final TableColumn column = tableEntity.getColumnModel().getColumn(i);
 							column.setCellRenderer(Anyware.getColumnRenderer(i));
 							final int width = Anyware.getColumnWidth(i);
-							if(width > 0)
+							if (width > 0)
 							{
 								column.setMinWidth(width / 2);
 								column.setPreferredWidth(width);
 							}
-							else if(width < 0)
+							else if (width < 0)
 							{
 								final Component component = column.getCellRenderer().getTableCellRendererComponent(tableEntity, null, false, false, 0, i);
 								final int pixwidth = component.getFontMetrics(component.getFont()).stringWidth(String.format("%0" + (-width) + "d", 0)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -508,7 +507,7 @@ public class ProfileViewer extends JDialog
 	{
 		new Thread(() -> {
 			final FileNameExtensionFilter fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> {  //$NON-NLS-1$//$NON-NLS-2$
+			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				final Progress progress = new Progress(ProfileViewer.this);
 				progress.setVisible(true);
 				Settings.setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
@@ -524,40 +523,40 @@ public class ProfileViewer extends JDialog
 	public void setFilterWL(final boolean missing, final boolean partial, final boolean complete)
 	{
 		final EnumSet<AnywareStatus> filter = EnumSet.of(AnywareStatus.UNKNOWN);
-		if(missing)
+		if (missing)
 			filter.add(AnywareStatus.MISSING);
-		if(partial)
+		if (partial)
 			filter.add(AnywareStatus.PARTIAL);
-		if(complete)
+		if (complete)
 			filter.add(AnywareStatus.COMPLETE);
 		((AnywareListList<?>) tableWL.getModel()).setFilter(filter);
-		if(tableWL.getRowCount() > 0)
+		if (tableWL.getRowCount() > 0)
 			tableWL.setRowSelectionInterval(0, 0);
 	}
 
 	public void setFilterW(final boolean missing, final boolean partial, final boolean complete)
 	{
 		final EnumSet<AnywareStatus> filter = EnumSet.of(AnywareStatus.UNKNOWN);
-		if(missing)
+		if (missing)
 			filter.add(AnywareStatus.MISSING);
-		if(partial)
+		if (partial)
 			filter.add(AnywareStatus.PARTIAL);
-		if(complete)
+		if (complete)
 			filter.add(AnywareStatus.COMPLETE);
 		((AnywareList<?>) tableW.getModel()).setFilter(filter);
-		if(tableW.getRowCount() > 0)
+		if (tableW.getRowCount() > 0)
 			tableW.setRowSelectionInterval(0, 0);
 	}
 
 	public void setFilterE(final boolean ko, final boolean ok)
 	{
 		final EnumSet<EntityStatus> filter = EnumSet.of(EntityStatus.UNKNOWN);
-		if(ko)
+		if (ko)
 			filter.add(EntityStatus.KO);
-		if(ok)
+		if (ok)
 			filter.add(EntityStatus.OK);
 		((Anyware) tableEntity.getModel()).setFilter(filter);
-		if(tableEntity.getRowCount() > 0)
+		if (tableEntity.getRowCount() > 0)
 			tableEntity.setRowSelectionInterval(0, 0);
 	}
 
@@ -572,37 +571,38 @@ public class ProfileViewer extends JDialog
 	{
 		final AnywareListList<?> model = profile.machinelist_list;
 		model.reset();
-		tableWL.setModel(model);
-		for(int i = 0; i < tableWL.getColumnModel().getColumnCount(); i++)
+		if (tableWL.getModel() != model)
+			tableWL.setModel(model);
+		for (int i = 0; i < tableWL.getColumnModel().getColumnCount(); i++)
 		{
 			final TableColumn column = tableWL.getColumnModel().getColumn(i);
 			column.setCellRenderer(model.getColumnRenderer(i));
 			final int width = model.getColumnWidth(i);
-			if(width > 0)
+			if (width > 0)
 			{
 				column.setMinWidth(width / 2);
 				column.setPreferredWidth(width);
 			}
-			else if(width < 0)
+			else if (width < 0)
 			{
 				column.setMinWidth(-width);
 				column.setMaxWidth(-width);
 			}
 		}
-		if(tableWL.getRowCount() > 0)
+		if (tableWL.getRowCount() > 0)
 			tableWL.setRowSelectionInterval(0, 0);
 	}
 
 	public void reload()
 	{
 		TableModel tablemodel = tableWL.getModel();
-		if(tablemodel instanceof AnywareListList<?>)
+		if (tablemodel instanceof AnywareListList<?>)
 			((AnywareListList<?>) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((AnywareListList<?>) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		tablemodel = tableW.getModel();
-		if(tablemodel instanceof AnywareList<?>)
+		if (tablemodel instanceof AnywareList<?>)
 			((AnywareList<?>) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((AnywareList<?>) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		tablemodel = tableEntity.getModel();
-		if(tablemodel instanceof Anyware)
+		if (tablemodel instanceof Anyware)
 			((Anyware) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((Anyware) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 	}
 
@@ -613,7 +613,7 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void mousePressed(final MouseEvent e)
 			{
-				if(e.isPopupTrigger())
+				if (e.isPopupTrigger())
 				{
 					showMenu(e);
 				}
@@ -622,7 +622,7 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void mouseReleased(final MouseEvent e)
 			{
-				if(e.isPopupTrigger())
+				if (e.isPopupTrigger())
 				{
 					showMenu(e);
 				}

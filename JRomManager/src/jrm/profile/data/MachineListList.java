@@ -3,13 +3,11 @@ package jrm.profile.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
@@ -76,6 +74,19 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	public int getColumnWidth(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsWidths[columnIndex];
+	}
+
+	public void reset()
+	{
+		this.filtered_list = null;
+		fireTableChanged(new TableModelEvent(this));
+		softwarelist_list.reset();
+	}
+
+	public void setFilter(final EnumSet<AnywareStatus> filter)
+	{
+		AnywareListList.filter = filter;
+		reset();
 	}
 
 	@Override

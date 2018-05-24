@@ -39,17 +39,8 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 		filtered_list = null;
 	}
 
-	public void reset()
-	{
-		this.filtered_list = null;
-		fireTableChanged(new TableModelEvent(this));
-	}
-
-	public void setFilter(final EnumSet<AnywareStatus> filter)
-	{
-		AnywareListList.filter = filter;
-		reset();
-	}
+	public abstract void reset();
+	public abstract void setFilter(final EnumSet<AnywareStatus> filter);
 
 	public abstract Stream<T> getFilteredStream();
 

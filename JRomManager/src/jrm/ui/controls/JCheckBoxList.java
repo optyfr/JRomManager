@@ -3,6 +3,7 @@ package jrm.ui.controls;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.function.Predicate;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -80,6 +81,21 @@ public class JCheckBoxList<E> extends JList<E>
 		repaint();
 	}
 
+	public void select(Predicate<E> predicate, boolean selected)
+	{
+		for(int i = 0; i < checkboxes.length; i++)
+		{
+			if(predicate.test(getModel().getElementAt(i)))
+			{
+				checkboxes[i].setSelected(selected);
+				for(final ListSelectionListener l : getListSelectionListeners())
+					l.valueChanged(new ListSelectionEvent(this, i, i, false));
+			}
+		}
+		repaint();
+	}
+
+	
 	JTristateCheckBox checkboxes[] = null;
 
 	public class CellRenderer implements ListCellRenderer<E>

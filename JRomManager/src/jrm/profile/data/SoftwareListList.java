@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
@@ -71,6 +72,18 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	public int getColumnWidth(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsWidths[columnIndex];
+	}
+
+	@Override
+	public void reset()
+	{
+		this.filtered_list = null;
+		fireTableChanged(new TableModelEvent(this));
+	}
+
+	@Override
+	public void setFilter(final EnumSet<AnywareStatus> filter)
+	{
 	}
 
 	@Override
