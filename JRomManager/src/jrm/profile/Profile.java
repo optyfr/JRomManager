@@ -73,10 +73,10 @@ public class Profile implements Serializable
 	{
 		handler.setProgress(String.format(Messages.getString("Profile.Parsing"), file), -1); //$NON-NLS-1$
 		final SAXParserFactory factory = SAXParserFactory.newInstance();
-		try
+		try(InputStream in = handler.getInputStream(new FileInputStream(file), (int)file.length()))
 		{
 			final SAXParser parser = factory.newSAXParser();
-			parser.parse(file, new DefaultHandler()
+			parser.parse(in, new DefaultHandler()
 			{
 				private final HashMap<String, Rom> roms_bycrc = new HashMap<>();
 				private boolean in_description = false;
@@ -726,7 +726,7 @@ public class Profile implements Serializable
 		if (cachefile.lastModified() >= nfo.file.lastModified() && !Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 		{
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
-			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
+			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile),(int)cachefile.length()))))
 			{
 				profile = (Profile) ois.readObject();
 				profile.nfo = nfo;

@@ -15,7 +15,7 @@ public final class JRomManager
 		if (JRomManager.lockInstance(FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
 			JUpdater updater = new JUpdater("optyfr","JRomManager");
-//			if(updater.updateAvailable())
+			if(updater.updateAvailable())
 				updater.showMessage();
 			new MainFrame().setVisible(true);
 		}

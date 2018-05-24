@@ -3,6 +3,9 @@ package jrm.ui;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -18,6 +21,53 @@ public class Progress extends JDialog implements ProgressHandler
 	private final JProgressBar progressBar;
 	private boolean cancel = false;
 
+	public final class ProgressInputStream extends FilterInputStream
+	{
+		private int value;
+		
+		protected ProgressInputStream(final InputStream in, final Integer len)
+		{
+			super(in);
+			Progress.this.setProgress(null, (value=0), len);
+		}
+
+		@Override
+		public int read() throws IOException
+		{
+			final int ret = super.read();
+			if(ret!=-1)
+				Progress.this.setProgress(null, ++value);
+			return ret;
+		}
+
+		@Override
+		public int read(final byte[] b) throws IOException
+		{
+			final int ret = super.read(b);
+			if(ret!=-1)
+				Progress.this.setProgress(null, (value+=ret));
+			return ret;
+		}
+
+		@Override
+		public int read(final byte[] b, final int off, final int len) throws IOException
+		{
+			final int ret = super.read(b, off, len);
+			if(ret!=-1)
+				Progress.this.setProgress(null, (value+=ret));
+			return ret;
+		}
+
+		@Override
+		public long skip(final long n) throws IOException
+		{
+			final long ret = super.skip(n);
+			if(ret!=-1)
+				Progress.this.setProgress(null, (value+=ret));
+			return ret;
+		}
+	}
+	
 	public Progress(final Window owner)
 	{
 		super(owner, Messages.getString("Progress.Title"), ModalityType.MODELESS); //$NON-NLS-1$
@@ -275,5 +325,11 @@ public class Progress extends JDialog implements ProgressHandler
 	public int getValue2()
 	{
 		return progressBar2.getValue();
+	}
+
+	@Override
+	public InputStream getInputStream(InputStream in, Integer len)
+	{
+		return new ProgressInputStream(in, len);
 	}
 }

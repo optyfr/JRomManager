@@ -1,5 +1,7 @@
 package jrm.ui;
 
+import java.io.InputStream;
+
 public interface ProgressHandler
 {
 	public void setProgress(String msg);
@@ -21,4 +23,6 @@ public interface ProgressHandler
 	public boolean isCancel();
 
 	public void cancel();
+	
+	public InputStream getInputStream(InputStream in, Integer len);
 }
