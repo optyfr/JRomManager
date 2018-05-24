@@ -41,24 +41,6 @@ sourceSets {
 	}
 }
 
-task copyRuntimeLibs(type: Copy) {  
-    into "$buildDir/libs/lib/"
-    from configurations.compile
-}
-
-task copyLaunchScript(type: Copy) {  
-    from ('dist') {
-    	include '*.bat'
-    	include '*.sh'
-    	fileMode = 0755
-    }
-    into "$buildDir/libs/"
-}
-
-// attach to assemble task
-assemble.dependsOn copyRuntimeLibs
-assemble.dependsOn copyLaunchScript
-
 jar {
 	manifest {
 		attributes(
@@ -74,21 +56,20 @@ jar {
 	}
 }
 
-apply plugin: 'distribution'
 
-distributions {
-    main {
-         contents {
-        	from (configurations.compile) {
-        		into('lib')
-        	}
-        	from (jar)
-        	from (project(':JUpdater').jar)
-        	from ('dist') {
-		    	include '*.bat'
-    			include '*.sh'
-    			fileMode = 0755
-    		}
-        }
-    }
+task distZip(type: Zip, dependsOn: jar) {
+	from (configurations.compile) {
+		into('lib')
+	}
+	from (jar)
+	from (project(':JUpdater').jar)
+	from ('dist') {
+		include '*.bat'
+		include '*.sh'
+		fileMode = 0755
+	}
+	archiveName baseName + '-' + version + '.' + extension
+	destinationDir = file("$buildDir/distributions/")
 }
+
+assemble.dependsOn distZip

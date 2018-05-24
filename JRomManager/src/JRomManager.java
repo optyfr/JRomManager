@@ -6,13 +6,19 @@ import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.Log;
 import jrm.ui.MainFrame;
+import jupdater.JUpdater;
 
 public final class JRomManager
 {
 	public static void main(final String[] args)
 	{
 		if (JRomManager.lockInstance(FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
+		{
+			JUpdater updater = new JUpdater("optyfr","JRomManager");
+//			if(updater.updateAvailable())
+				updater.showMessage();
 			new MainFrame().setVisible(true);
+		}
 	}
 
 	private static boolean lockInstance(final String lockFile)

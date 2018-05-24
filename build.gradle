@@ -9,26 +9,14 @@ dependencies {
 evaluationDependsOn(project(':JUpdater').path)
 evaluationDependsOn(project(':JRomManager').path)
 
-task installZip(type: Zip, dependsOn: [':JRomManager:assemble']) {
-	from (project(':JRomManager').configurations.compile) {
-		into('lib')
-	}
-	from (project(':JRomManager').jar)
-   	from (project(':JUpdater').jar)
-   	from (new File(project(':JRomManager').projectDir,'dist')) {
-    	include '*.bat'
-		include '*.sh'
-		fileMode = 0755
-	}
-	archiveName 'install.zip'
-	destinationDir = file("$buildDir/tmp/")
-}
-
 task installProperties {
    def props = new Properties()
    props.setProperty('name','optyfr')
    props.setProperty('project','JRomManager')
-   def writer = new FileWriter(file("$buildDir/tmp/install.properties"))
+   props.setProperty('archive',project(':JRomManager').distZip.archivePath.getName())
+   def install_dir = file("$buildDir/tmp");
+   install_dir.mkdirs();
+   def writer = new FileWriter(new File(install_dir,'install.properties'))
    try {
       props.store(writer,null)
       writer.flush()
@@ -38,9 +26,9 @@ task installProperties {
 }
 task oneJar( type: Jar , dependsOn: [':JUpdater:assemble', installProperties]) {
     baseName = 'JRomManager-install-'+project(':JRomManager').version
-    from project(':JUpdater').sourceSets.main.output.classesDir
+    from project(':JUpdater').sourceSets.main.output.classesDirs
 	from project(':JUpdater').configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-	from installZip
+	from project(':JRomManager').distZip
 	from file("$buildDir/tmp/install.properties")
 	manifest {
 		attributes(
