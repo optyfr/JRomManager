@@ -1,3 +1,9 @@
+## Release v1.3 build 13
+- Resources folders were missing in jar
+## Release v1.3 build 12
+- Unknown containers checking was not filtered
+- Code is now compilable with jdk 9/10 (but still jdk 8 compatible)
+- Migrated java eclipse project to gradle nature project (no more manual download of dependencies needed)
 ## Release v1.3 build 10
 - Export to logiqx datafile, Mame dat, Mame SW List
 - Export all/selected + filtered/unfiltered

@@ -57,7 +57,7 @@ _Comportement comparé aux autres gestionnaires de Roms_
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
 
 ## Fonctionalités planifiées à court terme
-- Check for new version of JRomManager and option to auto update
+- Recherche d'une nouvelle de JRomManager et option pour mise à jour automatique
 
 ## Fonctionalités planifiées à moyen terme
 - Dir2Dat
