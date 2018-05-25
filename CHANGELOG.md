@@ -1,3 +1,9 @@
+## Release v1.4 build 15
+- Added update check at start with ChangeLog diff (from current to latest) shown in a MessageDialog (English only)
+- Added one-click updater: just click the link in the MessageDialog from update checked, and it will download and update by itself, then restart using [JUpdater](https://github.com/optyfr/JUpdater)
+- Added Jar Installer: just download the Jar version from [github](https://github.com/optyfr/JRomManager/releases/latest) and run it with Java
+- Added System's filter new shortcuts menu
+- Fixed software list refresh bug in profile viewer
 ## Release v1.3 build 13
 - Resources folders were missing in jar
 ## Release v1.3 build 12

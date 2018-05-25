@@ -11,6 +11,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import jrm.misc.Ideone;
+
 @SuppressWarnings("serial")
 public class JCheckBoxList<E> extends JList<E>
 {
@@ -27,10 +29,10 @@ public class JCheckBoxList<E> extends JList<E>
 			{
 				final int index = locationToIndex(e.getPoint());
 
-				if(index != -1 && e.getButton()==MouseEvent.BUTTON1)
+				if (index != -1 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					checkboxes[index].setSelected(!checkboxes[index].isSelected());
-					for(final ListSelectionListener l : getListSelectionListeners())
+					for (final ListSelectionListener l : getListSelectionListeners())
 						l.valueChanged(new ListSelectionEvent(this, index, index, false));
 					repaint();
 				}
@@ -45,7 +47,7 @@ public class JCheckBoxList<E> extends JList<E>
 	public void setModel(final ListModel<E> model)
 	{
 		super.setModel(model);
-		setEnabled(model.getSize()>0);
+		setEnabled(model.getSize() > 0);
 	}
 
 	@Override
@@ -56,46 +58,49 @@ public class JCheckBoxList<E> extends JList<E>
 
 	public void selectAll()
 	{
-		for(final JCheckBox checkbox : checkboxes)
+		for (final JCheckBox checkbox : checkboxes)
 			checkbox.setSelected(true);
-		for(final ListSelectionListener l : getListSelectionListeners())
-			l.valueChanged(new ListSelectionEvent(this, 0, checkboxes.length-1, false));
+		for (final ListSelectionListener l : getListSelectionListeners())
+			l.valueChanged(new ListSelectionEvent(this, 0, checkboxes.length - 1, false));
 		repaint();
 	}
 
 	public void selectNone()
 	{
-		for(final JCheckBox checkbox : checkboxes)
+		for (final JCheckBox checkbox : checkboxes)
 			checkbox.setSelected(false);
-		for(final ListSelectionListener l : getListSelectionListeners())
-			l.valueChanged(new ListSelectionEvent(this, 0, checkboxes.length-1, false));
+		for (final ListSelectionListener l : getListSelectionListeners())
+			l.valueChanged(new ListSelectionEvent(this, 0, checkboxes.length - 1, false));
 		repaint();
 	}
 
 	public void selectInvert()
 	{
-		for(final JCheckBox checkbox : checkboxes)
+		for (final JCheckBox checkbox : checkboxes)
 			checkbox.setSelected(!checkbox.isSelected());
-		for(final ListSelectionListener l : getListSelectionListeners())
-			l.valueChanged(new ListSelectionEvent(this, 0, checkboxes.length-1, false));
+		for (final ListSelectionListener l : getListSelectionListeners())
+			l.valueChanged(new ListSelectionEvent(this, 0, checkboxes.length - 1, false));
 		repaint();
 	}
 
 	public void select(Predicate<E> predicate, boolean selected)
 	{
-		for(int i = 0; i < checkboxes.length; i++)
+		Ideone ideone = new Ideone();
+		for (int i = 0; i < checkboxes.length; i++)
 		{
-			if(predicate.test(getModel().getElementAt(i)))
+			if (predicate.test(getModel().getElementAt(i)))
 			{
 				checkboxes[i].setSelected(selected);
-				for(final ListSelectionListener l : getListSelectionListeners())
-					l.valueChanged(new ListSelectionEvent(this, i, i, false));
+				ideone.add(i, i + 1);
 			}
 		}
+		ideone.merge().forEach(i -> {
+			for (final ListSelectionListener l : getListSelectionListeners())
+				l.valueChanged(new ListSelectionEvent(this, i.getStart(), i.getEnd() - 1, false));
+		});
 		repaint();
 	}
 
-	
 	JTristateCheckBox checkboxes[] = null;
 
 	public class CellRenderer implements ListCellRenderer<E>
@@ -104,8 +109,9 @@ public class JCheckBoxList<E> extends JList<E>
 		@Override
 		public Component getListCellRendererComponent(final JList<? extends E> list, final E value, final int index, final boolean isSelected, final boolean cellHasFocus)
 		{
-			if(checkboxes==null || checkboxes.length!=list.getModel().getSize()) checkboxes = new JTristateCheckBox[list.getModel().getSize()];
-			if(checkboxes[index]==null)
+			if (checkboxes == null || checkboxes.length != list.getModel().getSize())
+				checkboxes = new JTristateCheckBox[list.getModel().getSize()];
+			if (checkboxes[index] == null)
 			{
 				checkboxes[index] = new JTristateCheckBox();
 				checkboxes[index].setFont(getFont());

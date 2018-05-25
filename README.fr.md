@@ -4,21 +4,25 @@ Un gestionnaire de Roms entièrement écrit en Java et distribué sous la licens
 
 ## Technical
 _Prérequis de développement minimum_:
-- Eclipse Oxygen pour Java avec le module WindowBuilder (module standard d'Eclipse)
+- Eclipse Oxygen pour Java avec le module WindowBuilder (module standard d'Eclipse) et Gradle Buildship (dans Eclipse Marketplace)
 - Java SDK 8
-- Apache Commons Codec 1.11 
-- Apache Commons IO 2.6
-- Apache Commons Lang3 3.7
-- Apache Commons Text 1.3
-- Apache Commons Compress 1.16 (utilisé uniquement pour lister le contenu des fichiers 7zip)
-- StreamEx 0.6.6
-- SevenZipJBinding 9.20-2.00 (plus rapide que l'usage de la commande en ligne 7z.exe)
+- Dependances Gradle (via dépôts Maven)
+	- Apache Commons Codec 1.11 
+	- Apache Commons IO 2.6
+	- Apache Commons Lang3 3.7
+	- Apache Commons Text 1.3
+	- Apache Commons Compress 1.16 (utilisé uniquement pour lister le contenu des fichiers 7zip)
+	- StreamEx 0.6.6
+	- SevenZipJBinding 9.20-2.00 (plus rapide que l'usage de la commande en ligne de 7zip)
+- Dépendances via sous-modules Git
+	- Jtrrntzip
+	- JUpdater
 
 _Prérequis d'utilisation minimum_:
 - 1Go de Ram libre (2Go ou plus si utilisation des Software Lists, l'option multicoeur, la compression 7z en mode ultra, ...)
-- Tout OS avec un Java 8 (minimum) installé
+- Tout OS avec au moins Java 8 installé (version 64 bits requise pour avoir plus de 1Go)
 - (optionnel) les programmes 7zip ou p7zip en ligne de commande si vous avez besoin de 7z et uniquement si SevenZipJBinding ne fonctionne sur votre plateforme
-- ~~(optionnel) le programme trrntzip si vous voulez torrentzipper vos fichiers~~ (désormais intégré via jtrrntzip)
+- ~~(optionnel) le programme trrntzip si vous voulez torrentzipper vos fichiers~~ (désormais intégré avec jtrrntzip)
 
 _Comportement comparé aux autres gestionnaires de Roms_
 - Par défaut, le mode Split (séparé) peut être différent de ClrMamePro, c'est parce que JRomManager est respecteux de l'attribut "merge", alors que ClrMamePro va splitter (separer) dès qu'une rom est dans un set parent avec le même CRC même si aucun attribut "merge" a été initialisé! La difference est spécialement visible pour les Software Lists où l'attribut merge n'existe pas du tout dans le DTD, donc dans ce cas le mode "Split Merged" sera le même que d'utiliser le mode "Non Merged" pour JRomManager. RomCenter est également respectueux de l'attribut merge. Pour reproduire le même comportement que ClrMamePro vous devrez donc selectionner l'option "implicit merge" (fusionnage implicite) dans les préférences du profil courant
@@ -55,13 +59,16 @@ _Comportement comparé aux autres gestionnaires de Roms_
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
 - Advanced filtering functionalities when a nplayers.ini and catver.ini is associated with a mame profile
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
+- Mise à jour facile en un clic
+- Installer Jar
 
 ## Fonctionalités planifiées à court terme
-- Recherche d'une nouvelle de JRomManager et option pour mise à jour automatique
+- Option pour mise à jour automatique
 
 ## Fonctionalités planifiées à moyen terme
 - Dir2Dat
 - Plus de traductions
+- Filtrage plus fin des machines dans le visualiseur de profil (pour mode 1G1R, ...)
 
 ## Fonctionalités planifiées sur le long terme et idées
 - Interopérabilité avec d'autres gestionnaires?

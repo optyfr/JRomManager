@@ -42,7 +42,6 @@ import jrm.profile.ProfileNFOMame.MameStatus;
 import jrm.profile.data.Driver;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
-import jrm.profile.data.Software;
 import jrm.profile.data.Software.Supported;
 import jrm.profile.data.Systm;
 import jrm.profile.data.Years;
@@ -1258,9 +1257,11 @@ public class MainFrame extends JFrame
 		mnSelect.add(mntmSelectAll);
 
 		mntmSelectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
+		mntmSelectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType()==Systm.Type.BIOS, true));
 		mnSelect.add(mntmSelectAllBios);
 
 		mntmSelectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
+		mntmSelectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType()==Systm.Type.SOFTWARELIST, true));
 		mnSelect.add(mntmSelectAllSoftwares);
 
 		mnUnselect = new JMenu(Messages.getString("MainFrame.mnUnselect.text")); //$NON-NLS-1$
@@ -1270,10 +1271,11 @@ public class MainFrame extends JFrame
 		mnUnselect.add(mntmUnselectAll);
 
 		mntmUnselectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
+		mntmUnselectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType()==Systm.Type.BIOS, false));
 		mnUnselect.add(mntmUnselectAllBios);
 
 		mntmUnselectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
-		mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys instanceof Software, false));
+		mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType()==Systm.Type.SOFTWARELIST, false));
 		mnUnselect.add(mntmUnselectAllSoftwares);
 
 		mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$

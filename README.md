@@ -4,21 +4,25 @@ A Rom Manager entirely written in Java and released under GPL v3
 
 ## Technical
 _Minimal developement requirements_:
-- Eclipse Oxygen for Java with WindowBuilder feature
+- Eclipse Oxygen for Java with WindowBuilder feature et Gradle Buildship
 - Java 8
-- Apache Commons Codec 1.11 
-- Apache Commons IO 2.6
-- Apache Commons Lang3 3.7
-- Apache Commons Text 1.3
-- Apache Commons Compress 1.16 (used solely to list 7zip content)
-- StreamEx 0.6.6
-- SevenZipJBinding 9.20-2.00 (faster than using 7z cmd line)
+- Gradle dependencies (via Maven repositories)
+	- Apache Commons Codec 1.11 
+	- Apache Commons IO 2.6
+	- Apache Commons Lang3 3.7
+	- Apache Commons Text 1.3
+	- Apache Commons Compress 1.16 (used solely to list 7zip content)
+	- StreamEx 0.6.6
+	- SevenZipJBinding 9.20-2.00 (faster than using 7z cmd line)
+- Git submodules dependencies
+	- Jtrrntzip
+	- JUpdater
 
 _Minimal usage requirements_:
 - 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)
-- Any OS with Java 8 runtime
+- Any OS with at least Java 8 runtime (64 bits version required to get more than 1GB)
 - (optional) 7zip or p7zip cmdline program if you need 7z format and only if SevenZipJBinding doesn't work on your platform
-- ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~
+- ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~ (now integrated with Jtrrntzip)
 
 _Behavior compared to other Rom managers_
 - By default, Split mode may differ from ClrMamePro, it's because JRomManager is by default using "explicit merging" and so will split only according the merge attribute presence (as preconised in logiqx faq), whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also known to be respectful of the merge attribute. To reproduce the ClrMamePro behavior you will have to select "implicit merge" option in profile settings
@@ -55,13 +59,16 @@ _Behavior compared to other Rom managers_
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
 - Advanced filtering functionalities when a nplayers.ini and catver.ini is associated with a mame profile
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
+- One-click easy updater
+- Jar installer
 
 ## Short Term Planned Features
-- Check for new version of JRomManager and option to auto update
+- Auto update option (and show Changes log a after auto-update)
 
 ## Middle Term Planned Features
 - Dir2Dat
 - More Translations
+- Fine grained machine filtering in profile viewer (for 1G1R, ...)
 
 ## Long Term Planned Features and Ideas
 - Interoperability with other managers?
@@ -78,4 +85,4 @@ _Behavior compared to other Rom managers_
 ## Known issues
 - ~~Never ever launch multiple instances of JRomManager, because 7zJBinding does have problem with this , and also because you may get stranges other things~~ *Prevented app to launch twice*
 - JRomManager is still in early developpement stage, do not complain if it broke your romset and you didn't make any copy or backup
-- Zip integrated in java leaves useless directory entries in zip central directory, it is by design, and this implementation is the fastest available, this will not disturb Mame or any emulator, but clrmamepro will complain about useless dirs, and trrntzip will remove those entries as expected :wink:
+- Zip integrated in java can leave useless directory entries in zip central directory, it is by design, and this implementation is the fastest available, this will not disturb Mame or any emulator, but clrmamepro will complain about useless dirs, and trrntzip will remove those entries as expected :wink:
