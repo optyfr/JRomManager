@@ -22,7 +22,7 @@ _Minimal usage requirements_:
 - 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)
 - Any OS with at least Java 8 runtime (64 bits version required to get more than 1GB)
 - (optional) 7zip or p7zip cmdline program if you need 7z format and only if SevenZipJBinding doesn't work on your platform
-- ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~ (now integrated with Jtrrntzip)
+- ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~ *(now integrated with Jtrrntzip)*
 
 _Behavior compared to other Rom managers_
 - By default, Split mode may differ from ClrMamePro, it's because JRomManager is by default using "explicit merging" and so will split only according the merge attribute presence (as preconised in logiqx faq), whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also known to be respectful of the merge attribute. To reproduce the ClrMamePro behavior you will have to select "implicit merge" option in profile settings
@@ -83,6 +83,6 @@ _Behavior compared to other Rom managers_
 - Rom resizing
 
 ## Known issues
-- ~~Never ever launch multiple instances of JRomManager, because 7zJBinding does have problem with this , and also because you may get stranges other things~~ *Prevented app to launch twice*
+- ~~Never ever launch multiple instances of JRomManager, because 7zJBinding does have problem with this , and also because you may get stranges other things~~ *(Prevented app to launch twice)*
 - JRomManager is still in early developpement stage, do not complain if it broke your romset and you didn't make any copy or backup
 - Zip integrated in java can leave useless directory entries in zip central directory, it is by design, and this implementation is the fastest available, this will not disturb Mame or any emulator, but clrmamepro will complain about useless dirs, and trrntzip will remove those entries as expected :wink:
