@@ -332,7 +332,7 @@ public class Export
 			writeEmptyElement(localName);
 			if(attributes != null)
 				for(final SimpleAttribute attr : attributes)
-					if(attr.value != null)
+					if(attr.name != null && !attr.name.isEmpty() && attr.value != null)
 						writeAttribute(attr.name, attr.value.toString());
 		}
 
@@ -341,7 +341,7 @@ public class Export
 			writeStartElement(localName);
 			if(attributes != null)
 				for(final SimpleAttribute attr : attributes)
-					if(attr.value != null)
+					if(attr.name != null && !attr.name.isEmpty() && attr.value != null)
 						writeAttribute(attr.name, attr.value.toString());
 		}
 

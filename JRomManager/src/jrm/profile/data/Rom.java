@@ -151,6 +151,8 @@ public class Rom extends Entity implements Serializable
 	@Override
 	public EntityStatus getStatus()
 	{
+		if(name.isEmpty())
+			return EntityStatus.OK;
 		if(status == Status.nodump)
 			return EntityStatus.OK;
 		if(own_status == EntityStatus.UNKNOWN)

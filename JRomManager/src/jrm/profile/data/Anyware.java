@@ -168,6 +168,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 				return false;
 			if(r.crc == null)
 				return false;
+			if(r.name.isEmpty())
+				return false;
 			if(merge_mode == MergeOptions.FULLNOMERGE)
 				return true;
 			if(merge_mode == MergeOptions.FULLMERGE)

@@ -4,6 +4,7 @@
 - Ajout d'un installateur JAR : téléchargez juste la version JAR à partir de [github](https://github.com/optyfr/JRomManager/releases/latest) et executez là avec votre runtime java
 - Ajout de new raccourcis de menu dans les filtres Systemes
 - Correction d'un bug de rafraichissement des listes de software dans la visionneuse de profil
+- Correction du cas particulier des ROMs sans "name" (et avec un loadflag)
 ## Release v1.3 build 13
 - Resources folders were missing in jar
 ## Release v1.3 build 12

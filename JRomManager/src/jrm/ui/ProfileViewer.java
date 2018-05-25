@@ -1,14 +1,13 @@
 package jrm.ui;
 
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.*;
@@ -154,6 +153,29 @@ public class ProfileViewer extends JDialog
 		tableW.setShowHorizontalLines(false);
 		tableW.setShowVerticalLines(false);
 		tableW.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		
+		JPopupMenu popupWMenu = new JPopupMenu();
+		addPopup(tableW, popupWMenu);
+		
+		JMenuItem mntmCollectKeywords = new JMenuItem(Messages.getString("ProfileViewer.mntmCollectKeywords.text")); //$NON-NLS-1$
+		mntmCollectKeywords.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
+				final Pattern pattern = Pattern.compile("\\((.*?)\\)");
+				final Pattern pattern_split = Pattern.compile(",");
+				final Pattern pattern_alpha = Pattern.compile("^[a-zA-Z]*$");
+				final HashSet<String> keywords = new HashSet<>();
+				list.getFilteredStream().forEach(ware->{
+					final Matcher matcher = pattern.matcher(ware.getDescription());
+					while(matcher.find())
+						Arrays.asList(pattern_split.split(matcher.group(1))).stream().map(s->s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
+				});
+				keywords.stream().sorted((s1,s2)->{
+					return s1.length()==s2.length()?s1.compareToIgnoreCase(s2):s1.length()-s2.length();
+				}).forEach(System.out::println);
+			}
+		});
+		popupWMenu.add(mntmCollectKeywords);
 
 		final JPanel panel = new JPanel();
 		splitPaneWLW.setLeftComponent(panel);
