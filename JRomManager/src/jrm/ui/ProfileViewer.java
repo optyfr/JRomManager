@@ -399,7 +399,12 @@ public class ProfileViewer extends JDialog
 											if (profile.getProperty("swdisks_dest_dir_enabled", false)) //$NON-NLS-1$
 												rompaths.add(profile.getProperty("swdisks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 											System.out.println(((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility); //$NON-NLS-1$
-											final Machine machine = profile.machinelist_list.findMachine(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility);
+											JList<Machine> machines = new JList<Machine>( profile.machinelist_list.getSortedMachines(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility).toArray(new Machine[0]));
+											machines.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+											if(machines.getModel().getSize()>0)
+												machines.setSelectedIndex(0);
+											JOptionPane.showMessageDialog(ProfileViewer.this, machines);
+											final Machine machine = machines.getSelectedValue();
 											if (machine != null)
 											{
 												System.out.println("-> " + machine.getBaseName() + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$

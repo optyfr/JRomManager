@@ -135,7 +135,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		return filtered_list;
 	}
 
-	public Machine findMachine(final String softwarelist, final String compatibility)
+	public List<Machine> getSortedMachines(final String softwarelist, final String compatibility)
 	{
 		if(softwarelist_defs.containsKey(softwarelist))
 			return softwarelist_defs.get(softwarelist).stream().filter(m -> m.isCompatible(softwarelist, compatibility) > 0).sorted((o1, o2) -> {
@@ -154,7 +154,15 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 				if(c1 > c2)
 					return -1;
 				return 0;
-			}).findFirst().orElse(null);
+			}).collect(Collectors.toList());
+		return null;
+		
+	}
+	
+	public Machine findMachine(final String softwarelist, final String compatibility)
+	{
+		if(softwarelist_defs.containsKey(softwarelist))
+			return getSortedMachines(softwarelist, compatibility).stream().findFirst().orElse(null);
 		return null;
 	}
 

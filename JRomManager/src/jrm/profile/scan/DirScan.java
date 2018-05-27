@@ -190,6 +190,7 @@ public final class DirScan
 		}
 		final AtomicInteger i = new AtomicInteger(0);
 		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), dir) , i.get(), containers.size()); //$NON-NLS-1$
+		final TorrentZip torrentzip = (is_dest && format==FormatOptions.TZIP)?new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions(false, true)):null;
 		StreamEx.of(use_parallelism ? containers.parallelStream().unordered() : containers.stream()).takeWhile((c) -> !handler.isCancel()).forEach(c -> {
 			try
 			{
@@ -232,7 +233,7 @@ public final class DirScan
 						}
 						if(is_dest && format==FormatOptions.TZIP && c.lastTZipCheck < c.modified)
 						{
-							c.lastTZipStatus = new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions(false, true)).Process(c.file);
+							c.lastTZipStatus = torrentzip.Process(c.file);
 							c.lastTZipCheck = System.currentTimeMillis();
 						}
 						break;

@@ -45,3 +45,4 @@ task oneJar( type: Jar , dependsOn: [':JUpdater:assemble', installProperties]) {
 }
 
 assemble.dependsOn oneJar
+assemble.dependsOn ':Jtrrntzip:assemble'
