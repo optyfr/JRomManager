@@ -593,11 +593,13 @@ public class MainFrame extends JFrame
 					}) == MameStatus.NEEDUPDATE))
 					{
 						final Import imprt = new Import(nfo.mame.getFile(), nfo.mame.isSL());
-						FileUtils.copyFile(imprt.file, nfo.file);
+						nfo.mame.delete();
+						nfo.mame.fileroms = imprt.roms_file;
+						nfo.mame.filesl = imprt.sl_file;
 						nfo.mame.setUpdated();
 						nfo.stats.reset();
+						nfo.save();
 					}
-					nfo.save();
 				}
 				catch (final Exception e1)
 				{
@@ -1257,11 +1259,11 @@ public class MainFrame extends JFrame
 		mnSelect.add(mntmSelectAll);
 
 		mntmSelectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
-		mntmSelectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType()==Systm.Type.BIOS, true));
+		mntmSelectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, true));
 		mnSelect.add(mntmSelectAllBios);
 
 		mntmSelectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
-		mntmSelectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType()==Systm.Type.SOFTWARELIST, true));
+		mntmSelectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, true));
 		mnSelect.add(mntmSelectAllSoftwares);
 
 		mnUnselect = new JMenu(Messages.getString("MainFrame.mnUnselect.text")); //$NON-NLS-1$
@@ -1271,11 +1273,11 @@ public class MainFrame extends JFrame
 		mnUnselect.add(mntmUnselectAll);
 
 		mntmUnselectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
-		mntmUnselectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType()==Systm.Type.BIOS, false));
+		mntmUnselectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, false));
 		mnUnselect.add(mntmUnselectAllBios);
 
 		mntmUnselectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
-		mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType()==Systm.Type.SOFTWARELIST, false));
+		mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, false));
 		mnUnselect.add(mntmUnselectAllSoftwares);
 
 		mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
@@ -1690,7 +1692,8 @@ public class MainFrame extends JFrame
 
 		chkbxZipUseTemp = new JCheckBox(Messages.getString("MainFrame.chkbxZipUseTemp.text")); //$NON-NLS-1$
 		chkbxZipUseTemp.setHorizontalAlignment(SwingConstants.CENTER);
-		chkbxZipUseTemp.setSelected(true);
+		chkbxZipUseTemp.setSelected(Settings.getProperty("zip_usetemp", true));
+		chkbxZipUseTemp.addActionListener(arg0 -> Settings.setProperty("zip_usetemp", chkbxZipUseTemp.isSelected()));//$NON-NLS-1$
 		panelZip.add(chkbxZipUseTemp);
 
 		lblZipWarn = new JLabel();

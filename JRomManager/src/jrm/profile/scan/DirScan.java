@@ -23,6 +23,7 @@ import JTrrntzip.SimpleTorrentZipOptions;
 import JTrrntzip.TorrentZip;
 import jrm.Messages;
 import jrm.compressors.SevenZipArchive;
+import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.io.CHDInfoReader;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
@@ -201,8 +202,8 @@ public final class DirScan
 						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
 						{
 							final Map<String, Object> env = new HashMap<>();
-							env.put("useTempFile", Boolean.TRUE); //$NON-NLS-1$
-							try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + c.file.toURI()), env);) //$NON-NLS-1$
+							env.put("useTempFile", Settings.getProperty("zip_usetemp", true)); //$NON-NLS-1$
+							try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.file.toURI()), env);) //$NON-NLS-1$
 							{
 								final Path root = fs.getPath("/"); //$NON-NLS-1$
 								Files.walkFileTree(root, new SimpleFileVisitor<Path>()

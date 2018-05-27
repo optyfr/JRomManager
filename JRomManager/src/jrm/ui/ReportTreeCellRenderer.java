@@ -28,6 +28,8 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 			setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/error.png"))); //$NON-NLS-1$
 		else if(value instanceof ContainerUnneeded)
 			setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/error.png"))); //$NON-NLS-1$
+		else if(value instanceof ContainerTZip)
+			setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/compress.png"))); //$NON-NLS-1$
 		else if(value instanceof EntryOK)
 			setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png"))); //$NON-NLS-1$
 		else if(value instanceof EntryAdd)

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -17,6 +16,8 @@ import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
+import jrm.compressors.zipfs.ZipFileSystemProvider;
+import jrm.misc.Settings;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
@@ -45,21 +46,19 @@ public class OpenContainer extends ContainerAction
 			if(format == FormatOptions.ZIP || format == FormatOptions.TZIP)
 			{
 				final Map<String, Object> env = new HashMap<>();
-				env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("useTempFile", Boolean.TRUE); //$NON-NLS-1$
-				try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + container.file.toURI()), env);) //$NON-NLS-1$
+				env.put("useTempFile", Settings.getProperty("zip_usetemp", true)); //$NON-NLS-1$
+				try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.file.toURI()), env);) //$NON-NLS-1$
 				{
-					for(final EntryAction action : entry_actions)
-					{
-						if(!action.doAction(fs, handler))
+						for(final EntryAction action : entry_actions)
 						{
-							System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							return false;
+							if(!action.doAction(fs, handler))
+							{
+								System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+								return false;
+							}
 						}
-					}
-					deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
-					fs.close();
-					return true;
+						deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
+						return true;
 				}
 				catch(final Throwable e)
 				{

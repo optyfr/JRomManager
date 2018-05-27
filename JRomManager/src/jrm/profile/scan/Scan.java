@@ -532,7 +532,7 @@ public class Scan
 					final Container container = roms_dstscan.containers_byname.get(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt());
 					if (container != null)
 					{
-						if (container.lastTZipCheck < container.file.lastModified())
+						if (container.lastTZipCheck < container.modified)
 							tzipcontainer = container;
 						else if (!container.lastTZipStatus.contains(TrrntZipStatus.ValidTrrntzip))
 							tzipcontainer = container;
@@ -546,6 +546,7 @@ public class Scan
 					{
 						tzipcontainer.m = ware;
 						tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
+						report.add(new ContainerTZip(tzipcontainer));
 					}
 				}
 			}
