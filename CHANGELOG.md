@@ -1,3 +1,11 @@
+## Release v1.4 build 16
+- ZipFileSystem class from JRE has problem with file modification over shared network, it pretends that archive file is not writable while it is, so it's time to duplicate Oracle's code into JRomManager... and patch it!
+- As a consequence ZipFileSystem has also been enhanced to support compression level (from STORE[0] to ULTRA[9]) instead of the DEFAULT[-1] compression
+- It is also now possible to choose a size threshold where ZipFileSystem will choose between uncompress to RAM or to temporary folder  
+- Now that we have full control on ZipFileSystem behavior, ZIP compression level will be automatically set to 1 prior TorrentZipping
+- When launching a software from Profile Viewer you will have choice of the machine (sorted by compatibility level)
+- Samples are also TorrentZipped now
+- Fixed an out of bound stream bug with Jtrrntzip when reading STORE files from archive (that was returning a CorruptZip code)
 ## Release v1.4 build 15
 - Added update check at start with ChangeLog diff (from current to latest) shown in a MessageDialog (English only)
 - Added one-click updater: just click the link in the MessageDialog from update checker, and it will download and update by itself, then restart using [JUpdater](https://github.com/optyfr/JUpdater)

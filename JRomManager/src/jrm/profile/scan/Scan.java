@@ -26,10 +26,14 @@ import jrm.ui.ProgressHandler;
 
 public class Scan
 {
-	public final ArrayList<Collection<jrm.profile.fix.actions.ContainerAction>> actions = new ArrayList<>();
 	public final static Report report = new Report();
-	private final Profile profile;
+	private static <T> Predicate<T> not(final Predicate<T> predicate)
+	{
+		return predicate.negate();
+	}
+	public final ArrayList<Collection<jrm.profile.fix.actions.ContainerAction>> actions = new ArrayList<>();
 
+	private final Profile profile;
 	private final MergeOptions merge_mode;
 	private final boolean implicit_merge;
 	private final FormatOptions format;
@@ -44,14 +48,15 @@ public class Scan
 	private DirScan samples_dstscan = null;
 	private final Map<String, DirScan> swroms_dstscans = new HashMap<>();
 	private Map<String, DirScan> swdisks_dstscans = new HashMap<>();
-	private final List<DirScan> allscans = new ArrayList<>();
 
+	private final List<DirScan> allscans = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> create_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> rename_before_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> add_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> delete_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> rename_after_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> duplicate_actions = new ArrayList<>();
+
 	private final Map<String, jrm.profile.fix.actions.ContainerAction> tzip_actions = new HashMap<>();
 
 	public Scan(final Profile profile, final ProgressHandler handler) throws BreakException
@@ -199,7 +204,7 @@ public class Scan
 			if (profile.machinelist_list.get(0).size() > 0)
 			{
 				handler.setProgress2(String.format("%d/%d", j.incrementAndGet(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
-				for(Samples set : profile.machinelist_list.get(0).samplesets)
+				for(final Samples set : profile.machinelist_list.get(0).samplesets)
 				{
 					handler.setProgress(null, i.incrementAndGet(), null, set.getName());
 					if (samples_dstscan != null)
@@ -279,198 +284,80 @@ public class Scan
 		return dstscan;
 	}
 
-	private void scanSamples(final Samples set)
+	private void prepTZip(final SubjectSet report_subject, final Container archive, final Anyware ware, final List<Rom> roms)
 	{
-		boolean missing_set = true;
-		final Container archive;
-		if (format.getExt().isDir())
-			archive = new Directory(new File(samples_dstscan.dir, set.getName()), set);
-		else
-			archive = new Archive(new File(samples_dstscan.dir, set.getName() + format.getExt()), set);
-		final SubjectSet report_subject = new SubjectSet(set);
-		if(!scanSamples(set, archive, report_subject))
-			missing_set = false;
-		if (create_mode && report_subject.getStatus() == Status.UNKNOWN)
-			report_subject.setMissing();
-		if (missing_set)
-			Scan.report.stats.missing_set_cnt++;
-		if (report_subject.getStatus() != Status.UNKNOWN)
-			Scan.report.add(report_subject);
+		if (format == FormatOptions.TZIP)
+		{
+			if (!merge_mode.isMerge() || !ware.isClone())
+			{
+				if (!report_subject.isMissing() && !report_subject.isUnneeded() && roms.size() > 0)
+				{
+					Container tzipcontainer = null;
+					final Container container = roms_dstscan.containers_byname.get(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt());
+					if (container != null)
+					{
+						if (container.lastTZipCheck < container.modified)
+							tzipcontainer = container;
+						else if (!container.lastTZipStatus.contains(TrrntZipStatus.ValidTrrntzip))
+							tzipcontainer = container;
+						else if (report_subject.hasFix())
+							tzipcontainer = container;
+
+					}
+					else if (create_mode && report_subject.hasFix())
+						tzipcontainer = archive;
+					if (tzipcontainer != null)
+					{
+						tzipcontainer.m = ware;
+						tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
+						Scan.report.add(new ContainerTZip(tzipcontainer));
+					}
+				}
+			}
+		}
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
-	private boolean scanSamples(final Samples set, final Container archive, final SubjectSet report_subject)
+	private void prepTZip(final SubjectSet report_subject, final Container archive, final Samples set)
 	{
-		boolean missing_set = true;
-		final Container container;
-		if (null != (container = samples_dstscan.containers_byname.get(archive.file.getName())))
+		if (format == FormatOptions.TZIP)
 		{
-			missing_set = false;
-			report_subject.setFound();
-			final ArrayList<Entry> samples_found = new ArrayList<>();
-			OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null, duplicate_set = null;
-			for (final Sample sample : set)
+			if (!report_subject.isMissing() && !report_subject.isUnneeded() && set.samples.size()>0)
 			{
-				sample.setStatus(EntityStatus.KO);
-				Entry found_entry = null;
-				for (final Entry candidate_entry : container.getEntries())
+				Container tzipcontainer = null;
+				final Container container = samples_dstscan.containers_byname.get(archive.file.getName());
+				if (container != null)
 				{
-					if (candidate_entry.equals(sample))
-					{
-						found_entry = candidate_entry;
-						break;
-					}
+					if (container.lastTZipCheck < container.modified)
+						tzipcontainer = container;
+					else if (!container.lastTZipStatus.contains(TrrntZipStatus.ValidTrrntzip))
+						tzipcontainer = container;
+					else if (report_subject.hasFix())
+						tzipcontainer = container;
 				}
-				if (found_entry == null)
+				else if (create_mode && report_subject.hasFix())
+					tzipcontainer = archive;
+				if (tzipcontainer != null)
 				{
-					Scan.report.stats.missing_samples_cnt++;
-					for (final DirScan scan : allscans)
-					{
-						for (FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
-						{
-							final Container found_container;
-							if (null != (found_container = scan.containers_byname.get(set.getName() + ext)))
-							{
-								for (Entry entry : found_container.entries_byname.values())
-								{
-									if (entry.getName().equals(sample.getName()))
-										found_entry = entry;
-									if (null != found_entry)
-										break;
-								}
-							}
-							if (null != found_entry)
-								break;
-						}
-					}
-					if (found_entry == null)
-						report_subject.add(new EntryMissing(sample));
-				}
-				else
-				{
-					sample.setStatus(EntityStatus.OK);
-					report_subject.add(new EntryOK(sample));
-					// report_w.println("["+m.name+"] "+d.getName()+" ("+found.file+") OK ");
-					samples_found.add(found_entry);
-				}
-			}
-			if (!ignore_unneeded_entries)
-			{
-				final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(samples_found)::contains)).collect(Collectors.toList());
-				for (final Entry unneeded_entry : unneeded)
-				{
-					report_subject.add(new EntryUnneeded(unneeded_entry));
-					(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(unneeded_entry));
-					(delete_set = OpenContainer.getInstance(delete_set, archive, format)).addAction(new DeleteEntry(unneeded_entry));
-				}
-			}
-			ContainerAction.addToList(rename_before_actions, rename_before_set);
-			ContainerAction.addToList(add_actions, add_set);
-			ContainerAction.addToList(duplicate_actions, duplicate_set);
-			ContainerAction.addToList(delete_actions, delete_set);
-			ContainerAction.addToList(rename_after_actions, rename_after_set);
-		}
-		else
-		{
-			for (final Sample sample : set)
-				sample.setStatus(EntityStatus.KO);
-			if (create_mode)
-			{
-				int samples_found = 0;
-				boolean partial_set = false;
-				CreateContainer createset = null;
-				for (final Sample sample : set)
-				{
-					Scan.report.stats.missing_samples_cnt++;
-					Entry entry_found = null;
-					for (final DirScan scan : allscans)
-					{
-						for (FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
-						{
-							final Container found_container;
-							if (null != (found_container = scan.containers_byname.get(set.getName() + ext)))
-							{
-								for (Entry entry : found_container.entries_byname.values())
-								{
-									if (entry.getName().equals(sample.getName()))
-										entry_found = entry;
-									if (null != entry_found)
-										break;
-								}
-							}
-							if (null != entry_found)
-								break;
-						}
-						if (null != entry_found)
-						{
-							report_subject.add(new EntryAdd(sample, entry_found));
-							(createset = CreateContainer.getInstance(createset, archive, format)).addAction(new AddEntry(sample, entry_found));
-							samples_found++;
-							break;
-						}
-					}
-					if (entry_found == null)
-					{
-						report_subject.add(new EntryMissing(sample));
-						partial_set = true;
-					}
-				}
-				if (samples_found > 0)
-				{
-					if (!createfull_mode || !partial_set)
-					{
-						report_subject.setCreateFull();
-						if (partial_set)
-							report_subject.setCreate();
-						ContainerAction.addToList(create_actions, createset);
-					}
+					tzipcontainer.m = set;
+					tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
+					Scan.report.add(new ContainerTZip(tzipcontainer));
 				}
 			}
 		}
-		return missing_set;
 	}
 
-	private void scanWare(final Anyware ware)
+
+
+	public void removeOtherFormats(final Anyware ware)
 	{
-		final SubjectSet report_subject = new SubjectSet(ware);
-
-		boolean missing_set = true;
-		final Directory directory = new Directory(new File(disks_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName()), ware);
-		final Container archive;
-		if (format.getExt().isDir())
-			archive = new Directory(new File(roms_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName()), ware);
-		else
-			archive = new Archive(new File(roms_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName() + format.getExt()), ware);
-		final List<Rom> roms = ware.filterRoms(merge_mode, hash_collision_mode);
-		final List<Disk> disks = ware.filterDisks(merge_mode, hash_collision_mode);
-		if (!scanRoms(ware, roms, archive, report_subject))
-			missing_set = false;
-		if (!scanDisks(ware, disks, directory, report_subject))
-			missing_set = false;
-		if (roms.size() == 0 && disks.size() == 0)
-		{
-			if (!(merge_mode.isMerge() && ware.isClone()))
+		format.getExt().allExcept().forEach((e) -> { // set other formats with the same set name as unneeded
+			final Container c = roms_dstscan.containers_byname.get(ware.getName() + e);
+			if (c != null)
 			{
-				if (!missing_set)
-					report_subject.setUnneeded();
-				else
-					report_subject.setFound();
+				Scan.report.add(new ContainerUnneeded(c));
+				delete_actions.add(new DeleteContainer(c, format));
 			}
-			missing_set = false;
-		}
-		else if (create_mode && report_subject.getStatus() == Status.UNKNOWN)
-			report_subject.setMissing();
-		if (!ignore_unneeded_containers)
-		{
-			removeUnneededClone(ware, disks, roms);
-			removeOtherFormats(ware);
-		}
-		prepTZip(report_subject, archive, ware, roms);
-		if (missing_set)
-			Scan.report.stats.missing_set_cnt++;
-		if (report_subject.getStatus() != Status.UNKNOWN)
-			Scan.report.add(report_subject);
-
+		});
 	}
 
 	public void removeUnneededClone(final Anyware ware, final List<Disk> disks, final List<Rom> roms)
@@ -508,51 +395,6 @@ public class Scan
 		}
 	}
 
-	public void removeOtherFormats(final Anyware ware)
-	{
-		format.getExt().allExcept().forEach((e) -> { // set other formats with the same set name as unneeded
-			final Container c = roms_dstscan.containers_byname.get(ware.getName() + e);
-			if (c != null)
-			{
-				Scan.report.add(new ContainerUnneeded(c));
-				delete_actions.add(new DeleteContainer(c, format));
-			}
-		});
-	}
-
-	private void prepTZip(final SubjectSet report_subject, final Container archive, final Anyware ware, final List<Rom> roms)
-	{
-		if (format == FormatOptions.TZIP)
-		{
-			if (!merge_mode.isMerge() || !ware.isClone())
-			{
-				if (!report_subject.isMissing() && !report_subject.isUnneeded() && roms.size() > 0)
-				{
-					Container tzipcontainer = null;
-					final Container container = roms_dstscan.containers_byname.get(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt());
-					if (container != null)
-					{
-						if (container.lastTZipCheck < container.modified)
-							tzipcontainer = container;
-						else if (!container.lastTZipStatus.contains(TrrntZipStatus.ValidTrrntzip))
-							tzipcontainer = container;
-						else if (report_subject.hasFix())
-							tzipcontainer = container;
-
-					}
-					else if (create_mode && report_subject.hasFix())
-						tzipcontainer = archive;
-					if (tzipcontainer != null)
-					{
-						tzipcontainer.m = ware;
-						tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
-						report.add(new ContainerTZip(tzipcontainer));
-					}
-				}
-			}
-		}
-	}
-
 	@SuppressWarnings("unlikely-arg-type")
 	private boolean scanDisks(final Anyware ware, final List<Disk> disks, final Directory directory, final SubjectSet report_subject)
 	{
@@ -578,8 +420,7 @@ public class Scan
 					{
 						if (candidate_entry.equals(disk))
 						{
-							if (!disk.getName().equals(candidate_entry.getName())) // but this entry name does not match
-																					// the rom name
+							if (!disk.getName().equals(candidate_entry.getName())) // but this entry name does not match the rom name
 							{
 								final Disk another_disk;
 								if (null != (another_disk = disks_byname.get(candidate_entry.getName())) && candidate_entry.equals(another_disk))
@@ -592,18 +433,17 @@ public class Scan
 									{
 										// we must duplicate
 										report_subject.add(new EntryMissingDuplicate(disk, candidate_entry));
-										(duplicate_set = OpenContainer.getInstance(duplicate_set, directory, format)).addAction(new DuplicateEntry(disk.getName(), candidate_entry));
+										(duplicate_set = OpenContainer.getInstance(duplicate_set, directory, format, 0L)).addAction(new DuplicateEntry(disk.getName(), candidate_entry));
 										found_entry = candidate_entry;
 									}
 								}
 								else
 								{
-									if (!entries_byname.containsKey(disk.getName())) // and disk name is not in the
-																						// entries
+									if (!entries_byname.containsKey(disk.getName())) // and disk name is not in the entries
 									{
 										report_subject.add(new EntryWrongName(disk, candidate_entry));
-										(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(candidate_entry));
-										(rename_after_set = OpenContainer.getInstance(rename_after_set, directory, format)).addAction(new RenameEntry(disk.getName(), candidate_entry));
+										(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format, 0L)).addAction(new RenameEntry(candidate_entry));
+										(rename_after_set = OpenContainer.getInstance(rename_after_set, directory, format, 0L)).addAction(new RenameEntry(disk.getName(), candidate_entry));
 										found_entry = candidate_entry;
 										break;
 									}
@@ -630,7 +470,7 @@ public class Scan
 							if (null != (found_entry = scan.find_byhash(disk)))
 							{
 								report_subject.add(new EntryAdd(disk, found_entry));
-								(add_set = OpenContainer.getInstance(add_set, directory, format)).addAction(new AddEntry(disk, found_entry));
+								(add_set = OpenContainer.getInstance(add_set, directory, format, 0L)).addAction(new AddEntry(disk, found_entry));
 								break;
 							}
 						}
@@ -651,8 +491,8 @@ public class Scan
 					for (final Entry unneeded_entry : unneeded)
 					{
 						report_subject.add(new EntryUnneeded(unneeded_entry));
-						(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format)).addAction(new RenameEntry(unneeded_entry));
-						(delete_set = OpenContainer.getInstance(delete_set, directory, format)).addAction(new DeleteEntry(unneeded_entry));
+						(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format, 0L)).addAction(new RenameEntry(unneeded_entry));
+						(delete_set = OpenContainer.getInstance(delete_set, directory, format, 0L)).addAction(new DeleteEntry(unneeded_entry));
 					}
 				}
 				ContainerAction.addToList(rename_before_actions, rename_before_set);
@@ -682,7 +522,7 @@ public class Scan
 							if (null != (found_entry = scan.find_byhash(disk)))
 							{
 								report_subject.add(new EntryAdd(disk, found_entry));
-								(createset = CreateContainer.getInstance(createset, directory, format)).addAction(new AddEntry(disk, found_entry));
+								(createset = CreateContainer.getInstance(createset, directory, format, 0L)).addAction(new AddEntry(disk, found_entry));
 								disks_found++;
 								break;
 							}
@@ -749,23 +589,20 @@ public class Scan
 									{
 										// we must duplicate
 										report_subject.add(new EntryMissingDuplicate(rom, candidate_entry));
-										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format)).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
+										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
 										found_entry = candidate_entry;
 										break;
 									}
 								}
 								else
 								{
-									if (!entries_byname.containsKey(rom.getName())) // and rom name is not in the
-																					// entries
+									if (!entries_byname.containsKey(rom.getName())) // and rom name is not in the entries
 									{
 										report_subject.add(new EntryWrongName(rom, candidate_entry));
-										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive,
-										// format)).addAction(new RenameEntry(e));
-										// (rename_after_set = OpenContainer.getInstance(rename_after_set, archive,
-										// format)).addAction(new RenameEntry(r.getName(), e));
-										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format)).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
-										(delete_set = OpenContainer.getInstance(delete_set, archive, format)).addAction(new DeleteEntry(candidate_entry));
+										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
+										// (rename_after_set = OpenContainer.getInstance(rename_after_set, archive, format)).addAction(new RenameEntry(r.getName(), e));
+										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
+										(delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(candidate_entry));
 										found_entry = candidate_entry;
 										break;
 									}
@@ -791,7 +628,7 @@ public class Scan
 							if (null != (found_entry = scan.find_byhash(profile, rom)))
 							{
 								report_subject.add(new EntryAdd(rom, found_entry));
-								(add_set = OpenContainer.getInstance(add_set, archive, format)).addAction(new AddEntry(rom, found_entry));
+								(add_set = OpenContainer.getInstance(add_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new AddEntry(rom, found_entry));
 								// roms_found.add(found);
 								break;
 							}
@@ -814,8 +651,8 @@ public class Scan
 					for (final Entry unneeded_entry : unneeded)
 					{
 						report_subject.add(new EntryUnneeded(unneeded_entry));
-						(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(unneeded_entry));
-						(delete_set = OpenContainer.getInstance(delete_set, archive, format)).addAction(new DeleteEntry(unneeded_entry));
+						(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new RenameEntry(unneeded_entry));
+						(delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(unneeded_entry));
 					}
 				}
 				ContainerAction.addToList(rename_before_actions, rename_before_set);
@@ -845,7 +682,7 @@ public class Scan
 							if (null != (entry_found = scan.find_byhash(profile, rom)))
 							{
 								report_subject.add(new EntryAdd(rom, entry_found));
-								(createset = CreateContainer.getInstance(createset, archive, format)).addAction(new AddEntry(rom, entry_found));
+								(createset = CreateContainer.getInstance(createset, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new AddEntry(rom, entry_found));
 								roms_found++;
 								break;
 							}
@@ -872,9 +709,200 @@ public class Scan
 		return missing_set;
 	}
 
-	private static <T> Predicate<T> not(final Predicate<T> predicate)
+	private void scanSamples(final Samples set)
 	{
-		return predicate.negate();
+		boolean missing_set = true;
+		final Container archive;
+		if (format.getExt().isDir())
+			archive = new Directory(new File(samples_dstscan.dir, set.getName()), set);
+		else
+			archive = new Archive(new File(samples_dstscan.dir, set.getName() + format.getExt()), set);
+		final SubjectSet report_subject = new SubjectSet(set);
+		if(!scanSamples(set, archive, report_subject))
+			missing_set = false;
+		if (create_mode && report_subject.getStatus() == Status.UNKNOWN)
+			report_subject.setMissing();
+		if (missing_set)
+			Scan.report.stats.missing_set_cnt++;
+		if (report_subject.getStatus() != Status.UNKNOWN)
+			Scan.report.add(report_subject);
+		prepTZip(report_subject, archive, set);
+	}
+
+	@SuppressWarnings("unlikely-arg-type")
+	private boolean scanSamples(final Samples set, final Container archive, final SubjectSet report_subject)
+	{
+		boolean missing_set = true;
+		final Container container;
+		if (null != (container = samples_dstscan.containers_byname.get(archive.file.getName())))
+		{
+			missing_set = false;
+			report_subject.setFound();
+			final ArrayList<Entry> samples_found = new ArrayList<>();
+			final OpenContainer add_set = null;
+			OpenContainer delete_set = null, rename_before_set = null;
+			final OpenContainer rename_after_set = null, duplicate_set = null;
+			for (final Sample sample : set)
+			{
+				sample.setStatus(EntityStatus.KO);
+				Entry found_entry = null;
+				for (final Entry candidate_entry : container.getEntries())
+				{
+					if (candidate_entry.equals(sample))
+					{
+						found_entry = candidate_entry;
+						break;
+					}
+				}
+				if (found_entry == null)
+				{
+					Scan.report.stats.missing_samples_cnt++;
+					for (final DirScan scan : allscans)
+					{
+						for (final FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
+						{
+							final Container found_container;
+							if (null != (found_container = scan.containers_byname.get(set.getName() + ext)))
+							{
+								for (final Entry entry : found_container.entries_byname.values())
+								{
+									if (entry.getName().equals(sample.getName()))
+										found_entry = entry;
+									if (null != found_entry)
+										break;
+								}
+							}
+							if (null != found_entry)
+								break;
+						}
+					}
+					if (found_entry == null)
+						report_subject.add(new EntryMissing(sample));
+				}
+				else
+				{
+					sample.setStatus(EntityStatus.OK);
+					report_subject.add(new EntryOK(sample));
+					// report_w.println("["+m.name+"] "+d.getName()+" ("+found.file+") OK ");
+					samples_found.add(found_entry);
+				}
+			}
+			if (!ignore_unneeded_entries)
+			{
+				final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(samples_found)::contains)).collect(Collectors.toList());
+				for (final Entry unneeded_entry : unneeded)
+				{
+					report_subject.add(new EntryUnneeded(unneeded_entry));
+					(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format, Long.MAX_VALUE)).addAction(new RenameEntry(unneeded_entry));
+					(delete_set = OpenContainer.getInstance(delete_set, archive, format, Long.MAX_VALUE)).addAction(new DeleteEntry(unneeded_entry));
+				}
+			}
+			ContainerAction.addToList(rename_before_actions, rename_before_set);
+			ContainerAction.addToList(add_actions, add_set);
+			ContainerAction.addToList(duplicate_actions, duplicate_set);
+			ContainerAction.addToList(delete_actions, delete_set);
+			ContainerAction.addToList(rename_after_actions, rename_after_set);
+		}
+		else
+		{
+			for (final Sample sample : set)
+				sample.setStatus(EntityStatus.KO);
+			if (create_mode)
+			{
+				int samples_found = 0;
+				boolean partial_set = false;
+				CreateContainer createset = null;
+				for (final Sample sample : set)
+				{
+					Scan.report.stats.missing_samples_cnt++;
+					Entry entry_found = null;
+					for (final DirScan scan : allscans)
+					{
+						for (final FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
+						{
+							final Container found_container;
+							if (null != (found_container = scan.containers_byname.get(set.getName() + ext)))
+							{
+								for (final Entry entry : found_container.entries_byname.values())
+								{
+									if (entry.getName().equals(sample.getName()))
+										entry_found = entry;
+									if (null != entry_found)
+										break;
+								}
+							}
+							if (null != entry_found)
+								break;
+						}
+						if (null != entry_found)
+						{
+							report_subject.add(new EntryAdd(sample, entry_found));
+							(createset = CreateContainer.getInstance(createset, archive, format, Long.MAX_VALUE)).addAction(new AddEntry(sample, entry_found));
+							samples_found++;
+							break;
+						}
+					}
+					if (entry_found == null)
+					{
+						report_subject.add(new EntryMissing(sample));
+						partial_set = true;
+					}
+				}
+				if (samples_found > 0)
+				{
+					if (!createfull_mode || !partial_set)
+					{
+						report_subject.setCreateFull();
+						if (partial_set)
+							report_subject.setCreate();
+						ContainerAction.addToList(create_actions, createset);
+					}
+				}
+			}
+		}
+		return missing_set;
+	}
+
+	private void scanWare(final Anyware ware)
+	{
+		final SubjectSet report_subject = new SubjectSet(ware);
+
+		boolean missing_set = true;
+		final Directory directory = new Directory(new File(disks_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName()), ware);
+		final Container archive;
+		if (format.getExt().isDir())
+			archive = new Directory(new File(roms_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName()), ware);
+		else
+			archive = new Archive(new File(roms_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName() + format.getExt()), ware);
+		final List<Rom> roms = ware.filterRoms(merge_mode, hash_collision_mode);
+		final List<Disk> disks = ware.filterDisks(merge_mode, hash_collision_mode);
+		if (!scanRoms(ware, roms, archive, report_subject))
+			missing_set = false;
+		if (!scanDisks(ware, disks, directory, report_subject))
+			missing_set = false;
+		if (roms.size() == 0 && disks.size() == 0)
+		{
+			if (!(merge_mode.isMerge() && ware.isClone()))
+			{
+				if (!missing_set)
+					report_subject.setUnneeded();
+				else
+					report_subject.setFound();
+			}
+			missing_set = false;
+		}
+		else if (create_mode && report_subject.getStatus() == Status.UNKNOWN)
+			report_subject.setMissing();
+		if (!ignore_unneeded_containers)
+		{
+			removeUnneededClone(ware, disks, roms);
+			removeOtherFormats(ware);
+		}
+		if (missing_set)
+			Scan.report.stats.missing_set_cnt++;
+		if (report_subject.getStatus() != Status.UNKNOWN)
+			Scan.report.add(report_subject);
+		prepTZip(report_subject, archive, ware, roms);
 	}
 
 }

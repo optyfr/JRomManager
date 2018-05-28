@@ -202,7 +202,8 @@ public final class DirScan
 						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
 						{
 							final Map<String, Object> env = new HashMap<>();
-							env.put("useTempFile", Settings.getProperty("zip_usetemp", true)); //$NON-NLS-1$
+							env.put("useTempFile", true); //$NON-NLS-1$
+							env.put("readOnly", true); //$NON-NLS-1$
 							try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.file.toURI()), env);) //$NON-NLS-1$
 							{
 								final Path root = fs.getPath("/"); //$NON-NLS-1$

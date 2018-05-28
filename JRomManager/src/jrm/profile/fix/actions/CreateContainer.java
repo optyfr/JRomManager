@@ -16,6 +16,8 @@ import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
+import jrm.compressors.zipfs.ZipLevel;
+import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.misc.Settings;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
@@ -23,16 +25,18 @@ import jrm.ui.ProgressHandler;
 
 public class CreateContainer extends ContainerAction
 {
+	private final long dataSize;
 
-	public CreateContainer(final Container container, final FormatOptions format)
+	public CreateContainer(final Container container, final FormatOptions format, final long dataSize)
 	{
 		super(container, format);
+		this.dataSize = dataSize;
 	}
 
-	public static CreateContainer getInstance(CreateContainer action, final Container container, final FormatOptions format)
+	public static CreateContainer getInstance(CreateContainer action, final Container container, final FormatOptions format, final long dataSize)
 	{
 		if (action == null)
-			action = new CreateContainer(container, format);
+			action = new CreateContainer(container, format, dataSize);
 		return action;
 	}
 
@@ -46,7 +50,8 @@ public class CreateContainer extends ContainerAction
 			{
 				final Map<String, Object> env = new HashMap<>();
 				env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("useTempFile", Settings.getProperty("zip_usetemp", true)); //$NON-NLS-1$
+				env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(Settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$
+				env.put("compressionLevel", format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(Settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString())).getLevel());
 				try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.file.toURI()), env);) //$NON-NLS-1$
 				{
 					for (final EntryAction action : entry_actions)

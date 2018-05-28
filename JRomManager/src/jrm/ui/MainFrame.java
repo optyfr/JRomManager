@@ -33,6 +33,8 @@ import org.apache.commons.lang3.SerializationUtils;
 import jrm.Messages;
 import jrm.compressors.SevenZipOptions;
 import jrm.compressors.ZipOptions;
+import jrm.compressors.zipfs.ZipLevel;
+import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.misc.FindCmd;
 import jrm.misc.Settings;
 import jrm.profile.Import;
@@ -131,7 +133,6 @@ public class MainFrame extends JFrame
 	private JCheckBox chckbxUseImplicitMerge;
 	private JCheckBox chckbxUseParallelism;
 	private JCheckBoxList<Systm> checkBoxListSystems;
-	private JCheckBox chkbxZipUseTemp;
 	private JCheckBox ckbx7zSolid;
 	private JPanel compressors;
 	private JTabbedPane compressorsPane;
@@ -163,7 +164,6 @@ public class MainFrame extends JFrame
 	private JLabel lblZipECmd;
 	private JLabel lblZipEThreads;
 	private JLabel lblZipEWarning;
-	private JLabel lblZipWarn;
 	private JCheckBoxList<NPlayer> listNPlayers;
 	private JFileDropList listSrcDir;
 	private JTabbedPane mainPane;
@@ -238,6 +238,10 @@ public class MainFrame extends JFrame
 	private JMenuItem mntmSelectAllSoftwares;
 	private JMenuItem mntmUnselectAllBios;
 	private JMenuItem mntmUnselectAllSoftwares;
+	private JComboBox<ZipLevel> cbbxZipLevel;
+	private JLabel lblCompressionLevel;
+	private JLabel lblTemporaryFilesThreshold;
+	private JComboBox<ZipTempThreshold> cbbxZipTempThreshold;
 
 	public MainFrame()
 	{
@@ -1687,22 +1691,87 @@ public class MainFrame extends JFrame
 		compressors.add(compressorsPane);
 
 		panelZip = new JPanel();
-		compressorsPane.addTab("Zip", null, panelZip, null); //$NON-NLS-1$
-		panelZip.setLayout(new GridLayout(0, 1, 0, 0));
+		compressorsPane.addTab("Zip", null, panelZip, null);
+		GridBagLayout gbl_panelZip = new GridBagLayout();
+		gbl_panelZip.columnWidths = new int[] { 1, 0, 1, 0 };
+		gbl_panelZip.rowHeights = new int[] { 0, 20, 20, 0, 0 };
+		gbl_panelZip.columnWeights = new double[] { 1.0, 1.0, 1.0, Double.MIN_VALUE };
+		gbl_panelZip.rowWeights = new double[] { 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		panelZip.setLayout(gbl_panelZip);
 
-		chkbxZipUseTemp = new JCheckBox(Messages.getString("MainFrame.chkbxZipUseTemp.text")); //$NON-NLS-1$
-		chkbxZipUseTemp.setHorizontalAlignment(SwingConstants.CENTER);
-		chkbxZipUseTemp.setSelected(Settings.getProperty("zip_usetemp", true));
-		chkbxZipUseTemp.addActionListener(arg0 -> Settings.setProperty("zip_usetemp", chkbxZipUseTemp.isSelected()));//$NON-NLS-1$
-		panelZip.add(chkbxZipUseTemp);
+		lblTemporaryFilesThreshold = new JLabel(Messages.getString("MainFrame.lblTemporaryFilesThreshold.text")); //$NON-NLS-1$
+		lblTemporaryFilesThreshold.setHorizontalAlignment(SwingConstants.TRAILING);
+		GridBagConstraints gbc_lblTemporaryFilesThreshold = new GridBagConstraints();
+		gbc_lblTemporaryFilesThreshold.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblTemporaryFilesThreshold.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTemporaryFilesThreshold.gridx = 0;
+		gbc_lblTemporaryFilesThreshold.gridy = 1;
+		panelZip.add(lblTemporaryFilesThreshold, gbc_lblTemporaryFilesThreshold);
 
-		lblZipWarn = new JLabel();
-		lblZipWarn.setVerticalAlignment(SwingConstants.TOP);
-		lblZipWarn.setHorizontalAlignment(SwingConstants.CENTER);
-		lblZipWarn.setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
-		lblZipWarn.setText(Messages.getString("MainFrame.lblZipWarn.text")); //$NON-NLS-1$
-		lblZipWarn.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 11)); //$NON-NLS-1$
-		panelZip.add(lblZipWarn);
+		cbbxZipTempThreshold = new JComboBox<>();
+		cbbxZipTempThreshold.setModel(new DefaultComboBoxModel<>(ZipTempThreshold.values()));
+		cbbxZipTempThreshold.setSelectedItem(ZipTempThreshold.valueOf(Settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString())));
+		cbbxZipTempThreshold.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Settings.setProperty("zip_temp_threshold", cbbxZipTempThreshold.getSelectedItem().toString());
+			}
+		});
+		cbbxZipTempThreshold.setRenderer(new DefaultListCellRenderer()
+		{
+
+			@Override
+			public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus)
+			{
+				setText(((ZipTempThreshold)value).getName());
+				return this;
+			}
+		});
+		GridBagConstraints gbc_cbbxZipTempThreshold = new GridBagConstraints();
+		gbc_cbbxZipTempThreshold.insets = new Insets(0, 0, 5, 5);
+		gbc_cbbxZipTempThreshold.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cbbxZipTempThreshold.gridx = 1;
+		gbc_cbbxZipTempThreshold.gridy = 1;
+		panelZip.add(cbbxZipTempThreshold, gbc_cbbxZipTempThreshold);
+
+		lblCompressionLevel = new JLabel(Messages.getString("MainFrame.lblCompressionLevel.text")); //$NON-NLS-1$
+		lblCompressionLevel.setHorizontalAlignment(SwingConstants.TRAILING);
+		GridBagConstraints gbc_lblCompressionLevel = new GridBagConstraints();
+		gbc_lblCompressionLevel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblCompressionLevel.insets = new Insets(0, 0, 5, 5);
+		gbc_lblCompressionLevel.gridx = 0;
+		gbc_lblCompressionLevel.gridy = 2;
+		panelZip.add(lblCompressionLevel, gbc_lblCompressionLevel);
+
+		cbbxZipLevel = new JComboBox<>();
+		cbbxZipLevel.setModel(new DefaultComboBoxModel<>(ZipLevel.values()));
+		cbbxZipLevel.setSelectedItem(ZipLevel.valueOf(Settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString())));
+		cbbxZipLevel.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Settings.setProperty("zip_compression_level", cbbxZipLevel.getSelectedItem().toString());
+			}
+		});
+		cbbxZipLevel.setRenderer(new DefaultListCellRenderer()
+		{
+
+			@Override
+			public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus)
+			{
+				setText(((ZipLevel)value).getName());
+				return this;
+			}
+		});
+		GridBagConstraints gbc_cbbxZipLevel = new GridBagConstraints();
+		gbc_cbbxZipLevel.fill = GridBagConstraints.BOTH;
+		gbc_cbbxZipLevel.insets = new Insets(0, 0, 5, 5);
+		gbc_cbbxZipLevel.gridx = 1;
+		gbc_cbbxZipLevel.gridy = 2;
+		panelZip.add(cbbxZipLevel, gbc_cbbxZipLevel);
 
 		panelZipE = new JPanel();
 		compressorsPane.addTab(Messages.getString("MainFrame.ZipExternal"), null, panelZipE, null); //$NON-NLS-1$

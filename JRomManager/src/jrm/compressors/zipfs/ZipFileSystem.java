@@ -22,6 +22,10 @@
  * questions.
  */
 
+/*
+ * Modified / Enhanced by optyfr
+ */
+
 package jrm.compressors.zipfs;
 
 import static java.lang.Boolean.TRUE;
@@ -33,105 +37,15 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.READ;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
-import static jrm.compressors.zipfs.ZipConstants.CENCOM;
-import static jrm.compressors.zipfs.ZipConstants.CENCRC;
-import static jrm.compressors.zipfs.ZipConstants.CENEXT;
-import static jrm.compressors.zipfs.ZipConstants.CENFLG;
-import static jrm.compressors.zipfs.ZipConstants.CENHDR;
-import static jrm.compressors.zipfs.ZipConstants.CENHOW;
-import static jrm.compressors.zipfs.ZipConstants.CENLEN;
-import static jrm.compressors.zipfs.ZipConstants.CENNAM;
-import static jrm.compressors.zipfs.ZipConstants.CENOFF;
-import static jrm.compressors.zipfs.ZipConstants.CENSIG;
-import static jrm.compressors.zipfs.ZipConstants.CENSIZ;
-import static jrm.compressors.zipfs.ZipConstants.CENTIM;
-import static jrm.compressors.zipfs.ZipConstants.CENVER;
-import static jrm.compressors.zipfs.ZipConstants.CH;
-import static jrm.compressors.zipfs.ZipConstants.ENDCOM;
-import static jrm.compressors.zipfs.ZipConstants.ENDHDR;
-import static jrm.compressors.zipfs.ZipConstants.ENDOFF;
-import static jrm.compressors.zipfs.ZipConstants.ENDSIG;
-import static jrm.compressors.zipfs.ZipConstants.ENDSIZ;
-import static jrm.compressors.zipfs.ZipConstants.ENDSUB;
-import static jrm.compressors.zipfs.ZipConstants.ENDTOT;
-import static jrm.compressors.zipfs.ZipConstants.END_MAXLEN;
-import static jrm.compressors.zipfs.ZipConstants.EXTID_EXTT;
-import static jrm.compressors.zipfs.ZipConstants.EXTID_NTFS;
-import static jrm.compressors.zipfs.ZipConstants.EXTID_ZIP64;
-import static jrm.compressors.zipfs.ZipConstants.EXTSIG;
-import static jrm.compressors.zipfs.ZipConstants.FLAG_DATADESCR;
-import static jrm.compressors.zipfs.ZipConstants.FLAG_EFS;
-import static jrm.compressors.zipfs.ZipConstants.LG;
-import static jrm.compressors.zipfs.ZipConstants.LL;
-import static jrm.compressors.zipfs.ZipConstants.LOCEXT;
-import static jrm.compressors.zipfs.ZipConstants.LOCHDR;
-import static jrm.compressors.zipfs.ZipConstants.LOCNAM;
-import static jrm.compressors.zipfs.ZipConstants.LOCSIG;
-import static jrm.compressors.zipfs.ZipConstants.METHOD_DEFLATED;
-import static jrm.compressors.zipfs.ZipConstants.METHOD_STORED;
-import static jrm.compressors.zipfs.ZipConstants.READBLOCKSZ;
-import static jrm.compressors.zipfs.ZipConstants.SH;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_ENDHDR;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_ENDOFF;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_ENDSIG;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_ENDSIZ;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_ENDTOT;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_LOCHDR;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_LOCOFF;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_LOCSIG;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_MINVAL;
-import static jrm.compressors.zipfs.ZipConstants.ZIP64_MINVAL32;
-import static jrm.compressors.zipfs.ZipConstants.cenSigAt;
-import static jrm.compressors.zipfs.ZipConstants.getSig;
-import static jrm.compressors.zipfs.ZipConstants.locSigAt;
-import static jrm.compressors.zipfs.ZipUtils.dosToJavaTime;
-import static jrm.compressors.zipfs.ZipUtils.javaToDosTime;
-import static jrm.compressors.zipfs.ZipUtils.javaToUnixTime;
-import static jrm.compressors.zipfs.ZipUtils.javaToWinTime;
-import static jrm.compressors.zipfs.ZipUtils.toDirectoryPath;
-import static jrm.compressors.zipfs.ZipUtils.toRegexPattern;
-import static jrm.compressors.zipfs.ZipUtils.unixToJavaTime;
-import static jrm.compressors.zipfs.ZipUtils.winToJavaTime;
-import static jrm.compressors.zipfs.ZipUtils.writeBytes;
-import static jrm.compressors.zipfs.ZipUtils.writeInt;
-import static jrm.compressors.zipfs.ZipUtils.writeLong;
-import static jrm.compressors.zipfs.ZipUtils.writeShort;
+import static jrm.compressors.zipfs.ZipConstants.*;
+import static jrm.compressors.zipfs.ZipUtils.*;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.NonWritableChannelException;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.file.AccessMode;
-import java.nio.file.ClosedFileSystemException;
-import java.nio.file.CopyOption;
-import java.nio.file.DirectoryNotEmptyException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileStore;
+import java.nio.channels.*;
+import java.nio.file.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemException;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.NotDirectoryException;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.ReadOnlyFileSystemException;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.WatchService;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.UserPrincipalLookupService;
@@ -140,25 +54,11 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Formatter;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
-import java.util.zip.CRC32;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
-import java.util.zip.ZipException;
+import java.util.zip.*;
 
 /**
  * A FileSystem built on a zip file
@@ -172,11 +72,14 @@ class ZipFileSystem extends FileSystem
 	private final ZipFileSystemProvider provider;
 	private final Path zfpath;
 	final ZipCoder zc;
-	private final boolean noExtt; // see readExtra()
 	private final ZipPath rootdir;
+	
 	// configurable by env map
+	private final boolean noExtt; // see readExtra()
 	private final boolean useTempFile; // use a temp file for newOS, default is to use BAOS for better performance
 	private boolean readOnly = false; // readonly file system
+	private final int compressionLevel;
+	
 	private static final boolean isWindows = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> System.getProperty("os.name").startsWith("Windows"));
 
 	ZipFileSystem(ZipFileSystemProvider provider, Path zfpath, Map<String, ?> env) throws IOException
@@ -187,6 +90,8 @@ class ZipFileSystem extends FileSystem
 		String nameEncoding = env.containsKey("encoding") ? (String) env.get("encoding") : "UTF-8";
 		this.noExtt = "false".equals(env.get("zipinfo-time"));
 		this.useTempFile = TRUE.equals(env.get("useTempFile"));
+		this.readOnly = TRUE.equals(env.get("readOnly"));
+		this.compressionLevel = env.containsKey("compressionLevel")?(Integer)env.get("compressionLevel"):Deflater.DEFAULT_COMPRESSION;
 		this.provider = provider;
 		this.zfpath = zfpath;
 		if (Files.notExists(zfpath))
@@ -205,22 +110,33 @@ class ZipFileSystem extends FileSystem
 		}
 		// sm and existence check
 		zfpath.getFileSystem().provider().checkAccess(zfpath, AccessMode.READ);
-		boolean writeable = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Files.isWritable(zfpath));
-		if(!writeable)
+		
+		if(!this.readOnly)
 		{
-			try
+			/*
+			 * Patched by optyfr
+			 * Extra checks to see if it is really not writeable
+			 * - Will try to create a tempfile in archive dir
+			 * - Then, if successful, will check with old java.io.File::canWrite() on archive file
+			 * This will permit to run over some shared network
+			 */
+			boolean writeable = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Files.isWritable(zfpath));
+			if(!writeable)
 			{
-				Path parent = zfpath.toAbsolutePath().getParent();
-				Path dir = (parent == null) ? zfpath.getFileSystem().getPath(".") : parent;
-				Files.delete(Files.createTempFile(dir, "zipfstmp", null));
-				writeable = zfpath.toFile().canWrite();
+				try
+				{
+					Path parent = zfpath.toAbsolutePath().getParent();
+					Path dir = (parent == null) ? zfpath.getFileSystem().getPath(".") : parent;
+					Files.delete(Files.createTempFile(dir, "zipfstmp", null));
+					writeable = zfpath.toFile().canWrite();
+				}
+				catch(Throwable e)
+				{
+				}
 			}
-			catch(Throwable e)
-			{
-			}
+	
+			this.readOnly = !writeable;
 		}
-
-		this.readOnly = !writeable;
 		this.zc = ZipCoder.get(nameEncoding);
 		this.rootdir = new ZipPath(this, new byte[] { '/' });
 		this.ch = Files.newByteChannel(zfpath, READ);
@@ -480,7 +396,7 @@ class ZipFileSystem extends FileSystem
 				IndexNode inode = getInode(path);
 				if (inode == null)
 					return null;
-				e = new Entry(inode.name, inode.isdir); // pseudo directory
+				e = new Entry(inode.name, inode.isdir, 0); // pseudo directory
 				e.method = METHOD_STORED; // STORED for dir
 				e.mtime = e.atime = e.ctime = zfsDefaultTimeStamp;
 			}
@@ -604,7 +520,7 @@ class ZipFileSystem extends FileSystem
 			if (dir.length == 0 || exists(dir)) // root dir, or exiting dir
 				throw new FileAlreadyExistsException(getString(dir));
 			checkParents(dir);
-			Entry e = new Entry(dir, Entry.NEW, true);
+			Entry e = new Entry(dir, Entry.NEW, true, 0);
 			e.method = METHOD_STORED; // STORED for dir
 			update(e);
 		}
@@ -652,7 +568,7 @@ class ZipFileSystem extends FileSystem
 			{
 				checkParents(dst);
 			}
-			Entry u = new Entry(eSrc, Entry.COPY); // copy eSrc entry
+			Entry u = new Entry(eSrc, Entry.COPY, -1); // copy eSrc entry
 			u.name(dst); // change name
 			if (eSrc.type == Entry.NEW || eSrc.type == Entry.FILECH)
 			{
@@ -721,19 +637,19 @@ class ZipFileSystem extends FileSystem
 				if (hasAppend)
 				{
 					InputStream is = getInputStream(e);
-					OutputStream os = getOutputStream(new Entry(e, Entry.NEW));
+					OutputStream os = getOutputStream(new Entry(e, Entry.NEW, -1));
 					copyStream(is, os);
 					is.close();
 					return os;
 				}
-				return getOutputStream(new Entry(e, Entry.NEW));
+				return getOutputStream(new Entry(e, Entry.NEW, compressionLevel));
 			}
 			else
 			{
 				if (!hasCreate && !hasCreateNew)
 					throw new NoSuchFileException(getString(path));
 				checkParents(path);
-				return getOutputStream(new Entry(path, Entry.NEW, false));
+				return getOutputStream(new Entry(path, Entry.NEW, false, compressionLevel));
 			}
 		}
 		finally
@@ -2053,7 +1969,7 @@ class ZipFileSystem extends FileSystem
 			}
 			else
 			{
-				return new Deflater(Deflater.DEFAULT_COMPRESSION, true);
+				return new Deflater(compressionLevel, true);
 			}
 		}
 	}
@@ -2287,7 +2203,7 @@ class ZipFileSystem extends FileSystem
 		{
 		}
 
-		Entry(byte[] name, boolean isdir)
+		Entry(byte[] name, boolean isdir, int compression)
 		{
 			name(name);
 			this.isdir = isdir;
@@ -2295,16 +2211,16 @@ class ZipFileSystem extends FileSystem
 			this.crc = 0;
 			this.size = 0;
 			this.csize = 0;
-			this.method = METHOD_DEFLATED;
+			this.method = compression!=0?METHOD_DEFLATED:METHOD_STORED;
 		}
 
-		Entry(byte[] name, int type, boolean isdir)
+		Entry(byte[] name, int type, boolean isdir, int compression)
 		{
-			this(name, isdir);
+			this(name, isdir, compression);
 			this.type = type;
 		}
 
-		Entry(Entry e, int type)
+		Entry(Entry e, int type, int compression)
 		{
 			name(e.name);
 			this.isdir = e.isdir;
@@ -2315,7 +2231,7 @@ class ZipFileSystem extends FileSystem
 			this.crc = e.crc;
 			this.size = e.size;
 			this.csize = e.csize;
-			this.method = e.method;
+			this.method = compression!=0?e.method:METHOD_STORED;
 			this.extra = e.extra;
 			/*
 			 * this.versionMade = e.versionMade; this.disk = e.disk; this.attrs = e.attrs;
@@ -2328,7 +2244,7 @@ class ZipFileSystem extends FileSystem
 
 		Entry(byte[] name, Path file, int type)
 		{
-			this(name, type, false);
+			this(name, type, false, 0);
 			this.file = file;
 			this.method = METHOD_STORED;
 		}
