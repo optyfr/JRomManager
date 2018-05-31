@@ -242,6 +242,8 @@ public class MainFrame extends JFrame
 	private JLabel lblCompressionLevel;
 	private JLabel lblTemporaryFilesThreshold;
 	private JComboBox<ZipTempThreshold> cbbxZipTempThreshold;
+	private JCheckBox chckbxIgnoreMergeNameRoms;
+	private JCheckBox chckbxIgnoreMergeNameDisks;
 
 	public MainFrame()
 	{
@@ -1032,9 +1034,9 @@ public class MainFrame extends JFrame
 		scannerSettingsPanel.setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
 		final GridBagLayout gbl_scannerSettingsPanel = new GridBagLayout();
 		gbl_scannerSettingsPanel.columnWidths = new int[] { 0, 0, 0 };
-		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 0, 0, 20, 0 };
+		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 0, 0, 0, 20, 0 };
 		gbl_scannerSettingsPanel.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gbl_scannerSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl_scannerSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		scannerSettingsPanel.setLayout(gbl_scannerSettingsPanel);
 
 		chckbxNeedSHA1 = new JCheckBox(Messages.getString("MainFrame.chckbxNeedSHA1.text")); //$NON-NLS-1$
@@ -1115,13 +1117,31 @@ public class MainFrame extends JFrame
 		gbc_chckbxUseImplicitMerge.gridx = 1;
 		gbc_chckbxUseImplicitMerge.gridy = 3;
 		scannerSettingsPanel.add(chckbxUseImplicitMerge, gbc_chckbxUseImplicitMerge);
+		
+		chckbxIgnoreMergeNameRoms = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreMergeName.text")); //$NON-NLS-1$
+		chckbxIgnoreMergeNameRoms.addItemListener(e -> Profile.curr_profile.setProperty("ignore_merge_name_roms", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		GridBagConstraints gbc_chckbxIgnoreMergeNameRoms = new GridBagConstraints();
+		gbc_chckbxIgnoreMergeNameRoms.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxIgnoreMergeNameRoms.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxIgnoreMergeNameRoms.gridx = 0;
+		gbc_chckbxIgnoreMergeNameRoms.gridy = 4;
+		scannerSettingsPanel.add(chckbxIgnoreMergeNameRoms, gbc_chckbxIgnoreMergeNameRoms);
+		
+		chckbxIgnoreMergeNameDisks = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreMergeName_1.text")); //$NON-NLS-1$
+		chckbxIgnoreMergeNameDisks.addItemListener(e -> Profile.curr_profile.setProperty("ignore_merge_name_disks", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		GridBagConstraints gbc_chckbxIgnoreMergeNameDisks = new GridBagConstraints();
+		gbc_chckbxIgnoreMergeNameDisks.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxIgnoreMergeNameDisks.insets = new Insets(0, 0, 5, 0);
+		gbc_chckbxIgnoreMergeNameDisks.gridx = 1;
+		gbc_chckbxIgnoreMergeNameDisks.gridy = 4;
+		scannerSettingsPanel.add(chckbxIgnoreMergeNameDisks, gbc_chckbxIgnoreMergeNameDisks);
 
 		scannerSubSettingsPanel = new JPanel();
 		final GridBagConstraints gbc_scannerSubSettingsPanel = new GridBagConstraints();
 		gbc_scannerSubSettingsPanel.gridwidth = 2;
 		gbc_scannerSubSettingsPanel.fill = GridBagConstraints.BOTH;
 		gbc_scannerSubSettingsPanel.gridx = 0;
-		gbc_scannerSubSettingsPanel.gridy = 4;
+		gbc_scannerSubSettingsPanel.gridy = 5;
 		scannerSettingsPanel.add(scannerSubSettingsPanel, gbc_scannerSubSettingsPanel);
 		final GridBagLayout gbl_scannerSubSettingsPanel = new GridBagLayout();
 		gbl_scannerSubSettingsPanel.columnWidths = new int[] { 0, 0, 0, 0 };
@@ -2081,6 +2101,8 @@ public class MainFrame extends JFrame
 		chckbxIgnoreUnknownContainers.setSelected(Profile.curr_profile.getProperty("ignore_unknown_containers", false)); //$NON-NLS-1$
 		chckbxCreateOnlyComplete.setEnabled(chckbxCreateMissingSets.isSelected());
 		chckbxUseImplicitMerge.setSelected(Profile.curr_profile.getProperty("implicit_merge", false)); //$NON-NLS-1$
+		chckbxIgnoreMergeNameRoms.setSelected(Profile.curr_profile.getProperty("ignore_merge_name_roms", false)); //$NON-NLS-1$
+		chckbxIgnoreMergeNameDisks.setSelected(Profile.curr_profile.getProperty("ignore_merge_name_disks", false)); //$NON-NLS-1$
 		txtRomsDest.setText(Profile.curr_profile.getProperty("roms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		lblDisksDest.setSelected(Profile.curr_profile.getProperty("disks_dest_dir_enabled", false)); //$NON-NLS-1$
 		tfDisksDest.setText(Profile.curr_profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$

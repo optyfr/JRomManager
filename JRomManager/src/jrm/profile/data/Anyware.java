@@ -126,7 +126,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 					if(l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
 						l.forEach(Disk::setCollisionMode);
 				});
-				stream = StreamEx.of(disks_with_clones).distinct(Disk::getName);
+				stream = StreamEx.of(disks_with_clones)/*.distinct(Disk::getName)*/;
 			}
 		}
 		else

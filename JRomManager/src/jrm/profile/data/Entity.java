@@ -44,14 +44,24 @@ public abstract class Entity extends EntityBase implements Serializable
 		collision = true;
 	}
 
-	public boolean isCollisionMode()
+	public boolean isCollisionMode(boolean dumber)
 	{
 		if(Anyware.hash_collision_mode == HashCollisionOptions.SINGLECLONE)
 			return getParent().isCollisionMode();
 		else if(Anyware.hash_collision_mode == HashCollisionOptions.ALLCLONES)
 			return getParent().isCollisionMode();
-		else if(Anyware.hash_collision_mode == HashCollisionOptions.DUMB)
-			return true;
+		else if(dumber)
+		{
+			if(Anyware.hash_collision_mode == HashCollisionOptions.DUMBER)
+				return true;
+		}
+		else 
+		{
+			if(Anyware.hash_collision_mode == HashCollisionOptions.DUMB)
+				return true;
+			else if(Anyware.hash_collision_mode == HashCollisionOptions.DUMBER)
+				return true;
+		}
 		return collision;
 	}
 

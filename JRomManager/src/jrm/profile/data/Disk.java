@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
+import jrm.profile.Profile;
 import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Export.SimpleAttribute;
 
@@ -32,12 +33,12 @@ public class Disk extends Entity implements Serializable
 		{
 			if(merge == null)
 			{
-				if(isCollisionMode() && getParent().isClone())
+				if(isCollisionMode(true) && getParent().isClone())
 				{
 					return parent.name + "/" + name + ".chd"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
-			else
+			else if(!Profile.curr_profile.getProperty("ignore_merge_name_disks", false))
 				return merge + ".chd"; //$NON-NLS-1$
 		}
 		return name + ".chd"; //$NON-NLS-1$
@@ -89,7 +90,11 @@ public class Disk extends Entity implements Serializable
 				if(disk.equals(d))
 					return d.getStatus();
 			}
+			if(parent.parent.parent != null)
+				return findDiskStatus(parent.getParent(), disk);
 		}
+		else if(parent.isRomOf() && merge != null)
+			return EntityStatus.OK;
 		return null;
 	}
 
