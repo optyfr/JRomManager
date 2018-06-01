@@ -407,8 +407,8 @@ public class ProfileViewer extends JDialog
 											final Machine machine = machines.getSelectedValue();
 											if (machine != null)
 											{
-												System.out.println("-> " + machine.getBaseName() + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$
-												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+												System.out.println("-> " + machine.getBaseName() + " -" + ((Software)ware).parts.get(0).name  + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$
+												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), "-" + ((Software)ware).parts.get(0).name, ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 											}
 										}
 										else

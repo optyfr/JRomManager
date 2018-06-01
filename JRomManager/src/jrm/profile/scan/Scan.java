@@ -148,26 +148,20 @@ public class Scan
 			{
 				sl.resetFilteredName();
 				File sldir = new File(swroms_dstdir, sl.getName());
-				if (!sldir.exists())
-					sldir.mkdirs();
-				if (sldir.isDirectory())
-					swroms_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, handler));
+				swroms_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, handler));
 				if (swroms_dstdir.equals(swdisks_dstdir))
 					swdisks_dstscans = swroms_dstscans;
 				else
 				{
 					sldir = new File(swdisks_dstdir, sl.getName());
-					if (!sldir.exists())
-						sldir.mkdirs();
-					if (sldir.isDirectory())
-						swdisks_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, handler));
+					swdisks_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, handler));
 				}
 				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size(), sl.getName()), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
 				if (handler.isCancel())
 					throw new BreakException();
 			}
 			handler.setProgress2(null, null);
-			for (final File f : swroms_dstdir.listFiles())
+			if(swroms_dstdir.isDirectory()) for (final File f : swroms_dstdir.listFiles())
 			{
 				if (!swroms_dstscans.containsKey(f.getName()))
 					unknown.add(f.isDirectory() ? new Directory(f, (Machine) null) : new Archive(f, (Machine) null));
@@ -176,7 +170,7 @@ public class Scan
 			}
 			if (!swroms_dstdir.equals(swdisks_dstdir))
 			{
-				for (final File f : swdisks_dstdir.listFiles())
+				if(swdisks_dstdir.isDirectory()) for (final File f : swdisks_dstdir.listFiles())
 				{
 					if (!swdisks_dstscans.containsKey(f.getName()))
 						unknown.add(f.isDirectory() ? new Directory(f, (Machine) null) : new Archive(f, (Machine) null));
@@ -878,6 +872,7 @@ public class Scan
 		final List<Disk> disks = ware.filterDisks(merge_mode, hash_collision_mode);
 		if (!scanRoms(ware, roms, archive, report_subject))
 			missing_set = false;
+		prepTZip(report_subject, archive, ware, roms);
 		if (!scanDisks(ware, disks, directory, report_subject))
 			missing_set = false;
 		if (roms.size() == 0 && disks.size() == 0)
@@ -902,7 +897,6 @@ public class Scan
 			Scan.report.stats.missing_set_cnt++;
 		if (report_subject.getStatus() != Status.UNKNOWN)
 			Scan.report.add(report_subject);
-		prepTZip(report_subject, archive, ware, roms);
 	}
 
 }

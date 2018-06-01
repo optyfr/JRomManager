@@ -88,6 +88,9 @@ public final class DirScan
 		else
 			containers_byname = Collections.synchronizedMap(new HashMap<>());
 
+		if(!Files.isDirectory(path))
+			return;
+		
 		/*
 		 * List files;
 		 */

@@ -52,6 +52,7 @@ public class CreateContainer extends ContainerAction
 				env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 				env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(Settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$
 				env.put("compressionLevel", format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(Settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString())).getLevel());
+				container.file.getParentFile().mkdirs();
 				try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.file.toURI()), env);) //$NON-NLS-1$
 				{
 					for (final EntryAction action : entry_actions)
@@ -71,6 +72,7 @@ public class CreateContainer extends ContainerAction
 			}
 			else if (format == FormatOptions.ZIPE)
 			{
+				container.file.getParentFile().mkdirs();
 				try (Archive archive = new ZipArchive(container.file))
 				{
 					for (final EntryAction action : entry_actions)
@@ -89,6 +91,7 @@ public class CreateContainer extends ContainerAction
 		}
 		else if (container.getType() == Container.Type.SEVENZIP)
 		{
+			container.file.getParentFile().mkdirs();
 			try (Archive archive = new SevenZipArchive(container.file))
 			{
 				for (final EntryAction action : entry_actions)

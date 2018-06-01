@@ -723,7 +723,7 @@ public class Profile implements Serializable
 	{
 		Profile profile = null;
 		final File cachefile = Profile.getCacheFile(nfo.file);
-		if (cachefile.lastModified() >= nfo.file.lastModified() && !Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
+		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 		{
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
 			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile),(int)cachefile.length()))))
