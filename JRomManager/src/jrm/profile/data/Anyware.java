@@ -2,8 +2,13 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
@@ -26,7 +31,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	public final StringBuffer description = new StringBuffer();
 	public final StringBuffer year = new StringBuffer();
 
-	public final Collection<Rom> roms = new ArrayList<>();
+	public final List<Rom> roms = new ArrayList<>();
 	public final Collection<Disk> disks = new ArrayList<>();
 	public final Collection<Sample> samples = new ArrayList<>();
 
@@ -54,17 +59,17 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 
 	private void initTransient()
 	{
-		if(Anyware.merge_mode == null)
+		if (Anyware.merge_mode == null)
 			Anyware.merge_mode = MergeOptions.SPLIT;
-		if(Anyware.implicit_merge == null)
+		if (Anyware.implicit_merge == null)
 			Anyware.implicit_merge = false;
-		if(Anyware.hash_collision_mode == null)
+		if (Anyware.hash_collision_mode == null)
 			Anyware.hash_collision_mode = HashCollisionOptions.SINGLEFILE;
 		collision = false;
 		table_entities = null;
-		if(Anyware.listenerList == null)
+		if (Anyware.listenerList == null)
 			Anyware.listenerList = new EventListenerList();
-		if(Anyware.filter == null)
+		if (Anyware.filter == null)
 			Anyware.filter = EnumSet.allOf(EntityStatus.class);
 	}
 
@@ -75,7 +80,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 
 	public void setCollisionMode(final boolean parent)
 	{
-		if(parent)
+		if (parent)
 			getDest().clones.forEach((n, m) -> m.collision = true);
 		collision = true;
 	}
@@ -101,7 +106,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 
 	private Anyware getDest()
 	{
-		if(Anyware.merge_mode.isMerge() && isClone())
+		if (Anyware.merge_mode.isMerge() && isClone())
 			return getParent().getDest(Anyware.merge_mode, Anyware.implicit_merge);
 		return this;
 	}
@@ -115,15 +120,15 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		Anyware.merge_mode = merge_mode;
 		Anyware.hash_collision_mode = hash_collision_mode;
 		Stream<Disk> stream;
-		if(merge_mode.isMerge())
+		if (merge_mode.isMerge())
 		{
-			if(isClone())
+			if (isClone())
 				stream = Stream.empty();
 			else
 			{
 				final List<Disk> disks_with_clones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).collect(Collectors.toList());
 				StreamEx.of(disks_with_clones).groupingBy(Disk::getName).forEach((n, l) -> {
-					if(l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
+					if (l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
 						l.forEach(Disk::setCollisionMode);
 				});
 				stream = StreamEx.of(disks_with_clones).distinct(Disk::getName);
@@ -132,11 +137,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		else
 			stream = disks.stream();
 		return stream.filter(d -> {
-			if(d.status == Status.nodump)
+			if (d.status == Status.nodump)
 				return false;
-			if(merge_mode == MergeOptions.SPLIT && Anyware.containsInParent(this, d))
+			if (merge_mode == MergeOptions.SPLIT && Anyware.containsInParent(this, d))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && Anyware.containsInParent(this, d))
+			if (merge_mode == MergeOptions.NOMERGE && Anyware.containsInParent(this, d))
 				return true;
 			return isBios() || !Anyware.containsInParent(this, d);
 		}).collect(Collectors.toList());
@@ -147,64 +152,72 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		Anyware.merge_mode = merge_mode;
 		Anyware.hash_collision_mode = hash_collision_mode;
 		Stream<Rom> stream;
-		if(merge_mode.isMerge())
+		if (merge_mode.isMerge())
 		{
-			if(isClone())
+			if (isClone())
 				stream = Stream.empty();
 			else
 			{
 				final List<Rom> roms_with_clones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
 				StreamEx.of(roms_with_clones).groupingBy(Rom::getName).forEach((n, l) -> {
-					if(l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
+					if (l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
 						l.forEach(Rom::setCollisionMode);
 				});
-				stream = StreamEx.of(roms_with_clones).distinct(Rom::getName);
+				if (HashCollisionOptions.HALFDUMB == hash_collision_mode)
+					stream = StreamEx.of(Stream.concat(roms.stream(), StreamEx.of(clones.values().stream().flatMap(m -> m.roms.stream())).sorted((a, b) -> a.getName().compareTo(b.getName())).distinct(Rom::hashString)));
+				else
+					stream = StreamEx.of(roms_with_clones).distinct(Rom::getName);
 			}
 		}
 		else
 			stream = roms.stream();
 		return stream.filter(r -> {
-			if(r.status == Status.nodump)
+			if (r.status == Status.nodump)
 				return false;
-			if(r.crc == null)
+			if (r.crc == null)
 				return false;
-			if(r.name.isEmpty())
+			if (r.name.isEmpty())
 				return false;
-			if(merge_mode == MergeOptions.FULLNOMERGE)
+			if (merge_mode == MergeOptions.FULLNOMERGE)
 				return true;
-			if(merge_mode == MergeOptions.FULLMERGE)
+			if (merge_mode == MergeOptions.FULLMERGE)
 				return true;
-			if(merge_mode == MergeOptions.SPLIT && Anyware.containsInParent(this, r, false))
+			if (merge_mode == MergeOptions.SPLIT && Anyware.containsInParent(this, r, false))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && Anyware.containsInParent(this, r, true))
+			if (merge_mode == MergeOptions.NOMERGE && Anyware.containsInParent(this, r, true))
 				return false;
-			if(merge_mode == MergeOptions.NOMERGE && Anyware.wouldMerge(this, r))
+			if (merge_mode == MergeOptions.NOMERGE && Anyware.wouldMerge(this, r))
 				return true;
-			if(merge_mode == MergeOptions.MERGE && Anyware.containsInParent(this, r, true))
+			if (merge_mode == MergeOptions.MERGE && Anyware.containsInParent(this, r, true))
 				return false;
-			if(merge_mode == MergeOptions.MERGE && Anyware.wouldMerge(this, r))
+			if (merge_mode == MergeOptions.MERGE && Anyware.wouldMerge(this, r))
 				return true;
 			return isBios() || !Anyware.containsInParent(this, r, false);
 		}).collect(Collectors.toList());
 	}
 
+	public static <T> Stream<T> streamInReverse(List<T> input)
+	{
+		return IntStream.range(1, input.size() + 1).mapToObj(i -> input.get(input.size() - i));
+	}
+
 	public static boolean wouldMerge(final Anyware ware, final Entity e)
 	{
-		if(e.merge!=null)
-			if(ware.isRomOf())
-				if(ware.getParent()!=null)
+		if (e.merge != null)
+			if (ware.isRomOf())
+				if (ware.getParent() != null)
 					return true;
 		return false;
 	}
 
 	public static boolean containsInParent(final Anyware ware, final Rom r, final boolean onlyBios)
 	{
-		if(r.merge!=null || Anyware.implicit_merge)
+		if (r.merge != null || Anyware.implicit_merge)
 		{
-			if(ware.getParent()!=null)
+			if (ware.getParent() != null)
 			{
-				if(!onlyBios || ware.getParent().isBios())
-					if(ware.getParent().roms.contains(r))
+				if (!onlyBios || ware.getParent().isBios())
+					if (ware.getParent().roms.contains(r))
 						return true;
 				return Anyware.containsInParent(ware.getParent(), r, onlyBios);
 			}
@@ -214,11 +227,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 
 	public static boolean containsInParent(final Anyware ware, final Disk d)
 	{
-		if(d.merge!=null || Anyware.implicit_merge)
+		if (d.merge != null || Anyware.implicit_merge)
 		{
-			if(ware.getParent()!=null)
+			if (ware.getParent() != null)
 			{
-				if(ware.getParent().disks.contains(d))
+				if (ware.getParent().disks.contains(d))
 					return true;
 				return Anyware.containsInParent(ware.getParent(), d);
 			}
@@ -240,8 +253,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 
 	private List<EntityBase> getEntities()
 	{
-		if(table_entities == null)
-			table_entities = Stream.of(roms.stream(), disks.stream(), samples.stream()).flatMap(s->s).filter(t -> Anyware.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+		if (table_entities == null)
+			table_entities = Stream.of(roms.stream(), disks.stream(), samples.stream()).flatMap(s -> s).filter(t -> Anyware.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return table_entities;
 	}
 
@@ -288,7 +301,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	@Override
 	public Object getValueAt(final int rowIndex, final int columnIndex)
 	{
-		switch(columnIndex)
+		switch (columnIndex)
 		{
 			case 0:
 				return getEntities().get(rowIndex);
@@ -330,8 +343,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	public void fireTableChanged(final TableModelEvent e)
 	{
 		final Object[] listeners = Anyware.listenerList.getListenerList();
-		for(int i = listeners.length - 2; i >= 0; i -= 2)
-			if(listeners[i] == TableModelListener.class)
+		for (int i = listeners.length - 2; i >= 0; i -= 2)
+			if (listeners[i] == TableModelListener.class)
 				((TableModelListener) listeners[i + 1]).tableChanged(e);
 	}
 
@@ -339,46 +352,46 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
 		boolean ok = false;
-		for(final Disk disk : disks)
+		for (final Disk disk : disks)
 		{
 			final EntityStatus estatus = disk.getStatus();
-			if(estatus == EntityStatus.KO)
+			if (estatus == EntityStatus.KO)
 				status = AnywareStatus.PARTIAL;
-			else if(estatus == EntityStatus.OK)
+			else if (estatus == EntityStatus.OK)
 				ok = true;
-			else if(estatus == EntityStatus.UNKNOWN)
+			else if (estatus == EntityStatus.UNKNOWN)
 			{
 				status = AnywareStatus.UNKNOWN;
 				break;
 			}
 		}
-		for(final Rom rom : roms)
+		for (final Rom rom : roms)
 		{
 			final EntityStatus estatus = rom.getStatus();
-			if(estatus == EntityStatus.KO)
+			if (estatus == EntityStatus.KO)
 				status = AnywareStatus.PARTIAL;
-			else if(estatus == EntityStatus.OK)
+			else if (estatus == EntityStatus.OK)
 				ok = true;
-			else if(estatus == EntityStatus.UNKNOWN)
+			else if (estatus == EntityStatus.UNKNOWN)
 			{
 				status = AnywareStatus.UNKNOWN;
 				break;
 			}
 		}
-		for(final Sample sample : samples)
+		for (final Sample sample : samples)
 		{
 			final EntityStatus estatus = sample.getStatus();
-			if(estatus == EntityStatus.KO)
+			if (estatus == EntityStatus.KO)
 				status = AnywareStatus.PARTIAL;
-			else if(estatus == EntityStatus.OK)
+			else if (estatus == EntityStatus.OK)
 				ok = true;
-			else if(estatus == EntityStatus.UNKNOWN)
+			else if (estatus == EntityStatus.UNKNOWN)
 			{
 				status = AnywareStatus.UNKNOWN;
 				break;
 			}
 		}
-		if(status == AnywareStatus.PARTIAL && !ok)
+		if (status == AnywareStatus.PARTIAL && !ok)
 			status = AnywareStatus.MISSING;
 		return status;
 	}

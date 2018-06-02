@@ -4,7 +4,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -600,8 +602,10 @@ public class MainFrame extends JFrame
 					{
 						final Import imprt = new Import(nfo.mame.getFile(), nfo.mame.isSL());
 						nfo.mame.delete();
-						nfo.mame.fileroms = imprt.roms_file;
-						nfo.mame.filesl = imprt.sl_file;
+						nfo.mame.fileroms = new File(nfo.file.getParentFile(),imprt.roms_file.getName());
+						Files.copy(imprt.roms_file.toPath(), nfo.mame.fileroms.toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+						nfo.mame.filesl = new File(nfo.file.getParentFile(),imprt.sl_file.getName());
+						Files.copy(imprt.sl_file.toPath(), nfo.mame.filesl.toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 						nfo.mame.setUpdated();
 						nfo.stats.reset();
 						nfo.save();

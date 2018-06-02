@@ -57,7 +57,9 @@ public abstract class Entity extends EntityBase implements Serializable
 		}
 		else 
 		{
-			if(Anyware.hash_collision_mode == HashCollisionOptions.DUMB)
+			if(Anyware.hash_collision_mode == HashCollisionOptions.HALFDUMB)
+				return true;
+			else if(Anyware.hash_collision_mode == HashCollisionOptions.DUMB)
 				return true;
 			else if(Anyware.hash_collision_mode == HashCollisionOptions.DUMBER)
 				return true;

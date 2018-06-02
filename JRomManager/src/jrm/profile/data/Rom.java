@@ -121,19 +121,18 @@ public class Rom extends Entity implements Serializable
 
 	private EntityStatus findRomStatus(final Anyware parent, final Rom rom)
 	{
+		for (final Rom r : parent.roms)
+			if (rom != r && rom.equals(r) && r.own_status != EntityStatus.UNKNOWN)
+				return r.own_status;
 		if (parent.parent != null) // find same rom in parent clone (if any and recursively)
 		{
 			if (Anyware.merge_mode.isMerge())
 			{
 				for (final Anyware clone : parent.getParent().clones.values())
-				{
 					if (clone != parent)
 						for (final Rom r : clone.roms)
-						{
 							if (rom.equals(r) && r.own_status != EntityStatus.UNKNOWN)
 								return r.own_status;
-						}
-				}
 			}
 			for (final Rom r : parent.getParent().roms)
 			{
