@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -164,7 +165,15 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 						l.forEach(Rom::setCollisionMode);
 				});
 				if (HashCollisionOptions.HALFDUMB == hash_collision_mode)
-					stream = StreamEx.of(Stream.concat(roms.stream(), StreamEx.of(clones.values().stream().flatMap(m -> m.roms.stream())).sorted((a, b) -> a.getName().compareTo(b.getName())).distinct(Rom::hashString)));
+				{
+					Map<String, Rom> map = new HashMap<>();
+					roms.forEach(r -> map.putIfAbsent(r.hashString(), r));
+					clones.values().forEach(w -> w.roms.forEach(r -> map.putIfAbsent(r.hashString(), r)));
+					// StreamEx.of(clones.values().stream().flatMap(m -> m.roms.stream())).sorted((a, b) -> a.getName().compareTo(b.getName())).forEach(r -> map.putIfAbsent(r.hashString(), r));
+					List<Rom> clones_roms = new ArrayList<>(map.values());
+					clones_roms.removeAll(roms);
+					stream = Stream.concat(roms.stream(), clones_roms.stream());
+				}
 				else
 					stream = StreamEx.of(roms_with_clones).distinct(Rom::getName);
 			}

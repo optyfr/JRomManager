@@ -1526,7 +1526,8 @@ class ZipFileSystem extends FileSystem
 			Files.delete(zfpath);
 		}
 
-		Files.move(tmpFile, zfpath, REPLACE_EXISTING);
+		Files.copy(tmpFile, zfpath, REPLACE_EXISTING);
+		Files.deleteIfExists(tmpFile);
 		hasUpdate = false; // clear
 	}
 
