@@ -177,7 +177,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		else
 		{
 			if(merge_mode.equals(MergeOptions.SUPERFULLNOMERGE))
-				stream = Stream.concat(roms.stream(), devices.values().stream().flatMap(m -> m.roms.stream()));
+				stream = streamWithDevices();
 			else
 				stream = roms.stream();
 		}
@@ -208,6 +208,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		}).collect(Collectors.toList());
 	}
 
+	Stream<Rom> streamWithDevices()
+	{
+		return Stream.concat(roms.stream(), devices.values().stream().flatMap(m -> m.streamWithDevices()));
+	}
+	
 	public static <T> Stream<T> streamInReverse(List<T> input)
 	{
 		return IntStream.range(1, input.size() + 1).mapToObj(i -> input.get(input.size() - i));

@@ -73,7 +73,7 @@ public class Profile implements Serializable
 	{
 		handler.setProgress(String.format(Messages.getString("Profile.Parsing"), file), -1); //$NON-NLS-1$
 		final SAXParserFactory factory = SAXParserFactory.newInstance();
-		try(InputStream in = handler.getInputStream(new FileInputStream(file), (int)file.length()))
+		try (InputStream in = handler.getInputStream(new FileInputStream(file), (int) file.length()))
 		{
 			final SAXParser parser = factory.newSAXParser();
 			parser.parse(in, new DefaultHandler()
@@ -403,7 +403,7 @@ public class Profile implements Serializable
 								switch (attributes.getQName(i))
 								{
 									case "name": //$NON-NLS-1$
-										if(curr_sampleset==null)
+										if (curr_sampleset == null)
 										{
 											curr_machine.sampleof = curr_machine.getBaseName();
 											if (!machinelist_list.get(0).samplesets.containsName(curr_machine.sampleof))
@@ -584,7 +584,7 @@ public class Profile implements Serializable
 					{
 						if (curr_rom.getName() != null)
 						{
-							if(!roms.contains(curr_rom.getBaseName()))
+							if (!roms.contains(curr_rom.getBaseName()))
 							{
 								roms.add(curr_rom.getBaseName());
 								if (curr_machine != null)
@@ -617,7 +617,7 @@ public class Profile implements Serializable
 					{
 						if (curr_disk.getName() != null)
 						{
-							if(!disks.contains(curr_disk.getBaseName()))
+							if (!disks.contains(curr_disk.getBaseName()))
 							{
 								disks.add(curr_disk.getBaseName());
 								if (curr_machine != null)
@@ -750,7 +750,7 @@ public class Profile implements Serializable
 		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 		{
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
-			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile),(int)cachefile.length()))))
+			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile), (int) cachefile.length()))))
 			{
 				profile = (Profile) ois.readObject();
 				profile.nfo = nfo;
@@ -886,17 +886,17 @@ public class Profile implements Serializable
 	}
 
 	private int props_hashcode = 0;
-	
+
 	public void setPropsCheckPoint()
 	{
 		props_hashcode = settings.hashCode();
 	}
-	
+
 	public boolean hasPropsChanged()
 	{
 		return props_hashcode != settings.hashCode();
 	}
-	
+
 	public String getName()
 	{
 		String name = "<html><body>[<span color='blue'>" + Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
