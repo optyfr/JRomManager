@@ -56,4 +56,9 @@ public interface HTMLRenderer
 	{
 		return "<i>"+str+"</i>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	public default String progress(final int i, final int max)
+	{
+		return String.format("<html><table cellpadding=2 cellspacing=0><tr><td valign='middle'><table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray'><tr><td style='width:%dpx;background:#ff00'><td></table><td>", 108, i*100/max);
+	}
 }

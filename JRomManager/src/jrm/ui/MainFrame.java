@@ -246,6 +246,13 @@ public class MainFrame extends JFrame
 	private JComboBox<ZipTempThreshold> cbbxZipTempThreshold;
 	private JCheckBox chckbxIgnoreMergeNameRoms;
 	private JCheckBox chckbxIgnoreMergeNameDisks;
+	private JPopupMenu popupMenu_4;
+	private JMenu mnPresets;
+	private JMenuItem mntmPleasuredome;
+	private JMenuItem mntmPdMameNon;
+	private JMenuItem mntmPdMameSplit;
+	private JCheckBox chckbxExcludeGames;
+	private JCheckBox chckbxExcludeMachines;
 
 	public MainFrame()
 	{
@@ -604,8 +611,11 @@ public class MainFrame extends JFrame
 						nfo.mame.delete();
 						nfo.mame.fileroms = new File(nfo.file.getParentFile(),imprt.roms_file.getName());
 						Files.copy(imprt.roms_file.toPath(), nfo.mame.fileroms.toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-						nfo.mame.filesl = new File(nfo.file.getParentFile(),imprt.sl_file.getName());
-						Files.copy(imprt.sl_file.toPath(), nfo.mame.filesl.toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+						if(nfo.mame.isSL())
+						{
+							nfo.mame.filesl = new File(nfo.file.getParentFile(),imprt.sl_file.getName());
+							Files.copy(imprt.sl_file.toPath(), nfo.mame.filesl.toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+						}
 						nfo.mame.setUpdated();
 						nfo.stats.reset();
 						nfo.save();
@@ -1036,11 +1046,69 @@ public class MainFrame extends JFrame
 		scannerSettingsPanel = new JPanel();
 		scannerCfgTab.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), null, scannerSettingsPanel, null); //$NON-NLS-1$
 		scannerSettingsPanel.setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
+		
+		popupMenu_4 = new JPopupMenu();
+		addPopup(scannerSettingsPanel, popupMenu_4);
+		
+		mnPresets = new JMenu(Messages.getString("MainFrame.mnPresets.text")); //$NON-NLS-1$
+		popupMenu_4.add(mnPresets);
+		
+		mntmPleasuredome = new JMenuItem("PD MAME Merged");
+		mntmPleasuredome.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				chckbxCreateMissingSets.setSelected(true);
+				chckbxCreateOnlyComplete.setSelected(false);
+				chckbxIgnoreUnneededContainers.setSelected(false);
+				chckbxIgnoreUnneededEntries.setSelected(false);
+				chckbxIgnoreUnknownContainers.setSelected(true);
+				chckbxUseImplicitMerge.setSelected(true);
+				chckbxIgnoreMergeNameDisks.setSelected(true);	// Don't remove _ReadMe_.txt
+				chckbxIgnoreMergeNameRoms.setSelected(false);
+				cbCompression.setSelectedItem(FormatOptions.TZIP);
+				cbbxMergeMode.setSelectedItem(MergeOptions.MERGE);
+				cbHashCollision.setSelectedItem(HashCollisionOptions.HALFDUMB);
+			}
+		});
+		mnPresets.add(mntmPleasuredome);
+		
+		mntmPdMameNon = new JMenuItem(Messages.getString("MainFrame.mntmPdMameNon.text")); //$NON-NLS-1$
+		mntmPdMameNon.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				chckbxCreateMissingSets.setSelected(true);
+				chckbxCreateOnlyComplete.setSelected(false);
+				chckbxIgnoreUnneededContainers.setSelected(false);
+				chckbxIgnoreUnneededEntries.setSelected(false);
+				chckbxIgnoreUnknownContainers.setSelected(true);	// Don't remove _ReadMe_.txt
+				chckbxUseImplicitMerge.setSelected(true);
+				chckbxIgnoreMergeNameDisks.setSelected(true);
+				chckbxIgnoreMergeNameRoms.setSelected(false);
+				cbCompression.setSelectedItem(FormatOptions.TZIP);
+				cbbxMergeMode.setSelectedItem(MergeOptions.SUPERFULLNOMERGE);
+			}
+		});
+		mnPresets.add(mntmPdMameNon);
+		
+		mntmPdMameSplit = new JMenuItem(Messages.getString("MainFrame.mntmPdMameSplit.text")); //$NON-NLS-1$
+		mntmPdMameSplit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				chckbxCreateMissingSets.setSelected(true);
+				chckbxCreateOnlyComplete.setSelected(false);
+				chckbxIgnoreUnneededContainers.setSelected(false);
+				chckbxIgnoreUnneededEntries.setSelected(false);
+				chckbxIgnoreUnknownContainers.setSelected(true);	// Don't remove _ReadMe_.txt
+				chckbxUseImplicitMerge.setSelected(true);
+				chckbxIgnoreMergeNameDisks.setSelected(true);
+				chckbxIgnoreMergeNameRoms.setSelected(false);
+				cbCompression.setSelectedItem(FormatOptions.TZIP);
+				cbbxMergeMode.setSelectedItem(MergeOptions.SPLIT);
+			}
+		});
+		mnPresets.add(mntmPdMameSplit);
 		final GridBagLayout gbl_scannerSettingsPanel = new GridBagLayout();
 		gbl_scannerSettingsPanel.columnWidths = new int[] { 0, 0, 0 };
-		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 0, 0, 0, 20, 0 };
+		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 0, 0, 0, 0, 20, 0 };
 		gbl_scannerSettingsPanel.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gbl_scannerSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl_scannerSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		scannerSettingsPanel.setLayout(gbl_scannerSettingsPanel);
 
 		chckbxNeedSHA1 = new JCheckBox(Messages.getString("MainFrame.chckbxNeedSHA1.text")); //$NON-NLS-1$
@@ -1139,13 +1207,31 @@ public class MainFrame extends JFrame
 		gbc_chckbxIgnoreMergeNameDisks.gridx = 1;
 		gbc_chckbxIgnoreMergeNameDisks.gridy = 4;
 		scannerSettingsPanel.add(chckbxIgnoreMergeNameDisks, gbc_chckbxIgnoreMergeNameDisks);
+		
+		chckbxExcludeGames = new JCheckBox(Messages.getString("MainFrame.chckbxExcludeGames.text")); //$NON-NLS-1$
+		chckbxExcludeGames.addItemListener(e -> Profile.curr_profile.setProperty("exclude_games", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		GridBagConstraints gbc_chckbxExcludeGames = new GridBagConstraints();
+		gbc_chckbxExcludeGames.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxExcludeGames.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxExcludeGames.gridx = 0;
+		gbc_chckbxExcludeGames.gridy = 5;
+		scannerSettingsPanel.add(chckbxExcludeGames, gbc_chckbxExcludeGames);
+		
+		chckbxExcludeMachines = new JCheckBox(Messages.getString("MainFrame.chckbxExcludeMachines.text")); //$NON-NLS-1$
+		chckbxExcludeMachines.addItemListener(e -> Profile.curr_profile.setProperty("exclude_machines", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		GridBagConstraints gbc_chckbxExcludeMachines = new GridBagConstraints();
+		gbc_chckbxExcludeMachines.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxExcludeMachines.insets = new Insets(0, 0, 5, 0);
+		gbc_chckbxExcludeMachines.gridx = 1;
+		gbc_chckbxExcludeMachines.gridy = 5;
+		scannerSettingsPanel.add(chckbxExcludeMachines, gbc_chckbxExcludeMachines);
 
 		scannerSubSettingsPanel = new JPanel();
 		final GridBagConstraints gbc_scannerSubSettingsPanel = new GridBagConstraints();
 		gbc_scannerSubSettingsPanel.gridwidth = 2;
 		gbc_scannerSubSettingsPanel.fill = GridBagConstraints.BOTH;
 		gbc_scannerSubSettingsPanel.gridx = 0;
-		gbc_scannerSubSettingsPanel.gridy = 5;
+		gbc_scannerSubSettingsPanel.gridy = 6;
 		scannerSettingsPanel.add(scannerSubSettingsPanel, gbc_scannerSubSettingsPanel);
 		final GridBagLayout gbl_scannerSubSettingsPanel = new GridBagLayout();
 		gbl_scannerSubSettingsPanel.columnWidths = new int[] { 0, 0, 0, 0 };
@@ -2107,6 +2193,8 @@ public class MainFrame extends JFrame
 		chckbxUseImplicitMerge.setSelected(Profile.curr_profile.getProperty("implicit_merge", false)); //$NON-NLS-1$
 		chckbxIgnoreMergeNameRoms.setSelected(Profile.curr_profile.getProperty("ignore_merge_name_roms", false)); //$NON-NLS-1$
 		chckbxIgnoreMergeNameDisks.setSelected(Profile.curr_profile.getProperty("ignore_merge_name_disks", false)); //$NON-NLS-1$
+		chckbxExcludeGames.setSelected(Profile.curr_profile.getProperty("exclude_games", false)); //$NON-NLS-1$
+		chckbxExcludeMachines.setSelected(Profile.curr_profile.getProperty("exclude_machines", false)); //$NON-NLS-1$
 		txtRomsDest.setText(Profile.curr_profile.getProperty("roms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		lblDisksDest.setSelected(Profile.curr_profile.getProperty("disks_dest_dir_enabled", false)); //$NON-NLS-1$
 		tfDisksDest.setText(Profile.curr_profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$

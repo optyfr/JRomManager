@@ -81,6 +81,10 @@ public final class ProfileNFOMame implements Serializable
 			{
 				if(file.lastModified() > modified)
 					return MameStatus.NEEDUPDATE;
+				if(!fileroms.exists())
+					return MameStatus.NEEDUPDATE;
+				if(isSL() && !filesl.exists())
+					return MameStatus.NEEDUPDATE;
 				return MameStatus.UPTODATE;
 			}
 			return MameStatus.NOTFOUND;

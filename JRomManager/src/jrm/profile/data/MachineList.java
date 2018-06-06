@@ -125,8 +125,14 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		final CabinetType filterCabinetType = CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString())); //$NON-NLS-1$
 		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????"); //$NON-NLS-1$ //$NON-NLS-2$
+		final boolean excludeGames = Profile.curr_profile.getProperty("exclude_games", false); //$NON-NLS-1$
+		final boolean excludeMachines = Profile.curr_profile.getProperty("exclude_machines", false); //$NON-NLS-1$
 
 		return getList().stream().filter(t -> {
+			if(excludeGames && !t.isdevice && !t.isbios && t.swlists.isEmpty())
+				return false;
+			if(excludeMachines && !t.isdevice && !t.isbios && !t.swlists.isEmpty())
+				return false;
 			if(!t.isdevice)
 			{
 				if(filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary)

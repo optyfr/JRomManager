@@ -2,12 +2,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -46,6 +41,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	private static transient EventListenerList listenerList;
 	private static transient EnumSet<EntityStatus> filter = null;
 	private transient List<EntityBase> table_entities;
+
+	public final HashMap<String, Machine> devices = new HashMap<>();
 
 	public Anyware()
 	{
@@ -166,11 +163,10 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 				});
 				if (HashCollisionOptions.HALFDUMB == hash_collision_mode)
 				{
-					Map<String, Rom> map = new HashMap<>();
-					roms.forEach(r -> map.putIfAbsent(r.hashString(), r));
-					clones.values().forEach(w -> w.roms.forEach(r -> map.putIfAbsent(r.hashString(), r)));
-					// StreamEx.of(clones.values().stream().flatMap(m -> m.roms.stream())).sorted((a, b) -> a.getName().compareTo(b.getName())).forEach(r -> map.putIfAbsent(r.hashString(), r));
-					List<Rom> clones_roms = new ArrayList<>(map.values());
+					final LinkedHashMap<String , Rom> map = new LinkedHashMap<>();
+					roms.forEach(r -> map.put(r.hashString(), r));
+					clones.values().stream().sorted().forEach(w -> w.roms.stream().sorted().forEach(r -> map.putIfAbsent(r.hashString(), r)));
+					final List<Rom> clones_roms = new ArrayList<>(map.values());
 					clones_roms.removeAll(roms);
 					stream = Stream.concat(roms.stream(), clones_roms.stream());
 				}
@@ -179,7 +175,12 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 			}
 		}
 		else
-			stream = roms.stream();
+		{
+			if(merge_mode.equals(MergeOptions.SUPERFULLNOMERGE))
+				stream = Stream.concat(roms.stream(), devices.values().stream().flatMap(m -> m.roms.stream()));
+			else
+				stream = roms.stream();
+		}
 		return stream.filter(r -> {
 			if (r.status == Status.nodump)
 				return false;
@@ -187,6 +188,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 				return false;
 			if (r.name.isEmpty())
 				return false;
+			if (merge_mode == MergeOptions.SUPERFULLNOMERGE)
+				return true;
 			if (merge_mode == MergeOptions.FULLNOMERGE)
 				return true;
 			if (merge_mode == MergeOptions.FULLMERGE)

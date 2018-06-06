@@ -18,9 +18,9 @@ abstract public class EntryAction implements HTMLRenderer
 		this.entry = entry;
 	}
 
-	public abstract boolean doAction(Archive archive, ProgressHandler handler);
+	public abstract boolean doAction(Archive archive, ProgressHandler handler, int i, int max);
 
-	public abstract boolean doAction(FileSystem fs, ProgressHandler handler);
+	public abstract boolean doAction(FileSystem fs, ProgressHandler handler, int i, int max);
 
-	public abstract boolean doAction(Path target, ProgressHandler handler);
+	public abstract boolean doAction(Path target, ProgressHandler handler, int i, int max);
 }

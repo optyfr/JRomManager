@@ -55,9 +55,11 @@ public class CreateContainer extends ContainerAction
 				container.file.getParentFile().mkdirs();
 				try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.file.toURI()), env);) //$NON-NLS-1$
 				{
+					int i = 0;
 					for (final EntryAction action : entry_actions)
 					{
-						if (!action.doAction(fs, handler))
+						i++;
+						if (!action.doAction(fs, handler, i, entry_actions.size() ))
 						{
 							System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							return false;
@@ -75,12 +77,16 @@ public class CreateContainer extends ContainerAction
 				container.file.getParentFile().mkdirs();
 				try (Archive archive = new ZipArchive(container.file))
 				{
+					int i = 0;
 					for (final EntryAction action : entry_actions)
-						if (!action.doAction(archive, handler))
+					{
+						i++;
+						if (!action.doAction(archive, handler, i, entry_actions.size()))
 						{
 							System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							return false;
 						}
+					}
 					return true;
 				}
 				catch (final Throwable e)
@@ -94,12 +100,16 @@ public class CreateContainer extends ContainerAction
 			container.file.getParentFile().mkdirs();
 			try (Archive archive = new SevenZipArchive(container.file))
 			{
+				int i = 0;
 				for (final EntryAction action : entry_actions)
-					if (!action.doAction(archive, handler))
+				{
+					i++;
+					if (!action.doAction(archive, handler, i, entry_actions.size()))
 					{
 						System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
 					}
+				}
 				return true;
 			}
 			catch (final Throwable e)
@@ -116,12 +126,16 @@ public class CreateContainer extends ContainerAction
 					Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x"))); //$NON-NLS-1$
 				else
 					Files.createDirectories(target);
+				int i = 0;
 				for (final EntryAction action : entry_actions)
-					if (!action.doAction(target, handler))
+				{
+					i++;
+					if (!action.doAction(target, handler, i, entry_actions.size()))
 					{
 						System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
 					}
+				}
 				return true;
 			}
 			catch (final Throwable e)

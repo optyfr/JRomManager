@@ -4,11 +4,16 @@ import java.io.*;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import javax.xml.parsers.*;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FilenameUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -83,13 +88,26 @@ public final class ProfileNFO implements Serializable
 
 	public void save()
 	{
+		try
+		{
+			long modified = file.lastModified();
+			saveJrm(file, mame.fileroms, mame.filesl);
+			if(modified!=0)
+				file.setLastModified(modified);
+		}
+		catch (ParserConfigurationException | TransformerException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(ProfileNFO.getFileNfo(file)))))
 		{
 			oos.writeObject(this);
 		}
 		catch(final Throwable e)
 		{
-
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -149,6 +167,26 @@ public final class ProfileNFO implements Serializable
 		}
 	}
 
+	public static File saveJrm(final File JrmFile, final File roms_file, final File sl_file) throws ParserConfigurationException, TransformerException
+	{
+		final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+		final Document doc = docBuilder.newDocument();
+		final Element rootElement = doc.createElement("JRomManager"); //$NON-NLS-1$
+		doc.appendChild(rootElement);
+		final Element profile = doc.createElement("Profile"); //$NON-NLS-1$
+		profile.setAttribute("roms", roms_file.getName()); //$NON-NLS-1$
+		if(sl_file != null)
+			profile.setAttribute("sl", sl_file.getName()); //$NON-NLS-1$
+		rootElement.appendChild(profile);
+		final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		final Transformer transformer = transformerFactory.newTransformer();
+		final DOMSource source = new DOMSource(doc);
+		final StreamResult result = new StreamResult(JrmFile);
+		transformer.transform(source, result);
+		return JrmFile;
+	}
+	
 	public boolean delete()
 	{
 		if(file.delete())

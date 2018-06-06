@@ -5,20 +5,12 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 
 import javax.swing.JOptionPane;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import jrm.misc.Log;
 
@@ -43,29 +35,9 @@ public class Import
 			{
 				if((roms_file = importMame(file, false)) != null)
 				{
-					final File tmpfile = File.createTempFile("JRM", ".jrm"); //$NON-NLS-1$ //$NON-NLS-2$
-					final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-					final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-					final Document doc = docBuilder.newDocument();
-					final Element rootElement = doc.createElement("JRomManager"); //$NON-NLS-1$
-					doc.appendChild(rootElement);
-					final Element profile = doc.createElement("Profile"); //$NON-NLS-1$
-					profile.setAttribute("roms", roms_file.getName()); //$NON-NLS-1$
-					if(sl)
-					{
-						if((sl_file = importMame(file, true)) != null)
-							profile.setAttribute("sl", sl_file.getName()); //$NON-NLS-1$
-					}
-					rootElement.appendChild(profile);
-					final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-					final Transformer transformer = transformerFactory.newTransformer();
-					final DOMSource source = new DOMSource(doc);
-					final StreamResult result = new StreamResult(tmpfile);
-					transformer.transform(source, result);
-					this.file = tmpfile;
+					this.file = ProfileNFO.saveJrm(File.createTempFile("JRM", ".jrm"), roms_file, sl_file = sl ? importMame(file, true) : null); //$NON-NLS-1$ //$NON-NLS-2$
 					is_mame = true;
 				}
-
 			}
 			catch(DOMException | ParserConfigurationException | TransformerException | IOException e)
 			{

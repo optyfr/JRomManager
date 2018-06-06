@@ -119,6 +119,7 @@ public class Scan
 			}
 		}
 
+		
 		final ArrayList<Container> unknown = new ArrayList<>();
 		final ArrayList<Container> samples_unknown = new ArrayList<>();
 		for (final File dir : srcdirs)
@@ -180,6 +181,9 @@ public class Scan
 			}
 		}
 
+		handler.setInfos(1,false);
+
+		
 		try
 		{
 			if (!ignore_unknown_containers)

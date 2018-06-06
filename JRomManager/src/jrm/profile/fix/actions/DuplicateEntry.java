@@ -21,12 +21,12 @@ public class DuplicateEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final FileSystem fs, final ProgressHandler handler)
+	public boolean doAction(final FileSystem fs, final ProgressHandler handler, int i, int max)
 	{
 		final Path dstpath = fs.getPath(newname);
 		try
 		{
-			handler.setProgress(null, null, null, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
 			final Path srcpath = fs.getPath(entry.file);
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
@@ -42,13 +42,13 @@ public class DuplicateEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Path target, final ProgressHandler handler)
+	public boolean doAction(final Path target, final ProgressHandler handler, int i, int max)
 	{
 		Path dstpath = null;
 		try
 		{
 			dstpath = target.resolve(newname);
-			handler.setProgress(null, null, null, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
 			final Path srcpath = target.resolve(entry.file);
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
@@ -63,11 +63,11 @@ public class DuplicateEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Archive archive, final ProgressHandler handler)
+	public boolean doAction(final Archive archive, final ProgressHandler handler, int i, int max)
 	{
 		try
 		{
-			handler.setProgress(null, null, null, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
 			return archive.duplicate(entry.file, newname) == 0;
 		}
 		catch(final Throwable e)

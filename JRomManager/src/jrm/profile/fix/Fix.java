@@ -24,6 +24,8 @@ public class Fix
 	{
 		this.curr_scan = curr_scan;
 
+		progress.setInfos(Runtime.getRuntime().availableProcessors(), true);
+
 		final boolean use_parallelism = curr_profile.getProperty("use_parallelism", false); //$NON-NLS-1$
 		final AtomicInteger i = new AtomicInteger(0), max = new AtomicInteger(0);
 		curr_scan.actions.forEach(actions -> max.addAndGet(actions.size()));
@@ -49,7 +51,9 @@ public class Fix
 				}
 			});
 			actions.removeAll(done);
+			progress.clearInfos();
 		});
+		progress.setInfos(1,false);
 		curr_profile.nfo.stats.fixed = new Date();
 		System.out.println("Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
 	}

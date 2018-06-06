@@ -4,6 +4,9 @@ import java.io.InputStream;
 
 public interface ProgressHandler
 {
+	public void setInfos(int threadCnt, boolean multipleSubInfos);
+	public void clearInfos();
+		
 	public void setProgress(String msg);
 
 	public void setProgress(String msg, Integer val);

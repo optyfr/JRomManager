@@ -36,7 +36,7 @@ public class OpenContainer extends ContainerAction
 
 	public static OpenContainer getInstance(OpenContainer action, final Container container, final FormatOptions format, final long dataSize)
 	{
-		if(action == null)
+		if (action == null)
 			action = new OpenContainer(container, format, dataSize);
 		return action;
 	}
@@ -45,38 +45,42 @@ public class OpenContainer extends ContainerAction
 	public boolean doAction(final ProgressHandler handler)
 	{
 		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("OpenContainer.Fixing")), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.getDescription()))))); //$NON-NLS-1$
-		if(container.getType() == Container.Type.ZIP)
+		if (container.getType() == Container.Type.ZIP)
 		{
-			if(format == FormatOptions.ZIP || format == FormatOptions.TZIP)
+			if (format == FormatOptions.ZIP || format == FormatOptions.TZIP)
 			{
 				final Map<String, Object> env = new HashMap<>();
 				env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(Settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$
 				env.put("compressionLevel", format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(Settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString())).getLevel());
-				try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.file.toURI()), env);) //$NON-NLS-1$
+				try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.file.toURI()), env);) //$NON-NLS-1$
 				{
-						for(final EntryAction action : entry_actions)
+					int i = 0;
+					for (final EntryAction action : entry_actions)
+					{
+						i++;
+						if (!action.doAction(fs, handler, i, entry_actions.size()))
 						{
-							if(!action.doAction(fs, handler))
-							{
-								System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-								return false;
-							}
+							System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							return false;
 						}
-						deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
-						return true;
+					}
+					deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
+					return true;
 				}
-				catch(final Throwable e)
+				catch (final Throwable e)
 				{
 					e.printStackTrace();
 				}
 			}
-			else if(format == FormatOptions.ZIPE)
+			else if (format == FormatOptions.ZIPE)
 			{
-				try(Archive archive = new ZipArchive(container.file))
+				try (Archive archive = new ZipArchive(container.file))
 				{
-					for(final EntryAction action : entry_actions)
+					int i = 0;
+					for (final EntryAction action : entry_actions)
 					{
-						if(!action.doAction(archive, handler))
+						i++;
+						if (!action.doAction(archive, handler, i, entry_actions.size()))
 						{
 							System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							return false;
@@ -84,19 +88,21 @@ public class OpenContainer extends ContainerAction
 					}
 					return true;
 				}
-				catch(final Throwable e)
+				catch (final Throwable e)
 				{
 					e.printStackTrace();
 				}
 			}
 		}
-		else if(container.getType() == Container.Type.SEVENZIP)
+		else if (container.getType() == Container.Type.SEVENZIP)
 		{
-			try(Archive archive = new SevenZipArchive(container.file))
+			try (Archive archive = new SevenZipArchive(container.file))
 			{
-				for(final EntryAction action : entry_actions)
+				int i = 0;
+				for (final EntryAction action : entry_actions)
 				{
-					if(!action.doAction(archive, handler))
+					i++;
+					if (!action.doAction(archive, handler, i, entry_actions.size()))
 					{
 						System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
@@ -104,17 +110,19 @@ public class OpenContainer extends ContainerAction
 				}
 				return true;
 			}
-			catch(final Throwable e)
+			catch (final Throwable e)
 			{
 				e.printStackTrace();
 			}
 		}
-		else if(container.getType() == Container.Type.DIR)
+		else if (container.getType() == Container.Type.DIR)
 		{
 			final Path target = container.file.toPath();
-			for(final EntryAction action : entry_actions)
+			int i = 0;
+			for (final EntryAction action : entry_actions)
 			{
-				if(!action.doAction(target, handler))
+				i++;
+				if (!action.doAction(target, handler, i, entry_actions.size()))
 				{
 					System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					return false;
@@ -129,14 +137,14 @@ public class OpenContainer extends ContainerAction
 	public long deleteEmptyFolders(final File baseFolder)
 	{
 		long totalSize = 0;
-		for(final File folder : baseFolder.listFiles())
+		for (final File folder : baseFolder.listFiles())
 		{
-			if(folder.isDirectory())
+			if (folder.isDirectory())
 				totalSize += deleteEmptyFolders(folder);
 			else
 				totalSize += folder.length();
 		}
-		if(totalSize == 0)
+		if (totalSize == 0)
 			baseFolder.delete();
 		return totalSize;
 	}
@@ -146,17 +154,17 @@ public class OpenContainer extends ContainerAction
 		long totalSize = 0;
 		try
 		{
-			for(final Path folder : Files.list(baseFolder).collect(Collectors.toList()))
+			for (final Path folder : Files.list(baseFolder).collect(Collectors.toList()))
 			{
-				if(Files.isDirectory(folder))
+				if (Files.isDirectory(folder))
 					totalSize += deleteEmptyFolders(folder);
 				else
 					totalSize += Files.size(folder);
 			}
-			if(totalSize == 0)
+			if (totalSize == 0)
 				Files.delete(baseFolder);
 		}
-		catch(final IOException e)
+		catch (final IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -167,7 +175,7 @@ public class OpenContainer extends ContainerAction
 	public String toString()
 	{
 		String str = Messages.getString("OpenContainer.Open") + container; //$NON-NLS-1$
-		for(final EntryAction action : entry_actions)
+		for (final EntryAction action : entry_actions)
 			str += "\n\t" + action; //$NON-NLS-1$
 		return str;
 	}

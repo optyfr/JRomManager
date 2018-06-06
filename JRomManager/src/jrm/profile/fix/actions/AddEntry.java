@@ -23,10 +23,10 @@ public class AddEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler)
+	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
 		final Path dstpath = dstfs.getPath(entity.getName());
-		handler.setProgress(null, null, null, String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
+		handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
 		Path srcpath = null;
 		try
 		{
@@ -69,10 +69,10 @@ public class AddEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Path target, final ProgressHandler handler)
+	public boolean doAction(final Path target, final ProgressHandler handler, int i, int max)
 	{
 		final Path dstpath = target.resolve(entity.getName());
-		handler.setProgress(null, null, null, String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
+		handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
 		Path srcpath = null;
 		try
 		{
@@ -128,9 +128,9 @@ public class AddEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Archive archive, final ProgressHandler handler)
+	public boolean doAction(final Archive archive, final ProgressHandler handler, int i, int max)
 	{
-		handler.setProgress(null, null, null, String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
+		handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("AddEntry.Adding"), entity.getName())); //$NON-NLS-1$
 		if(entry.parent.getType() == Type.ZIP)
 		{
 			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)

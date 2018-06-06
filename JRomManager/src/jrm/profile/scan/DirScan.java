@@ -95,6 +95,9 @@ public final class DirScan
 		 * List files;
 		 */
 
+		handler.clearInfos();
+		handler.setInfos(Runtime.getRuntime().availableProcessors(),false);
+		
 		try(Stream<Path> stream = Files.walk(path, is_dest ? 1 : 100, FileVisitOption.FOLLOW_LINKS))
 		{
 			final AtomicInteger i = new AtomicInteger();
@@ -253,21 +256,28 @@ public final class DirScan
 					}
 					case DIR:
 					{
-						Files.walkFileTree(c.file.toPath(), new SimpleFileVisitor<Path>()
+						try
 						{
-							@Override
-							public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
+							Files.walkFileTree(c.file.toPath(), new SimpleFileVisitor<Path>()
 							{
-								update_entry(profile, c.add(new Entry(entry_path.toString(), attrs)), entry_path);
-								return FileVisitResult.CONTINUE;
-							}
-
-							@Override
-							public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-							{
-								return FileVisitResult.CONTINUE;
-							}
-						});
+								@Override
+								public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
+								{
+									update_entry(profile, c.add(new Entry(entry_path.toString(), attrs)), entry_path);
+									return FileVisitResult.CONTINUE;
+								}
+	
+								@Override
+								public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+								{
+									return FileVisitResult.CONTINUE;
+								}
+							});
+						}
+						catch(AccessDeniedException e)
+						{
+							
+						}
 						c.loaded = need_sha1_or_md5 ? 2 : 1;
 						break;
 					}

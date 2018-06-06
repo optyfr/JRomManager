@@ -95,8 +95,8 @@ public class Profile implements Serializable
 				private Samples curr_sampleset = null;
 				private Rom curr_rom = null;
 				private Disk curr_disk = null;
-				private final HashMap<String, Rom> roms = new HashMap<>();
-				private final HashMap<String, Disk> disks = new HashMap<>();
+				private final HashSet<String> roms = new HashSet<>();
+				private final HashSet<String> disks = new HashSet<>();
 
 				private String curr_tag;
 
@@ -418,6 +418,20 @@ public class Profile implements Serializable
 							}
 						}
 					}
+					else if (qName.equals("device_ref")) //$NON-NLS-1$
+					{
+						if (curr_machine != null)
+						{
+							for (int i = 0; i < attributes.getLength(); i++)
+							{
+								switch (attributes.getQName(i))
+								{
+									case "name": //$NON-NLS-1$
+										curr_machine.device_ref.add(attributes.getValue(i));
+								}
+							}
+						}
+					}
 					else if (qName.equals("rom")) //$NON-NLS-1$
 					{
 						if (curr_machine != null || curr_software != null)
@@ -545,9 +559,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("software")) //$NON-NLS-1$
 					{
-						curr_software.roms.addAll(roms.values());
 						roms.clear();
-						curr_software.disks.addAll(disks.values());
 						disks.clear();
 						curr_software_list.add(curr_software);
 						softwares_cnt++;
@@ -558,9 +570,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
-						curr_machine.roms.addAll(roms.values());
 						roms.clear();
-						curr_machine.disks.addAll(disks.values());
 						disks.clear();
 						machinelist_list.get(0).add(curr_machine);
 						machines_cnt++;
@@ -574,12 +584,19 @@ public class Profile implements Serializable
 					{
 						if (curr_rom.getName() != null)
 						{
-							if (null == roms.put(curr_rom.getBaseName(), curr_rom))
+							if(!roms.contains(curr_rom.getBaseName()))
 							{
+								roms.add(curr_rom.getBaseName());
 								if (curr_machine != null)
+								{
+									curr_machine.roms.add(curr_rom);
 									roms_cnt++;
+								}
 								else
+								{
+									curr_software.roms.add(curr_rom);
 									swroms_cnt++;
+								}
 							}
 							if (curr_rom.crc != null)
 							{
@@ -600,12 +617,19 @@ public class Profile implements Serializable
 					{
 						if (curr_disk.getName() != null)
 						{
-							if (null == disks.put(curr_disk.getBaseName(), curr_disk))
+							if(!disks.contains(curr_disk.getBaseName()))
 							{
+								disks.add(curr_disk.getBaseName());
 								if (curr_machine != null)
+								{
+									curr_machine.disks.add(curr_disk);
 									disks_cnt++;
+								}
 								else
+								{
+									curr_software.disks.add(curr_disk);
 									swdisks_cnt++;
+								}
 							}
 						}
 					}
@@ -789,6 +813,7 @@ public class Profile implements Serializable
 							machine.getParent().clones.put(machine.getName(), machine);
 					}
 				}
+				machine.device_ref.forEach(device_ref -> machine.devices.putIfAbsent(device_ref, machine_list.getByName(device_ref)));
 			});
 		});
 		machinelist_list.softwarelist_list.forEach(software_list -> {
