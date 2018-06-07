@@ -3,6 +3,7 @@ package jrm.profile.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -24,8 +25,13 @@ public class Machine extends Anyware implements Serializable
 	public final Input input = new Input();
 	public DisplayOrientation orientation = DisplayOrientation.any;
 	public CabinetType cabinetType = CabinetType.upright;
+	
 	public final Map<String, SWList> swlists = new HashMap<>();
+	
 	public final List<String> device_ref = new ArrayList<>();
+	public final HashMap<String, Machine> devices = new HashMap<>();
+	
+	public final Map<String, Slot> slots = new HashMap<>();
 
 	public transient SubCategory subcat = null;
 	public transient NPlayer nplayer = null;
@@ -97,6 +103,11 @@ public class Machine extends Anyware implements Serializable
 		return romof != null;
 	}
 
+	public boolean isSoftMachine()
+	{
+		return swlists.size()>0 || (isClone() && getParent().swlists.size()>0);
+	}
+	
 	@Override
 	public Type getType()
 	{
@@ -211,8 +222,47 @@ public class Machine extends Anyware implements Serializable
 	}
 
 	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof Machine)
+			return this.name.equals(((Machine)obj).name);
+		return super.equals(obj);
+	}
+
+	@Override
 	public CharSequence getDescription()
 	{
 		return description;
 	}
+	
+	void getDevices(HashSet<Machine> machines, boolean excludeBios, boolean partial, boolean recurse)
+	{
+		if (!machines.contains(this))
+		{
+			machines.add(this);
+			if (!isBios() || !excludeBios)
+				getDevices(partial).forEach(m -> {
+					if (!recurse)
+						machines.add(m);
+					else
+						m.getDevices(machines, excludeBios, partial, recurse);
+				});
+		}
+	}
+	
+	Stream<Machine> getDevices(boolean partial)
+	{
+		if(partial)
+			return devices.values().stream().filter(device->device_ref.contains(device.name));
+		return devices.values().stream();
+	}
+	
+	Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse)
+	{
+		HashSet<Machine> machines = new HashSet<>();
+		getDevices(machines, excludeBios, partial, recurse);
+		return machines.stream().flatMap(m->m.roms.stream());
+	}
+	
+
 }

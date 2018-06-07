@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -171,6 +172,11 @@ public class Software extends Anyware implements Serializable
 	public CharSequence getDescription()
 	{
 		return description;
+	}
+
+	Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse)
+	{
+		return roms.stream();
 	}
 
 }

@@ -95,6 +95,7 @@ public class Profile implements Serializable
 				private Samples curr_sampleset = null;
 				private Rom curr_rom = null;
 				private Disk curr_disk = null;
+				private Slot curr_slot = null;
 				private final HashSet<String> roms = new HashSet<>();
 				private final HashSet<String> disks = new HashSet<>();
 
@@ -428,6 +429,46 @@ public class Profile implements Serializable
 								{
 									case "name": //$NON-NLS-1$
 										curr_machine.device_ref.add(attributes.getValue(i));
+								}
+							}
+						}
+					}
+					else if (qName.equals("slot")) //$NON-NLS-1$
+					{
+						if (curr_machine != null)
+						{
+							for (int i = 0; i < attributes.getLength(); i++)
+							{
+								switch (attributes.getQName(i))
+								{
+									case "name": //$NON-NLS-1$
+										curr_slot=new Slot();
+										curr_slot.name = attributes.getValue(i);
+										curr_machine.slots.put(curr_slot.name, curr_slot);
+										break;
+								}
+							}
+						}
+					}
+					else if (qName.equals("slotoption")) //$NON-NLS-1$
+					{
+						if (curr_machine != null && curr_slot != null)
+						{
+							final SlotOption slotoption = new SlotOption();
+							for (int i = 0; i < attributes.getLength(); i++)
+							{
+								switch (attributes.getQName(i))
+								{
+									case "name": //$NON-NLS-1$
+										slotoption.setName(attributes.getValue(i));
+										curr_slot.add(slotoption);
+										break;
+									case "devname": //$NON-NLS-1$
+										slotoption.devname = attributes.getValue(i);
+										break;
+									case "default": //$NON-NLS-1$
+										slotoption.def = BooleanUtils.toBoolean(attributes.getValue(i));
+										break;
 								}
 							}
 						}
@@ -814,6 +855,7 @@ public class Profile implements Serializable
 					}
 				}
 				machine.device_ref.forEach(device_ref -> machine.devices.putIfAbsent(device_ref, machine_list.getByName(device_ref)));
+				machine.slots.values().forEach(slot -> slot.forEach(slotoption -> machine.devices.putIfAbsent(slotoption.devname, machine_list.getByName(slotoption.devname))));
 			});
 		});
 		machinelist_list.softwarelist_list.forEach(software_list -> {

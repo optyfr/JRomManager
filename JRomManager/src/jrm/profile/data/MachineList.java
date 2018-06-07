@@ -2,10 +2,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -128,10 +125,30 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		final boolean excludeGames = Profile.curr_profile.getProperty("exclude_games", false); //$NON-NLS-1$
 		final boolean excludeMachines = Profile.curr_profile.getProperty("exclude_machines", false); //$NON-NLS-1$
 
+		if(excludeGames && !excludeMachines)
+		{
+			HashSet<Machine> machines = new HashSet<>();
+			getList().stream().filter(t -> t.isSoftMachine()).forEach(m -> m.getDevices(machines, false, false, true));
+			final HashSet<Machine> all_devices = new HashSet<>();
+			getList().stream().filter(t -> !t.isdevice).forEach(m -> m.getDevices(all_devices,false, false, true));
+			all_devices.removeAll(all_devices.stream().filter(t->!t.isdevice).collect(Collectors.toSet()));
+			return Stream.concat(machines.stream().filter(t -> !t.isSoftMachine()), getList().stream().filter(t -> t.isdevice && !all_devices.contains(t)));
+		}
+		
+/*		if(excludeGames && excludeMachines)
+		{
+			HashSet<Machine> machines = new HashSet<>();
+			getList().stream().filter(t -> t.isSoftMachine()).forEach(m -> m.getMachineDevices(machines));
+			final HashSet<Machine> all_devices = new HashSet<>();
+			getList().stream().filter(t -> !t.isdevice).forEach(m -> m.getMachineDevices(all_devices));
+			all_devices.removeAll(all_devices.stream().filter(t->!t.isdevice).collect(Collectors.toSet()));
+			return Stream.concat(machines.stream().filter(t -> !t.isSoftMachine()), getList().stream().filter(t -> t.isdevice && !all_devices.contains(t)));
+		}*/
+		
 		return getList().stream().filter(t -> {
-			if(excludeGames && !t.isdevice && !t.isbios && t.swlists.isEmpty())
+			if(excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine())
 				return false;
-			if(excludeMachines && !t.isdevice && !t.isbios && !t.swlists.isEmpty())
+			if(excludeMachines && !t.isdevice && !t.isbios && t.isSoftMachine())
 				return false;
 			if(!t.isdevice)
 			{

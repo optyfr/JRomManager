@@ -217,6 +217,26 @@ public class Scan
 					if (handler.isCancel())
 						throw new BreakException();
 				});
+	/*			HashSet<Machine> filtered_set = new HashSet<>(profile.machinelist_list.get(0).getFilteredStream().collect(Collectors.toSet()));
+				profile.machinelist_list.get(0).getList().stream().filter(m->!filtered_set.contains(m)).forEach(m->{
+					final Directory directory = new Directory(new File(disks_dstscan.dir, m.getDest(merge_mode, implicit_merge).getName()), m);
+					final Container archive;
+					if (format.getExt().isDir())
+						archive = new Directory(new File(roms_dstscan.dir, m.getDest(merge_mode, implicit_merge).getName()), m);
+					else
+						archive = new Archive(new File(roms_dstscan.dir, m.getDest(merge_mode, implicit_merge).getName() + format.getExt()), m);
+					if(directory.file.exists())
+					{
+						Scan.report.add(new ContainerUnneeded(directory));
+						delete_actions.add(new DeleteContainer(directory, FormatOptions.DIR));
+					}
+					if(archive.file.exists())
+					{
+						Scan.report.add(new ContainerUnneeded(archive));
+						delete_actions.add(new DeleteContainer(archive, format));
+					}
+					removeOtherFormats(m);
+				});*/
 			}
 			if (profile.machinelist_list.softwarelist_list.size() > 0)
 			{

@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
+import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
@@ -42,7 +43,6 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	private static transient EnumSet<EntityStatus> filter = null;
 	private transient List<EntityBase> table_entities;
 
-	public final HashMap<String, Machine> devices = new HashMap<>();
 
 	public Anyware()
 	{
@@ -177,7 +177,17 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		else
 		{
 			if(merge_mode.equals(MergeOptions.SUPERFULLNOMERGE))
-				stream = streamWithDevices();
+			{
+				if(Profile.curr_profile.getProperty("exclude_games", false))
+				{
+					if(Profile.curr_profile.getProperty("exclude_machines", false))
+						stream = streamWithDevices(true, false, true);	// bios-devices
+					else
+						stream = streamWithDevices(true, false, true);	// machine-bios-devices
+				}
+				else
+					stream = streamWithDevices(false, true, false);	// all
+			}
 			else
 				stream = roms.stream();
 		}
@@ -208,11 +218,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		}).collect(Collectors.toList());
 	}
 
-	Stream<Rom> streamWithDevices()
-	{
-		return Stream.concat(roms.stream(), devices.values().stream().flatMap(m -> m.streamWithDevices()));
-	}
-	
+	abstract Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse);
+
 	public static <T> Stream<T> streamInReverse(List<T> input)
 	{
 		return IntStream.range(1, input.size() + 1).mapToObj(i -> input.get(input.size() - i));
@@ -443,5 +450,14 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	{
 		return getParent(Anyware.class);
 	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof Anyware)
+			return this.name.equals(((Anyware)obj).name);
+		return super.equals(obj);
+	}
+
 
 }

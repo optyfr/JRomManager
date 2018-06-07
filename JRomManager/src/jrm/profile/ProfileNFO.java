@@ -88,7 +88,7 @@ public final class ProfileNFO implements Serializable
 
 	public void save()
 	{
-		try
+		if(isJRM()) try
 		{
 			long modified = file.lastModified();
 			saveJrm(file, mame.fileroms, mame.filesl);
