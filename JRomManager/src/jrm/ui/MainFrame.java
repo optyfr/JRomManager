@@ -253,6 +253,7 @@ public class MainFrame extends JFrame
 	private JMenuItem mntmPdMameSplit;
 	private JCheckBox chckbxExcludeGames;
 	private JCheckBox chckbxExcludeMachines;
+	private JMenu mnPdMame;
 
 	public MainFrame()
 	{
@@ -1053,7 +1054,45 @@ public class MainFrame extends JFrame
 		mnPresets = new JMenu(Messages.getString("MainFrame.mnPresets.text")); //$NON-NLS-1$
 		popupMenu_4.add(mnPresets);
 		
-		mntmPleasuredome = new JMenuItem("PD MAME Merged");
+		mnPdMame = new JMenu(Messages.getString("MainFrame.mnPdMame.text")); //$NON-NLS-1$
+		mnPresets.add(mnPdMame);
+		
+		mntmPleasuredome = new JMenuItem(Messages.getString("MainFrame.mntmPleasuredome.text")); //$NON-NLS-1$
+		mnPdMame.add(mntmPleasuredome);
+		
+		mntmPdMameNon = new JMenuItem(Messages.getString("MainFrame.mntmPdMameNon.text")); //$NON-NLS-1$
+		mnPdMame.add(mntmPdMameNon);
+		
+		mntmPdMameSplit = new JMenuItem(Messages.getString("MainFrame.mntmPdMameSplit.text")); //$NON-NLS-1$
+		mnPdMame.add(mntmPdMameSplit);
+		mntmPdMameSplit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				chckbxCreateMissingSets.setSelected(true);
+				chckbxCreateOnlyComplete.setSelected(false);
+				chckbxIgnoreUnneededContainers.setSelected(false);
+				chckbxIgnoreUnneededEntries.setSelected(false);
+				chckbxIgnoreUnknownContainers.setSelected(true);	// Don't remove _ReadMe_.txt
+				chckbxUseImplicitMerge.setSelected(true);
+				chckbxIgnoreMergeNameDisks.setSelected(true);
+				chckbxIgnoreMergeNameRoms.setSelected(false);
+				cbCompression.setSelectedItem(FormatOptions.TZIP);
+				cbbxMergeMode.setSelectedItem(MergeOptions.SPLIT);
+			}
+		});
+		mntmPdMameNon.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				chckbxCreateMissingSets.setSelected(true);
+				chckbxCreateOnlyComplete.setSelected(false);
+				chckbxIgnoreUnneededContainers.setSelected(false);
+				chckbxIgnoreUnneededEntries.setSelected(false);
+				chckbxIgnoreUnknownContainers.setSelected(true);	// Don't remove _ReadMe_.txt
+				chckbxUseImplicitMerge.setSelected(true);
+				chckbxIgnoreMergeNameDisks.setSelected(true);
+				chckbxIgnoreMergeNameRoms.setSelected(false);
+				cbCompression.setSelectedItem(FormatOptions.TZIP);
+				cbbxMergeMode.setSelectedItem(MergeOptions.SUPERFULLNOMERGE);
+			}
+		});
 		mntmPleasuredome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				chckbxCreateMissingSets.setSelected(true);
@@ -1069,41 +1108,6 @@ public class MainFrame extends JFrame
 				cbHashCollision.setSelectedItem(HashCollisionOptions.HALFDUMB);
 			}
 		});
-		mnPresets.add(mntmPleasuredome);
-		
-		mntmPdMameNon = new JMenuItem(Messages.getString("MainFrame.mntmPdMameNon.text")); //$NON-NLS-1$
-		mntmPdMameNon.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				chckbxCreateMissingSets.setSelected(true);
-				chckbxCreateOnlyComplete.setSelected(false);
-				chckbxIgnoreUnneededContainers.setSelected(false);
-				chckbxIgnoreUnneededEntries.setSelected(false);
-				chckbxIgnoreUnknownContainers.setSelected(true);	// Don't remove _ReadMe_.txt
-				chckbxUseImplicitMerge.setSelected(true);
-				chckbxIgnoreMergeNameDisks.setSelected(true);
-				chckbxIgnoreMergeNameRoms.setSelected(false);
-				cbCompression.setSelectedItem(FormatOptions.TZIP);
-				cbbxMergeMode.setSelectedItem(MergeOptions.SUPERFULLNOMERGE);
-			}
-		});
-		mnPresets.add(mntmPdMameNon);
-		
-		mntmPdMameSplit = new JMenuItem(Messages.getString("MainFrame.mntmPdMameSplit.text")); //$NON-NLS-1$
-		mntmPdMameSplit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				chckbxCreateMissingSets.setSelected(true);
-				chckbxCreateOnlyComplete.setSelected(false);
-				chckbxIgnoreUnneededContainers.setSelected(false);
-				chckbxIgnoreUnneededEntries.setSelected(false);
-				chckbxIgnoreUnknownContainers.setSelected(true);	// Don't remove _ReadMe_.txt
-				chckbxUseImplicitMerge.setSelected(true);
-				chckbxIgnoreMergeNameDisks.setSelected(true);
-				chckbxIgnoreMergeNameRoms.setSelected(false);
-				cbCompression.setSelectedItem(FormatOptions.TZIP);
-				cbbxMergeMode.setSelectedItem(MergeOptions.SPLIT);
-			}
-		});
-		mnPresets.add(mntmPdMameSplit);
 		final GridBagLayout gbl_scannerSettingsPanel = new GridBagLayout();
 		gbl_scannerSettingsPanel.columnWidths = new int[] { 0, 0, 0 };
 		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 0, 0, 0, 0, 20, 0 };
