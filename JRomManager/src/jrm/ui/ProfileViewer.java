@@ -40,7 +40,7 @@ public class ProfileViewer extends JDialog
 
 	public ProfileViewer(final Window owner, final Profile profile)
 	{
-		super(owner);
+		super();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
 		setTitle(Messages.getString("ProfileViewer.this.title")); //$NON-NLS-1$
 
