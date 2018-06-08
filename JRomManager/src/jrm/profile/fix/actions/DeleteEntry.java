@@ -22,7 +22,7 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("DeleteEntry.Deleting"), entry.file)); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("DeleteEntry.Deleting"), entry.file))); //$NON-NLS-1$
 			path = dstfs.getPath(entry.file);
 			Files.deleteIfExists(path);
 			return true;
@@ -40,7 +40,7 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("DeleteEntry.Deleting"), entry.file)); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("DeleteEntry.Deleting"), entry.file))); //$NON-NLS-1$
 			path = target.resolve(entry.file);
 			Files.deleteIfExists(path);
 			return true;
@@ -57,7 +57,7 @@ public class DeleteEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("DeleteEntry.Deleting"), entry.file)); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("DeleteEntry.Deleting"), entry.file))); //$NON-NLS-1$
 			return archive.delete(entry.file) == 0;
 		}
 		catch(final Throwable e)

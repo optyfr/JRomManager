@@ -26,7 +26,7 @@ public class DuplicateEntry extends EntryAction
 		final Path dstpath = fs.getPath(newname);
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname))); //$NON-NLS-1$
 			final Path srcpath = fs.getPath(entry.file);
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
@@ -48,7 +48,7 @@ public class DuplicateEntry extends EntryAction
 		try
 		{
 			dstpath = target.resolve(newname);
-			handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname))); //$NON-NLS-1$
 			final Path srcpath = target.resolve(entry.file);
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
@@ -67,7 +67,7 @@ public class DuplicateEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max) + String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname)); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname))); //$NON-NLS-1$
 			return archive.duplicate(entry.file, newname) == 0;
 		}
 		catch(final Throwable e)
