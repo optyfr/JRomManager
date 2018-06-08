@@ -1,3 +1,22 @@
+## Release v1.5 build 18
+- New progress bar which show multithreaded operations separately
+- Added intermediate progression for fix operations and TorrentZipping
+- HalfDumb mode (also known as PD Mame merged mode), works a bit better
+but still only 99.8% torrent join
+- Rom reading order is now kept
+- Added menu shortcut Presets on scanner settings panel
+- new Non-Merge mode which include devices (PD Mame Non-Merged mode)
+- new options to exclude games and machines and to generate bios/devices only sets, or machine/bios/devices only sets
+- network access fix for zipfilesystem
+- Fixed status in profile viewer (again) for files with same crc in same
+dir but one is not present (should be green)
+- added an extra "media" argument on command line to launch a software available for the same computer in multiple format (floppy, cartridge, tape, ...)
+- avoid extra torrentzip check when not needed
+- don't create empty folders for software list until we find roms or chds to put in 
+- chd files were not anymore refreshed in profile viewer
+- New merge hash collision option called that will also make subirs for clone for chds
+- JUpdater does not cause fail and quit anymore when connect timeout on update url
+- JUpdater is now copying attributes, that should resolve problem encountered to launch .sh
 ## Release v1.4 build 16
 - ZipFileSystem class from JRE has problem with file modification over shared network, it pretends that archive file is not writable while it is, so it's time to duplicate Oracle's code into JRomManager... and patch it!
 - As a consequence ZipFileSystem has also been enhanced to support compression level (from STORE[0] to ULTRA[9]) instead of the DEFAULT[-1] compression
