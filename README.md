@@ -61,13 +61,13 @@ _Behavior compared to other Rom managers_
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
 - One-click easy updater
 - Jar installer
-- Extra merging and collision modes to generate PleasureDome compatible Mame sets
+- Extra merging and collision modes to generate PleasureDome compatible Mame sets, as of v0.198 :
 	- ROMs split => 100% torrent joining
-	- ROMs merged => 99.89% torrent joining (64MB miss)
+	- ROMs merged => 99.89% torrent joining (64MB missed)
 	- ROMs non-merged => 100% torrent joining
 	- BIOS-Devices => 90.60% torrent joining (12MB missed)
-	- Machine-BIOS-Devices => 70% torrent joining (10MB missed)
-	- SoftwareList CHDs => not tested since it contains some non-supported software lists
+	- SoftwareList Machine-BIOS-Devices => 70% torrent joining (10MB missed) since some machines exist with no SoftwareList available
+	- SoftwareList ROMs => not tested since it contains some non-supported software lists
 - An advanced progression window taking into account multi-threading operations
 	
 
