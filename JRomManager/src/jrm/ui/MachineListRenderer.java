@@ -20,9 +20,9 @@ public final class MachineListRenderer
 	private final static ImageIcon folder_closed_red = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/folder_closed_red.png")); //$NON-NLS-1$
 	private final static ImageIcon folder_closed_gray = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/folder_closed_gray.png")); //$NON-NLS-1$
 
-	public static String[] columns = new String[] { Messages.getString("MachineListRenderer.Status"), Messages.getString("MachineListRenderer.Name"), Messages.getString("MachineListRenderer.Description"), Messages.getString("MachineListRenderer.Have"), Messages.getString("MachineListRenderer.CloneOf"), Messages.getString("MachineListRenderer.RomOf"), Messages.getString("MachineListRenderer.SampleOf") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
-	public static Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Object.class, String.class };
-	public static int[] columnsWidths = new int[] { -20, 40, 200, -45, 40, 40, 40 };
+	public static String[] columns = new String[] { Messages.getString("MachineListRenderer.Status"), Messages.getString("MachineListRenderer.Name"), Messages.getString("MachineListRenderer.Description"), Messages.getString("MachineListRenderer.Have"), Messages.getString("MachineListRenderer.CloneOf"), Messages.getString("MachineListRenderer.RomOf"), Messages.getString("MachineListRenderer.SampleOf"), "Selected" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+	public static Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Object.class, String.class, Boolean.class };
+	public static int[] columnsWidths = new int[] { -20, 40, 200, -45, 40, 40, 40, -20 };
 	public static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
 		@Override
@@ -186,7 +186,7 @@ public final class MachineListRenderer
 				setIcon(MachineListRenderer.folder_closed_gray);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
-	} };
+	}, null };
 
 	private MachineListRenderer()
 	{

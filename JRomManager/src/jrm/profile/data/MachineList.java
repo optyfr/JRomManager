@@ -2,12 +2,15 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
@@ -66,7 +69,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	@Override
 	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
-		return MachineListRenderer.columnsRenderers[columnIndex] != null ? MachineListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+		return /*MachineListRenderer.columnsRenderers[columnIndex] != null ? */MachineListRenderer.columnsRenderers[columnIndex]/* : new DefaultTableCellRenderer()*/;
 	}
 
 	@Override
@@ -101,8 +104,26 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 				return machine.romof != null && !machine.romof.equals(machine.cloneof) ? (m_byname.containsKey(machine.romof) ? m_byname.get(machine.romof) : machine.romof) : null;
 			case 6:
 				return machine.sampleof != null ? (samplesets.containsName(machine.sampleof) ? samplesets.getByName(machine.sampleof) : machine.sampleof) : null;
+			case 7:
+				return machine.selected;
 		}
 		return null;
+	}
+
+	@Override
+	public boolean isCellEditable(final int rowIndex, final int columnIndex)
+	{
+		return columnIndex==7;
+	}
+
+	@Override
+	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
+	{
+		if(columnIndex==7 && aValue instanceof Boolean)
+		{
+			final Machine machine = getFilteredList().get(rowIndex);
+			machine.selected = (Boolean)aValue;
+		}
 	}
 
 	@Override
