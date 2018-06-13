@@ -20,6 +20,10 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.SerializationUtils;
+
 import jrm.Messages;
 import jrm.misc.Settings;
 import jrm.profile.Export;
@@ -41,6 +45,14 @@ public class ProfileViewer extends JDialog
 	public ProfileViewer(final Window owner, final Profile profile)
 	{
 		super();
+		addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosing(final WindowEvent e)
+			{
+				Settings.setProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+			}
+		});
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
 		setTitle(Messages.getString("ProfileViewer.this.title")); //$NON-NLS-1$
 
@@ -158,21 +170,40 @@ public class ProfileViewer extends JDialog
 		addPopup(tableW, popupWMenu);
 		
 		JMenuItem mntmCollectKeywords = new JMenuItem(Messages.getString("ProfileViewer.mntmCollectKeywords.text")); //$NON-NLS-1$
-		mntmCollectKeywords.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		mntmCollectKeywords.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
 				final Pattern pattern = Pattern.compile("\\((.*?)\\)");
 				final Pattern pattern_split = Pattern.compile(",");
 				final Pattern pattern_alpha = Pattern.compile("^[a-zA-Z]*$");
 				final HashSet<String> keywords = new HashSet<>();
-				list.getFilteredStream().forEach(ware->{
+				list.getFilteredStream().forEach(ware -> {
 					final Matcher matcher = pattern.matcher(ware.getDescription());
-					while(matcher.find())
-						Arrays.asList(pattern_split.split(matcher.group(1))).stream().map(s->s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
+					while (matcher.find())
+						Arrays.asList(pattern_split.split(matcher.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
 				});
-				keywords.stream().sorted((s1,s2)->{
-					return s1.length()==s2.length()?s1.compareToIgnoreCase(s2):s1.length()-s2.length();
-				}).forEach(System.out::println);
+				new KeywordFilter(ProfileViewer.this, keywords.stream().sorted((s1, s2) -> {
+					return s1.length() == s2.length() ? s1.compareToIgnoreCase(s2) : s1.length() - s2.length();
+				}).toArray(size -> new String[size]), f -> {
+					ArrayList<String> filter = f.getFilter();
+					list.getFilteredStream().forEach(ware -> {
+						final Matcher matcher = pattern.matcher(ware.getDescription());
+						keywords.clear();
+						while (matcher.find())
+							Arrays.asList(pattern_split.split(matcher.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
+						ware.selected = false;
+						for(String fltr : filter)
+						{
+							if(keywords.contains(fltr))
+							{
+								ware.selected = true;
+								break;
+							}
+						}
+					});
+				});
 			}
 		});
 		popupWMenu.add(mntmCollectKeywords);
@@ -527,6 +558,14 @@ public class ProfileViewer extends JDialog
 
 		reset(profile);
 		pack();
+		try
+		{
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())))))); //$NON-NLS-1$
+		}
+		catch (final DecoderException e1)
+		{
+			e1.printStackTrace();
+		}
 		setVisible(true);
 	}
 

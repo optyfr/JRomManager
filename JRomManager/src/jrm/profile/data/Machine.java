@@ -36,8 +36,6 @@ public class Machine extends Anyware implements Serializable
 	public transient SubCategory subcat = null;
 	public transient NPlayer nplayer = null;
 	
-	public boolean selected = true;
-
 	public class SWList implements Serializable
 	{
 		public String name;

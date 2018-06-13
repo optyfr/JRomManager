@@ -43,6 +43,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	private static transient EnumSet<EntityStatus> filter = null;
 	private transient List<EntityBase> table_entities;
 
+	public boolean selected = true;
 
 	public Anyware()
 	{
