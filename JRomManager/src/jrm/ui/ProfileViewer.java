@@ -42,6 +42,30 @@ public class ProfileViewer extends JDialog
 	private JTable tableWL;
 	private JTextField txtSearch;
 
+	private class keypref
+	{
+		int order;
+		List<Anyware> wares = new ArrayList<>();
+
+		private keypref(int order, Anyware ware)
+		{
+			this.order = order;
+			add(ware);
+		}
+		
+		private void add(Anyware ware)
+		{
+			ware.selected = true;
+			this.wares.add(ware);
+		}
+		
+		private void clear()
+		{
+			wares.forEach(w->w.selected=false);
+			wares.clear();
+		}
+	}
+
 	public ProfileViewer(final Window owner, final Profile profile)
 	{
 		super();
@@ -165,48 +189,129 @@ public class ProfileViewer extends JDialog
 		tableW.setShowHorizontalLines(false);
 		tableW.setShowVerticalLines(false);
 		tableW.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		
+
 		JPopupMenu popupWMenu = new JPopupMenu();
 		addPopup(tableW, popupWMenu);
-		
+
 		JMenuItem mntmCollectKeywords = new JMenuItem(Messages.getString("ProfileViewer.mntmCollectKeywords.text")); //$NON-NLS-1$
 		mntmCollectKeywords.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
 				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
-				final Pattern pattern = Pattern.compile("\\((.*?)\\)");
+				final Pattern pattern = Pattern.compile("^(.*?)(\\(.*\\))+");
+				final Pattern pattern_parenthesis = Pattern.compile("\\((.*?)\\)");
 				final Pattern pattern_split = Pattern.compile(",");
 				final Pattern pattern_alpha = Pattern.compile("^[a-zA-Z]*$");
 				final HashSet<String> keywords = new HashSet<>();
 				list.getFilteredStream().forEach(ware -> {
 					final Matcher matcher = pattern.matcher(ware.getDescription());
-					while (matcher.find())
-						Arrays.asList(pattern_split.split(matcher.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
+					if (matcher.find())
+					{
+						if (matcher.groupCount() > 1 && matcher.group(2) != null)
+						{
+							final Matcher matcher_parenthesis = pattern_parenthesis.matcher(matcher.group(2));
+							while (matcher_parenthesis.find())
+							{
+								Arrays.asList(pattern_split.split(matcher_parenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
+							}
+						}
+					}
 				});
 				new KeywordFilter(ProfileViewer.this, keywords.stream().sorted((s1, s2) -> {
 					return s1.length() == s2.length() ? s1.compareToIgnoreCase(s2) : s1.length() - s2.length();
 				}).toArray(size -> new String[size]), f -> {
 					ArrayList<String> filter = f.getFilter();
+					HashMap<String, keypref> prefmap = new HashMap<>();
 					list.getFilteredStream().forEach(ware -> {
 						final Matcher matcher = pattern.matcher(ware.getDescription());
 						keywords.clear();
-						while (matcher.find())
-							Arrays.asList(pattern_split.split(matcher.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
-						ware.selected = false;
-						for(String fltr : filter)
+						if (matcher.find())
 						{
-							if(keywords.contains(fltr))
+							if (matcher.groupCount() > 1 && matcher.group(2) != null)
 							{
-								ware.selected = true;
-								break;
+								final Matcher matcher_parenthesis = pattern_parenthesis.matcher(matcher.group(2));
+								while (matcher_parenthesis.find())
+								{
+									Arrays.asList(pattern_split.split(matcher_parenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
+								}
+							}
+							ware.selected = false;
+							for (int i = 0; i < filter.size(); i++)
+							{
+								if (keywords.contains(filter.get(i)))
+								{
+									if (prefmap.containsKey(matcher.group(1)))
+									{
+										keypref pref = prefmap.get(matcher.group(1));
+										if (i < pref.order)
+										{
+											pref.clear();
+											prefmap.put(matcher.group(1), new keypref(i, ware));
+										}
+										else if (i == pref.order)
+											pref.add(ware);
+									}
+									else
+										prefmap.put(matcher.group(1), new keypref(i, ware));
+
+									break;
+								}
 							}
 						}
+						else
+						{
+							if (!prefmap.containsKey(ware.getDescription().toString()))
+								prefmap.put(ware.getDescription().toString(), new keypref(Integer.MAX_VALUE, ware));
+						}
 					});
+					list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 				});
 			}
 		});
 		popupWMenu.add(mntmCollectKeywords);
+
+		JMenuItem mntmSelectNone = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectNone.text")); //$NON-NLS-1$
+		mntmSelectNone.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
+				list.getFilteredStream().forEach(ware -> {
+					ware.selected = false;
+				});
+				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+			}
+		});
+		popupWMenu.add(mntmSelectNone);
+
+		JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectAll.text")); //$NON-NLS-1$
+		mntmSelectAll.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
+				list.getFilteredStream().forEach(ware -> {
+					ware.selected = true;
+				});
+				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+			}
+		});
+		popupWMenu.add(mntmSelectAll);
+
+		JMenuItem mntmSelectInvert = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectInvert.text")); //$NON-NLS-1$
+		mntmSelectInvert.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
+				list.getFilteredStream().forEach(ware -> {
+					ware.selected ^= true;
+				});
+				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+			}
+		});
+		popupWMenu.add(mntmSelectInvert);
 
 		final JPanel panel = new JPanel();
 		splitPaneWLW.setLeftComponent(panel);
@@ -430,16 +535,16 @@ public class ProfileViewer extends JDialog
 											if (profile.getProperty("swdisks_dest_dir_enabled", false)) //$NON-NLS-1$
 												rompaths.add(profile.getProperty("swdisks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 											System.out.println(((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility); //$NON-NLS-1$
-											JList<Machine> machines = new JList<Machine>( profile.machinelist_list.getSortedMachines(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility).toArray(new Machine[0]));
+											JList<Machine> machines = new JList<Machine>(profile.machinelist_list.getSortedMachines(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility).toArray(new Machine[0]));
 											machines.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-											if(machines.getModel().getSize()>0)
+											if (machines.getModel().getSize() > 0)
 												machines.setSelectedIndex(0);
 											JOptionPane.showMessageDialog(ProfileViewer.this, machines);
 											final Machine machine = machines.getSelectedValue();
 											if (machine != null)
 											{
-												System.out.println("-> " + machine.getBaseName() + " -" + ((Software)ware).parts.get(0).name  + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$
-												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), "-" + ((Software)ware).parts.get(0).name, ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+												System.out.println("-> " + machine.getBaseName() + " -" + ((Software) ware).parts.get(0).name + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$
+												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), "-" + ((Software) ware).parts.get(0).name, ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 											}
 										}
 										else
