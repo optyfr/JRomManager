@@ -119,9 +119,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		Anyware.merge_mode = merge_mode;
 		Anyware.hash_collision_mode = hash_collision_mode;
 		Stream<Disk> stream;
-		if (merge_mode.isMerge())
+		if (!selected)
+			stream = Stream.empty();
+		else if (merge_mode.isMerge())
 		{
-			if (isClone())
+			if (isClone() && getParent().selected)
 				stream = Stream.empty();
 			else
 			{
@@ -151,9 +153,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		Anyware.merge_mode = merge_mode;
 		Anyware.hash_collision_mode = hash_collision_mode;
 		Stream<Rom> stream;
-		if (merge_mode.isMerge())
+		if (!selected)
+			stream = Stream.empty();
+		else if (merge_mode.isMerge())
 		{
-			if (isClone())
+			if (isClone() && getParent().selected)
 				stream = Stream.empty();
 			else
 			{
@@ -230,7 +234,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	{
 		if (e.merge != null)
 			if (ware.isRomOf())
-				if (ware.getParent() != null)
+				if (ware.getParent() != null && ware.getParent().selected)
 					return true;
 		return false;
 	}
@@ -239,7 +243,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	{
 		if (r.merge != null || Anyware.implicit_merge)
 		{
-			if (ware.getParent() != null)
+			if (ware.getParent() != null && ware.getParent().selected)
 			{
 				if (!onlyBios || ware.getParent().isBios())
 					if (ware.getParent().roms.contains(r))
@@ -254,7 +258,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	{
 		if (d.merge != null || Anyware.implicit_merge)
 		{
-			if (ware.getParent() != null)
+			if (ware.getParent() != null && ware.getParent().selected)
 			{
 				if (ware.getParent().disks.contains(d))
 					return true;

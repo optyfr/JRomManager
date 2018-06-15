@@ -43,6 +43,7 @@ import jrm.profile.Import;
 import jrm.profile.Profile;
 import jrm.profile.ProfileNFO;
 import jrm.profile.ProfileNFOMame.MameStatus;
+import jrm.profile.data.Anyware;
 import jrm.profile.data.Driver;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
@@ -2214,8 +2215,10 @@ public class MainFrame extends JFrame
 				listSrcDir.getModel().addElement(new File(s));
 		cbCompression.setSelectedItem(FormatOptions.valueOf(Profile.curr_profile.settings.getProperty("format", FormatOptions.ZIP.toString()))); //$NON-NLS-1$
 		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(Profile.curr_profile.settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()))); //$NON-NLS-1$
+		Anyware.merge_mode = (MergeOptions) cbbxMergeMode.getSelectedItem();
 		cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
 		cbHashCollision.setSelectedItem(HashCollisionOptions.valueOf(Profile.curr_profile.settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()))); //$NON-NLS-1$
+		Anyware.hash_collision_mode = (HashCollisionOptions) cbHashCollision.getSelectedItem();
 		chckbxIncludeClones.setSelected(Profile.curr_profile.getProperty("filter.InclClones", true)); //$NON-NLS-1$
 		chckbxIncludeDisks.setSelected(Profile.curr_profile.getProperty("filter.InclDisks", true)); //$NON-NLS-1$
 		chckbxIncludeSamples.setSelected(Profile.curr_profile.getProperty("filter.InclSamples", true)); //$NON-NLS-1$

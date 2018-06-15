@@ -10,7 +10,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
@@ -77,7 +76,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	@Override
 	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
-		return SoftwareListRenderer.columnsRenderers[columnIndex] != null ? SoftwareListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
+		return SoftwareListRenderer.columnsRenderers[columnIndex];
 	}
 
 	@Override
@@ -108,8 +107,26 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 				return String.format("%d/%d", software.countHave(), software.roms.size() + software.disks.size()); //$NON-NLS-1$
 			case 4:
 				return software.cloneof != null ? s_byname.get(software.cloneof) : null;
+			case 5:
+				return software.selected;
 		}
 		return null;
+	}
+
+	@Override
+	public boolean isCellEditable(final int rowIndex, final int columnIndex)
+	{
+		return columnIndex==5;
+	}
+
+	@Override
+	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
+	{
+		if(columnIndex==5 && aValue instanceof Boolean)
+		{
+			final Software software = getFilteredList().get(rowIndex);
+			software.selected = (Boolean)aValue;
+		}
 	}
 
 	@Override

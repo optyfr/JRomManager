@@ -69,7 +69,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	@Override
 	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
-		return /*MachineListRenderer.columnsRenderers[columnIndex] != null ? */MachineListRenderer.columnsRenderers[columnIndex]/* : new DefaultTableCellRenderer()*/;
+		return MachineListRenderer.columnsRenderers[columnIndex];
 	}
 
 	@Override
