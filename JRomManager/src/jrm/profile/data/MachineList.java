@@ -251,7 +251,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		for(final Machine m : list)
 		{
 			progress.setProgress(String.format(Messages.getString("MachineList.Exporting_%s"), m.name), ++i); //$NON-NLS-1$
-			m.export(writer, is_mame);
+			if(!filtered || m.selected)
+				m.export(writer, is_mame);
 		}
 		writer.writeEndElement();
 	}

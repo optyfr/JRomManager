@@ -209,17 +209,18 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		return getFilteredStream().filter(t -> t.getStatus()==AnywareStatus.COMPLETE).count();
 	}
 
-	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, boolean filtered, final ProgressHandler progress) throws XMLStreamException, IOException
 	{
 		writer.writeStartElement("softwarelist", //$NON-NLS-1$
 				new SimpleAttribute("name",name), //$NON-NLS-1$
 				new SimpleAttribute("description",description) //$NON-NLS-1$
 				);
-		final List<Software> list = getFilteredStream().collect(Collectors.toList());
+		final List<Software> list = filtered?getFilteredStream().collect(Collectors.toList()):getList();
 		for(final Software s : list)
 		{
 			progress.setProgress(String.format(Messages.getString("SoftwareList.Exporting_%s"), s.getFullName()), progress.getValue()+1); //$NON-NLS-1$
-			s.export(writer);
+			if(!filtered || s.selected)
+				s.export(writer);
 		}
 		writer.writeEndElement();
 	}
