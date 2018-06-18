@@ -1,7 +1,15 @@
 package jrm.profile.scan;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -14,9 +22,45 @@ import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profile.Profile;
-import jrm.profile.data.*;
-import jrm.profile.fix.actions.*;
-import jrm.profile.report.*;
+import jrm.profile.data.Anyware;
+import jrm.profile.data.AnywareList;
+import jrm.profile.data.Archive;
+import jrm.profile.data.ByName;
+import jrm.profile.data.Container;
+import jrm.profile.data.Directory;
+import jrm.profile.data.Disk;
+import jrm.profile.data.EntityStatus;
+import jrm.profile.data.Entry;
+import jrm.profile.data.Machine;
+import jrm.profile.data.Rom;
+import jrm.profile.data.Sample;
+import jrm.profile.data.Samples;
+import jrm.profile.data.Software;
+import jrm.profile.data.SoftwareList;
+import jrm.profile.fix.actions.AddEntry;
+import jrm.profile.fix.actions.BackupContainer;
+import jrm.profile.fix.actions.BackupEntry;
+import jrm.profile.fix.actions.ContainerAction;
+import jrm.profile.fix.actions.CreateContainer;
+import jrm.profile.fix.actions.DeleteContainer;
+import jrm.profile.fix.actions.DeleteEntry;
+import jrm.profile.fix.actions.DuplicateEntry;
+import jrm.profile.fix.actions.OpenContainer;
+import jrm.profile.fix.actions.RenameEntry;
+import jrm.profile.fix.actions.TZipContainer;
+import jrm.profile.report.ContainerTZip;
+import jrm.profile.report.ContainerUnknown;
+import jrm.profile.report.ContainerUnneeded;
+import jrm.profile.report.EntryAdd;
+import jrm.profile.report.EntryMissing;
+import jrm.profile.report.EntryMissingDuplicate;
+import jrm.profile.report.EntryOK;
+import jrm.profile.report.EntryUnneeded;
+import jrm.profile.report.EntryWrongHash;
+import jrm.profile.report.EntryWrongName;
+import jrm.profile.report.Report;
+import jrm.profile.report.RomSuspiciousCRC;
+import jrm.profile.report.SubjectSet;
 import jrm.profile.report.SubjectSet.Status;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
@@ -50,6 +94,7 @@ public class Scan
 	private Map<String, DirScan> swdisks_dstscans = new HashMap<>();
 
 	private final List<DirScan> allscans = new ArrayList<>();
+	private final ArrayList<jrm.profile.fix.actions.ContainerAction> backup_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> create_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> rename_before_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> add_actions = new ArrayList<>();
@@ -278,6 +323,7 @@ public class Scan
 			profile.save(); // save again profile cache with scan entity status
 		}
 
+		actions.add(backup_actions);
 		actions.add(create_actions);
 		actions.add(rename_before_actions);
 		actions.add(add_actions);
@@ -581,6 +627,7 @@ public class Scan
 
 				final ArrayList<Entry> roms_found = new ArrayList<>();
 				final Map<String, Rom> roms_byname = Rom.getRomsByName(roms);
+				BackupContainer backup_set = null;
 				OpenContainer add_set = null, delete_set = null, rename_before_set = null;
 				final OpenContainer rename_after_set = null;
 				OpenContainer duplicate_set = null;
@@ -619,6 +666,7 @@ public class Scan
 										report_subject.add(new EntryWrongName(rom, candidate_entry));
 										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
 										// (rename_after_set = OpenContainer.getInstance(rename_after_set, archive, format)).addAction(new RenameEntry(r.getName(), e));
+										(backup_set = BackupContainer.getInstance(backup_set, archive)).addAction(new BackupEntry(candidate_entry));
 										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
 										(delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(candidate_entry));
 										found_entry = candidate_entry;
@@ -669,10 +717,12 @@ public class Scan
 					for (final Entry unneeded_entry : unneeded)
 					{
 						report_subject.add(new EntryUnneeded(unneeded_entry));
+						(backup_set = BackupContainer.getInstance(backup_set, archive)).addAction(new BackupEntry(unneeded_entry));
 						(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new RenameEntry(unneeded_entry));
 						(delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(unneeded_entry));
 					}
 				}
+				ContainerAction.addToList(backup_actions, backup_set);
 				ContainerAction.addToList(rename_before_actions, rename_before_set);
 				ContainerAction.addToList(add_actions, add_set);
 				ContainerAction.addToList(duplicate_actions, duplicate_set);
