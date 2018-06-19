@@ -255,6 +255,7 @@ public class MainFrame extends JFrame
 	private JCheckBox chckbxExcludeGames;
 	private JCheckBox chckbxExcludeMachines;
 	private JMenu mnPdMame;
+	private JCheckBox chckbxBackup;
 
 	public MainFrame()
 	{
@@ -1111,9 +1112,9 @@ public class MainFrame extends JFrame
 		});
 		final GridBagLayout gbl_scannerSettingsPanel = new GridBagLayout();
 		gbl_scannerSettingsPanel.columnWidths = new int[] { 0, 0, 0 };
-		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 0, 0, 0, 0, 20, 0 };
+		gbl_scannerSettingsPanel.rowHeights = new int[] { 20, 20, 0, 0, 0, 0, 0, 20, 0 };
 		gbl_scannerSettingsPanel.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gbl_scannerSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl_scannerSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		scannerSettingsPanel.setLayout(gbl_scannerSettingsPanel);
 
 		chckbxNeedSHA1 = new JCheckBox(Messages.getString("MainFrame.chckbxNeedSHA1.text")); //$NON-NLS-1$
@@ -1230,13 +1231,22 @@ public class MainFrame extends JFrame
 		gbc_chckbxExcludeMachines.gridx = 1;
 		gbc_chckbxExcludeMachines.gridy = 5;
 		scannerSettingsPanel.add(chckbxExcludeMachines, gbc_chckbxExcludeMachines);
+		
+		chckbxBackup = new JCheckBox(Messages.getString("MainFrame.chckbxBackup.text")); //$NON-NLS-1$
+		chckbxBackup.addItemListener(e -> Profile.curr_profile.setProperty("backup", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		GridBagConstraints gbc_chckbxBackup = new GridBagConstraints();
+		gbc_chckbxBackup.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chckbxBackup.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxBackup.gridx = 0;
+		gbc_chckbxBackup.gridy = 6;
+		scannerSettingsPanel.add(chckbxBackup, gbc_chckbxBackup);
 
 		scannerSubSettingsPanel = new JPanel();
 		final GridBagConstraints gbc_scannerSubSettingsPanel = new GridBagConstraints();
 		gbc_scannerSubSettingsPanel.gridwidth = 2;
 		gbc_scannerSubSettingsPanel.fill = GridBagConstraints.BOTH;
 		gbc_scannerSubSettingsPanel.gridx = 0;
-		gbc_scannerSubSettingsPanel.gridy = 6;
+		gbc_scannerSubSettingsPanel.gridy = 7;
 		scannerSettingsPanel.add(scannerSubSettingsPanel, gbc_scannerSubSettingsPanel);
 		final GridBagLayout gbl_scannerSubSettingsPanel = new GridBagLayout();
 		gbl_scannerSubSettingsPanel.columnWidths = new int[] { 0, 0, 0, 0 };
@@ -2200,6 +2210,7 @@ public class MainFrame extends JFrame
 		chckbxIgnoreMergeNameDisks.setSelected(Profile.curr_profile.getProperty("ignore_merge_name_disks", false)); //$NON-NLS-1$
 		chckbxExcludeGames.setSelected(Profile.curr_profile.getProperty("exclude_games", false)); //$NON-NLS-1$
 		chckbxExcludeMachines.setSelected(Profile.curr_profile.getProperty("exclude_machines", false)); //$NON-NLS-1$
+		chckbxBackup.setSelected(Profile.curr_profile.getProperty("backup", true)); //$NON-NLS-1$
 		txtRomsDest.setText(Profile.curr_profile.getProperty("roms_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		lblDisksDest.setSelected(Profile.curr_profile.getProperty("disks_dest_dir_enabled", false)); //$NON-NLS-1$
 		tfDisksDest.setText(Profile.curr_profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$

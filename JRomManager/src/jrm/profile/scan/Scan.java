@@ -1,6 +1,7 @@
 package jrm.profile.scan;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -86,6 +87,7 @@ public class Scan
 	private final boolean ignore_unneeded_containers;
 	private final boolean ignore_unneeded_entries;
 	private final boolean ignore_unknown_containers;
+	private final boolean backup;
 	private final HashCollisionOptions hash_collision_mode;
 	private DirScan roms_dstscan = null;
 	private DirScan disks_dstscan = null;
@@ -118,6 +120,7 @@ public class Scan
 		ignore_unneeded_containers = profile.getProperty("ignore_unneeded_containers", false); //$NON-NLS-1$
 		ignore_unneeded_entries = profile.getProperty("ignore_unneeded_entries", false); //$NON-NLS-1$
 		ignore_unknown_containers = profile.getProperty("ignore_unknown_containers", false); //$NON-NLS-1$
+		backup = profile.getProperty("backup", true); //$NON-NLS-1$
 
 		final String dstdir_txt = profile.getProperty("roms_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dstdir_txt.isEmpty())
@@ -164,9 +167,12 @@ public class Scan
 			}
 		}
 
+		srcdirs.add(new File(Paths.get(".").toAbsolutePath().normalize().toFile(), "backup"));
 		
 		final ArrayList<Container> unknown = new ArrayList<>();
+		final ArrayList<Container> unneeded = new ArrayList<>();
 		final ArrayList<Container> samples_unknown = new ArrayList<>();
+		final ArrayList<Container> samples_unneeded = new ArrayList<>();
 		for (final File dir : srcdirs)
 		{
 			allscans.add(new DirScan(profile, dir, handler, false));
@@ -176,13 +182,13 @@ public class Scan
 		if (profile.machinelist_list.get(0).size() > 0)
 		{
 			profile.machinelist_list.get(0).resetFilteredName();
-			roms_dstscan = dirscan(profile.machinelist_list.get(0), roms_dstdir, unknown, handler);
+			roms_dstscan = dirscan(profile.machinelist_list.get(0), roms_dstdir, unknown, unneeded, handler);
 			if (roms_dstdir.equals(disks_dstdir))
 				disks_dstscan = roms_dstscan;
 			else
-				disks_dstscan = dirscan(profile.machinelist_list.get(0), disks_dstdir, unknown, handler);
+				disks_dstscan = dirscan(profile.machinelist_list.get(0), disks_dstdir, unknown, unneeded, handler);
 			if (samples_dstdir != null && samples_dstdir.isDirectory())
-				samples_dstscan = dirscan(profile.machinelist_list.get(0).samplesets, samples_dstdir, samples_unknown, handler);
+				samples_dstscan = dirscan(profile.machinelist_list.get(0).samplesets, samples_dstdir, samples_unknown, samples_unneeded, handler);
 			if (handler.isCancel())
 				throw new BreakException();
 		}
@@ -194,13 +200,13 @@ public class Scan
 			{
 				sl.resetFilteredName();
 				File sldir = new File(swroms_dstdir, sl.getName());
-				swroms_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, handler));
+				swroms_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
 				if (swroms_dstdir.equals(swdisks_dstdir))
 					swdisks_dstscans = swroms_dstscans;
 				else
 				{
 					sldir = new File(swdisks_dstdir, sl.getName());
-					swdisks_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, handler));
+					swdisks_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
 				}
 				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size(), sl.getName()), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
 				if (handler.isCancel())
@@ -236,6 +242,14 @@ public class Scan
 				unknown.forEach((c) -> {
 					Scan.report.add(new ContainerUnknown(c));
 					delete_actions.add(new DeleteContainer(c, format));
+				});
+			}
+			if(!ignore_unneeded_containers)
+			{
+				unneeded.forEach(c->{
+					Scan.report.add(new ContainerUnneeded(c));
+					backup_actions.add(new BackupContainer(c));
+					delete_actions.add(new DeleteContainer(c, format));					
 				});
 			}
 			profile.suspicious_crc.forEach((crc) -> Scan.report.add(new RomSuspiciousCRC(crc)));
@@ -323,7 +337,8 @@ public class Scan
 			profile.save(); // save again profile cache with scan entity status
 		}
 
-		actions.add(backup_actions);
+		if(backup)
+			actions.add(backup_actions);
 		actions.add(create_actions);
 		actions.add(rename_before_actions);
 		actions.add(add_actions);
@@ -334,7 +349,7 @@ public class Scan
 
 	}
 
-	private DirScan dirscan(final ByName<?> byname, final File dstdir, final List<Container> unknown, final ProgressHandler handler)
+	private DirScan dirscan(final ByName<?> byname, final File dstdir, final List<Container> unknown, final List<Container> unneeded, final ProgressHandler handler)
 	{
 		final DirScan dstscan;
 		allscans.add(dstscan = new DirScan(profile, dstdir, handler, true));
@@ -343,7 +358,12 @@ public class Scan
 			if (c.getType() == Container.Type.UNK)
 				unknown.add(c);
 			else if (!byname.containsFilteredName(FilenameUtils.getBaseName(c.file.toString())))
-				unknown.add(c);
+			{
+				if(byname.containsName(FilenameUtils.getBaseName(c.file.toString())))
+					unneeded.add(c);
+				else
+					unknown.add(c);
+			}
 		}
 		return dstscan;
 	}
@@ -419,6 +439,7 @@ public class Scan
 			if (c != null)
 			{
 				Scan.report.add(new ContainerUnneeded(c));
+				backup_actions.add(new BackupContainer(c));
 				delete_actions.add(new DeleteContainer(c, format));
 			}
 		});
@@ -434,6 +455,7 @@ public class Scan
 					if (c != null)
 					{
 						Scan.report.add(new ContainerUnneeded(c));
+						backup_actions.add(new BackupContainer(c));
 						delete_actions.add(new DeleteContainer(c, format));
 					}
 				});
@@ -444,6 +466,7 @@ public class Scan
 				if (c != null)
 				{
 					Scan.report.add(new ContainerUnneeded(c));
+					backup_actions.add(new BackupContainer(c));
 					delete_actions.add(new DeleteContainer(c, format));
 				}
 			}
@@ -453,6 +476,7 @@ public class Scan
 				if (c != null)
 				{
 					Scan.report.add(new ContainerUnneeded(c));
+					backup_actions.add(new BackupContainer(c));
 					delete_actions.add(new DeleteContainer(c, format));
 				}
 			}

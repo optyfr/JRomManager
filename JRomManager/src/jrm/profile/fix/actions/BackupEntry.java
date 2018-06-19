@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
-import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.profile.data.Container.Type;
@@ -25,8 +24,8 @@ public class BackupEntry extends EntryAction
 	@Override
 	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
-		final Path dstpath = dstfs.getPath(entry.getName());
-		handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("AddEntry.Adding"), entry.getName()))); //$NON-NLS-1$
+		Path dstpath = dstfs.getPath(entry.getName());
+		handler.setProgress(null, null, null, progress(i, max, String.format("Backup of %s", entry.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
 		try
 		{
@@ -36,6 +35,9 @@ public class BackupEntry extends EntryAction
 			{
 				Map<String, Object> attrs = Files.readAttributes(dstpath, "zip:crc");
 				if (attrs.containsKey("crc") && entry.crc.equals(String.format("%08x", attrs.get("crc"))))
+					return true;
+				dstpath = dstfs.getPath(dstpath.getParent().toString(), dstpath.getFileName().toString() + "_" + entry.crc);
+				if (Files.exists(dstpath))
 					return true;
 			}
 			if(entry.parent.getType() == Type.DIR)
@@ -89,6 +91,6 @@ public class BackupEntry extends EntryAction
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("AddEntry.Add"), entry, entry); //$NON-NLS-1$
+		return String.format("Backup of %s", entry); //$NON-NLS-1$
 	}
 }

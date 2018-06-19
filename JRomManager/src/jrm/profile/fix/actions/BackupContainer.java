@@ -12,6 +12,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.profile.data.Container;
+import jrm.profile.data.Entry;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
 
@@ -46,6 +47,9 @@ public class BackupContainer extends ContainerAction
 		try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + backupfile.toURI()), env);) //$NON-NLS-1$
 		{
 			int i = 0;
+			if(entry_actions.size()==0)
+				for(Entry entry : container.getEntries())
+					addAction(new BackupEntry(entry));
 			for (final EntryAction action : entry_actions)
 			{
 				i++;
