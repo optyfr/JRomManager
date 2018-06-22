@@ -11,6 +11,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.profile.Profile;
+import jrm.profile.fix.actions.BackupContainer;
 import jrm.profile.fix.actions.ContainerAction;
 import jrm.profile.scan.Scan;
 import jrm.ui.ProgressHandler;
@@ -50,6 +51,8 @@ public class Fix
 					e.printStackTrace();
 				}
 			});
+			if (done.size() > 0 && done.get(0) instanceof BackupContainer)
+				BackupContainer.closeAllFS();
 			actions.removeAll(done);
 			progress.clearInfos();
 		});

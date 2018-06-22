@@ -6,7 +6,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Map;
 
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
@@ -24,7 +23,7 @@ public class BackupEntry extends EntryAction
 	@Override
 	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
-		Path dstpath = dstfs.getPath(entry.getName());
+		Path dstpath = dstfs.getPath(entry.crc);
 		handler.setProgress(null, null, null, progress(i, max, String.format("Backup of %s", entry.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
 		try
@@ -32,14 +31,7 @@ public class BackupEntry extends EntryAction
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
 			if (Files.exists(dstpath))
-			{
-				Map<String, Object> attrs = Files.readAttributes(dstpath, "zip:crc");
-				if (attrs.containsKey("crc") && entry.crc.equals(String.format("%08x", attrs.get("crc"))))
-					return true;
-				dstpath = dstfs.getPath(dstpath.getParent().toString(), dstpath.getFileName().toString() + "_" + entry.crc);
-				if (Files.exists(dstpath))
-					return true;
-			}
+				return true;
 			if(entry.parent.getType() == Type.DIR)
 			{
 				srcpath = entry.parent.file.toPath().resolve(entry.file);
