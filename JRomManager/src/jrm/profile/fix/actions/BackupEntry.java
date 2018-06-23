@@ -23,13 +23,16 @@ public class BackupEntry extends EntryAction
 	@Override
 	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
-		Path dstpath = dstfs.getPath(entry.crc);
+		Path dstpath_crc = dstfs.getPath(entry.crc+'_'+entry.size);
+		Path dstpath = dstfs.getPath(entry.sha1!=null?entry.sha1:(entry.md5!=null?entry.md5:(entry.crc+'_'+entry.size)));
 		handler.setProgress(null, null, null, progress(i, max, String.format("Backup of %s", entry.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
 		try
 		{
 			if(dstpath.getParent() != null)
 				Files.createDirectories(dstpath.getParent());
+			if(!dstpath.equals(dstpath_crc) && Files.exists(dstpath_crc))
+				Files.delete(dstpath_crc);
 			if (Files.exists(dstpath))
 				return true;
 			if(entry.parent.getType() == Type.DIR)

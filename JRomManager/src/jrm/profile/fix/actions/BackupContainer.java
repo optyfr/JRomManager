@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.CRC32;
@@ -31,7 +30,7 @@ public class BackupContainer extends ContainerAction
 		return action;
 	}
 
-	private static Map<String, FileSystem> filesystems = Collections.synchronizedMap(new HashMap<String, FileSystem>());
+	private static Map<String, FileSystem> filesystems = new HashMap<String, FileSystem>();
 
 	public static synchronized FileSystem getFS(Container container, EntryAction action) throws IOException
 	{
