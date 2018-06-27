@@ -29,7 +29,8 @@ public class Machine extends Anyware implements Serializable
 	public final Map<String, SWList> swlists = new HashMap<>();
 	
 	public final List<String> device_ref = new ArrayList<>();
-	public final HashMap<String, Machine> devices = new HashMap<>();
+	public final HashMap<String, Machine> device_machines = new HashMap<>();
+	public final List<Device> devices = new ArrayList<>();
 	
 	public final Map<String, Slot> slots = new HashMap<>();
 
@@ -253,8 +254,8 @@ public class Machine extends Anyware implements Serializable
 	Stream<Machine> getDevices(boolean partial)
 	{
 		if(partial)
-			return devices.values().stream().filter(device->device_ref.contains(device.name));
-		return devices.values().stream();
+			return device_machines.values().stream().filter(device->device_ref.contains(device.name));
+		return device_machines.values().stream();
 	}
 	
 	Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse)

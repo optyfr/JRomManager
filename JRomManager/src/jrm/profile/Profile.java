@@ -92,6 +92,7 @@ public class Profile implements Serializable
 				private Software.Part.DataArea curr_dataarea = null;
 				private Software.Part.DiskArea curr_diskarea = null;
 				private Machine curr_machine = null;
+				private Device curr_device = null;
 				private Samples curr_sampleset = null;
 				private Rom curr_rom = null;
 				private Disk curr_disk = null;
@@ -357,6 +358,71 @@ public class Profile implements Serializable
 										break;
 									case "tilt": //$NON-NLS-1$
 										curr_machine.input.setTilt(attributes.getValue(i));
+										break;
+								}
+							}
+						}
+					}
+					else if (qName.equals("device")) //$NON-NLS-1$
+					{
+						if (curr_machine != null)
+						{
+							curr_device = new Device();
+							curr_machine.devices.add(curr_device);
+							for (int i = 0; i < attributes.getLength(); i++)
+							{
+								switch (attributes.getQName(i))
+								{
+									case "type": //$NON-NLS-1$
+										curr_device.type = attributes.getValue(i).trim();
+										break;
+									case "tag": //$NON-NLS-1$
+										curr_device.tag = attributes.getValue(i).trim();
+										break;
+									case "interface": //$NON-NLS-1$
+										curr_device.intrface = attributes.getValue(i).trim();
+										break;
+									case "fixed_image": //$NON-NLS-1$
+										curr_device.fixed_image = attributes.getValue(i).trim();
+										break;
+									case "mandatory": //$NON-NLS-1$
+										curr_device.mandatory = attributes.getValue(i).trim();
+										break;
+								}
+							}
+						}
+					}
+					else if (qName.equals("instance")) //$NON-NLS-1$
+					{
+						if (curr_machine != null && curr_device != null)
+						{
+							curr_device.instance = curr_device.new Instance();
+							for (int i = 0; i < attributes.getLength(); i++)
+							{
+								switch (attributes.getQName(i))
+								{
+									case "name": //$NON-NLS-1$
+										curr_device.instance.name = attributes.getValue(i).trim();
+										break;
+									case "briefname": //$NON-NLS-1$
+										curr_device.instance.briefname = attributes.getValue(i).trim();
+										break;
+								}
+							}
+						}
+					}
+					else if (qName.equals("extension")) //$NON-NLS-1$
+					{
+						if (curr_machine != null && curr_device != null)
+						{
+							Device.Extension ext = curr_device.new Extension();
+							curr_device.extensions.add(ext);
+							for (int i = 0; i < attributes.getLength(); i++)
+							{
+								switch (attributes.getQName(i))
+								{
+									case "name": //$NON-NLS-1$
+										ext.name = attributes.getValue(i).trim();
 										break;
 								}
 							}
@@ -854,8 +920,8 @@ public class Profile implements Serializable
 							machine.getParent().clones.put(machine.getName(), machine);
 					}
 				}
-				machine.device_ref.forEach(device_ref -> machine.devices.putIfAbsent(device_ref, machine_list.getByName(device_ref)));
-				machine.slots.values().forEach(slot -> slot.forEach(slotoption -> machine.devices.putIfAbsent(slotoption.devname, machine_list.getByName(slotoption.devname))));
+				machine.device_ref.forEach(device_ref -> machine.device_machines.putIfAbsent(device_ref, machine_list.getByName(device_ref)));
+				machine.slots.values().forEach(slot -> slot.forEach(slotoption -> machine.device_machines.putIfAbsent(slotoption.devname, machine_list.getByName(slotoption.devname))));
 			});
 		});
 		machinelist_list.softwarelist_list.forEach(software_list -> {
