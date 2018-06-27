@@ -25,7 +25,6 @@ public class Fix
 	{
 		this.curr_scan = curr_scan;
 
-		progress.setInfos(Runtime.getRuntime().availableProcessors(), true);
 
 		final boolean use_parallelism = curr_profile.getProperty("use_parallelism", false); //$NON-NLS-1$
 		final AtomicInteger i = new AtomicInteger(0), max = new AtomicInteger(0);
@@ -34,6 +33,7 @@ public class Fix
 		final long start = System.currentTimeMillis();
 		curr_scan.actions.forEach(actions -> {
 			final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
+			progress.setInfos(use_parallelism ? Runtime.getRuntime().availableProcessors() : 1, use_parallelism);
 			StreamEx.of(use_parallelism ? actions.parallelStream().unordered() : actions.stream()).takeWhile((action) -> !progress.isCancel()).forEach(action -> {
 				try
 				{
