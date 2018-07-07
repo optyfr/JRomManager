@@ -570,14 +570,14 @@ public class Profile implements Serializable
 										curr_rom.value = attributes.getValue(i);
 										break;
 									case "crc": //$NON-NLS-1$
-										curr_rom.crc = attributes.getValue(i);
+										curr_rom.crc = attributes.getValue(i).toLowerCase();
 										break;
 									case "sha1": //$NON-NLS-1$
-										curr_rom.sha1 = attributes.getValue(i);
+										curr_rom.sha1 = attributes.getValue(i).toLowerCase();
 										sha1_roms = true;
 										break;
 									case "md5": //$NON-NLS-1$
-										curr_rom.md5 = attributes.getValue(i);
+										curr_rom.md5 = attributes.getValue(i).toLowerCase();
 										md5_roms = true;
 										break;
 									case "merge": //$NON-NLS-1$
@@ -620,11 +620,11 @@ public class Profile implements Serializable
 										curr_disk.setName(attributes.getValue(i).trim());
 										break;
 									case "sha1": //$NON-NLS-1$
-										curr_disk.sha1 = attributes.getValue(i);
+										curr_disk.sha1 = attributes.getValue(i).toLowerCase();
 										sha1_disks = true;
 										break;
 									case "md5": //$NON-NLS-1$
-										curr_disk.md5 = attributes.getValue(i);
+										curr_disk.md5 = attributes.getValue(i).toLowerCase();
 										md5_disks = true;
 										break;
 									case "merge": //$NON-NLS-1$
