@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.zip.CRC32;
 
 import jrm.compressors.zipfs.ZipFileSystemProvider;
+import jrm.misc.Settings;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
 import jrm.profile.scan.options.FormatOptions;
@@ -37,7 +38,7 @@ public class BackupContainer extends ContainerAction
 		String crc2 = action.entry.crc.substring(0, 2);
 		if (!filesystems.containsKey(crc2))
 		{
-			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 			final File backupdir = new File(workdir, "backup"); //$NON-NLS-1$
 			final CRC32 crc = new CRC32();
 			crc.update(container.file.getAbsoluteFile().getParent().getBytes());

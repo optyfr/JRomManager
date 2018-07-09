@@ -14,6 +14,7 @@ import JTrrntzip.TrrntZipStatus;
 import jrm.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.Settings;
 import jrm.profile.Profile;
 import jrm.profile.data.*;
 import jrm.profile.fix.actions.*;
@@ -123,7 +124,7 @@ public class Scan
 			}
 		}
 
-		srcdirs.add(new File(Paths.get(".").toAbsolutePath().normalize().toFile(), "backup"));
+		srcdirs.add(new File(Settings.getWorkPath().toFile(), "backup"));
 		
 		final ArrayList<Container> unknown = new ArrayList<>();
 		final ArrayList<Container> unneeded = new ArrayList<>();

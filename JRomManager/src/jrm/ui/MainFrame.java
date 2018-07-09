@@ -1,20 +1,70 @@
 package jrm.ui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.swing.*;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
@@ -58,8 +108,15 @@ import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
-import jrm.ui.controls.*;
+import jrm.ui.controls.JCheckBoxList;
+import jrm.ui.controls.JCheckBoxTree;
+import jrm.ui.controls.JFileDropList;
+import jrm.ui.controls.JFileDropMode;
+import jrm.ui.controls.JFileDropTextField;
+import jrm.ui.controls.JListHintUI;
+import jrm.ui.controls.JRMFileChooser;
 import jrm.ui.controls.JRMFileChooser.OneRootFileSystemView;
+import jrm.ui.controls.JTextFieldHintUI;
 
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
@@ -272,7 +329,7 @@ public class MainFrame extends JFrame
 		{
 			Settings.loadSettings();
 			UIManager.setLookAndFeel(Settings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName() */)); //$NON-NLS-1$
-			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 			final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 			xmldir.mkdir();
 			ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
@@ -371,7 +428,7 @@ public class MainFrame extends JFrame
 							progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
 							final Import imprt = new Import(selectedfile, sl);
 							progress.dispose();
-							final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+							final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 							final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 							new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 									.show(MainFrame.this, chooser1 -> {
@@ -518,7 +575,7 @@ public class MainFrame extends JFrame
 
 		profilesTree = new JTree();
 		scrollPane_1.setViewportView(profilesTree);
-		final DirTreeModel profilesTreeModel = new DirTreeModel(new DirNode(Paths.get("./xmlfiles").toAbsolutePath().normalize().toFile())); //$NON-NLS-1$
+		final DirTreeModel profilesTreeModel = new DirTreeModel(new DirNode(Settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile())); //$NON-NLS-1$
 		profilesTree.setModel(profilesTreeModel);
 		profilesTree.setRootVisible(true);
 		profilesTree.setShowsRootHandles(true);
@@ -799,7 +856,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(btnRomsDest, gbc_btnRomsDest);
 		btnRomsDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		btnRomsDest.addActionListener(e -> {
-			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseRomsDestination", workdir.getAbsolutePath())), new File(txtRomsDest.getText()), null, Messages.getString("MainFrame.ChooseRomsDestination"), false).show(MainFrame.this, chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
 				Profile.curr_profile.setProperty("MainFrame.ChooseRomsDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				txtRomsDest.setText(chooser.getSelectedFile().getAbsolutePath());
@@ -843,7 +900,7 @@ public class MainFrame extends JFrame
 		gbc_btDisksDest.gridx = 2;
 		gbc_btDisksDest.gridy = 1;
 		btDisksDest.addActionListener(e -> {
-			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseDisksDestination", workdir.getAbsolutePath())), new File(tfDisksDest.getText()), null, Messages.getString("MainFrame.ChooseDisksDestination"), false).show(MainFrame.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				Profile.curr_profile.setProperty("MainFrame.ChooseDisksDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfDisksDest.setText(chooser.getSelectedFile().getAbsolutePath());
@@ -882,7 +939,7 @@ public class MainFrame extends JFrame
 
 		btnSWDest = new JButton(""); //$NON-NLS-1$
 		btnSWDest.addActionListener(e -> {
-			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseSWRomsDestination", workdir.getAbsolutePath())), new File(tfSWDest.getText()), null, Messages.getString("MainFrame.ChooseSWRomsDestination"), false).show(MainFrame.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				Profile.curr_profile.setProperty("MainFrame.ChooseSWRomsDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfSWDest.setText(chooser.getSelectedFile().getAbsolutePath());
@@ -925,7 +982,7 @@ public class MainFrame extends JFrame
 
 		btSWDisksDest = new JButton(""); //$NON-NLS-1$
 		btSWDisksDest.addActionListener(e -> {
-			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseSWDisksDestination", workdir.getAbsolutePath())), new File(tfSWDisksDest.getText()), null, Messages.getString("MainFrame.ChooseSWDisksDestination"), false).show(MainFrame.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				Profile.curr_profile.setProperty("MainFrame.ChooseSWDisksDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfSWDisksDest.setText(chooser.getSelectedFile().getAbsolutePath());
@@ -970,7 +1027,7 @@ public class MainFrame extends JFrame
 
 		btSamplesDest = new JButton(""); //$NON-NLS-1$
 		btSamplesDest.addActionListener(e -> {
-			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseSamplesDestination", workdir.getAbsolutePath())), new File(tfSamplesDest.getText()), null, Messages.getString("MainFrame.ChooseSamplesDestination"), false).show(MainFrame.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				Profile.curr_profile.setProperty("MainFrame.ChooseSamplesDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfSamplesDest.setText(chooser.getSelectedFile().getAbsolutePath());
@@ -1036,7 +1093,7 @@ public class MainFrame extends JFrame
 
 		mntmAddDirectory = new JMenuItem(Messages.getString("MainFrame.mntmAddDirectory.text")); //$NON-NLS-1$
 		mntmAddDirectory.addActionListener(e -> {
-			final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseRomsSource", workdir.getAbsolutePath())), null, null, null, true).show(MainFrame.this, chooser -> { //$NON-NLS-1$
 				Profile.curr_profile.setProperty("MainFrame.ChooseRomsSource", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				listSrcDir.add(chooser.getSelectedFiles());
@@ -2291,7 +2348,7 @@ public class MainFrame extends JFrame
 
 	/*
 	 * private void chooseProfile() { new JFileChooser() { { File workdir =
-	 * Paths.get("./xmlfiles").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+	 * Settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 	 * setCurrentDirectory(workdir); addChoosableFileFilter(new
 	 * FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat",
 	 * "xml")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

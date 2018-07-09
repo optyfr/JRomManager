@@ -701,7 +701,7 @@ public final class DirScan
 
 	private static File getCacheFile(final File file, final boolean is_dest)
 	{
-		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File cachedir = new File(workdir, "cache"); //$NON-NLS-1$
 		cachedir.mkdirs();
 		final CRC32 crc = new CRC32();

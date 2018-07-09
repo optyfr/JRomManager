@@ -15,6 +15,7 @@ import javax.swing.tree.TreeNode;
 
 import jrm.Messages;
 import jrm.misc.HTMLRenderer;
+import jrm.misc.Settings;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.ui.ReportTreeModel;
@@ -209,7 +210,7 @@ public class Report implements TreeNode, HTMLRenderer
 
 	public void write()
 	{
-		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
 		reportdir.mkdirs();
 		final File report_file = new File(reportdir, "report.log"); //$NON-NLS-1$

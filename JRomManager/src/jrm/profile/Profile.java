@@ -1007,7 +1007,7 @@ public class Profile implements Serializable
 
 	public String getName()
 	{
-		String name = "<html><body>[<span color='blue'>" + Paths.get(".", "xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String name = "<html><body>[<span color='blue'>" + Settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if (build != null)
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if (header.size() > 0)

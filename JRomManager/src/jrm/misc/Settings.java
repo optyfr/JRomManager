@@ -4,16 +4,43 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
 public class Settings
 {
 	public static Properties settings = new Properties();
+	
+	public static boolean multiuser = false;
+	public static boolean noupdate = false;
+	
 
+	public static Path getWorkPath()
+	{
+		if (multiuser)
+		{
+			Path work = Paths.get(System.getProperty("user.home"), ".jrommanager").toAbsolutePath().normalize();
+			if (!Files.exists(work))
+			{
+				try
+				{
+					Files.createDirectories(work);
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			return work;
+		}
+		return Paths.get(".").toAbsolutePath().normalize();
+	}
+	
 	private static File getSettingsFile()
 	{
-		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		final File workdir = getWorkPath().toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 		final File cachedir = new File(workdir, "settings"); //$NON-NLS-1$
 		final File settingsfile = new File(cachedir, "JRomManager.properties"); //$NON-NLS-1$
 		settingsfile.getParentFile().mkdirs();

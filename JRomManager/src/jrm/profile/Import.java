@@ -1,8 +1,13 @@
 package jrm.profile;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.nio.file.Paths;
 
 import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
@@ -13,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.DOMException;
 
 import jrm.misc.Log;
+import jrm.misc.Settings;
 
 public class Import
 {
@@ -24,7 +30,7 @@ public class Import
 	public Import(final File file, final boolean sl)
 	{
 		org_file = file;
-		final File workdir = Paths.get(".").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 		xmldir.mkdir();
 

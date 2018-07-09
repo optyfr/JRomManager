@@ -5,6 +5,7 @@ import java.nio.channels.FileLock;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.Log;
+import jrm.misc.Settings;
 import jrm.ui.MainFrame;
 import jupdater.JUpdater;
 
@@ -12,11 +13,26 @@ public final class JRomManager
 {
 	public static void main(final String[] args)
 	{
+		for(int i = 0; i < args.length; i++)
+		{
+			switch(args[i])
+			{
+				case "--multiuser":
+					Settings.multiuser = true;
+					break;
+				case "--noupdate":
+					Settings.noupdate = true;
+					break;
+			}
+		}
 		if (JRomManager.lockInstance(FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
-			JUpdater updater = new JUpdater("optyfr","JRomManager");
-			if(updater.updateAvailable())
-				updater.showMessage();
+			if(!Settings.noupdate)
+			{
+				JUpdater updater = new JUpdater("optyfr","JRomManager");
+				if(updater.updateAvailable())
+					updater.showMessage();
+			}
 			new MainFrame().setVisible(true);
 		}
 	}
@@ -25,7 +41,7 @@ public final class JRomManager
 	{
 		try
 		{
-			final File file = new File(lockFile);
+			final File file = new File(Settings.getWorkPath().toFile(),lockFile);
 			final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw"); //$NON-NLS-1$
 			final FileLock fileLock = randomAccessFile.getChannel().tryLock();
 			if (fileLock != null)
