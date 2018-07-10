@@ -1,3 +1,18 @@
+## Release v1.6 build 20
+- Machine/Software can individually (de)selected in Profile Viewer, this will impact the scan and filtered export
+- Possibility to auto(de)select by keywords,
+  - keywords list is built with all terms between parenthesis in each description
+  - keywords selection interface permit to choose which keywords is accepted and by order of priority
+  - autoselection will do the best to select only one game with the same name without keywords, and based upon keywords preference order (so that 1G1R and more should be possible this way)
+- backup profile option : Each deleted rom will be stored in a backup folder which is reused upon future scans, so that roms are never loose (but eat some disk space)
+- load device descriptions from profile to launch softwares with the correct media
+- there is now 2 launch options (made for packaging via official linux distribution tools) :
+  - --multiuser : set working folder inside home directory instead of app directory
+  - --noupdate : disable search for update 
+- documentation available [here](https://github.com/optyfr/JRomManager/wiki)
+- fixed wrongly unneeded files when software list is present in profile
+- fixed problem with progress bar when thread id changed in between two parallel streams
+- fixed stupid problem with dat containing uppercase crc/sha1/md5 (thanks go to SpaceAgeHero)
 ## Release v1.5 build 18
 - New progress bar which show multithreaded operations separately
 - Added intermediate progression for fix operations and TorrentZipping

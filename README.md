@@ -59,7 +59,7 @@ _Behavior compared to other Rom managers_
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
 - Advanced filtering functionalities when a nplayers.ini and catver.ini is associated with a mame profile
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
-- One-click easy updater
+- One-click easy updater (can be manually disabled at launch)
 - Jar installer
 - Extra merging and collision modes to generate PleasureDome compatible Mame sets, as of v0.198 :
 	- ROMs split => 100% torrent joining
@@ -69,7 +69,9 @@ _Behavior compared to other Rom managers_
 	- SoftwareList Machine-BIOS-Devices => 70% torrent joining (10MB missed) since some machines exist with no SoftwareList available
 	- SoftwareList ROMs => not tested since it contains some non-supported software lists
 - An advanced progression window taking into account multi-threading operations
-	
+- Backup option (per profile)
+- (De)select Game or Software individually, or upon keywords selection (keywords are terms between parenthesis in description), similar to 1G1R mode
+- Launch mode for multiuser environment and for Linux packaging readiness	
 
 ## Short Term Planned Features
 - Auto update option (and show Changes log a after auto-update)
@@ -77,7 +79,6 @@ _Behavior compared to other Rom managers_
 ## Middle Term Planned Features
 - Dir2Dat
 - More Translations
-- Fine grained machine filtering in profile viewer (for 1G1R, ...)
 
 ## Long Term Planned Features and Ideas
 - Interoperability with other managers?
