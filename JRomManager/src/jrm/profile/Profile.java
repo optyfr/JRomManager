@@ -1,7 +1,6 @@
 package jrm.profile;
 
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.IntStream;
 

@@ -1,7 +1,6 @@
 package jrm.profile.scan;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
