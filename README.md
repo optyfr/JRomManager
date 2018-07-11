@@ -2,6 +2,8 @@
 
 A Rom Manager entirely written in Java and released under GPL v3
 
+[Screenshots](https://github.com/optyfr/JRomManager/wiki/Screenshots)
+
 ## Technical
 _Minimal developement requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature and Gradle Buildship
