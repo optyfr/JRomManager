@@ -1,3 +1,7 @@
+plugins {
+  id "nebula.ospackage" version "4.9.3"
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
@@ -73,3 +77,41 @@ task distZip(type: Zip, dependsOn: jar) {
 }
 
 assemble.dependsOn distZip
+
+apply plugin: 'nebula.ospackage'
+
+ospackage {
+	packageName 'jrommanager'
+	packageDescription 'A Mame and Retrogaming Rom Manager, Java alternative to ClrMamePro'
+	release '1'
+	arch = NOARCH
+	os = LINUX
+	type= BINARY
+	license 'GPL-3'
+	vendor 'optyfr'
+	packager 'optyfr'
+	into '/opt/jrommanager'
+	url 'https://github.com/optyfr/JRomManager'
+	from (configurations.compile) {
+		into('lib')
+	}
+	from (jar)
+	from (project(':JUpdater').jar)
+	from ('dist') {
+		include '*.bat'
+		include '*.sh'
+		fileMode = 0755
+	}
+	link('/usr/bin/jrommanager', '/opt/jrommanager/JRomManager-multi.sh')
+}
+
+buildDeb {
+	requires('java8-runtime')
+}
+
+buildRpm {
+	requires('java', '1:1.8.0', GREATER | EQUAL)
+}
+
+assemble.dependsOn buildRpm
+assemble.dependsOn buildDeb

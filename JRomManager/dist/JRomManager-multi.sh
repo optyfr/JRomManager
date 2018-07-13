@@ -1,5 +1,5 @@
 #!/bin/sh
-dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+cd -P -- "$(dirname -- "$(readlink -f -- "$0")")"
 OPT=-Xmx1g
 which grep >/dev/null
 if [ $? -eq 0 ]; then
