@@ -2,6 +2,8 @@
 
 A Rom Manager entirely written in Java and released under GPL v3
 
+[Screenshots](https://github.com/optyfr/JRomManager/wiki/Screenshots)
+
 ## Technical
 _Minimal developement requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature and Gradle Buildship
@@ -26,6 +28,17 @@ _Minimal usage requirements_:
 
 _Behavior compared to other Rom managers_
 - By default, Split mode may differ from ClrMamePro, it's because JRomManager is by default using "explicit merging" and so will split only according the merge attribute presence (as preconised in logiqx faq), whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also known to be respectful of the merge attribute. To reproduce the ClrMamePro behavior you will have to select "implicit merge" option in profile settings
+
+_Minimal instructions for cmdline compilation_:  
+
+If you just want to recompile sources without using an IDE (Eclipse), here are the steps to follow...
+- First, you need Java JDK 8 installed from your system package manager or from the official installer, or at least take care that all java jdk binaries are accessible from your current $PATH or %PATH%
+- Download and unarchive `https://github.com/optyfr/JRomManager/releases/download/<version>/JRomManager-<version>.src.tar.gz` (use sevenzip for Windows); **Do not download `Source Code (zip)` or `Source Code (tar.gz)`, those ones are automatically built by github and unfortunately does not contains required submodules**
+- `cd JRomManager-<version>`
+- run
+  - Unix: `sh ./gradlew build`
+  - Windows: `.\gradlew.bat build`
+- This is the included gradle-wrapper, it will download the right gradle binaries package version, then compile and package all (see build subdirs)
 
 ## Current Features
 - Mame and Logiqx Dat formats
