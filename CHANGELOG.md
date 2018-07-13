@@ -9,10 +9,12 @@
 - there is now 2 launch options (made for packaging via official linux distribution tools) :
   - --multiuser : set working folder inside home directory instead of app directory
   - --noupdate : disable search for update 
-- documentation available [here](https://github.com/optyfr/JRomManager/wiki)
+- documentation available on [github wiki](https://github.com/optyfr/JRomManager/wiki)
 - fixed wrongly unneeded files when software list is present in profile
 - fixed problem with progress bar when thread id changed in between two parallel streams
 - fixed stupid problem with dat containing uppercase crc/sha1/md5 (thanks go to SpaceAgeHero)
+- .deb package available with [github releases](https://github.com/optyfr/JRomManager/releases) for Debian and Ubuntu
+- package for ArchLinux available on [AUR](https://aur.archlinux.org/packages/jrommanager/)
 ## Release v1.5 build 18
 - New progress bar which show multithreaded operations separately
 - Added intermediate progression for fix operations and TorrentZipping
