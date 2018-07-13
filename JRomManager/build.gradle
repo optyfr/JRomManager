@@ -84,8 +84,6 @@ ospackage {
 	packageName 'jrommanager'
 	packageDescription 'A Mame and Retrogaming Rom Manager, Java alternative to ClrMamePro'
 	release '1'
-	arch = NOARCH
-	os = LINUX
 	type= BINARY
 	license 'GPL-3'
 	vendor 'optyfr'
@@ -107,10 +105,13 @@ ospackage {
 
 buildDeb {
 	requires('java8-runtime')
+	arch = "all"
 }
 
 buildRpm {
 	requires('java', '1:1.8.0', GREATER | EQUAL)
+	arch = NOARCH
+	os = LINUX
 }
 
 assemble.dependsOn buildRpm
