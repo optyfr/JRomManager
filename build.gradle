@@ -25,7 +25,7 @@ task installProperties {
    }
 }
 task oneJar( type: Jar , dependsOn: [':JUpdater:assemble', installProperties]) {
-    baseName = 'JRomManager-install-'+project(':JRomManager').version
+    baseName = project(':JRomManager').name + '-' + project(':JRomManager').version + '-install'
     from project(':JUpdater').sourceSets.main.output.classesDirs
 	from project(':JUpdater').configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
 	from project(':JRomManager').distZip
@@ -44,6 +44,22 @@ task oneJar( type: Jar , dependsOn: [':JUpdater:assemble', installProperties]) {
 	destinationDir = file("$buildDir/distributions/")
 }
 
+task sourcesZip(type: Tar, dependsOn: tasks.classes) {
+	from ('.') {
+		exclude 'bin'
+		exclude 'build'
+		exclude '*/bin'
+		exclude '*/build'
+		exclude '.git'
+		exclude '.gradle'
+	}
+	classifier 'src'
+	compression 'GZIP'
+	group 'build'
+    baseName = project(':JRomManager').name + '-' + project(':JRomManager').version
+}
+
+
 assemble.dependsOn oneJar
 assemble.dependsOn ':Jtrrntzip:assemble'
-
+assemble.dependsOn sourcesZip

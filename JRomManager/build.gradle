@@ -60,7 +60,6 @@ jar {
 	}
 }
 
-
 task distZip(type: Zip, dependsOn: jar) {
 	from (configurations.compile) {
 		into('lib')
