@@ -87,6 +87,7 @@ ospackage {
 	license 'GPL-3'
 	vendor 'optyfr'
 	packager 'optyfr'
+	maintainer 'optyfr'
 	into '/opt/jrommanager'
 	url 'https://github.com/optyfr/JRomManager'
 	from (configurations.compile) {
@@ -98,6 +99,14 @@ ospackage {
 		include '*.bat'
 		include '*.sh'
 		fileMode = 0755
+	}
+	from ('dist') {
+		include name + '.desktop'
+		into '/usr/share/applications'
+	}
+	from ('dist') {
+		include name + '.png'
+		into '/usr/share/pixmaps'
 	}
 	link('/usr/bin/jrommanager', '/opt/jrommanager/JRomManager-multi.sh')
 }
