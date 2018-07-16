@@ -114,12 +114,12 @@ ospackage {
 }
 
 buildDeb {
-	requires('java8-runtime')
+	requires('java8-runtime').or('java9-runtime').or('java10-runtime')
 	arch = "all"
 }
 
 buildRpm {
-	requires('java', '1:1.8.0', GREATER | EQUAL)
+	requires('java', '1:1.8.0', EQUAL).or('java', '1:9', EQUAL).or('java', '1:10', EQUAL)
 	arch = NOARCH
 	os = LINUX
 	addParentDirs = false
