@@ -88,6 +88,8 @@ ospackage {
 	vendor 'optyfr'
 	packager 'optyfr'
 	maintainer 'optyfr'
+	user 'root'
+	permissionGroup 'root'
 	into '/opt/jrommanager'
 	url 'https://github.com/optyfr/JRomManager'
 	from (configurations.compile) {
@@ -101,11 +103,11 @@ ospackage {
 		fileMode = 0755
 	}
 	from ('dist') {
-		include name + '.desktop'
+		include name+'.desktop'
 		into '/usr/share/applications'
 	}
 	from ('dist') {
-		include name + '.png'
+		include name+'.png'
 		into '/usr/share/pixmaps'
 	}
 	link('/usr/bin/jrommanager', '/opt/jrommanager/JRomManager-multi.sh')
@@ -120,6 +122,8 @@ buildRpm {
 	requires('java', '1:1.8.0', GREATER | EQUAL)
 	arch = NOARCH
 	os = LINUX
+	addParentDirs = false
+	createDirectoryEntry = false
 }
 
 assemble.dependsOn buildRpm
