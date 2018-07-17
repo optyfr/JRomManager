@@ -1,3 +1,5 @@
+
+
 apply plugin: "java"
 
 dependencies {
@@ -44,14 +46,20 @@ task oneJar( type: Jar , dependsOn: [':JUpdater:assemble', installProperties]) {
 	destinationDir = file("$buildDir/distributions/")
 }
 
+assemble.dependsOn oneJar
+assemble.dependsOn ':Jtrrntzip:assemble'
+
 task sourcesZip(type: Tar, dependsOn: tasks.classes) {
 	from ('.') {
-		exclude 'bin'
-		exclude 'build'
-		exclude '*/bin'
-		exclude '*/build'
-		exclude '.git'
-		exclude '.gradle'
+		//exclude 'bin'
+		//exclude 'build'
+		exclude '**/bin'
+		exclude '**/build'
+		exclude '**/Debug'
+		exclude '**/Release'
+		exclude '**/.vs'
+		exclude '**/.git'
+		exclude '**/.gradle'
 	}
 	classifier 'src'
 	compression 'GZIP'
@@ -60,6 +68,6 @@ task sourcesZip(type: Tar, dependsOn: tasks.classes) {
 }
 
 
-assemble.dependsOn oneJar
-assemble.dependsOn ':Jtrrntzip:assemble'
 assemble.dependsOn sourcesZip
+
+

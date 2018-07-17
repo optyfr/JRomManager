@@ -4,3 +4,6 @@
 [submodule "JUpdater"]
 	path = JUpdater
 	url = https://github.com/optyfr/JUpdater
+[submodule "JLauncher"]
+	path = JLauncher
+	url = https://github.com/optyfr/JLauncher
