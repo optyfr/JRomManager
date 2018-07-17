@@ -151,7 +151,7 @@ if (os.contains("windows"))
 		    appIdentifier = "JRomManager"
 		    version = props.getProperty("Specification-Version")
 		    licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
-		//    icons = ['icon16.png', 'icon32.png', 'icon48.png', 'icon128.png']
+		    icons = [new File(new File('dist'),project.name + '.png')]
 			from (configurations.compile) {
 				into('lib')
 			}
@@ -163,13 +163,17 @@ if (os.contains("windows"))
 		task buildMSI(type: com.inet.gradle.setup.msi.Msi, dependsOn: ':JLauncher:build') {
 			arch = 'x86'
 			languages = ['en_us'] 
-			from (new File(project(':JLauncher').buildDir , 'exe/jlauncher'))
+			from (new File(project(':JLauncher').buildDir , 'exe/JLauncher'))
 			{
-				include 'jlauncher.exe'
+				include 'JLauncher.exe'
 				rename { project.name+'.exe' }
 			}
 		}
 		
 		assemble.dependsOn buildMSI
 	}
+	else
+		logger.warn("Can't find WIX ToolSet binaries in PATH, Skipping MSI build.")
 }
+else
+	logger.info('Not on Windows, skipping MSI build.')
