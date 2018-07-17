@@ -49,12 +49,12 @@ jar {
 	manifest {
 		attributes(
 			"Manifest-Version"     : "1.0",
-		    "Specification-Title"  : "JRomManager",
-		    "Specification-Version": props.getProperty("Specification-Version"),
-        	"Implementation-Title" : "jrm",
-            "Implementation-Version" : props.getProperty("Implementation-Version"),
-            "Main-Class"           : "JRomManager",
-            "Class-Path"           : configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
+			"Specification-Title"  : "JRomManager",
+			"Specification-Version": props.getProperty("Specification-Version"),
+			"Implementation-Title" : "jrm",
+			"Implementation-Version" : props.getProperty("Implementation-Version"),
+			"Main-Class"           : "JRomManager",
+			"Class-Path"           : configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
 		)
 		archiveName baseName + '.' + extension
 	}
