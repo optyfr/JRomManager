@@ -147,16 +147,20 @@ if (os.contains("windows"))
 		
 		setupBuilder {
 		    vendor = 'Opty'
-		    application = "JRomManager"
-		    appIdentifier = "JRomManager"
+		    application = project.name
+		    appIdentifier = project.name
 		    version = props.getProperty("Specification-Version")
 		    licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
-		    icons = [new File(new File('dist'),project.name + '.png')]
+		    icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
 			from (configurations.compile) {
 				into('lib')
 			}
 			from (jar)
 			from (project(':JUpdater').jar)
+			desktopStarter {
+				displayName = project.name
+				executable = project.name + '.exe'
+			}
 		//	bundleJre = 1.8
 		}
 		
