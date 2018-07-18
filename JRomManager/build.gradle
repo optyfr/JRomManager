@@ -76,7 +76,7 @@ task distZip(type: Zip, dependsOn: jar) {
 	destinationDir = file("$buildDir/distributions/")
 }
 
-assemble.dependsOn distZip
+build.dependsOn distZip
 
 apply plugin: 'nebula.ospackage'
 
@@ -127,8 +127,8 @@ buildRpm {
 	createDirectoryEntry = false
 }
 
-assemble.dependsOn buildRpm
-assemble.dependsOn buildDeb
+build.dependsOn buildRpm
+build.dependsOn buildDeb
 
 def os = System.getProperty("os.name").toLowerCase()
 if (os.contains("windows"))
@@ -146,7 +146,7 @@ if (os.contains("windows"))
 		apply plugin: "de.inetsoftware.setupbuilder"
 		
 		setupBuilder {
-		    vendor = 'Opty'
+		    vendor = 'optyfr'
 		    application = project.name
 		    appIdentifier = project.name
 		    version = props.getProperty("Specification-Version")
@@ -174,7 +174,7 @@ if (os.contains("windows"))
 			}
 		}
 		
-		assemble.dependsOn buildMSI
+		build.dependsOn buildMSI
 	}
 	else
 		logger.warn("Can't find WIX ToolSet binaries in PATH, Skipping MSI build.")
