@@ -9,6 +9,11 @@ import jrm.misc.Settings;
 import jrm.ui.MainFrame;
 import jupdater.JUpdater;
 
+/**
+ * Main class
+ * @author optyfr
+ *
+ */
 public final class JRomManager
 {
 	public static void main(final String[] args)
@@ -17,10 +22,10 @@ public final class JRomManager
 		{
 			switch(args[i])
 			{
-				case "--multiuser":
+				case "--multiuser":	// will write settings, cache and dat into home directory instead of app directory
 					Settings.multiuser = true;
 					break;
-				case "--noupdate":
+				case "--noupdate":	// will disable update check
 					Settings.noupdate = true;
 					break;
 			}
@@ -29,14 +34,21 @@ public final class JRomManager
 		{
 			if(!Settings.noupdate)
 			{
+				// check for update
 				JUpdater updater = new JUpdater("optyfr","JRomManager");
 				if(updater.updateAvailable())
-					updater.showMessage();
+					updater.showMessage();	// Changes since your version and link to update
 			}
+			// Open main window
 			new MainFrame().setVisible(true);
 		}
 	}
 
+	/**
+	 * Write lock file and keep it locked until program shutdown
+	 * @param lockFile the file to lock
+	 * @return true if successful, false otherwise
+	 */
 	private static boolean lockInstance(final String lockFile)
 	{
 		try
