@@ -2,6 +2,11 @@ package jrm.compressors;
 
 import jrm.Messages;
 
+/**
+ * Zip supported levels of compression
+ * @author optyfr
+ *
+ */
 public enum ZipOptions
 {
 	STORE(Messages.getString("ZipOptions.STORE"), 0), //$NON-NLS-1$

@@ -18,6 +18,15 @@ import jrm.misc.FindCmd;
 import jrm.misc.Settings;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
+/**
+ * The external SevenZip archive class.<br>
+ * If possible, wrap over {@link NArchive} via {@link SevenZipNArchive} to use SevenZipJBinding.<br>
+ * Otherwise will try to use external 7z executable if available...<br>
+ * If command line is used, the archive will be extracted to temporary directory upon first write operation,
+ * then entirely recreated from temporary directory upon archive's {@link #close()} operation 
+ * @author optyfr
+ *
+ */
 public class SevenZipArchive implements Archive
 {
 	private File tempDir = null;

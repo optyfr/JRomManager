@@ -37,7 +37,7 @@ public final class JRomManager
 				// check for update
 				JUpdater updater = new JUpdater("optyfr","JRomManager");
 				if(updater.updateAvailable())
-					updater.showMessage();	// Changes since your version and link to update
+					updater.showMessage();	// Will show changes since your version and a link to updater
 			}
 			// Open main window
 			new MainFrame().setVisible(true);
@@ -45,7 +45,7 @@ public final class JRomManager
 	}
 
 	/**
-	 * Write lock file and keep it locked until program shutdown
+	 * Write lock file and keep it locked (rw) until program shutdown
 	 * @param lockFile the file to lock
 	 * @return true if successful, false otherwise
 	 */

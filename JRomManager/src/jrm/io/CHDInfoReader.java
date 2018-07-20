@@ -7,6 +7,11 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 
+/**
+ * Gatter CHD header informations
+ * @author optyfr
+ *
+ */
 public class CHDInfoReader implements CHDHeaderIntf
 {
 	CHDHeaderIntf header;
@@ -15,7 +20,9 @@ public class CHDInfoReader implements CHDHeaderIntf
 	{
 		try(FileInputStream is = new FileInputStream(chdfile))
 		{
+			// Memory maps a ByteBuffer of 1kB onto CHD file
 			final MappedByteBuffer bb = is.getChannel().map(MapMode.READ_ONLY, 0, Math.min(1024, chdfile.length()));
+			// Will read informations that are common to all CHD header versions (start tag and version)
 			final CHDHeader header = new CHDHeader(bb);
 			this.header = header;
 			if(header.isValidTag())

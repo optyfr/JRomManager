@@ -3,7 +3,7 @@ package jrm.io;
 import java.io.UnsupportedEncodingException;
 import java.nio.MappedByteBuffer;
 
-public class CHDHeader implements CHDHeaderIntf
+class CHDHeader implements CHDHeaderIntf
 {
 	protected String tag;
 	protected int len;
@@ -13,7 +13,7 @@ public class CHDHeader implements CHDHeaderIntf
 	{
 		final byte[] tag = new byte[8];
 		bb.get(tag);
-		this.tag= new String(tag,"ASCII"); //$NON-NLS-1$
+		this.tag= new String(tag, "ASCII"); //$NON-NLS-1$
 		len = bb.getInt();
 		version = bb.getInt();
 	}

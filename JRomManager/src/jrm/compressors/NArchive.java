@@ -20,17 +20,36 @@ import net.sf.sevenzipjbinding.impl.RandomAccessFileOutStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
 
+/**
+ * The multiple formats abstract class using SevenZipJBinding as back-end<br>
+ * Please note that SevenZipJBinding never modifies "in place" archive :
+ * a new temporary archive is always created, and non modified entries may be
+ * copied without further re-compression (except if solid archive).<br>
+ * This behavior happens even in case of renaming!<br>
+ * If the archive does not already exists, then we are in creation mode,
+ * and no temporary file will be created.<br>
+ * Currently only support 7Z and ZIP. 
+ * @author optyfr
+ * @see {@link SevenZipNArchive}, {@link ZipNArchive}
+ */
 abstract class NArchive implements Archive
 {
 	private File archive;
 	private File tempDir = null;
 	private final boolean readonly;
+	
+	/*
+	 * These fields are only used, if archive already exists, otherwise we are in creation mode
+	 */
 	private IInArchive iinarchive = null;
 	private IInStream iinstream = null;
 
 	private static HashMap<String, File> archives = new HashMap<>();
 	private final List<Closeable> closeables = new ArrayList<>();
 
+	/*
+	 * This is where all directives are stored until final archive modification upon archive closing
+	 */
 	private final List<String> to_add = new ArrayList<>();
 	private final HashSet<String> to_delete = new HashSet<>();
 	private final HashMap<String, String> to_rename = new HashMap<>();
@@ -39,12 +58,25 @@ abstract class NArchive implements Archive
 	private ArchiveFormat format = ArchiveFormat.SEVEN_ZIP;
 	private String ext = "7z"; //$NON-NLS-1$
 
+	/**
+	 * Constructor that default to readwrite
+	 * @param archive {@link File} to archive
+	 * @throws IOException
+	 * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
+	 */
 	public NArchive(final File archive) throws IOException, SevenZipNativeInitializationException
 	{
 		this(archive, false);
 		// System.out.println("SevenZipNArchive " + archive);
 	}
 
+	/**
+	 * Constructor with optional readonly mode
+	 * @param archive {@link File} to archive
+	 * @param readonly if true, will set archive in readonly safe mode
+	 * @throws IOException
+	 * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
+	 */
 	public NArchive(final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
 	{
 		if(!SevenZip.isInitializedSuccessfully())
@@ -74,6 +106,10 @@ abstract class NArchive implements Archive
 			NArchive.archives.put(archive.getAbsolutePath(), this.archive = archive);
 	}
 
+	/**
+	 * This is where all operations really take place! Almost all is inside {@link IOutCreateCallback} callback,
+	 * then we are using {@link IOutUpdateArchive} or {@link IOutCreateArchive} in case of creation mode (where archive does not already exist)  
+	 */
 	@Override
 	public void close() throws IOException
 	{
@@ -357,6 +393,11 @@ abstract class NArchive implements Archive
 		}
 	}
 
+	/**
+	 * Mapper between SevenZipJBinding options and {@link Settings}
+	 * @param iout the archive feature to map (see code to know what is supported)
+	 * @throws SevenZipException
+	 */
 	private void SetOptions(final Object iout) throws SevenZipException
 	{
 		switch(format)
@@ -388,6 +429,13 @@ abstract class NArchive implements Archive
 		return tempDir;
 	}
 
+	/**
+	 * Internal method to extract one entry into an arbitrary base directory
+	 * @param baseDir the base directory where we should extract file
+	 * @param entry the entry name of the file (with path)
+	 * @return 0 in case of success, -1 otherwise
+	 * @throws IOException
+	 */
 	private int extract(final File baseDir, final String entry) throws IOException
 	{
 		final ISimpleInArchive simpleInArchive = iinarchive.getSimpleInterface();
@@ -422,12 +470,6 @@ abstract class NArchive implements Archive
 		// System.out.println("extract "+entry+" to "+new File(getTempDir(), entry)+" then send to stdout");
 		extract(getTempDir(), entry);
 		return new FileInputStream(new File(getTempDir(), entry));
-	}
-
-	@Override
-	public int add(final String entry) throws IOException
-	{
-		return add(getTempDir(), entry);
 	}
 
 	@Override
@@ -483,6 +525,11 @@ abstract class NArchive implements Archive
 		return 0;
 	}
 
+	/**
+	 * Normalize char separator according platform default separator
+	 * @param entry the entry to normalize
+	 * @return the normalized entry
+	 */
 	private String normalize(final String entry)
 	{
 		if(File.separatorChar == '/')

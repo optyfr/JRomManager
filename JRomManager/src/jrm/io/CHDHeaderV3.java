@@ -3,7 +3,7 @@ package jrm.io;
 import java.io.UnsupportedEncodingException;
 import java.nio.MappedByteBuffer;
 
-public class CHDHeaderV3 extends CHDHeader implements CHDHeaderIntf
+class CHDHeaderV3 extends CHDHeader implements CHDHeaderIntf
 {
 	private final String md5,sha1;
 

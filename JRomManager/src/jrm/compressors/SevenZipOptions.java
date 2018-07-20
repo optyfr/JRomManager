@@ -2,6 +2,11 @@ package jrm.compressors;
 
 import jrm.Messages;
 
+/**
+ * SevenZip supported levels of compression
+ * @author optyfr
+ *
+ */
 public enum SevenZipOptions
 {
 	STORE(Messages.getString("SevenZipOptions.STORE"), 0), //$NON-NLS-1$
