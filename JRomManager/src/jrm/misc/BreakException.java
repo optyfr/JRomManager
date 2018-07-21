@@ -1,5 +1,10 @@
 package jrm.misc;
 
+/**
+ * The only way to break out from a lambda loop in Java 8 is throwing a RuntimeException
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public class BreakException extends RuntimeException
 {

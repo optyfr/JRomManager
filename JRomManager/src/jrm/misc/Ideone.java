@@ -4,10 +4,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+/**
+ * Merge overlapping intervals
+ * Originally came from <a href="https://stackoverflow.com/questions/31670849/merge-overlapping-intervals">here</a>
+ * @author Gosu
+ *
+ */
 public final class Ideone
 {
 	private final ArrayList<Interval> list = new ArrayList<>();
 	
+	/**
+	 * Interval with a {@link #start} and an {@link #end}
+	 */
 	public final static class Interval
 	{
 		private final int start;
@@ -36,16 +45,30 @@ public final class Ideone
 		}
 	}
 
+	/**
+	 * And an Interval
+	 * @param start
+	 * @param end
+	 */
 	public void add(final int start, final int end)
 	{
 		list.add(new Interval(start, end));
 	}
 	
+	/**
+	 * Merge all added intervals into a list of non overlapped intervals
+	 * @return an {@link ArrayList} of non overlapped intervals
+	 */
 	public ArrayList<Interval> merge()
 	{
 		return merge(list);
 	}
 	
+	/**
+	 * Merge all provided intervals into a list of non overlapped intervals
+	 * @param intervals to merge
+	 * @return an {@link ArrayList} of non overlapped intervals
+	 */
 	public static ArrayList<Interval> merge(final ArrayList<Interval> intervals)
 	{
 		if (intervals.size() <= 1)

@@ -20,6 +20,11 @@ import org.w3c.dom.DOMException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
 
+/**
+ * Import from Mame (and variants)
+ * @author optyfr
+ *
+ */
 public class Import
 {
 	public final File org_file;
@@ -27,6 +32,11 @@ public class Import
 	public File roms_file, sl_file;
 	public boolean is_mame = false;
 
+	/**
+	 * Will import from a file, it will be autodetected if it's mame or just a dat file, optionally also import software lists in case of a mame import
+	 * @param file the file to analyze, and eventually extract from
+	 * @param sl do we need to load software lists
+	 */
 	public Import(final File file, final boolean sl)
 	{
 		org_file = file;
@@ -56,6 +66,12 @@ public class Import
 
 	}
 
+	/**
+	 * Will import from mame, must be called only if we are sure that it's an import from mame
+	 * @param file the mame exe file
+	 * @param sl if true, will return software list imported file (.jrm2), otherwise will return roms list file (.jrm1}
+	 * @return an existing temporary {@link File}, or null if failed
+	 */
 	public File importMame(final File file, final boolean sl)
 	{
 		// Log.info("Get dat file from Mame...");
@@ -71,6 +87,7 @@ public class Import
 				boolean xml = false;
 				while(null != (line = in.readLine()))
 				{
+					// we need to skip occasional garbage before the xml start tag
 					if(line.startsWith("<?xml")) //$NON-NLS-1$
 						xml = true;
 					if(xml)

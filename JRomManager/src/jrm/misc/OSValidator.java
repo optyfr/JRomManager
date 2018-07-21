@@ -1,5 +1,8 @@
 package jrm.misc;
 
+/**
+ * Utility class to determine the current OS
+ */
 public class OSValidator
 {
 	private static String OS = System.getProperty("os.name").toLowerCase(); //$NON-NLS-1$
