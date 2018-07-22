@@ -2392,6 +2392,6 @@ public class MainFrame extends JFrame
 	private void updateMemory()
 	{
 		final Runtime rt = Runtime.getRuntime();
-		lblMemoryUsage.setText(String.format(Messages.getString("MainFrame.MemoryUsage"), FileUtils.byteCountToDisplaySize(rt.totalMemory()), FileUtils.byteCountToDisplaySize(rt.totalMemory() - rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.freeMemory()), FileUtils.byteCountToDisplaySize(rt.maxMemory()))); //$NON-NLS-1$
+		lblMemoryUsage.setText(String.format(Messages.getString("MainFrame.MemoryUsage"), String.format("%.2f MiB", (double)rt.totalMemory()/1048576.0), String.format("%.2f MiB", (double)(rt.totalMemory() - rt.freeMemory())/1048576.0), String.format("%.2f MiB", (double)rt.freeMemory()/1048576.0), String.format("%.2f MiB", (double)rt.maxMemory()/1048576.0))); //$NON-NLS-1$
 	}
 }
