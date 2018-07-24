@@ -33,10 +33,24 @@ import jrm.profile.filter.NPlayers;
 import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.ui.ProgressHandler;
 
+/**
+ * Load a Profile which consist of :
+ * - loading information about related files (dats, settings, ...)
+ * - Read Dats (whatever the format is) into jrm.profile.data.* subclasses
+ * - Save a serialization of the resulting Profile class (with all contained subclasses) for later cached reload 
+ * - Load Profile Settings
+ * - Create filters according what was found in dat (systems, years, ...)
+ * - Load advanced filters (catver.ini, nplayers.ini, ...)
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public class Profile implements Serializable
 {
 
+	/*
+	 * Counters
+	 */
 	public long machines_cnt = 0;
 	public long softwares_list_cnt = 0;
 	public long softwares_cnt = 0;
@@ -44,16 +58,33 @@ public class Profile implements Serializable
 	public long disks_cnt = 0, swdisks_cnt = 0;
 	public long samples_cnt = 0;
 
+	/*
+	 * Presence flags
+	 */
 	public boolean md5_roms = false;
 	public boolean md5_disks = false;
 	public boolean sha1_roms = false;
 	public boolean sha1_disks = false;
 
+	/*
+	 * dat build and header informations  
+	 */
 	public String build = null;
 	public final HashMap<String, StringBuffer> header = new HashMap<>();
+	
+	/**
+	 * The main object that will contains all the games AND the related software list
+	 */
 	public final MachineListList machinelist_list = new MachineListList();
+	
+	/**
+	 * Contains all CRCs where there was ROMs with identical CRC but different SHA1/MD5
+	 */
 	public final HashSet<String> suspicious_crc = new HashSet<>();
 
+	/*
+	 * This is all non serialized object (not included in cache), they are recalculated or reloaded on each Profile load (cached or not) 
+	 */
 	public transient Properties settings = null;
 	public transient Systms systems = null;
 	public transient Collection<String> years = null;
@@ -61,22 +92,37 @@ public class Profile implements Serializable
 	public transient CatVer catver = null;
 	public transient NPlayers nplayers = null;
 
+	/**
+	 * This contain the current loaded profile (so it is static)
+	 */
 	public static transient Profile curr_profile;
 
+	/**
+	 * The Profile class is instantiated via {@link #load(File, ProgressHandler)}
+	 */
 	private Profile()
 	{
 
 	}
 
-	public boolean _load(final File file, final ProgressHandler handler)
+	/**
+	 * This method will load and parse the dat file
+	 * @param file the xml dat file
+	 * @param handler a progression handler
+	 * @return true on success, false otherwise
+	 */
+	private boolean _load(final File file, final ProgressHandler handler)
 	{
 		handler.setProgress(String.format(Messages.getString("Profile.Parsing"), file), -1); //$NON-NLS-1$
-		final SAXParserFactory factory = SAXParserFactory.newInstance();
 		try (InputStream in = handler.getInputStream(new FileInputStream(file), (int) file.length()))
 		{
+			final SAXParserFactory factory = SAXParserFactory.newInstance();
 			final SAXParser parser = factory.newSAXParser();
 			parser.parse(in, new DefaultHandler()
 			{
+				/*
+				 * The following variables are loading state variable
+				 */
 				private final HashMap<String, Rom> roms_bycrc = new HashMap<>();
 				private boolean in_description = false;
 				private boolean in_year = false;
@@ -98,7 +144,6 @@ public class Profile implements Serializable
 				private Slot curr_slot = null;
 				private final HashSet<String> roms = new HashSet<>();
 				private final HashSet<String> disks = new HashSet<>();
-
 				private String curr_tag;
 
 				@Override
@@ -106,7 +151,8 @@ public class Profile implements Serializable
 				{
 					curr_tag = qName;
 					if (qName.equals("mame") || qName.equals("datafile")) //$NON-NLS-1$ //$NON-NLS-2$
-					{
+					{	
+						// there is currently no build tag in softwarelist format
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
 							switch (attributes.getQName(i))
@@ -118,10 +164,12 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("header")) //$NON-NLS-1$
 					{
+						// entering the header bloc
 						in_header = true;
 					}
 					else if (qName.equals("softwarelist") && curr_machine == null) //$NON-NLS-1$
 					{
+						// this is a *real* software list
 						curr_software_list = new SoftwareList();
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
@@ -139,6 +187,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("softwarelist")) //$NON-NLS-1$
 					{
+						// This is a machine containing a software list description
 						final SWList swlist = curr_machine.new SWList();
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
@@ -162,6 +211,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("software")) //$NON-NLS-1$
 					{
+						// We enter in a software block (from a software list)
 						curr_software = new Software();
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
@@ -181,11 +231,13 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("feature") && curr_software != null) //$NON-NLS-1$
 					{
+						// extract interesting features from current software
 						if (attributes.getValue("name").equalsIgnoreCase("compatibility")) //$NON-NLS-1$ //$NON-NLS-2$
 							curr_software.compatibility = attributes.getValue("value"); //$NON-NLS-1$
 					}
 					else if (qName.equals("part") && curr_software != null) //$NON-NLS-1$
 					{
+						// we enter a part in current current software
 						curr_software.parts.add(curr_part = new Part());
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
@@ -200,8 +252,9 @@ public class Profile implements Serializable
 							}
 						}
 					}
-					else if (qName.equals("dataarea") && curr_software != null) //$NON-NLS-1$
+					else if (qName.equals("dataarea") && curr_software != null && curr_part != null) //$NON-NLS-1$
 					{
+						// we enter a dataarea block in current part
 						curr_part.dataareas.add(curr_dataarea = new DataArea());
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
@@ -222,8 +275,9 @@ public class Profile implements Serializable
 							}
 						}
 					}
-					else if (qName.equals("diskarea") && curr_software != null) //$NON-NLS-1$
+					else if (qName.equals("diskarea") && curr_software != null && curr_part != null) //$NON-NLS-1$
 					{
+						// we enter a diskarea block in current part
 						curr_part.diskareas.add(curr_diskarea = new DiskArea());
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
@@ -237,6 +291,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
+						// we enter a machine (or a game in case of Logiqx format)
 						curr_machine = new Machine();
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
@@ -273,22 +328,27 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("description") && (curr_machine != null || curr_software != null || curr_software_list != null)) //$NON-NLS-1$
 					{
+						// we enter a description either for current machine, current software, or current software list
 						in_description = true;
 					}
 					else if (qName.equals("year") && (curr_machine != null || curr_software != null)) //$NON-NLS-1$
 					{
+						// we enter in year block either for current machine, or current software
 						in_year = true;
 					}
 					else if (qName.equals("manufacturer") && (curr_machine != null)) //$NON-NLS-1$
 					{
+						// we enter in manufacturer block for current machine
 						in_manufacturer = true;
 					}
 					else if (qName.equals("publisher") && (curr_software != null)) //$NON-NLS-1$
 					{
+						// we enter in publisher block for current software
 						in_publisher = true;
 					}
 					else if (qName.equals("driver")) //$NON-NLS-1$
 					{
+						// This is the driver info block of current machine 
 						if (curr_machine != null)
 						{
 							for (int i = 0; i < attributes.getLength(); i++)
@@ -313,6 +373,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("display")) //$NON-NLS-1$
 					{
+						// This is the display info block of current machine 
 						if (curr_machine != null)
 						{
 							for (int i = 0; i < attributes.getLength(); i++)
@@ -340,6 +401,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("input")) //$NON-NLS-1$
 					{
+						// This is the input info block of current machine 
 						if (curr_machine != null)
 						{
 							for (int i = 0; i < attributes.getLength(); i++)
@@ -364,6 +426,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("device")) //$NON-NLS-1$
 					{
+						// This is a device block for current machine, there can be many
 						if (curr_machine != null)
 						{
 							curr_device = new Device();
@@ -393,6 +456,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("instance")) //$NON-NLS-1$
 					{
+						// This is the instance info block for current device
 						if (curr_machine != null && curr_device != null)
 						{
 							curr_device.instance = curr_device.new Instance();
@@ -412,6 +476,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("extension")) //$NON-NLS-1$
 					{
+						// This is an extension block for current device, there can be many for each device
 						if (curr_machine != null && curr_device != null)
 						{
 							Device.Extension ext = curr_device.new Extension();
@@ -429,6 +494,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("dipswitch")) //$NON-NLS-1$
 					{
+						// extract interesting dipswitch value for current machine
 						if (curr_machine != null)
 						{
 							for (int i = 0; i < attributes.getLength(); i++)
@@ -444,6 +510,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("dipvalue")) //$NON-NLS-1$
 					{
+						// store dipvalue of interesting dipswitch for current machine
 						if (curr_machine != null && in_cabinet_dipsw)
 						{
 							for (int i = 0; i < attributes.getLength(); i++)
@@ -462,6 +529,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("sample")) //$NON-NLS-1$
 					{
+						// get sample names from current machine
 						if (curr_machine != null)
 						{
 							for (int i = 0; i < attributes.getLength(); i++)
@@ -486,6 +554,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("device_ref")) //$NON-NLS-1$
 					{
+						// get device references for current machine, there can be many, even with the same name
 						if (curr_machine != null)
 						{
 							for (int i = 0; i < attributes.getLength(); i++)
@@ -500,6 +569,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("slot")) //$NON-NLS-1$
 					{
+						// get slots for current machine, there can be many
 						if (curr_machine != null)
 						{
 							for (int i = 0; i < attributes.getLength(); i++)
@@ -517,6 +587,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("slotoption")) //$NON-NLS-1$
 					{
+						// get slot options for current slot in current machine, there can be many per slot
 						if (curr_machine != null && curr_slot != null)
 						{
 							final SlotOption slotoption = new SlotOption();
@@ -540,6 +611,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("rom")) //$NON-NLS-1$
 					{
+						// we enter a rom block for current machine or current software
 						if (curr_machine != null || curr_software != null)
 						{
 							curr_rom = new Rom(curr_machine != null ? curr_machine : curr_software);
@@ -606,6 +678,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("disk")) //$NON-NLS-1$
 					{
+						// we enter a disk block for current machine or current software
 						if (curr_machine != null || curr_software != null)
 						{
 							curr_disk = new Disk(curr_machine != null ? curr_machine : curr_software);
@@ -655,16 +728,19 @@ public class Profile implements Serializable
 				{
 					if (qName.equals("header")) //$NON-NLS-1$
 					{
+						// exiting the header block
 						in_header = false;
 					}
 					else if (qName.equals("softwarelist") && curr_software_list != null) //$NON-NLS-1$
 					{
+						// exiting current software list
 						machinelist_list.softwarelist_list.add(curr_software_list);
 						softwares_list_cnt++;
 						curr_software_list = null;
 					}
 					else if (qName.equals("software")) //$NON-NLS-1$
 					{
+						// exiting current software block
 						roms.clear();
 						disks.clear();
 						curr_software_list.add(curr_software);
@@ -676,6 +752,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
+						// exiting current machine block
 						roms.clear();
 						disks.clear();
 						machinelist_list.get(0).add(curr_machine);
@@ -688,6 +765,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("rom")) //$NON-NLS-1$
 					{
+						// exiting current rom block
 						if (curr_rom.getName() != null)
 						{
 							if (!roms.contains(curr_rom.getBaseName()))
@@ -721,6 +799,7 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("disk")) //$NON-NLS-1$
 					{
+						// exiting current disk block
 						if (curr_disk.getName() != null)
 						{
 							if (!disks.contains(curr_disk.getBaseName()))
@@ -741,22 +820,27 @@ public class Profile implements Serializable
 					}
 					else if (qName.equals("description") && (curr_machine != null || curr_software != null || curr_software_list != null)) //$NON-NLS-1$
 					{
+						// exiting description block
 						in_description = false;
 					}
 					else if (qName.equals("year") && (curr_machine != null || curr_software != null)) //$NON-NLS-1$
 					{
+						// exiting year block
 						in_year = false;
 					}
 					else if (qName.equals("manufacturer") && (curr_machine != null)) //$NON-NLS-1$
 					{
+						// exiting manufacturer block
 						in_manufacturer = false;
 					}
 					else if (qName.equals("publisher") && (curr_software != null)) //$NON-NLS-1$
 					{
+						// exiting publisher block
 						in_publisher = false;
 					}
 					else if (qName.equals("dipswitch") && in_cabinet_dipsw) //$NON-NLS-1$
 					{
+						// exiting dipswitch block
 						if (cabtype_set.contains(CabinetType.cocktail))
 						{
 							if (cabtype_set.contains(CabinetType.upright))
@@ -776,6 +860,7 @@ public class Profile implements Serializable
 				{
 					if (in_description)
 					{
+						// we are in description block, so fill up description data for current machine/software/softwarelist 
 						if (curr_machine != null)
 							curr_machine.description.append(ch, start, length);
 						else if (curr_software != null)
@@ -785,6 +870,7 @@ public class Profile implements Serializable
 					}
 					else if (in_year)
 					{
+						// we are in year block, so fill up year data for current machine/software
 						if (curr_machine != null)
 							curr_machine.year.append(ch, start, length);
 						else if (curr_software != null)
@@ -792,14 +878,17 @@ public class Profile implements Serializable
 					}
 					else if (in_manufacturer && curr_machine != null)
 					{
+						// we are in manufacturer block, so fill up manufacturer data for current machine
 						curr_machine.manufacturer.append(ch, start, length);
 					}
 					else if (in_publisher && curr_software != null)
 					{
+						// we are in publisher block, so fill up publisher data for current software
 						curr_software.publisher.append(ch, start, length);
 					}
 					else if (in_header)
 					{
+						 //  we are in header, so filling header data structure...
 						if (!header.containsKey(curr_tag))
 							header.put(curr_tag, new StringBuffer());
 						header.get(curr_tag).append(ch, start, length);
@@ -827,11 +916,19 @@ public class Profile implements Serializable
 		return false;
 	}
 
+	/**
+	 * return a .cache file located at the same place than the provided profile file
+	 * @param file the Profile info file from which the cache will be derived
+	 * @return the cache file
+	 */
 	private static File getCacheFile(final File file)
 	{
 		return new File(file.getParentFile(), file.getName() + ".cache"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Save cache (serialization)
+	 */
 	public void save()
 	{
 		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(Profile.getCacheFile(nfo.file)))))
@@ -844,17 +941,29 @@ public class Profile implements Serializable
 		}
 	}
 
+	/**
+	 * Load Profile from a {@link File}
+	 * @param file the {@link File} to load (should be .jrm, .dat, or .xml)
+	 * @param handler the {@link ProgressHandler} to see progression (mandatory)
+	 * @return the loaded {@link Profile}
+	 */
 	public static Profile load(final File file, final ProgressHandler handler)
 	{
 		return Profile.load(ProfileNFO.load(file), handler);
 	}
 
+	/**
+	 * Load Profile given a {@link ProfileNFO}
+	 * @param nfo the {@link ProfileNFO} from which to load the Profile
+	 * @param handler the {@link ProgressHandler} to see progression (mandatory)
+	 * @return
+	 */
 	public static Profile load(final ProfileNFO nfo, final ProgressHandler handler)
 	{
 		Profile profile = null;
 		final File cachefile = Profile.getCacheFile(nfo.file);
 		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
-		{
+		{	// Load from cache if cachefile is not outdated and debug_nocache is disabled
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
 			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile), (int) cachefile.length()))))
 			{
@@ -863,49 +972,66 @@ public class Profile implements Serializable
 			}
 			catch (final Throwable e)
 			{
+				// may fail to load because serialized classes did change since last cache save 
 			}
 		}
-		if (profile == null)
+		if (profile == null)	// if cache failed to load or because it is outdated
 		{
 			profile = new Profile();
 			profile.nfo = nfo;
 			if (nfo.isJRM())
-			{
+			{	// we use JRM file keep ROMs/SL DATs in relation
 				if (nfo.mame.fileroms != null)
-				{
+				{	// load ROMs dat
 					if (!profile._load(nfo.mame.fileroms, handler))
 						return null;
 					if (nfo.mame.filesl != null)
-					{
+					{	// load SL dat (note that loading software list without ROMs dat is NOT recommended)
 						if (!profile._load(nfo.mame.filesl, handler))
 							return null;
 					}
 				}
 			}
-			else if (!profile._load(nfo.file, handler))
-				return null;
+			else
+			{	// load DAT file not attached to a JRM
+				if (!profile._load(nfo.file, handler))
+					return null;
+			}
+			// build parent-clones relations
 			handler.setProgress(Messages.getString("Profile.BuildingParentClonesRelations"), -1); //$NON-NLS-1$
 			profile.buildParentClonesRelations();
+			// save cache
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			profile.save();
 		}
+		// update nfo stats (those to keep serialized)
 		profile.nfo.stats.version = profile.build != null ? profile.build : (profile.header.containsKey("version") ? profile.header.get("version").toString() : null); //$NON-NLS-1$ //$NON-NLS-2$
 		profile.nfo.stats.totalSets = profile.softwares_cnt + profile.machines_cnt;
 		profile.nfo.stats.totalRoms = profile.roms_cnt + profile.swroms_cnt;
 		profile.nfo.stats.totalDisks = profile.disks_cnt + profile.swdisks_cnt;
+		// Load profile settings
 		handler.setProgress("Loading settings...", -1); //$NON-NLS-1$
 		profile.loadSettings();
+		// Build Systems filters
 		handler.setProgress("Creating Systems filters...", -1); //$NON-NLS-1$
 		profile.loadSystems();
+		// Build Years filters
 		handler.setProgress("Creating Years filters...", -1); //$NON-NLS-1$
 		profile.loadYears();
+		// Load cartver.ini (if any)
 		handler.setProgress("Loading catver.ini ...", -1); //$NON-NLS-1$
 		profile.loadCatVer();
+		// Load nplayers.ini (if any)
 		handler.setProgress("Loading nplayers.ini ...", -1); //$NON-NLS-1$
 		profile.loadNPlayers();
+		// return the resulting profile
 		return profile;
 	}
 
+	/**
+	 * build Parent-Clones relationships
+	 * also add related device_ref machines and slot devices machines
+	 */
 	private void buildParentClonesRelations()
 	{
 		machinelist_list.forEach(machine_list -> {
@@ -935,11 +1061,19 @@ public class Profile implements Serializable
 		});
 	}
 
+	/**
+	 * return the properties file associated with profile file
+	 * @param file the profile file
+	 * @return the settings file
+	 */
 	private File getSettingsFile(final File file)
 	{
 		return new File(file.getParentFile(), file.getName() + ".properties"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Save settings as XML
+	 */
 	public void saveSettings()
 	{
 		if (settings == null)
@@ -955,6 +1089,9 @@ public class Profile implements Serializable
 		}
 	}
 
+	/**
+	 * Load settings from XML settings file
+	 */
 	public void loadSettings()
 	{
 		if (settings == null)
@@ -972,38 +1109,74 @@ public class Profile implements Serializable
 		}
 	}
 
+	/**
+	 * Set a boolean property
+	 * @param property the property name
+	 * @param value the boolean property value
+	 */
 	public void setProperty(final String property, final boolean value)
 	{
 		settings.setProperty(property, Boolean.toString(value));
 	}
 
+	/**
+	 * Set a string property
+	 * @param property the property name
+	 * @param value the string property value
+	 */
 	public void setProperty(final String property, final String value)
 	{
 		settings.setProperty(property, value);
 	}
 
+	/**
+	 * get a property boolean value
+	 * @param property the property name
+	 * @param def the default boolean value if no property is defined
+	 * @return the property value if it exists, otherwise {@code def} is returned
+	 */
 	public boolean getProperty(final String property, final boolean def)
 	{
 		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
 	}
 
+	/**
+	 * get a property string value
+	 * @param property the property name
+	 * @param def the default string value if no property is defined
+	 * @return the property value if it exists, otherwise {@code def} is returned
+	 */
 	public String getProperty(final String property, final String def)
 	{
 		return settings.getProperty(property, def);
 	}
 
+	/**
+	 * will retain the latest properties checkpoint hashCode
+	 */
 	private int props_hashcode = 0;
 
+	/**
+	 * store properties check point
+	 */
 	public void setPropsCheckPoint()
 	{
 		props_hashcode = settings.hashCode();
 	}
 
+	/**
+	 * compare the current properties hashCode with the latest checkpoint
+	 * @return true if properties did change from last check point, false otherwise
+	 */
 	public boolean hasPropsChanged()
 	{
 		return props_hashcode != settings.hashCode();
 	}
 
+	/**
+	 * get a descriptive name from current profile to show in status bar
+	 * @return an html string
+	 */
 	public String getName()
 	{
 		String name = "<html><body>[<span color='blue'>" + Settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1029,6 +1202,9 @@ public class Profile implements Serializable
 		return name;
 	}
 
+	/**
+	 * build Systems filter by collecting "bios" machines and software lists (plus some special ones)
+	 */
 	public void loadSystems()
 	{
 		systems = new Systms();
@@ -1048,6 +1224,9 @@ public class Profile implements Serializable
 		softwarelists.forEach(systems::add);
 	}
 
+	/**
+	 * build Years filter by collecting year values from machines and softwares 
+	 */
 	public void loadYears()
 	{
 		final HashSet<String> years = new HashSet<>();
@@ -1058,6 +1237,9 @@ public class Profile implements Serializable
 		this.years = years;
 	}
 
+	/**
+	 * load catver.ini and build a game <-> cat/subcat relationship
+	 */
 	public void loadCatVer()
 	{
 		try
@@ -1082,6 +1264,9 @@ public class Profile implements Serializable
 		}
 	}
 
+	/**
+	 * load nplayers.ini and build a game <-> nplayer relationship
+	 */
 	public void loadNPlayers()
 	{
 		try
@@ -1103,11 +1288,19 @@ public class Profile implements Serializable
 		}
 	}
 
+	/**
+	 * get number of lists
+	 * @return an int which is 1 + the sum of all software lists
+	 */
 	public int size()
 	{
 		return machinelist_list.size() + machinelist_list.softwarelist_list.size();
 	}
 
+	/**
+	 * get number of entities
+	 * @return an int which is the sum of machines, samples, and softwares
+	 */
 	public int subsize()
 	{
 		return machinelist_list.get(0).size() + machinelist_list.get(0).samplesets.size() + machinelist_list.softwarelist_list.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum();

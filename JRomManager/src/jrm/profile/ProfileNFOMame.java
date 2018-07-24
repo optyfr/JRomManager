@@ -4,16 +4,39 @@ import java.io.*;
 
 import jrm.Messages;
 
+/**
+ * Contains all mame related files informations
+ * @author optyfr
+ *
+ */
 public final class ProfileNFOMame implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The mame executable file
+	 */
 	private File file = null;
+	/**
+	 * The last mame update date
+	 */
 	private Long modified = null;
+	/**
+	 * Whether it contains a software list or not
+	 */
 	private boolean sl = false;
+	/**
+	 * The ROMs Dat file
+	 */
 	public File fileroms = null;
+	/**
+	 * The Software List Dat file
+	 */
 	public File filesl = null;
 
+	/**
+	 * fields declaration for manual serialization
+	 */
 	private static final ObjectStreamField[] serialPersistentFields = {
 			new ObjectStreamField("file", File.class), //$NON-NLS-1$
 			new ObjectStreamField("modified", Long.class), //$NON-NLS-1$
@@ -22,6 +45,11 @@ public final class ProfileNFOMame implements Serializable
 			new ObjectStreamField("filesl", File.class), //$NON-NLS-1$
 	};
 
+	/**
+	 * Manually write serialization
+	 * @param stream the destination {@link ObjectOutputStream}
+	 * @throws IOException
+	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
@@ -33,6 +61,12 @@ public final class ProfileNFOMame implements Serializable
 		stream.writeFields();
 	}
 
+	/**
+	 * Manually read serialization
+	 * @param stream the destination {@link ObjectInputStream}
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
@@ -43,6 +77,11 @@ public final class ProfileNFOMame implements Serializable
 		filesl = (File)fields.get("filesl", null); //$NON-NLS-1$
 	}
 
+	/**
+	 * The Mame status file
+	 * @author optyfr
+	 *
+	 */
 	public enum MameStatus
 	{
 		UNKNOWN(Messages.getString("ProfileNFOMame.Unknown")), //$NON-NLS-1$

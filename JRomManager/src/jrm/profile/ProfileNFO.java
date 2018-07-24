@@ -18,17 +18,42 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * The Profile NFO file managing class with tolerant manual (de)serialization
+ * @author optyfr
+ *
+ */
 public final class ProfileNFO implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The Profile {@link File} (can be a jrm, a dat, or an xml file)
+	 */
 	public File file = null;
+	/**
+	 * The name to show in GUI (equals to file name by default)
+	 */
 	public String name = null;
+	/**
+	 * The {@link ProfileNFOStats} stats sub class
+	 */
 	public ProfileNFOStats stats = new ProfileNFOStats();
+	/**
+	 * The {@link ProfileNFOMame} mame sub class
+	 */
 	public ProfileNFOMame mame = new ProfileNFOMame();
 
+	/**
+	 * fields declaration for manual serialization
+	 */
 	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("file", File.class), new ObjectStreamField("name", String.class), new ObjectStreamField("stats", ProfileNFOStats.class), new ObjectStreamField("mame", ProfileNFOMame.class), }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
+	/**
+	 * Manually write serialization
+	 * @param stream the destination {@link ObjectOutputStream}
+	 * @throws IOException
+	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
@@ -39,6 +64,12 @@ public final class ProfileNFO implements Serializable
 		stream.writeFields();
 	}
 
+	/**
+	 * Manually read serialization
+	 * @param stream the destination {@link ObjectInputStream}
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
@@ -48,6 +79,10 @@ public final class ProfileNFO implements Serializable
 		mame = (ProfileNFOMame) fields.get("mame", new ProfileNFOMame()); //$NON-NLS-1$
 	}
 
+	/**
+	 * internal constructor
+	 * @param file the file to attach
+	 */
 	private ProfileNFO(final File file)
 	{
 		this.file = file;
@@ -57,11 +92,20 @@ public final class ProfileNFO implements Serializable
 			loadJrm(file);
 	}
 
+	/**
+	 * return the nfo file derived from the attached file
+	 * @param file the attached file candidate
+	 * @return
+	 */
 	private static File getFileNfo(final File file)
 	{
 		return new File(file.getParentFile(), file.getName() + ".nfo"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Delete NFO old location, change attached file, then save to new location
+	 * @param file new file to attach
+	 */
 	public void relocate(final File file)
 	{
 		ProfileNFO.getFileNfo(this.file).delete();
@@ -70,6 +114,11 @@ public final class ProfileNFO implements Serializable
 		save();
 	}
 
+	/**
+	 * Load or create a ProfileNFO from an attached file
+	 * @param file the attached file from which to derive NFO file
+	 * @return
+	 */
 	public static ProfileNFO load(final File file)
 	{
 		final File filenfo = ProfileNFO.getFileNfo(file);
@@ -86,6 +135,9 @@ public final class ProfileNFO implements Serializable
 		return new ProfileNFO(file);
 	}
 
+	/**
+	 * Save this ProfileNFO, and save JRM if the attached file is a JRM type file
+	 */
 	public void save()
 	{
 		if(isJRM()) try
@@ -97,7 +149,6 @@ public final class ProfileNFO implements Serializable
 		}
 		catch (ParserConfigurationException | TransformerException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(ProfileNFO.getFileNfo(file)))))
@@ -106,16 +157,23 @@ public final class ProfileNFO implements Serializable
 		}
 		catch(final Throwable e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Does the attached file is a JRM file
+	 * @return true if it's a JRM file
+	 */
 	public boolean isJRM()
 	{
 		return FilenameUtils.getExtension(file.getName()).equals("jrm"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Load JRM file and fill up {@link #mame}
+	 * @param jrmfile the JRM file to load
+	 */
 	public void loadJrm(final File jrmfile)
 	{
 		final SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -167,6 +225,15 @@ public final class ProfileNFO implements Serializable
 		}
 	}
 
+	/**
+	 * save mame infos in JRM file
+	 * @param JrmFile the JRM file to save
+	 * @param roms_file the mame roms file
+	 * @param sl_file the software list file
+	 * @return return the {@code JrmFile}
+	 * @throws ParserConfigurationException
+	 * @throws TransformerException
+	 */
 	public static File saveJrm(final File JrmFile, final File roms_file, final File sl_file) throws ParserConfigurationException, TransformerException
 	{
 		final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -187,6 +254,10 @@ public final class ProfileNFO implements Serializable
 		return JrmFile;
 	}
 	
+	/**
+	 * Delete all related files to 
+	 * @return true on success
+	 */
 	public boolean delete()
 	{
 		if(file.delete())
