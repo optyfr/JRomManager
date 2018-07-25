@@ -3,21 +3,58 @@ package jrm.profile;
 import java.io.*;
 import java.util.Date;
 
+/**
+ * Contains statistics data to be (manually) serialized 
+ * @author optyfr
+ */
 public final class ProfileNFOStats implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The Mame current version
+	 */
 	public String version = null;
+	/**
+	 * Number of Sets we own
+	 */
 	public Long haveSets = null;
+	/**
+	 * Number of Sets in the profile
+	 */
 	public Long totalSets = null;
+	/**
+	 * Number of Roms we own
+	 */
 	public Long haveRoms = null;
+	/**
+	 * Number of Roms in the profile
+	 */
 	public Long totalRoms = null;
+	/**
+	 * Number of Disks we own
+	 */
 	public Long haveDisks = null;
+	/**
+	 * Number of Disks in the profile
+	 */
 	public Long totalDisks = null;
+	/**
+	 * Profile creation date
+	 */
 	public Date created = null;
+	/**
+	 * Profile last scan date
+	 */
 	public Date scanned = null;
+	/**
+	 * Profile last fix date
+	 */
 	public Date fixed = null;
 
+	/**
+	 * fields declaration for manual serialization
+	 */
 	private static final ObjectStreamField[] serialPersistentFields = {
 			new ObjectStreamField("version", String.class), //$NON-NLS-1$
 			new ObjectStreamField("haveSets", Long.class), //$NON-NLS-1$
@@ -31,6 +68,11 @@ public final class ProfileNFOStats implements Serializable
 			new ObjectStreamField("fixed", Date.class), //$NON-NLS-1$
 	};
 
+	/**
+	 * Manually write serialization
+	 * @param stream the destination {@link ObjectOutputStream}
+	 * @throws IOException
+	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
@@ -47,6 +89,12 @@ public final class ProfileNFOStats implements Serializable
 		stream.writeFields();
 	}
 
+	/**
+	 * Manually read serialization
+	 * @param stream the destination {@link ObjectInputStream}
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
@@ -62,6 +110,9 @@ public final class ProfileNFOStats implements Serializable
 		fixed = (Date) fields.get("fixed", null); //$NON-NLS-1$
 	}
 
+	/**
+	 * Resets stats data
+	 */
 	public void reset()
 	{
 		version = null;

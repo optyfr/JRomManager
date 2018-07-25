@@ -12,7 +12,8 @@ import jupdater.JUpdater;
 /**
  * Main class
  * @author optyfr
- *
+ * @version %I%, %G%
+ * @since 1.0
  */
 public final class JRomManager
 {

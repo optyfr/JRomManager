@@ -47,8 +47,8 @@ public final class Ideone
 
 	/**
 	 * And an Interval
-	 * @param start
-	 * @param end
+	 * @param start the starting index for this interval
+	 * @param end the ending index for this interval
 	 */
 	public void add(final int start, final int end)
 	{

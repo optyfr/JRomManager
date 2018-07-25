@@ -8,7 +8,6 @@ import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 /**
  * SevenZip native archive class, should not be used directly
  * @author optyfr
- * @see {@link NArchive} and {@link SevenZipArchive}
  */
 class SevenZipNArchive extends NArchive
 {

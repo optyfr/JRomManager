@@ -956,7 +956,7 @@ public class Profile implements Serializable
 	 * Load Profile given a {@link ProfileNFO}
 	 * @param nfo the {@link ProfileNFO} from which to load the Profile
 	 * @param handler the {@link ProgressHandler} to see progression (mandatory)
-	 * @return
+	 * @return the loaded {@link Profile}, or null if there was something wrong
 	 */
 	public static Profile load(final ProfileNFO nfo, final ProgressHandler handler)
 	{
@@ -1238,7 +1238,7 @@ public class Profile implements Serializable
 	}
 
 	/**
-	 * load catver.ini and build a game <-> cat/subcat relationship
+	 * load catver.ini and build a game {@literal <->} cat/subcat relationship
 	 */
 	public void loadCatVer()
 	{
@@ -1265,7 +1265,7 @@ public class Profile implements Serializable
 	}
 
 	/**
-	 * load nplayers.ini and build a game <-> nplayer relationship
+	 * load nplayers.ini and build a game {@literal <->} nplayer relationship
 	 */
 	public void loadNPlayers()
 	{

@@ -63,7 +63,8 @@ public final class Years extends AbstractListModel<String> implements ComboBoxMo
 	/**
 	 * Returns the index-position of the specified object in the list.
 	 *
-	 * @param anObject
+	 * @param anObject The combo box value
+	 * 
 	 * @return an int representing the index position, where 0 is the first position
 	 */
 	public int getIndexOf(final Object anObject)

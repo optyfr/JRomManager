@@ -30,7 +30,6 @@ import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
  * and no temporary file will be created.<br>
  * Currently only support 7Z and ZIP. 
  * @author optyfr
- * @see {@link SevenZipNArchive}, {@link ZipNArchive}
  */
 abstract class NArchive implements Archive
 {

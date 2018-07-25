@@ -10,7 +10,7 @@ import org.apache.commons.text.StringEscapeUtils;
 public interface HTMLRenderer
 {
 	/**
-	 * alias of {@link #toString()}
+	 * alias of {@code toString()}
 	 * @return {@link String}
 	 */
 	public default String getHTML()
@@ -39,7 +39,7 @@ public interface HTMLRenderer
 	}
 
 	/**
-	 * Make the string <span color='blue'>blue</span> by wrapping using {@code <span>} tag
+	 * Make the string <span style='color:blue'>blue</span> by wrapping using {@code <span>} tag
 	 * @param str the string to wrap
 	 * @return {@link String} result
 	 */
@@ -49,7 +49,7 @@ public interface HTMLRenderer
 	}
 
 	/**
-	 * Make the string <span color='red'>red</span> by wrapping using {@code <span>} tag
+	 * Make the string <span style='color:red'>red</span> by wrapping using {@code <span>} tag
 	 * @param str the string to wrap
 	 * @return {@link String} result
 	 */
@@ -59,7 +59,7 @@ public interface HTMLRenderer
 	}
 
 	/**
-	 * Make the string <span color='green'>green</span> by wrapping using {@code <span>} tag
+	 * Make the string <span style='color:green'>green</span> by wrapping using {@code <span>} tag
 	 * @param str the string to wrap
 	 * @return {@link String} result
 	 */
@@ -69,7 +69,7 @@ public interface HTMLRenderer
 	}
 
 	/**
-	 * Make the string <span color='gray'>gray</span> by wrapping using {@code <span>} tag
+	 * Make the string <span style='color:gray'>gray</span> by wrapping using {@code <span>} tag
 	 * @param str the string to wrap
 	 * @return {@link String} result
 	 */
@@ -79,7 +79,7 @@ public interface HTMLRenderer
 	}
 
 	/**
-	 * Make the string <span color='orange'>orange</span> by wrapping using {@code <span>} tag
+	 * Make the string <span style='color:orange'>orange</span> by wrapping using {@code <span>} tag
 	 * @param str the string to wrap
 	 * @return {@link String} result
 	 */
@@ -89,7 +89,7 @@ public interface HTMLRenderer
 	}
 
 	/**
-	 * Make the string <span color='purple'>purple</span> by wrapping using {@code <span>} tag
+	 * Make the string <span style='color:purple'>purple</span> by wrapping using {@code <span>} tag
 	 * @param str the string to wrap
 	 * @return {@link String} result
 	 */

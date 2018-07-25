@@ -7,7 +7,6 @@ import jrm.Messages;
 /**
  * Contains all mame related files informations
  * @author optyfr
- *
  */
 public final class ProfileNFOMame implements Serializable
 {
@@ -78,30 +77,57 @@ public final class ProfileNFOMame implements Serializable
 	}
 
 	/**
-	 * The Mame status file
+	 * The Mame presence/update status (inner enum of {@link ProfileNFOMame})
 	 * @author optyfr
-	 *
 	 */
 	public enum MameStatus
 	{
+		/**
+		 * We don't known anything about Mame status (no attached file)
+		 */
 		UNKNOWN(Messages.getString("ProfileNFOMame.Unknown")), //$NON-NLS-1$
+		/**
+		 * Mame is present and up to date
+		 */
 		UPTODATE(Messages.getString("ProfileNFOMame.UpToDate")), //$NON-NLS-1$
+		/**
+		 * Mame is present but need to be updated
+		 */
 		NEEDUPDATE(Messages.getString("ProfileNFOMame.NeedUpdate")), //$NON-NLS-1$
+		/**
+		 * Mame was not found (has been removed from it initial path) 
+		 */
 		NOTFOUND(Messages.getString("ProfileNFOMame.NotFound")); //$NON-NLS-1$
 
+		/**
+		 * The translated message corresponding to the current status
+		 */
 		private final String msg;
 
+		/**
+		 * The internal constructor for that enum type
+		 * @param msg the human readable message string
+		 */
 		private MameStatus(final String msg)
 		{
 			this.msg = msg;
 		}
 
+		/**
+		 * get the human readable message from this enum status
+		 * @return a human readable string message
+		 */
 		public String getMsg()
 		{
 			return msg;
 		}
 	}
 
+	/**
+	 * Attach the mame executable file path and initialize the internal modification date
+	 * @param mame the executable file
+	 * @param sl true if software list is requested
+	 */
 	public void set(final File mame, final boolean sl)
 	{
 		if(mame.exists())
@@ -112,6 +138,10 @@ public final class ProfileNFOMame implements Serializable
 		}
 	}
 
+	/**
+	 * Determine the Mame status
+	 * @return a {@link MameStatus} status about Mame
+	 */
 	public MameStatus getStatus()
 	{
 		if(file != null)
@@ -131,16 +161,28 @@ public final class ProfileNFOMame implements Serializable
 		return MameStatus.UNKNOWN;
 	}
 
+	/**
+	 * get the Mame executable file
+	 * @return return a {@link File} to Mame executable or {@code null} if not attached
+	 */
 	public File getFile()
 	{
 		return file;
 	}
 
+	/**
+	 * update the internal modification date with the current Mame file modification date
+	 */
 	public void setUpdated()
 	{
 		modified = file.lastModified();
 	}
 
+	/**
+	 * Relocate the Mame file executable
+	 * @param newFile the new Mame file path {@link File}
+	 * @return the status of the Mame file new location
+	 */
 	public MameStatus relocate(final File newFile)
 	{
 		if(file != null && newFile != null)
@@ -157,11 +199,18 @@ public final class ProfileNFOMame implements Serializable
 		return MameStatus.UNKNOWN;
 	}
 
+	/**
+	 * Is the software list is requested
+	 * @return true if the software list is requested, otherwise false
+	 */
 	public boolean isSL()
 	{
 		return sl;
 	}
 
+	/**
+	 * Remove the attached Dat files
+	 */
 	public void delete()
 	{
 		if(fileroms!=null)

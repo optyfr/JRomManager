@@ -21,7 +21,6 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * The Profile NFO file managing class with tolerant manual (de)serialization
  * @author optyfr
- *
  */
 public final class ProfileNFO implements Serializable
 {
@@ -46,11 +45,16 @@ public final class ProfileNFO implements Serializable
 
 	/**
 	 * fields declaration for manual serialization
+	 * @serialField file File
+	 * @serialField name String
+	 * @serialField stats ProfileNFOStats
+	 * @serialField mame ProfileNFOMame
 	 */
 	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("file", File.class), new ObjectStreamField("name", String.class), new ObjectStreamField("stats", ProfileNFOStats.class), new ObjectStreamField("mame", ProfileNFOMame.class), }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	/**
 	 * Manually write serialization
+	 * @serialData Use {@link ObjectOutputStream.PutField} object to add to persistent fields buffer, then {@link ObjectOutputStream#writeFields()}
 	 * @param stream the destination {@link ObjectOutputStream}
 	 * @throws IOException
 	 */
@@ -95,7 +99,7 @@ public final class ProfileNFO implements Serializable
 	/**
 	 * return the nfo file derived from the attached file
 	 * @param file the attached file candidate
-	 * @return
+	 * @return the nfo {@link File}
 	 */
 	private static File getFileNfo(final File file)
 	{
@@ -117,7 +121,7 @@ public final class ProfileNFO implements Serializable
 	/**
 	 * Load or create a ProfileNFO from an attached file
 	 * @param file the attached file from which to derive NFO file
-	 * @return
+	 * @return the {@link ProfileNFO}
 	 */
 	public static ProfileNFO load(final File file)
 	{
