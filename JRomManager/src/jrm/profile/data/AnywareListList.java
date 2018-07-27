@@ -12,24 +12,51 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
+/**
+ *  A list of {@link Anyware} objects lists
+ * @author optyfr
+ *
+ * @param <T> extends {@link AnywareList} (generally a {@link Machine} or a {@link Software})
+ */
 @SuppressWarnings("serial")
 public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> implements Serializable, TableModel, List<T>
 {
+	/**
+	 * Event Listener list for firing events to Swing controls (Table)
+	 */
 	private static transient EventListenerList listenerList;
+	/**
+	 * Non permanent filter according scan status of anyware lists
+	 */
 	protected static transient EnumSet<AnywareStatus> filter = null;
+	/**
+	 * {@link T} list cache (according current {@link #filter})
+	 */
 	protected transient List<T> filtered_list;
 
+	/**
+	 * The constructor, will initialize transients fields
+	 */
 	public AnywareListList()
 	{
 		initTransient();
 	}
 
+	/**
+	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
+	 * @param in the serialization inputstream
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		initTransient();
 	}
 
+	/**
+	 * The method called to initialize transient and static fields
+	 */
 	protected void initTransient()
 	{
 		if(AnywareListList.listenerList == null)
@@ -39,15 +66,40 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 		filtered_list = null;
 	}
 
+	/**
+	 * resets {@link T} list cache and fire a TableChanged event to listeners
+	 */
 	public abstract void reset();
+	/**
+	 * resets {@link T} list cache and fire a TableChanged event to listeners
+	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
+	 */
 	public abstract void setFilter(final EnumSet<AnywareStatus> filter);
 
+	/**
+	 * get a cached and filtered stream
+	 * @return {@link Stream}&lt;{@link T}&gt;
+	 */
 	public abstract Stream<T> getFilteredStream();
 
+	/**
+	 * get a cached filtered list
+	 * @return {@link List}&lt;{@link T}&gt;
+	 */
 	protected abstract List<T> getFilteredList();
 
+	/**
+	 * get the declared renderer for a given column
+	 * @param columnIndex the requested column index
+	 * @return a {@link TableCellRenderer} associated with the given columnindex 
+	 */
 	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
 
+	/**
+	 * get the declared width for a given column
+	 * @param columnIndex the requested column index
+	 * @return a width in pixel (if negative then it's a fixed column width)
+	 */
 	public abstract int getColumnWidth(int columnIndex);
 
 	@Override
@@ -77,6 +129,10 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 		AnywareListList.listenerList.remove(TableModelListener.class, l);
 	}
 
+	/**
+	 * Sends TableChanged event to listeners
+	 * @param e the {@link TableModelEvent} to send
+	 */
 	public void fireTableChanged(final TableModelEvent e)
 	{
 		if(AnywareListList.listenerList == null)
@@ -87,6 +143,10 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 				((TableModelListener) listeners[i + 1]).tableChanged(e);
 	}
 
+	/**
+	 * return a non filtered list of {@link T}
+	 * @return {@link List}&lt;{@link T}&gt;
+	 */
 	public abstract List<T> getList();
 
 	@Override

@@ -13,24 +13,51 @@ import javax.swing.table.TableModel;
 
 import one.util.streamex.StreamEx;
 
+/**
+ * A list of {@link Anyware} objects
+ * @author optyfr
+ *
+ * @param <T> extends {@link Anyware} (generally a {@link Machine} or a {@link Software})
+ */
 @SuppressWarnings("serial")
 public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, TableModel, List<T>, ByName<T>
 {
+	/**
+	 * Event Listener list for firing events to Swing controls (Table)
+	 */
 	private static transient EventListenerList listenerList;
+	/**
+	 * Non permanent filter according scan status of anyware (machines, softwares)
+	 */
 	protected static transient EnumSet<AnywareStatus> filter = null;
+	/**
+	 * {@link T} list cache (according current {@link #filter})
+	 */
 	protected transient List<T> filtered_list;
 
+	/**
+	 * The constructor, will initialize transients fields
+	 */
 	public AnywareList()
 	{
 		initTransient();
 	}
 
+	/**
+	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
+	 * @param in the serialization inputstream
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		initTransient();
 	}
 
+	/**
+	 * The method called to initialize transient and static fields
+	 */
 	protected void initTransient()
 	{
 		if(AnywareList.listenerList == null)
@@ -40,26 +67,55 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 		filtered_list = null;
 	}
 
+	/**
+	 * return a non filtered list of {@link T}
+	 * @return {@link List}&lt;{@link T}&gt;
+	 */
 	public abstract List<T> getList();
 
+	/**
+	 * resets {@link T} list cache and fire a TableChanged event to listeners
+	 */
 	public void reset()
 	{
 		this.filtered_list = null;
 		fireTableChanged(new TableModelEvent(this));
 	}
 
+	/**
+	 * resets {@link T} list cache and fire a TableChanged event to listeners
+	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
+	 */
 	public void setFilter(final EnumSet<AnywareStatus> filter)
 	{
 		AnywareList.filter = filter;
 		reset();
 	}
 
+	/**
+	 * get a cached and filtered stream
+	 * @return {@link Stream}&lt;{@link T}&gt;
+	 */
 	public abstract Stream<T> getFilteredStream();
 
+	/**
+	 * get a cached filtered list
+	 * @return {@link List}&lt;{@link T}&gt;
+	 */
 	protected abstract List<T> getFilteredList();
 
+	/**
+	 * get the declared renderer for a given column
+	 * @param columnIndex the requested column index
+	 * @return a {@link TableCellRenderer} associated with the given columnindex 
+	 */
 	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
 
+	/**
+	 * get the declared width for a given column
+	 * @param columnIndex the requested column index
+	 * @return a width in pixel (if negative then it's a fixed column width)
+	 */
 	public abstract int getColumnWidth(int columnIndex);
 
 	@Override
@@ -85,6 +141,10 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 		AnywareList.listenerList.remove(TableModelListener.class, l);
 	}
 
+	/**
+	 * Sends TableChanged event to listeners
+	 * @param e the {@link TableModelEvent} to send
+	 */
 	public void fireTableChanged(final TableModelEvent e)
 	{
 		final Object[] listeners = AnywareList.listenerList.getListenerList();
@@ -231,6 +291,10 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 		return getList().subList(fromIndex, toIndex);
 	}
 
+	/**
+	 * get the overall current status according the status of all its currently filtered {@link Anyware}s
+	 * @return an {@link AnywareStatus}
+	 */
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
@@ -253,15 +317,33 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 		return status;
 	}
 
+	/**
+	 * count the number of correct wares we have in this list
+	 * @return an int which is the total counted
+	 */
 	public abstract long countHave();
 
+	/**
+	 * count the number of wares contained in this list, whether they are OK or not
+	 * @return an int which is the sum of all the wares
+	 */
 	public abstract long countAll();
 
+	/**
+	 * Find the index of a given {@link Anyware} in the filetered list 
+	 * @param anyware the given {@link Anyware}
+	 * @return the int index or -1 if not found
+	 */
 	public int find(final Anyware anyware)
 	{
 		return getFilteredList().indexOf(anyware);
 	}
 
+	/**
+	 * Find the first index of the {@link Anyware} for which its name starts with the search string
+	 * @param search the {@link String} to search for
+	 * @return the int index or -1 if not found
+	 */
 	public int find(final String search)
 	{
 		return find(StreamEx.of(getFilteredStream()).findFirst(s -> s.getName().toLowerCase().startsWith(search.toLowerCase())).orElse(null));

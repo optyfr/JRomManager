@@ -35,6 +35,11 @@ public final class ProfileNFOMame implements Serializable
 
 	/**
 	 * fields declaration for manual serialization
+	 * @serialField file File the mame file linked to the profile
+	 * @serialField modified Long the last mame import date
+	 * @serialField sl Boolean software list flag
+	 * @serialField fileroms File dat file for roms
+	 * @serialField filesl File dat file for software lists
 	 */
 	private static final ObjectStreamField[] serialPersistentFields = {
 			new ObjectStreamField("file", File.class), //$NON-NLS-1$

@@ -14,33 +14,93 @@ import org.apache.commons.io.FilenameUtils;
 
 import JTrrntzip.TrrntZipStatus;
 
+/**
+ * the class for group of entities representation on the filesystem (ie : archive or folder)
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
-public class  Container implements Serializable
+public class Container implements Serializable
 {
+	/**
+	 * file or directory of the container
+	 */
 	public final File file;
+	/**
+	 * Last modified date
+	 */
 	public long modified = 0L;
+	/**
+	 * file size in bytes or 0 if folder
+	 */
 	public long size = 0L;
+	/**
+	 * keep entries by name
+	 */
 	public final HashMap<String, Entry> entries_byname = new HashMap<>();
 
+	/**
+	 * flag for scanning removal
+	 */
 	public transient boolean up2date = false;
+	
+	/**
+	 * scan load status
+	 * - 0 : not scanned
+	 * - 1 : quick scanned (only CRC)
+	 * - 2 : deep scanned (SHA1 and MD5 for all entries)
+	 */
 	public int loaded = 0;
 
+	/**
+	 * last time the archive was torrentzip checked (only valid for zip archives)
+	 */
 	public long lastTZipCheck = 0L;
+	/**
+	 * last torrentzip check status (only valid for zip archives)
+	 */
 	public EnumSet<TrrntZipStatus> lastTZipStatus = EnumSet.noneOf(TrrntZipStatus.class);
 
+	/**
+	 * related {@link AnywareBase} set
+	 */
 	public transient AnywareBase m;
 
+	/**
+	 * The container type
+	 */
 	public enum Type
 	{
+		/**
+		 * Unknown type (can't be determined)
+		 */
 		UNK,
+		/**
+		 * This is a filesystem folder
+		 */
 		DIR,
+		/**
+		 * This is a zip archive
+		 */
 		ZIP,
+		/**
+		 * This is a SevenZip archive
+		 */
 		SEVENZIP,
+		/**
+		 * This is a Rar archive
+		 */
 		RAR
 	};
 
 	private Type type = Type.UNK;
 
+	/**
+	 * Construct an archive where set is known
+	 * @param type the guessed type
+	 * @param file the archive {@link File}
+	 * @param m the corresponding {@link AnywareBase} set
+	 */
 	protected Container(final Type type, final File file, final AnywareBase m)
 	{
 		this.type = type;
@@ -48,6 +108,12 @@ public class  Container implements Serializable
 		this.m = m;
 	}
 
+	/**
+	 * Construct an archive file with no related set
+	 * @param type the guessed type
+	 * @param file the archive {@link File}
+	 * @param attr the file attributes (modified time and size are stored)
+	 */
 	protected Container(final Type type, final File file, final BasicFileAttributes attr)
 	{
 		this(type, file, (AnywareBase) null);
@@ -56,6 +122,11 @@ public class  Container implements Serializable
 			size = attr.size();
 	}
 
+	/**
+	 * add a listed entry by their file name
+	 * @param e the {@link Entry} to add
+	 * @return the previous entry with the same name
+	 */
 	public Entry add(final Entry e)
 	{
 		Entry old_e;
@@ -67,26 +138,48 @@ public class  Container implements Serializable
 		return e;
 	}
 
+	/**
+	 * find an {@link Entry} by using its name
+	 * @param e the {@link Entry} to be matched
+	 * @return the {@link Entry} found or null
+	 */
 	public Entry find(final Entry e)
 	{
 		return entries_byname.get(e.file);
 	}
 
+	/**
+	 * get all the available entries as a {@link Collection} of {@link Entry}
+	 * @return a {@link Collection}&lt;{@link Entry}&gt; (order not guaranteed)
+	 */
 	public Collection<Entry> getEntries()
 	{
 		return entries_byname.values();
 	}
 
+	/**
+	 * get a {@link Map} of {@link Entry} by {@link String} names 
+	 * @return a {@link Map}&lt;{@link String}, {@link Entry}&gt; where String is marshaled using {@link Entry#getName()}
+	 */
 	public Map<String, Entry> getEntriesByName()
 	{
 		return entries_byname.values().stream().collect(Collectors.toMap(Entry::getName, Function.identity(), (n, e) -> n));
 	}
 
+	/**
+	 * get the container type
+	 * @return {@link Type}
+	 */
 	public Type getType()
 	{
 		return type;
 	}
 
+	/**
+	 * get the type of a file
+	 * @param file the {@link File} to get {@link Type}
+	 * @return {@link Type}
+	 */
 	public static Type getType(final File file)
 	{
 		final String ext = FilenameUtils.getExtension(file.getName());

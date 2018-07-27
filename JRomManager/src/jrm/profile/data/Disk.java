@@ -13,14 +13,34 @@ import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Export.SimpleAttribute;
 import jrm.profile.Profile;
 
+/**
+ * Describe a disk entity 
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public class Disk extends Entity implements Serializable
 {
+	/**
+	 * is the disk writeable? default to false
+	 */
 	public boolean writeable = false;
+	/**
+	 * what's the disk index? default to null
+	 */
 	public Integer index = null;
+	/**
+	 * Is the disk optional? default to false
+	 */
 	public boolean optional = false;
+	/**
+	 * What's the disk region?
+	 */
 	public String region = null;
 
+	/**
+	 * Constructor 
+	 * @param parent the {@link Anyware} parent containing the disk
+	 */
 	public Disk(final Anyware parent)
 	{
 		super(parent);
@@ -67,6 +87,10 @@ public class Disk extends Entity implements Serializable
 		return super.hashCode();
 	}
 
+	/**
+	 * the disk hash value ({@link Entity#sha1} or {@link Entity#md5} ) as a {@link String}, or {@link #getName()} if no hash available
+	 * @return the hash value as a {@link String} 
+	 */
 	public String hashString()
 	{
 		if (sha1 != null)
@@ -76,12 +100,23 @@ public class Disk extends Entity implements Serializable
 		return getName();
 	}
 
+	/**
+	 * convert a {@link List} of {@link Disk}s to a {@link Map} of {@link Disk} with {@link Disk#getName()} as keys
+	 * @param disks the {@link List}&lt;{@link Disk}&gt; to convert
+	 * @return a {@link Map}&lt;{@link String}, {@link Disk}&gt;
+	 */
 	public static Map<String, Disk> getDisksByName(final List<Disk> disks)
 	{
 		return disks.stream().collect(Collectors.toMap(Disk::getName, Function.identity(), (n, r) -> n));
 	}
 
-	private EntityStatus findDiskStatus(final Anyware parent, final Disk disk)
+	/**
+	 * Try to find the {@link Disk} status recursively across parents and also in clones (only if we are in merged mode)
+	 * @param parent the {@link Anyware} parent 
+	 * @param disk the {@link Disk} to test
+	 * @return the {@link EntityStatus} found for this disk
+	 */
+	private static EntityStatus findDiskStatus(final Anyware parent, final Disk disk)
 	{
 		if (parent.parent != null) // find same disk in parent clone (if any and recursively)
 		{
@@ -105,7 +140,7 @@ public class Disk extends Entity implements Serializable
 			if (parent.parent.parent != null)
 				return findDiskStatus(parent.getParent(), disk);
 		}
-		else if (parent.isRomOf() && merge != null)
+		else if (parent.isRomOf() && disk.merge != null)
 			return EntityStatus.OK;
 		return null;
 	}
@@ -124,6 +159,13 @@ public class Disk extends Entity implements Serializable
 		return own_status;
 	}
 
+	/**
+	 * Export as dat
+	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
+	 * @param is_mame is it mame (true) or logqix (false) ?
+	 * @throws XMLStreamException
+	 * @throws IOException
+	 */
 	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException, IOException
 	{
 		if (parent instanceof Software)

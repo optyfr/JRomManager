@@ -45,10 +45,10 @@ public final class ProfileNFO implements Serializable
 
 	/**
 	 * fields declaration for manual serialization
-	 * @serialField file File
-	 * @serialField name String
-	 * @serialField stats ProfileNFOStats
-	 * @serialField mame ProfileNFOMame
+	 * @serialField file File the file linked to this profile info
+	 * @serialField name String the name of the profile
+	 * @serialField stats ProfileNFOStats the stats related to the profile
+	 * @serialField mame ProfileNFOMame the mame infos relates to the profile
 	 */
 	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("file", File.class), new ObjectStreamField("name", String.class), new ObjectStreamField("stats", ProfileNFOStats.class), new ObjectStreamField("mame", ProfileNFOMame.class), }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 

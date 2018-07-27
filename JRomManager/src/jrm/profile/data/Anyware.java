@@ -22,7 +22,7 @@ import jrm.ui.AnywareRenderer;
 import one.util.streamex.StreamEx;
 
 /**
- * This class is the common class for machines and softwares
+ * This class is the common class for machines and softwares sets
  * @author optyfr
  *  
  */
@@ -107,7 +107,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 
 	/**
 	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
-	 * @param in
+	 * @param in the serialization inputstream 
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
@@ -266,6 +266,13 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 		}).collect(Collectors.toList());
 	}
 
+	/**
+	 * return filtered list of roms according various flags and status
+	 * @param merge_mode the merge mode to set and use
+	 * @param hash_collision_mode the hash collision mode to set and use 
+	 * @return the filtered list of roms
+	 * @see "Source code for more explanations"
+	 */
 	public List<Rom> filterRoms(final MergeOptions merge_mode, final HashCollisionOptions hash_collision_mode)
 	{
 		Anyware.merge_mode = merge_mode;
@@ -353,18 +360,19 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @param excludeBios
-	 * @param partial
-	 * @param recurse
-	 * @return
+	 * get a stream of roms for this current machine optionally including related bios and devices
+	 * @param excludeBios	if true do not include bios
+	 * @param partial	if true exclude device references
+	 * @param recurse	if true will also get devices of devices
+	 * @return a stream of roms
 	 */
 	abstract Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse);
 
 	/**
-	 * 
-	 * @param input
-	 * @return
+	 * get a reversed order stream of a list of type {@link T}
+	 * @param <T> any object type
+	 * @param input a {@link List}{@literal <}{@link T}{@literal >} with {@link T} any class type
+	 * @return return a {@link Stream}{@literal <}{@link T}{@literal >} where objects are starting from the end of the list
 	 */
 	public static <T> Stream<T> streamInReverse(List<T> input)
 	{
@@ -372,10 +380,10 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @param ware
-	 * @param e
-	 * @return
+	 * Tell if an {@link Entity} (a rom or a disk) would be explicitly merged when in merge mode
+	 * @param ware the {@link Anyware} (a Machine or Software) for which the entity is compared (it is not necessarily its direct parent)
+	 * @param e the entity to test
+	 * @return true, if the {@link Entity} as merge flag and the {@link Anyware} as a selected parent 
 	 */
 	public static boolean wouldMerge(final Anyware ware, final Entity e)
 	{
@@ -387,11 +395,12 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @param ware
-	 * @param r
-	 * @param onlyBios
-	 * @return
+	 * Tell whether a {@link Rom} is contained in the given {@link Anyware}'s ancestors
+	 * This method is recursive and take care about implicit_merge option
+	 * @param ware the {@link Anyware} to test against
+	 * @param r the {@link Rom} to find in the ware's ancestors
+	 * @param onlyBios if true test only if ware's parent is a bios
+	 * @return true if rom was found in one of the ware's ancestors
 	 */
 	public static boolean containsInParent(final Anyware ware, final Rom r, final boolean onlyBios)
 	{
@@ -409,10 +418,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @param ware
-	 * @param d
-	 * @return
+	 * Tell whether a {@link Disk} is contained in the given {@link Anyware}'s ancestors
+	 * This method is recursive and take care about implicit_merge option
+	 * @param ware the {@link Anyware} to test against
+	 * @param d the {@link Disk} to find in the ware's ancestors
+	 * @return true if disk was found in one of the ware's ancestors
 	 */
 	public static boolean containsInParent(final Anyware ware, final Disk d)
 	{
@@ -429,7 +439,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
+	 * resets entities list cache and fire a TableChanged event to listeners
 	 */
 	public void reset()
 	{
@@ -438,8 +448,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @param filter
+	 * Set a new Entity status set filter and reset list cache
+	 * @param filter the new entity status set filter to apply
 	 */
 	public void setFilter(final EnumSet<EntityStatus> filter)
 	{
@@ -448,8 +458,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @return
+	 * get the entities current list cache
+	 * @return a {@link List}{@literal <}{@link EntityBase}{@literal >}
 	 */
 	private List<EntityBase> getEntities()
 	{
@@ -483,9 +493,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @param columnIndex
-	 * @return
+	 * get the declared renderer for a given column
+	 * @param columnIndex the requested column index
+	 * @return a {@link TableCellRenderer} associated with the given columnindex 
 	 */
 	public static TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
@@ -493,9 +503,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @param columnIndex
-	 * @return
+	 * get the declared width for a given column
+	 * @param columnIndex the requested column index
+	 * @return a width in pixel (if negative then it's a fixed column width)
 	 */
 	public static int getColumnWidth(final int columnIndex)
 	{
@@ -551,8 +561,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @param e
+	 * Sends TableChanged event to listeners
+	 * @param e the {@link TableModelEvent} to send
 	 */
 	public void fireTableChanged(final TableModelEvent e)
 	{
@@ -563,8 +573,10 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
+	 * get the ware current status according the status of its attached entities (roms, disks, ...)
+	 * @return an {@link AnywareStatus}
 	 */
+	@Override
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
@@ -614,8 +626,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @return
+	 * count the number of correct entities we have in this ware
+	 * @return an int which is the total counted
 	 */
 	public int countHave()
 	{
@@ -623,8 +635,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @return
+	 * count the number of correct ROMs we have in this ware
+	 * @return an int which is the counted ROMs
 	 */
 	public int countHaveRoms()
 	{
@@ -632,8 +644,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @return
+	 * count the number of correct disks we have in this ware
+	 * @return an int which is the counted disks
 	 */
 	public int countHaveDisks()
 	{
@@ -641,8 +653,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @return
+	 * count the number of correct samples we have in this ware
+	 * @return an int which is the counted samples
 	 */
 	public int countHaveSamples()
 	{
@@ -650,8 +662,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	}
 
 	/**
-	 * 
-	 * @return
+	 * count the number of entities contained in this ware, whether they are OK or not
+	 * @return an int which is the sum of all the entities
 	 */
 	public int countAll()
 	{

@@ -54,6 +54,16 @@ public final class ProfileNFOStats implements Serializable
 
 	/**
 	 * fields declaration for manual serialization
+	 * @serialField version String version returned from main dat
+	 * @serialField haveSets Long number of sets we own
+	 * @serialField totalsSets Long number of sets in dats
+	 * @serialField haveRoms Long number of roms we own
+	 * @serialField totalRoms Long number of roms in dats
+	 * @serialField haveDisks Long number of disks we own
+	 * @serialField totalDisks Long number of disks in dats
+	 * @serialField created Date when this profile was created
+	 * @serialField scanned Date when this profile was last scanned 
+	 * @serialField fixed Date when this profile was last fixed
 	 */
 	private static final ObjectStreamField[] serialPersistentFields = {
 			new ObjectStreamField("version", String.class), //$NON-NLS-1$
