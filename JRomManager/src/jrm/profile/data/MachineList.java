@@ -2,11 +2,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,19 +19,43 @@ import jrm.profile.data.Machine.DisplayOrientation;
 import jrm.ui.MachineListRenderer;
 import jrm.ui.ProgressHandler;
 
+
+/**
+ * A list of {@link Machine}
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public final class MachineList extends AnywareList<Machine> implements Serializable
 {
+	/**
+	 * The {@link ArrayList} of {@link Machine}
+	 */
 	private final ArrayList<Machine> m_list = new ArrayList<>();
+	/**
+	 * The by name {@link HashMap} of {@link Machine}
+	 */
 	private final HashMap<String, Machine> m_byname = new HashMap<>();
+	/**
+	 * The associated Samples set as a {@link SamplesList}
+	 */
 	public final SamplesList samplesets = new SamplesList();
 
 
+	/**
+	 * The constructor, will initialize transients fields
+	 */
 	public MachineList()
 	{
 		initTransient();
 	}
 
+	/**
+	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
+	 * @param in the serialization inputstream
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
@@ -135,6 +155,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	@Override
 	public Stream<Machine> getFilteredStream()
 	{
+		/*
+		 * get all needed profile options
+		 */
 		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true); //$NON-NLS-1$
 		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true); //$NON-NLS-1$
 		final boolean filterIncludeSamples = Profile.curr_profile.getProperty("filter.InclSamples", true); //$NON-NLS-1$
@@ -147,7 +170,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		final boolean excludeMachines = Profile.curr_profile.getProperty("exclude_machines", false); //$NON-NLS-1$
 
 		if(excludeGames && !excludeMachines)
-		{
+		{	// special case where we want to keep computers & consoles machines but not arcade games machines (let's call it mess mode)
 			HashSet<Machine> machines = new HashSet<>();
 			getList().stream().filter(t -> t.isSoftMachine()).forEach(m -> m.getDevices(machines, false, false, true));
 			final HashSet<Machine> all_devices = new HashSet<>();
@@ -167,51 +190,57 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		}*/
 		
 		return getList().stream().filter(t -> {
-			if(excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine())
+			if(excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine())	// exclude pure games (pure means not bios nor devices)
 				return false;
-			if(excludeMachines && !t.isdevice && !t.isbios && t.isSoftMachine())
+			if(excludeMachines && !t.isdevice && !t.isbios && t.isSoftMachine())	// exclude computer/console
 				return false;
-			if(!t.isdevice)
+			/*
+			 * Apply simple filters
+			 */
+			if(!t.isdevice)	// exception on devices
 			{
-				if(filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary)
+				if(filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary)	// exclude preliminary when min driver status is imperfect
 					return false;
-				if(filterMinDriverStatus == StatusType.good && t.driver.getStatus() != StatusType.good)
+				if(filterMinDriverStatus == StatusType.good && t.driver.getStatus() != StatusType.good)	// exclude non good status when min driver status is good
 					return false;
-				if(!t.ismechanical)
+				if(!t.ismechanical)	// exception on mechanical
 				{
-					if(filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical)
+					if(filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical)	// exclude "vertical only" when display filter is "horizontal only"
 						return false;
-					if(filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal)
+					if(filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal)	// exclude "horizontal only" when display filter is "vertical only"
 						return false;
-					if(!t.isbios)
+					if(!t.isbios)	// exception on bios
 					{
-						if(filterCabinetType == CabinetType.upright && t.cabinetType == CabinetType.cocktail)
+						if(filterCabinetType == CabinetType.upright && t.cabinetType == CabinetType.cocktail)	// exclude "cocktail only" if cabinet filter is "upright only"
 							return false;
-						if(filterCabinetType == CabinetType.cocktail && t.cabinetType == CabinetType.upright)
+						if(filterCabinetType == CabinetType.cocktail && t.cabinetType == CabinetType.upright)	// exclude "upright only" if cabinet filter is "cocktail only"
 							return false;
 					}
 				}
 			}
 			if(t.year.length() > 0)
-			{
+			{	// exclude machines outside defined year range
 				if(filterYearMin.compareTo(t.year.toString()) > 0)
 					return false;
 				if(filterYearMax.compareTo(t.year.toString()) < 0)
 					return false;
 			}
-			if(!filterIncludeClones && t.isClone())
+			if(!filterIncludeClones && t.isClone())	// exclude clones machines
 				return false;
-			if(!filterIncludeDisks && t.disks.size() > 0)
+			if(!filterIncludeDisks && t.disks.size() > 0)	// exclude machines with disks
 				return false;
-			if(!filterIncludeSamples && t.samples.size() > 0)
+			if(!filterIncludeSamples && t.samples.size() > 0)	// exclude machines with samples
 				return false;
-			if(!t.getSystem().isSelected())
+			if(!t.getSystem().isSelected())	// exclude machines for which their BIOS system were not selected
 				return false;
-			if(t.subcat != null && !t.subcat.isSelected())
+			/*
+			 * apply advanced filters
+			 */
+			if(t.subcat != null && !t.subcat.isSelected())	// exclude if subcat is not selected
 				return false;
-			if(t.nplayer != null && !t.nplayer.isSelected())
+			if(t.nplayer != null && !t.nplayer.isSelected()) // exclude if nplayer is not selected
 				return false;
-			return true;
+			return true;	// otherwise include
 		});
 	}
 
@@ -219,8 +248,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	protected List<Machine> getFilteredList()
 	{
 		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> {
-				return AnywareList.filter.contains(t.getStatus());
+			filtered_list = getFilteredStream().filter(machine -> {
+				return AnywareList.filter.contains(machine.getStatus());
 			}).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
@@ -239,6 +268,15 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		}).count();
 	}
 
+	/**
+	 * Export as dat
+	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
+	 * @param progress the {@link ProgressHandler} to show the current progress
+	 * @param is_mame is it mame (true) or logqix (false) format ?
+	 * @param filtered do we use the current machine filters of none
+	 * @throws XMLStreamException
+	 * @throws IOException
+	 */
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException, IOException
 	{
 		if(is_mame)
@@ -281,6 +319,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		return name;
 	}
 
+	/**
+	 * named map filtered cache
+	 */
 	private transient Map<String, Machine> m_filtered_byname = null;
 
 	@Override

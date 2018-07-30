@@ -21,7 +21,7 @@ public abstract class AnywareBase extends NameBase implements Serializable
 	 * @param <T> a class which extends {@link AnywareBase}
 	 * @return the type casted parent
 	 */
-	public <T extends AnywareBase> T getParent(final Class<T> type)
+	protected <T extends AnywareBase> T getParent(final Class<T> type)
 	{
 		return type.cast(parent);
 	}

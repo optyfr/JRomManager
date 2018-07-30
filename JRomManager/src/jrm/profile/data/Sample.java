@@ -2,9 +2,19 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 
+/**
+ * A Sample as defined in Machines sets
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public final class Sample extends EntityBase implements Serializable
 {
+	/**
+	 * The Sample constructor
+	 * @param parent the {@link Samples} parent
+	 * @param name the name of the sample (with or without .wav extension)
+	 */
 	public Sample(AnywareBase parent, String name)
 	{
 		super(parent);

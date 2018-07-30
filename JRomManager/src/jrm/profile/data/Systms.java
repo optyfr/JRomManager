@@ -5,14 +5,18 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractListModel;
 
+/**
+ * ListModel of systems
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public final class Systms extends AbstractListModel<Systm> implements Serializable
 {
+	/**
+	 * The internal {@link ArrayList} of {@link Systm}s
+	 */
 	private final ArrayList<Systm> systems = new ArrayList<>();
-
-	public Systms()
-	{
-	}
 
 	@Override
 	public int getSize()
@@ -26,6 +30,11 @@ public final class Systms extends AbstractListModel<Systm> implements Serializab
 		return systems.get(index);
 	}
 
+	/**
+	 * add a {@link Systm} to the list
+	 * @param system the {@link Systm} to add
+	 * @return return true if successful
+	 */
 	public boolean add(final Systm system)
 	{
 		return systems.add(system);

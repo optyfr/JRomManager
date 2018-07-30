@@ -14,21 +14,43 @@ import jrm.profile.Export.SimpleAttribute;
 import jrm.profile.data.Software.Part.DataArea;
 import jrm.profile.data.Software.Part.DiskArea;
 
+/**
+ * This define a MESS software
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public class Software extends Anyware implements Serializable
 {
+	/**
+	 * The publisher name
+	 */
 	public final StringBuffer publisher = new StringBuffer();
+	/**
+	 * Is this software supported, default to yes
+	 */
 	public Supported supported = Supported.yes;
+	/**
+	 * The software compatibility string (a list of machine dependents tags separated with commas)
+	 */
 	public String compatibility = null;
+	/**
+	 * The {@link Part}s list associated with the software
+	 */
 	public final List<Part> parts = new ArrayList<>();
 
+	/**
+	 * The software list from which came this software
+	 */
 	public SoftwareList sl = null;
 
+	/**
+	 * The Supported values definition
+	 */
 	public enum Supported implements Serializable
 	{
 		no,
 		partial,
-		yes;
+		yes;	// default value
 
 		public Supported getXML()
 		{
@@ -36,14 +58,23 @@ public class Software extends Anyware implements Serializable
 		}
 	};
 
+	/**
+	 * Part of Data/Disk areas
+	 */
 	public static class Part implements Serializable
 	{
+		/**
+		 * Data area containing {@link Rom}s and various defs of the area
+		 */
 		public static class DataArea implements Serializable
 		{
+			/**
+			 * words indianness
+			 */
 			public enum Endianness implements Serializable
 			{
 				big,
-				little;
+				little;	// default value
 
 				public Endianness getXML()
 				{
@@ -52,27 +83,59 @@ public class Software extends Anyware implements Serializable
 
 			}
 
+			/**
+			 * name of this data area
+			 */
 			public String name;
+			/**
+			 * total rom size in this data area
+			 */
 			public int size;
-			public int width = 8;
+			/**
+			 * number of bits for ??? (not documented and not used by mame)
+			 */
+			public int databits = 8;
+			/**
+			 * byte ordering
+			 */
 			public Endianness endianness = Endianness.little;
+			/**
+			 * list of roms
+			 */
 			public List<Rom> roms = new ArrayList<>();
 		}
 
+		/**
+		 * Disk area containing {@link Disk}s
+		 */
 		public static class DiskArea implements Serializable
 		{
+			/**
+			 * name of this disk area
+			 */
 			public String name;
+			/**
+			 * list of disks
+			 */
 			public List<Disk> disks = new ArrayList<>();
 		}
 
+		/**
+		 * name of the part
+		 */
 		public String name;
+		/**
+		 * the interface used to load this part 
+		 */
 		public String intrface;
+		/**
+		 * The {@link List} of {@link DataArea}s
+		 */
 		public List<DataArea> dataareas = new ArrayList<>();
+		/**
+		 * The {@link List} of {@link DiskArea}s
+		 */
 		public List<DiskArea> diskareas = new ArrayList<>();
-	}
-
-	public Software()
-	{
 	}
 
 	@Override
@@ -123,6 +186,12 @@ public class Software extends Anyware implements Serializable
 		return sl;
 	}
 
+	/**
+	 * Export as dat
+	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
+	 * @throws XMLStreamException
+	 * @throws IOException
+	 */
 	public void export(final EnhancedXMLStreamWriter writer) throws XMLStreamException, IOException
 	{
 		writer.writeStartElement("software", //$NON-NLS-1$
@@ -146,7 +215,7 @@ public class Software extends Anyware implements Serializable
 				writer.writeStartElement("dataarea", //$NON-NLS-1$
 						new SimpleAttribute("name", dataarea.name), //$NON-NLS-1$
 						new SimpleAttribute("size", dataarea.size), //$NON-NLS-1$
-						new SimpleAttribute("width", dataarea.width), //$NON-NLS-1$
+						new SimpleAttribute("width", dataarea.databits), //$NON-NLS-1$
 						new SimpleAttribute("endianness", dataarea.endianness.getXML()) //$NON-NLS-1$
 						);
 				for(final Rom r : dataarea.roms)
@@ -174,6 +243,7 @@ public class Software extends Anyware implements Serializable
 		return description;
 	}
 
+	@Override
 	Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse)
 	{
 		return roms.stream();

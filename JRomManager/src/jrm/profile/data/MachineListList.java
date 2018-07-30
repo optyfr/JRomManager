@@ -20,20 +20,43 @@ import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.ui.AnywareListListRenderer;
 import jrm.ui.ProgressHandler;
 
+/**
+ * Singleton List of machines lists
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public final class MachineListList extends AnywareListList<MachineList> implements Serializable
 {
+	/**
+	 * The {@link List} of {@link MachineList}, in fact the is only one item
+	 */
 	private final List<MachineList> ml_list = Collections.singletonList(new MachineList());
 
+	/**
+	 * The attached list of software lists ({@link SoftwareListList}), if any
+	 */
 	public final SoftwareListList softwarelist_list = new SoftwareListList();
 
+	/**
+	 * A mapping between a software list name and list of machines declared to be at least compatible with that software list 
+	 */
 	public final Map<String, List<Machine>> softwarelist_defs = new HashMap<>();
 
+	/**
+	 * The constructor, will initialize transients fields
+	 */
 	public MachineListList()
 	{
 		initTransient();
 	}
 
+	/**
+	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
+	 * @param in the serialization inputstream
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
@@ -76,6 +99,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		return AnywareListListRenderer.columnsWidths[columnIndex];
 	}
 
+	@Override
 	public void reset()
 	{
 		this.filtered_list = null;
@@ -83,6 +107,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		softwarelist_list.reset();
 	}
 
+	@Override
 	public void setFilter(final EnumSet<AnywareStatus> filter)
 	{
 		AnywareListList.filter = filter;
@@ -135,6 +160,12 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		return filtered_list;
 	}
 
+	/**
+	 * Will return a list of machine for a given software list ordered by compatibility and driver status support
+	 * @param softwarelist the name of the software list
+	 * @param compatibility the compatibility string (if any) declared for a software in the software list
+	 * @return the ordered {@link List} of {@link Machine} with best match first, or null if no machine were found for this software list
+	 */
 	public List<Machine> getSortedMachines(final String softwarelist, final String compatibility)
 	{
 		if(softwarelist_defs.containsKey(softwarelist))
@@ -159,6 +190,12 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		
 	}
 	
+	/**
+	 * Find the best matching machine for a given software list ordered by compatibility and driver status support
+	 * @param softwarelist the name of the software list
+	 * @param compatibility the compatibility string (if any) declared for a software in the software list
+	 * @return the best matched {@link Machine}
+	 */
 	public Machine findMachine(final String softwarelist, final String compatibility)
 	{
 		if(softwarelist_defs.containsKey(softwarelist))
@@ -166,6 +203,15 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		return null;
 	}
 
+	/**
+	 * Export as dat
+	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
+	 * @param progress the {@link ProgressHandler} to show the current progress
+	 * @param is_mame is it mame (true) or logqix (false) format ?
+	 * @param filtered do we use the current machine filters of none
+	 * @throws XMLStreamException
+	 * @throws IOException
+	 */
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException, IOException
 	{
 		final List<MachineList> lists = getFilteredStream().collect(Collectors.toList());

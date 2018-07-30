@@ -21,20 +21,43 @@ import jrm.profile.data.Software.Supported;
 import jrm.ui.ProgressHandler;
 import jrm.ui.SoftwareListRenderer;
 
+/**
+ * a {@link Software} list 
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public final class SoftwareList extends AnywareList<Software> implements Systm, Serializable
 {
 //	public String name; // required
+	
+	/**
+	 * description of the software list
+	 */
 	public final StringBuffer description = new StringBuffer();
 
+	/**
+	 * The {@link ArrayList} of {@link Software}
+	 */
 	private final List<Software> s_list = new ArrayList<>();
+	/**
+	 * The by name {@link HashMap} of {@link Software}
+	 */
 	private final Map<String, Software> s_byname = new HashMap<>();
 
+	/**
+	 * The constructor, will initialize transients fields
+	 */
 	public SoftwareList()
 	{
 		initTransient();
 	}
 
+	/**
+	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
+	 * @param in the serialization inputstream
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
@@ -162,30 +185,34 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	@Override
 	public Stream<Software> getFilteredStream()
 	{
+		/*
+		 * get all needed profile options
+		 */
 		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true); //$NON-NLS-1$
 		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true); //$NON-NLS-1$
 		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString())); //$NON-NLS-1$
 		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????"); //$NON-NLS-1$ //$NON-NLS-2$
+		
 		return getList().stream().filter(t -> {
 			if(t.year.length()>0)
-			{
+			{	// exclude machines outside defined year range
 				if(filterYearMin.compareTo(t.year.toString())>0)
 					return false;
 				if(filterYearMax.compareTo(t.year.toString())<0)
 					return false;
 			}
-			if(filterMinSoftwareSupportedLevel==Supported.partial && t.supported==Supported.no)
+			if(filterMinSoftwareSupportedLevel==Supported.partial && t.supported==Supported.no)	// exclude support=no software if min software support is partial
 				return false;
-			if(filterMinSoftwareSupportedLevel==Supported.yes && t.supported!=Supported.yes)
+			if(filterMinSoftwareSupportedLevel==Supported.yes && t.supported!=Supported.yes) // exclude support!=yes if min software support is yes
 				return false;
-			if(!filterIncludeClones && t.isClone())
+			if(!filterIncludeClones && t.isClone())	// exclude clones machines
 				return false;
-			if(!filterIncludeDisks && t.disks.size()>0)
+			if(!filterIncludeDisks && t.disks.size()>0)	// exclude softwares with disks
 				return false;
-			if(!t.getSystem().isSelected())
+			if(!t.getSystem().isSelected())	// exclude software for which their software list were not selected
 				return false;
-			return true;
+			return true;	// otherwise include
 		});
 	}
 
@@ -209,6 +236,14 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		return getFilteredStream().filter(t -> t.getStatus()==AnywareStatus.COMPLETE).count();
 	}
 
+	/**
+	 * Export as dat
+	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
+	 * @param filtered do we use the current machine filters of none
+	 * @param progress the {@link ProgressHandler} to show the current progress
+	 * @throws XMLStreamException
+	 * @throws IOException
+	 */
 	public void export(final EnhancedXMLStreamWriter writer, boolean filtered, final ProgressHandler progress) throws XMLStreamException, IOException
 	{
 		writer.writeStartElement("softwarelist", //$NON-NLS-1$
@@ -243,6 +278,9 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		return s_byname.put(t.name, t);
 	}
 	
+	/**
+	 * named map filtered cache
+	 */
 	private transient Map<String, Software> s_filtered_byname = null;
 
 	@Override

@@ -4,16 +4,33 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 
+/**
+ * Samples is a set of unique {@link Samples}
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public final class Samples extends AnywareBase implements Serializable, Iterable<Sample>
 {
+	/**
+	 * the {@link HashMap} of {@link Sample} with {@link NameBase#name} as key
+	 */
 	public HashMap<String, Sample> samples = new HashMap<>();
 
+	/**
+	 * The constructor
+	 * @param name the set name
+	 */
 	public Samples(String name)
 	{
 		setName(name);
 	}
 
+	/**
+	 * add a unique sample, only add if not already existing
+	 * @param sample the {@link Sample} to add
+	 * @return return the added {@link Sample}, or the already existing one
+	 */
 	public Sample add(Sample sample)
 	{
 		if (!samples.containsKey(sample.name))
@@ -60,6 +77,7 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 		return samples.values().iterator();
 	}
 
+	@Override
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;

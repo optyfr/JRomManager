@@ -2,14 +2,17 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 
+/**
+ * Device system
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public class SystmDevice implements Systm, Serializable
 {
+	/**
+	 * the static DEVICE object
+	 */
 	public final static SystmDevice DEVICE = new SystmDevice();
-
-	public SystmDevice()
-	{
-	}
 
 	@Override
 	public Type getType()

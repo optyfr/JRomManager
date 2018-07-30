@@ -21,17 +21,38 @@ import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.ui.AnywareListListRenderer;
 import jrm.ui.ProgressHandler;
 
+/**
+ * List of {@link SoftwareList}
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public final class SoftwareListList extends AnywareListList<SoftwareList> implements Serializable, ByName<SoftwareList>
 {
+	/**
+	 * The {@link List} of {@link SoftwareList}
+	 */
 	private final ArrayList<SoftwareList> sl_list = new ArrayList<>();
+	
+	/**
+	 * The by name {@link HashMap} of {@link SoftwareList}
+	 */
 	private final HashMap<String, SoftwareList> sl_byname = new HashMap<>();
 
+	/**
+	 * The constructor, will initialize transients fields
+	 */
 	public SoftwareListList()
 	{
 		initTransient();
 	}
 
+	/**
+	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
+	 * @param in the serialization inputstream
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
@@ -131,6 +152,15 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		return filtered_list;
 	}
 
+	/**
+	 * Export as dat
+	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
+	 * @param progress the {@link ProgressHandler} to show the current progress
+	 * @param filtered do we use the current machine filters of none
+	 * @param selection the selected software list (null if none selected)
+	 * @throws XMLStreamException
+	 * @throws IOException
+	 */
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean filtered, final SoftwareList selection) throws XMLStreamException, IOException
 	{
 		final List<SoftwareList> lists = selection!=null?Collections.singletonList(selection):(filtered?getFilteredStream().collect(Collectors.toList()):getList());
@@ -173,6 +203,9 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		return sl_byname.put(t.name, t);
 	}
 
+	/**
+	 * named map filtered cache
+	 */
 	private transient Map<String, SoftwareList> sl_filtered_byname = null;
 
 	@Override

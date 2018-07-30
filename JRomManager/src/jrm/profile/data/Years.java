@@ -7,12 +7,27 @@ import java.util.Collection;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
+/**
+ * ListModel of years
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public final class Years extends AbstractListModel<String> implements ComboBoxModel<String>, Serializable
 {
+	/**
+	 * The internal list of years
+	 */
 	final ArrayList<String> years;
+	/**
+	 * The currently selected object
+	 */
 	Object selectedObject = null;
 
+	/**
+	 * Constructor, will build a sorted list of years
+	 * @param years a {@link Collection} of years {@link String}s
+	 */
 	public Years(final Collection<String> years)
 	{
 		this.years = new ArrayList<>(years);

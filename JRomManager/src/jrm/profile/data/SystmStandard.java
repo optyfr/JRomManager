@@ -2,14 +2,17 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 
+/**
+ * Standard system
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public class SystmStandard implements Systm, Serializable
 {
+	/**
+	 * the static STANDARD object
+	 */
 	public final static SystmStandard STANDARD = new SystmStandard();
-
-	public SystmStandard()
-	{
-	}
 
 	@Override
 	public Type getType()

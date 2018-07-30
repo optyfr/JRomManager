@@ -267,9 +267,11 @@ public class Profile implements Serializable
 									curr_dataarea.size = Integer.valueOf(attributes.getValue(i));
 									break;
 								case "width": //$NON-NLS-1$
-									curr_dataarea.width = Integer.valueOf(attributes.getValue(i));
+								case "databits": //$NON-NLS-1$
+									curr_dataarea.databits = Integer.valueOf(attributes.getValue(i));
 									break;
 								case "endianness": //$NON-NLS-1$
+								case "endian": //$NON-NLS-1$
 									curr_dataarea.endianness = Endianness.valueOf(attributes.getValue(i));
 									break;
 							}

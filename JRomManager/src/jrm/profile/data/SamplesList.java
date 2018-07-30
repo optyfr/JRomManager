@@ -4,14 +4,18 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 
+/**
+ * Set of unique {@link Samples} sets
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samples>
 {
+	/**
+	 * {@link HashMap} of {@link Samples} set with {@link Samples#name} as key
+	 */
 	protected final HashMap<String, Samples> samplesets = new HashMap<>();
-
-	public SamplesList()
-	{
-	}
 
 	@Override
 	public boolean containsName(String name)

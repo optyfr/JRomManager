@@ -21,7 +21,7 @@ import jrm.profile.Profile;
 public class Disk extends Entity implements Serializable
 {
 	/**
-	 * is the disk writeable? default to false
+	 * is the disk writable? default to false
 	 */
 	public boolean writeable = false;
 	/**
@@ -162,7 +162,7 @@ public class Disk extends Entity implements Serializable
 	/**
 	 * Export as dat
 	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
-	 * @param is_mame is it mame (true) or logqix (false) ?
+	 * @param is_mame is it mame (true) or logqix (false) format ?
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */

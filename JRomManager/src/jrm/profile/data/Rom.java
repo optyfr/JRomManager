@@ -12,17 +12,47 @@ import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Export.SimpleAttribute;
 import jrm.profile.Profile;
 
+/**
+ * Rom entity definition
+ * @author optyfr
+ *
+ */
 @SuppressWarnings("serial")
 public class Rom extends Entity implements Serializable
 {
+	/**
+	 * the bios name otherwise null
+	 */
 	public String bios = null;
+	/**
+	 * the in memory offset (kept for export)
+	 */
 	public Integer offset = null;
+	/**
+	 * the in memory load flag (kept for export)
+	 */
 	public LoadFlag loadflag = null;
+	/**
+	 * the value to fill according load flag (only software rom, kept for export)
+	 */
 	public String value = null;
+	/**
+	 * is this rom is optional?
+	 */
 	public boolean optional = false;
+	/**
+	 * the memory region (kept for export)
+	 */
 	public String region = null;
+	/**
+	 * the dump date (kept for export)
+	 */
 	public String date = null;
 
+	/**
+	 * Possibles Load Flags definitions
+	 * Definitions here are all uppercase because there would be collision with java keywords otherwise... but in fact, this should be lowercase
+	 */
 	public enum LoadFlag implements Serializable
 	{
 		LOAD16_BYTE, LOAD16_WORD, LOAD16_WORD_SWAP, LOAD32_BYTE, LOAD32_WORD, LOAD32_WORD_SWAP, LOAD32_DWORD, LOAD64_WORD, LOAD64_WORD_SWAP, RELOAD, FILL, CONTINUE, RELOAD_PLAIN, IGNORE;
@@ -42,11 +72,18 @@ public class Rom extends Entity implements Serializable
 		}
 	}
 
+	/**
+	 * The constructor
+	 * @param parent a required {@link Anyware} parent
+	 */
 	public Rom(final Anyware parent)
 	{
 		super(parent);
 	}
 
+	/**
+	 * get the rom name, will include the parent name if we are using a merge mode and we are a clone collisioning with its parent
+	 */
 	@Override
 	public String getName()
 	{
@@ -65,6 +102,10 @@ public class Rom extends Entity implements Serializable
 		return name;
 	}
 
+	/**
+	 * get the full rom name, will include the parent name if we are using a merge mode, even if there is no collision
+	 * @return the full name of the entity
+	 */
 	public String getFullName()
 	{
 		if (Anyware.merge_mode.isMerge())
@@ -103,6 +144,10 @@ public class Rom extends Entity implements Serializable
 		return super.hashCode();
 	}
 
+	/**
+	 * get the latest available hash string value for this ROM
+	 * @return the hash {@link String} value
+	 */
 	public String hashString()
 	{
 		if (sha1 != null)
@@ -114,12 +159,23 @@ public class Rom extends Entity implements Serializable
 		return getName();
 	}
 
+	/**
+	 * convert a {@link List} of {@link Rom}s to a {@link Map} of {@link Rom} with {@link Rom#getName()} as keys
+	 * @param roms the {@link List}&lt;{@link Rom}&gt; to convert
+	 * @return a {@link Map}&lt;{@link String}, {@link Rom}&gt;
+	 */
 	public static Map<String, Rom> getRomsByName(final List<Rom> roms)
 	{
 		return roms.stream().collect(Collectors.toMap(Rom::getName, r -> r, (n, r) -> n));
 	}
 
-	private EntityStatus findRomStatus(final Anyware parent, final Rom rom)
+	/**
+	 * Try to find the {@link Rom} status recursively across parents and also in clones (only if we are in merged mode)
+	 * @param parent the {@link Anyware} parent 
+	 * @param rom the {@link Rom} to test
+	 * @return the {@link EntityStatus} found for this disk
+	 */
+	private static EntityStatus findRomStatus(final Anyware parent, final Rom rom)
 	{
 		for (final Rom r : parent.roms)
 			if (rom != r && rom.equals(r) && r.own_status != EntityStatus.UNKNOWN)
@@ -142,7 +198,7 @@ public class Rom extends Entity implements Serializable
 			if (parent.parent.parent != null)
 				return findRomStatus(parent.getParent(), rom);
 		}
-		else if (parent.isRomOf() && merge != null)
+		else if (parent.isRomOf() && rom.merge != null)
 			return EntityStatus.OK;
 		return null;
 	}
@@ -163,6 +219,13 @@ public class Rom extends Entity implements Serializable
 		return own_status;
 	}
 
+	/**
+	 * Export as dat
+	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
+	 * @param is_mame is it mame (true) or logqix (false) format ?
+	 * @throws XMLStreamException
+	 * @throws IOException
+	 */
 	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException, IOException
 	{
 		if (parent instanceof Software)
