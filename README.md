@@ -1,6 +1,6 @@
 # JRomManager
 
-A Rom Manager entirely written in Java and released under GPL v3
+A Rom Manager entirely written in Java and released under GPL
 
 [Screenshots](https://github.com/optyfr/JRomManager/wiki/Screenshots)
 
