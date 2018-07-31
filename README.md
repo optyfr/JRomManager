@@ -1,8 +1,15 @@
 # JRomManager
 
-A Rom Manager entirely written in Java and released under GPL
+A Rom Manager entirely written in Java and released under GPL-2
 
 [Screenshots](https://github.com/optyfr/JRomManager/wiki/Screenshots)
+
+## Licensing
+- GPL-2 : JRomManager, JLauncher, JUpdater
+- GPL-2 with classpath exception : zipfs (from Oracle OpenJDK9 )
+- MIT : Jtrrntzip (based on trrntZipDN by Gordon J), commonmark (by Atlassian)
+- LGPL 2.1 with unRAR restriction : SevenZipJBinding
+- Apache 2.0: StreamEx, Apache commons libraries
 
 ## Technical
 _Minimal developement requirements_:
