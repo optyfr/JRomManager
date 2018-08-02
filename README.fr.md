@@ -2,7 +2,14 @@
 
 Un gestionnaire de Roms entièrement écrit en Java et distribué sous la license GPL v3
 
-## Technical
+## Licenses
+- **GPL-2** : JRomManager, JUpdater, JLauncher
+- **GPL-2 avec l'exception classpath** : zipfs (tiré de Oracle OpenJDK9 )
+- **MIT** : Jtrrntzip (basé sur trrntZipDN par Gordon J), commonmark (par Atlassian), minimal-json (par Ralf Sternberg)
+- **LGPL 2.1 + restriction unRAR** : SevenZipJBinding (par Boris Brodski)
+- **Apache 2.0** : StreamEx (par Tagir Valeev), Gradle Wrapper, et toutes les librairies "Apache commons"
+
+## Technique
 _Prérequis de développement minimum_:
 - Eclipse Oxygen pour Java avec le module WindowBuilder (module standard d'Eclipse) et Gradle Buildship (dans Eclipse Marketplace)
 - Java SDK 8
@@ -12,7 +19,7 @@ _Prérequis de développement minimum_:
 	- Apache Commons Lang3 3.7
 	- Apache Commons Text 1.3
 	- Apache Commons Compress 1.16 (utilisé uniquement pour lister le contenu des fichiers 7zip)
-	- StreamEx 0.6.6
+	- StreamEx 0.6.7
 	- SevenZipJBinding 9.20-2.00 (plus rapide que l'usage de la commande en ligne de 7zip)
 - Dépendances via sous-modules Git
 	- Jtrrntzip
@@ -26,6 +33,19 @@ _Prérequis d'utilisation minimum_:
 
 _Comportement comparé aux autres gestionnaires de Roms_
 - Par défaut, le mode Split (séparé) peut être différent de ClrMamePro, c'est parce que JRomManager est respecteux de l'attribut "merge", alors que ClrMamePro va splitter (separer) dès qu'une rom est dans un set parent avec le même CRC même si aucun attribut "merge" a été initialisé! La difference est spécialement visible pour les Software Lists où l'attribut merge n'existe pas du tout dans le DTD, donc dans ce cas le mode "Split Merged" sera le même que d'utiliser le mode "Non Merged" pour JRomManager. RomCenter est également respectueux de l'attribut merge. Pour reproduire le même comportement que ClrMamePro vous devrez donc selectionner l'option "implicit merge" (fusionnage implicite) dans les préférences du profil courant
+
+_Instructions minimales pour la compilation en ligne de commande_:  
+
+Si vous voulez juste recompiler les sources sans utiliser un IDE (Eclipse), voici les étapes à suivre...
+- D'abord, vous aurez besoin de Java JDK 8 installé à partir du gestionnaire de package de votre système ou à partir de l'installateur officiel, ou au moins vous assurer que tous les binaires de votre java jdk seront accessibles à partir de votre $PATH ou %PATH% courant
+  - [Requis] Si vous êtes sous Windows, vous aurez aussi besoin de Visual C++ 2017 installé, lequel sera nécessaire pour générer l'executable JLauncher (le plugin natif gradle detectera Visual C++ installé et génèrera en utilisant directement ce compilateur VC++)
+  - [Optionnel] Si vous êtes sous Windows, et que vous voulez générer l'installateur MSI, vous aurez besoin du dernier WIX Toolset installé ainsi que son répertoire bin/ ajouté dans votre %PATH% (pas fait automatiquement à son installation) 
+- Téléchargez et désarchivez `https://github.com/optyfr/JRomManager/releases/download/<version>/JRomManager-<version>.src.tar.gz` (utilisez sevenzip sous Windows pour ce faire); **ne pas télécharger `Source Code (zip)` ou `Source Code (tar.gz)`, ceux ci étant automatiquement générés par github et malheureusement ne contiennent pas du tout les sources des sous-modules requis**
+- `cd JRomManager-<version>`
+- lancer
+  - Unix: `sh ./gradlew build`
+  - Windows: `.\gradlew.bat build`
+- Il s'agit du gradle-wrapper inclus, il téléchargera la bonne version de package binaire de gradle, puis compilera et empaquetera tout (void les sous-répertoires "build")
 
 ## Fonctionalités actuelles
 - Mame and Logiqx Dat formats
@@ -63,7 +83,11 @@ _Comportement comparé aux autres gestionnaires de Roms_
 - Installer Jar
 
 ## Fonctionalités planifiées à court terme
-- Option pour mise à jour automatique
+- Créer des paquets binaires pour les diverses distributions Linux et les rendre disponibles dans leurs dépots (si possible)
+- Créer un executable pour windows qui recherche un jre disponible, et adapte les arguments de lancement selon la version 32 ou 64 bits 
+- Documentation des sources (+ génération javadoc)
+- Clarifier les problèmes de licence
+- Option de mise à jour automatique (et montre le rapport des changements après la mise à jour)
 
 ## Fonctionalités planifiées à moyen terme
 - Dir2Dat

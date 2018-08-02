@@ -21,7 +21,7 @@ _Minimal developement requirements_:
 	- Apache Commons Lang3 3.7
 	- Apache Commons Text 1.3
 	- Apache Commons Compress 1.16 (used solely to list 7zip content)
-	- StreamEx 0.6.6
+	- StreamEx 0.6.7
 	- SevenZipJBinding 9.20-2.00 (faster than using 7z cmd line)
 - Git submodules dependencies
 	- [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
@@ -96,7 +96,11 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Launch mode for multiuser environment and for Linux packaging readiness	
 
 ## Short Term Planned Features
-- Auto update option (and show Changes log a after auto-update)
+- Create binary packages for various Linux distribution and make it available in their repositories (if possible)
+- Create an executable for windows that search for available jre, and adapt launch arguments according 32/64 bits version 
+- Sources documentation (+ javadoc generation)
+- Clarify licensing issues
+- Auto update option (and show Changes log after auto-update)
 
 ## Middle Term Planned Features
 - Dir2Dat
