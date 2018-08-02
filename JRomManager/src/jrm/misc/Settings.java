@@ -53,6 +53,39 @@ public class Settings
 	}
 	
 	/**
+	 * get the temporary path 
+	 * @param local if local is true, then a "tmp" dir is created into current workpath (multiuser) or a subdir from default temp dir (not multiuser). If local is false, the default system temporary path is directly returned 
+	 * @return a valid temporary path
+	 */
+	public static Path getTmpPath(boolean local)
+	{
+		if(local)
+		{
+			if(multiuser)
+			{
+				try
+				{
+					return Files.createDirectories(getWorkPath().resolve("tmp"));
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			try
+			{
+				return Files.createTempDirectory("JRM");
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return Paths.get(System.getProperty("java.io.tmpdir"));
+	}
+	
+	
+	/**
 	 * get settings file
 	 * @return a {@link File} wich is the settings file
 	 */

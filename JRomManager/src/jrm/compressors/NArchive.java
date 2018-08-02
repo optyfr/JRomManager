@@ -79,7 +79,7 @@ abstract class NArchive implements Archive
 	public NArchive(final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
 	{
 		if(!SevenZip.isInitializedSuccessfully())
-			SevenZip.initSevenZipFromPlatformJAR();
+			SevenZip.initSevenZipFromPlatformJAR(Settings.getTmpPath(true).toFile());
 		ext = FilenameUtils.getExtension(archive.getName());
 		if(archive.exists())
 		{

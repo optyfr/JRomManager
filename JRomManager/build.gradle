@@ -69,6 +69,15 @@ jar {
 	}
 }
 
+task docZip(type: Zip, dependsOn: javadoc) {
+	destinationDir buildDir
+	classifier "javadocs"
+	from javadoc.outputs.files
+	into "docs"
+	archiveName baseName + '-' + version + '-apidocs' + '.' + extension
+	destinationDir = file("$buildDir/distributions/")
+}
+
 task distZip(type: Zip, dependsOn: jar) {
 	from (configurations.compile) {
 		into('lib')
@@ -85,6 +94,7 @@ task distZip(type: Zip, dependsOn: jar) {
 }
 
 build.dependsOn distZip
+build.dependsOn docZip
 
 apply plugin: 'nebula.ospackage'
 

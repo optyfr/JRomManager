@@ -1,3 +1,9 @@
+## Release v1.7 build 23
+- Executable launcher for windows (using [JLauncher](https://github.com/optyfr/JLauncher) project)
+- Document source code and javadoc archive available
+- Available in Gentoo Linux repository 
+- Fixed licensing issues (with the help of Michał Górny from Gentoo)
+- Fixed problem with SevenzipJBinding initialization temporary directory 
 ## Release v1.6 build 20
 - Machine/Software can individually (de)selected in Profile Viewer, this will impact the scan and filtered export
 - Possibility to auto(de)select by keywords,

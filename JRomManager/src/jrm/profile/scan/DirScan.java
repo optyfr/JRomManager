@@ -60,7 +60,7 @@ public final class DirScan
 		{
 			try
 			{
-				SevenZip.initSevenZipFromPlatformJAR();
+				SevenZip.initSevenZipFromPlatformJAR(Settings.getTmpPath(true).toFile());
 			}
 			catch(final Exception e)
 			{
