@@ -10,12 +10,25 @@ import jrm.compressors.SevenZipArchive;
 import jrm.profile.data.Container.Type;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
+import jrm.profile.data.Rom;
 import jrm.ui.ProgressHandler;
 
+/**
+ * Add an entry to a container
+ * @author optyfr
+ */
 public class AddEntry extends EntryAction
 {
+	/**
+	 * the related entity
+	 */
 	private final EntityBase entity;
 
+	/**
+	 * constructor
+	 * @param entity the related {@link EntityBase} (a {@link Rom} for example) 
+	 * @param entry the {@link Entry} to add
+	 */
 	public AddEntry(final EntityBase entity, final Entry entry)
 	{
 		super(entry);

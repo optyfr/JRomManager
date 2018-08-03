@@ -1,11 +1,7 @@
 package jrm.profile.fix.actions;
 
 import java.io.File;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
@@ -13,8 +9,17 @@ import jrm.profile.data.Container.Type;
 import jrm.profile.data.Entry;
 import jrm.ui.ProgressHandler;
 
+/**
+ * Describe an entry to backup, will take appropriate actions to extract entry before copying to provided backup {@link FileSystem} 
+ * @author optyfr
+ *
+ */
 public class BackupEntry extends EntryAction
 {
+	/**
+	 * Constructor 
+	 * @param entry the entry to backup
+	 */
 	public BackupEntry(final Entry entry)
 	{
 		super(entry);

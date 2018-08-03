@@ -14,20 +14,41 @@ import jrm.Messages;
 import jrm.profile.data.PropertyStub;
 import jrm.ui.AbstractNGTreeNode;
 
+/**
+ * catver.ini management class and {@link AbstractNGTreeNode} root
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.filter.CatVer.Category>, PropertyStub
 {
-	private final Map<String, Category> categories = new TreeMap<>();
-	private final List<Category> list_categories = new ArrayList<>();
-	public final File file;
-
+	/**
+	 * class describing games category with sub-categories list
+	 * @author optyfr
+	 */
 	public final static class Category extends AbstractNGTreeNode implements Map<String, SubCategory>, Iterable<SubCategory>, PropertyStub
 	{
+		/**
+		 * Category name
+		 */
 		public final String name;
+		/**
+		 * {@link CatVer} parent
+		 */
 		private final CatVer parent;
+		/**
+		 * {@link Map} of {@link SubCategory} with {@link SubCategory#name} as key
+		 */
 		private final Map<String, SubCategory> subcategories = new TreeMap<>();
+		/**
+		 * {@link List} of {@link SubCategory}
+		 */
 		private final List<SubCategory> list_subcategories = new ArrayList<>();
 
+		/**
+		 * Build a Category
+		 * @param name the name of the category
+		 * @param parent the {@link CatVer} root
+		 */
 		public Category(final String name, final CatVer parent)
 		{
 			this.name = name;
@@ -180,12 +201,31 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 
 	}
 
+	/**
+	 * Describing games subcategory with all corresponding games listed by code names
+	 * @author optyfr
+	 *
+	 */
 	public final static class SubCategory extends AbstractNGTreeNode implements List<String>, PropertyStub
 	{
+		/**
+		 * name of the subcategory
+		 */
 		public final String name;
+		/**
+		 * the parent {@link Category}
+		 */
 		private final Category parent;
+		/**
+		 * the {@link List} of games code names
+		 */
 		private final List<String> games = new ArrayList<>();
 
+		/**
+		 * Build a sub-category
+		 * @param name name of the sub-category
+		 * @param parent the paarent {@link Category}
+		 */
 		public SubCategory(final String name, final Category parent)
 		{
 			this.name = name;
@@ -397,10 +437,25 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 	}
 
+	/**
+	 * The list of fetched {@link Category}
+	 */
+	private final List<Category> list_categories = new ArrayList<>();
+	/**
+	 * The {@link File} location to catver.ini
+	 */
+	public final File file;
+
+	/**
+	 * Main constructor, will read provided catver.ini and initialize list of categories/sub-categories/games
+	 * @param file the catver.ini {@link File} to read
+	 * @throws IOException
+	 */
 	private CatVer(final File file) throws IOException
 	{
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
+			final Map<String, Category> categories = new TreeMap<>();
 			this.file = file;
 			String line;
 			boolean in_section = false;
@@ -444,6 +499,12 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		}
 	}
 
+	/**
+	 * static method shortcut to constructor
+	 * @param file the catver.ini to read
+	 * @return an initialized {@link CatVer}
+	 * @throws IOException
+	 */
 	public static CatVer read(final File file) throws IOException
 	{
 		return new CatVer(file);

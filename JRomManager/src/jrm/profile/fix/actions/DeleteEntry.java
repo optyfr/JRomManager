@@ -9,8 +9,17 @@ import jrm.compressors.Archive;
 import jrm.profile.data.Entry;
 import jrm.ui.ProgressHandler;
 
+/**
+ * Delete an entry from its container
+ * @author optyfr
+ *
+ */
 public class DeleteEntry extends EntryAction
 {
+	/**
+	 * constructor
+	 * @param entry the entry to delete
+	 */
 	public DeleteEntry(final Entry entry)
 	{
 		super(entry);

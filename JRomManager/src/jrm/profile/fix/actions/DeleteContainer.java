@@ -10,14 +10,31 @@ import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
 
+/**
+ * Delete a container (will all its entries)
+ * @author optyfr
+ *
+ */
 public class DeleteContainer extends ContainerAction
 {
 
+	/**
+	 * constructor
+	 * @param container to delete
+	 * @param format format of the container
+	 */
 	public DeleteContainer(final Container container, final FormatOptions format)
 	{
 		super(container, format);
 	}
 
+	/**
+	 * shortcut static method to get an instance of {@link DeleteContainer}
+	 * @param action the potentially already existing {@link DeleteContainer} 
+	 * @param container the container to backup
+	 * @param format the format of the container
+	 * @return a {@link DeleteContainer}
+	 */
 	public static DeleteContainer getInstance(DeleteContainer action, final Container container, final FormatOptions format)
 	{
 		if(action == null)

@@ -167,7 +167,7 @@ if (os.contains("windows"))
 		    vendor = 'optyfr'
 		    application = project.name
 		    appIdentifier = project.name
-		    version = props.getProperty("Specification-Version")
+		    version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version").substring(1);
 		    licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
 		    icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
 			from (configurations.compile) {
@@ -179,7 +179,7 @@ if (os.contains("windows"))
 				displayName = project.name
 				executable = project.name + '.exe'
 			}
-		//	bundleJre = 1.8
+//			setup.bundleJre = 1.8
 		}
 		
 		task buildMSI(type: com.inet.gradle.setup.msi.Msi, dependsOn: ':JLauncher:build') {

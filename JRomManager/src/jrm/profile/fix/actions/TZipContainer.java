@@ -13,9 +13,19 @@ import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.Progress;
 import jrm.ui.ProgressHandler;
 
+/**
+ * The specialized container action for trrntzipping zip containers
+ * @author optyfr
+ *
+ */
 public class TZipContainer extends ContainerAction
 {
 
+	/**
+	 * Constructor
+	 * @param container the container to tzip
+	 * @param format the desired format (should be always {@link FormatOptions#TZIP} otherwise nothing will happen)
+	 */
 	public TZipContainer(final Container container, final FormatOptions format)
 	{
 		super(container, format);

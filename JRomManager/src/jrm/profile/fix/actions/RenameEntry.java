@@ -11,16 +11,33 @@ import jrm.compressors.Archive;
 import jrm.profile.data.Entry;
 import jrm.ui.ProgressHandler;
 
+/**
+ * Rename an entry inside its container
+ * @author optyfr
+ *
+ */
 public class RenameEntry extends EntryAction
 {
+	/**
+	 * the desired new name of the entry to rename
+	 */
 	final String newname;
 
+	/**
+	 * constructor that will rename to a temporary name
+	 * @param entry the {@link Entry} to rename
+	 */
 	public RenameEntry(final Entry entry)
 	{
 		super(entry);
 		newname = UUID.randomUUID() + "_" + entry.size + ".tmp"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * constructor
+	 * @param newname the desired new name for the entry
+	 * @param entry the {@link Entry} to rename
+	 */
 	public RenameEntry(final String newname, final Entry entry)
 	{
 		super(entry);

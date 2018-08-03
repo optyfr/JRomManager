@@ -13,18 +13,32 @@ import org.apache.commons.lang3.StringUtils;
 import jrm.Messages;
 import jrm.profile.data.PropertyStub;
 
+/**
+ * nplayers.ini management class and {@link AbstractListModel}
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayers.NPlayer> implements Iterable<NPlayers.NPlayer>
 {
-	final private Map<String, NPlayer> nplayers = new TreeMap<>();
-	final private List<NPlayer> list_nplayers = new ArrayList<>();
-	public final File file;
-
+	/**
+	 * nplayer mode which list games compatible with that mode 
+	 * @author optyfr
+	 */
 	public final class NPlayer implements List<String>,PropertyStub
 	{
+		/**
+		 * the name of the nplayer mode
+		 */
 		final private String name;
+		/**
+		 * The {@link List} of compatible games identified by code names
+		 */
 		final private List<String> games = new ArrayList<>();
 
+		/**
+		 * The NPlayer constructor
+		 * @param name the mode name
+		 */
 		public NPlayer(final String name)
 		{
 			this.name = name;
@@ -181,10 +195,25 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		}
 	}
 
+	/**
+	 * The {@link List} of {@link NPlayer} modes
+	 */
+	final private List<NPlayer> list_nplayers = new ArrayList<>();
+	/**
+	 * The location of the nplayers.ini {@link File}
+	 */
+	final public File file;
+
+	/**
+	 * The main constructor will read provided nplayers.ini and initialize list of nplayer/games
+	 * @param file the nplayers.ini {@link File} to read
+	 * @throws IOException
+	 */
 	private NPlayers(final File file) throws IOException
 	{
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
+			final Map<String, NPlayer> nplayers = new TreeMap<>();
 			this.file = file;
 			String line;
 			boolean in_section = false;
@@ -216,6 +245,12 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		}
 	}
 
+	/**
+	 * static method shortcut to constructor
+	 * @param file the nplayers.ini to read
+	 * @return an initialized {@link NPlayers}
+	 * @throws IOException
+	 */
 	public static NPlayers read(final File file) throws IOException
 	{
 		return new NPlayers(file);

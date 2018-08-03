@@ -24,16 +24,37 @@ import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
 
+/**
+ * specialized class when an already existing container have to be opened before doing actions on entries (which should be only {@link AddEntry}) 
+ * @author optyfr
+ */
 public class OpenContainer extends ContainerAction
 {
+	/**
+	 * the uncompressed datasize of all entries to add (for temp file threshold purpose)
+	 */
 	private final long dataSize;
 
+	/**
+	 * constructor
+	 * @param container the container to open
+	 * @param format the desired format
+	 * @param dataSize the uncompressed data size supposed to be added
+	 */
 	public OpenContainer(final Container container, final FormatOptions format, final long dataSize)
 	{
 		super(container, format);
 		this.dataSize = dataSize;
 	}
 
+	/**
+	 * shortcut static method to get an instance of {@link OpenContainer}
+	 * @param action the potentially already existing {@link OpenContainer} 
+	 * @param container the container to open
+	 * @param format the desired format
+	 * @param dataSize the uncompressed data size supposed to be added
+	 * @return a {@link OpenContainer}
+	 */
 	public static OpenContainer getInstance(OpenContainer action, final Container container, final FormatOptions format, final long dataSize)
 	{
 		if (action == null)
@@ -134,6 +155,11 @@ public class OpenContainer extends ContainerAction
 		return false;
 	}
 
+	/**
+	 * Delete recursively folders only if they are empty
+	 * @param baseFolder the base folder as a {@link File} (may also be deleted if nothing left)
+	 * @return the number of bytes left in folders, 0 mean all folders were deleted
+	 */
 	public long deleteEmptyFolders(final File baseFolder)
 	{
 		long totalSize = 0;
@@ -149,6 +175,11 @@ public class OpenContainer extends ContainerAction
 		return totalSize;
 	}
 
+	/**
+	 * Delete recursively folders only if they are empty
+	 * @param baseFolder the base folder as a {@link Path} (may also be deleted if nothing left)
+	 * @return the number of bytes left in folders, 0 mean all folders were deleted
+	 */
 	public long deleteEmptyFolders(final Path baseFolder)
 	{
 		long totalSize = 0;

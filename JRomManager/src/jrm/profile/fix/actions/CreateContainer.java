@@ -23,16 +23,37 @@ import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
 
+/**
+ * specialized class when container need to be created before doing actions on entries (which should be only {@link AddEntry}) 
+ * @author optyfr
+ */
 public class CreateContainer extends ContainerAction
 {
+	/**
+	 * the uncompressed datasize of all entries to add (for temp file threshold purpose)
+	 */
 	private final long dataSize;
 
+	/**
+	 * constructor
+	 * @param container the container to create
+	 * @param format the desired format
+	 * @param dataSize the uncompressed data size supposed to be added
+	 */
 	public CreateContainer(final Container container, final FormatOptions format, final long dataSize)
 	{
 		super(container, format);
 		this.dataSize = dataSize;
 	}
 
+	/**
+	 * shortcut static method to get an instance of {@link CreateContainer}
+	 * @param action the potentially already existing {@link CreateContainer} 
+	 * @param container the container to create
+	 * @param format the desired format
+	 * @param dataSize the uncompressed data size supposed to be added
+	 * @return a {@link CreateContainer}
+	 */
 	public static CreateContainer getInstance(CreateContainer action, final Container container, final FormatOptions format, final long dataSize)
 	{
 		if (action == null)

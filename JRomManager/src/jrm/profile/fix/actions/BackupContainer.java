@@ -15,14 +15,28 @@ import jrm.profile.data.Entry;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.ProgressHandler;
 
+/**
+ * Special class aimed to backup some or all entries from a container
+ * @author optyfr
+ *
+ */
 public class BackupContainer extends ContainerAction
 {
-
+	/**
+	 * constructor
+	 * @param container the container to backup
+	 */
 	public BackupContainer(Container container)
 	{
 		super(container, FormatOptions.ZIP);
 	}
 
+	/**
+	 * shortcut static method to get an instance of {@link BackupContainer}
+	 * @param action the potentially already existing {@link BackupContainer} 
+	 * @param container the container to backup
+	 * @return a new {@link BackupContainer}, or the already existing {@code container} parameter
+	 */
 	public static BackupContainer getInstance(BackupContainer action, final Container container)
 	{
 		if (action == null)
@@ -30,8 +44,18 @@ public class BackupContainer extends ContainerAction
 		return action;
 	}
 
+	/**
+	 * a maintained list of opened Zip {@link FileSystem}s
+	 */
 	private static Map<String, FileSystem> filesystems = new HashMap<String, FileSystem>();
 
+	/**
+	 * get a {@link FileSystem} to backup {@link EntryAction} file from {@link Container}
+	 * @param container the originating entry's {@link Container}
+	 * @param action the {@link EntryAction} describing the entry 
+	 * @return a valid Zip {@link FileSystem} for which to save the entry, {@link FileSystem} archive will be created if not already existing, otherwise it will be opened for writing or reused if has already be returned for another entry 
+	 * @throws IOException if the zip archive could not be opened or created for writing
+	 */
 	public static synchronized FileSystem getFS(Container container, EntryAction action) throws IOException
 	{
 		String crc2 = action.entry.crc.substring(0, 2);
@@ -53,6 +77,9 @@ public class BackupContainer extends ContainerAction
 		return filesystems.get(crc2);
 	}
 
+	/**
+	 * close all opened zip archive {@link FileSystem}s (when all backup actions are finished)
+	 */
 	public static void closeAllFS()
 	{
 		filesystems.values().forEach(fs -> {

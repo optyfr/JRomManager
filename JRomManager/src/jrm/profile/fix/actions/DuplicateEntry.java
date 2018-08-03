@@ -10,10 +10,23 @@ import jrm.compressors.Archive;
 import jrm.profile.data.Entry;
 import jrm.ui.ProgressHandler;
 
+/**
+ * Duplicate an entry inside the *same* container
+ * @author optyfr
+ *
+ */
 public class DuplicateEntry extends EntryAction
 {
+	/**
+	 * the new name of the entry
+	 */
 	final String newname;
 
+	/**
+	 * the constructor
+	 * @param newname the new name io the entry
+	 * @param entry the {@link Entry} to duplicated
+	 */
 	public DuplicateEntry(final String newname, final Entry entry)
 	{
 		super(entry);
