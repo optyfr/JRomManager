@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
 import jrm.Messages;
 import jrm.misc.HTMLRenderer;
@@ -21,13 +22,33 @@ import jrm.ui.ReportTreeModel;
 import jrm.ui.StatusHandler;
 import one.util.streamex.IntStreamEx;
 
+/**
+ * The report node root
+ * @author optyfr
+ *
+ */
 public class Report implements TreeNode, HTMLRenderer
 {
+	/**
+	 * the related {@link Profile}
+	 */
 	private Profile profile;
+	/**
+	 * the {@link List} of {@link Subject} nodes
+	 */
 	private final List<Subject> subjects;
+	/**
+	 * a {@link Map} of {@link Subject} by fullname {@link String}
+	 */
 	private final Map<String, Subject> subject_hash;
+	/**
+	 * The {@link Stats} object
+	 */
 	public final Stats stats;
 
+	/**
+	 * the linked UI tree model
+	 */
 	private ReportTreeModel model = null;
 
 	public class Stats
@@ -47,30 +68,79 @@ public class Report implements TreeNode, HTMLRenderer
 		public int set_create_partial = 0;
 		public int set_create_complete = 0;
 
+		/**
+		 * clear stats
+		 */
 		public void clear()
 		{
+			/**
+			 * number of missing sets
+			 */
 			missing_set_cnt = 0;
+			/**
+			 * number of missing roms
+			 */
 			missing_roms_cnt = 0;
+			/**
+			 * number of missing disks
+			 */
 			missing_disks_cnt = 0;
+			/**
+			 * number of missing samples
+			 */
 			missing_samples_cnt = 0;
 
+			/**
+			 * number of unneeded set
+			 */
 			set_unneeded = 0;
+			/**
+			 * number of missing set
+			 */
 			set_missing = 0;
+			/**
+			 * number of set found
+			 */
 			set_found = 0;
+			/**
+			 * number of set found ok
+			 */
 			set_found_ok = 0;
+			/**
+			 * number of set found with partial fix
+			 */
 			set_found_fixpartial = 0;
+			/**
+			 * number of set found with complete fix
+			 */
 			set_found_fixcomplete = 0;
+			/**
+			 * number of set that will be created
+			 */
 			set_create = 0;
+			/**
+			 * number of set that will be created partially
+			 */
 			set_create_partial = 0;
+			/**
+			 * number of set that will be fully created
+			 */
 			set_create_complete = 0;
 		}
 
+		/**
+		 * get a {@link String} status with all stats to be show in a status bar
+		 * @return a {@link String} containing all stats
+		 */
 		public String getStatus()
 		{
 			return String.format(Messages.getString("Report.Status"), set_found, set_found_ok, set_found_fixpartial, set_found_fixcomplete, set_create, set_create_partial, set_create_complete, set_missing, set_unneeded, set_found + set_create, set_found + set_create + set_missing); //$NON-NLS-1$
 		}
 	}
 
+	/**
+	 * The constructor (init data)
+	 */
 	public Report()
 	{
 		subjects = Collections.synchronizedList(new ArrayList<>());
@@ -80,10 +150,22 @@ public class Report implements TreeNode, HTMLRenderer
 		model.initClone();
 	}
 
+	/**
+	 * A class that is a filter {@link Predicate} for {@link Subject}
+	 * @author optyfr
+	 *
+	 */
 	class FilterPredicate implements Predicate<Subject>
 	{
+		/**
+		 * {@link List} of {@link FilterOptions}
+		 */
 		List<FilterOptions> filterOptions;
 
+		/**
+		 * The predicate constructor
+		 * @param filterOptions {@link List} of {@link FilterOptions} to test against
+		 */
 		public FilterPredicate(final List<FilterOptions> filterOptions)
 		{
 			this.filterOptions = filterOptions;
@@ -101,8 +183,16 @@ public class Report implements TreeNode, HTMLRenderer
 
 	}
 
+	/**
+	 * the current filter predicate (initialized with an empty {@link List} of {@link FilterOptions})
+	 */
 	private FilterPredicate filterPredicate = new FilterPredicate(new ArrayList<>());
 
+	/**
+	 * The internal constructor aimed for cloning
+	 * @param report The {@link Report} to copy
+	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
+	 */
 	private Report(final Report report, final List<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
@@ -113,23 +203,40 @@ public class Report implements TreeNode, HTMLRenderer
 		stats = report.stats;
 	}
 
+	/**
+	 * Clone this {@link Report} according a {@link List} of {@link FilterOptions}
+	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
+	 * @return the cloned {@link Report}
+	 */
 	public Report clone(final List<FilterOptions> filterOptions)
 	{
 		return new Report(this, filterOptions);
 	}
 
+	/**
+	 * Filter subjects using current {@link FilterPredicate}
+	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
+	 * @return a {@link List} of {@link Subject}
+	 */
 	public List<Subject> filter(final List<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
 		return subjects.stream().filter(filterPredicate).map(s -> s.clone(filterOptions)).collect(Collectors.toList());
 	}
 
+	/**
+	 * Set the current profile
+	 * @param profile {@link Profile}
+	 */
 	public void setProfile(final Profile profile)
 	{
 		this.profile = profile;
 		reset();
 	}
 
+	/**
+	 * Reset the report
+	 */
 	public void reset()
 	{
 		subject_hash.clear();
@@ -141,23 +248,45 @@ public class Report implements TreeNode, HTMLRenderer
 		flush();
 	}
 
+	/**
+	 * the link to UI status handler
+	 */
 	private StatusHandler statusHandler = null;
 
+	/**
+	 * Set the {@link StatusHandler}
+	 * @param handler
+	 */
 	public void setStatusHandler(final StatusHandler handler)
 	{
 		statusHandler = handler;
 	}
 
+	/**
+	 * get the current {@link ReportTreeModel}
+	 * @return
+	 */
 	public ReportTreeModel getModel()
 	{
 		return model;
 	}
 
+	/**
+	 * find {@link Subject} from an {@link Anyware}
+	 * @param ware the {@link Anyware} to find {@link Subject}
+	 * @return the found {@link Subject} or null
+	 */
 	public Subject findSubject(final Anyware ware)
 	{
 		return ware != null ? subject_hash.get(ware.getFullName()) : null;
 	}
 
+	/**
+	 * find {@link Subject} from an {@link Anyware} or return a default {@link Subject}
+	 * @param ware the {@link Anyware} to find {@link Subject}
+	 * @param def a default {@link Subject} to return in case there is no {@link Subject} for this {@link Anyware}
+	 * @return a {@link Subject} or null if ware is null
+	 */
 	public Subject findSubject(final Anyware ware, final Subject def)
 	{
 		if(ware != null)
@@ -170,30 +299,41 @@ public class Report implements TreeNode, HTMLRenderer
 		return null;
 	}
 
+	/**
+	 * cache made to trigger {@link TreeModelEvent} as few as possible
+	 */
 	private final Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
 
+	/**
+	 * add a {@link Subject} to the Report
+	 * @param subject the {@link Subject} to add
+	 * @return true if success
+	 */
 	public synchronized boolean add(final Subject subject)
 	{
-		subject.parent = this;
-		if(subject.ware != null)
+		subject.parent = this;	// initialize subject.parent
+		if(subject.ware != null)	// add to subject_hash if there is a subject.ware
 			subject_hash.put(subject.ware.getFullName(), subject);
-		final boolean result = subjects.add(subject);
-		final Report clone = (Report) model.getRoot();
-		if(this != clone)
+		final boolean result = subjects.add(subject); // add to subjects list and keep result
+		final Report clone = (Report) model.getRoot();	// get model Report clone (filtered one)
+		if(this != clone)	// if this report is not already the clone itself then update clone
 		{
 			subject.updateStats();
-			if(filterPredicate.test(subject))
+			if(filterPredicate.test(subject))	// manually test predicate
 			{
-				final Subject cloned_subject = subject.clone(filterPredicate.filterOptions);
-				clone.add(cloned_subject);
-				insert_object_cache.put(clone.subjects.size() - 1, cloned_subject);
-				if(insert_object_cache.size() >= 250)
+				final Subject cloned_subject = subject.clone(filterPredicate.filterOptions);	// clone the subject according filterPredicate
+				clone.add(cloned_subject);	// then call this method on clone object
+				insert_object_cache.put(clone.subjects.size() - 1, cloned_subject);	// insert cloned subject into insert event cache
+				if(insert_object_cache.size() >= 250)	// and call flush only if the event cache is at least 250 objects
 					flush();
 			}
 		}
 		return result;
 	}
 
+	/**
+	 * flush the current object cache by generating a {@link TreeModelEvent} to send to all {@link TreeModelListener}s available
+	 */
 	public synchronized void flush()
 	{
 		if(statusHandler != null)
@@ -207,6 +347,9 @@ public class Report implements TreeNode, HTMLRenderer
 		insert_object_cache.clear();
 	}
 
+	/**
+	 * write a textual report to reports/report.log
+	 */
 	public void write()
 	{
 		final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$

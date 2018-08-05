@@ -4,11 +4,24 @@ import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.Messages;
 import jrm.profile.data.EntityBase;
+import jrm.profile.data.Entry;
 
+/**
+ * An {@link Entry} is missing for an {@link EntityBase} and has not been found
+ * @author optyfr
+ *
+ */
 public class EntryMissing extends Note
 {
+	/**
+	 * The related {@link EntityBase}
+	 */
 	final EntityBase entity;
 
+	/**
+	 * The constructor
+	 * @param entity The related {@link EntityBase}
+	 */
 	public EntryMissing(final EntityBase entity)
 	{
 		this.entity = entity;

@@ -6,13 +6,17 @@ import javax.swing.tree.TreeNode;
 
 import jrm.misc.HTMLRenderer;
 
+/**
+ * A Subject is a report node about an entry of a container
+ * @author optyfr
+ *
+ */
 public abstract class Note implements TreeNode,HTMLRenderer
 {
+	/**
+	 * The parent {@link Subject}
+	 */
 	Subject parent;
-
-	public Note()
-	{
-	}
 
 	@Override
 	public abstract String toString();

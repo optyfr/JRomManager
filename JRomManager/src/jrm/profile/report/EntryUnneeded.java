@@ -5,10 +5,22 @@ import org.apache.commons.text.StringEscapeUtils;
 import jrm.Messages;
 import jrm.profile.data.Entry;
 
+/**
+ * Entry is unneeded
+ * @author optyfr
+ *
+ */
 public class EntryUnneeded extends Note
 {
+	/**
+	 * The {@link Entry} that is not needed
+	 */
 	final Entry entry;
 
+	/**
+	 * The constructor
+	 * @param entry The {@link Entry} that is not needed
+	 */
 	public EntryUnneeded(final Entry entry)
 	{
 		this.entry = entry;

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 
 /**
- * The abstract base class for {@link EntityBase} and {@link Sample}, main purpose is to define parent relationship and scan status
+ * The abstract base class for {@link Entity} and {@link Sample}, main purpose is to define parent relationship and scan status
  * @author optyfr
  */
 @SuppressWarnings("serial")

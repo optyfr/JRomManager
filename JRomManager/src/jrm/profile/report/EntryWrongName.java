@@ -6,11 +6,27 @@ import jrm.Messages;
 import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
 
+/**
+ * An {@link Entry} has been found for a related {@link Entity}, but is wrongly named
+ * @author optyfr
+ *
+ */
 public class EntryWrongName extends Note
 {
+	/**
+	 * The related {@link Entity}
+	 */
 	final Entity entity;
+	/**
+	 * The entry wrongly named
+	 */
 	final Entry entry;
 
+	/**
+	 * The constructor
+	 * @param entity The related {@link Entity}
+	 * @param entry The entry wrongly named
+	 */
 	public EntryWrongName(final Entity entity, final Entry entry)
 	{
 		this.entity = entity;

@@ -6,11 +6,27 @@ import jrm.Messages;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 
+/**
+ * Entry can be added
+ * @author optyfr
+ *
+ */
 public class EntryAdd extends Note
 {
+	/**
+	 * the related {@link EntityBase} (a Rom, a Disk, or a Sample)
+	 */
 	final EntityBase entity;
+	/**
+	 * The {@link Entry} to add
+	 */
 	final Entry entry;
 
+	/**
+	 * The constructor for this entry report
+	 * @param entity the related {@link EntityBase} (a Rom, a Disk, or a Sample)
+	 * @param entry the {@link Entry} to add
+	 */
 	public EntryAdd(final EntityBase entity, final Entry entry)
 	{
 		this.entity = entity;

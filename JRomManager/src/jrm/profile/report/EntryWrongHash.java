@@ -6,11 +6,27 @@ import jrm.Messages;
 import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
 
+/**
+ * This {@link Entry} is present but has wrong hash when compared to its related {@link Entity}
+ * @author optyfr
+ *
+ */
 public class EntryWrongHash extends Note
 {
+	/**
+	 * related {@link Entity} 
+	 */
 	final Entity entity;
+	/**
+	 * Wrong hash {@link Entry}
+	 */
 	final Entry entry;
 
+	/**
+	 * The constructor
+	 * @param entity related {@link Entity}
+	 * @param entry  Wrong hash {@link Entry}
+	 */
 	public EntryWrongHash(final Entity entity, final Entry entry)
 	{
 		this.entity = entity;
