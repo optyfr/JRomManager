@@ -871,7 +871,7 @@ public final class DirScan
 	/**
 	 * Compute SHA-1 from entry {@link Path}
 	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
-	 * @return
+	 * @return the hash {@link String}
 	 */
 	private String computeSHA1(final Path entry_path)
 	{
@@ -881,7 +881,7 @@ public final class DirScan
 	/**
 	 * Compute MD5 from entry {@link Path}
 	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
-	 * @return
+	 * @return the hash {@link String}
 	 */
 	private String computeMD5(final Path entry_path)
 	{
@@ -892,7 +892,7 @@ public final class DirScan
 	 * Compute Hash from entry {@link Path}
 	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
 	 * @param algorithm the desired hash algorithm
-	 * @return
+	 * @return the hash {@link String}
 	 */
 	private String computeHash(final Path entry_path, final String algorithm)
 	{

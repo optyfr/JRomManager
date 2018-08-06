@@ -139,6 +139,7 @@ public class Scan
 	/**
 	 * get a negated {@link Predicate} from a provided {@link Predicate}
 	 * @param predicate the {@link Predicate} to negate
+	 * @param <T> the type of the input to the predicate
 	 * @return the negated {@link Predicate}
 	 */
 	private static <T> Predicate<T> not(final Predicate<T> predicate)
@@ -929,7 +930,6 @@ public class Scan
 	/**
 	 * Scan samples
 	 * @param set the {@link Samples} set to scan
-	 * @return true if set is currently missing
 	 */
 	private void scanSamples(final Samples set)
 	{
