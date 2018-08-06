@@ -1,9 +1,31 @@
+/* Copyright (C) 2018  optyfr
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package jrm.profile.report;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -11,7 +33,6 @@ import java.util.stream.Collectors;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
 import jrm.Messages;
 import jrm.misc.HTMLRenderer;
@@ -255,7 +276,7 @@ public class Report implements TreeNode, HTMLRenderer
 
 	/**
 	 * Set the {@link StatusHandler}
-	 * @param handler
+	 * @param handler the {@link StatusHandler} that will be used
 	 */
 	public void setStatusHandler(final StatusHandler handler)
 	{
@@ -264,7 +285,7 @@ public class Report implements TreeNode, HTMLRenderer
 
 	/**
 	 * get the current {@link ReportTreeModel}
-	 * @return
+	 * @return a {@link ReportTreeModel}
 	 */
 	public ReportTreeModel getModel()
 	{

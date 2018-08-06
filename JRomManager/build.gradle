@@ -50,6 +50,9 @@ javadoc {
 	source += sourceSets.main.allJava
 	classpath += sourceSets.main.compileClasspath
 	options.showAll()
+	options.with {
+        links 'https://docs.oracle.com/javase/8/docs/api/'
+    }
 }
 
 build.dependsOn javadoc

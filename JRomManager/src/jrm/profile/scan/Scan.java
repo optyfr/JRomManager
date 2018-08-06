@@ -1,3 +1,19 @@
+/* Copyright (C) 2018  optyfr
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package jrm.profile.scan;
 
 import java.io.File;
@@ -25,16 +41,29 @@ import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.MainFrame;
 import jrm.ui.ProgressHandler;
 
+/**
+ * The scan class
+ * @author optyfr
+ */
 public class Scan
 {
+	/**
+	 * the attached {@link Report}
+	 */
 	public final static Report report = new Report();
-	private static <T> Predicate<T> not(final Predicate<T> predicate)
-	{
-		return predicate.negate();
-	}
+	/**
+	 * All the actions to take for fixing the set after scan
+	 */
 	public final ArrayList<Collection<jrm.profile.fix.actions.ContainerAction>> actions = new ArrayList<>();
 
+	/**
+	 * The current profile
+	 */
 	private final Profile profile;
+	
+	/*
+	 * All options variables
+	 */
 	private final MergeOptions merge_mode;
 	private final boolean implicit_merge;
 	private final FormatOptions format;
@@ -45,13 +74,17 @@ public class Scan
 	private final boolean ignore_unknown_containers;
 	private final boolean backup;
 	private final HashCollisionOptions hash_collision_mode;
+	
+	/*
+	 * All Dir Scans variables
+	 */
 	private DirScan roms_dstscan = null;
 	private DirScan disks_dstscan = null;
 	private DirScan samples_dstscan = null;
 	private final Map<String, DirScan> swroms_dstscans = new HashMap<>();
 	private Map<String, DirScan> swdisks_dstscans = new HashMap<>();
-
 	private final List<DirScan> allscans = new ArrayList<>();
+	
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> backup_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> create_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> rename_before_actions = new ArrayList<>();
@@ -59,9 +92,18 @@ public class Scan
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> delete_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> rename_after_actions = new ArrayList<>();
 	private final ArrayList<jrm.profile.fix.actions.ContainerAction> duplicate_actions = new ArrayList<>();
-
 	private final Map<String, jrm.profile.fix.actions.ContainerAction> tzip_actions = new HashMap<>();
 
+	/**
+	 * get a negated {@link Predicate} from a provided {@link Predicate}
+	 * @param predicate the {@link Predicate} to negate
+	 * @return the negated {@link Predicate}
+	 */
+	private static <T> Predicate<T> not(final Predicate<T> predicate)
+	{
+		return predicate.negate();
+	}
+	
 	public Scan(final Profile profile, final ProgressHandler handler) throws BreakException
 	{
 		this.profile = profile;
@@ -309,7 +351,7 @@ public class Scan
 	{
 		final DirScan dstscan;
 		allscans.add(dstscan = new DirScan(profile, dstdir, handler, true));
-		for (final Container c : dstscan.containers)
+		for (final Container c : dstscan.getContainersIterable())
 		{
 			if (c.getType() == Container.Type.UNK)
 				unknown.add(c);
@@ -333,7 +375,7 @@ public class Scan
 				if (!report_subject.isMissing() && !report_subject.isUnneeded() && roms.size() > 0)
 				{
 					Container tzipcontainer = null;
-					final Container container = roms_dstscan.containers_byname.get(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt());
+					final Container container = roms_dstscan.getContainerByName(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt());
 					if (container != null)
 					{
 						if (container.lastTZipCheck < container.modified)
@@ -364,7 +406,7 @@ public class Scan
 			if (!report_subject.isMissing() && !report_subject.isUnneeded() && set.samples.size()>0)
 			{
 				Container tzipcontainer = null;
-				final Container container = samples_dstscan.containers_byname.get(archive.file.getName());
+				final Container container = samples_dstscan.getContainerByName(archive.file.getName());
 				if (container != null)
 				{
 					if (container.lastTZipCheck < container.modified)
@@ -391,7 +433,7 @@ public class Scan
 	public void removeOtherFormats(final Anyware ware)
 	{
 		format.getExt().allExcept().forEach((e) -> { // set other formats with the same set name as unneeded
-			final Container c = roms_dstscan.containers_byname.get(ware.getName() + e);
+			final Container c = roms_dstscan.getContainerByName(ware.getName() + e);
 			if (c != null)
 			{
 				Scan.report.add(new ContainerUnneeded(c));
@@ -407,7 +449,7 @@ public class Scan
 		{
 			if (format == FormatOptions.DIR && disks.size() == 0 && roms.size() == 0)
 			{
-				Arrays.asList(roms_dstscan.containers_byname.get(ware.getName()), disks_dstscan.containers_byname.get(ware.getName())).forEach(c -> {
+				Arrays.asList(roms_dstscan.getContainerByName(ware.getName()), disks_dstscan.getContainerByName(ware.getName())).forEach(c -> {
 					if (c != null)
 					{
 						Scan.report.add(new ContainerUnneeded(c));
@@ -418,7 +460,7 @@ public class Scan
 			}
 			else if (disks.size() == 0)
 			{
-				final Container c = disks_dstscan.containers_byname.get(ware.getName());
+				final Container c = disks_dstscan.getContainerByName(ware.getName());
 				if (c != null)
 				{
 					Scan.report.add(new ContainerUnneeded(c));
@@ -428,7 +470,7 @@ public class Scan
 			}
 			if (format != FormatOptions.DIR && roms.size() == 0)
 			{
-				final Container c = roms_dstscan.containers_byname.get(ware.getName() + format.getExt());
+				final Container c = roms_dstscan.getContainerByName(ware.getName() + format.getExt());
 				if (c != null)
 				{
 					Scan.report.add(new ContainerUnneeded(c));
@@ -444,7 +486,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		final Container container;
-		if (null != (container = disks_dstscan.containers_byname.get(ware.getDest(merge_mode, implicit_merge).getName())))
+		if (null != (container = disks_dstscan.getContainerByName(ware.getDest(merge_mode, implicit_merge).getName())))
 		{
 			missing_set = false;
 			if (disks.size() > 0)
@@ -598,7 +640,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		final Container container;
-		if (null != (container = roms_dstscan.containers_byname.get(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt())))
+		if (null != (container = roms_dstscan.getContainerByName(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt())))
 		{
 			missing_set = false;
 			if (roms.size() > 0)
@@ -671,7 +713,7 @@ public class Scan
 						Scan.report.stats.missing_roms_cnt++;
 						for (final DirScan scan : allscans)
 						{
-							if (null != (found_entry = scan.find_byhash(profile, rom)))
+							if (null != (found_entry = scan.find_byhash(rom)))
 							{
 								report_subject.add(new EntryAdd(rom, found_entry));
 								(add_set = OpenContainer.getInstance(add_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new AddEntry(rom, found_entry));
@@ -727,7 +769,7 @@ public class Scan
 						Entry entry_found = null;
 						for (final DirScan scan : allscans)
 						{
-							if (null != (entry_found = scan.find_byhash(profile, rom)))
+							if (null != (entry_found = scan.find_byhash(rom)))
 							{
 								report_subject.add(new EntryAdd(rom, entry_found));
 								(createset = CreateContainer.getInstance(createset, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new AddEntry(rom, entry_found));
@@ -762,9 +804,9 @@ public class Scan
 		boolean missing_set = true;
 		final Container archive;
 		if (format.getExt().isDir())
-			archive = new Directory(new File(samples_dstscan.dir, set.getName()), set);
+			archive = new Directory(new File(samples_dstscan.getDir(), set.getName()), set);
 		else
-			archive = new Archive(new File(samples_dstscan.dir, set.getName() + format.getExt()), set);
+			archive = new Archive(new File(samples_dstscan.getDir(), set.getName() + format.getExt()), set);
 		final SubjectSet report_subject = new SubjectSet(set);
 		if(!scanSamples(set, archive, report_subject))
 			missing_set = false;
@@ -782,7 +824,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		final Container container;
-		if (null != (container = samples_dstscan.containers_byname.get(archive.file.getName())))
+		if (null != (container = samples_dstscan.getContainerByName(archive.file.getName())))
 		{
 			missing_set = false;
 			report_subject.setFound();
@@ -810,7 +852,7 @@ public class Scan
 						for (final FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
 						{
 							final Container found_container;
-							if (null != (found_container = scan.containers_byname.get(set.getName() + ext)))
+							if (null != (found_container = scan.getContainerByName(set.getName() + ext)))
 							{
 								for (final Entry entry : found_container.entries_byname.values())
 								{
@@ -869,7 +911,7 @@ public class Scan
 						for (final FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
 						{
 							final Container found_container;
-							if (null != (found_container = scan.containers_byname.get(set.getName() + ext)))
+							if (null != (found_container = scan.getContainerByName(set.getName() + ext)))
 							{
 								for (final Entry entry : found_container.entries_byname.values())
 								{
@@ -916,12 +958,12 @@ public class Scan
 		final SubjectSet report_subject = new SubjectSet(ware);
 
 		boolean missing_set = true;
-		final Directory directory = new Directory(new File(disks_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName()), ware);
+		final Directory directory = new Directory(new File(disks_dstscan.getDir(), ware.getDest(merge_mode, implicit_merge).getName()), ware);
 		final Container archive;
 		if (format.getExt().isDir())
-			archive = new Directory(new File(roms_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName()), ware);
+			archive = new Directory(new File(roms_dstscan.getDir(), ware.getDest(merge_mode, implicit_merge).getName()), ware);
 		else
-			archive = new Archive(new File(roms_dstscan.dir, ware.getDest(merge_mode, implicit_merge).getName() + format.getExt()), ware);
+			archive = new Archive(new File(roms_dstscan.getDir(), ware.getDest(merge_mode, implicit_merge).getName() + format.getExt()), ware);
 		final List<Rom> roms = ware.filterRoms(merge_mode, hash_collision_mode);
 		final List<Disk> disks = ware.filterDisks(merge_mode, hash_collision_mode);
 		if (!scanRoms(ware, roms, archive, report_subject))
