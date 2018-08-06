@@ -26,6 +26,7 @@ _Minimal developement requirements_:
 - Git submodules dependencies
 	- [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
 	- [JUpdater](https://github.com/optyfr/JUpdater)
+	- [JLauncher](https://github.com/optyfr/JLauncher)
 
 _Minimal usage requirements_:
 - 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)

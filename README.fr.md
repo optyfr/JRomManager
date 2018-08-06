@@ -22,8 +22,9 @@ _Prérequis de développement minimum_:
 	- StreamEx 0.6.7
 	- SevenZipJBinding 9.20-2.00 (plus rapide que l'usage de la commande en ligne de 7zip)
 - Dépendances via sous-modules Git
-	- Jtrrntzip
-	- JUpdater
+	- [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
+	- [JUpdater](https://github.com/optyfr/JUpdater)
+	- [JLauncher](https://github.com/optyfr/JLauncher)
 
 _Prérequis d'utilisation minimum_:
 - 1Go de Ram libre (2Go ou plus si utilisation des Software Lists, l'option multicoeur, la compression 7z en mode ultra, ...)
