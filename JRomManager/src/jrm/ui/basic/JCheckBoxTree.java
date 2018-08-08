@@ -62,14 +62,6 @@ public class JCheckBoxTree extends JTree
 
 	/**
 	 * The listener interface for receiving checkChangeEvent events.
-	 * The class that is interested in processing a checkChangeEvent
-	 * event implements this interface, and the object created
-	 * with that class is registered with a component using the
-	 * component's <code>addCheckChangeEventListener<code> method. When
-	 * the checkChangeEvent event occurs, that object's appropriate
-	 * method is invoked.
-	 *
-	 * @see CheckChangeEventEvent
 	 */
 	public interface CheckChangeEventListener extends EventListener
 	{
