@@ -24,7 +24,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import jrm.Messages;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * Delete a container (will all its entries)

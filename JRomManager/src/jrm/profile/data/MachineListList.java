@@ -31,10 +31,10 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.IOUtils;
 
 import jrm.Messages;
-import jrm.profile.Export;
-import jrm.profile.Export.EnhancedXMLStreamWriter;
-import jrm.ui.AnywareListListRenderer;
-import jrm.ui.ProgressHandler;
+import jrm.profile.manager.Export;
+import jrm.ui.profile.data.AnywareListListRenderer;
+import jrm.ui.progress.ProgressHandler;
+import jrm.xml.EnhancedXMLStreamWriter;
 
 /**
  * Singleton List of machines lists

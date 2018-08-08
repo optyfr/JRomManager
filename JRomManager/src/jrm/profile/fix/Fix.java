@@ -30,7 +30,7 @@ import jrm.profile.Profile;
 import jrm.profile.fix.actions.BackupContainer;
 import jrm.profile.fix.actions.ContainerAction;
 import jrm.profile.scan.Scan;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.ProgressHandler;
 import one.util.streamex.StreamEx;
 
 /**

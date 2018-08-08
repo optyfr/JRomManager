@@ -23,10 +23,10 @@ import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
-import jrm.profile.Export.EnhancedXMLStreamWriter;
-import jrm.profile.Export.SimpleAttribute;
 import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers.NPlayer;
+import jrm.xml.EnhancedXMLStreamWriter;
+import jrm.xml.SimpleAttribute;
 
 /**
  * Represent a complete Machine (or a game set in Logiqx terminology)

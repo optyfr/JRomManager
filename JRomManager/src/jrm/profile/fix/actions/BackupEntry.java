@@ -22,8 +22,8 @@ import java.nio.file.*;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.profile.data.Container.Type;
+import jrm.ui.progress.ProgressHandler;
 import jrm.profile.data.Entry;
-import jrm.ui.ProgressHandler;
 
 /**
  * Describe an entry to backup, will take appropriate actions to extract entry before copying to provided backup {@link FileSystem} 

@@ -105,10 +105,7 @@ import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.misc.FindCmd;
 import jrm.misc.Settings;
-import jrm.profile.Import;
 import jrm.profile.Profile;
-import jrm.profile.ProfileNFO;
-import jrm.profile.ProfileNFOMame.MameStatus;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.Driver;
 import jrm.profile.data.Machine.CabinetType;
@@ -120,19 +117,35 @@ import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.profile.fix.Fix;
+import jrm.profile.manager.Dir;
+import jrm.profile.manager.Import;
+import jrm.profile.manager.ProfileNFO;
+import jrm.profile.manager.ProfileNFOMame.MameStatus;
 import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
-import jrm.ui.controls.JCheckBoxList;
-import jrm.ui.controls.JCheckBoxTree;
-import jrm.ui.controls.JFileDropList;
-import jrm.ui.controls.JFileDropMode;
-import jrm.ui.controls.JFileDropTextField;
-import jrm.ui.controls.JListHintUI;
-import jrm.ui.controls.JRMFileChooser;
-import jrm.ui.controls.JRMFileChooser.OneRootFileSystemView;
-import jrm.ui.controls.JTextFieldHintUI;
+import jrm.ui.basic.JCheckBoxList;
+import jrm.ui.basic.JCheckBoxTree;
+import jrm.ui.basic.JFileDropList;
+import jrm.ui.basic.JFileDropMode;
+import jrm.ui.basic.JFileDropTextField;
+import jrm.ui.basic.JListHintUI;
+import jrm.ui.basic.JRMFileChooser;
+import jrm.ui.basic.JTextFieldHintUI;
+import jrm.ui.basic.NGTreeNode;
+import jrm.ui.basic.JRMFileChooser.OneRootFileSystemView;
+import jrm.ui.profile.ProfileViewer;
+import jrm.ui.profile.filter.CatVerModel;
+import jrm.ui.profile.manager.DirNode;
+import jrm.ui.profile.manager.DirTreeCellEditor;
+import jrm.ui.profile.manager.DirTreeCellRenderer;
+import jrm.ui.profile.manager.DirTreeModel;
+import jrm.ui.profile.manager.DirTreeSelectionListener;
+import jrm.ui.profile.manager.FileTableCellRenderer;
+import jrm.ui.profile.manager.FileTableModel;
+import jrm.ui.profile.report.ReportFrame;
+import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
@@ -733,7 +746,7 @@ public class MainFrame extends JFrame
 			final DirNode selectedNode = (DirNode) profilesTree.getLastSelectedPathComponent();
 			if (selectedNode != null)
 			{
-				final DirNode newnode = new DirNode(new DirNode.Dir(new File(selectedNode.dir.getFile(), Messages.getString("MainFrame.NewFolder")))); //$NON-NLS-1$
+				final DirNode newnode = new DirNode(new Dir(new File(selectedNode.getDir().getFile(), Messages.getString("MainFrame.NewFolder")))); //$NON-NLS-1$
 				selectedNode.add(newnode);
 				profilesTreeModel.reload(selectedNode);
 				final TreePath path = new TreePath(newnode.getPath());

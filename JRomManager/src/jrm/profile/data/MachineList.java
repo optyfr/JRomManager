@@ -27,13 +27,13 @@ import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
 import jrm.Messages;
-import jrm.profile.Export.EnhancedXMLStreamWriter;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
-import jrm.ui.MachineListRenderer;
-import jrm.ui.ProgressHandler;
+import jrm.ui.profile.data.MachineListRenderer;
+import jrm.ui.progress.ProgressHandler;
+import jrm.xml.EnhancedXMLStreamWriter;
 
 
 /**

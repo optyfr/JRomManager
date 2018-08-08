@@ -24,7 +24,7 @@ import java.nio.file.StandardCopyOption;
 import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.profile.data.Entry;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * Duplicate an entry inside the *same* container

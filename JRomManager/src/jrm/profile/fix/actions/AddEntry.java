@@ -24,10 +24,10 @@ import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.profile.data.Container.Type;
+import jrm.ui.progress.ProgressHandler;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 import jrm.profile.data.Rom;
-import jrm.ui.ProgressHandler;
 
 /**
  * Add an entry to a container

@@ -25,10 +25,10 @@ import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
-import jrm.profile.Export.EnhancedXMLStreamWriter;
-import jrm.profile.Export.SimpleAttribute;
 import jrm.profile.data.Software.Part.DataArea;
 import jrm.profile.data.Software.Part.DiskArea;
+import jrm.xml.EnhancedXMLStreamWriter;
+import jrm.xml.SimpleAttribute;
 
 /**
  * This define a MESS software

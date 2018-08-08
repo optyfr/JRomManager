@@ -39,8 +39,8 @@ import jrm.misc.HTMLRenderer;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
-import jrm.ui.ReportTreeModel;
-import jrm.ui.StatusHandler;
+import jrm.ui.profile.report.ReportTreeModel;
+import jrm.ui.progress.StatusHandler;
 import one.util.streamex.IntStreamEx;
 
 /**

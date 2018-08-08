@@ -76,7 +76,7 @@ import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
 import jrm.profile.data.Rom;
 import jrm.profile.scan.options.FormatOptions;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.ProgressHandler;
 import net.sf.sevenzipjbinding.ExtractAskMode;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
 import net.sf.sevenzipjbinding.IArchiveExtractCallback;

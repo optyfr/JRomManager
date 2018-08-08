@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import jrm.Messages;
 import jrm.profile.data.PropertyStub;
-import jrm.ui.AbstractNGTreeNode;
+import jrm.ui.basic.AbstractNGTreeNode;
 
 /**
  * catver.ini management class and {@link AbstractNGTreeNode} root

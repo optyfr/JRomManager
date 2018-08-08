@@ -22,7 +22,7 @@ import java.util.List;
 import jrm.misc.HTMLRenderer;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * The base class for container operations

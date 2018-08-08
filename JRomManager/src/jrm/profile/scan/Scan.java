@@ -39,7 +39,7 @@ import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.MainFrame;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * The scan class

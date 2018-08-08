@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.profile.data.Entry;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * Delete an entry from its container

@@ -29,7 +29,7 @@ import jrm.misc.Settings;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
 import jrm.profile.scan.options.FormatOptions;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * Special class aimed to backup some or all entries from a container

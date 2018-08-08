@@ -34,7 +34,7 @@ import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
-import jrm.ui.AnywareRenderer;
+import jrm.ui.profile.data.AnywareRenderer;
 import one.util.streamex.StreamEx;
 
 /**

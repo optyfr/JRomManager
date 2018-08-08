@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
-import jrm.profile.Export.EnhancedXMLStreamWriter;
-import jrm.profile.Export.SimpleAttribute;
 import jrm.profile.Profile;
+import jrm.xml.EnhancedXMLStreamWriter;
+import jrm.xml.SimpleAttribute;
 
 /**
  * Rom entity definition

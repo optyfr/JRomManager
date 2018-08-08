@@ -47,7 +47,8 @@ import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers;
 import jrm.profile.filter.NPlayers.NPlayer;
-import jrm.ui.ProgressHandler;
+import jrm.profile.manager.ProfileNFO;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * Load a Profile which consist of :

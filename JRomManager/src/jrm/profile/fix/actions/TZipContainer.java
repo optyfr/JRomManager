@@ -26,8 +26,8 @@ import JTrrntzip.TorrentZip;
 import JTrrntzip.TrrntZipStatus;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
-import jrm.ui.Progress;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.Progress;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * The specialized container action for trrntzipping zip containers

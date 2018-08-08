@@ -38,7 +38,7 @@ import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.misc.Settings;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
-import jrm.ui.ProgressHandler;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * specialized class when an already existing container have to be opened before doing actions on entries (which should be only {@link AddEntry}) 

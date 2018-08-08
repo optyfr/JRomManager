@@ -30,12 +30,12 @@ import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
 import jrm.Messages;
-import jrm.profile.Export.EnhancedXMLStreamWriter;
-import jrm.profile.Export.SimpleAttribute;
 import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
-import jrm.ui.ProgressHandler;
-import jrm.ui.SoftwareListRenderer;
+import jrm.ui.profile.data.SoftwareListRenderer;
+import jrm.ui.progress.ProgressHandler;
+import jrm.xml.EnhancedXMLStreamWriter;
+import jrm.xml.SimpleAttribute;
 
 /**
  * a {@link Software} list 
