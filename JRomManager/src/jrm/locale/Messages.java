@@ -1,4 +1,4 @@
-package jrm;
+package jrm.locale;
 
 import java.beans.Beans;
 import java.util.MissingResourceException;

@@ -33,13 +33,30 @@ import javax.swing.border.TitledBorder;
 
 import jrm.ui.profile.ProfileViewer;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class KeywordFilter.
+ */
 @SuppressWarnings("serial")
 public class KeywordFilter extends JDialog
 {
+	
+	/** The KW src. */
 	private JList<String> KWSrc;
+	
+	/** The KW dst. */
 	private JList<String> KWDst;
+	
+	/** The dstmodel. */
 	private DefaultListModel<String> dstmodel = new DefaultListModel<String>();
 
+	/**
+	 * Instantiates a new keyword filter.
+	 *
+	 * @param owner the owner
+	 * @param src the src
+	 * @param callback the callback
+	 */
 	public KeywordFilter(Window owner, String[] src, CallBack callback)
 	{
 		super(owner, "Keyword Filter", ModalityType.APPLICATION_MODAL);
@@ -120,27 +137,57 @@ public class KeywordFilter extends JDialog
 		setVisible(true);
 	}
 
+	/**
+	 * Gets the filter.
+	 *
+	 * @return the filter
+	 */
 	public ArrayList<String> getFilter()
 	{
 		return Collections.list(dstmodel.elements());
 	}
 	
+	/**
+	 * The Interface CallBack.
+	 */
 	public interface CallBack
 	{
+		
+		/**
+		 * Call.
+		 *
+		 * @param filter the filter
+		 */
 		public void call(KeywordFilter filter);
 	}
 	
+	/**
+	 * The Class StringMoveHandler.
+	 */
 	private static class StringMoveHandler extends TransferHandler
 	{
+		
+		/** The object array flavor. */
 		private DataFlavor objectArrayFlavor = new ActivationDataFlavor(Object[].class, DataFlavor.javaJVMLocalObjectMimeType, "Array of items");
+		
+		/** The list. */
 		// We'll be moving the strings of this list
 		private JList<String> list;
 
+		/**
+		 * Instantiates a new string move handler.
+		 */
 		// Clients should use a static factory method to instantiate the handler
 		private StringMoveHandler()
 		{
 		}
 
+		/**
+		 * Creates the for.
+		 *
+		 * @param list the list
+		 * @return the string move handler
+		 */
 		public static StringMoveHandler createFor(JList<String> list)
 		{
 			StringMoveHandler handler = new StringMoveHandler();
@@ -173,6 +220,11 @@ public class KeywordFilter extends JDialog
 			return success;
 		}
 
+		/**
+		 * Adds the to list model.
+		 *
+		 * @param importedData the imported data
+		 */
 		private void addToListModel(Object[] importedData)
 		{
 			JList.DropLocation loc = list.getDropLocation();
@@ -226,6 +278,11 @@ public class KeywordFilter extends JDialog
 			}
 		}
 
+		/**
+		 * Removes the from list model.
+		 *
+		 * @param dataToRemove the data to remove
+		 */
 		private void removeFromListModel(Object[] dataToRemove)
 		{
 			DefaultListModel<String> listModel = (DefaultListModel<String>) list.getModel();

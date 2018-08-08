@@ -26,34 +26,67 @@ import javax.swing.tree.DefaultTreeModel;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ReportTreeModel.
+ *
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public final class ReportTreeModel extends DefaultTreeModel
 {
+	
+	/** The org root. */
 	private final Report org_root;
+	
+	/** The filter options. */
 	private List<FilterOptions> filterOptions = new ArrayList<>();
 
+	/**
+	 * Instantiates a new report tree model.
+	 *
+	 * @param root the root
+	 */
 	public ReportTreeModel(final Report root)
 	{
 		super(root);
 		org_root = root;
 	}
 
+	/**
+	 * Inits the clone.
+	 */
 	public void initClone()
 	{
 		setRoot(org_root.clone(filterOptions));
 	}
 
+	/**
+	 * Filter.
+	 *
+	 * @param filterOptions the filter options
+	 */
 	public void filter(final FilterOptions... filterOptions)
 	{
 		filter(Arrays.asList(filterOptions));
 	}
 
+	/**
+	 * Filter.
+	 *
+	 * @param filterOptions the filter options
+	 */
 	public void filter(final List<FilterOptions> filterOptions)
 	{
 		this.filterOptions = filterOptions;
 		setRoot(org_root.clone(filterOptions));
 	}
 
+	/**
+	 * Gets the filter options.
+	 *
+	 * @return the filter options
+	 */
 	public EnumSet<FilterOptions> getFilterOptions()
 	{
 		if(filterOptions.size()==0)

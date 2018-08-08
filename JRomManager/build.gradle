@@ -65,7 +65,7 @@ jar {
 			"Specification-Version": props.getProperty("Specification-Version"),
 			"Implementation-Title" : "jrm",
 			"Implementation-Version" : props.getProperty("Implementation-Version"),
-			"Main-Class"           : "JRomManager",
+			"Main-Class"           : "jrm.JRomManager",
 			"Class-Path"           : configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
 		)
 		archiveName baseName + '.' + extension

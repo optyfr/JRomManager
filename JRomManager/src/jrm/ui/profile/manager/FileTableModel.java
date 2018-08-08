@@ -27,38 +27,69 @@ import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.io.FilenameUtils;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.profile.Profile;
 import jrm.profile.manager.Dir;
 import jrm.profile.manager.ProfileNFO;
 
+/**
+ * The Class FileTableModel.
+ *
+ * @author optyfr
+ */
+// TODO: Auto-generated Javadoc
 @SuppressWarnings("serial")
 public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 {
+	
+	/** The curr dir. */
 	public Dir curr_dir = null;
 
+	/** The columns. */
 	private final String[] columns = new String[] { Messages.getString("FileTableModel.Profile"), Messages.getString("FileTableModel.Version"), Messages.getString("FileTableModel.HaveSets"), Messages.getString("FileTableModel.HaveRoms"), Messages.getString("FileTableModel.HaveDisks"), Messages.getString("FileTableModel.Created"), Messages.getString("FileTableModel.Scanned"), Messages.getString("FileTableModel.Fixed") };  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+	
+	/** The columns class. */
 	private final Class<?>[] columnsClass = new Class<?>[] { Object.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class };
+	
+	/** The columns widths. */
 	public int[] columnsWidths = new int[] { 100, 50, -14, -14, -9, -19, -19, -19 };
+	
+	/** The rows. */
 	private final List<ProfileNFO> rows = new ArrayList<>();
 
+	/**
+	 * Instantiates a new file table model.
+	 *
+	 * @param dir the dir
+	 */
 	public FileTableModel(final Dir dir)
 	{
 		super();
 		populate(dir);
 	}
 
+	/**
+	 * Instantiates a new file table model.
+	 */
 	public FileTableModel()
 	{
 		super();
 	}
 
+	/**
+	 * Populate.
+	 */
 	public void populate()
 	{
 		populate(curr_dir);
 	}
 
+	/**
+	 * Populate.
+	 *
+	 * @param dir the dir
+	 */
 	public void populate(final Dir dir)
 	{
 		curr_dir = dir;
@@ -86,11 +117,23 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 		return column == 0;
 	}
 
+	/**
+	 * Gets the file at.
+	 *
+	 * @param row the row
+	 * @return the file at
+	 */
 	public File getFileAt(final int row)
 	{
 		return getNfoAt(row).file;
 	}
 
+	/**
+	 * Gets the nfo at.
+	 *
+	 * @param row the row
+	 * @return the nfo at
+	 */
 	public ProfileNFO getNfoAt(final int row)
 	{
 		return rows.get(row);

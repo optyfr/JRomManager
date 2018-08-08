@@ -16,7 +16,7 @@
  */
 package jrm.compressors;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 
 /**
  * SevenZip supported levels of compression

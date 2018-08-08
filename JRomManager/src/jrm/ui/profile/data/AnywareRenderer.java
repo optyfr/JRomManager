@@ -26,15 +26,27 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.data.*;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class AnywareRenderer.
+ */
 @SuppressWarnings("serial")
 public final class AnywareRenderer
 {
+	
+	/** The Constant columns. */
 	public final static String[] columns = new String[] { Messages.getString("AnywareRenderer.Status"), Messages.getString("AnywareRenderer.Name"), Messages.getString("AnywareRenderer.Size"), Messages.getString("AnywareRenderer.CRC"), Messages.getString("AnywareRenderer.MD5"), Messages.getString("AnywareRenderer.SHA-1"), Messages.getString("AnywareRenderer.Merge"), Messages.getString("AnywareRenderer.DumpStatus") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+	
+	/** The Constant columnsTypes. */
 	public final static Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, Long.class, String.class, String.class, String.class, String.class, Object.class };
+	
+	/** The Constant columnsWidths. */
 	public final static int[] columnsWidths = new int[] { -3, 256, -12, -10, -34, -42, 100, -3 };
+	
+	/** The Constant columnsRenderers. */
 	public final static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
 		ImageIcon bullet_green = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resources/icons/bullet_green.png")); //$NON-NLS-1$
@@ -191,6 +203,13 @@ public final class AnywareRenderer
 		}
 	} };
 
+	/**
+	 * Gets the background.
+	 *
+	 * @param row the row
+	 * @param col the col
+	 * @return the background
+	 */
 	private static Color getBackground(final int row, final int col)
 	{
 		if ((col % 2) == 0)
@@ -207,6 +226,9 @@ public final class AnywareRenderer
 		}
 	}
 
+	/**
+	 * Instantiates a new anyware renderer.
+	 */
 	private AnywareRenderer()
 	{
 	}

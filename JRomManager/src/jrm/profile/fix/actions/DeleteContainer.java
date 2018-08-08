@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.progress.ProgressHandler;

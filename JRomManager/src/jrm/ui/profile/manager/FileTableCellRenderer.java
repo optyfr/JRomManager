@@ -23,13 +23,22 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.manager.ProfileNFO;
 
+/**
+ * The Class FileTableCellRenderer.
+ *
+ * @author optyfr
+ */
+// TODO: Auto-generated Javadoc
 @SuppressWarnings("serial")
 public class FileTableCellRenderer extends DefaultTableCellRenderer
 {
 
+	/**
+	 * Instantiates a new file table cell renderer.
+	 */
 	public FileTableCellRenderer()
 	{
 		super();

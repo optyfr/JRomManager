@@ -23,10 +23,29 @@ import javax.swing.event.TreeSelectionListener;
 
 import jrm.profile.manager.Dir;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The listener interface for receiving dirTreeSelection events.
+ * The class that is interested in processing a dirTreeSelection
+ * event implements this interface, and the object created
+ * with that class is registered with a component using the
+ * component's <code>addDirTreeSelectionListener<code> method. When
+ * the dirTreeSelection event occurs, that object's appropriate
+ * method is invoked.
+ *
+ * @see DirTreeSelectionEvent
+ */
 public class DirTreeSelectionListener implements TreeSelectionListener
 {
+	
+	/** The profiles list. */
 	JTable profilesList;
 
+	/**
+	 * Instantiates a new dir tree selection listener.
+	 *
+	 * @param profilesList the profiles list
+	 */
 	public DirTreeSelectionListener(final JTable profilesList)
 	{
 		this.profilesList = profilesList;

@@ -24,13 +24,33 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
+/**
+ * The Class DirTreeCellEditor.
+ *
+ * @author optyfr
+ */
+// TODO: Auto-generated Javadoc
 public class DirTreeCellEditor extends DefaultTreeCellEditor
 {
+	
+	/**
+	 * Instantiates a new dir tree cell editor.
+	 *
+	 * @param tree the tree
+	 * @param renderer the renderer
+	 */
 	public DirTreeCellEditor(final JTree tree, final DefaultTreeCellRenderer renderer)
 	{
 		super(tree, renderer);
 	}
 
+	/**
+	 * Instantiates a new dir tree cell editor.
+	 *
+	 * @param tree the tree
+	 * @param renderer the renderer
+	 * @param editor the editor
+	 */
 	public DirTreeCellEditor(final JTree tree, final DefaultTreeCellRenderer renderer, final TreeCellEditor editor)
 	{
 		super(tree, renderer, editor);

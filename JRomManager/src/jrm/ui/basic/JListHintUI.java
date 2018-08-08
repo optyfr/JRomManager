@@ -23,11 +23,25 @@ import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicListUI;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class JListHintUI.
+ */
 public class JListHintUI extends BasicListUI
 {
+	
+	/** The hint. */
 	private final String hint;
+	
+	/** The hint color. */
 	private final Color hintColor;
 
+	/**
+	 * Instantiates a new j list hint UI.
+	 *
+	 * @param hint the hint
+	 * @param hintColor the hint color
+	 */
 	public JListHintUI(final String hint, final Color hintColor)
 	{
 		this.hint = hint;

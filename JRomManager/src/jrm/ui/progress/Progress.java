@@ -31,22 +31,52 @@ import javax.swing.border.BevelBorder;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import JTrrntzip.LogCallback;
-import jrm.Messages;
+import jrm.locale.Messages;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Progress.
+ *
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public class Progress extends JDialog implements ProgressHandler
 {
+	
+	/** The panel. */
 	private JPanel panel;
+	
+	/** The lbl info. */
 	private JLabel[] lblInfo;
+	
+	/** The lbl sub info. */
 	private JLabel[] lblSubInfo;
+	
+	/** The thread id offset. */
 	private Map<Long,Integer> threadId_Offset = new HashMap<>();
+	
+	/** The progress bar. */
 	private final JProgressBar progressBar;
+	
+	/** The cancel. */
 	private boolean cancel = false;
 
+	/**
+	 * The Class ProgressTZipCallBack.
+	 *
+	 * @author optyfr
+	 */
 	public static final class ProgressTZipCallBack implements LogCallback
 	{
+		
+		/** The ph. */
 		ProgressHandler ph;
 		
+		/**
+		 * Instantiates a new progress T zip call back.
+		 *
+		 * @param ph the ph
+		 */
 		public ProgressTZipCallBack(ProgressHandler ph)
 		{
 			this.ph = ph;
@@ -72,10 +102,23 @@ public class Progress extends JDialog implements ProgressHandler
 	}
 	
 	
+	/**
+	 * The Class ProgressInputStream.
+	 *
+	 * @author optyfr
+	 */
 	public final class ProgressInputStream extends FilterInputStream
 	{
+		
+		/** The value. */
 		private int value;
 
+		/**
+		 * Instantiates a new progress input stream.
+		 *
+		 * @param in the in
+		 * @param len the len
+		 */
 		protected ProgressInputStream(final InputStream in, final Integer len)
 		{
 			super(in);
@@ -119,6 +162,11 @@ public class Progress extends JDialog implements ProgressHandler
 		}
 	}
 
+	/**
+	 * Instantiates a new progress.
+	 *
+	 * @param owner the owner
+	 */
 	public Progress(final Window owner)
 	{
 		super(owner, Messages.getString("Progress.Title"), ModalityType.MODELESS); //$NON-NLS-1$
@@ -286,11 +334,19 @@ public class Progress extends JDialog implements ProgressHandler
 		setProgress(msg, val, max, null);
 	}
 
+	/** The lbl timeleft. */
 	private final JLabel lblTimeleft;
+	
+	/** The btn cancel. */
 	private final JButton btnCancel;
 
+	/** The start time. */
 	private long startTime = 0;
+	
+	/** The progress bar 2. */
 	private final JProgressBar progressBar2;
+	
+	/** The lbl time left 2. */
 	private final JLabel lblTimeLeft2;
 
 	@Override
@@ -363,6 +419,7 @@ public class Progress extends JDialog implements ProgressHandler
 		setProgress2(msg, val, null);
 	}
 
+	/** The start time 2. */
 	private long startTime2 = 0;
 
 	@Override
@@ -401,6 +458,9 @@ public class Progress extends JDialog implements ProgressHandler
 		}
 	}
 
+	/**
+	 * Pack height.
+	 */
 	public void packHeight()
 	{
 		final Dimension newSize = getPreferredSize();

@@ -29,11 +29,22 @@ import javax.swing.event.ListSelectionListener;
 
 import jrm.misc.Ideone;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class JCheckBoxList.
+ *
+ * @param <E> the element type
+ */
 @SuppressWarnings("serial")
 public class JCheckBoxList<E> extends JList<E>
 {
+	
+	/** The no focus border. */
 	protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
 
+	/**
+	 * Instantiates a new j check box list.
+	 */
 	public JCheckBoxList()
 	{
 		setCellRenderer(new CellRenderer());
@@ -72,6 +83,9 @@ public class JCheckBoxList<E> extends JList<E>
 		return checkboxes[index].isSelected();
 	}
 
+	/**
+	 * Select all.
+	 */
 	public void selectAll()
 	{
 		for (final JCheckBox checkbox : checkboxes)
@@ -81,6 +95,9 @@ public class JCheckBoxList<E> extends JList<E>
 		repaint();
 	}
 
+	/**
+	 * Select none.
+	 */
 	public void selectNone()
 	{
 		for (final JCheckBox checkbox : checkboxes)
@@ -90,6 +107,9 @@ public class JCheckBoxList<E> extends JList<E>
 		repaint();
 	}
 
+	/**
+	 * Select invert.
+	 */
 	public void selectInvert()
 	{
 		for (final JCheckBox checkbox : checkboxes)
@@ -99,6 +119,12 @@ public class JCheckBoxList<E> extends JList<E>
 		repaint();
 	}
 
+	/**
+	 * Select.
+	 *
+	 * @param predicate the predicate
+	 * @param selected the selected
+	 */
 	public void select(Predicate<E> predicate, boolean selected)
 	{
 		Ideone ideone = new Ideone();
@@ -117,8 +143,12 @@ public class JCheckBoxList<E> extends JList<E>
 		repaint();
 	}
 
+	/** The checkboxes. */
 	JTristateCheckBox checkboxes[] = null;
 
+	/**
+	 * The Class CellRenderer.
+	 */
 	public class CellRenderer implements ListCellRenderer<E>
 	{
 

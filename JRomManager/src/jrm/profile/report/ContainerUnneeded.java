@@ -2,7 +2,7 @@ package jrm.profile.report;
 
 import java.util.List;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.data.AnywareBase;
 import jrm.profile.data.Container;
 

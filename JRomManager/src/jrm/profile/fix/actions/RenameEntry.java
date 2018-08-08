@@ -22,8 +22,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
-import jrm.Messages;
 import jrm.compressors.Archive;
+import jrm.locale.Messages;
 import jrm.profile.data.Entry;
 import jrm.ui.progress.ProgressHandler;
 

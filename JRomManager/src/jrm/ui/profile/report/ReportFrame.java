@@ -27,17 +27,31 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.misc.Settings;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.scan.Scan;
 import jrm.ui.progress.StatusHandler;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ReportFrame.
+ *
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public class ReportFrame extends JDialog implements StatusHandler
 {
+	
+	/** The lbl status. */
 	private final JLabel lblStatus = new JLabel(""); //$NON-NLS-1$
 
+	/**
+	 * Instantiates a new report frame.
+	 *
+	 * @param owner the owner
+	 * @throws HeadlessException the headless exception
+	 */
 	public ReportFrame(final Window owner) throws HeadlessException
 	{
 		super(); //$NON-NLS-1$
@@ -153,6 +167,12 @@ public class ReportFrame extends JDialog implements StatusHandler
 		}
 	}
 
+	/**
+	 * Adds the popup.
+	 *
+	 * @param component the component
+	 * @param popup the popup
+	 */
 	private static void addPopup(final Component component, final JPopupMenu popup)
 	{
 		component.addMouseListener(new MouseAdapter()

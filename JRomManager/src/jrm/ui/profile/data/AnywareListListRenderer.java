@@ -24,16 +24,28 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.data.MachineList;
 import jrm.profile.data.SoftwareList;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class AnywareListListRenderer.
+ */
 @SuppressWarnings("serial")
 public final class AnywareListListRenderer
 {
+	
+	/** The Constant columns. */
 	public final static String[] columns = new String[] { Messages.getString("SoftwareListListRenderer.Name"), Messages.getString("SoftwareListListRenderer.Description"), Messages.getString("SoftwareListListRenderer.Have") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	
+	/** The Constant columnsTypes. */
 	public final static Class<?>[] columnsTypes = new Class<?>[] { Object.class, String.class, String.class };
+	
+	/** The Constant columnsWidths. */
 	public final static int[] columnsWidths = new int[] { 70, 150, -80 };
+	
+	/** The Constant columnsRenderers. */
 	public final static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
 		ImageIcon disk_multiple_green = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resources/disk_multiple_green.png")); //$NON-NLS-1$
@@ -97,6 +109,9 @@ public final class AnywareListListRenderer
 		}
 	} };
 
+	/**
+	 * Instantiates a new anyware list list renderer.
+	 */
 	private AnywareListListRenderer()
 	{
 	}

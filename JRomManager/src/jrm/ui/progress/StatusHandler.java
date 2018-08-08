@@ -16,7 +16,19 @@
  */
 package jrm.ui.progress;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Interface StatusHandler.
+ *
+ * @author optyfr
+ */
 public interface StatusHandler
 {
+	
+	/**
+	 * Sets the status.
+	 *
+	 * @param text the new status
+	 */
 	public void setStatus(String text);
 }

@@ -1,6 +1,6 @@
 package jrm.compressors.zipfs;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 
 public enum ZipLevel
 {

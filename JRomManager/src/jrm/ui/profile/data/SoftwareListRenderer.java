@@ -24,20 +24,39 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.data.Software;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class SoftwareListRenderer.
+ */
 @SuppressWarnings("serial")
 public final class SoftwareListRenderer
 {
+	
+	/** The Constant folder_closed_green. */
 	private final static ImageIcon folder_closed_green = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resources/folder_closed_green.png")); //$NON-NLS-1$
+	
+	/** The Constant folder_closed_orange. */
 	private final static ImageIcon folder_closed_orange = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resources/folder_closed_orange.png")); //$NON-NLS-1$
+	
+	/** The Constant folder_closed_red. */
 	private final static ImageIcon folder_closed_red = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resources/folder_closed_red.png")); //$NON-NLS-1$
+	
+	/** The Constant folder_closed_gray. */
 	private final static ImageIcon folder_closed_gray = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resources/folder_closed_gray.png")); //$NON-NLS-1$
 
+	/** The Constant columns. */
 	public final static String[] columns = new String[] { Messages.getString("SoftwareListRenderer.Status"), Messages.getString("SoftwareListRenderer.Name"), Messages.getString("SoftwareListRenderer.Description"), Messages.getString("SoftwareListRenderer.Have"), Messages.getString("SoftwareListRenderer.CloneOf"), "Selected" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+	
+	/** The Constant columnsTypes. */
 	public final static Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Boolean.class };
+	
+	/** The Constant columnsWidths. */
 	public final static int[] columnsWidths = new int[] { -20, 40, 200, -45, 40, -20 };
+	
+	/** The Constant columnsRenderers. */
 	public final static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
 
@@ -115,6 +134,9 @@ public final class SoftwareListRenderer
 		}
 	}, null  };
 
+	/**
+	 * Instantiates a new software list renderer.
+	 */
 	private SoftwareListRenderer()
 	{
 	}

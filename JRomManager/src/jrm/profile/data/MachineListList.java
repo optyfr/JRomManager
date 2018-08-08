@@ -30,7 +30,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.manager.Export;
 import jrm.ui.profile.data.AnywareListListRenderer;
 import jrm.ui.progress.ProgressHandler;

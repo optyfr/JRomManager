@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.text.StringEscapeUtils;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.data.AnywareBase;
 
 /**

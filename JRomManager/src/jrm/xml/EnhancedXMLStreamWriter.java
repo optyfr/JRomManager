@@ -1,3 +1,19 @@
+/* Copyright (C) 2018  optyfr
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package jrm.xml;
 
 import java.util.ArrayDeque;
@@ -7,29 +23,64 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+// TODO: Auto-generated Javadoc
 /**
- * An XMLStreamWriter with indentation and line return
+ * An XMLStreamWriter with indentation and line return.
+ *
+ * @author optyfr
  */
 public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 {
+	
+	/**
+	 * The Enum Seen.
+	 *
+	 * @author optyfr
+	 */
 	private static enum Seen
 	{
+		
+		/** The nothing. */
 		NOTHING,
+		
+		/** The element. */
 		ELEMENT,
+		
+		/** The data. */
 		DATA;
 	}
 
+	/** The writer. */
 	private final XMLStreamWriter writer;
+	
+	/** The indent step. */
 	private final String indentStep;
+	
+	/** The state stack. */
 	private final Deque<EnhancedXMLStreamWriter.Seen> stateStack = new ArrayDeque<>();
+	
+	/** The state. */
 	private EnhancedXMLStreamWriter.Seen state = Seen.NOTHING;
+	
+	/** The depth. */
 	private int depth = 0;
 
+	/**
+	 * Instantiates a new enhanced XML stream writer.
+	 *
+	 * @param writer the writer
+	 */
 	public EnhancedXMLStreamWriter(final XMLStreamWriter writer)
 	{
 		this(writer, "\t"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Instantiates a new enhanced XML stream writer.
+	 *
+	 * @param writer the writer
+	 * @param indentStep the indent step
+	 */
 	public EnhancedXMLStreamWriter(final XMLStreamWriter writer, final String indentStep)
 	{
 		this.writer = writer;
@@ -253,6 +304,11 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 		writer.writeStartElement(prefix, localName, namespaceURI);
 	}
 
+	/**
+	 * Do indent.
+	 *
+	 * @throws XMLStreamException the XML stream exception
+	 */
 	private void doIndent() throws XMLStreamException
 	{
 		if(indentStep != null)
@@ -264,11 +320,21 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 		}
 	}
 
+	/**
+	 * Do newline.
+	 *
+	 * @throws XMLStreamException the XML stream exception
+	 */
 	private void doNewline() throws XMLStreamException
 	{
 		writer.writeCharacters("\n"); //$NON-NLS-1$
 	}
 
+	/**
+	 * On empty element.
+	 *
+	 * @throws XMLStreamException the XML stream exception
+	 */
 	private void onEmptyElement() throws XMLStreamException
 	{
 		state = Seen.ELEMENT;
@@ -280,6 +346,11 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 		}
 	}
 
+	/**
+	 * On end element.
+	 *
+	 * @throws XMLStreamException the XML stream exception
+	 */
 	private void onEndElement() throws XMLStreamException
 	{
 		depth--;
@@ -293,6 +364,11 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 		state = stateStack.removeFirst();
 	}
 
+	/**
+	 * On start element.
+	 *
+	 * @throws XMLStreamException the XML stream exception
+	 */
 	private void onStartElement() throws XMLStreamException
 	{
 		stateStack.addFirst(Seen.ELEMENT);
@@ -307,6 +383,13 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 		depth++;
 	}
 
+	/**
+	 * Write element.
+	 *
+	 * @param localName the local name
+	 * @param attributes the attributes
+	 * @throws XMLStreamException the XML stream exception
+	 */
 	public void writeElement(final String localName, final SimpleAttribute... attributes) throws XMLStreamException
 	{
 		writeEmptyElement(localName);
@@ -316,6 +399,13 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 					writeAttribute(attr.name, attr.value.toString());
 	}
 
+	/**
+	 * Write start element.
+	 *
+	 * @param localName the local name
+	 * @param attributes the attributes
+	 * @throws XMLStreamException the XML stream exception
+	 */
 	public void writeStartElement(final String localName, final SimpleAttribute... attributes) throws XMLStreamException
 	{
 		writeStartElement(localName);
@@ -325,6 +415,14 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 					writeAttribute(attr.name, attr.value.toString());
 	}
 
+	/**
+	 * Write element.
+	 *
+	 * @param localName the local name
+	 * @param text the text
+	 * @param attributes the attributes
+	 * @throws XMLStreamException the XML stream exception
+	 */
 	public void writeElement(final String localName, final CharSequence text, final SimpleAttribute... attributes) throws XMLStreamException
 	{
 		writeStartElement(localName, attributes);

@@ -25,10 +25,19 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import jrm.misc.HTMLRenderer;
 import jrm.profile.report.*;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ReportTreeCellRenderer.
+ *
+ * @author optyfr
+ */
 @SuppressWarnings("serial")
 public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 {
 
+	/**
+	 * Instantiates a new report tree cell renderer.
+	 */
 	public ReportTreeCellRenderer()
 	{
 		super();

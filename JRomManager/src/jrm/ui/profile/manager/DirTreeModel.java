@@ -27,9 +27,21 @@ import org.apache.commons.io.FileUtils;
 
 import jrm.profile.manager.Dir;
 
+/**
+ * The Class DirTreeModel.
+ *
+ * @author optyfr
+ */
+// TODO: Auto-generated Javadoc
 @SuppressWarnings("serial")
 public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
 {
+	
+	/**
+	 * Instantiates a new dir tree model.
+	 *
+	 * @param root the root
+	 */
 	public DirTreeModel(final DirNode root)
 	{
 		super(root);

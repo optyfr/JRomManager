@@ -40,7 +40,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
 import jrm.profile.data.*;
@@ -52,31 +52,64 @@ import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.profile.filter.KeywordFilter;
 import jrm.ui.progress.Progress;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ProfileViewer.
+ */
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog
 {
+	
+	/** The table entity. */
 	private JTable tableEntity;
+	
+	/** The table W. */
 	private JTable tableW;
+	
+	/** The table WL. */
 	private JTable tableWL;
+	
+	/** The txt search. */
 	private JTextField txtSearch;
 
+	/**
+	 * The Class keypref.
+	 */
 	private class keypref
 	{
+		
+		/** The order. */
 		int order;
+		
+		/** The wares. */
 		List<Anyware> wares = new ArrayList<>();
 
+		/**
+		 * Instantiates a new keypref.
+		 *
+		 * @param order the order
+		 * @param ware the ware
+		 */
 		private keypref(int order, Anyware ware)
 		{
 			this.order = order;
 			add(ware);
 		}
 		
+		/**
+		 * Adds the.
+		 *
+		 * @param ware the ware
+		 */
 		private void add(Anyware ware)
 		{
 			ware.selected = true;
 			this.wares.add(ware);
 		}
 		
+		/**
+		 * Clear.
+		 */
 		private void clear()
 		{
 			wares.forEach(w->w.selected=false);
@@ -84,6 +117,12 @@ public class ProfileViewer extends JDialog
 		}
 	}
 
+	/**
+	 * Instantiates a new profile viewer.
+	 *
+	 * @param owner the owner
+	 * @param profile the profile
+	 */
 	public ProfileViewer(final Window owner, final Profile profile)
 	{
 		super();
@@ -704,6 +743,13 @@ public class ProfileViewer extends JDialog
 		setVisible(true);
 	}
 
+	/**
+	 * Export.
+	 *
+	 * @param type the type
+	 * @param filtered the filtered
+	 * @param selection the selection
+	 */
 	private void export(final ExportType type, final boolean filtered, final SoftwareList selection)
 	{
 		new Thread(() -> {
@@ -721,6 +767,13 @@ public class ProfileViewer extends JDialog
 		}).start();
 	}
 
+	/**
+	 * Sets the filter WL.
+	 *
+	 * @param missing the missing
+	 * @param partial the partial
+	 * @param complete the complete
+	 */
 	public void setFilterWL(final boolean missing, final boolean partial, final boolean complete)
 	{
 		final EnumSet<AnywareStatus> filter = EnumSet.of(AnywareStatus.UNKNOWN);
@@ -735,6 +788,13 @@ public class ProfileViewer extends JDialog
 			tableWL.setRowSelectionInterval(0, 0);
 	}
 
+	/**
+	 * Sets the filter W.
+	 *
+	 * @param missing the missing
+	 * @param partial the partial
+	 * @param complete the complete
+	 */
 	public void setFilterW(final boolean missing, final boolean partial, final boolean complete)
 	{
 		final EnumSet<AnywareStatus> filter = EnumSet.of(AnywareStatus.UNKNOWN);
@@ -749,6 +809,12 @@ public class ProfileViewer extends JDialog
 			tableW.setRowSelectionInterval(0, 0);
 	}
 
+	/**
+	 * Sets the filter E.
+	 *
+	 * @param ko the ko
+	 * @param ok the ok
+	 */
 	public void setFilterE(final boolean ko, final boolean ok)
 	{
 		final EnumSet<EntityStatus> filter = EnumSet.of(EntityStatus.UNKNOWN);
@@ -761,6 +827,9 @@ public class ProfileViewer extends JDialog
 			tableEntity.setRowSelectionInterval(0, 0);
 	}
 
+	/**
+	 * Clear.
+	 */
 	public void clear()
 	{
 		tableEntity.setModel(new DefaultTableModel());
@@ -768,6 +837,11 @@ public class ProfileViewer extends JDialog
 		tableWL.setModel(new DefaultTableModel());
 	}
 
+	/**
+	 * Reset.
+	 *
+	 * @param profile the profile
+	 */
 	public void reset(final Profile profile)
 	{
 		final AnywareListList<?> model = profile.machinelist_list;
@@ -794,6 +868,9 @@ public class ProfileViewer extends JDialog
 			tableWL.setRowSelectionInterval(0, 0);
 	}
 
+	/**
+	 * Reload.
+	 */
 	public void reload()
 	{
 		TableModel tablemodel = tableWL.getModel();
@@ -807,6 +884,12 @@ public class ProfileViewer extends JDialog
 			((Anyware) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((Anyware) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 	}
 
+	/**
+	 * Adds the popup.
+	 *
+	 * @param component the component
+	 * @param popup the popup
+	 */
 	private static void addPopup(final Component component, final JPopupMenu popup)
 	{
 		component.addMouseListener(new MouseAdapter()

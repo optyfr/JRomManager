@@ -20,9 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
-import jrm.Messages;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
+import jrm.locale.Messages;
 import jrm.profile.data.Container.Type;
 import jrm.ui.progress.ProgressHandler;
 import jrm.profile.data.EntityBase;

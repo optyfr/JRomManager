@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
 import jrm.profile.data.Machine.CabinetType;

@@ -22,10 +22,19 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+/**
+ * The Class DirTreeCellRenderer.
+ *
+ * @author optyfr
+ */
+// TODO: Auto-generated Javadoc
 @SuppressWarnings("serial")
 public class DirTreeCellRenderer extends DefaultTreeCellRenderer
 {
 
+	/**
+	 * Instantiates a new dir tree cell renderer.
+	 */
 	public DirTreeCellRenderer()
 	{
 		super();

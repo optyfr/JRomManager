@@ -18,8 +18,8 @@ package jrm.profile.scan.options;
 
 import java.util.EnumSet;
 
-import jrm.Messages;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
+import jrm.locale.Messages;
 
 /**
  * The supported format options

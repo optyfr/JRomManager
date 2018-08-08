@@ -23,23 +23,48 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import jrm.profile.manager.Dir;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class DirNode.
+ *
+ * @author optyfr
+ */
+// TODO: Auto-generated Javadoc
 @SuppressWarnings("serial")
 public class DirNode extends DefaultMutableTreeNode
 {
+	
+	/** The dir. */
 	private Dir dir;
 
+	/**
+	 * Instantiates a new dir node.
+	 *
+	 * @param root the root
+	 */
 	public DirNode(final File root)
 	{
 		super(new Dir(root, "/"), true); //$NON-NLS-1$
 		buildDirTree(setDir((Dir) getUserObject()), this);
 	}
 
+	/**
+	 * Instantiates a new dir node.
+	 *
+	 * @param dir the dir
+	 */
 	public DirNode(final Dir dir)
 	{
 		super(dir);
 		this.setDir(dir);
 	}
 
+	/**
+	 * Builds the dir tree.
+	 *
+	 * @param dir the dir
+	 * @param node the node
+	 */
 	private void buildDirTree(final Dir dir, final DefaultMutableTreeNode node)
 	{
 		for(final File file : dir.getFile().listFiles())
@@ -54,17 +79,33 @@ public class DirNode extends DefaultMutableTreeNode
 		}
 	}
 
+	/**
+	 * Reload.
+	 */
 	public void reload()
 	{
 		removeAllChildren();
 		buildDirTree(getDir(), this);
 	}
 
+	/**
+	 * Find.
+	 *
+	 * @param file the file
+	 * @return the dir node
+	 */
 	public DirNode find(final File file)
 	{
 		return DirNode.find(this, file);
 	}
 
+	/**
+	 * Find.
+	 *
+	 * @param root the root
+	 * @param file the file
+	 * @return the dir node
+	 */
 	public static DirNode find(final DirNode root, final File file)
 	{
 		final File parent = file.isFile()?file.getParentFile():file;
@@ -82,6 +123,8 @@ public class DirNode extends DefaultMutableTreeNode
 	}
 
 	/**
+	 * Gets the dir.
+	 *
 	 * @return the dir
 	 */
 	public Dir getDir()
@@ -90,7 +133,10 @@ public class DirNode extends DefaultMutableTreeNode
 	}
 
 	/**
+	 * Sets the dir.
+	 *
 	 * @param dir the dir to set
+	 * @return the dir
 	 */
 	public Dir setDir(Dir dir)
 	{

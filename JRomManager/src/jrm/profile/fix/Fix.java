@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.profile.Profile;
 import jrm.profile.fix.actions.BackupContainer;

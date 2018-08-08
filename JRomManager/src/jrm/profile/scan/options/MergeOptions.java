@@ -18,7 +18,7 @@ package jrm.profile.scan.options;
 
 import java.util.EnumSet;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 
 /**
  * All possible merge options

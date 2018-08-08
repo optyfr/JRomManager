@@ -21,19 +21,31 @@ import java.util.Enumeration;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.ui.basic.AbstractNGTreeNode;
 import jrm.ui.basic.NGTreeNode;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class CatVerModel.
+ */
 @SuppressWarnings("serial")
 public class CatVerModel extends DefaultTreeModel
 {
 
+	/**
+	 * Instantiates a new cat ver model.
+	 *
+	 * @param root the root
+	 */
 	public CatVerModel(final NGTreeNode root)
 	{
 		super(root);
 	}
 
+	/**
+	 * Instantiates a new cat ver model.
+	 */
 	public CatVerModel()
 	{
 		super(new AbstractNGTreeNode()

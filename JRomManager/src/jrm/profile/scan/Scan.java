@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 
 import JTrrntzip.TrrntZipStatus;
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;

@@ -29,18 +29,42 @@ import java.util.stream.Collectors;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class JFileDropList.
+ */
 @SuppressWarnings("serial")
 public class JFileDropList extends JList<File> implements DropTargetListener
 {
+	
+	/** The color. */
 	private final Color color;
+	
+	/** The add call back. */
 	private final AddDelCallBack addCallBack;
+	
+	/** The mode. */
 	private JFileDropMode mode = JFileDropMode.FILE;
 
+	/**
+	 * The Interface AddDelCallBack.
+	 */
 	public interface AddDelCallBack
 	{
+		
+		/**
+		 * Call.
+		 *
+		 * @param files the files
+		 */
 		public void call(List<File> files);
 	}
 
+	/**
+	 * Instantiates a new j file drop list.
+	 *
+	 * @param addCallBack the add call back
+	 */
 	public JFileDropList(final AddDelCallBack addCallBack)
 	{
 		super(new DefaultListModel<File>());
@@ -49,6 +73,11 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 		new DropTarget(this, this);
 	}
 
+	/**
+	 * Sets the mode.
+	 *
+	 * @param mode the new mode
+	 */
 	public void setMode(JFileDropMode mode)
 	{
 		this.mode = mode;
@@ -126,6 +155,11 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 		}
 	}
 
+	/**
+	 * Adds the.
+	 *
+	 * @param files the files
+	 */
 	public void add(final List<File> files)
 	{
 		for (final File file : files)
@@ -133,6 +167,11 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 		addCallBack.call(Collections.list(getModel().elements()));
 	}
 
+	/**
+	 * Adds the.
+	 *
+	 * @param files the files
+	 */
 	public void add(final File[] files)
 	{
 		for (final File file : files)
@@ -140,6 +179,11 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 		addCallBack.call(Collections.list(getModel().elements()));
 	}
 
+	/**
+	 * Del.
+	 *
+	 * @param files the files
+	 */
 	public void del(final List<File> files)
 	{
 		for (final File file : files)
@@ -147,6 +191,11 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 		addCallBack.call(Collections.list(getModel().elements()));
 	}
 
+	/**
+	 * Del.
+	 *
+	 * @param files the files
+	 */
 	public void del(final File[] files)
 	{
 		for (final File file : files)

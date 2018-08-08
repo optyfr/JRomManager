@@ -22,14 +22,29 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class JTristateCheckBox.
+ */
 @SuppressWarnings("serial")
 public class JTristateCheckBox extends JCheckBox
 {
+	
+	/** The half state. */
 	private boolean halfState;
+	
+	/** The selected. */
 	private static Icon selected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/selected.png")); //$NON-NLS-1$
+	
+	/** The unselected. */
 	private static Icon unselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/unselected.png")); //$NON-NLS-1$
+	
+	/** The halfselected. */
 	private static Icon halfselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/halfselected.png")); //$NON-NLS-1$
 
+	/**
+	 * Instantiates a new j tristate check box.
+	 */
 	public JTristateCheckBox()
 	{
 		super();
@@ -46,11 +61,21 @@ public class JTristateCheckBox extends JCheckBox
 		super.paint(g);
 	}
 
+	/**
+	 * Checks if is half selected.
+	 *
+	 * @return true, if is half selected
+	 */
 	public boolean isHalfSelected()
 	{
 		return halfState;
 	}
 
+	/**
+	 * Sets the half selected.
+	 *
+	 * @param halfState the new half selected
+	 */
 	public void setHalfSelected(final boolean halfState)
 	{
 		this.halfState = halfState;

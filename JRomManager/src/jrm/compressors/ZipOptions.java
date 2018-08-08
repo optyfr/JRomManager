@@ -16,7 +16,7 @@
  */
 package jrm.compressors;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 
 /**
  * Zip supported levels of compression

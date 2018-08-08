@@ -20,8 +20,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import jrm.Messages;
 import jrm.compressors.Archive;
+import jrm.locale.Messages;
 import jrm.profile.data.Entry;
 import jrm.ui.progress.ProgressHandler;
 

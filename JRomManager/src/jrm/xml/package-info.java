@@ -1,7 +1,5 @@
 /**
- * 
- */
-/**
+ * XML helper classes
  * @author optyfr
  *
  */

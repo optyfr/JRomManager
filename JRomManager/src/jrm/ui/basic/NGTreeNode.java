@@ -18,11 +18,45 @@ package jrm.ui.basic;
 
 import javax.swing.tree.TreeNode;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Interface NGTreeNode.
+ */
 public interface NGTreeNode extends TreeNode
 {
+	
+	/**
+	 * Gets the path.
+	 *
+	 * @return the path
+	 */
 	public TreeNode[] getPath();
+	
+	/**
+	 * Gets the user object.
+	 *
+	 * @return the user object
+	 */
 	public Object getUserObject();
+	
+	/**
+	 * Checks if is selected.
+	 *
+	 * @return true, if is selected
+	 */
 	public boolean isSelected();
+	
+	/**
+	 * Sets the selected.
+	 *
+	 * @param selected the new selected
+	 */
 	public void setSelected(boolean selected);
+	
+	/**
+	 * All children selected.
+	 *
+	 * @return true, if successful
+	 */
 	public boolean allChildrenSelected();
 }

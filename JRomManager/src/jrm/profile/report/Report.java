@@ -34,7 +34,7 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Settings;
 import jrm.profile.Profile;

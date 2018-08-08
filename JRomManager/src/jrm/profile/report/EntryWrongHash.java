@@ -2,7 +2,7 @@ package jrm.profile.report;
 
 import org.apache.commons.text.StringEscapeUtils;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
 

@@ -16,7 +16,7 @@
  */
 package jrm.profile.scan.options;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 
 /**
  * All possible hash collision options

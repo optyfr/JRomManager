@@ -26,7 +26,7 @@ import javax.swing.AbstractListModel;
 
 import org.apache.commons.lang3.StringUtils;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 import jrm.profile.data.PropertyStub;
 
 /**

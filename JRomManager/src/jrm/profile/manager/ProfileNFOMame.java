@@ -18,7 +18,7 @@ package jrm.profile.manager;
 
 import java.io.*;
 
-import jrm.Messages;
+import jrm.locale.Messages;
 
 /**
  * Contains all mame related files informations

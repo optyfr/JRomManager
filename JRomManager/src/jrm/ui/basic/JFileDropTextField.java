@@ -31,38 +31,93 @@ import java.util.stream.Collectors;
 import javax.swing.JTextField;
 import javax.swing.text.Document;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class JFileDropTextField.
+ */
 @SuppressWarnings("serial")
 public class JFileDropTextField extends JTextField implements FocusListener, DropTargetListener
 {
+	
+	/** The color. */
 	private final Color color;
+	
+	/** The callback. */
 	private final SetCallBack callback;
+	
+	/** The mode. */
 	private JFileDropMode mode = JFileDropMode.FILE;
 
+	/**
+	 * The Interface SetCallBack.
+	 */
 	public interface SetCallBack
 	{
+		
+		/**
+		 * Call.
+		 *
+		 * @param txt the txt
+		 */
 		public void call(String txt);
 	}
 
+	/**
+	 * Instantiates a new j file drop text field.
+	 *
+	 * @param callback the callback
+	 * @throws HeadlessException the headless exception
+	 */
 	public JFileDropTextField(final SetCallBack callback) throws HeadlessException
 	{
 		this(null, "", 0, callback); //$NON-NLS-1$
 	}
 
+	/**
+	 * Instantiates a new j file drop text field.
+	 *
+	 * @param text the text
+	 * @param callback the callback
+	 * @throws HeadlessException the headless exception
+	 */
 	public JFileDropTextField(final String text, final SetCallBack callback) throws HeadlessException
 	{
 		this(null, text, 0, callback);
 	}
 
+	/**
+	 * Instantiates a new j file drop text field.
+	 *
+	 * @param columns the columns
+	 * @param callback the callback
+	 * @throws HeadlessException the headless exception
+	 */
 	public JFileDropTextField(final int columns, final SetCallBack callback) throws HeadlessException
 	{
 		this(null, "", columns, callback); //$NON-NLS-1$
 	}
 
+	/**
+	 * Instantiates a new j file drop text field.
+	 *
+	 * @param text the text
+	 * @param columns the columns
+	 * @param callback the callback
+	 * @throws HeadlessException the headless exception
+	 */
 	public JFileDropTextField(final String text, final int columns, final SetCallBack callback) throws HeadlessException
 	{
 		this(null, "", columns, callback); //$NON-NLS-1$
 	}
 
+	/**
+	 * Instantiates a new j file drop text field.
+	 *
+	 * @param doc the doc
+	 * @param text the text
+	 * @param columns the columns
+	 * @param callback the callback
+	 */
 	public JFileDropTextField(final Document doc, final String text, final int columns, final SetCallBack callback)
 	{
 		super(doc, text, columns);
@@ -72,6 +127,11 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 		new DropTarget(this, this);
 	}
 
+	/**
+	 * Sets the mode.
+	 *
+	 * @param mode the new mode
+	 */
 	public void setMode(JFileDropMode mode)
 	{
 		this.mode = mode;

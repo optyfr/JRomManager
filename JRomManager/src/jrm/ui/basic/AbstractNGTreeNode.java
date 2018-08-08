@@ -18,6 +18,10 @@ package jrm.ui.basic;
 
 import javax.swing.tree.TreeNode;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class AbstractNGTreeNode.
+ */
 public abstract class AbstractNGTreeNode implements NGTreeNode
 {
 	@Override

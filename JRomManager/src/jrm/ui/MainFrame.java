@@ -98,11 +98,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SerializationUtils;
 
-import jrm.Messages;
 import jrm.compressors.SevenZipOptions;
 import jrm.compressors.ZipOptions;
 import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
+import jrm.locale.Messages;
 import jrm.misc.FindCmd;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
@@ -147,13 +147,26 @@ import jrm.ui.profile.manager.FileTableModel;
 import jrm.ui.profile.report.ReportFrame;
 import jrm.ui.progress.Progress;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class MainFrame.
+ */
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
 {
 
+	/** The profile viewer. */
 	public static ProfileViewer profile_viewer = null;
+	
+	/** The report frame. */
 	public static ReportFrame report_frame = null;
 
+	/**
+	 * Adds the popup.
+	 *
+	 * @param component the component
+	 * @param popup the popup
+	 */
 	private static void addPopup(final Component component, final JPopupMenu popup)
 	{
 		component.addMouseListener(new MouseAdapter()
@@ -183,166 +196,483 @@ public class MainFrame extends JFrame
 		});
 	}
 
+	/** The bt disks dest. */
 	private JButton btDisksDest;
+	
+	/** The btn 7 z cmd. */
 	private JButton btn7zCmd;
+	
+	/** The btn fix. */
 	private JButton btnFix;
+	
+	/** The btn gc. */
 	private JButton btnGc;
+	
+	/** The btn import dat. */
 	private JButton btnImportDat;
+	
+	/** The btn import SL. */
 	private JButton btnImportSL;
+	
+	/** The btn info. */
 	private JButton btnInfo;
+	
+	/** The btn load profile. */
 	private JButton btnLoadProfile;
+	
+	/** The btn report. */
 	private JButton btnReport;
+	
+	/** The btn roms dest. */
 	private JButton btnRomsDest;
+	
+	/** The btn scan. */
 	private JButton btnScan;
+	
+	/** The btn SW dest. */
 	private JButton btnSWDest;
+	
+	/** The bt samples dest. */
 	private JButton btSamplesDest;
+	
+	/** The bt SW disks dest. */
 	private JButton btSWDisksDest;
+	
+	/** The bt zip E cmd. */
 	private JButton btZipECmd;
+	
+	/** The cb 7 z args. */
 	private JComboBox<SevenZipOptions> cb7zArgs;
+	
+	/** The cbbx driver status. */
 	private JComboBox<Driver.StatusType> cbbxDriverStatus;
+	
+	/** The cbbx filter cabinet type. */
 	private JComboBox<CabinetType> cbbxFilterCabinetType;
+	
+	/** The cbbx filter display orientation. */
 	private JComboBox<DisplayOrientation> cbbxFilterDisplayOrientation;
+	
+	/** The cbbx merge mode. */
 	private JComboBox<MergeOptions> cbbxMergeMode;
+	
+	/** The cbbx SW min supported lvl. */
 	private JComboBox<Supported> cbbxSWMinSupportedLvl;
+	
+	/** The cbbx year max. */
 	private JComboBox<String> cbbxYearMax;
+	
+	/** The cbbx year min. */
 	private JComboBox<String> cbbxYearMin;
+	
+	/** The cb compression. */
 	private JComboBox<FormatOptions> cbCompression;
+	
+	/** The cb hash collision. */
 	private JComboBox<HashCollisionOptions> cbHashCollision;
+	
+	/** The cb log level. */
 	private JComboBox<?> cbLogLevel;
+	
+	/** The cb zip E args. */
 	private JComboBox<ZipOptions> cbZipEArgs;
+	
+	/** The chckbx create missing sets. */
 	private JCheckBox chckbxCreateMissingSets;
+	
+	/** The chckbx create only complete. */
 	private JCheckBox chckbxCreateOnlyComplete;
+	
+	/** The chckbx ignore unknown containers. */
 	private JCheckBox chckbxIgnoreUnknownContainers;
+	
+	/** The chckbx ignore unneeded containers. */
 	private JCheckBox chckbxIgnoreUnneededContainers;
+	
+	/** The chckbx ignore unneeded entries. */
 	private JCheckBox chckbxIgnoreUnneededEntries;
+	
+	/** The chckbx include clones. */
 	private JCheckBox chckbxIncludeClones;
+	
+	/** The chckbx include disks. */
 	private JCheckBox chckbxIncludeDisks;
+	
+	/** The chckbx include samples. */
 	private JCheckBox chckbxIncludeSamples;
+	
+	/** The chckbx need SHA 1. */
 	private JCheckBox chckbxNeedSHA1;
+	
+	/** The chckbx use implicit merge. */
 	private JCheckBox chckbxUseImplicitMerge;
+	
+	/** The chckbx use parallelism. */
 	private JCheckBox chckbxUseParallelism;
+	
+	/** The check box list systems. */
 	private JCheckBoxList<Systm> checkBoxListSystems;
+	
+	/** The ckbx 7 z solid. */
 	private JCheckBox ckbx7zSolid;
+	
+	/** The compressors. */
 	private JPanel compressors;
+	
+	/** The compressors pane. */
 	private JTabbedPane compressorsPane;
+	
+	/** The curr scan. */
 	private Scan curr_scan;
+	
+	/** The debug. */
 	private JPanel debug;
+	
+	/** The lbl 7 z args. */
 	private JLabel lbl7zArgs;
+	
+	/** The lbl 7 z cmd. */
 	private JLabel lbl7zCmd;
+	
+	/** The lbl 7 z threads. */
 	private JLabel lbl7zThreads;
+	
+	/** The lbl 7 z warning. */
 	private JLabel lbl7zWarning;
+	
+	/** The lbl cabinet type. */
 	private JLabel lblCabinetType;
+	
+	/** The lbl compression. */
 	private JLabel lblCompression;
+	
+	/** The lbl disks dest. */
 	private JCheckBox lblDisksDest;
+	
+	/** The lbl display orientation. */
 	private JLabel lblDisplayOrientation;
+	
+	/** The lbl driver status. */
 	private JLabel lblDriverStatus;
+	
+	/** The lbl hash collision. */
 	private JLabel lblHashCollision;
+	
+	/** The lbl log level. */
 	private JLabel lblLogLevel;
+	
+	/** The lbl memory. */
 	private JLabel lblMemory;
+	
+	/** The lbl memory usage. */
 	private JLabel lblMemoryUsage;
+	
+	/** The lbl merge mode. */
 	private JLabel lblMergeMode;
+	
+	/** The lbl profileinfo. */
 	private JLabel lblProfileinfo;
+	
+	/** The lbl roms dest. */
 	private JLabel lblRomsDest;
+	
+	/** The lbl samples dest. */
 	private JCheckBox lblSamplesDest;
+	
+	/** The lbl src dir. */
 	private JLabel lblSrcDir;
+	
+	/** The lbl SW dest. */
 	private JCheckBox lblSWDest;
+	
+	/** The lbl SW disks dest. */
 	private JCheckBox lblSWDisksDest;
+	
+	/** The lbl sw min supported lvl. */
 	private JLabel lblSwMinSupportedLvl;
+	
+	/** The lbl year. */
 	private JLabel lblYear;
+	
+	/** The lbl zip E args. */
 	private JLabel lblZipEArgs;
+	
+	/** The lbl zip E cmd. */
 	private JLabel lblZipECmd;
+	
+	/** The lbl zip E threads. */
 	private JLabel lblZipEThreads;
+	
+	/** The lbl zip E warning. */
 	private JLabel lblZipEWarning;
+	
+	/** The list N players. */
 	private JCheckBoxList<NPlayer> listNPlayers;
+	
+	/** The list src dir. */
 	private JFileDropList listSrcDir;
+	
+	/** The main pane. */
 	private JTabbedPane mainPane;
+	
+	/** The mn select cat. */
 	private JMenu mnSelectCat;
+	
+	/** The mntm add directory. */
 	private JMenuItem mntmAddDirectory;
+	
+	/** The mntm create folder. */
 	private JMenuItem mntmCreateFolder;
+	
+	/** The mntm delete folder. */
 	private JMenuItem mntmDeleteFolder;
+	
+	/** The mntm delete profile. */
 	private JMenuItem mntmDeleteProfile;
+	
+	/** The mntm delete selected. */
 	private JMenuItem mntmDeleteSelected;
+	
+	/** The mntm drop cache. */
 	private JMenuItem mntmDropCache;
+	
+	/** The mntm invert selection. */
 	private JMenuItem mntmInvertSelection;
+	
+	/** The mntm invert selection N play. */
 	private JMenuItem mntmInvertSelectionNPlay;
+	
+	/** The mntm rename profile. */
 	private JMenuItem mntmRenameProfile;
+	
+	/** The mntm select all. */
 	private JMenuItem mntmSelectAll;
+	
+	/** The mntm select all cat. */
 	private JMenuItem mntmSelectAllCat;
+	
+	/** The mntm select all N play. */
 	private JMenuItem mntmSelectAllNPlay;
+	
+	/** The mntm select mature cat. */
 	private JMenuItem mntmSelectMatureCat;
+	
+	/** The mntm unselect all. */
 	private JMenuItem mntmUnselectAll;
+	
+	/** The mntm select none N play. */
 	private JMenuItem mntmSelectNoneNPlay;
+	
+	/** The mntm unselect all cat. */
 	private JMenuItem mntmUnselectAllCat;
+	
+	/** The mntm unselect mature cat. */
 	private JMenuItem mntmUnselectMatureCat;
+	
+	/** The mntm update from mame. */
 	private JMenuItem mntmUpdateFromMame;
+	
+	/** The mn unselect cat. */
 	private JMenu mnUnselectCat;
+	
+	/** The panel 1. */
 	private JPanel panel_1;
+	
+	/** The panel 7 zip. */
 	private JPanel panel7Zip;
+	
+	/** The panel zip. */
 	private JPanel panelZip;
+	
+	/** The panel zip E. */
 	private JPanel panelZipE;
+	
+	/** The popup menu. */
 	private JPopupMenu popupMenu;
+	
+	/** The popup menu 1. */
 	private JPopupMenu popupMenu_1;
+	
+	/** The popup menu 2. */
 	private JPopupMenu popupMenu_2;
+	
+	/** The popup menu 3. */
 	private JPopupMenu popupMenu_3;
+	
+	/** The popup menu cat. */
 	private JPopupMenu popupMenuCat;
+	
+	/** The popup menu N play. */
 	private JPopupMenu popupMenuNPlay;
+	
+	/** The profiles btn panel. */
 	private JPanel profilesBtnPanel;
+	
+	/** The profiles list. */
 	private JTable profilesList;
+	
+	/** The profiles panel. */
 	private JSplitPane profilesPanel;
+	
+	/** The profiles tab. */
 	private JPanel profilesTab;
+	
+	/** The profiles tree. */
 	private JTree profilesTree;
+	
+	/** The scanner adv filters. */
 	private JPanel scannerAdvFilters;
+	
+	/** The scanner btn panel. */
 	private JPanel scannerBtnPanel;
+	
+	/** The scanner cfg tab. */
 	private JTabbedPane scannerCfgTab;
+	
+	/** The scanner directories. */
 	private JPanel scannerDirectories;
+	
+	/** The scanner filters. */
 	private JSplitPane scannerFilters;
+	
+	/** The scanner settings panel. */
 	private JPanel scannerSettingsPanel;
+	
+	/** The scanner sub settings panel. */
 	private JPanel scannerSubSettingsPanel;
+	
+	/** The scanner tab. */
 	private JPanel scannerTab;
+	
+	/** The scroll pane. */
 	private JScrollPane scrollPane;
+	
+	/** The scroll pane 1. */
 	private JScrollPane scrollPane_1;
+	
+	/** The scroll pane 2. */
 	private JScrollPane scrollPane_2;
+	
+	/** The scroll pane cat ver. */
 	private JScrollPane scrollPaneCatVer;
+	
+	/** The scroll pane N players. */
 	private JScrollPane scrollPaneNPlayers;
+	
+	/** The separator. */
 	private JSeparator separator;
+	
+	/** The settings pane. */
 	private JTabbedPane settingsPane;
+	
+	/** The settings tab. */
 	private JPanel settingsTab;
+	
+	/** The tf 7 z cmd. */
 	private JFileDropTextField tf7zCmd;
+	
+	/** The tf 7 z threads. */
 	private JTextField tf7zThreads;
+	
+	/** The tf cat ver. */
 	private JFileDropTextField tfCatVer;
+	
+	/** The tf disks dest. */
 	private JFileDropTextField tfDisksDest;
+	
+	/** The tf N players. */
 	private JFileDropTextField tfNPlayers;
+	
+	/** The tf samples dest. */
 	private JFileDropTextField tfSamplesDest;
+	
+	/** The tf SW dest. */
 	private JFileDropTextField tfSWDest;
+	
+	/** The tf SW disks dest. */
 	private JFileDropTextField tfSWDisksDest;
+	
+	/** The tf zip E cmd. */
 	private JFileDropTextField tfZipECmd;
+	
+	/** The tf zip E threads. */
 	private JTextField tfZipEThreads;
+	
+	/** The tree cat ver. */
 	private JCheckBoxTree treeCatVer;
+	
+	/** The txt roms dest. */
 	private JFileDropTextField txtRomsDest;
 
+	/** The scheduler. */
 	final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	
+	/** The mn select. */
 	private JMenu mnSelect;
+	
+	/** The mn unselect. */
 	private JMenu mnUnselect;
+	
+	/** The mntm select all bios. */
 	private JMenuItem mntmSelectAllBios;
+	
+	/** The mntm select all softwares. */
 	private JMenuItem mntmSelectAllSoftwares;
+	
+	/** The mntm unselect all bios. */
 	private JMenuItem mntmUnselectAllBios;
+	
+	/** The mntm unselect all softwares. */
 	private JMenuItem mntmUnselectAllSoftwares;
+	
+	/** The cbbx zip level. */
 	private JComboBox<ZipLevel> cbbxZipLevel;
+	
+	/** The lbl compression level. */
 	private JLabel lblCompressionLevel;
+	
+	/** The lbl temporary files threshold. */
 	private JLabel lblTemporaryFilesThreshold;
+	
+	/** The cbbx zip temp threshold. */
 	private JComboBox<ZipTempThreshold> cbbxZipTempThreshold;
+	
+	/** The chckbx ignore merge name roms. */
 	private JCheckBox chckbxIgnoreMergeNameRoms;
+	
+	/** The chckbx ignore merge name disks. */
 	private JCheckBox chckbxIgnoreMergeNameDisks;
+	
+	/** The popup menu 4. */
 	private JPopupMenu popupMenu_4;
+	
+	/** The mn presets. */
 	private JMenu mnPresets;
+	
+	/** The mntm pleasuredome. */
 	private JMenuItem mntmPleasuredome;
+	
+	/** The mntm pd mame non. */
 	private JMenuItem mntmPdMameNon;
+	
+	/** The mntm pd mame split. */
 	private JMenuItem mntmPdMameSplit;
+	
+	/** The chckbx exclude games. */
 	private JCheckBox chckbxExcludeGames;
+	
+	/** The chckbx exclude machines. */
 	private JCheckBox chckbxExcludeMachines;
+	
+	/** The mn pd mame. */
 	private JMenu mnPdMame;
+	
+	/** The chckbx backup. */
 	private JCheckBox chckbxBackup;
 
+	/**
+	 * Instantiates a new main frame.
+	 */
 	public MainFrame()
 	{
 		super();
@@ -376,6 +706,9 @@ public class MainFrame extends JFrame
 		}));
 	}
 
+	/**
+	 * Fix.
+	 */
 	private void fix()
 	{
 		final Progress progress = new Progress(MainFrame.this);
@@ -418,6 +751,11 @@ public class MainFrame extends JFrame
 		progress.setVisible(true);
 	}
 
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
 	private String getVersion()
 	{
 		String version = ""; //$NON-NLS-1$
@@ -429,6 +767,11 @@ public class MainFrame extends JFrame
 		return version;
 	}
 
+	/**
+	 * Import dat.
+	 *
+	 * @param sl the sl
+	 */
 	private void importDat(final boolean sl)
 	{
 		new Thread(() -> {
@@ -515,7 +858,7 @@ public class MainFrame extends JFrame
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * Initialize.
 	 */
 	private void initialize()
 	{
@@ -2281,6 +2624,9 @@ public class MainFrame extends JFrame
 		scheduler.scheduleAtFixedRate(() -> updateMemory(), 0, 1, TimeUnit.MINUTES);
 	}
 
+	/**
+	 * Inits the scan settings.
+	 */
 	public void initScanSettings()
 	{
 		chckbxNeedSHA1.setSelected(Profile.curr_profile.getProperty("need_sha1_or_md5", false)); //$NON-NLS-1$
@@ -2333,6 +2679,11 @@ public class MainFrame extends JFrame
 		treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());
 	}
 
+	/**
+	 * Load profile.
+	 *
+	 * @param profile the profile
+	 */
 	private void loadProfile(final ProfileNFO profile)
 	{
 		if (Profile.curr_profile != null)
@@ -2375,14 +2726,8 @@ public class MainFrame extends JFrame
 		progress.setVisible(true);
 	}
 
-	/*
-	 * private void chooseProfile() { new JFileChooser() { { File workdir =
-	 * Settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-	 * setCurrentDirectory(workdir); addChoosableFileFilter(new
-	 * FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat",
-	 * "xml")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	 * if(showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) {
-	 * loadProfile(getSelectedFile()); } } }; }
+	/**
+	 * Scan.
 	 */
 	private void scan()
 	{
@@ -2418,6 +2763,9 @@ public class MainFrame extends JFrame
 		progress.setVisible(true);
 	}
 
+	/**
+	 * Update memory.
+	 */
 	private void updateMemory()
 	{
 		final Runtime rt = Runtime.getRuntime();
