@@ -6,10 +6,10 @@ A Rom Manager entirely written in Java and released under GPL-2
 
 ## Licensing
 - **GPL-2** : JRomManager, JUpdater, JLauncher
-- **GPL-2 with classpath exception** : zipfs (from Oracle OpenJDK9 )
-- **MIT** : Jtrrntzip (based on trrntZipDN by Gordon J), commonmark (by Atlassian), minimal-json (by Ralf Sternberg)
-- **LGPL 2.1 with unRAR restriction** : SevenZipJBinding (by Boris Brodski)
-- **Apache 2.0** : StreamEx (by Tagir Valeev), Gradle Wrapper, and all the Apache commons libraries
+- **GPL-2 with classpath exception** : zipfs (from [OpenJDK 9](http://hg.openjdk.java.net/jdk9/jdk9/jdk/))
+- **MIT** : Jtrrntzip (based on [trrntZipDN](https://github.com/arogl/trrntzipDN) by Gordon J), [commonmark](https://github.com/atlassian/commonmark-java) (by Atlassian), [minimal-json](https://github.com/ralfstx/minimal-json) (by Ralf Sternberg)
+- **LGPL 2.1 with unRAR restriction** : [SevenZipJBinding](https://github.com/borisbrodski/sevenzipjbinding) (by Boris Brodski)
+- **Apache 2.0** : [StreamEx](https://github.com/amaembo/streamex) (by Tagir Valeev), [Gradle Wrapper](https://github.com/gradle/gradle), and all the [Apache commons](https://commons.apache.org/) libraries
 
 ## Technical
 _Minimal developement requirements_:
