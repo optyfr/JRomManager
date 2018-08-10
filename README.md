@@ -43,7 +43,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - First, you need Java JDK 8 installed from your system package manager or from the official installer, or at least take care that all java jdk binaries are accessible from your current $PATH or %PATH%
   - [Required] If your are on Windows, you'll also need Visual C++ 2017 installed which is needed to build the JLauncher executable (gradle native plugin will detect Visual C++ installed and build/link using the VC++ compiler)
   - [Optional] If your are on Windows, and you want to build the MSI installer, you'll need the latest WIX Toolset to be installed and its bin/ folder added in your %PATH% 
-- Download and unarchive `https://github.com/optyfr/JRomManager/releases/download/<version>/JRomManager-<version>.src.tar.gz` (use sevenzip for Windows); **Do not download `Source Code (zip)` or `Source Code (tar.gz)`, those ones are automatically built by github and unfortunately does not contains required submodules**
+- Download and unarchive `https://github.com/optyfr/JRomManager/releases/download/<version>/JRomManager-<version>-src.tgz` (use sevenzip for Windows); **Do not download `Source Code (zip)` or `Source Code (tar.gz)`, those ones are automatically built by github and unfortunately does not contains required submodules**
 - `cd JRomManager-<version>`
 - run
   - Unix: `sh ./gradlew build`
