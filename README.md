@@ -94,24 +94,25 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - An advanced progression window taking into account multi-threading operations
 - Backup option (per profile)
 - (De)select Game or Software individually, or upon keywords selection (keywords are terms between parenthesis in description), similar to 1G1R mode
-- Launch mode for multiuser environment and for Linux packaging readiness	
+- Launch mode for multiuser environment and for Linux packaging readiness (see `%HOMEPATH%\.jrommanager` or `$HOME/.jrommanager` for working path)
+- Available as installation package for [Gentoo Linux](https://packages.gentoo.org/packages/games-emulation/jrommanager), [Arch Linux](https://aur.archlinux.org/packages/jrommanager/), as .deb for [Debian / UBuntu](https://github.com/optyfr/JRomManager/releases/latest/), as RPM for [Centos / Fedora / Redhat](https://github.com/optyfr/JRomManager/releases/latest/), as MSI for [Windows](https://github.com/optyfr/JRomManager/releases/latest/)
+- .exe bootstrap for windows version (MSI) that search for available JRE in the system and adjust right memory parameters according 32 or 64 bits jre, can also work with a possible bundled jre
+- Documented source and javadoc available
 
 ## Short Term Planned Features
-- Create binary packages for various Linux distribution and make it available in their repositories (if possible)
-- Create an executable for windows that search for available jre, and adapt launch arguments according 32/64 bits version 
-- Sources documentation (+ javadoc generation)
-- Clarify licensing issues
-- Auto update option (and show Changes log after auto-update)
+- Dir2Dat
 
 ## Middle Term Planned Features
-- Dir2Dat
+- Auto update option (and show Changes log after auto-update)
+- Batch mode
+- Cmd Line mode
 - More Translations
+- Headered Roms support
 
 ## Long Term Planned Features and Ideas
 - Interoperability with other managers?
 - Torrent7Z support ?
-- Batch mode?
-- Headered Roms support?
+- RAR decompression support ?
 
 ## Not planned features
 - Inverted/complemented CRC: obsolete replaced by "status" attribute since Mame 0.68
