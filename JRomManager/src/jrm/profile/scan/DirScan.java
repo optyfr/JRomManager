@@ -906,49 +906,42 @@ public final class DirScan
 			}
 			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 		}
-		if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
+		if(entry.type == Entry.Type.CHD && entry.sha1 == null && entry.md5 == null && need_sha1_or_md5)
 		{
-			if(entry.type == Entry.Type.CHD)
-			{
-				if(sha1_disks || md5_disks || need_sha1_or_md5)
-				{
-					Path path = entry_path;
-					if(entry_path == null)
-						path = getPath(entry);
-					final CHDInfoReader chd_info = new CHDInfoReader(path.toFile());
-					if(sha1_disks)
-						if(null != (entry.sha1 = chd_info.getSHA1()))
-							entries_bysha1.put(entry.sha1, entry);
-					if(md5_disks)
-						if(null != (entry.md5 = chd_info.getMD5()))
-							entries_bymd5.put(entry.md5, entry);
-					if(entry_path == null)
-						path.getFileSystem().close();
-				}
-			}
-			else
-			{
-				if(sha1_roms || md5_roms || entry.crc==null || need_sha1_or_md5)
-				{
-					Path path = entry_path;
-					if(entry_path == null)
-						path = getPath(entry);
-					if(sha1_roms || need_sha1_or_md5)
-						if(null != (entry.sha1 = computeSHA1(path)))
-							entries_bysha1.put(entry.sha1, entry);
-					if(md5_roms || need_sha1_or_md5)
-						if(null != (entry.md5 = computeMD5(path)))
-							entries_bymd5.put(entry.md5, entry);
-					if(entry.crc==null)
-						if(null != (entry.crc = computeCRC(path)))
-							entries_bycrc.put(entry.crc, entry);
-					if(entry_path == null)
-						path.getFileSystem().close();
-				}
-			}
+			Path path = entry_path;
+			if(entry_path == null)
+				path = getPath(entry);
+			final CHDInfoReader chd_info = new CHDInfoReader(path.toFile());
+			if(sha1_disks)
+				if(null != (entry.sha1 = chd_info.getSHA1()))
+					entries_bysha1.put(entry.sha1, entry);
+			if(md5_disks)
+				if(null != (entry.md5 = chd_info.getMD5()))
+					entries_bymd5.put(entry.md5, entry);
+			if(entry_path == null)
+				path.getFileSystem().close();
+		}
+		else if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
+		{
+			Path path = entry_path;
+			if(entry_path == null)
+				path = getPath(entry);
+			if(sha1_roms || need_sha1_or_md5)
+				if(null != (entry.sha1 = computeSHA1(path)))
+					entries_bysha1.put(entry.sha1, entry);
+			if(md5_roms || need_sha1_or_md5)
+				if(null != (entry.md5 = computeMD5(path)))
+					entries_bymd5.put(entry.md5, entry);
+			if(entry.crc==null)
+				if(null != (entry.crc = computeCRC(path)))
+					entries_bycrc.put(entry.crc + "." + entry.size, entry);
+			if(entry_path == null)
+				path.getFileSystem().close();
 		}
 		else
 		{
+			if(entry.crc != null)
+				entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 			if(entry.sha1 != null)
 				entries_bysha1.put(entry.sha1, entry);
 			if(entry.md5 != null)
@@ -960,7 +953,9 @@ public final class DirScan
 	 * Compute SHA-1 from entry {@link Path}
 	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
 	 * @return the hash {@link String}
+	 * @deprecated
 	 */
+	@Deprecated
 	private String computeSHA1(final Path entry_path)
 	{
 		return computeHash(entry_path, "SHA-1"); //$NON-NLS-1$
@@ -970,7 +965,9 @@ public final class DirScan
 	 * Compute MD5 from entry {@link Path}
 	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
 	 * @return the hash {@link String}
+	 * @deprecated
 	 */
+	@Deprecated
 	private String computeMD5(final Path entry_path)
 	{
 		return computeHash(entry_path, "MD5"); //$NON-NLS-1$
@@ -980,7 +977,9 @@ public final class DirScan
 	 * Compute CRC from entry {@link Path}
 	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
 	 * @return the hash {@link String}
+	 * @deprecated
 	 */
+	@Deprecated
 	private String computeCRC(final Path entry_path)
 	{
 		try(final InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
@@ -1008,7 +1007,9 @@ public final class DirScan
 	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
 	 * @param algorithm the desired hash algorithm
 	 * @return the hash {@link String}
+	 * @deprecated
 	 */
+	@Deprecated
 	private String computeHash(final Path entry_path, final String algorithm)
 	{
 		try(final InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
@@ -1031,6 +1032,92 @@ public final class DirScan
 		return null;
 	}
 
+	private String[] computeHash(final Path entry_path, final List<String> algorithm) throws NoSuchAlgorithmException
+	{
+		return computeHash(entry_path, algorithm.toArray(new String[0]));
+	}
+	
+	private String[] computeHash(final Path entry_path, final String[] algorithm) throws NoSuchAlgorithmException
+	{
+		MDigest md[] = new MDigest[algorithm.length];
+		for(int i = 0; i < algorithm.length; i++)
+			md[i] = MDigest.getAlgorithm(algorithm[i]);
+		try(final InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
+		{
+			final byte[] buffer = new byte[8192];
+			int len = is.read(buffer);
+			while(len != -1)
+			{
+				for(MDigest m : md)
+					m.update(buffer, 0, len);
+				len = is.read(buffer);
+			}
+			String result[] = new String[md.length];
+			for(int i = 0; i < md.length; i++)
+				result[i] = md[i].toString();
+			return result;
+		}
+		catch(final Exception e)
+		{
+			System.err.println(entry_path);
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private static abstract class MDigest
+	{
+		protected abstract void update(byte[] input, int offset, int len);
+		
+		private static MDigest getAlgorithm(String algorithm) throws NoSuchAlgorithmException
+		{
+			if(algorithm.equalsIgnoreCase("CRC"))
+				return new CRCDigest();
+			return new MsgDigest(algorithm);
+		}
+	}
+	
+	private static class CRCDigest extends MDigest
+	{
+		private CRC32 crc = new CRC32();
+		
+		@Override
+		protected void update(byte[] input, int offset, int len)
+		{
+			crc.update(input, offset, len);
+		}
+		
+		@Override
+		public String toString()
+		{
+			return String.format("%08x", crc.getValue());
+		}
+		
+	}
+	
+	private static class MsgDigest extends MDigest
+	{
+		private MessageDigest digest;
+		
+		private MsgDigest(String algorithm) throws NoSuchAlgorithmException
+		{
+			digest = MessageDigest.getInstance(algorithm);
+		}
+		
+		@Override
+		protected void update(byte[] input, int offset, int len)
+		{
+			digest.update(input, offset, len);
+		}
+		
+		@Override
+		public String toString()
+		{
+			return Hex.encodeHexString(digest.digest());
+		}
+	}
+	
+	
 	/**
 	 * get {@link Path} from {@link Entry} using FS deduced from {@link Entry#parent}
 	 * @param entry the {@link Entry} to retrieve {@link Path}

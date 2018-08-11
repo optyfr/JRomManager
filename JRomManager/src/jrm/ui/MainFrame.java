@@ -67,6 +67,7 @@ import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.Dir;
+import jrm.profile.manager.Export.ExportType;
 import jrm.profile.manager.Import;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.manager.ProfileNFOMame.MameStatus;
@@ -2608,8 +2609,9 @@ public class MainFrame extends JFrame
 		panelDir2DatIO.add(lblDir2DatFormat, gbc_lblDir2DatFormat);
 		
 		rdbtnDir2DatMame = new JRadioButton(Messages.getString("MainFrame.rdbtnMame.text")); //$NON-NLS-1$
+		rdbtnDir2DatMame.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.DATAFILE.toString()))==ExportType.MAME);
+		rdbtnDir2DatMame.addActionListener(e-> Settings.setProperty("dir2dat_format", ExportType.MAME.toString())); 
 		Dir2DatFormatGroup.add(rdbtnDir2DatMame);
-		rdbtnDir2DatMame.setSelected(true);
 		GridBagConstraints gbc_rdbtnDir2DatMame = new GridBagConstraints();
 		gbc_rdbtnDir2DatMame.insets = new Insets(0, 0, 0, 5);
 		gbc_rdbtnDir2DatMame.gridx = 1;
@@ -2617,6 +2619,8 @@ public class MainFrame extends JFrame
 		panelDir2DatIO.add(rdbtnDir2DatMame, gbc_rdbtnDir2DatMame);
 		
 		rdbtnDir2DatLogiqxDat = new JRadioButton(Messages.getString("MainFrame.rdbtnLogiqxDat.text")); //$NON-NLS-1$
+		rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.DATAFILE.toString()))==ExportType.DATAFILE);
+		rdbtnDir2DatLogiqxDat.addActionListener(e-> Settings.setProperty("dir2dat_format", ExportType.DATAFILE.toString())); 
 		Dir2DatFormatGroup.add(rdbtnDir2DatLogiqxDat);
 		GridBagConstraints gbc_rdbtnDir2DatLogiqxDat = new GridBagConstraints();
 		gbc_rdbtnDir2DatLogiqxDat.insets = new Insets(0, 0, 0, 5);
@@ -2625,6 +2629,9 @@ public class MainFrame extends JFrame
 		panelDir2DatIO.add(rdbtnDir2DatLogiqxDat, gbc_rdbtnDir2DatLogiqxDat);
 		
 		rdbtnDir2DatSwList = new JRadioButton(Messages.getString("MainFrame.rdbtnSwList.text")); //$NON-NLS-1$
+		rdbtnDir2DatSwList.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.DATAFILE.toString()))==ExportType.SOFTWARELIST);
+		rdbtnDir2DatSwList.addActionListener(e-> Settings.setProperty("dir2dat_format", ExportType.SOFTWARELIST.toString()));
+		rdbtnDir2DatSwList.setEnabled(false);
 		Dir2DatFormatGroup.add(rdbtnDir2DatSwList);
 		GridBagConstraints gbc_rdbtnDir2DatSwList = new GridBagConstraints();
 		gbc_rdbtnDir2DatSwList.gridwidth = 2;
@@ -3205,7 +3212,11 @@ public class MainFrame extends JFrame
 							if(!cbDir2DatScanSubfolders.isSelected()) options.add(Options.IS_DEST);
 							if(cbDir2DatMatchCurrentProfile.isSelected()) options.add(Options.MATCH_PROFILE);
 							if(cbDir2DatJunkSubfolders.isSelected()) options.add(Options.JUNK_SUBFOLDERS);
-							new Dir2Dat(srcdir, dstdat, progress, options);
+							ExportType type = null;
+							if(rdbtnDir2DatLogiqxDat.isSelected()) type = ExportType.DATAFILE;
+							if(rdbtnDir2DatMame.isSelected()) type = ExportType.MAME;
+							if(rdbtnDir2DatSwList.isSelected()) type = ExportType.SOFTWARELIST;
+							new Dir2Dat(srcdir, dstdat, progress, options, type);
 						}
 					}
 				}
