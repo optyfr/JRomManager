@@ -16,36 +16,14 @@
  */
 package jrm.profile.scan;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.URI;
-import java.nio.file.AccessDeniedException;
+import java.nio.file.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -67,23 +45,11 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
-import jrm.profile.data.Archive;
-import jrm.profile.data.Container;
+import jrm.profile.data.*;
 import jrm.profile.data.Container.Type;
-import jrm.profile.data.Directory;
-import jrm.profile.data.Disk;
-import jrm.profile.data.Entity;
-import jrm.profile.data.Entry;
-import jrm.profile.data.Rom;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.progress.ProgressHandler;
-import net.sf.sevenzipjbinding.ExtractAskMode;
-import net.sf.sevenzipjbinding.ExtractOperationResult;
-import net.sf.sevenzipjbinding.IArchiveExtractCallback;
-import net.sf.sevenzipjbinding.IInArchive;
-import net.sf.sevenzipjbinding.ISequentialOutStream;
-import net.sf.sevenzipjbinding.SevenZip;
-import net.sf.sevenzipjbinding.SevenZipException;
+import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
@@ -123,13 +89,25 @@ public final class DirScan
 	 */
 	private final boolean need_sha1_or_md5;
 	/**
-	 * do we use parallelism (multithreading)
+	 * tell that md5 was described for disks in profile
 	 */
-	private final boolean use_parallelism;
+	private final boolean md5_disks;
 	/**
-	 * The destination format
+	 * tell that md5 was described for roms in profile
 	 */
-	private final FormatOptions format;
+	private final boolean md5_roms;
+	/**
+	 * tell that sha1 was described for disks in profile
+	 */
+	private final boolean sha1_disks;
+	/**
+	 * tell that sha1 was described for roms in profile
+	 */
+	private final boolean sha1_roms;
+	/**
+	 * contains the detected suspicious CRCs from profile
+	 */
+	private HashSet<String> suspicious_crc = null; 
 
 	/**
 	 * the directory entry point
@@ -143,10 +121,6 @@ public final class DirScan
 	 * {@link ProgressHandler} to show progression on UI
 	 */
 	private final ProgressHandler handler;
-	/**
-	 * The used {@link Profile}
-	 */
-	private final Profile profile;
 
 	/**
 	 * Initialization for SevenzipJBinding
@@ -167,7 +141,70 @@ public final class DirScan
 	}
 
 	/**
-	 * The constructor<br>
+	 * Options enumeration for directory scanning 
+	 */
+	public enum Options
+	{
+		IS_DEST,
+		NEED_SHA1_OR_MD5,
+		USE_PARALLELISM,
+		FORMAT_TZIP,
+		MD5_ROMS,
+		MD5_DISKS,
+		SHA1_ROMS,
+		SHA1_DISKS,
+		EMPTY_DIRS,
+		SKIP_ARCHIVES,
+		JUNK_SUBFOLDERS,
+		MATCH_PROFILE
+	}
+	
+	/**
+	 * convert options from profile and arguments to an {@link EnumSet} of {@link Options}
+	 * @param profile the {@link Profile} to get informations
+	 * @param is_dest an additional option
+	 * @return the {@link EnumSet} of {@link Options}
+	 */
+	static EnumSet<Options> getOptions(Profile profile, final boolean is_dest)
+	{
+		EnumSet<Options> options = EnumSet.noneOf(Options.class);
+		if (is_dest)
+			options.add(Options.IS_DEST);
+		/*
+		 * Profile options
+		 */
+		if(profile!=null)
+		{
+			if (profile.getProperty("need_sha1_or_md5", false)) //$NON-NLS-1$
+				options.add(Options.NEED_SHA1_OR_MD5);
+			if (profile.getProperty("use_parallelism", false)) //$NON-NLS-1$
+				options.add(Options.USE_PARALLELISM);
+			if (FormatOptions.TZIP == FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())))
+				options.add(Options.FORMAT_TZIP);
+			if (profile.md5_roms)
+				options.add(Options.MD5_ROMS);
+			if (profile.md5_disks)
+				options.add(Options.MD5_DISKS);
+			if (profile.sha1_roms)
+				options.add(Options.SHA1_ROMS);
+			if (profile.sha1_disks)
+				options.add(Options.SHA1_DISKS);
+		}
+		return options;
+	}
+	
+	/**
+	 * Test for suspicious crc (if information is available)
+	 * @param crc the crc to test
+	 * @return true if crc is suspicious, otherwise false (also false if it can't be tested because information is not available from profile)
+	 */
+	private boolean isSuspiciousCRC(String crc)
+	{
+		return suspicious_crc!=null && suspicious_crc.contains(crc);
+	}
+	
+	/**
+	 * The constructor used for regular scanning<br>
 	 * Directory scanning consist of two phases :<br>
 	 * - list files archives or directories and check what changed since previous scan (based on date+size)<br>
 	 * - read archives content and eventually entries content, for all those that changed or because we need more informations since last scan
@@ -179,19 +216,47 @@ public final class DirScan
 	 */
 	DirScan(final Profile profile, final File dir, final ProgressHandler handler, final boolean is_dest) throws BreakException
 	{
+		this(dir, handler, profile.suspicious_crc, getOptions(profile, is_dest));
+	}
+	
+	/**
+	 * The constructor used for dir2dat (no options or informations coming from profile)
+	 * @param dir the directory entry point ({@link File})
+	 * @param handler {@link ProgressHandler} to show progression on UI
+	 * @param options an {@link EnumSet} of {@link Options}
+	 * @throws BreakException in case user stopped processing thru {@link ProgressHandler}
+	 */
+	DirScan(final File dir, final ProgressHandler handler, EnumSet<Options> options) throws BreakException
+	{
+		this(dir, handler, null, options);
+	}
+	
+	/**
+	 * internal constructor
+	 * @param dir the directory entry point ({@link File})
+	 * @param handler {@link ProgressHandler} to show progression on UI
+	 * @param suspicious_crc the list of suspicious crc, can be null which mean non suspicious crc checking
+	 * @param options an {@link EnumSet} of {@link Options}
+	 * @throws BreakException in case user stopped processing thru {@link ProgressHandler}
+	 */
+	private DirScan(final File dir, final ProgressHandler handler, final HashSet<String> suspicious_crc, EnumSet<Options> options) throws BreakException
+	{
 		init7zJBinding();
 
-		this.profile = profile;
 		this.dir = dir;
 		this.handler = handler;
-		this.is_dest = is_dest;
+		this.suspicious_crc = suspicious_crc;
 		
-		/*
-		 * Profile options
-		 */
-		need_sha1_or_md5 = profile.getProperty("need_sha1_or_md5", false); //$NON-NLS-1$
-		use_parallelism = profile.getProperty("use_parallelism", false); //$NON-NLS-1$
-		format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
+		is_dest = options.contains(Options.IS_DEST);
+		need_sha1_or_md5 = options.contains(Options.NEED_SHA1_OR_MD5);
+		md5_disks = options.contains(Options.MD5_DISKS);
+		md5_roms = options.contains(Options.MD5_ROMS);
+		sha1_disks = options.contains(Options.SHA1_DISKS);
+		sha1_roms = options.contains(Options.SHA1_ROMS);
+		final boolean use_parallelism = options.contains(Options.USE_PARALLELISM);
+		final boolean format_tzip = options.contains(Options.FORMAT_TZIP);
+		final boolean empty_dirs = options.contains(Options.EMPTY_DIRS);
+		final boolean skip_archives = options.contains(Options.SKIP_ARCHIVES);
 
 		final Path path = Paths.get(dir.getAbsolutePath());
 
@@ -263,7 +328,7 @@ public final class DirScan
 						 */
 						if(attr.isRegularFile()) // We test only regular files even for directory containers (must contains at least 1 file)
 						{
-							if(Container.getType(file) == Type.UNK)	// maybe we did found a potential directory container with unknown type files inside)
+							if(Container.getType(file) == Type.UNK || skip_archives)	// maybe we did found a potential directory container with unknown type files inside)
 							{
 								if(path.equals(file.getParentFile().toPath()))	// skip if parent is the entry point
 									return;
@@ -304,6 +369,25 @@ public final class DirScan
 								}
 							}
 						}
+						else if(empty_dirs)
+						{
+							final Path relative  = path.relativize(p);
+							if(null == (c = containers_byname.get(relative.toString())) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
+							{
+								containers.add(c = new Directory(file, attr));
+								if(c != null)
+								{
+									c.up2date = true;
+									containers_byname.put(relative.toString(), c);
+								}
+							}
+							else if(!c.up2date)
+							{
+								c.up2date = true;
+								containers.add(c);
+							}
+							
+						}
 					}
 					handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles2"), dir, i.incrementAndGet()) ); //$NON-NLS-1$
 				}
@@ -332,7 +416,7 @@ public final class DirScan
 		/*
 		 * Initialize torrentzip if needed
 		 */
-		final TorrentZip torrentzip = (is_dest && format==FormatOptions.TZIP) ? new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions(false, true)) : null;
+		final TorrentZip torrentzip = (is_dest && format_tzip) ? new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions(false, true)) : null;
 		
 		/*
 		 * Now read at least archives content, add eventually calculate checksum for each entries if needed
@@ -380,7 +464,7 @@ public final class DirScan
 							for(final Entry entry : c.getEntries())
 								update_entry(entry);
 						}
-						if(is_dest && format==FormatOptions.TZIP && c.lastTZipCheck < c.modified)
+						if(is_dest && format_tzip && c.lastTZipCheck < c.modified)
 						{
 							c.lastTZipStatus = torrentzip.Process(c.file);
 							c.lastTZipCheck = System.currentTimeMillis();
@@ -399,12 +483,13 @@ public final class DirScan
 					{
 						try
 						{
-							Files.walkFileTree(c.file.toPath(), new SimpleFileVisitor<Path>()
+							Files.walkFileTree(c.file.toPath(), EnumSet.noneOf(FileVisitOption.class), is_dest?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
 							{
 								@Override
 								public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
 								{
-									update_entry(c.add(new Entry(entry_path.toString(), attrs)), entry_path);
+									if(attrs.isRegularFile())
+										update_entry(c.add(new Entry(entry_path.toString(), attrs)), entry_path);
 									return FileVisitResult.CONTINUE;
 								}
 	
@@ -491,9 +576,9 @@ public final class DirScan
 		{
 			this.container = container;
 			algorithms = new ArrayList<>();
-			if(profile.sha1_roms)
+			if(sha1_roms)
 				algorithms.add("SHA-1"); //$NON-NLS-1$
-			if(profile.md5_roms)
+			if(md5_roms)
 				algorithms.add("MD5"); //$NON-NLS-1$
 			digest = new MessageDigest[algorithms.size()];
 			for(int i = 0; i < algorithms.size(); i++)
@@ -626,7 +711,7 @@ public final class DirScan
 				entry.crc = String.format("%08x", item.getCRC()); //$NON-NLS-1$
 			}
 			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
-			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || profile.suspicious_crc.contains(entry.crc)))
+			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 			{
 				if(item == null)
 				{
@@ -667,7 +752,7 @@ public final class DirScan
 				entry.crc = String.format("%08x", archive_entry.getCrcValue()); //$NON-NLS-1$
 			}
 			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
-			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || profile.suspicious_crc.contains(entry.crc)))
+			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 			{
 				entries.add(entry);
 			}
@@ -821,20 +906,20 @@ public final class DirScan
 			}
 			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 		}
-		if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || profile.suspicious_crc.contains(entry.crc)))
+		if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 		{
 			if(entry.type == Entry.Type.CHD)
 			{
-				if(profile.sha1_disks || profile.md5_disks)
+				if(sha1_disks || md5_disks || need_sha1_or_md5)
 				{
 					Path path = entry_path;
 					if(entry_path == null)
 						path = getPath(entry);
 					final CHDInfoReader chd_info = new CHDInfoReader(path.toFile());
-					if(profile.sha1_disks)
+					if(sha1_disks)
 						if(null != (entry.sha1 = chd_info.getSHA1()))
 							entries_bysha1.put(entry.sha1, entry);
-					if(profile.md5_disks)
+					if(md5_disks)
 						if(null != (entry.md5 = chd_info.getMD5()))
 							entries_bymd5.put(entry.md5, entry);
 					if(entry_path == null)
@@ -843,17 +928,20 @@ public final class DirScan
 			}
 			else
 			{
-				if(profile.sha1_roms || profile.md5_roms)
+				if(sha1_roms || md5_roms || entry.crc==null || need_sha1_or_md5)
 				{
 					Path path = entry_path;
 					if(entry_path == null)
 						path = getPath(entry);
-					if(profile.sha1_roms)
+					if(sha1_roms || need_sha1_or_md5)
 						if(null != (entry.sha1 = computeSHA1(path)))
 							entries_bysha1.put(entry.sha1, entry);
-					if(profile.md5_roms)
+					if(md5_roms || need_sha1_or_md5)
 						if(null != (entry.md5 = computeMD5(path)))
 							entries_bymd5.put(entry.md5, entry);
+					if(entry.crc==null)
+						if(null != (entry.crc = computeCRC(path)))
+							entries_bycrc.put(entry.crc, entry);
 					if(entry_path == null)
 						path.getFileSystem().close();
 				}
@@ -888,6 +976,33 @@ public final class DirScan
 		return computeHash(entry_path, "MD5"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Compute CRC from entry {@link Path}
+	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
+	 * @return the hash {@link String}
+	 */
+	private String computeCRC(final Path entry_path)
+	{
+		try(final InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
+		{
+			CRC32 crc = new CRC32();
+			final byte[] buffer = new byte[8192];
+			int len = is.read(buffer);
+			while(len != -1)
+			{
+				crc.update(buffer, 0, len);
+				len = is.read(buffer);
+			}
+			return String.format("%08x", crc.getValue());
+		}
+		catch(final Exception e)
+		{
+			System.err.println(entry_path);
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	/**
 	 * Compute Hash from entry {@link Path}
 	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
@@ -940,14 +1055,14 @@ public final class DirScan
 		{
 			if(null != (entry = entries_bysha1.get(r.sha1)))
 				return entry;
-			if(profile.suspicious_crc.contains(r.crc))
+			if(isSuspiciousCRC(r.crc))
 				return null;
 		}
 		if(r.md5 != null)
 		{
 			if(null != (entry = entries_bymd5.get(r.md5)))
 				return entry;
-			if(profile.suspicious_crc.contains(r.crc))
+			if(isSuspiciousCRC(r.crc))
 				return null;
 		}
 		return entries_bycrc.get(r.crc + "." + r.size); //$NON-NLS-1$
