@@ -607,7 +607,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		final Container container;
-		if (null != (container = disks_dstscan.getContainerByName(ware.getDest(merge_mode, implicit_merge).getName())))
+		if (null != (container = disks_dstscan.getContainerByName(ware.getDest(merge_mode, implicit_merge).getNormalizedName())))
 		{
 			missing_set = false;
 			if (disks.size() > 0)
@@ -627,12 +627,12 @@ public class Scan
 					{
 						if (candidate_entry.equals(disk))
 						{
-							if (!disk.getName().equals(candidate_entry.getName())) // but this entry name does not match the rom name
+							if (!disk.getNormalizedName().equals(candidate_entry.getName())) // but this entry name does not match the rom name
 							{
 								final Disk another_disk;
 								if (null != (another_disk = disks_byname.get(candidate_entry.getName())) && candidate_entry.equals(another_disk))
 								{
-									if (entries_byname.containsKey(disk.getName()))
+									if (entries_byname.containsKey(disk.getNormalizedName()))
 									{
 										// report_w.println("["+m.name+"] "+d.getName()+" == "+e.file);
 									}
@@ -646,7 +646,7 @@ public class Scan
 								}
 								else
 								{
-									if (!entries_byname.containsKey(disk.getName())) // and disk name is not in the entries
+									if (!entries_byname.containsKey(disk.getNormalizedName())) // and disk name is not in the entries
 									{
 										report_subject.add(new EntryWrongName(disk, candidate_entry));
 										(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format, 0L)).addAction(new RenameEntry(candidate_entry));
@@ -662,7 +662,7 @@ public class Scan
 								break;
 							}
 						}
-						else if (disk.getName().equals(candidate_entry.getName()))
+						else if (disk.getNormalizedName().equals(candidate_entry.getName()))
 						{
 							report_subject.add(new EntryWrongHash(disk, candidate_entry));
 							// found = e;
@@ -769,7 +769,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		final Container container;
-		if (null != (container = roms_dstscan.getContainerByName(ware.getDest(merge_mode, implicit_merge).getName() + format.getExt())))
+		if (null != (container = roms_dstscan.getContainerByName(ware.getDest(merge_mode, implicit_merge).getNormalizedName() + format.getExt())))
 		{	// found container
 			missing_set = false;
 			if (roms.size() > 0)
@@ -792,12 +792,12 @@ public class Scan
 						final String efile = candidate_entry.getName();
 						if (candidate_entry.equals(rom)) // The entry 'candidate_entry' match hash from 'rom'
 						{
-							if (!rom.getName().equals(efile)) // but this entry name does not match the rom name
+							if (!rom.getNormalizedName().equals(efile)) // but this entry name does not match the rom name
 							{
 								final Rom another_rom;
 								if (null != (another_rom = roms_byname.get(efile)) && candidate_entry.equals(another_rom))
 								{
-									if (entries_byname.containsKey(rom.getName())) // and rom name is in the entries
+									if (entries_byname.containsKey(rom.getNormalizedName())) // and rom name is in the entries
 									{
 										// report_w.println("[" + m.name + "] " + r.getName() + " == " + e.file);
 									}
@@ -812,7 +812,7 @@ public class Scan
 								}
 								else
 								{
-									if (!entries_byname.containsKey(rom.getName())) // and rom name is not in the entries
+									if (!entries_byname.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
 									{
 										report_subject.add(new EntryWrongName(rom, candidate_entry));
 										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
@@ -831,7 +831,7 @@ public class Scan
 								break;
 							}
 						}
-						else if (rom.getName().equals(efile))	// oups! we got a wrong rom hash
+						else if (rom.getNormalizedName().equals(efile))	// oups! we got a wrong rom hash
 						{
 							report_subject.add(new EntryWrongHash(rom, candidate_entry));
 							break;
@@ -995,7 +995,7 @@ public class Scan
 							{
 								for (final Entry entry : found_container.entries_byname.values())
 								{
-									if (entry.getName().equals(sample.getName()))
+									if (entry.getName().equals(sample.getNormalizedName()))
 										found_entry = entry;
 									if (null != found_entry)
 										break;
@@ -1054,7 +1054,7 @@ public class Scan
 							{
 								for (final Entry entry : found_container.entries_byname.values())
 								{
-									if (entry.getName().equals(sample.getName()))
+									if (entry.getName().equals(sample.getNormalizedName()))
 										entry_found = entry;
 									if (null != entry_found)
 										break;

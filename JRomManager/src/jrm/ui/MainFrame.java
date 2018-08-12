@@ -2268,7 +2268,8 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatJunkSubfolders.gridy = 3;
 		panelDir2DatOptions.add(cbDir2DatJunkSubfolders, gbc_cbDir2DatJunkSubfolders);
 		
-		cbDir2DatDoNotScan = new JCheckBox(Messages.getString("MainFrame.chckbxDoNotScan.text")); //$NON-NLS-1$
+		cbDir2DatDoNotScan = new JCheckBox(Messages.getString("MainFrame.chckbxDoNotScan.text"));
+		cbDir2DatDoNotScan.setEnabled(false);
 		cbDir2DatDoNotScan.setSelected(Settings.getProperty("dir2dat.do_not_scan_archives", false));
 		cbDir2DatDoNotScan.addItemListener(e -> Settings.setProperty("dir2dat.do_not_scan_archives", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatDoNotScan = new GridBagConstraints();
@@ -2289,6 +2290,7 @@ public class MainFrame extends JFrame
 		panelDir2DatOptions.add(cbDir2DatMatchCurrentProfile, gbc_cbDir2DatMatchCurrentProfile);
 		
 		cbDir2DatIncludeEmptyDirs = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeEmptyDirs.text")); //$NON-NLS-1$
+		cbDir2DatIncludeEmptyDirs.setEnabled(false);
 		cbDir2DatIncludeEmptyDirs.setSelected(Settings.getProperty("dir2dat.include_empty_dirs", false));
 		cbDir2DatIncludeEmptyDirs.addItemListener(e -> Settings.setProperty("dir2dat.include_empty_dirs", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatIncludeEmptyDirs = new GridBagConstraints();
@@ -3205,11 +3207,11 @@ public class MainFrame extends JFrame
 						final File dstdat = new File(dst);
 						if(dstdat.getParentFile().isDirectory() && (dstdat.exists() || dstdat.createNewFile()))
 						{
-							EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM);
+							EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.IS_DEST, Options.MD5_DISKS, Options.SHA1_DISKS);
 							if(cbDir2DatAddShamd.isSelected()) options.add(Options.NEED_SHA1_OR_MD5);
 							if(cbDir2DatDoNotScan.isSelected()) options.add(Options.SKIP_ARCHIVES);
 							if(cbDir2DatIncludeEmptyDirs.isSelected()) options.add(Options.EMPTY_DIRS);
-							if(!cbDir2DatScanSubfolders.isSelected()) options.add(Options.IS_DEST);
+							if(cbDir2DatScanSubfolders.isSelected()) options.add(Options.RECURSE);
 							if(cbDir2DatMatchCurrentProfile.isSelected()) options.add(Options.MATCH_PROFILE);
 							if(cbDir2DatJunkSubfolders.isSelected()) options.add(Options.JUNK_SUBFOLDERS);
 							ExportType type = null;

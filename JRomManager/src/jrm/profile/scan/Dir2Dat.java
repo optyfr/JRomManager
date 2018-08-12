@@ -15,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
+import jrm.profile.data.Entry.Type;
 import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.scan.DirScan.Options;
@@ -59,13 +60,24 @@ public class Dir2Dat
 						writer.writeElement("manufacturer", ""); //$NON-NLS-1$
 						for(Entry e : c.getEntries())
 						{
-							writer.writeElement("rom", //$NON-NLS-1$
-								new SimpleAttribute("name", normalize(e.getName())), //$NON-NLS-1$
-								new SimpleAttribute("size", e.size), //$NON-NLS-1$
-								new SimpleAttribute("crc", e.crc), //$NON-NLS-1$
-								new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
-								new SimpleAttribute("sha1", e.sha1) //$NON-NLS-1$
-							);
+							if(e.type==Type.CHD)
+							{
+								writer.writeElement("disk", //$NON-NLS-1$
+									new SimpleAttribute("name", normalize(e.getName())), //$NON-NLS-1$
+									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
+									new SimpleAttribute("sha1", e.sha1) //$NON-NLS-1$
+								);
+							}
+							else
+							{
+								writer.writeElement("rom", //$NON-NLS-1$
+									new SimpleAttribute("name", normalize(e.getName())), //$NON-NLS-1$
+									new SimpleAttribute("size", e.size), //$NON-NLS-1$
+									new SimpleAttribute("crc", e.crc), //$NON-NLS-1$
+									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
+									new SimpleAttribute("sha1", e.sha1) //$NON-NLS-1$
+								);
+							}
 						}
 						writer.writeEndElement();
 					}
@@ -90,15 +102,26 @@ public class Dir2Dat
 						writer.writeElement("manufacturer", ""); //$NON-NLS-1$
 						for(Entry e : c.getEntries())
 						{
-							writer.writeElement("rom", //$NON-NLS-1$
-								new SimpleAttribute("name", normalize(e.getName())), //$NON-NLS-1$
-								new SimpleAttribute("size", e.size), //$NON-NLS-1$
-								new SimpleAttribute("crc", e.crc), //$NON-NLS-1$
-								new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
-								new SimpleAttribute("sha1", e.sha1), //$NON-NLS-1$
-								new SimpleAttribute("offset", 0), //$NON-NLS-1$
-								new SimpleAttribute("date", e.modified) //$NON-NLS-1$
-							);
+							if(e.type==Type.CHD)
+							{
+								writer.writeElement("disk", //$NON-NLS-1$
+									new SimpleAttribute("name", normalize(e.getName())), //$NON-NLS-1$
+									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
+									new SimpleAttribute("sha1", e.sha1) //$NON-NLS-1$
+								);
+							}
+							else
+							{
+								writer.writeElement("rom", //$NON-NLS-1$
+									new SimpleAttribute("name", normalize(e.getName())), //$NON-NLS-1$
+									new SimpleAttribute("size", e.size), //$NON-NLS-1$
+									new SimpleAttribute("crc", e.crc), //$NON-NLS-1$
+									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
+									new SimpleAttribute("sha1", e.sha1), //$NON-NLS-1$
+									new SimpleAttribute("offset", 0), //$NON-NLS-1$
+									new SimpleAttribute("date", e.modified) //$NON-NLS-1$
+								);
+							}
 						}
 						writer.writeEndElement();
 					}

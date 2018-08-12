@@ -16,21 +16,43 @@
  */
 package jrm.profile.scan;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.net.URI;
-import java.nio.file.*;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.CRC32;
 import java.util.zip.ZipError;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
@@ -39,17 +61,30 @@ import JTrrntzip.SimpleTorrentZipOptions;
 import JTrrntzip.TorrentZip;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
+import jrm.digest.MDigest;
 import jrm.io.CHDInfoReader;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
-import jrm.profile.data.*;
+import jrm.profile.data.Archive;
+import jrm.profile.data.Container;
 import jrm.profile.data.Container.Type;
+import jrm.profile.data.Directory;
+import jrm.profile.data.Disk;
+import jrm.profile.data.Entity;
+import jrm.profile.data.Entry;
+import jrm.profile.data.Rom;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.ui.progress.ProgressHandler;
-import net.sf.sevenzipjbinding.*;
+import net.sf.sevenzipjbinding.ExtractAskMode;
+import net.sf.sevenzipjbinding.ExtractOperationResult;
+import net.sf.sevenzipjbinding.IArchiveExtractCallback;
+import net.sf.sevenzipjbinding.IInArchive;
+import net.sf.sevenzipjbinding.ISequentialOutStream;
+import net.sf.sevenzipjbinding.SevenZip;
+import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
@@ -114,13 +149,13 @@ public final class DirScan
 	 */
 	private final File dir;
 	/**
-	 * is this a scan for a destination folder or a source folder (destination scans are optimized)
-	 */
-	private final boolean is_dest;
-	/**
 	 * {@link ProgressHandler} to show progression on UI
 	 */
 	private final ProgressHandler handler;
+	/**
+	 * other options
+	 */
+	private EnumSet<Options> options;
 
 	/**
 	 * Initialization for SevenzipJBinding
@@ -146,6 +181,7 @@ public final class DirScan
 	public enum Options
 	{
 		IS_DEST,
+		RECURSE,
 		NEED_SHA1_OR_MD5,
 		USE_PARALLELISM,
 		FORMAT_TZIP,
@@ -179,7 +215,8 @@ public final class DirScan
 				options.add(Options.NEED_SHA1_OR_MD5);
 			if (profile.getProperty("use_parallelism", false)) //$NON-NLS-1$
 				options.add(Options.USE_PARALLELISM);
-			if (FormatOptions.TZIP == FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())))
+			FormatOptions format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString()));
+			if (FormatOptions.TZIP == format)
 				options.add(Options.FORMAT_TZIP);
 			if (profile.md5_roms)
 				options.add(Options.MD5_ROMS);
@@ -246,18 +283,20 @@ public final class DirScan
 		this.dir = dir;
 		this.handler = handler;
 		this.suspicious_crc = suspicious_crc;
+		this.options = options;
 		
-		is_dest = options.contains(Options.IS_DEST);
 		need_sha1_or_md5 = options.contains(Options.NEED_SHA1_OR_MD5);
 		md5_disks = options.contains(Options.MD5_DISKS);
 		md5_roms = options.contains(Options.MD5_ROMS);
 		sha1_disks = options.contains(Options.SHA1_DISKS);
 		sha1_roms = options.contains(Options.SHA1_ROMS);
+		final boolean is_dest = options.contains(Options.IS_DEST);
+		final boolean recurse = options.contains(Options.RECURSE);
 		final boolean use_parallelism = options.contains(Options.USE_PARALLELISM);
 		final boolean format_tzip = options.contains(Options.FORMAT_TZIP);
-		final boolean empty_dirs = options.contains(Options.EMPTY_DIRS);
+		final boolean include_empty_dirs = options.contains(Options.EMPTY_DIRS);
 		final boolean skip_archives = options.contains(Options.SKIP_ARCHIVES);
-
+		
 		final Path path = Paths.get(dir.getAbsolutePath());
 
 		/*
@@ -369,24 +408,29 @@ public final class DirScan
 								}
 							}
 						}
-						else if(empty_dirs)
+						else if(include_empty_dirs)
 						{
-							final Path relative  = path.relativize(p);
-							if(null == (c = containers_byname.get(relative.toString())) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
+							try(DirectoryStream<Path> dirstream = Files.newDirectoryStream(p))
 							{
-								containers.add(c = new Directory(file, attr));
-								if(c != null)
+								if(!dirstream.iterator().hasNext())
 								{
-									c.up2date = true;
-									containers_byname.put(relative.toString(), c);
+									final Path relative  = path.relativize(p);
+									if(null == (c = containers_byname.get(relative.toString())) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
+									{
+										containers.add(c = new Directory(file, attr));
+										if(c != null)
+										{
+											c.up2date = true;
+											containers_byname.put(relative.toString(), c);
+										}
+									}
+									else if(!c.up2date)
+									{
+										c.up2date = true;
+										containers.add(c);
+									}
 								}
 							}
-							else if(!c.up2date)
-							{
-								c.up2date = true;
-								containers.add(c);
-							}
-							
 						}
 					}
 					handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles2"), dir, i.incrementAndGet()) ); //$NON-NLS-1$
@@ -483,7 +527,7 @@ public final class DirScan
 					{
 						try
 						{
-							Files.walkFileTree(c.file.toPath(), EnumSet.noneOf(FileVisitOption.class), is_dest?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
+							Files.walkFileTree(c.file.toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
 							{
 								@Override
 								public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
@@ -553,7 +597,7 @@ public final class DirScan
 		/**
 		 * The {@link MessageDigest} array (array size is equals to {@link #algorithms} size)
 		 */
-		private final MessageDigest[] digest;
+		private final MDigest[] digest;
 		/**
 		 * the interface to archive in case of sevenzipjbinding usage
 		 */
@@ -580,9 +624,9 @@ public final class DirScan
 				algorithms.add("SHA-1"); //$NON-NLS-1$
 			if(md5_roms)
 				algorithms.add("MD5"); //$NON-NLS-1$
-			digest = new MessageDigest[algorithms.size()];
+			digest = new MDigest[algorithms.size()];
 			for(int i = 0; i < algorithms.size(); i++)
-				digest[i] = MessageDigest.getInstance(algorithms.get(i));
+				digest[i] = MDigest.getAlgorithm(algorithms.get(i));
 		}
 
 		@Override
@@ -794,12 +838,12 @@ public final class DirScan
 					{
 						if(extractOperationResult == ExtractOperationResult.OK)
 						{
-							for(final MessageDigest d : digest)
+							for(final MDigest d : digest)
 							{
 								if(d.getAlgorithm().equals("SHA-1")) //$NON-NLS-1$
-									entries_bysha1.put(entry.sha1 = Hex.encodeHexString(d.digest()), entry);
+									entries_bysha1.put(entry.sha1 = d.toString(), entry);
 								if(d.getAlgorithm().equals("MD5")) //$NON-NLS-1$
-									entries_bymd5.put(entry.md5 = Hex.encodeHexString(d.digest()), entry);
+									entries_bymd5.put(entry.md5 = d.toString(), entry);
 								d.reset();
 							}
 						}
@@ -817,7 +861,7 @@ public final class DirScan
 						if(extractAskMode != ExtractAskMode.EXTRACT)
 							return null;
 						return data -> {
-							for(final MessageDigest d : digest)
+							for(final MDigest d : digest)
 								d.update(data);
 							return data.length; // Return amount of proceed data
 						};
@@ -835,42 +879,18 @@ public final class DirScan
 		{
 			for(final Entry entry : entries)
 			{
-				for(final MessageDigest d : computeHash(getJInterface().extract_stdout(entry.getName())))
+				for(final MDigest d : MDigest.computeHash(getJInterface().extract_stdout(entry.getName()), digest))
 				{
 					if(d.getAlgorithm().equals("SHA-1")) //$NON-NLS-1$
-						entries_bysha1.put(entry.sha1 = Hex.encodeHexString(d.digest()), entry);
+						entries_bysha1.put(entry.sha1 = d.toString(), entry);
 					if(d.getAlgorithm().equals("MD5")) //$NON-NLS-1$
-						entries_bymd5.put(entry.md5 = Hex.encodeHexString(d.digest()), entry);
+						entries_bymd5.put(entry.md5 = d.toString(), entry);
 					d.reset();
 				}
 			}
 
 		}
 
-		/**
-		 * Compute hash from an {@link InputStream}
-		 * @param is the {@link InputStream} to read
-		 * @return an array of {@link MessageDigest}
-		 */
-		private MessageDigest[] computeHash(final InputStream is)
-		{
-			try(final BufferedInputStream bis = new BufferedInputStream(is))
-			{
-				final byte[] buffer = new byte[8192];
-				int len = is.read(buffer);
-				while(len != -1)
-				{
-					for(final MessageDigest d : digest)
-						d.update(buffer, 0, len);
-					len = is.read(buffer);
-				}
-			}
-			catch(final Exception e)
-			{
-				e.printStackTrace();
-			}
-			return digest;
-		}
 	}
 
 	/**
@@ -906,35 +926,60 @@ public final class DirScan
 			}
 			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 		}
-		if(entry.type == Entry.Type.CHD && entry.sha1 == null && entry.md5 == null && need_sha1_or_md5)
+		if(entry.type == Entry.Type.CHD && entry.sha1 == null && entry.md5 == null)
 		{
-			Path path = entry_path;
-			if(entry_path == null)
-				path = getPath(entry);
-			final CHDInfoReader chd_info = new CHDInfoReader(path.toFile());
-			if(sha1_disks)
-				if(null != (entry.sha1 = chd_info.getSHA1()))
-					entries_bysha1.put(entry.sha1, entry);
-			if(md5_disks)
-				if(null != (entry.md5 = chd_info.getMD5()))
-					entries_bymd5.put(entry.md5, entry);
-			if(entry_path == null)
-				path.getFileSystem().close();
+
+				Path path = entry_path;
+				if(entry_path == null)
+					path = getPath(entry);
+				final CHDInfoReader chd_info = new CHDInfoReader(path.toFile());
+				if(sha1_disks)
+					if(null != (entry.sha1 = chd_info.getSHA1()))
+						entries_bysha1.put(entry.sha1, entry);
+				if(md5_disks)
+					if(null != (entry.md5 = chd_info.getMD5()))
+						entries_bymd5.put(entry.md5, entry);
+				if(entry_path == null)
+					path.getFileSystem().close();
 		}
-		else if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
+		else if(entry.type != Entry.Type.CHD && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 		{
 			Path path = entry_path;
 			if(entry_path == null)
 				path = getPath(entry);
-			if(sha1_roms || need_sha1_or_md5)
-				if(null != (entry.sha1 = computeSHA1(path)))
-					entries_bysha1.put(entry.sha1, entry);
-			if(md5_roms || need_sha1_or_md5)
-				if(null != (entry.md5 = computeMD5(path)))
-					entries_bymd5.put(entry.md5, entry);
+			List<String> algorithms = new ArrayList<>();
 			if(entry.crc==null)
-				if(null != (entry.crc = computeCRC(path)))
-					entries_bycrc.put(entry.crc + "." + entry.size, entry);
+				algorithms.add("CRC");
+			if(md5_roms || need_sha1_or_md5)
+				algorithms.add("MD5");
+			if(sha1_roms || need_sha1_or_md5)
+				algorithms.add("SHA-1");
+			try
+			{
+				MDigest[] digests = computeHash(path, algorithms);
+				for(MDigest md : digests)
+				{
+					switch (md.getAlgorithm())
+					{
+						case "CRC":
+							if(null != (entry.crc = md.toString()))
+								entries_bycrc.put(entry.crc + "." + entry.size, entry);
+							break;
+						case "MD5":
+							if(null != (entry.md5 = md.toString()))
+								entries_bymd5.put(entry.md5, entry);
+							break;
+						case "SHA-1":
+							if(null != (entry.sha1 = md.toString()))
+								entries_bysha1.put(entry.sha1, entry);
+							break;
+					}
+				}
+			}
+			catch (NoSuchAlgorithmException e)
+			{
+				e.printStackTrace();
+			}
 			if(entry_path == null)
 				path.getFileSystem().close();
 		}
@@ -949,175 +994,29 @@ public final class DirScan
 		}
 	}
 
-	/**
-	 * Compute SHA-1 from entry {@link Path}
-	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
-	 * @return the hash {@link String}
-	 * @deprecated
-	 */
-	@Deprecated
-	private String computeSHA1(final Path entry_path)
-	{
-		return computeHash(entry_path, "SHA-1"); //$NON-NLS-1$
-	}
-
-	/**
-	 * Compute MD5 from entry {@link Path}
-	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
-	 * @return the hash {@link String}
-	 * @deprecated
-	 */
-	@Deprecated
-	private String computeMD5(final Path entry_path)
-	{
-		return computeHash(entry_path, "MD5"); //$NON-NLS-1$
-	}
-
-	/**
-	 * Compute CRC from entry {@link Path}
-	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
-	 * @return the hash {@link String}
-	 * @deprecated
-	 */
-	@Deprecated
-	private String computeCRC(final Path entry_path)
-	{
-		try(final InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
-		{
-			CRC32 crc = new CRC32();
-			final byte[] buffer = new byte[8192];
-			int len = is.read(buffer);
-			while(len != -1)
-			{
-				crc.update(buffer, 0, len);
-				len = is.read(buffer);
-			}
-			return String.format("%08x", crc.getValue());
-		}
-		catch(final Exception e)
-		{
-			System.err.println(entry_path);
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	/**
-	 * Compute Hash from entry {@link Path}
-	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
-	 * @param algorithm the desired hash algorithm
-	 * @return the hash {@link String}
-	 * @deprecated
-	 */
-	@Deprecated
-	private String computeHash(final Path entry_path, final String algorithm)
-	{
-		try(final InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
-		{
-			final MessageDigest digest = MessageDigest.getInstance(algorithm);
-			final byte[] buffer = new byte[8192];
-			int len = is.read(buffer);
-			while(len != -1)
-			{
-				digest.update(buffer, 0, len);
-				len = is.read(buffer);
-			}
-			return Hex.encodeHexString(digest.digest());
-		}
-		catch(final Exception e)
-		{
-			System.err.println(entry_path);
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private String[] computeHash(final Path entry_path, final List<String> algorithm) throws NoSuchAlgorithmException
+	private MDigest[] computeHash(final Path entry_path, final List<String> algorithm) throws NoSuchAlgorithmException
 	{
 		return computeHash(entry_path, algorithm.toArray(new String[0]));
 	}
 	
-	private String[] computeHash(final Path entry_path, final String[] algorithm) throws NoSuchAlgorithmException
+	private MDigest[] computeHash(final Path entry_path, final String[] algorithm) throws NoSuchAlgorithmException
 	{
 		MDigest md[] = new MDigest[algorithm.length];
 		for(int i = 0; i < algorithm.length; i++)
 			md[i] = MDigest.getAlgorithm(algorithm[i]);
-		try(final InputStream is = new BufferedInputStream(Files.newInputStream(entry_path), 8192))
+		try
 		{
-			final byte[] buffer = new byte[8192];
-			int len = is.read(buffer);
-			while(len != -1)
-			{
-				for(MDigest m : md)
-					m.update(buffer, 0, len);
-				len = is.read(buffer);
-			}
-			String result[] = new String[md.length];
-			for(int i = 0; i < md.length; i++)
-				result[i] = md[i].toString();
-			return result;
+			MDigest.computeHash(Files.newInputStream(entry_path), md);
 		}
 		catch(final Exception e)
 		{
 			System.err.println(entry_path);
 			e.printStackTrace();
 		}
-		return null;
+		return md;
 	}
+	
 
-	private static abstract class MDigest
-	{
-		protected abstract void update(byte[] input, int offset, int len);
-		
-		private static MDigest getAlgorithm(String algorithm) throws NoSuchAlgorithmException
-		{
-			if(algorithm.equalsIgnoreCase("CRC"))
-				return new CRCDigest();
-			return new MsgDigest(algorithm);
-		}
-	}
-	
-	private static class CRCDigest extends MDigest
-	{
-		private CRC32 crc = new CRC32();
-		
-		@Override
-		protected void update(byte[] input, int offset, int len)
-		{
-			crc.update(input, offset, len);
-		}
-		
-		@Override
-		public String toString()
-		{
-			return String.format("%08x", crc.getValue());
-		}
-		
-	}
-	
-	private static class MsgDigest extends MDigest
-	{
-		private MessageDigest digest;
-		
-		private MsgDigest(String algorithm) throws NoSuchAlgorithmException
-		{
-			digest = MessageDigest.getInstance(algorithm);
-		}
-		
-		@Override
-		protected void update(byte[] input, int offset, int len)
-		{
-			digest.update(input, offset, len);
-		}
-		
-		@Override
-		public String toString()
-		{
-			return Hex.encodeHexString(digest.digest());
-		}
-	}
-	
-	
 	/**
 	 * get {@link Path} from {@link Entry} using FS deduced from {@link Entry#parent}
 	 * @param entry the {@link Entry} to retrieve {@link Path}
@@ -1181,7 +1080,7 @@ public final class DirScan
 		cachedir.mkdirs();
 		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		return new File(cachedir, String.format("%08x", crc.getValue()) + (is_dest?".dcache":".scache")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return new File(cachedir, String.format("%08x", crc.getValue()) + (options.contains(Options.IS_DEST)?(options.contains(Options.RECURSE)?".rcache":".dcache"):".scache")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	/**

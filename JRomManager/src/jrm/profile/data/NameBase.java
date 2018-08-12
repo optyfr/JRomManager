@@ -45,6 +45,11 @@ abstract class NameBase implements Serializable, Comparable<NameBase>
 		return name;
 	}
 
+	public final String getNormalizedName()
+	{
+		return getName().replace('\\', '/');
+	}
+	
 	/**
 	 * set the name of the entity
 	 * @param name the name to set

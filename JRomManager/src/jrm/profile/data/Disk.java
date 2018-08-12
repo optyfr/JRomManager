@@ -123,7 +123,7 @@ public class Disk extends Entity implements Serializable
 	 */
 	public static Map<String, Disk> getDisksByName(final List<Disk> disks)
 	{
-		return disks.stream().collect(Collectors.toMap(Disk::getName, Function.identity(), (n, r) -> n));
+		return disks.stream().collect(Collectors.toMap(Disk::getNormalizedName, Function.identity(), (n, r) -> n));
 	}
 
 	/**

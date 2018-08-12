@@ -182,7 +182,7 @@ public class Rom extends Entity implements Serializable
 	 */
 	public static Map<String, Rom> getRomsByName(final List<Rom> roms)
 	{
-		return roms.stream().collect(Collectors.toMap(Rom::getName, r -> r, (n, r) -> n));
+		return roms.stream().collect(Collectors.toMap(Rom::getNormalizedName, r -> r, (n, r) -> n));
 	}
 
 	/**

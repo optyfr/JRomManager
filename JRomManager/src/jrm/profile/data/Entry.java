@@ -159,7 +159,7 @@ public class Entry implements Serializable
 		}
 		else if(obj instanceof Sample)
 		{
-			return ((Sample)obj).getName().equals(this.getName());
+			return ((Sample)obj).getNormalizedName().equals(this.getName());
 		}
 		return super.equals(obj);
 	}
