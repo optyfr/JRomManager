@@ -190,7 +190,7 @@ public final class DirScan
 		SHA1_ROMS,
 		SHA1_DISKS,
 		EMPTY_DIRS,
-		SKIP_ARCHIVES,
+		ARCHIVES_AND_CHD_AS_ROMS,
 		JUNK_SUBFOLDERS,
 		MATCH_PROFILE
 	}
@@ -295,7 +295,7 @@ public final class DirScan
 		final boolean use_parallelism = options.contains(Options.USE_PARALLELISM);
 		final boolean format_tzip = options.contains(Options.FORMAT_TZIP);
 		final boolean include_empty_dirs = options.contains(Options.EMPTY_DIRS);
-		final boolean skip_archives = options.contains(Options.SKIP_ARCHIVES);
+		final boolean archives_and_chd_as_roms = options.contains(Options.ARCHIVES_AND_CHD_AS_ROMS);
 		
 		final Path path = Paths.get(dir.getAbsolutePath());
 
@@ -318,7 +318,7 @@ public final class DirScan
 		 * Initialize progression
 		 */
 		handler.clearInfos();
-		handler.setInfos(Runtime.getRuntime().availableProcessors(),false);
+		handler.setInfos(use_parallelism?Runtime.getRuntime().availableProcessors():1,false);
 		
 
 		/*
@@ -367,7 +367,7 @@ public final class DirScan
 						 */
 						if(attr.isRegularFile()) // We test only regular files even for directory containers (must contains at least 1 file)
 						{
-							if(Container.getType(file) == Type.UNK || skip_archives)	// maybe we did found a potential directory container with unknown type files inside)
+							if(Container.getType(file) == Type.UNK || archives_and_chd_as_roms)	// maybe we did found a potential directory container with unknown type files inside)
 							{
 								if(path.equals(file.getParentFile().toPath()))	// skip if parent is the entry point
 									return;
@@ -466,7 +466,10 @@ public final class DirScan
 		 * Now read at least archives content, add eventually calculate checksum for each entries if needed
 		 */
 		final AtomicInteger i = new AtomicInteger(0);
+		handler.clearInfos();
+		handler.setInfos(use_parallelism?Runtime.getRuntime().availableProcessors():1,true);
 		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), dir) , i.get(), containers.size()); //$NON-NLS-1$
+		handler.setProgress2("", 0, containers.size());
 		StreamEx.of(use_parallelism ? containers.parallelStream().unordered() : containers.stream()).takeWhile((c) -> !handler.isCancel()).forEach(c -> {
 			try
 			{
@@ -533,7 +536,13 @@ public final class DirScan
 								public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
 								{
 									if(attrs.isRegularFile())
-										update_entry(c.add(new Entry(entry_path.toString(), attrs)), entry_path);
+									{
+										Entry entry = new Entry(entry_path.toString(), attrs);
+										if(archives_and_chd_as_roms)
+											entry.type = Entry.Type.UNK;
+										handler.setProgress(c.file.getName() , -1, null, File.separator+c.file.toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+										update_entry(c.add(entry), entry_path);
+									}
 									return FileVisitResult.CONTINUE;
 								}
 	
@@ -554,7 +563,8 @@ public final class DirScan
 					default:
 						break;
 				}
-				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.file.getName()) , i.incrementAndGet(), null, String.format("%d/%d (%d%%)", i.get(), containers.size(), (int)(i.get() * 100.0 / containers.size()))); //$NON-NLS-1$ //$NON-NLS-2$
+				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.file.getName()));
+				handler.setProgress2(String.format("%d/%d (%d%%)", i.get(), containers.size(), (int)(i.get() * 100.0 / containers.size())), i.incrementAndGet());
 			}
 			catch(final IOException e)
 			{
@@ -944,18 +954,18 @@ public final class DirScan
 		}
 		else if(entry.type != Entry.Type.CHD && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 		{
-			Path path = entry_path;
-			if(entry_path == null)
-				path = getPath(entry);
 			List<String> algorithms = new ArrayList<>();
 			if(entry.crc==null)
 				algorithms.add("CRC");
-			if(md5_roms || need_sha1_or_md5)
+			if(entry.md5 == null && (md5_roms || need_sha1_or_md5))
 				algorithms.add("MD5");
-			if(sha1_roms || need_sha1_or_md5)
+			if(entry.sha1 == null && (sha1_roms || need_sha1_or_md5))
 				algorithms.add("SHA-1");
-			try
+			if(algorithms.size() > 0) try
 			{
+				Path path = entry_path;
+				if(entry_path == null)
+					path = getPath(entry);
 				MDigest[] digests = computeHash(path, algorithms);
 				for(MDigest md : digests)
 				{
@@ -975,13 +985,13 @@ public final class DirScan
 							break;
 					}
 				}
+				if(entry_path == null)
+					path.getFileSystem().close();
 			}
 			catch (NoSuchAlgorithmException e)
 			{
 				e.printStackTrace();
 			}
-			if(entry_path == null)
-				path.getFileSystem().close();
 		}
 		else
 		{
@@ -1068,6 +1078,24 @@ public final class DirScan
 		return entries_bymd5.get(d.md5);
 	}
 
+	private String getCacheExt()
+	{
+		if(options.contains(Options.IS_DEST))
+		{
+			if(options.contains(Options.ARCHIVES_AND_CHD_AS_ROMS))
+			{
+				if(options.contains(Options.RECURSE))
+					return ".radcache";
+				return ".adcache";
+			}
+			if(options.contains(Options.RECURSE))
+				return ".rdcache";
+			return ".dcache";
+		}
+		else
+			return ".scache";
+	}
+	
 	/**
 	 * get the scan cache File
 	 * @param file the root dir {@link File} of the scan
@@ -1080,7 +1108,7 @@ public final class DirScan
 		cachedir.mkdirs();
 		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		return new File(cachedir, String.format("%08x", crc.getValue()) + (options.contains(Options.IS_DEST)?(options.contains(Options.RECURSE)?".rcache":".dcache"):".scache")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return new File(cachedir, String.format("%08x", crc.getValue()) + getCacheExt()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	/**

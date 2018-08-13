@@ -65,7 +65,7 @@ public abstract class MDigest
 	 */
 	public static MDigest[] computeHash(final InputStream in, final MDigest[] md) throws IOException
 	{
-		try(final InputStream is = new BufferedInputStream(in, 8192))
+		try(final InputStream is = new BufferedInputStream(in, 1024*1024))
 		{
 			final byte[] buffer = new byte[8192];
 			int len = is.read(buffer);

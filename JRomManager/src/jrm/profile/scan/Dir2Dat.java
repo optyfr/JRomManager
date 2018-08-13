@@ -1,16 +1,19 @@
 package jrm.profile.scan;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JOptionPane;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import jrm.profile.data.Container;
@@ -28,13 +31,19 @@ public class Dir2Dat
 	public Dir2Dat(File srcdir, File dstdat, final ProgressHandler progress, EnumSet<Options> options, ExportType type)
 	{
 		DirScan srcdir_scan  = new DirScan(srcdir, progress, options);
-		write(dstdat, srcdir_scan, type);
+		write(dstdat, srcdir_scan, type, progress);
 	}
 
-	private void write(final File dstdat, final DirScan scan, final ExportType type)
+	private void write(final File dstdat, final DirScan scan, final ExportType type, final ProgressHandler progress)
 	{
+		progress.clearInfos();
+		progress.setInfos(1, false);
+		AtomicInteger i = new AtomicInteger();
+		scan.getContainersIterable().forEach(c->i.incrementAndGet());
+		progress.setProgress("Saving...", 0, i.get());
+		i.set(0);
 		EnhancedXMLStreamWriter writer = null;
-		try(FileOutputStream fos = new FileOutputStream(dstdat))
+		try(BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(dstdat)))
 		{
 			writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(fos, "UTF-8")); //$NON-NLS-1$
 			writer.writeStartDocument("UTF-8","1.0"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -46,6 +55,7 @@ public class Dir2Dat
 					writer.writeStartElement("mame"); //$NON-NLS-1$
 					for(Container c : scan.getContainersIterable())
 					{
+						progress.setProgress("Saving...", i.incrementAndGet());
 						writer.writeStartElement("machine", //$NON-NLS-1$
 							new SimpleAttribute("name", normalize(scan.getDir().toPath().relativize(c.file.toPath()).toString())), //$NON-NLS-1$
 							new SimpleAttribute("isbios", null), //$NON-NLS-1$ //$NON-NLS-2$
@@ -63,7 +73,7 @@ public class Dir2Dat
 							if(e.type==Type.CHD)
 							{
 								writer.writeElement("disk", //$NON-NLS-1$
-									new SimpleAttribute("name", normalize(e.getName())), //$NON-NLS-1$
+									new SimpleAttribute("name", normalize(FilenameUtils.removeExtension(e.getName()))), //$NON-NLS-1$
 									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
 									new SimpleAttribute("sha1", e.sha1) //$NON-NLS-1$
 								);
@@ -90,6 +100,7 @@ public class Dir2Dat
 					writer.writeStartElement("datafile"); //$NON-NLS-1$
 					for(Container c : scan.getContainersIterable())
 					{
+						progress.setProgress("Saving...", i.incrementAndGet());
 						writer.writeStartElement("game", //$NON-NLS-1$
 							new SimpleAttribute("name", normalize(scan.getDir().toPath().relativize(c.file.toPath()).toString())), //$NON-NLS-1$
 							new SimpleAttribute("isbios", null), //$NON-NLS-1$ //$NON-NLS-2$
@@ -105,7 +116,7 @@ public class Dir2Dat
 							if(e.type==Type.CHD)
 							{
 								writer.writeElement("disk", //$NON-NLS-1$
-									new SimpleAttribute("name", normalize(e.getName())), //$NON-NLS-1$
+									new SimpleAttribute("name", normalize(FilenameUtils.removeExtension(e.getName()))), //$NON-NLS-1$
 									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
 									new SimpleAttribute("sha1", e.sha1) //$NON-NLS-1$
 								);
