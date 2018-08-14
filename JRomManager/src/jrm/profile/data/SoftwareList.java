@@ -271,7 +271,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		{
 			progress.setProgress(String.format(Messages.getString("SoftwareList.Exporting_%s"), s.getFullName()), progress.getValue()+1); //$NON-NLS-1$
 			if(!filtered || s.selected)
-				s.export(writer);
+				s.export(writer,null);
 		}
 		writer.writeEndElement();
 	}

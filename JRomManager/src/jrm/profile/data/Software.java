@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -208,7 +209,8 @@ public class Software extends Anyware implements Serializable
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer) throws XMLStreamException, IOException
+	@SuppressWarnings("unlikely-arg-type")
+	public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries) throws XMLStreamException, IOException
 	{
 		writer.writeStartElement("software", //$NON-NLS-1$
 				new SimpleAttribute("name", name), //$NON-NLS-1$
@@ -235,7 +237,8 @@ public class Software extends Anyware implements Serializable
 						new SimpleAttribute("endianness", dataarea.endianness.getXML()) //$NON-NLS-1$
 						);
 				for(final Rom r : dataarea.roms)
-					r.export(writer,true);
+					if(entries==null || entries.contains(r))
+						r.export(writer,true);
 				writer.writeEndElement();
 			}
 			for(final DiskArea diskarea : part.diskareas)
@@ -244,7 +247,8 @@ public class Software extends Anyware implements Serializable
 						new SimpleAttribute("name", diskarea.name) //$NON-NLS-1$
 						);
 				for(final Disk d : diskarea.disks)
-					d.export(writer,true);
+					if(entries==null || entries.contains(d))
+						d.export(writer,true);
 				writer.writeEndElement();
 			}
 			writer.writeEndElement();

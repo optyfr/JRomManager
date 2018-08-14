@@ -183,6 +183,8 @@ public final class DirScan
 		IS_DEST,
 		RECURSE,
 		NEED_SHA1_OR_MD5,
+		NEED_SHA1,
+		NEED_MD5,
 		USE_PARALLELISM,
 		FORMAT_TZIP,
 		MD5_ROMS,
@@ -285,11 +287,11 @@ public final class DirScan
 		this.suspicious_crc = suspicious_crc;
 		this.options = options;
 		
-		need_sha1_or_md5 = options.contains(Options.NEED_SHA1_OR_MD5);
-		md5_disks = options.contains(Options.MD5_DISKS);
-		md5_roms = options.contains(Options.MD5_ROMS);
-		sha1_disks = options.contains(Options.SHA1_DISKS);
-		sha1_roms = options.contains(Options.SHA1_ROMS);
+		need_sha1_or_md5 = options.contains(Options.NEED_SHA1_OR_MD5) || options.contains(Options.NEED_SHA1) || options.contains(Options.NEED_MD5);
+		md5_disks = options.contains(Options.MD5_DISKS) || options.contains(Options.NEED_MD5);
+		md5_roms = options.contains(Options.MD5_ROMS) || options.contains(Options.NEED_MD5);
+		sha1_disks = options.contains(Options.SHA1_DISKS) || options.contains(Options.NEED_SHA1);
+		sha1_roms = options.contains(Options.SHA1_ROMS) || options.contains(Options.NEED_SHA1);
 		final boolean is_dest = options.contains(Options.IS_DEST);
 		final boolean recurse = options.contains(Options.RECURSE);
 		final boolean use_parallelism = options.contains(Options.USE_PARALLELISM);
@@ -1093,7 +1095,17 @@ public final class DirScan
 			return ".dcache";
 		}
 		else
+		{
+			if(options.contains(Options.ARCHIVES_AND_CHD_AS_ROMS))
+			{
+				if(options.contains(Options.RECURSE))
+					return ".rascache";
+				return ".ascache";
+			}
+			if(options.contains(Options.RECURSE))
+				return ".rscache";
 			return ".scache";
+		}
 	}
 	
 	/**

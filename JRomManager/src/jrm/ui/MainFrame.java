@@ -625,7 +625,7 @@ public class MainFrame extends JFrame
 	private JButton btnDir2DatGenerate;
 	private final ButtonGroup Dir2DatFormatGroup = new ButtonGroup();
 	private JCheckBox cbDir2DatScanSubfolders;
-	private JCheckBox cbDir2DatAddShamd;
+	private JCheckBox cbDir2DatAddSha1;
 	private JCheckBox cbDir2DatJunkSubfolders;
 	private JCheckBox cbDir2DatDoNotScan;
 	private JCheckBox cbDir2DatMatchCurrentProfile;
@@ -650,6 +650,8 @@ public class MainFrame extends JFrame
 	private JTextField tfDir2DatHomepage;
 	private JTextField tfDir2DatURL;
 	private JCheckBox cbDir2DatIncludeEmptyDirs;
+	private JCheckBox cbDir2DatDeepScan;
+	private JCheckBox cbDir2DatAddMd5;
 
 	/**
 	 * Instantiates a new main frame.
@@ -2233,9 +2235,9 @@ public class MainFrame extends JFrame
 		dir2datTab.add(panelDir2DatOptions, gbc_panelDir2DatOptions);
 		GridBagLayout gbl_panelDir2DatOptions = new GridBagLayout();
 		gbl_panelDir2DatOptions.columnWidths = new int[]{0, 0, 0, 0};
-		gbl_panelDir2DatOptions.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_panelDir2DatOptions.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_panelDir2DatOptions.columnWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_panelDir2DatOptions.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_panelDir2DatOptions.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		panelDir2DatOptions.setLayout(gbl_panelDir2DatOptions);
 		
 		cbDir2DatScanSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxScanSubfolders.text")); //$NON-NLS-1$
@@ -2248,15 +2250,35 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatScanSubfolders.gridy = 1;
 		panelDir2DatOptions.add(cbDir2DatScanSubfolders, gbc_cbDir2DatScanSubfolders);
 		
-		cbDir2DatAddShamd = new JCheckBox(Messages.getString("MainFrame.chckbxAddShamd.text")); //$NON-NLS-1$
-		cbDir2DatAddShamd.setSelected(Settings.getProperty("dir2dat.add_sha1_md5", false));
-		cbDir2DatAddShamd.addItemListener(e -> Settings.setProperty("dir2dat.add_sha1_md5", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbDir2DatDeepScan = new JCheckBox(Messages.getString("MainFrame.chckbxDeepScanFor.text")); //$NON-NLS-1$
+		cbDir2DatDeepScan.setSelected(Settings.getProperty("dir2dat.deep_scan", false));
+		cbDir2DatDeepScan.addItemListener(e -> Settings.setProperty("dir2dat.deep_scan", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		GridBagConstraints gbc_chckbxDeepScanFor = new GridBagConstraints();
+		gbc_chckbxDeepScanFor.anchor = GridBagConstraints.WEST;
+		gbc_chckbxDeepScanFor.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxDeepScanFor.gridx = 1;
+		gbc_chckbxDeepScanFor.gridy = 2;
+		panelDir2DatOptions.add(cbDir2DatDeepScan, gbc_chckbxDeepScanFor);
+		
+		cbDir2DatAddMd5 = new JCheckBox(Messages.getString("MainFrame.chckbxAddMd.text")); //$NON-NLS-1$
+		cbDir2DatAddMd5.setSelected(Settings.getProperty("dir2dat.add_md5", false));
+		cbDir2DatAddMd5.addItemListener(e -> Settings.setProperty("dir2dat.add_md5", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$		
+		GridBagConstraints gbc_chckbxAddMd = new GridBagConstraints();
+		gbc_chckbxAddMd.anchor = GridBagConstraints.WEST;
+		gbc_chckbxAddMd.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxAddMd.gridx = 1;
+		gbc_chckbxAddMd.gridy = 3;
+		panelDir2DatOptions.add(cbDir2DatAddMd5, gbc_chckbxAddMd);
+		
+		cbDir2DatAddSha1 = new JCheckBox(Messages.getString("MainFrame.chckbxAddShamd.text")); //$NON-NLS-1$
+		cbDir2DatAddSha1.setSelected(Settings.getProperty("dir2dat.add_sha1", false));
+		cbDir2DatAddSha1.addItemListener(e -> Settings.setProperty("dir2dat.add_sha1", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$		
 		GridBagConstraints gbc_cbDir2DatAddShamd = new GridBagConstraints();
 		gbc_cbDir2DatAddShamd.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatAddShamd.insets = new Insets(0, 0, 5, 5);
 		gbc_cbDir2DatAddShamd.gridx = 1;
-		gbc_cbDir2DatAddShamd.gridy = 2;
-		panelDir2DatOptions.add(cbDir2DatAddShamd, gbc_cbDir2DatAddShamd);
+		gbc_cbDir2DatAddShamd.gridy = 4;
+		panelDir2DatOptions.add(cbDir2DatAddSha1, gbc_cbDir2DatAddShamd);
 		
 		cbDir2DatJunkSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxJunkSubfolders.text")); //$NON-NLS-1$
 		cbDir2DatJunkSubfolders.setSelected(Settings.getProperty("dir2dat.junk_folders", false));
@@ -2265,7 +2287,7 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatJunkSubfolders.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatJunkSubfolders.insets = new Insets(0, 0, 5, 5);
 		gbc_cbDir2DatJunkSubfolders.gridx = 1;
-		gbc_cbDir2DatJunkSubfolders.gridy = 3;
+		gbc_cbDir2DatJunkSubfolders.gridy = 5;
 		panelDir2DatOptions.add(cbDir2DatJunkSubfolders, gbc_cbDir2DatJunkSubfolders);
 		
 		cbDir2DatDoNotScan = new JCheckBox(Messages.getString("MainFrame.chckbxDoNotScan.text"));
@@ -2275,7 +2297,7 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatDoNotScan.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatDoNotScan.insets = new Insets(0, 0, 5, 5);
 		gbc_cbDir2DatDoNotScan.gridx = 1;
-		gbc_cbDir2DatDoNotScan.gridy = 4;
+		gbc_cbDir2DatDoNotScan.gridy = 6;
 		panelDir2DatOptions.add(cbDir2DatDoNotScan, gbc_cbDir2DatDoNotScan);
 		
 		cbDir2DatMatchCurrentProfile = new JCheckBox(Messages.getString("MainFrame.chckbxMatchCurrentProfile.text")); //$NON-NLS-1$
@@ -2285,18 +2307,17 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatMatchCurrentProfile.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatMatchCurrentProfile.insets = new Insets(0, 0, 5, 5);
 		gbc_cbDir2DatMatchCurrentProfile.gridx = 1;
-		gbc_cbDir2DatMatchCurrentProfile.gridy = 5;
+		gbc_cbDir2DatMatchCurrentProfile.gridy = 7;
 		panelDir2DatOptions.add(cbDir2DatMatchCurrentProfile, gbc_cbDir2DatMatchCurrentProfile);
 		
-		cbDir2DatIncludeEmptyDirs = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeEmptyDirs.text")); //$NON-NLS-1$
-		cbDir2DatIncludeEmptyDirs.setEnabled(false);
+		cbDir2DatIncludeEmptyDirs = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeEmptyDirs.text"));
 		cbDir2DatIncludeEmptyDirs.setSelected(Settings.getProperty("dir2dat.include_empty_dirs", false));
 		cbDir2DatIncludeEmptyDirs.addItemListener(e -> Settings.setProperty("dir2dat.include_empty_dirs", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatIncludeEmptyDirs = new GridBagConstraints();
 		gbc_cbDir2DatIncludeEmptyDirs.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatIncludeEmptyDirs.insets = new Insets(0, 0, 5, 5);
 		gbc_cbDir2DatIncludeEmptyDirs.gridx = 1;
-		gbc_cbDir2DatIncludeEmptyDirs.gridy = 6;
+		gbc_cbDir2DatIncludeEmptyDirs.gridy = 8;
 		panelDir2DatOptions.add(cbDir2DatIncludeEmptyDirs, gbc_cbDir2DatIncludeEmptyDirs);
 		
 		panelDir2DatHeaders = new JPanel();
@@ -2610,7 +2631,7 @@ public class MainFrame extends JFrame
 		panelDir2DatIO.add(lblDir2DatFormat, gbc_lblDir2DatFormat);
 		
 		rdbtnDir2DatMame = new JRadioButton(Messages.getString("MainFrame.rdbtnMame.text")); //$NON-NLS-1$
-		rdbtnDir2DatMame.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.DATAFILE.toString()))==ExportType.MAME);
+		rdbtnDir2DatMame.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString()))==ExportType.MAME);
 		rdbtnDir2DatMame.addActionListener(e-> Settings.setProperty("dir2dat_format", ExportType.MAME.toString())); 
 		Dir2DatFormatGroup.add(rdbtnDir2DatMame);
 		GridBagConstraints gbc_rdbtnDir2DatMame = new GridBagConstraints();
@@ -2620,7 +2641,7 @@ public class MainFrame extends JFrame
 		panelDir2DatIO.add(rdbtnDir2DatMame, gbc_rdbtnDir2DatMame);
 		
 		rdbtnDir2DatLogiqxDat = new JRadioButton(Messages.getString("MainFrame.rdbtnLogiqxDat.text")); //$NON-NLS-1$
-		rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.DATAFILE.toString()))==ExportType.DATAFILE);
+		rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString()))==ExportType.DATAFILE);
 		rdbtnDir2DatLogiqxDat.addActionListener(e-> Settings.setProperty("dir2dat_format", ExportType.DATAFILE.toString())); 
 		Dir2DatFormatGroup.add(rdbtnDir2DatLogiqxDat);
 		GridBagConstraints gbc_rdbtnDir2DatLogiqxDat = new GridBagConstraints();
@@ -2630,9 +2651,8 @@ public class MainFrame extends JFrame
 		panelDir2DatIO.add(rdbtnDir2DatLogiqxDat, gbc_rdbtnDir2DatLogiqxDat);
 		
 		rdbtnDir2DatSwList = new JRadioButton(Messages.getString("MainFrame.rdbtnSwList.text")); //$NON-NLS-1$
-		rdbtnDir2DatSwList.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.DATAFILE.toString()))==ExportType.SOFTWARELIST);
+		rdbtnDir2DatSwList.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString()))==ExportType.SOFTWARELIST);
 		rdbtnDir2DatSwList.addActionListener(e-> Settings.setProperty("dir2dat_format", ExportType.SOFTWARELIST.toString()));
-		rdbtnDir2DatSwList.setEnabled(false);
 		Dir2DatFormatGroup.add(rdbtnDir2DatSwList);
 		GridBagConstraints gbc_rdbtnDir2DatSwList = new GridBagConstraints();
 		gbc_rdbtnDir2DatSwList.gridwidth = 2;
@@ -3206,8 +3226,10 @@ public class MainFrame extends JFrame
 						final File dstdat = new File(dst);
 						if(dstdat.getParentFile().isDirectory() && (dstdat.exists() || dstdat.createNewFile()))
 						{
-							EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.IS_DEST, Options.MD5_DISKS, Options.SHA1_DISKS);
-							if(cbDir2DatAddShamd.isSelected()) options.add(Options.NEED_SHA1_OR_MD5);
+							EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
+							if(cbDir2DatAddSha1.isSelected()) options.add(Options.NEED_SHA1);
+							if(cbDir2DatAddMd5.isSelected()) options.add(Options.NEED_MD5);
+							if(!cbDir2DatDeepScan.isSelected()) options.add(Options.IS_DEST);
 							if(cbDir2DatDoNotScan.isSelected()) options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
 							if(cbDir2DatIncludeEmptyDirs.isSelected()) options.add(Options.EMPTY_DIRS);
 							if(cbDir2DatScanSubfolders.isSelected()) options.add(Options.RECURSE);
@@ -3215,8 +3237,8 @@ public class MainFrame extends JFrame
 							if(cbDir2DatJunkSubfolders.isSelected()) options.add(Options.JUNK_SUBFOLDERS);
 							ExportType type = null;
 							if(rdbtnDir2DatLogiqxDat.isSelected()) type = ExportType.DATAFILE;
-							if(rdbtnDir2DatMame.isSelected()) type = ExportType.MAME;
-							if(rdbtnDir2DatSwList.isSelected()) type = ExportType.SOFTWARELIST;
+							else if(rdbtnDir2DatMame.isSelected()) type = ExportType.MAME;
+							else if(rdbtnDir2DatSwList.isSelected()) type = ExportType.SOFTWARELIST;
 							new Dir2Dat(srcdir, dstdat, progress, options, type);
 						}
 					}
