@@ -652,6 +652,7 @@ public class MainFrame extends JFrame
 	private JCheckBox cbDir2DatIncludeEmptyDirs;
 	private JCheckBox cbDir2DatDeepScan;
 	private JCheckBox cbDir2DatAddMd5;
+	private JPanel panel;
 
 	/**
 	 * Instantiates a new main frame.
@@ -2217,7 +2218,7 @@ public class MainFrame extends JFrame
 		scannerTab.add(lblProfileinfo, gbc_lblProfileinfo);
 		
 		dir2datTab = new JPanel();
-		mainPane.addTab(Messages.getString("MainFrame.panel.title"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/drive_go.png")), dir2datTab, null);
+		mainPane.addTab("Dir2Dat", new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/drive_go.png")), dir2datTab, null);
 		GridBagLayout gbl_dir2datTab = new GridBagLayout();
 		gbl_dir2datTab.columnWidths = new int[]{0, 0, 0};
 		gbl_dir2datTab.rowHeights = new int[]{0, 0, 0};
@@ -2660,6 +2661,9 @@ public class MainFrame extends JFrame
 		gbc_rdbtnDir2DatSwList.gridx = 3;
 		gbc_rdbtnDir2DatSwList.gridy = 2;
 		panelDir2DatIO.add(rdbtnDir2DatSwList, gbc_rdbtnDir2DatSwList);
+		
+		panel = new JPanel();
+		mainPane.addTab(Messages.getString("MainFrame.panel.title"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_osx_terminal.png")), panel, null); //$NON-NLS-1$
 
 		settingsTab = new JPanel();
 		mainPane.addTab(Messages.getString("MainFrame.Settings"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/cog.png")), settingsTab, null); //$NON-NLS-1$ //$NON-NLS-2$
@@ -3040,7 +3044,7 @@ public class MainFrame extends JFrame
 		gbc_btnGc.gridx = 2;
 		gbc_btnGc.gridy = 2;
 		debug.add(btnGc, gbc_btnGc);
-		mainPane.setEnabledAt(3, true);
+		mainPane.setEnabledAt(4, true);
 
 		pack();
 
