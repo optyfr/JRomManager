@@ -3239,7 +3239,18 @@ public class MainFrame extends JFrame
 							if(rdbtnDir2DatLogiqxDat.isSelected()) type = ExportType.DATAFILE;
 							else if(rdbtnDir2DatMame.isSelected()) type = ExportType.MAME;
 							else if(rdbtnDir2DatSwList.isSelected()) type = ExportType.SOFTWARELIST;
-							new Dir2Dat(srcdir, dstdat, progress, options, type);
+							HashMap<String, String> headers = new HashMap<>();
+							headers.put("name", tfDir2DatName.getText());
+							headers.put("description", tfDir2DatDescription.getText());
+							headers.put("version", tfDir2DatVersion.getText());
+							headers.put("author", tfDir2DatAuthor.getText());
+							headers.put("comment", tfDir2DatComment.getText());
+							headers.put("category", tfDir2DatCategory.getText());
+							headers.put("date", tfDir2DatDate.getText());
+							headers.put("email", tfDir2DatEMail.getText());
+							headers.put("homepage", tfDir2DatHomepage.getText());
+							headers.put("url", tfDir2DatURL.getText());
+							new Dir2Dat(srcdir, dstdat, progress, options, type, headers);
 						}
 					}
 				}

@@ -36,13 +36,13 @@ import jrm.xml.SimpleAttribute;
 
 public class Dir2Dat
 {
-	public Dir2Dat(File srcdir, File dstdat, final ProgressHandler progress, EnumSet<Options> options, ExportType type)
+	public Dir2Dat(File srcdir, File dstdat, final ProgressHandler progress, EnumSet<Options> options, ExportType type, HashMap<String, String> headers)
 	{
 		DirScan srcdir_scan  = new DirScan(srcdir, progress, options);
-		write(dstdat, srcdir_scan, progress, options, type);
+		write(dstdat, srcdir_scan, progress, options, type, headers);
 	}
 
-	private void write(final File dstdat, final DirScan scan, final ProgressHandler progress, EnumSet<Options> options, final ExportType type)
+	private void write(final File dstdat, final DirScan scan, final ProgressHandler progress, EnumSet<Options> options, final ExportType type, HashMap<String, String> headers)
 	{
 		progress.clearInfos();
 		progress.setInfos(1, false);
@@ -123,6 +123,10 @@ public class Dir2Dat
 				{
 					writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					writer.writeStartElement("datafile"); //$NON-NLS-1$
+					writer.writeStartElement("header");
+					for(Map.Entry<String, String> entry:headers.entrySet())
+						writer.writeElement(entry.getKey(), entry.getValue());
+					writer.writeEndElement();
 					Map<String,AtomicInteger> counter = new HashMap<>();
 					for(Container c : scan.getContainersIterable())
 					{
