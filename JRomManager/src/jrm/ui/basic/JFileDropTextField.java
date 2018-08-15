@@ -25,6 +25,7 @@ import java.awt.dnd.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,10 +48,14 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 	
 	/** The mode. */
 	private JFileDropMode mode = JFileDropMode.FILE;
+	
+	/** The filter */
+	private FilenameFilter filter = null;
 
 	/**
 	 * The Interface SetCallBack.
 	 */
+	@FunctionalInterface
 	public interface SetCallBack
 	{
 		
@@ -137,6 +142,11 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 		this.mode = mode;
 	}
 
+	public void setFilter(FilenameFilter filter)
+	{
+		this.filter = filter;
+	}
+
 	@Override
 	public void focusGained(final FocusEvent e)
 	{
@@ -198,6 +208,8 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 						return false;
 					else if (mode == JFileDropMode.FILE && !f.isFile())
 						return false;
+					else if(filter != null)
+						return filter.accept(f.getParentFile(), f.getName());
 					return true;
 				}).collect(Collectors.toList());
 				if (files.size() == 1)

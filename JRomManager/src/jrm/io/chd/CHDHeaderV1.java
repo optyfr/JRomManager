@@ -14,37 +14,37 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package jrm.io;
+package jrm.io.chd;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.MappedByteBuffer;
 
-class CHDHeaderV5 extends CHDHeader implements CHDHeaderIntf
+class CHDHeaderV1 extends CHDHeader implements CHDHeaderIntf
 {
-	private final String sha1;
+	private final String md5;
 
-	public CHDHeaderV5(final MappedByteBuffer bb, final CHDHeader header) throws UnsupportedEncodingException
+	public CHDHeaderV1(final MappedByteBuffer bb, final CHDHeader header) throws UnsupportedEncodingException
 	{
 		super();
 		tag = header.tag;
 		len = header.len;
 		version = header.version;
-		final byte[] sha1 = new byte[20];
-		bb.position(84);
-		bb.get(sha1);
-		this.sha1 = CHDHeader.bytesToHex(sha1);
+		bb.position(44);
+		final byte[] md5 = new byte[16];
+		bb.get(md5);
+		this.md5 = CHDHeader.bytesToHex(md5);
 	}
 
 	@Override
 	public String getSHA1()
 	{
-		return sha1;
+		return null;
 	}
 
 	@Override
 	public String getMD5()
 	{
-		return null;
+		return md5;
 	}
 
 }

@@ -1,4 +1,4 @@
-package jrm.io;
+package jrm.io.chd;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.MappedByteBuffer;

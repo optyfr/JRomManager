@@ -22,6 +22,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.*;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,10 +46,14 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 	
 	/** The mode. */
 	private JFileDropMode mode = JFileDropMode.FILE;
+	
+	/** The filter */
+	private FilenameFilter filter = null;
 
 	/**
 	 * The Interface AddDelCallBack.
 	 */
+	@FunctionalInterface
 	public interface AddDelCallBack
 	{
 		
@@ -81,6 +86,11 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 	public void setMode(JFileDropMode mode)
 	{
 		this.mode = mode;
+	}
+	
+	public void setFilter(FilenameFilter filter)
+	{
+		this.filter = filter;
 	}
 
 	@Override
@@ -132,6 +142,8 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 						return false;
 					else if (mode == JFileDropMode.FILE && !f.isFile())
 						return false;
+					else if(filter != null)
+						return filter.accept(f.getParentFile(), f.getName());
 					return true;
 				}).collect(Collectors.toList());
 				if (files.size() > 0)

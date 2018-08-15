@@ -85,6 +85,7 @@ import jrm.ui.profile.filter.CatVerModel;
 import jrm.ui.profile.manager.*;
 import jrm.ui.profile.report.ReportFrame;
 import jrm.ui.progress.Progress;
+import jrm.ui.basic.JFileDropList.AddDelCallBack;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -99,86 +100,15 @@ public class MainFrame extends JFrame
 	
 	/** The report frame. */
 	public static ReportFrame report_frame = null;
-
-	/**
-	 * Adds the popup.
-	 *
-	 * @param component the component
-	 * @param popup the popup
-	 */
-	private static void addPopup(final Component component, final JPopupMenu popup)
-	{
-		component.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mousePressed(final MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			@Override
-			public void mouseReleased(final MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			private void showMenu(final MouseEvent e)
-			{
-				popup.show(e.getComponent(), e.getX(), e.getY());
-			}
-		});
-	}
-
-	/** The bt disks dest. */
-	private JButton btDisksDest;
-	
-	/** The btn 7 z cmd. */
-	private JButton btn7zCmd;
 	
 	/** The btn fix. */
 	private JButton btnFix;
-	
-	/** The btn gc. */
-	private JButton btnGc;
-	
-	/** The btn import dat. */
-	private JButton btnImportDat;
-	
-	/** The btn import SL. */
-	private JButton btnImportSL;
-	
-	/** The btn info. */
-	private JButton btnInfo;
-	
-	/** The btn load profile. */
-	private JButton btnLoadProfile;
-	
-	/** The btn report. */
-	private JButton btnReport;
 	
 	/** The btn roms dest. */
 	private JButton btnRomsDest;
 	
 	/** The btn scan. */
 	private JButton btnScan;
-	
-	/** The btn SW dest. */
-	private JButton btnSWDest;
-	
-	/** The bt samples dest. */
-	private JButton btSamplesDest;
-	
-	/** The bt SW disks dest. */
-	private JButton btSWDisksDest;
-	
-	/** The bt zip E cmd. */
-	private JButton btZipECmd;
 	
 	/** The cb 7 z args. */
 	private JComboBox<SevenZipOptions> cb7zArgs;
@@ -255,95 +185,26 @@ public class MainFrame extends JFrame
 	/** The ckbx 7 z solid. */
 	private JCheckBox ckbx7zSolid;
 	
-	/** The compressors. */
-	private JPanel compressors;
-	
-	/** The compressors pane. */
-	private JTabbedPane compressorsPane;
-	
 	/** The curr scan. */
 	private Scan curr_scan;
-	
-	/** The debug. */
-	private JPanel debug;
-	
-	/** The lbl 7 z args. */
-	private JLabel lbl7zArgs;
-	
-	/** The lbl 7 z cmd. */
-	private JLabel lbl7zCmd;
-	
-	/** The lbl 7 z threads. */
-	private JLabel lbl7zThreads;
-	
-	/** The lbl 7 z warning. */
-	private JLabel lbl7zWarning;
-	
-	/** The lbl cabinet type. */
-	private JLabel lblCabinetType;
-	
-	/** The lbl compression. */
-	private JLabel lblCompression;
 	
 	/** The lbl disks dest. */
 	private JCheckBox lblDisksDest;
 	
-	/** The lbl display orientation. */
-	private JLabel lblDisplayOrientation;
-	
-	/** The lbl driver status. */
-	private JLabel lblDriverStatus;
-	
-	/** The lbl hash collision. */
-	private JLabel lblHashCollision;
-	
-	/** The lbl log level. */
-	private JLabel lblLogLevel;
-	
-	/** The lbl memory. */
-	private JLabel lblMemory;
-	
 	/** The lbl memory usage. */
 	private JLabel lblMemoryUsage;
-	
-	/** The lbl merge mode. */
-	private JLabel lblMergeMode;
 	
 	/** The lbl profileinfo. */
 	private JLabel lblProfileinfo;
 	
-	/** The lbl roms dest. */
-	private JLabel lblRomsDest;
-	
 	/** The lbl samples dest. */
 	private JCheckBox lblSamplesDest;
-	
-	/** The lbl src dir. */
-	private JLabel lblSrcDir;
 	
 	/** The lbl SW dest. */
 	private JCheckBox lblSWDest;
 	
 	/** The lbl SW disks dest. */
 	private JCheckBox lblSWDisksDest;
-	
-	/** The lbl sw min supported lvl. */
-	private JLabel lblSwMinSupportedLvl;
-	
-	/** The lbl year. */
-	private JLabel lblYear;
-	
-	/** The lbl zip E args. */
-	private JLabel lblZipEArgs;
-	
-	/** The lbl zip E cmd. */
-	private JLabel lblZipECmd;
-	
-	/** The lbl zip E threads. */
-	private JLabel lblZipEThreads;
-	
-	/** The lbl zip E warning. */
-	private JLabel lblZipEWarning;
 	
 	/** The list N players. */
 	private JCheckBoxList<NPlayer> listNPlayers;
@@ -353,12 +214,6 @@ public class MainFrame extends JFrame
 	
 	/** The main pane. */
 	private JTabbedPane mainPane;
-	
-	/** The mn select cat. */
-	private JMenu mnSelectCat;
-	
-	/** The mntm add directory. */
-	private JMenuItem mntmAddDirectory;
 	
 	/** The mntm create folder. */
 	private JMenuItem mntmCreateFolder;
@@ -375,137 +230,29 @@ public class MainFrame extends JFrame
 	/** The mntm drop cache. */
 	private JMenuItem mntmDropCache;
 	
-	/** The mntm invert selection. */
-	private JMenuItem mntmInvertSelection;
-	
-	/** The mntm invert selection N play. */
-	private JMenuItem mntmInvertSelectionNPlay;
-	
 	/** The mntm rename profile. */
 	private JMenuItem mntmRenameProfile;
-	
-	/** The mntm select all. */
-	private JMenuItem mntmSelectAll;
-	
-	/** The mntm select all cat. */
-	private JMenuItem mntmSelectAllCat;
-	
-	/** The mntm select all N play. */
-	private JMenuItem mntmSelectAllNPlay;
-	
-	/** The mntm select mature cat. */
-	private JMenuItem mntmSelectMatureCat;
-	
-	/** The mntm unselect all. */
-	private JMenuItem mntmUnselectAll;
-	
-	/** The mntm select none N play. */
-	private JMenuItem mntmSelectNoneNPlay;
-	
-	/** The mntm unselect all cat. */
-	private JMenuItem mntmUnselectAllCat;
-	
-	/** The mntm unselect mature cat. */
-	private JMenuItem mntmUnselectMatureCat;
 	
 	/** The mntm update from mame. */
 	private JMenuItem mntmUpdateFromMame;
 	
-	/** The mn unselect cat. */
-	private JMenu mnUnselectCat;
-	
-	/** The panel 1. */
-	private JPanel panel_1;
-	
-	/** The panel 7 zip. */
-	private JPanel panel7Zip;
-	
-	/** The panel zip. */
-	private JPanel panelZip;
-	
-	/** The panel zip E. */
-	private JPanel panelZipE;
-	
-	/** The popup menu. */
-	private JPopupMenu popupMenu;
-	
-	/** The popup menu 1. */
-	private JPopupMenu popupMenu_1;
-	
-	/** The popup menu 2. */
-	private JPopupMenu popupMenu_2;
-	
-	/** The popup menu 3. */
-	private JPopupMenu popupMenu_3;
-	
-	/** The popup menu cat. */
-	private JPopupMenu popupMenuCat;
-	
-	/** The popup menu N play. */
-	private JPopupMenu popupMenuNPlay;
-	
-	/** The profiles btn panel. */
-	private JPanel profilesBtnPanel;
-	
 	/** The profiles list. */
 	private JTable profilesList;
-	
-	/** The profiles panel. */
-	private JSplitPane profilesPanel;
-	
-	/** The profiles tab. */
-	private JPanel profilesTab;
 	
 	/** The profiles tree. */
 	private JTree profilesTree;
 	
-	/** The scanner adv filters. */
-	private JPanel scannerAdvFilters;
-	
-	/** The scanner btn panel. */
-	private JPanel scannerBtnPanel;
-	
 	/** The scanner cfg tab. */
-	private JTabbedPane scannerCfgTab;
-	
-	/** The scanner directories. */
-	private JPanel scannerDirectories;
-	
-	/** The scanner filters. */
-	private JSplitPane scannerFilters;
-	
-	/** The scanner settings panel. */
-	private JPanel scannerSettingsPanel;
+	private JTabbedPane scannerTabbedPane;
 	
 	/** The scanner sub settings panel. */
 	private JPanel scannerSubSettingsPanel;
 	
-	/** The scanner tab. */
-	private JPanel scannerTab;
-	
-	/** The scroll pane. */
-	private JScrollPane scrollPane;
-	
 	/** The scroll pane 1. */
 	private JScrollPane scrollPane_1;
 	
-	/** The scroll pane 2. */
-	private JScrollPane scrollPane_2;
-	
-	/** The scroll pane cat ver. */
-	private JScrollPane scrollPaneCatVer;
-	
-	/** The scroll pane N players. */
-	private JScrollPane scrollPaneNPlayers;
-	
-	/** The separator. */
-	private JSeparator separator;
-	
 	/** The settings pane. */
 	private JTabbedPane settingsPane;
-	
-	/** The settings tab. */
-	private JPanel settingsTab;
 	
 	/** The tf 7 z cmd. */
 	private JFileDropTextField tf7zCmd;
@@ -546,32 +293,8 @@ public class MainFrame extends JFrame
 	/** The scheduler. */
 	final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	
-	/** The mn select. */
-	private JMenu mnSelect;
-	
-	/** The mn unselect. */
-	private JMenu mnUnselect;
-	
-	/** The mntm select all bios. */
-	private JMenuItem mntmSelectAllBios;
-	
-	/** The mntm select all softwares. */
-	private JMenuItem mntmSelectAllSoftwares;
-	
-	/** The mntm unselect all bios. */
-	private JMenuItem mntmUnselectAllBios;
-	
-	/** The mntm unselect all softwares. */
-	private JMenuItem mntmUnselectAllSoftwares;
-	
 	/** The cbbx zip level. */
 	private JComboBox<ZipLevel> cbbxZipLevel;
-	
-	/** The lbl compression level. */
-	private JLabel lblCompressionLevel;
-	
-	/** The lbl temporary files threshold. */
-	private JLabel lblTemporaryFilesThreshold;
 	
 	/** The cbbx zip temp threshold. */
 	private JComboBox<ZipTempThreshold> cbbxZipTempThreshold;
@@ -582,63 +305,18 @@ public class MainFrame extends JFrame
 	/** The chckbx ignore merge name disks. */
 	private JCheckBox chckbxIgnoreMergeNameDisks;
 	
-	/** The popup menu 4. */
-	private JPopupMenu popupMenu_4;
-	
-	/** The mn presets. */
-	private JMenu mnPresets;
-	
-	/** The mntm pleasuredome. */
-	private JMenuItem mntmPleasuredome;
-	
-	/** The mntm pd mame non. */
-	private JMenuItem mntmPdMameNon;
-	
-	/** The mntm pd mame split. */
-	private JMenuItem mntmPdMameSplit;
-	
 	/** The chckbx exclude games. */
 	private JCheckBox chckbxExcludeGames;
 	
 	/** The chckbx exclude machines. */
 	private JCheckBox chckbxExcludeMachines;
 	
-	/** The mn pd mame. */
-	private JMenu mnPdMame;
-	
 	/** The chckbx backup. */
 	private JCheckBox chckbxBackup;
-	private JPanel dir2datTab;
-	private JPanel panelDir2DatOptions;
-	private JPanel panelDir2DatHeaders;
-	private JPanel panelDir2DatIO;
+	
 	private JFileDropTextField tfDir2DatSrc;
 	private JFileDropTextField tfDir2DatDst;
-	private JLabel lblDir2DatSrc;
-	private JLabel lblDir2DatDst;
-	private JButton btnDir2DatDst;
-	private JButton btnDir2DatSrc;
-	private JRadioButton rdbtnDir2DatMame;
-	private JRadioButton rdbtnDir2DatSwList;
-	private JRadioButton rdbtnDir2DatLogiqxDat;
-	private JLabel lblDir2DatFormat;
-	private JButton btnDir2DatGenerate;
 	private final ButtonGroup Dir2DatFormatGroup = new ButtonGroup();
-	private JCheckBox cbDir2DatScanSubfolders;
-	private JCheckBox cbDir2DatAddSha1;
-	private JCheckBox cbDir2DatJunkSubfolders;
-	private JCheckBox cbDir2DatDoNotScan;
-	private JCheckBox cbDir2DatMatchCurrentProfile;
-	private JLabel lblDir2DatName;
-	private JLabel lblDir2DatDescription;
-	private JLabel lblDir2DatVersion;
-	private JLabel lblDir2DatAuthor;
-	private JLabel lblDir2DatComment;
-	private JLabel lblDir2DatCategory;
-	private JLabel lblDir2DatDate;
-	private JLabel lblDir2DatEmail;
-	private JLabel lblDir2DatHomepage;
-	private JLabel lblDir2DatUrl;
 	private JTextField tfDir2DatName;
 	private JTextField tfDir2DatDescription;
 	private JTextField tfDir2DatVersion;
@@ -649,10 +327,16 @@ public class MainFrame extends JFrame
 	private JTextField tfDir2DatEMail;
 	private JTextField tfDir2DatHomepage;
 	private JTextField tfDir2DatURL;
-	private JCheckBox cbDir2DatIncludeEmptyDirs;
-	private JCheckBox cbDir2DatDeepScan;
-	private JCheckBox cbDir2DatAddMd5;
-	private JPanel panel;
+	private JFileDropList listBatchToolsDat2DirDat;
+	private JFileDropList listBatchToolsDat2DirDir;
+	private JFileDropList listBatchToolsDat2DirSrc;
+	private JButton btDisksDest;
+	private JButton btnSWDest;
+	private JButton btSWDisksDest;
+	private JButton btSamplesDest;
+	private JFileDropList listBatchToolsTrntChkTrnt;
+	private JFileDropList listBtachToolsTrntChkDirs;
+	private JMenu mnDat2DirD2D;
 
 	/**
 	 * Instantiates a new main frame.
@@ -682,57 +366,12 @@ public class MainFrame extends JFrame
 			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 			e.printStackTrace();
 		}
-		initialize();
+		build();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			if (Profile.curr_profile != null)
 				Profile.curr_profile.saveSettings();
 			Settings.saveSettings();
 		}));
-	}
-
-	/**
-	 * Fix.
-	 */
-	private void fix()
-	{
-		final Progress progress = new Progress(MainFrame.this);
-		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-		{
-
-			@Override
-			protected Void doInBackground() throws Exception
-			{
-				if (Profile.curr_profile.hasPropsChanged())
-				{
-					switch (JOptionPane.showConfirmDialog(MainFrame.this, "Settings did change since last scan, you should rescan before fixing", "Rescan before fix?", JOptionPane.YES_NO_CANCEL_OPTION))
-					{
-						case JOptionPane.YES_OPTION:
-							curr_scan = new Scan(Profile.curr_profile, progress);
-							btnFix.setEnabled(curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
-							if (!btnFix.isEnabled())
-								return null;
-							break;
-						case JOptionPane.NO_OPTION:
-							break;
-						case JOptionPane.CANCEL_OPTION:
-						default:
-							return null;
-					}
-				}
-				final Fix fix = new Fix(Profile.curr_profile, curr_scan, progress);
-				btnFix.setEnabled(fix.getActionsRemain() > 0);
-				return null;
-			}
-
-			@Override
-			protected void done()
-			{
-				progress.dispose();
-			}
-
-		};
-		worker.execute();
-		progress.setVisible(true);
 	}
 
 	/**
@@ -752,99 +391,9 @@ public class MainFrame extends JFrame
 	}
 
 	/**
-	 * Import dat.
-	 *
-	 * @param sl the sl
+	 * Initialize Main GUI.
 	 */
-	private void importDat(final boolean sl)
-	{
-		new Thread(() -> {
-			final List<FileFilter> filters = Arrays.asList(new FileFilter()
-			{
-				@Override
-				public boolean accept(final File f)
-				{
-					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute(); //$NON-NLS-1$
-				}
-
-				@Override
-				public String getDescription()
-				{
-					return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
-				}
-			}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			);
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
-					.show(MainFrame.this, chooser -> {
-						final Progress progress = new Progress(MainFrame.this);
-						Settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
-						for (final File selectedfile : chooser.getSelectedFiles())
-						{
-							progress.setVisible(true);
-							progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
-							final Import imprt = new Import(selectedfile, sl);
-							progress.dispose();
-							final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
-							final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
-							new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-									.show(MainFrame.this, chooser1 -> {
-										try
-										{
-											final File file = chooser1.getSelectedFile();
-											final File parent = file.getParentFile();
-											FileUtils.copyFile(imprt.file, file);
-											if (imprt.is_mame)
-											{
-												final ProfileNFO pnfo = ProfileNFO.load(file);
-												pnfo.mame.set(imprt.org_file, sl);
-												if (imprt.roms_file != null)
-												{
-													FileUtils.copyFileToDirectory(imprt.roms_file, parent);
-													pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
-													if (imprt.sl_file != null)
-													{
-														FileUtils.copyFileToDirectory(imprt.sl_file, parent);
-														pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
-													}
-												}
-												pnfo.save();
-											}
-											final DirTreeModel model = (DirTreeModel) profilesTree.getModel();
-											final DirNode root = (DirNode) model.getRoot();
-											DirNode theNode = root.find(parent);
-											if (theNode != null)
-											{
-
-												theNode.reload();
-												model.reload(theNode);
-												if ((theNode = root.find(parent)) != null)
-												{
-													profilesTree.clearSelection();
-													profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
-												}
-												else
-													System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
-											}
-											else
-												System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
-										}
-										catch (final IOException e)
-										{
-											e.printStackTrace();
-										}
-										return null;
-									});
-						}
-						return null;
-					});
-		}).start();
-
-	}
-
-	/**
-	 * Initialize.
-	 */
-	private void initialize()
+	private void build()
 	{
 		setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
 		setTitle(Messages.getString("MainFrame.Title") + getVersion()); //$NON-NLS-1$
@@ -857,7 +406,33 @@ public class MainFrame extends JFrame
 
 		MainFrame.report_frame = new ReportFrame(MainFrame.this);
 
-		profilesTab = new JPanel();
+		buildProfileTab();
+		
+		buildScannerTab();
+		
+		buildDir2DatTab();
+		
+		buildBatchToolsTab();
+		
+		buildSettingsTab();
+		
+		pack();
+
+		try
+		{
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 720, 300))))))); //$NON-NLS-1$
+		}
+		catch (final DecoderException e1)
+		{
+			e1.printStackTrace();
+		}
+
+		scheduler.scheduleAtFixedRate(() -> updateMemory(), 0, 1, TimeUnit.MINUTES);
+	}
+	
+	private void buildProfileTab()
+	{
+		JPanel profilesTab = new JPanel();
 		mainPane.addTab(Messages.getString("MainFrame.Profiles"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script.png")), profilesTab, null); //$NON-NLS-1$ //$NON-NLS-2$
 		final GridBagLayout gbl_profilesTab = new GridBagLayout();
 		gbl_profilesTab.columnWidths = new int[] { 0, 0 };
@@ -866,7 +441,7 @@ public class MainFrame extends JFrame
 		gbl_profilesTab.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		profilesTab.setLayout(gbl_profilesTab);
 
-		profilesPanel = new JSplitPane();
+		JSplitPane profilesPanel = new JSplitPane();
 		profilesPanel.setContinuousLayout(true);
 		profilesPanel.setResizeWeight(0.2);
 		profilesPanel.setOneTouchExpandable(true);
@@ -877,7 +452,7 @@ public class MainFrame extends JFrame
 		gbc_profilesPanel.gridy = 0;
 		profilesTab.add(profilesPanel, gbc_profilesPanel);
 
-		scrollPane = new JScrollPane();
+		JScrollPane scrollPane = new JScrollPane();
 		profilesPanel.setRightComponent(scrollPane);
 
 		profilesList = new JTable();
@@ -942,8 +517,8 @@ public class MainFrame extends JFrame
 		profilesTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		profilesTree.addTreeSelectionListener(new DirTreeSelectionListener(profilesList));
 
-		popupMenu_2 = new JPopupMenu();
-		popupMenu_2.addPopupMenuListener(new PopupMenuListener()
+		JPopupMenu popupMenu_1 = new JPopupMenu();
+		popupMenu_1.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
 			public void popupMenuCanceled(final PopupMenuEvent e)
@@ -968,7 +543,7 @@ public class MainFrame extends JFrame
 					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text")); //$NON-NLS-1$
 			}
 		});
-		MainFrame.addPopup(profilesList, popupMenu_2);
+		MainFrame.addPopup(profilesList, popupMenu_1);
 
 		mntmDeleteProfile = new JMenuItem(Messages.getString("MainFrame.mntmDeleteProfile.text")); //$NON-NLS-1$
 		mntmDeleteProfile.addActionListener(e -> {
@@ -984,7 +559,7 @@ public class MainFrame extends JFrame
 			}
 		});
 		mntmDeleteProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_delete.png"))); //$NON-NLS-1$
-		popupMenu_2.add(mntmDeleteProfile);
+		popupMenu_1.add(mntmDeleteProfile);
 
 		mntmRenameProfile = new JMenuItem(Messages.getString("MainFrame.mntmRenameProfile.text")); //$NON-NLS-1$
 		mntmRenameProfile.addActionListener(e -> {
@@ -995,7 +570,7 @@ public class MainFrame extends JFrame
 			}
 		});
 		mntmRenameProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_edit.png"))); //$NON-NLS-1$
-		popupMenu_2.add(mntmRenameProfile);
+		popupMenu_1.add(mntmRenameProfile);
 
 		mntmDropCache = new JMenuItem(Messages.getString("MainFrame.mntmDropCache.text")); //$NON-NLS-1$
 		mntmDropCache.addActionListener(e -> {
@@ -1004,10 +579,10 @@ public class MainFrame extends JFrame
 				new File(filemodel.getFileAt(row).getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
 		});
 		mntmDropCache.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bin.png"))); //$NON-NLS-1$
-		popupMenu_2.add(mntmDropCache);
+		popupMenu_1.add(mntmDropCache);
 
-		separator = new JSeparator();
-		popupMenu_2.add(separator);
+		JSeparator separator = new JSeparator();
+		popupMenu_1.add(separator);
 
 		mntmUpdateFromMame = new JMenuItem(Messages.getString("MainFrame.mntmUpdateFromMame.text")); //$NON-NLS-1$
 		mntmUpdateFromMame.addActionListener(e -> {
@@ -1043,11 +618,11 @@ public class MainFrame extends JFrame
 				}
 			}
 		});
-		popupMenu_2.add(mntmUpdateFromMame);
+		popupMenu_1.add(mntmUpdateFromMame);
 		profilesTree.setSelectionRow(0);
 
-		popupMenu_1 = new JPopupMenu();
-		popupMenu_1.addPopupMenuListener(new PopupMenuListener()
+		JPopupMenu popupMenu = new JPopupMenu();
+		popupMenu.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
 			public void popupMenuCanceled(final PopupMenuEvent e)
@@ -1066,7 +641,7 @@ public class MainFrame extends JFrame
 				mntmDeleteFolder.setEnabled(profilesTree.getSelectionCount() > 0 && !((DirNode) profilesTree.getLastSelectedPathComponent()).isRoot());
 			}
 		});
-		MainFrame.addPopup(profilesTree, popupMenu_1);
+		MainFrame.addPopup(profilesTree, popupMenu);
 
 		mntmCreateFolder = new JMenuItem(Messages.getString("MainFrame.mntmCreateFolder.text")); //$NON-NLS-1$
 		mntmCreateFolder.addActionListener(e -> {
@@ -1082,7 +657,7 @@ public class MainFrame extends JFrame
 			}
 		});
 		mntmCreateFolder.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/folder_add.png"))); //$NON-NLS-1$
-		popupMenu_1.add(mntmCreateFolder);
+		popupMenu.add(mntmCreateFolder);
 
 		mntmDeleteFolder = new JMenuItem(Messages.getString("MainFrame.mntmDeleteFolder.text")); //$NON-NLS-1$
 		mntmDeleteFolder.addActionListener(e -> {
@@ -1096,16 +671,16 @@ public class MainFrame extends JFrame
 			}
 		});
 		mntmDeleteFolder.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/folder_delete.png"))); //$NON-NLS-1$
-		popupMenu_1.add(mntmDeleteFolder);
+		popupMenu.add(mntmDeleteFolder);
 
-		profilesBtnPanel = new JPanel();
+		JPanel profilesBtnPanel = new JPanel();
 		final GridBagConstraints gbc_profilesBtnPanel = new GridBagConstraints();
 		gbc_profilesBtnPanel.fill = GridBagConstraints.HORIZONTAL;
 		gbc_profilesBtnPanel.gridx = 0;
 		gbc_profilesBtnPanel.gridy = 1;
 		profilesTab.add(profilesBtnPanel, gbc_profilesBtnPanel);
 
-		btnLoadProfile = new JButton(Messages.getString("MainFrame.btnLoadProfile.text")); //$NON-NLS-1$
+		JButton btnLoadProfile = new JButton(Messages.getString("MainFrame.btnLoadProfile.text")); //$NON-NLS-1$
 		btnLoadProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/add.png"))); //$NON-NLS-1$
 		btnLoadProfile.setEnabled(false);
 		btnLoadProfile.addActionListener(e -> {
@@ -1113,17 +688,21 @@ public class MainFrame extends JFrame
 		});
 		profilesBtnPanel.add(btnLoadProfile);
 
-		btnImportDat = new JButton(Messages.getString("MainFrame.btnImportDat.text")); //$NON-NLS-1$
+		JButton btnImportDat = new JButton(Messages.getString("MainFrame.btnImportDat.text")); //$NON-NLS-1$
 		btnImportDat.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_go.png"))); //$NON-NLS-1$
 		btnImportDat.addActionListener(e -> importDat(false));
 		profilesBtnPanel.add(btnImportDat);
 
-		btnImportSL = new JButton(Messages.getString("MainFrame.btnImportSL.text")); //$NON-NLS-1$
+		JButton btnImportSL = new JButton(Messages.getString("MainFrame.btnImportSL.text")); //$NON-NLS-1$
 		btnImportSL.addActionListener(e -> importDat(true));
 		btnImportSL.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_go.png"))); //$NON-NLS-1$
 		profilesBtnPanel.add(btnImportSL);
-
-		scannerTab = new JPanel();
+		
+	}
+	
+	private void buildScannerTab()
+	{
+		JPanel scannerTab = new JPanel();
 		mainPane.addTab(Messages.getString("MainFrame.Scanner"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/drive_magnify.png")), scannerTab, null); //$NON-NLS-1$ //$NON-NLS-2$
 		mainPane.setEnabledAt(1, false);
 		final GridBagLayout gbl_scannerTab = new GridBagLayout();
@@ -1133,7 +712,7 @@ public class MainFrame extends JFrame
 		gbl_scannerTab.rowWeights = new double[] { 0.0, 1.0, 0.0, Double.MIN_VALUE };
 		scannerTab.setLayout(gbl_scannerTab);
 
-		scannerBtnPanel = new JPanel();
+		JPanel scannerBtnPanel = new JPanel();
 		final GridBagConstraints gbc_scannerBtnPanel = new GridBagConstraints();
 		gbc_scannerBtnPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_scannerBtnPanel.fill = GridBagConstraints.BOTH;
@@ -1141,7 +720,7 @@ public class MainFrame extends JFrame
 		gbc_scannerBtnPanel.gridy = 0;
 		scannerTab.add(scannerBtnPanel, gbc_scannerBtnPanel);
 
-		btnInfo = new JButton(Messages.getString("MainFrame.btnInfo.text")); //$NON-NLS-1$
+		JButton btnInfo = new JButton(Messages.getString("MainFrame.btnInfo.text")); //$NON-NLS-1$
 		btnInfo.addActionListener(e -> {
 			if (MainFrame.profile_viewer == null)
 				MainFrame.profile_viewer = new ProfileViewer(MainFrame.this, Profile.curr_profile);
@@ -1155,7 +734,7 @@ public class MainFrame extends JFrame
 		scannerBtnPanel.add(btnScan);
 		btnScan.setEnabled(false);
 
-		btnReport = new JButton(Messages.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
+		JButton btnReport = new JButton(Messages.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
 		btnReport.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/report.png"))); //$NON-NLS-1$
 		btnReport.addActionListener(e -> EventQueue.invokeLater(() -> MainFrame.report_frame.setVisible(true)));
 		scannerBtnPanel.add(btnReport);
@@ -1167,15 +746,34 @@ public class MainFrame extends JFrame
 		btnFix.setEnabled(false);
 		btnScan.addActionListener(e -> scan());
 
-		scannerCfgTab = new JTabbedPane(SwingConstants.TOP);
-		final GridBagConstraints gbc_scannerCfgTab = new GridBagConstraints();
-		gbc_scannerCfgTab.fill = GridBagConstraints.BOTH;
-		gbc_scannerCfgTab.gridx = 0;
-		gbc_scannerCfgTab.gridy = 1;
-		scannerTab.add(scannerCfgTab, gbc_scannerCfgTab);
+		scannerTabbedPane = new JTabbedPane(SwingConstants.TOP);
+		final GridBagConstraints gbc_scannerTabbedPane = new GridBagConstraints();
+		gbc_scannerTabbedPane.fill = GridBagConstraints.BOTH;
+		gbc_scannerTabbedPane.gridx = 0;
+		gbc_scannerTabbedPane.gridy = 1;
+		scannerTab.add(scannerTabbedPane, gbc_scannerTabbedPane);
 
-		scannerDirectories = new JPanel();
-		scannerCfgTab.addTab(Messages.getString("MainFrame.scannerDirectories.title"), null, scannerDirectories, null); //$NON-NLS-1$
+		buildScannerDirTab();
+		buildScannerSettingsTab();
+		buildScannerFiltersTab();
+		buildScannerAdvFiltersTab();
+		
+		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
+		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		final GridBagConstraints gbc_lblProfileinfo = new GridBagConstraints();
+		gbc_lblProfileinfo.insets = new Insets(0, 2, 0, 2);
+		gbc_lblProfileinfo.fill = GridBagConstraints.BOTH;
+		gbc_lblProfileinfo.gridx = 0;
+		gbc_lblProfileinfo.gridy = 2;
+		scannerTab.add(lblProfileinfo, gbc_lblProfileinfo);
+		
+		
+	}
+	
+	private void buildScannerDirTab()
+	{
+		JPanel scannerDirectories = new JPanel();
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerDirectories.title"), null, scannerDirectories, null); //$NON-NLS-1$
 		final GridBagLayout gbl_scannerDirectories = new GridBagLayout();
 		gbl_scannerDirectories.columnWidths = new int[] { 109, 65, 0, 0 };
 		gbl_scannerDirectories.rowHeights = new int[] { 26, 0, 0, 0, 0, 0, 0 };
@@ -1183,7 +781,7 @@ public class MainFrame extends JFrame
 		gbl_scannerDirectories.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		scannerDirectories.setLayout(gbl_scannerDirectories);
 
-		lblRomsDest = new JLabel(Messages.getString("MainFrame.lblRomsDest.text")); //$NON-NLS-1$
+		JLabel lblRomsDest = new JLabel(Messages.getString("MainFrame.lblRomsDest.text")); //$NON-NLS-1$
 		lblRomsDest.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbc_lblRomsDest = new GridBagConstraints();
 		gbc_lblRomsDest.fill = GridBagConstraints.HORIZONTAL;
@@ -1399,7 +997,7 @@ public class MainFrame extends JFrame
 		gbc_btSamplesDest.gridy = 4;
 		scannerDirectories.add(btSamplesDest, gbc_btSamplesDest);
 
-		lblSrcDir = new JLabel(Messages.getString("MainFrame.lblSrcDir.text")); //$NON-NLS-1$
+		JLabel lblSrcDir = new JLabel(Messages.getString("MainFrame.lblSrcDir.text")); //$NON-NLS-1$
 		lblSrcDir.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbc_lblSrcDir = new GridBagConstraints();
 		gbc_lblSrcDir.fill = GridBagConstraints.HORIZONTAL;
@@ -1422,7 +1020,7 @@ public class MainFrame extends JFrame
 		scannerDirectories.add(listSrcDir, gbc_listSrcDir);
 		listSrcDir.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 
-		popupMenu = new JPopupMenu();
+		JPopupMenu popupMenu = new JPopupMenu();
 		popupMenu.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
@@ -1448,7 +1046,7 @@ public class MainFrame extends JFrame
 		mntmDeleteSelected.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/folder_delete.png"))); //$NON-NLS-1$
 		popupMenu.add(mntmDeleteSelected);
 
-		mntmAddDirectory = new JMenuItem(Messages.getString("MainFrame.mntmAddDirectory.text")); //$NON-NLS-1$
+		JMenuItem mntmAddDirectory = new JMenuItem(Messages.getString("MainFrame.mntmAddDirectory.text")); //$NON-NLS-1$
 		mntmAddDirectory.addActionListener(e -> {
 			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Profile.curr_profile.getProperty("MainFrame.ChooseRomsSource", workdir.getAbsolutePath())), null, null, null, true).show(MainFrame.this, chooser -> { //$NON-NLS-1$
@@ -1459,27 +1057,31 @@ public class MainFrame extends JFrame
 		});
 		mntmAddDirectory.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/folder_add.png"))); //$NON-NLS-1$
 		popupMenu.add(mntmAddDirectory);
-
-		scannerSettingsPanel = new JPanel();
-		scannerCfgTab.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), null, scannerSettingsPanel, null); //$NON-NLS-1$
+		
+	}
+	
+	private void buildScannerSettingsTab()
+	{
+		JPanel scannerSettingsPanel = new JPanel();
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), null, scannerSettingsPanel, null); //$NON-NLS-1$
 		scannerSettingsPanel.setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
 		
-		popupMenu_4 = new JPopupMenu();
+		JPopupMenu popupMenu_4 = new JPopupMenu();
 		addPopup(scannerSettingsPanel, popupMenu_4);
 		
-		mnPresets = new JMenu(Messages.getString("MainFrame.mnPresets.text")); //$NON-NLS-1$
+		JMenu mnPresets = new JMenu(Messages.getString("MainFrame.mnPresets.text")); //$NON-NLS-1$
 		popupMenu_4.add(mnPresets);
 		
-		mnPdMame = new JMenu(Messages.getString("MainFrame.mnPdMame.text")); //$NON-NLS-1$
+		JMenu mnPdMame = new JMenu(Messages.getString("MainFrame.mnPdMame.text")); //$NON-NLS-1$
 		mnPresets.add(mnPdMame);
 		
-		mntmPleasuredome = new JMenuItem(Messages.getString("MainFrame.mntmPleasuredome.text")); //$NON-NLS-1$
+		JMenuItem mntmPleasuredome = new JMenuItem(Messages.getString("MainFrame.mntmPleasuredome.text")); //$NON-NLS-1$
 		mnPdMame.add(mntmPleasuredome);
 		
-		mntmPdMameNon = new JMenuItem(Messages.getString("MainFrame.mntmPdMameNon.text")); //$NON-NLS-1$
+		JMenuItem mntmPdMameNon = new JMenuItem(Messages.getString("MainFrame.mntmPdMameNon.text")); //$NON-NLS-1$
 		mnPdMame.add(mntmPdMameNon);
 		
-		mntmPdMameSplit = new JMenuItem(Messages.getString("MainFrame.mntmPdMameSplit.text")); //$NON-NLS-1$
+		JMenuItem mntmPdMameSplit = new JMenuItem(Messages.getString("MainFrame.mntmPdMameSplit.text")); //$NON-NLS-1$
 		mnPdMame.add(mntmPdMameSplit);
 		mntmPdMameSplit.addActionListener(new ActionListener() {
 			@Override
@@ -1672,7 +1274,7 @@ public class MainFrame extends JFrame
 		gbl_scannerSubSettingsPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		scannerSubSettingsPanel.setLayout(gbl_scannerSubSettingsPanel);
 
-		lblCompression = new JLabel(Messages.getString("MainFrame.lblCompression.text")); //$NON-NLS-1$
+		JLabel lblCompression = new JLabel(Messages.getString("MainFrame.lblCompression.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblCompression = new GridBagConstraints();
 		gbc_lblCompression.anchor = GridBagConstraints.EAST;
 		gbc_lblCompression.insets = new Insets(0, 5, 5, 5);
@@ -1700,7 +1302,7 @@ public class MainFrame extends JFrame
 		gbc_cbCompression.gridy = 0;
 		scannerSubSettingsPanel.add(cbCompression, gbc_cbCompression);
 
-		lblMergeMode = new JLabel(Messages.getString("MainFrame.lblMergeMode.text")); //$NON-NLS-1$
+		JLabel lblMergeMode = new JLabel(Messages.getString("MainFrame.lblMergeMode.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblMergeMode = new GridBagConstraints();
 		gbc_lblMergeMode.insets = new Insets(0, 0, 5, 5);
 		gbc_lblMergeMode.anchor = GridBagConstraints.EAST;
@@ -1732,7 +1334,7 @@ public class MainFrame extends JFrame
 			cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
 		});
 
-		lblHashCollision = new JLabel(Messages.getString("MainFrame.lblHashCollision.text")); //$NON-NLS-1$
+		JLabel lblHashCollision = new JLabel(Messages.getString("MainFrame.lblHashCollision.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblHashCollision = new GridBagConstraints();
 		gbc_lblHashCollision.insets = new Insets(0, 0, 5, 5);
 		gbc_lblHashCollision.anchor = GridBagConstraints.EAST;
@@ -1759,14 +1361,18 @@ public class MainFrame extends JFrame
 		gbc_cbHashCollision.gridx = 1;
 		gbc_cbHashCollision.gridy = 2;
 		scannerSubSettingsPanel.add(cbHashCollision, gbc_cbHashCollision);
-
-		scannerFilters = new JSplitPane();
+		
+	}
+	
+	private void buildScannerFiltersTab()
+	{
+		JSplitPane scannerFilters = new JSplitPane();
 		scannerFilters.setResizeWeight(0.5);
 		scannerFilters.setOneTouchExpandable(true);
 		scannerFilters.setContinuousLayout(true);
-		scannerCfgTab.addTab(Messages.getString("MainFrame.Filters"), null, scannerFilters, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.Filters"), null, scannerFilters, null); //$NON-NLS-1$
 
-		scrollPane_2 = new JScrollPane();
+		JScrollPane scrollPane_2 = new JScrollPane();
 		scannerFilters.setRightComponent(scrollPane_2);
 		scrollPane_2.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.scrollPane_2.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 
@@ -1795,51 +1401,51 @@ public class MainFrame extends JFrame
 		});
 		scrollPane_2.setViewportView(checkBoxListSystems);
 
-		popupMenu_3 = new JPopupMenu();
-		MainFrame.addPopup(checkBoxListSystems, popupMenu_3);
+		JPopupMenu popupMenu = new JPopupMenu();
+		MainFrame.addPopup(checkBoxListSystems, popupMenu);
 
-		mnSelect = new JMenu(Messages.getString("MainFrame.mnSelect.text")); //$NON-NLS-1$
-		popupMenu_3.add(mnSelect);
+		JMenu mnSelect = new JMenu(Messages.getString("MainFrame.mnSelect.text")); //$NON-NLS-1$
+		popupMenu.add(mnSelect);
 
-		mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
+		JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
 		mnSelect.add(mntmSelectAll);
 
-		mntmSelectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
+		JMenuItem mntmSelectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
 		mntmSelectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, true));
 		mnSelect.add(mntmSelectAllBios);
 
-		mntmSelectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
+		JMenuItem mntmSelectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
 		mntmSelectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, true));
 		mnSelect.add(mntmSelectAllSoftwares);
 
-		mnUnselect = new JMenu(Messages.getString("MainFrame.mnUnselect.text")); //$NON-NLS-1$
-		popupMenu_3.add(mnUnselect);
+		JMenu mnUnselect = new JMenu(Messages.getString("MainFrame.mnUnselect.text")); //$NON-NLS-1$
+		popupMenu.add(mnUnselect);
 
-		mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
+		JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
 		mnUnselect.add(mntmUnselectAll);
 
-		mntmUnselectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
+		JMenuItem mntmUnselectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
 		mntmUnselectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, false));
 		mnUnselect.add(mntmUnselectAllBios);
 
-		mntmUnselectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
+		JMenuItem mntmUnselectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
 		mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, false));
 		mnUnselect.add(mntmUnselectAllSoftwares);
 
-		mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
+		JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
 		mntmInvertSelection.addActionListener(e -> checkBoxListSystems.selectInvert());
-		popupMenu_3.add(mntmInvertSelection);
+		popupMenu.add(mntmInvertSelection);
 		mntmUnselectAll.addActionListener(e -> checkBoxListSystems.selectNone());
 		mntmSelectAll.addActionListener(e -> checkBoxListSystems.selectAll());
 
-		panel_1 = new JPanel();
-		scannerFilters.setLeftComponent(panel_1);
-		final GridBagLayout gbl_panel_1 = new GridBagLayout();
-		gbl_panel_1.columnWidths = new int[] { 20, 100, 0, 100, 20, 0 };
-		gbl_panel_1.rowHeights = new int[] { 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gbl_panel_1.columnWeights = new double[] { 1.0, 1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE };
-		gbl_panel_1.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		panel_1.setLayout(gbl_panel_1);
+		JPanel panel = new JPanel();
+		scannerFilters.setLeftComponent(panel);
+		final GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWidths = new int[] { 20, 100, 0, 100, 20, 0 };
+		gbl_panel.rowHeights = new int[] { 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gbl_panel.columnWeights = new double[] { 1.0, 1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE };
+		gbl_panel.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		panel.setLayout(gbl_panel);
 
 		chckbxIncludeClones = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeClones.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxIncludeClones = new GridBagConstraints();
@@ -1849,7 +1455,7 @@ public class MainFrame extends JFrame
 		gbc_chckbxIncludeClones.anchor = GridBagConstraints.NORTH;
 		gbc_chckbxIncludeClones.gridx = 1;
 		gbc_chckbxIncludeClones.gridy = 1;
-		panel_1.add(chckbxIncludeClones, gbc_chckbxIncludeClones);
+		panel.add(chckbxIncludeClones, gbc_chckbxIncludeClones);
 
 		chckbxIncludeDisks = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeDisks.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxIncludeDisks = new GridBagConstraints();
@@ -1858,7 +1464,7 @@ public class MainFrame extends JFrame
 		gbc_chckbxIncludeDisks.insets = new Insets(0, 0, 5, 5);
 		gbc_chckbxIncludeDisks.gridx = 1;
 		gbc_chckbxIncludeDisks.gridy = 2;
-		panel_1.add(chckbxIncludeDisks, gbc_chckbxIncludeDisks);
+		panel.add(chckbxIncludeDisks, gbc_chckbxIncludeDisks);
 
 		chckbxIncludeSamples = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeSamples.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxIncludeSamples = new GridBagConstraints();
@@ -1867,17 +1473,17 @@ public class MainFrame extends JFrame
 		gbc_chckbxIncludeSamples.insets = new Insets(0, 0, 5, 5);
 		gbc_chckbxIncludeSamples.gridx = 1;
 		gbc_chckbxIncludeSamples.gridy = 3;
-		panel_1.add(chckbxIncludeSamples, gbc_chckbxIncludeSamples);
+		panel.add(chckbxIncludeSamples, gbc_chckbxIncludeSamples);
 		chckbxIncludeSamples.setSelected(true);
 
-		lblCabinetType = new JLabel(Messages.getString("MainFrame.lblMachineType.text")); //$NON-NLS-1$
+		JLabel lblCabinetType = new JLabel(Messages.getString("MainFrame.lblMachineType.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblCabinetType = new GridBagConstraints();
 		gbc_lblCabinetType.gridwidth = 2;
 		gbc_lblCabinetType.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lblCabinetType.insets = new Insets(0, 0, 5, 5);
 		gbc_lblCabinetType.gridx = 1;
 		gbc_lblCabinetType.gridy = 4;
-		panel_1.add(lblCabinetType, gbc_lblCabinetType);
+		panel.add(lblCabinetType, gbc_lblCabinetType);
 		lblCabinetType.setHorizontalAlignment(SwingConstants.TRAILING);
 
 		cbbxFilterCabinetType = new JComboBox<>();
@@ -1886,7 +1492,7 @@ public class MainFrame extends JFrame
 		gbc_cbbxFilterCabinetType.insets = new Insets(0, 0, 5, 5);
 		gbc_cbbxFilterCabinetType.gridx = 3;
 		gbc_cbbxFilterCabinetType.gridy = 4;
-		panel_1.add(cbbxFilterCabinetType, gbc_cbbxFilterCabinetType);
+		panel.add(cbbxFilterCabinetType, gbc_cbbxFilterCabinetType);
 		cbbxFilterCabinetType.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
@@ -1897,14 +1503,14 @@ public class MainFrame extends JFrame
 		});
 		cbbxFilterCabinetType.setModel(new DefaultComboBoxModel<>(CabinetType.values()));
 
-		lblDisplayOrientation = new JLabel(Messages.getString("MainFrame.lblOrientation.text")); //$NON-NLS-1$
+		JLabel lblDisplayOrientation = new JLabel(Messages.getString("MainFrame.lblOrientation.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblDisplayOrientation = new GridBagConstraints();
 		gbc_lblDisplayOrientation.gridwidth = 2;
 		gbc_lblDisplayOrientation.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lblDisplayOrientation.insets = new Insets(0, 0, 5, 5);
 		gbc_lblDisplayOrientation.gridx = 1;
 		gbc_lblDisplayOrientation.gridy = 5;
-		panel_1.add(lblDisplayOrientation, gbc_lblDisplayOrientation);
+		panel.add(lblDisplayOrientation, gbc_lblDisplayOrientation);
 		lblDisplayOrientation.setHorizontalAlignment(SwingConstants.TRAILING);
 
 		cbbxFilterDisplayOrientation = new JComboBox<>();
@@ -1913,7 +1519,7 @@ public class MainFrame extends JFrame
 		gbc_cbbxFilterDisplayOrientation.insets = new Insets(0, 0, 5, 5);
 		gbc_cbbxFilterDisplayOrientation.gridx = 3;
 		gbc_cbbxFilterDisplayOrientation.gridy = 5;
-		panel_1.add(cbbxFilterDisplayOrientation, gbc_cbbxFilterDisplayOrientation);
+		panel.add(cbbxFilterDisplayOrientation, gbc_cbbxFilterDisplayOrientation);
 		cbbxFilterDisplayOrientation.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
@@ -1924,14 +1530,14 @@ public class MainFrame extends JFrame
 		});
 		cbbxFilterDisplayOrientation.setModel(new DefaultComboBoxModel<>(DisplayOrientation.values()));
 
-		lblDriverStatus = new JLabel(Messages.getString("MainFrame.lblDriverStatus.text")); //$NON-NLS-1$
+		JLabel lblDriverStatus = new JLabel(Messages.getString("MainFrame.lblDriverStatus.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblDriverStatus = new GridBagConstraints();
 		gbc_lblDriverStatus.gridwidth = 2;
 		gbc_lblDriverStatus.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lblDriverStatus.insets = new Insets(0, 0, 5, 5);
 		gbc_lblDriverStatus.gridx = 1;
 		gbc_lblDriverStatus.gridy = 6;
-		panel_1.add(lblDriverStatus, gbc_lblDriverStatus);
+		panel.add(lblDriverStatus, gbc_lblDriverStatus);
 		lblDriverStatus.setHorizontalAlignment(SwingConstants.TRAILING);
 
 		cbbxDriverStatus = new JComboBox<>();
@@ -1940,17 +1546,17 @@ public class MainFrame extends JFrame
 		gbc_cbbxDriverStatus.insets = new Insets(0, 0, 5, 5);
 		gbc_cbbxDriverStatus.gridx = 3;
 		gbc_cbbxDriverStatus.gridy = 6;
-		panel_1.add(cbbxDriverStatus, gbc_cbbxDriverStatus);
+		panel.add(cbbxDriverStatus, gbc_cbbxDriverStatus);
 		cbbxDriverStatus.setModel(new DefaultComboBoxModel<>(Driver.StatusType.values()));
 
-		lblSwMinSupportedLvl = new JLabel(Messages.getString("MainFrame.lblSwMinSupport.text")); //$NON-NLS-1$
+		JLabel lblSwMinSupportedLvl = new JLabel(Messages.getString("MainFrame.lblSwMinSupport.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblSwMinSupportedLvl = new GridBagConstraints();
 		gbc_lblSwMinSupportedLvl.gridwidth = 2;
 		gbc_lblSwMinSupportedLvl.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lblSwMinSupportedLvl.insets = new Insets(0, 0, 5, 5);
 		gbc_lblSwMinSupportedLvl.gridx = 1;
 		gbc_lblSwMinSupportedLvl.gridy = 7;
-		panel_1.add(lblSwMinSupportedLvl, gbc_lblSwMinSupportedLvl);
+		panel.add(lblSwMinSupportedLvl, gbc_lblSwMinSupportedLvl);
 		lblSwMinSupportedLvl.setHorizontalAlignment(SwingConstants.TRAILING);
 
 		cbbxSWMinSupportedLvl = new JComboBox<>();
@@ -1959,7 +1565,7 @@ public class MainFrame extends JFrame
 		gbc_cbbxSWMinSupportedLvl.insets = new Insets(0, 0, 5, 5);
 		gbc_cbbxSWMinSupportedLvl.gridx = 3;
 		gbc_cbbxSWMinSupportedLvl.gridy = 7;
-		panel_1.add(cbbxSWMinSupportedLvl, gbc_cbbxSWMinSupportedLvl);
+		panel.add(cbbxSWMinSupportedLvl, gbc_cbbxSWMinSupportedLvl);
 		cbbxSWMinSupportedLvl.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
@@ -1985,14 +1591,14 @@ public class MainFrame extends JFrame
 		gbc_cbbxYearMin.insets = new Insets(0, 0, 5, 5);
 		gbc_cbbxYearMin.gridx = 1;
 		gbc_cbbxYearMin.gridy = 8;
-		panel_1.add(cbbxYearMin, gbc_cbbxYearMin);
+		panel.add(cbbxYearMin, gbc_cbbxYearMin);
 
-		lblYear = new JLabel(Messages.getString("MainFrame.lblYear.text")); //$NON-NLS-1$
+		JLabel lblYear = new JLabel(Messages.getString("MainFrame.lblYear.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblYear = new GridBagConstraints();
 		gbc_lblYear.insets = new Insets(0, 0, 5, 5);
 		gbc_lblYear.gridx = 2;
 		gbc_lblYear.gridy = 8;
-		panel_1.add(lblYear, gbc_lblYear);
+		panel.add(lblYear, gbc_lblYear);
 		lblYear.setHorizontalAlignment(SwingConstants.CENTER);
 
 		cbbxYearMax = new JComboBox<>();
@@ -2009,7 +1615,7 @@ public class MainFrame extends JFrame
 		gbc_cbbxYearMax.insets = new Insets(0, 0, 5, 5);
 		gbc_cbbxYearMax.gridx = 3;
 		gbc_cbbxYearMax.gridy = 8;
-		panel_1.add(cbbxYearMax, gbc_cbbxYearMax);
+		panel.add(cbbxYearMax, gbc_cbbxYearMax);
 		cbbxDriverStatus.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
@@ -2033,9 +1639,13 @@ public class MainFrame extends JFrame
 			if (MainFrame.profile_viewer != null)
 				MainFrame.profile_viewer.reset(Profile.curr_profile);
 		});
-
-		scannerAdvFilters = new JPanel();
-		scannerCfgTab.addTab(Messages.getString("MainFrame.AdvFilters"), null, scannerAdvFilters, null); //$NON-NLS-1$
+		
+	}
+	
+	private void buildScannerAdvFiltersTab()
+	{
+		JPanel scannerAdvFilters = new JPanel();
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.AdvFilters"), null, scannerAdvFilters, null); //$NON-NLS-1$
 		final GridBagLayout gbl_scannerAdvFilters = new GridBagLayout();
 		gbl_scannerAdvFilters.columnWidths = new int[] { 0, 0, 0 };
 		gbl_scannerAdvFilters.rowHeights = new int[] { 0, 0, 0 };
@@ -2075,7 +1685,7 @@ public class MainFrame extends JFrame
 		gbc_tfCatVer.gridy = 0;
 		scannerAdvFilters.add(tfCatVer, gbc_tfCatVer);
 
-		scrollPaneNPlayers = new JScrollPane();
+		JScrollPane scrollPaneNPlayers = new JScrollPane();
 		scrollPaneNPlayers.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.NPlayers"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		final GridBagConstraints gbc_scrollPaneNPlayers = new GridBagConstraints();
 		gbc_scrollPaneNPlayers.insets = new Insets(0, 0, 0, 5);
@@ -2110,22 +1720,22 @@ public class MainFrame extends JFrame
 		listNPlayers.setEnabled(false);
 		scrollPaneNPlayers.setViewportView(listNPlayers);
 
-		popupMenuNPlay = new JPopupMenu();
+		JPopupMenu popupMenuNPlay = new JPopupMenu();
 		MainFrame.addPopup(listNPlayers, popupMenuNPlay);
 
-		mntmSelectAllNPlay = new JMenuItem(Messages.getString("MainFrame.SelectAll")); //$NON-NLS-1$
+		JMenuItem mntmSelectAllNPlay = new JMenuItem(Messages.getString("MainFrame.SelectAll")); //$NON-NLS-1$
 		mntmSelectAllNPlay.addActionListener(e -> listNPlayers.selectAll());
 		popupMenuNPlay.add(mntmSelectAllNPlay);
 
-		mntmSelectNoneNPlay = new JMenuItem(Messages.getString("MainFrame.SelectNone")); //$NON-NLS-1$
+		JMenuItem mntmSelectNoneNPlay = new JMenuItem(Messages.getString("MainFrame.SelectNone")); //$NON-NLS-1$
 		mntmSelectNoneNPlay.addActionListener(e -> listNPlayers.selectNone());
 		popupMenuNPlay.add(mntmSelectNoneNPlay);
 
-		mntmInvertSelectionNPlay = new JMenuItem(Messages.getString("MainFrame.InvertSelection")); //$NON-NLS-1$
+		JMenuItem mntmInvertSelectionNPlay = new JMenuItem(Messages.getString("MainFrame.InvertSelection")); //$NON-NLS-1$
 		mntmInvertSelectionNPlay.addActionListener(e -> listNPlayers.selectInvert());
 		popupMenuNPlay.add(mntmInvertSelectionNPlay);
 
-		scrollPaneCatVer = new JScrollPane();
+		JScrollPane scrollPaneCatVer = new JScrollPane();
 		scrollPaneCatVer.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.Categories"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		final GridBagConstraints gbc_scrollPaneCatVer = new GridBagConstraints();
 		gbc_scrollPaneCatVer.fill = GridBagConstraints.BOTH;
@@ -2142,7 +1752,7 @@ public class MainFrame extends JFrame
 		treeCatVer.setEnabled(false);
 		scrollPaneCatVer.setViewportView(treeCatVer);
 
-		popupMenuCat = new JPopupMenu();
+		JPopupMenu popupMenuCat = new JPopupMenu();
 		popupMenuCat.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
@@ -2162,14 +1772,14 @@ public class MainFrame extends JFrame
 		});
 		MainFrame.addPopup(treeCatVer, popupMenuCat);
 
-		mnSelectCat = new JMenu(Messages.getString("MainFrame.Select")); //$NON-NLS-1$
+		JMenu mnSelectCat = new JMenu(Messages.getString("MainFrame.Select")); //$NON-NLS-1$
 		popupMenuCat.add(mnSelectCat);
 
-		mntmSelectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
+		JMenuItem mntmSelectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
 		mntmSelectAllCat.addActionListener(e -> treeCatVer.selectAll());
 		mnSelectCat.add(mntmSelectAllCat);
 
-		mntmSelectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
+		JMenuItem mntmSelectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
 		mntmSelectMatureCat.addActionListener(e -> {
 			final List<NGTreeNode> mature_nodes = new ArrayList<>();
 			for (final Category cat : Profile.curr_profile.catver)
@@ -2185,14 +1795,14 @@ public class MainFrame extends JFrame
 		});
 		mnSelectCat.add(mntmSelectMatureCat);
 
-		mnUnselectCat = new JMenu(Messages.getString("MainFrame.Unselect")); //$NON-NLS-1$
+		JMenu mnUnselectCat = new JMenu(Messages.getString("MainFrame.Unselect")); //$NON-NLS-1$
 		popupMenuCat.add(mnUnselectCat);
 
-		mntmUnselectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
+		JMenuItem mntmUnselectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
 		mntmUnselectAllCat.addActionListener(e -> treeCatVer.selectNone());
 		mnUnselectCat.add(mntmUnselectAllCat);
 
-		mntmUnselectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
+		JMenuItem mntmUnselectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
 		mntmUnselectMatureCat.addActionListener(e -> {
 			final List<NGTreeNode> mature_nodes = new ArrayList<>();
 			for (final Category cat : Profile.curr_profile.catver)
@@ -2207,17 +1817,12 @@ public class MainFrame extends JFrame
 			treeCatVer.unselect(mature_nodes.toArray(new NGTreeNode[0]));
 		});
 		mnUnselectCat.add(mntmUnselectMatureCat);
-
-		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
-		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		final GridBagConstraints gbc_lblProfileinfo = new GridBagConstraints();
-		gbc_lblProfileinfo.insets = new Insets(0, 2, 0, 2);
-		gbc_lblProfileinfo.fill = GridBagConstraints.BOTH;
-		gbc_lblProfileinfo.gridx = 0;
-		gbc_lblProfileinfo.gridy = 2;
-		scannerTab.add(lblProfileinfo, gbc_lblProfileinfo);
 		
-		dir2datTab = new JPanel();
+	}
+
+	private void buildDir2DatTab()
+	{
+		JPanel dir2datTab = new JPanel();
 		mainPane.addTab("Dir2Dat", new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/drive_go.png")), dir2datTab, null);
 		GridBagLayout gbl_dir2datTab = new GridBagLayout();
 		gbl_dir2datTab.columnWidths = new int[]{0, 0, 0};
@@ -2226,7 +1831,7 @@ public class MainFrame extends JFrame
 		gbl_dir2datTab.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 		dir2datTab.setLayout(gbl_dir2datTab);
 		
-		panelDir2DatOptions = new JPanel();
+		JPanel panelDir2DatOptions = new JPanel();
 		panelDir2DatOptions.setBorder(new TitledBorder(null, "Options", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_panelDir2DatOptions = new GridBagConstraints();
 		gbc_panelDir2DatOptions.insets = new Insets(0, 5, 5, 5);
@@ -2241,7 +1846,7 @@ public class MainFrame extends JFrame
 		gbl_panelDir2DatOptions.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		panelDir2DatOptions.setLayout(gbl_panelDir2DatOptions);
 		
-		cbDir2DatScanSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxScanSubfolders.text")); //$NON-NLS-1$
+		JCheckBox cbDir2DatScanSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxScanSubfolders.text")); //$NON-NLS-1$
 		cbDir2DatScanSubfolders.setSelected(Settings.getProperty("dir2dat.scan_subfolders", true));
 		cbDir2DatScanSubfolders.addItemListener(e -> Settings.setProperty("dir2dat.scan_subfolders", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatScanSubfolders = new GridBagConstraints();
@@ -2251,37 +1856,37 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatScanSubfolders.gridy = 1;
 		panelDir2DatOptions.add(cbDir2DatScanSubfolders, gbc_cbDir2DatScanSubfolders);
 		
-		cbDir2DatDeepScan = new JCheckBox(Messages.getString("MainFrame.chckbxDeepScanFor.text")); //$NON-NLS-1$
+		JCheckBox cbDir2DatDeepScan = new JCheckBox(Messages.getString("MainFrame.chckbxDeepScanFor.text")); //$NON-NLS-1$
 		cbDir2DatDeepScan.setSelected(Settings.getProperty("dir2dat.deep_scan", false));
 		cbDir2DatDeepScan.addItemListener(e -> Settings.setProperty("dir2dat.deep_scan", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
-		GridBagConstraints gbc_chckbxDeepScanFor = new GridBagConstraints();
-		gbc_chckbxDeepScanFor.anchor = GridBagConstraints.WEST;
-		gbc_chckbxDeepScanFor.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxDeepScanFor.gridx = 1;
-		gbc_chckbxDeepScanFor.gridy = 2;
-		panelDir2DatOptions.add(cbDir2DatDeepScan, gbc_chckbxDeepScanFor);
+		GridBagConstraints gbc_cbDir2DatDeepScan = new GridBagConstraints();
+		gbc_cbDir2DatDeepScan.anchor = GridBagConstraints.WEST;
+		gbc_cbDir2DatDeepScan.insets = new Insets(0, 0, 5, 5);
+		gbc_cbDir2DatDeepScan.gridx = 1;
+		gbc_cbDir2DatDeepScan.gridy = 2;
+		panelDir2DatOptions.add(cbDir2DatDeepScan, gbc_cbDir2DatDeepScan);
 		
-		cbDir2DatAddMd5 = new JCheckBox(Messages.getString("MainFrame.chckbxAddMd.text")); //$NON-NLS-1$
+		JCheckBox cbDir2DatAddMd5 = new JCheckBox(Messages.getString("MainFrame.chckbxAddMd.text")); //$NON-NLS-1$
 		cbDir2DatAddMd5.setSelected(Settings.getProperty("dir2dat.add_md5", false));
 		cbDir2DatAddMd5.addItemListener(e -> Settings.setProperty("dir2dat.add_md5", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$		
-		GridBagConstraints gbc_chckbxAddMd = new GridBagConstraints();
-		gbc_chckbxAddMd.anchor = GridBagConstraints.WEST;
-		gbc_chckbxAddMd.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxAddMd.gridx = 1;
-		gbc_chckbxAddMd.gridy = 3;
-		panelDir2DatOptions.add(cbDir2DatAddMd5, gbc_chckbxAddMd);
+		GridBagConstraints gbc_cbDir2DatAddMd5 = new GridBagConstraints();
+		gbc_cbDir2DatAddMd5.anchor = GridBagConstraints.WEST;
+		gbc_cbDir2DatAddMd5.insets = new Insets(0, 0, 5, 5);
+		gbc_cbDir2DatAddMd5.gridx = 1;
+		gbc_cbDir2DatAddMd5.gridy = 3;
+		panelDir2DatOptions.add(cbDir2DatAddMd5, gbc_cbDir2DatAddMd5);
 		
-		cbDir2DatAddSha1 = new JCheckBox(Messages.getString("MainFrame.chckbxAddShamd.text")); //$NON-NLS-1$
+		JCheckBox cbDir2DatAddSha1 = new JCheckBox(Messages.getString("MainFrame.chckbxAddShamd.text")); //$NON-NLS-1$
 		cbDir2DatAddSha1.setSelected(Settings.getProperty("dir2dat.add_sha1", false));
 		cbDir2DatAddSha1.addItemListener(e -> Settings.setProperty("dir2dat.add_sha1", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$		
-		GridBagConstraints gbc_cbDir2DatAddShamd = new GridBagConstraints();
-		gbc_cbDir2DatAddShamd.anchor = GridBagConstraints.WEST;
-		gbc_cbDir2DatAddShamd.insets = new Insets(0, 0, 5, 5);
-		gbc_cbDir2DatAddShamd.gridx = 1;
-		gbc_cbDir2DatAddShamd.gridy = 4;
-		panelDir2DatOptions.add(cbDir2DatAddSha1, gbc_cbDir2DatAddShamd);
+		GridBagConstraints gbc_cbDir2DatAddSha1 = new GridBagConstraints();
+		gbc_cbDir2DatAddSha1.anchor = GridBagConstraints.WEST;
+		gbc_cbDir2DatAddSha1.insets = new Insets(0, 0, 5, 5);
+		gbc_cbDir2DatAddSha1.gridx = 1;
+		gbc_cbDir2DatAddSha1.gridy = 4;
+		panelDir2DatOptions.add(cbDir2DatAddSha1, gbc_cbDir2DatAddSha1);
 		
-		cbDir2DatJunkSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxJunkSubfolders.text")); //$NON-NLS-1$
+		JCheckBox cbDir2DatJunkSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxJunkSubfolders.text")); //$NON-NLS-1$
 		cbDir2DatJunkSubfolders.setSelected(Settings.getProperty("dir2dat.junk_folders", false));
 		cbDir2DatJunkSubfolders.addItemListener(e -> Settings.setProperty("dir2dat.junk_folders", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatJunkSubfolders = new GridBagConstraints();
@@ -2291,7 +1896,7 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatJunkSubfolders.gridy = 5;
 		panelDir2DatOptions.add(cbDir2DatJunkSubfolders, gbc_cbDir2DatJunkSubfolders);
 		
-		cbDir2DatDoNotScan = new JCheckBox(Messages.getString("MainFrame.chckbxDoNotScan.text"));
+		JCheckBox cbDir2DatDoNotScan = new JCheckBox(Messages.getString("MainFrame.chckbxDoNotScan.text"));
 		cbDir2DatDoNotScan.setSelected(Settings.getProperty("dir2dat.do_not_scan_archives", false));
 		cbDir2DatDoNotScan.addItemListener(e -> Settings.setProperty("dir2dat.do_not_scan_archives", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatDoNotScan = new GridBagConstraints();
@@ -2301,7 +1906,7 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatDoNotScan.gridy = 6;
 		panelDir2DatOptions.add(cbDir2DatDoNotScan, gbc_cbDir2DatDoNotScan);
 		
-		cbDir2DatMatchCurrentProfile = new JCheckBox(Messages.getString("MainFrame.chckbxMatchCurrentProfile.text")); //$NON-NLS-1$
+		JCheckBox cbDir2DatMatchCurrentProfile = new JCheckBox(Messages.getString("MainFrame.chckbxMatchCurrentProfile.text")); //$NON-NLS-1$
 		cbDir2DatMatchCurrentProfile.setSelected(Settings.getProperty("dir2dat.match_profile", false));
 		cbDir2DatMatchCurrentProfile.addItemListener(e -> Settings.setProperty("dir2dat.match_profile", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatMatchCurrentProfile = new GridBagConstraints();
@@ -2311,7 +1916,7 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatMatchCurrentProfile.gridy = 7;
 		panelDir2DatOptions.add(cbDir2DatMatchCurrentProfile, gbc_cbDir2DatMatchCurrentProfile);
 		
-		cbDir2DatIncludeEmptyDirs = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeEmptyDirs.text"));
+		JCheckBox cbDir2DatIncludeEmptyDirs = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeEmptyDirs.text"));
 		cbDir2DatIncludeEmptyDirs.setSelected(Settings.getProperty("dir2dat.include_empty_dirs", false));
 		cbDir2DatIncludeEmptyDirs.addItemListener(e -> Settings.setProperty("dir2dat.include_empty_dirs", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatIncludeEmptyDirs = new GridBagConstraints();
@@ -2321,7 +1926,7 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatIncludeEmptyDirs.gridy = 8;
 		panelDir2DatOptions.add(cbDir2DatIncludeEmptyDirs, gbc_cbDir2DatIncludeEmptyDirs);
 		
-		panelDir2DatHeaders = new JPanel();
+		JPanel panelDir2DatHeaders = new JPanel();
 		panelDir2DatHeaders.setBorder(new TitledBorder(null, "Headers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_panelDir2DatHeaders = new GridBagConstraints();
 		gbc_panelDir2DatHeaders.insets = new Insets(0, 0, 5, 5);
@@ -2336,7 +1941,7 @@ public class MainFrame extends JFrame
 		gbl_panelDir2DatHeaders.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		panelDir2DatHeaders.setLayout(gbl_panelDir2DatHeaders);
 		
-		lblDir2DatName = new JLabel(Messages.getString("MainFrame.lblName.text")); //$NON-NLS-1$
+		JLabel lblDir2DatName = new JLabel(Messages.getString("MainFrame.lblName.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatName = new GridBagConstraints();
 		gbc_lblDir2DatName.anchor = GridBagConstraints.EAST;
 		gbc_lblDir2DatName.insets = new Insets(0, 0, 5, 5);
@@ -2354,7 +1959,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(tfDir2DatName, gbc_tfDir2DatName);
 		tfDir2DatName.setColumns(20);
 		
-		lblDir2DatDescription = new JLabel(Messages.getString("MainFrame.lblDescription.text")); //$NON-NLS-1$
+		JLabel lblDir2DatDescription = new JLabel(Messages.getString("MainFrame.lblDescription.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatDescription = new GridBagConstraints();
 		gbc_lblDir2DatDescription.anchor = GridBagConstraints.EAST;
 		gbc_lblDir2DatDescription.insets = new Insets(0, 0, 5, 5);
@@ -2372,7 +1977,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatDescription.gridy = 2;
 		panelDir2DatHeaders.add(tfDir2DatDescription, gbc_tfDir2DatDescription);
 		
-		lblDir2DatVersion = new JLabel(Messages.getString("MainFrame.lblVersion.text")); //$NON-NLS-1$
+		JLabel lblDir2DatVersion = new JLabel(Messages.getString("MainFrame.lblVersion.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatVersion = new GridBagConstraints();
 		gbc_lblDir2DatVersion.anchor = GridBagConstraints.EAST;
 		gbc_lblDir2DatVersion.insets = new Insets(0, 0, 5, 5);
@@ -2390,7 +1995,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatVersion.gridy = 3;
 		panelDir2DatHeaders.add(tfDir2DatVersion, gbc_tfDir2DatVersion);
 		
-		lblDir2DatAuthor = new JLabel(Messages.getString("MainFrame.lblAuthor.text")); //$NON-NLS-1$
+		JLabel lblDir2DatAuthor = new JLabel(Messages.getString("MainFrame.lblAuthor.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatAuthor = new GridBagConstraints();
 		gbc_lblDir2DatAuthor.anchor = GridBagConstraints.EAST;
 		gbc_lblDir2DatAuthor.insets = new Insets(0, 0, 5, 5);
@@ -2408,7 +2013,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatAuthor.gridy = 4;
 		panelDir2DatHeaders.add(tfDir2DatAuthor, gbc_tfDir2DatAuthor);
 		
-		lblDir2DatComment = new JLabel(Messages.getString("MainFrame.lblComment.text")); //$NON-NLS-1$
+		JLabel lblDir2DatComment = new JLabel(Messages.getString("MainFrame.lblComment.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatComment = new GridBagConstraints();
 		gbc_lblDir2DatComment.insets = new Insets(0, 0, 5, 5);
 		gbc_lblDir2DatComment.anchor = GridBagConstraints.EAST;
@@ -2426,7 +2031,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatComment.gridy = 5;
 		panelDir2DatHeaders.add(tfDir2DatComment, gbc_tfDir2DatComment);
 		
-		lblDir2DatCategory = new JLabel(Messages.getString("MainFrame.lblCategory.text")); //$NON-NLS-1$
+		JLabel lblDir2DatCategory = new JLabel(Messages.getString("MainFrame.lblCategory.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatCategory = new GridBagConstraints();
 		gbc_lblDir2DatCategory.anchor = GridBagConstraints.EAST;
 		gbc_lblDir2DatCategory.insets = new Insets(0, 0, 5, 5);
@@ -2444,7 +2049,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatCategory.gridy = 6;
 		panelDir2DatHeaders.add(tfDir2DatCategory, gbc_tfDir2DatCategory);
 		
-		lblDir2DatDate = new JLabel(Messages.getString("MainFrame.lblDate.text")); //$NON-NLS-1$
+		JLabel lblDir2DatDate = new JLabel(Messages.getString("MainFrame.lblDate.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatDate = new GridBagConstraints();
 		gbc_lblDir2DatDate.anchor = GridBagConstraints.EAST;
 		gbc_lblDir2DatDate.insets = new Insets(0, 0, 5, 5);
@@ -2462,7 +2067,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatDate.gridy = 7;
 		panelDir2DatHeaders.add(tfDir2DatDate, gbc_tfDir2DatDate);
 		
-		lblDir2DatEmail = new JLabel(Messages.getString("MainFrame.lblEmail.text")); //$NON-NLS-1$
+		JLabel lblDir2DatEmail = new JLabel(Messages.getString("MainFrame.lblEmail.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatEmail = new GridBagConstraints();
 		gbc_lblDir2DatEmail.anchor = GridBagConstraints.EAST;
 		gbc_lblDir2DatEmail.insets = new Insets(0, 0, 5, 5);
@@ -2480,7 +2085,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatEMail.gridy = 8;
 		panelDir2DatHeaders.add(tfDir2DatEMail, gbc_tfDir2DatEMail);
 		
-		lblDir2DatHomepage = new JLabel(Messages.getString("MainFrame.lblHomepage.text")); //$NON-NLS-1$
+		JLabel lblDir2DatHomepage = new JLabel(Messages.getString("MainFrame.lblHomepage.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatHomepage = new GridBagConstraints();
 		gbc_lblDir2DatHomepage.anchor = GridBagConstraints.EAST;
 		gbc_lblDir2DatHomepage.insets = new Insets(0, 0, 5, 5);
@@ -2498,7 +2103,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatHomepage.gridy = 9;
 		panelDir2DatHeaders.add(tfDir2DatHomepage, gbc_tfDir2DatHomepage);
 		
-		lblDir2DatUrl = new JLabel(Messages.getString("MainFrame.lblUrl.text")); //$NON-NLS-1$
+		JLabel lblDir2DatUrl = new JLabel(Messages.getString("MainFrame.lblUrl.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatUrl = new GridBagConstraints();
 		gbc_lblDir2DatUrl.insets = new Insets(0, 0, 5, 5);
 		gbc_lblDir2DatUrl.anchor = GridBagConstraints.EAST;
@@ -2516,7 +2121,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatURL.gridy = 10;
 		panelDir2DatHeaders.add(tfDir2DatURL, gbc_tfDir2DatURL);
 		
-		panelDir2DatIO = new JPanel();
+		JPanel panelDir2DatIO = new JPanel();
 		panelDir2DatIO.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "I/O", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GridBagConstraints gbc_panelDir2DatIO = new GridBagConstraints();
 		gbc_panelDir2DatIO.insets = new Insets(0, 5, 5, 5);
@@ -2532,7 +2137,7 @@ public class MainFrame extends JFrame
 		gbl_panelDir2DatIO.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panelDir2DatIO.setLayout(gbl_panelDir2DatIO);
 		
-		lblDir2DatSrc = new JLabel(Messages.getString("MainFrame.lblSrcDir_1.text")); //$NON-NLS-1$
+		JLabel lblDir2DatSrc = new JLabel(Messages.getString("MainFrame.lblSrcDir_1.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatSrc = new GridBagConstraints();
 		gbc_lblDir2DatSrc.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lblDir2DatSrc.insets = new Insets(0, 5, 5, 5);
@@ -2553,7 +2158,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatSrc.gridy = 0;
 		panelDir2DatIO.add(tfDir2DatSrc, gbc_tfDir2DatSrc);
 		
-		btnDir2DatSrc = new JButton("");
+		JButton btnDir2DatSrc = new JButton("");
 		btnDir2DatSrc.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png")));
 		btnDir2DatSrc.addActionListener(e -> {
 			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
@@ -2570,7 +2175,7 @@ public class MainFrame extends JFrame
 		gbc_btnDir2DatSrc.gridy = 0;
 		panelDir2DatIO.add(btnDir2DatSrc, gbc_btnDir2DatSrc);
 		
-		btnDir2DatGenerate = new JButton(Messages.getString("MainFrame.btnGenerate.text")); //$NON-NLS-1$
+		JButton btnDir2DatGenerate = new JButton(Messages.getString("MainFrame.btnGenerate.text")); //$NON-NLS-1$
 		btnDir2DatGenerate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -2584,7 +2189,7 @@ public class MainFrame extends JFrame
 		gbc_btnDir2DatGenerate.gridy = 0;
 		panelDir2DatIO.add(btnDir2DatGenerate, gbc_btnDir2DatGenerate);
 		
-		lblDir2DatDst = new JLabel(Messages.getString("MainFrame.lblDstDat.text")); //$NON-NLS-1$
+		JLabel lblDir2DatDst = new JLabel(Messages.getString("MainFrame.lblDstDat.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblDir2DatDst = new GridBagConstraints();
 		gbc_lblDir2DatDst.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lblDir2DatDst.insets = new Insets(0, 5, 5, 5);
@@ -2605,7 +2210,7 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatDst.gridy = 1;
 		panelDir2DatIO.add(tfDir2DatDst, gbc_tfDir2DatDst);
 		
-		btnDir2DatDst = new JButton("");
+		JButton btnDir2DatDst = new JButton("");
 		btnDir2DatDst.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png")));
 		btnDir2DatDst.addActionListener(e -> {
 			final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
@@ -2622,7 +2227,7 @@ public class MainFrame extends JFrame
 		gbc_btnDir2DatDst.gridy = 1;
 		panelDir2DatIO.add(btnDir2DatDst, gbc_btnDir2DatDst);
 		
-		lblDir2DatFormat = new JLabel(Messages.getString("MainFrame.lblFormat.text")); //$NON-NLS-1$
+		JLabel lblDir2DatFormat = new JLabel(Messages.getString("MainFrame.lblFormat.text")); //$NON-NLS-1$
 		lblDir2DatFormat.setHorizontalAlignment(SwingConstants.TRAILING);
 		GridBagConstraints gbc_lblDir2DatFormat = new GridBagConstraints();
 		gbc_lblDir2DatFormat.fill = GridBagConstraints.HORIZONTAL;
@@ -2631,7 +2236,7 @@ public class MainFrame extends JFrame
 		gbc_lblDir2DatFormat.gridy = 2;
 		panelDir2DatIO.add(lblDir2DatFormat, gbc_lblDir2DatFormat);
 		
-		rdbtnDir2DatMame = new JRadioButton(Messages.getString("MainFrame.rdbtnMame.text")); //$NON-NLS-1$
+		JRadioButton rdbtnDir2DatMame = new JRadioButton(Messages.getString("MainFrame.rdbtnMame.text")); //$NON-NLS-1$
 		rdbtnDir2DatMame.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString()))==ExportType.MAME);
 		rdbtnDir2DatMame.addActionListener(e-> Settings.setProperty("dir2dat_format", ExportType.MAME.toString())); 
 		Dir2DatFormatGroup.add(rdbtnDir2DatMame);
@@ -2641,7 +2246,7 @@ public class MainFrame extends JFrame
 		gbc_rdbtnDir2DatMame.gridy = 2;
 		panelDir2DatIO.add(rdbtnDir2DatMame, gbc_rdbtnDir2DatMame);
 		
-		rdbtnDir2DatLogiqxDat = new JRadioButton(Messages.getString("MainFrame.rdbtnLogiqxDat.text")); //$NON-NLS-1$
+		JRadioButton rdbtnDir2DatLogiqxDat = new JRadioButton(Messages.getString("MainFrame.rdbtnLogiqxDat.text")); //$NON-NLS-1$
 		rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString()))==ExportType.DATAFILE);
 		rdbtnDir2DatLogiqxDat.addActionListener(e-> Settings.setProperty("dir2dat_format", ExportType.DATAFILE.toString())); 
 		Dir2DatFormatGroup.add(rdbtnDir2DatLogiqxDat);
@@ -2651,7 +2256,7 @@ public class MainFrame extends JFrame
 		gbc_rdbtnDir2DatLogiqxDat.gridy = 2;
 		panelDir2DatIO.add(rdbtnDir2DatLogiqxDat, gbc_rdbtnDir2DatLogiqxDat);
 		
-		rdbtnDir2DatSwList = new JRadioButton(Messages.getString("MainFrame.rdbtnSwList.text")); //$NON-NLS-1$
+		JRadioButton rdbtnDir2DatSwList = new JRadioButton(Messages.getString("MainFrame.rdbtnSwList.text")); //$NON-NLS-1$
 		rdbtnDir2DatSwList.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString()))==ExportType.SOFTWARELIST);
 		rdbtnDir2DatSwList.addActionListener(e-> Settings.setProperty("dir2dat_format", ExportType.SOFTWARELIST.toString()));
 		Dir2DatFormatGroup.add(rdbtnDir2DatSwList);
@@ -2662,25 +2267,171 @@ public class MainFrame extends JFrame
 		gbc_rdbtnDir2DatSwList.gridy = 2;
 		panelDir2DatIO.add(rdbtnDir2DatSwList, gbc_rdbtnDir2DatSwList);
 		
-		panel = new JPanel();
-		mainPane.addTab(Messages.getString("MainFrame.panel.title"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_osx_terminal.png")), panel, null); //$NON-NLS-1$
-
-		settingsTab = new JPanel();
+	}
+	
+	private void buildBatchToolsTab()
+	{
+		JPanel batchToolsTab = new JPanel();
+		mainPane.addTab("Batch Tools", new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_osx_terminal.png")), batchToolsTab, null);
+		batchToolsTab.setLayout(new BorderLayout(0, 0));
+		
+		JTabbedPane batchToolsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		batchToolsTab.add(batchToolsTabbedPane);
+		
+		JPanel panelBatchToolsDat2Dir = new JPanel();
+		batchToolsTabbedPane.addTab(Messages.getString("MainFrame.panelBatchToolsDat2Dir.title"), null, panelBatchToolsDat2Dir, null); //$NON-NLS-1$
+		GridBagLayout gbl_panelBatchToolsDat2Dir = new GridBagLayout();
+		gbl_panelBatchToolsDat2Dir.columnWidths = new int[]{0, 0, 0};
+		gbl_panelBatchToolsDat2Dir.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_panelBatchToolsDat2Dir.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_panelBatchToolsDat2Dir.rowWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
+		panelBatchToolsDat2Dir.setLayout(gbl_panelBatchToolsDat2Dir);
+		
+		JScrollPane scrollPane_5 = new JScrollPane();
+		scrollPane_5.setBorder(new TitledBorder(null, "Src Dirs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_scrollPane_5 = new GridBagConstraints();
+		gbc_scrollPane_5.gridwidth = 2;
+		gbc_scrollPane_5.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane_5.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_5.gridx = 0;
+		gbc_scrollPane_5.gridy = 0;
+		panelBatchToolsDat2Dir.add(scrollPane_5, gbc_scrollPane_5);
+		
+		listBatchToolsDat2DirSrc = new JFileDropList((AddDelCallBack) null);
+		listBatchToolsDat2DirSrc.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirSrc.toolTipText")); //$NON-NLS-1$
+		scrollPane_5.setViewportView(listBatchToolsDat2DirSrc);
+		
+		JScrollPane scrollPane_3 = new JScrollPane();
+		scrollPane_3.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Src Dats", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		GridBagConstraints gbc_scrollPane_3 = new GridBagConstraints();
+		gbc_scrollPane_3.insets = new Insets(0, 0, 5, 5);
+		gbc_scrollPane_3.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_3.gridx = 0;
+		gbc_scrollPane_3.gridy = 1;
+		panelBatchToolsDat2Dir.add(scrollPane_3, gbc_scrollPane_3);
+		
+		listBatchToolsDat2DirDat = new JFileDropList(files -> Settings.setProperty("dat2dir.dats", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); // $NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$
+		for (final String s : Settings.getProperty("dat2dir.dats", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (!s.isEmpty())
+				listBatchToolsDat2DirDat.getModel().addElement(new File(s));
+		listBatchToolsDat2DirDat.setMode(JFileDropMode.FILE);
+		listBatchToolsDat2DirDat.setUI(new JListHintUI(Messages.getString("MainFrame.DropFileHint"), Color.gray)); //$NON-NLS-1$
+		listBatchToolsDat2DirDat.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirDat.toolTipText")); //$NON-NLS-1$
+		scrollPane_3.setViewportView(listBatchToolsDat2DirDat);
+		
+		JPopupMenu popupMenu = new JPopupMenu();
+		popupMenu.addPopupMenuListener(new PopupMenuListener() {
+			public void popupMenuCanceled(PopupMenuEvent e) {
+			}
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+			}
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+				mnDat2DirD2D.setEnabled(listBatchToolsDat2DirDat.getSelectedIndex()!=-1);
+			}
+		});
+		addPopup(listBatchToolsDat2DirDat, popupMenu);
+		
+		mnDat2DirD2D = new JMenu("dir2dat");
+		mnDat2DirD2D.setActionCommand("dir2dat");
+		popupMenu.add(mnDat2DirD2D);
+		
+		JMenuItem mntmDat2DirD2DTzip = new JMenuItem("TZIP");
+		mntmDat2DirD2DTzip.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		mnDat2DirD2D.add(mntmDat2DirD2DTzip);
+		
+		JMenuItem mntmDat2DirD2DDir = new JMenuItem("DIR");
+		mntmDat2DirD2DDir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		mnDat2DirD2D.add(mntmDat2DirD2DDir);
+		
+		JScrollPane scrollPane_4 = new JScrollPane();
+		scrollPane_4.setBorder(new TitledBorder(null, "Dst Dirs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_scrollPane_4 = new GridBagConstraints();
+		gbc_scrollPane_4.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane_4.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_4.gridx = 1;
+		gbc_scrollPane_4.gridy = 1;
+		panelBatchToolsDat2Dir.add(scrollPane_4, gbc_scrollPane_4);
+		
+		listBatchToolsDat2DirDir = new JFileDropList((AddDelCallBack) null);
+		listBatchToolsDat2DirDir.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirDir.toolTipText")); //$NON-NLS-1$
+		scrollPane_4.setViewportView(listBatchToolsDat2DirDir);
+		
+		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$
+		GridBagConstraints gbc_btnBatchToolsDir2DatStart = new GridBagConstraints();
+		gbc_btnBatchToolsDir2DatStart.insets = new Insets(0, 0, 5, 5);
+		gbc_btnBatchToolsDir2DatStart.anchor = GridBagConstraints.EAST;
+		gbc_btnBatchToolsDir2DatStart.gridx = 1;
+		gbc_btnBatchToolsDir2DatStart.gridy = 2;
+		panelBatchToolsDat2Dir.add(btnBatchToolsDir2DatStart, gbc_btnBatchToolsDir2DatStart);
+		
+		JPanel panelBatchToolsDir2Torrent = new JPanel();
+		batchToolsTabbedPane.addTab(Messages.getString("MainFrame.panelBatchToolsDir2Torrent.title"), null, panelBatchToolsDir2Torrent, null); //$NON-NLS-1$
+		GridBagLayout gbl_panelBatchToolsDir2Torrent = new GridBagLayout();
+		gbl_panelBatchToolsDir2Torrent.columnWidths = new int[]{0, 0, 0};
+		gbl_panelBatchToolsDir2Torrent.rowHeights = new int[]{0, 0, 0};
+		gbl_panelBatchToolsDir2Torrent.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_panelBatchToolsDir2Torrent.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+		panelBatchToolsDir2Torrent.setLayout(gbl_panelBatchToolsDir2Torrent);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBorder(new TitledBorder(null, "Torrent files", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
+		gbc_scrollPane.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane.gridx = 0;
+		gbc_scrollPane.gridy = 0;
+		panelBatchToolsDir2Torrent.add(scrollPane, gbc_scrollPane);
+		
+		listBatchToolsTrntChkTrnt = new JFileDropList((AddDelCallBack) null);
+		listBatchToolsTrntChkTrnt.setToolTipText(Messages.getString("MainFrame.fileDropList.toolTipText")); //$NON-NLS-1$
+		scrollPane.setViewportView(listBatchToolsTrntChkTrnt);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBorder(new TitledBorder(null, "Dirs to check", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
+		gbc_scrollPane_2.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane_2.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_2.gridx = 1;
+		gbc_scrollPane_2.gridy = 0;
+		panelBatchToolsDir2Torrent.add(scrollPane_2, gbc_scrollPane_2);
+		
+		listBtachToolsTrntChkDirs = new JFileDropList((AddDelCallBack) null);
+		listBtachToolsTrntChkDirs.setToolTipText(Messages.getString("MainFrame.fileDropList_1.toolTipText")); //$NON-NLS-1$
+		scrollPane_2.setViewportView(listBtachToolsTrntChkDirs);
+		
+		JButton btnBatchToolsTrntChkStart = new JButton(Messages.getString("MainFrame.btnStart_1.text")); //$NON-NLS-1$
+		GridBagConstraints gbc_btnBatchToolsTrntChkStart = new GridBagConstraints();
+		gbc_btnBatchToolsTrntChkStart.insets = new Insets(0, 0, 5, 5);
+		gbc_btnBatchToolsTrntChkStart.anchor = GridBagConstraints.EAST;
+		gbc_btnBatchToolsTrntChkStart.gridx = 1;
+		gbc_btnBatchToolsTrntChkStart.gridy = 1;
+		panelBatchToolsDir2Torrent.add(btnBatchToolsTrntChkStart, gbc_btnBatchToolsTrntChkStart);
+	}
+	
+	private void buildSettingsTab()
+	{
+		JPanel settingsTab = new JPanel();
 		mainPane.addTab(Messages.getString("MainFrame.Settings"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/cog.png")), settingsTab, null); //$NON-NLS-1$ //$NON-NLS-2$
 		settingsTab.setLayout(new BorderLayout(0, 0));
 
 		settingsPane = new JTabbedPane(SwingConstants.TOP);
 		settingsTab.add(settingsPane);
 
-		compressors = new JPanel();
+		JPanel compressors = new JPanel();
 		settingsPane.addTab(Messages.getString("MainFrame.Compressors"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/compress.png")), compressors, null); //$NON-NLS-1$ //$NON-NLS-2$
 		settingsPane.setEnabledAt(0, true);
 		compressors.setLayout(new BorderLayout(0, 0));
 
-		compressorsPane = new JTabbedPane(SwingConstants.TOP);
+		JTabbedPane compressorsPane = new JTabbedPane(SwingConstants.TOP);
 		compressors.add(compressorsPane);
 
-		panelZip = new JPanel();
+		JPanel panelZip = new JPanel();
 		compressorsPane.addTab("Zip", null, panelZip, null);
 		GridBagLayout gbl_panelZip = new GridBagLayout();
 		gbl_panelZip.columnWidths = new int[] { 1, 0, 1, 0 };
@@ -2689,7 +2440,7 @@ public class MainFrame extends JFrame
 		gbl_panelZip.rowWeights = new double[] { 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		panelZip.setLayout(gbl_panelZip);
 
-		lblTemporaryFilesThreshold = new JLabel(Messages.getString("MainFrame.lblTemporaryFilesThreshold.text")); //$NON-NLS-1$
+		JLabel lblTemporaryFilesThreshold = new JLabel(Messages.getString("MainFrame.lblTemporaryFilesThreshold.text")); //$NON-NLS-1$
 		lblTemporaryFilesThreshold.setHorizontalAlignment(SwingConstants.TRAILING);
 		GridBagConstraints gbc_lblTemporaryFilesThreshold = new GridBagConstraints();
 		gbc_lblTemporaryFilesThreshold.fill = GridBagConstraints.HORIZONTAL;
@@ -2726,7 +2477,7 @@ public class MainFrame extends JFrame
 		gbc_cbbxZipTempThreshold.gridy = 1;
 		panelZip.add(cbbxZipTempThreshold, gbc_cbbxZipTempThreshold);
 
-		lblCompressionLevel = new JLabel(Messages.getString("MainFrame.lblCompressionLevel.text")); //$NON-NLS-1$
+		JLabel lblCompressionLevel = new JLabel(Messages.getString("MainFrame.lblCompressionLevel.text")); //$NON-NLS-1$
 		lblCompressionLevel.setHorizontalAlignment(SwingConstants.TRAILING);
 		GridBagConstraints gbc_lblCompressionLevel = new GridBagConstraints();
 		gbc_lblCompressionLevel.fill = GridBagConstraints.HORIZONTAL;
@@ -2763,7 +2514,7 @@ public class MainFrame extends JFrame
 		gbc_cbbxZipLevel.gridy = 2;
 		panelZip.add(cbbxZipLevel, gbc_cbbxZipLevel);
 
-		panelZipE = new JPanel();
+		JPanel panelZipE = new JPanel();
 		compressorsPane.addTab(Messages.getString("MainFrame.ZipExternal"), null, panelZipE, null); //$NON-NLS-1$
 		final GridBagLayout gbl_panelZipE = new GridBagLayout();
 		gbl_panelZipE.columnWidths = new int[] { 85, 246, 40, 0 };
@@ -2772,7 +2523,7 @@ public class MainFrame extends JFrame
 		gbl_panelZipE.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		panelZipE.setLayout(gbl_panelZipE);
 
-		lblZipECmd = new JLabel(Messages.getString("MainFrame.lblZipECmd.text")); //$NON-NLS-1$
+		JLabel lblZipECmd = new JLabel(Messages.getString("MainFrame.lblZipECmd.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblZipECmd = new GridBagConstraints();
 		gbc_lblZipECmd.anchor = GridBagConstraints.EAST;
 		gbc_lblZipECmd.insets = new Insets(5, 5, 5, 5);
@@ -2792,7 +2543,7 @@ public class MainFrame extends JFrame
 		panelZipE.add(tfZipECmd, gbc_tfZipECmd);
 		tfZipECmd.setColumns(30);
 
-		btZipECmd = new JButton(""); //$NON-NLS-1$
+		JButton btZipECmd = new JButton(""); //$NON-NLS-1$
 		btZipECmd.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		final GridBagConstraints gbc_btZipECmd = new GridBagConstraints();
 		gbc_btZipECmd.fill = GridBagConstraints.BOTH;
@@ -2801,7 +2552,7 @@ public class MainFrame extends JFrame
 		gbc_btZipECmd.gridy = 1;
 		panelZipE.add(btZipECmd, gbc_btZipECmd);
 
-		lblZipEArgs = new JLabel(Messages.getString("MainFrame.lblZipEArgs.text")); //$NON-NLS-1$
+		JLabel lblZipEArgs = new JLabel(Messages.getString("MainFrame.lblZipEArgs.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblZipEArgs = new GridBagConstraints();
 		gbc_lblZipEArgs.anchor = GridBagConstraints.EAST;
 		gbc_lblZipEArgs.insets = new Insets(0, 5, 5, 5);
@@ -2832,7 +2583,7 @@ public class MainFrame extends JFrame
 		gbc_cbZipEArgs.gridy = 2;
 		panelZipE.add(cbZipEArgs, gbc_cbZipEArgs);
 
-		lblZipEThreads = new JLabel(Messages.getString("MainFrame.lblZipEThreads.text")); //$NON-NLS-1$
+		JLabel lblZipEThreads = new JLabel(Messages.getString("MainFrame.lblZipEThreads.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblZipEThreads = new GridBagConstraints();
 		gbc_lblZipEThreads.insets = new Insets(0, 0, 5, 5);
 		gbc_lblZipEThreads.anchor = GridBagConstraints.EAST;
@@ -2851,7 +2602,7 @@ public class MainFrame extends JFrame
 		panelZipE.add(tfZipEThreads, gbc_tfZipEThreads);
 		tfZipEThreads.setColumns(4);
 
-		lblZipEWarning = new JLabel();
+		JLabel lblZipEWarning = new JLabel();
 		lblZipEWarning.setVerticalAlignment(SwingConstants.TOP);
 		lblZipEWarning.setText(Messages.getString("MainFrame.lblZipEWarning.text")); //$NON-NLS-1$
 		lblZipEWarning.setHorizontalAlignment(SwingConstants.CENTER);
@@ -2863,7 +2614,7 @@ public class MainFrame extends JFrame
 		gbc_lblZipEWarning.gridy = 4;
 		panelZipE.add(lblZipEWarning, gbc_lblZipEWarning);
 
-		panel7Zip = new JPanel();
+		JPanel panel7Zip = new JPanel();
 		compressorsPane.addTab(Messages.getString("MainFrame.7zExternal"), null, panel7Zip, null); //$NON-NLS-1$
 		compressorsPane.setEnabledAt(2, true);
 		final GridBagLayout gbl_panel7Zip = new GridBagLayout();
@@ -2873,7 +2624,7 @@ public class MainFrame extends JFrame
 		gbl_panel7Zip.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		panel7Zip.setLayout(gbl_panel7Zip);
 
-		lbl7zCmd = new JLabel(Messages.getString("MainFrame.lbl7zCmd.text")); //$NON-NLS-1$
+		JLabel lbl7zCmd = new JLabel(Messages.getString("MainFrame.lbl7zCmd.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lbl7zCmd = new GridBagConstraints();
 		gbc_lbl7zCmd.anchor = GridBagConstraints.EAST;
 		gbc_lbl7zCmd.insets = new Insets(5, 5, 5, 5);
@@ -2894,7 +2645,7 @@ public class MainFrame extends JFrame
 		gbc_tf7zCmd.gridy = 1;
 		panel7Zip.add(tf7zCmd, gbc_tf7zCmd);
 
-		btn7zCmd = new JButton(""); //$NON-NLS-1$
+		JButton btn7zCmd = new JButton(""); //$NON-NLS-1$
 		btn7zCmd.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		final GridBagConstraints gbc_btn7zCmd = new GridBagConstraints();
 		gbc_btn7zCmd.fill = GridBagConstraints.BOTH;
@@ -2903,7 +2654,7 @@ public class MainFrame extends JFrame
 		gbc_btn7zCmd.gridy = 1;
 		panel7Zip.add(btn7zCmd, gbc_btn7zCmd);
 
-		lbl7zArgs = new JLabel(Messages.getString("MainFrame.lbl7zArgs.text")); //$NON-NLS-1$
+		JLabel lbl7zArgs = new JLabel(Messages.getString("MainFrame.lbl7zArgs.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lbl7zArgs = new GridBagConstraints();
 		gbc_lbl7zArgs.anchor = GridBagConstraints.EAST;
 		gbc_lbl7zArgs.insets = new Insets(0, 5, 5, 5);
@@ -2934,7 +2685,7 @@ public class MainFrame extends JFrame
 		gbc_cb7zArgs.gridy = 2;
 		panel7Zip.add(cb7zArgs, gbc_cb7zArgs);
 
-		lbl7zThreads = new JLabel(Messages.getString("MainFrame.lbl7zThreads.text")); //$NON-NLS-1$
+		JLabel lbl7zThreads = new JLabel(Messages.getString("MainFrame.lbl7zThreads.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lbl7zThreads = new GridBagConstraints();
 		gbc_lbl7zThreads.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl7zThreads.anchor = GridBagConstraints.EAST;
@@ -2975,7 +2726,7 @@ public class MainFrame extends JFrame
 		gbc_ckbx7zSolid.gridy = 3;
 		panel7Zip.add(ckbx7zSolid, gbc_ckbx7zSolid);
 
-		lbl7zWarning = new JLabel();
+		JLabel lbl7zWarning = new JLabel();
 		lbl7zWarning.setVerticalAlignment(SwingConstants.TOP);
 		lbl7zWarning.setText(Messages.getString("MainFrame.lbl7zWarning.text")); //$NON-NLS-1$
 		lbl7zWarning.setHorizontalAlignment(SwingConstants.CENTER);
@@ -2987,7 +2738,13 @@ public class MainFrame extends JFrame
 		gbc_lbl7zWarning.gridy = 4;
 		panel7Zip.add(lbl7zWarning, gbc_lbl7zWarning);
 
-		debug = new JPanel();
+
+		buildSettingsDebugTab();
+	}
+	
+	private void buildSettingsDebugTab()
+	{
+		JPanel debug = new JPanel();
 		settingsPane.addTab(Messages.getString("MainFrame.Debug"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bug.png")), debug, null); //$NON-NLS-1$ //$NON-NLS-2$
 		final GridBagLayout gbl_debug = new GridBagLayout();
 		gbl_debug.columnWidths = new int[] { 100, 0, 0, 0 };
@@ -2996,7 +2753,7 @@ public class MainFrame extends JFrame
 		gbl_debug.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		debug.setLayout(gbl_debug);
 
-		lblLogLevel = new JLabel(Messages.getString("MainFrame.lblLogLevel.text")); //$NON-NLS-1$
+		JLabel lblLogLevel = new JLabel(Messages.getString("MainFrame.lblLogLevel.text")); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblLogLevel = new GridBagConstraints();
 		gbc_lblLogLevel.anchor = GridBagConstraints.EAST;
 		gbc_lblLogLevel.fill = GridBagConstraints.VERTICAL;
@@ -3015,7 +2772,7 @@ public class MainFrame extends JFrame
 		gbc_cbLogLevel.gridy = 1;
 		debug.add(cbLogLevel, gbc_cbLogLevel);
 
-		lblMemory = new JLabel(Messages.getString("MainFrame.lblMemory.text")); //$NON-NLS-1$
+		JLabel lblMemory = new JLabel(Messages.getString("MainFrame.lblMemory.text")); //$NON-NLS-1$
 		lblMemory.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbc_lblMemory = new GridBagConstraints();
 		gbc_lblMemory.fill = GridBagConstraints.HORIZONTAL;
@@ -3033,7 +2790,7 @@ public class MainFrame extends JFrame
 		gbc_lblMemoryUsage.gridy = 2;
 		debug.add(lblMemoryUsage, gbc_lblMemoryUsage);
 
-		btnGc = new JButton(Messages.getString("MainFrame.btnGc.text")); //$NON-NLS-1$
+		JButton btnGc = new JButton(Messages.getString("MainFrame.btnGc.text")); //$NON-NLS-1$
 		btnGc.addActionListener(e -> {
 			System.gc();
 			updateMemory();
@@ -3044,26 +2801,13 @@ public class MainFrame extends JFrame
 		gbc_btnGc.gridx = 2;
 		gbc_btnGc.gridy = 2;
 		debug.add(btnGc, gbc_btnGc);
-		mainPane.setEnabledAt(4, true);
-
-		pack();
-
-		try
-		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 720, 300))))))); //$NON-NLS-1$
-		}
-		catch (final DecoderException e1)
-		{
-			e1.printStackTrace();
-		}
-
-		scheduler.scheduleAtFixedRate(() -> updateMemory(), 0, 1, TimeUnit.MINUTES);
+		
 	}
-
+	
 	/**
 	 * Inits the scan settings.
 	 */
-	public void initScanSettings()
+	public void initProfileSettings()
 	{
 		chckbxNeedSHA1.setSelected(Profile.curr_profile.getProperty("need_sha1_or_md5", false)); //$NON-NLS-1$
 		chckbxUseParallelism.setSelected(Profile.curr_profile.getProperty("use_parallelism", false)); //$NON-NLS-1$
@@ -3116,6 +2860,96 @@ public class MainFrame extends JFrame
 	}
 
 	/**
+	 * Import dat.
+	 *
+	 * @param sl the sl
+	 */
+	private void importDat(final boolean sl)
+	{
+		new Thread(() -> {
+			final List<FileFilter> filters = Arrays.asList(new FileFilter()
+			{
+				@Override
+				public boolean accept(final File f)
+				{
+					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute(); //$NON-NLS-1$
+				}
+
+				@Override
+				public String getDescription()
+				{
+					return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
+				}
+			}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			);
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
+					.show(MainFrame.this, chooser -> {
+						final Progress progress = new Progress(MainFrame.this);
+						Settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+						for (final File selectedfile : chooser.getSelectedFiles())
+						{
+							progress.setVisible(true);
+							progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+							final Import imprt = new Import(selectedfile, sl);
+							progress.dispose();
+							final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
+							final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
+							new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+									.show(MainFrame.this, chooser1 -> {
+										try
+										{
+											final File file = chooser1.getSelectedFile();
+											final File parent = file.getParentFile();
+											FileUtils.copyFile(imprt.file, file);
+											if (imprt.is_mame)
+											{
+												final ProfileNFO pnfo = ProfileNFO.load(file);
+												pnfo.mame.set(imprt.org_file, sl);
+												if (imprt.roms_file != null)
+												{
+													FileUtils.copyFileToDirectory(imprt.roms_file, parent);
+													pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
+													if (imprt.sl_file != null)
+													{
+														FileUtils.copyFileToDirectory(imprt.sl_file, parent);
+														pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
+													}
+												}
+												pnfo.save();
+											}
+											final DirTreeModel model = (DirTreeModel) profilesTree.getModel();
+											final DirNode root = (DirNode) model.getRoot();
+											DirNode theNode = root.find(parent);
+											if (theNode != null)
+											{
+
+												theNode.reload();
+												model.reload(theNode);
+												if ((theNode = root.find(parent)) != null)
+												{
+													profilesTree.clearSelection();
+													profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
+												}
+												else
+													System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
+											}
+											else
+												System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
+										}
+										catch (final IOException e)
+										{
+											e.printStackTrace();
+										}
+										return null;
+									});
+						}
+						return null;
+					});
+		}).start();
+
+	}
+
+	/**
 	 * Load profile.
 	 *
 	 * @param profile the profile
@@ -3152,7 +2986,7 @@ public class MainFrame extends JFrame
 				progress.dispose();
 				if (success && Profile.curr_profile != null)
 				{
-					initScanSettings();
+					initProfileSettings();
 					mainPane.setSelectedIndex(1);
 				}
 			}
@@ -3200,6 +3034,51 @@ public class MainFrame extends JFrame
 	}
 
 	/**
+	 * Fix.
+	 */
+	private void fix()
+	{
+		final Progress progress = new Progress(MainFrame.this);
+		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+		{
+
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				if (Profile.curr_profile.hasPropsChanged())
+				{
+					switch (JOptionPane.showConfirmDialog(MainFrame.this, "Settings did change since last scan, you should rescan before fixing", "Rescan before fix?", JOptionPane.YES_NO_CANCEL_OPTION))
+					{
+						case JOptionPane.YES_OPTION:
+							curr_scan = new Scan(Profile.curr_profile, progress);
+							btnFix.setEnabled(curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
+							if (!btnFix.isEnabled())
+								return null;
+							break;
+						case JOptionPane.NO_OPTION:
+							break;
+						case JOptionPane.CANCEL_OPTION:
+						default:
+							return null;
+					}
+				}
+				final Fix fix = new Fix(Profile.curr_profile, curr_scan, progress);
+				btnFix.setEnabled(fix.getActionsRemain() > 0);
+				return null;
+			}
+
+			@Override
+			protected void done()
+			{
+				progress.dispose();
+			}
+
+		};
+		worker.execute();
+		progress.setVisible(true);
+	}
+
+	/**
 	 * Update memory.
 	 */
 	private void updateMemory()
@@ -3231,18 +3110,15 @@ public class MainFrame extends JFrame
 						if(dstdat.getParentFile().isDirectory() && (dstdat.exists() || dstdat.createNewFile()))
 						{
 							EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
-							if(cbDir2DatAddSha1.isSelected()) options.add(Options.NEED_SHA1);
-							if(cbDir2DatAddMd5.isSelected()) options.add(Options.NEED_MD5);
-							if(!cbDir2DatDeepScan.isSelected()) options.add(Options.IS_DEST);
-							if(cbDir2DatDoNotScan.isSelected()) options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-							if(cbDir2DatIncludeEmptyDirs.isSelected()) options.add(Options.EMPTY_DIRS);
-							if(cbDir2DatScanSubfolders.isSelected()) options.add(Options.RECURSE);
-							if(cbDir2DatMatchCurrentProfile.isSelected()) options.add(Options.MATCH_PROFILE);
-							if(cbDir2DatJunkSubfolders.isSelected()) options.add(Options.JUNK_SUBFOLDERS);
-							ExportType type = null;
-							if(rdbtnDir2DatLogiqxDat.isSelected()) type = ExportType.DATAFILE;
-							else if(rdbtnDir2DatMame.isSelected()) type = ExportType.MAME;
-							else if(rdbtnDir2DatSwList.isSelected()) type = ExportType.SOFTWARELIST;
+							if(Settings.getProperty("dir2dat.scan_subfolders", true)) options.add(Options.RECURSE);
+							if(!Settings.getProperty("dir2dat.deep_scan", false)) options.add(Options.IS_DEST);
+							if(Settings.getProperty("dir2dat.add_md5", false)) options.add(Options.NEED_MD5);
+							if(Settings.getProperty("dir2dat.add_sha1", false)) options.add(Options.NEED_SHA1);
+							if(Settings.getProperty("dir2dat.junk_folders", false)) options.add(Options.JUNK_SUBFOLDERS);
+							if(Settings.getProperty("dir2dat.do_not_scan_archives", false)) options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
+							if(Settings.getProperty("dir2dat.match_profile", false)) options.add(Options.MATCH_PROFILE);
+							if(Settings.getProperty("dir2dat.include_empty_dirs", false)) options.add(Options.EMPTY_DIRS);
+							final ExportType type = ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString()));
 							HashMap<String, String> headers = new HashMap<>();
 							headers.put("name", tfDir2DatName.getText());
 							headers.put("description", tfDir2DatDescription.getText());
@@ -3271,4 +3147,40 @@ public class MainFrame extends JFrame
 		worker.execute();
 		progress.setVisible(true);
 	}
+
+	/**
+	 * Adds and show the popup menu.
+	 *
+	 * @param component the component to add a popup menu
+	 * @param popup the popup menu to add
+	 */
+	private static void addPopup(final Component component, final JPopupMenu popup)
+	{
+		component.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mousePressed(final MouseEvent e)
+			{
+				if (e.isPopupTrigger())
+				{
+					showMenu(e);
+				}
+			}
+
+			@Override
+			public void mouseReleased(final MouseEvent e)
+			{
+				if (e.isPopupTrigger())
+				{
+					showMenu(e);
+				}
+			}
+
+			private void showMenu(final MouseEvent e)
+			{
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
+	}
+
 }

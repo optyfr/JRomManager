@@ -62,7 +62,7 @@ import JTrrntzip.TorrentZip;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.digest.MDigest;
-import jrm.io.CHDInfoReader;
+import jrm.io.chd.CHDInfoReader;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;

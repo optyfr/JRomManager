@@ -14,23 +14,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package jrm.io;
+package jrm.io.chd;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.MappedByteBuffer;
 
-class CHDHeaderV4 extends CHDHeader implements CHDHeaderIntf
+class CHDHeaderV5 extends CHDHeader implements CHDHeaderIntf
 {
 	private final String sha1;
 
-	public CHDHeaderV4(final MappedByteBuffer bb, final CHDHeader header) throws UnsupportedEncodingException
+	public CHDHeaderV5(final MappedByteBuffer bb, final CHDHeader header) throws UnsupportedEncodingException
 	{
 		super();
 		tag = header.tag;
 		len = header.len;
 		version = header.version;
 		final byte[] sha1 = new byte[20];
-		bb.position(48);
+		bb.position(84);
 		bb.get(sha1);
 		this.sha1 = CHDHeader.bytesToHex(sha1);
 	}

@@ -1,4 +1,5 @@
-/* Copyright (C) 2018  optyfr
+/* Copyright (C) 2015  Christophe De Troyer
+ * Copyright (C) 2018  Optyfr
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,37 +15,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package jrm.io;
+package jrm.io.torrent.bencoding.types;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.MappedByteBuffer;
-
-class CHDHeaderV1 extends CHDHeader implements CHDHeaderIntf
+/**
+ * Created by christophe on 16.01.15.
+ */
+public interface IBencodable
 {
-	private final String md5;
+    /**
+     * Returns the byte representation of the bencoded object.
+     * @return byte representation of the bencoded object.
+     */
+    byte[] bencode();
 
-	public CHDHeaderV1(final MappedByteBuffer bb, final CHDHeader header) throws UnsupportedEncodingException
-	{
-		super();
-		tag = header.tag;
-		len = header.len;
-		version = header.version;
-		bb.position(44);
-		final byte[] md5 = new byte[16];
-		bb.get(md5);
-		this.md5 = CHDHeader.bytesToHex(md5);
-	}
-
-	@Override
-	public String getSHA1()
-	{
-		return null;
-	}
-
-	@Override
-	public String getMD5()
-	{
-		return md5;
-	}
-
+    /**
+     * Returns string representation of bencoded object.
+     * @return string representation of bencoded object.
+     */
+    String bencodedString();
 }

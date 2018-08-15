@@ -14,37 +14,42 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package jrm.io;
+package jrm.io.chd;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.MappedByteBuffer;
-
-class CHDHeaderV2 extends CHDHeader implements CHDHeaderIntf
+/**
+ * Interface to get informations from CHD headers
+ * @author optyfr
+ *
+ */
+interface CHDHeaderIntf
 {
-	private final String md5;
+	/**
+	 * Does the file has a valid CHD header?
+	 * @return true for valid, otherwise false
+	 */
+	boolean isValidTag();
+	
+	/**
+	 * Header length
+	 * @return length in bytes
+	 */
+	int getLen();
+	
+	/**
+	 * Header version
+	 * @return version number
+	 */
+	int getVersion();
+	
+	/**
+	 * get the SHA1 (for uncompressed data), null if not reported by header
+	 * @return the SHA1 string or null
+	 */
+	public String getSHA1();
 
-	public CHDHeaderV2(final MappedByteBuffer bb, final CHDHeader header) throws UnsupportedEncodingException
-	{
-		super();
-		tag = header.tag;
-		len = header.len;
-		version = header.version;
-		bb.position(44);
-		final byte[] md5 = new byte[16];
-		bb.get(md5);
-		this.md5 = CHDHeader.bytesToHex(md5);
-	}
-
-	@Override
-	public String getSHA1()
-	{
-		return null;
-	}
-
-	@Override
-	public String getMD5()
-	{
-		return md5;
-	}
-
+	/**
+	 * get the MD5 (for uncompressed data), null if not reported by header
+	 * @return the MD5 string or null
+	 */
+	public String getMD5();
 }

@@ -1085,7 +1085,7 @@ public class Profile implements Serializable
 	 * @param file the profile file
 	 * @return the settings file
 	 */
-	private File getSettingsFile(final File file)
+	private static File getSettingsFile(final File file)
 	{
 		return new File(file.getParentFile(), file.getName() + ".properties"); //$NON-NLS-1$
 	}
@@ -1095,11 +1095,9 @@ public class Profile implements Serializable
 	 */
 	public void saveSettings()
 	{
-		if (settings == null)
-			settings = new Properties();
-		try (FileOutputStream os = new FileOutputStream(getSettingsFile(nfo.file)))
+		try
 		{
-			settings.storeToXML(os, null);
+			settings = saveSettings(nfo.file, settings);
 			nfo.save();
 		}
 		catch (final IOException e)
@@ -1107,25 +1105,59 @@ public class Profile implements Serializable
 			Log.err("IO", e); //$NON-NLS-1$
 		}
 	}
+	
+	/**
+	 * Save settings as XML
+	 * @param file the file from which derive the {@link Properties} file
+	 * @param settings the {@link Properties} to save, can be <code>null</code>
+	 * @return the saved {@link Properties}
+	 * @throws IOException
+	 */
+	public static Properties saveSettings(final File file, Properties settings) throws IOException
+	{
+		if (settings == null)
+			settings = new Properties();
+		try (FileOutputStream os = new FileOutputStream(getSettingsFile(file)))
+		{
+			settings.storeToXML(os, null);
+		}
+		return settings;
+	}
 
 	/**
 	 * Load settings from XML settings file
 	 */
 	public void loadSettings()
 	{
+		try
+		{
+			settings = loadSettings(nfo.file, settings);
+		}
+		catch (final IOException e)
+		{
+			Log.err("IO", e); //$NON-NLS-1$
+		}
+	}
+	
+	/**
+	 * Load settings
+	 * @param file the file from which derive the {@link Properties} file
+	 * @param settings the {@link Properties} to load, can be <code>null</code>
+	 * @return the loaded {@link Properties}
+	 * @throws IOException
+	 */
+	public static Properties loadSettings(File file, Properties settings) throws IOException
+	{
 		if (settings == null)
 			settings = new Properties();
-		if (getSettingsFile(nfo.file).exists())
+		if (getSettingsFile(file).exists())
 		{
-			try (FileInputStream is = new FileInputStream(getSettingsFile(nfo.file)))
+			try (FileInputStream is = new FileInputStream(getSettingsFile(file)))
 			{
 				settings.loadFromXML(is);
 			}
-			catch (final IOException e)
-			{
-				Log.err("IO", e); //$NON-NLS-1$
-			}
 		}
+		return settings;
 	}
 
 	/**
