@@ -1085,7 +1085,7 @@ public class Profile implements Serializable
 	 * @param file the profile file
 	 * @return the settings file
 	 */
-	private static File getSettingsFile(final File file)
+	public static File getSettingsFile(final File file)
 	{
 		return new File(file.getParentFile(), file.getName() + ".properties"); //$NON-NLS-1$
 	}

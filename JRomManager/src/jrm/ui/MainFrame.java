@@ -16,20 +16,76 @@
  */
 package jrm.ui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.swing.*;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
@@ -43,6 +99,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -52,6 +109,7 @@ import jrm.compressors.ZipOptions;
 import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.locale.Messages;
+import jrm.misc.BreakException;
 import jrm.misc.FindCmd;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
@@ -78,14 +136,30 @@ import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
-import jrm.ui.basic.*;
+import jrm.ui.basic.JCheckBoxList;
+import jrm.ui.basic.JCheckBoxTree;
+import jrm.ui.basic.JFileDropList;
+import jrm.ui.basic.JFileDropList.AddDelCallBack;
+import jrm.ui.basic.JFileDropMode;
+import jrm.ui.basic.JFileDropTable;
+import jrm.ui.basic.JFileDropTextField;
+import jrm.ui.basic.JListHintUI;
+import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JRMFileChooser.OneRootFileSystemView;
+import jrm.ui.basic.JTextFieldHintUI;
+import jrm.ui.basic.NGTreeNode;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.filter.CatVerModel;
-import jrm.ui.profile.manager.*;
+import jrm.ui.profile.manager.DirNode;
+import jrm.ui.profile.manager.DirTreeCellEditor;
+import jrm.ui.profile.manager.DirTreeCellRenderer;
+import jrm.ui.profile.manager.DirTreeModel;
+import jrm.ui.profile.manager.DirTreeSelectionListener;
+import jrm.ui.profile.manager.FileTableCellRenderer;
+import jrm.ui.profile.manager.FileTableModel;
 import jrm.ui.profile.report.ReportFrame;
 import jrm.ui.progress.Progress;
-import jrm.ui.basic.JFileDropList.AddDelCallBack;
+import one.util.streamex.StreamEx;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -336,7 +410,8 @@ public class MainFrame extends JFrame
 	private JButton btSamplesDest;
 	private JFileDropList listBatchToolsTrntChkTrnt;
 	private JFileDropList listBtachToolsTrntChkDirs;
-	private JMenu mnDat2DirD2D;
+	private JMenu mnDat2DirPresets;
+	private JFileDropTable fileDropTable;
 
 	/**
 	 * Instantiates a new main frame.
@@ -397,7 +472,7 @@ public class MainFrame extends JFrame
 	{
 		setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
 		setTitle(Messages.getString("MainFrame.Title") + getVersion()); //$NON-NLS-1$
-		setBounds(50, 50, 720, 300);
+		setBounds(50, 50, 1007, 601);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -2281,25 +2356,45 @@ public class MainFrame extends JFrame
 		JPanel panelBatchToolsDat2Dir = new JPanel();
 		batchToolsTabbedPane.addTab(Messages.getString("MainFrame.panelBatchToolsDat2Dir.title"), null, panelBatchToolsDat2Dir, null); //$NON-NLS-1$
 		GridBagLayout gbl_panelBatchToolsDat2Dir = new GridBagLayout();
-		gbl_panelBatchToolsDat2Dir.columnWidths = new int[]{0, 0, 0};
+		gbl_panelBatchToolsDat2Dir.columnWidths = new int[]{0, 0, 0, 0};
 		gbl_panelBatchToolsDat2Dir.rowHeights = new int[]{0, 0, 0, 0};
-		gbl_panelBatchToolsDat2Dir.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gbl_panelBatchToolsDat2Dir.rowWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_panelBatchToolsDat2Dir.columnWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_panelBatchToolsDat2Dir.rowWeights = new double[]{1.0, 1.0, 0.0, Double.MIN_VALUE};
 		panelBatchToolsDat2Dir.setLayout(gbl_panelBatchToolsDat2Dir);
 		
 		JScrollPane scrollPane_5 = new JScrollPane();
 		scrollPane_5.setBorder(new TitledBorder(null, "Src Dirs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_scrollPane_5 = new GridBagConstraints();
-		gbc_scrollPane_5.gridwidth = 2;
-		gbc_scrollPane_5.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane_5.gridwidth = 3;
+		gbc_scrollPane_5.insets = new Insets(0, 0, 5, 5);
 		gbc_scrollPane_5.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane_5.gridx = 0;
 		gbc_scrollPane_5.gridy = 0;
 		panelBatchToolsDat2Dir.add(scrollPane_5, gbc_scrollPane_5);
 		
-		listBatchToolsDat2DirSrc = new JFileDropList((AddDelCallBack) null);
+		listBatchToolsDat2DirSrc = new JFileDropList(files -> Settings.setProperty("dat2dir.srcdirs", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))));
+		for (final String s : Settings.getProperty("dat2dir.srcdirs", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (!s.isEmpty())
+				listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
+		listBatchToolsDat2DirSrc.setMode(JFileDropMode.DIRECTORY);
+		listBatchToolsDat2DirSrc.setUI(new JListHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		listBatchToolsDat2DirSrc.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirSrc.toolTipText")); //$NON-NLS-1$
 		scrollPane_5.setViewportView(listBatchToolsDat2DirSrc);
+		
+		JPopupMenu popupMenu_2 = new JPopupMenu();
+		addPopup(listBatchToolsDat2DirSrc, popupMenu_2);
+		
+		JMenuItem mnDat2DirAddSrcDir = new JMenuItem("Add Src Dir");
+		mnDat2DirAddSrcDir.setEnabled(false);
+		popupMenu_2.add(mnDat2DirAddSrcDir);
+		
+		JMenuItem mnDat2DirDelSrcDir = new JMenuItem("Del Src Dir");
+		mnDat2DirDelSrcDir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				listBatchToolsDat2DirSrc.del(listBatchToolsDat2DirSrc.getSelectedValuesList());
+			}
+		});
+		popupMenu_2.add(mnDat2DirDelSrcDir);
 		
 		JScrollPane scrollPane_3 = new JScrollPane();
 		scrollPane_3.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Src Dats", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
@@ -2310,11 +2405,18 @@ public class MainFrame extends JFrame
 		gbc_scrollPane_3.gridy = 1;
 		panelBatchToolsDat2Dir.add(scrollPane_3, gbc_scrollPane_3);
 		
-		listBatchToolsDat2DirDat = new JFileDropList(files -> Settings.setProperty("dat2dir.dats", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); // $NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$
-		for (final String s : Settings.getProperty("dat2dir.dats", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		listBatchToolsDat2DirDat = new JFileDropList(files -> Settings.setProperty("dat2dir.srcdats", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); // $NON-NLS-1$ 
+		for (final String s : Settings.getProperty("dat2dir.srcdats", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (!s.isEmpty())
 				listBatchToolsDat2DirDat.getModel().addElement(new File(s));
-		listBatchToolsDat2DirDat.setMode(JFileDropMode.FILE);
+		listBatchToolsDat2DirDat.setMode(JFileDropMode.ANY);
+		listBatchToolsDat2DirDat.setFilter((dir,filename)->{
+			File file = new File(dir, filename);
+			if(file.isFile())
+				return Sets.newHashSet("xml", "dat").contains(FilenameUtils.getExtension(filename).toLowerCase());
+			else
+				return file.listFiles((sdir,sfilename)->Sets.newHashSet("xml", "dat").contains(FilenameUtils.getExtension(sfilename).toLowerCase())).length>0;
+		});
 		listBatchToolsDat2DirDat.setUI(new JListHintUI(Messages.getString("MainFrame.DropFileHint"), Color.gray)); //$NON-NLS-1$
 		listBatchToolsDat2DirDat.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirDat.toolTipText")); //$NON-NLS-1$
 		scrollPane_3.setViewportView(listBatchToolsDat2DirDat);
@@ -2326,18 +2428,61 @@ public class MainFrame extends JFrame
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 			}
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-				mnDat2DirD2D.setEnabled(listBatchToolsDat2DirDat.getSelectedIndex()!=-1);
+				mnDat2DirPresets.setEnabled(listBatchToolsDat2DirDat.getSelectedIndex()!=-1);
 			}
 		});
 		addPopup(listBatchToolsDat2DirDat, popupMenu);
 		
-		mnDat2DirD2D = new JMenu("dir2dat");
-		mnDat2DirD2D.setActionCommand("dir2dat");
-		popupMenu.add(mnDat2DirD2D);
+		JMenuItem mnDat2DirAddDat = new JMenuItem("Add dat");
+		mnDat2DirAddDat.setEnabled(false);
+		popupMenu.add(mnDat2DirAddDat);
+		
+		JMenuItem mnDat2DirDelDat = new JMenuItem("Del dat");
+		mnDat2DirDelDat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				listBatchToolsDat2DirDat.del(listBatchToolsDat2DirDat.getSelectedValuesList());
+			}
+		});
+		popupMenu.add(mnDat2DirDelDat);
+		
+		mnDat2DirPresets = new JMenu("Presets");
+		popupMenu.add(mnDat2DirPresets);
+		
+		JMenu mnDat2DirD2D = new JMenu("dir2dat");
+		mnDat2DirPresets.add(mnDat2DirD2D);
 		
 		JMenuItem mntmDat2DirD2DTzip = new JMenuItem("TZIP");
 		mntmDat2DirD2DTzip.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				for(File file : listBatchToolsDat2DirDat.getSelectedValuesList())
+				{
+					Properties settings = new Properties();
+					try
+					{
+						settings.setProperty("need_sha1_or_md5", Boolean.FALSE.toString());
+						settings.setProperty("use_parallelism", Boolean.TRUE.toString());
+						settings.setProperty("create_mode", Boolean.TRUE.toString());
+						settings.setProperty("createfull_mode", Boolean.FALSE.toString());
+						settings.setProperty("ignore_unneeded_containers", Boolean.FALSE.toString());
+						settings.setProperty("ignore_unneeded_entries", Boolean.FALSE.toString());
+						settings.setProperty("ignore_unknown_containers", Boolean.TRUE.toString());
+						settings.setProperty("implicit_merge", Boolean.FALSE.toString());
+						settings.setProperty("ignore_merge_name_roms", Boolean.FALSE.toString());
+						settings.setProperty("ignore_merge_name_disks", Boolean.FALSE.toString());
+						settings.setProperty("exclude_games", Boolean.FALSE.toString());
+						settings.setProperty("exclude_machines", Boolean.FALSE.toString());
+						settings.setProperty("backup", Boolean.TRUE.toString());
+						settings.setProperty("format", FormatOptions.TZIP.toString());
+						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString());
+						settings.setProperty("archives_and_chd_as_roms", Boolean.FALSE.toString());
+						Profile.saveSettings(file, settings);
+					}
+					catch (IOException e1)
+					{
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 		mnDat2DirD2D.add(mntmDat2DirD2DTzip);
@@ -2345,6 +2490,35 @@ public class MainFrame extends JFrame
 		JMenuItem mntmDat2DirD2DDir = new JMenuItem("DIR");
 		mntmDat2DirD2DDir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				for(File file : listBatchToolsDat2DirDat.getSelectedValuesList())
+				{
+					Properties settings = new Properties();
+					try
+					{
+						settings.setProperty("need_sha1_or_md5", Boolean.FALSE.toString());
+						settings.setProperty("use_parallelism", Boolean.TRUE.toString());
+						settings.setProperty("create_mode", Boolean.TRUE.toString());
+						settings.setProperty("createfull_mode", Boolean.FALSE.toString());
+						settings.setProperty("ignore_unneeded_containers", Boolean.FALSE.toString());
+						settings.setProperty("ignore_unneeded_entries", Boolean.FALSE.toString());
+						settings.setProperty("ignore_unknown_containers", Boolean.TRUE.toString());
+						settings.setProperty("implicit_merge", Boolean.FALSE.toString());
+						settings.setProperty("ignore_merge_name_roms", Boolean.FALSE.toString());
+						settings.setProperty("ignore_merge_name_disks", Boolean.FALSE.toString());
+						settings.setProperty("exclude_games", Boolean.FALSE.toString());
+						settings.setProperty("exclude_machines", Boolean.FALSE.toString());
+						settings.setProperty("backup", Boolean.TRUE.toString());
+						settings.setProperty("format", FormatOptions.DIR.toString());
+						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString());
+						settings.setProperty("archives_and_chd_as_roms", Boolean.TRUE.toString());
+						Profile.saveSettings(file, settings);
+					}
+					catch (IOException e1)
+					{
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 		mnDat2DirD2D.add(mntmDat2DirD2DDir);
@@ -2352,21 +2526,135 @@ public class MainFrame extends JFrame
 		JScrollPane scrollPane_4 = new JScrollPane();
 		scrollPane_4.setBorder(new TitledBorder(null, "Dst Dirs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_scrollPane_4 = new GridBagConstraints();
-		gbc_scrollPane_4.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane_4.insets = new Insets(0, 0, 5, 5);
 		gbc_scrollPane_4.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane_4.gridx = 1;
 		gbc_scrollPane_4.gridy = 1;
 		panelBatchToolsDat2Dir.add(scrollPane_4, gbc_scrollPane_4);
 		
-		listBatchToolsDat2DirDir = new JFileDropList((AddDelCallBack) null);
+		listBatchToolsDat2DirDir = new JFileDropList(files -> Settings.setProperty("dat2dir.dstdirs", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))));
+		for (final String s : Settings.getProperty("dat2dir.dstdirs", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (!s.isEmpty())
+				listBatchToolsDat2DirDir.getModel().addElement(new File(s));
+		listBatchToolsDat2DirDir.setMode(JFileDropMode.DIRECTORY);
+		listBatchToolsDat2DirDir.setUI(new JListHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		listBatchToolsDat2DirDir.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirDir.toolTipText")); //$NON-NLS-1$
 		scrollPane_4.setViewportView(listBatchToolsDat2DirDir);
 		
+		JPopupMenu popupMenu_1 = new JPopupMenu();
+		addPopup(listBatchToolsDat2DirDir, popupMenu_1);
+		
+		JMenuItem mnDat2DirAddDstDir = new JMenuItem("Add Dst Dir");
+		mnDat2DirAddDstDir.setEnabled(false);
+		popupMenu_1.add(mnDat2DirAddDstDir);
+		
+		JMenuItem mnDat2DirDelDstDir = new JMenuItem("Del Dst Dir");
+		mnDat2DirDelDstDir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				listBatchToolsDat2DirDir.del(listBatchToolsDat2DirDir.getSelectedValuesList());
+			}
+		});
+		popupMenu_1.add(mnDat2DirDelDstDir);
+		
 		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$
+		btnBatchToolsDir2DatStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(listBatchToolsDat2DirDat.getModel().getSize() == listBatchToolsDat2DirDir.getModel().getSize())
+				{	if(listBatchToolsDat2DirSrc.getModel().getSize()>0)
+					{
+						List<File> dats = Collections.list(listBatchToolsDat2DirDat.getModel().elements());
+						if(dats.stream().filter((file)->!Profile.getSettingsFile(file).exists()).count()>0)
+							JOptionPane.showMessageDialog(MainFrame.this, "All dats must have an assigned preset");
+						else
+						{
+							final Progress progress = new Progress(MainFrame.this);
+							final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+							{
+
+								@Override
+								protected Void doInBackground() throws Exception
+								{
+									List<File> dstdirs = Collections.list(listBatchToolsDat2DirDir.getModel().elements());
+									List<File> srcdirs = Collections.list(listBatchToolsDat2DirSrc.getModel().elements());
+									Map<String, DirScan> scancache = new HashMap<>();
+									for(int i = 0; i < dats.size(); i++)
+									{
+										File dat = dats.get(i);
+										File dst = dstdirs.get(i);
+										try
+										{
+											File[] datlist = {dat};
+											File[] dstlist = {dst};
+											if(dat.isDirectory())
+											{
+												datlist = dat.listFiles((sdir,sfilename)->Sets.newHashSet("xml", "dat").contains(FilenameUtils.getExtension(sfilename).toLowerCase()));
+												Arrays.sort(datlist, (a,b)->a.getAbsolutePath().compareTo(b.getAbsolutePath()));
+												for(File d : datlist)
+													Files.copy(Profile.getSettingsFile(dat).toPath(),Profile.getSettingsFile(d).toPath(),StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.COPY_ATTRIBUTES);
+												dstlist = StreamEx.of(datlist).map(datfile->new File(dst,FilenameUtils.removeExtension(datfile.getName()))).toArray(File.class);
+												for(File d : dstlist)
+													d.mkdir();
+											}
+											long total = 0, ok = 0;
+											System.out.println(datlist.length+" <-> "+dstlist.length);
+											for(int j = 0; j < datlist.length; j++)
+											{
+												Scan.report.setProfile(Profile.curr_profile = Profile.load(datlist[j], progress));
+												Profile.curr_profile.setProperty("roms_dest_dir", dstlist[j].getAbsolutePath());
+												Profile.curr_profile.setProperty("src_dir", String.join("|", srcdirs.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())));
+												curr_scan = new Scan(Profile.curr_profile, progress, scancache);
+												total += Scan.report.stats.set_create + Scan.report.stats.set_found + Scan.report.stats.set_missing;
+												ok += Scan.report.stats.set_create_complete + Scan.report.stats.set_found_fixcomplete + Scan.report.stats.set_found_ok;
+												Fix fix = new Fix(Profile.curr_profile, curr_scan, progress);
+												System.out.format("%s : %.02f%% complete, %d remain\n", datlist[j], (float)ok*100.0/(float)total, fix.getActionsRemain());
+											}
+										}
+										catch(BreakException e)
+										{
+											throw e;
+										}
+										catch(Throwable e)
+										{
+											e.printStackTrace();
+										}
+									}
+									return null;
+								}
+
+								@Override
+								protected void done()
+								{
+									progress.dispose();
+								}
+
+							};
+							worker.execute();
+							progress.setVisible(true);
+						}
+					}
+					else
+						JOptionPane.showMessageDialog(MainFrame.this, "There must be at least on source directory");
+				}
+				else
+					JOptionPane.showMessageDialog(MainFrame.this, "Dat files list and Dest dirs list must contain the same element count");
+			}
+		});
+		
+		JScrollPane scrollPane_6 = new JScrollPane();
+		GridBagConstraints gbc_scrollPane_6 = new GridBagConstraints();
+		gbc_scrollPane_6.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane_6.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_6.gridx = 2;
+		gbc_scrollPane_6.gridy = 1;
+		panelBatchToolsDat2Dir.add(scrollPane_6, gbc_scrollPane_6);
+		
+		fileDropTable = new JFileDropTable();
+		fileDropTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		fileDropTable.setFillsViewportHeight(true);
+		scrollPane_6.setViewportView(fileDropTable);
 		GridBagConstraints gbc_btnBatchToolsDir2DatStart = new GridBagConstraints();
-		gbc_btnBatchToolsDir2DatStart.insets = new Insets(0, 0, 5, 5);
 		gbc_btnBatchToolsDir2DatStart.anchor = GridBagConstraints.EAST;
-		gbc_btnBatchToolsDir2DatStart.gridx = 1;
+		gbc_btnBatchToolsDir2DatStart.gridx = 2;
 		gbc_btnBatchToolsDir2DatStart.gridy = 2;
 		panelBatchToolsDat2Dir.add(btnBatchToolsDir2DatStart, gbc_btnBatchToolsDir2DatStart);
 		

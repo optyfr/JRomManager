@@ -155,6 +155,17 @@ public class Scan
 	 */
 	public Scan(final Profile profile, final ProgressHandler handler) throws BreakException
 	{
+		this(profile, handler, null);
+	}
+	
+	/**
+	 * The constructor
+	 * @param profile the current {@link Profile}
+	 * @param handler the {@link ProgressHandler} to show progression on UI
+	 * @throws BreakException
+	 */
+	public Scan(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache) throws BreakException
+	{
 		this.profile = profile;
 		profile.setPropsCheckPoint();
 		Scan.report.reset();
@@ -175,10 +186,16 @@ public class Scan
 
 		final String dstdir_txt = profile.getProperty("roms_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dstdir_txt.isEmpty())
+		{
+			System.err.println("dst dir is empty");
 			return; //TODO be more informative on failure
+		}
 		final File roms_dstdir = new File(dstdir_txt);
 		if (!roms_dstdir.isDirectory())
+		{
+			System.err.println("dst dir is not a directory");
 			return; //TODO be more informative on failure
+		}
 		
 		/*
 		 * use disks dest dir if enabled otherwise it will be the same than roms dest dir
@@ -240,7 +257,15 @@ public class Scan
 		/* then scan all dirs from that list */
 		for (final File dir : srcdirs)
 		{
-			allscans.add(new DirScan(profile, dir, handler, false));
+			if(scancache != null)
+			{
+				String cachefile  = DirScan.getCacheFile(dir, DirScan.getOptions(profile, false)).getAbsolutePath();
+				if(!scancache.containsKey(cachefile))
+					scancache.put(cachefile, new DirScan(profile, dir, handler, false));
+				allscans.add(scancache.get(cachefile));
+			}
+			else
+				allscans.add(new DirScan(profile, dir, handler, false));
 			if (handler.isCancel())
 				throw new BreakException();
 		}
@@ -346,6 +371,7 @@ public class Scan
 			handler.setProgress2(String.format("%d/%d", j.get(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
 			if (profile.machinelist_list.get(0).size() > 0)
 			{
+				
 				/* Scan all samples */
 				handler.setProgress2(String.format("%d/%d", j.incrementAndGet(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
 				for(final Samples set : profile.machinelist_list.get(0).samplesets)

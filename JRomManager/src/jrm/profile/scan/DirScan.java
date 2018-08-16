@@ -217,6 +217,8 @@ public final class DirScan
 				options.add(Options.NEED_SHA1_OR_MD5);
 			if (profile.getProperty("use_parallelism", false)) //$NON-NLS-1$
 				options.add(Options.USE_PARALLELISM);
+			if (profile.getProperty("archives_and_chd_as_roms", false)) //$NON-NLS-1$
+				options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
 			FormatOptions format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString()));
 			if (FormatOptions.TZIP == format)
 				options.add(Options.FORMAT_TZIP);
@@ -1080,7 +1082,7 @@ public final class DirScan
 		return entries_bymd5.get(d.md5);
 	}
 
-	private String getCacheExt()
+	private static String getCacheExt(EnumSet<Options> options)
 	{
 		if(options.contains(Options.IS_DEST))
 		{
@@ -1113,14 +1115,14 @@ public final class DirScan
 	 * @param file the root dir {@link File} of the scan
 	 * @return a {@link File} corresponding to the cache file
 	 */
-	private File getCacheFile(final File file)
+	public static File getCacheFile(final File file, EnumSet<Options> options)
 	{
 		final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File cachedir = new File(workdir, "cache"); //$NON-NLS-1$
 		cachedir.mkdirs();
 		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		return new File(cachedir, String.format("%08x", crc.getValue()) + getCacheExt()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return new File(cachedir, String.format("%08x", crc.getValue()) + getCacheExt(options)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	/**
@@ -1129,7 +1131,7 @@ public final class DirScan
 	 */
 	private void save(final File file)
 	{
-		try(final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file)))))
+		try(final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file, options)))))
 		{
 			oos.writeObject(containers_byname);
 		}
@@ -1146,7 +1148,7 @@ public final class DirScan
 	@SuppressWarnings("unchecked")
 	private Map<String, Container> load(final File file)
 	{
-		final File cachefile = getCacheFile(file);
+		final File cachefile = getCacheFile(file, options);
 		try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 		{
 			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), file) , 0); //$NON-NLS-1$
