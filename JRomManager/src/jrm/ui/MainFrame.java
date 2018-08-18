@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,6 +115,10 @@ import jrm.compressors.SevenZipOptions;
 import jrm.compressors.ZipOptions;
 import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
+import jrm.io.torrent.Torrent;
+import jrm.io.torrent.TorrentFile;
+import jrm.io.torrent.TorrentParser;
+import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.FindCmd;
@@ -170,10 +173,6 @@ import jrm.ui.profile.manager.FileTableModel;
 import jrm.ui.profile.report.ReportFrame;
 import jrm.ui.progress.Progress;
 import one.util.streamex.StreamEx;
-import jrm.io.torrent.Torrent;
-import jrm.io.torrent.TorrentFile;
-import jrm.io.torrent.TorrentParser;
-import jrm.io.torrent.options.TrntChkMode;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -2799,13 +2798,52 @@ public class MainFrame extends JFrame
 											if(Files.exists(file) && (cbBatchToolsTrntChk.getSelectedItem()==TrntChkMode.FILENAME || Files.size(file)==tfile.getFileLength()))
 												ok++;
 										}
+										tableBatchToolsTrntChk.updateResult(i, String.format("%.02f%% complete", (float) ok * 100.0 / (float) total));
 									}
 									else
 									{
 										long piece_length = torrent.getPieceLength();
 										List<String> pieces = torrent.getPieces();
+										long to_go = piece_length;
+										int piece_cnt = 0, piece_valid = 0;
+										progress.setProgress(String.format("%d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
+										System.out.format("piece nb %d\n", ++piece_cnt);
+										boolean valid = true;
+										for(TorrentFile tfile : tfiles)
+										{
+											Path file = sdr.dst.toPath();
+											for(String path : tfile.getFileDirs())
+												file = file.resolve(path);
+											if(!Files.exists(file) || Files.size(file)!=tfile.getFileLength())
+												valid = false;
+											System.out.format("\t%s\n", file);
+											long flen = tfile.getFileLength();
+											while(flen >= to_go)
+											{
+												flen -= to_go;
+												to_go = piece_length;
+												if(valid)
+													piece_valid++;
+												progress.setProgress(String.format("%d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
+												System.out.format("piece nb %d\n", ++piece_cnt);
+												valid = true;
+												if(flen > 0)
+												{
+													System.out.format("\t%s\n", file);
+													if(!Files.exists(file) || Files.size(file)!=tfile.getFileLength())
+														valid = false;
+												}
+											}
+											to_go -= flen;
+										}
+										progress.setProgress(String.format("%d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
+										if(valid)
+											piece_valid++;
+										System.out.format("piece counted %d, given %d, valid %d, completion=%.02f%%\n", piece_cnt, pieces.size(), piece_valid, (double)piece_valid*100.0/(double)piece_cnt);
+										System.out.format("piece len : %d\n", piece_length);
+										System.out.format("last piece len : %d\n", piece_length-to_go);
+										tableBatchToolsTrntChk.updateResult(i, String.format("%.02f%% complete", (double)piece_valid*100.0/(double)piece_cnt));
 									}
-									tableBatchToolsTrntChk.updateResult(i, String.format("%.02f%% completed", (float) ok * 100.0 / (float) total));
 								}
 							}
 						}
