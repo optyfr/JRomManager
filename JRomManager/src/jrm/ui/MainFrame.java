@@ -37,11 +37,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -2794,55 +2797,89 @@ public class MainFrame extends JFrame
 											Path file = sdr.dst.toPath();
 											for(String path : tfile.getFileDirs())
 												file = file.resolve(path);
-											progress.setProgress(file.toString(), j, total);
+											progress.setProgress(sdr.src.getAbsolutePath(), -1, null, file.toString());
+											progress.setProgress2(j+"/"+total, j, total);
 											if(Files.exists(file) && (cbBatchToolsTrntChk.getSelectedItem()==TrntChkMode.FILENAME || Files.size(file)==tfile.getFileLength()))
 												ok++;
 										}
 										tableBatchToolsTrntChk.updateResult(i, String.format("%.02f%% complete", (float) ok * 100.0 / (float) total));
 									}
-									else
+									else try
 									{
 										long piece_length = torrent.getPieceLength();
 										List<String> pieces = torrent.getPieces();
 										long to_go = piece_length;
 										int piece_cnt = 0, piece_valid = 0;
-										progress.setProgress(String.format("%d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
-										System.out.format("piece nb %d\n", ++piece_cnt);
+										progress.setProgress(sdr.src.getAbsolutePath(), -1, null, "");
+										progress.setProgress2(String.format("piece %d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
+										piece_cnt++;
 										boolean valid = true;
+										MessageDigest md = MessageDigest.getInstance("SHA-1");
+										byte[] buffer = new byte[8192];
 										for(TorrentFile tfile : tfiles)
 										{
+											BufferedInputStream in = null;
 											Path file = sdr.dst.toPath();
 											for(String path : tfile.getFileDirs())
 												file = file.resolve(path);
 											if(!Files.exists(file) || Files.size(file)!=tfile.getFileLength())
 												valid = false;
-											System.out.format("\t%s\n", file);
+											else
+												in = new BufferedInputStream(new FileInputStream(file.toFile()));
+											progress.setProgress(sdr.src.getAbsolutePath(), -1, null, file.toString());
 											long flen = tfile.getFileLength();
 											while(flen >= to_go)
 											{
+												if(in != null)
+												{
+													long to_read = to_go;
+													do
+													{
+														int len = in.read(buffer,0,(int)(to_read<buffer.length?to_read:buffer.length));
+														md.update(buffer, 0, len);
+														to_read -= len;
+													}
+													while(to_read > 0);
+												}
 												flen -= to_go;
-												to_go = piece_length;
-												if(valid)
+												to_go = (int)piece_length;
+												progress.setProgress2(String.format("piece %d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
+												if(valid && Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(piece_cnt-1)))
 													piece_valid++;
-												progress.setProgress(String.format("%d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
-												System.out.format("piece nb %d\n", ++piece_cnt);
+												md.reset();
+												piece_cnt++;
 												valid = true;
 												if(flen > 0)
 												{
-													System.out.format("\t%s\n", file);
 													if(!Files.exists(file) || Files.size(file)!=tfile.getFileLength())
 														valid = false;
 												}
 											}
+											if(in != null)
+											{
+												long to_read = flen;
+												do
+												{
+													int len = in.read(buffer,0,(int)(to_read<buffer.length?to_read:buffer.length));
+													md.update(buffer, 0, len);
+													to_read -= len;
+												}
+												while(to_read > 0);
+												in.close();
+											}
 											to_go -= flen;
 										}
-										progress.setProgress(String.format("%d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
-										if(valid)
+										progress.setProgress2(String.format("piece %d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
+										if(valid && Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(piece_cnt-1)))
 											piece_valid++;
 										System.out.format("piece counted %d, given %d, valid %d, completion=%.02f%%\n", piece_cnt, pieces.size(), piece_valid, (double)piece_valid*100.0/(double)piece_cnt);
 										System.out.format("piece len : %d\n", piece_length);
 										System.out.format("last piece len : %d\n", piece_length-to_go);
 										tableBatchToolsTrntChk.updateResult(i, String.format("%.02f%% complete", (double)piece_valid*100.0/(double)piece_cnt));
+									}
+									catch(Exception ex)
+									{
+										ex.printStackTrace();
 									}
 								}
 							}

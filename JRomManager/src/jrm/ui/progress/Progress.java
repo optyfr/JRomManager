@@ -202,7 +202,7 @@ public class Progress extends JDialog implements ProgressHandler
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 30, 0, 0, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
 		panel = new JPanel();
@@ -260,9 +260,10 @@ public class Progress extends JDialog implements ProgressHandler
 		gbc_lblTimeLeft2.gridy = 2;
 		getContentPane().add(lblTimeLeft2, gbc_lblTimeLeft2);
 		final GridBagConstraints gbc_btnCancel = new GridBagConstraints();
+		gbc_btnCancel.weighty = 200.0;
 		gbc_btnCancel.insets = new Insets(5, 5, 0, 0);
 		gbc_btnCancel.gridwidth = 2;
-		gbc_btnCancel.anchor = GridBagConstraints.NORTH;
+		gbc_btnCancel.anchor = GridBagConstraints.SOUTH;
 		gbc_btnCancel.gridx = 0;
 		gbc_btnCancel.gridy = 3;
 		getContentPane().add(btnCancel, gbc_btnCancel);
@@ -465,7 +466,7 @@ public class Progress extends JDialog implements ProgressHandler
 	{
 		final Dimension newSize = getPreferredSize();
 		final Rectangle rect = getBounds();
-		rect.height = newSize.height;
+		rect.height = Math.max(rect.height, newSize.height);
 		setBounds(rect);
 	}
 
