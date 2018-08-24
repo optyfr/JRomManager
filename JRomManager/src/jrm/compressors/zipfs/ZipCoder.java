@@ -80,7 +80,7 @@ class ZipCoder
 	public static ZipCoder get(String csn)
 	{
 		Charset cs = Charset.forName(csn);
-		if (cs.name().equals("UTF-8"))
+		if (cs.name().equals("UTF-8")) //$NON-NLS-1$
 		{
 			return utf8;
 		}

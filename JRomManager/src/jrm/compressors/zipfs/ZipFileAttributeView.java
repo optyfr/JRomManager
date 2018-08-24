@@ -65,9 +65,9 @@ class ZipFileAttributeView implements BasicFileAttributeView
 	{
 		if (type == null)
 			throw new NullPointerException();
-		if (type.equals("basic"))
+		if (type.equals("basic")) //$NON-NLS-1$
 			return new ZipFileAttributeView(path, false);
-		if (type.equals("zip"))
+		if (type.equals("zip")) //$NON-NLS-1$
 			return new ZipFileAttributeView(path, true);
 		return null;
 	}
@@ -75,7 +75,7 @@ class ZipFileAttributeView implements BasicFileAttributeView
 	@Override
 	public String name()
 	{
-		return isZipView ? "zip" : "basic";
+		return isZipView ? "zip" : "basic"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public ZipFileAttributes readAttributes() throws IOException
@@ -104,14 +104,14 @@ class ZipFileAttributeView implements BasicFileAttributeView
 		catch (IllegalArgumentException x)
 		{
 		}
-		throw new UnsupportedOperationException("'" + attribute + "' is unknown or read-only attribute");
+		throw new UnsupportedOperationException("'" + attribute + "' is unknown or read-only attribute"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	Map<String, Object> readAttributes(String attributes) throws IOException
 	{
 		ZipFileAttributes zfas = readAttributes();
 		LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-		if ("*".equals(attributes))
+		if ("*".equals(attributes)) //$NON-NLS-1$
 		{
 			for (AttrID id : AttrID.values())
 			{
@@ -126,7 +126,7 @@ class ZipFileAttributeView implements BasicFileAttributeView
 		}
 		else
 		{
-			String[] as = attributes.split(",");
+			String[] as = attributes.split(","); //$NON-NLS-1$
 			for (String a : as)
 			{
 				try

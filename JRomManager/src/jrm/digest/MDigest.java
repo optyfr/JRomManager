@@ -53,7 +53,7 @@ public abstract class MDigest
 	 */
 	public static MDigest getAlgorithm(String algorithm) throws NoSuchAlgorithmException
 	{
-		if(algorithm.equalsIgnoreCase("CRC"))
+		if(algorithm.equalsIgnoreCase("CRC")) //$NON-NLS-1$
 			return new CRCDigest();
 		return new MsgDigest(algorithm);
 	}

@@ -15,13 +15,13 @@ class CRCDigest extends MDigest
 	@Override
 	public String toString()
 	{
-		return String.format("%08x", crc.getValue());
+		return String.format("%08x", crc.getValue()); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getAlgorithm()
 	{
-		return "CRC";
+		return "CRC"; //$NON-NLS-1$
 	}
 
 	@Override

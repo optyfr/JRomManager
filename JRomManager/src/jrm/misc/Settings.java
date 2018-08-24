@@ -51,7 +51,7 @@ public class Settings
 	{
 		if (multiuser)
 		{
-			Path work = Paths.get(System.getProperty("user.home"), ".jrommanager").toAbsolutePath().normalize();
+			Path work = Paths.get(System.getProperty("user.home"), ".jrommanager").toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
 			if (!Files.exists(work))
 			{
 				try
@@ -65,7 +65,7 @@ public class Settings
 			}
 			return work;
 		}
-		return Paths.get(".").toAbsolutePath().normalize();
+		return Paths.get(".").toAbsolutePath().normalize(); //$NON-NLS-1$
 	}
 	
 	/**
@@ -81,7 +81,7 @@ public class Settings
 			{
 				try
 				{
-					return Files.createDirectories(getWorkPath().resolve("tmp"));
+					return Files.createDirectories(getWorkPath().resolve("tmp")); //$NON-NLS-1$
 				}
 				catch (IOException e)
 				{
@@ -90,14 +90,14 @@ public class Settings
 			}
 			try
 			{
-				return Files.createTempDirectory("JRM");
+				return Files.createTempDirectory("JRM"); //$NON-NLS-1$
 			}
 			catch (IOException e)
 			{
 				e.printStackTrace();
 			}
 		}
-		return Paths.get(System.getProperty("java.io.tmpdir"));
+		return Paths.get(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
 	}
 	
 	

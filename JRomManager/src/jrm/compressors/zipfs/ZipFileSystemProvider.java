@@ -74,7 +74,7 @@ public class ZipFileSystemProvider extends FileSystemProvider
 	@Override
 	public String getScheme()
 	{
-		return "zip";
+		return "zip"; //$NON-NLS-1$
 	}
 
 	protected Path uriToPath(URI uri)
@@ -82,13 +82,13 @@ public class ZipFileSystemProvider extends FileSystemProvider
 		String scheme = uri.getScheme();
 		if ((scheme == null) || !scheme.equalsIgnoreCase(getScheme()))
 		{
-			throw new IllegalArgumentException("URI scheme is not '" + getScheme() + "'");
+			throw new IllegalArgumentException("URI scheme is not '" + getScheme() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		try
 		{
 			// only support ZIP URL syntax zip:{uri}!/{entry} for now
 			String spec = uri.getRawSchemeSpecificPart();
-			int sep = spec.indexOf("!/");
+			int sep = spec.indexOf("!/"); //$NON-NLS-1$
 			if (sep != -1)
 			{
 				spec = spec.substring(0, sep);
@@ -137,7 +137,7 @@ public class ZipFileSystemProvider extends FileSystemProvider
 			catch (ZipException ze)
 			{
 				String pname = path.toString();
-				if (pname.endsWith(".zip"))
+				if (pname.endsWith(".zip")) //$NON-NLS-1$
 					throw ze;
 				// assume NOT a zip/jar file
 				throw new UnsupportedOperationException();
@@ -168,7 +168,7 @@ public class ZipFileSystemProvider extends FileSystemProvider
 		catch (ZipException ze)
 		{
 			String pname = path.toString();
-			if (pname.endsWith(".zip"))
+			if (pname.endsWith(".zip")) //$NON-NLS-1$
 				throw ze;
 			throw new UnsupportedOperationException();
 		}
@@ -178,9 +178,9 @@ public class ZipFileSystemProvider extends FileSystemProvider
 	public Path getPath(URI uri)
 	{
 		String spec = uri.getSchemeSpecificPart();
-		int sep = spec.indexOf("!/");
+		int sep = spec.indexOf("!/"); //$NON-NLS-1$
 		if (sep == -1)
-			throw new IllegalArgumentException("URI: " + uri + " does not contain path info ex. zip:file:/c:/foo.zip!/BAR");
+			throw new IllegalArgumentException("URI: " + uri + " does not contain path info ex. zip:file:/c:/foo.zip!/BAR"); //$NON-NLS-1$ //$NON-NLS-2$
 		return getFileSystem(uri).getPath(spec.substring(sep + 1));
 	}
 
@@ -322,7 +322,7 @@ public class ZipFileSystemProvider extends FileSystemProvider
 	@Override
 	public Path readSymbolicLink(Path link) throws IOException
 	{
-		throw new UnsupportedOperationException("Not supported.");
+		throw new UnsupportedOperationException("Not supported."); //$NON-NLS-1$
 	}
 
 	@Override

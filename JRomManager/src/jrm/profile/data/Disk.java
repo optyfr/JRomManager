@@ -74,7 +74,7 @@ public class Disk extends Entity implements Serializable
 					return parent.name + "/" + name + ".chd"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
-			else if (!Profile.curr_profile.getProperty("ignore_merge_name_disks", false))
+			else if (!Profile.curr_profile.getProperty("ignore_merge_name_disks", false)) //$NON-NLS-1$
 				return merge + ".chd"; //$NON-NLS-1$
 		}
 		return name + ".chd"; //$NON-NLS-1$

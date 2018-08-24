@@ -20,6 +20,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
+import jrm.locale.Messages;
 import jrm.profile.Profile;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
@@ -48,7 +49,7 @@ public class Dir2Dat
 		progress.setInfos(1, false);
 		AtomicInteger i = new AtomicInteger();
 		scan.getContainersIterable().forEach(c->i.incrementAndGet());
-		progress.setProgress("Saving...", 0, i.get());
+		progress.setProgress(Messages.getString("Dir2Dat.Saving"), 0, i.get()); //$NON-NLS-1$
 		i.set(0);
 		try(BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(dstdat)))
 		{
@@ -73,20 +74,20 @@ public class Dir2Dat
 							counter.put(name, new AtomicInteger());
 						AtomicInteger val = counter.get(name);
 						if(val.incrementAndGet() > 1)
-							name = name + "_" + val.get();
-						progress.setProgress("Saving...", i.incrementAndGet());
+							name = name + "_" + val.get(); //$NON-NLS-1$
+						progress.setProgress(Messages.getString("Dir2Dat.Saving"), i.incrementAndGet()); //$NON-NLS-1$
 						writer.writeStartElement("machine", //$NON-NLS-1$
 							new SimpleAttribute("name", name), //$NON-NLS-1$
-							new SimpleAttribute("isbios", machine!=null&&machine.isBios()?"yes":null), //$NON-NLS-1$
-							new SimpleAttribute("isdevice", machine!=null&&machine.isdevice?"yes":null), //$NON-NLS-1$
-							new SimpleAttribute("ismechanical", machine!=null&&machine.ismechanical?"yes":null), //$NON-NLS-1$
+							new SimpleAttribute("isbios", machine!=null&&machine.isBios()?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+							new SimpleAttribute("isdevice", machine!=null&&machine.isdevice?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+							new SimpleAttribute("ismechanical", machine!=null&&machine.ismechanical?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
 							new SimpleAttribute("cloneof", machine!=null?machine.cloneof:null), //$NON-NLS-1$
 							new SimpleAttribute("romof", machine!=null?machine.romof:null), //$NON-NLS-1$
 							new SimpleAttribute("sampleof", machine!=null?machine.sampleof:null) //$NON-NLS-1$
 						);
 						writer.writeElement("description", machine!=null?machine.description:name); //$NON-NLS-1$
-						writer.writeElement("year", machine!=null?machine.year:"????"); //$NON-NLS-1$
-						writer.writeElement("manufacturer", machine!=null?machine.manufacturer:""); //$NON-NLS-1$
+						writer.writeElement("year", machine!=null?machine.year:"????"); //$NON-NLS-1$ //$NON-NLS-2$
+						writer.writeElement("manufacturer", machine!=null?machine.manufacturer:""); //$NON-NLS-1$ //$NON-NLS-2$
 						for(Entry e : c.getEntries())
 						{
 							if(e.type==Type.CHD)
@@ -123,7 +124,7 @@ public class Dir2Dat
 				{
 					writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					writer.writeStartElement("datafile"); //$NON-NLS-1$
-					writer.writeStartElement("header");
+					writer.writeStartElement("header"); //$NON-NLS-1$
 					for(Map.Entry<String, String> entry:headers.entrySet())
 						writer.writeElement(entry.getKey(), entry.getValue());
 					writer.writeEndElement();
@@ -140,18 +141,18 @@ public class Dir2Dat
 							counter.put(name, new AtomicInteger());
 						AtomicInteger val = counter.get(name);
 						if(val.incrementAndGet() > 1)
-							name = name + "_" + val.get();
-						progress.setProgress("Saving...", i.incrementAndGet());
+							name = name + "_" + val.get(); //$NON-NLS-1$
+						progress.setProgress(Messages.getString("Dir2Dat.Saving"), i.incrementAndGet()); //$NON-NLS-1$
 						writer.writeStartElement("game", //$NON-NLS-1$
 							new SimpleAttribute("name", name), //$NON-NLS-1$
-							new SimpleAttribute("isbios", machine!=null&&machine.isBios()?"yes":null), //$NON-NLS-1$
+							new SimpleAttribute("isbios", machine!=null&&machine.isBios()?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
 							new SimpleAttribute("cloneof", machine!=null?machine.cloneof:null), //$NON-NLS-1$
 							new SimpleAttribute("romof", machine!=null?machine.romof:null), //$NON-NLS-1$
 							new SimpleAttribute("sampleof", machine!=null?machine.sampleof:null) //$NON-NLS-1$
 						);
 						writer.writeElement("description", machine!=null?machine.description:name); //$NON-NLS-1$
-						writer.writeElement("year", machine!=null?machine.year:"????"); //$NON-NLS-1$
-						writer.writeElement("manufacturer", machine!=null?machine.manufacturer:""); //$NON-NLS-1$
+						writer.writeElement("year", machine!=null?machine.year:"????"); //$NON-NLS-1$ //$NON-NLS-2$
+						writer.writeElement("manufacturer", machine!=null?machine.manufacturer:""); //$NON-NLS-1$ //$NON-NLS-2$
 						for(Entry e : c.getEntries())
 						{
 							if(e.type==Type.CHD)
@@ -192,7 +193,7 @@ public class Dir2Dat
 					Map<String,SL> slmap = new HashMap<>();
 					for(Container c : scan.getContainersIterable())
 					{
-						progress.setProgress("Saving...", i.incrementAndGet());
+						progress.setProgress(Messages.getString("Dir2Dat.Saving"), i.incrementAndGet()); //$NON-NLS-1$
 						Software software = null;
 						Path relativized = scan.getDir().toPath().relativize(c.file.toPath());
 						String swname = FilenameUtils.removeExtension(relativized.getFileName().toString());
@@ -218,7 +219,7 @@ public class Dir2Dat
 							swcounter.put(swname, new AtomicInteger());
 						AtomicInteger val = swcounter.get(swname);
 						if(val.incrementAndGet() > 1)
-							swname = swname + "_" + val.get();
+							swname = swname + "_" + val.get(); //$NON-NLS-1$
 						slmap.get(slname).sw.put(swname,new SL.SW(swname, software, c));
 					}
 					if(slmap.size()>1)
@@ -230,19 +231,19 @@ public class Dir2Dat
 					{
 						if(slmap.size()==1)
 							writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-						writer.writeStartElement("softwarelist",
-							new SimpleAttribute("name", e.getValue().name)
+						writer.writeStartElement("softwarelist", //$NON-NLS-1$
+							new SimpleAttribute("name", e.getValue().name) //$NON-NLS-1$
 						);
 						if(e.getValue().sl!=null)
-							writer.writeElement("description", e.getValue().sl.description);
+							writer.writeElement("description", e.getValue().sl.description); //$NON-NLS-1$
 						for(Map.Entry<String, SL.SW> ee : e.getValue().sw.entrySet())
 						{
 							if(ee.getValue().sw!=null)
 								ee.getValue().sw.export(writer, ee.getValue().c.getEntries());
 							else
 							{
-								writer.writeStartElement("software",
-									new SimpleAttribute("name", ee.getValue().name)
+								writer.writeStartElement("software", //$NON-NLS-1$
+									new SimpleAttribute("name", ee.getValue().name) //$NON-NLS-1$
 								);
 								int ii = 0;
 								for(Entry entry : ee.getValue().c.getEntries())
@@ -253,11 +254,11 @@ public class Dir2Dat
 										if(options.contains(Options.JUNK_SUBFOLDERS))
 											ename = Paths.get(ename).getFileName().toString();
 										writer.writeStartElement("part", //$NON-NLS-1$
-											new SimpleAttribute("name", "cdrom"+ ++ii), //$NON-NLS-1$
-											new SimpleAttribute("interface", "cdrom") //$NON-NLS-1$
+											new SimpleAttribute("name", "cdrom"+ ++ii), //$NON-NLS-1$ //$NON-NLS-2$
+											new SimpleAttribute("interface", "cdrom") //$NON-NLS-1$ //$NON-NLS-2$
 										);
 											writer.writeStartElement("diskarea", //$NON-NLS-1$
-												new SimpleAttribute("name", "cdrom") //$NON-NLS-1$
+												new SimpleAttribute("name", "cdrom") //$NON-NLS-1$ //$NON-NLS-2$
 											);
 												writer.writeElement("disk", //$NON-NLS-1$
 														new SimpleAttribute("name", ename), //$NON-NLS-1$
@@ -272,11 +273,11 @@ public class Dir2Dat
 										if(options.contains(Options.JUNK_SUBFOLDERS))
 											ename = Paths.get(ename).getFileName().toString();
 										writer.writeStartElement("part", //$NON-NLS-1$
-											new SimpleAttribute("name", "flop"+ ++ii), //$NON-NLS-1$
-											new SimpleAttribute("interface", "floppy_3_5") //$NON-NLS-1$
+											new SimpleAttribute("name", "flop"+ ++ii), //$NON-NLS-1$ //$NON-NLS-2$
+											new SimpleAttribute("interface", "floppy_3_5") //$NON-NLS-1$ //$NON-NLS-2$
 										);
 											writer.writeStartElement("dataarea", //$NON-NLS-1$
-												new SimpleAttribute("name", "flop"), //$NON-NLS-1$
+												new SimpleAttribute("name", "flop"), //$NON-NLS-1$ //$NON-NLS-2$
 												new SimpleAttribute("size", entry.size) //$NON-NLS-1$
 											);
 												writer.writeElement("rom", //$NON-NLS-1$

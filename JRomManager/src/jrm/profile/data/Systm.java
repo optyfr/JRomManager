@@ -74,6 +74,6 @@ public interface Systm extends Serializable, PropertyStub
 	{
 		if(getType()==Type.SOFTWARELIST)
 			return "filter.systems.swlist." + getName();
-		return "filter.systems." + getName();
+		return "filter.systems." + getName(); //$NON-NLS-1$
 	}
 }

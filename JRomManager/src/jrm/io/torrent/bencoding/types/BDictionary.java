@@ -55,13 +55,13 @@ public class BDictionary implements IBencodable
   public String bencodedString()
   {
       StringBuilder sb = new StringBuilder();
-      sb.append("d");
+      sb.append("d"); //$NON-NLS-1$
       for (Map.Entry<BByteString, IBencodable> entry : this.dictionary.entrySet())
       {
           sb.append(entry.getKey().bencodedString());
           sb.append(entry.getValue().bencodedString());
       }
-      sb.append("e");
+      sb.append("e"); //$NON-NLS-1$
       return sb.toString();
   }
 
@@ -96,12 +96,12 @@ public class BDictionary implements IBencodable
   public String toString()
   {
       StringBuilder sb = new StringBuilder();
-      sb.append("\n[\n");
+      sb.append("\n[\n"); //$NON-NLS-1$
       for (Map.Entry<BByteString, IBencodable> entry : this.dictionary.entrySet())
       {
-          sb.append(entry.getKey()).append(" :: ").append(entry.getValue()).append("\n");
+          sb.append(entry.getKey()).append(" :: ").append(entry.getValue()).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
       }
-      sb.append("]");
+      sb.append("]"); //$NON-NLS-1$
 
       return sb.toString();
   }

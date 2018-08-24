@@ -40,7 +40,7 @@ public class BInt implements IBencodable
 
     public String bencodedString()
     {
-        return "i" + value + "e";
+        return "i" + value + "e"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public byte[] bencode()

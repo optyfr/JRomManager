@@ -32,7 +32,7 @@ import java.util.Formatter;
 public class Utils
 {
 
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray(); //$NON-NLS-1$
 
     /**
      * Takes an array of bytes and converts them to a string of
@@ -69,10 +69,10 @@ public class Utils
         RandomAccessFile rf = null;
         try
         {
-            rf = new RandomAccessFile(path, "r");
+            rf = new RandomAccessFile(path, "r"); //$NON-NLS-1$
 
             if (rf.length() < nth)
-                throw new EOFException("Reading outside of bounds of file");
+                throw new EOFException("Reading outside of bounds of file"); //$NON-NLS-1$
 
             rf.seek(nth);
             byte curr = rf.readByte();
@@ -119,7 +119,7 @@ public class Utils
      */
     public static void printByte(byte b)
     {
-        String s1 = String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0');
+        String s1 = String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0'); //$NON-NLS-1$
         System.out.println(s1); // 10000001
     }
 
@@ -149,7 +149,7 @@ public class Utils
         MessageDigest md;
         try
         {
-            md = MessageDigest.getInstance("SHA-1");
+            md = MessageDigest.getInstance("SHA-1"); //$NON-NLS-1$
             return byteArray2Hex(md.digest(input));
         } catch (NoSuchAlgorithmException e)
         {
@@ -170,7 +170,7 @@ public class Utils
         {
             for (byte b : bytes)
             {
-                formatter.format("%02x", b);
+                formatter.format("%02x", b); //$NON-NLS-1$
             }
             return formatter.toString();
         }

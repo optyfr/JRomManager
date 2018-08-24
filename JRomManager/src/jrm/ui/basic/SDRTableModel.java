@@ -17,7 +17,7 @@ public abstract class SDRTableModel implements TableModel
 	{
 		public File src = null;
 		public File dst = null;
-		public String result = "";
+		public String result = ""; //$NON-NLS-1$
 		
 	}
 	

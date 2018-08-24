@@ -172,8 +172,8 @@ class ZipUtils
 		return TimeUnit.SECONDS.convert(time, TimeUnit.MILLISECONDS);
 	}
 
-	private static final String regexMetaChars = ".^$+{[]|()";
-	private static final String globMetaChars = "\\*?[{";
+	private static final String regexMetaChars = ".^$+{[]|()"; //$NON-NLS-1$
+	private static final String globMetaChars = "\\*?[{"; //$NON-NLS-1$
 
 	private static boolean isRegexMeta(char c)
 	{
@@ -204,7 +204,7 @@ class ZipUtils
 	public static String toRegexPattern(String globPattern)
 	{
 		boolean inGroup = false;
-		StringBuilder regex = new StringBuilder("^");
+		StringBuilder regex = new StringBuilder("^"); //$NON-NLS-1$
 
 		int i = 0;
 		while (i < globPattern.length())
@@ -216,7 +216,7 @@ class ZipUtils
 					// escape special characters
 					if (i == globPattern.length())
 					{
-						throw new PatternSyntaxException("No character to escape", globPattern, i - 1);
+						throw new PatternSyntaxException("No character to escape", globPattern, i - 1); //$NON-NLS-1$
 					}
 					char next = globPattern.charAt(i++);
 					if (isGlobMeta(next) || isRegexMeta(next))
@@ -230,11 +230,11 @@ class ZipUtils
 					break;
 				case '[':
 					// don't match name separator in class
-					regex.append("[[^/]&&[");
+					regex.append("[[^/]&&["); //$NON-NLS-1$
 					if (next(globPattern, i) == '^')
 					{
 						// escape the regex negation char if it appears
-						regex.append("\\^");
+						regex.append("\\^"); //$NON-NLS-1$
 						i++;
 					}
 					else
@@ -263,7 +263,7 @@ class ZipUtils
 						}
 						if (c == '/')
 						{
-							throw new PatternSyntaxException("Explicit 'name separator' in class", globPattern, i - 1);
+							throw new PatternSyntaxException("Explicit 'name separator' in class", globPattern, i - 1); //$NON-NLS-1$
 						}
 						// TBD: how to specify ']' in a class?
 						if (c == '\\' || c == '[' || c == '&' && next(globPattern, i) == '&')
@@ -277,7 +277,7 @@ class ZipUtils
 						{
 							if (!hasRangeStart)
 							{
-								throw new PatternSyntaxException("Invalid range", globPattern, i - 1);
+								throw new PatternSyntaxException("Invalid range", globPattern, i - 1); //$NON-NLS-1$
 							}
 							if ((c = next(globPattern, i++)) == EOL || c == ']')
 							{
@@ -285,7 +285,7 @@ class ZipUtils
 							}
 							if (c < last)
 							{
-								throw new PatternSyntaxException("Invalid range", globPattern, i - 3);
+								throw new PatternSyntaxException("Invalid range", globPattern, i - 3); //$NON-NLS-1$
 							}
 							regex.append(c);
 							hasRangeStart = false;
@@ -298,22 +298,22 @@ class ZipUtils
 					}
 					if (c != ']')
 					{
-						throw new PatternSyntaxException("Missing ']", globPattern, i - 1);
+						throw new PatternSyntaxException("Missing ']", globPattern, i - 1); //$NON-NLS-1$
 					}
-					regex.append("]]");
+					regex.append("]]"); //$NON-NLS-1$
 					break;
 				case '{':
 					if (inGroup)
 					{
-						throw new PatternSyntaxException("Cannot nest groups", globPattern, i - 1);
+						throw new PatternSyntaxException("Cannot nest groups", globPattern, i - 1); //$NON-NLS-1$
 					}
-					regex.append("(?:(?:");
+					regex.append("(?:(?:"); //$NON-NLS-1$
 					inGroup = true;
 					break;
 				case '}':
 					if (inGroup)
 					{
-						regex.append("))");
+						regex.append("))"); //$NON-NLS-1$
 						inGroup = false;
 					}
 					else
@@ -324,7 +324,7 @@ class ZipUtils
 				case ',':
 					if (inGroup)
 					{
-						regex.append(")|(?:");
+						regex.append(")|(?:"); //$NON-NLS-1$
 					}
 					else
 					{
@@ -335,17 +335,17 @@ class ZipUtils
 					if (next(globPattern, i) == '*')
 					{
 						// crosses directory boundaries
-						regex.append(".*");
+						regex.append(".*"); //$NON-NLS-1$
 						i++;
 					}
 					else
 					{
 						// within directory boundary
-						regex.append("[^/]*");
+						regex.append("[^/]*"); //$NON-NLS-1$
 					}
 					break;
 				case '?':
-					regex.append("[^/]");
+					regex.append("[^/]"); //$NON-NLS-1$
 					break;
 				default:
 					if (isRegexMeta(c))
@@ -357,7 +357,7 @@ class ZipUtils
 		}
 		if (inGroup)
 		{
-			throw new PatternSyntaxException("Missing '}", globPattern, i - 1);
+			throw new PatternSyntaxException("Missing '}", globPattern, i - 1); //$NON-NLS-1$
 		}
 		return regex.append('$').toString();
 	}

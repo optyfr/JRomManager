@@ -53,12 +53,12 @@ public class BList implements IBencodable
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("l");
+        sb.append("l"); //$NON-NLS-1$
 
         for (IBencodable entry : this.list)
             sb.append(entry.bencodedString());
 
-        sb.append("e");
+        sb.append("e"); //$NON-NLS-1$
 
         return sb.toString();
     }
@@ -88,12 +88,12 @@ public class BList implements IBencodable
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("(");
+        sb.append("("); //$NON-NLS-1$
         for (Object entry : this.list)
         {
             sb.append(entry.toString());
         }
-        sb.append(") ");
+        sb.append(") "); //$NON-NLS-1$
 
         return sb.toString();
     }

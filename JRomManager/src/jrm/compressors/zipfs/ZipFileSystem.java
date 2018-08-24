@@ -80,18 +80,18 @@ class ZipFileSystem extends FileSystem
 	private boolean readOnly = false; // readonly file system
 	private final int compressionLevel;
 	
-	private static final boolean isWindows = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> System.getProperty("os.name").startsWith("Windows"));
+	private static final boolean isWindows = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> System.getProperty("os.name").startsWith("Windows")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	ZipFileSystem(ZipFileSystemProvider provider, Path zfpath, Map<String, ?> env) throws IOException
 	{
 		// create a new zip if not exists
-		boolean createNew = "true".equals(env.get("create"));
+		boolean createNew = "true".equals(env.get("create")); //$NON-NLS-1$ //$NON-NLS-2$
 		// default encoding for name/comment
-		String nameEncoding = env.containsKey("encoding") ? (String) env.get("encoding") : "UTF-8";
-		this.noExtt = "false".equals(env.get("zipinfo-time"));
-		this.useTempFile = TRUE.equals(env.get("useTempFile"));
-		this.readOnly = TRUE.equals(env.get("readOnly"));
-		this.compressionLevel = env.containsKey("compressionLevel")?(Integer)env.get("compressionLevel"):Deflater.DEFAULT_COMPRESSION;
+		String nameEncoding = env.containsKey("encoding") ? (String) env.get("encoding") : "UTF-8"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		this.noExtt = "false".equals(env.get("zipinfo-time")); //$NON-NLS-1$ //$NON-NLS-2$
+		this.useTempFile = TRUE.equals(env.get("useTempFile")); //$NON-NLS-1$
+		this.readOnly = TRUE.equals(env.get("readOnly")); //$NON-NLS-1$
+		this.compressionLevel = env.containsKey("compressionLevel")?(Integer)env.get("compressionLevel"):Deflater.DEFAULT_COMPRESSION; //$NON-NLS-1$ //$NON-NLS-2$
 		this.provider = provider;
 		this.zfpath = zfpath;
 		if (Files.notExists(zfpath))
@@ -126,8 +126,8 @@ class ZipFileSystem extends FileSystem
 				try
 				{
 					Path parent = zfpath.toAbsolutePath().getParent();
-					Path dir = (parent == null) ? zfpath.getFileSystem().getPath(".") : parent;
-					Files.delete(Files.createTempFile(dir, "zipfstmp", null));
+					Path dir = (parent == null) ? zfpath.getFileSystem().getPath(".") : parent; //$NON-NLS-1$
+					Files.delete(Files.createTempFile(dir, "zipfstmp", null)); //$NON-NLS-1$
 					writeable = zfpath.toFile().canWrite();
 				}
 				catch(Throwable e)
@@ -167,7 +167,7 @@ class ZipFileSystem extends FileSystem
 	@Override
 	public String getSeparator()
 	{
-		return "/";
+		return "/"; //$NON-NLS-1$
 	}
 
 	@Override
@@ -250,7 +250,7 @@ class ZipFileSystem extends FileSystem
 		return Collections.unmodifiableList(Arrays.asList(new ZipFileStore(rootdir)));
 	}
 
-	private static final Set<String> supportedFileAttributeViews = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("basic", "zip")));
+	private static final Set<String> supportedFileAttributeViews = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("basic", "zip"))); //$NON-NLS-1$ //$NON-NLS-2$
 
 	@Override
 	public Set<String> supportedFileAttributeViews()
@@ -269,8 +269,8 @@ class ZipFileSystem extends FileSystem
 		return zfpath;
 	}
 
-	private static final String GLOB_SYNTAX = "glob";
-	private static final String REGEX_SYNTAX = "regex";
+	private static final String GLOB_SYNTAX = "glob"; //$NON-NLS-1$
+	private static final String REGEX_SYNTAX = "regex"; //$NON-NLS-1$
 
 	@Override
 	public PathMatcher getPathMatcher(String syntaxAndInput)
@@ -295,7 +295,7 @@ class ZipFileSystem extends FileSystem
 			}
 			else
 			{
-				throw new UnsupportedOperationException("Syntax '" + syntax + "' not recognized");
+				throw new UnsupportedOperationException("Syntax '" + syntax + "' not recognized"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		// return matcher
@@ -613,7 +613,7 @@ class ZipFileSystem extends FileSystem
 		for (OpenOption opt : options)
 		{
 			if (opt == READ)
-				throw new IllegalArgumentException("READ not allowed");
+				throw new IllegalArgumentException("READ not allowed"); //$NON-NLS-1$
 			if (opt == CREATE_NEW)
 				hasCreateNew = true;
 			if (opt == CREATE)
@@ -624,7 +624,7 @@ class ZipFileSystem extends FileSystem
 				hasTruncate = true;
 		}
 		if (hasAppend && hasTruncate)
-			throw new IllegalArgumentException("APPEND + TRUNCATE_EXISTING not allowed");
+			throw new IllegalArgumentException("APPEND + TRUNCATE_EXISTING not allowed"); //$NON-NLS-1$
 		beginRead(); // only need a readlock, the "update()" will
 		try
 		{ // try to obtain a writelock when the os is
@@ -670,7 +670,7 @@ class ZipFileSystem extends FileSystem
 			if (e == null)
 				throw new NoSuchFileException(getString(path));
 			if (e.isDir())
-				throw new FileSystemException(getString(path), "is a directory", null);
+				throw new FileSystemException(getString(path), "is a directory", null); //$NON-NLS-1$
 			return getInputStream(e);
 		}
 		finally
@@ -690,7 +690,7 @@ class ZipFileSystem extends FileSystem
 				throw new IllegalArgumentException();
 		}
 		if (options.contains(APPEND) && options.contains(TRUNCATE_EXISTING))
-			throw new IllegalArgumentException("APPEND + TRUNCATE_EXISTING not allowed");
+			throw new IllegalArgumentException("APPEND + TRUNCATE_EXISTING not allowed"); //$NON-NLS-1$
 	}
 
 	// Returns a Writable/ReadByteChannel for now. Might consdier to use
@@ -866,7 +866,7 @@ class ZipFileSystem extends FileSystem
 						throw new FileAlreadyExistsException(getString(path));
 					}
 					if (e.isDir())
-						throw new FileAlreadyExistsException("directory <" + getString(path) + "> exists");
+						throw new FileAlreadyExistsException("directory <" + getString(path) + "> exists"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				options = new HashSet<>(options);
 				options.remove(StandardOpenOption.CREATE_NEW); // for tmpfile
@@ -1158,7 +1158,7 @@ class ZipFileSystem extends FileSystem
 			}
 			int len = buf.length - off;
 			if (readFullyAt(buf, off, len, pos + off) != len)
-				zerror("zip END header not found");
+				zerror("zip END header not found"); //$NON-NLS-1$
 
 			// Now scan the block backwards for END header signature
 			for (int i = buf.length - ENDHDR; i >= 0; i--)
@@ -1198,7 +1198,7 @@ class ZipFileSystem extends FileSystem
 				}
 			}
 		}
-		zerror("zip END header not found");
+		zerror("zip END header not found"); //$NON-NLS-1$
 		return null; // make compiler happy
 	}
 
@@ -1217,20 +1217,20 @@ class ZipFileSystem extends FileSystem
 			return null; // only END header present
 		}
 		if (end.cenlen > end.endpos)
-			zerror("invalid END header (bad central directory size)");
+			zerror("invalid END header (bad central directory size)"); //$NON-NLS-1$
 		long cenpos = end.endpos - end.cenlen; // position of CEN table
 
 		// Get position of first local file (LOC) header, taking into
 		// account that there may be a stub prefixed to the zip file.
 		locpos = cenpos - end.cenoff;
 		if (locpos < 0)
-			zerror("invalid END header (bad central directory offset)");
+			zerror("invalid END header (bad central directory offset)"); //$NON-NLS-1$
 
 		// read in the CEN and END
 		byte[] cen = new byte[(int) (end.cenlen + ENDHDR)];
 		if (readFullyAt(cen, 0, cen.length, cenpos) != end.cenlen + ENDHDR)
 		{
-			zerror("read CEN tables failed");
+			zerror("read CEN tables failed"); //$NON-NLS-1$
 		}
 		// Iterate through the entries in the central directory
 		inodes = new LinkedHashMap<>(end.centot + 1);
@@ -1239,22 +1239,22 @@ class ZipFileSystem extends FileSystem
 		while (pos < limit)
 		{
 			if (!cenSigAt(cen, pos))
-				zerror("invalid CEN header (bad signature)");
+				zerror("invalid CEN header (bad signature)"); //$NON-NLS-1$
 			int method = CENHOW(cen, pos);
 			int nlen = CENNAM(cen, pos);
 			int elen = CENEXT(cen, pos);
 			int clen = CENCOM(cen, pos);
 			if ((CENFLG(cen, pos) & 1) != 0)
 			{
-				zerror("invalid CEN header (encrypted entry)");
+				zerror("invalid CEN header (encrypted entry)"); //$NON-NLS-1$
 			}
 			if (method != METHOD_STORED && method != METHOD_DEFLATED)
 			{
-				zerror("invalid CEN header (unsupported compression method: " + method + ")");
+				zerror("invalid CEN header (unsupported compression method: " + method + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			if (pos + CENHDR + nlen > limit)
 			{
-				zerror("invalid CEN header (bad header size)");
+				zerror("invalid CEN header (bad header size)"); //$NON-NLS-1$
 			}
 			IndexNode inode = new IndexNode(cen, pos + CENHDR, nlen, pos);
 			inodes.put(inode, inode);
@@ -1264,7 +1264,7 @@ class ZipFileSystem extends FileSystem
 		}
 		if (pos + ENDHDR != cen.length)
 		{
-			zerror("invalid CEN header (bad header size)");
+			zerror("invalid CEN header (bad header size)"); //$NON-NLS-1$
 		}
 		buildNodeTree();
 		return cen;
@@ -1281,8 +1281,8 @@ class ZipFileSystem extends FileSystem
 	private Path createTempFileInSameDirectoryAs(Path path) throws IOException
 	{
 		Path parent = path.toAbsolutePath().getParent();
-		Path dir = (parent == null) ? path.getFileSystem().getPath(".") : parent;
-		Path tmpPath = Files.createTempFile(dir, "zipfstmp", null);
+		Path dir = (parent == null) ? path.getFileSystem().getPath(".") : parent; //$NON-NLS-1$
+		Path tmpPath = Files.createTempFile(dir, "zipfstmp", null); //$NON-NLS-1$
 		tmppaths.add(tmpPath);
 		return tmpPath;
 	}
@@ -1352,7 +1352,7 @@ class ZipFileSystem extends FileSystem
 		}
 		// read loc, use the original loc.elen/nlen
 		if (readFullyAt(buf, 0, LOCHDR, locoff) != LOCHDR)
-			throw new ZipException("loc: reading failed");
+			throw new ZipException("loc: reading failed"); //$NON-NLS-1$
 		if (updateHeader)
 		{
 			locoff += LOCHDR + LOCNAM(buf) + LOCEXT(buf); // skip header
@@ -1534,7 +1534,7 @@ class ZipFileSystem extends FileSystem
 	IndexNode getInode(byte[] path)
 	{
 		if (path == null)
-			throw new NullPointerException("path");
+			throw new NullPointerException("path"); //$NON-NLS-1$
 		return inodes.get(IndexNode.keyOf(path));
 	}
 
@@ -1556,7 +1556,7 @@ class ZipFileSystem extends FileSystem
 		if (inode == null)
 		{
 			if (path != null && path.length == 0)
-				throw new ZipException("root directory </> can't not be delete");
+				throw new ZipException("root directory </> can't not be delete"); //$NON-NLS-1$
 			if (failIfNotExists)
 				throw new NoSuchFileException(getString(path));
 		}
@@ -1616,7 +1616,7 @@ class ZipFileSystem extends FileSystem
 			else if (e.file != null)
 				eis = Files.newInputStream(e.file);
 			else
-				throw new ZipException("update entry data is missing");
+				throw new ZipException("update entry data is missing"); //$NON-NLS-1$
 		}
 		else if (e.type == Entry.FILECH)
 		{
@@ -1660,7 +1660,7 @@ class ZipFileSystem extends FileSystem
 				{
 					if (eof)
 					{
-						throw new EOFException("Unexpected end of ZLIB input stream");
+						throw new EOFException("Unexpected end of ZLIB input stream"); //$NON-NLS-1$
 					}
 					len = this.in.read(buf, 0, buf.length);
 					if (len == -1)
@@ -1689,7 +1689,7 @@ class ZipFileSystem extends FileSystem
 		}
 		else
 		{
-			throw new ZipException("invalid compression method");
+			throw new ZipException("invalid compression method"); //$NON-NLS-1$
 		}
 		streams.add(eis);
 		return eis;
@@ -1716,7 +1716,7 @@ class ZipFileSystem extends FileSystem
 				Entry e2 = getEntry(e.name);
 				if (e2 == null)
 				{
-					throw new ZipException("invalid loc for entry <" + e.name + ">");
+					throw new ZipException("invalid loc for entry <" + e.name + ">"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				pos = e2.locoff;
 			}
@@ -1812,7 +1812,7 @@ class ZipFileSystem extends FileSystem
 				byte[] buf = new byte[LOCHDR];
 				if (readFullyAt(buf, 0, buf.length, pos) != LOCHDR)
 				{
-					throw new ZipException("invalid loc " + pos + " for entry reading");
+					throw new ZipException("invalid loc " + pos + " for entry reading"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				pos += LOCHDR + LOCNAM(buf) + LOCEXT(buf);
 			}
@@ -1830,7 +1830,7 @@ class ZipFileSystem extends FileSystem
 		{
 			super(os, getDeflater());
 			if (e == null)
-				throw new NullPointerException("Zip entry is null");
+				throw new NullPointerException("Zip entry is null"); //$NON-NLS-1$
 			this.e = e;
 			crc = new CRC32();
 		}
@@ -1842,7 +1842,7 @@ class ZipFileSystem extends FileSystem
 				ensureOpen();
 			if (isClosed)
 			{
-				throw new IOException("Stream closed");
+				throw new IOException("Stream closed"); //$NON-NLS-1$
 			}
 			if (off < 0 || len < 0 || off > b.length - len)
 			{
@@ -1862,7 +1862,7 @@ class ZipFileSystem extends FileSystem
 					out.write(b, off, len);
 					break;
 				default:
-					throw new ZipException("invalid compression method");
+					throw new ZipException("invalid compression method"); //$NON-NLS-1$
 			}
 			crc.update(b, off, len);
 		}
@@ -1890,7 +1890,7 @@ class ZipFileSystem extends FileSystem
 					e.crc = crc.getValue();
 					break;
 				default:
-					throw new ZipException("invalid compression method");
+					throw new ZipException("invalid compression method"); //$NON-NLS-1$
 			}
 			// crc.reset();
 			if (out instanceof ByteArrayOutputStream)
@@ -2256,7 +2256,7 @@ class ZipFileSystem extends FileSystem
 				return 20;
 			else if (method == METHOD_STORED)
 				return 10;
-			throw new ZipException("unsupported compression method");
+			throw new ZipException("unsupported compression method"); //$NON-NLS-1$
 		}
 
 		///////////////////// CEN //////////////////////
@@ -2270,7 +2270,7 @@ class ZipFileSystem extends FileSystem
 			byte[] cen = zipfs.cen;
 			int pos = inode.pos;
 			if (!cenSigAt(cen, pos))
-				zerror("invalid CEN header (bad signature)");
+				zerror("invalid CEN header (bad signature)"); //$NON-NLS-1$
 			version = CENVER(cen, pos);
 			flag = CENFLG(cen, pos);
 			method = CENHOW(cen, pos);
@@ -2652,16 +2652,16 @@ class ZipFileSystem extends FileSystem
 						}
 						byte[] buf = new byte[LOCHDR];
 						if (zipfs.readFullyAt(buf, 0, buf.length, locoff) != buf.length)
-							throw new ZipException("loc: reading failed");
+							throw new ZipException("loc: reading failed"); //$NON-NLS-1$
 						if (!locSigAt(buf, 0))
-							throw new ZipException("loc: wrong sig ->" + Long.toString(getSig(buf, 0), 16));
+							throw new ZipException("loc: wrong sig ->" + Long.toString(getSig(buf, 0), 16)); //$NON-NLS-1$
 						int locElen = LOCEXT(buf);
 						if (locElen < 9) // EXTT is at lease 9 bytes
 							break;
 						int locNlen = LOCNAM(buf);
 						buf = new byte[locElen];
 						if (zipfs.readFullyAt(buf, 0, buf.length, locoff + LOCHDR + locNlen) != buf.length)
-							throw new ZipException("loc extra: reading failed");
+							throw new ZipException("loc extra: reading failed"); //$NON-NLS-1$
 						int locPos = 0;
 						while (locPos + 4 < buf.length)
 						{
@@ -2794,18 +2794,18 @@ class ZipFileSystem extends FileSystem
 		{
 			StringBuilder sb = new StringBuilder(1024);
 			Formatter fm = new Formatter(sb);
-			fm.format("    creationTime    : %tc%n", creationTime().toMillis());
-			fm.format("    lastAccessTime  : %tc%n", lastAccessTime().toMillis());
-			fm.format("    lastModifiedTime: %tc%n", lastModifiedTime().toMillis());
-			fm.format("    isRegularFile   : %b%n", isRegularFile());
-			fm.format("    isDirectory     : %b%n", isDirectory());
-			fm.format("    isSymbolicLink  : %b%n", isSymbolicLink());
-			fm.format("    isOther         : %b%n", isOther());
-			fm.format("    fileKey         : %s%n", fileKey());
-			fm.format("    size            : %d%n", size());
-			fm.format("    compressedSize  : %d%n", compressedSize());
-			fm.format("    crc             : %x%n", crc());
-			fm.format("    method          : %d%n", method());
+			fm.format("    creationTime    : %tc%n", creationTime().toMillis()); //$NON-NLS-1$
+			fm.format("    lastAccessTime  : %tc%n", lastAccessTime().toMillis()); //$NON-NLS-1$
+			fm.format("    lastModifiedTime: %tc%n", lastModifiedTime().toMillis()); //$NON-NLS-1$
+			fm.format("    isRegularFile   : %b%n", isRegularFile()); //$NON-NLS-1$
+			fm.format("    isDirectory     : %b%n", isDirectory()); //$NON-NLS-1$
+			fm.format("    isSymbolicLink  : %b%n", isSymbolicLink()); //$NON-NLS-1$
+			fm.format("    isOther         : %b%n", isOther()); //$NON-NLS-1$
+			fm.format("    fileKey         : %s%n", fileKey()); //$NON-NLS-1$
+			fm.format("    size            : %d%n", size()); //$NON-NLS-1$
+			fm.format("    compressedSize  : %d%n", compressedSize()); //$NON-NLS-1$
+			fm.format("    crc             : %x%n", crc()); //$NON-NLS-1$
+			fm.format("    method          : %d%n", method()); //$NON-NLS-1$
 			fm.close();
 			return sb.toString();
 		}
@@ -2909,7 +2909,7 @@ class ZipFileSystem extends FileSystem
 	{
 		if (fromIndex > toIndex)
 		{
-			throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
+			throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		if (fromIndex < 0)
 		{

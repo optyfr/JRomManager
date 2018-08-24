@@ -33,9 +33,9 @@ public class TorrentFile
     @Override
     public String toString()
     {
-        return "TorrentFile{" +
-                "fileLength=" + fileLength +
-                ", fileDirs=" + fileDirs +
+        return "TorrentFile{" + //$NON-NLS-1$
+                "fileLength=" + fileLength + //$NON-NLS-1$
+                ", fileDirs=" + fileDirs + //$NON-NLS-1$
                 '}';
     }
 

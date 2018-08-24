@@ -245,7 +245,7 @@ final class ZipPath implements Path
 	{
 		try
 		{
-			return new URI("jar", decodeUri(zfs.getZipFile().toUri().toString()) + "!" + zfs.getString(toAbsolutePath().path), null);
+			return new URI("jar", decodeUri(zfs.getZipFile().toUri().toString()) + "!" + zfs.getString(toAbsolutePath().path), null); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		catch (Exception ex)
 		{
@@ -370,7 +370,7 @@ final class ZipPath implements Path
 	@Override
 	public Path resolveSibling(Path other)
 	{
-		Objects.requireNonNull(other, "other");
+		Objects.requireNonNull(other, "other"); //$NON-NLS-1$
 		Path parent = getParent();
 		return (parent == null) ? other : parent.resolve(other);
 	}
@@ -378,7 +378,7 @@ final class ZipPath implements Path
 	@Override
 	public boolean startsWith(Path other)
 	{
-		Objects.requireNonNull(other, "other");
+		Objects.requireNonNull(other, "other"); //$NON-NLS-1$
 		if (!(other instanceof ZipPath))
 			return false;
 		final ZipPath o = (ZipPath) other;
@@ -397,7 +397,7 @@ final class ZipPath implements Path
 	@Override
 	public boolean endsWith(Path other)
 	{
-		Objects.requireNonNull(other, "other");
+		Objects.requireNonNull(other, "other"); //$NON-NLS-1$
 		if (!(other instanceof ZipPath))
 			return false;
 		final ZipPath o = (ZipPath) other;
@@ -459,7 +459,7 @@ final class ZipPath implements Path
 
 	private ZipPath checkPath(Path path)
 	{
-		Objects.requireNonNull(path, "path");
+		Objects.requireNonNull(path, "path"); //$NON-NLS-1$
 		if (!(path instanceof ZipPath))
 			throw new ProviderMismatchException();
 		return (ZipPath) path;
@@ -579,7 +579,7 @@ final class ZipPath implements Path
 			if (c == (byte) '/' && prevC == (byte) '/')
 				continue;
 			if (c == '\u0000')
-				throw new InvalidPathException(zfs.getString(path), "Path: nul character not allowed");
+				throw new InvalidPathException(zfs.getString(path), "Path: nul character not allowed"); //$NON-NLS-1$
 			to[m++] = c;
 			prevC = c;
 		}
@@ -628,7 +628,7 @@ final class ZipPath implements Path
 			if (c == '/' && prevC == '/')
 				continue;
 			if (c == '\u0000')
-				throw new InvalidPathException(path, "Path: nul character not allowed");
+				throw new InvalidPathException(path, "Path: nul character not allowed"); //$NON-NLS-1$
 			to.append(c);
 			prevC = c;
 		}
@@ -820,7 +820,7 @@ final class ZipPath implements Path
 			for (OpenOption opt : options)
 			{
 				if (opt != READ)
-					throw new UnsupportedOperationException("'" + opt + "' not allowed");
+					throw new UnsupportedOperationException("'" + opt + "' not allowed"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		return zfs.newInputStream(getResolvedPath());
@@ -856,7 +856,7 @@ final class ZipPath implements Path
 		int colonPos = attribute.indexOf(':');
 		if (colonPos == -1)
 		{
-			type = "basic";
+			type = "basic"; //$NON-NLS-1$
 			attr = attribute;
 		}
 		else
@@ -866,7 +866,7 @@ final class ZipPath implements Path
 		}
 		ZipFileAttributeView view = ZipFileAttributeView.get(this, type);
 		if (view == null)
-			throw new UnsupportedOperationException("view <" + view + "> is not supported");
+			throw new UnsupportedOperationException("view <" + view + "> is not supported"); //$NON-NLS-1$ //$NON-NLS-2$
 		view.setAttribute(attr, value);
 	}
 
@@ -883,7 +883,7 @@ final class ZipPath implements Path
 		int colonPos = attributes.indexOf(':');
 		if (colonPos == -1)
 		{
-			view = "basic";
+			view = "basic"; //$NON-NLS-1$
 			attrs = attributes;
 		}
 		else
@@ -894,7 +894,7 @@ final class ZipPath implements Path
 		ZipFileAttributeView zfv = ZipFileAttributeView.get(this, view);
 		if (zfv == null)
 		{
-			throw new UnsupportedOperationException("view not supported");
+			throw new UnsupportedOperationException("view not supported"); //$NON-NLS-1$
 		}
 		return zfv.readAttributes(attrs);
 	}

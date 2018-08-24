@@ -2,6 +2,7 @@ package jrm.profile.report;
 
 import java.util.List;
 
+import jrm.locale.Messages;
 import jrm.profile.data.AnywareBase;
 import jrm.profile.data.Container;
 /**
@@ -29,7 +30,7 @@ public class ContainerTZip extends Subject
 	@Override
 	public String toString()
 	{
-		return String.format("File %s need to be torrentzipped", container.file);
+		return String.format(Messages.getString("ContainerTZip.NeedTZip"), container.file); //$NON-NLS-1$
 	}
 
 	@Override

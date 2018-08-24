@@ -219,7 +219,7 @@ public final class DirScan
 				options.add(Options.USE_PARALLELISM);
 			if (profile.getProperty("archives_and_chd_as_roms", false)) //$NON-NLS-1$
 				options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-			FormatOptions format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString()));
+			FormatOptions format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
 			if (FormatOptions.TZIP == format)
 				options.add(Options.FORMAT_TZIP);
 			if (profile.md5_roms)
@@ -473,7 +473,7 @@ public final class DirScan
 		handler.clearInfos();
 		handler.setInfos(use_parallelism?Runtime.getRuntime().availableProcessors():1,true);
 		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), dir) , i.get(), containers.size()); //$NON-NLS-1$
-		handler.setProgress2("", 0, containers.size());
+		handler.setProgress2("", 0, containers.size()); //$NON-NLS-1$
 		StreamEx.of(use_parallelism ? containers.parallelStream().unordered() : containers.stream()).takeWhile((c) -> !handler.isCancel()).forEach(c -> {
 			try
 			{
@@ -507,7 +507,7 @@ public final class DirScan
 								c.loaded = need_sha1_or_md5 ? 2 : 1;
 							}
 							catch (ZipError e) {
-								System.err.println(c.file+" : "+e.getMessage());
+								System.err.println(c.file+" : "+e.getMessage()); //$NON-NLS-1$
 							}
 						}
 						else
@@ -567,8 +567,8 @@ public final class DirScan
 					default:
 						break;
 				}
-				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.file.getName()));
-				handler.setProgress2(String.format("%d/%d (%d%%)", i.get(), containers.size(), (int)(i.get() * 100.0 / containers.size())), i.incrementAndGet());
+				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.file.getName())); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d (%d%%)", i.get(), containers.size(), (int)(i.get() * 100.0 / containers.size())), i.incrementAndGet()); //$NON-NLS-1$
 			}
 			catch(final IOException e)
 			{
@@ -960,11 +960,11 @@ public final class DirScan
 		{
 			List<String> algorithms = new ArrayList<>();
 			if(entry.crc==null)
-				algorithms.add("CRC");
+				algorithms.add("CRC"); //$NON-NLS-1$
 			if(entry.md5 == null && (md5_roms || need_sha1_or_md5))
-				algorithms.add("MD5");
+				algorithms.add("MD5"); //$NON-NLS-1$
 			if(entry.sha1 == null && (sha1_roms || need_sha1_or_md5))
-				algorithms.add("SHA-1");
+				algorithms.add("SHA-1"); //$NON-NLS-1$
 			if(algorithms.size() > 0) try
 			{
 				Path path = entry_path;
@@ -975,15 +975,15 @@ public final class DirScan
 				{
 					switch (md.getAlgorithm())
 					{
-						case "CRC":
+						case "CRC": //$NON-NLS-1$
 							if(null != (entry.crc = md.toString()))
-								entries_bycrc.put(entry.crc + "." + entry.size, entry);
+								entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 							break;
-						case "MD5":
+						case "MD5": //$NON-NLS-1$
 							if(null != (entry.md5 = md.toString()))
 								entries_bymd5.put(entry.md5, entry);
 							break;
-						case "SHA-1":
+						case "SHA-1": //$NON-NLS-1$
 							if(null != (entry.sha1 = md.toString()))
 								entries_bysha1.put(entry.sha1, entry);
 							break;
@@ -1089,24 +1089,24 @@ public final class DirScan
 			if(options.contains(Options.ARCHIVES_AND_CHD_AS_ROMS))
 			{
 				if(options.contains(Options.RECURSE))
-					return ".radcache";
-				return ".adcache";
+					return ".radcache"; //$NON-NLS-1$
+				return ".adcache"; //$NON-NLS-1$
 			}
 			if(options.contains(Options.RECURSE))
-				return ".rdcache";
-			return ".dcache";
+				return ".rdcache"; //$NON-NLS-1$
+			return ".dcache"; //$NON-NLS-1$
 		}
 		else
 		{
 			if(options.contains(Options.ARCHIVES_AND_CHD_AS_ROMS))
 			{
 				if(options.contains(Options.RECURSE))
-					return ".rascache";
-				return ".ascache";
+					return ".rascache"; //$NON-NLS-1$
+				return ".ascache"; //$NON-NLS-1$
 			}
 			if(options.contains(Options.RECURSE))
-				return ".rscache";
-			return ".scache";
+				return ".rscache"; //$NON-NLS-1$
+			return ".scache"; //$NON-NLS-1$
 		}
 	}
 	

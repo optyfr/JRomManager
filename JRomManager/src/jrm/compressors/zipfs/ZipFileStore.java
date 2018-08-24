@@ -51,13 +51,13 @@ class ZipFileStore extends FileStore
 	@Override
 	public String name()
 	{
-		return zfs.toString() + "/";
+		return zfs.toString() + "/"; //$NON-NLS-1$
 	}
 
 	@Override
 	public String type()
 	{
-		return "zipfs";
+		return "zipfs"; //$NON-NLS-1$
 	}
 
 	@Override
@@ -75,7 +75,7 @@ class ZipFileStore extends FileStore
 	@Override
 	public boolean supportsFileAttributeView(String name)
 	{
-		return name.equals("basic") || name.equals("zip");
+		return name.equals("basic") || name.equals("zip"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -107,13 +107,13 @@ class ZipFileStore extends FileStore
 	@Override
 	public Object getAttribute(String attribute) throws IOException
 	{
-		if (attribute.equals("totalSpace"))
+		if (attribute.equals("totalSpace")) //$NON-NLS-1$
 			return getTotalSpace();
-		if (attribute.equals("usableSpace"))
+		if (attribute.equals("usableSpace")) //$NON-NLS-1$
 			return getUsableSpace();
-		if (attribute.equals("unallocatedSpace"))
+		if (attribute.equals("unallocatedSpace")) //$NON-NLS-1$
 			return getUnallocatedSpace();
-		throw new UnsupportedOperationException("does not support the given attribute");
+		throw new UnsupportedOperationException("does not support the given attribute"); //$NON-NLS-1$
 	}
 
 	private static class ZipFileStoreAttributes

@@ -14,12 +14,14 @@ import jrm.io.torrent.Torrent;
 import jrm.io.torrent.TorrentFile;
 import jrm.io.torrent.TorrentParser;
 import jrm.io.torrent.options.TrntChkMode;
+import jrm.locale.Messages;
+import jrm.misc.UnitRenderer;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.basic.SDRTableModel.SrcDstResult;
 import jrm.ui.progress.Progress;
 
-public class TorrentChecker
+public class TorrentChecker implements UnitRenderer
 {
 
 	/**
@@ -49,7 +51,7 @@ public class TorrentChecker
 	 */
 	private String check(final Progress progress, TrntChkMode mode, SrcDstResult sdr) throws IOException
 	{
-		String result = "";
+		String result = ""; //$NON-NLS-1$
 		if (sdr.src != null && sdr.dst != null)
 		{
 			if (sdr.src.exists() && sdr.dst.exists())
@@ -57,6 +59,8 @@ public class TorrentChecker
 				Torrent torrent = TorrentParser.parseTorrent(sdr.src.getAbsolutePath());
 				List<TorrentFile> tfiles = torrent.getFileList();
 				int total = tfiles.size(), ok = 0;
+				long missing_bytes = 0;
+				int missing_files = 0;
 				if (mode != TrntChkMode.SHA1)
 				{
 					for (int j = 0; j < total; j++)
@@ -66,11 +70,18 @@ public class TorrentChecker
 						for (String path : tfile.getFileDirs())
 							file = file.resolve(path);
 						progress.setProgress(sdr.src.getAbsolutePath(), -1, null, file.toString());
-						progress.setProgress2(j + "/" + total, j, total);
+						progress.setProgress2(j + "/" + total, j, total); //$NON-NLS-1$
 						if (Files.exists(file) && (mode == TrntChkMode.FILENAME || Files.size(file) == tfile.getFileLength()))
 							ok++;
+						else if(mode == TrntChkMode.FILENAME)
+							missing_files++;
+						else
+							missing_bytes += tfile.getFileLength();
 					}
-					result = String.format("%.02f%% complete", (float) ok * 100.0 / (float) total);
+					if(mode == TrntChkMode.FILENAME)
+						result = String.format(Messages.getString("TorrentChecker.ResultFileName"), (float) ok * 100.0 / (float) total, missing_files); //$NON-NLS-1$
+					else
+						result = String.format(Messages.getString("TorrentChecker.ResultFileSize"), (float) ok * 100.0 / (float) total, humanReadableByteCount(missing_bytes, false)); //$NON-NLS-1$
 				}
 				else
 				{
@@ -80,11 +91,11 @@ public class TorrentChecker
 						List<String> pieces = torrent.getPieces();
 						long to_go = piece_length;
 						int piece_cnt = 0, piece_valid = 0;
-						progress.setProgress(sdr.src.getAbsolutePath(), -1, null, "");
-						progress.setProgress2(String.format("piece %d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
+						progress.setProgress(sdr.src.getAbsolutePath(), -1, null, ""); //$NON-NLS-1$
+						progress.setProgress2(String.format(Messages.getString("TorrentChecker.PieceProgression"), piece_cnt, pieces.size()), piece_cnt, pieces.size()); //$NON-NLS-1$
 						piece_cnt++;
 						boolean valid = true;
-						MessageDigest md = MessageDigest.getInstance("SHA-1");
+						MessageDigest md = MessageDigest.getInstance("SHA-1"); //$NON-NLS-1$
 						byte[] buffer = new byte[8192];
 						for (TorrentFile tfile : tfiles)
 						{
@@ -113,9 +124,11 @@ public class TorrentChecker
 								}
 								flen -= to_go;
 								to_go = (int) piece_length;
-								progress.setProgress2(String.format("piece %d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
+								progress.setProgress2(String.format(Messages.getString("TorrentChecker.PieceProgression"), piece_cnt, pieces.size()), piece_cnt, pieces.size()); //$NON-NLS-1$
 								if (valid && Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(piece_cnt - 1)))
 									piece_valid++;
+								else
+									missing_bytes += piece_length;
 								md.reset();
 								piece_cnt++;
 								valid = true;
@@ -139,13 +152,15 @@ public class TorrentChecker
 							}
 							to_go -= flen;
 						}
-						progress.setProgress2(String.format("piece %d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
+						progress.setProgress2(String.format(Messages.getString("TorrentChecker.PieceProgression"), piece_cnt, pieces.size()), piece_cnt, pieces.size()); //$NON-NLS-1$
 						if (valid && Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(piece_cnt - 1)))
 							piece_valid++;
-						System.out.format("piece counted %d, given %d, valid %d, completion=%.02f%%\n", piece_cnt, pieces.size(), piece_valid, (double) piece_valid * 100.0 / (double) piece_cnt);
-						System.out.format("piece len : %d\n", piece_length);
-						System.out.format("last piece len : %d\n", piece_length - to_go);
-						result = String.format("%.02f%% complete", (double) piece_valid * 100.0 / (double) piece_cnt);
+						else
+							missing_bytes += piece_length - to_go;
+						System.out.format("piece counted %d, given %d, valid %d, completion=%.02f%%\n", piece_cnt, pieces.size(), piece_valid, (double) piece_valid * 100.0 / (double) piece_cnt); //$NON-NLS-1$
+						System.out.format("piece len : %d\n", piece_length); //$NON-NLS-1$
+						System.out.format("last piece len : %d\n", piece_length - to_go); //$NON-NLS-1$
+						result = String.format(Messages.getString("TorrentChecker.ResultSHA1"), (double) piece_valid * 100.0 / (double) piece_cnt, humanReadableByteCount(missing_bytes, false)); //$NON-NLS-1$
 					}
 					catch (Exception ex)
 					{
@@ -154,10 +169,10 @@ public class TorrentChecker
 				}
 			}
 			else
-				result = sdr.src.exists() ? "dst must exist" : "src must exist";
+				result = sdr.src.exists() ? Messages.getString("TorrentChecker.DstMustExist") : Messages.getString("TorrentChecker.SrcMustExist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		else
-			result = sdr.src == null ? "src not defined" : "dst not defined";
+			result = sdr.src == null ? Messages.getString("TorrentChecker.SrcNotDefined") : Messages.getString("TorrentChecker.DstNotDefined"); //$NON-NLS-1$ //$NON-NLS-2$
 		return result;
 	}
 

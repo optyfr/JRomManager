@@ -187,13 +187,13 @@ public class Scan
 		final String dstdir_txt = profile.getProperty("roms_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dstdir_txt.isEmpty())
 		{
-			System.err.println("dst dir is empty");
+			System.err.println("dst dir is empty"); //$NON-NLS-1$
 			return; //TODO be more informative on failure
 		}
 		final File roms_dstdir = new File(dstdir_txt);
 		if (!roms_dstdir.isDirectory())
 		{
-			System.err.println("dst dir is not a directory");
+			System.err.println("dst dir is not a directory"); //$NON-NLS-1$
 			return; //TODO be more informative on failure
 		}
 		
@@ -253,7 +253,7 @@ public class Scan
 			}
 		}
 		/* then add extra backup dir to that list */
-		srcdirs.add(new File(Settings.getWorkPath().toFile(), "backup"));
+		srcdirs.add(new File(Settings.getWorkPath().toFile(), "backup")); //$NON-NLS-1$
 		/* then scan all dirs from that list */
 		for (final File dir : srcdirs)
 		{

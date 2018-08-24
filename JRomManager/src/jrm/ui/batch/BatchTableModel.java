@@ -10,6 +10,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.locale.Messages;
 import jrm.ui.basic.SDRTableModel;
 
 public class BatchTableModel extends SDRTableModel
@@ -20,7 +21,7 @@ public class BatchTableModel extends SDRTableModel
 
 	public BatchTableModel()
 	{
-		this.headers = new String[] {"Src Dats", "Dst Dirs", "Result"};
+		this.headers = new String[] {Messages.getString("BatchTableModel.SrcDats"), Messages.getString("BatchTableModel.DstDirs"), Messages.getString("BatchTableModel.Result")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	public BatchTableModel(String[] headers)
@@ -34,7 +35,7 @@ public class BatchTableModel extends SDRTableModel
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
 			if(row == getCurrentRow() && column == getCurrentCol())
-				setBackground(Color.decode("#DDFFDD"));
+				setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
 			else
 				setBackground(Color.white);
 			if(value instanceof File)
@@ -51,7 +52,7 @@ public class BatchTableModel extends SDRTableModel
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
 			if(row == getCurrentRow() && column == getCurrentCol())
-				setBackground(Color.decode("#DDFFDD"));
+				setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
 			else
 				setBackground(Color.white);
 			if(value instanceof File)
@@ -74,8 +75,8 @@ public class BatchTableModel extends SDRTableModel
 
 	private static String trimmedStringCalculator(String inputText, JTable table, JLabel component, int width)
 	{
-			String ellipses = "...";
-			String textToBeDisplayed = "";
+			String ellipses = "..."; //$NON-NLS-1$
+			String textToBeDisplayed = ""; //$NON-NLS-1$
 			FontMetrics fm = table.getFontMetrics(component.getFont());
 			for (int i = inputText.length() - 1; i >= 0; i--)
 				if (fm.stringWidth(ellipses + textToBeDisplayed) <= width)

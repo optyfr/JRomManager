@@ -256,10 +256,10 @@ public class ProfileViewer extends JDialog
 			public void actionPerformed(ActionEvent e)
 			{
 				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
-				final Pattern pattern = Pattern.compile("^(.*?)(\\(.*\\))+");
-				final Pattern pattern_parenthesis = Pattern.compile("\\((.*?)\\)");
-				final Pattern pattern_split = Pattern.compile(",");
-				final Pattern pattern_alpha = Pattern.compile("^[a-zA-Z]*$");
+				final Pattern pattern = Pattern.compile("^(.*?)(\\(.*\\))+"); //$NON-NLS-1$
+				final Pattern pattern_parenthesis = Pattern.compile("\\((.*?)\\)"); //$NON-NLS-1$
+				final Pattern pattern_split = Pattern.compile(","); //$NON-NLS-1$
+				final Pattern pattern_alpha = Pattern.compile("^[a-zA-Z]*$"); //$NON-NLS-1$
 				final HashSet<String> keywords = new HashSet<>();
 				list.getFilteredStream().forEach(ware -> {
 					final Matcher matcher = pattern.matcher(ware.getDescription());
@@ -600,19 +600,19 @@ public class ProfileViewer extends JDialog
 											final Machine machine = machines.getSelectedValue();
 											if (machine != null)
 											{
-												String device = "";
+												String device = ""; //$NON-NLS-1$
 												for(Device dev : machine.devices)
 												{
 													if(Objects.equals(((Software) ware).parts.get(0).intrface,dev.intrface))
 													{
 														if(dev.instance!=null)
 														{
-															device =  "-" + dev.instance.name;
+															device =  "-" + dev.instance.name; //$NON-NLS-1$
 															break;
 														}
 													}
 												}
-												System.out.println("-> " + machine.getBaseName() + " " + device + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$
+												System.out.println("-> " + machine.getBaseName() + " " + device + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), device, ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 											}
 										}

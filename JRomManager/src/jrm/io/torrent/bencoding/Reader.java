@@ -96,7 +96,7 @@ public class Reader
             case 'l':
                 return readList();
         }
-        throw new Error("Parser in invalid state at byte " + currentByteIndex);
+        throw new Error("Parser in invalid state at byte " + currentByteIndex); //$NON-NLS-1$
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ public class Reader
     {
         // If we got here, the current byte is an 'l'.
         if (readCurrentByte() != 'l')
-            throw new Error("Error parsing list. Was expecting a 'l' but got " + readCurrentByte());
+            throw new Error("Error parsing list. Was expecting a 'l' but got " + readCurrentByte()); //$NON-NLS-1$
         currentByteIndex++; // Skip over the 'l'
 
         BList list = new BList();
@@ -143,7 +143,7 @@ public class Reader
      */
     private BByteString readByteString()
     {
-        String lengthAsString = "";
+        String lengthAsString = ""; //$NON-NLS-1$
         int lengthAsInt;
         byte[] bsData;
 
@@ -158,7 +158,7 @@ public class Reader
         lengthAsInt = Integer.parseInt(lengthAsString);
 
         if (readCurrentByte() != ':')
-            throw new Error("Read length of byte string and was expecting ':' but got " + readCurrentByte());
+            throw new Error("Read length of byte string and was expecting ':' but got " + readCurrentByte()); //$NON-NLS-1$
         currentByteIndex++; // Skip over the ':'.
 
         // Read the actual data
@@ -188,7 +188,7 @@ public class Reader
     {
         // If we got here, the current byte is an 'd'.
         if (readCurrentByte() != 'd')
-            throw new Error("Error parsing dictionary. Was expecting a 'd' but got " + readCurrentByte());
+            throw new Error("Error parsing dictionary. Was expecting a 'd' but got " + readCurrentByte()); //$NON-NLS-1$
         currentByteIndex++; // Skip over the 'd'
 
         BDictionary dict = new BDictionary();
@@ -220,12 +220,12 @@ public class Reader
     {
         // If we got here, the current byte is an 'i'.
         if (readCurrentByte() != 'i')
-            throw new Error("Error parsing integer. Was expecting an 'i' but got " + readCurrentByte());
+            throw new Error("Error parsing integer. Was expecting an 'i' but got " + readCurrentByte()); //$NON-NLS-1$
         currentByteIndex++;// Skip the 'i'.
 
         // Read in the integer number by number.
         // They are represented as ASCII numbers.
-        String intString = "";
+        String intString = ""; //$NON-NLS-1$
         byte current = readCurrentByte();
         //45 negative mark
         while (current >= 48 && current <= 57 || current == 45)
@@ -236,7 +236,7 @@ public class Reader
         }
 
         if (readCurrentByte() != 'e')
-            throw new Error("Error parsing integer. Was expecting 'e' at end but got " + readCurrentByte());
+            throw new Error("Error parsing integer. Was expecting 'e' at end but got " + readCurrentByte()); //$NON-NLS-1$
 
         currentByteIndex++; // Skip past 'e'
         return new BInt(Long.parseLong(intString));

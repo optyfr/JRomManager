@@ -62,7 +62,7 @@ class ZipDirectoryStream implements DirectoryStream<Path>
 		if (isClosed)
 			throw new ClosedDirectoryStreamException();
 		if (itr != null)
-			throw new IllegalStateException("Iterator has already been returned");
+			throw new IllegalStateException("Iterator has already been returned"); //$NON-NLS-1$
 
 		try
 		{

@@ -31,6 +31,7 @@ import javax.activation.DataHandler;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
+import jrm.locale.Messages;
 import jrm.ui.profile.ProfileViewer;
 
 // TODO: Auto-generated Javadoc
@@ -59,7 +60,7 @@ public class KeywordFilter extends JDialog
 	 */
 	public KeywordFilter(Window owner, String[] src, CallBack callback)
 	{
-		super(owner, "Keyword Filter", ModalityType.APPLICATION_MODAL);
+		super(owner, Messages.getString("KeywordFilter.Title"), ModalityType.APPLICATION_MODAL); //$NON-NLS-1$
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
 
 		JPanel panel = new JPanel();
@@ -71,7 +72,7 @@ public class KeywordFilter extends JDialog
 		gbl_panel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
 		panel.setLayout(gbl_panel);
 
-		JButton btnCancel = new JButton("Cancel");
+		JButton btnCancel = new JButton(Messages.getString("KeywordFilter.Cancel")); //$NON-NLS-1$
 		btnCancel.addActionListener((e) -> dispose());
 		btnCancel.setHorizontalAlignment(SwingConstants.LEADING);
 		GridBagConstraints gbc_btnCancel = new GridBagConstraints();
@@ -82,7 +83,7 @@ public class KeywordFilter extends JDialog
 		gbc_btnCancel.gridy = 0;
 		panel.add(btnCancel, gbc_btnCancel);
 
-		JButton btnFilter = new JButton("Filter");
+		JButton btnFilter = new JButton(Messages.getString("KeywordFilter.Filter")); //$NON-NLS-1$
 		btnFilter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				callback.call(KeywordFilter.this);
@@ -105,7 +106,7 @@ public class KeywordFilter extends JDialog
 		getContentPane().add(KWSplitPane, BorderLayout.CENTER);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBorder(new TitledBorder(null, "Available", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		scrollPane.setBorder(new TitledBorder(null, Messages.getString("KeywordFilter.Available"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
 		KWSplitPane.setLeftComponent(scrollPane);
 
 		KWSrc = new JList<String>();
@@ -120,7 +121,7 @@ public class KeywordFilter extends JDialog
 		KWSrc.setModel(model);
 
 		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBorder(new TitledBorder(null, "Used", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		scrollPane_1.setBorder(new TitledBorder(null, Messages.getString("KeywordFilter.Used"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
 		KWSplitPane.setRightComponent(scrollPane_1);
 
 		KWDst = new JList<String>();
@@ -168,7 +169,7 @@ public class KeywordFilter extends JDialog
 	{
 		
 		/** The object array flavor. */
-		private DataFlavor objectArrayFlavor = new ActivationDataFlavor(Object[].class, DataFlavor.javaJVMLocalObjectMimeType, "Array of items");
+		private DataFlavor objectArrayFlavor = new ActivationDataFlavor(Object[].class, DataFlavor.javaJVMLocalObjectMimeType, "Array of items"); //$NON-NLS-1$
 		
 		/** The list. */
 		// We'll be moving the strings of this list
@@ -240,7 +241,7 @@ public class KeywordFilter extends JDialog
 				}
 				else
 				{
-					System.err.println("Imported data contained something else than strings: " + elem);
+					System.err.println("Imported data contained something else than strings: " + elem); //$NON-NLS-1$
 				}
 			}
 		}
@@ -291,7 +292,7 @@ public class KeywordFilter extends JDialog
 				boolean removedSuccessfully = listModel.removeElement(elemToRemove);
 				if (!removedSuccessfully)
 				{
-					System.err.println("Source model did not contain exported data");
+					System.err.println("Source model did not contain exported data"); //$NON-NLS-1$
 				}
 			}
 		}

@@ -41,10 +41,10 @@ public final class JRomManager
 		{
 			switch(args[i])
 			{
-				case "--multiuser":	// will write settings, cache and dat into home directory instead of app directory
+				case "--multiuser":	// will write settings, cache and dat into home directory instead of app directory //$NON-NLS-1$
 					Settings.multiuser = true;
 					break;
-				case "--noupdate":	// will disable update check
+				case "--noupdate":	// will disable update check //$NON-NLS-1$
 					Settings.noupdate = true;
 					break;
 			}
@@ -54,7 +54,7 @@ public final class JRomManager
 			if(!Settings.noupdate)
 			{
 				// check for update
-				JUpdater updater = new JUpdater("optyfr","JRomManager");
+				JUpdater updater = new JUpdater("optyfr","JRomManager"); //$NON-NLS-1$ //$NON-NLS-2$
 				if(updater.updateAvailable())
 					updater.showMessage();	// Will show changes since your version and a link to updater
 			}

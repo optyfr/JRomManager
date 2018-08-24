@@ -36,13 +36,13 @@ public class TorrentParser
         List<IBencodable> x = r.read();
         // A valid torrentfile should only return a single dictionary.
         if (x.size() != 1)
-            throw new Error("Parsing .torrent yielded wrong number of bencoding structs.");
+            throw new Error("Parsing .torrent yielded wrong number of bencoding structs."); //$NON-NLS-1$
         try
         {
             return parseTorrent(x.get(0));
         } catch (ParseException e)
         {
-            System.err.println("Error parsing torrent!");
+            System.err.println("Error parsing torrent!"); //$NON-NLS-1$
         }
         return null;
     }
@@ -77,11 +77,11 @@ public class TorrentParser
             t.setTotalSize(parseSingleFileTotalSize(infoDictionary));
 
             // Determine if torrent is a singlefile torrent.
-            t.setSingleFileTorrent(null != infoDictionary.find(new BByteString("length")));
+            t.setSingleFileTorrent(null != infoDictionary.find(new BByteString("length"))); //$NON-NLS-1$
             return t;
         } else
         {
-            throw new ParseException("Could not parse Object to BDictionary", 0);
+            throw new ParseException("Could not parse Object to BDictionary", 0); //$NON-NLS-1$
         }
     }
 
@@ -91,8 +91,8 @@ public class TorrentParser
      */
     private static Long parseSingleFileTotalSize(BDictionary info)
     {
-        if (null != info.find(new BByteString("length")))
-            return ((BInt) info.find(new BByteString("length"))).getValue();
+        if (null != info.find(new BByteString("length"))) //$NON-NLS-1$
+            return ((BInt) info.find(new BByteString("length"))).getValue(); //$NON-NLS-1$
         return null;
     }
 
@@ -103,8 +103,8 @@ public class TorrentParser
      */
     private static BDictionary parseInfoDictionary(BDictionary dictionary)
     {
-        if (null != dictionary.find(new BByteString("info")))
-            return (BDictionary) dictionary.find(new BByteString("info"));
+        if (null != dictionary.find(new BByteString("info"))) //$NON-NLS-1$
+            return (BDictionary) dictionary.find(new BByteString("info")); //$NON-NLS-1$
         else
             return null;
     }
@@ -116,8 +116,8 @@ public class TorrentParser
      */
     private static Date parseCreationDate(BDictionary dictionary)
     {
-        if (null != dictionary.find(new BByteString("creation date")))
-            return new Date(Long.parseLong(dictionary.find(new BByteString("creation date")).toString()));
+        if (null != dictionary.find(new BByteString("creation date"))) //$NON-NLS-1$
+            return new Date(Long.parseLong(dictionary.find(new BByteString("creation date")).toString())); //$NON-NLS-1$
         return null;
     }
 
@@ -127,8 +127,8 @@ public class TorrentParser
      */
     private static String parseCreatorName(BDictionary dictionary)
     {
-        if (null != dictionary.find(new BByteString("created by")))
-            return dictionary.find(new BByteString("created by")).toString();
+        if (null != dictionary.find(new BByteString("created by"))) //$NON-NLS-1$
+            return dictionary.find(new BByteString("created by")).toString(); //$NON-NLS-1$
         return null;
     }
 
@@ -138,8 +138,8 @@ public class TorrentParser
      */
     private static String parseComment(BDictionary dictionary)
     {
-        if (null != dictionary.find(new BByteString("comment")))
-            return dictionary.find(new BByteString("comment")).toString();
+        if (null != dictionary.find(new BByteString("comment"))) //$NON-NLS-1$
+            return dictionary.find(new BByteString("comment")).toString(); //$NON-NLS-1$
         else
             return null;
     }
@@ -150,8 +150,8 @@ public class TorrentParser
      */
     private static Long parsePieceLength(BDictionary info)
     {
-        if (null != info.find(new BByteString("piece length")))
-            return ((BInt) info.find(new BByteString("piece length"))).getValue();
+        if (null != info.find(new BByteString("piece length"))) //$NON-NLS-1$
+            return ((BInt) info.find(new BByteString("piece length"))).getValue(); //$NON-NLS-1$
         else
             return null;
     }
@@ -163,8 +163,8 @@ public class TorrentParser
      */
     private static String parseTorrentLocation(BDictionary info)
     {
-        if (null != info.find(new BByteString("name")))
-            return info.find(new BByteString("name")).toString();
+        if (null != info.find(new BByteString("name"))) //$NON-NLS-1$
+            return info.find(new BByteString("name")).toString(); //$NON-NLS-1$
         else
             return null;
     }
@@ -175,8 +175,8 @@ public class TorrentParser
      */
     private static String parseAnnounce(BDictionary dictionary)
     {
-        if (null != dictionary.find(new BByteString("announce")))
-            return dictionary.find(new BByteString("announce")).toString();
+        if (null != dictionary.find(new BByteString("announce"))) //$NON-NLS-1$
+            return dictionary.find(new BByteString("announce")).toString(); //$NON-NLS-1$
         else
             return null;
     }
@@ -188,12 +188,12 @@ public class TorrentParser
      */
     private static byte[] parsePiecesBlob(BDictionary info)
     {
-        if (null != info.find(new BByteString("pieces")))
+        if (null != info.find(new BByteString("pieces"))) //$NON-NLS-1$
         {
-            return ((BByteString) info.find(new BByteString("pieces"))).getData();
+            return ((BByteString) info.find(new BByteString("pieces"))).getData(); //$NON-NLS-1$
         } else
         {
-            throw new Error("Info dictionary does not contain pieces bytestring!");
+            throw new Error("Info dictionary does not contain pieces bytestring!"); //$NON-NLS-1$
         }
     }
 
@@ -204,10 +204,10 @@ public class TorrentParser
      */
     private static List<String> parsePiecesHashes(BDictionary info)
     {
-        if (null != info.find(new BByteString("pieces")))
+        if (null != info.find(new BByteString("pieces"))) //$NON-NLS-1$
         {
             List<String> sha1HexRenders = new ArrayList<String>();
-            byte[] piecesBlob = ((BByteString) info.find(new BByteString("pieces"))).getData();
+            byte[] piecesBlob = ((BByteString) info.find(new BByteString("pieces"))).getData(); //$NON-NLS-1$
             // Split the piecesData into multiple hashes. 1 hash = 20 bytes.
             if (piecesBlob.length % 20 == 0)
             {
@@ -220,12 +220,12 @@ public class TorrentParser
                 }
             } else
             {
-                throw new Error("Error parsing SHA1 piece hashes. Bytecount was not a multiple of 20.");
+                throw new Error("Error parsing SHA1 piece hashes. Bytecount was not a multiple of 20."); //$NON-NLS-1$
             }
             return sha1HexRenders;
         } else
         {
-            throw new Error("Info dictionary does not contain pieces bytestring!");
+            throw new Error("Info dictionary does not contain pieces bytestring!"); //$NON-NLS-1$
         }
     }
 
@@ -235,10 +235,10 @@ public class TorrentParser
      */
     private static List<TorrentFile> parseFileList(BDictionary info)
     {
-        if (null != info.find(new BByteString("files")))
+        if (null != info.find(new BByteString("files"))) //$NON-NLS-1$
         {
             List<TorrentFile> fileList = new ArrayList<TorrentFile>();
-            BList filesBList = (BList) info.find(new BByteString("files"));
+            BList filesBList = (BList) info.find(new BByteString("files")); //$NON-NLS-1$
 
             Iterator<IBencodable> fileBDicts = filesBList.getIterator();
             while (fileBDicts.hasNext())
@@ -247,8 +247,8 @@ public class TorrentParser
                 if (fileObject instanceof BDictionary)
                 {
                     BDictionary fileBDict = (BDictionary) fileObject;
-                    BList filePaths = (BList) fileBDict.find(new BByteString("path"));
-                    BInt fileLength = (BInt) fileBDict.find(new BByteString("length"));
+                    BList filePaths = (BList) fileBDict.find(new BByteString("path")); //$NON-NLS-1$
+                    BInt fileLength = (BInt) fileBDict.find(new BByteString("length")); //$NON-NLS-1$
                     // Pick out each subdirectory as a string.
                     List<String> paths = new LinkedList<String>();
                     Iterator<IBencodable> filePathsIterator = filePaths.getIterator();
@@ -270,11 +270,11 @@ public class TorrentParser
      */
     private static List<String> parseAnnounceList(BDictionary dictionary)
     {
-        if (null != dictionary.find(new BByteString("announce-list")))
+        if (null != dictionary.find(new BByteString("announce-list"))) //$NON-NLS-1$
         {
             List<String> announceUrls = new LinkedList<String>();
 
-            BList announceList = (BList) dictionary.find(new BByteString("announce-list"));
+            BList announceList = (BList) dictionary.find(new BByteString("announce-list")); //$NON-NLS-1$
             Iterator<IBencodable> subLists = announceList.getIterator();
             while (subLists.hasNext())
             {

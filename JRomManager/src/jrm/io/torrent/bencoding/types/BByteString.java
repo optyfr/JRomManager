@@ -50,7 +50,7 @@ public class BByteString implements IBencodable
 
     public String bencodedString()
     {
-        return data.length + ":" + new String(data);
+        return data.length + ":" + new String(data); //$NON-NLS-1$
     }
 
     public byte[] bencode()
@@ -80,7 +80,7 @@ public class BByteString implements IBencodable
             return new String(this.data);
         } else
         {
-            return "<non-ascii bytes:" + this.data.length + ">";
+            return "<non-ascii bytes:" + this.data.length + ">"; //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 

@@ -1909,7 +1909,7 @@ public class MainFrame extends JFrame
 	private void buildDir2DatTab()
 	{
 		JPanel dir2datTab = new JPanel();
-		mainPane.addTab("Dir2Dat", new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/drive_go.png")), dir2datTab, null);
+		mainPane.addTab(Messages.getString("MainFrame.Dir2Dat"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/drive_go.png")), dir2datTab, null); //$NON-NLS-1$ //$NON-NLS-2$
 		GridBagLayout gbl_dir2datTab = new GridBagLayout();
 		gbl_dir2datTab.columnWidths = new int[] { 0, 0, 0 };
 		gbl_dir2datTab.rowHeights = new int[] { 0, 0, 0 };
@@ -1918,7 +1918,7 @@ public class MainFrame extends JFrame
 		dir2datTab.setLayout(gbl_dir2datTab);
 
 		JPanel panelDir2DatOptions = new JPanel();
-		panelDir2DatOptions.setBorder(new TitledBorder(null, "Options", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelDir2DatOptions.setBorder(new TitledBorder(null, Messages.getString("MainFrame.Options"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		GridBagConstraints gbc_panelDir2DatOptions = new GridBagConstraints();
 		gbc_panelDir2DatOptions.insets = new Insets(0, 5, 5, 5);
 		gbc_panelDir2DatOptions.fill = GridBagConstraints.BOTH;
@@ -1933,7 +1933,7 @@ public class MainFrame extends JFrame
 		panelDir2DatOptions.setLayout(gbl_panelDir2DatOptions);
 
 		JCheckBox cbDir2DatScanSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxScanSubfolders.text")); //$NON-NLS-1$
-		cbDir2DatScanSubfolders.setSelected(Settings.getProperty("dir2dat.scan_subfolders", true));
+		cbDir2DatScanSubfolders.setSelected(Settings.getProperty("dir2dat.scan_subfolders", true)); //$NON-NLS-1$
 		cbDir2DatScanSubfolders.addItemListener(e -> Settings.setProperty("dir2dat.scan_subfolders", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatScanSubfolders = new GridBagConstraints();
 		gbc_cbDir2DatScanSubfolders.anchor = GridBagConstraints.WEST;
@@ -1943,7 +1943,7 @@ public class MainFrame extends JFrame
 		panelDir2DatOptions.add(cbDir2DatScanSubfolders, gbc_cbDir2DatScanSubfolders);
 
 		JCheckBox cbDir2DatDeepScan = new JCheckBox(Messages.getString("MainFrame.chckbxDeepScanFor.text")); //$NON-NLS-1$
-		cbDir2DatDeepScan.setSelected(Settings.getProperty("dir2dat.deep_scan", false));
+		cbDir2DatDeepScan.setSelected(Settings.getProperty("dir2dat.deep_scan", false)); //$NON-NLS-1$
 		cbDir2DatDeepScan.addItemListener(e -> Settings.setProperty("dir2dat.deep_scan", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatDeepScan = new GridBagConstraints();
 		gbc_cbDir2DatDeepScan.anchor = GridBagConstraints.WEST;
@@ -1953,7 +1953,7 @@ public class MainFrame extends JFrame
 		panelDir2DatOptions.add(cbDir2DatDeepScan, gbc_cbDir2DatDeepScan);
 
 		JCheckBox cbDir2DatAddMd5 = new JCheckBox(Messages.getString("MainFrame.chckbxAddMd.text")); //$NON-NLS-1$
-		cbDir2DatAddMd5.setSelected(Settings.getProperty("dir2dat.add_md5", false));
+		cbDir2DatAddMd5.setSelected(Settings.getProperty("dir2dat.add_md5", false)); //$NON-NLS-1$
 		cbDir2DatAddMd5.addItemListener(e -> Settings.setProperty("dir2dat.add_md5", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatAddMd5 = new GridBagConstraints();
 		gbc_cbDir2DatAddMd5.anchor = GridBagConstraints.WEST;
@@ -1963,7 +1963,7 @@ public class MainFrame extends JFrame
 		panelDir2DatOptions.add(cbDir2DatAddMd5, gbc_cbDir2DatAddMd5);
 
 		JCheckBox cbDir2DatAddSha1 = new JCheckBox(Messages.getString("MainFrame.chckbxAddShamd.text")); //$NON-NLS-1$
-		cbDir2DatAddSha1.setSelected(Settings.getProperty("dir2dat.add_sha1", false));
+		cbDir2DatAddSha1.setSelected(Settings.getProperty("dir2dat.add_sha1", false)); //$NON-NLS-1$
 		cbDir2DatAddSha1.addItemListener(e -> Settings.setProperty("dir2dat.add_sha1", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatAddSha1 = new GridBagConstraints();
 		gbc_cbDir2DatAddSha1.anchor = GridBagConstraints.WEST;
@@ -1973,7 +1973,7 @@ public class MainFrame extends JFrame
 		panelDir2DatOptions.add(cbDir2DatAddSha1, gbc_cbDir2DatAddSha1);
 
 		JCheckBox cbDir2DatJunkSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxJunkSubfolders.text")); //$NON-NLS-1$
-		cbDir2DatJunkSubfolders.setSelected(Settings.getProperty("dir2dat.junk_folders", false));
+		cbDir2DatJunkSubfolders.setSelected(Settings.getProperty("dir2dat.junk_folders", false)); //$NON-NLS-1$
 		cbDir2DatJunkSubfolders.addItemListener(e -> Settings.setProperty("dir2dat.junk_folders", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatJunkSubfolders = new GridBagConstraints();
 		gbc_cbDir2DatJunkSubfolders.anchor = GridBagConstraints.WEST;
@@ -1982,8 +1982,8 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatJunkSubfolders.gridy = 5;
 		panelDir2DatOptions.add(cbDir2DatJunkSubfolders, gbc_cbDir2DatJunkSubfolders);
 
-		JCheckBox cbDir2DatDoNotScan = new JCheckBox(Messages.getString("MainFrame.chckbxDoNotScan.text"));
-		cbDir2DatDoNotScan.setSelected(Settings.getProperty("dir2dat.do_not_scan_archives", false));
+		JCheckBox cbDir2DatDoNotScan = new JCheckBox(Messages.getString("MainFrame.chckbxDoNotScan.text")); //$NON-NLS-1$
+		cbDir2DatDoNotScan.setSelected(Settings.getProperty("dir2dat.do_not_scan_archives", false)); //$NON-NLS-1$
 		cbDir2DatDoNotScan.addItemListener(e -> Settings.setProperty("dir2dat.do_not_scan_archives", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatDoNotScan = new GridBagConstraints();
 		gbc_cbDir2DatDoNotScan.anchor = GridBagConstraints.WEST;
@@ -1993,7 +1993,7 @@ public class MainFrame extends JFrame
 		panelDir2DatOptions.add(cbDir2DatDoNotScan, gbc_cbDir2DatDoNotScan);
 
 		JCheckBox cbDir2DatMatchCurrentProfile = new JCheckBox(Messages.getString("MainFrame.chckbxMatchCurrentProfile.text")); //$NON-NLS-1$
-		cbDir2DatMatchCurrentProfile.setSelected(Settings.getProperty("dir2dat.match_profile", false));
+		cbDir2DatMatchCurrentProfile.setSelected(Settings.getProperty("dir2dat.match_profile", false)); //$NON-NLS-1$
 		cbDir2DatMatchCurrentProfile.addItemListener(e -> Settings.setProperty("dir2dat.match_profile", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatMatchCurrentProfile = new GridBagConstraints();
 		gbc_cbDir2DatMatchCurrentProfile.anchor = GridBagConstraints.WEST;
@@ -2002,8 +2002,8 @@ public class MainFrame extends JFrame
 		gbc_cbDir2DatMatchCurrentProfile.gridy = 7;
 		panelDir2DatOptions.add(cbDir2DatMatchCurrentProfile, gbc_cbDir2DatMatchCurrentProfile);
 
-		JCheckBox cbDir2DatIncludeEmptyDirs = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeEmptyDirs.text"));
-		cbDir2DatIncludeEmptyDirs.setSelected(Settings.getProperty("dir2dat.include_empty_dirs", false));
+		JCheckBox cbDir2DatIncludeEmptyDirs = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeEmptyDirs.text")); //$NON-NLS-1$
+		cbDir2DatIncludeEmptyDirs.setSelected(Settings.getProperty("dir2dat.include_empty_dirs", false)); //$NON-NLS-1$
 		cbDir2DatIncludeEmptyDirs.addItemListener(e -> Settings.setProperty("dir2dat.include_empty_dirs", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatIncludeEmptyDirs = new GridBagConstraints();
 		gbc_cbDir2DatIncludeEmptyDirs.anchor = GridBagConstraints.WEST;
@@ -2013,7 +2013,7 @@ public class MainFrame extends JFrame
 		panelDir2DatOptions.add(cbDir2DatIncludeEmptyDirs, gbc_cbDir2DatIncludeEmptyDirs);
 
 		JPanel panelDir2DatHeaders = new JPanel();
-		panelDir2DatHeaders.setBorder(new TitledBorder(null, "Headers", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelDir2DatHeaders.setBorder(new TitledBorder(null, Messages.getString("MainFrame.Headers"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		GridBagConstraints gbc_panelDir2DatHeaders = new GridBagConstraints();
 		gbc_panelDir2DatHeaders.insets = new Insets(0, 0, 5, 5);
 		gbc_panelDir2DatHeaders.fill = GridBagConstraints.BOTH;
@@ -2036,7 +2036,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatName, gbc_lblDir2DatName);
 
 		tfDir2DatName = new JTextField();
-		tfDir2DatName.setText("");
+		tfDir2DatName.setText(""); //$NON-NLS-1$
 		GridBagConstraints gbc_tfDir2DatName = new GridBagConstraints();
 		gbc_tfDir2DatName.insets = new Insets(0, 0, 5, 0);
 		gbc_tfDir2DatName.fill = GridBagConstraints.HORIZONTAL;
@@ -2054,7 +2054,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatDescription, gbc_lblDir2DatDescription);
 
 		tfDir2DatDescription = new JTextField();
-		tfDir2DatDescription.setText("");
+		tfDir2DatDescription.setText(""); //$NON-NLS-1$
 		tfDir2DatDescription.setColumns(20);
 		GridBagConstraints gbc_tfDir2DatDescription = new GridBagConstraints();
 		gbc_tfDir2DatDescription.insets = new Insets(0, 0, 5, 0);
@@ -2072,7 +2072,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatVersion, gbc_lblDir2DatVersion);
 
 		tfDir2DatVersion = new JTextField();
-		tfDir2DatVersion.setText("");
+		tfDir2DatVersion.setText(""); //$NON-NLS-1$
 		tfDir2DatVersion.setColumns(20);
 		GridBagConstraints gbc_tfDir2DatVersion = new GridBagConstraints();
 		gbc_tfDir2DatVersion.insets = new Insets(0, 0, 5, 0);
@@ -2090,7 +2090,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatAuthor, gbc_lblDir2DatAuthor);
 
 		tfDir2DatAuthor = new JTextField();
-		tfDir2DatAuthor.setText("");
+		tfDir2DatAuthor.setText(""); //$NON-NLS-1$
 		tfDir2DatAuthor.setColumns(20);
 		GridBagConstraints gbc_tfDir2DatAuthor = new GridBagConstraints();
 		gbc_tfDir2DatAuthor.insets = new Insets(0, 0, 5, 0);
@@ -2108,7 +2108,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatComment, gbc_lblDir2DatComment);
 
 		tfDir2DatComment = new JTextField();
-		tfDir2DatComment.setText("");
+		tfDir2DatComment.setText(""); //$NON-NLS-1$
 		tfDir2DatComment.setColumns(20);
 		GridBagConstraints gbc_tfDir2DatComment = new GridBagConstraints();
 		gbc_tfDir2DatComment.insets = new Insets(0, 0, 5, 0);
@@ -2126,7 +2126,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatCategory, gbc_lblDir2DatCategory);
 
 		tfDir2DatCategory = new JTextField();
-		tfDir2DatCategory.setText("");
+		tfDir2DatCategory.setText(""); //$NON-NLS-1$
 		tfDir2DatCategory.setColumns(20);
 		GridBagConstraints gbc_tfDir2DatCategory = new GridBagConstraints();
 		gbc_tfDir2DatCategory.insets = new Insets(0, 0, 5, 0);
@@ -2144,7 +2144,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatDate, gbc_lblDir2DatDate);
 
 		tfDir2DatDate = new JTextField();
-		tfDir2DatDate.setText("");
+		tfDir2DatDate.setText(""); //$NON-NLS-1$
 		tfDir2DatDate.setColumns(20);
 		GridBagConstraints gbc_tfDir2DatDate = new GridBagConstraints();
 		gbc_tfDir2DatDate.insets = new Insets(0, 0, 5, 0);
@@ -2162,7 +2162,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatEmail, gbc_lblDir2DatEmail);
 
 		tfDir2DatEMail = new JTextField();
-		tfDir2DatEMail.setText("");
+		tfDir2DatEMail.setText(""); //$NON-NLS-1$
 		tfDir2DatEMail.setColumns(20);
 		GridBagConstraints gbc_tfDir2DatEMail = new GridBagConstraints();
 		gbc_tfDir2DatEMail.insets = new Insets(0, 0, 5, 0);
@@ -2180,7 +2180,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatHomepage, gbc_lblDir2DatHomepage);
 
 		tfDir2DatHomepage = new JTextField();
-		tfDir2DatHomepage.setText("");
+		tfDir2DatHomepage.setText(""); //$NON-NLS-1$
 		tfDir2DatHomepage.setColumns(20);
 		GridBagConstraints gbc_tfDir2DatHomepage = new GridBagConstraints();
 		gbc_tfDir2DatHomepage.insets = new Insets(0, 0, 5, 0);
@@ -2198,7 +2198,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(lblDir2DatUrl, gbc_lblDir2DatUrl);
 
 		tfDir2DatURL = new JTextField();
-		tfDir2DatURL.setText("");
+		tfDir2DatURL.setText(""); //$NON-NLS-1$
 		tfDir2DatURL.setColumns(20);
 		GridBagConstraints gbc_tfDir2DatURL = new GridBagConstraints();
 		gbc_tfDir2DatURL.insets = new Insets(0, 0, 5, 0);
@@ -2208,7 +2208,7 @@ public class MainFrame extends JFrame
 		panelDir2DatHeaders.add(tfDir2DatURL, gbc_tfDir2DatURL);
 
 		JPanel panelDir2DatIO = new JPanel();
-		panelDir2DatIO.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "I/O", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelDir2DatIO.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), Messages.getString("MainFrame.IO"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$ //$NON-NLS-2$
 		GridBagConstraints gbc_panelDir2DatIO = new GridBagConstraints();
 		gbc_panelDir2DatIO.insets = new Insets(0, 5, 5, 5);
 		gbc_panelDir2DatIO.gridwidth = 2;
@@ -2231,8 +2231,8 @@ public class MainFrame extends JFrame
 		gbc_lblDir2DatSrc.gridy = 0;
 		panelDir2DatIO.add(lblDir2DatSrc, gbc_lblDir2DatSrc);
 
-		tfDir2DatSrc = new JFileDropTextField(txt -> Settings.setProperty("dir2dat_src_dir", txt));
-		tfDir2DatSrc.setText(Settings.getProperty("dir2dat_src_dir", ""));
+		tfDir2DatSrc = new JFileDropTextField(txt -> Settings.setProperty("dir2dat_src_dir", txt)); //$NON-NLS-1$
+		tfDir2DatSrc.setText(Settings.getProperty("dir2dat_src_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		tfDir2DatSrc.setMode(JFileDropMode.DIRECTORY);
 		tfDir2DatSrc.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfDir2DatSrc.setColumns(10);
@@ -2244,8 +2244,8 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatSrc.gridy = 0;
 		panelDir2DatIO.add(tfDir2DatSrc, gbc_tfDir2DatSrc);
 
-		JButton btnDir2DatSrc = new JButton("");
-		btnDir2DatSrc.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png")));
+		JButton btnDir2DatSrc = new JButton(""); //$NON-NLS-1$
+		btnDir2DatSrc.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		btnDir2DatSrc.addActionListener(e -> {
 			final File workdir = Settings.getWorkPath().toFile(); // $NON-NLS-1$
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(Settings.getProperty("MainFrame.ChooseDatSrc", workdir.getAbsolutePath())), new File(tfDir2DatSrc.getText()), null, Messages.getString("MainFrame.ChooseDatSrc"), false).show(MainFrame.this, chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
@@ -2285,8 +2285,8 @@ public class MainFrame extends JFrame
 		gbc_lblDir2DatDst.gridy = 1;
 		panelDir2DatIO.add(lblDir2DatDst, gbc_lblDir2DatDst);
 
-		tfDir2DatDst = new JFileDropTextField(txt -> Settings.setProperty("dir2dat_dst_file", txt));
-		tfDir2DatDst.setText(Settings.getProperty("dir2dat_dst_file", ""));
+		tfDir2DatDst = new JFileDropTextField(txt -> Settings.setProperty("dir2dat_dst_file", txt)); //$NON-NLS-1$
+		tfDir2DatDst.setText(Settings.getProperty("dir2dat_dst_file", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		tfDir2DatDst.setMode(JFileDropMode.FILE);
 		tfDir2DatDst.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropFileHint"), Color.gray)); //$NON-NLS-1$
 		tfDir2DatDst.setColumns(10);
@@ -2298,8 +2298,8 @@ public class MainFrame extends JFrame
 		gbc_tfDir2DatDst.gridy = 1;
 		panelDir2DatIO.add(tfDir2DatDst, gbc_tfDir2DatDst);
 
-		JButton btnDir2DatDst = new JButton("");
-		btnDir2DatDst.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png")));
+		JButton btnDir2DatDst = new JButton(""); //$NON-NLS-1$
+		btnDir2DatDst.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
 		btnDir2DatDst.addActionListener(e -> {
 			final File workdir = Settings.getWorkPath().toFile(); // $NON-NLS-1$
 			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, new File(Settings.getProperty("MainFrame.ChooseDatDst", workdir.getAbsolutePath())), new File(tfDir2DatDst.getText()), null, Messages.getString("MainFrame.ChooseDatDst"), false).show(MainFrame.this, chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
@@ -2325,8 +2325,8 @@ public class MainFrame extends JFrame
 		panelDir2DatIO.add(lblDir2DatFormat, gbc_lblDir2DatFormat);
 
 		JRadioButton rdbtnDir2DatMame = new JRadioButton(Messages.getString("MainFrame.rdbtnMame.text")); //$NON-NLS-1$
-		rdbtnDir2DatMame.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString())) == ExportType.MAME);
-		rdbtnDir2DatMame.addActionListener(e -> Settings.setProperty("dir2dat_format", ExportType.MAME.toString()));
+		rdbtnDir2DatMame.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString())) == ExportType.MAME); //$NON-NLS-1$
+		rdbtnDir2DatMame.addActionListener(e -> Settings.setProperty("dir2dat_format", ExportType.MAME.toString())); //$NON-NLS-1$
 		Dir2DatFormatGroup.add(rdbtnDir2DatMame);
 		GridBagConstraints gbc_rdbtnDir2DatMame = new GridBagConstraints();
 		gbc_rdbtnDir2DatMame.insets = new Insets(0, 0, 0, 5);
@@ -2335,8 +2335,8 @@ public class MainFrame extends JFrame
 		panelDir2DatIO.add(rdbtnDir2DatMame, gbc_rdbtnDir2DatMame);
 
 		JRadioButton rdbtnDir2DatLogiqxDat = new JRadioButton(Messages.getString("MainFrame.rdbtnLogiqxDat.text")); //$NON-NLS-1$
-		rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString())) == ExportType.DATAFILE);
-		rdbtnDir2DatLogiqxDat.addActionListener(e -> Settings.setProperty("dir2dat_format", ExportType.DATAFILE.toString()));
+		rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString())) == ExportType.DATAFILE); //$NON-NLS-1$
+		rdbtnDir2DatLogiqxDat.addActionListener(e -> Settings.setProperty("dir2dat_format", ExportType.DATAFILE.toString())); //$NON-NLS-1$
 		Dir2DatFormatGroup.add(rdbtnDir2DatLogiqxDat);
 		GridBagConstraints gbc_rdbtnDir2DatLogiqxDat = new GridBagConstraints();
 		gbc_rdbtnDir2DatLogiqxDat.insets = new Insets(0, 0, 0, 5);
@@ -2345,8 +2345,8 @@ public class MainFrame extends JFrame
 		panelDir2DatIO.add(rdbtnDir2DatLogiqxDat, gbc_rdbtnDir2DatLogiqxDat);
 
 		JRadioButton rdbtnDir2DatSwList = new JRadioButton(Messages.getString("MainFrame.rdbtnSwList.text")); //$NON-NLS-1$
-		rdbtnDir2DatSwList.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString())) == ExportType.SOFTWARELIST);
-		rdbtnDir2DatSwList.addActionListener(e -> Settings.setProperty("dir2dat_format", ExportType.SOFTWARELIST.toString()));
+		rdbtnDir2DatSwList.setSelected(ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString())) == ExportType.SOFTWARELIST); //$NON-NLS-1$
+		rdbtnDir2DatSwList.addActionListener(e -> Settings.setProperty("dir2dat_format", ExportType.SOFTWARELIST.toString())); //$NON-NLS-1$
 		Dir2DatFormatGroup.add(rdbtnDir2DatSwList);
 		GridBagConstraints gbc_rdbtnDir2DatSwList = new GridBagConstraints();
 		gbc_rdbtnDir2DatSwList.gridwidth = 2;
@@ -2360,7 +2360,7 @@ public class MainFrame extends JFrame
 	private void buildBatchToolsTab()
 	{
 		JPanel batchToolsTab = new JPanel();
-		mainPane.addTab("Batch Tools", new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_osx_terminal.png")), batchToolsTab, null);
+		mainPane.addTab(Messages.getString("MainFrame.BatchTools"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_osx_terminal.png")), batchToolsTab, null); //$NON-NLS-1$ //$NON-NLS-2$
 		batchToolsTab.setLayout(new BorderLayout(0, 0));
 
 		JTabbedPane batchToolsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -2377,7 +2377,7 @@ public class MainFrame extends JFrame
 
 		JScrollPane scrollPane_5 = new JScrollPane();
 		scrollPane_5.setPreferredSize(new Dimension(2, 200));
-		scrollPane_5.setBorder(new TitledBorder(null, "Src Dirs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		scrollPane_5.setBorder(new TitledBorder(null, Messages.getString("MainFrame.SrcDirs"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		GridBagConstraints gbc_scrollPane_5 = new GridBagConstraints();
 		gbc_scrollPane_5.insets = new Insets(0, 0, 5, 0);
 		gbc_scrollPane_5.fill = GridBagConstraints.BOTH;
@@ -2385,7 +2385,7 @@ public class MainFrame extends JFrame
 		gbc_scrollPane_5.gridy = 0;
 		panelBatchToolsDat2Dir.add(scrollPane_5, gbc_scrollPane_5);
 
-		listBatchToolsDat2DirSrc = new JFileDropList(files -> Settings.setProperty("dat2dir.srcdirs", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))));
+		listBatchToolsDat2DirSrc = new JFileDropList(files -> Settings.setProperty("dat2dir.srcdirs", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); //$NON-NLS-1$ //$NON-NLS-2$
 		for (final String s : Settings.getProperty("dat2dir.srcdirs", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (!s.isEmpty())
 				listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
@@ -2397,11 +2397,11 @@ public class MainFrame extends JFrame
 		JPopupMenu popupMenu_2 = new JPopupMenu();
 		addPopup(listBatchToolsDat2DirSrc, popupMenu_2);
 
-		JMenuItem mnDat2DirAddSrcDir = new JMenuItem("Add Src Dir");
+		JMenuItem mnDat2DirAddSrcDir = new JMenuItem(Messages.getString("MainFrame.AddSrcDir")); //$NON-NLS-1$
 		mnDat2DirAddSrcDir.setEnabled(false);
 		popupMenu_2.add(mnDat2DirAddSrcDir);
 
-		JMenuItem mnDat2DirDelSrcDir = new JMenuItem("Del Src Dir");
+		JMenuItem mnDat2DirDelSrcDir = new JMenuItem(Messages.getString("MainFrame.DelSrcDir")); //$NON-NLS-1$
 		mnDat2DirDelSrcDir.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -2429,22 +2429,22 @@ public class MainFrame extends JFrame
 				for (SrcDstResult sdr : files)
 				{
 					JsonObject jso = Json.object();
-					jso.add("src", sdr.src != null ? sdr.src.getAbsolutePath() : null);
-					jso.add("dst", sdr.dst != null ? sdr.dst.getAbsolutePath() : null);
-					jso.add("result", sdr.result);
+					jso.add("src", sdr.src != null ? sdr.src.getAbsolutePath() : null); //$NON-NLS-1$
+					jso.add("dst", sdr.dst != null ? sdr.dst.getAbsolutePath() : null); //$NON-NLS-1$
+					jso.add("result", sdr.result); //$NON-NLS-1$
 					array.add(jso);
 				}
-				Settings.setProperty("dat2dir.sdr", array.toString());
+				Settings.setProperty("dat2dir.sdr", array.toString()); //$NON-NLS-1$
 			}
 		});
 		List<SrcDstResult> sdrl = new ArrayList<>();
-		for (JsonValue arrv : Json.parse(Settings.getProperty("dat2dir.sdr", "[]")).asArray())
+		for (JsonValue arrv : Json.parse(Settings.getProperty("dat2dir.sdr", "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			SrcDstResult sdr = new SrcDstResult();
 			JsonObject jso = arrv.asObject();
-			JsonValue src = jso.get("src");
-			JsonValue dst = jso.get("dst");
-			JsonValue result = jso.get("result");
+			JsonValue src = jso.get("src"); //$NON-NLS-1$
+			JsonValue dst = jso.get("dst"); //$NON-NLS-1$
+			JsonValue result = jso.get("result"); //$NON-NLS-1$
 			if (src != Json.NULL)
 				sdr.src = new File(src.asString());
 			if (dst != Json.NULL)
@@ -2456,7 +2456,7 @@ public class MainFrame extends JFrame
 		tableBatchToolsDat2Dir.setCellSelectionEnabled(false);
 		tableBatchToolsDat2Dir.setRowSelectionAllowed(true);
 		tableBatchToolsDat2Dir.getSDRModel().setSrcFilter(file -> {
-			List<String> exts = Arrays.asList("xml", "dat");
+			List<String> exts = Arrays.asList("xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (file.isFile())
 				return exts.contains(FilenameUtils.getExtension(file.getName()));
 			else if (file.isDirectory())
@@ -2488,11 +2488,11 @@ public class MainFrame extends JFrame
 			}
 		});
 
-		JMenuItem mnDat2DirAddDat = new JMenuItem("Add dat");
+		JMenuItem mnDat2DirAddDat = new JMenuItem(Messages.getString("MainFrame.AddDat")); //$NON-NLS-1$
 		mnDat2DirAddDat.setEnabled(false);
 		popupMenu.add(mnDat2DirAddDat);
 
-		JMenuItem mnDat2DirDelDat = new JMenuItem("Del dat");
+		JMenuItem mnDat2DirDelDat = new JMenuItem(Messages.getString("MainFrame.DelDat")); //$NON-NLS-1$
 		mnDat2DirDelDat.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -2502,13 +2502,13 @@ public class MainFrame extends JFrame
 		});
 		popupMenu.add(mnDat2DirDelDat);
 
-		mnDat2DirPresets = new JMenu("Presets");
+		mnDat2DirPresets = new JMenu(Messages.getString("MainFrame.Presets")); //$NON-NLS-1$
 		popupMenu.add(mnDat2DirPresets);
 
-		JMenu mnDat2DirD2D = new JMenu("dir2dat");
+		JMenu mnDat2DirD2D = new JMenu(Messages.getString("MainFrame.Dir2DatMenu")); //$NON-NLS-1$
 		mnDat2DirPresets.add(mnDat2DirD2D);
 
-		JMenuItem mntmDat2DirD2DTzip = new JMenuItem("TZIP");
+		JMenuItem mntmDat2DirD2DTzip = new JMenuItem(Messages.getString("MainFrame.TZIP")); //$NON-NLS-1$
 		mntmDat2DirD2DTzip.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -2518,22 +2518,22 @@ public class MainFrame extends JFrame
 					Properties settings = new Properties();
 					try
 					{
-						settings.setProperty("need_sha1_or_md5", Boolean.FALSE.toString());
-						settings.setProperty("use_parallelism", Boolean.TRUE.toString());
-						settings.setProperty("create_mode", Boolean.TRUE.toString());
-						settings.setProperty("createfull_mode", Boolean.FALSE.toString());
-						settings.setProperty("ignore_unneeded_containers", Boolean.FALSE.toString());
-						settings.setProperty("ignore_unneeded_entries", Boolean.FALSE.toString());
-						settings.setProperty("ignore_unknown_containers", Boolean.TRUE.toString());
-						settings.setProperty("implicit_merge", Boolean.FALSE.toString());
-						settings.setProperty("ignore_merge_name_roms", Boolean.FALSE.toString());
-						settings.setProperty("ignore_merge_name_disks", Boolean.FALSE.toString());
-						settings.setProperty("exclude_games", Boolean.FALSE.toString());
-						settings.setProperty("exclude_machines", Boolean.FALSE.toString());
-						settings.setProperty("backup", Boolean.TRUE.toString());
-						settings.setProperty("format", FormatOptions.TZIP.toString());
-						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString());
-						settings.setProperty("archives_and_chd_as_roms", Boolean.FALSE.toString());
+						settings.setProperty("need_sha1_or_md5", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("use_parallelism", Boolean.TRUE.toString()); //$NON-NLS-1$
+						settings.setProperty("create_mode", Boolean.TRUE.toString()); //$NON-NLS-1$
+						settings.setProperty("createfull_mode", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_unneeded_containers", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_unneeded_entries", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_unknown_containers", Boolean.TRUE.toString()); //$NON-NLS-1$
+						settings.setProperty("implicit_merge", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_merge_name_roms", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_merge_name_disks", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("exclude_games", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("exclude_machines", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("backup", Boolean.TRUE.toString()); //$NON-NLS-1$
+						settings.setProperty("format", FormatOptions.TZIP.toString()); //$NON-NLS-1$
+						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString()); //$NON-NLS-1$
+						settings.setProperty("archives_and_chd_as_roms", Boolean.FALSE.toString()); //$NON-NLS-1$
 						Profile.saveSettings(sdr.src, settings);
 					}
 					catch (IOException e1)
@@ -2545,7 +2545,7 @@ public class MainFrame extends JFrame
 		});
 		mnDat2DirD2D.add(mntmDat2DirD2DTzip);
 
-		JMenuItem mntmDat2DirD2DDir = new JMenuItem("DIR");
+		JMenuItem mntmDat2DirD2DDir = new JMenuItem(Messages.getString("MainFrame.DIR")); //$NON-NLS-1$
 		mntmDat2DirD2DDir.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -2555,22 +2555,22 @@ public class MainFrame extends JFrame
 					Properties settings = new Properties();
 					try
 					{
-						settings.setProperty("need_sha1_or_md5", Boolean.FALSE.toString());
-						settings.setProperty("use_parallelism", Boolean.TRUE.toString());
-						settings.setProperty("create_mode", Boolean.TRUE.toString());
-						settings.setProperty("createfull_mode", Boolean.FALSE.toString());
-						settings.setProperty("ignore_unneeded_containers", Boolean.FALSE.toString());
-						settings.setProperty("ignore_unneeded_entries", Boolean.FALSE.toString());
-						settings.setProperty("ignore_unknown_containers", Boolean.TRUE.toString());
-						settings.setProperty("implicit_merge", Boolean.FALSE.toString());
-						settings.setProperty("ignore_merge_name_roms", Boolean.FALSE.toString());
-						settings.setProperty("ignore_merge_name_disks", Boolean.FALSE.toString());
-						settings.setProperty("exclude_games", Boolean.FALSE.toString());
-						settings.setProperty("exclude_machines", Boolean.FALSE.toString());
-						settings.setProperty("backup", Boolean.TRUE.toString());
-						settings.setProperty("format", FormatOptions.DIR.toString());
-						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString());
-						settings.setProperty("archives_and_chd_as_roms", Boolean.TRUE.toString());
+						settings.setProperty("need_sha1_or_md5", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("use_parallelism", Boolean.TRUE.toString()); //$NON-NLS-1$
+						settings.setProperty("create_mode", Boolean.TRUE.toString()); //$NON-NLS-1$
+						settings.setProperty("createfull_mode", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_unneeded_containers", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_unneeded_entries", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_unknown_containers", Boolean.TRUE.toString()); //$NON-NLS-1$
+						settings.setProperty("implicit_merge", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_merge_name_roms", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("ignore_merge_name_disks", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("exclude_games", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("exclude_machines", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("backup", Boolean.TRUE.toString()); //$NON-NLS-1$
+						settings.setProperty("format", FormatOptions.DIR.toString()); //$NON-NLS-1$
+						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString()); //$NON-NLS-1$
+						settings.setProperty("archives_and_chd_as_roms", Boolean.TRUE.toString()); //$NON-NLS-1$
 						Profile.saveSettings(sdr.src, settings);
 					}
 					catch (IOException e1)
@@ -2608,7 +2608,7 @@ public class MainFrame extends JFrame
 		gbc_scrollPane.gridy = 0;
 		panelBatchToolsDir2Torrent.add(scrollPane, gbc_scrollPane);
 
-		tableBatchToolsTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { "Torrent files", "Dst Dirs", "Result" }), new JSDRDropTable.AddDelCallBack()
+		tableBatchToolsTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result") }), new JSDRDropTable.AddDelCallBack() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		{
 			@Override
 			public void call(List<SrcDstResult> files)
@@ -2617,22 +2617,22 @@ public class MainFrame extends JFrame
 				for (SrcDstResult sdr : files)
 				{
 					JsonObject jso = Json.object();
-					jso.add("src", sdr.src != null ? sdr.src.getAbsolutePath() : null);
-					jso.add("dst", sdr.dst != null ? sdr.dst.getAbsolutePath() : null);
-					jso.add("result", sdr.result);
+					jso.add("src", sdr.src != null ? sdr.src.getAbsolutePath() : null); //$NON-NLS-1$
+					jso.add("dst", sdr.dst != null ? sdr.dst.getAbsolutePath() : null); //$NON-NLS-1$
+					jso.add("result", sdr.result); //$NON-NLS-1$
 					array.add(jso);
 				}
-				Settings.setProperty("trntchk.sdr", array.toString());
+				Settings.setProperty("trntchk.sdr", array.toString()); //$NON-NLS-1$
 			}
 		});
 		List<SrcDstResult> sdrl2 = new ArrayList<>();
-		for (JsonValue arrv : Json.parse(Settings.getProperty("trntchk.sdr", "[]")).asArray())
+		for (JsonValue arrv : Json.parse(Settings.getProperty("trntchk.sdr", "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			SrcDstResult sdr = new SrcDstResult();
 			JsonObject jso = arrv.asObject();
-			JsonValue src = jso.get("src");
-			JsonValue dst = jso.get("dst");
-			JsonValue result = jso.get("result");
+			JsonValue src = jso.get("src"); //$NON-NLS-1$
+			JsonValue dst = jso.get("dst"); //$NON-NLS-1$
+			JsonValue result = jso.get("result"); //$NON-NLS-1$
 			if (src != Json.NULL)
 				sdr.src = new File(src.asString());
 			if (dst != Json.NULL)
@@ -2644,7 +2644,7 @@ public class MainFrame extends JFrame
 		tableBatchToolsTrntChk.setCellSelectionEnabled(false);
 		tableBatchToolsTrntChk.setRowSelectionAllowed(true);
 		tableBatchToolsTrntChk.getSDRModel().setSrcFilter(file -> {
-			List<String> exts = Arrays.asList("torrent");
+			List<String> exts = Arrays.asList("torrent"); //$NON-NLS-1$
 			if (file.isFile())
 				return exts.contains(FilenameUtils.getExtension(file.getName()));
 			return false;
@@ -2669,11 +2669,11 @@ public class MainFrame extends JFrame
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				Settings.setProperty("trntchk.mode", cbBatchToolsTrntChk.getSelectedItem().toString());
+				Settings.setProperty("trntchk.mode", cbBatchToolsTrntChk.getSelectedItem().toString()); //$NON-NLS-1$
 			}
 		});
 		cbBatchToolsTrntChk.setModel(new DefaultComboBoxModel<TrntChkMode>(TrntChkMode.values()));
-		cbBatchToolsTrntChk.setSelectedItem(TrntChkMode.valueOf(Settings.getProperty("trntchk.mode", TrntChkMode.FILENAME.toString())));
+		cbBatchToolsTrntChk.setSelectedItem(TrntChkMode.valueOf(Settings.getProperty("trntchk.mode", TrntChkMode.FILENAME.toString()))); //$NON-NLS-1$
 		GridBagConstraints gbc_cbBatchToolsTrntChk = new GridBagConstraints();
 		gbc_cbBatchToolsTrntChk.anchor = GridBagConstraints.EAST;
 		gbc_cbBatchToolsTrntChk.insets = new Insets(0, 0, 0, 5);
@@ -2708,7 +2708,7 @@ public class MainFrame extends JFrame
 		compressors.add(compressorsPane);
 
 		JPanel panelZip = new JPanel();
-		compressorsPane.addTab("Zip", null, panelZip, null);
+		compressorsPane.addTab(Messages.getString("MainFrame.Zip"), null, panelZip, null); //$NON-NLS-1$
 		GridBagLayout gbl_panelZip = new GridBagLayout();
 		gbl_panelZip.columnWidths = new int[] { 1, 0, 1, 0 };
 		gbl_panelZip.rowHeights = new int[] { 0, 20, 20, 0, 0 };
@@ -2727,13 +2727,13 @@ public class MainFrame extends JFrame
 
 		cbbxZipTempThreshold = new JComboBox<>();
 		cbbxZipTempThreshold.setModel(new DefaultComboBoxModel<>(ZipTempThreshold.values()));
-		cbbxZipTempThreshold.setSelectedItem(ZipTempThreshold.valueOf(Settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString())));
+		cbbxZipTempThreshold.setSelectedItem(ZipTempThreshold.valueOf(Settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString()))); //$NON-NLS-1$
 		cbbxZipTempThreshold.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Settings.setProperty("zip_temp_threshold", cbbxZipTempThreshold.getSelectedItem().toString());
+				Settings.setProperty("zip_temp_threshold", cbbxZipTempThreshold.getSelectedItem().toString()); //$NON-NLS-1$
 			}
 		});
 		cbbxZipTempThreshold.setRenderer(new DefaultListCellRenderer()
@@ -2764,13 +2764,13 @@ public class MainFrame extends JFrame
 
 		cbbxZipLevel = new JComboBox<>();
 		cbbxZipLevel.setModel(new DefaultComboBoxModel<>(ZipLevel.values()));
-		cbbxZipLevel.setSelectedItem(ZipLevel.valueOf(Settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString())));
+		cbbxZipLevel.setSelectedItem(ZipLevel.valueOf(Settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString()))); //$NON-NLS-1$
 		cbbxZipLevel.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Settings.setProperty("zip_compression_level", cbbxZipLevel.getSelectedItem().toString());
+				Settings.setProperty("zip_compression_level", cbbxZipLevel.getSelectedItem().toString()); //$NON-NLS-1$
 			}
 		});
 		cbbxZipLevel.setRenderer(new DefaultListCellRenderer()
@@ -3324,7 +3324,7 @@ public class MainFrame extends JFrame
 			{
 				if (Profile.curr_profile.hasPropsChanged())
 				{
-					switch (JOptionPane.showConfirmDialog(MainFrame.this, "Settings did change since last scan, you should rescan before fixing", "Rescan before fix?", JOptionPane.YES_NO_CANCEL_OPTION))
+					switch (JOptionPane.showConfirmDialog(MainFrame.this, Messages.getString("MainFrame.WarnSettingsChanged"), Messages.getString("MainFrame.RescanBeforeFix"), JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						case JOptionPane.YES_OPTION:
 							curr_scan = new Scan(Profile.curr_profile, progress);
@@ -3361,7 +3361,7 @@ public class MainFrame extends JFrame
 	private void updateMemory()
 	{
 		final Runtime rt = Runtime.getRuntime();
-		lblMemoryUsage.setText(String.format(Messages.getString("MainFrame.MemoryUsage"), String.format("%.2f MiB", rt.totalMemory() / 1048576.0), String.format("%.2f MiB", (rt.totalMemory() - rt.freeMemory()) / 1048576.0), String.format("%.2f MiB", rt.freeMemory() / 1048576.0), String.format("%.2f MiB", rt.maxMemory() / 1048576.0))); //$NON-NLS-1$
+		lblMemoryUsage.setText(String.format(Messages.getString("MainFrame.MemoryUsage"), String.format("%.2f MiB", rt.totalMemory() / 1048576.0), String.format("%.2f MiB", (rt.totalMemory() - rt.freeMemory()) / 1048576.0), String.format("%.2f MiB", rt.freeMemory() / 1048576.0), String.format("%.2f MiB", rt.maxMemory() / 1048576.0))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 	}
 
 	/**
@@ -3387,34 +3387,34 @@ public class MainFrame extends JFrame
 						if (dstdat.getParentFile().isDirectory() && (dstdat.exists() || dstdat.createNewFile()))
 						{
 							EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
-							if (Settings.getProperty("dir2dat.scan_subfolders", true))
+							if (Settings.getProperty("dir2dat.scan_subfolders", true)) //$NON-NLS-1$
 								options.add(Options.RECURSE);
-							if (!Settings.getProperty("dir2dat.deep_scan", false))
+							if (!Settings.getProperty("dir2dat.deep_scan", false)) //$NON-NLS-1$
 								options.add(Options.IS_DEST);
-							if (Settings.getProperty("dir2dat.add_md5", false))
+							if (Settings.getProperty("dir2dat.add_md5", false)) //$NON-NLS-1$
 								options.add(Options.NEED_MD5);
-							if (Settings.getProperty("dir2dat.add_sha1", false))
+							if (Settings.getProperty("dir2dat.add_sha1", false)) //$NON-NLS-1$
 								options.add(Options.NEED_SHA1);
-							if (Settings.getProperty("dir2dat.junk_folders", false))
+							if (Settings.getProperty("dir2dat.junk_folders", false)) //$NON-NLS-1$
 								options.add(Options.JUNK_SUBFOLDERS);
-							if (Settings.getProperty("dir2dat.do_not_scan_archives", false))
+							if (Settings.getProperty("dir2dat.do_not_scan_archives", false)) //$NON-NLS-1$
 								options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-							if (Settings.getProperty("dir2dat.match_profile", false))
+							if (Settings.getProperty("dir2dat.match_profile", false)) //$NON-NLS-1$
 								options.add(Options.MATCH_PROFILE);
-							if (Settings.getProperty("dir2dat.include_empty_dirs", false))
+							if (Settings.getProperty("dir2dat.include_empty_dirs", false)) //$NON-NLS-1$
 								options.add(Options.EMPTY_DIRS);
-							final ExportType type = ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString()));
+							final ExportType type = ExportType.valueOf(Settings.getProperty("dir2dat_format", ExportType.MAME.toString())); //$NON-NLS-1$
 							HashMap<String, String> headers = new HashMap<>();
-							headers.put("name", tfDir2DatName.getText());
-							headers.put("description", tfDir2DatDescription.getText());
-							headers.put("version", tfDir2DatVersion.getText());
-							headers.put("author", tfDir2DatAuthor.getText());
-							headers.put("comment", tfDir2DatComment.getText());
-							headers.put("category", tfDir2DatCategory.getText());
-							headers.put("date", tfDir2DatDate.getText());
-							headers.put("email", tfDir2DatEMail.getText());
-							headers.put("homepage", tfDir2DatHomepage.getText());
-							headers.put("url", tfDir2DatURL.getText());
+							headers.put("name", tfDir2DatName.getText()); //$NON-NLS-1$
+							headers.put("description", tfDir2DatDescription.getText()); //$NON-NLS-1$
+							headers.put("version", tfDir2DatVersion.getText()); //$NON-NLS-1$
+							headers.put("author", tfDir2DatAuthor.getText()); //$NON-NLS-1$
+							headers.put("comment", tfDir2DatComment.getText()); //$NON-NLS-1$
+							headers.put("category", tfDir2DatCategory.getText()); //$NON-NLS-1$
+							headers.put("date", tfDir2DatDate.getText()); //$NON-NLS-1$
+							headers.put("email", tfDir2DatEMail.getText()); //$NON-NLS-1$
+							headers.put("homepage", tfDir2DatHomepage.getText()); //$NON-NLS-1$
+							headers.put("url", tfDir2DatURL.getText()); //$NON-NLS-1$
 							new Dir2Dat(srcdir, dstdat, progress, options, type, headers);
 						}
 					}
@@ -3439,7 +3439,7 @@ public class MainFrame extends JFrame
 		{
 			List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
 			if (sdrl.stream().filter((sdr) -> !Profile.getSettingsFile(sdr.src).exists()).count() > 0)
-				JOptionPane.showMessageDialog(MainFrame.this, "All dats must have an assigned preset");
+				JOptionPane.showMessageDialog(MainFrame.this, Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 			else
 			{
 				final Progress progress = new Progress(MainFrame.this);
@@ -3465,7 +3465,7 @@ public class MainFrame extends JFrame
 			}
 		}
 		else
-			JOptionPane.showMessageDialog(MainFrame.this, "There must be at least on source directory");
+			JOptionPane.showMessageDialog(MainFrame.this, Messages.getString("MainFrame.AtLeastOneSrcDir")); //$NON-NLS-1$
 	}
 
 	private void trrntChk()

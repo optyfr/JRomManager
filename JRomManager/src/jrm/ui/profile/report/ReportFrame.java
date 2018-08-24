@@ -55,7 +55,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 	public ReportFrame(final Window owner) throws HeadlessException
 	{
 		super(); //$NON-NLS-1$
-		setTitle(Messages.getString("ReportFrame.Title"));
+		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent e) {
