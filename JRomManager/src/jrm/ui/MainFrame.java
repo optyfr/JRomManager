@@ -2369,9 +2369,9 @@ public class MainFrame extends JFrame
 		JPanel panelBatchToolsDat2Dir = new JPanel();
 		batchToolsTabbedPane.addTab(Messages.getString("MainFrame.panelBatchToolsDat2Dir.title"), null, panelBatchToolsDat2Dir, null); //$NON-NLS-1$
 		GridBagLayout gbl_panelBatchToolsDat2Dir = new GridBagLayout();
-		gbl_panelBatchToolsDat2Dir.columnWidths = new int[] { 0, 0 };
+		gbl_panelBatchToolsDat2Dir.columnWidths = new int[] { 0, 0, 0, 0 };
 		gbl_panelBatchToolsDat2Dir.rowHeights = new int[] { 0, 0, 0, 0 };
-		gbl_panelBatchToolsDat2Dir.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gbl_panelBatchToolsDat2Dir.columnWeights = new double[] { 1.0, 0.0, 0.0, Double.MIN_VALUE };
 		gbl_panelBatchToolsDat2Dir.rowWeights = new double[] { 1.0, 1.0, 0.0, Double.MIN_VALUE };
 		panelBatchToolsDat2Dir.setLayout(gbl_panelBatchToolsDat2Dir);
 
@@ -2379,6 +2379,7 @@ public class MainFrame extends JFrame
 		scrollPane_5.setPreferredSize(new Dimension(2, 200));
 		scrollPane_5.setBorder(new TitledBorder(null, Messages.getString("MainFrame.SrcDirs"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
 		GridBagConstraints gbc_scrollPane_5 = new GridBagConstraints();
+		gbc_scrollPane_5.gridwidth = 3;
 		gbc_scrollPane_5.insets = new Insets(0, 0, 5, 0);
 		gbc_scrollPane_5.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane_5.gridx = 0;
@@ -2414,6 +2415,7 @@ public class MainFrame extends JFrame
 		JScrollPane scrollPane_6 = new JScrollPane();
 		scrollPane_6.setPreferredSize(new Dimension(2, 200));
 		GridBagConstraints gbc_scrollPane_6 = new GridBagConstraints();
+		gbc_scrollPane_6.gridwidth = 3;
 		gbc_scrollPane_6.insets = new Insets(0, 0, 5, 0);
 		gbc_scrollPane_6.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane_6.gridx = 0;
@@ -2582,11 +2584,22 @@ public class MainFrame extends JFrame
 		});
 		mnDat2DirD2D.add(mntmDat2DirD2DDir);
 
+		
+		JCheckBox cbBatchToolsDat2DirDryRun = new JCheckBox(Messages.getString("MainFrame.cbBatchToolsDat2DirDryRun.text")); //$NON-NLS-1$
+		cbBatchToolsDat2DirDryRun.setSelected(Settings.getProperty("dat2dir.dry_run", false)); //$NON-NLS-1$
+		cbBatchToolsDat2DirDryRun.addItemListener(e -> Settings.setProperty("dat2dir.dry_run", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+
 		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$
-		btnBatchToolsDir2DatStart.addActionListener((e)->dat2dir());
+		btnBatchToolsDir2DatStart.addActionListener((e)->dat2dir(cbBatchToolsDat2DirDryRun.isSelected()));
+
+		GridBagConstraints gbc_cbBatchToolsDat2DirDryRun = new GridBagConstraints();
+		gbc_cbBatchToolsDat2DirDryRun.insets = new Insets(0, 0, 0, 5);
+		gbc_cbBatchToolsDat2DirDryRun.gridx = 1;
+		gbc_cbBatchToolsDat2DirDryRun.gridy = 2;
+		panelBatchToolsDat2Dir.add(cbBatchToolsDat2DirDryRun, gbc_cbBatchToolsDat2DirDryRun);
 		GridBagConstraints gbc_btnBatchToolsDir2DatStart = new GridBagConstraints();
-		gbc_btnBatchToolsDir2DatStart.anchor = GridBagConstraints.EAST;
-		gbc_btnBatchToolsDir2DatStart.gridx = 0;
+		gbc_btnBatchToolsDir2DatStart.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnBatchToolsDir2DatStart.gridx = 2;
 		gbc_btnBatchToolsDir2DatStart.gridy = 2;
 		panelBatchToolsDat2Dir.add(btnBatchToolsDir2DatStart, gbc_btnBatchToolsDir2DatStart);
 
@@ -3433,7 +3446,7 @@ public class MainFrame extends JFrame
 		progress.setVisible(true);
 	}
 
-	private void dat2dir()
+	private void dat2dir(boolean dryrun)
 	{
 		if (listBatchToolsDat2DirSrc.getModel().getSize() > 0)
 		{
@@ -3449,7 +3462,7 @@ public class MainFrame extends JFrame
 					@Override
 					protected Void doInBackground() throws Exception
 					{
-						new DirUpdater(sdrl, progress, Collections.list(listBatchToolsDat2DirSrc.getModel().elements()), tableBatchToolsDat2Dir);
+						new DirUpdater(sdrl, progress, Collections.list(listBatchToolsDat2DirSrc.getModel().elements()), tableBatchToolsDat2Dir, dryrun);
 						return null;
 					}
 

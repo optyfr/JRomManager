@@ -34,8 +34,10 @@ public class TorrentChecker implements UnitRenderer
 	 */
 	public TorrentChecker(final Progress progress, List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater) throws IOException
 	{
+		updater.clearResults();
 		for (int i = 0; i < sdrl.size(); i++)
 		{
+			updater.updateResult(i, "In progress...");
 			SrcDstResult sdr = sdrl.get(i);
 			final String result = check(progress, mode, sdr);
 			updater.updateResult(i, result);

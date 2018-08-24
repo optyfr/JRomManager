@@ -60,8 +60,9 @@ public abstract class MDigest
 
 	/**
 	 * Compute hashes from an {@link InputStream}
-	 * @param is the {@link InputStream} to read
+	 * @param in the {@link InputStream} to read
 	 * @param md an array of {@link MDigest}
+	 * @return an array of {@link MDigest}
 	 */
 	public static MDigest[] computeHash(final InputStream in, final MDigest[] md) throws IOException
 	{

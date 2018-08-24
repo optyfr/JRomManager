@@ -1113,6 +1113,7 @@ public final class DirScan
 	/**
 	 * get the scan cache File
 	 * @param file the root dir {@link File} of the scan
+	 * @param options {@link EnumSet} of {@link Options}
 	 * @return a {@link File} corresponding to the cache file
 	 */
 	public static File getCacheFile(final File file, EnumSet<Options> options)

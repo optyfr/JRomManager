@@ -9,4 +9,9 @@ public interface ResultColUpdater
 	 */
 	void updateResult(int row, String result);
 
+	/**
+	 * Clear all results
+	 */
+	void clearResults();
+	
 }

@@ -40,6 +40,7 @@ public abstract class SDRTableModel implements TableModel
 
 	/**
 	 * @param current_row the current_row to set
+	 * @return the current row
 	 */
 	public int setCurrentRow(int current_row)
 	{
@@ -57,6 +58,7 @@ public abstract class SDRTableModel implements TableModel
 
 	/**
 	 * @param current_col the current_col to set
+	 * @return the current col
 	 */
 	public int setCurrentCol(int current_col)
 	{
@@ -73,7 +75,7 @@ public abstract class SDRTableModel implements TableModel
 	}
 
 	/**
-	 * @return the data
+	 * @param data initialize data
 	 */
 	public void setData(List<SrcDstResult> data)
 	{

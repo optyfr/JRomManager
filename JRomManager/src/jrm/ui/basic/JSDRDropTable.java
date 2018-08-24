@@ -201,7 +201,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	/**
 	 * Del.
 	 *
-	 * @param files the files
+	 * @param sdrl the data to delete
 	 */
 	public void del(final List<SrcDstResult> sdrl)
 	{
@@ -211,6 +211,10 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 		addCallBack.call(model.getData());
 	}
 	
+	/**
+	 * get selected values as a {@link List} of {@link SrcDstResult}
+	 * @return the {@link List} of {@link SrcDstResult} corresponding to selected values
+	 */
 	public List<SrcDstResult> getSelectedValuesList()
 	{
 		int[] rows = getSelectedRows();
@@ -218,5 +222,13 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 		for(int row : rows)
 			list.add(model.getData().get(row));
 		return list;
+	}
+
+	@Override
+	public void clearResults()
+	{
+		model.getData().forEach(r->r.result="");
+		model.fireTableChanged(new TableModelEvent(model, 0, model.getRowCount()-1, 2));
+		addCallBack.call(model.getData());
 	}
 }

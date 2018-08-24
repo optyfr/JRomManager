@@ -162,6 +162,7 @@ public class Scan
 	 * The constructor
 	 * @param profile the current {@link Profile}
 	 * @param handler the {@link ProgressHandler} to show progression on UI
+	 * @param scancache a cache for src {@link DirScan}
 	 * @throws BreakException
 	 */
 	public Scan(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache) throws BreakException

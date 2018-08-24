@@ -40,12 +40,15 @@ public class DirUpdater
 	 * @param progress the progression handler
 	 * @param srcdirs the list of source directory containing new roms
 	 * @param result the result interface
+	 * @param dryrun tell not to fix
 	 */
-	public DirUpdater(List<SrcDstResult> sdrl, final Progress progress, List<File> srcdirs, ResultColUpdater result)
+	public DirUpdater(List<SrcDstResult> sdrl, final Progress progress, List<File> srcdirs, ResultColUpdater result, boolean dryrun)
 	{
 		final Map<String, DirScan> scancache = new HashMap<>();
+		result.clearResults();
 		for (int i = 0; i < sdrl.size(); i++)
 		{
+			result.updateResult(i, "In progress..."); //$NON-NLS-1$
 			final File dat = sdrl.get(i).src;
 			final File dst = sdrl.get(i).dst;
 			try
@@ -71,7 +74,8 @@ public class DirUpdater
 					Scan scan = new Scan(Profile.curr_profile, progress, scancache);
 					total += Scan.report.stats.set_create + Scan.report.stats.set_found + Scan.report.stats.set_missing;
 					ok += Scan.report.stats.set_create_complete + Scan.report.stats.set_found_fixcomplete + Scan.report.stats.set_found_ok;
-					new Fix(Profile.curr_profile, scan, progress);
+					if(!dryrun)
+						new Fix(Profile.curr_profile, scan, progress);
 					result.updateResult(i, String.format(Messages.getString("DirUpdater.Result"), (float) ok * 100.0 / (float) total, total-ok)); //$NON-NLS-1$
 				}
 			}

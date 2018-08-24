@@ -51,7 +51,7 @@ public class Reader
      * Keeps reading single types and adds them to the list to finally return
      * them.
      *
-     * @return List<Object> containing all the parsed bencoded objects.
+     * @return {@link List} of {@link IBencodable} containing all the parsed bencoded objects.
      */
     public synchronized List<IBencodable> read()
     {
@@ -106,7 +106,7 @@ public class Reader
     /**
      * Reads in a list starting from the current byte index. Throws an error if
      * not called on an appropriate index.
-     * A list of values is encoded as l<contents>e . The contents consist of the bencoded
+     * A list of values is encoded as l&lt;contents&gt;e . The contents consist of the bencoded
      * elements of the list, in order, concatenated. A list consisting of the string "spam"
      * and the number 42 would be encoded as: l4:spami42ee. Note the absence of separators
      * between elements.
@@ -131,7 +131,7 @@ public class Reader
     /**
      * Reads in a bytestring strating at the current position.
      * Throws an error if not possible.
-     * A byte string (a sequence of bytes, not necessarily characters) is encoded as <length>:<contents>.
+     * A byte string (a sequence of bytes, not necessarily characters) is encoded as &lt;length&gt;:&lt;contents&gt;.
      * The length is encoded in base 10, like integers, but must be non-negative (zero is allowed);
      * the contents are just the bytes that make up the string. The string "spam" would be encoded as 4:spam.
      * The specification does not deal with encoding of characters outside the ASCII set; to mitigate this,
@@ -175,7 +175,7 @@ public class Reader
     /**
      * Reads in a dictionary. Each dictionary consists of N bytestrings mapped to any other value.
      * Example: d3:foo3:bare == ({foo, bar})
-     * A dictionary is encoded as d<contents>e. The elements of the dictionary are encoded each key
+     * A dictionary is encoded as d&lt;contents&gt;e. The elements of the dictionary are encoded each key
      * immediately followed by its value. All keys must be byte strings and must appear in
      * lexicographical order. A dictionary that associates the values 42 and "spam" with the keys
      * "foo" and "bar", respectively (in other words, {"bar": "spam", "foo": 42}), would be encoded as
@@ -208,7 +208,7 @@ public class Reader
     /**
      * Parses an integer in Bencode fromat.
      * Example: 123 == i123e
-     * An integer is encoded as i<integer encoded in base ten ASCII>e.
+     * An integer is encoded as i&lt;integer encoded in base ten ASCII&gt;e.
      * Leading zeros are not allowed (although the number zero is still represented as "0").
      * Negative values are encoded by prefixing the number with a minus sign.
      * The number 42 would thus be encoded as i42e, 0 as i0e, and -42 as i-42e.
