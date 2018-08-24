@@ -98,13 +98,16 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Available as installation package for [Gentoo Linux](https://packages.gentoo.org/packages/games-emulation/jrommanager), [Arch Linux](https://aur.archlinux.org/packages/jrommanager/), as .deb for [Debian / UBuntu](https://github.com/optyfr/JRomManager/releases/latest/), as RPM for [Centos / Fedora / Redhat](https://github.com/optyfr/JRomManager/releases/latest/), as MSI for [Windows](https://github.com/optyfr/JRomManager/releases/latest/)
 - .exe bootstrap for windows version (with MSI installer) that search for available JRE in the system and adjust right memory parameters according 32 or 64 bits jre, can also work with a possible bundled jre
 - Documented source and javadoc available
+- Dir2Dat
+- Batch Tools
+	- Dir Updater : to update many dats files to many dirs. Accept dirs of dats as source (software list mode)
+	- Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode
 
 ## Short Term Planned Features
-- Dir2Dat
+
 
 ## Middle Term Planned Features
 - Auto update option (and show Changes log after auto-update)
-- Batch mode
 - Cmd Line mode
 - More Translations
 - Headered Roms support
