@@ -23,7 +23,7 @@ import javax.swing.event.TableModelEvent;
 import jrm.ui.basic.SDRTableModel.SrcDstResult;
 
 @SuppressWarnings("serial")
-public class JSDRDropTable extends JTable implements DropTargetListener
+public class JSDRDropTable extends JTable implements DropTargetListener, ResultColUpdater
 {
 	/** The color. */
 	private final Color color;
@@ -187,6 +187,10 @@ public class JSDRDropTable extends JTable implements DropTargetListener
 		return model;
 	}
 
+	/* (non-Javadoc)
+	 * @see jrm.ui.basic.ResultColUpdater#updateResult(int, java.lang.String)
+	 */
+	@Override
 	public void updateResult(int row, String result)
 	{
 		model.getData().get(row).result = result;

@@ -37,14 +37,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,7 +48,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -104,7 +99,6 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -114,16 +108,14 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import jrm.batch.DirUpdater;
+import jrm.batch.TorrentChecker;
 import jrm.compressors.SevenZipOptions;
 import jrm.compressors.ZipOptions;
 import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
-import jrm.io.torrent.Torrent;
-import jrm.io.torrent.TorrentFile;
-import jrm.io.torrent.TorrentParser;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
-import jrm.misc.BreakException;
 import jrm.misc.FindCmd;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
@@ -161,6 +153,7 @@ import jrm.ui.basic.JRMFileChooser.OneRootFileSystemView;
 import jrm.ui.basic.JSDRDropTable;
 import jrm.ui.basic.JTextFieldHintUI;
 import jrm.ui.basic.NGTreeNode;
+import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.basic.SDRTableModel.SrcDstResult;
 import jrm.ui.batch.BatchTableModel;
@@ -175,7 +168,6 @@ import jrm.ui.profile.manager.FileTableCellRenderer;
 import jrm.ui.profile.manager.FileTableModel;
 import jrm.ui.profile.report.ReportFrame;
 import jrm.ui.progress.Progress;
-import one.util.streamex.StreamEx;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -2591,84 +2583,7 @@ public class MainFrame extends JFrame
 		mnDat2DirD2D.add(mntmDat2DirD2DDir);
 
 		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$
-		btnBatchToolsDir2DatStart.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				if (listBatchToolsDat2DirSrc.getModel().getSize() > 0)
-				{
-					List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
-					if (sdrl.stream().filter((sdr) -> !Profile.getSettingsFile(sdr.src).exists()).count() > 0)
-						JOptionPane.showMessageDialog(MainFrame.this, "All dats must have an assigned preset");
-					else
-					{
-						final Progress progress = new Progress(MainFrame.this);
-						final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-						{
-
-							@Override
-							protected Void doInBackground() throws Exception
-							{
-								List<File> srcdirs = Collections.list(listBatchToolsDat2DirSrc.getModel().elements());
-								Map<String, DirScan> scancache = new HashMap<>();
-								for (int i = 0; i < sdrl.size(); i++)
-								{
-									File dat = sdrl.get(i).src;
-									File dst = sdrl.get(i).dst;
-									try
-									{
-										File[] datlist = { dat };
-										File[] dstlist = { dst };
-										if (dat.isDirectory())
-										{
-											datlist = dat.listFiles((sdir, sfilename) -> Sets.newHashSet("xml", "dat").contains(FilenameUtils.getExtension(sfilename).toLowerCase()));
-											Arrays.sort(datlist, (a, b) -> a.getAbsolutePath().compareTo(b.getAbsolutePath()));
-											for (File d : datlist)
-												Files.copy(Profile.getSettingsFile(dat).toPath(), Profile.getSettingsFile(d).toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-											dstlist = StreamEx.of(datlist).map(datfile -> new File(dst, FilenameUtils.removeExtension(datfile.getName()))).toArray(File.class);
-											for (File d : dstlist)
-												d.mkdir();
-										}
-										long total = 0, ok = 0;
-										for (int j = 0; j < datlist.length; j++)
-										{
-											Scan.report.setProfile(Profile.curr_profile = Profile.load(datlist[j], progress));
-											Profile.curr_profile.setProperty("roms_dest_dir", dstlist[j].getAbsolutePath());
-											Profile.curr_profile.setProperty("src_dir", String.join("|", srcdirs.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())));
-											curr_scan = new Scan(Profile.curr_profile, progress, scancache);
-											total += Scan.report.stats.set_create + Scan.report.stats.set_found + Scan.report.stats.set_missing;
-											ok += Scan.report.stats.set_create_complete + Scan.report.stats.set_found_fixcomplete + Scan.report.stats.set_found_ok;
-											new Fix(Profile.curr_profile, curr_scan, progress);
-											tableBatchToolsDat2Dir.updateResult(i, String.format("%.02f%% completed", (float) ok * 100.0 / (float) total));
-										}
-									}
-									catch (BreakException e)
-									{
-										throw e;
-									}
-									catch (Throwable e)
-									{
-										e.printStackTrace();
-									}
-								}
-								return null;
-							}
-
-							@Override
-							protected void done()
-							{
-								progress.dispose();
-							}
-
-						};
-						worker.execute();
-						progress.setVisible(true);
-					}
-				}
-				else
-					JOptionPane.showMessageDialog(MainFrame.this, "There must be at least on source directory");
-			}
-		});
+		btnBatchToolsDir2DatStart.addActionListener((e)->dat2dir());
 		GridBagConstraints gbc_btnBatchToolsDir2DatStart = new GridBagConstraints();
 		gbc_btnBatchToolsDir2DatStart.anchor = GridBagConstraints.EAST;
 		gbc_btnBatchToolsDir2DatStart.gridx = 0;
@@ -2767,137 +2682,7 @@ public class MainFrame extends JFrame
 		panelBatchToolsDir2Torrent.add(cbBatchToolsTrntChk, gbc_cbBatchToolsTrntChk);
 
 		JButton btnBatchToolsTrntChkStart = new JButton(Messages.getString("MainFrame.btnStart_1.text")); //$NON-NLS-1$
-		btnBatchToolsTrntChkStart.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				final Progress progress = new Progress(MainFrame.this);
-				final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-				{
-
-					@Override
-					protected Void doInBackground() throws Exception
-					{
-						List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsTrntChk.getModel()).getData();
-						for(int i = 0; i < sdrl.size(); i++)
-						{
-							SrcDstResult sdr = sdrl.get(i);
-							if(sdr.src != null && sdr.dst != null)
-							{
-								if(sdr.src.exists() && sdr.dst.exists())
-								{
-									Torrent torrent = TorrentParser.parseTorrent(sdr.src.getAbsolutePath());
-									List<TorrentFile> tfiles = torrent.getFileList();
-									int total = tfiles.size(), ok = 0;
-									if(cbBatchToolsTrntChk.getSelectedItem()!=TrntChkMode.SHA1)
-									{
-										for(int j = 0; j < total; j++)
-										{
-											TorrentFile tfile = tfiles.get(j);
-											Path file = sdr.dst.toPath();
-											for(String path : tfile.getFileDirs())
-												file = file.resolve(path);
-											progress.setProgress(sdr.src.getAbsolutePath(), -1, null, file.toString());
-											progress.setProgress2(j+"/"+total, j, total);
-											if(Files.exists(file) && (cbBatchToolsTrntChk.getSelectedItem()==TrntChkMode.FILENAME || Files.size(file)==tfile.getFileLength()))
-												ok++;
-										}
-										tableBatchToolsTrntChk.updateResult(i, String.format("%.02f%% complete", (float) ok * 100.0 / (float) total));
-									}
-									else try
-									{
-										long piece_length = torrent.getPieceLength();
-										List<String> pieces = torrent.getPieces();
-										long to_go = piece_length;
-										int piece_cnt = 0, piece_valid = 0;
-										progress.setProgress(sdr.src.getAbsolutePath(), -1, null, "");
-										progress.setProgress2(String.format("piece %d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
-										piece_cnt++;
-										boolean valid = true;
-										MessageDigest md = MessageDigest.getInstance("SHA-1");
-										byte[] buffer = new byte[8192];
-										for(TorrentFile tfile : tfiles)
-										{
-											BufferedInputStream in = null;
-											Path file = sdr.dst.toPath();
-											for(String path : tfile.getFileDirs())
-												file = file.resolve(path);
-											if(!Files.exists(file) || Files.size(file)!=tfile.getFileLength())
-												valid = false;
-											else
-												in = new BufferedInputStream(new FileInputStream(file.toFile()));
-											progress.setProgress(sdr.src.getAbsolutePath(), -1, null, file.toString());
-											long flen = tfile.getFileLength();
-											while(flen >= to_go)
-											{
-												if(in != null)
-												{
-													long to_read = to_go;
-													do
-													{
-														int len = in.read(buffer,0,(int)(to_read<buffer.length?to_read:buffer.length));
-														md.update(buffer, 0, len);
-														to_read -= len;
-													}
-													while(to_read > 0);
-												}
-												flen -= to_go;
-												to_go = (int)piece_length;
-												progress.setProgress2(String.format("piece %d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
-												if(valid && Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(piece_cnt-1)))
-													piece_valid++;
-												md.reset();
-												piece_cnt++;
-												valid = true;
-												if(flen > 0)
-												{
-													if(!Files.exists(file) || Files.size(file)!=tfile.getFileLength())
-														valid = false;
-												}
-											}
-											if(in != null)
-											{
-												long to_read = flen;
-												do
-												{
-													int len = in.read(buffer,0,(int)(to_read<buffer.length?to_read:buffer.length));
-													md.update(buffer, 0, len);
-													to_read -= len;
-												}
-												while(to_read > 0);
-												in.close();
-											}
-											to_go -= flen;
-										}
-										progress.setProgress2(String.format("piece %d/%d", piece_cnt, pieces.size()), piece_cnt, pieces.size());
-										if(valid && Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(piece_cnt-1)))
-											piece_valid++;
-										System.out.format("piece counted %d, given %d, valid %d, completion=%.02f%%\n", piece_cnt, pieces.size(), piece_valid, (double)piece_valid*100.0/(double)piece_cnt);
-										System.out.format("piece len : %d\n", piece_length);
-										System.out.format("last piece len : %d\n", piece_length-to_go);
-										tableBatchToolsTrntChk.updateResult(i, String.format("%.02f%% complete", (double)piece_valid*100.0/(double)piece_cnt));
-									}
-									catch(Exception ex)
-									{
-										ex.printStackTrace();
-									}
-								}
-							}
-						}
-						return null;
-					}
-
-					@Override
-					protected void done()
-					{
-						progress.dispose();
-					}
-
-				};
-				worker.execute();
-				progress.setVisible(true);
-			}
-		});
+		btnBatchToolsTrntChkStart.addActionListener((e)->trrntChk());
 		GridBagConstraints gbc_btnBatchToolsTrntChkStart = new GridBagConstraints();
 		gbc_btnBatchToolsTrntChkStart.anchor = GridBagConstraints.EAST;
 		gbc_btnBatchToolsTrntChkStart.gridx = 2;
@@ -3647,6 +3432,70 @@ public class MainFrame extends JFrame
 		worker.execute();
 		progress.setVisible(true);
 	}
+
+	private void dat2dir()
+	{
+		if (listBatchToolsDat2DirSrc.getModel().getSize() > 0)
+		{
+			List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
+			if (sdrl.stream().filter((sdr) -> !Profile.getSettingsFile(sdr.src).exists()).count() > 0)
+				JOptionPane.showMessageDialog(MainFrame.this, "All dats must have an assigned preset");
+			else
+			{
+				final Progress progress = new Progress(MainFrame.this);
+				final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+				{
+
+					@Override
+					protected Void doInBackground() throws Exception
+					{
+						new DirUpdater(sdrl, progress, Collections.list(listBatchToolsDat2DirSrc.getModel().elements()), tableBatchToolsDat2Dir);
+						return null;
+					}
+
+					@Override
+					protected void done()
+					{
+						progress.dispose();
+					}
+
+				};
+				worker.execute();
+				progress.setVisible(true);
+			}
+		}
+		else
+			JOptionPane.showMessageDialog(MainFrame.this, "There must be at least on source directory");
+	}
+
+	private void trrntChk()
+	{
+		final Progress progress = new Progress(MainFrame.this);
+		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+		{
+
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsTrntChk.getModel()).getData();
+				TrntChkMode mode = (TrntChkMode)cbBatchToolsTrntChk.getSelectedItem();
+				ResultColUpdater updater = tableBatchToolsTrntChk;
+				new TorrentChecker(progress, sdrl, mode, updater);
+				return null;
+			}
+
+			@Override
+			protected void done()
+			{
+				progress.dispose();
+			}
+
+		};
+		worker.execute();
+		progress.setVisible(true);
+	}
+
+
 
 	/**
 	 * Adds and show the popup menu.
