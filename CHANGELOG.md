@@ -1,3 +1,8 @@
+## Release v1.8 build 26
+- Dir2Dat
+- Batch Tools
+  - Dir Updater : to update many dats files to many dirs. Accept dirs of dats as source (software list mode)
+  - Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode
 ## Release v1.7 build 24
 - Executable launcher for windows (using [JLauncher](https://github.com/optyfr/JLauncher) project)
 - Documented source code and javadoc archive available
