@@ -246,4 +246,10 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		return sl_filtered_byname.get(name);
 	}
 
+	@Override
+	public TableCellRenderer[] getCellRenderers()
+	{
+		return AnywareListListRenderer.columnsRenderers;
+	}
+
 }

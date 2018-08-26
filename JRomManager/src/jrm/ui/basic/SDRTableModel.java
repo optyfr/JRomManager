@@ -8,16 +8,15 @@ import java.util.List;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
 
-public abstract class SDRTableModel implements TableModel
+public abstract class SDRTableModel implements EnhTableModel
 {
 	public static class SrcDstResult
 	{
 		public File src = null;
 		public File dst = null;
 		public String result = ""; //$NON-NLS-1$
+		public boolean selected = true;
 		
 	}
 	
@@ -107,11 +106,6 @@ public abstract class SDRTableModel implements TableModel
 			if(listeners[i] == TableModelListener.class)
 				((TableModelListener) listeners[i + 1]).tableChanged(e);
 	}
-
-	/**
-	 * @return the cellRenderers
-	 */
-	public abstract TableCellRenderer[] getCellRenderers();
 
 	/**
 	 * @return the srcFilter

@@ -18,7 +18,12 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -28,12 +33,12 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
 
 import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
+import jrm.ui.basic.EnhTableModel;
 import jrm.ui.profile.data.AnywareRenderer;
 import one.util.streamex.StreamEx;
 
@@ -43,7 +48,7 @@ import one.util.streamex.StreamEx;
  *  
  */
 @SuppressWarnings("serial")
-public abstract class Anyware extends AnywareBase implements Serializable, TableModel, Systm
+public abstract class Anyware extends AnywareBase implements Serializable, EnhTableModel, Systm
 {
 	/**
 	 * the name of the parent from which this instance is a clone, null if the instance is not a clone
@@ -513,17 +518,23 @@ public abstract class Anyware extends AnywareBase implements Serializable, Table
 	 * @param columnIndex the requested column index
 	 * @return a {@link TableCellRenderer} associated with the given columnindex 
 	 */
-	public static TableCellRenderer getColumnRenderer(final int columnIndex)
+	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
 		return columnIndex < AnywareRenderer.columnsRenderers.length && AnywareRenderer.columnsRenderers[columnIndex] != null ? AnywareRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
 	}
 
+	@Override
+	public TableCellRenderer[] getCellRenderers()
+	{
+		return AnywareRenderer.columnsRenderers;
+	}
+	
 	/**
 	 * get the declared width for a given column
 	 * @param columnIndex the requested column index
 	 * @return a width in pixel (if negative then it's a fixed column width)
 	 */
-	public static int getColumnWidth(final int columnIndex)
+	public int getColumnWidth(final int columnIndex)
 	{
 		return AnywareRenderer.columnsWidths[columnIndex];
 	}

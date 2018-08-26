@@ -320,4 +320,10 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 			resetFilteredName();
 		return s_filtered_byname.get(name);
 	}
+
+	@Override
+	public TableCellRenderer[] getCellRenderers()
+	{
+		return SoftwareListRenderer.columnsRenderers;
+	}
 }

@@ -18,15 +18,19 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
 
+import jrm.ui.basic.EnhTableModel;
 import one.util.streamex.StreamEx;
 
 /**
@@ -36,7 +40,7 @@ import one.util.streamex.StreamEx;
  * @param <T> extends {@link Anyware} (generally a {@link Machine} or a {@link Software})
  */
 @SuppressWarnings("serial")
-public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, TableModel, List<T>, ByName<T>
+public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, EnhTableModel, List<T>, ByName<T>
 {
 	/**
 	 * Event Listener list for firing events to Swing controls (Table)

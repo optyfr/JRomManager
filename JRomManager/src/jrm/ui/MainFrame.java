@@ -2434,6 +2434,7 @@ public class MainFrame extends JFrame
 					jso.add("src", sdr.src != null ? sdr.src.getAbsolutePath() : null); //$NON-NLS-1$
 					jso.add("dst", sdr.dst != null ? sdr.dst.getAbsolutePath() : null); //$NON-NLS-1$
 					jso.add("result", sdr.result); //$NON-NLS-1$
+					jso.add("selected", sdr.selected); //$NON-NLS-1$
 					array.add(jso);
 				}
 				Settings.setProperty("dat2dir.sdr", array.toString()); //$NON-NLS-1$
@@ -2445,13 +2446,14 @@ public class MainFrame extends JFrame
 			SrcDstResult sdr = new SrcDstResult();
 			JsonObject jso = arrv.asObject();
 			JsonValue src = jso.get("src"); //$NON-NLS-1$
-			JsonValue dst = jso.get("dst"); //$NON-NLS-1$
-			JsonValue result = jso.get("result"); //$NON-NLS-1$
 			if (src != Json.NULL)
 				sdr.src = new File(src.asString());
+			JsonValue dst = jso.get("dst"); //$NON-NLS-1$
 			if (dst != Json.NULL)
 				sdr.dst = new File(dst.asString());
+			JsonValue result = jso.get("result"); //$NON-NLS-1$
 			sdr.result = result.asString();
+			sdr.selected = jso.getBoolean("selected", true); //$NON-NLS-1$
 			sdrl.add(sdr);
 		}
 		tableBatchToolsDat2Dir.getSDRModel().setData(sdrl);
@@ -2470,6 +2472,7 @@ public class MainFrame extends JFrame
 		});
 		tableBatchToolsDat2Dir.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		tableBatchToolsDat2Dir.setFillsViewportHeight(true);
+		((BatchTableModel)tableBatchToolsDat2Dir.getModel()).applyColumnsWidths(tableBatchToolsDat2Dir);
 		scrollPane_6.setViewportView(tableBatchToolsDat2Dir);
 
 		JPopupMenu popupMenu = new JPopupMenu();
@@ -2621,7 +2624,7 @@ public class MainFrame extends JFrame
 		gbc_scrollPane.gridy = 0;
 		panelBatchToolsDir2Torrent.add(scrollPane, gbc_scrollPane);
 
-		tableBatchToolsTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result") }), new JSDRDropTable.AddDelCallBack() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		tableBatchToolsTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result") , "Selected"}), new JSDRDropTable.AddDelCallBack() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		{
 			@Override
 			public void call(List<SrcDstResult> files)
@@ -2633,24 +2636,27 @@ public class MainFrame extends JFrame
 					jso.add("src", sdr.src != null ? sdr.src.getAbsolutePath() : null); //$NON-NLS-1$
 					jso.add("dst", sdr.dst != null ? sdr.dst.getAbsolutePath() : null); //$NON-NLS-1$
 					jso.add("result", sdr.result); //$NON-NLS-1$
+					jso.add("selected", sdr.selected); //$NON-NLS-1$
 					array.add(jso);
 				}
 				Settings.setProperty("trntchk.sdr", array.toString()); //$NON-NLS-1$
 			}
 		});
+		((BatchTableModel)tableBatchToolsTrntChk.getModel()).applyColumnsWidths(tableBatchToolsTrntChk);
 		List<SrcDstResult> sdrl2 = new ArrayList<>();
 		for (JsonValue arrv : Json.parse(Settings.getProperty("trntchk.sdr", "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			SrcDstResult sdr = new SrcDstResult();
 			JsonObject jso = arrv.asObject();
 			JsonValue src = jso.get("src"); //$NON-NLS-1$
-			JsonValue dst = jso.get("dst"); //$NON-NLS-1$
-			JsonValue result = jso.get("result"); //$NON-NLS-1$
 			if (src != Json.NULL)
 				sdr.src = new File(src.asString());
+			JsonValue dst = jso.get("dst"); //$NON-NLS-1$
 			if (dst != Json.NULL)
 				sdr.dst = new File(dst.asString());
+			JsonValue result = jso.get("result"); //$NON-NLS-1$
 			sdr.result = result.asString();
+			sdr.selected = jso.getBoolean("selected", true); //$NON-NLS-1$
 			sdrl2.add(sdr);
 		}
 		tableBatchToolsTrntChk.getSDRModel().setData(sdrl2);

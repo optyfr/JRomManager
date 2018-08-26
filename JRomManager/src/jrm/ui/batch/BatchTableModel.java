@@ -7,6 +7,7 @@ import java.io.File;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -17,11 +18,12 @@ public class BatchTableModel extends SDRTableModel
 {
 	
 	private final String[] headers;
-	private final Class<?>[] types = {File.class, File.class, String.class};
+	private final Class<?>[] types = {File.class, File.class, String.class, Boolean.class};
+	private final int[] widths = {0, 0, 0, -22};
 
 	public BatchTableModel()
 	{
-		this.headers = new String[] {Messages.getString("BatchTableModel.SrcDats"), Messages.getString("BatchTableModel.DstDirs"), Messages.getString("BatchTableModel.Result")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		this.headers = new String[] {Messages.getString("BatchTableModel.SrcDats"), Messages.getString("BatchTableModel.DstDirs"), Messages.getString("BatchTableModel.Result"), "Selected"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	public BatchTableModel(String[] headers)
@@ -71,7 +73,7 @@ public class BatchTableModel extends SDRTableModel
 			setHorizontalAlignment(TRAILING);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
-	}};
+	}, null};
 
 	private static String trimmedStringCalculator(String inputText, JTable table, JLabel component, int width)
 	{
@@ -95,7 +97,7 @@ public class BatchTableModel extends SDRTableModel
 	@Override
 	public int getColumnCount()
 	{
-		return 3;
+		return 4;
 	}
 
 	@Override
@@ -113,7 +115,7 @@ public class BatchTableModel extends SDRTableModel
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex)
 	{
-		return false;
+		return columnIndex==3;
 	}
 
 	@Override
@@ -127,6 +129,8 @@ public class BatchTableModel extends SDRTableModel
 				return getData().get(rowIndex).dst;
 			case 2:
 				return getData().get(rowIndex).result;
+			case 3:
+				return getData().get(rowIndex).selected;
 		}
 		return null;
 	}
@@ -145,7 +149,11 @@ public class BatchTableModel extends SDRTableModel
 			case 2:
 				getData().get(rowIndex).result = (String) aValue;
 				break;
+			case 3:
+				getData().get(rowIndex).selected = (Boolean) aValue;
+				break;
 		}
+		fireTableChanged(new TableModelEvent(this, rowIndex, rowIndex, columnIndex, TableModelEvent.UPDATE));
 	}
 
 	/**
@@ -155,6 +163,12 @@ public class BatchTableModel extends SDRTableModel
 	public TableCellRenderer[] getCellRenderers()
 	{
 		return cellRenderers;
+	}
+
+	@Override
+	public int getColumnWidth(int columnIndex)
+	{
+		return widths[columnIndex];
 	}
 	
 }

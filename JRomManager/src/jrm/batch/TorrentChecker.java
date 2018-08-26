@@ -39,16 +39,18 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	 */
 	public TorrentChecker(final Progress progress, List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater) throws IOException
 	{
-		updater.clearResults();
-		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),sdrl.size()), true);
+		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),(int)sdrl.stream().filter(sdr->sdr.selected).count()), true);
 		progress.setProgress2("", 0, 1); //$NON-NLS-1$
-		StreamEx.of(sdrl).parallel().takeWhile(sdr->!progress.isCancel()).forEach(sdr->{
+		StreamEx.of(sdrl).filter(sdr->sdr.selected).forEach(sdr->{
+			updater.updateResult(sdrl.indexOf(sdr), "");
+		});
+		StreamEx.of(sdrl).filter(sdr->sdr.selected).parallel().takeWhile(sdr->!progress.isCancel()).forEach(sdr->{
 			try
 			{
-				int col = sdrl.indexOf(sdr);
-				updater.updateResult(col, "In progress...");
+				int row = sdrl.indexOf(sdr);
+				updater.updateResult(row, "In progress...");
 				final String result = check(progress, mode, sdr);
-				updater.updateResult(col, result);
+				updater.updateResult(row, result);
 				progress.setProgress(null, -1, null, "");
 			}
 			catch (IOException e)

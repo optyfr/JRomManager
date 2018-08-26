@@ -678,8 +678,8 @@ public class ProfileViewer extends JDialog
 						for (int i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++)
 						{
 							final TableColumn column = tableEntity.getColumnModel().getColumn(i);
-							column.setCellRenderer(Anyware.getColumnRenderer(i));
-							final int width = Anyware.getColumnWidth(i);
+							column.setCellRenderer(anyware.getColumnRenderer(i));
+							final int width = anyware.getColumnWidth(i);
 							if (width > 0)
 							{
 								column.setMinWidth(width / 2);

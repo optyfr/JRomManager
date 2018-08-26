@@ -18,7 +18,11 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -26,7 +30,8 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
+
+import jrm.ui.basic.EnhTableModel;
 
 /**
  *  A list of {@link Anyware} objects lists
@@ -35,7 +40,7 @@ import javax.swing.table.TableModel;
  * @param <T> extends {@link AnywareList} (generally a {@link Machine} or a {@link Software})
  */
 @SuppressWarnings("serial")
-public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> implements Serializable, TableModel, List<T>
+public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> implements Serializable, EnhTableModel, List<T>
 {
 	/**
 	 * Event Listener list for firing events to Swing controls (Table)

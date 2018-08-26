@@ -362,4 +362,10 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		return m_filtered_byname.get(name);
 	}
 
+	@Override
+	public TableCellRenderer[] getCellRenderers()
+	{
+		return MachineListRenderer.columnsRenderers;
+	}
+
 }

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 import jrm.ui.basic.SDRTableModel.SrcDstResult;
 
@@ -55,6 +56,17 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 			getColumnModel().getColumn(i).setCellRenderer(model.getCellRenderers()[i]);
 		color = getBackground();
 		new DropTarget(this, this);
+		this.model.addTableModelListener(new TableModelListener()
+		{
+			@Override
+			public void tableChanged(TableModelEvent e)
+			{
+				if(e.getColumn()>=0 && model.getColumnClass(e.getColumn()).equals(Boolean.class) && e.getType()==TableModelEvent.UPDATE)
+				{
+					addCallBack.call(model.getData());
+				}
+			}
+		});
 	}
 	
 	@Override

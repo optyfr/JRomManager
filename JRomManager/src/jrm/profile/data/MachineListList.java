@@ -247,4 +247,10 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 			writer.writeEndDocument();
 		}
 	}
+
+	@Override
+	public TableCellRenderer[] getCellRenderers()
+	{
+		return AnywareListListRenderer.columnsRenderers;
+	}
 }
