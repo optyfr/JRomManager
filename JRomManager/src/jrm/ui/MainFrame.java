@@ -1741,7 +1741,7 @@ public class MainFrame extends JFrame
 
 		tfNPlayers = new JFileDropTextField(txt -> {
 			Profile.curr_profile.setProperty("filter.nplayers.ini", txt); //$NON-NLS-1$
-			Profile.curr_profile.loadNPlayers();
+			Profile.curr_profile.loadNPlayers(null);
 			Profile.curr_profile.saveSettings();
 			listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
 		});
@@ -1757,7 +1757,7 @@ public class MainFrame extends JFrame
 
 		tfCatVer = new JFileDropTextField(txt -> {
 			Profile.curr_profile.setProperty("filter.catver.ini", txt); //$NON-NLS-1$
-			Profile.curr_profile.loadCatVer();
+			Profile.curr_profile.loadCatVer(null);
 			Profile.curr_profile.saveSettings();
 			treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());
 		});
@@ -2668,6 +2668,21 @@ public class MainFrame extends JFrame
 		tableBatchToolsTrntChk.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		tableBatchToolsTrntChk.setFillsViewportHeight(true);
 		scrollPane.setViewportView(tableBatchToolsTrntChk);
+		
+		JPopupMenu pmTrntChk = new JPopupMenu();
+		addPopup(tableBatchToolsTrntChk, pmTrntChk);
+		
+		JMenuItem mntmAddTorrent = new JMenuItem(Messages.getString("MainFrame.mntmAddTorrent.text")); //$NON-NLS-1$
+		mntmAddTorrent.setEnabled(false);
+		pmTrntChk.add(mntmAddTorrent);
+		
+		JMenuItem mntmDelTorrent = new JMenuItem(Messages.getString("MainFrame.mntmDelTorrent.text")); //$NON-NLS-1$
+		mntmDelTorrent.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tableBatchToolsTrntChk.del(tableBatchToolsTrntChk.getSelectedValuesList());
+			}
+		});
+		pmTrntChk.add(mntmDelTorrent);
 
 		JLabel lblCheckMode = new JLabel(Messages.getString("MainFrame.lblCheckMode.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_lblCheckMode = new GridBagConstraints();

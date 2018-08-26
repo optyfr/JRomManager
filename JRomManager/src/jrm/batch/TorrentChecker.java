@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.codec.binary.Hex;
 
@@ -15,14 +16,18 @@ import jrm.io.torrent.TorrentFile;
 import jrm.io.torrent.TorrentParser;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
+import jrm.misc.HTMLRenderer;
 import jrm.misc.UnitRenderer;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.basic.SDRTableModel.SrcDstResult;
 import jrm.ui.progress.Progress;
+import one.util.streamex.StreamEx;
 
-public class TorrentChecker implements UnitRenderer
+public class TorrentChecker implements UnitRenderer,HTMLRenderer
 {
+	AtomicInteger processing = new AtomicInteger();
+	AtomicInteger current = new AtomicInteger();
 
 	/**
 	 * Check a dir versus torrent data 
@@ -35,13 +40,22 @@ public class TorrentChecker implements UnitRenderer
 	public TorrentChecker(final Progress progress, List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater) throws IOException
 	{
 		updater.clearResults();
-		for (int i = 0; i < sdrl.size(); i++)
-		{
-			updater.updateResult(i, "In progress...");
-			SrcDstResult sdr = sdrl.get(i);
-			final String result = check(progress, mode, sdr);
-			updater.updateResult(i, result);
-		}
+		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),sdrl.size()), true);
+		progress.setProgress2("", 0, 1); //$NON-NLS-1$
+		StreamEx.of(sdrl).parallel().takeWhile(sdr->!progress.isCancel()).forEach(sdr->{
+			try
+			{
+				int col = sdrl.indexOf(sdr);
+				updater.updateResult(col, "In progress...");
+				final String result = check(progress, mode, sdr);
+				updater.updateResult(col, result);
+				progress.setProgress(null, -1, null, "");
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		});
 	}
 
 	/**
@@ -65,20 +79,24 @@ public class TorrentChecker implements UnitRenderer
 				int missing_files = 0;
 				if (mode != TrntChkMode.SHA1)
 				{
+					processing.addAndGet(total);
 					for (int j = 0; j < total; j++)
 					{
+						current.incrementAndGet();
 						TorrentFile tfile = tfiles.get(j);
 						Path file = sdr.dst.toPath();
 						for (String path : tfile.getFileDirs())
 							file = file.resolve(path);
-						progress.setProgress(sdr.src.getAbsolutePath(), -1, null, file.toString());
-						progress.setProgress2(j + "/" + total, j, total); //$NON-NLS-1$
+						progress.setProgress(toHTML(toPurple(sdr.src.getAbsolutePath())), -1, null, file.toString());
+						progress.setProgress2(current + "/" + processing, current.get(), processing.get()); //$NON-NLS-1$
 						if (Files.exists(file) && (mode == TrntChkMode.FILENAME || Files.size(file) == tfile.getFileLength()))
 							ok++;
 						else if(mode == TrntChkMode.FILENAME)
 							missing_files++;
 						else
 							missing_bytes += tfile.getFileLength();
+						if(progress.isCancel())
+							break;
 					}
 					if(mode == TrntChkMode.FILENAME)
 						result = String.format(Messages.getString("TorrentChecker.ResultFileName"), (float) ok * 100.0 / (float) total, missing_files); //$NON-NLS-1$
@@ -93,8 +111,9 @@ public class TorrentChecker implements UnitRenderer
 						List<String> pieces = torrent.getPieces();
 						long to_go = piece_length;
 						int piece_cnt = 0, piece_valid = 0;
+						processing.addAndGet(pieces.size());
 						progress.setProgress(sdr.src.getAbsolutePath(), -1, null, ""); //$NON-NLS-1$
-						progress.setProgress2(String.format(Messages.getString("TorrentChecker.PieceProgression"), piece_cnt, pieces.size()), piece_cnt, pieces.size()); //$NON-NLS-1$
+						progress.setProgress2(String.format(Messages.getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), -1, processing.get()); //$NON-NLS-1$
 						piece_cnt++;
 						boolean valid = true;
 						MessageDigest md = MessageDigest.getInstance("SHA-1"); //$NON-NLS-1$
@@ -109,7 +128,7 @@ public class TorrentChecker implements UnitRenderer
 								valid = false;
 							else
 								in = new BufferedInputStream(new FileInputStream(file.toFile()));
-							progress.setProgress(sdr.src.getAbsolutePath(), -1, null, file.toString());
+							progress.setProgress(toHTML(toPurple(sdr.src.getAbsolutePath())), -1, null, file.toString());
 							long flen = tfile.getFileLength();
 							while (flen >= to_go)
 							{
@@ -126,13 +145,14 @@ public class TorrentChecker implements UnitRenderer
 								}
 								flen -= to_go;
 								to_go = (int) piece_length;
-								progress.setProgress2(String.format(Messages.getString("TorrentChecker.PieceProgression"), piece_cnt, pieces.size()), piece_cnt, pieces.size()); //$NON-NLS-1$
+								progress.setProgress2(String.format(Messages.getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), current.get(), processing.get()); //$NON-NLS-1$
 								if (valid && Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(piece_cnt - 1)))
 									piece_valid++;
 								else
 									missing_bytes += piece_length;
 								md.reset();
 								piece_cnt++;
+								current.incrementAndGet();
 								valid = true;
 								if (flen > 0)
 								{
@@ -153,8 +173,10 @@ public class TorrentChecker implements UnitRenderer
 								in.close();
 							}
 							to_go -= flen;
+							if(progress.isCancel())
+								break;
 						}
-						progress.setProgress2(String.format(Messages.getString("TorrentChecker.PieceProgression"), piece_cnt, pieces.size()), piece_cnt, pieces.size()); //$NON-NLS-1$
+						progress.setProgress2(String.format(Messages.getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), current.get(), processing.get()); //$NON-NLS-1$
 						if (valid && Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(piece_cnt - 1)))
 							piece_valid++;
 						else

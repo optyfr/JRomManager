@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.zip.CRC32;
 
 /**
  * The Settings back-end
@@ -51,7 +52,7 @@ public class Settings
 	{
 		if (multiuser)
 		{
-			Path work = Paths.get(System.getProperty("user.home"), ".jrommanager").toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
+			final Path work = Paths.get(System.getProperty("user.home"), ".jrommanager").toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
 			if (!Files.exists(work))
 			{
 				try
@@ -66,6 +67,20 @@ public class Settings
 			return work;
 		}
 		return Paths.get(".").toAbsolutePath().normalize(); //$NON-NLS-1$
+	}
+	
+	public static File getWorkFile(final File parent, final String name, final String ext)
+	{
+		if(!parent.getAbsoluteFile().toPath().startsWith(getWorkPath().toAbsolutePath()))
+		{
+			final CRC32 crc = new CRC32();
+			crc.update(new File(parent, name).getAbsolutePath().getBytes());
+			final File work = getWorkPath().resolve("work").toFile(); //$NON-NLS-1$
+			work.mkdirs();
+			return new File(work, String.format("%08x", crc.getValue()) + ext); //$NON-NLS-1$
+			
+		}
+		return new File(parent, name + ext); 
 	}
 	
 	/**

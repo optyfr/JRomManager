@@ -942,7 +942,7 @@ public class Profile implements Serializable
 	 */
 	private static File getCacheFile(final File file)
 	{
-		return new File(file.getParentFile(), file.getName() + ".cache"); //$NON-NLS-1$
+		return Settings.getWorkFile(file.getParentFile(), file.getName(), ".cache");  //$NON-NLS-1$
 	}
 
 	/**
@@ -1038,11 +1038,9 @@ public class Profile implements Serializable
 		handler.setProgress("Creating Years filters...", -1); //$NON-NLS-1$
 		profile.loadYears();
 		// Load cartver.ini (if any)
-		handler.setProgress("Loading catver.ini ...", -1); //$NON-NLS-1$
-		profile.loadCatVer();
+		profile.loadCatVer(handler);
 		// Load nplayers.ini (if any)
-		handler.setProgress("Loading nplayers.ini ...", -1); //$NON-NLS-1$
-		profile.loadNPlayers();
+		profile.loadNPlayers(handler);
 		// return the resulting profile
 		return profile;
 	}
@@ -1087,7 +1085,7 @@ public class Profile implements Serializable
 	 */
 	public static File getSettingsFile(final File file)
 	{
-		return new File(file.getParentFile(), file.getName() + ".properties"); //$NON-NLS-1$
+		return Settings.getWorkFile(file.getParentFile(), file.getName(), ".properties"); //$NON-NLS-1$
 	}
 
 	/**
@@ -1290,24 +1288,33 @@ public class Profile implements Serializable
 
 	/**
 	 * load catver.ini and build a game {@literal <->} cat/subcat relationship
+	 * @param handler 
 	 */
-	public void loadCatVer()
+	public void loadCatVer(ProgressHandler handler)
 	{
 		try
 		{
-			catver = CatVer.read(new File(getProperty("filter.catver.ini", null))); //$NON-NLS-1$
-			for (final Category cat : catver)
+			final File file = new File(getProperty("filter.catver.ini", null));
+			if(file.exists())
 			{
-				for (final SubCategory subcat : cat)
+				if (handler != null)
+					handler.setProgress("Loading catver.ini ...", -1); //$NON-NLS-1$
+				catver = CatVer.read(file); //$NON-NLS-1$
+				for (final Category cat : catver)
 				{
-					for (final String game : subcat)
+					for (final SubCategory subcat : cat)
 					{
-						final Machine m = machinelist_list.get(0).getByName(game);
-						if (m != null)
-							m.subcat = subcat;
+						for (final String game : subcat)
+						{
+							final Machine m = machinelist_list.get(0).getByName(game);
+							if (m != null)
+								m.subcat = subcat;
+						}
 					}
 				}
 			}
+			else
+				catver = null;
 		}
 		catch (final Throwable e)
 		{
@@ -1317,21 +1324,30 @@ public class Profile implements Serializable
 
 	/**
 	 * load nplayers.ini and build a game {@literal <->} nplayer relationship
+	 * @param handler 
 	 */
-	public void loadNPlayers()
+	public void loadNPlayers(ProgressHandler handler)
 	{
 		try
 		{
-			nplayers = NPlayers.read(new File(getProperty("filter.nplayers.ini", null))); //$NON-NLS-1$
-			for (final NPlayer nplayer : nplayers)
+			final File file = new File(getProperty("filter.nplayers.ini", null));
+			if(file.exists())
 			{
-				for (final String game : nplayer)
+				if (handler != null)
+					handler.setProgress("Loading nplayers.ini ...", -1); //$NON-NLS-1$
+				nplayers = NPlayers.read(file); //$NON-NLS-1$
+				for (final NPlayer nplayer : nplayers)
 				{
-					final Machine m = machinelist_list.get(0).getByName(game);
-					if (m != null)
-						m.nplayer = nplayer;
+					for (final String game : nplayer)
+					{
+						final Machine m = machinelist_list.get(0).getByName(game);
+						if (m != null)
+							m.nplayer = nplayer;
+					}
 				}
 			}
+			else
+				nplayers = null;
 		}
 		catch (final Throwable e)
 		{

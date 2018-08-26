@@ -16,11 +16,24 @@
  */
 package jrm.profile.manager;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamField;
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -33,6 +46,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import jrm.misc.Settings;
 
 /**
  * The Profile NFO file managing class with tolerant manual (de)serialization
@@ -119,7 +134,7 @@ public final class ProfileNFO implements Serializable
 	 */
 	private static File getFileNfo(final File file)
 	{
-		return new File(file.getParentFile(), file.getName() + ".nfo"); //$NON-NLS-1$
+		return Settings.getWorkFile(file.getParentFile(), file.getName(), ".nfo");
 	}
 
 	/**

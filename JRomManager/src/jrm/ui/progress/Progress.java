@@ -261,7 +261,7 @@ public class Progress extends JDialog implements ProgressHandler
 		getContentPane().add(lblTimeLeft2, gbc_lblTimeLeft2);
 		final GridBagConstraints gbc_btnCancel = new GridBagConstraints();
 		gbc_btnCancel.weighty = 200.0;
-		gbc_btnCancel.insets = new Insets(5, 5, 0, 0);
+		gbc_btnCancel.insets = new Insets(5, 5, 5, 5);
 		gbc_btnCancel.gridwidth = 2;
 		gbc_btnCancel.anchor = GridBagConstraints.SOUTH;
 		gbc_btnCancel.gridx = 0;
