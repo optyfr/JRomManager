@@ -5,9 +5,9 @@ A Rom Manager entirely written in Java and released under GPL-2
 [Screenshots](https://github.com/optyfr/JRomManager/wiki/Screenshots)
 
 ## Licensing
-- **GPL-2** : JRomManager, JUpdater, JLauncher, TorrentParser (based on [torrent-parser](https://github.com/m1dnight/torrent-parser) by Christophe de Troyer)
+- **GPL-2** : JRomManager, [JUpdater](https://github.com/optyfr/JUpdater), [JLauncher](https://github.com/optyfr/JLauncher), TorrentParser (based on [torrent-parser](https://github.com/m1dnight/torrent-parser) by Christophe de Troyer)
 - **GPL-2 with classpath exception** : zipfs (from [OpenJDK 9](http://hg.openjdk.java.net/jdk9/jdk9/jdk/))
-- **MIT** : Jtrrntzip (based on [trrntZipDN](https://github.com/arogl/trrntzipDN) by Gordon J), [commonmark](https://github.com/atlassian/commonmark-java) (by Atlassian), [minimal-json](https://github.com/ralfstx/minimal-json) (by Ralf Sternberg)
+- **MIT** : [Jtrrntzip](https://github.com/optyfr/Jtrrntzip) (based on [trrntZipDN](https://github.com/arogl/trrntzipDN) by Gordon J), [commonmark](https://github.com/atlassian/commonmark-java) (by Atlassian), [minimal-json](https://github.com/ralfstx/minimal-json) (by Ralf Sternberg)
 - **LGPL 2.1 with unRAR restriction** : [SevenZipJBinding](https://github.com/borisbrodski/sevenzipjbinding) (by Boris Brodski)
 - **Apache 2.0** : [StreamEx](https://github.com/amaembo/streamex) (by Tagir Valeev), [Gradle Wrapper](https://github.com/gradle/gradle), and all the [Apache commons](https://commons.apache.org/) libraries
 
@@ -35,7 +35,7 @@ _Minimal usage requirements_:
 - ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~ *(now integrated with Jtrrntzip)*
 
 _Behavior compared to other Rom managers_
-- By default, Split mode may differ from ClrMamePro, it's because JRomManager is by default using "explicit merging" and so will split only according the merge attribute presence (as preconised in logiqx faq), whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also known to be respectful of the merge attribute. To reproduce the ClrMamePro behavior you will have to select "implicit merge" option in profile settings
+- By default, Split mode may differ from ClrMamePro, it's because JRomManager is by default using "explicit merging" and so will split only according the merge attribute presence (as preconized in logiqx faq), whereas ClrMamePro will split as soon as a rom in parent set as same CRC even if no merge attribute as been set! The difference is especially visible for Software Lists where merge flag does not exist at all in the DTD, so in this case "Split Merged" mode will be the same as using "Non Merged" mode for JRomManager. RomCenter is also known to be respectful of the merge attribute. To reproduce the ClrMamePro behavior you will have to select "implicit merge" option in profile settings
 
 _Minimal instructions for cmdline compilation_:  
 
