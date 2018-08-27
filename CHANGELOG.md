@@ -6,6 +6,7 @@
 - Minor enhancements
   - Multithreading enabled for torrent checker
   - Individual selection for torrent check and directories updater
+  - added hints in batch tools tables
 ## Release v1.8 build 26
 - Dir2Dat
 - Batch Tools

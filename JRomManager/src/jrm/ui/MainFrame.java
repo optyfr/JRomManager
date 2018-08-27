@@ -17,75 +17,20 @@
  */
 package jrm.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
@@ -142,30 +87,13 @@ import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
-import jrm.ui.basic.JCheckBoxList;
-import jrm.ui.basic.JCheckBoxTree;
-import jrm.ui.basic.JFileDropList;
-import jrm.ui.basic.JFileDropMode;
-import jrm.ui.basic.JFileDropTextField;
-import jrm.ui.basic.JListHintUI;
-import jrm.ui.basic.JRMFileChooser;
+import jrm.ui.basic.*;
 import jrm.ui.basic.JRMFileChooser.OneRootFileSystemView;
-import jrm.ui.basic.JSDRDropTable;
-import jrm.ui.basic.JTextFieldHintUI;
-import jrm.ui.basic.NGTreeNode;
-import jrm.ui.basic.ResultColUpdater;
-import jrm.ui.basic.SDRTableModel;
 import jrm.ui.basic.SDRTableModel.SrcDstResult;
 import jrm.ui.batch.BatchTableModel;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.filter.CatVerModel;
-import jrm.ui.profile.manager.DirNode;
-import jrm.ui.profile.manager.DirTreeCellEditor;
-import jrm.ui.profile.manager.DirTreeCellRenderer;
-import jrm.ui.profile.manager.DirTreeModel;
-import jrm.ui.profile.manager.DirTreeSelectionListener;
-import jrm.ui.profile.manager.FileTableCellRenderer;
-import jrm.ui.profile.manager.FileTableModel;
+import jrm.ui.profile.manager.*;
 import jrm.ui.profile.report.ReportFrame;
 import jrm.ui.progress.Progress;
 
@@ -2405,6 +2333,7 @@ public class MainFrame extends JFrame
 		JMenuItem mnDat2DirDelSrcDir = new JMenuItem(Messages.getString("MainFrame.DelSrcDir")); //$NON-NLS-1$
 		mnDat2DirDelSrcDir.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				listBatchToolsDat2DirSrc.del(listBatchToolsDat2DirSrc.getSelectedValuesList());
@@ -2456,6 +2385,7 @@ public class MainFrame extends JFrame
 			sdr.selected = jso.getBoolean("selected", true); //$NON-NLS-1$
 			sdrl.add(sdr);
 		}
+		tableBatchToolsDat2Dir.setUI(new JTableHintUI(Messages.getString("MainFrame.DropDatHint"), Color.gray)); //$NON-NLS-1$
 		tableBatchToolsDat2Dir.getSDRModel().setData(sdrl);
 		tableBatchToolsDat2Dir.setCellSelectionEnabled(false);
 		tableBatchToolsDat2Dir.setRowSelectionAllowed(true);
@@ -2479,14 +2409,17 @@ public class MainFrame extends JFrame
 		addPopup(tableBatchToolsDat2Dir, popupMenu);
 		popupMenu.addPopupMenuListener(new PopupMenuListener()
 		{
+			@Override
 			public void popupMenuCanceled(PopupMenuEvent e)
 			{
 			}
 
+			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
 			{
 			}
 
+			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
 				mnDat2DirPresets.setEnabled(tableBatchToolsDat2Dir.getSelectedRowCount() > 0);
@@ -2500,6 +2433,7 @@ public class MainFrame extends JFrame
 		JMenuItem mnDat2DirDelDat = new JMenuItem(Messages.getString("MainFrame.DelDat")); //$NON-NLS-1$
 		mnDat2DirDelDat.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				tableBatchToolsDat2Dir.del(tableBatchToolsDat2Dir.getSelectedValuesList());
@@ -2516,6 +2450,7 @@ public class MainFrame extends JFrame
 		JMenuItem mntmDat2DirD2DTzip = new JMenuItem(Messages.getString("MainFrame.TZIP")); //$NON-NLS-1$
 		mntmDat2DirD2DTzip.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
@@ -2553,6 +2488,7 @@ public class MainFrame extends JFrame
 		JMenuItem mntmDat2DirD2DDir = new JMenuItem(Messages.getString("MainFrame.DIR")); //$NON-NLS-1$
 		mntmDat2DirD2DDir.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
@@ -2660,6 +2596,7 @@ public class MainFrame extends JFrame
 			sdrl2.add(sdr);
 		}
 		tableBatchToolsTrntChk.getSDRModel().setData(sdrl2);
+		tableBatchToolsTrntChk.setUI(new JTableHintUI(Messages.getString("MainFrame.DropTrntHint"), Color.gray)); //$NON-NLS-1$
 		tableBatchToolsTrntChk.setCellSelectionEnabled(false);
 		tableBatchToolsTrntChk.setRowSelectionAllowed(true);
 		tableBatchToolsTrntChk.getSDRModel().setSrcFilter(file -> {
@@ -2684,6 +2621,7 @@ public class MainFrame extends JFrame
 		
 		JMenuItem mntmDelTorrent = new JMenuItem(Messages.getString("MainFrame.mntmDelTorrent.text")); //$NON-NLS-1$
 		mntmDelTorrent.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				tableBatchToolsTrntChk.del(tableBatchToolsTrntChk.getSelectedValuesList());
 			}
@@ -2701,6 +2639,7 @@ public class MainFrame extends JFrame
 		cbBatchToolsTrntChk = new JComboBox<>();
 		cbBatchToolsTrntChk.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				Settings.setProperty("trntchk.mode", cbBatchToolsTrntChk.getSelectedItem().toString()); //$NON-NLS-1$
