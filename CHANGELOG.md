@@ -1,3 +1,11 @@
+## Release v1.8 build 27
+- Fixes
+  - pop-up menu was missing in torrent checker, so that deleting entries was impossible
+  - torrent checking was unstoppable
+  - out of <workdir> dats (batch tools case) won't have anymore their cache, properties, and nfo files saved with them but instead they will be stored in <workdir>/work special dir
+- Minor enhancements
+  - Multithreading enabled for torrent checker
+  - Individual selection for torrent check and directories updater
 ## Release v1.8 build 26
 - Dir2Dat
 - Batch Tools
