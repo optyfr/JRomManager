@@ -1,3 +1,9 @@
+## Release v1.8 build 28
+- Fixes
+  - Edge case found in scanner when two roms in same set need to be swapped (was resulting in removing one of the roms)
+  - Does not report wrong hash entry when it is fixable (and will be fixed), so that "dry run" mode return good fixed count
+  - More explicit result when torrent checking is successful
+  - Made multithreaded progress interface more robust, because it may be wrong under Linux as thread IDs are not reused like on windows 
 ## Release v1.8 build 27
 - Fixes
   - pop-up menu was missing in torrent checker, so that deleting entries was impossible

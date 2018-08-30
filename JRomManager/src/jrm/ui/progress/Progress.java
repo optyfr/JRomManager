@@ -353,12 +353,38 @@ public class Progress extends JDialog implements ProgressHandler
 	@Override
 	public synchronized void setProgress(final String msg, final Integer val, final Integer max, final String submsg)
 	{
-		if(!threadId_Offset.containsKey(Thread.currentThread().getId()))
+		if (!threadId_Offset.containsKey(Thread.currentThread().getId()))
 		{
-			if(threadId_Offset.size()<lblInfo.length)
+			if (threadId_Offset.size() < lblInfo.length)
 				threadId_Offset.put(Thread.currentThread().getId(), threadId_Offset.size());
 			else
-				threadId_Offset.put(Thread.currentThread().getId(), 0);
+			{
+				ThreadGroup tg = Thread.currentThread().getThreadGroup();
+				Thread[] tl = new Thread[tg.activeCount()];
+				int tl_count = tg.enumerate(tl, false);
+				boolean found = false;
+				for (Map.Entry<Long, Integer> e : threadId_Offset.entrySet())
+				{
+					boolean exists = false;
+					for (int i = 0; i < tl_count; i++)
+					{
+						if (e.getKey() == tl[i].getId())
+						{
+							exists = true;
+							break;
+						}
+					}
+					if (!exists)
+					{
+						threadId_Offset.remove(e.getKey());
+						threadId_Offset.put(Thread.currentThread().getId(), e.getValue());
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					threadId_Offset.put(Thread.currentThread().getId(), 0);
+			}
 		}
 		int offset = threadId_Offset.get(Thread.currentThread().getId());
 		
