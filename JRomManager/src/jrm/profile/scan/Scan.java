@@ -448,8 +448,8 @@ public class Scan
 			actions.add(backup_actions);
 		actions.add(create_actions);
 		actions.add(rename_before_actions);
-		actions.add(add_actions);
 		actions.add(duplicate_actions);
+		actions.add(add_actions);
 		actions.add(delete_actions);
 		actions.add(rename_after_actions);
 		actions.add(tzip_actions.values());
@@ -730,8 +730,8 @@ public class Scan
 					}
 				}
 				ContainerAction.addToList(rename_before_actions, rename_before_set);
-				ContainerAction.addToList(add_actions, add_set);
 				ContainerAction.addToList(duplicate_actions, duplicate_set);
+				ContainerAction.addToList(add_actions, add_set);
 				ContainerAction.addToList(delete_actions, delete_set);
 				ContainerAction.addToList(rename_after_actions, rename_after_set);
 			}
@@ -795,6 +795,7 @@ public class Scan
 	private boolean scanRoms(final Anyware ware, final List<Rom> roms, final Container archive, final SubjectSet report_subject)
 	{
 		boolean missing_set = true;
+		final boolean debug = false;
 		final Container container;
 		if (null != (container = roms_dstscan.getContainerByName(ware.getDest(merge_mode, implicit_merge).getNormalizedName() + format.getExt())))
 		{	// found container
@@ -814,22 +815,28 @@ public class Scan
 					rom.setStatus(EntityStatus.KO);
 					Entry found_entry = null;
 					final Map<String, Entry> entries_byname = container.getEntriesByName();
+					Entry wrong_hash = null;
 					for (final Entry candidate_entry : container.getEntries())	// compare each rom with container entries
 					{
 						final String efile = candidate_entry.getName();
 						if (candidate_entry.equals(rom)) // The entry 'candidate_entry' match hash from 'rom'
 						{
+							if(debug) System.out.println("The entry "+efile+" match hash from rom "+rom.getNormalizedName());
 							if (!rom.getNormalizedName().equals(efile)) // but this entry name does not match the rom name
 							{
+								if(debug) System.out.println("\tbut this entry name does not match the rom name");
 								final Rom another_rom;
 								if (null != (another_rom = roms_byname.get(efile)) && candidate_entry.equals(another_rom))
 								{
+									if(debug) System.out.println("\t\t\tand the entry "+efile+" is ANOTHER the rom");
 									if (entries_byname.containsKey(rom.getNormalizedName())) // and rom name is in the entries
 									{
+										if(debug) System.out.println("\t\t\t\tand rom "+rom.getNormalizedName()+" is in the entries_byname");
 										// report_w.println("[" + m.name + "] " + r.getName() + " == " + e.file);
 									}
 									else
 									{
+										if(debug) System.out.println("\\t\\t\\t\\twe must duplicate rom "+rom.getNormalizedName()+" to ");
 										// we must duplicate
 										report_subject.add(new EntryMissingDuplicate(rom, candidate_entry));
 										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
@@ -839,29 +846,49 @@ public class Scan
 								}
 								else
 								{
+									if(another_rom==null)
+									{
+										if(debug) System.out.println("\t"+efile+" in roms_byname not found");
+										roms_byname.forEach((k,v)->System.out.println("\troms_byname: "+k));
+									}
+									else
+										if(debug) System.out.println("\t"+efile+" in roms_byname found but does not match hash");
+									
 									if (!entries_byname.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
 									{
+										if(debug) System.out.println("\t\tand rom "+rom.getNormalizedName()+" is NOT in the entries_byname");
+										entries_byname.forEach((k,v)->System.out.println("\t\tentries_byname: "+k));
+										
 										report_subject.add(new EntryWrongName(rom, candidate_entry));
 										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
 										// (rename_after_set = OpenContainer.getInstance(rename_after_set, archive, format)).addAction(new RenameEntry(r.getName(), e));
 										(backup_set = BackupContainer.getInstance(backup_set, archive)).addAction(new BackupEntry(candidate_entry));
 										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
-										(delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(candidate_entry));
+									//	(delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(candidate_entry));
 										found_entry = candidate_entry;
 										break;
 									}
+									else
+										if(debug) System.out.println("\t\tand rom "+rom.getNormalizedName()+" is in the entries_byname");
 								}
 							}
 							else
 							{
+								if(debug) System.out.println("\tThe entry "+efile+" match hash and name for rom "+rom.getNormalizedName());
 								found_entry = candidate_entry;
 								break;
 							}
 						}
 						else if (rom.getNormalizedName().equals(efile))	// oups! we got a wrong rom hash
 						{
-							report_subject.add(new EntryWrongHash(rom, candidate_entry));
+							if(debug) System.out.println("\tOups! we got wrong hash in "+efile+" for "+rom.getNormalizedName());
+							//report_subject.add(new EntryWrongHash(rom, candidate_entry));
+							wrong_hash = candidate_entry;
 							break;
+						}
+						else
+						{
+//							System.out.println("\tnot found");
 						}
 					}
 					if (found_entry == null)	// did not find rom in container
@@ -878,7 +905,7 @@ public class Scan
 							}
 						}
 						if (found_entry == null)	// we did not found this rom anywhere
-							report_subject.add(new EntryMissing(rom));
+							report_subject.add(wrong_hash!=null?new EntryWrongHash(rom, wrong_hash):new EntryMissing(rom));
 					}
 					else
 					{
@@ -901,8 +928,8 @@ public class Scan
 				}
 				ContainerAction.addToList(backup_actions, backup_set);
 				ContainerAction.addToList(rename_before_actions, rename_before_set);
-				ContainerAction.addToList(add_actions, add_set);
 				ContainerAction.addToList(duplicate_actions, duplicate_set);
+				ContainerAction.addToList(add_actions, add_set);
 				ContainerAction.addToList(delete_actions, delete_set);
 				ContainerAction.addToList(rename_after_actions, rename_after_set);
 			}
@@ -1054,8 +1081,8 @@ public class Scan
 				}
 			}
 			ContainerAction.addToList(rename_before_actions, rename_before_set);
-			ContainerAction.addToList(add_actions, add_set);
 			ContainerAction.addToList(duplicate_actions, duplicate_set);
+			ContainerAction.addToList(add_actions, add_set);
 			ContainerAction.addToList(delete_actions, delete_set);
 			ContainerAction.addToList(rename_after_actions, rename_after_set);
 		}

@@ -100,10 +100,12 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 						if(progress.isCancel())
 							break;
 					}
-					if(mode == TrntChkMode.FILENAME)
-						result = String.format(Messages.getString("TorrentChecker.ResultFileName"), (float) ok * 100.0 / (float) total, missing_files); //$NON-NLS-1$
+					if(ok == total)
+						result = toHTML(toBold(toGreen(Messages.getString("TorrentChecker.ResultComplete"))));
+					else if(mode == TrntChkMode.FILENAME)
+						result = String.format(Messages.getString("TorrentChecker.ResultFileName"), ok * 100.0 / total, missing_files); //$NON-NLS-1$
 					else
-						result = String.format(Messages.getString("TorrentChecker.ResultFileSize"), (float) ok * 100.0 / (float) total, humanReadableByteCount(missing_bytes, false)); //$NON-NLS-1$
+						result = String.format(Messages.getString("TorrentChecker.ResultFileSize"), ok * 100.0 / total, humanReadableByteCount(missing_bytes, false)); //$NON-NLS-1$
 				}
 				else
 				{
@@ -183,10 +185,13 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 							piece_valid++;
 						else
 							missing_bytes += piece_length - to_go;
-						System.out.format("piece counted %d, given %d, valid %d, completion=%.02f%%\n", piece_cnt, pieces.size(), piece_valid, (double) piece_valid * 100.0 / (double) piece_cnt); //$NON-NLS-1$
+						System.out.format("piece counted %d, given %d, valid %d, completion=%.02f%%\n", piece_cnt, pieces.size(), piece_valid, piece_valid * 100.0 / piece_cnt); //$NON-NLS-1$
 						System.out.format("piece len : %d\n", piece_length); //$NON-NLS-1$
 						System.out.format("last piece len : %d\n", piece_length - to_go); //$NON-NLS-1$
-						result = String.format(Messages.getString("TorrentChecker.ResultSHA1"), (double) piece_valid * 100.0 / (double) piece_cnt, humanReadableByteCount(missing_bytes, false)); //$NON-NLS-1$
+						if(piece_valid == piece_cnt)
+							result = toHTML(toBold(toGreen(Messages.getString("TorrentChecker.ResultComplete"))));
+						else
+							result = String.format(Messages.getString("TorrentChecker.ResultSHA1"), piece_valid * 100.0 / piece_cnt, humanReadableByteCount(missing_bytes, false)); //$NON-NLS-1$
 					}
 					catch (Exception ex)
 					{
