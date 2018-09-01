@@ -18,6 +18,7 @@ package jrm.profile.report;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import jrm.misc.HTMLRenderer;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
+import jrm.profile.scan.Scan;
 import jrm.ui.profile.report.ReportTreeModel;
 import jrm.ui.progress.StatusHandler;
 import one.util.streamex.IntStreamEx;
@@ -381,6 +383,13 @@ public class Report implements TreeNode, HTMLRenderer
 		final File report_file = new File(reportdir, "report-"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".log"); //$NON-NLS-1$
 		try(PrintWriter report_w = new PrintWriter(report_file))
 		{
+			report_w.println("=== Scanned Profile ===");
+			report_w.println(profile.nfo.file);
+			report_w.println();
+			report_w.println("=== Used Profile Properties ===");
+			profile.settings.store(report_w, null);
+			report_w.println();
+			report_w.println("=== Scanner Report ===");
 			subjects.forEach(subject -> {
 				report_w.println(subject);
 				subject.notes.forEach(note -> {
@@ -388,11 +397,19 @@ public class Report implements TreeNode, HTMLRenderer
 				});
 			});
 			report_w.println();
+			report_w.println("=== Statistics ===");
 			report_w.println(String.format(Messages.getString("Report.MissingSets"), stats.missing_set_cnt, profile.machines_cnt)); //$NON-NLS-1$
 			report_w.println(String.format(Messages.getString("Report.MissingRoms"), stats.missing_roms_cnt, profile.roms_cnt)); //$NON-NLS-1$
 			report_w.println(String.format(Messages.getString("Report.MissingDisks"), stats.missing_disks_cnt, profile.disks_cnt)); //$NON-NLS-1$
+			int total = Scan.report.stats.set_create + Scan.report.stats.set_found + Scan.report.stats.set_missing;
+			int ok = Scan.report.stats.set_create_complete + Scan.report.stats.set_found_fixcomplete + Scan.report.stats.set_found_ok;
+			report_w.println(String.format("Missing sets after Fix : %d\n", total - ok)); //$NON-NLS-1$
 		}
 		catch(final FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch(final IOException e)
 		{
 			e.printStackTrace();
 		}
