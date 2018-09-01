@@ -19,8 +19,10 @@ package jrm.profile.report;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -376,7 +378,7 @@ public class Report implements TreeNode, HTMLRenderer
 		final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
 		reportdir.mkdirs();
-		final File report_file = new File(reportdir, "report.log"); //$NON-NLS-1$
+		final File report_file = new File(reportdir, "report-"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".log"); //$NON-NLS-1$
 		try(PrintWriter report_w = new PrintWriter(report_file))
 		{
 			subjects.forEach(subject -> {
