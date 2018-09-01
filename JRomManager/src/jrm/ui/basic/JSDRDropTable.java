@@ -21,8 +21,6 @@ import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import jrm.ui.basic.SDRTableModel.SrcDstResult;
-
 @SuppressWarnings("serial")
 public class JSDRDropTable extends JTable implements DropTargetListener, ResultColUpdater
 {

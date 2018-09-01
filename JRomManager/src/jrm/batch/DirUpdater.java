@@ -23,7 +23,7 @@ import jrm.profile.scan.DirScan;
 import jrm.profile.scan.Scan;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SDRTableModel;
-import jrm.ui.basic.SDRTableModel.SrcDstResult;
+import jrm.ui.basic.SrcDstResult;
 import jrm.ui.progress.Progress;
 import one.util.streamex.StreamEx;
 

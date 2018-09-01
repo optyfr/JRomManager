@@ -20,7 +20,7 @@ import jrm.misc.HTMLRenderer;
 import jrm.misc.UnitRenderer;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SDRTableModel;
-import jrm.ui.basic.SDRTableModel.SrcDstResult;
+import jrm.ui.basic.SrcDstResult;
 import jrm.ui.progress.Progress;
 import one.util.streamex.StreamEx;
 

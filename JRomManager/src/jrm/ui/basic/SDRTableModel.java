@@ -1,6 +1,5 @@
 package jrm.ui.basic;
 
-import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +10,6 @@ import javax.swing.event.TableModelListener;
 
 public abstract class SDRTableModel implements EnhTableModel
 {
-	public static class SrcDstResult
-	{
-		public File src = null;
-		public File dst = null;
-		public String result = ""; //$NON-NLS-1$
-		public boolean selected = true;
-		
-	}
-	
 	private List<SrcDstResult> data = new ArrayList<>();
     private final EventListenerList listenerList = new EventListenerList();
     private FileFilter srcFilter = null;
