@@ -1,18 +1,19 @@
-/* Copyright (C) 2018  optyfr
+/*
+ * Copyright (C) 2018 optyfr
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.ui.profile.manager;
 
@@ -33,14 +34,15 @@ import jrm.profile.manager.Dir;
 @SuppressWarnings("serial")
 public class DirNode extends DefaultMutableTreeNode
 {
-	
+
 	/** The dir. */
 	private Dir dir;
 
 	/**
 	 * Instantiates a new dir node.
 	 *
-	 * @param root the root
+	 * @param root
+	 *            the root
 	 */
 	public DirNode(final File root)
 	{
@@ -51,7 +53,8 @@ public class DirNode extends DefaultMutableTreeNode
 	/**
 	 * Instantiates a new dir node.
 	 *
-	 * @param dir the dir
+	 * @param dir
+	 *            the dir
 	 */
 	public DirNode(final Dir dir)
 	{
@@ -62,21 +65,24 @@ public class DirNode extends DefaultMutableTreeNode
 	/**
 	 * Builds the dir tree.
 	 *
-	 * @param dir the dir
-	 * @param node the node
+	 * @param dir
+	 *            the dir
+	 * @param node
+	 *            the node
 	 */
 	private void buildDirTree(final Dir dir, final DefaultMutableTreeNode node)
 	{
-		for(final File file : dir.getFile().listFiles())
-		{
-			if(file.isDirectory())
+		if (dir != null && dir.getFile() != null && dir.getFile().isDirectory())
+			for (final File file : dir.getFile().listFiles())
 			{
-				final DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
-				node.add(newdir);
-				buildDirTree(new Dir(file), newdir);
-			}
+				if (file.isDirectory())
+				{
+					final DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
+					node.add(newdir);
+					buildDirTree(new Dir(file), newdir);
+				}
 
-		}
+			}
 	}
 
 	/**
@@ -91,7 +97,8 @@ public class DirNode extends DefaultMutableTreeNode
 	/**
 	 * Find.
 	 *
-	 * @param file the file
+	 * @param file
+	 *            the file
 	 * @return the dir node
 	 */
 	public DirNode find(final File file)
@@ -102,19 +109,21 @@ public class DirNode extends DefaultMutableTreeNode
 	/**
 	 * Find.
 	 *
-	 * @param root the root
-	 * @param file the file
+	 * @param root
+	 *            the root
+	 * @param file
+	 *            the file
 	 * @return the dir node
 	 */
 	public static DirNode find(final DirNode root, final File file)
 	{
-		final File parent = file.isFile()?file.getParentFile():file;
-		if(parent != null)
+		final File parent = file.isFile() ? file.getParentFile() : file;
+		if (parent != null)
 		{
 			for (final Enumeration<?> e = root.depthFirstEnumeration(); e.hasMoreElements();)
 			{
 				final DirNode node = (DirNode) e.nextElement();
-				if (((Dir)node.getUserObject()).getFile().equals(parent))
+				if (((Dir) node.getUserObject()).getFile().equals(parent))
 					return node;
 			}
 			return DirNode.find(root, parent.getParentFile());
@@ -135,7 +144,8 @@ public class DirNode extends DefaultMutableTreeNode
 	/**
 	 * Sets the dir.
 	 *
-	 * @param dir the dir to set
+	 * @param dir
+	 *            the dir to set
 	 * @return the dir
 	 */
 	public Dir setDir(Dir dir)
