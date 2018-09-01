@@ -3,9 +3,14 @@ package jrm.batch;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -37,7 +42,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	 * @param updater the result interface
 	 * @throws IOException
 	 */
-	public TorrentChecker(final Progress progress, List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater) throws IOException
+	public TorrentChecker(final Progress progress, List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater, boolean removeUnknownFiles, boolean removeWrongSizedFiles) throws IOException
 	{
 		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),(int)sdrl.stream().filter(sdr->sdr.selected).count()), true);
 		progress.setProgress2("", 0, 1); //$NON-NLS-1$
@@ -49,7 +54,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			{
 				int row = sdrl.indexOf(sdr);
 				updater.updateResult(row, "In progress...");
-				final String result = check(progress, mode, sdr);
+				final String result = check(progress, mode, sdr, removeUnknownFiles, removeWrongSizedFiles);
 				updater.updateResult(row, result);
 				progress.setProgress(null, -1, null, "");
 			}
@@ -67,7 +72,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	 * @return
 	 * @throws IOException
 	 */
-	private String check(final Progress progress, TrntChkMode mode, SrcDstResult sdr) throws IOException
+	private String check(final Progress progress, TrntChkMode mode, SrcDstResult sdr, boolean removeUnknownFiles, boolean removeWrongSizedFiles) throws IOException
 	{
 		String result = ""; //$NON-NLS-1$
 		if (sdr.src != null && sdr.dst != null)
@@ -79,6 +84,8 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 				int total = tfiles.size(), ok = 0;
 				long missing_bytes = 0;
 				int missing_files = 0;
+				int wrong_sized_files = 0;
+				HashSet<Path> paths = new HashSet<>();
 				if (mode != TrntChkMode.SHA1)
 				{
 					processing.addAndGet(total);
@@ -89,23 +96,43 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 						Path file = sdr.dst.toPath();
 						for (String path : tfile.getFileDirs())
 							file = file.resolve(path);
+						paths.add(file.toAbsolutePath());
 						progress.setProgress(toHTML(toPurple(sdr.src.getAbsolutePath())), -1, null, file.toString());
 						progress.setProgress2(current + "/" + processing, current.get(), processing.get()); //$NON-NLS-1$
-						if (Files.exists(file) && (mode == TrntChkMode.FILENAME || Files.size(file) == tfile.getFileLength()))
-							ok++;
-						else if(mode == TrntChkMode.FILENAME)
-							missing_files++;
+						if (Files.exists(file))
+						{
+							if(mode == TrntChkMode.FILENAME || Files.size(file) == tfile.getFileLength())
+								ok++;
+							else
+							{
+								if(removeWrongSizedFiles)
+									Files.delete(file);
+								wrong_sized_files++;
+								missing_bytes += tfile.getFileLength();
+							}
+						}
 						else
-							missing_bytes += tfile.getFileLength();
+						{
+							if(mode == TrntChkMode.FILENAME)
+								missing_files++;
+							else
+								missing_bytes += tfile.getFileLength();
+						}
 						if(progress.isCancel())
 							break;
 					}
+					int removed_files = removeUnknownFiles(paths, sdr, removeUnknownFiles && !progress.isCancel());
 					if(ok == total)
-						result = toHTML(toBold(toGreen(Messages.getString("TorrentChecker.ResultComplete"))));
+					{
+						if(removed_files>0)
+							result = toHTML(toBold(toBlue(Messages.getString("TorrentChecker.ResultComplete"))));
+						else
+							result = toHTML(toBold(toGreen(Messages.getString("TorrentChecker.ResultComplete"))));
+					}
 					else if(mode == TrntChkMode.FILENAME)
-						result = String.format(Messages.getString("TorrentChecker.ResultFileName"), ok * 100.0 / total, missing_files); //$NON-NLS-1$
+						result = String.format(Messages.getString("TorrentChecker.ResultFileName"), ok * 100.0 / total, missing_files, removed_files); //$NON-NLS-1$
 					else
-						result = String.format(Messages.getString("TorrentChecker.ResultFileSize"), ok * 100.0 / total, humanReadableByteCount(missing_bytes, false)); //$NON-NLS-1$
+						result = String.format(Messages.getString("TorrentChecker.ResultFileSize"), ok * 100.0 / total, humanReadableByteCount(missing_bytes, false), wrong_sized_files, removed_files); //$NON-NLS-1$
 				}
 				else
 				{
@@ -128,8 +155,16 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 							Path file = sdr.dst.toPath();
 							for (String path : tfile.getFileDirs())
 								file = file.resolve(path);
-							if (!Files.exists(file) || Files.size(file) != tfile.getFileLength())
+							paths.add(file.toAbsolutePath());
+							if (!Files.exists(file))
 								valid = false;
+							else if(Files.size(file) != tfile.getFileLength())
+							{
+								if(removeWrongSizedFiles)
+									Files.delete(file);
+								wrong_sized_files++;
+								valid = false;
+							}
 							else
 								in = new BufferedInputStream(new FileInputStream(file.toFile()));
 							progress.setProgress(toHTML(toPurple(sdr.src.getAbsolutePath())), -1, null, file.toString());
@@ -188,10 +223,16 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 						System.out.format("piece counted %d, given %d, valid %d, completion=%.02f%%\n", piece_cnt, pieces.size(), piece_valid, piece_valid * 100.0 / piece_cnt); //$NON-NLS-1$
 						System.out.format("piece len : %d\n", piece_length); //$NON-NLS-1$
 						System.out.format("last piece len : %d\n", piece_length - to_go); //$NON-NLS-1$
+						int removed_files = removeUnknownFiles(paths, sdr, removeUnknownFiles && !progress.isCancel());
 						if(piece_valid == piece_cnt)
-							result = toHTML(toBold(toGreen(Messages.getString("TorrentChecker.ResultComplete"))));
+						{
+							if(removed_files>0)
+								result = toHTML(toBold(toBlue(Messages.getString("TorrentChecker.ResultComplete"))));
+							else
+								result = toHTML(toBold(toGreen(Messages.getString("TorrentChecker.ResultComplete"))));
+						}
 						else
-							result = String.format(Messages.getString("TorrentChecker.ResultSHA1"), piece_valid * 100.0 / piece_cnt, humanReadableByteCount(missing_bytes, false)); //$NON-NLS-1$
+							result = String.format(Messages.getString("TorrentChecker.ResultSHA1"), piece_valid * 100.0 / piece_cnt, humanReadableByteCount(missing_bytes, false), wrong_sized_files, removed_files); //$NON-NLS-1$
 					}
 					catch (Exception ex)
 					{
@@ -205,6 +246,35 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		else
 			result = sdr.src == null ? Messages.getString("TorrentChecker.SrcNotDefined") : Messages.getString("TorrentChecker.DstNotDefined"); //$NON-NLS-1$ //$NON-NLS-2$
 		return result;
+	}
+	
+	private int removeUnknownFiles(HashSet<Path> paths, SrcDstResult sdr, boolean remove) throws IOException
+	{
+		List<Path> files_to_remove = new ArrayList<>();
+		Files.walkFileTree(sdr.dst.toPath(), new SimpleFileVisitor<Path>()
+		{
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+			{
+				if (!paths.contains(file.toAbsolutePath()))
+					files_to_remove.add(file);
+				return super.visitFile(file, attrs);
+			}
+		});
+		int count = files_to_remove.size();
+		if (remove)
+		{
+			files_to_remove.forEach(t -> {
+				try
+				{
+					Files.delete(t);
+				}
+				catch (IOException e)
+				{
+				}
+			});
+		}
+		return count;
 	}
 
 }
