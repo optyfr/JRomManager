@@ -29,7 +29,7 @@ import JTrrntzip.TrrntZipStatus;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import jrm.profile.Profile;
 import jrm.profile.data.*;
 import jrm.profile.fix.actions.*;
@@ -254,7 +254,7 @@ public class Scan
 			}
 		}
 		/* then add extra backup dir to that list */
-		srcdirs.add(new File(Settings.getWorkPath().toFile(), "backup")); //$NON-NLS-1$
+		srcdirs.add(new File(GlobalSettings.getWorkPath().toFile(), "backup")); //$NON-NLS-1$
 		/* then scan all dirs from that list */
 		for (final File dir : srcdirs)
 		{

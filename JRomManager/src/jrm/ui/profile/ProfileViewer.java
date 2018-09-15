@@ -41,7 +41,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import jrm.profile.Profile;
 import jrm.profile.data.*;
 import jrm.profile.manager.Export;
@@ -131,7 +131,7 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void windowClosing(final WindowEvent e)
 			{
-				Settings.setProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+				GlobalSettings.setProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 		});
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
@@ -734,7 +734,7 @@ public class ProfileViewer extends JDialog
 		pack();
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())))))); //$NON-NLS-1$
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(GlobalSettings.getProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())))))); //$NON-NLS-1$
 		}
 		catch (final DecoderException e1)
 		{
@@ -754,10 +754,10 @@ public class ProfileViewer extends JDialog
 	{
 		new Thread(() -> {
 			final FileNameExtensionFilter fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
+			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(GlobalSettings.getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				final Progress progress = new Progress(ProfileViewer.this);
 				progress.setVisible(true);
-				Settings.setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+				GlobalSettings.setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				final File selectedfile = chooser.getSelectedFile();
 				final File file = fnef.accept(selectedfile) ? selectedfile : new File(selectedfile.getAbsolutePath() + ".xml"); //$NON-NLS-1$
 				new Export(Profile.curr_profile, file, type, filtered, selection, progress);

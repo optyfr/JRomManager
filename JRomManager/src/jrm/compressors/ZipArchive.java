@@ -30,7 +30,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import jrm.misc.FindCmd;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**
@@ -70,7 +70,7 @@ public class ZipArchive implements Archive
 		{
 			this.readonly = readonly;
 			this.archive = archive;
-			cmd = Settings.getProperty("zip_cmd", FindCmd.find7z()); //$NON-NLS-1$
+			cmd = GlobalSettings.getProperty("zip_cmd", FindCmd.find7z()); //$NON-NLS-1$
 			if(!new File(cmd).exists() && !new File(cmd + ".exe").exists()) //$NON-NLS-1$
 				throw new IOException(cmd + " does not exists"); //$NON-NLS-1$
 			if(null == (this.archive = ZipArchive.archives.get(archive.getAbsolutePath())))
@@ -99,13 +99,13 @@ public class ZipArchive implements Archive
 				if(is_7z)
 				{
 					Collections.addAll(cmd_add, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					Collections.addAll(cmd_add, "-mx=" + Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmd_add, "-mx=" + GlobalSettings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
 					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				else
 				{
 					Collections.addAll(cmd_add, cmd, "-r"); //$NON-NLS-1$
-					Collections.addAll(cmd_add, "-" + Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmd_add, "-" + GlobalSettings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
 					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				final Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
@@ -159,7 +159,7 @@ public class ZipArchive implements Archive
 		final List<String> cmd = new ArrayList<>();
 		if(is_7z)
 		{
-			Collections.addAll(cmd, Settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Collections.addAll(cmd, GlobalSettings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if(entry != null && !entry.isEmpty())
 				cmd.add(entry);
 			final ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);

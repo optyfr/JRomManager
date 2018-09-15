@@ -29,7 +29,7 @@ import com.eclipsesource.json.JsonValue;
 import jrm.batch.TorrentChecker;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import jrm.ui.basic.JSDRDropTable;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SDRTableModel;
@@ -67,10 +67,10 @@ public class BatchToolsTrrntChkPanel extends JPanel
 		gbc_scrollPane.gridy = 0;
 		this.add(scrollPane, gbc_scrollPane);
 
-		tableTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Selected" }), files -> Settings.setProperty("trntchk.sdr", SrcDstResult.toJSON(files)));
+		tableTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Selected" }), files -> GlobalSettings.setProperty("trntchk.sdr", SrcDstResult.toJSON(files)));
 		((BatchTableModel) tableTrntChk.getModel()).applyColumnsWidths(tableTrntChk);
 		final List<SrcDstResult> sdrl2 = new ArrayList<>();
-		for (final JsonValue arrv : Json.parse(Settings.getProperty("trntchk.sdr", "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
+		for (final JsonValue arrv : Json.parse(GlobalSettings.getProperty("trntchk.sdr", "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			final SrcDstResult sdr = new SrcDstResult();
 			final JsonObject jso = arrv.asObject();
@@ -122,9 +122,9 @@ public class BatchToolsTrrntChkPanel extends JPanel
 
 		cbbxTrntChk = new JComboBox<>();
 		cbbxTrntChk.setModel(new DefaultComboBoxModel<>(TrntChkMode.values()));
-		cbbxTrntChk.setSelectedItem(TrntChkMode.valueOf(Settings.getProperty("trntchk.mode", TrntChkMode.FILENAME.toString()))); //$NON-NLS-1$
+		cbbxTrntChk.setSelectedItem(TrntChkMode.valueOf(GlobalSettings.getProperty("trntchk.mode", TrntChkMode.FILENAME.toString()))); //$NON-NLS-1$
 		cbbxTrntChk.addActionListener(e -> {
-			Settings.setProperty("trntchk.mode", cbbxTrntChk.getSelectedItem().toString());
+			GlobalSettings.setProperty("trntchk.mode", cbbxTrntChk.getSelectedItem().toString());
 			cbRemoveWrongSizedFiles.setEnabled(cbbxTrntChk.getSelectedItem()!=TrntChkMode.FILENAME);
 		});
 		final GridBagConstraints gbc_cbbxTrntChk = new GridBagConstraints();
@@ -138,8 +138,8 @@ public class BatchToolsTrrntChkPanel extends JPanel
 		btnBatchToolsTrntChkStart.addActionListener((e) -> trrntChk());
 
 		cbRemoveUnknownFiles = new JCheckBox(Messages.getString("BatchToolsTrrntChkPanel.chckbxRemoveUnknownFiles.text")); //$NON-NLS-1$
-		cbRemoveUnknownFiles.addActionListener(e -> Settings.setProperty("trntchk.remove_unknown_files", cbRemoveUnknownFiles.isSelected()));
-		cbRemoveUnknownFiles.setSelected(Settings.getProperty("trntchk.remove_unknown_files", false)); //$NON-NLS-1$
+		cbRemoveUnknownFiles.addActionListener(e -> GlobalSettings.setProperty("trntchk.remove_unknown_files", cbRemoveUnknownFiles.isSelected()));
+		cbRemoveUnknownFiles.setSelected(GlobalSettings.getProperty("trntchk.remove_unknown_files", false)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbRemoveUnknownFiles = new GridBagConstraints();
 		gbc_cbRemoveUnknownFiles.insets = new Insets(0, 0, 0, 5);
 		gbc_cbRemoveUnknownFiles.gridx = 2;
@@ -147,8 +147,8 @@ public class BatchToolsTrrntChkPanel extends JPanel
 		add(cbRemoveUnknownFiles, gbc_cbRemoveUnknownFiles);
 
 		cbRemoveWrongSizedFiles = new JCheckBox(Messages.getString("BatchToolsTrrntChkPanel.chckbxRemoveWrongSized.text")); //$NON-NLS-1$
-		cbRemoveWrongSizedFiles.addActionListener(e -> Settings.setProperty("trntchk.remove_wrong_sized_files", cbRemoveWrongSizedFiles.isSelected()));
-		cbRemoveWrongSizedFiles.setSelected(Settings.getProperty("trntchk.remove_wrong_sized_files", false)); //$NON-NLS-1$
+		cbRemoveWrongSizedFiles.addActionListener(e -> GlobalSettings.setProperty("trntchk.remove_wrong_sized_files", cbRemoveWrongSizedFiles.isSelected()));
+		cbRemoveWrongSizedFiles.setSelected(GlobalSettings.getProperty("trntchk.remove_wrong_sized_files", false)); //$NON-NLS-1$
 		cbRemoveWrongSizedFiles.setEnabled(cbbxTrntChk.getSelectedItem()!=TrntChkMode.FILENAME);
 		GridBagConstraints gbc_cbRemoveWrongSizedFiles = new GridBagConstraints();
 		gbc_cbRemoveWrongSizedFiles.anchor = GridBagConstraints.WEST;

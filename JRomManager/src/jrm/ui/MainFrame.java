@@ -41,7 +41,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import jrm.profile.Profile;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.report.ReportFrame;
@@ -78,14 +78,14 @@ public class MainFrame extends JFrame
 			@Override
 			public void windowClosing(final WindowEvent e)
 			{
-				Settings.setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+				GlobalSettings.setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 		});
 		try
 		{
-			Settings.loadSettings();
-			UIManager.setLookAndFeel(Settings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName() */)); //$NON-NLS-1$
-			final File workdir = Settings.getWorkPath().toFile(); // $NON-NLS-1$
+			GlobalSettings.loadSettings();
+			UIManager.setLookAndFeel(GlobalSettings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName() */)); //$NON-NLS-1$
+			final File workdir = GlobalSettings.getWorkPath().toFile(); // $NON-NLS-1$
 			final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 			xmldir.mkdir();
 			ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
@@ -99,7 +99,7 @@ public class MainFrame extends JFrame
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			if (Profile.curr_profile != null)
 				Profile.curr_profile.saveSettings();
-			Settings.saveSettings();
+			GlobalSettings.saveSettings();
 		}));
 	}
 
@@ -151,7 +151,7 @@ public class MainFrame extends JFrame
 
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(Settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 720, 300))))))); //$NON-NLS-1$
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(GlobalSettings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 720, 300))))))); //$NON-NLS-1$
 		}
 		catch (final DecoderException e1)
 		{

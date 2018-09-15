@@ -237,7 +237,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	 */
 	public void initProfileSettings()
 	{
-		scannerSettingsPanel.initProfileSettings();
+		scannerSettingsPanel.initProfileSettings(Profile.curr_profile.settings);
 		scannerDirPanel.initProfileSettings();
 		scannerFilters.initProfileSettings();
 		scannerAdvFilters.initProfileSettings();

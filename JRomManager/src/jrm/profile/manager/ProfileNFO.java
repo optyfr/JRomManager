@@ -47,7 +47,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 
 /**
  * The Profile NFO file managing class with tolerant manual (de)serialization
@@ -134,7 +134,7 @@ public final class ProfileNFO implements Serializable
 	 */
 	private static File getFileNfo(final File file)
 	{
-		return Settings.getWorkFile(file.getParentFile(), file.getName(), ".nfo");
+		return GlobalSettings.getWorkFile(file.getParentFile(), file.getName(), ".nfo");
 	}
 
 	/**

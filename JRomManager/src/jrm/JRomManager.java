@@ -23,7 +23,7 @@ import java.nio.channels.FileLock;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.Log;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import jrm.ui.MainFrame;
 import jupdater.JUpdater;
 
@@ -42,16 +42,16 @@ public final class JRomManager
 			switch(args[i])
 			{
 				case "--multiuser":	// will write settings, cache and dat into home directory instead of app directory //$NON-NLS-1$
-					Settings.multiuser = true;
+					GlobalSettings.multiuser = true;
 					break;
 				case "--noupdate":	// will disable update check //$NON-NLS-1$
-					Settings.noupdate = true;
+					GlobalSettings.noupdate = true;
 					break;
 			}
 		}
 		if (JRomManager.lockInstance(FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
-			if(!Settings.noupdate)
+			if(!GlobalSettings.noupdate)
 			{
 				// check for update
 				JUpdater updater = new JUpdater("optyfr","JRomManager"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -72,7 +72,7 @@ public final class JRomManager
 	{
 		try
 		{
-			final File file = new File(Settings.getWorkPath().toFile(),lockFile);
+			final File file = new File(GlobalSettings.getWorkPath().toFile(),lockFile);
 			final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw"); //$NON-NLS-1$
 			final FileLock fileLock = randomAccessFile.getChannel().tryLock();
 			if (fileLock != null)

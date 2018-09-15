@@ -39,7 +39,7 @@ import javax.swing.tree.TreeNode;
 
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.profile.scan.Scan;
@@ -377,7 +377,7 @@ public class Report implements TreeNode, HTMLRenderer
 	 */
 	public void write()
 	{
-		final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
+		final File workdir = GlobalSettings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
 		reportdir.mkdirs();
 		final File report_file = new File(reportdir, "report-"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".log"); //$NON-NLS-1$
@@ -387,7 +387,7 @@ public class Report implements TreeNode, HTMLRenderer
 			report_w.println(profile.nfo.file);
 			report_w.println();
 			report_w.println("=== Used Profile Properties ===");
-			profile.settings.store(report_w, null);
+			profile.settings.getProperties().store(report_w, null);
 			report_w.println();
 			report_w.println("=== Scanner Report ===");
 			subjects.forEach(subject -> {

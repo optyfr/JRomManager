@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 import javax.swing.JButton;
@@ -35,6 +34,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import jrm.batch.DirUpdater;
 import jrm.locale.Messages;
+import jrm.misc.GlobalSettings;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
 import jrm.profile.scan.options.FormatOptions;
@@ -84,7 +84,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		splitPane.setLeftComponent(scrollPane_5);
 		scrollPane_5.setBorder(new TitledBorder(null, Messages.getString("MainFrame.SrcDirs"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
-		listBatchToolsDat2DirSrc = new JFileDropList(files -> Settings.setProperty("dat2dir.srcdirs", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); //$NON-NLS-1$ //$NON-NLS-2$
+		listBatchToolsDat2DirSrc = new JFileDropList(files -> GlobalSettings.setProperty("dat2dir.srcdirs", String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); //$NON-NLS-1$ //$NON-NLS-2$
 		listBatchToolsDat2DirSrc.setMode(JFileDropMode.DIRECTORY);
 		listBatchToolsDat2DirSrc.setUI(new JListHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		listBatchToolsDat2DirSrc.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirSrc.toolTipText")); //$NON-NLS-1$
@@ -110,8 +110,8 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		JScrollPane scrollPane_6 = new JScrollPane();
 		splitPane.setRightComponent(scrollPane_6);
 
-		tableBatchToolsDat2Dir = new JSDRDropTable(new BatchTableModel(), files -> Settings.setProperty("dat2dir.sdr", SrcDstResult.toJSON(files))); //$NON-NLS-1$
-		tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(Settings.getProperty("dat2dir.sdr", "[]")));
+		tableBatchToolsDat2Dir = new JSDRDropTable(new BatchTableModel(), files -> GlobalSettings.setProperty("dat2dir.sdr", SrcDstResult.toJSON(files))); //$NON-NLS-1$
+		tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(GlobalSettings.getProperty("dat2dir.sdr", "[]")));
 		tableBatchToolsDat2Dir.setCellSelectionEnabled(false);
 		tableBatchToolsDat2Dir.setRowSelectionAllowed(true);
 		tableBatchToolsDat2Dir.getSDRModel().setSrcFilter(file -> {
@@ -175,29 +175,30 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 			{
 				for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
 				{
-					Properties settings = new Properties();
 					try
 					{
-						settings.setProperty("need_sha1_or_md5", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("use_parallelism", Boolean.TRUE.toString()); //$NON-NLS-1$
-						settings.setProperty("create_mode", Boolean.TRUE.toString()); //$NON-NLS-1$
-						settings.setProperty("createfull_mode", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_unneeded_containers", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_unneeded_entries", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_unknown_containers", Boolean.TRUE.toString()); //$NON-NLS-1$
-						settings.setProperty("implicit_merge", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_merge_name_roms", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_merge_name_disks", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("exclude_games", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("exclude_machines", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("backup", Boolean.TRUE.toString()); //$NON-NLS-1$
+						Settings settings = new Settings();
+						settings.setProperty("need_sha1_or_md5", false); //$NON-NLS-1$
+						settings.setProperty("use_parallelism", true); //$NON-NLS-1$
+						settings.setProperty("create_mode", true); //$NON-NLS-1$
+						settings.setProperty("createfull_mode", false); //$NON-NLS-1$
+						settings.setProperty("ignore_unneeded_containers", false); //$NON-NLS-1$
+						settings.setProperty("ignore_unneeded_entries", false); //$NON-NLS-1$
+						settings.setProperty("ignore_unknown_containers", true); //$NON-NLS-1$
+						settings.setProperty("implicit_merge", false); //$NON-NLS-1$
+						settings.setProperty("ignore_merge_name_roms", false); //$NON-NLS-1$
+						settings.setProperty("ignore_merge_name_disks", false); //$NON-NLS-1$
+						settings.setProperty("exclude_games", false); //$NON-NLS-1$
+						settings.setProperty("exclude_machines", false); //$NON-NLS-1$
+						settings.setProperty("backup", true); //$NON-NLS-1$
 						settings.setProperty("format", FormatOptions.TZIP.toString()); //$NON-NLS-1$
 						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString()); //$NON-NLS-1$
-						settings.setProperty("archives_and_chd_as_roms", Boolean.FALSE.toString()); //$NON-NLS-1$
+						settings.setProperty("archives_and_chd_as_roms", false); //$NON-NLS-1$
 						Profile.saveSettings(sdr.src, settings);
 					}
 					catch (IOException e1)
 					{
+						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
@@ -212,26 +213,56 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 			{
 				for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
 				{
-					Properties settings = new Properties();
 					try
 					{
-						settings.setProperty("need_sha1_or_md5", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("use_parallelism", Boolean.TRUE.toString()); //$NON-NLS-1$
-						settings.setProperty("create_mode", Boolean.TRUE.toString()); //$NON-NLS-1$
-						settings.setProperty("createfull_mode", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_unneeded_containers", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_unneeded_entries", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_unknown_containers", Boolean.TRUE.toString()); //$NON-NLS-1$
-						settings.setProperty("implicit_merge", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_merge_name_roms", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("ignore_merge_name_disks", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("exclude_games", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("exclude_machines", Boolean.FALSE.toString()); //$NON-NLS-1$
-						settings.setProperty("backup", Boolean.TRUE.toString()); //$NON-NLS-1$
+						Settings settings = new Settings();
+						settings.setProperty("need_sha1_or_md5", false); //$NON-NLS-1$
+						settings.setProperty("use_parallelism", true); //$NON-NLS-1$
+						settings.setProperty("create_mode", true); //$NON-NLS-1$
+						settings.setProperty("createfull_mode", false); //$NON-NLS-1$
+						settings.setProperty("ignore_unneeded_containers", false); //$NON-NLS-1$
+						settings.setProperty("ignore_unneeded_entries", false); //$NON-NLS-1$
+						settings.setProperty("ignore_unknown_containers", true); //$NON-NLS-1$
+						settings.setProperty("implicit_merge", false); //$NON-NLS-1$
+						settings.setProperty("ignore_merge_name_roms", false); //$NON-NLS-1$
+						settings.setProperty("ignore_merge_name_disks", false); //$NON-NLS-1$
+						settings.setProperty("exclude_games", false); //$NON-NLS-1$
+						settings.setProperty("exclude_machines", false); //$NON-NLS-1$
+						settings.setProperty("backup", true); //$NON-NLS-1$
 						settings.setProperty("format", FormatOptions.DIR.toString()); //$NON-NLS-1$
 						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString()); //$NON-NLS-1$
-						settings.setProperty("archives_and_chd_as_roms", Boolean.TRUE.toString()); //$NON-NLS-1$
+						settings.setProperty("archives_and_chd_as_roms", true); //$NON-NLS-1$
 						Profile.saveSettings(sdr.src, settings);
+					}
+					catch (IOException e1)
+					{
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		mnDat2DirD2D.add(mntmDat2DirD2DDir);
+		
+		JMenuItem mntmCustom = new JMenuItem(Messages.getString("BatchToolsDirUpd8rPanel.mntmCustom.text")); //$NON-NLS-1$
+		mntmCustom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
+				if(list.size()>0)
+				{
+					BatchToolsDirUpd8rSettingsDialog dialog = new BatchToolsDirUpd8rSettingsDialog(SwingUtilities.getWindowAncestor(BatchToolsDirUpd8rPanel.this));
+					SrcDstResult entry = list.get(0);
+					try
+					{
+						dialog.settingsPanel.initProfileSettings(Profile.loadSettings(entry.src, null));
+						dialog.setVisible(true);
+						if(dialog.success)
+						{
+							for(SrcDstResult sdr : list)
+							{
+								Profile.saveSettings(sdr.src, dialog.settingsPanel.settings);
+							}
+						}
 					}
 					catch (IOException e1)
 					{
@@ -240,14 +271,14 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 				}
 			}
 		});
-		mnDat2DirD2D.add(mntmDat2DirD2DDir);
-		for (final String s : Settings.getProperty("dat2dir.srcdirs", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		mnDat2DirPresets.add(mntmCustom);
+		for (final String s : GlobalSettings.getProperty("dat2dir.srcdirs", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (!s.isEmpty())
 				listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
 
 		JCheckBox cbBatchToolsDat2DirDryRun = new JCheckBox(Messages.getString("MainFrame.cbBatchToolsDat2DirDryRun.text")); //$NON-NLS-1$
-		cbBatchToolsDat2DirDryRun.setSelected(Settings.getProperty("dat2dir.dry_run", false)); //$NON-NLS-1$
-		cbBatchToolsDat2DirDryRun.addItemListener(e -> Settings.setProperty("dat2dir.dry_run", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbBatchToolsDat2DirDryRun.setSelected(GlobalSettings.getProperty("dat2dir.dry_run", false)); //$NON-NLS-1$
+		cbBatchToolsDat2DirDryRun.addItemListener(e -> GlobalSettings.setProperty("dat2dir.dry_run", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 
 		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$
 		btnBatchToolsDir2DatStart.addActionListener((e) -> dat2dir(cbBatchToolsDat2DirDryRun.isSelected()));

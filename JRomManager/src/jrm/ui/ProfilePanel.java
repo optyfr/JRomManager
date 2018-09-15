@@ -42,7 +42,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.locale.Messages;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import jrm.profile.Profile;
 import jrm.profile.manager.Dir;
 import jrm.profile.manager.Import;
@@ -169,7 +169,7 @@ public class ProfilePanel extends JPanel
 		profilesTree = new JTree();
 		scrollPane_1.setViewportView(profilesTree);
 
-		final DirTreeModel profilesTreeModel = new DirTreeModel(new DirNode(Settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile())); //$NON-NLS-1$
+		final DirTreeModel profilesTreeModel = new DirTreeModel(new DirNode(GlobalSettings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile())); //$NON-NLS-1$
 		profilesTree.setModel(profilesTreeModel);
 		profilesTree.setRootVisible(true);
 		profilesTree.setShowsRootHandles(true);
@@ -388,17 +388,17 @@ public class ProfilePanel extends JPanel
 				}
 			}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			);
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(Settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(GlobalSettings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
 					.show(SwingUtilities.getWindowAncestor(this), chooser -> {
 						final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
-						Settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+						GlobalSettings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 						for (final File selectedfile : chooser.getSelectedFiles())
 						{
 							progress.setVisible(true);
 							progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
 							final Import imprt = new Import(selectedfile, sl);
 							progress.dispose();
-							final File workdir = Settings.getWorkPath().toFile(); // $NON-NLS-1$
+							final File workdir = GlobalSettings.getWorkPath().toFile(); // $NON-NLS-1$
 							final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 							new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 									.show(SwingUtilities.getWindowAncestor(this), chooser1 -> {

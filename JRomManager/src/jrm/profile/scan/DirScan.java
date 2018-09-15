@@ -66,7 +66,7 @@ import jrm.io.chd.CHDInfoReader;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import jrm.profile.Profile;
 import jrm.profile.data.Archive;
 import jrm.profile.data.Container;
@@ -166,7 +166,7 @@ public final class DirScan
 		{
 			try
 			{
-				SevenZip.initSevenZipFromPlatformJAR(Settings.getTmpPath(true).toFile());
+				SevenZip.initSevenZipFromPlatformJAR(GlobalSettings.getTmpPath(true).toFile());
 			}
 			catch(final Exception e)
 			{
@@ -306,7 +306,7 @@ public final class DirScan
 		/*
 		 * Loading scan cache
 		 */
-		if(!Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
+		if(!GlobalSettings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 			containers_byname = load(dir);
 		else
 			containers_byname = Collections.synchronizedMap(new HashMap<>());
@@ -1118,7 +1118,7 @@ public final class DirScan
 	 */
 	public static File getCacheFile(final File file, EnumSet<Options> options)
 	{
-		final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
+		final File workdir = GlobalSettings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File cachedir = new File(workdir, "cache"); //$NON-NLS-1$
 		cachedir.mkdirs();
 		final CRC32 crc = new CRC32();

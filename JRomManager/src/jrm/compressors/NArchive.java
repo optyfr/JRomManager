@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.OutItemFactory;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
@@ -95,7 +95,7 @@ abstract class NArchive implements Archive
 	public NArchive(final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
 	{
 		if(!SevenZip.isInitializedSuccessfully())
-			SevenZip.initSevenZipFromPlatformJAR(Settings.getTmpPath(true).toFile());
+			SevenZip.initSevenZipFromPlatformJAR(GlobalSettings.getTmpPath(true).toFile());
 		ext = FilenameUtils.getExtension(archive.getName());
 		if(archive.exists())
 		{
@@ -409,7 +409,7 @@ abstract class NArchive implements Archive
 	}
 
 	/**
-	 * Mapper between SevenZipJBinding options and {@link Settings}
+	 * Mapper between SevenZipJBinding options and {@link GlobalSettings}
 	 * @param iout the archive feature to map (see code to know what is supported)
 	 * @throws SevenZipException
 	 */
@@ -419,17 +419,17 @@ abstract class NArchive implements Archive
 		{
 			case SEVEN_ZIP:
 				if(iout instanceof IOutFeatureSetSolid)
-					((IOutFeatureSetSolid) iout).setSolid(Settings.getProperty("7z_solid", true)); //$NON-NLS-1$
+					((IOutFeatureSetSolid) iout).setSolid(GlobalSettings.getProperty("7z_solid", true)); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(Settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
+					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(GlobalSettings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(Settings.getProperty("7z_threads", -1)); //$NON-NLS-1$
+					((IOutFeatureSetMultithreading) iout).setThreadCount(GlobalSettings.getProperty("7z_threads", -1)); //$NON-NLS-1$
 				break;
 			case ZIP:
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(Settings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
+					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(GlobalSettings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(Settings.getProperty("zip_threads", -1)); //$NON-NLS-1$
+					((IOutFeatureSetMultithreading) iout).setThreadCount(GlobalSettings.getProperty("zip_threads", -1)); //$NON-NLS-1$
 			default:
 				break;
 		}

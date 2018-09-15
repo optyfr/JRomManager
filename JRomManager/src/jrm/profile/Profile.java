@@ -33,6 +33,7 @@ import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 import jrm.profile.data.*;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.SWList;
@@ -102,7 +103,7 @@ public class Profile implements Serializable
 	/*
 	 * This is all non serialized object (not included in cache), they are recalculated or reloaded on each Profile load (cached or not) 
 	 */
-	public transient Properties settings = null;
+	public transient Settings settings = null;
 	public transient Systms systems = null;
 	public transient Collection<String> years = null;
 	public transient ProfileNFO nfo = null;
@@ -942,7 +943,7 @@ public class Profile implements Serializable
 	 */
 	private static File getCacheFile(final File file)
 	{
-		return Settings.getWorkFile(file.getParentFile(), file.getName(), ".cache");  //$NON-NLS-1$
+		return GlobalSettings.getWorkFile(file.getParentFile(), file.getName(), ".cache");  //$NON-NLS-1$
 	}
 
 	/**
@@ -981,7 +982,7 @@ public class Profile implements Serializable
 	{
 		Profile profile = null;
 		final File cachefile = Profile.getCacheFile(nfo.file);
-		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !Settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
+		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !GlobalSettings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 		{	// Load from cache if cachefile is not outdated and debug_nocache is disabled
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
 			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile), (int) cachefile.length()))))
@@ -1085,7 +1086,7 @@ public class Profile implements Serializable
 	 */
 	public static File getSettingsFile(final File file)
 	{
-		return Settings.getWorkFile(file.getParentFile(), file.getName(), ".properties"); //$NON-NLS-1$
+		return GlobalSettings.getWorkFile(file.getParentFile(), file.getName(), ".properties"); //$NON-NLS-1$
 	}
 
 	/**
@@ -1111,14 +1112,11 @@ public class Profile implements Serializable
 	 * @return the saved {@link Properties}
 	 * @throws IOException
 	 */
-	public static Properties saveSettings(final File file, Properties settings) throws IOException
+	public static Settings saveSettings(final File file, Settings settings) throws IOException
 	{
 		if (settings == null)
-			settings = new Properties();
-		try (FileOutputStream os = new FileOutputStream(getSettingsFile(file)))
-		{
-			settings.storeToXML(os, null);
-		}
+			settings = new Settings();
+		settings.saveSettings(getSettingsFile(file));
 		return settings;
 	}
 
@@ -1144,16 +1142,13 @@ public class Profile implements Serializable
 	 * @return the loaded {@link Properties}
 	 * @throws IOException
 	 */
-	public static Properties loadSettings(File file, Properties settings) throws IOException
+	public static Settings loadSettings(File file, Settings settings) throws IOException
 	{
 		if (settings == null)
-			settings = new Properties();
+			settings = new Settings();
 		if (getSettingsFile(file).exists())
 		{
-			try (FileInputStream is = new FileInputStream(getSettingsFile(file)))
-			{
-				settings.loadFromXML(is);
-			}
+			settings.loadSettings(getSettingsFile(file));
 		}
 		return settings;
 	}
@@ -1228,7 +1223,7 @@ public class Profile implements Serializable
 	 */
 	public String getName()
 	{
-		String name = "<html><body>[<span color='blue'>" + Settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String name = "<html><body>[<span color='blue'>" + GlobalSettings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if (build != null)
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if (header.size() > 0)

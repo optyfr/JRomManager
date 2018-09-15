@@ -34,7 +34,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.DOMException;
 
 import jrm.misc.Log;
-import jrm.misc.Settings;
+import jrm.misc.GlobalSettings;
 
 /**
  * Import from Mame (and variants)
@@ -56,7 +56,7 @@ public class Import
 	public Import(final File file, final boolean sl)
 	{
 		org_file = file;
-		final File workdir = Settings.getWorkPath().toFile(); //$NON-NLS-1$
+		final File workdir = GlobalSettings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 		xmldir.mkdir();
 
