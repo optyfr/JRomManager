@@ -508,6 +508,12 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	}
 
 	@Override
+	public String getColumnTT(final int columnIndex)
+	{
+		return AnywareRenderer.columns[columnIndex];
+	}
+
+	@Override
 	public Class<?> getColumnClass(final int columnIndex)
 	{
 		return AnywareRenderer.columnsTypes[columnIndex];

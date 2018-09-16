@@ -50,6 +50,8 @@ public class BatchToolsDirUpd8rSettingsDialog extends JDialog
 				buttonPane.add(cancelButton);
 			}
 		}
+		pack();
+		setLocationRelativeTo(parent);
 	}
 	
 	public void actionPerformed(ActionEvent e)

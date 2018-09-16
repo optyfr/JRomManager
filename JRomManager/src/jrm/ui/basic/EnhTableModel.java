@@ -39,6 +39,13 @@ public interface EnhTableModel extends TableModel
 	public abstract int getColumnWidth(int columnIndex);
 	
 	/**
+	 * get the tooltip text for a given column
+	 * @param columnIndex the requested column index
+	 * @return the string of the tooltip
+	 */
+	public abstract String getColumnTT(int columnIndex);
+	
+	/**
 	 * apply column width limits to the table
 	 * @param table the table to modify
 	 */

@@ -94,6 +94,12 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	}
 
 	@Override
+	public String getColumnTT(final int columnIndex)
+	{
+		return AnywareListListRenderer.columns[columnIndex];
+	}
+
+	@Override
 	public Class<?> getColumnClass(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsTypes[columnIndex];

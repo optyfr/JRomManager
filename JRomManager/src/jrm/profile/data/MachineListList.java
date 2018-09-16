@@ -98,6 +98,12 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	}
 
 	@Override
+	public String getColumnTT(final int columnIndex)
+	{
+		return AnywareListListRenderer.columns[columnIndex];
+	}
+
+	@Override
 	public Class<?> getColumnClass(final int columnIndex)
 	{
 		return AnywareListListRenderer.columnsTypes[columnIndex];

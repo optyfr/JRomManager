@@ -11,6 +11,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.JTableHeader;
 
 @SuppressWarnings("serial")
 public class JSDRDropTable extends JTable implements DropTargetListener, ResultColUpdater
@@ -65,6 +67,19 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 				}
 			}
 		});
+	}
+	
+	@Override
+	protected JTableHeader createDefaultTableHeader()
+	{
+		return new JTableHeader(columnModel) {
+            public String getToolTipText(MouseEvent e) {
+                java.awt.Point p = e.getPoint();
+                int index = columnModel.getColumnIndexAtX(p.x);
+                int realIndex = columnModel.getColumn(index).getModelIndex();
+                return ((SDRTableModel)getModel()).getColumnTT(realIndex);
+            }
+        };
 	}
 	
 	@Override

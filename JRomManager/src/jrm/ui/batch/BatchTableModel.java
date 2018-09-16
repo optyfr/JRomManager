@@ -18,17 +18,20 @@ public class BatchTableModel extends SDRTableModel
 {
 	
 	private final String[] headers;
+	private final String[] headers_tt;
 	private final Class<?>[] types = {File.class, File.class, String.class, Boolean.class};
 	private final int[] widths = {0, 0, 0, -22};
 
 	public BatchTableModel()
 	{
 		this.headers = new String[] {Messages.getString("BatchTableModel.SrcDats"), Messages.getString("BatchTableModel.DstDirs"), Messages.getString("BatchTableModel.Result"), "Selected"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		this.headers_tt = this.headers;
 	}
 	
 	public BatchTableModel(String[] headers)
 	{
 		this.headers = headers;
+		this.headers_tt = headers;
 	}
 	
     @SuppressWarnings("serial")
@@ -170,5 +173,13 @@ public class BatchTableModel extends SDRTableModel
 	{
 		return widths[columnIndex];
 	}
+
+	@Override
+	public String getColumnTT(int columnIndex)
+	{
+		return headers_tt[columnIndex];
+	}
+	
+	
 	
 }

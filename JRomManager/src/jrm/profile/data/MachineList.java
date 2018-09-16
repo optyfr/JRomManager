@@ -97,6 +97,12 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	@Override
+	public String getColumnTT(final int columnIndex)
+	{
+		return MachineListRenderer.columns[columnIndex];
+	}
+
+	@Override
 	public Class<?> getColumnClass(final int columnIndex)
 	{
 		return MachineListRenderer.columnsTypes[columnIndex];
