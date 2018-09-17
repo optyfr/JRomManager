@@ -76,9 +76,10 @@ public class DirUpdater
 					Scan scan = new Scan(Profile.curr_profile, progress, scancache);
 					total += Scan.report.stats.set_create + Scan.report.stats.set_found + Scan.report.stats.set_missing;
 					ok += Scan.report.stats.set_create_complete + Scan.report.stats.set_found_fixcomplete + Scan.report.stats.set_found_ok;
+					Scan.report.save();
 					if (!dryrun)
 						new Fix(Profile.curr_profile, scan, progress);
-					result.updateResult(row, String.format(Messages.getString("DirUpdater.Result"), (float) ok * 100.0 / (float) total, total - ok, total)); //$NON-NLS-1$
+					result.updateResult(row, String.format(Messages.getString("DirUpdater.Result"), ok * 100.0 / total, total - ok, total)); //$NON-NLS-1$
 				}
 			}
 			catch (BreakException e)

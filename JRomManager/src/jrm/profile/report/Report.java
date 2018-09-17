@@ -16,30 +16,21 @@
  */
 package jrm.profile.report;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.zip.CRC32;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
 
 import jrm.locale.Messages;
-import jrm.misc.HTMLRenderer;
 import jrm.misc.GlobalSettings;
+import jrm.misc.HTMLRenderer;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.profile.scan.Scan;
@@ -52,12 +43,14 @@ import one.util.streamex.IntStreamEx;
  * @author optyfr
  *
  */
-public class Report implements TreeNode, HTMLRenderer
+@SuppressWarnings("serial")
+public class Report implements TreeNode, HTMLRenderer, Serializable
 {
 	/**
 	 * the related {@link Profile}
 	 */
-	private Profile profile;
+	private transient Profile profile = null;
+	private transient File file = null;
 	/**
 	 * the {@link List} of {@link Subject} nodes
 	 */
@@ -74,7 +67,7 @@ public class Report implements TreeNode, HTMLRenderer
 	/**
 	 * the linked UI tree model
 	 */
-	private ReportTreeModel model = null;
+	private transient ReportTreeModel model = null;
 
 	public class Stats
 	{
@@ -327,7 +320,7 @@ public class Report implements TreeNode, HTMLRenderer
 	/**
 	 * cache made to trigger {@link TreeModelEvent} as few as possible
 	 */
-	private final Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
+	private transient final Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
 
 	/**
 	 * add a {@link Subject} to the Report
@@ -458,4 +451,49 @@ public class Report implements TreeNode, HTMLRenderer
 		return Collections.enumeration(subjects);
 	}
 
+	public File getReportFile()
+	{
+		return getReportFile(this.profile!=null?this.profile.nfo.file:this.file);
+	}
+
+	private static File getReportFile(final File file)
+	{
+		final CRC32 crc = new CRC32();
+		crc.update(file.getAbsolutePath().getBytes());
+		final File reports = GlobalSettings.getWorkPath().resolve("reports").toFile(); //$NON-NLS-1$
+		reports.mkdirs();
+		return new File(reports, String.format("%08x", crc.getValue()) + ".report"); //$NON-NLS-1$
+	}
+
+	public void save()
+	{
+		save(getReportFile());
+	}
+	
+	public void save(File file)
+	{
+		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file))))
+		{
+			oos.writeObject(this);
+		}
+		catch (final Throwable e)
+		{
+		}
+	}
+	
+	public static Report load(File file)
+	{
+		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(getReportFile(file)))))
+		{
+			Report report = (Report)ois.readObject();
+			report.file = file;
+			return report;
+		}
+		catch (final Throwable e)
+		{
+			// may fail to load because serialized classes did change since last cache save 
+		}
+		return null;
+	}
+	
 }
