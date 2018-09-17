@@ -1,5 +1,6 @@
 package jrm.profile.report;
 
+import java.io.Serializable;
 import java.util.Enumeration;
 
 import javax.swing.tree.TreeNode;
@@ -11,7 +12,8 @@ import jrm.misc.HTMLRenderer;
  * @author optyfr
  *
  */
-public abstract class Note implements TreeNode,HTMLRenderer
+@SuppressWarnings("serial")
+public abstract class Note implements TreeNode,HTMLRenderer,Serializable
 {
 	/**
 	 * The parent {@link Subject}

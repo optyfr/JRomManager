@@ -1,5 +1,6 @@
 package jrm.profile.report;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -15,7 +16,8 @@ import jrm.profile.data.AnywareBase;
  * @author optyfr
  *
  */
-public abstract class Subject implements TreeNode,HTMLRenderer
+@SuppressWarnings("serial")
+public abstract class Subject implements TreeNode,HTMLRenderer,Serializable
 {
 	/**
 	 * The related {@link AnywareBase}

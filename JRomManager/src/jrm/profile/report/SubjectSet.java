@@ -1,5 +1,6 @@
 package jrm.profile.report;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,7 +14,8 @@ import jrm.profile.data.AnywareBase;
  * @author optyfr
  *
  */
-public class SubjectSet extends Subject
+@SuppressWarnings("serial")
+public class SubjectSet extends Subject implements Serializable
 {
 	/**
 	 * The current {@link Status}
@@ -25,7 +27,7 @@ public class SubjectSet extends Subject
 	 * @author optyfr
 	 *
 	 */
-	public enum Status {
+	public enum Status implements Serializable {
 		/**
 		 * Unknown status
 		 */

@@ -1,5 +1,6 @@
 package jrm.profile.report;
 
+import java.io.Serializable;
 import java.util.List;
 
 import jrm.locale.Messages;
@@ -11,7 +12,8 @@ import jrm.profile.data.Container;
  * @author optyfr
  *
  */
-public class ContainerUnknown extends Subject
+@SuppressWarnings("serial")
+public class ContainerUnknown extends Subject implements Serializable
 {
 	/**
 	 * The {@link Container} in relation

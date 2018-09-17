@@ -69,7 +69,7 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	 */
 	private transient ReportTreeModel model = null;
 
-	public class Stats
+	public class Stats implements Serializable
 	{
 		public int missing_set_cnt = 0;
 		public int missing_roms_cnt = 0;
@@ -173,7 +173,7 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	 * @author optyfr
 	 *
 	 */
-	class FilterPredicate implements Predicate<Subject>
+	class FilterPredicate implements Predicate<Subject>, Serializable
 	{
 		/**
 		 * {@link List} of {@link FilterOptions}
@@ -204,7 +204,7 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	/**
 	 * the current filter predicate (initialized with an empty {@link List} of {@link FilterOptions})
 	 */
-	private FilterPredicate filterPredicate = new FilterPredicate(new ArrayList<>());
+	private transient FilterPredicate filterPredicate = new FilterPredicate(new ArrayList<>());
 
 	/**
 	 * The internal constructor aimed for cloning
@@ -474,7 +474,7 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	{
 		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file))))
 		{
-			oos.writeObject(this);
+			oos.writeObject(Report.this);
 		}
 		catch (final Throwable e)
 		{
@@ -487,6 +487,8 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 		{
 			Report report = (Report)ois.readObject();
 			report.file = file;
+			report.model = new ReportTreeModel(report);
+			report.model.initClone();
 			return report;
 		}
 		catch (final Throwable e)

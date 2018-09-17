@@ -1,5 +1,7 @@
 package jrm.profile.report;
 
+import java.io.Serializable;
+
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.locale.Messages;
@@ -11,7 +13,8 @@ import jrm.profile.data.Entry;
  * @author optyfr
  *
  */
-public class EntryMissingDuplicate extends Note
+@SuppressWarnings("serial")
+public class EntryMissingDuplicate extends Note implements Serializable
 {
 	/**
 	 * The missing {@link Entity}

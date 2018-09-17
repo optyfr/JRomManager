@@ -1,5 +1,6 @@
 package jrm.profile.report;
 
+import java.io.Serializable;
 import java.util.List;
 
 import jrm.locale.Messages;
@@ -11,7 +12,8 @@ import jrm.profile.data.AnywareBase;
  * @author optyfr
  *
  */
-public class RomSuspiciousCRC extends Subject
+@SuppressWarnings("serial")
+public class RomSuspiciousCRC extends Subject implements Serializable
 {
 	/**
 	 * The suspicious crc hex value

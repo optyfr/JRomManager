@@ -1,5 +1,7 @@
 package jrm.profile.report;
 
+import java.io.Serializable;
+
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.locale.Messages;
@@ -10,7 +12,8 @@ import jrm.profile.data.EntityBase;
  * @author optyfr
  *
  */
-public class EntryOK extends Note
+@SuppressWarnings("serial")
+public class EntryOK extends Note implements Serializable
 {
 	/**
 	 * The {@link EntityBase} where has been found OK

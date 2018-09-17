@@ -16,7 +16,6 @@ import javax.swing.JTree;
 import jrm.locale.Messages;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
-import jrm.profile.scan.Scan;
 
 @SuppressWarnings("serial")
 public class ReportView extends JScrollPane
@@ -51,12 +50,12 @@ public class ReportView extends JScrollPane
 		final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_green.png"))); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.addItemListener(e -> {
-			final EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
+			final EnumSet<FilterOptions> options = report.getModel().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
 				options.add(FilterOptions.SHOWOK);
 			else
 				options.remove(FilterOptions.SHOWOK);
-			Scan.report.getModel().filter(options.toArray(new FilterOptions[0]));
+			report.getModel().filter(options.toArray(new FilterOptions[0]));
 		});
 
 		final JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
@@ -79,12 +78,12 @@ public class ReportView extends JScrollPane
 		final JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/folder_closed_red.png"))); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.addItemListener(e -> {
-			final EnumSet<FilterOptions> options = Scan.report.getModel().getFilterOptions();
+			final EnumSet<FilterOptions> options = report.getModel().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
 				options.add(FilterOptions.HIDEMISSING);
 			else
 				options.remove(FilterOptions.HIDEMISSING);
-			Scan.report.getModel().filter(options.toArray(new FilterOptions[0]));
+			report.getModel().filter(options.toArray(new FilterOptions[0]));
 		});
 		popupMenu.add(chckbxmntmHideFullyMissing);
 	}

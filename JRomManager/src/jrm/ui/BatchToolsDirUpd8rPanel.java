@@ -7,6 +7,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -37,6 +40,7 @@ import jrm.locale.Messages;
 import jrm.misc.GlobalSettings;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
+import jrm.profile.report.Report;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.basic.JFileDropList;
@@ -46,6 +50,7 @@ import jrm.ui.basic.JSDRDropTable;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.basic.SrcDstResult;
 import jrm.ui.batch.BatchTableModel;
+import jrm.ui.profile.report.ReportLite;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
@@ -129,6 +134,27 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		tableBatchToolsDat2Dir.setFillsViewportHeight(true);
 		((BatchTableModel) tableBatchToolsDat2Dir.getModel()).applyColumnsWidths(tableBatchToolsDat2Dir);
 		scrollPane_6.setViewportView(tableBatchToolsDat2Dir);
+		
+		tableBatchToolsDat2Dir.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(final MouseEvent e)
+			{
+				if (e.getClickCount() == 2)
+				{
+					final JTable target = (JTable) e.getSource();
+					int row = target.getSelectedRow();
+					if (row >= 0)
+					{
+						final SDRTableModel tablemodel = tableBatchToolsDat2Dir.getSDRModel();
+						//final int column = target.columnAtPoint(e.getPoint());
+						final SrcDstResult sdr = tablemodel.getData().get(row);
+						if(sdr.src.isFile())
+							new ReportLite(SwingUtilities.getWindowAncestor(BatchToolsDirUpd8rPanel.this),Report.load(sdr.src));
+					}
+				}
+			}
+		});
 
 		JPopupMenu popupMenu = new JPopupMenu();
 		MainFrame.addPopup(tableBatchToolsDat2Dir, popupMenu);
@@ -198,7 +224,6 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 					}
 					catch (IOException e1)
 					{
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
@@ -236,7 +261,6 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 					}
 					catch (IOException e1)
 					{
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}

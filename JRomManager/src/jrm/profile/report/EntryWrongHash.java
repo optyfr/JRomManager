@@ -1,5 +1,7 @@
 package jrm.profile.report;
 
+import java.io.Serializable;
+
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.locale.Messages;
@@ -11,7 +13,8 @@ import jrm.profile.data.Entry;
  * @author optyfr
  *
  */
-public class EntryWrongHash extends Note
+@SuppressWarnings("serial")
+public class EntryWrongHash extends Note implements Serializable
 {
 	/**
 	 * related {@link Entity} 
