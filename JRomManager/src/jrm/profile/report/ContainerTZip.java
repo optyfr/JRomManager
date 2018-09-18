@@ -1,6 +1,6 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.List;
 
 import jrm.locale.Messages;
@@ -11,13 +11,30 @@ import jrm.profile.data.Container;
  * @author optyfr
  *
  */
-@SuppressWarnings("serial")
 public class ContainerTZip extends Subject implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The {@link Container} in relation
 	 */
-	final Container container;
+	Container container;
+
+	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("container", Container.class)};
+
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+		final ObjectOutputStream.PutField fields = stream.putFields();
+		fields.put("container", container);
+		stream.writeFields();
+	}
+
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		final ObjectInputStream.GetField fields = stream.readFields();
+		container = (Container)fields.get("container", null);
+	}
+
 
 	/**
 	 * Constructor with no related {@link AnywareBase} (set to <code>null</code>), but a related {@link Container}

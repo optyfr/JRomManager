@@ -18,12 +18,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -79,7 +74,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	/**
 	 * A hash table of clones if this object has clones
 	 */
-	public final HashMap<String, Anyware> clones = new HashMap<>();
+	public final transient HashMap<String, Anyware> clones = new HashMap<>();
 
 	/**
 	 * Is that machine/software is *individually* selected for inclusion in your set ? (true by default)
@@ -155,6 +150,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 			Anyware.listenerList = new EventListenerList();
 		if (Anyware.filter == null)
 			Anyware.filter = EnumSet.allOf(EntityStatus.class);
+		roms.forEach(r->r.parent=this);
+		disks.forEach(d->d.parent=this);
+		samples.forEach(s->s.parent=this);
 	}
 
 	/**
@@ -524,6 +522,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	 * @param columnIndex the requested column index
 	 * @return a {@link TableCellRenderer} associated with the given columnindex 
 	 */
+	@Override
 	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
 		return columnIndex < AnywareRenderer.columnsRenderers.length && AnywareRenderer.columnsRenderers[columnIndex] != null ? AnywareRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
@@ -540,6 +539,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	 * @param columnIndex the requested column index
 	 * @return a width in pixel (if negative then it's a fixed column width)
 	 */
+	@Override
 	public int getColumnWidth(final int columnIndex)
 	{
 		return AnywareRenderer.columnsWidths[columnIndex];

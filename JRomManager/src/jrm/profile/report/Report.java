@@ -43,9 +43,9 @@ import one.util.streamex.IntStreamEx;
  * @author optyfr
  *
  */
-@SuppressWarnings("serial")
 public class Report implements TreeNode, HTMLRenderer, Serializable
 {
+	private static final long serialVersionUID = 1L;
 	/**
 	 * the related {@link Profile}
 	 */
@@ -54,23 +54,48 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	/**
 	 * the {@link List} of {@link Subject} nodes
 	 */
-	private final List<Subject> subjects;
+	private List<Subject> subjects;
 	/**
 	 * a {@link Map} of {@link Subject} by fullname {@link String}
 	 */
-	private final Map<String, Subject> subject_hash;
+	private Map<String, Subject> subject_hash;
 	/**
 	 * The {@link Stats} object
 	 */
-	public final Stats stats;
+	public Stats stats;
 
 	/**
 	 * the linked UI tree model
 	 */
 	private transient ReportTreeModel model = null;
 
+	
+	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("subjects", List.class), new ObjectStreamField("stats", Stats.class)}; //$NON-NLS-1$ //$NON-NLS-2$
+
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+		final ObjectOutputStream.PutField fields = stream.putFields();
+		fields.put("subjects", subjects); //$NON-NLS-1$
+		fields.put("stats", stats); //$NON-NLS-1$
+		stream.writeFields();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		final ObjectInputStream.GetField fields = stream.readFields();
+		subjects = (List<Subject>) fields.get("subjects", Collections.synchronizedList(new ArrayList<>())); //$NON-NLS-1$
+		stats = (Stats) fields.get("stats", new Stats()); //$NON-NLS-1$
+		subject_hash = subjects.stream().peek(s->s.parent=this).collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
+		filterPredicate = new FilterPredicate(new ArrayList<>());
+		model = new ReportTreeModel(this);
+		model.initClone();
+	}
+
 	public class Stats implements Serializable
 	{
+		private static final long serialVersionUID = 1L;
+		
 		public int missing_set_cnt = 0;
 		public int missing_roms_cnt = 0;
 		public int missing_disks_cnt = 0;
@@ -173,7 +198,7 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	 * @author optyfr
 	 *
 	 */
-	class FilterPredicate implements Predicate<Subject>, Serializable
+	class FilterPredicate implements Predicate<Subject>
 	{
 		/**
 		 * {@link List} of {@link FilterOptions}

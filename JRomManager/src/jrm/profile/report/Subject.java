@@ -1,6 +1,6 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -16,24 +16,43 @@ import jrm.profile.data.AnywareBase;
  * @author optyfr
  *
  */
-@SuppressWarnings("serial")
-public abstract class Subject implements TreeNode,HTMLRenderer,Serializable
+public abstract class Subject implements TreeNode, HTMLRenderer, Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The related {@link AnywareBase}
 	 */
-	protected final AnywareBase ware;
+	protected AnywareBase ware;
 
 	/**
 	 * the {@link List} of {@link Note}s
 	 */
-	protected final List<Note> notes;
+	protected List<Note> notes;
 
 	/**
 	 * The {@link Report} root as parent
 	 */
-	protected Report parent;
+	protected transient Report parent;
 
+	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("ware", AnywareBase.class), new ObjectStreamField("notes", List.class)}; //$NON-NLS-1$ //$NON-NLS-2$
+
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+		final ObjectOutputStream.PutField fields = stream.putFields();
+		fields.put("ware", ware); //$NON-NLS-1$
+		fields.put("notes", notes); //$NON-NLS-1$
+		stream.writeFields();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		final ObjectInputStream.GetField fields = stream.readFields();
+		ware = (AnywareBase) fields.get("ware", null); //$NON-NLS-1$
+		notes = (List<Note>) fields.get("notes", new ArrayList<>()); //$NON-NLS-1$
+		notes.forEach(n -> n.parent = this);
+	}
 	/**
 	 * the public constructor with emptied {@link List}&lt;{@link Note}&gt;
 	 * @param machine The related {@link AnywareBase}

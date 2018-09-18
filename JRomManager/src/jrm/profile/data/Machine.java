@@ -89,7 +89,7 @@ public class Machine extends Anyware implements Serializable
 	/**
 	 * The mapping between each device_ref string and a {@link Machine} (with flag {@link #isdevice})
 	 */
-	public final HashMap<String, Machine> device_machines = new HashMap<>();
+	public final transient HashMap<String, Machine> device_machines = new HashMap<>();
 	/**
 	 * an I/O device list
 	 */

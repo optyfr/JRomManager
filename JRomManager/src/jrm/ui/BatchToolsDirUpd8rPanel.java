@@ -4,11 +4,7 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -16,19 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -40,15 +24,9 @@ import jrm.locale.Messages;
 import jrm.misc.GlobalSettings;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
-import jrm.profile.report.Report;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
-import jrm.ui.basic.JFileDropList;
-import jrm.ui.basic.JFileDropMode;
-import jrm.ui.basic.JListHintUI;
-import jrm.ui.basic.JSDRDropTable;
-import jrm.ui.basic.SDRTableModel;
-import jrm.ui.basic.SrcDstResult;
+import jrm.ui.basic.*;
 import jrm.ui.batch.BatchTableModel;
 import jrm.ui.profile.report.ReportLite;
 import jrm.ui.progress.Progress;
@@ -105,6 +83,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		JMenuItem mnDat2DirDelSrcDir = new JMenuItem(Messages.getString("MainFrame.DelSrcDir")); //$NON-NLS-1$
 		mnDat2DirDelSrcDir.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				listBatchToolsDat2DirSrc.del(listBatchToolsDat2DirSrc.getSelectedValuesList());
@@ -150,7 +129,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 						//final int column = target.columnAtPoint(e.getPoint());
 						final SrcDstResult sdr = tablemodel.getData().get(row);
 						if(sdr.src.isFile())
-							new ReportLite(SwingUtilities.getWindowAncestor(BatchToolsDirUpd8rPanel.this),Report.load(sdr.src));
+							new ReportLite(SwingUtilities.getWindowAncestor(BatchToolsDirUpd8rPanel.this),sdr.src);
 					}
 				}
 			}
@@ -160,14 +139,17 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		MainFrame.addPopup(tableBatchToolsDat2Dir, popupMenu);
 		popupMenu.addPopupMenuListener(new PopupMenuListener()
 		{
+			@Override
 			public void popupMenuCanceled(PopupMenuEvent e)
 			{
 			}
 
+			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
 			{
 			}
 
+			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
 				mnDat2DirPresets.setEnabled(tableBatchToolsDat2Dir.getSelectedRowCount() > 0);
@@ -181,6 +163,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		JMenuItem mnDat2DirDelDat = new JMenuItem(Messages.getString("MainFrame.DelDat")); //$NON-NLS-1$
 		mnDat2DirDelDat.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				tableBatchToolsDat2Dir.del(tableBatchToolsDat2Dir.getSelectedValuesList());
@@ -197,6 +180,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		JMenuItem mntmDat2DirD2DTzip = new JMenuItem(Messages.getString("MainFrame.TZIP")); //$NON-NLS-1$
 		mntmDat2DirD2DTzip.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
@@ -234,6 +218,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		JMenuItem mntmDat2DirD2DDir = new JMenuItem(Messages.getString("MainFrame.DIR")); //$NON-NLS-1$
 		mntmDat2DirD2DDir.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
@@ -270,6 +255,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		
 		JMenuItem mntmCustom = new JMenuItem(Messages.getString("BatchToolsDirUpd8rPanel.mntmCustom.text")); //$NON-NLS-1$
 		mntmCustom.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
 				if(list.size()>0)

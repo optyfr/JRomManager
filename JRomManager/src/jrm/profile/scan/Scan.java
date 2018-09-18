@@ -28,8 +28,8 @@ import org.apache.commons.io.FilenameUtils;
 import JTrrntzip.TrrntZipStatus;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
-import jrm.misc.Log;
 import jrm.misc.GlobalSettings;
+import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.data.*;
 import jrm.profile.fix.actions.*;
@@ -856,8 +856,11 @@ public class Scan
 									
 									if (!entries_byname.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
 									{
-										if(debug) System.out.println("\t\tand rom "+rom.getNormalizedName()+" is NOT in the entries_byname");
-										entries_byname.forEach((k,v)->System.out.println("\t\tentries_byname: "+k));
+										if(debug) 
+										{
+											System.out.println("\t\tand rom "+rom.getNormalizedName()+" is NOT in the entries_byname");
+											entries_byname.forEach((k,v)->System.out.println("\t\tentries_byname: "+k));
+										}
 										
 										report_subject.add(new EntryWrongName(rom, candidate_entry));
 										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));

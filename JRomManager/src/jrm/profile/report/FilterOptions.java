@@ -1,13 +1,11 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
-
 /**
  * Report filtering options
  * @author optyfr
  *
  */
-public enum FilterOptions implements Serializable
+public enum FilterOptions
 {
 	/**
 	 * Show OK containers (that do not need to be rebuild)

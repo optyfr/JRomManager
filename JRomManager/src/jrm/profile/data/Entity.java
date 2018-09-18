@@ -16,7 +16,7 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
+import java.io.*;
 
 import jrm.profile.scan.options.HashCollisionOptions;
 
@@ -25,9 +25,10 @@ import jrm.profile.scan.options.HashCollisionOptions;
  * @author optyfr
  *
  */
-@SuppressWarnings("serial")
 public abstract class Entity extends EntityBase implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * the date size in bytes, 0 by default (always 0 for disks)
 	 */
@@ -86,6 +87,39 @@ public abstract class Entity extends EntityBase implements Serializable
 		}
 	}
 
+	private static final ObjectStreamField[] serialPersistentFields = {
+		new ObjectStreamField("size", long.class),
+		new ObjectStreamField("crc", String.class),
+		new ObjectStreamField("sha1", String.class),
+		new ObjectStreamField("md5", String.class),
+		new ObjectStreamField("merge", String.class),
+		new ObjectStreamField("status", Status.class)
+	};
+
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+		final ObjectOutputStream.PutField fields = stream.putFields();
+		fields.put("size", size);
+		fields.put("crc", crc);
+		fields.put("sha1", sha1);
+		fields.put("md5", md5);
+		fields.put("merge", merge);
+		fields.put("status", status);
+		stream.writeFields();
+	}
+
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		final ObjectInputStream.GetField fields = stream.readFields();
+		size = fields.get("size", 0L);
+		crc = (String)fields.get("crc", null);
+		sha1 = (String)fields.get("sha1", null);
+		md5 = (String)fields.get("md5", null);
+		merge = (String)fields.get("merge", null);
+		status = (Status)fields.get("status", Status.good);
+	}
+
+	
 	/**
 	 * collision state
 	 */

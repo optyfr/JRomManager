@@ -16,19 +16,34 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
+import java.io.*;
 
 /**
  * The base class for named data entities
  * @author optyfr
  */
-@SuppressWarnings("serial")
 abstract class NameBase implements Serializable, Comparable<NameBase>
 {
+	private static final long serialVersionUID = 1L;
 	/**
 	 * The name of the entity
 	 */
 	protected String name = ""; // required //$NON-NLS-1$
+
+	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("name", String.class)};
+
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+		final ObjectOutputStream.PutField fields = stream.putFields();
+		fields.put("name", name);
+		stream.writeFields();
+	}
+
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		final ObjectInputStream.GetField fields = stream.readFields();
+		name = (String) fields.get("name","");
+	}
 
 	/**
 	 * get the name of the entity, may be forged depending on its extending class

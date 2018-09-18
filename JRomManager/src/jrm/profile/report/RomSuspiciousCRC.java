@@ -1,6 +1,6 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.List;
 
 import jrm.locale.Messages;
@@ -12,13 +12,29 @@ import jrm.profile.data.AnywareBase;
  * @author optyfr
  *
  */
-@SuppressWarnings("serial")
 public class RomSuspiciousCRC extends Subject implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The suspicious crc hex value
 	 */
-	final String crc;
+	String crc;
+
+	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("crc", String.class)};
+
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+		final ObjectOutputStream.PutField fields = stream.putFields();
+		fields.put("crc", crc);
+		stream.writeFields();
+	}
+
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		final ObjectInputStream.GetField fields = stream.readFields();
+		crc = (String)fields.get("crc", null);
+	}
 
 	/**
 	 * constructor with no {@link AnywareBase} in relation

@@ -1,6 +1,6 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
+import java.io.*;
 
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -13,13 +13,29 @@ import jrm.profile.data.Entry;
  * @author optyfr
  *
  */
-@SuppressWarnings("serial")
 public class EntryMissing extends Note implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The related {@link EntityBase}
 	 */
-	final EntityBase entity;
+	EntityBase entity;
+
+	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("entity", EntityBase.class)};
+
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+		final ObjectOutputStream.PutField fields = stream.putFields();
+		fields.put("entity", entity);
+		stream.writeFields();
+	}
+
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		final ObjectInputStream.GetField fields = stream.readFields();
+		entity = (EntityBase)fields.get("entity", null);
+	}
 
 	/**
 	 * The constructor

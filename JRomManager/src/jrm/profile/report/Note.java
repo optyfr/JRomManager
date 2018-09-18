@@ -12,14 +12,28 @@ import jrm.misc.HTMLRenderer;
  * @author optyfr
  *
  */
-@SuppressWarnings("serial")
 public abstract class Note implements TreeNode,HTMLRenderer,Serializable
 {
+	private static final long serialVersionUID = 1L;
 	/**
 	 * The parent {@link Subject}
 	 */
-	Subject parent;
+	transient Subject parent;
+/*
+	private static final ObjectStreamField[] serialPersistentFields = {};
 
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+//		final ObjectOutputStream.PutField fields = stream.putFields();
+//		stream.writeFields();
+	}
+
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+//		final ObjectInputStream.GetField fields = stream.readFields();
+//		parent = null;
+	}
+*/
 	@Override
 	public abstract String toString();
 

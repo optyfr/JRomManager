@@ -16,16 +16,16 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.Field;
 
 /**
  * The abstract base class for {@link Entity} and {@link Sample}, main purpose is to define parent relationship and scan status
  * @author optyfr
  */
-@SuppressWarnings("serial")
 public abstract class EntityBase extends NameBase implements Serializable
 {
+	private static final long serialVersionUID = 1L;
 	/**
 	 * The scan status, defaulting to {@link EntityStatus#UNKNOWN}
 	 */
@@ -33,7 +33,22 @@ public abstract class EntityBase extends NameBase implements Serializable
 	/**
 	 * The parent {@link AnywareBase}
 	 */
-	protected final AnywareBase parent;
+	protected transient AnywareBase parent;
+
+	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("own_status", EntityStatus.class)};
+
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+		final ObjectOutputStream.PutField fields = stream.putFields();
+		fields.put("own_status", own_status);
+		stream.writeFields();
+	}
+
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		final ObjectInputStream.GetField fields = stream.readFields();
+		own_status = (EntityStatus)fields.get("own_status", EntityStatus.UNKNOWN);
+	}
 
 	/**
 	 * The constructor with its required parent

@@ -31,9 +31,9 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
+import jrm.misc.GlobalSettings;
 import jrm.misc.Log;
 import jrm.misc.Settings;
-import jrm.misc.GlobalSettings;
 import jrm.profile.data.*;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.SWList;
@@ -1017,13 +1017,13 @@ public class Profile implements Serializable
 				if (!profile._load(nfo.file, handler))
 					return null;
 			}
-			// build parent-clones relations
-			handler.setProgress(Messages.getString("Profile.BuildingParentClonesRelations"), -1); //$NON-NLS-1$
-			profile.buildParentClonesRelations();
 			// save cache
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			profile.save();
 		}
+		// build parent-clones relations
+		handler.setProgress(Messages.getString("Profile.BuildingParentClonesRelations"), -1); //$NON-NLS-1$
+		profile.buildParentClonesRelations();
 		// update nfo stats (those to keep serialized)
 		profile.nfo.stats.version = profile.build != null ? profile.build : (profile.header.containsKey("version") ? profile.header.get("version").toString() : null); //$NON-NLS-1$ //$NON-NLS-2$
 		profile.nfo.stats.totalSets = profile.softwares_cnt + profile.machines_cnt;

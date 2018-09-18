@@ -1,6 +1,6 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,9 +14,9 @@ import jrm.profile.data.AnywareBase;
  * @author optyfr
  *
  */
-@SuppressWarnings("serial")
 public class SubjectSet extends Subject implements Serializable
 {
+	private static final long serialVersionUID = 1L;
 	/**
 	 * The current {@link Status}
 	 */
@@ -27,7 +27,7 @@ public class SubjectSet extends Subject implements Serializable
 	 * @author optyfr
 	 *
 	 */
-	public enum Status implements Serializable {
+	public enum Status {
 		/**
 		 * Unknown status
 		 */
@@ -45,7 +45,7 @@ public class SubjectSet extends Subject implements Serializable
 		 */
 		CREATEFULL,
 		/**
-		 * set is present bu unneeded
+		 * set is present but unneeded
 		 */
 		UNNEEDED,
 		/**
@@ -54,6 +54,22 @@ public class SubjectSet extends Subject implements Serializable
 		MISSING;
 	}
 
+	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("status", Status.class)};
+
+	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
+	{
+		final ObjectOutputStream.PutField fields = stream.putFields();
+		fields.put("status", status);
+		stream.writeFields();
+	}
+
+	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		final ObjectInputStream.GetField fields = stream.readFields();
+		status = (Status)fields.get("status", Status.UNKNOWN);
+	}
+
+	
 	/**
 	 * the public constructor with emptied {@link List}&lt;{@link Note}&gt;
 	 * @param machine The related {@link AnywareBase}
