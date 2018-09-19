@@ -78,8 +78,31 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		JPopupMenu popupMenu_2 = new JPopupMenu();
 		MainFrame.addPopup(listBatchToolsDat2DirSrc, popupMenu_2);
 
-		JMenuItem mnDat2DirAddSrcDir = new JMenuItem(Messages.getString("MainFrame.AddSrcDir")); //$NON-NLS-1$
-		mnDat2DirAddSrcDir.setEnabled(false);
+		JMenuItem mnDat2DirAddSrcDir = new JMenuItem(Messages.getString("MainFrame.AddSrcDir"));
+		mnDat2DirAddSrcDir.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				List<File> list = listBatchToolsDat2DirSrc.getSelectedValuesList();
+				new JRMFileChooser<Void>(
+						JFileChooser.OPEN_DIALOG,
+						JFileChooser.DIRECTORIES_ONLY,
+						list.size() > 0 ? list.get(0).getParentFile() : null, // currdir
+						null,	// selected
+						null,	// filters
+						"Choose source directories",
+						true).show(SwingUtilities.windowForComponent(BatchToolsDirUpd8rPanel.this), new CallBack<Void>()
+				{
+					@Override
+					public Void call(JRMFileChooser<Void> chooser)
+					{
+						File[] files = chooser.getSelectedFiles();
+						if (files.length > 0)
+							listBatchToolsDat2DirSrc.add(files);
+						return null;
+					}
+				});
+			}
+		});
 		popupMenu_2.add(mnDat2DirAddSrcDir);
 
 		JMenuItem mnDat2DirDelSrcDir = new JMenuItem(Messages.getString("MainFrame.DelSrcDir")); //$NON-NLS-1$

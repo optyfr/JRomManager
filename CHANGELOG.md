@@ -7,6 +7,7 @@
 	- Report log now include informations about originating dat/xml file and used scan settings  
 - Fixes  
 	- Added tooltips in table headers (batch tools and profile viewer)
+	- Added missing file chooser dialogs in batch tools tables (via popup menus)
 
 ## Release v1.8 build 28
 - Fixes
