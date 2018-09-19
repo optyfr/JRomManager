@@ -5,12 +5,7 @@ import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.*;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
@@ -73,7 +68,8 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	protected JTableHeader createDefaultTableHeader()
 	{
 		return new JTableHeader(columnModel) {
-            public String getToolTipText(MouseEvent e) {
+            @Override
+			public String getToolTipText(MouseEvent e) {
                 java.awt.Point p = e.getPoint();
                 int index = columnModel.getColumnIndexAtX(p.x);
                 int realIndex = columnModel.getColumn(index).getModelIndex();
@@ -254,6 +250,11 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	{
 		model.getData().forEach(r->r.result="");
 		model.fireTableChanged(new TableModelEvent(model, 0, model.getRowCount()-1, 2));
+		addCallBack.call(model.getData());
+	}
+	
+	public void call()
+	{
 		addCallBack.call(model.getData());
 	}
 }

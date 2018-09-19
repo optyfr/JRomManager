@@ -1,21 +1,21 @@
 package jrm.ui;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -27,6 +27,7 @@ import jrm.profile.Profile;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.basic.*;
+import jrm.ui.basic.JRMFileChooser.CallBack;
 import jrm.ui.batch.BatchTableModel;
 import jrm.ui.profile.report.ReportLite;
 import jrm.ui.progress.Progress;
@@ -38,6 +39,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 	private JSDRDropTable tableBatchToolsDat2Dir;
 	private JMenu mnDat2DirPresets;
 
+	private Point popupPoint;
 
 	/**
 	 * Create the panel.
@@ -99,11 +101,11 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		tableBatchToolsDat2Dir.setCellSelectionEnabled(false);
 		tableBatchToolsDat2Dir.setRowSelectionAllowed(true);
 		tableBatchToolsDat2Dir.getSDRModel().setSrcFilter(file -> {
-			List<String> exts = Arrays.asList("xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$
+			final List<String> exts = Arrays.asList("xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (file.isFile())
 				return exts.contains(FilenameUtils.getExtension(file.getName()));
 			else if (file.isDirectory())
-				return file.listFiles(f -> f.isFile() && exts.contains(FilenameUtils.getExtension(f.getName()))).length > 0;
+				return file.listFiles(f -> f.isFile() && exts.contains(FilenameUtils.getExtension(f.getName()))).length>0;
 			return false;
 		});
 		tableBatchToolsDat2Dir.getSDRModel().setDstFilter(file -> {
@@ -113,6 +115,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		tableBatchToolsDat2Dir.setFillsViewportHeight(true);
 		((BatchTableModel) tableBatchToolsDat2Dir.getModel()).applyColumnsWidths(tableBatchToolsDat2Dir);
 		scrollPane_6.setViewportView(tableBatchToolsDat2Dir);
+		
 		
 		tableBatchToolsDat2Dir.addMouseListener(new MouseAdapter()
 		{
@@ -133,10 +136,110 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 					}
 				}
 			}
+			
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				if(e.isPopupTrigger())
+					popupPoint = e.getPoint();
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				if(e.isPopupTrigger())
+					popupPoint = e.getPoint();
+			}
 		});
 
 		JPopupMenu popupMenu = new JPopupMenu();
 		MainFrame.addPopup(tableBatchToolsDat2Dir, popupMenu);
+
+		JMenuItem mnDat2DirAddDat = new JMenuItem(Messages.getString("MainFrame.AddDat"));
+		mnDat2DirAddDat.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final int col = tableBatchToolsDat2Dir.columnAtPoint(popupPoint);
+				final int row  = tableBatchToolsDat2Dir.rowAtPoint(popupPoint);
+				List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
+				new JRMFileChooser<Void>(
+						col == 0 ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG,
+						col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY,
+						list.size() > 0 ? Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(f->f.getParentFile()).orElse(null) : null, // currdir
+						null,	// selected
+						Collections.singletonList(new FileFilter()
+						{
+							@Override
+							public boolean accept(File f)
+							{
+								java.io.FileFilter filter = null;
+								if (col == 1)
+									filter = tableBatchToolsDat2Dir.getSDRModel().getDstFilter();
+								else if (col == 0)
+									filter = new java.io.FileFilter() {
+
+										@Override
+										public boolean accept(File file)
+										{
+											final List<String> exts = Arrays.asList("xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$
+											if (file.isFile())
+												return exts.contains(FilenameUtils.getExtension(file.getName()));
+											return true;
+										}
+									
+								};
+								if (filter != null)
+									return filter.accept(f);
+								return true;
+							}
+		
+							@Override
+							public String getDescription()
+							{
+								return col==0?"Dat/XML files or directories of Dat/XML files":"Destination directories";
+							}
+						}),
+						col == 0 ? "Choose XML/DAT files or the parent directory in case of software lists" : "Choose destination directories",
+						true).show(SwingUtilities.windowForComponent(BatchToolsDirUpd8rPanel.this), new CallBack<Void>()
+				{
+					@Override
+					public Void call(JRMFileChooser<Void> chooser)
+					{
+						File[] files = chooser.getSelectedFiles();
+						SDRTableModel model = tableBatchToolsDat2Dir.getSDRModel();
+						if (files.length > 0)
+						{
+							int start_size = model.getData().size();
+							final java.io.FileFilter filter =  col == 0 ? model.getSrcFilter() : model.getDstFilter();
+							for (int i = 0; i < files.length; i++)
+							{
+								File file = files[i];
+								if(filter.accept(file))
+								{
+									SrcDstResult line;
+									if (row == -1 || row + i >= model.getData().size())
+										model.getData().add(line = new SrcDstResult());
+									else
+										line = model.getData().get(row + i);
+									if (col == 1)
+										line.dst = file;
+									else
+										line.src = file;
+								}
+							}
+							if (row != -1)
+								model.fireTableChanged(new TableModelEvent(model, row, start_size - 1, col));
+							if (start_size != model.getData().size())
+								model.fireTableChanged(new TableModelEvent(model, start_size, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+							tableBatchToolsDat2Dir.call();
+						}
+						return null;
+					}
+				});
+			}
+		});
+		popupMenu.add(mnDat2DirAddDat);
+		
 		popupMenu.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
@@ -153,12 +256,10 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
 				mnDat2DirPresets.setEnabled(tableBatchToolsDat2Dir.getSelectedRowCount() > 0);
+				mnDat2DirAddDat.setEnabled(tableBatchToolsDat2Dir.columnAtPoint(popupPoint) <= 1);
 			}
 		});
 
-		JMenuItem mnDat2DirAddDat = new JMenuItem(Messages.getString("MainFrame.AddDat")); //$NON-NLS-1$
-		mnDat2DirAddDat.setEnabled(false);
-		popupMenu.add(mnDat2DirAddDat);
 
 		JMenuItem mnDat2DirDelDat = new JMenuItem(Messages.getString("MainFrame.DelDat")); //$NON-NLS-1$
 		mnDat2DirDelDat.addActionListener(new ActionListener()

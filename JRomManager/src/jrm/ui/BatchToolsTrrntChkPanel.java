@@ -3,22 +3,19 @@ package jrm.ui;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -30,13 +27,10 @@ import jrm.batch.TorrentChecker;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
 import jrm.misc.GlobalSettings;
-import jrm.ui.basic.JSDRDropTable;
-import jrm.ui.basic.ResultColUpdater;
-import jrm.ui.basic.SDRTableModel;
-import jrm.ui.basic.SrcDstResult;
+import jrm.ui.basic.*;
+import jrm.ui.basic.JRMFileChooser.CallBack;
 import jrm.ui.batch.BatchTableModel;
 import jrm.ui.progress.Progress;
-import javax.swing.JCheckBox;
 
 @SuppressWarnings("serial")
 public class BatchToolsTrrntChkPanel extends JPanel
@@ -45,6 +39,8 @@ public class BatchToolsTrrntChkPanel extends JPanel
 	private JComboBox<TrntChkMode> cbbxTrntChk;
 	private JCheckBox cbRemoveUnknownFiles;
 	private JCheckBox cbRemoveWrongSizedFiles;
+
+	private Point popupPoint;
 
 	/**
 	 * Create the panel.
@@ -68,6 +64,21 @@ public class BatchToolsTrrntChkPanel extends JPanel
 		this.add(scrollPane, gbc_scrollPane);
 
 		tableTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Selected" }), files -> GlobalSettings.setProperty("trntchk.sdr", SrcDstResult.toJSON(files)));
+		tableTrntChk.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				if(e.isPopupTrigger())
+					popupPoint = e.getPoint();
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				if(e.isPopupTrigger())
+					popupPoint = e.getPoint();
+			}
+		});
 		((BatchTableModel) tableTrntChk.getModel()).applyColumnsWidths(tableTrntChk);
 		final List<SrcDstResult> sdrl2 = new ArrayList<>();
 		for (final JsonValue arrv : Json.parse(GlobalSettings.getProperty("trntchk.sdr", "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
@@ -104,9 +115,103 @@ public class BatchToolsTrrntChkPanel extends JPanel
 		final JPopupMenu pmTrntChk = new JPopupMenu();
 		MainFrame.addPopup(tableTrntChk, pmTrntChk);
 
-		final JMenuItem mntmAddTorrent = new JMenuItem(Messages.getString("BatchToolsTrrntChkPanel.mntmAddTorrent.text")); //$NON-NLS-1$
-		mntmAddTorrent.setEnabled(false);
+		final JMenuItem mntmAddTorrent = new JMenuItem(Messages.getString("BatchToolsTrrntChkPanel.mntmAddTorrent.text"));
+		mntmAddTorrent.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final int col = tableTrntChk.columnAtPoint(popupPoint);
+				final int row  = tableTrntChk.rowAtPoint(popupPoint);
+				List<SrcDstResult> list = tableTrntChk.getSelectedValuesList();
+				new JRMFileChooser<Void>(
+						col == 0 ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG,
+						col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY,
+						list.size() > 0 ? Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(f->f.getParentFile()).orElse(null) : null, // currdir
+						null,	// selected
+						Collections.singletonList(new FileFilter()
+						{
+							@Override
+							public boolean accept(File f)
+							{
+								java.io.FileFilter filter = null;
+								if (col == 1)
+									filter = tableTrntChk.getSDRModel().getDstFilter();
+								else if (col == 0)
+									filter = new java.io.FileFilter() {
+
+										@Override
+										public boolean accept(File file)
+										{
+											final List<String> exts = Arrays.asList("torrent"); //$NON-NLS-1$ //$NON-NLS-2$
+											if (file.isFile())
+												return exts.contains(FilenameUtils.getExtension(file.getName()));
+											return true;
+										}
+									
+								};
+								if (filter != null)
+									return filter.accept(f);
+								return true;
+							}
+		
+							@Override
+							public String getDescription()
+							{
+								return col==0?"Torrent files":"Destination directories";
+							}
+						}),
+						col == 0 ? "Choose torrent files" : "Choose destination directories",
+						true).show(SwingUtilities.windowForComponent(BatchToolsTrrntChkPanel.this), new CallBack<Void>()
+				{
+					@Override
+					public Void call(JRMFileChooser<Void> chooser)
+					{
+						File[] files = chooser.getSelectedFiles();
+						SDRTableModel model = tableTrntChk.getSDRModel();
+						if (files.length > 0)
+						{
+							int start_size = model.getData().size();
+							final java.io.FileFilter filter =  col == 0 ? model.getSrcFilter() : model.getDstFilter();
+							for (int i = 0; i < files.length; i++)
+							{
+								File file = files[i];
+								if(filter.accept(file))
+								{
+									SrcDstResult line;
+									if (row == -1 || row + i >= model.getData().size())
+										model.getData().add(line = new SrcDstResult());
+									else
+										line = model.getData().get(row + i);
+									if (col == 1)
+										line.dst = file;
+									else
+										line.src = file;
+								}
+							}
+							if (row != -1)
+								model.fireTableChanged(new TableModelEvent(model, row, start_size - 1, col));
+							if (start_size != model.getData().size())
+								model.fireTableChanged(new TableModelEvent(model, start_size, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+							tableTrntChk.call();
+						}
+						return null;
+					}
+				});
+			}
+		});
 		pmTrntChk.add(mntmAddTorrent);
+
+		pmTrntChk.addPopupMenuListener(new PopupMenuListener() {
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e) {
+			}
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+			}
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+				mntmAddTorrent.setEnabled(tableTrntChk.columnAtPoint(popupPoint) <= 1);
+			}
+		});
 
 		final JMenuItem mntmDelTorrent = new JMenuItem(Messages.getString("BatchToolsTrrntChkPanel.mntmDelTorrent.text")); //$NON-NLS-1$
 		mntmDelTorrent.addActionListener(e -> tableTrntChk.del(tableTrntChk.getSelectedValuesList()));
