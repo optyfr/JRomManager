@@ -41,6 +41,7 @@ public class BatchTrrntChkPanel extends JPanel
 	private JCheckBox cbRemoveWrongSizedFiles;
 
 	private Point popupPoint;
+	private JCheckBox chckbxDetectArchivedFolder;
 
 	/**
 	 * Create the panel.
@@ -48,15 +49,15 @@ public class BatchTrrntChkPanel extends JPanel
 	public BatchTrrntChkPanel()
 	{
 		final GridBagLayout gbl_panelBatchToolsDir2Torrent = new GridBagLayout();
-		gbl_panelBatchToolsDir2Torrent.columnWidths = new int[] { 0, 0, 0, 0, 0, 0 };
+		gbl_panelBatchToolsDir2Torrent.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0 };
 		gbl_panelBatchToolsDir2Torrent.rowHeights = new int[] { 0, 0, 0 };
-		gbl_panelBatchToolsDir2Torrent.columnWeights = new double[] { 1.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		gbl_panelBatchToolsDir2Torrent.columnWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE };
 		gbl_panelBatchToolsDir2Torrent.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		setLayout(gbl_panelBatchToolsDir2Torrent);
 
 		final JScrollPane scrollPane = new JScrollPane();
 		final GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.gridwidth = 5;
+		gbc_scrollPane.gridwidth = 6;
 		gbc_scrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 0;
@@ -242,12 +243,21 @@ public class BatchTrrntChkPanel extends JPanel
 		final JButton btnBatchToolsTrntChkStart = new JButton(Messages.getString("BatchToolsTrrntChkPanel.TrntCheckStart.text")); //$NON-NLS-1$
 		btnBatchToolsTrntChkStart.addActionListener((e) -> trrntChk());
 
+		chckbxDetectArchivedFolder = new JCheckBox(Messages.getString("BatchTrrntChkPanel.chckbxDetectArchivedFolder.text")); //$NON-NLS-1$
+		chckbxDetectArchivedFolder.addActionListener(e -> GlobalSettings.setProperty("trntchk.detect_archived_folders", chckbxDetectArchivedFolder.isSelected()));
+		chckbxDetectArchivedFolder.setSelected(GlobalSettings.getProperty("trntchk.detect_archived_folders", true)); //$NON-NLS-1$
+		GridBagConstraints gbc_chckbxDetectArchivedFolder = new GridBagConstraints();
+		gbc_chckbxDetectArchivedFolder.insets = new Insets(0, 0, 0, 5);
+		gbc_chckbxDetectArchivedFolder.gridx = 2;
+		gbc_chckbxDetectArchivedFolder.gridy = 1;
+		add(chckbxDetectArchivedFolder, gbc_chckbxDetectArchivedFolder);
+
 		cbRemoveUnknownFiles = new JCheckBox(Messages.getString("BatchToolsTrrntChkPanel.chckbxRemoveUnknownFiles.text")); //$NON-NLS-1$
 		cbRemoveUnknownFiles.addActionListener(e -> GlobalSettings.setProperty("trntchk.remove_unknown_files", cbRemoveUnknownFiles.isSelected()));
 		cbRemoveUnknownFiles.setSelected(GlobalSettings.getProperty("trntchk.remove_unknown_files", false)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbRemoveUnknownFiles = new GridBagConstraints();
 		gbc_cbRemoveUnknownFiles.insets = new Insets(0, 0, 0, 5);
-		gbc_cbRemoveUnknownFiles.gridx = 2;
+		gbc_cbRemoveUnknownFiles.gridx = 3;
 		gbc_cbRemoveUnknownFiles.gridy = 1;
 		add(cbRemoveUnknownFiles, gbc_cbRemoveUnknownFiles);
 
@@ -258,12 +268,12 @@ public class BatchTrrntChkPanel extends JPanel
 		GridBagConstraints gbc_cbRemoveWrongSizedFiles = new GridBagConstraints();
 		gbc_cbRemoveWrongSizedFiles.anchor = GridBagConstraints.WEST;
 		gbc_cbRemoveWrongSizedFiles.insets = new Insets(0, 0, 0, 5);
-		gbc_cbRemoveWrongSizedFiles.gridx = 3;
+		gbc_cbRemoveWrongSizedFiles.gridx = 4;
 		gbc_cbRemoveWrongSizedFiles.gridy = 1;
 		add(cbRemoveWrongSizedFiles, gbc_cbRemoveWrongSizedFiles);
 		final GridBagConstraints gbc_btnBatchToolsTrntChkStart = new GridBagConstraints();
 		gbc_btnBatchToolsTrntChkStart.anchor = GridBagConstraints.EAST;
-		gbc_btnBatchToolsTrntChkStart.gridx = 4;
+		gbc_btnBatchToolsTrntChkStart.gridx = 5;
 		gbc_btnBatchToolsTrntChkStart.gridy = 1;
 		this.add(btnBatchToolsTrntChkStart, gbc_btnBatchToolsTrntChkStart);
 
@@ -281,9 +291,10 @@ public class BatchTrrntChkPanel extends JPanel
 				final List<SrcDstResult> sdrl = ((SDRTableModel) tableTrntChk.getModel()).getData();
 				final TrntChkMode mode = (TrntChkMode) cbbxTrntChk.getSelectedItem();
 				final ResultColUpdater updater = tableTrntChk;
+				final boolean detectArchivedFolders = chckbxDetectArchivedFolder.isSelected();
 				final boolean removeUnknownFiles = cbRemoveUnknownFiles.isSelected();
 				final boolean removeWrongSizedFiles = cbRemoveWrongSizedFiles.isSelected();
-				new TorrentChecker(progress, sdrl, mode, updater, removeUnknownFiles, removeWrongSizedFiles);
+				new TorrentChecker(progress, sdrl, mode, updater, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
 				return null;
 			}
 

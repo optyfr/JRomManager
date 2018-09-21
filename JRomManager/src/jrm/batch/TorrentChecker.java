@@ -3,10 +3,7 @@ package jrm.batch;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -15,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FilenameUtils;
 
 import jrm.io.torrent.Torrent;
 import jrm.io.torrent.TorrentFile;
@@ -42,7 +40,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	 * @param updater the result interface
 	 * @throws IOException
 	 */
-	public TorrentChecker(final Progress progress, List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater, boolean removeUnknownFiles, boolean removeWrongSizedFiles) throws IOException
+	public TorrentChecker(final Progress progress, List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater, boolean removeUnknownFiles, boolean removeWrongSizedFiles, boolean detectArchivedFolders) throws IOException
 	{
 		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),(int)sdrl.stream().filter(sdr->sdr.selected).count()), true);
 		progress.setProgress2("", 0, 1); //$NON-NLS-1$
@@ -54,7 +52,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			{
 				int row = sdrl.indexOf(sdr);
 				updater.updateResult(row, "In progress...");
-				final String result = check(progress, mode, sdr, removeUnknownFiles, removeWrongSizedFiles);
+				final String result = check(progress, mode, sdr, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
 				updater.updateResult(row, result);
 				progress.setProgress(null, -1, null, "");
 			}
@@ -72,7 +70,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	 * @return
 	 * @throws IOException
 	 */
-	private String check(final Progress progress, TrntChkMode mode, SrcDstResult sdr, boolean removeUnknownFiles, boolean removeWrongSizedFiles) throws IOException
+	private String check(final Progress progress, TrntChkMode mode, SrcDstResult sdr, boolean removeUnknownFiles, boolean removeWrongSizedFiles, boolean detectArchivedFolders) throws IOException
 	{
 		String result = ""; //$NON-NLS-1$
 		if (sdr.src != null && sdr.dst != null)
@@ -86,6 +84,9 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 				int missing_files = 0;
 				int wrong_sized_files = 0;
 				HashSet<Path> paths = new HashSet<>();
+				
+				detectArchives(sdr, tfiles, detectArchivedFolders);
+				
 				if (mode != TrntChkMode.SHA1)
 				{
 					processing.addAndGet(total);
@@ -277,4 +278,98 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		return count;
 	}
 
+	private void detectArchives(SrcDstResult sdr, List<TorrentFile> tfiles, boolean unarchive)
+	{
+		HashSet<String> components = new HashSet<>();
+		HashSet<Path> archives = new HashSet<>();
+		for (int j = 0; j < tfiles.size(); j++)
+		{
+			TorrentFile tfile = tfiles.get(j);
+			List<String> filedirs = tfile.getFileDirs();
+			if (tfile.getFileDirs().size() > 1)
+			{
+				String path = filedirs.get(0);
+				if(!components.contains(path))
+				{
+					components.add(path);
+					
+					Path file = sdr.dst.toPath();
+					file = file.resolve(path);
+					
+					Path archive = file.getParent().resolve(file.getFileName().toString() + ".zip");
+					if (Files.exists(archive))
+					{
+						archives.add(archive);
+					}
+				}
+			}
+		}
+		for (int j = 0; j < tfiles.size(); j++)
+		{
+			TorrentFile tfile = tfiles.get(j);
+			Path file = sdr.dst.toPath();
+			for (String path : tfile.getFileDirs())
+				file = file.resolve(path);
+			if(archives.contains(file))
+				archives.remove(file);
+		}
+		for(Path archive : archives)
+		{
+			if(unarchive)
+			{
+				try
+				{
+					unzip(archive, archive.getParent().resolve(FilenameUtils.getBaseName(archive.getFileName().toString())));
+				//	Files.delete(archive);
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			else
+				System.out.println(archive);
+		}
+	}
+	
+	private void unzip(final Path zipFile, final Path destDir) throws IOException
+	{
+		if (Files.notExists(destDir))
+		{
+			Files.createDirectories(destDir);
+		}
+
+		try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipFile, null))
+		{
+			final Path root = zipFileSystem.getRootDirectories().iterator().next();
+
+			Files.walkFileTree(root, new SimpleFileVisitor<Path>()
+			{
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+				{
+					final Path destFile = Paths.get(destDir.toString(), file.toString());
+					try
+					{
+						Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
+					}
+					catch (DirectoryNotEmptyException ignore)
+					{
+					}
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+				{
+					final Path dirToCreate = Paths.get(destDir.toString(), dir.toString());
+					if (Files.notExists(dirToCreate))
+					{
+						Files.createDirectory(dirToCreate);
+					}
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		}
+	}
 }
