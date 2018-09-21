@@ -53,6 +53,8 @@ public class DirUpdater
 			result.updateResult(row, "In progress..."); //$NON-NLS-1$
 			final File dat = sdr.src;
 			final File dst = sdr.dst;
+			DirUpdaterResults dur = new DirUpdaterResults();
+			dur.dat = dat;
 			try
 			{
 				File[] datlist = { dat };
@@ -71,16 +73,21 @@ public class DirUpdater
 				for (int j = 0; j < datlist.length; j++)
 				{
 					Scan.report.setProfile(Profile.curr_profile = Profile.load(datlist[j], progress));
-					Profile.curr_profile.setProperty("roms_dest_dir", dstlist[j].getAbsolutePath()); //$NON-NLS-1$
+					if(Profile.curr_profile.softwares_list_cnt>0 && dat.isDirectory())
+						Profile.curr_profile.setProperty("roms_dest_dir", dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
+					else
+						Profile.curr_profile.setProperty("roms_dest_dir", dstlist[j].getAbsolutePath()); //$NON-NLS-1$
 					Profile.curr_profile.setProperty("src_dir", String.join("|", srcdirs.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
 					Scan scan = new Scan(Profile.curr_profile, progress, scancache);
 					total += Scan.report.stats.set_create + Scan.report.stats.set_found + Scan.report.stats.set_missing;
 					ok += Scan.report.stats.set_create_complete + Scan.report.stats.set_found_fixcomplete + Scan.report.stats.set_found_ok;
+					dur.add(datlist[j],Scan.report.stats.clone());
 					Scan.report.save();
 					if (!dryrun)
 						new Fix(Profile.curr_profile, scan, progress);
 					result.updateResult(row, String.format(Messages.getString("DirUpdater.Result"), ok * 100.0 / total, total - ok, total)); //$NON-NLS-1$
 				}
+				dur.save();
 			}
 			catch (BreakException e)
 			{

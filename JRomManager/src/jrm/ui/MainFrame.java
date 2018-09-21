@@ -28,13 +28,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ResourceBundle;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
+import javax.swing.*;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -43,6 +37,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import jrm.locale.Messages;
 import jrm.misc.GlobalSettings;
 import jrm.profile.Profile;
+import jrm.ui.batch.BatchPanel;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.report.ReportFrame;
 
@@ -184,7 +179,7 @@ public class MainFrame extends JFrame
 
 	private void buildBatchToolsTab()
 	{
-		BatchToolsPanel batchToolsPanel = new BatchToolsPanel();
+		BatchPanel batchToolsPanel = new BatchPanel();
 		mainPane.addTab(Messages.getString("MainFrame.BatchTools"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_osx_terminal.png")), batchToolsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -203,7 +198,7 @@ public class MainFrame extends JFrame
 	 * @param popup
 	 *            the popup menu to add
 	 */
-	static void addPopup(final Component component, final JPopupMenu popup)
+	public static void addPopup(final Component component, final JPopupMenu popup)
 	{
 		component.addMouseListener(new MouseAdapter()
 		{

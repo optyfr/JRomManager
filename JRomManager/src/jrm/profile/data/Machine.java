@@ -89,7 +89,7 @@ public class Machine extends Anyware implements Serializable
 	/**
 	 * The mapping between each device_ref string and a {@link Machine} (with flag {@link #isdevice})
 	 */
-	public final transient HashMap<String, Machine> device_machines = new HashMap<>();
+	public transient HashMap<String, Machine> device_machines = new HashMap<>();
 	/**
 	 * an I/O device list
 	 */
@@ -158,6 +158,26 @@ public class Machine extends Anyware implements Serializable
 		return getParent(Machine.class);
 	}
 
+	/**
+	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
+	 * @param in the serialization inputstream 
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		in.defaultReadObject();
+		initTransient();
+	}
+
+	/**
+	 * The method called to initialize transient and static fields
+	 */
+	private void initTransient()
+	{
+		device_machines = new HashMap<>();
+	}
+	
 	@Override
 	public String getName()
 	{

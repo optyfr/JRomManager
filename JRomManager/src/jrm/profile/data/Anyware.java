@@ -74,7 +74,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	/**
 	 * A hash table of clones if this object has clones
 	 */
-	public final transient HashMap<String, Anyware> clones = new HashMap<>();
+	public transient HashMap<String, Anyware> clones = new HashMap<>();
 
 	/**
 	 * Is that machine/software is *individually* selected for inclusion in your set ? (true by default)
@@ -153,6 +153,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 		roms.forEach(r->r.parent=this);
 		disks.forEach(d->d.parent=this);
 		samples.forEach(s->s.parent=this);
+		clones = new HashMap<>();
 	}
 
 	/**

@@ -806,6 +806,7 @@ public class Scan
 
 				final ArrayList<Entry> roms_found = new ArrayList<>();
 				final Map<String, Rom> roms_byname = Rom.getRomsByName(roms);
+				
 				BackupContainer backup_set = null;
 				OpenContainer add_set = null, delete_set = null, rename_before_set = null;
 				final OpenContainer rename_after_set = null;
@@ -879,8 +880,10 @@ public class Scan
 									if (another_rom == null)
 									{
 										if (debug)
+										{
 											System.out.println("\t" + efile + " in roms_byname not found");
-										roms_byname.forEach((k, v) -> System.out.println("\troms_byname: " + k));
+											roms_byname.forEach((k, v) -> System.out.println("\troms_byname: " + k));
+										}
 									}
 									else if (debug)
 										System.out.println("\t" + efile + " in roms_byname found but does not match hash");

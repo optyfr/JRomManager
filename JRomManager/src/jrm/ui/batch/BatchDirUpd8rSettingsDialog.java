@@ -1,4 +1,4 @@
-package jrm.ui;
+package jrm.ui.batch;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -10,8 +10,10 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import jrm.ui.ScannerSettingsPanel;
+
 @SuppressWarnings("serial")
-public class BatchToolsDirUpd8rSettingsDialog extends JDialog
+public class BatchDirUpd8rSettingsDialog extends JDialog
 {
 
 	final ScannerSettingsPanel settingsPanel = new ScannerSettingsPanel();
@@ -22,7 +24,7 @@ public class BatchToolsDirUpd8rSettingsDialog extends JDialog
 	/**
 	 * Create the dialog.
 	 */
-	public BatchToolsDirUpd8rSettingsDialog(Window parent)
+	public BatchDirUpd8rSettingsDialog(Window parent)
 	{
 		super(parent);
 		setAlwaysOnTop(true);

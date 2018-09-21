@@ -1,4 +1,4 @@
-package jrm.ui;
+package jrm.ui.batch;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -20,20 +20,21 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.batch.DirUpdater;
+import jrm.batch.DirUpdaterResults;
 import jrm.locale.Messages;
 import jrm.misc.GlobalSettings;
 import jrm.misc.Settings;
 import jrm.profile.Profile;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
+import jrm.ui.MainFrame;
 import jrm.ui.basic.*;
 import jrm.ui.basic.JRMFileChooser.CallBack;
-import jrm.ui.batch.BatchTableModel;
-import jrm.ui.profile.report.ReportLite;
+import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
-public class BatchToolsDirUpd8rPanel extends JPanel
+public class BatchDirUpd8rPanel extends JPanel
 {
 	private JFileDropList listBatchToolsDat2DirSrc;
 	private JSDRDropTable tableBatchToolsDat2Dir;
@@ -44,7 +45,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public BatchToolsDirUpd8rPanel()
+	public BatchDirUpd8rPanel()
 	{
 		GridBagLayout gbl_panelBatchToolsDat2Dir = new GridBagLayout();
 		gbl_panelBatchToolsDat2Dir.columnWidths = new int[] { 0, 0, 0, 0 };
@@ -90,7 +91,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 						null,	// selected
 						null,	// filters
 						"Choose source directories",
-						true).show(SwingUtilities.windowForComponent(BatchToolsDirUpd8rPanel.this), new CallBack<Void>()
+						true).show(SwingUtilities.windowForComponent(BatchDirUpd8rPanel.this), new CallBack<Void>()
 				{
 					@Override
 					public Void call(JRMFileChooser<Void> chooser)
@@ -119,7 +120,17 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 		JScrollPane scrollPane_6 = new JScrollPane();
 		splitPane.setRightComponent(scrollPane_6);
 
-		tableBatchToolsDat2Dir = new JSDRDropTable(new BatchTableModel(), files -> GlobalSettings.setProperty("dat2dir.sdr", SrcDstResult.toJSON(files))); //$NON-NLS-1$
+		BatchTableModel model = new BatchTableModel();
+		tableBatchToolsDat2Dir = new JSDRDropTable(model, files -> GlobalSettings.setProperty("dat2dir.sdr", SrcDstResult.toJSON(files))); //$NON-NLS-1$
+		model.setButtonHandler(new TableButtonPressedHandler()
+		{
+			@Override
+			public void onButtonPress(int row, int column)
+			{
+				final SrcDstResult sdr = model.getData().get(row);
+				new BatchDirUpd8rResultsDialog(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),DirUpdaterResults.load(sdr.src));
+			}
+		});
 		tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(GlobalSettings.getProperty("dat2dir.sdr", "[]")));
 		tableBatchToolsDat2Dir.setCellSelectionEnabled(false);
 		tableBatchToolsDat2Dir.setRowSelectionAllowed(true);
@@ -154,8 +165,9 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 						final SDRTableModel tablemodel = tableBatchToolsDat2Dir.getSDRModel();
 						//final int column = target.columnAtPoint(e.getPoint());
 						final SrcDstResult sdr = tablemodel.getData().get(row);
-						if(sdr.src.isFile())
-							new ReportLite(SwingUtilities.getWindowAncestor(BatchToolsDirUpd8rPanel.this),sdr.src);
+/*						if(sdr.src.isFile())
+							new ReportLite(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),sdr.src);*/
+						new BatchDirUpd8rResultsDialog(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),DirUpdaterResults.load(sdr.src));
 					}
 				}
 			}
@@ -223,7 +235,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 							}
 						}),
 						col == 0 ? "Choose XML/DAT files or the parent directory in case of software lists" : "Choose destination directories",
-						true).show(SwingUtilities.windowForComponent(BatchToolsDirUpd8rPanel.this), new CallBack<Void>()
+						true).show(SwingUtilities.windowForComponent(BatchDirUpd8rPanel.this), new CallBack<Void>()
 				{
 					@Override
 					public Void call(JRMFileChooser<Void> chooser)
@@ -384,7 +396,7 @@ public class BatchToolsDirUpd8rPanel extends JPanel
 				List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
 				if(list.size()>0)
 				{
-					BatchToolsDirUpd8rSettingsDialog dialog = new BatchToolsDirUpd8rSettingsDialog(SwingUtilities.getWindowAncestor(BatchToolsDirUpd8rPanel.this));
+					BatchDirUpd8rSettingsDialog dialog = new BatchDirUpd8rSettingsDialog(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this));
 					SrcDstResult entry = list.get(0);
 					try
 					{

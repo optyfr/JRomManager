@@ -6,6 +6,7 @@ package jrm.ui.basic;
 import java.awt.Component;
 
 import javax.swing.JTable;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
@@ -22,6 +23,11 @@ public interface EnhTableModel extends TableModel
 	public abstract TableCellRenderer[] getCellRenderers();
 
 	/**
+	 * @return the cellEditors
+	 */
+	public default TableCellEditor[] getCellEditors() {return null;}
+
+	/**
 	 * get the declared renderer for a given column
 	 * @param columnIndex the requested column index
 	 * @return a {@link TableCellRenderer} associated with the given columnindex 
@@ -29,6 +35,16 @@ public interface EnhTableModel extends TableModel
 	public default TableCellRenderer getColumnRenderer(int columnIndex)
 	{
 		return getCellRenderers()[columnIndex];
+	}
+
+	/**
+	 * get the declared editor for a given column
+	 * @param columnIndex the requested column index
+	 * @return a {@link TableCellEditor} associated with the given columnindex 
+	 */
+	public default TableCellEditor getColumnEditor(int columnIndex)
+	{
+		return getCellEditors()[columnIndex];
 	}
 
 	/**

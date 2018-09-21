@@ -49,6 +49,8 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 		this.model = model;
 		for(int i = 0; i < getColumnModel().getColumnCount(); i++)
 			getColumnModel().getColumn(i).setCellRenderer(model.getCellRenderers()[i]);
+		for(int i = 0; i < getColumnModel().getColumnCount(); i++)
+			getColumnModel().getColumn(i).setCellEditor(model.getCellEditors()[i]);
 		color = getBackground();
 		new DropTarget(this, this);
 		this.model.addTableModelListener(new TableModelListener()

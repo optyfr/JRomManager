@@ -135,6 +135,12 @@ public class Profile implements Serializable
 		try (InputStream in = handler.getInputStream(new FileInputStream(file), (int) file.length()))
 		{
 			final SAXParserFactory factory = SAXParserFactory.newInstance();
+		/*	factory.setValidating(false);
+			factory.setNamespaceAware(true);
+			factory.setFeature("http://xml.org/sax/features/namespaces", false);
+			factory.setFeature("http://xml.org/sax/features/validation", false);*/
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 			final SAXParser parser = factory.newSAXParser();
 			parser.parse(in, new DefaultHandler()
 			{
@@ -282,7 +288,21 @@ public class Profile implements Serializable
 									curr_dataarea.name = attributes.getValue(i).trim();
 									break;
 								case "size": //$NON-NLS-1$
-									curr_dataarea.size = Integer.valueOf(attributes.getValue(i));
+									try
+									{
+										curr_dataarea.size = Integer.decode(attributes.getValue(i).trim());
+									}
+									catch (NumberFormatException e)
+									{
+										try
+										{
+											curr_dataarea.size = Integer.decode("0x"+attributes.getValue(i).trim());
+										}
+										catch (NumberFormatException e1)
+										{
+											curr_dataarea.size = 0;
+										}
+									}
 									break;
 								case "width": //$NON-NLS-1$
 								case "databits": //$NON-NLS-1$

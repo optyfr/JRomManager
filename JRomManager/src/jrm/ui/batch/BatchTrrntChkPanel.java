@@ -1,4 +1,4 @@
-package jrm.ui;
+package jrm.ui.batch;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,13 +27,13 @@ import jrm.batch.TorrentChecker;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
 import jrm.misc.GlobalSettings;
+import jrm.ui.MainFrame;
 import jrm.ui.basic.*;
 import jrm.ui.basic.JRMFileChooser.CallBack;
-import jrm.ui.batch.BatchTableModel;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
-public class BatchToolsTrrntChkPanel extends JPanel
+public class BatchTrrntChkPanel extends JPanel
 {
 	private JSDRDropTable tableTrntChk;
 	private JComboBox<TrntChkMode> cbbxTrntChk;
@@ -45,7 +45,7 @@ public class BatchToolsTrrntChkPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public BatchToolsTrrntChkPanel()
+	public BatchTrrntChkPanel()
 	{
 		final GridBagLayout gbl_panelBatchToolsDir2Torrent = new GridBagLayout();
 		gbl_panelBatchToolsDir2Torrent.columnWidths = new int[] { 0, 0, 0, 0, 0, 0 };
@@ -63,7 +63,7 @@ public class BatchToolsTrrntChkPanel extends JPanel
 		gbc_scrollPane.gridy = 0;
 		this.add(scrollPane, gbc_scrollPane);
 
-		tableTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Selected" }), files -> GlobalSettings.setProperty("trntchk.sdr", SrcDstResult.toJSON(files)));
+		tableTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Details", "Selected" }), files -> GlobalSettings.setProperty("trntchk.sdr", SrcDstResult.toJSON(files)));
 		tableTrntChk.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e)
@@ -160,7 +160,7 @@ public class BatchToolsTrrntChkPanel extends JPanel
 							}
 						}),
 						col == 0 ? "Choose torrent files" : "Choose destination directories",
-						true).show(SwingUtilities.windowForComponent(BatchToolsTrrntChkPanel.this), new CallBack<Void>()
+						true).show(SwingUtilities.windowForComponent(BatchTrrntChkPanel.this), new CallBack<Void>()
 				{
 					@Override
 					public Void call(JRMFileChooser<Void> chooser)

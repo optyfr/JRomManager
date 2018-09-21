@@ -92,7 +92,7 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 		model.initClone();
 	}
 
-	public class Stats implements Serializable
+	public class Stats implements Serializable,Cloneable
 	{
 		private static final long serialVersionUID = 1L;
 		
@@ -111,6 +111,12 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 		public int set_create_partial = 0;
 		public int set_create_complete = 0;
 
+		@Override
+		public Stats clone() throws CloneNotSupportedException
+		{
+			return (Stats)super.clone();
+		}
+		
 		/**
 		 * clear stats
 		 */

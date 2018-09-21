@@ -21,12 +21,13 @@ public class ReportLite extends JDialog
 	 */
 	public ReportLite(Window parent, File reportFile)
 	{
+		super(parent);
 		this.parent = parent;
 		//	setModal(true);
 		//	setModalityType(ModalityType.APPLICATION_MODAL);
 		parent.setEnabled(false);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		setAlwaysOnTop(true);
+//		setAlwaysOnTop(true);
 		setSize(600, 600);
 		setLocationRelativeTo(parent);
 		setVisible(true);
