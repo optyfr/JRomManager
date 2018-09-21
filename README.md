@@ -106,6 +106,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 ## Short Term Planned Features
 - Batch compressor tool
 - More detail in Torrent checker
+- Mode to keep existing container archive format
 
 ## Middle Term Planned Features
 - Cmd Line mode
