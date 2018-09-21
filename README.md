@@ -104,15 +104,18 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 	- Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode
 
 ## Short Term Planned Features
-
+- Batch compressor tool
+- More detail in Torrent checker
 
 ## Middle Term Planned Features
-- Auto update option (and show Changes log after auto-update)
 - Cmd Line mode
+- Server mode + HTML client
 - More Translations
-- Headered Roms support
+- Headered roms support
+- Auto update option (and show Changes log after auto-update)
 
 ## Long Term Planned Features and Ideas
+- Emulator-friendly format converter?
 - Interoperability with other managers?
 - Torrent7Z support ?
 - RAR decompression support ?

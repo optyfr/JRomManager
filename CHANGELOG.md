@@ -1,13 +1,19 @@
 ## Release v1.9 build 29
 - Enhancements  
-	- Custom scan settings for dir updater batch tool  
+	- Custom scan settings for dir updater batch tool
+	- Details and Report lists in Batch dir updater
+	- Torrent checker is able to detect wrongly archived folders and unzip them
 - Minor enhancements  
-	- Torrent check can now delete useless files and wrong files  
+	- Torrent checker can now delete useless files and wrong files  
 	- Report log now include datetime in its name and does not overwrite the former log  
-	- Report log now include informations about originating dat/xml file and used scan settings  
+	- Report log now include informations about originating dat/xml file and used scan settings 
+	- Added file selectors to Dir Updater and Torrent checker (drag & drop alternative)
 - Fixes  
 	- Added tooltips in table headers (batch tools and profile viewer)
 	- Added missing file chooser dialogs in batch tools tables (via popup menus)
+	- Bad Zip64 reading header
+	- Performance problem with machines with lot of roms (and so archives with lot of entries to compare to)
+	- Added missing header tooltips for tables
 
 ## Release v1.8 build 28
 - Fixes
