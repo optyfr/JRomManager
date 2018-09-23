@@ -95,7 +95,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Backup option (per profile)
 - (De)select Game or Software individually, or upon keywords selection (keywords are terms between parenthesis in description), similar to 1G1R mode
 - Launch mode for multiuser environment and for Linux packaging readiness (see `%HOMEPATH%\.jrommanager` or `$HOME/.jrommanager` for working path)
-- Available as installation package for [Gentoo Linux](https://packages.gentoo.org/packages/games-emulation/jrommanager), [Arch Linux](https://aur.archlinux.org/packages/jrommanager/), as .deb for [Debian / UBuntu](https://github.com/optyfr/JRomManager/releases/latest/), as RPM for [Centos / Fedora / Redhat](https://github.com/optyfr/JRomManager/releases/latest/), as MSI for [Windows](https://github.com/optyfr/JRomManager/releases/latest/)
+- Available as installation package for [Gentoo Linux JRomManager Overlay](https://github.com/optyfr/jrommanager-gentoo), [Arch Linux](https://aur.archlinux.org/packages/jrommanager/), as .deb for [Debian / UBuntu](https://github.com/optyfr/JRomManager/releases/latest/), as RPM for [Centos / Fedora / Redhat](https://github.com/optyfr/JRomManager/releases/latest/), as MSI for [Windows](https://github.com/optyfr/JRomManager/releases/latest/)
 - .exe bootstrap for windows version (with MSI installer) that search for available JRE in the system and adjust right memory parameters according 32 or 64 bits jre, can also work with a possible bundled jre
 - Documented source and javadoc available
 - Dir2Dat

@@ -30,6 +30,7 @@ import jrm.misc.GlobalSettings;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.*;
 import jrm.ui.basic.JRMFileChooser.CallBack;
+import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
@@ -64,7 +65,17 @@ public class BatchTrrntChkPanel extends JPanel
 		gbc_scrollPane.gridy = 0;
 		this.add(scrollPane, gbc_scrollPane);
 
-		tableTrntChk = new JSDRDropTable(new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Details", "Selected" }), files -> GlobalSettings.setProperty("trntchk.sdr", SrcDstResult.toJSON(files)));
+		BatchTableModel model = new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Details", "Selected" });
+		tableTrntChk = new JSDRDropTable(model, files -> GlobalSettings.setProperty("trntchk.sdr", SrcDstResult.toJSON(files)));
+		model.setButtonHandler(new TableButtonPressedHandler()
+		{
+			
+			@Override
+			public void onButtonPress(int row, int column)
+			{
+				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this), "Not yet implemented");
+			}
+		});
 		tableTrntChk.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e)

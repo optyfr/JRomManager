@@ -572,14 +572,17 @@ public final class DirScan
 			}
 			catch(final IOException e)
 			{
+				c.loaded = 0;
 				Log.err("IOException when scanning", e); //$NON-NLS-1$
 			}
 			catch(final BreakException e)
 			{
+				c.loaded = 0;
 				handler.cancel();
 			}
 			catch(final Throwable e)
 			{
+				c.loaded = 0;
 				Log.err("Other Exception when listing", e); //$NON-NLS-1$
 			}
 		});

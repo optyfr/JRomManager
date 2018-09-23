@@ -3,6 +3,9 @@
 	- Custom scan settings for dir updater batch tool
 	- Details and Report lists in Batch dir updater
 	- Torrent checker is able to detect wrongly archived folders and unzip them
+	- Created our own overlay for Gentoo Linux, releases will be in sync for this distribution :
+		- add the overlay using command `layman -o https://raw.githubusercontent.com/optyfr/jrommanager-gentoo/master/overlay.xml -f -a jrommanager`
+		- to keep in sync use `layman -s jrommanager`
 - Minor enhancements  
 	- Torrent checker can now delete useless files and wrong files  
 	- Report log now include datetime in its name and does not overwrite the former log  
