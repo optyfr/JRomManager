@@ -13,10 +13,8 @@
 	- Added file selectors to Dir Updater and Torrent checker (drag & drop alternative)
 - Fixes  
 	- Added tooltips in table headers (batch tools and profile viewer)
-	- Added missing file chooser dialogs in batch tools tables (via popup menus)
 	- Bad Zip64 reading header
 	- Performance problem with machines with lot of roms (and so archives with lot of entries to compare to)
-	- Added missing header tooltips for tables
 
 ## Release v1.8 build 28
 - Fixes
