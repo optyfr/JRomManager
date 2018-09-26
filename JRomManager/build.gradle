@@ -3,6 +3,7 @@ plugins {
   id "de.inetsoftware.setupbuilder" version "4.5.4c"
 }
 
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
@@ -12,12 +13,6 @@ file("dist/ver.properties").withInputStream { props.load(it) }
 version = props.getProperty("Specification-Version")+props.getProperty("Implementation-Version")
 
 repositories {
-	ivy {
-		url "https://www.smartclient.com/builds/SmartGWT"
-		layout 'pattern', {
-            artifact '[revision]/LGPL/latest/[module].[ext]'
-        }
-	}
 	mavenCentral()
 }
 
@@ -40,8 +35,6 @@ dependencies {
 	compile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 	compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.11.0'
 	compile group: 'org.nanohttpd', name: 'nanohttpd', version: '2.3.1'
-	compile group: 'smartgwt', name: 'smartgwt', version: '12.0p'
-	compile group: 'smartgwt', name: 'smartgwt-skins', version: '12.0p'
 }
 
 sourceSets {
