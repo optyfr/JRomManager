@@ -4,9 +4,18 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.IStatus;
@@ -16,6 +25,8 @@ import fi.iki.elonen.util.ServerRunner;
 
 public class Server extends RouterNanoHTTPD
 {
+	private static String clientPath;
+	
 	public Server()
 	{
 		super(8080);
@@ -29,6 +40,35 @@ public class Server extends RouterNanoHTTPD
 	 */
 	public static void main(String[] args)
 	{
+		Options options = new Options();
+		Option clientPath = new Option("c", "client", true, "Client Path");
+		options.addOption(clientPath);
+		CommandLineParser parser = new DefaultParser();
+		HelpFormatter formatter = new HelpFormatter();
+		CommandLine cmd;
+
+		try
+		{
+			cmd = parser.parse(options, args);
+			if(null == (Server.clientPath = cmd.getOptionValue('c')))
+			{
+				try
+				{
+					Server.clientPath = new File(new File(Server.class.getProtectionDomain().getCodeSource().getLocation().toURI()), "smartgwt").getPath();
+				}
+				catch (URISyntaxException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			System.out.println(Server.clientPath);
+		}
+		catch (ParseException e)
+		{
+			System.out.println(e.getMessage());
+			formatter.printHelp("Server", options);
+			System.exit(1);
+		}
 		ServerRunner.run(Server.class);
 	}
 
@@ -38,7 +78,7 @@ public class Server extends RouterNanoHTTPD
 		super.addMappings();
 		addRoute("/", IndexHandler.class);
 		addRoute("/index.html", IndexHandler.class);
-		addRoute("/smartgwt/(.)+", StaticPageTestHandler.class, new File("E:\\Src\\Java\\JRomManager\\WebClient\\build\\gwt\\out\\smartgwt"));
+		addRoute("/smartgwt/(.)+", StaticPageTestHandler.class, new File(Server.clientPath));
 		addRoute("/images/(.)+", ResourceHandler.class, Server.class.getResource("/jrm/resources/"));
 	}
 
@@ -140,15 +180,16 @@ public class Server extends RouterNanoHTTPD
 				try
 				{
 					fileOrdirectory = new URL(fileOrdirectory, pathPart);
+					if(!new File(fileOrdirectory.toURI()).exists())
+						return new Error404UriHandler().get(uriResource, urlParams, session);
 				}
-				catch (MalformedURLException e)
+				catch (MalformedURLException | URISyntaxException e)
 				{
 					return new Error404UriHandler().get(uriResource, urlParams, session);
 				}
 			}
 			try
 			{
-				System.out.println(fileOrdirectory);
 				return NanoHTTPD.newChunkedResponse(getStatus(), getMimeTypeForFile(fileOrdirectory.getFile()), URLToInputStream(fileOrdirectory));
 			}
 			catch (IOException ioe)
