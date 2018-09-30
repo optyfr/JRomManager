@@ -16,6 +16,7 @@ public class IndexHandler extends DefaultHandler
 		return "<!DOCTYPE html><HTML>\r\n" +
 				"<HEAD>\r\n" +
 				"<META http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\r\n" +
+				"<link rel=\"shortcut icon\" type=\"image/png\" href=\"/images/rom_small.png\"/>\r\n" +
 				"<title></title>\r\n" +
 				"</HEAD>\r\n" +
 				"<BODY>\r\n" +
