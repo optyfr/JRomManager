@@ -19,8 +19,6 @@ package jrm.ui.progress;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.FilterInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +28,6 @@ import javax.swing.border.BevelBorder;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import JTrrntzip.LogCallback;
 import jrm.locale.Messages;
 
 // TODO: Auto-generated Javadoc
@@ -60,107 +57,6 @@ public class Progress extends JDialog implements ProgressHandler
 	
 	/** The cancel. */
 	private boolean cancel = false;
-
-	/**
-	 * The Class ProgressTZipCallBack.
-	 *
-	 * @author optyfr
-	 */
-	public static final class ProgressTZipCallBack implements LogCallback
-	{
-		
-		/** The ph. */
-		ProgressHandler ph;
-		
-		/**
-		 * Instantiates a new progress T zip call back.
-		 *
-		 * @param ph the ph
-		 */
-		public ProgressTZipCallBack(ProgressHandler ph)
-		{
-			this.ph = ph;
-		}
-		
-		@Override
-		public void StatusCallBack(int percent)
-		{
-			ph.setProgress(null, null, null, String.format("<html><table cellpadding=2 cellspacing=0><tr><td valign='middle'><table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray'><tr><td style='width:%dpx;background:#ff00'><td></table><td>", 208, percent*2)); //$NON-NLS-1$
-		}
-
-		@Override
-		public boolean isVerboseLogging()
-		{
-			return false;
-		}
-
-		@Override
-		public void StatusLogCallBack(String log)
-		{
-		}
-		
-	}
-	
-	
-	/**
-	 * The Class ProgressInputStream.
-	 *
-	 * @author optyfr
-	 */
-	public final class ProgressInputStream extends FilterInputStream
-	{
-		
-		/** The value. */
-		private int value;
-
-		/**
-		 * Instantiates a new progress input stream.
-		 *
-		 * @param in the in
-		 * @param len the len
-		 */
-		protected ProgressInputStream(final InputStream in, final Integer len)
-		{
-			super(in);
-			Progress.this.setProgress(null, (value = 0), len);
-		}
-
-		@Override
-		public int read() throws IOException
-		{
-			final int ret = super.read();
-			if (ret != -1)
-				Progress.this.setProgress(null, ++value);
-			return ret;
-		}
-
-		@Override
-		public int read(final byte[] b) throws IOException
-		{
-			final int ret = super.read(b);
-			if (ret != -1)
-				Progress.this.setProgress(null, (value += ret));
-			return ret;
-		}
-
-		@Override
-		public int read(final byte[] b, final int off, final int len) throws IOException
-		{
-			final int ret = super.read(b, off, len);
-			if (ret != -1)
-				Progress.this.setProgress(null, (value += ret));
-			return ret;
-		}
-
-		@Override
-		public long skip(final long n) throws IOException
-		{
-			final long ret = super.skip(n);
-			if (ret != -1)
-				Progress.this.setProgress(null, (value += ret));
-			return ret;
-		}
-	}
 
 	/**
 	 * Instantiates a new progress.
@@ -511,6 +407,6 @@ public class Progress extends JDialog implements ProgressHandler
 	@Override
 	public InputStream getInputStream(InputStream in, Integer len)
 	{
-		return new ProgressInputStream(in, len);
+		return new ProgressInputStream(in, len, this);
 	}
 }

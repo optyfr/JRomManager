@@ -1,11 +1,8 @@
 package jrm.server;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -15,19 +12,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
-import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.NanoHTTPD.Response.IStatus;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.NanoWSD.WebSocket;
-import fi.iki.elonen.NanoWSD.WebSocketFrame;
-import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
-import fi.iki.elonen.router.RouterNanoHTTPD.Error404UriHandler;
-import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
-import fi.iki.elonen.util.ServerRunner;
 
-public class Server extends EnhRouterNanoHTTPD
+public class Server extends EnhRouterNanoHTTPD implements SessionStub
 {
 	private static String clientPath;
 	private static int port = 8080;
@@ -110,102 +97,26 @@ public class Server extends EnhRouterNanoHTTPD
 		addRoute("/smartgwt/(.)+", StaticPageHandler.class, new File(Server.clientPath));
 		addRoute("/images/(.)+", ResourceHandler.class, Server.class.getResource("/jrm/resources/"));
 		addRoute("/datasources/:action/", DataSourcesHandler.class);
-		addRoute("/session/", SessionHandler.class);
+		addRoute("/session/", SessionHandler.class, this);
 	}
 	
-	public static class SessionHandler extends DefaultHandler
-	{
-
-		@Override
-		public String getText()
-		{
-			return UUID.randomUUID().toString();
-		}
-
-		@Override
-		public IStatus getStatus()
-		{
-			return Status.OK;
-		}
-
-		@Override
-		public String getMimeType()
-		{
-			return "text/plain";
-		}
-		
-		@Override
-		public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session)
-		{
-			try
-			{
-				final Map<String, String> headers = session.getHeaders();
-				final String bodylenstr = headers.get("content-length");
-				if (bodylenstr != null)
-				{
-					int bodylen = Integer.parseInt(bodylenstr);
-					session.getInputStream().skip(bodylen);
-				}
-				return newFixedLengthResponse(getStatus(), getMimeType(), getText());
-			}
-			catch (Exception e)
-			{
-				return new Error500UriHandler(e).get(uriResource, urlParams, session);
-			}
-		}
-		
-	}
-	
-	class Ws extends WebSocket
-	{
-		public Ws(IHTTPSession handshakeRequest)
-		{
-			super(handshakeRequest);
-			System.out.println("websocket created......");
-		}
-
-		@Override
-		protected void onPong(WebSocketFrame pongFrame)
-		{
-
-		}
-
-		@Override
-		protected void onMessage(WebSocketFrame messageFrame)
-		{
-			try
-			{
-				send("Received "+messageFrame.getTextPayload());
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		protected void onClose(CloseCode code, String reason, boolean initiatedByRemote)
-		{
-			System.out.println("websocket closed......");
-		}
-
-		@Override
-		protected void onException(IOException e)
-		{
-
-		}
-
-		@Override
-		protected void onOpen()
-		{
-			System.out.println("websocket opened......");
-		}
-
-	}
-
 	@Override
 	protected WebSocket openWebSocket(IHTTPSession handshake)
 	{
-		return new Ws(handshake);
+		return new WebSckt(handshake);
+	}
+
+	private String session = null;
+	
+	@Override
+	public String getSession()
+	{
+		return session;
+	}
+
+	@Override
+	public void setSession(String session)
+	{
+		this.session = session;
 	}
 }

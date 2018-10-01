@@ -26,8 +26,8 @@ import JTrrntzip.TorrentZip;
 import JTrrntzip.TrrntZipStatus;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
-import jrm.ui.progress.Progress;
 import jrm.ui.progress.ProgressHandler;
+import jrm.ui.progress.ProgressTZipCallBack;
 
 /**
  * The specialized container action for trrntzipping zip containers
@@ -59,7 +59,7 @@ public class TZipContainer extends ContainerAction
 				{
 					if(container.file.exists())
 					{
-						final EnumSet<TrrntZipStatus> status = new TorrentZip(new Progress.ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).Process(container.file);
+						final EnumSet<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).Process(container.file);
 						if(!status.contains(TrrntZipStatus.ValidTrrntzip))
 							System.out.format("%-64s => %s\n", container.file, status.toString()); //$NON-NLS-1$
 					}
