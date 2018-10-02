@@ -24,7 +24,7 @@ public final class ProgressInputStream extends FilterInputStream
 	 * @param in the in
 	 * @param len the len
 	 */
-	protected ProgressInputStream(final InputStream in, final Integer len, final ProgressHandler progress)
+	public ProgressInputStream(final InputStream in, final Integer len, final ProgressHandler progress)
 	{
 		super(in);
 		this.progress = progress;

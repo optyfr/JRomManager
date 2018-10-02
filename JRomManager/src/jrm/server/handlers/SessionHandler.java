@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.handlers;
 
 import java.util.Map;
 import java.util.UUID;
@@ -9,6 +9,8 @@ import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
+import jrm.server.Server;
+import jrm.server.SessionStub;
 
 public class SessionHandler extends DefaultHandler
 {

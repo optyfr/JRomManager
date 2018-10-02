@@ -1,6 +1,6 @@
 package jrm.server;
 
-interface SessionStub
+public interface SessionStub
 {
 	public String getSession();
 	public void setSession(String session);

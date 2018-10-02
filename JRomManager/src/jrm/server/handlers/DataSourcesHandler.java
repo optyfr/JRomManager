@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.handlers;
 
 import java.io.BufferedInputStream;
 import java.util.Map;
@@ -10,6 +10,9 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.Error404UriHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
+import jrm.server.datasources.ProfilesListXMLResponse;
+import jrm.server.datasources.ProfilesTreeXMLResponse;
+import jrm.server.datasources.XMLRequest;
 
 public class DataSourcesHandler extends DefaultHandler
 {

@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.datasources;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,6 +12,7 @@ import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import jrm.misc.GlobalSettings;
 import jrm.profile.manager.Dir;
+import jrm.server.TempFileInputStream;
 import jrm.ui.profile.manager.FileTableModel;
 import jrm.xml.EnhancedXMLStreamWriter;
 

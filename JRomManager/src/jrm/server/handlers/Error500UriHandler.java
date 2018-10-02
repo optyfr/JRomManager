@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.handlers;
 
 import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;

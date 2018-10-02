@@ -7,6 +7,10 @@ import java.net.URISyntaxException;
 import org.apache.commons.cli.*;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
+import jrm.server.handlers.DataSourcesHandler;
+import jrm.server.handlers.ResourceHandler;
+import jrm.server.handlers.SessionHandler;
+import jrm.server.ws.WebSckt;
 
 public class Server extends EnhRouterNanoHTTPD implements SessionStub
 {
@@ -89,8 +93,8 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 	public void addMappings()
 	{
 		super.addMappings();
-		addRoute("/", jrm.server.IndexHandler.class);
-		addRoute("/index.html", jrm.server.IndexHandler.class);
+		addRoute("/", jrm.server.handlers.IndexHandler.class);
+		addRoute("/index.html", jrm.server.handlers.IndexHandler.class);
 		addRoute("/smartgwt/(.)+", StaticPageHandler.class, new File(Server.clientPath));
 		addRoute("/images/(.)+", ResourceHandler.class, Server.class.getResource("/jrm/resources/"));
 		addRoute("/datasources/:action/", DataSourcesHandler.class);

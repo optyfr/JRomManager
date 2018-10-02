@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.datasources;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -14,6 +14,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+
+import jrm.server.TempFileInputStream;
 
 public class XMLRequest
 {

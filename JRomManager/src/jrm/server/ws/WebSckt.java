@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.ws;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,8 +13,9 @@ import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 import jrm.profile.Profile;
+import jrm.server.SessionStub;
 
-class WebSckt extends WebSocket implements SessionStub
+public class WebSckt extends WebSocket implements SessionStub
 {
 	public static Map<String, WebSckt> sockets = new HashMap<>();
 	
@@ -48,7 +49,7 @@ class WebSckt extends WebSocket implements SessionStub
 			switch(jso.getString("cmd", "unknown"))
 			{
 				case "loadProfile":
-					Profile.load(new File(params.getString("path", null)), null);
+					Profile.load(new File(params.getString("path", null)), new ProgressWS(this));
 					break;
 			}
 		}

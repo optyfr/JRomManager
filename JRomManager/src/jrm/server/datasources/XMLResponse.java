@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.datasources;
 
 import fi.iki.elonen.NanoHTTPD.Response;
 
