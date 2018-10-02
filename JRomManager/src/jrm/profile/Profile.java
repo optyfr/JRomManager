@@ -1063,6 +1063,7 @@ public class Profile implements Serializable
 		// Load nplayers.ini (if any)
 		profile.loadNPlayers(handler);
 		// return the resulting profile
+		handler.close();
 		return profile;
 	}
 

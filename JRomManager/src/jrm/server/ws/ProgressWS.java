@@ -216,4 +216,17 @@ public class ProgressWS implements ProgressHandler
 		return new ProgressInputStream(in, len, this);
 	}
 
+	@Override
+	public void close()
+	{
+		try
+		{
+			ws.send(Json.object().add("cmd", "Progress.close").toString());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 }

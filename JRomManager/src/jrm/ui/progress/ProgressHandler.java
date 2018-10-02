@@ -125,4 +125,9 @@ public interface ProgressHandler
 	 * @return the input stream
 	 */
 	public InputStream getInputStream(InputStream in, Integer len);
+	
+	/**
+	 * Destroy or hide the progress
+	 */
+	public void close();
 }

@@ -409,4 +409,10 @@ public class Progress extends JDialog implements ProgressHandler
 	{
 		return new ProgressInputStream(in, len, this);
 	}
+
+	@Override
+	public void close()
+	{
+		dispose();
+	}
 }

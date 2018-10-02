@@ -66,4 +66,11 @@ public final class ProgressInputStream extends FilterInputStream
 			progress.setProgress(null, (value += ret));
 		return ret;
 	}
+	
+	@Override
+	public void close() throws IOException
+	{
+		// TODO Auto-generated method stub
+		super.close();
+	}
 }

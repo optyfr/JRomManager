@@ -278,7 +278,6 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected void done()
 			{
-				progress.dispose();
 				if (success && Profile.curr_profile != null)
 				{
 					initProfileSettings();
