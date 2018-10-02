@@ -4,13 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
 
@@ -73,6 +67,9 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 			server.start(0);
 			try
 			{
+				System.out.println("Start server");
+				System.out.println("port: "+port);
+				System.out.println("clientPath: "+clientPath);
 				System.in.read();
 			}
 			catch (Throwable ignored)

@@ -1,13 +1,18 @@
 package jrm.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
+import jrm.profile.Profile;
 
 class WebSckt extends WebSocket implements SessionStub
 {
@@ -35,20 +40,25 @@ class WebSckt extends WebSocket implements SessionStub
 	@Override
 	protected void onMessage(WebSocketFrame messageFrame)
 	{
-		try
+		JsonObject jso = Json.parse(messageFrame.getTextPayload()).asObject();
+		if(jso!=null)
 		{
-			send("Received "+messageFrame.getTextPayload());
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
+			System.out.println("cmd:"+jso.getString("cmd", "unknown"));
+			JsonObject params = jso.get("params").asObject();
+			switch(jso.getString("cmd", "unknown"))
+			{
+				case "loadProfile":
+					Profile.load(new File(params.getString("path", null)), null);
+					break;
+			}
 		}
 	}
 
 	@Override
 	protected void onClose(CloseCode code, String reason, boolean initiatedByRemote)
 	{
-		System.out.println("websocket closed......");
+		System.out.println("websocket closed, removing session "+getSession()+"......");
+		sockets.remove(getSession());
 	}
 
 	@Override
@@ -61,6 +71,15 @@ class WebSckt extends WebSocket implements SessionStub
 	protected void onOpen()
 	{
 		System.out.println("websocket opened......");
+		//TODO need to send prefs
+/*		try
+		{
+			send(Json.object().add("cmd", "openProgress").toString());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}*/
 	}
 
 	private String session;

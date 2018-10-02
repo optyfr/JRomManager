@@ -47,6 +47,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 			{
 				writer.writeEmptyElement("record");
 				writer.writeAttribute("Name", model.getValueAt(i, 0).toString());
+				writer.writeAttribute("Path", model.getNfoAt(i).file.toString());
 				writer.writeAttribute("version", model.getValueAt(i, 1).toString());
 				writer.writeAttribute("haveSets", model.getValueAt(i, 2).toString());
 				writer.writeAttribute("haveRoms", model.getValueAt(i, 3).toString());
