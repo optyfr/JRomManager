@@ -41,17 +41,29 @@ public class WebSckt extends WebSocket implements SessionStub
 	@Override
 	protected void onMessage(WebSocketFrame messageFrame)
 	{
-		JsonObject jso = Json.parse(messageFrame.getTextPayload()).asObject();
-		if(jso!=null)
+		try
 		{
-			System.out.println("cmd:"+jso.getString("cmd", "unknown"));
-			JsonObject params = jso.get("params").asObject();
-			switch(jso.getString("cmd", "unknown"))
+			JsonObject jso = Json.parse(messageFrame.getTextPayload()).asObject();
+			if (jso != null)
 			{
-				case "loadProfile":
-					Profile.load(new File(params.getString("path", null)), new ProgressWS(this));
-					break;
+				switch (jso.getString("cmd", "unknown"))
+				{
+					case "Profile.load":
+					{
+						JsonObject params = jso.get("params").asObject();
+						Profile.load(new File(params.getString("path", null)), new ProgressWS(this));
+						break;
+					}
+					default:
+						System.err.println("Unknown command : " + jso.getString("cmd", "unknown"));
+						break;
+				}
 			}
+		}
+		catch (Exception e)
+		{
+			System.err.println(messageFrame.getTextPayload());
+			e.printStackTrace();
 		}
 	}
 
