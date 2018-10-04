@@ -1,6 +1,7 @@
 package jrm.locale;
 
 import java.beans.Beans;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -22,6 +23,11 @@ public class Messages {
 	private static final ResourceBundle RESOURCE_BUNDLE = Messages.loadBundle();
 	private static ResourceBundle loadBundle() {
 		return ResourceBundle.getBundle(Messages.BUNDLE_NAME);
+	}
+	
+	public static ResourceBundle loadBundle(Locale locale)
+	{
+		return ResourceBundle.getBundle(Messages.BUNDLE_NAME, locale);
 	}
 	////////////////////////////////////////////////////////////////////////////
 	//

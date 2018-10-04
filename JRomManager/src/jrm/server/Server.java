@@ -3,6 +3,7 @@ package jrm.server;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Locale;
 
 import org.apache.commons.cli.*;
 
@@ -67,6 +68,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		}
 		try
 		{
+			Locale.setDefault(Locale.US);
 			Server server = Server.class.newInstance();
 			server.start(0);
 			try

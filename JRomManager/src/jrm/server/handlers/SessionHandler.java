@@ -1,7 +1,14 @@
 package jrm.server.handlers;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Locale.LanguageRange;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.UUID;
+
+import com.eclipsesource.json.JsonObject;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
@@ -9,6 +16,7 @@ import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
+import jrm.locale.Messages;
 import jrm.server.Server;
 import jrm.server.SessionStub;
 
@@ -31,9 +39,10 @@ public class SessionHandler extends DefaultHandler
 	@Override
 	public String getMimeType()
 	{
-		return "text/plain";
+		return "text/json";
 	}
 	
+	@SuppressWarnings("serial")
 	@Override
 	public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session)
 	{
@@ -48,7 +57,19 @@ public class SessionHandler extends DefaultHandler
 			}
 			session.getCookies().set("session", sessionid, 1);
 			uriResource.initParameter(SessionStub.class).setSession(sessionid);
-			return Server.newFixedLengthResponse(getStatus(), getMimeType(), sessionid);
+			return Server.newFixedLengthResponse(getStatus(), getMimeType(), new JsonObject()
+			{{
+				add("session", sessionid);
+				add("msgs", new JsonObject()
+				{{
+					List<LanguageRange> lr = LanguageRange.parse(headers.get("accept-language"));
+					ResourceBundle rb = Messages.loadBundle(lr.size() > 0 ? Locale.lookup(lr, Arrays.asList(Locale.getAvailableLocales())) : Locale.getDefault());
+					rb.keySet().forEach(k -> {
+						if (k != null && !k.isEmpty())
+							add(k, rb.getString(k));
+					});
+				}});
+			}}.toString());
 		}
 		catch (Exception e)
 		{

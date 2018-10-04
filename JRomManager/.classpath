@@ -1,113 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry output="bin/main" kind="src" path="src">
+	<classpathentry kind="src" output="bin/main" path="src">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry output="bin/main" kind="src" path="Jtrrntzip-src">
+	<classpathentry kind="src" output="bin/main" path="Jtrrntzip-src">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry output="bin/main" kind="src" path="JUpdater-src">
+	<classpathentry kind="src" output="bin/main" path="JUpdater-src">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
 	<classpathentry kind="output" path="bin/default"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.11/bce4ba84fd527950e35040b20a991c63e90e2850/commons-codec-1.11-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.11/3acb4705652e16236558f0f4f2192cc33c3bd189/commons-codec-1.11.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.11/978245f8bd06d70703fa3180554c62891500f97a/commons-codec-1.11-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.6/2566800dc841d9d2c5a0d34d807e45d4107dbbdf/commons-io-2.6-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.6/815893df5f31da2ece4040fe0a12fd44b577afaf/commons-io-2.6.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.6/38ce4d06c1917fa2f2b1dde31bd111223ac7a551/commons-io-2.6-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/commons-cli/commons-cli/1.4/40dfd9fdef125e19136135e68d54af6d9b0cfbb8/commons-cli-1.4-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/commons-cli/commons-cli/1.4/c51c00206bb913cd8612b24abd9fa98ae89719b1/commons-cli-1.4.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/commons-cli/commons-cli/1.4/60090d1d137b0dd7a0c293d04fb2280a7eec3860/commons-cli-1.4-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-text/1.3/9c51853f855aca4ea31785f30385e980a58eaf4b/commons-text-1.3-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-text/1.3/9abf61708a66ab5e55f6169a200dbfc584b546d9/commons-text-1.3.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-text/1.3/8e170d7068f08823c0ad208214a48506f2950cbc/commons-text-1.3-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.7/e7e36219edde1c66c93495a75490d8f526c377cb/commons-lang3-3.7-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.7/557edd918fd41f9260963583ebf5a61a43a6b423/commons-lang3-3.7.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.7/8d6fb4d39bedef08da171550c73b5d84e8c1125/commons-lang3-3.7-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-compress/1.16.1/f7dde5c5163ac128750fc2d6ec00ae6a7ff624ab/commons-compress-1.16.1-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-compress/1.16.1/7b5cdabadb4cf12f5ee0f801399e70635583193f/commons-compress-1.16.1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-compress/1.16.1/78a929afa216299bb47b9021909bb70f6c260bb2/commons-compress-1.16.1-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/one.util/streamex/0.6.7/87081a8bdfd9b3217905a430fbab3d9c4a41c213/streamex-0.6.7-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/one.util/streamex/0.6.7/39535bf150f30f92705e5c540708c392702e1bb2/streamex-0.6.7.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/one.util/streamex/0.6.7/c504f2243da6772edf7e17162066da8c8949814e/streamex-0.6.7-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/net.sf.sevenzipjbinding/sevenzipjbinding/9.20-2.00beta/cbb385bb3fa474ec9a5bd3b0b73da029822c0fde/sevenzipjbinding-9.20-2.00beta-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/net.sf.sevenzipjbinding/sevenzipjbinding/9.20-2.00beta/955419d9a6fc9608052226964cb0ecf8f59f91f9/sevenzipjbinding-9.20-2.00beta.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/net.sf.sevenzipjbinding/sevenzipjbinding/9.20-2.00beta/576372524c2cbbb960076f7ba752b68c3843e258/sevenzipjbinding-9.20-2.00beta-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/net.sf.sevenzipjbinding/sevenzipjbinding-all-platforms/9.20-2.00beta/3b7f8ce33994650f5a2c826843146ba71526fd3b/sevenzipjbinding-all-platforms-9.20-2.00beta.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/com.eclipsesource.minimal-json/minimal-json/0.9.5/1bbb62376e67556393d5d578348ff23d02ea9a0c/minimal-json-0.9.5-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/com.eclipsesource.minimal-json/minimal-json/0.9.5/8134f8babbfbb18373110ea0b5871fd34b9c77bf/minimal-json-0.9.5.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/com.eclipsesource.minimal-json/minimal-json/0.9.5/7488fd29aebd21e8933910f55fa0664cfa47c13c/minimal-json-0.9.5-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/com.atlassian.commonmark/commonmark/0.11.0/143b0585c75587d5d8221fff9d052b742b68630b/commonmark-0.11.0-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/com.atlassian.commonmark/commonmark/0.11.0/f124dd325acfb6daf588593bc3c94f529b034484/commonmark-0.11.0.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/com.atlassian.commonmark/commonmark/0.11.0/9647875250cfdee7443fbe95aee7ccb1dd0f2306/commonmark-0.11.0-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.nanohttpd/nanohttpd-nanolets/2.3.1/bbb4dbea88c5dcc34e7398870e21df01b815620f/nanohttpd-nanolets-2.3.1-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.nanohttpd/nanohttpd-nanolets/2.3.1/46c8202fc91c85ed3225a176c83cbf6d9a6d81d1/nanohttpd-nanolets-2.3.1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.nanohttpd/nanohttpd-nanolets/2.3.1/8a75a7561ab874c674a87c1d00cee3f36052d0da/nanohttpd-nanolets-2.3.1-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.nanohttpd/nanohttpd-websocket/2.3.1/2da79bf296879e85cb6700679809e4d6716e0f04/nanohttpd-websocket-2.3.1-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.nanohttpd/nanohttpd-websocket/2.3.1/f2cfb09cee12469ff64f0d698b13de19903bb4f7/nanohttpd-websocket-2.3.1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.nanohttpd/nanohttpd-websocket/2.3.1/8c114f27901a85bd7b3d2da7971bbd849f02b7a8/nanohttpd-websocket-2.3.1-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.objenesis/objenesis/2.6/96614f514a1031296657bf0dde452dc15e42fcb8/objenesis-2.6-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.objenesis/objenesis/2.6/639033469776fd37c08358c6b92a4761feb2af4b/objenesis-2.6.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.objenesis/objenesis/2.6/27c490ca18fcdfb94e28387e04ae37c4aa1abb23/objenesis-2.6-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.nanohttpd/nanohttpd/2.3.1/c820129da77c30b2e4ea1cea619d7f589a17bcdd/nanohttpd-2.3.1-sources.jar" kind="lib" path="C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.nanohttpd/nanohttpd/2.3.1/a8d54d1ca554a77f377eff6bf9e16ca8383c8f6c/nanohttpd-2.3.1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/Stephane/.gradle/caches/modules-2/files-2.1/org.nanohttpd/nanohttpd/2.3.1/1c128229d2de5d623d3821d0e1b3a4be0e24d7c6/nanohttpd-2.3.1-javadoc.jar!/"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
 </classpath>
