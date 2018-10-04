@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
+	<variableList>
+		<variable>
+			<name>JTRRNTZIP</name>
+			<value>$%7BPARENT-1-PROJECT_LOC%7D/Jtrrntzip</value>
+		</variable>
+	</variableList>
 	<name>JRomManager</name>
 	<comment></comment>
-	<projects>
-	</projects>
-	<buildSpec>
-		<buildCommand>
-			<name>org.eclipse.jdt.core.javabuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.wst.validation.validationbuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-	</buildSpec>
+	<projects/>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
 	</natures>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments/>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
+			<arguments/>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.wst.validation.validationbuilder</name>
+			<arguments/>
+		</buildCommand>
+	</buildSpec>
 	<linkedResources>
 		<link>
 			<name>JUpdater-src</name>
@@ -37,10 +39,5 @@
 			<location>E:/Src/Java/JRomManager/Jtrrntzip/src</location>
 		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>JTRRNTZIP</name>
-			<value>$%7BPARENT-1-PROJECT_LOC%7D/Jtrrntzip</value>
-		</variable>
-	</variableList>
+	<filteredResources/>
 </projectDescription>
