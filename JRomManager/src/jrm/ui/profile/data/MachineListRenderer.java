@@ -52,10 +52,10 @@ public final class MachineListRenderer
 	public static String[] columns = new String[] { Messages.getString("MachineListRenderer.Status"), Messages.getString("MachineListRenderer.Name"), Messages.getString("MachineListRenderer.Description"), Messages.getString("MachineListRenderer.Have"), Messages.getString("MachineListRenderer.CloneOf"), Messages.getString("MachineListRenderer.RomOf"), Messages.getString("MachineListRenderer.SampleOf"), Messages.getString("MachineListRenderer.Selected") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 	
 	/** The columns types. */
-	public static Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Object.class, String.class, Boolean.class };
+	public final static Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Object.class, String.class, Boolean.class };
 	
 	/** The columns widths. */
-	public static int[] columnsWidths = new int[] { -20, 40, 200, -45, 40, 40, 40, -20 };
+	public final static int[] columnsWidths = new int[] { -20, 40, 200, -45, 40, 40, 40, -20 };
 	
 	/** The columns renderers. */
 	public static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()

@@ -59,7 +59,7 @@ abstract class NArchive implements Archive
 	private IInArchive iinarchive = null;
 	private IInStream iinstream = null;
 
-	private static HashMap<String, File> archives = new HashMap<>();
+	private final static HashMap<String, File> archives = new HashMap<>();
 	private final List<Closeable> closeables = new ArrayList<>();
 
 	/*

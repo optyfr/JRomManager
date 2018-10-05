@@ -63,7 +63,7 @@ public class BackupContainer extends ContainerAction
 	/**
 	 * a maintained list of opened Zip {@link FileSystem}s
 	 */
-	private static Map<String, FileSystem> filesystems = new HashMap<String, FileSystem>();
+	private final static Map<String, FileSystem> filesystems = new HashMap<String, FileSystem>();
 
 	/**
 	 * get a {@link FileSystem} to backup {@link EntryAction} file from {@link Container}

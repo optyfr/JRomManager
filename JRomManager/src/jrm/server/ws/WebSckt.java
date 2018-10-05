@@ -17,7 +17,7 @@ import jrm.server.SessionStub;
 
 public class WebSckt extends WebSocket implements SessionStub
 {
-	public static Map<String, WebSckt> sockets = new HashMap<>();
+	public final static Map<String, WebSckt> sockets = new HashMap<>();
 	
 	public WebSckt(IHTTPSession handshakeRequest)
 	{

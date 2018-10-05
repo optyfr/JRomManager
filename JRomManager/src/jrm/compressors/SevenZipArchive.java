@@ -50,7 +50,7 @@ public class SevenZipArchive implements Archive
 	private String cmd = null;
 	private boolean readonly = false;
 
-	private static HashMap<String, File> archives = new HashMap<>();
+	private final static HashMap<String, File> archives = new HashMap<>();
 
 	private SevenZipNArchive native_7zip = null;
 

@@ -40,7 +40,7 @@ public class JCheckBoxList<E> extends JList<E>
 {
 	
 	/** The no focus border. */
-	protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
+	protected final static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
 
 	/**
 	 * Instantiates a new j check box list.

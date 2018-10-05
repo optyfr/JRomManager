@@ -719,31 +719,37 @@ class ZipFileSystem extends FileSystem
 				{
 					long written = offset;
 
+					@Override
 					public boolean isOpen()
 					{
 						return wbc.isOpen();
 					}
 
+					@Override
 					public long position() throws IOException
 					{
 						return written;
 					}
 
+					@Override
 					public SeekableByteChannel position(long pos) throws IOException
 					{
 						throw new UnsupportedOperationException();
 					}
 
+					@Override
 					public int read(ByteBuffer dst) throws IOException
 					{
 						throw new UnsupportedOperationException();
 					}
 
+					@Override
 					public SeekableByteChannel truncate(long size) throws IOException
 					{
 						throw new UnsupportedOperationException();
 					}
 
+					@Override
 					public int write(ByteBuffer src) throws IOException
 					{
 						int n = wbc.write(src);
@@ -751,11 +757,13 @@ class ZipFileSystem extends FileSystem
 						return n;
 					}
 
+					@Override
 					public long size() throws IOException
 					{
 						return written;
 					}
 
+					@Override
 					public void close() throws IOException
 					{
 						wbc.close();
@@ -782,21 +790,25 @@ class ZipFileSystem extends FileSystem
 				{
 					long read = 0;
 
+					@Override
 					public boolean isOpen()
 					{
 						return rbc.isOpen();
 					}
 
+					@Override
 					public long position() throws IOException
 					{
 						return read;
 					}
 
+					@Override
 					public SeekableByteChannel position(long pos) throws IOException
 					{
 						throw new UnsupportedOperationException();
 					}
 
+					@Override
 					public int read(ByteBuffer dst) throws IOException
 					{
 						int n = rbc.read(dst);
@@ -807,21 +819,25 @@ class ZipFileSystem extends FileSystem
 						return n;
 					}
 
+					@Override
 					public SeekableByteChannel truncate(long size) throws IOException
 					{
 						throw new NonWritableChannelException();
 					}
 
+					@Override
 					public int write(ByteBuffer src) throws IOException
 					{
 						throw new NonWritableChannelException();
 					}
 
+					@Override
 					public long size() throws IOException
 					{
 						return size;
 					}
 
+					@Override
 					public void close() throws IOException
 					{
 						rbc.close();
@@ -888,88 +904,105 @@ class ZipFileSystem extends FileSystem
 			// is there a better way to hook into the FileChannel's close method?
 			return new FileChannel()
 			{
+				@Override
 				public int write(ByteBuffer src) throws IOException
 				{
 					return fch.write(src);
 				}
 
+				@Override
 				public long write(ByteBuffer[] srcs, int offset, int length) throws IOException
 				{
 					return fch.write(srcs, offset, length);
 				}
 
+				@Override
 				public long position() throws IOException
 				{
 					return fch.position();
 				}
 
+				@Override
 				public FileChannel position(long newPosition) throws IOException
 				{
 					fch.position(newPosition);
 					return this;
 				}
 
+				@Override
 				public long size() throws IOException
 				{
 					return fch.size();
 				}
 
+				@Override
 				public FileChannel truncate(long size) throws IOException
 				{
 					fch.truncate(size);
 					return this;
 				}
 
+				@Override
 				public void force(boolean metaData) throws IOException
 				{
 					fch.force(metaData);
 				}
 
+				@Override
 				public long transferTo(long position, long count, WritableByteChannel target) throws IOException
 				{
 					return fch.transferTo(position, count, target);
 				}
 
+				@Override
 				public long transferFrom(ReadableByteChannel src, long position, long count) throws IOException
 				{
 					return fch.transferFrom(src, position, count);
 				}
 
+				@Override
 				public int read(ByteBuffer dst) throws IOException
 				{
 					return fch.read(dst);
 				}
 
+				@Override
 				public int read(ByteBuffer dst, long position) throws IOException
 				{
 					return fch.read(dst, position);
 				}
 
+				@Override
 				public long read(ByteBuffer[] dsts, int offset, int length) throws IOException
 				{
 					return fch.read(dsts, offset, length);
 				}
 
+				@Override
 				public int write(ByteBuffer src, long position) throws IOException
 				{
 					return fch.write(src, position);
 				}
 
+				@Override
 				public MappedByteBuffer map(MapMode mode, long position, long size) throws IOException
 				{
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public FileLock lock(long position, long size, boolean shared) throws IOException
 				{
 					return fch.lock(position, size, shared);
 				}
 
+				@Override
 				public FileLock tryLock(long position, long size, boolean shared) throws IOException
 				{
 					return fch.tryLock(position, size, shared);
 				}
 
+				@Override
 				protected void implCloseChannel() throws IOException
 				{
 					fch.close();
@@ -1047,7 +1080,7 @@ class ZipFileSystem extends FileSystem
 		}
 	}
 
-	private static byte[] ROOTPATH = new byte[] { '/' };
+	private final static byte[] ROOTPATH = new byte[] { '/' };
 
 	private static byte[] getParent(byte[] path)
 	{
@@ -1112,6 +1145,7 @@ class ZipFileSystem extends FileSystem
 		return zc.toString(name);
 	}
 
+	@Override
 	protected void finalize() throws IOException
 	{
 		close();
@@ -1641,6 +1675,7 @@ class ZipFileSystem extends FileSystem
 			{
 				private boolean isClosed = false;
 
+				@Override
 				public void close() throws IOException
 				{
 					if (!isClosed)
@@ -1656,6 +1691,7 @@ class ZipFileSystem extends FileSystem
 				// at the end of the input stream. This is required when
 				// using the "nowrap" Inflater option. (it appears the new
 				// zlib in 7 does not need it, but keep it for now)
+				@Override
 				protected void fill() throws IOException
 				{
 					if (eof)
@@ -1674,12 +1710,13 @@ class ZipFileSystem extends FileSystem
 
 				private boolean eof;
 
+				@Override
 				public int available() throws IOException
 				{
 					if (isClosed)
 						return 0;
 					long avail = size - inf.getBytesWritten();
-					return avail > (long) Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) avail;
+					return avail > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) avail;
 				}
 			};
 		}
@@ -1723,6 +1760,7 @@ class ZipFileSystem extends FileSystem
 			pos = -pos; // lazy initialize the real data offset
 		}
 
+		@Override
 		public int read(byte b[], int off, int len) throws IOException
 		{
 			ensureOpen();
@@ -1760,6 +1798,7 @@ class ZipFileSystem extends FileSystem
 			return (int) n;
 		}
 
+		@Override
 		public int read() throws IOException
 		{
 			byte[] b = new byte[1];
@@ -1773,6 +1812,7 @@ class ZipFileSystem extends FileSystem
 			}
 		}
 
+		@Override
 		public long skip(long n) throws IOException
 		{
 			ensureOpen();
@@ -1787,6 +1827,7 @@ class ZipFileSystem extends FileSystem
 			return n;
 		}
 
+		@Override
 		public int available()
 		{
 			return rem > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) rem;
@@ -1798,6 +1839,7 @@ class ZipFileSystem extends FileSystem
 			return size;
 		}
 
+		@Override
 		public void close()
 		{
 			rem = 0;
@@ -2140,6 +2182,7 @@ class ZipFileSystem extends FileSystem
 			return isdir;
 		}
 
+		@Override
 		public boolean equals(Object other)
 		{
 			if (!(other instanceof IndexNode))
@@ -2153,6 +2196,7 @@ class ZipFileSystem extends FileSystem
 			return Arrays.equals(name, ((IndexNode) other).name);
 		}
 
+		@Override
 		public int hashCode()
 		{
 			return hashcode;
@@ -2761,21 +2805,25 @@ class ZipFileSystem extends FileSystem
 		}
 
 		///////// zip entry attributes ///////////
+		@Override
 		public long compressedSize()
 		{
 			return csize;
 		}
 
+		@Override
 		public long crc()
 		{
 			return crc;
 		}
 
+		@Override
 		public int method()
 		{
 			return method;
 		}
 
+		@Override
 		public byte[] extra()
 		{
 			if (extra != null)
@@ -2783,6 +2831,7 @@ class ZipFileSystem extends FileSystem
 			return null;
 		}
 
+		@Override
 		public byte[] comment()
 		{
 			if (comment != null)
@@ -2790,6 +2839,7 @@ class ZipFileSystem extends FileSystem
 			return null;
 		}
 
+		@Override
 		public String toString()
 		{
 			StringBuilder sb = new StringBuilder(1024);

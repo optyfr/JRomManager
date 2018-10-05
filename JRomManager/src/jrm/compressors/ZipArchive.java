@@ -51,7 +51,7 @@ public class ZipArchive implements Archive
 
 	private boolean is_7z;
 
-	private static HashMap<String, File> archives = new HashMap<>();
+	private final static HashMap<String, File> archives = new HashMap<>();
 
 	private ZipNArchive native_zip = null;
 
