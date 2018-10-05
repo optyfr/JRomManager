@@ -447,7 +447,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		if (listBatchToolsDat2DirSrc.getModel().getSize() > 0)
 		{
 			List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
-			if (sdrl.stream().filter((sdr) -> !Profile.getSettingsFile(sdr.src).exists()).count() > 0)
+			if (sdrl.stream().filter((sdr) -> !Profile.getProfileSettingsFile(sdr.src).exists()).count() > 0)
 				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 			else
 			{

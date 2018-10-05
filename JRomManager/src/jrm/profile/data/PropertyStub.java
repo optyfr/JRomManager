@@ -37,18 +37,18 @@ public interface PropertyStub extends Serializable
 	 * get the selection state in profile properties according  {@link #getPropertyName()}
 	 * @return true if selected
 	 */
-	public default boolean isSelected()
+	public default boolean isSelected(final Profile profile)
 	{
-		return Profile.curr_profile.getProperty(getPropertyName(), true);
+		return profile.getProperty(getPropertyName(), true);
 	}
 
 	/**
 	 * set the selection state in profile properties according {@link #getPropertyName()}
 	 * @param selected the selection state to set
 	 */
-	public default void setSelected(final boolean selected)
+	public default void setSelected(final Profile profile, final boolean selected)
 	{
-		Profile.curr_profile.setProperty(getPropertyName(), selected);
+		profile.setProperty(getPropertyName(), selected);
 	}
 
 }

@@ -16,13 +16,7 @@
  */
 package jrm.profile.manager;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.Charset;
 
 import javax.swing.JOptionPane;
@@ -34,7 +28,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.DOMException;
 
 import jrm.misc.Log;
-import jrm.misc.GlobalSettings;
+import jrm.security.Session;
 
 /**
  * Import from Mame (and variants)
@@ -53,10 +47,10 @@ public class Import
 	 * @param file the file to analyze, and eventually extract from
 	 * @param sl do we need to load software lists
 	 */
-	public Import(final File file, final boolean sl)
+	public Import(final Session session, final File file, final boolean sl)
 	{
 		org_file = file;
-		final File workdir = GlobalSettings.getWorkPath().toFile(); //$NON-NLS-1$
+		final File workdir = session.getUser().settings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 		xmldir.mkdir();
 

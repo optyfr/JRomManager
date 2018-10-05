@@ -3,11 +3,14 @@ package jrm.server;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.cli.*;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
+import jrm.security.Session;
 import jrm.server.handlers.DataSourcesHandler;
 import jrm.server.handlers.ResourceHandler;
 import jrm.server.handlers.SessionHandler;
@@ -109,17 +112,32 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		return new WebSckt(handshake);
 	}
 
-	private String session = null;
+	final static Map<String, Session> sessions = new HashMap<>();
+	
+	private Session session = null;
 	
 	@Override
-	public String getSession()
+	public Session getSession()
 	{
 		return session;
 	}
 
+	public static Session getSession(String session)
+	{
+		return sessions.get(session);
+	};
+
 	@Override
-	public void setSession(String session)
+	public void setSession(Session session)
 	{
 		this.session = session;
+		sessions.put(session.getSessionId(), session);
+	}
+
+	@Override
+	public void unsetSession(Session session)
+	{
+		sessions.remove(session.getSessionId());
+		this.session = null;
 	}
 }

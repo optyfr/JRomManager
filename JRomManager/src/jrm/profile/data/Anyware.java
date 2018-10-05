@@ -45,6 +45,8 @@ import one.util.streamex.StreamEx;
 @SuppressWarnings("serial")
 public abstract class Anyware extends AnywareBase implements Serializable, EnhTableModel, Systm
 {
+	Profile profile;
+	
 	/**
 	 * the name of the parent from which this instance is a clone, null if the instance is not a clone
 	 */
@@ -116,8 +118,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public Anyware()
+	public Anyware(Profile profile)
 	{
+		this.profile = profile;
 		initTransient();
 	}
 
@@ -339,9 +342,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 		{
 			if(merge_mode.equals(MergeOptions.SUPERFULLNOMERGE))	// also include devices
 			{
-				if(Profile.curr_profile.getProperty("exclude_games", false)) //$NON-NLS-1$
+				if(profile.getProperty("exclude_games", false)) //$NON-NLS-1$
 				{
-					if(Profile.curr_profile.getProperty("exclude_machines", false)) //$NON-NLS-1$
+					if(profile.getProperty("exclude_machines", false)) //$NON-NLS-1$
 						stream = streamWithDevices(true, false, true);	// bios-devices
 					else
 						stream = streamWithDevices(true, false, true);	// machine-bios-devices
@@ -718,5 +721,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 		return super.equals(obj);
 	}
 
-
+	@Override
+	public Profile getProfile()
+	{
+		return profile;
+	}
 }

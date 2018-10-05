@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
-import jrm.profile.Profile;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
 
@@ -74,7 +73,7 @@ public class Disk extends Entity implements Serializable
 					return parent.name + "/" + name + ".chd"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
-			else if (!Profile.curr_profile.getProperty("ignore_merge_name_disks", false)) //$NON-NLS-1$
+			else if (!parent.getProfile().getProperty("ignore_merge_name_disks", false)) //$NON-NLS-1$
 				return merge + ".chd"; //$NON-NLS-1$
 		}
 		return name + ".chd"; //$NON-NLS-1$

@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.zip.CRC32;
 
 import jrm.compressors.zipfs.ZipFileSystemProvider;
-import jrm.misc.GlobalSettings;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
 import jrm.profile.scan.options.FormatOptions;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
 /**
@@ -72,12 +72,12 @@ public class BackupContainer extends ContainerAction
 	 * @return a valid Zip {@link FileSystem} for which to save the entry, {@link FileSystem} archive will be created if not already existing, otherwise it will be opened for writing or reused if has already be returned for another entry 
 	 * @throws IOException if the zip archive could not be opened or created for writing
 	 */
-	public static synchronized FileSystem getFS(Container container, EntryAction action) throws IOException
+	public static synchronized FileSystem getFS(final Session session, Container container, EntryAction action) throws IOException
 	{
 		String crc2 = action.entry.crc.substring(0, 2);
 		if (!filesystems.containsKey(crc2))
 		{
-			final File workdir = GlobalSettings.getWorkPath().toFile(); //$NON-NLS-1$
+			final File workdir = session.getUser().settings.getWorkPath().toFile(); //$NON-NLS-1$
 			final File backupdir = new File(workdir, "backup"); //$NON-NLS-1$
 			final CRC32 crc = new CRC32();
 			crc.update(container.file.getAbsoluteFile().getParent().getBytes());
@@ -115,7 +115,7 @@ public class BackupContainer extends ContainerAction
 	}
 
 	@Override
-	public boolean doAction(ProgressHandler handler)
+	public boolean doAction(final Session session, ProgressHandler handler)
 	{
 		try
 		{
@@ -126,7 +126,7 @@ public class BackupContainer extends ContainerAction
 			for (final EntryAction action : entry_actions)
 			{
 				i++;
-				final FileSystem fs = getFS(container, action);
+				final FileSystem fs = getFS(session, container, action);
 				synchronized (fs)
 				{
 					if (!action.doAction(fs, handler, i, entry_actions.size()))

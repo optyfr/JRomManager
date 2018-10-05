@@ -18,6 +18,8 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 
+import jrm.profile.Profile;
+
 /**
  * The abstract base class for {@link Anyware}, its main purpose is to define parent relationship
  * @author optyfr
@@ -97,5 +99,6 @@ public abstract class AnywareBase extends NameBase implements Serializable
 	 */
 	public abstract AnywareStatus getStatus();
 
+	public abstract Profile getProfile();
 
 }

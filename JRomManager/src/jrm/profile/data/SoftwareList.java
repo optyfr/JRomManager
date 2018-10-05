@@ -63,8 +63,9 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public SoftwareList()
+	public SoftwareList(Profile profile)
 	{
+		super(profile);
 		initTransient();
 	}
 
@@ -210,11 +211,11 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		/*
 		 * get all needed profile options
 		 */
-		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true); //$NON-NLS-1$
-		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true); //$NON-NLS-1$
-		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(Profile.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString())); //$NON-NLS-1$
-		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????"); //$NON-NLS-1$ //$NON-NLS-2$
+		final boolean filterIncludeClones = profile.getProperty("filter.InclClones", true); //$NON-NLS-1$
+		final boolean filterIncludeDisks = profile.getProperty("filter.InclDisks", true); //$NON-NLS-1$
+		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString())); //$NON-NLS-1$
+		final String filterYearMin = profile.getProperty("filter.YearMin", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final String filterYearMax = profile.getProperty("filter.YearMax", "????"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		return getList().stream().filter(t -> {
 			if(t.year.length()>0)
@@ -232,7 +233,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 				return false;
 			if(!filterIncludeDisks && t.disks.size()>0)	// exclude softwares with disks
 				return false;
-			if(!t.getSystem().isSelected())	// exclude software for which their software list were not selected
+			if(!t.getSystem().isSelected(profile))	// exclude software for which their software list were not selected
 				return false;
 			return true;	// otherwise include
 		});

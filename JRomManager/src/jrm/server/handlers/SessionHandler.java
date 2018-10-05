@@ -1,12 +1,7 @@
 package jrm.server.handlers;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.Locale.LanguageRange;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.UUID;
 
 import com.eclipsesource.json.JsonObject;
 
@@ -17,6 +12,7 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.locale.Messages;
+import jrm.security.Session;
 import jrm.server.Server;
 import jrm.server.SessionStub;
 
@@ -56,7 +52,7 @@ public class SessionHandler extends DefaultHandler
 				session.getInputStream().skip(bodylen);
 			}
 			session.getCookies().set("session", sessionid, 1);
-			uriResource.initParameter(SessionStub.class).setSession(sessionid);
+			uriResource.initParameter(SessionStub.class).setSession(new Session(sessionid));
 			return Server.newFixedLengthResponse(getStatus(), getMimeType(), new JsonObject()
 			{{
 				add("session", sessionid);

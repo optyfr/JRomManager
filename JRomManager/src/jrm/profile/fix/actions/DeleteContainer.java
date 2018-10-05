@@ -24,6 +24,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import jrm.locale.Messages;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
 /**
@@ -59,7 +60,7 @@ public class DeleteContainer extends ContainerAction
 	}
 
 	@Override
-	public boolean doAction(final ProgressHandler handler)
+	public boolean doAction(final Session session, final ProgressHandler handler)
 	{
 		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("DeleteContainer.Deleting")), toBlue(container.file.getName()))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)

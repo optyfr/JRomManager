@@ -26,6 +26,7 @@ import JTrrntzip.TorrentZip;
 import JTrrntzip.TrrntZipStatus;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 import jrm.ui.progress.ProgressTZipCallBack;
 
@@ -48,7 +49,7 @@ public class TZipContainer extends ContainerAction
 	}
 
 	@Override
-	public boolean doAction(final ProgressHandler handler)
+	public boolean doAction(final Session session, final ProgressHandler handler)
 	{
 		if(container.getType() == Container.Type.ZIP)
 		{

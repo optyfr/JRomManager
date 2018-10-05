@@ -13,7 +13,6 @@ import javax.xml.stream.XMLStreamWriter;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
-import jrm.misc.GlobalSettings;
 import jrm.server.TempFileInputStream;
 import jrm.ui.profile.manager.DirNode;
 import jrm.xml.EnhancedXMLStreamWriter;
@@ -68,7 +67,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		File tmpfile = File.createTempFile("JRM", null);
 		try (OutputStream out = new FileOutputStream(tmpfile))
 		{
-			DirNode root = new DirNode(GlobalSettings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
+			DirNode root = new DirNode(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
 			XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
 			XMLStreamWriter writer = new EnhancedXMLStreamWriter(outputFactory.createXMLStreamWriter(out));
 			writer.writeStartDocument("utf-8", "1.0");

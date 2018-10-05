@@ -31,6 +31,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.IOUtils;
 
 import jrm.locale.Messages;
+import jrm.profile.Profile;
 import jrm.profile.manager.Export;
 import jrm.ui.profile.data.AnywareListListRenderer;
 import jrm.ui.progress.ProgressHandler;
@@ -47,7 +48,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	/**
 	 * The {@link List} of {@link MachineList}, in fact the is only one item
 	 */
-	private final List<MachineList> ml_list = Collections.singletonList(new MachineList());
+	private final List<MachineList> ml_list;
 
 	/**
 	 * The attached list of software lists ({@link SoftwareListList}), if any
@@ -62,8 +63,9 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public MachineListList()
+	public MachineListList(Profile profile)
 	{
+		ml_list = Collections.singletonList(new MachineList(profile));
 		initTransient();
 	}
 

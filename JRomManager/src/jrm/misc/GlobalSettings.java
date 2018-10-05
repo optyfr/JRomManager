@@ -23,6 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.CRC32;
 
+import jrm.security.User;
+
 /**
  * The Settings back-end
  * @author optyfr
@@ -30,24 +32,31 @@ import java.util.zip.CRC32;
  */
 public class GlobalSettings
 {
+	public final User parent;
+	/**
+	 * @param parent
+	 */
+	public GlobalSettings(User parent)
+	{
+		super();
+		this.parent = parent;
+	}
+
 	/**
 	 * This is where we store settings
 	 */
-	public static Settings settings = new Settings();
+	private Settings settings = new Settings();
 	
-	// Extra settings coming from cmdline args
-	public static boolean multiuser = false;
-	public static boolean noupdate = false;
 	
-
+	
 	/**
 	 * Return the current work path, the one where we save working dirs (xml, cache, backup, ...)
 	 * By default, this where the program reside... but if multiuser mode is enabled, it will be $HOME/.jrommanager (or %HOMEPATH%\.jrommanager for Windows)
 	 * @return the current working path
 	 */
-	public static Path getWorkPath()
+	public Path getWorkPath()
 	{
-		if (multiuser)
+		if (parent.parent.multiuser)
 		{
 			final Path work = Paths.get(System.getProperty("user.home"), ".jrommanager").toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
 			if (!Files.exists(work))
@@ -66,7 +75,7 @@ public class GlobalSettings
 		return Paths.get(".").toAbsolutePath().normalize(); //$NON-NLS-1$
 	}
 	
-	public static File getWorkFile(final File parent, final String name, final String ext)
+	public File getWorkFile(final File parent, final String name, final String ext)
 	{
 		if(!parent.getAbsoluteFile().toPath().startsWith(getWorkPath().toAbsolutePath()))
 		{
@@ -85,11 +94,11 @@ public class GlobalSettings
 	 * @param local if local is true, then a "tmp" dir is created into current workpath (multiuser) or a subdir from default temp dir (not multiuser). If local is false, the default system temporary path is directly returned 
 	 * @return a valid temporary path
 	 */
-	public static Path getTmpPath(boolean local)
+	public Path getTmpPath(boolean local)
 	{
 		if(local)
 		{
-			if(multiuser)
+			if(parent.parent.multiuser)
 			{
 				try
 				{
@@ -117,11 +126,11 @@ public class GlobalSettings
 	 * get settings file
 	 * @return a {@link File} wich is the settings file
 	 */
-	private static File getSettingsFile()
+	private File getSettingsFile()
 	{
 		final File workdir = getWorkPath().toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 		final File cachedir = new File(workdir, "settings"); //$NON-NLS-1$
-		final File settingsfile = new File(cachedir, "JRomManager.properties"); //$NON-NLS-1$
+		final File settingsfile = new File(cachedir, parent.name+".properties"); //$NON-NLS-1$
 		settingsfile.getParentFile().mkdirs();
 		return settingsfile;
 
@@ -130,21 +139,21 @@ public class GlobalSettings
 	/**
 	 * save current settings to settings file
 	 */
-	public static void saveSettings()
+	public void saveSettings()
 	{
-		if(GlobalSettings.settings == null)
-			GlobalSettings.settings = new Settings();
-		GlobalSettings.settings.saveSettings(GlobalSettings.getSettingsFile());
+		if(settings == null)
+			settings = new Settings();
+		settings.saveSettings(getSettingsFile());
 	}
 
 	/**
 	 * load settings from settings file
 	 */
-	public static void loadSettings()
+	public void loadSettings()
 	{
-		if(GlobalSettings.settings == null)
-			GlobalSettings.settings = new Settings();
-		GlobalSettings.settings.loadSettings(GlobalSettings.getSettingsFile());
+		if(settings == null)
+			settings = new Settings();
+		settings.loadSettings(getSettingsFile());
 	}
 
 	/**
@@ -152,9 +161,9 @@ public class GlobalSettings
 	 * @param property the property name
 	 * @param value the property value
 	 */
-	public static void setProperty(final String property, final boolean value)
+	public void setProperty(final String property, final boolean value)
 	{
-		GlobalSettings.settings.setProperty(property, Boolean.toString(value));
+		settings.setProperty(property, Boolean.toString(value));
 	}
 
 	/**
@@ -162,9 +171,9 @@ public class GlobalSettings
 	 * @param property the property name
 	 * @param value the property value
 	 */
-	public static void setProperty(final String property, final int value)
+	public void setProperty(final String property, final int value)
 	{
-		GlobalSettings.settings.setProperty(property, Integer.toString(value));
+		settings.setProperty(property, Integer.toString(value));
 	}
 
 	/**
@@ -172,9 +181,9 @@ public class GlobalSettings
 	 * @param property the property name
 	 * @param value the property value
 	 */
-	public static void setProperty(final String property, final String value)
+	public void setProperty(final String property, final String value)
 	{
-		GlobalSettings.settings.setProperty(property, value);
+		settings.setProperty(property, value);
 	}
 
 	/**
@@ -183,9 +192,9 @@ public class GlobalSettings
 	 * @param def the default value if absent
 	 * @return return the property as boolean
 	 */
-	public static boolean getProperty(final String property, final boolean def)
+	public boolean getProperty(final String property, final boolean def)
 	{
-		return Boolean.parseBoolean(GlobalSettings.settings.getProperty(property, Boolean.toString(def)));
+		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
 	}
 
 	/**
@@ -194,9 +203,9 @@ public class GlobalSettings
 	 * @param def the default value if absent
 	 * @return return the property as int
 	 */
-	public static int getProperty(final String property, final int def)
+	public int getProperty(final String property, final int def)
 	{
-		return Integer.parseInt(GlobalSettings.settings.getProperty(property, Integer.toString(def)));
+		return Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
 	}
 
 	/**
@@ -205,8 +214,30 @@ public class GlobalSettings
 	 * @param def the default value if absent
 	 * @return return the property as string
 	 */
-	public static String getProperty(final String property, final String def)
+	public String getProperty(final String property, final String def)
 	{
-		return GlobalSettings.settings.getProperty(property, def);
+		return settings.getProperty(property, def);
 	}
+	
+	/**
+	 * return a .cache file located at the same place than the provided profile file
+	 * @param file the Profile info file from which the cache will be derived
+	 * @return the cache file
+	 */
+	public File getCacheFile(final File file)
+	{
+		return getWorkFile(file.getParentFile(), file.getName(), ".cache");  //$NON-NLS-1$
+	}
+
+	/**
+	 * return the properties file associated with profile file
+	 * @param file the profile file
+	 * @return the settings file
+	 */
+	public File getProfileSettingsFile(final File file)
+	{
+		return getWorkFile(file.getParentFile(), file.getName(), ".properties"); //$NON-NLS-1$
+	}
+
+
 }

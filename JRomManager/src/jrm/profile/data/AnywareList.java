@@ -18,11 +18,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
@@ -30,6 +26,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.profile.Profile;
 import jrm.ui.basic.EnhTableModel;
 import one.util.streamex.StreamEx;
 
@@ -42,6 +39,7 @@ import one.util.streamex.StreamEx;
 @SuppressWarnings("serial")
 public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, EnhTableModel, List<T>, ByName<T>
 {
+	Profile profile;
 	/**
 	 * Event Listener list for firing events to Swing controls (Table)
 	 */
@@ -58,8 +56,9 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public AnywareList()
+	public AnywareList(Profile profile)
 	{
+		this.profile = profile;
 		initTransient();
 	}
 
@@ -129,6 +128,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 * @param columnIndex the requested column index
 	 * @return a {@link TableCellRenderer} associated with the given columnindex 
 	 */
+	@Override
 	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
 
 	/**
@@ -136,6 +136,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 * @param columnIndex the requested column index
 	 * @return a width in pixel (if negative then it's a fixed column width)
 	 */
+	@Override
 	public abstract int getColumnWidth(int columnIndex);
 
 	@Override

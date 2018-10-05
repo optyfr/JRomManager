@@ -28,7 +28,6 @@ import org.apache.commons.io.FilenameUtils;
 import JTrrntzip.TrrntZipStatus;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
-import jrm.misc.GlobalSettings;
 import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.data.*;
@@ -254,13 +253,13 @@ public class Scan
 			}
 		}
 		/* then add extra backup dir to that list */
-		srcdirs.add(new File(GlobalSettings.getWorkPath().toFile(), "backup")); //$NON-NLS-1$
+		srcdirs.add(new File(profile.session.getUser().settings.getWorkPath().toFile(), "backup")); //$NON-NLS-1$
 		/* then scan all dirs from that list */
 		for (final File dir : srcdirs)
 		{
 			if(scancache != null)
 			{
-				String cachefile  = DirScan.getCacheFile(dir, DirScan.getOptions(profile, false)).getAbsolutePath();
+				String cachefile  = DirScan.getCacheFile(profile.session, dir, DirScan.getOptions(profile, false)).getAbsolutePath();
 				if(!scancache.containsKey(cachefile))
 					scancache.put(cachefile, new DirScan(profile, dir, handler, false));
 				allscans.add(scancache.get(cachefile));
@@ -426,7 +425,7 @@ public class Scan
 		{
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			/* save report */
-			Scan.report.write();
+			Scan.report.write(profile.session);
 			Scan.report.flush();
 			/* update entries in profile viewer */ 
 			if (MainFrame.profile_viewer != null)
@@ -436,7 +435,7 @@ public class Scan
 			profile.nfo.stats.haveSets = Stream.concat(profile.machinelist_list.stream(), profile.machinelist_list.softwarelist_list.stream()).mapToLong(AnywareList::countHave).sum();
 			profile.nfo.stats.haveRoms = Stream.concat(profile.machinelist_list.stream(), profile.machinelist_list.softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum();
 			profile.nfo.stats.haveDisks = Stream.concat(profile.machinelist_list.stream(), profile.machinelist_list.softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum();
-			profile.nfo.save();
+			profile.nfo.save(profile.session);
 			/* save again profile cache with scan entity status */
 			profile.save(); 
 		}

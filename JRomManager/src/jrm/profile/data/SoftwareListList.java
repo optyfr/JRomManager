@@ -160,7 +160,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	public Stream<SoftwareList> getFilteredStream()
 	{
 		return getList().stream().filter(t -> {
-			if(!t.getSystem().isSelected())
+			if(!t.getSystem().isSelected(t.profile))
 				return false;
 			return true;
 		});

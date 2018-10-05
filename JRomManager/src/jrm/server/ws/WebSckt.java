@@ -13,6 +13,8 @@ import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 import jrm.profile.Profile;
+import jrm.security.Session;
+import jrm.server.Server;
 import jrm.server.SessionStub;
 
 public class WebSckt extends WebSocket implements SessionStub
@@ -22,14 +24,13 @@ public class WebSckt extends WebSocket implements SessionStub
 	public WebSckt(IHTTPSession handshakeRequest)
 	{
 		super(handshakeRequest);
-		setSession(handshakeRequest.getCookies().read("session"));
-		sockets.put(getSession(), this);
+		setSession(Server.getSession(handshakeRequest.getCookies().read("session")));
 		System.out.println("websocket created for session "+getSession()+"......");
 	}
 
-	public static WebSckt get(String session)
+	public static WebSckt get(Session session)
 	{
-		return sockets.get(session);
+		return sockets.get(session.getSessionId());
 	}
 	
 	@Override
@@ -51,7 +52,7 @@ public class WebSckt extends WebSocket implements SessionStub
 					case "Profile.load":
 					{
 						JsonObject params = jso.get("params").asObject();
-						Profile.load(new File(params.getString("path", null)), new ProgressWS(this));
+						Profile.load(session, new File(params.getString("path", null)), new ProgressWS(this));
 						break;
 					}
 					default:
@@ -71,7 +72,7 @@ public class WebSckt extends WebSocket implements SessionStub
 	protected void onClose(CloseCode code, String reason, boolean initiatedByRemote)
 	{
 		System.out.println("websocket closed, removing session "+getSession()+"......");
-		sockets.remove(getSession());
+		unsetSession(session);
 	}
 
 	@Override
@@ -95,19 +96,30 @@ public class WebSckt extends WebSocket implements SessionStub
 		}*/
 	}
 
-	private String session;
+	private Session session;
 	
 	@Override
-	public String getSession()
+	public Session getSession()
 	{
 		return session;
 	}
 
 	@Override
-	public void setSession(String session)
+	public void setSession(Session session)
 	{
+		if(session==null)
+			throw new NullPointerException("Session not found");
+		sockets.put(session.getSessionId(), this);
 		this.session = session;
 		
+	}
+
+	@Override
+	public void unsetSession(Session session)
+	{
+		sockets.remove(getSession().getSessionId());
+		unsetSession(session);
+		this.session = null;
 	}
 
 }

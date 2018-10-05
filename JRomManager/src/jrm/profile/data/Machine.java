@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
+import jrm.profile.Profile;
 import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.xml.EnhancedXMLStreamWriter;
@@ -148,8 +149,9 @@ public class Machine extends Anyware implements Serializable
 		cocktail;
 	}
 
-	public Machine()
+	public Machine(Profile profile)
 	{
+		super(profile);
 	}
 
 	@Override

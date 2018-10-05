@@ -120,7 +120,10 @@ public class Entry implements Serializable
 			return parent.file.toPath().relativize(path).toString().replace('\\', '/');
 		}
 		if(type == Type.CHD)
-			return path.getFileName().toString();
+		{
+			Path fileName = path.getFileName();
+			return fileName.toString();
+		}
 		return path.subpath(0, path.getNameCount()).toString().replace('\\', '/');
 	}
 

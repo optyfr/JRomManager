@@ -22,6 +22,7 @@ import java.util.List;
 import jrm.misc.HTMLRenderer;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
 /**
@@ -81,6 +82,6 @@ abstract public class ContainerAction implements HTMLRenderer
 	 * @param handler a {@link ProgressHandler} to show progression state
 	 * @return true if successful, false otherwise
 	 */
-	public abstract boolean doAction(ProgressHandler handler);
+	public abstract boolean doAction(final Session session, ProgressHandler handler);
 
 }

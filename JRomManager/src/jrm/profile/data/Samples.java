@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import jrm.profile.Profile;
+
 /**
  * Samples is a set of unique {@link Samples}
  * @author optyfr
@@ -114,5 +116,11 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 		if(status == AnywareStatus.PARTIAL && !ok)
 			status = AnywareStatus.MISSING;
 		return status;
+	}
+
+	@Override
+	public Profile getProfile()
+	{
+		return null;
 	}
 }

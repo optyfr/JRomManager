@@ -16,37 +16,14 @@
  */
 package jrm.profile.scan;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.URI;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.DirectoryStream;
+import java.nio.file.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -66,25 +43,13 @@ import jrm.io.chd.CHDInfoReader;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.GlobalSettings;
 import jrm.profile.Profile;
-import jrm.profile.data.Archive;
-import jrm.profile.data.Container;
+import jrm.profile.data.*;
 import jrm.profile.data.Container.Type;
-import jrm.profile.data.Directory;
-import jrm.profile.data.Disk;
-import jrm.profile.data.Entity;
-import jrm.profile.data.Entry;
-import jrm.profile.data.Rom;
 import jrm.profile.scan.options.FormatOptions;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
-import net.sf.sevenzipjbinding.ExtractAskMode;
-import net.sf.sevenzipjbinding.ExtractOperationResult;
-import net.sf.sevenzipjbinding.IArchiveExtractCallback;
-import net.sf.sevenzipjbinding.IInArchive;
-import net.sf.sevenzipjbinding.ISequentialOutStream;
-import net.sf.sevenzipjbinding.SevenZip;
-import net.sf.sevenzipjbinding.SevenZipException;
+import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
@@ -145,6 +110,11 @@ public final class DirScan
 	private HashSet<String> suspicious_crc = null; 
 
 	/**
+	 * the current session
+	 */
+	private final Session session;
+	
+	/**
 	 * the directory entry point
 	 */
 	private final File dir;
@@ -166,7 +136,7 @@ public final class DirScan
 		{
 			try
 			{
-				SevenZip.initSevenZipFromPlatformJAR(GlobalSettings.getTmpPath(true).toFile());
+				SevenZip.initSevenZipFromPlatformJAR(session.getUser().settings.getTmpPath(true).toFile());
 			}
 			catch(final Exception e)
 			{
@@ -257,7 +227,7 @@ public final class DirScan
 	 */
 	DirScan(final Profile profile, final File dir, final ProgressHandler handler, final boolean is_dest) throws BreakException
 	{
-		this(dir, handler, profile.suspicious_crc, getOptions(profile, is_dest));
+		this(profile.session, dir, handler, profile.suspicious_crc, getOptions(profile, is_dest));
 	}
 	
 	/**
@@ -267,9 +237,9 @@ public final class DirScan
 	 * @param options an {@link EnumSet} of {@link Options}
 	 * @throws BreakException in case user stopped processing thru {@link ProgressHandler}
 	 */
-	DirScan(final File dir, final ProgressHandler handler, EnumSet<Options> options) throws BreakException
+	DirScan(final Session session, final File dir, final ProgressHandler handler, EnumSet<Options> options) throws BreakException
 	{
-		this(dir, handler, null, options);
+		this(session, dir, handler, null, options);
 	}
 	
 	/**
@@ -280,10 +250,11 @@ public final class DirScan
 	 * @param options an {@link EnumSet} of {@link Options}
 	 * @throws BreakException in case user stopped processing thru {@link ProgressHandler}
 	 */
-	private DirScan(final File dir, final ProgressHandler handler, final HashSet<String> suspicious_crc, EnumSet<Options> options) throws BreakException
+	private DirScan(final Session session, final File dir, final ProgressHandler handler, final HashSet<String> suspicious_crc, EnumSet<Options> options) throws BreakException
 	{
 		init7zJBinding();
 
+		this.session = session;
 		this.dir = dir;
 		this.handler = handler;
 		this.suspicious_crc = suspicious_crc;
@@ -306,7 +277,7 @@ public final class DirScan
 		/*
 		 * Loading scan cache
 		 */
-		if(!GlobalSettings.getProperty("debug_nocache", false)) //$NON-NLS-1$
+		if(!session.getUser().settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 			containers_byname = load(dir);
 		else
 			containers_byname = Collections.synchronizedMap(new HashMap<>());
@@ -1119,9 +1090,9 @@ public final class DirScan
 	 * @param options {@link EnumSet} of {@link Options}
 	 * @return a {@link File} corresponding to the cache file
 	 */
-	public static File getCacheFile(final File file, EnumSet<Options> options)
+	public static File getCacheFile(final Session session, final File file, EnumSet<Options> options)
 	{
-		final File workdir = GlobalSettings.getWorkPath().toFile(); //$NON-NLS-1$
+		final File workdir = session.getUser().settings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File cachedir = new File(workdir, "cache"); //$NON-NLS-1$
 		cachedir.mkdirs();
 		final CRC32 crc = new CRC32();
@@ -1135,7 +1106,7 @@ public final class DirScan
 	 */
 	private void save(final File file)
 	{
-		try(final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(file, options)))))
+		try(final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(session, file, options)))))
 		{
 			oos.writeObject(containers_byname);
 		}
@@ -1152,7 +1123,7 @@ public final class DirScan
 	@SuppressWarnings("unchecked")
 	private Map<String, Container> load(final File file)
 	{
-		final File cachefile = getCacheFile(file, options);
+		final File cachefile = getCacheFile(session, file, options);
 		try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 		{
 			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), file) , 0); //$NON-NLS-1$

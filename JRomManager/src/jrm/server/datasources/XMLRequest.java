@@ -1,10 +1,6 @@
 package jrm.server.datasources;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,15 +11,18 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import jrm.security.Session;
 import jrm.server.TempFileInputStream;
 
 public class XMLRequest
 {
 	StringBuffer operationType = new StringBuffer();
 	Map<String,String> data = new HashMap<>();
+	Session session;
 
-	public XMLRequest(InputStream in, int len) throws IOException
+	public XMLRequest(Session session, InputStream in, int len) throws IOException
 	{
+		this.session = session;
 		File file = File.createTempFile("JRMSRV", null);
 		try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));)
 		{

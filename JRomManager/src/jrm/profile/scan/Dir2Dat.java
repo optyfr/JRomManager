@@ -21,21 +21,24 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import jrm.locale.Messages;
-import jrm.profile.Profile;
 import jrm.profile.data.*;
 import jrm.profile.data.Entry.Type;
 import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.scan.DirScan.Options;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
 
 public class Dir2Dat
 {
-	public Dir2Dat(File srcdir, File dstdat, final ProgressHandler progress, EnumSet<Options> options, ExportType type, HashMap<String, String> headers)
+	private Session session;
+	
+	public Dir2Dat(final Session session, File srcdir, File dstdat, final ProgressHandler progress, EnumSet<Options> options, ExportType type, HashMap<String, String> headers)
 	{
-		DirScan srcdir_scan  = new DirScan(srcdir, progress, options);
+		this.session = session;
+		DirScan srcdir_scan  = new DirScan(session, srcdir, progress, options);
 		write(dstdat, srcdir_scan, progress, options, type, headers);
 	}
 
@@ -62,8 +65,8 @@ public class Dir2Dat
 					{
 						String name = FilenameUtils.removeExtension(c.file.getName());
 						Machine machine = null;
-						if(Profile.curr_profile != null &&  options.contains(Options.MATCH_PROFILE))
-							machine = Profile.curr_profile.machinelist_list.get(0).getByName(name);
+						if(session.curr_profile != null &&  options.contains(Options.MATCH_PROFILE))
+							machine = session.curr_profile.machinelist_list.get(0).getByName(name);
 						if(machine != null)
 							name = machine.getBaseName();
 						if(!counter.containsKey(name))
@@ -139,8 +142,8 @@ public class Dir2Dat
 					{
 						String name = FilenameUtils.removeExtension(c.file.getName());
 						Machine machine = null;
-						if(Profile.curr_profile != null &&  options.contains(Options.MATCH_PROFILE))
-							machine = Profile.curr_profile.machinelist_list.get(0).getByName(name);
+						if(session.curr_profile != null &&  options.contains(Options.MATCH_PROFILE))
+							machine = session.curr_profile.machinelist_list.get(0).getByName(name);
 						if(machine != null)
 							name = machine.getBaseName();
 						if(!counter.containsKey(name))
@@ -214,9 +217,9 @@ public class Dir2Dat
 						Path relativized = scan.getDir().toPath().relativize(c.file.toPath());
 						String swname = FilenameUtils.removeExtension(relativized.getFileName().toString());
 						String slname = relativized.getParent().toString();
-						if(Profile.curr_profile!= null)
+						if(session.curr_profile!= null)
 						{
-							SoftwareList sl = Profile.curr_profile.machinelist_list.softwarelist_list.getByName(slname);
+							SoftwareList sl = session.curr_profile.machinelist_list.softwarelist_list.getByName(slname);
 							if(sl != null && sl.containsName(swname))
 								software = sl.getByName(swname);
 							if(software != null && options.contains(Options.MATCH_PROFILE))

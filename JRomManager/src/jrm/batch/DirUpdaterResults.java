@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
 
-import jrm.misc.GlobalSettings;
 import jrm.profile.report.Report;
+import jrm.security.Session;
 
 public class DirUpdaterResults implements Serializable
 {
@@ -31,18 +31,18 @@ public class DirUpdaterResults implements Serializable
 		results.add(result);
 	}
 	
-	private static File getFile(final File file)
+	private static File getFile(final Session session, final File file)
 	{
 		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		final File reports = GlobalSettings.getWorkPath().resolve("work").toFile(); //$NON-NLS-1$
+		final File reports = session.getUser().settings.getWorkPath().resolve("work").toFile(); //$NON-NLS-1$
 		reports.mkdirs();
 		return new File(reports, String.format("%08x", crc.getValue()) + ".results"); //$NON-NLS-1$
 	}
 
-	public void save()
+	public void save(final Session session)
 	{
-		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getFile(dat)))))
+		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getFile(session, dat)))))
 		{
 			oos.writeObject(this);
 		}
@@ -51,9 +51,9 @@ public class DirUpdaterResults implements Serializable
 		}
 	}
 	
-	public static DirUpdaterResults load(File file)
+	public static DirUpdaterResults load(final Session session, final File file)
 	{
-		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(getFile(file)))))
+		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(getFile(session, file)))))
 		{
 			return (DirUpdaterResults)ois.readObject();
 		}

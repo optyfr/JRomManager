@@ -1,7 +1,10 @@
 package jrm.server;
 
+import jrm.security.Session;
+
 public interface SessionStub
 {
-	public String getSession();
-	public void setSession(String session);
+	public Session getSession();
+	public void setSession(Session session);
+	public void unsetSession(Session session);
 }

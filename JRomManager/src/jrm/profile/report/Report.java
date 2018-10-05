@@ -29,11 +29,11 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
 
 import jrm.locale.Messages;
-import jrm.misc.GlobalSettings;
 import jrm.misc.HTMLRenderer;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.profile.scan.Scan;
+import jrm.security.Session;
 import jrm.ui.profile.report.ReportTreeModel;
 import jrm.ui.progress.StatusHandler;
 import one.util.streamex.IntStreamEx;
@@ -399,9 +399,9 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	/**
 	 * write a textual report to reports/report.log
 	 */
-	public void write()
+	public void write(final Session session)
 	{
-		final File workdir = GlobalSettings.getWorkPath().toFile(); //$NON-NLS-1$
+		final File workdir = session.getUser().settings.getWorkPath().toFile(); //$NON-NLS-1$
 		final File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
 		reportdir.mkdirs();
 		final File report_file = new File(reportdir, "report-"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".log"); //$NON-NLS-1$
@@ -482,23 +482,23 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 		return Collections.enumeration(subjects);
 	}
 
-	public File getReportFile()
+	public File getReportFile(final Session session)
 	{
-		return getReportFile(this.profile!=null?this.profile.nfo.file:this.file);
+		return getReportFile(session, this.profile!=null?this.profile.nfo.file:this.file);
 	}
 
-	private static File getReportFile(final File file)
+	private static File getReportFile(final Session session, final File file)
 	{
 		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		final File reports = GlobalSettings.getWorkPath().resolve("reports").toFile(); //$NON-NLS-1$
+		final File reports = session.getUser().settings.getWorkPath().resolve("reports").toFile(); //$NON-NLS-1$
 		reports.mkdirs();
 		return new File(reports, String.format("%08x", crc.getValue()) + ".report"); //$NON-NLS-1$
 	}
 
-	public void save()
+	public void save(final Session session)
 	{
-		save(getReportFile());
+		save(getReportFile(session));
 	}
 	
 	public void save(File file)
@@ -512,9 +512,9 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 		}
 	}
 	
-	public static Report load(File file)
+	public static Report load(final Session session, final File file)
 	{
-		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(getReportFile(file)))))
+		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(getReportFile(session, file)))))
 		{
 			Report report = (Report)ois.readObject();
 			report.file = file;

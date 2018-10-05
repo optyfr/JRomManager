@@ -10,6 +10,8 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.Error404UriHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
+import jrm.security.Session;
+import jrm.server.Server;
 import jrm.server.datasources.ProfilesListXMLResponse;
 import jrm.server.datasources.ProfilesTreeXMLResponse;
 import jrm.server.datasources.XMLRequest;
@@ -45,14 +47,15 @@ public class DataSourcesHandler extends DefaultHandler
 			if (bodylenstr != null)
 			{
 				int bodylen = Integer.parseInt(bodylenstr);
+				Session sess = Server.getSession(session.getCookies().read("session"));
 				if (headers.get("content-type").equals("text/xml"))
 				{
 					switch (urlParams.get("action"))
 					{
 						case "profilesTree":
-							return new ProfilesTreeXMLResponse(new XMLRequest(new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							return new ProfilesTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "profilesList":
-							return new ProfilesListXMLResponse(new XMLRequest(new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							return new ProfilesListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 					}
 				}
 				else

@@ -27,6 +27,7 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.lang3.StringUtils;
 
 import jrm.locale.Messages;
+import jrm.profile.Profile;
 import jrm.profile.data.PropertyStub;
 import jrm.ui.basic.AbstractNGTreeNode;
 
@@ -41,7 +42,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	 * class describing games category with sub-categories list
 	 * @author optyfr
 	 */
-	public final static class Category extends AbstractNGTreeNode implements Map<String, SubCategory>, Iterable<SubCategory>, PropertyStub
+	public final class Category extends AbstractNGTreeNode implements Map<String, SubCategory>, Iterable<SubCategory>, PropertyStub
 	{
 		/**
 		 * Category name
@@ -206,13 +207,13 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		@Override
 		public void setSelected(final boolean selected)
 		{
-			PropertyStub.super.setSelected(selected);
+			PropertyStub.super.setSelected(profile, selected);
 		}
 
 		@Override
 		public boolean isSelected()
 		{
-			return PropertyStub.super.isSelected();
+			return PropertyStub.super.isSelected(profile);
 		}
 
 	}
@@ -222,7 +223,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	 * @author optyfr
 	 *
 	 */
-	public final static class SubCategory extends AbstractNGTreeNode implements List<String>, PropertyStub
+	public final class SubCategory extends AbstractNGTreeNode implements List<String>, PropertyStub
 	{
 		/**
 		 * name of the subcategory
@@ -443,16 +444,17 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		@Override
 		public void setSelected(final boolean selected)
 		{
-			PropertyStub.super.setSelected(selected);
+			PropertyStub.super.setSelected(profile, selected);
 		}
 
 		@Override
 		public boolean isSelected()
 		{
-			return PropertyStub.super.isSelected();
+			return PropertyStub.super.isSelected(profile);
 		}
 	}
 
+	private final Profile profile;
 	/**
 	 * The list of fetched {@link Category}
 	 */
@@ -467,8 +469,9 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	 * @param file the catver.ini {@link File} to read
 	 * @throws IOException
 	 */
-	private CatVer(final File file) throws IOException
+	private CatVer(final Profile profile, final File file) throws IOException
 	{
+		this.profile = profile;
 		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
 		{
 			final Map<String, Category> categories = new TreeMap<>();
@@ -521,9 +524,9 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	 * @return an initialized {@link CatVer}
 	 * @throws IOException
 	 */
-	public static CatVer read(final File file) throws IOException
+	public static CatVer read(final Profile profile, final File file) throws IOException
 	{
-		return new CatVer(file);
+		return new CatVer(profile, file);
 	}
 
 	@Override
@@ -589,13 +592,13 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	@Override
 	public void setSelected(final boolean selected)
 	{
-		PropertyStub.super.setSelected(selected);
+		PropertyStub.super.setSelected(profile, selected);
 	}
 
 	@Override
 	public boolean isSelected()
 	{
-		return PropertyStub.super.isSelected();
+		return PropertyStub.super.isSelected(profile);
 	}
 
 }

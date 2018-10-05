@@ -61,8 +61,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public MachineList()
+	public MachineList(Profile profile)
 	{
+		super(profile);
 		initTransient();
 	}
 
@@ -180,16 +181,16 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		/*
 		 * get all needed profile options
 		 */
-		final boolean filterIncludeClones = Profile.curr_profile.getProperty("filter.InclClones", true); //$NON-NLS-1$
-		final boolean filterIncludeDisks = Profile.curr_profile.getProperty("filter.InclDisks", true); //$NON-NLS-1$
-		final boolean filterIncludeSamples = Profile.curr_profile.getProperty("filter.InclSamples", true); //$NON-NLS-1$
-		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(Profile.curr_profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString())); //$NON-NLS-1$
-		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(Profile.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString())); //$NON-NLS-1$
-		final CabinetType filterCabinetType = CabinetType.valueOf(Profile.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString())); //$NON-NLS-1$
-		final String filterYearMin = Profile.curr_profile.getProperty("filter.YearMin", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final String filterYearMax = Profile.curr_profile.getProperty("filter.YearMax", "????"); //$NON-NLS-1$ //$NON-NLS-2$
-		final boolean excludeGames = Profile.curr_profile.getProperty("exclude_games", false); //$NON-NLS-1$
-		final boolean excludeMachines = Profile.curr_profile.getProperty("exclude_machines", false); //$NON-NLS-1$
+		final boolean filterIncludeClones = profile.getProperty("filter.InclClones", true); //$NON-NLS-1$
+		final boolean filterIncludeDisks = profile.getProperty("filter.InclDisks", true); //$NON-NLS-1$
+		final boolean filterIncludeSamples = profile.getProperty("filter.InclSamples", true); //$NON-NLS-1$
+		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty("filter.DriverStatus", Driver.StatusType.preliminary.toString())); //$NON-NLS-1$
+		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString())); //$NON-NLS-1$
+		final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty("filter.CabinetType", CabinetType.any.toString())); //$NON-NLS-1$
+		final String filterYearMin = profile.getProperty("filter.YearMin", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final String filterYearMax = profile.getProperty("filter.YearMax", "????"); //$NON-NLS-1$ //$NON-NLS-2$
+		final boolean excludeGames = profile.getProperty("exclude_games", false); //$NON-NLS-1$
+		final boolean excludeMachines = profile.getProperty("exclude_machines", false); //$NON-NLS-1$
 
 		if(excludeGames && !excludeMachines)
 		{	// special case where we want to keep computers & consoles machines but not arcade games machines (let's call it mess mode)
@@ -253,14 +254,14 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 				return false;
 			if(!filterIncludeSamples && t.samples.size() > 0)	// exclude machines with samples
 				return false;
-			if(!t.getSystem().isSelected())	// exclude machines for which their BIOS system were not selected
+			if(!t.getSystem().isSelected(profile))	// exclude machines for which their BIOS system were not selected
 				return false;
 			/*
 			 * apply advanced filters
 			 */
 			if(t.subcat != null && !t.subcat.isSelected())	// exclude if subcat is not selected
 				return false;
-			if(t.nplayer != null && !t.nplayer.isSelected()) // exclude if nplayer is not selected
+			if(t.nplayer != null && !t.nplayer.isSelected(profile)) // exclude if nplayer is not selected
 				return false;
 			return true;	// otherwise include
 		});

@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
+import jrm.profile.Profile;
 import jrm.profile.data.Software.Part.DataArea;
 import jrm.profile.data.Software.Part.DiskArea;
 import jrm.xml.EnhancedXMLStreamWriter;
@@ -38,6 +39,11 @@ import jrm.xml.SimpleAttribute;
 @SuppressWarnings("serial")
 public class Software extends Anyware implements Serializable
 {
+	public Software(Profile profile)
+	{
+		super(profile);
+	}
+
 	/**
 	 * The publisher name
 	 */

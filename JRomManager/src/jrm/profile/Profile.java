@@ -31,7 +31,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
-import jrm.misc.GlobalSettings;
 import jrm.misc.Log;
 import jrm.misc.Settings;
 import jrm.profile.data.*;
@@ -49,6 +48,7 @@ import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers;
 import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.profile.manager.ProfileNFO;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
 /**
@@ -93,7 +93,7 @@ public class Profile implements Serializable
 	/**
 	 * The main object that will contains all the games AND the related software list
 	 */
-	public final MachineListList machinelist_list = new MachineListList();
+	public final MachineListList machinelist_list = new MachineListList(this);
 	
 	/**
 	 * Contains all CRCs where there was ROMs with identical CRC but different SHA1/MD5
@@ -109,11 +109,8 @@ public class Profile implements Serializable
 	public transient ProfileNFO nfo = null;
 	public transient CatVer catver = null;
 	public transient NPlayers nplayers = null;
+	public transient Session session = null;
 
-	/**
-	 * This contain the current loaded profile (so it is static)
-	 */
-	public static transient Profile curr_profile;
 
 	/**
 	 * The Profile class is instantiated via {@link #load(File, ProgressHandler)}
@@ -194,7 +191,7 @@ public class Profile implements Serializable
 					else if (qName.equals("softwarelist") && curr_machine == null) //$NON-NLS-1$
 					{
 						// this is a *real* software list
-						curr_software_list = new SoftwareList();
+						curr_software_list = new SoftwareList(Profile.this);
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
 							switch (attributes.getQName(i))
@@ -236,7 +233,7 @@ public class Profile implements Serializable
 					else if (qName.equals("software")) //$NON-NLS-1$
 					{
 						// We enter in a software block (from a software list)
-						curr_software = new Software();
+						curr_software = new Software(Profile.this);
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
 							switch (attributes.getQName(i))
@@ -332,7 +329,7 @@ public class Profile implements Serializable
 					else if (qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						// we enter a machine (or a game in case of Logiqx format)
-						curr_machine = new Machine();
+						curr_machine = new Machine(Profile.this);
 						for (int i = 0; i < attributes.getLength(); i++)
 						{
 							switch (attributes.getQName(i))
@@ -957,21 +954,11 @@ public class Profile implements Serializable
 	}
 
 	/**
-	 * return a .cache file located at the same place than the provided profile file
-	 * @param file the Profile info file from which the cache will be derived
-	 * @return the cache file
-	 */
-	private static File getCacheFile(final File file)
-	{
-		return GlobalSettings.getWorkFile(file.getParentFile(), file.getName(), ".cache");  //$NON-NLS-1$
-	}
-
-	/**
 	 * Save cache (serialization)
 	 */
 	public void save()
 	{
-		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(Profile.getCacheFile(nfo.file)))))
+		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(session.getUser().settings.getCacheFile(nfo.file)))))
 		{
 			oos.writeObject(this);
 		}
@@ -987,9 +974,9 @@ public class Profile implements Serializable
 	 * @param handler the {@link ProgressHandler} to see progression (mandatory)
 	 * @return the loaded {@link Profile}
 	 */
-	public static Profile load(final File file, final ProgressHandler handler)
+	public static Profile load(final Session session, final File file, final ProgressHandler handler)
 	{
-		return Profile.load(ProfileNFO.load(file), handler);
+		return Profile.load(session, ProfileNFO.load(session, file), handler);
 	}
 
 	/**
@@ -998,16 +985,18 @@ public class Profile implements Serializable
 	 * @param handler the {@link ProgressHandler} to see progression (mandatory)
 	 * @return the loaded {@link Profile}, or null if there was something wrong
 	 */
-	public static Profile load(final ProfileNFO nfo, final ProgressHandler handler)
+	public static Profile load(final Session session, final ProfileNFO nfo, final ProgressHandler handler)
 	{
 		Profile profile = null;
-		final File cachefile = Profile.getCacheFile(nfo.file);
-		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !GlobalSettings.getProperty("debug_nocache", false)) //$NON-NLS-1$
+		final File cachefile = session.getUser().settings.getCacheFile(nfo.file);
+		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !session.getUser().settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
 		{	// Load from cache if cachefile is not outdated and debug_nocache is disabled
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
 			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile), (int) cachefile.length()))))
 			{
 				profile = (Profile) ois.readObject();
+				profile.session = session;
+				session.curr_profile = profile;
 				profile.nfo = nfo;
 			}
 			catch (final Throwable e)
@@ -1018,6 +1007,8 @@ public class Profile implements Serializable
 		if (profile == null)	// if cache failed to load or because it is outdated
 		{
 			profile = new Profile();
+			profile.session = session;
+			session.curr_profile = profile;
 			profile.nfo = nfo;
 			if (nfo.isJRM())
 			{	// we use JRM file keep ROMs/SL DATs in relation
@@ -1101,16 +1092,6 @@ public class Profile implements Serializable
 	}
 
 	/**
-	 * return the properties file associated with profile file
-	 * @param file the profile file
-	 * @return the settings file
-	 */
-	public static File getSettingsFile(final File file)
-	{
-		return GlobalSettings.getWorkFile(file.getParentFile(), file.getName(), ".properties"); //$NON-NLS-1$
-	}
-
-	/**
 	 * Save settings as XML
 	 */
 	public void saveSettings()
@@ -1118,7 +1099,7 @@ public class Profile implements Serializable
 		try
 		{
 			settings = saveSettings(nfo.file, settings);
-			nfo.save();
+			nfo.save(session);
 		}
 		catch (final IOException e)
 		{
@@ -1133,11 +1114,11 @@ public class Profile implements Serializable
 	 * @return the saved {@link Properties}
 	 * @throws IOException
 	 */
-	public static Settings saveSettings(final File file, Settings settings) throws IOException
+	public Settings saveSettings(final File file, Settings settings) throws IOException
 	{
 		if (settings == null)
 			settings = new Settings();
-		settings.saveSettings(getSettingsFile(file));
+		settings.saveSettings(session.getUser().settings.getProfileSettingsFile(file));
 		return settings;
 	}
 
@@ -1163,13 +1144,13 @@ public class Profile implements Serializable
 	 * @return the loaded {@link Properties}
 	 * @throws IOException
 	 */
-	public static Settings loadSettings(File file, Settings settings) throws IOException
+	public Settings loadSettings(File file, Settings settings) throws IOException
 	{
 		if (settings == null)
 			settings = new Settings();
-		if (getSettingsFile(file).exists())
+		if (session.getUser().settings.getProfileSettingsFile(file).exists())
 		{
-			settings.loadSettings(getSettingsFile(file));
+			settings.loadSettings(session.getUser().settings.getProfileSettingsFile(file));
 		}
 		return settings;
 	}
@@ -1244,7 +1225,7 @@ public class Profile implements Serializable
 	 */
 	public String getName()
 	{
-		String name = "<html><body>[<span color='blue'>" + GlobalSettings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String name = "<html><body>[<span color='blue'>" + session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if (build != null)
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if (header.size() > 0)
@@ -1315,7 +1296,7 @@ public class Profile implements Serializable
 			{
 				if (handler != null)
 					handler.setProgress("Loading catver.ini ...", -1); //$NON-NLS-1$
-				catver = CatVer.read(file); //$NON-NLS-1$
+				catver = CatVer.read(this, file); //$NON-NLS-1$
 				for (final Category cat : catver)
 				{
 					for (final SubCategory subcat : cat)

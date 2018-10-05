@@ -34,7 +34,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import jrm.misc.GlobalSettings;
+import jrm.security.Session;
 
 /**
  * The Profile NFO file managing class with tolerant manual (de)serialization
@@ -119,21 +119,21 @@ public final class ProfileNFO implements Serializable
 	 * @param file the attached file candidate
 	 * @return the nfo {@link File}
 	 */
-	private static File getFileNfo(final File file)
+	private static File getFileNfo(final Session session, final File file)
 	{
-		return GlobalSettings.getWorkFile(file.getParentFile(), file.getName(), ".nfo");
+		return session.getUser().settings.getWorkFile(file.getParentFile(), file.getName(), ".nfo");
 	}
 
 	/**
 	 * Delete NFO old location, change attached file, then save to new location
 	 * @param file new file to attach
 	 */
-	public void relocate(final File file)
+	public void relocate(final Session session, final File file)
 	{
-		ProfileNFO.getFileNfo(this.file).delete();
+		ProfileNFO.getFileNfo(session, this.file).delete();
 		this.file = file;
 		name = file.getName();
-		save();
+		save(session);
 	}
 
 	/**
@@ -141,9 +141,9 @@ public final class ProfileNFO implements Serializable
 	 * @param file the attached file from which to derive NFO file
 	 * @return the {@link ProfileNFO}
 	 */
-	public static ProfileNFO load(final File file)
+	public static ProfileNFO load(final Session session, final File file)
 	{
-		final File filenfo = ProfileNFO.getFileNfo(file);
+		final File filenfo = ProfileNFO.getFileNfo(session, file);
 		if(filenfo.lastModified() >= file.lastModified()) // $NON-NLS-1$
 		{
 			try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(filenfo))))
@@ -162,7 +162,7 @@ public final class ProfileNFO implements Serializable
 	/**
 	 * Save this ProfileNFO, and save JRM if the attached file is a JRM type file
 	 */
-	public void save()
+	public void save(final Session session)
 	{
 		if(isJRM()) try
 		{
@@ -175,7 +175,7 @@ public final class ProfileNFO implements Serializable
 		{
 			e.printStackTrace();
 		}
-		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(ProfileNFO.getFileNfo(file)))))
+		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(ProfileNFO.getFileNfo(session, file)))))
 		{
 			oos.writeObject(this);
 		}

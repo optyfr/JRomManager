@@ -10,7 +10,6 @@ import javax.xml.stream.XMLStreamWriter;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
-import jrm.misc.GlobalSettings;
 import jrm.profile.manager.Dir;
 import jrm.server.TempFileInputStream;
 import jrm.ui.profile.manager.FileTableModel;
@@ -31,7 +30,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 		File tmpfile = File.createTempFile("JRM", null);
 		try (OutputStream out = new FileOutputStream(tmpfile))
 		{
-			File dir = GlobalSettings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+			File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 			if(request.data.containsKey("Path"))
 				dir = new File(request.data.get("Path"));
 			FileTableModel model = new FileTableModel(new Dir(dir));

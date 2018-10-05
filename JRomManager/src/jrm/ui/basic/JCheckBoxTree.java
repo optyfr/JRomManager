@@ -26,7 +26,6 @@ import java.util.EventObject;
 
 import javax.swing.JPanel;
 import javax.swing.JTree;
-import javax.swing.event.EventListenerList;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
@@ -40,8 +39,8 @@ import javax.swing.tree.TreePath;
 public class JCheckBoxTree extends JTree
 {
 	
-	/** The listener list. */
-	protected EventListenerList listenerList = new EventListenerList();
+//	/** The listener list. */
+//	protected EventListenerList listenerList = new EventListenerList();
 
 	/**
 	 * The Class CheckChangeEvent.

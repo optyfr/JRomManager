@@ -73,7 +73,7 @@ public class Fix
 			StreamEx.of(use_parallelism ? actions.parallelStream().unordered() : actions.stream()).takeWhile((action) -> !progress.isCancel()).forEach(action -> {
 				try
 				{
-					if(!action.doAction(progress)) // do action...
+					if(!action.doAction(curr_profile.session, progress)) // do action...
 						progress.cancel(); // ... and cancel all if it failed
 					else
 						done.add(action);	// add to "done" list successful action 

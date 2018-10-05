@@ -21,6 +21,7 @@ import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.DirScan;
 import jrm.profile.scan.Scan;
+import jrm.security.Session;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.basic.SrcDstResult;
@@ -42,7 +43,7 @@ public class DirUpdater
 	 * @param result the result interface
 	 * @param dryrun tell not to fix
 	 */
-	public DirUpdater(List<SrcDstResult> sdrl, final Progress progress, List<File> srcdirs, ResultColUpdater result, boolean dryrun)
+	public DirUpdater(Session session, List<SrcDstResult> sdrl, final Progress progress, List<File> srcdirs, ResultColUpdater result, boolean dryrun)
 	{
 		final Map<String, DirScan> scancache = new HashMap<>();
 		StreamEx.of(sdrl).filter(sdr->sdr.selected).forEach(sdr->{
@@ -64,7 +65,7 @@ public class DirUpdater
 					datlist = dat.listFiles((sdir, sfilename) -> Sets.newHashSet("xml", "dat").contains(FilenameUtils.getExtension(sfilename).toLowerCase())); //$NON-NLS-1$ //$NON-NLS-2$
 					Arrays.sort(datlist, (a, b) -> a.getAbsolutePath().compareTo(b.getAbsolutePath()));
 					for (File d : datlist)
-						Files.copy(Profile.getSettingsFile(dat).toPath(), Profile.getSettingsFile(d).toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+						Files.copy(session.getUser().settings.getProfileSettingsFile(dat).toPath(), session.getUser().settings.getProfileSettingsFile(d).toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 					dstlist = StreamEx.of(datlist).map(datfile -> new File(dst, FilenameUtils.removeExtension(datfile.getName()))).toArray(File.class);
 					for (File d : dstlist)
 						d.mkdir();
@@ -72,22 +73,22 @@ public class DirUpdater
 				long total = 0, ok = 0;
 				for (int j = 0; j < datlist.length; j++)
 				{
-					Scan.report.setProfile(Profile.curr_profile = Profile.load(datlist[j], progress));
-					if(Profile.curr_profile.softwares_list_cnt>0 && dat.isDirectory())
-						Profile.curr_profile.setProperty("roms_dest_dir", dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
+					Scan.report.setProfile(Profile.load(session, datlist[j], progress));
+					if(session.curr_profile.softwares_list_cnt>0 && dat.isDirectory())
+						session.curr_profile.setProperty("roms_dest_dir", dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
 					else
-						Profile.curr_profile.setProperty("roms_dest_dir", dstlist[j].getAbsolutePath()); //$NON-NLS-1$
-					Profile.curr_profile.setProperty("src_dir", String.join("|", srcdirs.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
-					Scan scan = new Scan(Profile.curr_profile, progress, scancache);
+						session.curr_profile.setProperty("roms_dest_dir", dstlist[j].getAbsolutePath()); //$NON-NLS-1$
+					session.curr_profile.setProperty("src_dir", String.join("|", srcdirs.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
+					Scan scan = new Scan(session.curr_profile, progress, scancache);
 					total += Scan.report.stats.set_create + Scan.report.stats.set_found + Scan.report.stats.set_missing;
 					ok += Scan.report.stats.set_create_complete + Scan.report.stats.set_found_fixcomplete + Scan.report.stats.set_found_ok;
 					dur.add(datlist[j],Scan.report.stats.clone());
-					Scan.report.save();
+					Scan.report.save(session);
 					if (!dryrun)
-						new Fix(Profile.curr_profile, scan, progress);
+						new Fix(session.curr_profile, scan, progress);
 					result.updateResult(row, String.format(Messages.getString("DirUpdater.Result"), ok * 100.0 / total, total - ok, total)); //$NON-NLS-1$
 				}
-				dur.save();
+				dur.save(session);
 			}
 			catch (BreakException e)
 			{
