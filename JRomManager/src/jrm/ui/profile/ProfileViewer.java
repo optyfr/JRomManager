@@ -16,17 +16,54 @@
  */
 package jrm.ui.profile;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TableModelEvent;
@@ -41,13 +78,21 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
-import jrm.misc.GlobalSettings;
 import jrm.profile.Profile;
-import jrm.profile.data.*;
+import jrm.profile.data.Anyware;
+import jrm.profile.data.AnywareList;
+import jrm.profile.data.AnywareListList;
+import jrm.profile.data.AnywareStatus;
+import jrm.profile.data.Device;
+import jrm.profile.data.EntityStatus;
+import jrm.profile.data.Machine;
+import jrm.profile.data.Software;
+import jrm.profile.data.SoftwareList;
 import jrm.profile.manager.Export;
-import jrm.profile.manager.ProfileNFOMame;
 import jrm.profile.manager.Export.ExportType;
+import jrm.profile.manager.ProfileNFOMame;
 import jrm.profile.manager.ProfileNFOMame.MameStatus;
+import jrm.security.Session;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.profile.filter.KeywordFilter;
 import jrm.ui.progress.Progress;
@@ -123,7 +168,7 @@ public class ProfileViewer extends JDialog
 	 * @param owner the owner
 	 * @param profile the profile
 	 */
-	public ProfileViewer(final Window owner, final Profile profile)
+	public ProfileViewer(final Session session, final Window owner, final Profile profile)
 	{
 		super();
 		addWindowListener(new WindowAdapter()
@@ -131,7 +176,7 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void windowClosing(final WindowEvent e)
 			{
-				GlobalSettings.setProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+				session.getUser().settings.setProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 		});
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
@@ -406,30 +451,30 @@ public class ProfileViewer extends JDialog
 
 		final JMenuItem mntmFilteredAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsLogiqxDat);
-		mntmFilteredAsLogiqxDat.addActionListener(e -> export(ExportType.DATAFILE, true, null));
+		mntmFilteredAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, true, null));
 
 		final JMenuItem mntmFilteredAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsMameDat);
-		mntmFilteredAsMameDat.addActionListener(e -> export(ExportType.MAME, true, null));
+		mntmFilteredAsMameDat.addActionListener(e -> export(session, ExportType.MAME, true, null));
 
 		final JMenuItem mntmFilteredAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsSoftwareLists);
-		mntmFilteredAsSoftwareLists.addActionListener(e -> export(ExportType.SOFTWARELIST, true, null));
+		mntmFilteredAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, true, null));
 
 		final JMenuItem mntmAllAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
 		mntmAllAsLogiqxDat.setEnabled(false);
 		mnExportAll.add(mntmAllAsLogiqxDat);
-		mntmAllAsLogiqxDat.addActionListener(e -> export(ExportType.DATAFILE, false, null));
+		mntmAllAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, false, null));
 
 		final JMenuItem mntmAllAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
 		mntmAllAsMameDat.setEnabled(false);
 		mnExportAll.add(mntmAllAsMameDat);
-		mntmAllAsMameDat.addActionListener(e -> export(ExportType.MAME, false, null));
+		mntmAllAsMameDat.addActionListener(e -> export(session, ExportType.MAME, false, null));
 
 		final JMenuItem mntmAllAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
 		mntmAllAsSoftwareLists.setEnabled(false);
 		mnExportAll.add(mntmAllAsSoftwareLists);
-		mntmAllAsSoftwareLists.addActionListener(e -> export(ExportType.SOFTWARELIST, false, null));
+		mntmAllAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, false, null));
 
 		final JMenu mnExportSelected = new JMenu(Messages.getString("ProfileViewer.ExportSelected")); //$NON-NLS-1$
 		popupMenu.add(mnExportSelected);
@@ -439,12 +484,12 @@ public class ProfileViewer extends JDialog
 
 		final JMenuItem mntmSelectedFilteredAsSoftwareList = new JMenuItem(Messages.getString("ProfileViewer.AsSWListDat")); //$NON-NLS-1$
 		mnExportSelectedFiltered.add(mntmSelectedFilteredAsSoftwareList);
-		mntmSelectedFilteredAsSoftwareList.addActionListener(e -> export(ExportType.SOFTWARELIST, true, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
+		mntmSelectedFilteredAsSoftwareList.addActionListener(e -> export(session, ExportType.SOFTWARELIST, true, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
 
 		final JMenuItem mntmSelectedAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
 		mntmSelectedAsSoftwareLists.setEnabled(false);
 		mnExportSelected.add(mntmSelectedAsSoftwareLists);
-		mntmSelectedAsSoftwareLists.addActionListener(e -> export(ExportType.SOFTWARELIST, false, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
+		mntmSelectedAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, false, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
 
 		popupMenu.addPopupMenuListener(new PopupMenuListener()
 		{
@@ -461,15 +506,15 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void popupMenuWillBecomeVisible(final PopupMenuEvent e)
 			{
-				final boolean has_machines = Profile.curr_profile.machinelist_list.getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
-				final boolean has_filtered_machines = Profile.curr_profile.machinelist_list.getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
+				final boolean has_machines = session.curr_profile.machinelist_list.getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
+				final boolean has_filtered_machines = session.curr_profile.machinelist_list.getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
 				final boolean has_selected_swlist = tableWL.getSelectedRowCount() == 1 && tableWL.getModel() instanceof AnywareListList<?> && ((AnywareListList<?>) tableWL.getModel()).getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
 				mntmAllAsMameDat.setEnabled(has_machines);
 				mntmAllAsLogiqxDat.setEnabled(has_machines);
-				mntmAllAsSoftwareLists.setEnabled(Profile.curr_profile.machinelist_list.softwarelist_list.size() > 0);
+				mntmAllAsSoftwareLists.setEnabled(session.curr_profile.machinelist_list.softwarelist_list.size() > 0);
 				mntmFilteredAsMameDat.setEnabled(has_filtered_machines);
 				mntmFilteredAsLogiqxDat.setEnabled(has_filtered_machines);
-				mntmFilteredAsSoftwareLists.setEnabled(Profile.curr_profile.machinelist_list.softwarelist_list.getFilteredStream().count() > 0);
+				mntmFilteredAsSoftwareLists.setEnabled(session.curr_profile.machinelist_list.softwarelist_list.getFilteredStream().count() > 0);
 				mntmSelectedAsSoftwareLists.setEnabled(has_selected_swlist);
 				mntmSelectedFilteredAsSoftwareList.setEnabled(has_selected_swlist);
 			}
@@ -575,9 +620,9 @@ public class ProfileViewer extends JDialog
 							}
 							else if (ware.getStatus() == AnywareStatus.COMPLETE)
 							{
-								if (Profile.curr_profile != null)
+								if (session.curr_profile != null)
 								{
-									final Profile profile = Profile.curr_profile;
+									final Profile profile = session.curr_profile;
 									if (profile.nfo.mame.getStatus() == MameStatus.UPTODATE)
 									{
 										final ProfileNFOMame mame = profile.nfo.mame;
@@ -734,7 +779,7 @@ public class ProfileViewer extends JDialog
 		pack();
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(GlobalSettings.getProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())))))); //$NON-NLS-1$
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(session.getUser().settings.getProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds())))))); //$NON-NLS-1$
 		}
 		catch (final DecoderException e1)
 		{
@@ -750,17 +795,17 @@ public class ProfileViewer extends JDialog
 	 * @param filtered the filtered
 	 * @param selection the selection
 	 */
-	private void export(final ExportType type, final boolean filtered, final SoftwareList selection)
+	private void export(final Session session, final ExportType type, final boolean filtered, final SoftwareList selection)
 	{
 		new Thread(() -> {
 			final FileNameExtensionFilter fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(GlobalSettings.getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
+			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().settings.getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				final Progress progress = new Progress(ProfileViewer.this);
 				progress.setVisible(true);
-				GlobalSettings.setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+				session.getUser().settings.setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				final File selectedfile = chooser.getSelectedFile();
 				final File file = fnef.accept(selectedfile) ? selectedfile : new File(selectedfile.getAbsolutePath() + ".xml"); //$NON-NLS-1$
-				new Export(Profile.curr_profile, file, type, filtered, selection, progress);
+				new Export(session.curr_profile, file, type, filtered, selection, progress);
 				progress.dispose();
 				return null;
 			});

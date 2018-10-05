@@ -22,6 +22,7 @@ import java.nio.file.*;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.profile.data.Container.Type;
+import jrm.security.Session;
 import jrm.profile.data.Entry;
 import jrm.ui.progress.ProgressHandler;
 
@@ -42,7 +43,7 @@ public class BackupEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
 		Path dstpath_crc = dstfs.getPath(entry.crc+'_'+entry.size);
 		Path dstpath = dstfs.getPath(entry.sha1!=null?entry.sha1:(entry.md5!=null?entry.md5:(entry.crc+'_'+entry.size)));
@@ -74,7 +75,7 @@ public class BackupEntry extends EntryAction
 			}
 			else if(entry.parent.getType() == Type.SEVENZIP)
 			{
-				try(Archive srcarchive = new SevenZipArchive(entry.parent.file))
+				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
 				{
 					if(srcarchive.extract(entry.file) != null)
 					{
@@ -94,13 +95,13 @@ public class BackupEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(Archive archive, ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, Archive archive, ProgressHandler handler, int i, int max)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean doAction(Path target, ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, Path target, ProgressHandler handler, int i, int max)
 	{
 		return false;
 	}

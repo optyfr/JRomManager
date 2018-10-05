@@ -29,9 +29,9 @@ import org.apache.commons.io.FilenameUtils;
 
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
-import jrm.profile.Profile;
 import jrm.profile.manager.Dir;
 import jrm.profile.manager.ProfileNFO;
+import jrm.security.Session;
 
 /**
  * The Class FileTableModel.
@@ -57,16 +57,18 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 	
 	/** The rows. */
 	private final List<ProfileNFO> rows = new ArrayList<>();
+	
+	private Session session;
 
 	/**
 	 * Instantiates a new file table model.
 	 *
 	 * @param dir the dir
 	 */
-	public FileTableModel(final Dir dir)
+	public FileTableModel(final Session session, final Dir dir)
 	{
 		super();
-		populate(dir);
+		populate(session, dir);
 	}
 
 	/**
@@ -80,9 +82,9 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 	/**
 	 * Populate.
 	 */
-	public void populate()
+	public void populate(final Session session)
 	{
-		populate(curr_dir);
+		populate(session, curr_dir);
 	}
 
 	/**
@@ -90,8 +92,9 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 	 *
 	 * @param dir the dir
 	 */
-	public void populate(final Dir dir)
+	public void populate(final Session session, final Dir dir)
 	{
+		this.session = session;
 		curr_dir = dir;
 		rows.clear();
 		if(dir != null && dir.getFile().exists())
@@ -103,7 +106,7 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 						return true;
 				return false;
 			})).stream().map(f -> {
-				return ProfileNFO.load(f);
+				return ProfileNFO.load(session, f);
 			}).forEach(pnfo -> {
 				rows.add(pnfo);
 			});
@@ -189,9 +192,9 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 				oldfile.renameTo(newfile);
 			});
 			final File new_nfo_file = new File(curr_dir.getFile(), aValue.toString());
-			if(Profile.curr_profile != null && Profile.curr_profile.nfo.file.equals(pnfo.file))
-				Profile.curr_profile.nfo.relocate(new_nfo_file);
-			pnfo.relocate(new_nfo_file);
+			if(session.curr_profile != null && session.curr_profile.nfo.file.equals(pnfo.file))
+				session.curr_profile.nfo.relocate(session, new_nfo_file);
+			pnfo.relocate(session, new_nfo_file);
 			fireTableCellUpdated(rowIndex, rowIndex);
 		}
 	}

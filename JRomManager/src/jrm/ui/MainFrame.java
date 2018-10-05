@@ -28,15 +28,20 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ResourceBundle;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
-import jrm.misc.GlobalSettings;
-import jrm.profile.Profile;
+import jrm.security.Session;
 import jrm.ui.batch.BatchPanel;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.report.ReportFrame;
@@ -62,25 +67,28 @@ public class MainFrame extends JFrame
 
 	private ProfilePanel profilesPanel;
 
+	
+	private Session session;
 	/**
 	 * Instantiates a new main frame.
 	 */
-	public MainFrame()
+	public MainFrame(Session session)
 	{
 		super();
+		this.session = session;
 		addWindowListener(new WindowAdapter()
 		{
 			@Override
 			public void windowClosing(final WindowEvent e)
 			{
-				GlobalSettings.setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+				session.getUser().settings.setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 		});
 		try
 		{
-			GlobalSettings.loadSettings();
-			UIManager.setLookAndFeel(GlobalSettings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName() */)); //$NON-NLS-1$
-			final File workdir = GlobalSettings.getWorkPath().toFile(); // $NON-NLS-1$
+			session.getUser().settings.loadSettings();
+			UIManager.setLookAndFeel(session.getUser().settings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName() */)); //$NON-NLS-1$
+			final File workdir = session.getUser().settings.getWorkPath().toFile(); // $NON-NLS-1$
 			final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 			xmldir.mkdir();
 			ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
@@ -92,9 +100,9 @@ public class MainFrame extends JFrame
 		}
 		build();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			if (Profile.curr_profile != null)
-				Profile.curr_profile.saveSettings();
-			GlobalSettings.saveSettings();
+			if (session.curr_profile != null)
+				session.curr_profile.saveSettings();
+			session.getUser().settings.saveSettings();
 		}));
 	}
 
@@ -130,7 +138,7 @@ public class MainFrame extends JFrame
 		mainPane = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(mainPane);
 
-		MainFrame.report_frame = new ReportFrame(MainFrame.this);
+		MainFrame.report_frame = new ReportFrame(session, MainFrame.this);
 
 		buildProfileTab();
 
@@ -146,7 +154,7 @@ public class MainFrame extends JFrame
 
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(GlobalSettings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 720, 300))))))); //$NON-NLS-1$
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(session.getUser().settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 720, 300))))))); //$NON-NLS-1$
 		}
 		catch (final DecoderException e1)
 		{
@@ -157,13 +165,13 @@ public class MainFrame extends JFrame
 
 	private void buildProfileTab()
 	{
-		profilesPanel = new ProfilePanel();
+		profilesPanel = new ProfilePanel(session);
 		mainPane.addTab(Messages.getString("MainFrame.Profiles"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script.png")), profilesPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void buildScannerTab()
 	{
-		ScannerPanel scannerPanel = new ScannerPanel();
+		ScannerPanel scannerPanel = new ScannerPanel(session);
 		profilesPanel.setProfileLoader(scannerPanel);
 		scannerPanel.setMainPane(mainPane);
 		mainPane.addTab(Messages.getString("MainFrame.Scanner"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/drive_magnify.png")), scannerPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
@@ -172,20 +180,20 @@ public class MainFrame extends JFrame
 
 	private void buildDir2DatTab()
 	{
-		Dir2DatPanel dir2datPanel = new Dir2DatPanel();
+		Dir2DatPanel dir2datPanel = new Dir2DatPanel(session);
 		mainPane.addTab(Messages.getString("MainFrame.Dir2Dat"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/drive_go.png")), dir2datPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 
 	}
 
 	private void buildBatchToolsTab()
 	{
-		BatchPanel batchToolsPanel = new BatchPanel();
+		BatchPanel batchToolsPanel = new BatchPanel(session);
 		mainPane.addTab(Messages.getString("MainFrame.BatchTools"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_osx_terminal.png")), batchToolsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void buildSettingsTab()
 	{
-		settingsPanel = new SettingsPanel();
+		settingsPanel = new SettingsPanel(session);
 		mainPane.addTab(Messages.getString("MainFrame.Settings"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/cog.png")), settingsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 

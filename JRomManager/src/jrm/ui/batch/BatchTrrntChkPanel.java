@@ -9,9 +9,26 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import javax.swing.*;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TableModelEvent;
@@ -26,11 +43,15 @@ import com.eclipsesource.json.JsonValue;
 import jrm.batch.TorrentChecker;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
-import jrm.misc.GlobalSettings;
+import jrm.security.Session;
 import jrm.ui.MainFrame;
-import jrm.ui.basic.*;
+import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JRMFileChooser.CallBack;
+import jrm.ui.basic.JSDRDropTable;
 import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
+import jrm.ui.basic.ResultColUpdater;
+import jrm.ui.basic.SDRTableModel;
+import jrm.ui.basic.SrcDstResult;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
@@ -47,7 +68,7 @@ public class BatchTrrntChkPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public BatchTrrntChkPanel()
+	public BatchTrrntChkPanel(final Session session)
 	{
 		final GridBagLayout gbl_panelBatchToolsDir2Torrent = new GridBagLayout();
 		gbl_panelBatchToolsDir2Torrent.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0 };
@@ -66,7 +87,7 @@ public class BatchTrrntChkPanel extends JPanel
 		this.add(scrollPane, gbc_scrollPane);
 
 		BatchTableModel model = new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Details", "Selected" });
-		tableTrntChk = new JSDRDropTable(model, files -> GlobalSettings.setProperty("trntchk.sdr", SrcDstResult.toJSON(files)));
+		tableTrntChk = new JSDRDropTable(model, files -> session.getUser().settings.setProperty("trntchk.sdr", SrcDstResult.toJSON(files)));
 		model.setButtonHandler(new TableButtonPressedHandler()
 		{
 			
@@ -93,7 +114,7 @@ public class BatchTrrntChkPanel extends JPanel
 		});
 		((BatchTableModel) tableTrntChk.getModel()).applyColumnsWidths(tableTrntChk);
 		final List<SrcDstResult> sdrl2 = new ArrayList<>();
-		for (final JsonValue arrv : Json.parse(GlobalSettings.getProperty("trntchk.sdr", "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
+		for (final JsonValue arrv : Json.parse(session.getUser().settings.getProperty("trntchk.sdr", "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			final SrcDstResult sdr = new SrcDstResult();
 			final JsonObject jso = arrv.asObject();
@@ -239,9 +260,9 @@ public class BatchTrrntChkPanel extends JPanel
 
 		cbbxTrntChk = new JComboBox<>();
 		cbbxTrntChk.setModel(new DefaultComboBoxModel<>(TrntChkMode.values()));
-		cbbxTrntChk.setSelectedItem(TrntChkMode.valueOf(GlobalSettings.getProperty("trntchk.mode", TrntChkMode.FILENAME.toString()))); //$NON-NLS-1$
+		cbbxTrntChk.setSelectedItem(TrntChkMode.valueOf(session.getUser().settings.getProperty("trntchk.mode", TrntChkMode.FILENAME.toString()))); //$NON-NLS-1$
 		cbbxTrntChk.addActionListener(e -> {
-			GlobalSettings.setProperty("trntchk.mode", cbbxTrntChk.getSelectedItem().toString());
+			session.getUser().settings.setProperty("trntchk.mode", cbbxTrntChk.getSelectedItem().toString());
 			cbRemoveWrongSizedFiles.setEnabled(cbbxTrntChk.getSelectedItem()!=TrntChkMode.FILENAME);
 		});
 		final GridBagConstraints gbc_cbbxTrntChk = new GridBagConstraints();
@@ -255,8 +276,8 @@ public class BatchTrrntChkPanel extends JPanel
 		btnBatchToolsTrntChkStart.addActionListener((e) -> trrntChk());
 
 		chckbxDetectArchivedFolder = new JCheckBox(Messages.getString("BatchTrrntChkPanel.chckbxDetectArchivedFolder.text")); //$NON-NLS-1$
-		chckbxDetectArchivedFolder.addActionListener(e -> GlobalSettings.setProperty("trntchk.detect_archived_folders", chckbxDetectArchivedFolder.isSelected()));
-		chckbxDetectArchivedFolder.setSelected(GlobalSettings.getProperty("trntchk.detect_archived_folders", true)); //$NON-NLS-1$
+		chckbxDetectArchivedFolder.addActionListener(e -> session.getUser().settings.setProperty("trntchk.detect_archived_folders", chckbxDetectArchivedFolder.isSelected()));
+		chckbxDetectArchivedFolder.setSelected(session.getUser().settings.getProperty("trntchk.detect_archived_folders", true)); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxDetectArchivedFolder = new GridBagConstraints();
 		gbc_chckbxDetectArchivedFolder.insets = new Insets(0, 0, 0, 5);
 		gbc_chckbxDetectArchivedFolder.gridx = 2;
@@ -264,8 +285,8 @@ public class BatchTrrntChkPanel extends JPanel
 		add(chckbxDetectArchivedFolder, gbc_chckbxDetectArchivedFolder);
 
 		cbRemoveUnknownFiles = new JCheckBox(Messages.getString("BatchToolsTrrntChkPanel.chckbxRemoveUnknownFiles.text")); //$NON-NLS-1$
-		cbRemoveUnknownFiles.addActionListener(e -> GlobalSettings.setProperty("trntchk.remove_unknown_files", cbRemoveUnknownFiles.isSelected()));
-		cbRemoveUnknownFiles.setSelected(GlobalSettings.getProperty("trntchk.remove_unknown_files", false)); //$NON-NLS-1$
+		cbRemoveUnknownFiles.addActionListener(e -> session.getUser().settings.setProperty("trntchk.remove_unknown_files", cbRemoveUnknownFiles.isSelected()));
+		cbRemoveUnknownFiles.setSelected(session.getUser().settings.getProperty("trntchk.remove_unknown_files", false)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbRemoveUnknownFiles = new GridBagConstraints();
 		gbc_cbRemoveUnknownFiles.insets = new Insets(0, 0, 0, 5);
 		gbc_cbRemoveUnknownFiles.gridx = 3;
@@ -273,8 +294,8 @@ public class BatchTrrntChkPanel extends JPanel
 		add(cbRemoveUnknownFiles, gbc_cbRemoveUnknownFiles);
 
 		cbRemoveWrongSizedFiles = new JCheckBox(Messages.getString("BatchToolsTrrntChkPanel.chckbxRemoveWrongSized.text")); //$NON-NLS-1$
-		cbRemoveWrongSizedFiles.addActionListener(e -> GlobalSettings.setProperty("trntchk.remove_wrong_sized_files", cbRemoveWrongSizedFiles.isSelected()));
-		cbRemoveWrongSizedFiles.setSelected(GlobalSettings.getProperty("trntchk.remove_wrong_sized_files", false)); //$NON-NLS-1$
+		cbRemoveWrongSizedFiles.addActionListener(e -> session.getUser().settings.setProperty("trntchk.remove_wrong_sized_files", cbRemoveWrongSizedFiles.isSelected()));
+		cbRemoveWrongSizedFiles.setSelected(session.getUser().settings.getProperty("trntchk.remove_wrong_sized_files", false)); //$NON-NLS-1$
 		cbRemoveWrongSizedFiles.setEnabled(cbbxTrntChk.getSelectedItem()!=TrntChkMode.FILENAME);
 		GridBagConstraints gbc_cbRemoveWrongSizedFiles = new GridBagConstraints();
 		gbc_cbRemoveWrongSizedFiles.anchor = GridBagConstraints.WEST;

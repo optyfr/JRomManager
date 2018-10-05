@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import jrm.compressors.Archive;
 import jrm.locale.Messages;
 import jrm.profile.data.Entry;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
 /**
@@ -42,7 +43,7 @@ public class DeleteEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
 		Path path = null;
 		try
@@ -60,7 +61,7 @@ public class DeleteEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Path target, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final Path target, final ProgressHandler handler, int i, int max)
 	{
 		Path path = null;
 		try
@@ -78,7 +79,7 @@ public class DeleteEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Archive archive, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final Archive archive, final ProgressHandler handler, int i, int max)
 	{
 		try
 		{

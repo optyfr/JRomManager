@@ -20,7 +20,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +36,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import jrm.misc.FindCmd;
-import jrm.misc.GlobalSettings;
+import jrm.security.Session;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**
@@ -44,6 +50,7 @@ import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
  */
 public class ZipArchive implements Archive
 {
+	private Session session;
 	private File tempDir = null;
 	private File archive;
 	private String cmd;
@@ -55,22 +62,23 @@ public class ZipArchive implements Archive
 
 	private ZipNArchive native_zip = null;
 
-	public ZipArchive(final File archive) throws IOException
+	public ZipArchive(final Session session, final File archive) throws IOException
 	{
-		this(archive, false);
+		this(session, archive, false);
 	}
 
-	public ZipArchive(final File archive, final boolean readonly) throws IOException
+	public ZipArchive(final Session session, final File archive, final boolean readonly) throws IOException
 	{
+		this.session = session;
 		try
 		{
-			native_zip = new ZipNArchive(archive, readonly);
+			native_zip = new ZipNArchive(session, archive, readonly);
 		}
 		catch(final SevenZipNativeInitializationException e)
 		{
 			this.readonly = readonly;
 			this.archive = archive;
-			cmd = GlobalSettings.getProperty("zip_cmd", FindCmd.find7z()); //$NON-NLS-1$
+			cmd = session.getUser().settings.getProperty("zip_cmd", FindCmd.find7z()); //$NON-NLS-1$
 			if(!new File(cmd).exists() && !new File(cmd + ".exe").exists()) //$NON-NLS-1$
 				throw new IOException(cmd + " does not exists"); //$NON-NLS-1$
 			if(null == (this.archive = ZipArchive.archives.get(archive.getAbsolutePath())))
@@ -99,13 +107,13 @@ public class ZipArchive implements Archive
 				if(is_7z)
 				{
 					Collections.addAll(cmd_add, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					Collections.addAll(cmd_add, "-mx=" + GlobalSettings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmd_add, "-mx=" + session.getUser().settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
 					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				else
 				{
 					Collections.addAll(cmd_add, cmd, "-r"); //$NON-NLS-1$
-					Collections.addAll(cmd_add, "-" + GlobalSettings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmd_add, "-" + session.getUser().settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
 					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				final Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
@@ -159,7 +167,7 @@ public class ZipArchive implements Archive
 		final List<String> cmd = new ArrayList<>();
 		if(is_7z)
 		{
-			Collections.addAll(cmd, GlobalSettings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Collections.addAll(cmd, session.getUser().settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if(entry != null && !entry.isEmpty())
 				cmd.add(entry);
 			final ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);

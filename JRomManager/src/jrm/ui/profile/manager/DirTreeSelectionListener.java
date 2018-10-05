@@ -22,6 +22,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
 import jrm.profile.manager.Dir;
+import jrm.security.Session;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -33,13 +34,16 @@ public class DirTreeSelectionListener implements TreeSelectionListener
 	/** The profiles list. */
 	JTable profilesList;
 
+	private Session session;
+	
 	/**
 	 * Instantiates a new dir tree selection listener.
 	 *
 	 * @param profilesList the profiles list
 	 */
-	public DirTreeSelectionListener(final JTable profilesList)
+	public DirTreeSelectionListener(final Session session, final JTable profilesList)
 	{
+		this.session = session;
 		this.profilesList = profilesList;
 	}
 
@@ -50,7 +54,7 @@ public class DirTreeSelectionListener implements TreeSelectionListener
 		final DirNode selectedNode = (DirNode) tree.getLastSelectedPathComponent();
 		if(selectedNode != null)
 		{
-			((FileTableModel) profilesList.getModel()).populate((Dir) selectedNode.getUserObject());
+			((FileTableModel) profilesList.getModel()).populate(session, (Dir) selectedNode.getUserObject());
 			profilesList.getColumn(profilesList.getColumnName(0)).setCellRenderer(new FileTableCellRenderer());
 		}
 	}

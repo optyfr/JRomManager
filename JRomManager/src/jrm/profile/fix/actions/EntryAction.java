@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import jrm.compressors.Archive;
 import jrm.misc.HTMLRenderer;
 import jrm.profile.data.Entry;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
 /**
@@ -57,7 +58,7 @@ abstract public class EntryAction implements HTMLRenderer
 	 * @param max the progression maximum
 	 * @return true if successful, otherwise false
 	 */
-	public abstract boolean doAction(Archive archive, ProgressHandler handler, int i, int max);
+	public abstract boolean doAction(final Session session, Archive archive, ProgressHandler handler, int i, int max);
 
 	/**
 	 * do action on entry on a {@link FileSystem}
@@ -67,7 +68,7 @@ abstract public class EntryAction implements HTMLRenderer
 	 * @param max the progression maximum
 	 * @return true if successful, otherwise false
 	 */
-	public abstract boolean doAction(FileSystem fs, ProgressHandler handler, int i, int max);
+	public abstract boolean doAction(final Session session, FileSystem fs, ProgressHandler handler, int i, int max);
 
 	/**
 	 * 
@@ -77,5 +78,5 @@ abstract public class EntryAction implements HTMLRenderer
 	 * @param max the progression maximum
 	 * @return true if successful, otherwise false
 	 */
-	public abstract boolean doAction(Path target, ProgressHandler handler, int i, int max);
+	public abstract boolean doAction(final Session session, Path target, ProgressHandler handler, int i, int max);
 }

@@ -15,7 +15,7 @@ public class Session
 	/**
 	 * This contain the current loaded profile
 	 */
-	public Profile curr_profile;
+	public Profile curr_profile = null;
 
 	Session()
 	{

@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import jrm.profile.report.Report;
+import jrm.security.Session;
 
 @SuppressWarnings("serial")
 public class ReportLite extends JDialog
@@ -19,7 +20,7 @@ public class ReportLite extends JDialog
 	/**
 	 * Create the dialog.
 	 */
-	public ReportLite(Window parent, File reportFile)
+	public ReportLite(final Session session, Window parent, File reportFile)
 	{
 		super(parent);
 		this.parent = parent;
@@ -60,7 +61,7 @@ public class ReportLite extends JDialog
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				Report report = Report.load(reportFile);
+				Report report = Report.load(session, reportFile);
 				wait.setText("Building tree...");
 				ReportView contentPanel = new ReportView(report);
 				getContentPane().remove(wait);

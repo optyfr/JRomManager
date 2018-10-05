@@ -252,9 +252,10 @@ public final class DirScan
 	 */
 	private DirScan(final Session session, final File dir, final ProgressHandler handler, final HashSet<String> suspicious_crc, EnumSet<Options> options) throws BreakException
 	{
+		this.session = session;
+
 		init7zJBinding();
 
-		this.session = session;
 		this.dir = dir;
 		this.handler = handler;
 		this.suspicious_crc = suspicious_crc;
@@ -674,7 +675,7 @@ public final class DirScan
 		private SevenZipArchive getJInterface() throws IOException
 		{
 			if(jArchive2 == null)
-				jArchive2 = new SevenZipArchive(container.file);
+				jArchive2 = new SevenZipArchive(session, container.file);
 			return jArchive2;
 		}
 

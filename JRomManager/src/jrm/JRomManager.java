@@ -23,7 +23,8 @@ import java.nio.channels.FileLock;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.Log;
-import jrm.misc.GlobalSettings;
+import jrm.security.Session;
+import jrm.security.Sessions;
 import jrm.ui.MainFrame;
 import jupdater.JUpdater;
 
@@ -37,21 +38,23 @@ public final class JRomManager
 {
 	public static void main(final String[] args)
 	{
+		Sessions.single_mode = true;
+		Session session  = Sessions.getSession();
 		for(int i = 0; i < args.length; i++)
 		{
 			switch(args[i])
 			{
 				case "--multiuser":	// will write settings, cache and dat into home directory instead of app directory //$NON-NLS-1$
-					GlobalSettings.multiuser = true;
+					session.multiuser = true;
 					break;
 				case "--noupdate":	// will disable update check //$NON-NLS-1$
-					GlobalSettings.noupdate = true;
+					session.noupdate = true;
 					break;
 			}
 		}
-		if (JRomManager.lockInstance(FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
+		if (JRomManager.lockInstance(session, FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
-			if(!GlobalSettings.noupdate)
+			if(!session.noupdate)
 			{
 				// check for update
 				JUpdater updater = new JUpdater("optyfr","JRomManager"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -59,7 +62,7 @@ public final class JRomManager
 					updater.showMessage();	// Will show changes since your version and a link to updater
 			}
 			// Open main window
-			new MainFrame().setVisible(true);
+			new MainFrame(session).setVisible(true);
 		}
 	}
 
@@ -68,11 +71,11 @@ public final class JRomManager
 	 * @param lockFile the file to lock
 	 * @return true if successful, false otherwise
 	 */
-	private static boolean lockInstance(final String lockFile)
+	private static boolean lockInstance(final Session session, final String lockFile)
 	{
 		try
 		{
-			final File file = new File(GlobalSettings.getWorkPath().toFile(),lockFile);
+			final File file = new File(session.getUser().settings.getWorkPath().toFile(),lockFile);
 			final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw"); //$NON-NLS-1$
 			final FileLock fileLock = randomAccessFile.getChannel().tryLock();
 			if (fileLock != null)

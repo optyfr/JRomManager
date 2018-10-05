@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.zip.CRC32;
 
 import jrm.security.User;
@@ -237,6 +238,39 @@ public class GlobalSettings
 	public File getProfileSettingsFile(final File file)
 	{
 		return getWorkFile(file.getParentFile(), file.getName(), ".properties"); //$NON-NLS-1$
+	}
+
+	/**
+	 * Save settings as XML
+	 * @param file the file from which derive the {@link Properties} file
+	 * @param settings the {@link Properties} to save, can be <code>null</code>
+	 * @return the saved {@link Properties}
+	 * @throws IOException
+	 */
+	public Settings saveProfileSettings(final File file, Settings settings) throws IOException
+	{
+		if (settings == null)
+			settings = new Settings();
+		settings.saveSettings(getProfileSettingsFile(file));
+		return settings;
+	}
+
+	/**
+	 * Load settings
+	 * @param file the file from which derive the {@link Properties} file
+	 * @param settings the {@link Properties} to load, can be <code>null</code>
+	 * @return the loaded {@link Properties}
+	 * @throws IOException
+	 */
+	public Settings loadProfileSettings(File file, Settings settings) throws IOException
+	{
+		if (settings == null)
+			settings = new Settings();
+		if (getProfileSettingsFile(file).exists())
+		{
+			settings.loadSettings(getProfileSettingsFile(file));
+		}
+		return settings;
 	}
 
 

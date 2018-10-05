@@ -21,10 +21,10 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import jrm.locale.Messages;
-import jrm.profile.Profile;
 import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers.NPlayer;
+import jrm.security.Session;
 import jrm.ui.basic.JCheckBoxList;
 import jrm.ui.basic.JCheckBoxTree;
 import jrm.ui.basic.JFileDropMode;
@@ -52,7 +52,7 @@ public class ScannerAdvFilterPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public ScannerAdvFilterPanel()
+	public ScannerAdvFilterPanel(final Session session)
 	{
 		final GridBagLayout gbl_scannerAdvFilters = new GridBagLayout();
 		gbl_scannerAdvFilters.columnWidths = new int[] { 0, 0, 0 };
@@ -62,10 +62,10 @@ public class ScannerAdvFilterPanel extends JPanel
 		this.setLayout(gbl_scannerAdvFilters);
 
 		tfNPlayers = new JFileDropTextField(txt -> {
-			Profile.curr_profile.setProperty("filter.nplayers.ini", txt); //$NON-NLS-1$
-			Profile.curr_profile.loadNPlayers(null);
-			Profile.curr_profile.saveSettings();
-			listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
+			session.curr_profile.setProperty("filter.nplayers.ini", txt); //$NON-NLS-1$
+			session.curr_profile.loadNPlayers(null);
+			session.curr_profile.saveSettings();
+			listNPlayers.setModel(session.curr_profile.nplayers != null ? session.curr_profile.nplayers : new DefaultListModel<>());
 		});
 		tfNPlayers.setMode(JFileDropMode.FILE);
 		tfNPlayers.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropNPlayersIniHere"), Color.gray)); //$NON-NLS-1$
@@ -78,10 +78,10 @@ public class ScannerAdvFilterPanel extends JPanel
 		this.add(tfNPlayers, gbc_tfNPlayers);
 
 		tfCatVer = new JFileDropTextField(txt -> {
-			Profile.curr_profile.setProperty("filter.catver.ini", txt); //$NON-NLS-1$
-			Profile.curr_profile.loadCatVer(null);
-			Profile.curr_profile.saveSettings();
-			treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());
+			session.curr_profile.setProperty("filter.catver.ini", txt); //$NON-NLS-1$
+			session.curr_profile.loadCatVer(null);
+			session.curr_profile.saveSettings();
+			treeCatVer.setModel(session.curr_profile.catver != null ? new CatVerModel(session.curr_profile.catver) : new CatVerModel());
 		});
 		tfCatVer.setMode(JFileDropMode.FILE);
 		tfCatVer.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropCatVerIniHere"), Color.gray)); //$NON-NLS-1$
@@ -109,7 +109,7 @@ public class ScannerAdvFilterPanel extends JPanel
 			public Component getListCellRendererComponent(final JList<? extends NPlayer> list, final NPlayer value, final int index, final boolean isSelected, final boolean cellHasFocus)
 			{
 				final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				checkbox.setSelected(value.isSelected());
+				checkbox.setSelected(value.isSelected(session.curr_profile));
 				return checkbox;
 			}
 		});
@@ -119,9 +119,9 @@ public class ScannerAdvFilterPanel extends JPanel
 				if (e.getFirstIndex() != -1)
 				{
 					for (int index = e.getFirstIndex(); index <= e.getLastIndex() && index < listNPlayers.getModel().getSize(); index++)
-						listNPlayers.getModel().getElementAt(index).setSelected(listNPlayers.isSelectedIndex(index));
+						listNPlayers.getModel().getElementAt(index).setSelected(session.curr_profile, listNPlayers.isSelectedIndex(index));
 					if (MainFrame.profile_viewer != null)
-						MainFrame.profile_viewer.reset(Profile.curr_profile);
+						MainFrame.profile_viewer.reset(session.curr_profile);
 				}
 			}
 		});
@@ -153,9 +153,9 @@ public class ScannerAdvFilterPanel extends JPanel
 
 		treeCatVer = new JCheckBoxTree(new CatVerModel());
 		treeCatVer.addCheckChangeEventListener(event -> {
-			Profile.curr_profile.saveSettings();
+			session.curr_profile.saveSettings();
 			if (MainFrame.profile_viewer != null)
-				MainFrame.profile_viewer.reset(Profile.curr_profile);
+				MainFrame.profile_viewer.reset(session.curr_profile);
 		});
 		treeCatVer.setEnabled(false);
 		scrollPaneCatVer.setViewportView(treeCatVer);
@@ -190,7 +190,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		JMenuItem mntmSelectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
 		mntmSelectMatureCat.addActionListener(e -> {
 			final List<NGTreeNode> mature_nodes = new ArrayList<>();
-			for (final Category cat : Profile.curr_profile.catver)
+			for (final Category cat : session.curr_profile.catver)
 			{
 				if (cat.name.endsWith("* Mature *")) //$NON-NLS-1$
 					mature_nodes.add(cat);
@@ -213,7 +213,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		JMenuItem mntmUnselectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
 		mntmUnselectMatureCat.addActionListener(e -> {
 			final List<NGTreeNode> mature_nodes = new ArrayList<>();
-			for (final Category cat : Profile.curr_profile.catver)
+			for (final Category cat : session.curr_profile.catver)
 			{
 				if (cat.name.endsWith("* Mature *")) //$NON-NLS-1$
 					mature_nodes.add(cat);
@@ -228,11 +228,11 @@ public class ScannerAdvFilterPanel extends JPanel
 
 	}
 
-	public void initProfileSettings()
+	public void initProfileSettings(final Session session)
 	{
-		tfNPlayers.setText(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers.file.getAbsolutePath() : null);
-		listNPlayers.setModel(Profile.curr_profile.nplayers != null ? Profile.curr_profile.nplayers : new DefaultListModel<>());
-		tfCatVer.setText(Profile.curr_profile.catver != null ? Profile.curr_profile.catver.file.getAbsolutePath() : null);
-		treeCatVer.setModel(Profile.curr_profile.catver != null ? new CatVerModel(Profile.curr_profile.catver) : new CatVerModel());		
+		tfNPlayers.setText(session.curr_profile.nplayers != null ? session.curr_profile.nplayers.file.getAbsolutePath() : null);
+		listNPlayers.setModel(session.curr_profile.nplayers != null ? session.curr_profile.nplayers : new DefaultListModel<>());
+		tfCatVer.setText(session.curr_profile.catver != null ? session.curr_profile.catver.file.getAbsolutePath() : null);
+		treeCatVer.setModel(session.curr_profile.catver != null ? new CatVerModel(session.curr_profile.catver) : new CatVerModel());		
 	}
 }

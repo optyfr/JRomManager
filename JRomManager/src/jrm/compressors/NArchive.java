@@ -29,6 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.GlobalSettings;
+import jrm.security.Session;
 import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.OutItemFactory;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
@@ -49,6 +50,7 @@ import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
  */
 abstract class NArchive implements Archive
 {
+	private Session session;
 	private File archive;
 	private File tempDir = null;
 	private final boolean readonly;
@@ -79,9 +81,9 @@ abstract class NArchive implements Archive
 	 * @throws IOException
 	 * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
 	 */
-	public NArchive(final File archive) throws IOException, SevenZipNativeInitializationException
+	public NArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException
 	{
-		this(archive, false);
+		this(session, archive, false);
 		// System.out.println("SevenZipNArchive " + archive);
 	}
 
@@ -92,10 +94,11 @@ abstract class NArchive implements Archive
 	 * @throws IOException
 	 * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
 	 */
-	public NArchive(final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
+	public NArchive(final Session session, final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
 	{
+		this.session = session;
 		if(!SevenZip.isInitializedSuccessfully())
-			SevenZip.initSevenZipFromPlatformJAR(GlobalSettings.getTmpPath(true).toFile());
+			SevenZip.initSevenZipFromPlatformJAR(session.getUser().settings.getTmpPath(true).toFile());
 		ext = FilenameUtils.getExtension(archive.getName());
 		if(archive.exists())
 		{
@@ -419,17 +422,17 @@ abstract class NArchive implements Archive
 		{
 			case SEVEN_ZIP:
 				if(iout instanceof IOutFeatureSetSolid)
-					((IOutFeatureSetSolid) iout).setSolid(GlobalSettings.getProperty("7z_solid", true)); //$NON-NLS-1$
+					((IOutFeatureSetSolid) iout).setSolid(session.getUser().settings.getProperty("7z_solid", true)); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(GlobalSettings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
+					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(session.getUser().settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(GlobalSettings.getProperty("7z_threads", -1)); //$NON-NLS-1$
+					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().settings.getProperty("7z_threads", -1)); //$NON-NLS-1$
 				break;
 			case ZIP:
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(GlobalSettings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
+					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(session.getUser().settings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(GlobalSettings.getProperty("zip_threads", -1)); //$NON-NLS-1$
+					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().settings.getProperty("zip_threads", -1)); //$NON-NLS-1$
 			default:
 				break;
 		}

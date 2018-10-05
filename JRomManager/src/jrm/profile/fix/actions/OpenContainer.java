@@ -95,7 +95,7 @@ public class OpenContainer extends ContainerAction
 					for (final EntryAction action : entry_actions)
 					{
 						i++;
-						if (!action.doAction(fs, handler, i, entry_actions.size()))
+						if (!action.doAction(session, fs, handler, i, entry_actions.size()))
 						{
 							System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							return false;
@@ -111,13 +111,13 @@ public class OpenContainer extends ContainerAction
 			}
 			else if (format == FormatOptions.ZIPE)
 			{
-				try (Archive archive = new ZipArchive(container.file))
+				try (Archive archive = new ZipArchive(session, container.file))
 				{
 					int i = 0;
 					for (final EntryAction action : entry_actions)
 					{
 						i++;
-						if (!action.doAction(archive, handler, i, entry_actions.size()))
+						if (!action.doAction(session, archive, handler, i, entry_actions.size()))
 						{
 							System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							return false;
@@ -133,13 +133,13 @@ public class OpenContainer extends ContainerAction
 		}
 		else if (container.getType() == Container.Type.SEVENZIP)
 		{
-			try (Archive archive = new SevenZipArchive(container.file))
+			try (Archive archive = new SevenZipArchive(session, container.file))
 			{
 				int i = 0;
 				for (final EntryAction action : entry_actions)
 				{
 					i++;
-					if (!action.doAction(archive, handler, i, entry_actions.size()))
+					if (!action.doAction(session, archive, handler, i, entry_actions.size()))
 					{
 						System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
@@ -159,7 +159,7 @@ public class OpenContainer extends ContainerAction
 			for (final EntryAction action : entry_actions)
 			{
 				i++;
-				if (!action.doAction(target, handler, i, entry_actions.size()))
+				if (!action.doAction(session, target, handler, i, entry_actions.size()))
 				{
 					System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					return false;

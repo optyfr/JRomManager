@@ -8,6 +8,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
 import jrm.locale.Messages;
+import jrm.security.Session;
 
 @SuppressWarnings("serial")
 public class SettingsPanel extends JPanel
@@ -20,27 +21,27 @@ public class SettingsPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public SettingsPanel()
+	public SettingsPanel(final Session session)
 	{
 		this.setLayout(new BorderLayout(0, 0));
 
 		settingsPane = new JTabbedPane(SwingConstants.TOP);
 		this.add(settingsPane);
 
-		buildSettingsCompressorsTab();
-		buildSettingsDebugTab();
+		buildSettingsCompressorsTab(session);
+		buildSettingsDebugTab(session);
 	}
 
 	/**
 	 * 
 	 */
-	private void buildSettingsCompressorsTab()
+	private void buildSettingsCompressorsTab(final Session session)
 	{
-		SettingsCompressorsPanel compressors = new SettingsCompressorsPanel();
+		SettingsCompressorsPanel compressors = new SettingsCompressorsPanel(session);
 		settingsPane.addTab(Messages.getString("MainFrame.Compressors"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/compress.png")), compressors, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private void buildSettingsDebugTab()
+	private void buildSettingsDebugTab(final Session session)
 	{
 		SettingsDbgPanel debug = new SettingsDbgPanel();
 		settingsPane.addTab(Messages.getString("MainFrame.Debug"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bug.png")), debug, null); //$NON-NLS-1$ //$NON-NLS-2$

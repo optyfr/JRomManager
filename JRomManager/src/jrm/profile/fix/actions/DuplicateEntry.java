@@ -24,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import jrm.compressors.Archive;
 import jrm.locale.Messages;
 import jrm.profile.data.Entry;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
 /**
@@ -50,7 +51,7 @@ public class DuplicateEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final FileSystem fs, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final FileSystem fs, final ProgressHandler handler, int i, int max)
 	{
 		final Path dstpath = fs.getPath(newname);
 		try
@@ -72,7 +73,7 @@ public class DuplicateEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Path target, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final Path target, final ProgressHandler handler, int i, int max)
 	{
 		Path dstpath = null;
 		try
@@ -97,7 +98,7 @@ public class DuplicateEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Archive archive, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final Archive archive, final ProgressHandler handler, int i, int max)
 	{
 		try
 		{

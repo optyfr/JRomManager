@@ -33,7 +33,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 			File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 			if(request.data.containsKey("Path"))
 				dir = new File(request.data.get("Path"));
-			FileTableModel model = new FileTableModel(new Dir(dir));
+			FileTableModel model = new FileTableModel(request.session, new Dir(dir));
 			XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
 			XMLStreamWriter writer = new EnhancedXMLStreamWriter(outputFactory.createXMLStreamWriter(out));
 			writer.writeStartDocument("utf-8", "1.0");

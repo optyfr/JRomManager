@@ -32,7 +32,7 @@ import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.locale.Messages;
 import jrm.misc.FindCmd;
-import jrm.misc.GlobalSettings;
+import jrm.security.Session;
 import jrm.ui.basic.JFileDropMode;
 import jrm.ui.basic.JFileDropTextField;
 import jrm.ui.basic.JTextFieldHintUI;
@@ -70,7 +70,7 @@ public class SettingsCompressorsPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public SettingsCompressorsPanel()
+	public SettingsCompressorsPanel(final Session session)
 	{
 		this.setLayout(new BorderLayout(0, 0));
 
@@ -97,13 +97,13 @@ public class SettingsCompressorsPanel extends JPanel
 
 		cbbxZipTempThreshold = new JComboBox<>();
 		cbbxZipTempThreshold.setModel(new DefaultComboBoxModel<>(ZipTempThreshold.values()));
-		cbbxZipTempThreshold.setSelectedItem(ZipTempThreshold.valueOf(GlobalSettings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString()))); //$NON-NLS-1$
+		cbbxZipTempThreshold.setSelectedItem(ZipTempThreshold.valueOf(session.getUser().settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString()))); //$NON-NLS-1$
 		cbbxZipTempThreshold.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				GlobalSettings.setProperty("zip_temp_threshold", cbbxZipTempThreshold.getSelectedItem().toString()); //$NON-NLS-1$
+				session.getUser().settings.setProperty("zip_temp_threshold", cbbxZipTempThreshold.getSelectedItem().toString()); //$NON-NLS-1$
 			}
 		});
 		cbbxZipTempThreshold.setRenderer(new DefaultListCellRenderer()
@@ -134,13 +134,13 @@ public class SettingsCompressorsPanel extends JPanel
 
 		cbbxZipLevel = new JComboBox<>();
 		cbbxZipLevel.setModel(new DefaultComboBoxModel<>(ZipLevel.values()));
-		cbbxZipLevel.setSelectedItem(ZipLevel.valueOf(GlobalSettings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString()))); //$NON-NLS-1$
+		cbbxZipLevel.setSelectedItem(ZipLevel.valueOf(session.getUser().settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString()))); //$NON-NLS-1$
 		cbbxZipLevel.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				GlobalSettings.setProperty("zip_compression_level", cbbxZipLevel.getSelectedItem().toString()); //$NON-NLS-1$
+				session.getUser().settings.setProperty("zip_compression_level", cbbxZipLevel.getSelectedItem().toString()); //$NON-NLS-1$
 			}
 		});
 		cbbxZipLevel.setRenderer(new DefaultListCellRenderer()
@@ -177,10 +177,10 @@ public class SettingsCompressorsPanel extends JPanel
 		gbc_lblZipECmd.gridy = 1;
 		panelZipE.add(lblZipECmd, gbc_lblZipECmd);
 
-		tfZipECmd = new JFileDropTextField(txt -> GlobalSettings.setProperty("zip_cmd", txt));//$NON-NLS-1$
+		tfZipECmd = new JFileDropTextField(txt -> session.getUser().settings.setProperty("zip_cmd", txt));//$NON-NLS-1$
 		tfZipECmd.setMode(JFileDropMode.FILE);
 		tfZipECmd.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
-		tfZipECmd.setText(GlobalSettings.getProperty("zip_cmd", FindCmd.find7z())); //$NON-NLS-1$
+		tfZipECmd.setText(session.getUser().settings.getProperty("zip_cmd", FindCmd.find7z())); //$NON-NLS-1$
 		final GridBagConstraints gbc_tfZipECmd = new GridBagConstraints();
 		gbc_tfZipECmd.insets = new Insets(0, 0, 5, 0);
 		gbc_tfZipECmd.fill = GridBagConstraints.BOTH;
@@ -219,8 +219,8 @@ public class SettingsCompressorsPanel extends JPanel
 				return this;
 			}
 		});
-		cbZipEArgs.addActionListener(arg0 -> GlobalSettings.setProperty("zip_level", cbZipEArgs.getSelectedItem().toString())); //$NON-NLS-1$
-		cbZipEArgs.setSelectedItem(ZipOptions.valueOf(GlobalSettings.getProperty("zip_level", ZipOptions.NORMAL.toString()))); //$NON-NLS-1$
+		cbZipEArgs.addActionListener(arg0 -> session.getUser().settings.setProperty("zip_level", cbZipEArgs.getSelectedItem().toString())); //$NON-NLS-1$
+		cbZipEArgs.setSelectedItem(ZipOptions.valueOf(session.getUser().settings.getProperty("zip_level", ZipOptions.NORMAL.toString()))); //$NON-NLS-1$
 		final GridBagConstraints gbc_cbZipEArgs = new GridBagConstraints();
 		gbc_cbZipEArgs.insets = new Insets(0, 0, 5, 5);
 		gbc_cbZipEArgs.gridwidth = 2;
@@ -278,10 +278,10 @@ public class SettingsCompressorsPanel extends JPanel
 		gbc_lbl7zCmd.gridy = 1;
 		panel7Zip.add(lbl7zCmd, gbc_lbl7zCmd);
 
-		tf7zCmd = new JFileDropTextField(txt -> GlobalSettings.setProperty("7z_cmd", txt)); //$NON-NLS-1$
+		tf7zCmd = new JFileDropTextField(txt -> session.getUser().settings.setProperty("7z_cmd", txt)); //$NON-NLS-1$
 		tf7zCmd.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tf7zCmd.setMode(JFileDropMode.FILE);
-		tf7zCmd.setText(GlobalSettings.getProperty("7z_cmd", FindCmd.find7z())); //$NON-NLS-1$
+		tf7zCmd.setText(session.getUser().settings.getProperty("7z_cmd", FindCmd.find7z())); //$NON-NLS-1$
 		tf7zCmd.setColumns(30);
 		final GridBagConstraints gbc_tf7zCmd = new GridBagConstraints();
 		gbc_tf7zCmd.gridwidth = 2;
@@ -309,7 +309,7 @@ public class SettingsCompressorsPanel extends JPanel
 		panel7Zip.add(lbl7zArgs, gbc_lbl7zArgs);
 
 		cb7zArgs = new JComboBox<>();
-		cb7zArgs.addActionListener(arg0 -> GlobalSettings.setProperty("7z_level", cb7zArgs.getSelectedItem().toString())); //$NON-NLS-1$
+		cb7zArgs.addActionListener(arg0 -> session.getUser().settings.setProperty("7z_level", cb7zArgs.getSelectedItem().toString())); //$NON-NLS-1$
 		cb7zArgs.setEditable(false);
 		cb7zArgs.setModel(new DefaultComboBoxModel<>(SevenZipOptions.values()));
 		cb7zArgs.setRenderer(new DefaultListCellRenderer()
@@ -322,7 +322,7 @@ public class SettingsCompressorsPanel extends JPanel
 				return this;
 			}
 		});
-		cb7zArgs.setSelectedItem(SevenZipOptions.valueOf(GlobalSettings.getProperty("7z_level", SevenZipOptions.NORMAL.toString()))); //$NON-NLS-1$
+		cb7zArgs.setSelectedItem(SevenZipOptions.valueOf(session.getUser().settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString()))); //$NON-NLS-1$
 		final GridBagConstraints gbc_cb7zArgs = new GridBagConstraints();
 		gbc_cb7zArgs.fill = GridBagConstraints.BOTH;
 		gbc_cb7zArgs.gridwidth = 3;
@@ -340,16 +340,16 @@ public class SettingsCompressorsPanel extends JPanel
 		panel7Zip.add(lbl7zThreads, gbc_lbl7zThreads);
 
 		tf7zThreads = new JTextField();
-		tf7zThreads.setText(Integer.toString(GlobalSettings.getProperty("7z_threads", -1))); //$NON-NLS-1$
+		tf7zThreads.setText(Integer.toString(session.getUser().settings.getProperty("7z_threads", -1))); //$NON-NLS-1$
 		tf7zThreads.addFocusListener(new FocusAdapter()
 		{
 			@Override
 			public void focusLost(final FocusEvent e)
 			{
-				GlobalSettings.setProperty("7z_threads", tf7zThreads.getText()); //$NON-NLS-1$
+				session.getUser().settings.setProperty("7z_threads", tf7zThreads.getText()); //$NON-NLS-1$
 			}
 		});
-		tf7zThreads.addActionListener(arg0 -> GlobalSettings.setProperty("7z_threads", tf7zThreads.getText())); //$NON-NLS-1$
+		tf7zThreads.addActionListener(arg0 -> session.getUser().settings.setProperty("7z_threads", tf7zThreads.getText())); //$NON-NLS-1$
 		final GridBagConstraints gbc_tf7zThreads = new GridBagConstraints();
 		gbc_tf7zThreads.fill = GridBagConstraints.VERTICAL;
 		gbc_tf7zThreads.anchor = GridBagConstraints.WEST;
@@ -360,11 +360,11 @@ public class SettingsCompressorsPanel extends JPanel
 		tf7zThreads.setColumns(4);
 
 		ckbx7zSolid = new JCheckBox(Messages.getString("MainFrame.ckbx7zSolid.text")); //$NON-NLS-1$
-		ckbx7zSolid.setSelected(GlobalSettings.getProperty("7z_solid", true)); //$NON-NLS-1$
+		ckbx7zSolid.setSelected(session.getUser().settings.getProperty("7z_solid", true)); //$NON-NLS-1$
 		cb7zArgs.setEnabled(ckbx7zSolid.isSelected());
 		ckbx7zSolid.addActionListener(arg0 -> {
 			cb7zArgs.setEnabled(ckbx7zSolid.isSelected());
-			GlobalSettings.setProperty("7z_solid", ckbx7zSolid.isSelected()); //$NON-NLS-1$
+			session.getUser().settings.setProperty("7z_solid", ckbx7zSolid.isSelected()); //$NON-NLS-1$
 		});
 		final GridBagConstraints gbc_ckbx7zSolid = new GridBagConstraints();
 		gbc_ckbx7zSolid.insets = new Insets(0, 0, 5, 5);

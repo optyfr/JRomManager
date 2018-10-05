@@ -19,6 +19,7 @@ package jrm.compressors;
 import java.io.File;
 import java.io.IOException;
 
+import jrm.security.Session;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**
@@ -28,14 +29,14 @@ import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 class SevenZipNArchive extends NArchive
 {
 
-	public SevenZipNArchive(final File archive) throws IOException, SevenZipNativeInitializationException
+	public SevenZipNArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException
 	{
-		super(archive);
+		super(session, archive);
 	}
 
-	public SevenZipNArchive(final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
+	public SevenZipNArchive(final Session session, final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
 	{
-		super(archive, readonly);
+		super(session, archive, readonly);
 	}
 
 }

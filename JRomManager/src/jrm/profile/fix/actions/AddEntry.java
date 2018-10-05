@@ -27,6 +27,7 @@ import jrm.profile.data.Container.Type;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 import jrm.profile.data.Rom;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
 /**
@@ -52,7 +53,7 @@ public class AddEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final FileSystem dstfs, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
 		final Path dstpath = dstfs.getPath(entity.getName());
 		handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
@@ -79,7 +80,7 @@ public class AddEntry extends EntryAction
 			}
 			else if(entry.parent.getType() == Type.SEVENZIP)
 			{
-				try(Archive srcarchive = new SevenZipArchive(entry.parent.file))
+				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
 				{
 					if(srcarchive.extract(entry.file) != null)
 					{
@@ -99,7 +100,7 @@ public class AddEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Path target, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final Path target, final ProgressHandler handler, int i, int max)
 	{
 		final Path dstpath = target.resolve(entity.getName());
 		handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
@@ -125,7 +126,7 @@ public class AddEntry extends EntryAction
 			else if(entry.parent.getType() == Type.SEVENZIP)
 			{
 
-				try(Archive srcarchive = new SevenZipArchive(entry.parent.file))
+				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
 				{
 					if(srcarchive.extract(entry.file) != null)
 					{
@@ -161,7 +162,7 @@ public class AddEntry extends EntryAction
 	}
 
 	@Override
-	public boolean doAction(final Archive archive, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final Archive archive, final ProgressHandler handler, int i, int max)
 	{
 		handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		if(entry.parent.getType() == Type.ZIP)
@@ -177,7 +178,7 @@ public class AddEntry extends EntryAction
 		}
 		else if(entry.parent.getType() == Type.SEVENZIP)
 		{
-			try(Archive srcarchive = new SevenZipArchive(entry.parent.file))
+			try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
 			{
 				if(srcarchive.extract(entry.file) != null)
 					return archive.add(srcarchive.getTempDir(), entry.file) == 0;

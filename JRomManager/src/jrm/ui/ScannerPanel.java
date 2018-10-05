@@ -22,6 +22,7 @@ import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
+import jrm.security.Session;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.progress.Progress;
 
@@ -56,7 +57,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	/**
 	 * Create the panel.
 	 */
-	public ScannerPanel()
+	public ScannerPanel(final Session session)
 	{
 		final GridBagLayout gbl_scannerTab = new GridBagLayout();
 		gbl_scannerTab.columnWidths = new int[] { 104, 0 };
@@ -76,7 +77,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		JButton btnInfo = new JButton(Messages.getString("MainFrame.btnInfo.text")); //$NON-NLS-1$
 		btnInfo.addActionListener(e -> {
 			if (MainFrame.profile_viewer == null)
-				MainFrame.profile_viewer = new ProfileViewer(SwingUtilities.getWindowAncestor(this), Profile.curr_profile);
+				MainFrame.profile_viewer = new ProfileViewer(session, SwingUtilities.getWindowAncestor(this), session.curr_profile);
 			MainFrame.profile_viewer.setVisible(true);
 		});
 		btnInfo.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/information.png"))); //$NON-NLS-1$
@@ -95,9 +96,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		btnFix = new JButton(Messages.getString("MainFrame.btnFix.text")); //$NON-NLS-1$
 		btnFix.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/tick.png"))); //$NON-NLS-1$
 		scannerBtnPanel.add(btnFix);
-		btnFix.addActionListener(e -> fix());
+		btnFix.addActionListener(e -> fix(session));
 		btnFix.setEnabled(false);
-		btnScan.addActionListener(e -> scan());
+		btnScan.addActionListener(e -> scan(session));
 
 		scannerTabbedPane = new JTabbedPane(SwingConstants.TOP);
 		final GridBagConstraints gbc_scannerTabbedPane = new GridBagConstraints();
@@ -106,10 +107,10 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		gbc_scannerTabbedPane.gridy = 1;
 		this.add(scannerTabbedPane, gbc_scannerTabbedPane);
 
-		buildScannerDirTab();
-		buildScannerSettingsTab();
-		buildScannerFiltersTab();
-		buildScannerAdvFiltersTab();
+		buildScannerDirTab(session);
+		buildScannerSettingsTab(session);
+		buildScannerFiltersTab(session);
+		buildScannerAdvFiltersTab(session);
 
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
 		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -123,29 +124,29 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 
 	}
 
-	private void buildScannerDirTab()
+	private void buildScannerDirTab(final Session session)
 	{
-		scannerDirPanel = new ScannerDirPanel();
+		scannerDirPanel = new ScannerDirPanel(session);
 		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerDirectories.title"), null, scannerDirPanel, null); //$NON-NLS-1$
 	}
 
-	private void buildScannerSettingsTab()
+	private void buildScannerSettingsTab(final Session session)
 	{
 		scannerSettingsPanel = new ScannerSettingsPanel();
 		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), null, scannerSettingsPanel, null); //$NON-NLS-1$
 
 	}
 
-	private void buildScannerFiltersTab()
+	private void buildScannerFiltersTab(final Session session)
 	{
-		scannerFilters = new ScannerFiltersPanel();
+		scannerFilters = new ScannerFiltersPanel(session);
 		scannerTabbedPane.addTab(Messages.getString("MainFrame.Filters"), null, scannerFilters, null); //$NON-NLS-1$
 
 	}
 
-	private void buildScannerAdvFiltersTab()
+	private void buildScannerAdvFiltersTab(final Session session)
 	{
-		scannerAdvFilters = new ScannerAdvFilterPanel();
+		scannerAdvFilters = new ScannerAdvFilterPanel(session);
 		scannerTabbedPane.addTab(Messages.getString("MainFrame.AdvFilters"), null, scannerAdvFilters, null); //$NON-NLS-1$
 
 	}
@@ -153,7 +154,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	/**
 	 * Scan.
 	 */
-	private void scan()
+	private void scan(final Session session)
 	{
 		String txtdstdir = scannerDirPanel.txtRomsDest.getText();
 		if (txtdstdir.isEmpty())
@@ -171,7 +172,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				curr_scan = new Scan(Profile.curr_profile, progress);
+				curr_scan = new Scan(session.curr_profile, progress);
 				btnFix.setEnabled(curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
 				return null;
 			}
@@ -190,7 +191,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	/**
 	 * Fix.
 	 */
-	private void fix()
+	private void fix(final Session session)
 	{
 		final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
 		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
@@ -199,12 +200,12 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				if (Profile.curr_profile.hasPropsChanged())
+				if (session.curr_profile.hasPropsChanged())
 				{
 					switch (JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), Messages.getString("MainFrame.WarnSettingsChanged"), Messages.getString("MainFrame.RescanBeforeFix"), JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						case JOptionPane.YES_OPTION:
-							curr_scan = new Scan(Profile.curr_profile, progress);
+							curr_scan = new Scan(session.curr_profile, progress);
 							btnFix.setEnabled(curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
 							if (!btnFix.isEnabled())
 								return null;
@@ -216,7 +217,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 							return null;
 					}
 				}
-				final Fix fix = new Fix(Profile.curr_profile, curr_scan, progress);
+				final Fix fix = new Fix(session.curr_profile, curr_scan, progress);
 				btnFix.setEnabled(fix.getActionsRemain() > 0);
 				return null;
 			}
@@ -235,12 +236,12 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	/**
 	 * Inits the scan settings.
 	 */
-	public void initProfileSettings()
+	public void initProfileSettings(final Session session)
 	{
-		scannerSettingsPanel.initProfileSettings(Profile.curr_profile.settings);
-		scannerDirPanel.initProfileSettings();
-		scannerFilters.initProfileSettings();
-		scannerAdvFilters.initProfileSettings();
+		scannerSettingsPanel.initProfileSettings(session.curr_profile.settings);
+		scannerDirPanel.initProfileSettings(session);
+		scannerFilters.initProfileSettings(session);
+		scannerAdvFilters.initProfileSettings(session);
 	}
 
 	/**
@@ -249,10 +250,10 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	 * @param profile
 	 *            the profile
 	 */
-	public void loadProfile(final ProfileNFO profile)
+	public void loadProfile(final Session session, final ProfileNFO profile)
 	{
-		if (Profile.curr_profile != null)
-			Profile.curr_profile.saveSettings();
+		if (session.curr_profile != null)
+			session.curr_profile.saveSettings();
 		final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
 		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
 		{
@@ -263,24 +264,24 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			{
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.clear();
-				success = (null != (Profile.curr_profile = Profile.load(profile, progress)));
-				Scan.report.setProfile(Profile.curr_profile);
+				success = (null != (Profile.load(session, profile, progress)));
+				Scan.report.setProfile(session.curr_profile);
 				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reset(Profile.curr_profile);
+					MainFrame.profile_viewer.reset(session.curr_profile);
 				mainPane.setEnabledAt(1, success);
 				btnScan.setEnabled(success);
 				btnFix.setEnabled(false);
-				lblProfileinfo.setText(Profile.curr_profile.getName());
-				scannerFilters.checkBoxListSystems.setModel(Profile.curr_profile.systems);
+				lblProfileinfo.setText(session.curr_profile.getName());
+				scannerFilters.checkBoxListSystems.setModel(session.curr_profile.systems);
 				return null;
 			}
 
 			@Override
 			protected void done()
 			{
-				if (success && Profile.curr_profile != null)
+				if (success && session.curr_profile != null)
 				{
-					initProfileSettings();
+					initProfileSettings(session);
 					mainPane.setSelectedIndex(1);
 				}
 			}

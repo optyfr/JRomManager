@@ -13,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 import jrm.batch.DirUpdaterResults;
+import jrm.security.Session;
 
 @SuppressWarnings("serial")
 public class BatchDirUpd8rResultsDialog extends JDialog
@@ -22,7 +23,7 @@ public class BatchDirUpd8rResultsDialog extends JDialog
 	/**
 	 * Create the dialog.
 	 */
-	public BatchDirUpd8rResultsDialog(Window parent, DirUpdaterResults results)
+	public BatchDirUpd8rResultsDialog(final Session session, Window parent, DirUpdaterResults results)
 	{
 		super(parent);
 		this.parent = parent;
@@ -32,7 +33,7 @@ public class BatchDirUpd8rResultsDialog extends JDialog
 		parent.setEnabled(false);
 		setBounds(100, 100, 455, 410);
 		getContentPane().setLayout(new BorderLayout());
-		JScrollPane contentPanel = new BatchDirUpdResultsView(results);
+		JScrollPane contentPanel = new BatchDirUpdResultsView(session, results);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		{

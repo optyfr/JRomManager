@@ -1098,7 +1098,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			settings = saveSettings(nfo.file, settings);
+			settings = session.getUser().settings.saveProfileSettings(nfo.file, settings);
 			nfo.save(session);
 		}
 		catch (final IOException e)
@@ -1108,28 +1108,13 @@ public class Profile implements Serializable
 	}
 	
 	/**
-	 * Save settings as XML
-	 * @param file the file from which derive the {@link Properties} file
-	 * @param settings the {@link Properties} to save, can be <code>null</code>
-	 * @return the saved {@link Properties}
-	 * @throws IOException
-	 */
-	public Settings saveSettings(final File file, Settings settings) throws IOException
-	{
-		if (settings == null)
-			settings = new Settings();
-		settings.saveSettings(session.getUser().settings.getProfileSettingsFile(file));
-		return settings;
-	}
-
-	/**
 	 * Load settings from XML settings file
 	 */
 	public void loadSettings()
 	{
 		try
 		{
-			settings = loadSettings(nfo.file, settings);
+			settings = session.getUser().settings.loadProfileSettings(nfo.file, settings);
 		}
 		catch (final IOException e)
 		{
@@ -1137,24 +1122,6 @@ public class Profile implements Serializable
 		}
 	}
 	
-	/**
-	 * Load settings
-	 * @param file the file from which derive the {@link Properties} file
-	 * @param settings the {@link Properties} to load, can be <code>null</code>
-	 * @return the loaded {@link Properties}
-	 * @throws IOException
-	 */
-	public Settings loadSettings(File file, Settings settings) throws IOException
-	{
-		if (settings == null)
-			settings = new Settings();
-		if (session.getUser().settings.getProfileSettingsFile(file).exists())
-		{
-			settings.loadSettings(session.getUser().settings.getProfileSettingsFile(file));
-		}
-		return settings;
-	}
-
 	/**
 	 * Set a boolean property
 	 * @param property the property name

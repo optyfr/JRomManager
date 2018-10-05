@@ -16,7 +16,14 @@
  */
 package jrm.ui.profile.report;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -30,8 +37,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
-import jrm.misc.GlobalSettings;
 import jrm.profile.scan.Scan;
+import jrm.security.Session;
 import jrm.ui.progress.StatusHandler;
 
 // TODO: Auto-generated Javadoc
@@ -53,14 +60,14 @@ public class ReportFrame extends JDialog implements StatusHandler
 	 * @param owner the owner
 	 * @throws HeadlessException the headless exception
 	 */
-	public ReportFrame(final Window owner) throws HeadlessException
+	public ReportFrame(final Session session, final Window owner) throws HeadlessException
 	{
 		super(); //$NON-NLS-1$
 		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent e) {
-				GlobalSettings.setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+				session.getUser().settings.setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 		});
 		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
@@ -97,7 +104,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(GlobalSettings.getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10,10,800,600))))))); //$NON-NLS-1$
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(session.getUser().settings.getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10,10,800,600))))))); //$NON-NLS-1$
 		}
 		catch(final DecoderException e1)
 		{

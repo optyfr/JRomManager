@@ -29,12 +29,12 @@
 		<link>
 			<name>JUpdater-src</name>
 			<type>2</type>
-			<location>E:/Src/Java/JRomManager/JUpdater/src</location>
+			<location>D:/Git/JRomManager/JUpdater/src</location>
 		</link>
 		<link>
 			<name>Jtrrntzip-src</name>
 			<type>2</type>
-			<location>E:/Src/Java/JRomManager/Jtrrntzip/src</location>
+			<location>D:/Git/JRomManager/Jtrrntzip/src</location>
 		</link>
 	</linkedResources>
 	<variableList>

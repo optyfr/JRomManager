@@ -9,6 +9,7 @@ import javax.swing.table.TableCellRenderer;
 
 import jrm.batch.DirUpdaterResults;
 import jrm.batch.DirUpdaterResults.DirUpdaterResult;
+import jrm.security.Session;
 import jrm.ui.basic.EnhTableModel;
 import jrm.ui.basic.JTableButton;
 import jrm.ui.profile.report.ReportLite;
@@ -21,7 +22,7 @@ public class BatchDirUpdResultsView extends JScrollPane
 	/**
 	 * Create the panel.
 	 */
-	public BatchDirUpdResultsView(DirUpdaterResults results)
+	public BatchDirUpdResultsView(final Session session, DirUpdaterResults results)
 	{
 		table = new JTable();
 		setViewportView(table);
@@ -33,7 +34,7 @@ public class BatchDirUpdResultsView extends JScrollPane
 					
 					@Override
 					public void onButtonPress(int row, int column) {
-						new ReportLite(SwingUtilities.getWindowAncestor(BatchDirUpdResultsView.this),results.results.get(row).dat);
+						new ReportLite(session, SwingUtilities.getWindowAncestor(BatchDirUpdResultsView.this),results.results.get(row).dat);
 					}
 				});
 			}

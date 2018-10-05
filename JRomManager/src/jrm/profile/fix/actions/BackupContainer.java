@@ -129,7 +129,7 @@ public class BackupContainer extends ContainerAction
 				final FileSystem fs = getFS(session, container, action);
 				synchronized (fs)
 				{
-					if (!action.doAction(fs, handler, i, entry_actions.size()))
+					if (!action.doAction(session, fs, handler, i, entry_actions.size()))
 					{
 						System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
