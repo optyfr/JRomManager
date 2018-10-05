@@ -20,10 +20,12 @@ import jrm.server.SessionStub;
 public class WebSckt extends WebSocket implements SessionStub
 {
 	public final static Map<String, WebSckt> sockets = new HashMap<>();
+	private Server server;
 	
-	public WebSckt(IHTTPSession handshakeRequest)
+	public WebSckt(Server server, IHTTPSession handshakeRequest)
 	{
 		super(handshakeRequest);
+		this.server = server;
 		setSession(Server.getSession(handshakeRequest.getCookies().read("session")));
 		System.out.println("websocket created for session "+getSession()+"......");
 	}
@@ -36,7 +38,6 @@ public class WebSckt extends WebSocket implements SessionStub
 	@Override
 	protected void onPong(WebSocketFrame pongFrame)
 	{
-
 	}
 
 	@Override
@@ -51,8 +52,9 @@ public class WebSckt extends WebSocket implements SessionStub
 				{
 					case "Profile.load":
 					{
-						JsonObject params = jso.get("params").asObject();
-						Profile.load(session, new File(params.getString("path", null)), new ProgressWS(this));
+						ProgressWS progress = new ProgressWS(this);
+						Profile.load(session, new File(jso.get("params").asObject().getString("path", null)), progress);
+						progress.close();
 						break;
 					}
 					default:
@@ -86,14 +88,6 @@ public class WebSckt extends WebSocket implements SessionStub
 	{
 		System.out.println("websocket opened......");
 		//TODO need to send prefs
-/*		try
-		{
-			send(Json.object().add("cmd", "openProgress").toString());
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}*/
 	}
 
 	private Session session;
@@ -118,7 +112,7 @@ public class WebSckt extends WebSocket implements SessionStub
 	public void unsetSession(Session session)
 	{
 		sockets.remove(getSession().getSessionId());
-		unsetSession(session);
+		server.unsetSession(session);
 		this.session = null;
 	}
 

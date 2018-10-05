@@ -6,7 +6,7 @@ public class Session
 {
 	private final String sessionId;
 	
-	private User user = null;
+	User user = null;
 
 	// Extra settings coming from cmdline args
 	public boolean multiuser = false;
@@ -30,6 +30,8 @@ public class Session
 	
 	public User getUser()
 	{
+		if(user==null)
+			user = new User(this, "JRomManager");
 		return user;
 	}
 	

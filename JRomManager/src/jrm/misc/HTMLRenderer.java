@@ -61,7 +61,7 @@ public interface HTMLRenderer
 	 */
 	public default String toBlue(final CharSequence str)
 	{
-		return "<span color='blue'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<span style='color:blue'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -71,7 +71,7 @@ public interface HTMLRenderer
 	 */
 	public default String toRed(final CharSequence str)
 	{
-		return "<span color='red'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<span style='color:red'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -81,7 +81,7 @@ public interface HTMLRenderer
 	 */
 	public default String toGreen(final CharSequence str)
 	{
-		return "<span color='green'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<span style='color:green'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -91,7 +91,7 @@ public interface HTMLRenderer
 	 */
 	public default String toGray(final CharSequence str)
 	{
-		return "<span color='gray'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<span style='color:gray'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -101,7 +101,7 @@ public interface HTMLRenderer
 	 */
 	public default String toOrange(final CharSequence str)
 	{
-		return "<span color='orange'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<span style='color:orange'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -111,7 +111,7 @@ public interface HTMLRenderer
 	 */
 	public default String toPurple(final CharSequence str)
 	{
-		return "<span color='purple'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<span style='color:purple'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**

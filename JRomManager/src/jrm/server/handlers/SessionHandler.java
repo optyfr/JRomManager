@@ -52,7 +52,8 @@ public class SessionHandler extends DefaultHandler
 				session.getInputStream().skip(bodylen);
 			}
 			session.getCookies().set("session", sessionid, 1);
-			uriResource.initParameter(SessionStub.class).setSession(new Session(sessionid));
+			SessionStub sessionStub = uriResource.initParameter(SessionStub.class);
+			sessionStub.setSession(new Session(sessionid));
 			return Server.newFixedLengthResponse(getStatus(), getMimeType(), new JsonObject()
 			{{
 				add("session", sessionid);

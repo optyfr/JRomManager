@@ -13,6 +13,7 @@ public class User
 	public User(final Session parent, final String name)
 	{
 		this.parent = parent;
+		this.parent.user = this;
 		this.name = name;
 		this.settings = new GlobalSettings(this);
 	}

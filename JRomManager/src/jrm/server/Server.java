@@ -109,7 +109,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 	@Override
 	protected WebSocket openWebSocket(IHTTPSession handshake)
 	{
-		return new WebSckt(handshake);
+		return new WebSckt(this, handshake);
 	}
 
 	final static Map<String, Session> sessions = new HashMap<>();
