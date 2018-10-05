@@ -57,8 +57,9 @@ public class DuplicateEntry extends EntryAction
 		{
 			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname))); //$NON-NLS-1$
 			final Path srcpath = fs.getPath(entry.file);
-			if(dstpath.getParent() != null)
-				Files.createDirectories(dstpath.getParent());
+			Path parent2 = dstpath.getParent();
+			if(parent2 != null)
+				Files.createDirectories(parent2);
 			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		}
@@ -77,12 +78,16 @@ public class DuplicateEntry extends EntryAction
 		try
 		{
 			dstpath = target.resolve(newname);
-			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname))); //$NON-NLS-1$
-			final Path srcpath = target.resolve(entry.file);
-			if(dstpath.getParent() != null)
-				Files.createDirectories(dstpath.getParent());
-			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES);
-			return true;
+			if(dstpath!=null)
+			{
+				handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("DuplicateEntry.Duplicating"), entry.file, newname))); //$NON-NLS-1$
+				final Path srcpath = target.resolve(entry.file);
+				Path parent2 = dstpath.getParent();
+				if(parent2 != null)
+					Files.createDirectories(parent2);
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES);
+				return true;
+			}
 		}
 		catch(final Throwable e)
 		{

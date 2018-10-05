@@ -24,10 +24,10 @@ import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.locale.Messages;
 import jrm.profile.data.Container.Type;
-import jrm.ui.progress.ProgressHandler;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 import jrm.profile.data.Rom;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * Add an entry to a container
@@ -59,8 +59,9 @@ public class AddEntry extends EntryAction
 		Path srcpath = null;
 		try
 		{
-			if(dstpath.getParent() != null)
-				Files.createDirectories(dstpath.getParent());
+			Path parent = dstpath.getParent(); 
+			if(parent != null)
+				Files.createDirectories(parent);
 			if(entry.parent.getType() == Type.DIR)
 			{
 				srcpath = entry.parent.file.toPath().resolve(entry.file);
@@ -110,8 +111,9 @@ public class AddEntry extends EntryAction
 				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
 				{
 					srcpath = srcfs.getPath(entry.file);
-					if(dstpath.getParent() != null)
-						Files.createDirectories(dstpath.getParent());
+					Path parent = dstpath.getParent(); 
+					if(parent != null)
+						Files.createDirectories(parent);
 					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				}
 				catch(final Throwable e)
@@ -128,8 +130,9 @@ public class AddEntry extends EntryAction
 					if(srcarchive.extract(entry.file) != null)
 					{
 						srcpath = new File(srcarchive.getTempDir(), entry.file).toPath();
-						if(dstpath.getParent() != null)
-							Files.createDirectories(dstpath.getParent());
+						Path parent = dstpath.getParent();
+						if(parent != null)
+							Files.createDirectories(parent);
 						Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 					}
 					// return archive.add_stdin(srcarchive.extract_stdout(entry.file) , entity.getName()) == 0;
@@ -142,8 +145,9 @@ public class AddEntry extends EntryAction
 			else
 			{
 				srcpath = entry.parent.file.toPath().resolve(entry.file);
-				if(dstpath.getParent() != null)
-					Files.createDirectories(dstpath.getParent());
+				Path parent = dstpath.getParent(); 
+				if(parent != null)
+					Files.createDirectories(parent);
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 			}
 			return true;

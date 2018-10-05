@@ -22,8 +22,8 @@ import java.nio.file.*;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.profile.data.Container.Type;
-import jrm.ui.progress.ProgressHandler;
 import jrm.profile.data.Entry;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * Describe an entry to backup, will take appropriate actions to extract entry before copying to provided backup {@link FileSystem} 
@@ -50,8 +50,9 @@ public class BackupEntry extends EntryAction
 		Path srcpath = null;
 		try
 		{
-			if(dstpath.getParent() != null)
-				Files.createDirectories(dstpath.getParent());
+			Path parent2 = dstpath.getParent();
+			if(parent2 != null)
+				Files.createDirectories(parent2);
 			if(!dstpath.equals(dstpath_crc) && Files.exists(dstpath_crc))
 				Files.delete(dstpath_crc);
 			if (Files.exists(dstpath))

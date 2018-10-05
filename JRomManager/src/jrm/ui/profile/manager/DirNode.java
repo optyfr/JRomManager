@@ -72,17 +72,27 @@ public class DirNode extends DefaultMutableTreeNode
 	 */
 	private void buildDirTree(final Dir dir, final DefaultMutableTreeNode node)
 	{
-		if (dir != null && dir.getFile() != null && dir.getFile().isDirectory())
-			for (final File file : dir.getFile().listFiles())
+		if (dir != null)
+		{
+			File dirfile = dir.getFile();
+			if (dirfile != null && dirfile.isDirectory())
 			{
-				if (file.isDirectory())
+				File[] listFiles = dirfile.listFiles();
+				if (listFiles != null)
 				{
-					final DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
-					node.add(newdir);
-					buildDirTree(new Dir(file), newdir);
-				}
+					for (final File file : listFiles)
+					{
+						if (file != null && file.isDirectory())
+						{
+							final DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
+							node.add(newdir);
+							buildDirTree(new Dir(file), newdir);
+						}
 
+					}
+				}
 			}
+		}
 	}
 
 	/**

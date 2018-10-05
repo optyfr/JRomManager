@@ -22,12 +22,8 @@ import org.apache.commons.io.IOUtils;
 
 import jrm.locale.Messages;
 import jrm.profile.Profile;
-import jrm.profile.data.Container;
-import jrm.profile.data.Entry;
+import jrm.profile.data.*;
 import jrm.profile.data.Entry.Type;
-import jrm.profile.data.Machine;
-import jrm.profile.data.Software;
-import jrm.profile.data.SoftwareList;
 import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.scan.DirScan.Options;
@@ -94,7 +90,12 @@ public class Dir2Dat
 							{
 								String ename = normalize(FilenameUtils.removeExtension(e.getName()));
 								if(options.contains(Options.JUNK_SUBFOLDERS))
-									ename = Paths.get(ename).getFileName().toString();
+								{
+									Path path = Paths.get(ename);
+									Path fileName = path.getFileName();
+									if(fileName!=null)
+										ename = fileName.toString();
+								}
 								writer.writeElement("disk", //$NON-NLS-1$
 									new SimpleAttribute("name", ename), //$NON-NLS-1$
 									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
@@ -105,7 +106,12 @@ public class Dir2Dat
 							{
 								String ename = normalize(e.getName());
 								if(options.contains(Options.JUNK_SUBFOLDERS))
-									ename = Paths.get(ename).getFileName().toString();
+								{
+									Path path = Paths.get(ename);
+									Path fileName = path.getFileName();
+									if(fileName!=null)
+										ename = fileName.toString();
+								}
 								writer.writeElement("rom", //$NON-NLS-1$
 									new SimpleAttribute("name", ename), //$NON-NLS-1$
 									new SimpleAttribute("size", e.size), //$NON-NLS-1$
@@ -159,7 +165,12 @@ public class Dir2Dat
 							{
 								String ename = normalize(FilenameUtils.removeExtension(e.getName()));
 								if(options.contains(Options.JUNK_SUBFOLDERS))
-									ename = Paths.get(ename).getFileName().toString();
+								{
+									Path path = Paths.get(ename);
+									Path fileName = path.getFileName();
+									if(fileName!=null)
+										ename = fileName.toString();
+								}
 								writer.writeElement("disk", //$NON-NLS-1$
 									new SimpleAttribute("name", ename), //$NON-NLS-1$
 									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
@@ -170,7 +181,12 @@ public class Dir2Dat
 							{
 								String ename = normalize(e.getName());
 								if(options.contains(Options.JUNK_SUBFOLDERS))
-									ename = Paths.get(ename).getFileName().toString();
+								{
+									Path path = Paths.get(ename);
+									Path fileName = path.getFileName();
+									if(fileName!=null)
+										ename = fileName.toString();
+								}
 								writer.writeElement("rom", //$NON-NLS-1$
 									new SimpleAttribute("name", ename), //$NON-NLS-1$
 									new SimpleAttribute("size", e.size), //$NON-NLS-1$
@@ -252,7 +268,12 @@ public class Dir2Dat
 									{
 										String ename = normalize(FilenameUtils.removeExtension(entry.getName()));
 										if(options.contains(Options.JUNK_SUBFOLDERS))
-											ename = Paths.get(ename).getFileName().toString();
+										{
+											Path path = Paths.get(ename);
+											Path fileName = path.getFileName();
+											if(fileName!=null)
+												ename = fileName.toString();
+										}
 										writer.writeStartElement("part", //$NON-NLS-1$
 											new SimpleAttribute("name", "cdrom"+ ++ii), //$NON-NLS-1$ //$NON-NLS-2$
 											new SimpleAttribute("interface", "cdrom") //$NON-NLS-1$ //$NON-NLS-2$
@@ -271,7 +292,12 @@ public class Dir2Dat
 									{
 										String ename = normalize(entry.getName());
 										if(options.contains(Options.JUNK_SUBFOLDERS))
-											ename = Paths.get(ename).getFileName().toString();
+										{
+											Path path = Paths.get(ename);
+											Path fileName = path.getFileName();
+											if(fileName!=null)
+												ename = fileName.toString();
+										}
 										writer.writeStartElement("part", //$NON-NLS-1$
 											new SimpleAttribute("name", "flop"+ ++ii), //$NON-NLS-1$ //$NON-NLS-2$
 											new SimpleAttribute("interface", "floppy_3_5") //$NON-NLS-1$ //$NON-NLS-2$
