@@ -32,6 +32,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 
+import jrm.profile.Profile;
 import jrm.profile.manager.Export;
 import jrm.ui.profile.data.AnywareListListRenderer;
 import jrm.ui.progress.ProgressHandler;
@@ -58,8 +59,9 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public SoftwareListList()
+	public SoftwareListList(Profile profile)
 	{
+		super(profile);
 		initTransient();
 	}
 
@@ -170,7 +172,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	protected List<SoftwareList> getFilteredList()
 	{
 		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> AnywareListList.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			filtered_list = getFilteredStream().filter(t -> profile.filter_ll.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
 

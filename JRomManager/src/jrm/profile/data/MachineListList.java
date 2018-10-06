@@ -53,7 +53,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	/**
 	 * The attached list of software lists ({@link SoftwareListList}), if any
 	 */
-	public final SoftwareListList softwarelist_list = new SoftwareListList();
+	public final SoftwareListList softwarelist_list;
 
 	/**
 	 * A mapping between a software list name and list of machines declared to be at least compatible with that software list 
@@ -65,6 +65,8 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	 */
 	public MachineListList(Profile profile)
 	{
+		super(profile);
+		softwarelist_list = new SoftwareListList(profile);
 		ml_list = Collections.singletonList(new MachineList(profile));
 		initTransient();
 	}
@@ -134,7 +136,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	@Override
 	public void setFilter(final EnumSet<AnywareStatus> filter)
 	{
-		AnywareListList.filter = filter;
+		profile.filter_ll = filter;
 		reset();
 	}
 
@@ -180,7 +182,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	protected List<MachineList> getFilteredList()
 	{
 		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> AnywareListList.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			filtered_list = getFilteredStream().filter(t -> profile.filter_ll.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
 

@@ -6,8 +6,15 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
@@ -87,16 +94,28 @@ public class ResourceHandler extends DefaultHandler
 		}
 		try
 		{
-			return NanoHTTPD.newChunkedResponse(getStatus(), Server.getMimeTypeForFile(fileOrdirectory.getFile()), URLToInputStream(fileOrdirectory));
+			URLConnection connection = fileOrdirectory.openConnection();
+			SimpleDateFormat gmtFrmt = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss z", Locale.US);
+			gmtFrmt.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
+			try
+			{
+				String ifModifiedSince = session.getHeaders().get("if-modified-since");
+				if (ifModifiedSince != null && gmtFrmt.parse(ifModifiedSince).getTime() / 1000 == connection.getLastModified() / 1000)
+					return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_MODIFIED, "text/plain", "");
+			}
+			catch (ParseException e)
+			{
+			}
+			Response response = NanoHTTPD.newFixedLengthResponse(getStatus(), Server.getMimeTypeForFile(fileOrdirectory.getFile()), new BufferedInputStream(connection.getInputStream()), connection.getContentLengthLong());
+			response.addHeader("Date", gmtFrmt.format(new Date(connection.getLastModified())));
+			response.addHeader("Last-Modified", gmtFrmt.format(new Date(connection.getLastModified())));
+			response.addHeader("Cache-Control", "max-age=86400");
+			return response;
+
 		}
 		catch (IOException ioe)
 		{
 			return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.REQUEST_TIMEOUT, "text/plain", null);
 		}
-	}
-
-	protected BufferedInputStream URLToInputStream(URL fileOrdirectory) throws IOException
-	{
-		return new BufferedInputStream(fileOrdirectory.openStream());
 	}
 }

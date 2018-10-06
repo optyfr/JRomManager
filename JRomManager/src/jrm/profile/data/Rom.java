@@ -102,7 +102,7 @@ public class Rom extends Entity implements Serializable
 	@Override
 	public String getName()
 	{
-		if (Anyware.merge_mode.isMerge())
+		if (getParent().profile.settings.merge_mode.isMerge())
 		{
 			if (merge == null)
 			{
@@ -123,7 +123,7 @@ public class Rom extends Entity implements Serializable
 	 */
 	public String getFullName()
 	{
-		if (Anyware.merge_mode.isMerge())
+		if (getParent().profile.settings.merge_mode.isMerge())
 		{
 			if (merge != null && !parent.getProfile().getProperty("ignore_merge_name_roms", false)) //$NON-NLS-1$
 				return parent.name + "/" + merge; //$NON-NLS-1$
@@ -190,14 +190,14 @@ public class Rom extends Entity implements Serializable
 	 * @param rom the {@link Rom} to test
 	 * @return the {@link EntityStatus} found for this disk
 	 */
-	private static EntityStatus findRomStatus(final Anyware parent, final Rom rom)
+	private EntityStatus findRomStatus(final Anyware parent, final Rom rom)
 	{
 		for (final Rom r : parent.roms)
 			if (rom != r && rom.equals(r) && r.own_status != EntityStatus.UNKNOWN)
 				return r.own_status;
 		if (parent.parent != null) // find same rom in parent clone (if any and recursively)
 		{
-			if (Anyware.merge_mode.isMerge())
+			if (getParent().profile.settings.merge_mode.isMerge())
 			{
 				for (final Anyware clone : parent.getParent().clones.values())
 					if (clone != parent)

@@ -181,6 +181,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			protected void done()
 			{
 				progress.dispose();
+				/* update entries in profile viewer */ 
+				if (MainFrame.profile_viewer != null)
+					MainFrame.profile_viewer.reload();
 			}
 
 		};
@@ -226,6 +229,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			protected void done()
 			{
 				progress.dispose();
+				/* update entries in profile viewer */ 
+				if (MainFrame.profile_viewer != null)
+					MainFrame.profile_viewer.reload();
 			}
 
 		};
@@ -281,6 +287,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			{
 				if (success && session.curr_profile != null)
 				{
+					progress.close();
 					initProfileSettings(session);
 					mainPane.setSelectedIndex(1);
 				}

@@ -24,6 +24,8 @@ import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.zip.CRC32;
 
+import jrm.profile.scan.options.HashCollisionOptions;
+import jrm.profile.scan.options.MergeOptions;
 import jrm.security.User;
 
 /**
@@ -269,6 +271,9 @@ public class GlobalSettings
 		if (getProfileSettingsFile(file).exists())
 		{
 			settings.loadSettings(getProfileSettingsFile(file));
+			settings.merge_mode = MergeOptions.valueOf(settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()));
+			settings.hash_collision_mode = HashCollisionOptions.valueOf(settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()));
+			settings.implicit_merge = settings.getProperty("implicit_merge", false);
 		}
 		return settings;
 	}

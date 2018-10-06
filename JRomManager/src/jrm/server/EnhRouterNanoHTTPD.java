@@ -142,4 +142,9 @@ public abstract class EnhRouterNanoHTTPD extends RouterNanoHTTPD
 			return null;
 	}
 
+	@Override
+	protected boolean useGzipWhenAccepted(Response r)
+	{
+		return r.getMimeType() != null && (r.getMimeType().toLowerCase().contains("text/") || r.getMimeType().toLowerCase().contains("/json") || r.getMimeType().toLowerCase().contains("/javascript"));
+	}
 }

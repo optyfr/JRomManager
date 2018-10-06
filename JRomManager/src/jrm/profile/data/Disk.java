@@ -64,7 +64,7 @@ public class Disk extends Entity implements Serializable
 	@Override
 	public String getName()
 	{
-		if (Anyware.merge_mode.isMerge())
+		if (getParent().profile.settings.merge_mode.isMerge())
 		{
 			if (merge == null)
 			{
@@ -135,7 +135,7 @@ public class Disk extends Entity implements Serializable
 	{
 		if (parent.parent != null) // find same disk in parent clone (if any and recursively)
 		{
-			if (Anyware.merge_mode.isMerge())
+			if (parent.profile.settings.merge_mode.isMerge())
 			{
 				for (final Anyware clone : parent.getParent().clones.values())
 				{

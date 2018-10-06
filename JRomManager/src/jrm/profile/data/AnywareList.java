@@ -45,10 +45,6 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	private static transient EventListenerList listenerList;
 	/**
-	 * Non permanent filter according scan status of anyware (machines, softwares)
-	 */
-	protected static transient EnumSet<AnywareStatus> filter = null;
-	/**
 	 * {@link T} list cache (according current {@link #filter})
 	 */
 	protected transient List<T> filtered_list;
@@ -81,8 +77,6 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	{
 		if(AnywareList.listenerList == null)
 			AnywareList.listenerList = new EventListenerList();
-		if(AnywareList.filter == null)
-			AnywareList.filter = EnumSet.allOf(AnywareStatus.class);
 		filtered_list = null;
 	}
 
@@ -107,7 +101,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	public void setFilter(final EnumSet<AnywareStatus> filter)
 	{
-		AnywareList.filter = filter;
+		profile.filter_l = filter;
 		reset();
 	}
 

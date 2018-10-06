@@ -243,7 +243,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	protected List<Software> getFilteredList()
 	{
 		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> AnywareList.filter.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			filtered_list = getFilteredStream().filter(t -> profile.filter_l.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
 

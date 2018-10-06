@@ -22,7 +22,6 @@ import javax.swing.UIManager;
 
 import jrm.locale.Messages;
 import jrm.misc.Settings;
-import jrm.profile.data.Anyware;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
@@ -415,9 +414,6 @@ public class ScannerSettingsPanel extends JPanel
 		cbCompression.setSelectedItem(FormatOptions.valueOf(settings.getProperty("format", FormatOptions.ZIP.toString()))); //$NON-NLS-1$
 		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()))); //$NON-NLS-1$
 		cbHashCollision.setSelectedItem(HashCollisionOptions.valueOf(settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()))); //$NON-NLS-1$
-
-		Anyware.merge_mode = (MergeOptions) cbbxMergeMode.getSelectedItem();
-		Anyware.hash_collision_mode = (HashCollisionOptions) cbHashCollision.getSelectedItem();
 
 		cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
 		chckbxCreateOnlyComplete.setEnabled(chckbxCreateMissingSets.isSelected());

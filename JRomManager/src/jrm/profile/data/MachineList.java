@@ -272,7 +272,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	{
 		if(filtered_list == null)
 			filtered_list = getFilteredStream().filter(machine -> {
-				return AnywareList.filter.contains(machine.getStatus());
+				return profile.filter_l.contains(machine.getStatus());
 			}).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}

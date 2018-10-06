@@ -8,7 +8,7 @@ public final class Sessions
 	public static boolean single_mode = false;
 	public static Session single_session = null;
 
-	private static Map<String, Session> sessions = new HashMap<>();
+	private final static Map<String, Session> sessions = new HashMap<>();
 
 	public static Session getSession()
 	{

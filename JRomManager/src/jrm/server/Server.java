@@ -7,23 +7,30 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
 import jrm.security.Session;
 import jrm.server.handlers.DataSourcesHandler;
 import jrm.server.handlers.ResourceHandler;
 import jrm.server.handlers.SessionHandler;
+import jrm.server.handlers.EnhStaticPageHandler;
 import jrm.server.ws.WebSckt;
 
 public class Server extends EnhRouterNanoHTTPD implements SessionStub
 {
-	private static String clientPath;
-	private static int port = 8080;
+	private String clientPath;
 	
-	public Server()
+	public Server(int port, String clientPath)
 	{
-		super(Server.port);
+		super(port);
+		this.clientPath = clientPath;
 		addMappings();
 	}
 
@@ -41,14 +48,16 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		HelpFormatter formatter = new HelpFormatter();
 		CommandLine cmd;
 
+		String clientPath = null;
+		int port = 8080;
 		try
 		{
 			cmd = parser.parse(options, args);
-			if (null == (Server.clientPath = cmd.getOptionValue('c')))
+			if (null == (clientPath = cmd.getOptionValue('c')))
 			{
 				try
 				{
-					Server.clientPath = new File(new File(Server.class.getProtectionDomain().getCodeSource().getLocation().toURI()), "smartgwt").getPath();
+					clientPath = new File(new File(Server.class.getProtectionDomain().getCodeSource().getLocation().toURI()), "smartgwt").getPath();
 				}
 				catch (URISyntaxException e)
 				{
@@ -57,7 +66,8 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 			}
 			try
 			{
-				Server.port = Integer.parseInt(cmd.getOptionValue('p'));
+				if(cmd.hasOption('p'))
+					port = Integer.parseInt(cmd.getOptionValue('p'));
 			}
 			catch (NumberFormatException e)
 			{
@@ -72,7 +82,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		try
 		{
 			Locale.setDefault(Locale.US);
-			Server server = Server.class.newInstance();
+			Server server = new Server(port, clientPath);
 			server.start(0);
 			try
 			{
@@ -87,7 +97,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 	        server.stop();
 	        System.out.println("Server stopped.\n");
 		}
-		catch (InstantiationException | IllegalAccessException | IOException e)
+		catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -100,7 +110,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		super.addMappings();
 		addRoute("/", jrm.server.handlers.IndexHandler.class);
 		addRoute("/index.html", jrm.server.handlers.IndexHandler.class);
-		addRoute("/smartgwt/(.)+", StaticPageHandler.class, new File(Server.clientPath));
+		addRoute("/smartgwt/(.)+", EnhStaticPageHandler.class, new File(clientPath));
 		addRoute("/images/(.)+", ResourceHandler.class, Server.class.getResource("/jrm/resources/"));
 		addRoute("/datasources/:action/", DataSourcesHandler.class);
 		addRoute("/session/", SessionHandler.class, this);

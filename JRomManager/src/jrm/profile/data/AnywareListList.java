@@ -31,6 +31,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.profile.Profile;
 import jrm.ui.basic.EnhTableModel;
 
 /**
@@ -42,14 +43,11 @@ import jrm.ui.basic.EnhTableModel;
 @SuppressWarnings("serial")
 public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> implements Serializable, EnhTableModel, List<T>
 {
+	Profile profile;
 	/**
 	 * Event Listener list for firing events to Swing controls (Table)
 	 */
 	private static transient EventListenerList listenerList;
-	/**
-	 * Non permanent filter according scan status of anyware lists
-	 */
-	protected static transient EnumSet<AnywareStatus> filter = null;
 	/**
 	 * {@link T} list cache (according current {@link #filter})
 	 */
@@ -58,8 +56,9 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public AnywareListList()
+	public AnywareListList(Profile profile)
 	{
+		this.profile = profile;
 		initTransient();
 	}
 
@@ -82,8 +81,6 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	{
 		if(AnywareListList.listenerList == null)
 			AnywareListList.listenerList = new EventListenerList();
-		if(AnywareListList.filter == null)
-			AnywareListList.filter = EnumSet.allOf(AnywareStatus.class);
 		filtered_list = null;
 	}
 
