@@ -37,7 +37,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
-import jrm.profile.scan.Scan;
 import jrm.security.Session;
 import jrm.ui.progress.StatusHandler;
 
@@ -81,14 +80,14 @@ public class ReportFrame extends JDialog implements StatusHandler
 		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
-		final JScrollPane scrollPane = new ReportView(Scan.report);
+		final JScrollPane scrollPane = new ReportView(session.report);
 		final GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 0;
 		getContentPane().add(scrollPane, gbc_scrollPane);
 
-		Scan.report.setStatusHandler(this);
+		session.report.setStatusHandler(this);
 
 		
 		final GridBagConstraints gbc_lblStatus = new GridBagConstraints();

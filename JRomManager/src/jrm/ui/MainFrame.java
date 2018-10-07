@@ -86,7 +86,6 @@ public class MainFrame extends JFrame
 		});
 		try
 		{
-			session.getUser().settings.loadSettings();
 			UIManager.setLookAndFeel(session.getUser().settings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName() */)); //$NON-NLS-1$
 			final File workdir = session.getUser().settings.getWorkPath().toFile(); // $NON-NLS-1$
 			final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$

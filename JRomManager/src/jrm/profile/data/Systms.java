@@ -18,6 +18,7 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.AbstractListModel;
 
@@ -27,7 +28,7 @@ import javax.swing.AbstractListModel;
  *
  */
 @SuppressWarnings("serial")
-public final class Systms extends AbstractListModel<Systm> implements Serializable
+public final class Systms extends AbstractListModel<Systm> implements Serializable, Iterable<Systm>
 {
 	/**
 	 * The internal {@link ArrayList} of {@link Systm}s
@@ -54,5 +55,11 @@ public final class Systms extends AbstractListModel<Systm> implements Serializab
 	public boolean add(final Systm system)
 	{
 		return systems.add(system);
+	}
+
+	@Override
+	public Iterator<Systm> iterator()
+	{
+		return systems.iterator();
 	}
 }

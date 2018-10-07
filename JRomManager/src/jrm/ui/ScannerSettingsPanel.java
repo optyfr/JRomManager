@@ -21,7 +21,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
 
 import jrm.locale.Messages;
-import jrm.misc.Settings;
+import jrm.misc.ProfileSettings;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
@@ -392,9 +392,9 @@ public class ScannerSettingsPanel extends JPanel
 
 	}
 	
-	public Settings settings; 
+	public ProfileSettings settings; 
 	
-	public void initProfileSettings(final Settings settings)
+	public void initProfileSettings(final ProfileSettings settings)
 	{
 		this.settings = settings;
 		chckbxNeedSHA1.setSelected(settings.getProperty("need_sha1_or_md5", false)); //$NON-NLS-1$

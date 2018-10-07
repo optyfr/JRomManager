@@ -1,6 +1,7 @@
 package jrm.security;
 
 import jrm.profile.Profile;
+import jrm.profile.report.Report;
 
 public class Session
 {
@@ -12,6 +13,8 @@ public class Session
 	public boolean multiuser = false;
 	public boolean noupdate = false;
 
+	public final Report report  = new Report();
+	
 	/**
 	 * This contain the current loaded profile
 	 */

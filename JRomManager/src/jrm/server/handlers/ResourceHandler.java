@@ -1,16 +1,13 @@
 package jrm.server.handlers;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -22,7 +19,6 @@ import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
-import fi.iki.elonen.router.RouterNanoHTTPD.Error404UriHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.server.Server;
 
@@ -31,21 +27,6 @@ import jrm.server.Server;
  */
 public class ResourceHandler extends DefaultHandler
 {
-
-	private static String[] getPathArray(String uri)
-	{
-		String array[] = uri.split("/");
-		ArrayList<String> pathArray = new ArrayList<String>();
-
-		for (String s : array)
-		{
-			if (s.length() > 0)
-				pathArray.add(s);
-		}
-
-		return pathArray.toArray(new String[] {});
-
-	}
 
 	@Override
 	public String getText()
@@ -65,6 +46,11 @@ public class ResourceHandler extends DefaultHandler
 		return Status.OK;
 	}
 
+	private static SimpleDateFormat gmtFrmt = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss z", Locale.US);
+	static {
+		gmtFrmt.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
+	}
+	
 	@Override
 	public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session)
 	{
@@ -79,29 +65,24 @@ public class ResourceHandler extends DefaultHandler
 			}
 		}
 		URL fileOrdirectory = uriResource.initParameter(URL.class);
-		for (String pathPart : getPathArray(realUri))
+		try
 		{
-			try
-			{
-				fileOrdirectory = new URL(fileOrdirectory, pathPart);
-				if(!new File(fileOrdirectory.toURI()).exists())
-					return new Error404UriHandler().get(uriResource, urlParams, session);
-			}
-			catch (MalformedURLException | URISyntaxException e)
-			{
-				return new Error404UriHandler().get(uriResource, urlParams, session);
-			}
+			fileOrdirectory = new URL(fileOrdirectory, realUri);
+		}
+		catch (MalformedURLException e1)
+		{
+			return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_FOUND, null, null);
 		}
 		try
 		{
 			URLConnection connection = fileOrdirectory.openConnection();
-			SimpleDateFormat gmtFrmt = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss z", Locale.US);
-			gmtFrmt.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
+			if(connection.getContentLength()==0)
+				return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_FOUND, null, null);
 			try
 			{
 				String ifModifiedSince = session.getHeaders().get("if-modified-since");
 				if (ifModifiedSince != null && gmtFrmt.parse(ifModifiedSince).getTime() / 1000 == connection.getLastModified() / 1000)
-					return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_MODIFIED, "text/plain", "");
+					return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_MODIFIED, null, null);
 			}
 			catch (ParseException e)
 			{

@@ -271,7 +271,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.clear();
 				success = (null != (Profile.load(session, profile, progress)));
-				Scan.report.setProfile(session.curr_profile);
+				session.report.setProfile(session.curr_profile);
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reset(session.curr_profile);
 				mainPane.setEnabledAt(1, success);

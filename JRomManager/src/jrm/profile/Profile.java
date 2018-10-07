@@ -45,7 +45,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.Settings;
+import jrm.misc.ProfileSettings;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Device;
 import jrm.profile.data.Disk;
@@ -148,7 +148,7 @@ public class Profile implements Serializable
 	/*
 	 * This is all non serialized object (not included in cache), they are recalculated or reloaded on each Profile load (cached or not) 
 	 */
-	public transient Settings settings = null;
+	public transient ProfileSettings settings = null;
 	public transient Systms systems = null;
 	public transient Collection<String> years = null;
 	public transient ProfileNFO nfo = null;
@@ -1058,18 +1058,18 @@ public class Profile implements Serializable
 			{	// we use JRM file keep ROMs/SL DATs in relation
 				if (nfo.mame.fileroms != null)
 				{	// load ROMs dat
-					if (!profile._load(nfo.mame.fileroms, handler))
+					if (!nfo.mame.fileroms.exists() || !profile._load(nfo.mame.fileroms, handler))
 						return null;
 					if (nfo.mame.filesl != null)
 					{	// load SL dat (note that loading software list without ROMs dat is NOT recommended)
-						if (!profile._load(nfo.mame.filesl, handler))
+						if (!nfo.mame.filesl.exists() || !profile._load(nfo.mame.filesl, handler))
 							return null;
 					}
 				}
 			}
 			else
 			{	// load DAT file not attached to a JRM
-				if (!profile._load(nfo.file, handler))
+				if (!nfo.file.exists() || !profile._load(nfo.file, handler))
 					return null;
 			}
 			// save cache
@@ -1240,7 +1240,7 @@ public class Profile implements Serializable
 	 */
 	public String getName()
 	{
-		String name = "<html><body>[<span color='blue'>" + session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String name = "<html><body>[<span style='color:blue'>" + session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if (build != null)
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if (header.size() > 0)

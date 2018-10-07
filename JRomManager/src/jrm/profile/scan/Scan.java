@@ -91,7 +91,7 @@ public class Scan
 	/**
 	 * the attached {@link Report}
 	 */
-	public final static Report report = new Report();
+	public final Report report;
 	/**
 	 * All the actions to take for fixing the set after scan
 	 */
@@ -207,8 +207,9 @@ public class Scan
 	public Scan(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache) throws BreakException
 	{
 		this.profile = profile;
+		this.report = profile.session.report;
 		profile.setPropsCheckPoint();
-		Scan.report.reset();
+		report.reset();
 		
 		/*
 		 * Store locally various profile settings
@@ -380,7 +381,7 @@ public class Scan
 			if (!ignore_unknown_containers)
 			{
 				unknown.forEach((c) -> {
-					Scan.report.add(new ContainerUnknown(c));
+					report.add(new ContainerUnknown(c));
 					delete_actions.add(new DeleteContainer(c, format));
 				});
 			}
@@ -390,7 +391,7 @@ public class Scan
 			if(!ignore_unneeded_containers)
 			{
 				unneeded.forEach(c->{
-					Scan.report.add(new ContainerUnneeded(c));
+					report.add(new ContainerUnneeded(c));
 					backup_actions.add(new BackupContainer(c));
 					delete_actions.add(new DeleteContainer(c, format));					
 				});
@@ -398,7 +399,7 @@ public class Scan
 			/*
 			 * report suspicious CRCs
 			 */
-			profile.suspicious_crc.forEach((crc) -> Scan.report.add(new RomSuspiciousCRC(crc)));
+			profile.suspicious_crc.forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
 
 			/*
 			 * Searching for fixes
@@ -463,8 +464,8 @@ public class Scan
 		{
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			/* save report */
-			Scan.report.write(profile.session);
-			Scan.report.flush();
+			report.write(profile.session);
+			report.flush();
 			/* update and save stats */
 			profile.nfo.stats.scanned = new Date();
 			profile.nfo.stats.haveSets = Stream.concat(profile.machinelist_list.stream(), profile.machinelist_list.softwarelist_list.stream()).mapToLong(AnywareList::countHave).sum();
@@ -551,7 +552,7 @@ public class Scan
 					{
 						tzipcontainer.m = ware;
 						tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
-						Scan.report.add(new ContainerTZip(tzipcontainer));
+						report.add(new ContainerTZip(tzipcontainer));
 					}
 				}
 			}
@@ -587,7 +588,7 @@ public class Scan
 				{
 					tzipcontainer.m = set;
 					tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
-					Scan.report.add(new ContainerTZip(tzipcontainer));
+					report.add(new ContainerTZip(tzipcontainer));
 				}
 			}
 		}
@@ -604,7 +605,7 @@ public class Scan
 			final Container c = roms_dstscan.getContainerByName(ware.getName() + e);
 			if (c != null)
 			{
-				Scan.report.add(new ContainerUnneeded(c));
+				report.add(new ContainerUnneeded(c));
 				backup_actions.add(new BackupContainer(c));
 				delete_actions.add(new DeleteContainer(c, format));
 			}
@@ -626,7 +627,7 @@ public class Scan
 				Arrays.asList(roms_dstscan.getContainerByName(ware.getName()), disks_dstscan.getContainerByName(ware.getName())).forEach(c -> {
 					if (c != null)
 					{
-						Scan.report.add(new ContainerUnneeded(c));
+						report.add(new ContainerUnneeded(c));
 						backup_actions.add(new BackupContainer(c));
 						delete_actions.add(new DeleteContainer(c, format));
 					}
@@ -637,7 +638,7 @@ public class Scan
 				final Container c = disks_dstscan.getContainerByName(ware.getName());
 				if (c != null)
 				{
-					Scan.report.add(new ContainerUnneeded(c));
+					report.add(new ContainerUnneeded(c));
 					backup_actions.add(new BackupContainer(c));
 					delete_actions.add(new DeleteContainer(c, format));
 				}
@@ -647,7 +648,7 @@ public class Scan
 				final Container c = roms_dstscan.getContainerByName(ware.getName() + format.getExt());
 				if (c != null)
 				{
-					Scan.report.add(new ContainerUnneeded(c));
+					report.add(new ContainerUnneeded(c));
 					backup_actions.add(new BackupContainer(c));
 					delete_actions.add(new DeleteContainer(c, format));
 				}
@@ -732,7 +733,7 @@ public class Scan
 					}
 					if (found_entry == null)
 					{
-						Scan.report.stats.missing_disks_cnt++;
+						report.stats.missing_disks_cnt++;
 						for (final DirScan scan : allscans)
 						{
 							if (null != (found_entry = scan.find_byhash(disk)))
@@ -783,7 +784,7 @@ public class Scan
 					CreateContainer createset = null;
 					for (final Disk disk : disks)
 					{
-						Scan.report.stats.missing_disks_cnt++;
+						report.stats.missing_disks_cnt++;
 						Entry found_entry = null;
 						for (final DirScan scan : allscans)
 						{
@@ -1046,7 +1047,7 @@ public class Scan
 */
 					if (found_entry == null)	// did not find rom in container
 					{
-						Scan.report.stats.missing_roms_cnt++;
+						report.stats.missing_roms_cnt++;
 						for (final DirScan scan : allscans)	// now search for rom in all available dir scans
 						{
 							if (null != (found_entry = scan.find_byhash(rom)))
@@ -1100,7 +1101,7 @@ public class Scan
 					CreateContainer createset = null;
 					for (final Rom rom : roms)
 					{
-						Scan.report.stats.missing_roms_cnt++;
+						report.stats.missing_roms_cnt++;
 						Entry entry_found = null;
 						for (final DirScan scan : allscans)	// search rom in all scans
 						{
@@ -1152,9 +1153,9 @@ public class Scan
 		if (create_mode && report_subject.getStatus() == Status.UNKNOWN)
 			report_subject.setMissing();
 		if (missing_set)
-			Scan.report.stats.missing_set_cnt++;
+			report.stats.missing_set_cnt++;
 		if (report_subject.getStatus() != Status.UNKNOWN)
-			Scan.report.add(report_subject);
+			report.add(report_subject);
 		prepTZip(report_subject, archive, set);
 	}
 
@@ -1192,7 +1193,7 @@ public class Scan
 				}
 				if (found_entry == null)
 				{
-					Scan.report.stats.missing_samples_cnt++;
+					report.stats.missing_samples_cnt++;
 					for (final DirScan scan : allscans)
 					{
 						for (final FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
@@ -1250,7 +1251,7 @@ public class Scan
 				CreateContainer createset = null;
 				for (final Sample sample : set)
 				{
-					Scan.report.stats.missing_samples_cnt++;
+					report.stats.missing_samples_cnt++;
 					Entry entry_found = null;
 					for (final DirScan scan : allscans)
 					{
@@ -1340,9 +1341,9 @@ public class Scan
 			removeOtherFormats(ware);
 		}
 		if (missing_set)
-			Scan.report.stats.missing_set_cnt++;
+			report.stats.missing_set_cnt++;
 		if (report_subject.getStatus() != Status.UNKNOWN)
-			Scan.report.add(report_subject);
+			report.add(report_subject);
 	}
 
 }

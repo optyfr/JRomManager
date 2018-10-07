@@ -33,7 +33,7 @@ import jrm.security.User;
  * @author optyfr
  *
  */
-public class GlobalSettings
+public class GlobalSettings extends Settings
 {
 	public final User parent;
 	/**
@@ -43,14 +43,8 @@ public class GlobalSettings
 	{
 		super();
 		this.parent = parent;
+		loadSettings();
 	}
-
-	/**
-	 * This is where we store settings
-	 */
-	private Settings settings = new Settings();
-	
-	
 	
 	/**
 	 * Return the current work path, the one where we save working dirs (xml, cache, backup, ...)
@@ -144,9 +138,7 @@ public class GlobalSettings
 	 */
 	public void saveSettings()
 	{
-		if(settings == null)
-			settings = new Settings();
-		settings.saveSettings(getSettingsFile());
+		saveSettings(getSettingsFile());
 	}
 
 	/**
@@ -154,72 +146,7 @@ public class GlobalSettings
 	 */
 	public void loadSettings()
 	{
-		if(settings == null)
-			settings = new Settings();
-		settings.loadSettings(getSettingsFile());
-	}
-
-	/**
-	 * Set a boolean property
-	 * @param property the property name
-	 * @param value the property value
-	 */
-	public void setProperty(final String property, final boolean value)
-	{
-		settings.setProperty(property, Boolean.toString(value));
-	}
-
-	/**
-	 * Set an int property
-	 * @param property the property name
-	 * @param value the property value
-	 */
-	public void setProperty(final String property, final int value)
-	{
-		settings.setProperty(property, Integer.toString(value));
-	}
-
-	/**
-	 * Set a string property
-	 * @param property the property name
-	 * @param value the property value
-	 */
-	public void setProperty(final String property, final String value)
-	{
-		settings.setProperty(property, value);
-	}
-
-	/**
-	 * get a boolean property
-	 * @param property the property name
-	 * @param def the default value if absent
-	 * @return return the property as boolean
-	 */
-	public boolean getProperty(final String property, final boolean def)
-	{
-		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
-	}
-
-	/**
-	 * get a int property
-	 * @param property the property name
-	 * @param def the default value if absent
-	 * @return return the property as int
-	 */
-	public int getProperty(final String property, final int def)
-	{
-		return Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
-	}
-
-	/**
-	 * get a string property
-	 * @param property the property name
-	 * @param def the default value if absent
-	 * @return return the property as string
-	 */
-	public String getProperty(final String property, final String def)
-	{
-		return settings.getProperty(property, def);
+		loadSettings(getSettingsFile());
 	}
 	
 	/**
@@ -249,10 +176,10 @@ public class GlobalSettings
 	 * @return the saved {@link Properties}
 	 * @throws IOException
 	 */
-	public Settings saveProfileSettings(final File file, Settings settings) throws IOException
+	public ProfileSettings saveProfileSettings(final File file, ProfileSettings settings) throws IOException
 	{
 		if (settings == null)
-			settings = new Settings();
+			settings = new ProfileSettings();
 		settings.saveSettings(getProfileSettingsFile(file));
 		return settings;
 	}
@@ -264,10 +191,10 @@ public class GlobalSettings
 	 * @return the loaded {@link Properties}
 	 * @throws IOException
 	 */
-	public Settings loadProfileSettings(File file, Settings settings) throws IOException
+	public ProfileSettings loadProfileSettings(File file, ProfileSettings settings) throws IOException
 	{
 		if (settings == null)
-			settings = new Settings();
+			settings = new ProfileSettings();
 		if (getProfileSettingsFile(file).exists())
 		{
 			settings.loadSettings(getProfileSettingsFile(file));
@@ -277,6 +204,4 @@ public class GlobalSettings
 		}
 		return settings;
 	}
-
-
 }

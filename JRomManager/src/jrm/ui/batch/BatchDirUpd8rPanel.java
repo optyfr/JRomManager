@@ -43,7 +43,7 @@ import org.apache.commons.io.FilenameUtils;
 import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
 import jrm.locale.Messages;
-import jrm.misc.Settings;
+import jrm.misc.ProfileSettings;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.security.Session;
@@ -349,7 +349,7 @@ public class BatchDirUpd8rPanel extends JPanel
 				{
 					try
 					{
-						Settings settings = new Settings();
+						ProfileSettings settings = new ProfileSettings();
 						settings.setProperty("need_sha1_or_md5", false); //$NON-NLS-1$
 						settings.setProperty("use_parallelism", true); //$NON-NLS-1$
 						settings.setProperty("create_mode", true); //$NON-NLS-1$
@@ -387,7 +387,7 @@ public class BatchDirUpd8rPanel extends JPanel
 				{
 					try
 					{
-						Settings settings = new Settings();
+						ProfileSettings settings = new ProfileSettings();
 						settings.setProperty("need_sha1_or_md5", false); //$NON-NLS-1$
 						settings.setProperty("use_parallelism", true); //$NON-NLS-1$
 						settings.setProperty("create_mode", true); //$NON-NLS-1$

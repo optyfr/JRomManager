@@ -1,9 +1,13 @@
 package jrm.server.ws;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
@@ -19,8 +23,10 @@ import jrm.server.SessionStub;
 
 public class WebSckt extends WebSocket implements SessionStub
 {
-	public final static Map<String, WebSckt> sockets = new HashMap<>();
+	private final static Map<String, WebSckt> sockets = new HashMap<>();
 	private Server server;
+	private Session session;
+	private PingService pingService;
 	
 	public WebSckt(Server server, IHTTPSession handshakeRequest)
 	{
@@ -38,6 +44,7 @@ public class WebSckt extends WebSocket implements SessionStub
 	@Override
 	protected void onPong(WebSocketFrame pongFrame)
 	{
+		pingService.pong();
 	}
 
 	@Override
@@ -52,9 +59,13 @@ public class WebSckt extends WebSocket implements SessionStub
 				{
 					case "Profile.load":
 					{
-						ProgressWS progress = new ProgressWS(this);
-						Profile.load(session, new File(jso.get("params").asObject().getString("path", null)), progress);
-						progress.close();
+						new Thread(()->{
+							ProgressWS progress = new ProgressWS(WebSckt.this);
+							boolean success = (null != (Profile.load(session, new File(jso.get("params").asObject().getString("path", null)), progress)));
+							session.report.setProfile(session.curr_profile);
+							progress.close();
+							new ProfileWS(this).loaded(success, session.curr_profile.getName(), session.curr_profile.systems);
+						}).start();
 						break;
 					}
 					default:
@@ -74,6 +85,15 @@ public class WebSckt extends WebSocket implements SessionStub
 	protected void onClose(CloseCode code, String reason, boolean initiatedByRemote)
 	{
 		System.out.println("websocket closed, removing session "+getSession()+"......");
+		try
+		{
+			pingService.close();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		unsetSession(session);
 	}
 
@@ -87,11 +107,56 @@ public class WebSckt extends WebSocket implements SessionStub
 	protected void onOpen()
 	{
 		System.out.println("websocket opened......");
+		pingService = new PingService();
 		//TODO need to send prefs
 	}
-
-	private Session session;
 	
+	private class PingService implements Closeable
+	{
+		private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+		private long ping = 0, pong = 0;
+		private byte[] PAYLOAD = "JRomManager".getBytes();
+
+		private PingService()
+		{
+			service.scheduleAtFixedRate(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					ping();
+				}
+			}, 4, 4, TimeUnit.SECONDS);
+		}
+
+		private void ping()
+		{
+			try
+			{
+				WebSckt.this.ping(PAYLOAD);
+				System.out.println("sent ping");
+				ping++;
+				if (ping - pong > 3)
+					WebSckt.this.close(CloseCode.GoingAway, "Missed too many ping requests.", false);
+			}
+			catch (IOException e)
+			{
+			}
+		}
+
+		private void pong()
+		{
+			System.out.println("rec pong");
+			pong++;
+		}
+
+		@Override
+		public void close() throws IOException
+		{
+			service.shutdownNow();
+		}
+	}
+
 	@Override
 	public Session getSession()
 	{

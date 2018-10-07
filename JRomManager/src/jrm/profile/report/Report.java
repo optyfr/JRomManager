@@ -16,9 +16,27 @@
  */
 package jrm.profile.report;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamField;
+import java.io.PrintWriter;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -32,7 +50,6 @@ import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
-import jrm.profile.scan.Scan;
 import jrm.security.Session;
 import jrm.ui.profile.report.ReportTreeModel;
 import jrm.ui.progress.StatusHandler;
@@ -425,8 +442,8 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 			report_w.println(String.format(Messages.getString("Report.MissingSets"), stats.missing_set_cnt, profile.machines_cnt)); //$NON-NLS-1$
 			report_w.println(String.format(Messages.getString("Report.MissingRoms"), stats.missing_roms_cnt, profile.roms_cnt)); //$NON-NLS-1$
 			report_w.println(String.format(Messages.getString("Report.MissingDisks"), stats.missing_disks_cnt, profile.disks_cnt)); //$NON-NLS-1$
-			int total = Scan.report.stats.set_create + Scan.report.stats.set_found + Scan.report.stats.set_missing;
-			int ok = Scan.report.stats.set_create_complete + Scan.report.stats.set_found_fixcomplete + Scan.report.stats.set_found_ok;
+			int total = stats.set_create + stats.set_found + stats.set_missing;
+			int ok = stats.set_create_complete + stats.set_found_fixcomplete + stats.set_found_ok;
 			report_w.println(String.format("Missing sets after Fix : %d\n", total - ok)); //$NON-NLS-1$
 		}
 		catch(final FileNotFoundException e)

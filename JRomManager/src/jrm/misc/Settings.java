@@ -6,26 +6,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import jrm.profile.scan.options.HashCollisionOptions;
-import jrm.profile.scan.options.MergeOptions;
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 
 public class Settings implements SettingsImpl
 {
 	private final Properties properties = new Properties();
 
-	/**
-	 * The merge mode used while filtering roms/disks
-	 */
-	public transient MergeOptions merge_mode;
-	/**
-	 * Must we strictly conform to merge tag (explicit), or search merge-able ROMs by ourselves (implicit)
-	 */
-	public transient Boolean implicit_merge;
-	/**
-	 * What hash collision mode is used?
-	 */
-	public transient HashCollisionOptions hash_collision_mode;
-	
 	
 	public Settings()
 	{
@@ -97,5 +85,27 @@ public class Settings implements SettingsImpl
 	public Properties getProperties()
 	{
 		return properties;
+	}
+	
+	@SuppressWarnings("serial")
+	public JsonObject asJSO()
+	{
+		return new JsonObject()
+		{{
+			properties.forEach((k, v) -> {
+				try
+				{
+					JsonValue value = Json.parse((String)v);
+					if(value.isObject() || value.isArray() || value.isBoolean())
+						add((String)k, value);
+					else
+						add((String) k, (String) v);
+				}
+				catch (Exception e)
+				{
+					add((String) k, (String) v);
+				}
+			});
+		}};
 	}
 }

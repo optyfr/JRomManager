@@ -62,6 +62,11 @@ public class EnhStaticPageHandler extends DefaultHandler
 		return Status.OK;
 	}
 
+	private static SimpleDateFormat gmtFrmt = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss z", Locale.US);
+	static {
+		gmtFrmt.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
+	}
+	
 	public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session)
 	{
 		String baseUri = uriResource.getUri();
@@ -95,13 +100,15 @@ public class EnhStaticPageHandler extends DefaultHandler
 		{
 			try
 			{
-				SimpleDateFormat gmtFrmt = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss z", Locale.US);
-				gmtFrmt.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
 				try
 				{
 					String ifModifiedSince = session.getHeaders().get("if-modified-since");
-					if (ifModifiedSince != null && gmtFrmt.parse(ifModifiedSince).getTime() / 1000 == fileOrdirectory.lastModified() / 1000)
-						return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_MODIFIED, "text/plain", "");
+					if (ifModifiedSince != null)
+					{
+						//System.out.println(fileOrdirectory.getName()+":\n\tif-modified-since="+ifModifiedSince+" ("+(gmtFrmt.parse(ifModifiedSince).getTime() / 1000)+"),\n\tlastmodified="+(fileOrdirectory.lastModified()/1000));
+						if(gmtFrmt.parse(ifModifiedSince).getTime() / 1000 == fileOrdirectory.lastModified() / 1000)
+							return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_MODIFIED, null, null);
+					}
 				}
 				catch (ParseException e)
 				{
