@@ -99,17 +99,25 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 		rows.clear();
 		if(dir != null && dir.getFile().exists())
 		{
-			Arrays.asList(dir.getFile().listFiles((FilenameFilter) (dir1, name) -> {
-				final File f = new File(dir1, name);
-				if(f.isFile())
-					if(!Arrays.asList("cache", "properties", "nfo", "jrm1", "jrm2").contains(FilenameUtils.getExtension(name))) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-						return true;
-				return false;
-			})).stream().map(f -> {
-				return ProfileNFO.load(session, f);
-			}).forEach(pnfo -> {
-				rows.add(pnfo);
-			});
+			File filedir = dir.getFile();
+			if(filedir!=null)
+			{
+				File[] files = filedir.listFiles((FilenameFilter) (dir1, name) -> {
+					final File f = new File(dir1, name);
+					if(f.isFile())
+						if(!Arrays.asList("cache", "properties", "nfo", "jrm1", "jrm2").contains(FilenameUtils.getExtension(name))) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+							return true;
+					return false;
+				});
+				if(files!=null)
+				{
+					Arrays.asList(files).stream().map(f -> {
+						return ProfileNFO.load(session, f);
+					}).forEach(pnfo -> {
+						rows.add(pnfo);
+					});
+				}
+			}
 		}
 		fireTableDataChanged();
 	}

@@ -54,9 +54,17 @@ public final class Sample extends EntityBase implements Serializable
 	@Override
 	public boolean equals(Object obj)
 	{
+		if(obj==null)
+			return false;
 		return this.toString().equals(obj.toString());
 	}
 
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+	
 	@Override
 	public AnywareBase getParent()
 	{

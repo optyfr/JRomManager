@@ -353,6 +353,12 @@ public class Machine extends Anyware implements Serializable
 			return this.name.equals(((Machine)obj).name);
 		return super.equals(obj);
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
 
 	@Override
 	public CharSequence getDescription()

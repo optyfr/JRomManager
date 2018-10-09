@@ -23,6 +23,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import org.apache.commons.io.FilenameUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Entry is a container item (ie: a directory file or an archive entry)
  * @author optyfr
@@ -122,6 +124,8 @@ public class Entry implements Serializable
 		if(type == Type.CHD)
 		{
 			Path fileName = path.getFileName();
+			if(fileName==null)
+				return null;
 			return fileName.toString();
 		}
 		return path.subpath(0, path.getNameCount()).toString().replace('\\', '/');
@@ -131,6 +135,7 @@ public class Entry implements Serializable
 	 * This version will test against hash values and also support comparison with {@link Rom} / {@link Disk} / {@link Sample} classes
 	 */
 	@Override
+	@SuppressFBWarnings
 	public boolean equals(final Object obj)
 	{
 		if(obj instanceof Entry)
@@ -167,6 +172,12 @@ public class Entry implements Serializable
 		return super.equals(obj);
 	}
 
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+	
 	@Override
 	public String toString()
 	{

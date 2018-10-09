@@ -70,10 +70,14 @@ public class RenameEntry extends EntryAction
 			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
 			final Path srcpath = fs.getPath(entry.file);
 			dstpath = fs.getPath(newname);
-			if(dstpath.getParent() != null)
-				Files.createDirectories(dstpath.getParent());
-			Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
-			entry.file = dstpath.toString();
+			if(dstpath!=null)
+			{
+				Path parent = dstpath.getParent();
+				if(parent != null)
+					Files.createDirectories(parent);
+				Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
+				entry.file = dstpath.toString();
+			}
 			// System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);
 			return true;
 		}
@@ -93,8 +97,9 @@ public class RenameEntry extends EntryAction
 			dstpath = target.resolve(newname);
 			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
 			final Path srcpath = target.resolve(entry.file);
-			if(dstpath.getParent() != null)
-				Files.createDirectories(dstpath.getParent());
+			Path parent = dstpath.getParent();
+			if(parent != null)
+				Files.createDirectories(parent);
 			Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			entry.file = dstpath.toString();
 			// System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);

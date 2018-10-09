@@ -164,6 +164,7 @@ public class ProgressWS implements ProgressHandler
 		setProgress2(msg, val, null);
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
@@ -171,14 +172,20 @@ public class ProgressWS implements ProgressHandler
 			this.val2 = val;
 		try
 		{
-			ws.send(Json.object()
-				.add("cmd", "Progress.setProgress2")
-				.add("params", Json.object()
-					.add("msg", msg)
-					.add("val", val)
-					.add("max", max)
-				).toString()
-			);
+			ws.send(new JsonObject() {{
+				add("cmd", "Progress.setProgress2");
+				add("params", new JsonObject() {{
+					add("msg", msg);
+					if (val != null)
+						add("val", val);
+					else
+						add("val", (String)null);
+					if (max != null)
+						add("max", max);
+					else
+						add("max", (String)null);
+				}});
+			}}.toString());
 		}
 		catch (IOException e)
 		{

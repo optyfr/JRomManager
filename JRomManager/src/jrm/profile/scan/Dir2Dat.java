@@ -215,31 +215,36 @@ public class Dir2Dat
 						progress.setProgress(Messages.getString("Dir2Dat.Saving"), i.incrementAndGet()); //$NON-NLS-1$
 						Software software = null;
 						Path relativized = scan.getDir().toPath().relativize(c.file.toPath());
-						String swname = FilenameUtils.removeExtension(relativized.getFileName().toString());
-						String slname = relativized.getParent().toString();
-						if(session.curr_profile!= null)
+						Path filename = relativized.getFileName();
+						Path parent = relativized.getParent();
+						if(filename != null && parent != null)
 						{
-							SoftwareList sl = session.curr_profile.machinelist_list.softwarelist_list.getByName(slname);
-							if(sl != null && sl.containsName(swname))
-								software = sl.getByName(swname);
-							if(software != null && options.contains(Options.MATCH_PROFILE))
+							String swname = FilenameUtils.removeExtension(filename.toString());
+							String slname = parent.toString();
+							if(session.curr_profile!= null)
 							{
-								swname = software.getBaseName();
-								slname = software.sl.getBaseName();
+								SoftwareList sl = session.curr_profile.machinelist_list.softwarelist_list.getByName(slname);
+								if(sl != null && sl.containsName(swname))
+									software = sl.getByName(swname);
+								if(software != null && options.contains(Options.MATCH_PROFILE))
+								{
+									swname = software.getBaseName();
+									slname = software.sl.getBaseName();
+								}
 							}
+							if(!slcounter.containsKey(slname))
+							{
+								slcounter.put(slname, new HashMap<>());
+								slmap.put(slname, new SL(slname,software!=null?software.sl:null));
+							}
+							Map<String, AtomicInteger> swcounter = slcounter.get(slname);
+							if(!swcounter.containsKey(swname))
+								swcounter.put(swname, new AtomicInteger());
+							AtomicInteger val = swcounter.get(swname);
+							if(val.incrementAndGet() > 1)
+								swname = swname + "_" + val.get(); //$NON-NLS-1$
+							slmap.get(slname).sw.put(swname,new SL.SW(swname, software, c));
 						}
-						if(!slcounter.containsKey(slname))
-						{
-							slcounter.put(slname, new HashMap<>());
-							slmap.put(slname, new SL(slname,software!=null?software.sl:null));
-						}
-						Map<String, AtomicInteger> swcounter = slcounter.get(slname);
-						if(!swcounter.containsKey(swname))
-							swcounter.put(swname, new AtomicInteger());
-						AtomicInteger val = swcounter.get(swname);
-						if(val.incrementAndGet() > 1)
-							swname = swname + "_" + val.get(); //$NON-NLS-1$
-						slmap.get(slname).sw.put(swname,new SL.SW(swname, software, c));
 					}
 					if(slmap.size()>1)
 					{

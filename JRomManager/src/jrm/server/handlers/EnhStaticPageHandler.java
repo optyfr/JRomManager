@@ -7,11 +7,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
@@ -67,6 +63,17 @@ public class EnhStaticPageHandler extends DefaultHandler
 		gmtFrmt.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
 	}
 	
+	private static synchronized String dateFormat(final Date date)
+	{
+		return gmtFrmt.format(date);
+	}
+	
+	private static synchronized Date dateParse(final String str) throws ParseException
+	{
+		return gmtFrmt.parse(str);
+	}
+	
+	@Override
 	public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session)
 	{
 		String baseUri = uriResource.getUri();
@@ -106,7 +113,7 @@ public class EnhStaticPageHandler extends DefaultHandler
 					if (ifModifiedSince != null)
 					{
 						//System.out.println(fileOrdirectory.getName()+":\n\tif-modified-since="+ifModifiedSince+" ("+(gmtFrmt.parse(ifModifiedSince).getTime() / 1000)+"),\n\tlastmodified="+(fileOrdirectory.lastModified()/1000));
-						if(gmtFrmt.parse(ifModifiedSince).getTime() / 1000 == fileOrdirectory.lastModified() / 1000)
+						if(dateParse(ifModifiedSince).getTime() / 1000 == fileOrdirectory.lastModified() / 1000)
 							return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_MODIFIED, null, null);
 					}
 				}
@@ -121,8 +128,8 @@ public class EnhStaticPageHandler extends DefaultHandler
 				}
 				else
 					response = NanoHTTPD.newFixedLengthResponse(getStatus(), NanoHTTPD.getMimeTypeForFile(fileOrdirectory.getName()), fileToInputStream(fileOrdirectory), fileOrdirectory.length());
-				response.addHeader("Date", gmtFrmt.format(new Date(fileOrdirectory.lastModified())));
-				response.addHeader("Last-Modified", gmtFrmt.format(new Date(fileOrdirectory.lastModified())));
+				response.addHeader("Date", dateFormat(new Date(fileOrdirectory.lastModified())));
+				response.addHeader("Last-Modified", dateFormat(new Date(fileOrdirectory.lastModified())));
 				return response;
 			}
 			catch (IOException ioe)

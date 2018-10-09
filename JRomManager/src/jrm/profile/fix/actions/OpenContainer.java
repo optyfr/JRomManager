@@ -179,15 +179,22 @@ public class OpenContainer extends ContainerAction
 	public long deleteEmptyFolders(final File baseFolder)
 	{
 		long totalSize = 0;
-		for (final File folder : baseFolder.listFiles())
+		if(baseFolder!=null)
 		{
-			if (folder.isDirectory())
-				totalSize += deleteEmptyFolders(folder);
-			else
-				totalSize += folder.length();
+			File[] folders = baseFolder.listFiles();
+			if(folders!=null)
+			{
+				for (final File folder : folders)
+				{
+					if (folder.isDirectory())
+						totalSize += deleteEmptyFolders(folder);
+					else
+						totalSize += folder.length();
+				}
+			}
+			if (totalSize == 0)
+				baseFolder.delete();
 		}
-		if (totalSize == 0)
-			baseFolder.delete();
 		return totalSize;
 	}
 

@@ -60,12 +60,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 import java.util.zip.*;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * A FileSystem built on a zip file
  *
  * @author Xueming Shen
  */
 
+@SuppressFBWarnings
 class ZipFileSystem extends FileSystem
 {
 

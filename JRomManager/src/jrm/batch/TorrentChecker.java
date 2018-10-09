@@ -296,10 +296,18 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 					Path file = sdr.dst.toPath();
 					file = file.resolve(path);
 					
-					Path archive = file.getParent().resolve(file.getFileName().toString() + ".zip");
-					if (Files.exists(archive))
+					Path parent = file.getParent();
+					if(parent!=null)
 					{
-						archives.add(archive);
+						Path filename = file.getFileName();
+						if(filename!=null)
+						{
+							Path archive = parent.resolve(filename.toString() + ".zip");
+							if (Files.exists(archive))
+							{
+								archives.add(archive);
+							}
+						}
 					}
 				}
 			}
@@ -319,8 +327,16 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			{
 				try
 				{
-					unzip(archive, archive.getParent().resolve(FilenameUtils.getBaseName(archive.getFileName().toString())));
-				//	Files.delete(archive);
+					Path parent = archive.getParent();
+					if(parent!=null)
+					{
+						Path filename = archive.getFileName();
+						if(filename!=null)
+						{
+							unzip(archive, parent.resolve(FilenameUtils.getBaseName(filename.toString())));
+						//	Files.delete(archive);
+						}
+					}
 				}
 				catch (IOException e)
 				{

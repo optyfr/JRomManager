@@ -51,6 +51,17 @@ public class ResourceHandler extends DefaultHandler
 		gmtFrmt.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
 	}
 	
+	
+	private static synchronized String dateFormat(final Date date)
+	{
+		return gmtFrmt.format(date);
+	}
+	
+	private static synchronized Date dateParse(final String str) throws ParseException
+	{
+		return gmtFrmt.parse(str);
+	}
+	
 	@Override
 	public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session)
 	{
@@ -81,15 +92,15 @@ public class ResourceHandler extends DefaultHandler
 			try
 			{
 				String ifModifiedSince = session.getHeaders().get("if-modified-since");
-				if (ifModifiedSince != null && gmtFrmt.parse(ifModifiedSince).getTime() / 1000 == connection.getLastModified() / 1000)
+				if (ifModifiedSince != null && dateParse(ifModifiedSince).getTime() / 1000 == connection.getLastModified() / 1000)
 					return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_MODIFIED, null, null);
 			}
 			catch (ParseException e)
 			{
 			}
 			Response response = NanoHTTPD.newFixedLengthResponse(getStatus(), Server.getMimeTypeForFile(fileOrdirectory.getFile()), new BufferedInputStream(connection.getInputStream()), connection.getContentLengthLong());
-			response.addHeader("Date", gmtFrmt.format(new Date(connection.getLastModified())));
-			response.addHeader("Last-Modified", gmtFrmt.format(new Date(connection.getLastModified())));
+			response.addHeader("Date", dateFormat(new Date(connection.getLastModified())));
+			response.addHeader("Last-Modified", dateFormat(new Date(connection.getLastModified())));
 			response.addHeader("Cache-Control", "max-age=86400");
 			return response;
 
