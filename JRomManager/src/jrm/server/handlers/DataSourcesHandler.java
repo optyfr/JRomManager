@@ -46,7 +46,7 @@ public class DataSourcesHandler extends DefaultHandler
 			final String bodylenstr = headers.get("content-length");
 			if (bodylenstr != null)
 			{
-				int bodylen = Integer.parseInt(bodylenstr);
+				long bodylen = Long.parseLong(bodylenstr);
 				Session sess = Server.getSession(session.getCookies().read("session"));
 				if (headers.get("content-type").equals("text/xml"))
 				{

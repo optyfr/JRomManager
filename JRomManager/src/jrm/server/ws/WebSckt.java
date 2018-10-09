@@ -60,11 +60,14 @@ public class WebSckt extends WebSocket implements SessionStub
 					case "Profile.load":
 					{
 						new Thread(()->{
+							if (session.curr_profile != null)
+								session.curr_profile.saveSettings();
 							ProgressWS progress = new ProgressWS(WebSckt.this);
-							boolean success = (null != (Profile.load(session, new File(jso.get("params").asObject().getString("path", null)), progress)));
+							session.curr_profile = Profile.load(session, new File(jso.get("params").asObject().getString("path", null)), progress);
+							session.curr_profile.nfo.save(session);
 							session.report.setProfile(session.curr_profile);
 							progress.close();
-							new ProfileWS(this).loaded(success, session.curr_profile.getName(), session.curr_profile.systems);
+							new ProfileWS(this).loaded(session.curr_profile);
 						}).start();
 						break;
 					}
@@ -134,7 +137,7 @@ public class WebSckt extends WebSocket implements SessionStub
 			try
 			{
 				WebSckt.this.ping(PAYLOAD);
-				System.out.println("sent ping");
+			//	System.out.println("sent ping");
 				ping++;
 				if (ping - pong > 3)
 					WebSckt.this.close(CloseCode.GoingAway, "Missed too many ping requests.", false);
@@ -146,7 +149,7 @@ public class WebSckt extends WebSocket implements SessionStub
 
 		private void pong()
 		{
-			System.out.println("rec pong");
+		//	System.out.println("rec pong");
 			pong++;
 		}
 
@@ -176,6 +179,9 @@ public class WebSckt extends WebSocket implements SessionStub
 	@Override
 	public void unsetSession(Session session)
 	{
+		if (session.curr_profile != null)
+			session.curr_profile.saveSettings();
+		session.getUser().settings.saveSettings();
 		sockets.remove(getSession().getSessionId());
 		server.unsetSession(session);
 		this.session = null;

@@ -7,20 +7,14 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
 import jrm.security.Session;
 import jrm.server.handlers.DataSourcesHandler;
+import jrm.server.handlers.EnhStaticPageHandler;
 import jrm.server.handlers.ResourceHandler;
 import jrm.server.handlers.SessionHandler;
-import jrm.server.handlers.EnhStaticPageHandler;
 import jrm.server.ws.WebSckt;
 
 public class Server extends EnhRouterNanoHTTPD implements SessionStub
@@ -44,6 +38,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		Options options = new Options();
 		options.addOption(new Option("c", "client", true, "Client Path"));
 		options.addOption(new Option("p", "port", true, "Server Port"));
+		options.addOption(new Option("w", "workpath", true, "Working Path"));
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter formatter = new HelpFormatter();
 		CommandLine cmd;
@@ -72,6 +67,8 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 			catch (NumberFormatException e)
 			{
 			}
+			if(cmd.hasOption('w'))
+				System.setProperty("user.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
 		}
 		catch (ParseException e)
 		{

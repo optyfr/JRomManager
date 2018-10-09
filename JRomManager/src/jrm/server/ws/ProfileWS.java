@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
-import jrm.profile.data.Systms;
+import jrm.profile.Profile;
 
 public class ProfileWS
 {
@@ -17,28 +17,34 @@ public class ProfileWS
 	}
 
 	@SuppressWarnings("serial")
-	public void loaded(boolean success, String name, Systms systems)
+	public void loaded(final Profile profile)
 	{
 		try
 		{
 			ws.send(new JsonObject() {{
 				add("cmd", "Profile.loaded");
 				add("params", new JsonObject() {{
-					add("success", success);
-					add("name", name);
-					if(systems!=null)
-						add("systems", new JsonArray() {{
-							systems.forEach(s-> add(new JsonObject() {{
-								add("type", s.getType().toString());
-								add("name", s.getName());
-							}}));
-						}});
+					add("success", profile!=null);
+					if(profile!=null)
+					{
+						add("name", profile.getName());
+						if(profile.systems!=null)
+						{
+							add("systems", new JsonArray() {{
+								profile.systems.forEach(s-> add(new JsonObject() {{
+									add("type", s.getType().toString());
+									add("name", s.getName());
+								}}));
+							}});
+						}
+						if(profile.settings!=null)
+							add("settings",profile.settings.asJSO());
+					}
 				}});
 			}}.toString());
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

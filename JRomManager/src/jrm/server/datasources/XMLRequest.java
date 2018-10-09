@@ -1,6 +1,7 @@
 package jrm.server.datasources;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,24 +21,16 @@ public class XMLRequest
 	Map<String,String> data = new HashMap<>();
 	Session session;
 
-	public XMLRequest(Session session, InputStream in, int len) throws IOException
+	public XMLRequest(Session session, InputStream in, long len) throws IOException
 	{
 		this.session = session;
-		File file = File.createTempFile("JRMSRV", null);
-		try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));)
-		{
-			for (int i = 0; i < len; i++)
-				out.write(in.read());
-			out.close();
-		}
-
 		try
 		{
 			final SAXParserFactory factory = SAXParserFactory.newInstance();
 			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
 			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 			final SAXParser parser = factory.newSAXParser();
-			parser.parse(new TempFileInputStream(file), new org.xml.sax.helpers.DefaultHandler()
+			parser.parse(TempFileInputStream.newInstance(in, len), new org.xml.sax.helpers.DefaultHandler()
 			{
 				boolean isRequest = false;
 				boolean inOperationType = false;

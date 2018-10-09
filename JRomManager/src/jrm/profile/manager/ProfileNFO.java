@@ -154,6 +154,7 @@ public final class ProfileNFO implements Serializable
 			}
 			catch(final Throwable e)
 			{
+			//	e.printStackTrace();
 			}
 		}
 		return new ProfileNFO(file);
