@@ -4,7 +4,9 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +15,7 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+import fi.iki.elonen.NanoWSD;
 import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
@@ -186,5 +189,6 @@ public class WebSckt extends WebSocket implements SessionStub
 		server.unsetSession(session);
 		this.session = null;
 	}
+
 
 }

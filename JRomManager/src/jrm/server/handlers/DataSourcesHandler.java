@@ -15,6 +15,7 @@ import jrm.server.Server;
 import jrm.server.datasources.ProfilesListXMLResponse;
 import jrm.server.datasources.ProfilesTreeXMLResponse;
 import jrm.server.datasources.RemoteFileChooserXMLResponse;
+import jrm.server.datasources.RemoteRootChooserXMLResponse;
 import jrm.server.datasources.XMLRequest;
 
 public class DataSourcesHandler extends DefaultHandler
@@ -59,6 +60,8 @@ public class DataSourcesHandler extends DefaultHandler
 							return new ProfilesListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "remoteFileChooser":
 							return new RemoteFileChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "remoteRootChooser":
+							return new RemoteRootChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 					}
 				}
 				else

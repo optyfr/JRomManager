@@ -21,7 +21,7 @@ public class ProfileSettings extends Settings
 
 	public ProfileSettings()
 	{
-		// TODO Auto-generated constructor stub
+		super();
 	}
 
 }

@@ -53,13 +53,17 @@ public class Settings implements SettingsImpl
 	@Override
 	public void saveSettings(final File file)
 	{
+		System.out.println("file="+file+", propsize="+properties.size());
 		try(FileOutputStream os = new FileOutputStream(file))
 		{
+			System.out.println("before store");
 			properties.storeToXML(os, null);
+			System.out.println("stored");
 		}
-		catch(final IOException e)
+		catch(final Throwable e)
 		{
-			Log.err("IO", e); //$NON-NLS-1$
+			e.printStackTrace();
+			//Log.err("IO", e); //$NON-NLS-1$
 		}
 	}
 

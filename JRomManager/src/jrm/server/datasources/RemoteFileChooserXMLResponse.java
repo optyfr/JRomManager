@@ -41,12 +41,20 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			Path dir = request.session.getUser().settings.getWorkPath();
 			if(request.data.containsKey("parent"))
 				dir = new File(request.data.get("parent")).toPath();
-			writer.writeAttribute("parent", dir.toString());
+			writer.writeStartElement("parent");
+			writer.writeCData(dir.toString());
+			writer.writeEndElement();
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, new DirectoryStream.Filter<Path>() {
 				@Override
 				public boolean accept(Path entry) throws IOException
 				{
-					return true;
+					switch(request.data.get("context"))
+					{
+						case "tfRomsDest":
+							return Files.isDirectory(entry);
+						default:
+							return true;
+					}
 				}
 				
 			}))
@@ -58,7 +66,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 					writer.writeEmptyElement("record");
 					writer.writeAttribute("Name", "..");
 					writer.writeAttribute("Path", dir.getParent().toString());
-					writer.writeAttribute("Size", "0");
+					writer.writeAttribute("Size", "-1");
 					writer.writeAttribute("Modified", Long.toString(Files.getLastModifiedTime(dir.getParent()).toMillis()));
 					writer.writeAttribute("isDir", "true");
 					cnt++;
@@ -68,7 +76,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 					writer.writeEmptyElement("record");
 					writer.writeAttribute("Name", entry.getFileName().toString());
 					writer.writeAttribute("Path", entry.toString());
-					writer.writeAttribute("Size", Long.toString(Files.size(entry)));
+					writer.writeAttribute("Size", Files.isDirectory(entry)?"-1":Long.toString(Files.size(entry)));
 					writer.writeAttribute("Modified", Long.toString(Files.getLastModifiedTime(entry).toMillis()));
 					writer.writeAttribute("isDir", Boolean.toString(Files.isDirectory(entry)));
 					cnt++;
