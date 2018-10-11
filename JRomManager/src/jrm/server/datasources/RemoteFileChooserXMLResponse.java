@@ -39,8 +39,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			writer.writeAttribute("status", "0");
 			writer.writeAttribute("startRow", "0");
 			Path dir = request.session.getUser().settings.getWorkPath();
-			if(request.data.containsKey("Parent"))
-				dir = new File(request.data.get("Parent")).toPath();
+			if(request.data.containsKey("parent"))
+				dir = new File(request.data.get("parent")).toPath();
+			writer.writeAttribute("parent", dir.toString());
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, new DirectoryStream.Filter<Path>() {
 				@Override
 				public boolean accept(Path entry) throws IOException
@@ -52,11 +53,23 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			{
 				long cnt = 0;
 				writer.writeStartElement("data");
+				if (dir.getParent() != null)
+				{
+					writer.writeEmptyElement("record");
+					writer.writeAttribute("Name", "..");
+					writer.writeAttribute("Path", dir.getParent().toString());
+					writer.writeAttribute("Size", "0");
+					writer.writeAttribute("Modified", Long.toString(Files.getLastModifiedTime(dir.getParent()).toMillis()));
+					writer.writeAttribute("isDir", "true");
+					cnt++;
+				}
 				for (Path entry : stream)
 				{
 					writer.writeEmptyElement("record");
 					writer.writeAttribute("Name", entry.getFileName().toString());
-					writer.writeAttribute("Parent", dir.toString());
+					writer.writeAttribute("Path", entry.toString());
+					writer.writeAttribute("Size", Long.toString(Files.size(entry)));
+					writer.writeAttribute("Modified", Long.toString(Files.getLastModifiedTime(entry).toMillis()));
 					writer.writeAttribute("isDir", Boolean.toString(Files.isDirectory(entry)));
 					cnt++;
 				}
