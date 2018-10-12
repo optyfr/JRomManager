@@ -2,11 +2,13 @@ package jrm.server.datasources;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -29,7 +31,22 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected Response fetch() throws Exception
 	{
-		File tmpfile = File.createTempFile("JRM", null);
+		final File tmpfile = File.createTempFile("JRM", null);
+		final boolean isDir;
+		switch(request.data.get("context"))
+		{
+			case "tfRomsDest":
+			case "tfDisksDest":
+			case "tfSWDest":
+			case "tfSWDisksDest":
+			case "tfSamplesDest":
+			case "listSrcDir":
+				isDir = true;
+				break;
+			default:
+				isDir = false;
+				break;
+		}
 		try (OutputStream out = new FileOutputStream(tmpfile))
 		{
 			XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
@@ -44,20 +61,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			writer.writeStartElement("parent");
 			writer.writeCData(dir.toString());
 			writer.writeEndElement();
-			try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, new DirectoryStream.Filter<Path>() {
-				@Override
-				public boolean accept(Path entry) throws IOException
-				{
-					switch(request.data.get("context"))
-					{
-						case "tfRomsDest":
-							return Files.isDirectory(entry);
-						default:
-							return true;
-					}
-				}
-				
-			}))
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, entry -> isDir ? Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS) : true))
 			{
 				long cnt = 0;
 				writer.writeStartElement("data");
@@ -67,18 +71,20 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 					writer.writeAttribute("Name", "..");
 					writer.writeAttribute("Path", dir.getParent().toString());
 					writer.writeAttribute("Size", "-1");
-					writer.writeAttribute("Modified", Long.toString(Files.getLastModifiedTime(dir.getParent()).toMillis()));
+					writer.writeAttribute("Modified", Files.getLastModifiedTime(dir.getParent()).toString());
 					writer.writeAttribute("isDir", "true");
 					cnt++;
 				}
 				for (Path entry : stream)
 				{
+					BasicFileAttributeView view = Files.getFileAttributeView(entry, BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+					BasicFileAttributes attr = view.readAttributes();
 					writer.writeEmptyElement("record");
 					writer.writeAttribute("Name", entry.getFileName().toString());
 					writer.writeAttribute("Path", entry.toString());
-					writer.writeAttribute("Size", Files.isDirectory(entry)?"-1":Long.toString(Files.size(entry)));
-					writer.writeAttribute("Modified", Long.toString(Files.getLastModifiedTime(entry).toMillis()));
-					writer.writeAttribute("isDir", Boolean.toString(Files.isDirectory(entry)));
+					writer.writeAttribute("Size", !attr.isRegularFile()?"-1":Long.toString(attr.size()));
+					writer.writeAttribute("Modified", attr.lastModifiedTime().toString());
+					writer.writeAttribute("isDir", Boolean.toString(attr.isDirectory()));
 					cnt++;
 				}
 				writer.writeEndElement();

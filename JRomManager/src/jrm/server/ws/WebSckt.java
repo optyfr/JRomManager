@@ -4,18 +4,17 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonObject.Member;
+import com.eclipsesource.json.JsonValue;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
-import fi.iki.elonen.NanoWSD;
 import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
@@ -72,6 +71,21 @@ public class WebSckt extends WebSocket implements SessionStub
 							progress.close();
 							new ProfileWS(this).loaded(session.curr_profile);
 						}).start();
+						break;
+					}
+					case "Profile.setProperty":
+					{
+						JsonObject pjso = jso.get("params").asObject();
+						for(Member m : pjso)
+						{
+							JsonValue value = m.getValue();
+							if(value.isBoolean())
+								session.curr_profile.setProperty(m.getName(), value.asBoolean());
+							else if(value.isString())
+								session.curr_profile.setProperty(m.getName(), value.asString());
+							else
+								session.curr_profile.setProperty(m.getName(), value.toString());
+						}
 						break;
 					}
 					default:
