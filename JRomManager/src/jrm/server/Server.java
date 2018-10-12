@@ -91,6 +91,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 			catch (Throwable ignored)
 			{
 			}
+			WebSckt.saveAllSettings();
 	        server.stop();
 	        System.out.println("Server stopped.\n");
 		}

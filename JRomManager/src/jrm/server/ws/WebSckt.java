@@ -114,7 +114,8 @@ public class WebSckt extends WebSocket implements SessionStub
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		unsetSession(session);
+		if(session!=null)
+			unsetSession(session);
 	}
 
 	@Override
@@ -176,6 +177,22 @@ public class WebSckt extends WebSocket implements SessionStub
 			service.shutdownNow();
 		}
 	}
+	
+	private void saveSettings()
+	{
+		if(session!=null)
+		{
+			if (session.curr_profile != null)
+				session.curr_profile.saveSettings();
+			session.getUser().settings.saveSettings();
+			session = null;
+		}
+	}
+	
+	public static void saveAllSettings()
+	{
+		sockets.forEach((id,socket)->socket.saveSettings());
+	}
 
 	@Override
 	public Session getSession()
@@ -196,12 +213,9 @@ public class WebSckt extends WebSocket implements SessionStub
 	@Override
 	public void unsetSession(Session session)
 	{
-		if (session.curr_profile != null)
-			session.curr_profile.saveSettings();
-		session.getUser().settings.saveSettings();
-		sockets.remove(getSession().getSessionId());
+		saveSettings();
+		sockets.remove(session.getSessionId());
 		server.unsetSession(session);
-		this.session = null;
 	}
 
 
