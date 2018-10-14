@@ -13,25 +13,35 @@ import jrm.ui.progress.ProgressInputStream;
 
 public class ProgressWS implements ProgressHandler
 {
-	private final WebSckt ws;
+	private WebSckt ws;
 	
 	/** The thread id offset. */
 	private final Map<Long,Integer> threadId_Offset = new HashMap<>();
 	
 	/** Current thread cnt */
 	private int threadCnt = 1;
+	
+	private boolean multipleSubInfos = false;
 
 	/** The cancel. */
 	private boolean cancel = false;
 	
-	private int val = 0, val2 = 0;
+	private int val = 0, val2 = 0, max = 0, max2 = 0;
+	
+	private String infos[] = {null}, subinfos[] = {null}, msg2;
 	
 	public ProgressWS(WebSckt ws)
 	{
 		this.ws = ws;
+		sendOpen();
+	}
+	
+	private void sendOpen()
+	{
 		try
 		{
-			ws.send(Json.object().add("cmd", "Progress").toString());
+			if(ws.isOpen())
+				ws.send(Json.object().add("cmd", "Progress").toString());
 		}
 		catch (IOException e)
 		{
@@ -39,19 +49,41 @@ public class ProgressWS implements ProgressHandler
 		}
 	}
 
+	public void reload(WebSckt ws)
+	{
+		this.ws = ws;
+		sendOpen();
+		sendSetInfos();
+		for(int i = 0; i < threadCnt; i++)
+			sendSetProgress(i, i==0?val:null, i==0?max:null);
+		sendSetProgress2(val2, max2);
+	}
+	
 	@Override
 	public synchronized void setInfos(int threadCnt, boolean multipleSubInfos)
 	{
 		this.threadCnt = threadCnt;
+		this.multipleSubInfos = multipleSubInfos;
+		System.out.println("setinfos threadcnt="+threadCnt);
+		this.infos = new String[threadCnt];
+		this.subinfos = new String[multipleSubInfos?threadCnt:1];
+		sendSetInfos();
+	}
+	
+	private void sendSetInfos()
+	{
 		try
 		{
-			ws.send(Json.object()
-				.add("cmd", "Progress.setInfos")
-				.add("params", Json.object()
-					.add("threadCnt", threadCnt)
-					.add("multipleSubInfos", multipleSubInfos)
-				).toString()
-			);
+			if(ws.isOpen())
+			{
+				ws.send(Json.object()
+					.add("cmd", "Progress.setInfos")
+					.add("params", Json.object()
+						.add("threadCnt", threadCnt)
+						.add("multipleSubInfos", multipleSubInfos)
+					).toString()
+				);
+			}
 		}
 		catch (IOException e)
 		{
@@ -62,9 +94,20 @@ public class ProgressWS implements ProgressHandler
 	@Override
 	public void clearInfos()
 	{
+		for(int i = 0; i < infos.length; i++)
+			infos[i] = null;			
+		for(int i = 0; i < subinfos.length; i++)
+			subinfos[i] = null;		
+		msg2 = null;
+		sendClearInfos();
+	}
+	
+	private void sendClearInfos()
+	{
 		try
 		{
-			ws.send(Json.object().add("cmd", "Progress.clearInfos").toString());
+			if(ws.isOpen())
+				ws.send(Json.object().add("cmd", "Progress.clearInfos").toString());
 		}
 		catch (IOException e)
 		{
@@ -90,7 +133,6 @@ public class ProgressWS implements ProgressHandler
 		setProgress(msg, val, max, null);
 	}
 
-	@SuppressWarnings("serial")
 	@Override
 	public synchronized void setProgress(String msg, Integer val, Integer max, String submsg)
 	{
@@ -130,32 +172,49 @@ public class ProgressWS implements ProgressHandler
 		int offset = threadId_Offset.get(Thread.currentThread().getId());
 		if (val != null && val > 0)
 			this.val = val;
+		
+		infos[offset] = msg;
+		subinfos[subinfos.length==1?0:offset] = submsg;
+		if(val!=null)
+			this.val = val;
+		if(max!=null)
+			this.max = max;
+		sendSetProgress(offset, val, max);
+	}
+	
+	@SuppressWarnings("serial")
+	private void sendSetProgress(int offset, Integer val, Integer max)
+	{
 		try
 		{
-			ws.send(
-				new JsonObject() {{
-					add("cmd", "Progress.setProgress");
-					add("params", new JsonObject() {{
-							add("offset", offset);
-							add("msg", msg);
-							if(val==null)
-								add("val", (String)null);
-							else
-								add("val", val);
-							if(max==null)
-								add("max", (String)null);
-							else
-								add("max", max);
-							add("submsg", submsg);
-						}}
-					);
-				}}.toString()
-			);
+			if(ws.isOpen())
+			{
+				ws.send(
+					new JsonObject() {{
+						add("cmd", "Progress.setProgress");
+						add("params", new JsonObject() {{
+								add("offset", offset);
+								add("msg", infos[offset]);
+								if(val==null)
+									add("val", (String)null);
+								else
+									add("val", val);
+								if(max==null)
+									add("max", (String)null);
+								else
+									add("max", max);
+								add("submsg", subinfos[subinfos.length==1?0:offset]);
+							}}
+						);
+					}}.toString()
+				);
+			}
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
+		
 	}
 
 	@Override
@@ -164,28 +223,39 @@ public class ProgressWS implements ProgressHandler
 		setProgress2(msg, val, null);
 	}
 
-	@SuppressWarnings("serial")
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
-		if (val != null && val > 0)
+		if (val != null)
 			this.val2 = val;
+		if (max != null)
+			this.max2 = max;
+		this.msg2 = msg;
+		sendSetProgress2(val, max);
+	}
+	
+	@SuppressWarnings("serial")
+	private void sendSetProgress2(Integer val, Integer max)
+	{
 		try
 		{
-			ws.send(new JsonObject() {{
-				add("cmd", "Progress.setProgress2");
-				add("params", new JsonObject() {{
-					add("msg", msg);
-					if (val != null)
-						add("val", val);
-					else
-						add("val", (String)null);
-					if (max != null)
-						add("max", max);
-					else
-						add("max", (String)null);
-				}});
-			}}.toString());
+			if(ws.isOpen())
+			{
+				ws.send(new JsonObject() {{
+					add("cmd", "Progress.setProgress2");
+					add("params", new JsonObject() {{
+						add("msg", msg2);
+						if (val != null)
+							add("val", val);
+						else
+							add("val", (String)null);
+						if (max != null)
+							add("max", max);
+						else
+							add("max", (String)null);
+					}});
+				}}.toString());
+			}
 		}
 		catch (IOException e)
 		{
@@ -228,7 +298,8 @@ public class ProgressWS implements ProgressHandler
 	{
 		try
 		{
-			ws.send(Json.object().add("cmd", "Progress.close").toString());
+			if(ws.isOpen())
+				ws.send(Json.object().add("cmd", "Progress.close").toString());
 		}
 		catch (IOException e)
 		{

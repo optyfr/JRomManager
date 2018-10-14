@@ -1,7 +1,12 @@
 package jrm.server.handlers;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.Locale.LanguageRange;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.UUID;
 
 import com.eclipsesource.json.JsonObject;
 
@@ -12,9 +17,9 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.locale.Messages;
-import jrm.security.Session;
 import jrm.server.Server;
 import jrm.server.SessionStub;
+import jrm.server.WebSession;
 
 public class SessionHandler extends DefaultHandler
 {
@@ -51,9 +56,22 @@ public class SessionHandler extends DefaultHandler
 				int bodylen = Integer.parseInt(bodylenstr);
 				session.getInputStream().skip(bodylen);
 			}
-			session.getCookies().set("session", sessionid, 1);
 			SessionStub sessionStub = uriResource.initParameter(SessionStub.class);
-			sessionStub.setSession(new Session(sessionid));
+			String oldsession = session.getCookies().read("session");
+			if(oldsession!=null)
+			{
+				System.out.println("session:"+oldsession);
+				WebSession sess;
+				if((sess=Server.getSession(oldsession))!=null)
+				{
+					System.out.println("reusing session:"+oldsession);
+					sessionid = oldsession;
+					sessionStub.setSession(sess);
+				}
+			}
+			session.getCookies().set("session", sessionid, 1);
+			if(Server.getSession(sessionid)==null)
+				sessionStub.setSession(new WebSession(sessionid));
 			return Server.newFixedLengthResponse(getStatus(), getMimeType(), new JsonObject()
 			{{
 				add("session", sessionid);
@@ -66,7 +84,7 @@ public class SessionHandler extends DefaultHandler
 							add(k, rb.getString(k));
 					});
 				}});
-				add("settings", sessionStub.getSession().getUser().settings.asJSO());
+				add("settings", Server.getSession(sessionid).getUser().settings.asJSO());
 			}}.toString());
 		}
 		catch (Exception e)

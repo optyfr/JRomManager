@@ -29,6 +29,8 @@ import jrm.profile.data.Systm;
 import jrm.profile.data.Years;
 import jrm.security.Session;
 import jrm.ui.basic.JCheckBoxList;
+import javax.swing.UIManager;
+import java.awt.Color;
 
 @SuppressWarnings("serial")
 public class ScannerFiltersPanel extends JSplitPane
@@ -72,9 +74,9 @@ public class ScannerFiltersPanel extends JSplitPane
 		this.setResizeWeight(0.5);
 		this.setOneTouchExpandable(true);
 		this.setContinuousLayout(true);
-		JScrollPane scrollPane_2 = new JScrollPane();
-		this.setRightComponent(scrollPane_2);
-		scrollPane_2.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.scrollPane_2.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
+		JScrollPane systemsFilterScrollPane = new JScrollPane();
+		this.setRightComponent(systemsFilterScrollPane);
+		systemsFilterScrollPane.setViewportBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), Messages.getString("MainFrame.systemsFilter.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
 
 		checkBoxListSystems = new JCheckBoxList<>();
 		checkBoxListSystems.setCellRenderer(checkBoxListSystems.new CellRenderer()
@@ -99,7 +101,7 @@ public class ScannerFiltersPanel extends JSplitPane
 				}
 			}
 		});
-		scrollPane_2.setViewportView(checkBoxListSystems);
+		systemsFilterScrollPane.setViewportView(checkBoxListSystems);
 
 		JPopupMenu popupMenu = new JPopupMenu();
 		MainFrame.addPopup(checkBoxListSystems, popupMenu);

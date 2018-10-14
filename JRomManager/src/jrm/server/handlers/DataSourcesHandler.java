@@ -70,6 +70,7 @@ public class DataSourcesHandler extends DefaultHandler
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			return new Error500UriHandler(e).get(uriResource, urlParams, session);
 		}
 		return new Error404UriHandler().get(uriResource, urlParams, session);

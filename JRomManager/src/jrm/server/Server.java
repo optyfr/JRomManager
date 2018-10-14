@@ -3,29 +3,61 @@ package jrm.server;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
-import jrm.security.Session;
 import jrm.server.handlers.DataSourcesHandler;
 import jrm.server.handlers.EnhStaticPageHandler;
 import jrm.server.handlers.ResourceHandler;
 import jrm.server.handlers.SessionHandler;
+import jrm.server.handlers.UploadHandler;
 import jrm.server.ws.WebSckt;
 
 public class Server extends EnhRouterNanoHTTPD implements SessionStub
 {
 	private String clientPath;
-	
+
+	final static Map<String, WebSession> sessions = new HashMap<>();
+		
 	public Server(int port, String clientPath)
 	{
 		super(port);
 		this.clientPath = clientPath;
 		addMappings();
+		ScheduledExecutorService cleanerService = Executors.newSingleThreadScheduledExecutor();
+		cleanerService.scheduleAtFixedRate(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Iterator<Entry<String, WebSession>> iterator = sessions.entrySet().iterator();
+				while(iterator.hasNext())
+				{
+					Entry<String, WebSession> entry = iterator.next();
+					if((new Date().getTime() - entry.getValue().lastAction.getTime())>86400L*1000L)
+					{
+						System.out.println("Session "+entry.getKey()+" removed");
+						iterator.remove();
+					}
+				}
+			}
+		}, 1, 1, TimeUnit.MINUTES);
 	}
 
 	/**
@@ -112,6 +144,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		addRoute("/images/(.)+", ResourceHandler.class, Server.class.getResource("/jrm/resources/"));
 		addRoute("/datasources/:action/", DataSourcesHandler.class);
 		addRoute("/session/", SessionHandler.class, this);
+		addRoute("/upload/", UploadHandler.class, this);
 	}
 	
 	@Override
@@ -120,32 +153,23 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		return new WebSckt(this, handshake);
 	}
 
-	final static Map<String, Session> sessions = new HashMap<>();
-	
-	private Session session = null;
-	
-	@Override
-	public Session getSession()
+	public static WebSession getSession(String session)
 	{
-		return session;
-	}
-
-	public static Session getSession(String session)
-	{
-		return sessions.get(session);
+		WebSession s = sessions.get(session);
+		if (s != null)
+			s.lastAction = new Date();
+		return s;
 	};
 
 	@Override
-	public void setSession(Session session)
+	public void setSession(WebSession session)
 	{
-		this.session = session;
 		sessions.put(session.getSessionId(), session);
 	}
 
 	@Override
-	public void unsetSession(Session session)
+	public void unsetSession(WebSession session)
 	{
 		sessions.remove(session.getSessionId());
-		this.session = null;
 	}
 }

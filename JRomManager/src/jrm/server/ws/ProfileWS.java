@@ -21,27 +21,31 @@ public class ProfileWS
 	{
 		try
 		{
-			ws.send(new JsonObject() {{
-				add("cmd", "Profile.loaded");
-				add("params", new JsonObject() {{
-					add("success", profile!=null);
-					if(profile!=null)
-					{
-						add("name", profile.getName());
-						if(profile.systems!=null)
+			if(ws.isOpen())
+			{
+				ws.send(new JsonObject() {{
+					add("cmd", "Profile.loaded");
+					add("params", new JsonObject() {{
+						add("success", profile!=null);
+						if(profile!=null)
 						{
-							add("systems", new JsonArray() {{
-								profile.systems.forEach(s-> add(new JsonObject() {{
-									add("type", s.getType().toString());
-									add("name", s.getName());
-								}}));
-							}});
+							add("name", profile.getName());
+							if(profile.systems!=null)
+							{
+								add("systems", new JsonArray() {{
+									profile.systems.forEach(s-> add(new JsonObject() {{
+										add("name", s.toString());
+										add("selected", s.isSelected(profile));
+										add("property", s.getPropertyName());
+									}}));
+								}});
+							}
+							if(profile.settings!=null)
+								add("settings",profile.settings.asJSO());
 						}
-						if(profile.settings!=null)
-							add("settings",profile.settings.asJSO());
-					}
-				}});
-			}}.toString());
+					}});
+				}}.toString());
+			}
 		}
 		catch (IOException e)
 		{
