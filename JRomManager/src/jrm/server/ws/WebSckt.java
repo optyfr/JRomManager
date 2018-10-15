@@ -28,7 +28,7 @@ import jrm.server.WebSession;
 public class WebSckt extends WebSocket implements SessionStub
 {
 	private final static Map<String, WebSckt> sockets = new HashMap<>();
-	private Server server;
+//	private Server server;
 	private WebSession session;
 	private String sessionid;
 	private PingService pingService;
@@ -36,7 +36,7 @@ public class WebSckt extends WebSocket implements SessionStub
 	public WebSckt(Server server, IHTTPSession handshakeRequest)
 	{
 		super(handshakeRequest);
-		this.server = server;
+//		this.server = server;
 		setSession(Server.getSession(handshakeRequest.getCookies().read("session")));
 		System.out.println("websocket created for session "+session);
 	}

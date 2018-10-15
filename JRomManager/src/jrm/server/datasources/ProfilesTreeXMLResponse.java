@@ -1,26 +1,18 @@
 package jrm.server.datasources;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
-import jrm.server.TempFileInputStream;
+import jrm.server.datasources.XMLRequest.Operation;
 import jrm.ui.profile.manager.DirNode;
-import jrm.xml.EnhancedXMLStreamWriter;
 
 public class ProfilesTreeXMLResponse extends XMLResponse
 {
 
-	public ProfilesTreeXMLResponse(XMLRequest request)
+	public ProfilesTreeXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
 	}
@@ -62,49 +54,18 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	}
 
 	@Override
-	protected Response fetch() throws Exception
+	protected void fetch(Operation operation) throws Exception
 	{
-		File tmpfile = File.createTempFile("JRM", null);
-		try (OutputStream out = new FileOutputStream(tmpfile))
-		{
-			DirNode root = new DirNode(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
-			XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
-			XMLStreamWriter writer = new EnhancedXMLStreamWriter(outputFactory.createXMLStreamWriter(out));
-			writer.writeStartDocument("utf-8", "1.0");
-			writer.writeStartElement("response");
-			writer.writeAttribute("status", "0");
-			writer.writeAttribute("startRow", "0");
-			int nodecount = countNode(root);
-			writer.writeAttribute("endRow", nodecount == 0 ? "-1" : nodecount + "");
-			writer.writeStartElement("data");
-			outputNode(writer, root, null, new AtomicInteger());
-			writer.writeEndElement();
-			writer.writeEndElement();
-			writer.writeEndDocument();
-			writer.close();
-		}
-		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/xml", new TempFileInputStream(tmpfile), tmpfile.length());
+		DirNode root = new DirNode(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
+		int nodecount = countNode(root);
+		writer.writeStartElement("response");
+		writer.writeElement("status", "0");
+		writer.writeElement("startRow", "0");
+		writer.writeElement("endRow", Integer.toString(nodecount == 0 ? -1 : nodecount));
+		writer.writeElement("totalRows", Integer.toString(nodecount == 0 ? -1 : nodecount));
+		writer.writeStartElement("data");
+		outputNode(writer, root, null, new AtomicInteger());
+		writer.writeEndElement();
+		writer.writeEndElement();
 	}
-
-	@Override
-	protected Response add() throws Exception
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected Response update() throws Exception
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected Response delete() throws Exception
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

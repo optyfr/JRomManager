@@ -3,6 +3,7 @@ package jrm.server.handlers;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,8 +68,8 @@ public class UploadHandler extends DefaultHandler
 				{
 					long bodylen = Long.parseLong(bodylenstr);
 					InputStream in = new BufferedInputStream(session.getInputStream());
-					final String filename = headers.get("x-file-name");
-					final String fileparent = headers.get("x-file-parent");
+					final String filename =  URLDecoder.decode(headers.get("x-file-name"), "UTF-8");
+					final String fileparent = URLDecoder.decode(headers.get("x-file-parent"), "UTF-8");
 					Path dstpath = Paths.get(fileparent, filename);
 					Files.createDirectories(dstpath.getParent());
 					BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(dstpath, StandardOpenOption.CREATE));

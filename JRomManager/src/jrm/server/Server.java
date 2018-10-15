@@ -3,30 +3,16 @@ package jrm.server;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
-import jrm.server.handlers.DataSourcesHandler;
-import jrm.server.handlers.EnhStaticPageHandler;
-import jrm.server.handlers.ResourceHandler;
-import jrm.server.handlers.SessionHandler;
-import jrm.server.handlers.UploadHandler;
+import jrm.server.handlers.*;
 import jrm.server.ws.WebSckt;
 
 public class Server extends EnhRouterNanoHTTPD implements SessionStub
@@ -124,8 +110,9 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 			{
 			}
 			WebSckt.saveAllSettings();
-	        server.stop();
-	        System.out.println("Server stopped.\n");
+			server.stop();
+			System.out.println("Server stopped.\n");
+			System.exit(0);
 		}
 		catch (IOException e)
 		{

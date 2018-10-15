@@ -2,7 +2,9 @@ package jrm.server.datasources;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,8 +19,22 @@ import jrm.server.TempFileInputStream;
 
 public class XMLRequest
 {
-	StringBuffer operationType = new StringBuffer();
-	Map<String,String> data = new HashMap<>();
+	class Operation
+	{
+		StringBuffer operationType = new StringBuffer();
+		Map<String,String> data = new HashMap<>();
+		Map<String,String> oldValues = new HashMap<>();
+	}
+	
+	class Transaction
+	{
+		List<Operation> operations = new ArrayList<>();
+	}
+	
+	Operation operation = null;
+	
+	Transaction transaction = null;
+	
 	Session session;
 
 	public XMLRequest(Session session, InputStream in, long len) throws IOException
@@ -35,13 +51,24 @@ public class XMLRequest
 				boolean isRequest = false;
 				boolean inOperationType = false;
 				boolean inData = false;
+				boolean inOldValues = false;
 				StringBuffer datavalue = new StringBuffer();
+				Operation current_request; 
 
 				@Override
 				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
 				{
 					if (qName.equals("request"))
+					{
+						current_request = new Operation();
+						if(transaction != null)
+							transaction.operations.add(current_request);
+						else
+							operation = current_request;
 						isRequest = true;
+					}
+					else if(qName.equals("transaction"))
+						transaction = new Transaction();
 					else if (isRequest)
 					{
 						switch (qName)
@@ -52,8 +79,13 @@ public class XMLRequest
 							case "data":
 								inData = true;
 								break;
+							case "oldValues":
+								inOldValues = true;
+								break;
 							default:
 								if(inData)
+									datavalue.setLength(0);
+								else if(inOldValues)
 									datavalue.setLength(0);
 								break;
 						}
@@ -71,10 +103,18 @@ public class XMLRequest
 						case "data":
 							inData = false;
 							break;
+						case "oldValues":
+							inOldValues = false;
+							break;
 						default:
 							if(inData)
 							{
-								data.put(qName, datavalue.toString());
+								current_request.data.put(qName, datavalue.toString());
+								datavalue.setLength(0);
+							}
+							else if(inOldValues)
+							{
+								current_request.oldValues.put(qName, datavalue.toString());
 								datavalue.setLength(0);
 							}
 							break;
@@ -86,9 +126,13 @@ public class XMLRequest
 				{
 					if (inOperationType)
 					{
-						operationType.append(ch, start, length);
+						current_request.operationType.append(ch, start, length);
 					}
 					else if(inData)
+					{
+						datavalue.append(ch, start, length);
+					}
+					else if(inOldValues)
 					{
 						datavalue.append(ch, start, length);
 					}

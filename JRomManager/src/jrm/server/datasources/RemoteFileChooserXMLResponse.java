@@ -1,8 +1,6 @@
 package jrm.server.datasources;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -10,30 +8,22 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
-
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
-import jrm.server.TempFileInputStream;
-import jrm.xml.EnhancedXMLStreamWriter;
+import jrm.server.datasources.XMLRequest.Operation;
 
 public class RemoteFileChooserXMLResponse extends XMLResponse
 {
 
-	public RemoteFileChooserXMLResponse(XMLRequest request)
+	public RemoteFileChooserXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
 	}
 
 
 	@Override
-	protected Response fetch() throws Exception
+	protected void fetch(Operation operation) throws Exception
 	{
-		final File tmpfile = File.createTempFile("JRM", null);
 		final boolean isDir;
-		switch(request.data.get("context"))
+		switch(operation.data.get("context"))
 		{
 			case "tfRomsDest":
 			case "tfDisksDest":
@@ -47,80 +37,146 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				isDir = false;
 				break;
 		}
-		try (OutputStream out = new FileOutputStream(tmpfile))
+		writer.writeStartElement("response");
+		writer.writeElement("status", "0");
+		writer.writeElement("startRow", "0");
+		Path dir = request.session.getUser().settings.getWorkPath();
+		if(operation.data.containsKey("parent"))
+			dir = new File(operation.data.get("parent")).toPath();
+		writer.writeElement("parent", dir.toString());
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, entry -> isDir ? Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS) : true))
 		{
-			XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
-			XMLStreamWriter writer = new EnhancedXMLStreamWriter(outputFactory.createXMLStreamWriter(out));
-			writer.writeStartDocument("utf-8", "1.0");
-			writer.writeStartElement("response");
-			writer.writeAttribute("status", "0");
-			writer.writeAttribute("startRow", "0");
-			Path dir = request.session.getUser().settings.getWorkPath();
-			if(request.data.containsKey("parent"))
-				dir = new File(request.data.get("parent")).toPath();
-			writer.writeStartElement("parent");
-			writer.writeCData(dir.toString());
-			writer.writeEndElement();
-			try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, entry -> isDir ? Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS) : true))
+			long cnt = 0;
+			writer.writeStartElement("data");
+			if (dir.getParent() != null)
 			{
-				long cnt = 0;
-				writer.writeStartElement("data");
-				if (dir.getParent() != null)
-				{
-					writer.writeEmptyElement("record");
-					writer.writeAttribute("Name", "..");
-					writer.writeAttribute("Path", dir.getParent().toString());
-					writer.writeAttribute("Size", "-1");
-					writer.writeAttribute("Modified", Files.getLastModifiedTime(dir.getParent()).toString());
-					writer.writeAttribute("isDir", "true");
-					cnt++;
-				}
-				for (Path entry : stream)
-				{
-					BasicFileAttributeView view = Files.getFileAttributeView(entry, BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
-					BasicFileAttributes attr = view.readAttributes();
-					writer.writeEmptyElement("record");
-					writer.writeAttribute("Name", entry.getFileName().toString());
-					writer.writeAttribute("Path", entry.toString());
-					writer.writeAttribute("Size", !attr.isRegularFile()?"-1":Long.toString(attr.size()));
-					writer.writeAttribute("Modified", attr.lastModifiedTime().toString());
-					writer.writeAttribute("isDir", Boolean.toString(attr.isDirectory()));
-					cnt++;
-				}
-				writer.writeEndElement();
-				writer.writeStartElement("endRow");
-				writer.writeCharacters(cnt+"");
-				writer.writeEndElement();
-				writer.writeStartElement("totalRows");
-				writer.writeCharacters(cnt+"");
-				writer.writeEndElement();
+				writer.writeEmptyElement("record");
+				writer.writeAttribute("Name", "..");
+				writer.writeAttribute("Path", dir.getParent().toString());
+				writer.writeAttribute("Size", "-1");
+				writer.writeAttribute("Modified", Files.getLastModifiedTime(dir.getParent()).toString());
+				writer.writeAttribute("isDir", "true");
+				cnt++;
+			}
+			for (Path entry : stream)
+			{
+				BasicFileAttributeView view = Files.getFileAttributeView(entry, BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+				BasicFileAttributes attr = view.readAttributes();
+				writer.writeEmptyElement("record");
+				writer.writeAttribute("Name", entry.getFileName().toString());
+				writer.writeAttribute("Path", entry.toString());
+				writer.writeAttribute("Size", !attr.isRegularFile()?"-1":Long.toString(attr.size()));
+				writer.writeAttribute("Modified", attr.lastModifiedTime().toString());
+				writer.writeAttribute("isDir", Boolean.toString(attr.isDirectory()));
+				cnt++;
 			}
 			writer.writeEndElement();
-			writer.writeEndDocument();
-			writer.close();
+			writer.writeElement("endRow", Long.toString(cnt));
+			writer.writeElement("totalRows", Long.toString(cnt));
 		}
-		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/xml", new TempFileInputStream(tmpfile), tmpfile.length());
+		writer.writeEndElement();
 	}
 
 	@Override
-	protected Response add() throws Exception
+	protected void add(Operation operation) throws Exception
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Path dir = request.session.getUser().settings.getWorkPath();
+		if(operation.data.containsKey("parent"))
+			dir = new File(operation.data.get("parent")).toPath();
+		String name = operation.data.get("Name");
+		Path entry = dir.resolve(name);
+		if(name!=null && Files.isDirectory(dir) && !Files.exists(entry))
+		{
+			try
+			{
+				Files.createDirectory(entry);
+				writer.writeStartElement("response");
+				writer.writeElement("status", "0");
+				writer.writeElement("parent", dir.toString());
+				writer.writeStartElement("data");
+				writer.writeEmptyElement("record");
+				writer.writeAttribute("Name", entry.getFileName().toString());
+				writer.writeAttribute("Path", entry.toString());
+				writer.writeAttribute("Size", "-1");
+				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
+				writer.writeAttribute("isDir", Boolean.TRUE.toString());
+				writer.writeEndElement();
+				writer.writeEndElement();
+			}
+			catch(Exception ex)
+			{
+				failure(ex.getMessage());
+			}
+		}
+		else
+			failure("Can't create "+name);
 	}
-
+		
 	@Override
-	protected Response update() throws Exception
+	protected void update(Operation operation) throws Exception
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Path dir = request.session.getUser().settings.getWorkPath();
+		if(operation.data.containsKey("parent"))
+			dir = new File(operation.data.get("parent")).toPath();
+		String name = operation.data.get("Name");
+		String oldname = operation.oldValues.get("Name");
+		Path entry = dir.resolve(name);
+		Path oldentry = dir.resolve(oldname);
+		if(name!=null && oldname!=null && Files.isDirectory(dir) && Files.exists(oldentry) && !Files.exists(entry))
+		{
+			try
+			{
+				Files.move(oldentry, entry);
+				writer.writeStartElement("response");
+				writer.writeElement("status", "0");
+				writer.writeElement("parent", dir.toString());
+				writer.writeStartElement("data");
+				writer.writeEmptyElement("record");
+				writer.writeAttribute("Name", entry.getFileName().toString());
+				writer.writeAttribute("Path", entry.toString());
+				writer.writeAttribute("Size", "-1");
+				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
+				writer.writeAttribute("isDir", Boolean.TRUE.toString());
+				writer.writeEndElement();
+				writer.writeEndElement();
+			}
+			catch(Exception ex)
+			{
+				failure(ex.getMessage());
+			}
+		}
+		else
+			failure("Can't update " + oldname + " to " + name);
 	}
-
+		
 	@Override
-	protected Response delete() throws Exception
+	protected void remove(Operation operation) throws Exception
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Path dir = request.session.getUser().settings.getWorkPath();
+		if(operation.data.containsKey("parent"))
+			dir = new File(operation.data.get("parent")).toPath();
+		String name = operation.data.get("Name");
+		Path entry = dir.resolve(name);
+		if(name!=null && Files.exists(entry))
+		{
+			try
+			{
+				Files.delete(entry);
+				writer.writeStartElement("response");
+				writer.writeElement("status", "0");
+				writer.writeElement("parent", dir.toString());
+				writer.writeStartElement("data");
+				writer.writeEmptyElement("record");
+				writer.writeAttribute("Name", entry.getFileName().toString());
+				writer.writeEndElement();
+				writer.writeEndElement();
+			}
+			catch(Exception ex)
+			{
+				failure(ex.getMessage());
+			}
+		}
+		else
+			failure("Can't remove " + name);
 	}
-
 }

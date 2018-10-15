@@ -1,95 +1,51 @@
 package jrm.server.datasources;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
-
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
-import jrm.server.TempFileInputStream;
-import jrm.xml.EnhancedXMLStreamWriter;
+import jrm.server.datasources.XMLRequest.Operation;
+import jrm.xml.SimpleAttribute;
 
 public class RemoteRootChooserXMLResponse extends XMLResponse
 {
 
-	public RemoteRootChooserXMLResponse(XMLRequest request)
+	public RemoteRootChooserXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
 	}
 
 
 	@Override
-	protected Response fetch() throws Exception
+	protected void fetch(Operation operation) throws Exception
 	{
-		File tmpfile = File.createTempFile("JRM", null);
-		try (OutputStream out = new FileOutputStream(tmpfile))
+		writer.writeStartElement("response");
+		writer.writeElement("status", "0");
+		writer.writeElement("startRow", "0");
+		Iterable<Path> rd = FileSystems.getDefault().getRootDirectories();
+		long cnt = 0;
+		writer.writeStartElement("data");
+		for(Path root : rd)
 		{
-			XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
-			XMLStreamWriter writer = new EnhancedXMLStreamWriter(outputFactory.createXMLStreamWriter(out));
-			writer.writeStartDocument("utf-8", "1.0");
-			writer.writeStartElement("response");
-			writer.writeAttribute("status", "0");
-			writer.writeAttribute("startRow", "0");
-			Iterable<Path> rd = FileSystems.getDefault().getRootDirectories();
-			long cnt = 0;
-			writer.writeStartElement("data");
-			for(Path root : rd)
+			try
 			{
-				try
+				if(Files.isDirectory(root) && Files.exists(root))
 				{
-					if(Files.isDirectory(root) && Files.exists(root))
-					{
-						writer.writeEmptyElement("record");
-						writer.writeAttribute("Name", root.getFileName()!=null?root.getFileName().toString():root.toString());
-						writer.writeAttribute("Path", root.toString());
-						cnt++;
-					}
-				}
-				catch(Throwable e)
-				{
-					
+					writer.writeElement("record",
+						new SimpleAttribute("Name", root.getFileName() != null ? root.getFileName() : root),
+						new SimpleAttribute("Path", root)
+					);
+					cnt++;
 				}
 			}
-			writer.writeEndElement();
-			writer.writeStartElement("endRow");
-			writer.writeCharacters(cnt+"");
-			writer.writeEndElement();
-			writer.writeStartElement("totalRows");
-			writer.writeCharacters(cnt+"");
-			writer.writeEndElement();
-			writer.writeEndElement();
-			writer.writeEndDocument();
-			writer.close();
+			catch(Throwable e)
+			{
+				
+			}
 		}
-		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/xml", new TempFileInputStream(tmpfile), tmpfile.length());
+		writer.writeEndElement();
+		writer.writeElement("endRow", Long.toString(cnt));
+		writer.writeElement("totalRows", Long.toString(cnt));
+		writer.writeEndElement();
 	}
-
-	@Override
-	protected Response add() throws Exception
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected Response update() throws Exception
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected Response delete() throws Exception
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
