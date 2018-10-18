@@ -107,6 +107,7 @@ public class EnhStaticPageHandler extends DefaultHandler
 		{
 			try
 			{
+				Response response = null;
 				try
 				{
 					String ifModifiedSince = session.getHeaders().get("if-modified-since");
@@ -114,20 +115,30 @@ public class EnhStaticPageHandler extends DefaultHandler
 					{
 						//System.out.println(fileOrdirectory.getName()+":\n\tif-modified-since="+ifModifiedSince+" ("+(gmtFrmt.parse(ifModifiedSince).getTime() / 1000)+"),\n\tlastmodified="+(fileOrdirectory.lastModified()/1000));
 						if(dateParse(ifModifiedSince).getTime() / 1000 == fileOrdirectory.lastModified() / 1000)
-							return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_MODIFIED, null, null);
+							response = NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_MODIFIED, null, null);
 					}
 				}
 				catch (ParseException e)
 				{
 				}
-				Response response;
-				if (fileOrdirectory.length() > 8192)
+				if(response == null)
 				{
-					response = NanoHTTPD.newChunkedResponse(getStatus(), NanoHTTPD.getMimeTypeForFile(fileOrdirectory.getName()), fileToInputStream(fileOrdirectory));
-					response.setGzipEncoding(true);
+					if (fileOrdirectory.length() > 8192)
+					{
+						response = NanoHTTPD.newChunkedResponse(getStatus(), NanoHTTPD.getMimeTypeForFile(fileOrdirectory.getName()), fileToInputStream(fileOrdirectory));
+						response.setGzipEncoding(true);
+					}
+					else
+						response = NanoHTTPD.newFixedLengthResponse(getStatus(), NanoHTTPD.getMimeTypeForFile(fileOrdirectory.getName()), fileToInputStream(fileOrdirectory), fileOrdirectory.length());
 				}
+				if(fileOrdirectory.getName().contains("nocache"))
+					response.addHeader("Cache-Control", "no-cache");
 				else
-					response = NanoHTTPD.newFixedLengthResponse(getStatus(), NanoHTTPD.getMimeTypeForFile(fileOrdirectory.getName()), fileToInputStream(fileOrdirectory), fileOrdirectory.length());
+				{
+					String cache_control = session.getHeaders().get("cache-control"); 
+					if(cache_control!=null && cache_control.contains("no-cache"))
+						response.addHeader("Cache-Control", "must-revalidate");
+				}
 				response.addHeader("Date", dateFormat(new Date(fileOrdirectory.lastModified())));
 				response.addHeader("Last-Modified", dateFormat(new Date(fileOrdirectory.lastModified())));
 				return response;

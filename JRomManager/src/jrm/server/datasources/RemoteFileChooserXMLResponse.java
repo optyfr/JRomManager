@@ -7,6 +7,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Comparator;
 
 import jrm.server.datasources.XMLRequest.Operation;
 
@@ -161,7 +162,8 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		{
 			try
 			{
-				Files.delete(entry);
+				//Files.delete(entry);
+				Files.walk(entry).map(Path::toFile).sorted(Comparator.reverseOrder()).forEach(File::delete);	// recursive dir delete
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
 				writer.writeElement("parent", dir.toString());
