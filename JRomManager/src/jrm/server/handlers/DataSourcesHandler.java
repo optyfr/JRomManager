@@ -12,11 +12,7 @@ import fi.iki.elonen.router.RouterNanoHTTPD.Error404UriHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.security.Session;
 import jrm.server.Server;
-import jrm.server.datasources.ProfilesListXMLResponse;
-import jrm.server.datasources.ProfilesTreeXMLResponse;
-import jrm.server.datasources.RemoteFileChooserXMLResponse;
-import jrm.server.datasources.RemoteRootChooserXMLResponse;
-import jrm.server.datasources.XMLRequest;
+import jrm.server.datasources.*;
 
 public class DataSourcesHandler extends DefaultHandler
 {
@@ -62,6 +58,8 @@ public class DataSourcesHandler extends DefaultHandler
 							return new RemoteFileChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "remoteRootChooser":
 							return new RemoteRootChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "CatVer":
+							return new CatVerXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 					}
 				}
 				else

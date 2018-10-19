@@ -1,5 +1,7 @@
 package jrm.security;
 
+import java.util.ResourceBundle;
+
 import jrm.profile.Profile;
 import jrm.profile.report.Report;
 
@@ -8,6 +10,8 @@ public class Session
 	private final String sessionId;
 	
 	User user = null;
+	
+	public ResourceBundle msgs = null;
 
 	// Extra settings coming from cmdline args
 	public boolean multiuser = false;

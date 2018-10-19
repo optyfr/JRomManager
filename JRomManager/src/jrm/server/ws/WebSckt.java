@@ -77,6 +77,7 @@ public class WebSckt extends WebSocket implements SessionStub
 							session.worker.progress = null;
 							session.lastAction = new Date();
 							new ProfileWS(this).loaded(session.curr_profile);
+							new CatVerWS(this).loaded(session.curr_profile);
 						})).start();
 						break;
 					}
@@ -93,6 +94,14 @@ public class WebSckt extends WebSocket implements SessionStub
 							else
 								session.curr_profile.setProperty(m.getName(), value.toString());
 						}
+						break;
+					}
+					case "CatVer.load":
+					{
+						session.curr_profile.setProperty("filter.catver.ini", jso.get("params").asObject().getString("path", null)); //$NON-NLS-1$
+						session.curr_profile.loadCatVer(null);
+						session.curr_profile.saveSettings();
+						new CatVerWS(this).loaded(session.curr_profile);
 						break;
 					}
 					default:
