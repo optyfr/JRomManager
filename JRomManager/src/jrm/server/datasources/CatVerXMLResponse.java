@@ -54,6 +54,14 @@ public class CatVerXMLResponse extends XMLResponse
 				writer.writeAttribute("ParentID", catver.getPropertyName());
 				writer.writeAttribute("isFolder", Boolean.toString(!cat.isLeaf()));
 				writer.writeAttribute("isSelected", Boolean.toString(cat.isSelected()));
+				byte isOpen = 0;
+				for(int j = 0; j < cat.getChildCount(); j++)
+				{
+					SubCategory subcat = (SubCategory)cat.getChildAt(j);
+					isOpen |= (subcat.isSelected()?0x1:0x0);
+					isOpen |= (!subcat.isSelected()?0x2:0x0);
+				}
+				writer.writeAttribute("isOpen", Boolean.toString(isOpen==3));
 				writer.writeEndElement();
 				for(int j = 0; j < cat.getChildCount(); j++)
 				{

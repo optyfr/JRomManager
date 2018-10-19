@@ -145,7 +145,10 @@ public class WebSckt extends WebSocket implements SessionStub
 		System.out.println("websocket opened for session "+sessionid);
 		pingService = new PingService();
 		if(session.curr_profile!=null)
+		{
 			new ProfileWS(this).loaded(session.curr_profile);
+			new CatVerWS(this).loaded(session.curr_profile);
+		}
 		if(session.worker != null && session.worker.isAlive())
 		{
 			if(session.worker.progress!=null)
