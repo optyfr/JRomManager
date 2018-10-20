@@ -45,7 +45,7 @@ public final class NPlayers extends AbstractListModel<jrm.profile.filter.NPlayer
 		/**
 		 * the name of the nplayer mode
 		 */
-		final private String name;
+		final public String name;
 		/**
 		 * The {@link List} of compatible games identified by code names
 		 */

@@ -37,6 +37,7 @@ public class ProfileWS
 										add("name", s.toString());
 										add("selected", s.isSelected(profile));
 										add("property", s.getPropertyName());
+										add("type", s.getType().toString());
 									}}));
 								}});
 							}

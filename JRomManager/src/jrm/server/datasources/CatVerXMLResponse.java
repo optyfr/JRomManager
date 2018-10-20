@@ -86,8 +86,8 @@ public class CatVerXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString(nodecount == 0 ? -1 : nodecount));
-		writer.writeElement("totalRows", Integer.toString(nodecount == 0 ? -1 : nodecount));
+		writer.writeElement("endRow", Integer.toString(nodecount-1));
+		writer.writeElement("totalRows", Integer.toString(nodecount));
 		writer.writeStartElement("data");
 		outputNode(writer, request.session.curr_profile.catver);
 		writer.writeEndElement();

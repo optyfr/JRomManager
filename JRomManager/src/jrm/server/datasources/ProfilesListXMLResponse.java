@@ -25,7 +25,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString(model.getRowCount()));
+		writer.writeElement("endRow", Integer.toString(model.getRowCount()-1));
 		writer.writeElement("totalRows", Integer.toString(model.getRowCount()));
 		writer.writeStartElement("data");
 		for(int i = 0; i < model.getRowCount(); i++)

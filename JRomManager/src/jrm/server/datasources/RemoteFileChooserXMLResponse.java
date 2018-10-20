@@ -72,7 +72,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				cnt++;
 			}
 			writer.writeEndElement();
-			writer.writeElement("endRow", Long.toString(cnt));
+			writer.writeElement("endRow", Long.toString(cnt-1));
 			writer.writeElement("totalRows", Long.toString(cnt));
 		}
 		writer.writeEndElement();

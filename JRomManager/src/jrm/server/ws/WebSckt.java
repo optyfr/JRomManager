@@ -78,6 +78,7 @@ public class WebSckt extends WebSocket implements SessionStub
 							session.lastAction = new Date();
 							new ProfileWS(this).loaded(session.curr_profile);
 							new CatVerWS(this).loaded(session.curr_profile);
+							new NPlayersWS(this).loaded(session.curr_profile);
 						})).start();
 						break;
 					}
@@ -102,6 +103,14 @@ public class WebSckt extends WebSocket implements SessionStub
 						session.curr_profile.loadCatVer(null);
 						session.curr_profile.saveSettings();
 						new CatVerWS(this).loaded(session.curr_profile);
+						break;
+					}
+					case "NPlayers.load":
+					{
+						session.curr_profile.setProperty("filter.nplayers.ini", jso.get("params").asObject().getString("path", null)); //$NON-NLS-1$
+						session.curr_profile.loadNPlayers(null);
+						session.curr_profile.saveSettings();
+						new NPlayersWS(this).loaded(session.curr_profile);
 						break;
 					}
 					default:
@@ -148,6 +157,7 @@ public class WebSckt extends WebSocket implements SessionStub
 		{
 			new ProfileWS(this).loaded(session.curr_profile);
 			new CatVerWS(this).loaded(session.curr_profile);
+			new NPlayersWS(this).loaded(session.curr_profile);
 		}
 		if(session.worker != null && session.worker.isAlive())
 		{
