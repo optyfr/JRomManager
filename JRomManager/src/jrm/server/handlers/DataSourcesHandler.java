@@ -64,6 +64,11 @@ public class DataSourcesHandler extends DefaultHandler
 							return new NPlayersXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "MachineListList":
 							return new MachineListListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "AnywareList":
+							return new AnywareListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						default:
+							new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen);
+							break;
 					}
 				}
 				else

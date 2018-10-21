@@ -22,6 +22,8 @@ public class XMLRequest
 	class Operation
 	{
 		StringBuffer operationType = new StringBuffer();
+		int startRow = 0;
+		int endRow = Integer.MAX_VALUE;
 		Map<String,String> data = new HashMap<>();
 		Map<String,String> oldValues = new HashMap<>();
 	}
@@ -50,6 +52,8 @@ public class XMLRequest
 			{
 				boolean isRequest = false;
 				boolean inOperationType = false;
+				boolean inStartRow = false;
+				boolean inEndRow = false;
 				boolean inData = false;
 				boolean inOldValues = false;
 				StringBuffer datavalue = new StringBuffer();
@@ -76,6 +80,14 @@ public class XMLRequest
 							case "operationType":
 								inOperationType = true;
 								break;
+							case "startRow":
+								inStartRow = true;
+								datavalue.setLength(0);
+								break;
+							case "endRow":
+								inEndRow = true;
+								datavalue.setLength(0);
+								break;
 							case "data":
 								inData = true;
 								break;
@@ -99,6 +111,28 @@ public class XMLRequest
 					{
 						case "operationType":
 							inOperationType = false;
+							break;
+						case "startRow":
+							inStartRow = false;
+							try
+							{
+								current_request.startRow = Integer.parseInt(datavalue.toString());
+							}
+							catch (NumberFormatException e)
+							{
+							}
+							datavalue.setLength(0);
+							break;
+						case "endRow":
+							inEndRow = true;
+							try
+							{
+								current_request.endRow = Integer.parseInt(datavalue.toString());
+							}
+							catch (NumberFormatException e)
+							{
+							}
+							datavalue.setLength(0);
 							break;
 						case "data":
 							inData = false;
@@ -127,6 +161,10 @@ public class XMLRequest
 					if (inOperationType)
 					{
 						current_request.operationType.append(ch, start, length);
+					}
+					else if (inStartRow || inEndRow)
+					{
+						datavalue.append(ch, start, length);
 					}
 					else if(inData)
 					{

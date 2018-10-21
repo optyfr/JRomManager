@@ -174,4 +174,22 @@ abstract class XMLResponse implements Closeable
 		error(-7);
 	}
 	
+	protected interface fetchArrayCallback
+	{
+		public void apply(int idx, int count);
+	}
+	
+	protected void fetch_array(Operation operation, int count, fetchArrayCallback cb) throws Exception
+	{
+		int start, end;
+		writer.writeElement("startRow", Integer.toString(start=Math.min(count-1,operation.startRow)));
+		writer.writeElement("endRow", Integer.toString(end=Math.min(count-1,operation.endRow)));
+		writer.writeElement("totalRows", Integer.toString(count));
+		writer.writeStartElement("data");
+		if(count>0)
+			for(int i = start; i <= end; i++)
+				cb.apply(i, count);
+		writer.writeEndElement();
+	}
+	
 }

@@ -1,7 +1,10 @@
 package jrm.server.datasources;
 
+import javax.xml.stream.XMLStreamException;
+
 import jrm.profile.data.AnywareList;
 import jrm.profile.data.MachineList;
+import jrm.profile.data.MachineListList;
 import jrm.server.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
 
@@ -19,24 +22,23 @@ public class MachineListListXMLResponse extends XMLResponse
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
-		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString((request.session.curr_profile.machinelist_list==null?0:request.session.curr_profile.machinelist_list.getRowCount())-1));
-		writer.writeElement("totalRows", Integer.toString(request.session.curr_profile.machinelist_list==null?0:request.session.curr_profile.machinelist_list.getRowCount()));
-		writer.writeStartElement("data");
-		if(request.session.curr_profile.machinelist_list!=null)
-		{
-			for(int i = 0; i < request.session.curr_profile.machinelist_list.getRowCount(); i++)
+		final MachineListList mll = request.session.curr_profile.machinelist_list;
+		fetch_array(operation,mll==null?0:mll.getRowCount(), (i,count)->{
+			AnywareList<?> list = (AnywareList<?>)mll.getValueAt(i, 0);
+			try
 			{
-				AnywareList<?> list = (AnywareList<?>)request.session.curr_profile.machinelist_list.getValueAt(i, 0);
 				writer.writeElement("record", 
 					new SimpleAttribute("status", list.getStatus()),
-					new SimpleAttribute("name", list instanceof MachineList?request.session.msgs.getString("MachineListListRenderer.*"):list.getBaseName()),
-					new SimpleAttribute("description", request.session.curr_profile.machinelist_list.getValueAt(i, 1)),
-					new SimpleAttribute("have", request.session.curr_profile.machinelist_list.getValueAt(i, 2))
+					new SimpleAttribute("name", list instanceof MachineList?"*":list.getBaseName()),
+					new SimpleAttribute("description", mll.getValueAt(i, 1)),
+					new SimpleAttribute("have", mll.getValueAt(i, 2))
 				);
 			}
-		}
-		writer.writeEndElement();
+			catch (XMLStreamException e)
+			{
+				e.printStackTrace();
+			}
+		});
 		writer.writeEndElement();
 	}
 }
