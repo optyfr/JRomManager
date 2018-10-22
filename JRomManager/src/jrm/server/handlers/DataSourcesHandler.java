@@ -62,10 +62,12 @@ public class DataSourcesHandler extends DefaultHandler
 							return new CatVerXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "NPlayers":
 							return new NPlayersXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
-						case "MachineListList":
-							return new MachineListListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "AnywareListList":
+							return new AnywareListListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "AnywareList":
 							return new AnywareListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "Anyware":
+							return new AnywareXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						default:
 							new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen);
 							break;

@@ -27,7 +27,6 @@ public class AnywareListXMLResponse extends XMLResponse
 			al = request.session.curr_profile.machinelist_list.get(0);
 		else
 			al = request.session.curr_profile.machinelist_list.softwarelist_list.getByName(list);
-		writer.writeElement("list", list);
 		return al;
 	}
 	
@@ -36,6 +35,7 @@ public class AnywareListXMLResponse extends XMLResponse
 		try
 		{
 			writer.writeEmptyElement("record");
+			writer.writeAttribute("list", al instanceof MachineList?"*":al.getBaseName());
 			writer.writeAttribute("status", aw.getStatus().toString());
 			writer.writeAttribute("name", aw.getBaseName());
 			writer.writeAttribute("description", aw.getDescription().toString());
@@ -81,10 +81,16 @@ public class AnywareListXMLResponse extends XMLResponse
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
+		final boolean reset = Boolean.valueOf(operation.data.get("reset"));
 		final AnywareList<?> al = get_list(operation);
-		fetch_array(operation, al==null ? 0 : al.getRowCount(), (i, count) -> {
-			write_record(al, (Anyware)al.getValueAt(i, 0));
-		});
+		if(al != null)
+		{
+			if(reset)
+				al.reset();
+			fetch_array(operation, al.getRowCount(), (i, count) -> {
+				write_record(al, (Anyware)al.getValueAt(i, 0));
+			});
+		}
 		writer.writeEndElement();
 	}
 	

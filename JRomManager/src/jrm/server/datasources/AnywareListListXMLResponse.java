@@ -8,10 +8,10 @@ import jrm.profile.data.MachineListList;
 import jrm.server.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
 
-public class MachineListListXMLResponse extends XMLResponse
+public class AnywareListListXMLResponse extends XMLResponse
 {
 
-	public MachineListListXMLResponse(XMLRequest request) throws Exception
+	public AnywareListListXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
 	}
@@ -22,7 +22,10 @@ public class MachineListListXMLResponse extends XMLResponse
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
+		final boolean reset = Boolean.valueOf(operation.data.get("reset"));
 		final MachineListList mll = request.session.curr_profile.machinelist_list;
+		if(reset)
+			mll.reset();
 		fetch_array(operation,mll==null?0:mll.getRowCount(), (i,count)->{
 			AnywareList<?> list = (AnywareList<?>)mll.getValueAt(i, 0);
 			try

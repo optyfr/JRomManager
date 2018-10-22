@@ -161,8 +161,8 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	@Override
 	public Stream<SoftwareList> getFilteredStream()
 	{
-		return getList().stream().filter(t -> {
-			if(!t.getSystem().isSelected(t.profile))
+		return getList().stream().filter(sl -> {
+			if(!sl.getSystem().isSelected(sl.profile))
 				return false;
 			return true;
 		});
