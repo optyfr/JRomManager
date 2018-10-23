@@ -268,7 +268,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	@Override
-	protected List<Machine> getFilteredList()
+	public List<Machine> getFilteredList()
 	{
 		if(filtered_list == null)
 			filtered_list = getFilteredStream().filter(machine -> {

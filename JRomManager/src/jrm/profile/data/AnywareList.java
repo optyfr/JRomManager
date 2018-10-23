@@ -104,6 +104,11 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 		profile.filter_l = filter;
 		reset();
 	}
+	
+	public EnumSet<AnywareStatus> getFilter()
+	{
+		return profile.filter_l;
+	}
 
 	/**
 	 * get a cached and filtered stream
@@ -115,7 +120,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 * get a cached filtered list
 	 * @return {@link List}&lt;{@link T}&gt;
 	 */
-	protected abstract List<T> getFilteredList();
+	public abstract List<T> getFilteredList();
 
 	/**
 	 * get the declared renderer for a given column

@@ -1,5 +1,8 @@
 package jrm.server.datasources;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.xml.stream.XMLStreamException;
 
 import jrm.profile.data.Anyware;
@@ -7,6 +10,7 @@ import jrm.profile.data.AnywareList;
 import jrm.profile.data.Machine;
 import jrm.profile.data.MachineList;
 import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.datasources.XMLRequest.Operation.Sorter;
 
 public class AnywareListXMLResponse extends XMLResponse
 {
@@ -87,8 +91,46 @@ public class AnywareListXMLResponse extends XMLResponse
 		{
 			if(reset)
 				al.reset();
-			fetch_array(operation, al.getRowCount(), (i, count) -> {
-				write_record(al, (Anyware)al.getValueAt(i, 0));
+			final String lname = operation.data.containsKey("name")?operation.data.get("name").toLowerCase():null;
+			final String ldesc = operation.data.containsKey("description")?operation.data.get("description").toLowerCase():null;
+			final List<Anyware> list = al.getFilteredList().stream().filter(machine -> {
+				if(lname!=null)
+					if(!machine.getBaseName().toLowerCase().contains(lname))
+						return false;
+				if(ldesc!=null)
+					if(!machine.description.toString().toLowerCase().contains(ldesc))
+						return false;
+				return true;
+			}).sorted((o1,o2)->{
+				if(operation.sort.size()>0)
+				{
+					for(Sorter s : operation.sort)
+					{
+						switch(s.name)
+						{
+							case "name":
+							{
+								int ret = (s.desc ? o2 : o1).getBaseName().compareToIgnoreCase((s.desc ? o1 : o2).getBaseName());
+								if (ret != 0)
+									return ret;
+								break;
+							}
+							case "description":
+							{
+								int ret = (s.desc ? o2 : o1).description.toString().compareToIgnoreCase((s.desc ? o1 : o2).description.toString());
+								if (ret != 0)
+									return ret;
+								break;
+							}
+						}
+					}
+					return 0;
+				}
+				else
+					return o1.getBaseName().compareToIgnoreCase(o2.getBaseName());
+			}).collect(Collectors.toList());
+			fetch_array(operation, list.size(), (i, count) -> {
+				write_record(al, list.get(i));
 			});
 		}
 		writer.writeEndElement();
