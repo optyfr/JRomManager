@@ -16,14 +16,32 @@ import org.xml.sax.SAXException;
 
 import jrm.security.Session;
 import jrm.server.TempFileInputStream;
+import jrm.server.datasources.XMLRequest.Operation.Sorter;
 
 public class XMLRequest
 {
-	class Operation
+	static class Operation
 	{
+		static class Sorter
+		{
+			String name;
+			boolean desc = false;
+			
+			public Sorter(String value)
+			{
+				if(value.length()>0 && value.charAt(0)=='-')
+				{
+					desc = true;
+					name = value.substring(1);
+				}
+				else
+					name = value;
+			}
+		}
 		StringBuffer operationType = new StringBuffer();
 		int startRow = 0;
 		int endRow = Integer.MAX_VALUE;
+		List<Sorter> sort = new ArrayList<>();
 		Map<String,String> data = new HashMap<>();
 		Map<String,String> oldValues = new HashMap<>();
 	}
@@ -54,6 +72,7 @@ public class XMLRequest
 				boolean inOperationType = false;
 				boolean inStartRow = false;
 				boolean inEndRow = false;
+				boolean inSortBy = false;
 				boolean inData = false;
 				boolean inOldValues = false;
 				StringBuffer datavalue = new StringBuffer();
@@ -86,6 +105,10 @@ public class XMLRequest
 								break;
 							case "endRow":
 								inEndRow = true;
+								datavalue.setLength(0);
+								break;
+							case "sortBy":
+								inSortBy = true;
 								datavalue.setLength(0);
 								break;
 							case "data":
@@ -124,7 +147,7 @@ public class XMLRequest
 							datavalue.setLength(0);
 							break;
 						case "endRow":
-							inEndRow = true;
+							inEndRow = false;
 							try
 							{
 								current_request.endRow = Integer.parseInt(datavalue.toString());
@@ -132,6 +155,11 @@ public class XMLRequest
 							catch (NumberFormatException e)
 							{
 							}
+							datavalue.setLength(0);
+							break;
+						case "sortBy":
+							inSortBy = false;
+							current_request.sort.add(new Sorter(datavalue.toString()));
 							datavalue.setLength(0);
 							break;
 						case "data":
@@ -163,6 +191,10 @@ public class XMLRequest
 						current_request.operationType.append(ch, start, length);
 					}
 					else if (inStartRow || inEndRow)
+					{
+						datavalue.append(ch, start, length);
+					}
+					else if (inSortBy)
 					{
 						datavalue.append(ch, start, length);
 					}

@@ -1,7 +1,6 @@
 package jrm.server.ws;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,14 +11,11 @@ import java.util.concurrent.TimeUnit;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonObject.Member;
-import com.eclipsesource.json.JsonValue;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
-import jrm.profile.Profile;
 import jrm.security.Session;
 import jrm.server.Server;
 import jrm.server.SessionStub;
@@ -29,7 +25,7 @@ public class WebSckt extends WebSocket implements SessionStub
 {
 	private final static Map<String, WebSckt> sockets = new HashMap<>();
 //	private Server server;
-	private WebSession session;
+	WebSession session;
 	private String sessionid;
 	private PingService pingService;
 	
@@ -65,52 +61,22 @@ public class WebSckt extends WebSocket implements SessionStub
 				{
 					case "Profile.load":
 					{
-						(session.worker = new Worker(()->{
-							WebSession session = this.session;
-							if (session.curr_profile != null)
-								session.curr_profile.saveSettings();
-							session.worker.progress = new ProgressWS(WebSckt.this);
-							session.curr_profile = Profile.load(session, new File(jso.get("params").asObject().getString("path", null)), session.worker.progress);
-							session.curr_profile.nfo.save(session);
-							session.report.setProfile(session.curr_profile);
-							session.worker.progress.close();
-							session.worker.progress = null;
-							session.lastAction = new Date();
-							new ProfileWS(this).loaded(session.curr_profile);
-							new CatVerWS(this).loaded(session.curr_profile);
-							new NPlayersWS(this).loaded(session.curr_profile);
-						})).start();
+						new ProfileWS(this).load(jso);
 						break;
 					}
 					case "Profile.setProperty":
 					{
-						JsonObject pjso = jso.get("params").asObject();
-						for(Member m : pjso)
-						{
-							JsonValue value = m.getValue();
-							if(value.isBoolean())
-								session.curr_profile.setProperty(m.getName(), value.asBoolean());
-							else if(value.isString())
-								session.curr_profile.setProperty(m.getName(), value.asString());
-							else
-								session.curr_profile.setProperty(m.getName(), value.toString());
-						}
+						new ProfileWS(this).setProperty(jso);
 						break;
 					}
 					case "CatVer.load":
 					{
-						session.curr_profile.setProperty("filter.catver.ini", jso.get("params").asObject().getString("path", null)); //$NON-NLS-1$
-						session.curr_profile.loadCatVer(null);
-						session.curr_profile.saveSettings();
-						new CatVerWS(this).loaded(session.curr_profile);
+						new CatVerWS(this).load(jso);
 						break;
 					}
 					case "NPlayers.load":
 					{
-						session.curr_profile.setProperty("filter.nplayers.ini", jso.get("params").asObject().getString("path", null)); //$NON-NLS-1$
-						session.curr_profile.loadNPlayers(null);
-						session.curr_profile.saveSettings();
-						new NPlayersWS(this).loaded(session.curr_profile);
+						new NPlayersWS(this).load(jso);
 						break;
 					}
 					default:

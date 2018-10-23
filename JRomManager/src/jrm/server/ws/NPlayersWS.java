@@ -15,8 +15,16 @@ public class NPlayersWS
 		this.ws = ws;
 	}
 
+	void load(JsonObject jso)
+	{
+		ws.session.curr_profile.setProperty("filter.nplayers.ini", jso.get("params").asObject().getString("path", null)); //$NON-NLS-1$
+		ws.session.curr_profile.loadNPlayers(null);
+		ws.session.curr_profile.saveSettings();
+		loaded(ws.session.curr_profile);
+	}
+	
 	@SuppressWarnings("serial")
-	public void loaded(final Profile profile)
+	void loaded(final Profile profile)
 	{
 		try
 		{
