@@ -34,6 +34,65 @@ public class AnywareListXMLResponse extends XMLResponse
 		return al;
 	}
 	
+	private List<Anyware> build_list(AnywareList<?> al, Operation operation)
+	{
+		final String lname = operation.data.containsKey("name")?operation.data.get("name").toLowerCase():null;
+		final String ldesc = operation.data.containsKey("description")?operation.data.get("description").toLowerCase():null;
+		final String lcloneof = operation.data.containsKey("cloneof")?operation.data.get("cloneof").toLowerCase():null;
+		final String lromof = operation.data.containsKey("romof")?operation.data.get("romof").toLowerCase():null;
+		final String lsampleof = operation.data.containsKey("sampleof")?operation.data.get("sampleof").toLowerCase():null;
+		final Boolean lselected = operation.data.containsKey("selected")?Boolean.valueOf(operation.data.get("selected")):null;
+		final List<Anyware> list = al.getFilteredList().stream().filter(ware -> {
+			if(lselected!=null)
+				if(ware.selected!=lselected)
+					return false;
+			if(lname!=null)
+				if(!ware.getBaseName().toLowerCase().contains(lname))
+					return false;
+			if(ldesc!=null)
+				if(!ware.description.toString().toLowerCase().contains(ldesc))
+					return false;
+			if(lcloneof!=null)
+				if(ware.cloneof==null || !ware.cloneof.toString().toLowerCase().contains(lcloneof))
+					return false;
+			if(lromof!=null && ware instanceof Machine)
+				if(((Machine)ware).romof==null || !((Machine)ware).romof.toString().toLowerCase().contains(lcloneof))
+					return false;
+			if(lsampleof!=null && ware instanceof Machine)
+				if(((Machine)ware).sampleof==null || !((Machine)ware).sampleof.toString().toLowerCase().contains(lcloneof))
+					return false;
+			return true;
+		}).sorted((o1,o2)->{
+			if(operation.sort.size()>0)
+			{
+				for(Sorter s : operation.sort)
+				{
+					switch(s.name)
+					{
+						case "name":
+						{
+							int ret = (s.desc ? o2 : o1).getBaseName().compareToIgnoreCase((s.desc ? o1 : o2).getBaseName());
+							if (ret != 0)
+								return ret;
+							break;
+						}
+						case "description":
+						{
+							int ret = (s.desc ? o2 : o1).description.toString().compareToIgnoreCase((s.desc ? o1 : o2).description.toString());
+							if (ret != 0)
+								return ret;
+							break;
+						}
+					}
+				}
+				return 0;
+			}
+			else
+				return o1.getBaseName().compareToIgnoreCase(o2.getBaseName());
+		}).collect(Collectors.toList());
+		return list;
+	}
+	
 	private void write_record(final AnywareList<?> al, final Anyware aw)
 	{
 		try
@@ -91,44 +150,7 @@ public class AnywareListXMLResponse extends XMLResponse
 		{
 			if(reset)
 				al.reset();
-			final String lname = operation.data.containsKey("name")?operation.data.get("name").toLowerCase():null;
-			final String ldesc = operation.data.containsKey("description")?operation.data.get("description").toLowerCase():null;
-			final List<Anyware> list = al.getFilteredList().stream().filter(machine -> {
-				if(lname!=null)
-					if(!machine.getBaseName().toLowerCase().contains(lname))
-						return false;
-				if(ldesc!=null)
-					if(!machine.description.toString().toLowerCase().contains(ldesc))
-						return false;
-				return true;
-			}).sorted((o1,o2)->{
-				if(operation.sort.size()>0)
-				{
-					for(Sorter s : operation.sort)
-					{
-						switch(s.name)
-						{
-							case "name":
-							{
-								int ret = (s.desc ? o2 : o1).getBaseName().compareToIgnoreCase((s.desc ? o1 : o2).getBaseName());
-								if (ret != 0)
-									return ret;
-								break;
-							}
-							case "description":
-							{
-								int ret = (s.desc ? o2 : o1).description.toString().compareToIgnoreCase((s.desc ? o1 : o2).description.toString());
-								if (ret != 0)
-									return ret;
-								break;
-							}
-						}
-					}
-					return 0;
-				}
-				else
-					return o1.getBaseName().compareToIgnoreCase(o2.getBaseName());
-			}).collect(Collectors.toList());
+			List<Anyware> list = build_list(al, operation);
 			fetch_array(operation, list.size(), (i, count) -> {
 				write_record(al, list.get(i));
 			});
@@ -158,5 +180,74 @@ public class AnywareListXMLResponse extends XMLResponse
 			}
 		}
 		writer.writeEndElement();
+	}
+	
+	@Override
+	protected void custom(Operation operation) throws Exception
+	{
+		if(operation.operationId.toString().equals("find"))
+		{
+			writer.writeStartElement("response");
+			writer.writeElement("status", "0");
+			final AnywareList<?> al = get_list(operation);
+			if(al != null)
+			{
+				if(operation.data.containsKey("find"))
+				{
+					List<Anyware> list = build_list(al, operation);
+					final String find = operation.data.get("find");
+					for(int i = 0; i < list.size(); i++)
+					{
+						if(list.get(i).getBaseName().equals(find))
+						{
+							writer.writeElement("found", Integer.toString(i));
+							break;
+						}
+					}
+				}
+			}
+			writer.writeEndElement();
+		}
+		else if(operation.operationId.toString().equals("selectNone"))
+		{
+			writer.writeStartElement("response");
+			writer.writeElement("status", "0");
+			final AnywareList<?> al = get_list(operation);
+			if(al != null)
+			{
+				List<Anyware> list = build_list(al, operation);
+				for(Anyware aw : list)
+					aw.selected = false;
+			}
+			writer.writeEndElement();
+		}
+		else if(operation.operationId.toString().equals("selectAll"))
+		{
+			writer.writeStartElement("response");
+			writer.writeElement("status", "0");
+			final AnywareList<?> al = get_list(operation);
+			if(al != null)
+			{
+				List<Anyware> list = build_list(al, operation);
+				for(Anyware aw : list)
+					aw.selected = true;
+			}
+			writer.writeEndElement();
+		}
+		else if(operation.operationId.toString().equals("selectInvert"))
+		{
+			writer.writeStartElement("response");
+			writer.writeElement("status", "0");
+			final AnywareList<?> al = get_list(operation);
+			if(al != null)
+			{
+				List<Anyware> list = build_list(al, operation);
+				for(Anyware aw : list)
+					aw.selected ^= true;
+			}
+			writer.writeEndElement();
+		}
+		else
+			failure("custom operation with id "+operation.operationId+" not implemented");
 	}
 }

@@ -46,6 +46,9 @@ abstract class XMLResponse implements Closeable
 			case "remove":
 				remove(operation);
 				break;
+			case "custom":
+				custom(operation);
+				break;
 			default:
 				failure(operation.operationType + " not implemented");
 				break;
@@ -84,6 +87,11 @@ abstract class XMLResponse implements Closeable
 	protected void remove(Operation operation) throws Exception
 	{
 		failure("delete operation not implemented");
+	}
+	
+	protected void custom(Operation operation) throws Exception
+	{
+		failure("custom operation not implemented");
 	}
 	
 

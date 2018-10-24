@@ -64,6 +64,11 @@ public class WebSckt extends WebSocket implements SessionStub
 						new ProfileWS(this).load(jso);
 						break;
 					}
+					case "Profile.scan":
+					{
+						new ProfileWS(this).scan(jso);
+						break;
+					}
 					case "Profile.setProperty":
 					{
 						new ProfileWS(this).setProperty(jso);
@@ -77,6 +82,12 @@ public class WebSckt extends WebSocket implements SessionStub
 					case "NPlayers.load":
 					{
 						new NPlayersWS(this).load(jso);
+						break;
+					}
+					case "Progress.cancel":
+					{
+						if (session.worker != null && session.worker.isAlive() && session.worker.progress != null)
+							session.worker.progress.cancel();
 						break;
 					}
 					default:

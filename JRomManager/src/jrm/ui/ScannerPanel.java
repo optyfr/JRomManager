@@ -6,15 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.Collection;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 
 import jrm.locale.Messages;
@@ -45,9 +37,6 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 
 	/** The btn scan. */
 	private JButton btnScan;
-
-	/** The curr scan. */
-	private Scan curr_scan;
 
 	/** The lbl profileinfo. */
 	private JLabel lblProfileinfo;
@@ -172,8 +161,8 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				curr_scan = new Scan(session.curr_profile, progress);
-				btnFix.setEnabled(curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
+				session.curr_scan = new Scan(session.curr_profile, progress);
+				btnFix.setEnabled(session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
 				return null;
 			}
 
@@ -208,8 +197,8 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 					switch (JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), Messages.getString("MainFrame.WarnSettingsChanged"), Messages.getString("MainFrame.RescanBeforeFix"), JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						case JOptionPane.YES_OPTION:
-							curr_scan = new Scan(session.curr_profile, progress);
-							btnFix.setEnabled(curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
+							session.curr_scan = new Scan(session.curr_profile, progress);
+							btnFix.setEnabled(session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
 							if (!btnFix.isEnabled())
 								return null;
 							break;
@@ -220,7 +209,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 							return null;
 					}
 				}
-				final Fix fix = new Fix(session.curr_profile, curr_scan, progress);
+				final Fix fix = new Fix(session.curr_profile, session.curr_scan, progress);
 				btnFix.setEnabled(fix.getActionsRemain() > 0);
 				return null;
 			}
@@ -256,6 +245,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	 * @param profile
 	 *            the profile
 	 */
+	@Override
 	public void loadProfile(final Session session, final ProfileNFO profile)
 	{
 		if (session.curr_profile != null)

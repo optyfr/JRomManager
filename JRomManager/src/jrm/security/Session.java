@@ -4,6 +4,7 @@ import java.util.ResourceBundle;
 
 import jrm.profile.Profile;
 import jrm.profile.report.Report;
+import jrm.profile.scan.Scan;
 
 public class Session
 {
@@ -23,6 +24,9 @@ public class Session
 	 * This contain the current loaded profile
 	 */
 	public Profile curr_profile = null;
+
+	/** The curr scan. */
+	public Scan curr_scan;
 
 	Session()
 	{

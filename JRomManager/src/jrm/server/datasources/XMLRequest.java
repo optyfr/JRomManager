@@ -14,8 +14,8 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import jrm.security.Session;
 import jrm.server.TempFileInputStream;
+import jrm.server.WebSession;
 import jrm.server.datasources.XMLRequest.Operation.Sorter;
 
 public class XMLRequest
@@ -39,6 +39,7 @@ public class XMLRequest
 			}
 		}
 		StringBuffer operationType = new StringBuffer();
+		StringBuffer operationId = new StringBuffer();
 		int startRow = 0;
 		int endRow = Integer.MAX_VALUE;
 		List<Sorter> sort = new ArrayList<>();
@@ -55,9 +56,9 @@ public class XMLRequest
 	
 	Transaction transaction = null;
 	
-	Session session;
+	WebSession session;
 
-	public XMLRequest(Session session, InputStream in, long len) throws IOException
+	public XMLRequest(WebSession session, InputStream in, long len) throws IOException
 	{
 		this.session = session;
 		try
@@ -70,6 +71,7 @@ public class XMLRequest
 			{
 				boolean isRequest = false;
 				boolean inOperationType = false;
+				boolean inOperationId = false;
 				boolean inStartRow = false;
 				boolean inEndRow = false;
 				boolean inSortBy = false;
@@ -98,6 +100,9 @@ public class XMLRequest
 						{
 							case "operationType":
 								inOperationType = true;
+								break;
+							case "operationId":
+								inOperationId = true;
 								break;
 							case "startRow":
 								inStartRow = true;
@@ -134,6 +139,9 @@ public class XMLRequest
 					{
 						case "operationType":
 							inOperationType = false;
+							break;
+						case "operationId":
+							inOperationId = false;
 							break;
 						case "startRow":
 							inStartRow = false;
@@ -187,25 +195,17 @@ public class XMLRequest
 				public void characters(char[] ch, int start, int length) throws SAXException
 				{
 					if (inOperationType)
-					{
 						current_request.operationType.append(ch, start, length);
-					}
+					else if (inOperationId)
+						current_request.operationId.append(ch, start, length);
 					else if (inStartRow || inEndRow)
-					{
 						datavalue.append(ch, start, length);
-					}
 					else if (inSortBy)
-					{
 						datavalue.append(ch, start, length);
-					}
 					else if(inData)
-					{
 						datavalue.append(ch, start, length);
-					}
 					else if(inOldValues)
-					{
 						datavalue.append(ch, start, length);
-					}
 				}
 			});
 		}

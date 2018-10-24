@@ -64,7 +64,6 @@ public class ProgressWS implements ProgressHandler
 	{
 		this.threadCnt = threadCnt;
 		this.multipleSubInfos = multipleSubInfos;
-		System.out.println("setinfos threadcnt="+threadCnt);
 		this.infos = new String[threadCnt];
 		this.subinfos = new String[multipleSubInfos?threadCnt:1];
 		sendSetInfos();
