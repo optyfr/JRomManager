@@ -56,10 +56,10 @@ public class AnywareListXMLResponse extends XMLResponse
 				if(ware.cloneof==null || !ware.cloneof.toString().toLowerCase().contains(lcloneof))
 					return false;
 			if(lromof!=null && ware instanceof Machine)
-				if(((Machine)ware).romof==null || !((Machine)ware).romof.toString().toLowerCase().contains(lcloneof))
+				if(((Machine)ware).romof==null || !((Machine)ware).romof.toString().toLowerCase().contains(lromof))
 					return false;
 			if(lsampleof!=null && ware instanceof Machine)
-				if(((Machine)ware).sampleof==null || !((Machine)ware).sampleof.toString().toLowerCase().contains(lcloneof))
+				if(((Machine)ware).sampleof==null || !((Machine)ware).sampleof.toString().toLowerCase().contains(lsampleof))
 					return false;
 			return true;
 		}).sorted((o1,o2)->{
