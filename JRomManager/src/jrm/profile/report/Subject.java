@@ -34,6 +34,8 @@ public abstract class Subject implements TreeNode, HTMLRenderer, Serializable
 	 * The {@link Report} root as parent
 	 */
 	protected transient Report parent;
+	
+	protected transient int id;
 
 	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("ware", AnywareBase.class), new ObjectStreamField("notes", List.class)}; //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -152,5 +154,10 @@ public abstract class Subject implements TreeNode, HTMLRenderer, Serializable
 	public Enumeration<Note> children()
 	{
 		return Collections.enumeration(notes);
+	}
+
+	public int getId()
+	{
+		return id;
 	}
 }

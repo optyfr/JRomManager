@@ -19,6 +19,7 @@ public abstract class Note implements TreeNode,HTMLRenderer,Serializable
 	 * The parent {@link Subject}
 	 */
 	transient Subject parent;
+	transient int id;
 /*
 	private static final ObjectStreamField[] serialPersistentFields = {};
 
@@ -77,5 +78,10 @@ public abstract class Note implements TreeNode,HTMLRenderer,Serializable
 	public Enumeration<? extends TreeNode> children()
 	{
 		return null;
+	}
+
+	public int getId()
+	{
+		return id;
 	}
 }

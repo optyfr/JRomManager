@@ -16,27 +16,9 @@
  */
 package jrm.profile.report;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamField;
-import java.io.PrintWriter;
-import java.io.Serializable;
+import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -72,10 +54,16 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	 * the {@link List} of {@link Subject} nodes
 	 */
 	private List<Subject> subjects;
+
 	/**
 	 * a {@link Map} of {@link Subject} by fullname {@link String}
 	 */
-	private Map<String, Subject> subject_hash;
+	private transient Map<String, Subject> subject_hash;
+
+
+	private transient int id;
+	private transient List<Object> all;
+	
 	/**
 	 * The {@link Stats} object
 	 */
@@ -103,7 +91,18 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 		final ObjectInputStream.GetField fields = stream.readFields();
 		subjects = (List<Subject>) fields.get("subjects", Collections.synchronizedList(new ArrayList<>())); //$NON-NLS-1$
 		stats = (Stats) fields.get("stats", new Stats()); //$NON-NLS-1$
-		subject_hash = subjects.stream().peek(s->s.parent=this).collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
+		all = new ArrayList<>();
+		id = all.size();
+		all.add(this);
+		subject_hash = subjects.stream().peek(s->{
+			s.parent=this;
+			s.id = all.size();
+			all.add(s);
+			s.notes.forEach(n->{
+				n.id = all.size();
+				all.add(n);
+			});
+		}).collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		filterPredicate = new FilterPredicate(new ArrayList<>());
 		model = new ReportTreeModel(this);
 		model.initClone();
@@ -209,6 +208,9 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	 */
 	public Report()
 	{
+		all = new ArrayList<>();
+		this.id = all.size();
+		all.add(this);
 		subjects = Collections.synchronizedList(new ArrayList<>());
 		subject_hash = Collections.synchronizedMap(new HashMap<>());
 		stats = new Stats();
@@ -378,6 +380,12 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	public synchronized boolean add(final Subject subject)
 	{
 		subject.parent = this;	// initialize subject.parent
+		subject.id = all.size();
+		all.add(subject);
+		subject.notes.forEach(n->{
+			n.id = all.size();
+			all.add(n);
+		});
 		if(subject.ware != null)	// add to subject_hash if there is a subject.ware
 			subject_hash.put(subject.ware.getFullName(), subject);
 		final boolean result = subjects.add(subject); // add to subjects list and keep result
@@ -544,6 +552,11 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 			// may fail to load because serialized classes did change since last cache save 
 		}
 		return null;
+	}
+
+	public int getId()
+	{
+		return id;
 	}
 	
 }

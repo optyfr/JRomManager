@@ -68,6 +68,8 @@ public class DataSourcesHandler extends DefaultHandler
 							return new AnywareListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "Anyware":
 							return new AnywareXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "Report":
+							return new ReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						default:
 							new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen);
 							break;
