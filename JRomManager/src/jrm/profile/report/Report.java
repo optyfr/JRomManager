@@ -42,7 +42,7 @@ import one.util.streamex.IntStreamEx;
  * @author optyfr
  *
  */
-public class Report implements TreeNode, HTMLRenderer, Serializable
+public class Report extends AbstractList<Subject> implements TreeNode, HTMLRenderer, Serializable
 {
 	private static final long serialVersionUID = 1L;
 	/**
@@ -91,7 +91,7 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 		final ObjectInputStream.GetField fields = stream.readFields();
 		subjects = (List<Subject>) fields.get("subjects", Collections.synchronizedList(new ArrayList<>())); //$NON-NLS-1$
 		stats = (Stats) fields.get("stats", new Stats()); //$NON-NLS-1$
-		all = new ArrayList<>();
+		all = Collections.synchronizedList(new ArrayList<>());
 		id = all.size();
 		all.add(this);
 		subject_hash = subjects.stream().peek(s->{
@@ -208,7 +208,7 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	 */
 	public Report()
 	{
-		all = new ArrayList<>();
+		all =  Collections.synchronizedList(new ArrayList<>());
 		this.id = all.size();
 		all.add(this);
 		subjects = Collections.synchronizedList(new ArrayList<>());
@@ -263,6 +263,7 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	 */
 	private Report(final Report report, final List<FilterOptions> filterOptions)
 	{
+		all = Collections.synchronizedList(new ArrayList<>());
 		filterPredicate = new FilterPredicate(filterOptions);
 		model = report.model;
 		profile = report.profile;
@@ -344,6 +345,19 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	 * @param ware the {@link Anyware} to find {@link Subject}
 	 * @return the found {@link Subject} or null
 	 */
+	public Subject findSubject(final Integer id)
+	{
+		Object obj = all.get(id);
+		if(obj instanceof Subject)
+			return (Subject) obj;
+		return null;
+	}
+
+	/**
+	 * find {@link Subject} from an {@link Anyware}
+	 * @param ware the {@link Anyware} to find {@link Subject}
+	 * @return the found {@link Subject} or null
+	 */
 	public Subject findSubject(final Anyware ware)
 	{
 		return ware != null ? subject_hash.get(ware.getFullName()) : null;
@@ -377,13 +391,16 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	 * @param subject the {@link Subject} to add
 	 * @return true if success
 	 */
+	@Override
 	public synchronized boolean add(final Subject subject)
 	{
 		subject.parent = this;	// initialize subject.parent
 		subject.id = all.size();
+		System.out.println(subject.id);
 		all.add(subject);
 		subject.notes.forEach(n->{
 			n.id = all.size();
+			System.out.println("\t"+n.id);
 			all.add(n);
 		});
 		if(subject.ware != null)	// add to subject_hash if there is a subject.ware
@@ -557,6 +574,18 @@ public class Report implements TreeNode, HTMLRenderer, Serializable
 	public int getId()
 	{
 		return id;
+	}
+
+	@Override
+	public Subject get(int index)
+	{
+		return subjects.get(index);
+	}
+
+	@Override
+	public int size()
+	{
+		return subjects.size();
 	}
 	
 }

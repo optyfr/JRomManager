@@ -1,10 +1,7 @@
 package jrm.profile.report;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 
 import javax.swing.tree.TreeNode;
 
@@ -16,7 +13,7 @@ import jrm.profile.data.AnywareBase;
  * @author optyfr
  *
  */
-public abstract class Subject implements TreeNode, HTMLRenderer, Serializable
+public abstract class Subject extends AbstractList<Note> implements TreeNode, HTMLRenderer, Serializable
 {
 	private static final long serialVersionUID = 1L;
 
@@ -88,6 +85,7 @@ public abstract class Subject implements TreeNode, HTMLRenderer, Serializable
 	 * @param note the {@link Note} to add
 	 * @return true on success
 	 */
+	@Override
 	public boolean add(final Note note)
 	{
 		note.parent = this;
@@ -127,7 +125,7 @@ public abstract class Subject implements TreeNode, HTMLRenderer, Serializable
 	}
 
 	@Override
-	public TreeNode getParent()
+	public Report getParent()
 	{
 		return parent;
 	}
@@ -159,5 +157,17 @@ public abstract class Subject implements TreeNode, HTMLRenderer, Serializable
 	public int getId()
 	{
 		return id;
+	}
+
+	@Override
+	public int size()
+	{
+		return notes.size();
+	}
+	
+	@Override
+	public Note get(int index)
+	{
+		return notes.get(index);
 	}
 }

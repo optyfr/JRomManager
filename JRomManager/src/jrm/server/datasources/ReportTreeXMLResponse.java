@@ -1,13 +1,8 @@
 package jrm.server.datasources;
 
-import java.util.Enumeration;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
+import jrm.profile.report.Note;
+import jrm.profile.report.Subject;
 import jrm.server.datasources.XMLRequest.Operation;
-import jrm.ui.profile.manager.DirNode;
 
 public class ReportTreeXMLResponse extends XMLResponse
 {
@@ -17,53 +12,55 @@ public class ReportTreeXMLResponse extends XMLResponse
 		super(request);
 	}
 
-	private int countNode(DirNode node)
-	{
-		int count = 0;
-		for (final Enumeration<?> children = node.children(); children.hasMoreElements();)
-		{
-			final DirNode child = (DirNode) children.nextElement();
-			if (child.getChildCount() > 0)
-				count += countNode(child);
-			else
-				count++;
-		}
-		return ++count;
-	}
-
-	private void outputNode(XMLStreamWriter writer, DirNode node, String parentID, AtomicInteger id) throws XMLStreamException
-	{
-		String strID = id.toString();
-		if (id.get() > 0)
-		{
-			writer.writeStartElement("record");
-			writer.writeAttribute("ID", id.toString());
-			writer.writeAttribute("Path", node.getDir().getFile().getPath());
-			writer.writeAttribute("title", node.getDir().getFile().getName());
-			writer.writeAttribute("isFolder", "true");
-			if(parentID!=null)
-				writer.writeAttribute("ParentID", parentID);
-			writer.writeEndElement();
-		}
-		id.incrementAndGet();
-		for (final Enumeration<?> children = node.children(); children.hasMoreElements();)
-		{
-			final DirNode child = (DirNode) children.nextElement();
-			outputNode(writer, child, strID, id);
-		}
-	}
-
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
-/*		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString(nodecount-1));
-		writer.writeElement("totalRows", Integer.toString(nodecount));
-		writer.writeStartElement("data");
-		outputNode(writer, root, null, new AtomicInteger());
-		writer.writeEndElement();*/
+
+		int parentID = Integer.valueOf(operation.data.get("ParentID"));
+		if(parentID==0)
+		{
+			int start, end;
+			int nodecount =request.session.report.size();
+			writer.writeElement("startRow", Integer.toString(start=Math.min(nodecount-1,operation.startRow)));
+			writer.writeElement("endRow", Integer.toString(end=Math.min(nodecount-1,operation.endRow)));
+			writer.writeElement("totalRows", Integer.toString(nodecount));
+	
+			writer.writeStartElement("data");
+			for(int i = start; i <= end; i++)
+			{
+				Subject s = request.session.report.get(i);
+				writer.writeStartElement("record");
+				writer.writeAttribute("ID", Integer.toString(s.getId()));
+				writer.writeAttribute("ParentID", Integer.toString(s.getParent().getId()));
+				writer.writeAttribute("title", s.toString());
+				writer.writeEndElement();
+			}
+			writer.writeEndElement();
+		}
+		else
+		{
+			Subject subject = request.session.report.findSubject(parentID);
+			if(subject!=null)
+			{
+				int nodecount = subject.size();
+				writer.writeElement("startRow", "0");
+				writer.writeElement("endRow", Integer.toString(nodecount-1));
+				writer.writeElement("totalRows", Integer.toString(nodecount));
+				writer.writeStartElement("data");
+				for(Note n : subject)
+				{
+					writer.writeStartElement("record");
+					writer.writeAttribute("isFolder", "false");
+					writer.writeAttribute("ID", Integer.toString(n.getId()));
+					writer.writeAttribute("ParentID", Integer.toString(n.getParent().getId()));
+					writer.writeAttribute("title", n.toString());
+					writer.writeEndElement();
+				}
+				writer.writeEndElement();
+			}
+		}
 		writer.writeEndElement();
 	}
 }

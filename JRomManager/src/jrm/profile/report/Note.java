@@ -51,7 +51,7 @@ public abstract class Note implements TreeNode,HTMLRenderer,Serializable
 	}
 
 	@Override
-	public TreeNode getParent()
+	public Subject getParent()
 	{
 		return parent;
 	}
