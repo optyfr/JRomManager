@@ -1,7 +1,9 @@
 package jrm.server.datasources;
 
 import jrm.profile.report.Note;
+import jrm.profile.report.Report;
 import jrm.profile.report.Subject;
+import jrm.profile.report.SubjectSet;
 import jrm.server.datasources.XMLRequest.Operation;
 
 public class ReportTreeXMLResponse extends XMLResponse
@@ -22,7 +24,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 		if(parentID==0)
 		{
 			int start, end;
-			int nodecount =request.session.report.size();
+			int nodecount = ((Report)request.session.report.getModel().getRoot()).size();
 			writer.writeElement("startRow", Integer.toString(start=Math.min(nodecount-1,operation.startRow)));
 			writer.writeElement("endRow", Integer.toString(end=Math.min(nodecount-1,operation.endRow)));
 			writer.writeElement("totalRows", Integer.toString(nodecount));
@@ -30,11 +32,15 @@ public class ReportTreeXMLResponse extends XMLResponse
 			writer.writeStartElement("data");
 			for(int i = start; i <= end; i++)
 			{
-				Subject s = request.session.report.get(i);
+				Subject s = ((Report)request.session.report.getModel().getRoot()).get(i);
 				writer.writeStartElement("record");
 				writer.writeAttribute("ID", Integer.toString(s.getId()));
-				writer.writeAttribute("ParentID", Integer.toString(s.getParent().getId()));
-				writer.writeAttribute("title", s.toString());
+				writer.writeAttribute("ParentID", Integer.toString(parentID));
+				writer.writeAttribute("title", s.getHTML());
+				writer.writeAttribute("class", s.getClass().getSimpleName());
+				if(s instanceof SubjectSet)
+					writer.writeAttribute("status", ((SubjectSet)s).getStatus().toString());
+				writer.writeAttribute("isFolder", Boolean.toString(!s.isLeaf()));
 				writer.writeEndElement();
 			}
 			writer.writeEndElement();
@@ -52,10 +58,11 @@ public class ReportTreeXMLResponse extends XMLResponse
 				for(Note n : subject)
 				{
 					writer.writeStartElement("record");
-					writer.writeAttribute("isFolder", "false");
 					writer.writeAttribute("ID", Integer.toString(n.getId()));
-					writer.writeAttribute("ParentID", Integer.toString(n.getParent().getId()));
-					writer.writeAttribute("title", n.toString());
+					writer.writeAttribute("ParentID", Integer.toString(parentID));
+					writer.writeAttribute("title", n.getHTML());
+					writer.writeAttribute("class", n.getClass().getSimpleName());
+					writer.writeAttribute("isFolder", Boolean.toString(!n.isLeaf()));
 					writer.writeEndElement();
 				}
 				writer.writeEndElement();

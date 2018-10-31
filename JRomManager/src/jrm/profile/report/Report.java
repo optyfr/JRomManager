@@ -19,6 +19,7 @@ package jrm.profile.report;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -62,7 +63,8 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 
 
 	private transient int id;
-	private transient List<Object> all;
+	private transient AtomicInteger id_cnt;
+	private transient Map<Integer,Object> all;
 	
 	/**
 	 * The {@link Stats} object
@@ -91,17 +93,15 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		final ObjectInputStream.GetField fields = stream.readFields();
 		subjects = (List<Subject>) fields.get("subjects", Collections.synchronizedList(new ArrayList<>())); //$NON-NLS-1$
 		stats = (Stats) fields.get("stats", new Stats()); //$NON-NLS-1$
-		all = Collections.synchronizedList(new ArrayList<>());
-		id = all.size();
-		all.add(this);
+		all = Collections.synchronizedMap(new HashMap<>());
+		id_cnt = new AtomicInteger();
+		id = id_cnt.getAndIncrement();
+		all.put(id,this);
 		subject_hash = subjects.stream().peek(s->{
 			s.parent=this;
-			s.id = all.size();
-			all.add(s);
-			s.notes.forEach(n->{
-				n.id = all.size();
-				all.add(n);
-			});
+			s.id = id_cnt.getAndIncrement();
+			all.put(s.id,s);
+			s.notes.forEach(n->n.id = id_cnt.getAndIncrement());
 		}).collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		filterPredicate = new FilterPredicate(new ArrayList<>());
 		model = new ReportTreeModel(this);
@@ -208,9 +208,10 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	 */
 	public Report()
 	{
-		all =  Collections.synchronizedList(new ArrayList<>());
-		this.id = all.size();
-		all.add(this);
+		all =  Collections.synchronizedMap(new HashMap<>());
+		id_cnt = new AtomicInteger();
+		id = id_cnt.getAndIncrement();
+		all.put(id,this);
 		subjects = Collections.synchronizedList(new ArrayList<>());
 		subject_hash = Collections.synchronizedMap(new HashMap<>());
 		stats = new Stats();
@@ -263,8 +264,10 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	 */
 	private Report(final Report report, final List<FilterOptions> filterOptions)
 	{
-		all = Collections.synchronizedList(new ArrayList<>());
 		filterPredicate = new FilterPredicate(filterOptions);
+		id_cnt = report.id_cnt;
+		all = report.all;
+		id = report.id;
 		model = report.model;
 		profile = report.profile;
 		subjects = report.filter(filterOptions);
@@ -308,6 +311,10 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	 */
 	public void reset()
 	{
+		all.clear();
+		id_cnt = new AtomicInteger();
+		id = id_cnt.getAndIncrement();
+		all.put(id,this);
 		subject_hash.clear();
 		subjects.clear();
 		insert_object_cache.clear();
@@ -395,14 +402,9 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	public synchronized boolean add(final Subject subject)
 	{
 		subject.parent = this;	// initialize subject.parent
-		subject.id = all.size();
-		System.out.println(subject.id);
-		all.add(subject);
-		subject.notes.forEach(n->{
-			n.id = all.size();
-			System.out.println("\t"+n.id);
-			all.add(n);
-		});
+		subject.id = id_cnt.getAndIncrement();
+		all.put(subject.id,subject);
+		subject.notes.forEach(n->n.id = id_cnt.getAndIncrement());
 		if(subject.ware != null)	// add to subject_hash if there is a subject.ware
 			subject_hash.put(subject.ware.getFullName(), subject);
 		final boolean result = subjects.add(subject); // add to subjects list and keep result
@@ -431,11 +433,14 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 			statusHandler.setStatus(stats.getStatus());
 		if(insert_object_cache.size() > 0)
 		{
-			final TreeModelEvent event = new TreeModelEvent(model, model.getPathToRoot((Report) model.getRoot()), IntStreamEx.of(insert_object_cache.keySet()).toArray(), insert_object_cache.values().toArray());
-			for(final TreeModelListener l : model.getTreeModelListeners())
-				l.treeNodesInserted(event);
+			if( model.getTreeModelListeners().length>0)
+			{
+				final TreeModelEvent event = new TreeModelEvent(model, model.getPathToRoot((Report) model.getRoot()), IntStreamEx.of(insert_object_cache.keySet()).toArray(), insert_object_cache.values().toArray());
+				for(final TreeModelListener l : model.getTreeModelListeners())
+					l.treeNodesInserted(event);
+			}
+			insert_object_cache.clear();
 		}
-		insert_object_cache.clear();
 	}
 
 	/**

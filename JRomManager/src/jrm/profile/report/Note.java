@@ -19,7 +19,8 @@ public abstract class Note implements TreeNode,HTMLRenderer,Serializable
 	 * The parent {@link Subject}
 	 */
 	transient Subject parent;
-	transient int id;
+	
+	transient int id = -1;
 /*
 	private static final ObjectStreamField[] serialPersistentFields = {};
 

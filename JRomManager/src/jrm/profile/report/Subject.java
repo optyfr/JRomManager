@@ -32,7 +32,7 @@ public abstract class Subject extends AbstractList<Note> implements TreeNode, HT
 	 */
 	protected transient Report parent;
 	
-	protected transient int id;
+	protected transient int id = -1;
 
 	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("ware", AnywareBase.class), new ObjectStreamField("notes", List.class)}; //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -67,7 +67,7 @@ public abstract class Subject extends AbstractList<Note> implements TreeNode, HT
 	 * @param machine The related {@link AnywareBase}
 	 * @param notes a {@link List}&lt;{@link Note}&gt;
 	 */
-	Subject(final AnywareBase machine, final List<Note> notes)
+	protected Subject(final AnywareBase machine, final List<Note> notes)
 	{
 		ware = machine;
 		this.notes = notes;
