@@ -145,8 +145,8 @@ public interface HTMLRenderer
 	{
 		return String.format("<html>" //$NON-NLS-1$
 				+ "<table cellpadding=2 cellspacing=0><tr>" //$NON-NLS-1$
-				+ "	<td valign='middle'><table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray'><tr>" //$NON-NLS-1$
-				+ "		<td style='width:%dpx;background:#ff00'></td>" //$NON-NLS-1$
+				+ "	<td valign='middle'><table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray;table-layout:fixed'><tr>" //$NON-NLS-1$
+				+ "		<td style='width:%dpx;height:2px;background-color:#00ff00'></td>" //$NON-NLS-1$
 				+ "		<td></td>" //$NON-NLS-1$
 				+ "	</table></td>" //$NON-NLS-1$
 				+ "	<td style='font-size:95%%;white-space:nowrap'>%s</td>" //$NON-NLS-1$

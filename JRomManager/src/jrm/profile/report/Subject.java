@@ -67,9 +67,10 @@ public abstract class Subject extends AbstractList<Note> implements TreeNode, HT
 	 * @param machine The related {@link AnywareBase}
 	 * @param notes a {@link List}&lt;{@link Note}&gt;
 	 */
-	protected Subject(final AnywareBase machine, final List<Note> notes)
+	protected Subject(Subject org, final List<Note> notes)
 	{
-		ware = machine;
+		ware = org.ware;
+		id = org.id;
 		this.notes = notes;
 	}
 

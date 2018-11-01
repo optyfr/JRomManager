@@ -19,7 +19,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
-
+		
 		int parentID = Integer.valueOf(operation.data.get("ParentID"));
 		if(parentID==0)
 		{
@@ -29,25 +29,32 @@ public class ReportTreeXMLResponse extends XMLResponse
 			writer.writeElement("endRow", Integer.toString(end=Math.min(nodecount-1,operation.endRow)));
 			writer.writeElement("totalRows", Integer.toString(nodecount));
 	
-			writer.writeStartElement("data");
-			for(int i = start; i <= end; i++)
+			if(nodecount>0)
 			{
-				Subject s = ((Report)request.session.report.getModel().getRoot()).get(i);
-				writer.writeStartElement("record");
-				writer.writeAttribute("ID", Integer.toString(s.getId()));
-				writer.writeAttribute("ParentID", Integer.toString(parentID));
-				writer.writeAttribute("title", s.getHTML());
-				writer.writeAttribute("class", s.getClass().getSimpleName());
-				if(s instanceof SubjectSet)
-					writer.writeAttribute("status", ((SubjectSet)s).getStatus().toString());
-				writer.writeAttribute("isFolder", Boolean.toString(!s.isLeaf()));
+				writer.writeStartElement("data");
+				for(int i = start; i <= end; i++)
+				{
+					Subject s = ((Report)request.session.report.getModel().getRoot()).get(i);
+					writer.writeStartElement("record");
+					writer.writeAttribute("ID", Integer.toString(s.getId()));
+					writer.writeAttribute("ParentID", Integer.toString(parentID));
+					writer.writeAttribute("title", s.getHTML());
+					writer.writeAttribute("class", s.getClass().getSimpleName());
+					if(s instanceof SubjectSet)
+					{
+						writer.writeAttribute("status", ((SubjectSet)s).getStatus().toString());
+						writer.writeAttribute("hasNotes", Boolean.toString(((SubjectSet)s).hasNotes()));
+						writer.writeAttribute("isFixable", Boolean.toString(((SubjectSet)s).isFixable()));
+					}
+					writer.writeAttribute("isFolder", Boolean.toString(!s.isLeaf()));
+					writer.writeEndElement();
+				}
 				writer.writeEndElement();
 			}
-			writer.writeEndElement();
 		}
 		else
 		{
-			Subject subject = request.session.report.findSubject(parentID);
+			Subject subject = ((Report)request.session.report.getModel().getRoot()).findSubject(parentID);
 			if(subject!=null)
 			{
 				int nodecount = subject.size();

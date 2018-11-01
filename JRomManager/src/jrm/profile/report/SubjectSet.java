@@ -84,16 +84,16 @@ public class SubjectSet extends Subject implements Serializable
 	 * @param machine The related {@link AnywareBase}
 	 * @param notes a {@link List}&lt;{@link Note}&gt;
 	 */
-	private SubjectSet(final AnywareBase machine, final List<Note> notes)
+	private SubjectSet(final SubjectSet org, final List<Note> notes)
 	{
-		super(machine, notes);
+		super(org, notes);
 	}
 
 	@Override
 	public Subject clone(final List<FilterOptions> filterOptions)
 	{
 		SubjectSet clone;
-		clone = new SubjectSet(ware, filter(filterOptions));
+		clone = new SubjectSet(this, filter(filterOptions));
 		clone.status = status;
 		return clone;
 	}

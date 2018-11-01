@@ -93,16 +93,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		final ObjectInputStream.GetField fields = stream.readFields();
 		subjects = (List<Subject>) fields.get("subjects", Collections.synchronizedList(new ArrayList<>())); //$NON-NLS-1$
 		stats = (Stats) fields.get("stats", new Stats()); //$NON-NLS-1$
-		all = Collections.synchronizedMap(new HashMap<>());
-		id_cnt = new AtomicInteger();
-		id = id_cnt.getAndIncrement();
-		all.put(id,this);
-		subject_hash = subjects.stream().peek(s->{
-			s.parent=this;
-			s.id = id_cnt.getAndIncrement();
-			all.put(s.id,s);
-			s.notes.forEach(n->n.id = id_cnt.getAndIncrement());
-		}).collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
+		subject_hash = subjects.stream().peek(s->s.parent=this).collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		filterPredicate = new FilterPredicate(new ArrayList<>());
 		model = new ReportTreeModel(this);
 		model.initClone();
@@ -208,10 +199,6 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	 */
 	public Report()
 	{
-		all =  Collections.synchronizedMap(new HashMap<>());
-		id_cnt = new AtomicInteger();
-		id = id_cnt.getAndIncrement();
-		all.put(id,this);
 		subjects = Collections.synchronizedList(new ArrayList<>());
 		subject_hash = Collections.synchronizedMap(new HashMap<>());
 		stats = new Stats();
@@ -265,12 +252,19 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	private Report(final Report report, final List<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
-		id_cnt = report.id_cnt;
-		all = report.all;
-		id = report.id;
+		id_cnt = new AtomicInteger();
+		all = new HashMap<>();
+		id = id_cnt.getAndIncrement();
+		all.put(id, this);
 		model = report.model;
 		profile = report.profile;
 		subjects = report.filter(filterOptions);
+		for(Subject s : subjects)
+		{
+			all.put(s.id = id_cnt.getAndIncrement(), s);
+			for(Note n : s)
+				all.put(n.id = id_cnt.getAndIncrement(), n);
+		}
 		subject_hash = subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		stats = report.stats;
 	}
@@ -311,10 +305,6 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	 */
 	public void reset()
 	{
-		all.clear();
-		id_cnt = new AtomicInteger();
-		id = id_cnt.getAndIncrement();
-		all.put(id,this);
 		subject_hash.clear();
 		subjects.clear();
 		insert_object_cache.clear();
@@ -402,9 +392,12 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	public synchronized boolean add(final Subject subject)
 	{
 		subject.parent = this;	// initialize subject.parent
-		subject.id = id_cnt.getAndIncrement();
-		all.put(subject.id,subject);
-		subject.notes.forEach(n->n.id = id_cnt.getAndIncrement());
+		if(all!=null)
+		{
+			all.put(subject.id = id_cnt.getAndIncrement(),subject);
+			for(Note n : subject)
+				n.id = id_cnt.getAndIncrement();
+		}
 		if(subject.ware != null)	// add to subject_hash if there is a subject.ware
 			subject_hash.put(subject.ware.getFullName(), subject);
 		final boolean result = subjects.add(subject); // add to subjects list and keep result

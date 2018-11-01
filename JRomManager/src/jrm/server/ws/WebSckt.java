@@ -69,6 +69,11 @@ public class WebSckt extends WebSocket implements SessionStub
 						new ProfileWS(this).scan(jso);
 						break;
 					}
+					case "Profile.fix":
+					{
+						new ProfileWS(this).fix(jso);
+						break;
+					}
 					case "Profile.setProperty":
 					{
 						new ProfileWS(this).setProperty(jso);

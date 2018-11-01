@@ -12,6 +12,7 @@ import com.eclipsesource.json.JsonValue;
 
 import jrm.misc.BreakException;
 import jrm.profile.Profile;
+import jrm.profile.fix.Fix;
 import jrm.profile.scan.Scan;
 import jrm.server.WebSession;
 
@@ -65,6 +66,46 @@ public class ProfileWS
 			session.worker.progress = null;
 			session.lastAction = new Date();
 			scanned(session.curr_scan);
+		})).start();
+	}
+	
+	void fix(JsonObject jso)
+	{
+		(ws.session.worker = new Worker(()->{
+			WebSession session = ws.session;
+			session.worker.progress = new ProgressWS(ws);
+			try
+			{
+				if(session.curr_profile.hasPropsChanged())
+				{
+	/*				switch (JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), Messages.getString("MainFrame.WarnSettingsChanged"), Messages.getString("MainFrame.RescanBeforeFix"), JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						case JOptionPane.YES_OPTION:
+							session.curr_scan = new Scan(session.curr_profile, progress);
+							btnFix.setEnabled(session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
+							if (!btnFix.isEnabled())
+								return null;
+							break;
+						case JOptionPane.NO_OPTION:
+							break;
+						case JOptionPane.CANCEL_OPTION:
+						default:
+							return null;
+					}*/
+					session.curr_scan = new Scan(session.curr_profile, session.worker.progress);
+					boolean needfix = session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0;
+					if (!needfix)
+						return;
+				}
+				final Fix fix = new Fix(session.curr_profile, session.curr_scan, session.worker.progress);
+				fixed(fix);
+			}
+			finally
+			{
+				session.worker.progress.close();
+				session.worker.progress = null;
+				session.lastAction = new Date();
+			}
 		})).start();
 	}
 	
@@ -135,6 +176,29 @@ public class ProfileWS
 						add("success", scan!=null);
 						if(scan!=null)
 							add("actions", scan.actions.stream().mapToInt(Collection::size).sum());
+					}});
+				}}.toString());
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	void fixed(final Fix fix)
+	{
+		try
+		{
+			if(ws.isOpen())
+			{
+				ws.send(new JsonObject() {{
+					add("cmd", "Profile.fixed");
+					add("params", new JsonObject() {{
+						add("success", fix!=null);
+						if(fix!=null)
+							add("actions", fix.getActionsRemain());
 					}});
 				}}.toString());
 			}
