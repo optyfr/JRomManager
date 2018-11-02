@@ -79,6 +79,11 @@ public class WebSckt extends WebSocket implements SessionStub
 						new ProfileWS(this).setProperty(jso);
 						break;
 					}
+					case "Report.setFilter":
+					{
+						new ReportWS(this).setFilter(jso);
+						break;
+					}
 					case "CatVer.load":
 					{
 						new CatVerWS(this).load(jso);
