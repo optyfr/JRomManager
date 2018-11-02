@@ -64,7 +64,7 @@ public class Disk extends Entity implements Serializable
 	@Override
 	public String getName()
 	{
-		if (getParent().profile.settings.merge_mode.isMerge())
+		if (getParent().profile.settings!=null && getParent().profile.settings.merge_mode.isMerge())
 		{
 			if (merge == null)
 			{

@@ -102,7 +102,7 @@ public class Rom extends Entity implements Serializable
 	@Override
 	public String getName()
 	{
-		if (getParent().profile.settings.merge_mode.isMerge())
+		if (getParent().profile.settings!=null && getParent().profile.settings.merge_mode.isMerge())
 		{
 			if (merge == null)
 			{
@@ -123,7 +123,7 @@ public class Rom extends Entity implements Serializable
 	 */
 	public String getFullName()
 	{
-		if (getParent().profile.settings.merge_mode.isMerge())
+		if (getParent().profile.settings!=null && getParent().profile.settings.merge_mode.isMerge())
 		{
 			if (merge != null && !parent.getProfile().getProperty("ignore_merge_name_roms", false)) //$NON-NLS-1$
 				return parent.name + "/" + merge; //$NON-NLS-1$

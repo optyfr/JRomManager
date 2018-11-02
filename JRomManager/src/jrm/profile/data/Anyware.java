@@ -181,7 +181,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	 */
 	public Anyware getDest()
 	{
-		if (profile.settings.merge_mode.isMerge() && isClone())
+		if (profile.settings!=null && profile.settings.merge_mode.isMerge() && isClone())
 			return getParent().getDest();
 		return this;
 	}
