@@ -70,6 +70,12 @@ public class DataSourcesHandler extends DefaultHandler
 							return new AnywareXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "Report":
 							return new ReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "BatchDat2DirSrc":
+							return new BatchDat2DirSrcXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "BatchDat2DirSDR":
+							return new BatchDat2DirSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "BatchDat2DirResult":
+							return new BatchDat2DirResultXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						default:
 							new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen);
 							break;
