@@ -59,6 +59,11 @@ public class WebSckt extends WebSocket implements SessionStub
 				this.session.lastAction = new Date();
 				switch (jso.getString("cmd", "unknown"))
 				{
+					case "Global.setProperty":
+					{
+						new GlobalWS(this).setProperty(jso);
+						break;
+					}
 					case "Profile.load":
 					{
 						new ProfileWS(this).load(jso);
@@ -79,9 +84,14 @@ public class WebSckt extends WebSocket implements SessionStub
 						new ProfileWS(this).setProperty(jso);
 						break;
 					}
+					case "ReportLite.setFilter":
+					{
+						new ReportWS(this).setFilter(jso,true);
+						break;
+					}
 					case "Report.setFilter":
 					{
-						new ReportWS(this).setFilter(jso);
+						new ReportWS(this).setFilter(jso,false);
 						break;
 					}
 					case "CatVer.load":
@@ -98,6 +108,11 @@ public class WebSckt extends WebSocket implements SessionStub
 					{
 						if (session.worker != null && session.worker.isAlive() && session.worker.progress != null)
 							session.worker.progress.cancel();
+						break;
+					}
+					case "Dat2Dir.start":
+					{
+						new Dat2DirWS(this).start(jso);
 						break;
 					}
 					default:

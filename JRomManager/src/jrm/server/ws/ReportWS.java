@@ -8,6 +8,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonObject.Member;
 
 import jrm.profile.report.FilterOptions;
+import jrm.profile.report.Report;
 
 import com.eclipsesource.json.JsonValue;
 
@@ -21,10 +22,11 @@ public class ReportWS
 	}
 	
 	@SuppressWarnings("serial")
-	void setFilter(JsonObject jso)
+	void setFilter(JsonObject jso, boolean lite)
 	{
-		JsonObject pjso = jso.get("params").asObject();
-		EnumSet<FilterOptions> options = ws.session.report.getModel().getFilterOptions().clone();
+		final JsonObject pjso = jso.get("params").asObject();
+		final Report report = lite?ws.session.tmp_report:ws.session.report;
+		EnumSet<FilterOptions> options = report.getModel().getFilterOptions().clone();
 		for(Member m : pjso)
 		{
 			try
@@ -42,13 +44,13 @@ public class ReportWS
 				
 			}
 		}
-		ws.session.report.getModel().filter(options.toArray(new FilterOptions[0]));
+		report.getModel().filter(options.toArray(new FilterOptions[0]));
 		try
 		{
 			if(ws.isOpen())
 			{
 				ws.send(Json.object()
-					.add("cmd", "Report.applyFilters")
+					.add("cmd", lite?"ReportLite.applyFilters":"Report.applyFilters")
 					.add("params", new JsonObject() {{
 						EnumSet.allOf(FilterOptions.class).forEach(f->add(f.toString(),options.contains(f)));
 					}}).toString()

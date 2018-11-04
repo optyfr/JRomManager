@@ -25,7 +25,7 @@ import jrm.security.Session;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.basic.SrcDstResult;
-import jrm.ui.progress.Progress;
+import jrm.ui.progress.ProgressHandler;
 import one.util.streamex.StreamEx;
 
 /**
@@ -43,7 +43,7 @@ public class DirUpdater
 	 * @param result the result interface
 	 * @param dryrun tell not to fix
 	 */
-	public DirUpdater(Session session, List<SrcDstResult> sdrl, final Progress progress, List<File> srcdirs, ResultColUpdater result, boolean dryrun)
+	public DirUpdater(Session session, List<SrcDstResult> sdrl, final ProgressHandler progress, List<File> srcdirs, ResultColUpdater result, boolean dryrun)
 	{
 		final Map<String, DirScan> scancache = new HashMap<>();
 		StreamEx.of(sdrl).filter(sdr->sdr.selected).forEach(sdr->{

@@ -522,9 +522,14 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		return Collections.enumeration(subjects);
 	}
 
+	public File getFile()
+	{
+		return this.profile!=null?this.profile.nfo.file:this.file;
+	}
+	
 	public File getReportFile(final Session session)
 	{
-		return getReportFile(session, this.profile!=null?this.profile.nfo.file:this.file);
+		return getReportFile(session, getFile());
 	}
 
 	private static File getReportFile(final Session session, final File file)

@@ -1,5 +1,7 @@
 package jrm.server.datasources;
 
+import java.io.File;
+
 import jrm.profile.report.Note;
 import jrm.profile.report.Report;
 import jrm.profile.report.Subject;
@@ -20,11 +22,21 @@ public class ReportTreeXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		
+		Report report = request.session.report;
+		if(operation.data.containsKey("src"))
+		{
+			String src = operation.data.get("src");
+			File srcfile = new File(src);
+			if(request.session.tmp_report==null || !request.session.tmp_report.getFile().equals(srcfile))
+				request.session.tmp_report = Report.load(request.session, srcfile);
+			report = request.session.tmp_report;
+		}
+		
 		int parentID = Integer.valueOf(operation.data.get("ParentID"));
 		if(parentID==0)
 		{
 			int start, end;
-			int nodecount = ((Report)request.session.report.getModel().getRoot()).size();
+			int nodecount = ((Report)report.getModel().getRoot()).size();
 			writer.writeElement("startRow", Integer.toString(start=Math.min(nodecount-1,operation.startRow)));
 			writer.writeElement("endRow", Integer.toString(end=Math.min(nodecount-1,operation.endRow)));
 			writer.writeElement("totalRows", Integer.toString(nodecount));
@@ -34,7 +46,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 				writer.writeStartElement("data");
 				for(int i = start; i <= end; i++)
 				{
-					Subject s = ((Report)request.session.report.getModel().getRoot()).get(i);
+					Subject s = ((Report)report.getModel().getRoot()).get(i);
 					writer.writeStartElement("record");
 					writer.writeAttribute("ID", Integer.toString(s.getId()));
 					writer.writeAttribute("ParentID", Integer.toString(parentID));
@@ -54,7 +66,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 		}
 		else
 		{
-			Subject subject = ((Report)request.session.report.getModel().getRoot()).findSubject(parentID);
+			Subject subject = ((Report)report.getModel().getRoot()).findSubject(parentID);
 			if(subject!=null)
 			{
 				int nodecount = subject.size();
