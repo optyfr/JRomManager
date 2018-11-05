@@ -73,6 +73,9 @@ public class Dat2DirWS
 			}
 			finally
 			{
+				Dat2DirWS.this.end();
+				session.curr_profile = null;
+				session.curr_scan = null;
 				session.worker.progress.close();
 				session.worker.progress = null;
 				session.lastAction = new Date();
@@ -119,4 +122,23 @@ public class Dat2DirWS
 			e.printStackTrace();
 		}
 	}
+
+	@SuppressWarnings("serial")
+	void end()
+	{
+		try
+		{
+			if(ws.isOpen())
+			{
+				ws.send(new JsonObject() {{
+					add("cmd", "Dat2Dir.end");
+				}}.toString());
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 }
