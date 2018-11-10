@@ -11,6 +11,7 @@ import com.eclipsesource.json.JsonObject.Member;
 import com.eclipsesource.json.JsonValue;
 
 import jrm.misc.BreakException;
+import jrm.misc.ProfileSettings;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.Scan;
@@ -111,16 +112,29 @@ public class ProfileWS
 	
 	void setProperty(JsonObject jso)
 	{
+		final String profile = jso.getString("profile", null);
+		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.session.curr_profile.settings;
 		JsonObject pjso = jso.get("params").asObject();
-		for(Member m : pjso)
+		for (Member m : pjso)
 		{
 			JsonValue value = m.getValue();
-			if(value.isBoolean())
-				ws.session.curr_profile.setProperty(m.getName(), value.asBoolean());
-			else if(value.isString())
-				ws.session.curr_profile.setProperty(m.getName(), value.asString());
+			if (value.isBoolean())
+				settings.setProperty(m.getName(), value.asBoolean());
+			else if (value.isString())
+				settings.setProperty(m.getName(), value.asString());
 			else
-				ws.session.curr_profile.setProperty(m.getName(), value.toString());
+				settings.setProperty(m.getName(), value.toString());
+		}
+		try
+		{
+			if (profile != null)
+				ws.session.getUser().settings.saveProfileSettings(new File(profile), settings);
+			else
+				ws.session.curr_profile.saveSettings();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 	}
 	

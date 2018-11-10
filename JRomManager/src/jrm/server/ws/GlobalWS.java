@@ -26,6 +26,7 @@ public class GlobalWS
 			else
 				ws.session.getUser().settings.setProperty(m.getName(), value.toString());
 		}
+		ws.session.getUser().settings.saveSettings();
 	}
 	
 }

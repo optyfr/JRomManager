@@ -34,6 +34,10 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			case "listSrcDir":
 				isDir = true;
 				break;
+			case "updDat":
+				isDir = true;
+				break;
+			case "addDat":
 			default:
 				isDir = false;
 				break;

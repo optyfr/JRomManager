@@ -31,6 +31,14 @@ public class SrcDstResult
 		
 	}
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj != null && obj instanceof SrcDstResult)
+			return src.equals(((SrcDstResult)obj).src);
+		return false;
+	}
+	
 	public SrcDstResult(JsonObject jso)
 	{
 		fromJSONObject(jso);
