@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
 import jrm.batch.DirUpdater;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
+import jrm.misc.ProfileSettings;
 import jrm.server.WebSession;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SrcDstResult;
@@ -29,10 +31,7 @@ public class Dat2DirWS
 	{
 		(ws.session.worker = new Worker(()->{
 			WebSession session = ws.session;
-			boolean dryrun;
-			System.out.println("dry_run:"+(dryrun=session.getUser().settings.getProperty("dry_run", true)));
-			if(!dryrun)
-				return;
+			boolean dryrun = session.getUser().settings.getProperty("dry_run", true);
 			session.worker.progress = new ProgressWS(ws);
 			try
 			{
@@ -61,7 +60,7 @@ public class Dat2DirWS
 								session.getUser().settings.setProperty("dat2dir.sdr", SrcDstResult.toJSON(sdrl));
 								Dat2DirWS.this.clearResults();
 							}
-						}, session.getUser().settings.getProperty("dry_run", true));
+						}, dryrun);
 					}
 				}
 				else
@@ -83,6 +82,35 @@ public class Dat2DirWS
 		})).start();
 	}
 
+	@SuppressWarnings("serial")
+	void settings(JsonObject jso)
+	{
+		JsonArray srcs = jso.get("params").asObject().get("srcs").asArray();
+		if(srcs!=null && srcs.size()>0)
+		{
+			String src = srcs.get(0).asString();
+			try
+			{
+				ProfileSettings settings = ws.session.getUser().settings.loadProfileSettings(new File(src), null);
+				if(ws.isOpen())
+				{
+					ws.send(new JsonObject() {{
+						add("cmd", "Dat2Dir.showSettings");
+						add("params", new JsonObject() {{
+							add("settings", settings.asJSO());
+							add("srcs",srcs);
+						}});
+					}}.toString());
+				}
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
 	@SuppressWarnings("serial")
 	void updateResult(int row, String result)
 	{

@@ -115,6 +115,11 @@ public class WebSckt extends WebSocket implements SessionStub
 						new Dat2DirWS(this).start(jso);
 						break;
 					}
+					case "Dat2Dir.settings":
+					{
+						new Dat2DirWS(this).settings(jso);
+						break;
+					}
 					default:
 						System.err.println("Unknown command : " + jso.getString("cmd", "unknown"));
 						break;

@@ -51,6 +51,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	 */
 	private transient Profile profile = null;
 	private transient File file = null;
+	private transient long file_modified = 0L;
 	/**
 	 * the {@link List} of {@link Subject} nodes
 	 */
@@ -527,12 +528,17 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		return this.profile!=null?this.profile.nfo.file:this.file;
 	}
 	
+	public long getFileModified()
+	{
+		return file_modified;
+	}
+	
 	public File getReportFile(final Session session)
 	{
 		return getReportFile(session, getFile());
 	}
 
-	private static File getReportFile(final Session session, final File file)
+	public static File getReportFile(final Session session, final File file)
 	{
 		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
@@ -563,6 +569,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		{
 			Report report = (Report)ois.readObject();
 			report.file = file;
+			report.file_modified = getReportFile(session, file).lastModified();
 			report.model = new ReportTreeModel(report);
 			report.model.initClone();
 			return report;

@@ -25,9 +25,9 @@ public class ReportTreeXMLResponse extends XMLResponse
 		Report report = request.session.report;
 		if(operation.data.containsKey("src"))
 		{
-			String src = operation.data.get("src");
-			File srcfile = new File(src);
-			if(request.session.tmp_report==null || !request.session.tmp_report.getFile().equals(srcfile))
+			final File srcfile = new File(operation.data.get("src"));
+			final File reportfile = Report.getReportFile(request.session, srcfile);
+			if(request.session.tmp_report==null || !(request.session.tmp_report.getReportFile(request.session).equals(reportfile) && request.session.tmp_report.getFileModified()==reportfile.lastModified()))
 				request.session.tmp_report = Report.load(request.session, srcfile);
 			report = request.session.tmp_report;
 		}
