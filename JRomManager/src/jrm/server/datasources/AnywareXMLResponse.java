@@ -22,7 +22,7 @@ public class AnywareXMLResponse extends XMLResponse
 
 	private AnywareList<?> get_list(Operation operation) throws Exception
 	{
-		String list = operation.data.get("list");
+		String list = operation.getData("list");
 		final AnywareList<?> al;
 		if(list==null)
 			al = null;
@@ -36,7 +36,7 @@ public class AnywareXMLResponse extends XMLResponse
 
 	private Anyware get_ware(AnywareList<?> al, Operation operation) throws Exception
 	{
-		String ware = operation.data.get("ware");
+		String ware = operation.getData("ware");
 		final Anyware aw;
 		if(ware==null || al==null)
 			aw = null;
@@ -104,7 +104,7 @@ public class AnywareXMLResponse extends XMLResponse
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
-		final boolean reset = Boolean.valueOf(operation.data.get("reset"));
+		final boolean reset = Boolean.valueOf(operation.getData("reset"));
 		final AnywareList<?> al = get_list(operation);
 		final Anyware aw = get_ware(al,operation);
 		if(aw!=null)

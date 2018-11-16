@@ -23,16 +23,16 @@ public class ReportTreeXMLResponse extends XMLResponse
 		writer.writeElement("status", "0");
 		
 		Report report = request.session.report;
-		if(operation.data.containsKey("src"))
+		if(operation.hasData("src"))
 		{
-			final File srcfile = new File(operation.data.get("src"));
+			final File srcfile = new File(operation.getData("src"));
 			final File reportfile = Report.getReportFile(request.session, srcfile);
 			if(request.session.tmp_report==null || !(request.session.tmp_report.getReportFile(request.session).equals(reportfile) && request.session.tmp_report.getFileModified()==reportfile.lastModified()))
 				request.session.tmp_report = Report.load(request.session, srcfile);
 			report = request.session.tmp_report;
 		}
 		
-		int parentID = Integer.valueOf(operation.data.get("ParentID"));
+		int parentID = Integer.valueOf(operation.getData("ParentID"));
 		if(parentID==0)
 		{
 			int start, end;

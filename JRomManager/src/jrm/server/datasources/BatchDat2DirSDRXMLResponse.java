@@ -43,10 +43,10 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 	@Override
 	protected void add(Operation operation) throws Exception
 	{
-		if(operation.data.containsKey("src"))
+		if(operation.hasData("src"))
 		{
 			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty("dat2dir.sdr", "[]"));
-			final SrcDstResult sdr = new SrcDstResult() {{src=new File(operation.data.get("src"));}};
+			final SrcDstResult sdr = new SrcDstResult() {{src=new File(operation.getData("src"));}};
 			if(!sdrl.contains(sdr))
 			{
 				sdrl.add(sdr);
@@ -74,19 +74,19 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 	@Override
 	protected void update(Operation operation) throws Exception
 	{
-		if(operation.data.containsKey("src"))
+		if(operation.hasData("src"))
 		{
 			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty("dat2dir.sdr", "[]"));
-			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.data.get("src"));}};
+			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.getData("src"));}};
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(p->p.equals(search)).findFirst();
 			if(candidate.isPresent())
 			{
-				if(operation.data.containsKey("dst") || operation.data.containsKey("selected"))
+				if(operation.hasData("dst") || operation.hasData("selected"))
 				{
-					if(operation.data.containsKey("dst"))
-						candidate.get().dst = new File(operation.data.get("dst"));
+					if(operation.hasData("dst"))
+						candidate.get().dst = new File(operation.getData("dst"));
 					else
-						candidate.get().selected = Boolean.parseBoolean(operation.data.get("selected"));
+						candidate.get().selected = Boolean.parseBoolean(operation.getData("selected"));
 					request.session.getUser().settings.setProperty("dat2dir.sdr",SrcDstResult.toJSON(sdrl));
 					request.session.getUser().settings.saveSettings();
 					writer.writeStartElement("response");
@@ -114,10 +114,10 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 	@Override
 	protected void remove(Operation operation) throws Exception
 	{
-		if(operation.data.containsKey("src"))
+		if(operation.hasData("src"))
 		{
 			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty("dat2dir.sdr", "[]"));
-			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.data.get("src"));}};
+			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.getData("src"));}};
 			if(sdrl.remove(search))
 			{
 				request.session.getUser().settings.setProperty("dat2dir.sdr",SrcDstResult.toJSON(sdrl));

@@ -1,5 +1,9 @@
 package jrm.server.datasources;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import jrm.server.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
 
@@ -30,5 +34,61 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 		}
 		writer.writeEndElement();
 		writer.writeEndElement();
+	}
+	
+	@Override
+	protected void add(Operation operation) throws Exception
+	{
+		if(operation.hasData("name"))
+		{
+			String[] srcdirs = request.session.getUser().settings.getProperty("dat2dir.srcdirs", "").split("\\|");
+			List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
+			final List<String> names = operation.getDatas("name").stream().filter(n->!lsrcdirs.contains(n)).collect(Collectors.toList());
+			if(names.size()>0)
+			{
+				lsrcdirs.addAll(names);
+				request.session.getUser().settings.setProperty("dat2dir.srcdirs", lsrcdirs.stream().collect(Collectors.joining("|")));
+				request.session.getUser().settings.saveSettings();
+				writer.writeStartElement("response");
+				writer.writeElement("status", "0");
+				writer.writeStartElement("data");
+				for(final String name : names)
+					writer.writeElement("record", new SimpleAttribute("name", name));
+				writer.writeEndElement();
+				writer.writeEndElement();
+			}
+			else
+				failure("Entry already exists");
+		}
+		else
+			failure("name is missing in request");
+	}
+	
+	@Override
+	protected void remove(Operation operation) throws Exception
+	{
+		if(operation.hasData("name"))
+		{
+			final String[] srcdirs = request.session.getUser().settings.getProperty("dat2dir.srcdirs", "").split("\\|");
+			final List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
+			final List<String> names = operation.getDatas("name").stream().filter(lsrcdirs::contains).collect(Collectors.toList());
+			if(names.size()>0)
+			{
+				lsrcdirs.removeAll(names);
+				request.session.getUser().settings.setProperty("dat2dir.srcdirs", lsrcdirs.stream().collect(Collectors.joining("|")));
+				request.session.getUser().settings.saveSettings();
+				writer.writeStartElement("response");
+				writer.writeElement("status", "0");
+				writer.writeStartElement("data");
+				for(final String name : names)
+					writer.writeElement("record", new SimpleAttribute("name", name));
+				writer.writeEndElement();
+				writer.writeEndElement();
+			}
+			else
+				failure("Entry does not exist");
+		}
+		else
+			failure("name is missing in request");
 	}
 }

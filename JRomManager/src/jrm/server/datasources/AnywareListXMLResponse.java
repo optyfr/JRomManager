@@ -23,7 +23,7 @@ public class AnywareListXMLResponse extends XMLResponse
 
 	private AnywareList<?> get_list(Operation operation) throws Exception
 	{
-		String list = operation.data.get("list");
+		String list = operation.getData("list");
 		final AnywareList<?> al;
 		if(list==null)
 			al = null;
@@ -36,12 +36,12 @@ public class AnywareListXMLResponse extends XMLResponse
 	
 	private List<Anyware> build_list(AnywareList<?> al, Operation operation)
 	{
-		final String lname = operation.data.containsKey("name")?operation.data.get("name").toLowerCase():null;
-		final String ldesc = operation.data.containsKey("description")?operation.data.get("description").toLowerCase():null;
-		final String lcloneof = operation.data.containsKey("cloneof")?operation.data.get("cloneof").toLowerCase():null;
-		final String lromof = operation.data.containsKey("romof")?operation.data.get("romof").toLowerCase():null;
-		final String lsampleof = operation.data.containsKey("sampleof")?operation.data.get("sampleof").toLowerCase():null;
-		final Boolean lselected = operation.data.containsKey("selected")?Boolean.valueOf(operation.data.get("selected")):null;
+		final String lname = operation.hasData("name")?operation.getData("name").toLowerCase():null;
+		final String ldesc = operation.hasData("description")?operation.getData("description").toLowerCase():null;
+		final String lcloneof = operation.hasData("cloneof")?operation.getData("cloneof").toLowerCase():null;
+		final String lromof = operation.hasData("romof")?operation.getData("romof").toLowerCase():null;
+		final String lsampleof = operation.hasData("sampleof")?operation.getData("sampleof").toLowerCase():null;
+		final Boolean lselected = operation.hasData("selected")?Boolean.valueOf(operation.getData("selected")):null;
 		final List<Anyware> list = al.getFilteredList().stream().filter(ware -> {
 			if(lselected!=null)
 				if(ware.selected!=lselected)
@@ -144,7 +144,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
-		final boolean reset = Boolean.valueOf(operation.data.get("reset"));
+		final boolean reset = Boolean.valueOf(operation.getData("reset"));
 		final AnywareList<?> al = get_list(operation);
 		if(al != null)
 		{
@@ -166,13 +166,13 @@ public class AnywareListXMLResponse extends XMLResponse
 		final AnywareList<?> al = get_list(operation);
 		if(al != null)
 		{
-			String name = operation.data.get("name");
+			String name = operation.getData("name");
 			if(name != null)
 			{
 				Anyware aw = al.getByName(name);
 				if(aw != null)
 				{
-					Boolean selected = Boolean.valueOf(operation.data.get("selected"));
+					Boolean selected = Boolean.valueOf(operation.getData("selected"));
 					if(selected != null)
 						aw.selected = selected;
 					write_record(al, aw);
@@ -192,10 +192,10 @@ public class AnywareListXMLResponse extends XMLResponse
 			final AnywareList<?> al = get_list(operation);
 			if(al != null)
 			{
-				if(operation.data.containsKey("find"))
+				if(operation.hasData("find"))
 				{
 					List<Anyware> list = build_list(al, operation);
-					final String find = operation.data.get("find");
+					final String find = operation.getData("find");
 					for(int i = 0; i < list.size(); i++)
 					{
 						if(list.get(i).getBaseName().equals(find))

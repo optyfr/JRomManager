@@ -43,8 +43,36 @@ public class XMLRequest
 		int startRow = 0;
 		int endRow = Integer.MAX_VALUE;
 		List<Sorter> sort = new ArrayList<>();
-		Map<String,String> data = new HashMap<>();
+		private Map<String,List<String>> data = new HashMap<>();
 		Map<String,String> oldValues = new HashMap<>();
+		
+		boolean hasData(String key)
+		{
+			return data.containsKey(key);
+		}
+		
+		String getData(String key)
+		{
+			if(data.containsKey(key))
+			{
+				List<String> value = data.get(key);
+				if(value.size()>0)
+					return value.get(0);
+			}
+			return null;
+		}
+		
+		boolean addData(String key, String value)
+		{
+			if(!data.containsKey(key))
+				data.put(key, new ArrayList<>());
+			return data.get(key).add(value);
+		}
+		
+		List<String> getDatas(String key)
+		{
+			return data.get(key);
+		}
 	}
 	
 	class Transaction
@@ -179,7 +207,7 @@ public class XMLRequest
 						default:
 							if(inData)
 							{
-								current_request.data.put(qName, datavalue.toString());
+								current_request.addData(qName, datavalue.toString());
 								datavalue.setLength(0);
 							}
 							else if(inOldValues)

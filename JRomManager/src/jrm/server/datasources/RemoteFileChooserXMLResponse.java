@@ -24,7 +24,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws Exception
 	{
 		final boolean isDir;
-		switch(operation.data.get("context"))
+		switch(operation.getData("context"))
 		{
 			case "tfRomsDest":
 			case "tfDisksDest":
@@ -32,6 +32,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			case "tfSWDisksDest":
 			case "tfSamplesDest":
 			case "listSrcDir":
+			case "addDatSrc":
 				isDir = true;
 				break;
 			case "updDat":
@@ -46,8 +47,8 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
 		Path dir = request.session.getUser().settings.getWorkPath();
-		if(operation.data.containsKey("parent"))
-			dir = new File(operation.data.get("parent")).toPath();
+		if(operation.hasData("parent"))
+			dir = new File(operation.getData("parent")).toPath();
 		writer.writeElement("parent", dir.toString());
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, entry -> isDir ? Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS) : true))
 		{
@@ -86,9 +87,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	protected void add(Operation operation) throws Exception
 	{
 		Path dir = request.session.getUser().settings.getWorkPath();
-		if(operation.data.containsKey("parent"))
-			dir = new File(operation.data.get("parent")).toPath();
-		String name = operation.data.get("Name");
+		if(operation.hasData("parent"))
+			dir = new File(operation.getData("parent")).toPath();
+		String name = operation.getData("Name");
 		Path entry = dir.resolve(name);
 		if(name!=null && Files.isDirectory(dir) && !Files.exists(entry))
 		{
@@ -121,9 +122,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	protected void update(Operation operation) throws Exception
 	{
 		Path dir = request.session.getUser().settings.getWorkPath();
-		if(operation.data.containsKey("parent"))
-			dir = new File(operation.data.get("parent")).toPath();
-		String name = operation.data.get("Name");
+		if(operation.hasData("parent"))
+			dir = new File(operation.getData("parent")).toPath();
+		String name = operation.getData("Name");
 		String oldname = operation.oldValues.get("Name");
 		Path entry = dir.resolve(name);
 		Path oldentry = dir.resolve(oldname);
@@ -158,9 +159,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	protected void remove(Operation operation) throws Exception
 	{
 		Path dir = request.session.getUser().settings.getWorkPath();
-		if(operation.data.containsKey("parent"))
-			dir = new File(operation.data.get("parent")).toPath();
-		String name = operation.data.get("Name");
+		if(operation.hasData("parent"))
+			dir = new File(operation.getData("parent")).toPath();
+		String name = operation.getData("Name");
 		Path entry = dir.resolve(name);
 		if(name!=null && Files.exists(entry))
 		{

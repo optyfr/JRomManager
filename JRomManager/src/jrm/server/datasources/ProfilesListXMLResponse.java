@@ -19,8 +19,8 @@ public class ProfilesListXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws Exception
 	{
 		File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
-		if(operation.data.containsKey("Path"))
-			dir = new File(operation.data.get("Path"));
+		if(operation.hasData("Path"))
+			dir = new File(operation.getData("Path"));
 		FileTableModel model = new FileTableModel(request.session, new Dir(dir));
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");

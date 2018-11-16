@@ -22,7 +22,7 @@ public class AnywareListListXMLResponse extends XMLResponse
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
-		final boolean reset = Boolean.valueOf(operation.data.get("reset"));
+		final boolean reset = Boolean.valueOf(operation.getData("reset"));
 		final MachineListList mll = request.session.curr_profile.machinelist_list;
 		if(reset)
 			mll.reset();

@@ -19,7 +19,7 @@ public class BatchDat2DirResultXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		final String src = operation.data.get("src");
+		final String src = operation.getData("src");
 		final DirUpdaterResults results = src!=null?DirUpdaterResults.load(request.session, new File(src)):null;
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
