@@ -5,6 +5,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
@@ -24,6 +25,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws Exception
 	{
 		final boolean isDir;
+		final String pathmatcher;
 		switch(operation.getData("context"))
 		{
 			case "tfRomsDest":
@@ -34,12 +36,23 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			case "listSrcDir":
 			case "addDatSrc":
 				isDir = true;
+				pathmatcher = null;
 				break;
 			case "updDat":
+			case "updTrnt":
 				isDir = true;
+				pathmatcher = null;
+				break;
+			case "addTrnt":
+				pathmatcher = "glob:*.torrent";
+				isDir = false;
 				break;
 			case "addDat":
+				pathmatcher = "glob:*.{xml,dat}";
+				isDir = false;
+				break;
 			default:
+				pathmatcher = null;
 				isDir = false;
 				break;
 		}
@@ -50,7 +63,14 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		if(operation.hasData("parent"))
 			dir = new File(operation.getData("parent")).toPath();
 		writer.writeElement("parent", dir.toString());
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, entry -> isDir ? Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS) : true))
+		PathMatcher matcher = pathmatcher!=null ? dir.getFileSystem().getPathMatcher(pathmatcher) : null;
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, entry -> {
+			if(isDir)
+				return Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS);
+			else if(matcher!=null && Files.isRegularFile(entry))
+				return matcher.matches(entry.getFileName());
+			return true;
+		}))
 		{
 			long cnt = 0;
 			writer.writeStartElement("data");

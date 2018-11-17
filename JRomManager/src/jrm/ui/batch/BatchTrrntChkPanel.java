@@ -273,7 +273,7 @@ public class BatchTrrntChkPanel extends JPanel
 		this.add(cbbxTrntChk, gbc_cbbxTrntChk);
 
 		final JButton btnBatchToolsTrntChkStart = new JButton(Messages.getString("BatchToolsTrrntChkPanel.TrntCheckStart.text")); //$NON-NLS-1$
-		btnBatchToolsTrntChkStart.addActionListener((e) -> trrntChk());
+		btnBatchToolsTrntChkStart.addActionListener((e) -> trrntChk(session));
 
 		chckbxDetectArchivedFolder = new JCheckBox(Messages.getString("BatchTrrntChkPanel.chckbxDetectArchivedFolder.text")); //$NON-NLS-1$
 		chckbxDetectArchivedFolder.addActionListener(e -> session.getUser().settings.setProperty("trntchk.detect_archived_folders", chckbxDetectArchivedFolder.isSelected()));
@@ -311,7 +311,7 @@ public class BatchTrrntChkPanel extends JPanel
 
 	}
 
-	private void trrntChk()
+	private void trrntChk(final Session session)
 	{
 		final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
 		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
@@ -326,7 +326,7 @@ public class BatchTrrntChkPanel extends JPanel
 				final boolean detectArchivedFolders = chckbxDetectArchivedFolder.isSelected();
 				final boolean removeUnknownFiles = cbRemoveUnknownFiles.isSelected();
 				final boolean removeWrongSizedFiles = cbRemoveWrongSizedFiles.isSelected();
-				new TorrentChecker(progress, sdrl, mode, updater, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
+				new TorrentChecker(session, progress, sdrl, mode, updater, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
 				return null;
 			}
 
