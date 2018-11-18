@@ -142,7 +142,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 						if(progress.isCancel())
 							break;
 					}
-					int removed_files = removeUnknownFiles(paths, sdr, removeUnknownFiles && !progress.isCancel());
+					int removed_files = removeUnknownFiles(report, paths, sdr, removeUnknownFiles && !progress.isCancel());
 					if(ok == total)
 					{
 						if(removed_files>0)
@@ -287,7 +287,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 						System.out.format("piece counted %d, given %d, valid %d, completion=%.02f%%\n", piece_cnt, pieces.size(), piece_valid, piece_valid * 100.0 / piece_cnt); //$NON-NLS-1$
 						System.out.format("piece len : %d\n", piece_length); //$NON-NLS-1$
 						System.out.format("last piece len : %d\n", piece_length - to_go); //$NON-NLS-1$
-						int removed_files = removeUnknownFiles(paths, sdr, removeUnknownFiles && !progress.isCancel());
+						int removed_files = removeUnknownFiles(report, paths, sdr, removeUnknownFiles && !progress.isCancel());
 						if(piece_valid == piece_cnt)
 						{
 							if(removed_files>0)
@@ -313,7 +313,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		return result;
 	}
 	
-	private int removeUnknownFiles(HashSet<Path> paths, SrcDstResult sdr, boolean remove) throws IOException
+	private int removeUnknownFiles(TrntChkReport report, HashSet<Path> paths, SrcDstResult sdr, boolean remove) throws IOException
 	{
 		List<Path> files_to_remove = new ArrayList<>();
 		Files.walkFileTree(sdr.dst.toPath(), new SimpleFileVisitor<Path>()
@@ -327,17 +327,27 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			}
 		});
 		int count = files_to_remove.size();
-		if (remove)
+		if (count > 0)
 		{
-			files_to_remove.forEach(t -> {
-				try
-				{
-					Files.delete(t);
-				}
-				catch (IOException e)
-				{
-				}
-			});
+			Node lostfound = report.add("Unknown files");
+			lostfound.data.length = 0L;
+			for (Path p : files_to_remove)
+			{
+				Node entry = lostfound.add(p.toString());
+				lostfound.data.length += (entry.data.length = Files.size(p));
+			}
+			if (remove)
+			{
+				files_to_remove.forEach(t -> {
+					try
+					{
+						Files.delete(t);
+					}
+					catch (IOException e)
+					{
+					}
+				});
+			}
 		}
 		return count;
 	}
@@ -421,6 +431,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 
 		try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipFile, null))
 		{
+			System.out.println("unzipping : "+zipFile);
 			final Path root = zipFileSystem.getRootDirectories().iterator().next();
 
 			Files.walkFileTree(root, new SimpleFileVisitor<Path>()

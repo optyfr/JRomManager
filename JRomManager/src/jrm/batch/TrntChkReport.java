@@ -17,12 +17,12 @@ import java.util.zip.CRC32;
 
 import jrm.security.Session;
 
-final class TrntChkReport implements Serializable
+public final class TrntChkReport implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
-	List<Node> nodes = new ArrayList<>();
-	Map<Long,Node> all = new HashMap<>();
+	public List<Node> nodes = new ArrayList<>();
+	public Map<Long,Node> all = new HashMap<>();
 	
 	private transient AtomicLong uid_cnt = new AtomicLong(); 
 	private transient File file = null;
@@ -33,7 +33,7 @@ final class TrntChkReport implements Serializable
 		this.file = src;
 	}
 	
-	enum Status
+	public enum Status
 	{
 		OK,
 		SIZE,
@@ -43,23 +43,23 @@ final class TrntChkReport implements Serializable
 		UNKNOWN
 	}
 	
-	final static class NodeData implements Serializable
+	public final static class NodeData implements Serializable
 	{
 		private static final long serialVersionUID = 1L;
-		String title;
-		Long length = null;
-		TrntChkReport.Status status = Status.UNKNOWN;
+		public String title;
+		public Long length = null;
+		public Status status = Status.UNKNOWN;
 	}
 	
-	final class Node implements Serializable
+	public final class Node implements Serializable
 	{
 		private static final long serialVersionUID = 1L;
 
-		List<Node> children;
+		public List<Node> children;
 
-		long uid;
-		Node parent = null;
-		NodeData data = null;
+		public long uid;
+		public Node parent = null;
+		public NodeData data = null;
 
 		public Node()
 		{
