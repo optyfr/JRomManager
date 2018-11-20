@@ -29,6 +29,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.misc.ProfileSettings;
 import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
 import jrm.profile.scan.options.HashCollisionOptions;
@@ -94,7 +95,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	 */
 	private static transient EventListenerList listenerList;
 	/**
-	 * entities list cache (according current {@link #filter})
+	 * entities list cache (according current {@link Profile#filter_e})
 	 */
 	private transient List<EntityBase> table_entities;
 
@@ -174,7 +175,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	}
 
 	/**
-	 * get the destination object according the {@link #merge_mode} and {@link #isClone()}
+	 * get the destination object according the {@link ProfileSettings#merge_mode} and {@link #isClone()}
 	 * - if we are merging ({@link MergeOptions#isMerge()}), then return a parent that is not a clone by returning the call from {@link #getParent()}.{@link #getDest()}
 	 * - otherwise return {@code this}
 	 * @return the {@link Anyware} destination object (can be this instance or a parent)
@@ -200,8 +201,6 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 
 	/**
 	 * return filtered list of disks according various flags and status
-	 * @param merge_mode the merge mode to set and use
-	 * @param hash_collision_mode the hash collision mode to set and use 
 	 * @return the filtered list of disks
 	 * @see "Source code for more explanations"
 	 */
@@ -249,8 +248,6 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 
 	/**
 	 * return filtered list of roms according various flags and status
-	 * @param merge_mode the merge mode to set and use
-	 * @param hash_collision_mode the hash collision mode to set and use 
 	 * @return the filtered list of roms
 	 * @see "Source code for more explanations"
 	 */

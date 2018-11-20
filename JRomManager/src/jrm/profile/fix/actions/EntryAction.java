@@ -51,8 +51,9 @@ abstract public class EntryAction implements HTMLRenderer
 	}
 
 	/**
-	 * do action on entry in an {@link Archive}  
-	 * @param archive the compressed {@link Archive} provided by {@link ContainerAction#doAction(ProgressHandler)} in which we should apply entry action
+	 * do action on entry in an {@link Archive}
+	 * @param session the current {@link Session}  
+	 * @param archive the compressed {@link Archive} provided by {@link ContainerAction#doAction(Session, ProgressHandler)} in which we should apply entry action
 	 * @param handler the {@link ProgressHandler} to show progression state
 	 * @param i the progression level
 	 * @param max the progression maximum
@@ -62,7 +63,8 @@ abstract public class EntryAction implements HTMLRenderer
 
 	/**
 	 * do action on entry on a {@link FileSystem}
-	 * @param fs the {@link FileSystem} provided by {@link ContainerAction#doAction(ProgressHandler)} in which we should apply entry action
+	 * @param session the current {@link Session}  
+	 * @param fs the {@link FileSystem} provided by {@link ContainerAction#doAction(Session, ProgressHandler)} in which we should apply entry action
 	 * @param handler handler the {@link ProgressHandler} to show progression state
 	 * @param i the progression level
 	 * @param max the progression maximum
@@ -72,7 +74,7 @@ abstract public class EntryAction implements HTMLRenderer
 
 	/**
 	 * 
-	 * @param target the Path provided by {@link ContainerAction#doAction(ProgressHandler)} in which we should apply entry action
+	 * @param target the Path provided by {@link ContainerAction#doAction(Session, ProgressHandler)} in which we should apply entry action
 	 * @param handler handler the {@link ProgressHandler} to show progression state
 	 * @param i the progression level
 	 * @param max the progression maximum

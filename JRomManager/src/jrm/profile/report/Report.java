@@ -339,8 +339,8 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	}
 
 	/**
-	 * find {@link Subject} from an {@link Anyware}
-	 * @param ware the {@link Anyware} to find {@link Subject}
+	 * find {@link Subject} from an id
+	 * @param id the id to find {@link Subject}
 	 * @return the found {@link Subject} or null
 	 */
 	public Subject findSubject(final Integer id)

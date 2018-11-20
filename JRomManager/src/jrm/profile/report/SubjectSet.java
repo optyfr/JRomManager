@@ -81,7 +81,7 @@ public class SubjectSet extends Subject implements Serializable
 
 	/**
 	 * The internal constructor
-	 * @param machine The related {@link AnywareBase}
+	 * @param org The originating {@link SubjectSet}
 	 * @param notes a {@link List}&lt;{@link Note}&gt;
 	 */
 	private SubjectSet(final SubjectSet org, final List<Note> notes)

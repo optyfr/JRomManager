@@ -18,6 +18,7 @@ package jrm.profile.data;
 
 import java.io.*;
 
+import jrm.misc.ProfileSettings;
 import jrm.profile.scan.options.HashCollisionOptions;
 
 /**
@@ -136,7 +137,7 @@ public abstract class Entity extends EntityBase implements Serializable
 
 	/**
 	 * Enable collision mode
-	 * Depending on the {@link Anyware#hash_collision_mode}, this may affect only parent, or all parent clones
+	 * Depending on the {@link ProfileSettings#hash_collision_mode}, this may affect only parent, or all parent clones
 	 */
 	public void setCollisionMode()
 	{

@@ -16,21 +16,8 @@
  */
 package jrm.profile;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.io.*;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,32 +33,15 @@ import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
-import jrm.profile.data.AnywareStatus;
-import jrm.profile.data.Device;
-import jrm.profile.data.Disk;
-import jrm.profile.data.Entity;
-import jrm.profile.data.EntityStatus;
-import jrm.profile.data.Machine;
+import jrm.profile.data.*;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.SWList;
 import jrm.profile.data.Machine.SWStatus;
-import jrm.profile.data.MachineListList;
-import jrm.profile.data.Rom;
 import jrm.profile.data.Rom.LoadFlag;
-import jrm.profile.data.Sample;
-import jrm.profile.data.Samples;
-import jrm.profile.data.Slot;
-import jrm.profile.data.SlotOption;
-import jrm.profile.data.Software;
 import jrm.profile.data.Software.Part;
 import jrm.profile.data.Software.Part.DataArea;
 import jrm.profile.data.Software.Part.DataArea.Endianness;
 import jrm.profile.data.Software.Part.DiskArea;
-import jrm.profile.data.SoftwareList;
-import jrm.profile.data.SystmDevice;
-import jrm.profile.data.SystmMechanical;
-import jrm.profile.data.SystmStandard;
-import jrm.profile.data.Systms;
 import jrm.profile.filter.CatVer;
 import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.SubCategory;
@@ -157,7 +127,7 @@ public class Profile implements Serializable
 	public transient Session session = null;
 
 	/**
-	 * The Profile class is instantiated via {@link #load(File, ProgressHandler)}
+	 * The Profile class is instantiated via {@link #load(Session, File, ProgressHandler)}
 	 */
 	private Profile()
 	{

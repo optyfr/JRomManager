@@ -45,7 +45,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	private static transient EventListenerList listenerList;
 	/**
-	 * {@link T} list cache (according current {@link #filter})
+	 * {@link T} list cache (according current {@link Profile#filter_l})
 	 */
 	protected transient List<T> filtered_list;
 

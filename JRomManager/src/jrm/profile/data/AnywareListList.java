@@ -18,11 +18,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -49,7 +45,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	 */
 	private static transient EventListenerList listenerList;
 	/**
-	 * {@link T} list cache (according current {@link #filter})
+	 * {@link T} list cache (according current {@link Profile#filter_ll})
 	 */
 	protected transient List<T> filtered_list;
 
@@ -111,6 +107,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	 * @param columnIndex the requested column index
 	 * @return a {@link TableCellRenderer} associated with the given columnindex 
 	 */
+	@Override
 	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
 
 	/**
@@ -118,6 +115,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	 * @param columnIndex the requested column index
 	 * @return a width in pixel (if negative then it's a fixed column width)
 	 */
+	@Override
 	public abstract int getColumnWidth(int columnIndex);
 
 	@Override

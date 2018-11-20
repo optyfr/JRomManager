@@ -64,7 +64,7 @@ public abstract class Subject extends AbstractList<Note> implements TreeNode, HT
 
 	/**
 	 * The internal constructor
-	 * @param machine The related {@link AnywareBase}
+	 * @param org the originating {@link Subject}
 	 * @param notes a {@link List}&lt;{@link Note}&gt;
 	 */
 	protected Subject(Subject org, final List<Note> notes)
