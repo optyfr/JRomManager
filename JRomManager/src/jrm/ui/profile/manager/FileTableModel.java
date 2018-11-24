@@ -165,7 +165,11 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 	@Override
 	public Object getValueAt(final int rowIndex, final int columnIndex)
 	{
-		final ProfileNFO pnfo = rows.get(rowIndex);
+		return getValueAt(rows.get(rowIndex), columnIndex);
+	}
+
+	public Object getValueAt(ProfileNFO pnfo, final int columnIndex)
+	{
 		switch(columnIndex)
 		{
 			case 0:
@@ -187,7 +191,14 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 		}
 		return null;
 	}
-
+	
+	private static FileTableModel static_ref = new FileTableModel();
+	
+	public static Object getValueAt_(ProfileNFO pnfo, final int columnIndex)
+	{
+		return static_ref.getValueAt(pnfo, columnIndex);
+	}
+	
 	@Override
 	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
 	{

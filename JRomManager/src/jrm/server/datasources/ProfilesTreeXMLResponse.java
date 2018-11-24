@@ -1,10 +1,16 @@
 package jrm.server.datasources;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
+import org.apache.commons.io.FileUtils;
 
 import jrm.server.datasources.XMLRequest.Operation;
 import jrm.ui.profile.manager.DirNode;
@@ -36,6 +42,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		String strID = id.toString();
 		if (id.get() > 0)
 		{
+			request.session.tmp_profile_lst.put(id.get(), node.getDir().getFile().toPath());
 			writer.writeStartElement("record");
 			writer.writeAttribute("ID", id.toString());
 			writer.writeAttribute("Path", node.getDir().getFile().getPath());
@@ -45,6 +52,8 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 				writer.writeAttribute("ParentID", parentID);
 			writer.writeEndElement();
 		}
+		else
+			request.session.tmp_profile_lst = new TreeMap<>();
 		id.incrementAndGet();
 		for (final Enumeration<?> children = node.children(); children.hasMoreElements();)
 		{
@@ -65,6 +74,68 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		writer.writeElement("totalRows", Integer.toString(nodecount));
 		writer.writeStartElement("data");
 		outputNode(writer, root, null, new AtomicInteger());
+		writer.writeEndElement();
+		writer.writeEndElement();
+	}
+	
+	@Override
+	protected void add(Operation operation) throws Exception
+	{
+	//	DirNode root = new DirNode(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
+		int key = request.session.tmp_profile_lst.lastKey()+1;
+		Path path = Files.createDirectory(Paths.get(operation.getData("Path"), operation.getData("title")));
+		request.session.tmp_profile_lst.put(key, path);
+		writer.writeStartElement("response");
+		writer.writeElement("status", "0");
+		writer.writeStartElement("data");
+		writer.writeStartElement("record");
+		writer.writeAttribute("ID", Integer.toString(key));
+		writer.writeAttribute("Path", path.toString());
+		writer.writeAttribute("title", operation.getData("title"));
+		writer.writeAttribute("isFolder", "true");
+		writer.writeAttribute("ParentID", operation.getData("ParentID"));
+		writer.writeEndElement();
+		writer.writeEndElement();
+		writer.writeEndElement();
+	}
+	
+	@Override
+	protected void update(Operation operation) throws Exception
+	{
+		Integer ID = Integer.valueOf(operation.getData("ID"));
+		System.out.println(ID);
+		Path path = request.session.tmp_profile_lst.get(ID);
+		System.out.println(path);
+		String title = operation.getData("title");
+		path = Files.move(path, path.getParent().resolve(title));
+		request.session.tmp_profile_lst.put(ID, path);
+		writer.writeStartElement("response");
+		writer.writeElement("status", "0");
+		writer.writeStartElement("data");
+		writer.writeStartElement("record");
+		writer.writeAttribute("ID", ID.toString());
+		writer.writeAttribute("Path", path.toString());
+		writer.writeAttribute("title", title);
+		writer.writeAttribute("isFolder", "true");
+		writer.writeAttribute("ParentID", operation.oldValues.get("ParentID"));
+		writer.writeEndElement();
+		writer.writeEndElement();
+		writer.writeEndElement();
+	}
+	
+	@Override
+	protected void remove(Operation operation) throws Exception
+	{
+		Integer ID = Integer.valueOf(operation.getData("ID"));
+		Path path = request.session.tmp_profile_lst.get(ID);
+		FileUtils.deleteDirectory(path.toFile());
+		request.session.tmp_profile_lst.remove(ID);
+		writer.writeStartElement("response");
+		writer.writeElement("status", "0");
+		writer.writeStartElement("data");
+		writer.writeStartElement("record");
+		writer.writeAttribute("ID", ID.toString());
+		writer.writeEndElement();
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}

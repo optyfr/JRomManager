@@ -47,6 +47,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				pathmatcher = "glob:*.torrent";
 				isDir = false;
 				break;
+			case "importDat":
 			case "addDat":
 				pathmatcher = "glob:*.{xml,dat}";
 				isDir = false;

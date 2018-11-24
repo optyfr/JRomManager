@@ -1,6 +1,8 @@
 package jrm.server;
 
+import java.nio.file.Path;
 import java.util.Date;
+import java.util.TreeMap;
 
 import jrm.batch.TrntChkReport;
 import jrm.profile.report.Report;
@@ -13,6 +15,7 @@ public class WebSession extends Session
 	public Date lastAction = new Date();
 	public Report tmp_report = null;
 	public TrntChkReport tmp_tc_report = null;
+	public TreeMap<Integer,Path> tmp_profile_lst = null;
 	
 	public WebSession(String sessionId)
 	{

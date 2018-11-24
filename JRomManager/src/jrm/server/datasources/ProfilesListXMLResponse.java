@@ -2,7 +2,10 @@ package jrm.server.datasources;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
+
 import jrm.profile.manager.Dir;
+import jrm.profile.manager.ProfileNFO;
 import jrm.server.datasources.XMLRequest.Operation;
 import jrm.ui.profile.manager.FileTableModel;
 
@@ -19,12 +22,13 @@ public class ProfilesListXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws Exception
 	{
 		File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
-		if(operation.hasData("Path"))
-			dir = new File(operation.getData("Path"));
+		if(operation.hasData("Parent"))
+			dir = new File(operation.getData("Parent"));
 		FileTableModel model = new FileTableModel(request.session, new Dir(dir));
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
+		writer.writeElement("parent", dir.toString());
 		writer.writeElement("endRow", Integer.toString(model.getRowCount()-1));
 		writer.writeElement("totalRows", Integer.toString(model.getRowCount()));
 		writer.writeStartElement("data");
@@ -32,7 +36,8 @@ public class ProfilesListXMLResponse extends XMLResponse
 		{
 			writer.writeEmptyElement("record");
 			writer.writeAttribute("Name", model.getValueAt(i, 0).toString());
-			writer.writeAttribute("Path", model.getNfoAt(i).file.toString());
+			writer.writeAttribute("Parent", model.getNfoAt(i).file.getParent());
+			writer.writeAttribute("File", model.getNfoAt(i).file.getName());
 			writer.writeAttribute("version", model.getValueAt(i, 1).toString());
 			writer.writeAttribute("haveSets", model.getValueAt(i, 2).toString());
 			writer.writeAttribute("haveRoms", model.getValueAt(i, 3).toString());
@@ -41,6 +46,61 @@ public class ProfilesListXMLResponse extends XMLResponse
 			writer.writeAttribute("scanned", model.getValueAt(i, 6).toString());
 			writer.writeAttribute("fixed", model.getValueAt(i, 7).toString());
 		}
+		writer.writeEndElement();
+		writer.writeEndElement();
+	}
+	
+	@Override
+	protected void add(Operation operation) throws Exception
+	{
+		if(operation.hasData("Src"))
+		{
+			File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+			if(operation.hasData("Parent"))
+				dir = new File(operation.getData("Parent"));
+			File src = new File(operation.getData("Src"));
+			if(src.exists() && src.isFile())
+			{
+				File dst = new File(dir, operation.getData("File"));
+				FileUtils.copyFile(src, dst, true);
+				ProfileNFO nfo = ProfileNFO.load(request.session, dst);
+				writer.writeStartElement("response");
+				writer.writeElement("status", "0");
+				writer.writeStartElement("data");
+				writer.writeEmptyElement("record");
+				writer.writeAttribute("Name", FileTableModel.getValueAt_(nfo, 0).toString());
+				writer.writeAttribute("Parent", nfo.file.getParent());
+				writer.writeAttribute("File", nfo.file.getName());
+				writer.writeAttribute("version", FileTableModel.getValueAt_(nfo, 1).toString());
+				writer.writeAttribute("haveSets", FileTableModel.getValueAt_(nfo, 2).toString());
+				writer.writeAttribute("haveRoms", FileTableModel.getValueAt_(nfo, 3).toString());
+				writer.writeAttribute("haveDisks", FileTableModel.getValueAt_(nfo, 4).toString());
+				writer.writeAttribute("created", FileTableModel.getValueAt_(nfo, 5).toString());
+				writer.writeAttribute("scanned", FileTableModel.getValueAt_(nfo, 6).toString());
+				writer.writeAttribute("fixed", FileTableModel.getValueAt_(nfo, 7).toString());
+				writer.writeEndElement();
+				writer.writeEndElement();
+			}
+		}
+		else
+			failure("Src is needed");
+	}
+	
+	@Override
+	protected void remove(Operation operation) throws Exception
+	{
+		File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+		if(operation.hasData("Parent"))
+			dir = new File(operation.getData("Parent"));
+		File dst = new File(dir, operation.getData("File"));
+		ProfileNFO nfo = ProfileNFO.load(request.session, dst);
+		nfo.delete();
+		writer.writeStartElement("response");
+		writer.writeElement("status", "0");
+		writer.writeStartElement("data");
+		writer.writeEmptyElement("record");
+		writer.writeAttribute("Parent", nfo.file.getParent());
+		writer.writeAttribute("File", nfo.file.getName());
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}

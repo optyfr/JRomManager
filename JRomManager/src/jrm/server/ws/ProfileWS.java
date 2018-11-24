@@ -2,6 +2,7 @@ package jrm.server.ws;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -35,7 +36,8 @@ public class ProfileWS
 			session.worker.progress = new ProgressWS(ws);
 			try
 			{
-				session.curr_profile = Profile.load(session, new File(jso.get("params").asObject().getString("path", null)), session.worker.progress);
+				JsonObject jsobj = jso.get("params").asObject();
+				session.curr_profile = Profile.load(session, new File(new File(jsobj.getString("parent", null)), jsobj.getString("file", null)), session.worker.progress);
 				session.curr_profile.nfo.save(session);
 				session.report.setProfile(session.curr_profile);
 			}
@@ -163,6 +165,11 @@ public class ProfileWS
 									}}));
 								}});
 							}
+							add("years", new JsonArray() {{
+								ArrayList<String> arrlst = new ArrayList<String>(profile.years);
+								arrlst.sort(String::compareTo); 
+								arrlst.forEach(s->add(s));
+							}});
 							if(profile.settings!=null)
 								add("settings",profile.settings.asJSO());
 						}
