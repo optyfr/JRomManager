@@ -104,6 +104,16 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Batch Tools
 	- Dir Updater : to update many dats files to many dirs. Accept dirs of dats as source (software list mode)
 	- Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode
+- Server mode + HTML client (EXPERIMENTAL).
+	- JRomManager can listen to a defined port and serve a web interface instead of the classical Swing gui
+	- The initial purpose of the server mode is to run JRomManager on headless server and directly on NAS
+	- The Web interface is full feature complete, and very powerful, thanks to SmartGWT from isomorphic
+	- This feature is **experimental**, it means that :
+		- It has not been tested over the internet => the purpose is to access from intranet
+		- It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
+		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
+
+		
 
 ## Short Term Planned Features
 - Batch compressor tool
