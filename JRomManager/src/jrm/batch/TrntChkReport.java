@@ -1,23 +1,15 @@
 package jrm.batch;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
 
+import javax.swing.tree.TreeNode;
+
 import jrm.security.Session;
 
-public final class TrntChkReport implements Serializable
+public final class TrntChkReport implements Serializable, TreeNode
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -51,7 +43,7 @@ public final class TrntChkReport implements Serializable
 		public Status status = Status.UNKNOWN;
 	}
 	
-	public final class Node implements Serializable
+	public final class Node implements Serializable,TreeNode
 	{
 		private static final long serialVersionUID = 1L;
 
@@ -118,6 +110,48 @@ public final class TrntChkReport implements Serializable
 				for (Node child : children)
 					sb.append(child);
 			return sb.toString();
+		}
+
+		@Override
+		public TreeNode getChildAt(int childIndex)
+		{
+			return children.get(childIndex);
+		}
+
+		@Override
+		public int getChildCount()
+		{
+			return children.size();
+		}
+
+		@Override
+		public TreeNode getParent()
+		{
+			return parent;
+		}
+
+		@Override
+		public int getIndex(TreeNode node)
+		{
+			return children.indexOf(node);
+		}
+
+		@Override
+		public boolean getAllowsChildren()
+		{
+			return true;
+		}
+
+		@Override
+		public boolean isLeaf()
+		{
+			return children.size()>0;
+		}
+
+		@Override
+		public Enumeration<Node> children()
+		{
+			return Collections.enumeration(children);
 		}
 	}
 	
@@ -187,6 +221,48 @@ public final class TrntChkReport implements Serializable
 			// may fail to load because serialized classes did change since last cache save 
 		}
 		return null;
+	}
+
+	@Override
+	public TreeNode getChildAt(int childIndex)
+	{
+		return nodes.get(childIndex);
+	}
+
+	@Override
+	public int getChildCount()
+	{
+		return nodes.size();
+	}
+
+	@Override
+	public TreeNode getParent()
+	{
+		return null;
+	}
+
+	@Override
+	public int getIndex(TreeNode node)
+	{
+		return nodes.indexOf(node);
+	}
+
+	@Override
+	public boolean getAllowsChildren()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean isLeaf()
+	{
+		return nodes.size()>0;
+	}
+
+	@Override
+	public Enumeration<Node> children()
+	{
+		return Collections.enumeration(nodes);
 	}
 
 }

@@ -1,15 +1,7 @@
 package jrm.ui.batch;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -18,20 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -48,15 +27,9 @@ import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
-import jrm.ui.basic.JFileDropList;
-import jrm.ui.basic.JFileDropMode;
-import jrm.ui.basic.JListHintUI;
-import jrm.ui.basic.JRMFileChooser;
+import jrm.ui.basic.*;
 import jrm.ui.basic.JRMFileChooser.CallBack;
-import jrm.ui.basic.JSDRDropTable;
 import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
-import jrm.ui.basic.SDRTableModel;
-import jrm.ui.basic.SrcDstResult;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
@@ -157,7 +130,8 @@ public class BatchDirUpd8rPanel extends JPanel
 				new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),DirUpdaterResults.load(session, sdr.src));
 			}
 		});
-		tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(session.getUser().settings.getProperty("dat2dir.sdr", "[]")));
+		if(session!=null)
+			tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(session.getUser().settings.getProperty("dat2dir.sdr", "[]")));
 		tableBatchToolsDat2Dir.setCellSelectionEnabled(false);
 		tableBatchToolsDat2Dir.setRowSelectionAllowed(true);
 		tableBatchToolsDat2Dir.getSDRModel().setSrcFilter(file -> {
@@ -444,12 +418,14 @@ public class BatchDirUpd8rPanel extends JPanel
 			}
 		});
 		mnDat2DirPresets.add(mntmCustom);
-		for (final String s : session.getUser().settings.getProperty("dat2dir.srcdirs", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			if (!s.isEmpty())
-				listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
+		if(session!=null)
+			for (final String s : session.getUser().settings.getProperty("dat2dir.srcdirs", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				if (!s.isEmpty())
+					listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
 
 		JCheckBox cbBatchToolsDat2DirDryRun = new JCheckBox(Messages.getString("MainFrame.cbBatchToolsDat2DirDryRun.text")); //$NON-NLS-1$
-		cbBatchToolsDat2DirDryRun.setSelected(session.getUser().settings.getProperty("dat2dir.dry_run", false)); //$NON-NLS-1$
+		if(session!=null)
+			cbBatchToolsDat2DirDryRun.setSelected(session.getUser().settings.getProperty("dat2dir.dry_run", false)); //$NON-NLS-1$
 		cbBatchToolsDat2DirDryRun.addItemListener(e -> session.getUser().settings.setProperty("dat2dir.dry_run", e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 
 		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$

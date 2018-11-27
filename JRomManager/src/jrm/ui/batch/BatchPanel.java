@@ -26,6 +26,9 @@ public class BatchPanel extends JPanel
 
 		BatchTrrntChkPanel panelBatchToolsDir2Torrent = new BatchTrrntChkPanel(session);
 		batchToolsTabbedPane.addTab(Messages.getString("MainFrame.panelBatchToolsDir2Torrent.title"), null, panelBatchToolsDir2Torrent, null); //$NON-NLS-1$
+		
+		BatchCompressorPanel panelBatchToolsCompressor = new BatchCompressorPanel(session);
+		batchToolsTabbedPane.addTab(Messages.getString("BatchPanel.Compressor"), null, panelBatchToolsCompressor, null); //$NON-NLS-1$
 	}
 
 }
