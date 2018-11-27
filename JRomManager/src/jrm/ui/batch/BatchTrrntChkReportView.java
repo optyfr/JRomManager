@@ -5,7 +5,6 @@ import javax.swing.JTree;
 
 import jrm.batch.TrntChkReport;
 import jrm.security.Session;
-import jrm.ui.profile.report.ReportTreeCellRenderer;
 
 @SuppressWarnings("serial")
 public class BatchTrrntChkReportView extends JScrollPane
@@ -15,8 +14,8 @@ public class BatchTrrntChkReportView extends JScrollPane
 		final JTree tree = new JTree();
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
-		tree.setModel(new BatchTrrntChkReportTreeModel(report));
-		tree.setCellRenderer(new ReportTreeCellRenderer());
+		tree.setModel(report.getModel());
+		tree.setCellRenderer(new BatchTrrntChkReportTreeCellRenderer());
 		this.setViewportView(tree);
 	}
 

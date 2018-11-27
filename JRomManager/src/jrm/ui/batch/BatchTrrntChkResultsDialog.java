@@ -55,7 +55,7 @@ public class BatchTrrntChkResultsDialog extends JDialog
 			}
 		}
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		pack();
+//		pack();
 		setLocationRelativeTo(parent);
 		setVisible(true);
 	}
