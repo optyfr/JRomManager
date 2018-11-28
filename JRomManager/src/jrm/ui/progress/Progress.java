@@ -238,7 +238,7 @@ public class Progress extends JDialog implements ProgressHandler
 	private final JButton btnCancel;
 
 	/** The start time. */
-	private long startTime = 0;
+	private long startTime = System.currentTimeMillis();
 	
 	/** The progress bar 2. */
 	private final JProgressBar progressBar2;
@@ -343,7 +343,7 @@ public class Progress extends JDialog implements ProgressHandler
 	}
 
 	/** The start time 2. */
-	private long startTime2 = 0;
+	private long startTime2 = System.currentTimeMillis();
 
 	@Override
 	public void setProgress2(final String msg, final Integer val, final Integer max)
