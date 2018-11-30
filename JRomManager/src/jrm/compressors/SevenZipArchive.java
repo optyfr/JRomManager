@@ -167,6 +167,14 @@ public class SevenZipArchive implements Archive
 	}
 
 	@Override
+	public int extract() throws IOException
+	{
+		if(native_7zip != null)
+			return native_7zip.extract();
+		return extract(getTempDir(), null);
+	}
+	
+	@Override
 	public File extract(final String entry) throws IOException
 	{
 		if(native_7zip != null)

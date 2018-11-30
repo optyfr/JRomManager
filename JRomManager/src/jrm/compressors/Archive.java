@@ -36,6 +36,13 @@ public interface Archive extends Closeable, AutoCloseable
 	public File getTempDir() throws IOException;
 
 	/**
+	 * Extract all files from Archive
+	 * @return 0 for success, -1 for error
+	 * @throws IOException
+	 */
+	public int extract() throws IOException;
+
+	/**
 	 * Extract a file entry from Archive
 	 * @param entry the file entry name including path as stored in archive
 	 * @return the {@link File} extracted

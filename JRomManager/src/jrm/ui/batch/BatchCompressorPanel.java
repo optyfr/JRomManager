@@ -1,39 +1,18 @@
 package jrm.ui.batch;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FontMetrics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.*;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -41,11 +20,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.text.StringEscapeUtils;
 
-import JTrrntzip.SimpleTorrentZipOptions;
-import JTrrntzip.TorrentZip;
-import JTrrntzip.TrrntZipStatus;
+import jrm.batch.Compressor;
+import jrm.batch.CompressorFormat;
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.security.Session;
@@ -53,17 +30,14 @@ import jrm.ui.basic.EnhTableModel;
 import jrm.ui.batch.BatchCompressorPanel.BatchCompressorTable.AddCallBack;
 import jrm.ui.batch.BatchCompressorPanel.BatchCompressorTableModel.FileResult;
 import jrm.ui.progress.Progress;
-import jrm.ui.progress.ProgressTZipCallBack;
 import one.util.streamex.StreamEx;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 {
 	private BatchCompressorTable table;
 	private JCheckBox chckbxForce;
-	private JComboBox<BatchCompressorFormat> comboBox;
+	private JComboBox<CompressorFormat> comboBox;
 	private JButton btnClear;
 	
 	static class BatchCompressorTableModel implements EnhTableModel
@@ -402,7 +376,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		scrollPane.setViewportView(table);
 		
 		comboBox = new JComboBox<>();
-		comboBox.setModel(new DefaultComboBoxModel<>(BatchCompressorFormat.values()));
+		comboBox.setModel(new DefaultComboBoxModel<>(CompressorFormat.values()));
 		comboBox.setSelectedIndex(1);
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 0, 5);
@@ -430,36 +404,67 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 					for(int i = 0; i < table.getRowCount(); i++)
 						table.setValueAt("", i, 1);
 					AtomicInteger cnt = new AtomicInteger();
+					final Compressor compressor = new Compressor(session, cnt, table.getRowCount(), progress);
 					StreamEx.of(table.model.getData().parallelStream().unordered()).takeWhile(p->!progress.isCancel()).forEach(fr->{
 						final int i = table.model.getData().indexOf(fr);
-						final File file = fr.file;
-						try
+						File file = fr.file;
+						cnt.incrementAndGet();
+						Compressor.UpdResultCallBack cb = txt -> table.setValueAt(txt, i, 1);
+						Compressor.UpdSrcCallBack scb = src -> table.setValueAt(src, i, 0);
+						switch((CompressorFormat)comboBox.getSelectedItem())
 						{
-							switch(comboBox.getSelectedItem().toString())
+							case SEVENZIP:
 							{
-								case "TZIP":
+								switch(FilenameUtils.getExtension(file.getName()))
 								{
-									switch(FilenameUtils.getExtension(file.getName()))
-									{
-										case "zip":
-										{
-											progress.setProgress(toHTML("Crunching " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.incrementAndGet(), table.getRowCount());
-											table.setValueAt("Crunching...", i, 1);
-											final EnumSet<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(progress), new SimpleTorrentZipOptions(chckbxForce.isSelected(),false)).Process(file);
-											if(!status.contains(TrrntZipStatus.ValidTrrntzip))
-												table.setValueAt(status, i, 1);
-											else
-												table.setValueAt("OK", i, 1);
-											break;
-										}
-									}
-									break;
+									case "zip":
+										compressor.zip2SevenZip(file, cb, scb);
+										break;
+									case "7z":
+										if(chckbxForce.isSelected())
+											compressor.sevenZip2SevenZip(file, cb, scb);
+										else
+											cb.apply("Skipped");
+										break;
+									case "rar":
+										compressor.sevenZip2SevenZip(file, cb, scb);
+										break;
 								}
+								break;
 							}
-						}
-						catch (IOException e)
-						{
-							e.printStackTrace();
+							case ZIP:
+							{
+								switch(FilenameUtils.getExtension(file.getName()))
+								{
+									case "rar":
+									case "7z":
+										compressor.sevenZip2Zip(file, false, cb, scb);
+										break;
+									case "zip":
+										if(chckbxForce.isSelected())
+											compressor.zip2Zip(file, cb, scb);
+										else
+											cb.apply("Skipped");
+										break;
+								}
+								break;
+							}
+							case TZIP:
+							{
+								switch(FilenameUtils.getExtension(file.getName()))
+								{
+									case "rar":
+									case "7z":
+										file = compressor.sevenZip2Zip(file, true, cb, scb);
+										if(file!=null && file.exists())
+											compressor.zip2TZip(file, chckbxForce.isSelected(), cb);
+										break;
+									case "zip":
+										compressor.zip2TZip(file, chckbxForce.isSelected(), cb);
+										break;
+								}
+								break;
+							}
 						}
 					});
 					return null;
@@ -488,4 +493,6 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		gbc_btnStart.gridy = 1;
 		add(btnStart, gbc_btnStart);
 	}
+	
+	
 }

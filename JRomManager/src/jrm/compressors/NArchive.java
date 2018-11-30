@@ -456,21 +456,125 @@ abstract class NArchive implements Archive
 	 */
 	private int extract(final File baseDir, final String entry) throws IOException
 	{
-		final ISimpleInArchive simpleInArchive = iinarchive.getSimpleInterface();
-		for(final ISimpleInArchiveItem item : simpleInArchive.getArchiveItems())
+		if(entry != null)
 		{
-			if(item.getPath().equals(entry))
+			final ISimpleInArchive simpleInArchive = iinarchive.getSimpleInterface();
+			for(final ISimpleInArchiveItem item : simpleInArchive.getArchiveItems())
 			{
-				try(RandomAccessFile out = new RandomAccessFile(new File(baseDir, entry), "rw")) //$NON-NLS-1$
+				if(item.getPath().equals(entry))
 				{
-					if(item.extractSlow(new RandomAccessFileOutStream(out)) == ExtractOperationResult.OK)
-						return 0;
+					try(RandomAccessFile out = new RandomAccessFile(new File(baseDir, entry), "rw")) //$NON-NLS-1$
+					{
+						if(item.extractSlow(new RandomAccessFileOutStream(out)) == ExtractOperationResult.OK)
+							return 0;
+					}
 				}
 			}
+		}
+		else
+		{
+			final HashMap<Integer, File> tmpfiles = new HashMap<>();
+			final HashMap<Integer, RandomAccessFile> rafs = new HashMap<>();
+			final int[] in = new int[iinarchive.getNumberOfItems()];
+			for (int i = 0; i < in.length; i++)
+			{
+				in[i] = i;
+				if(!(Boolean)iinarchive.getProperty(i, PropID.IS_FOLDER))
+				{
+					final File file = Files.createTempFile("JRM", null).toFile();
+					tmpfiles.put(i, file); //$NON-NLS-1$
+					rafs.put(i, new RandomAccessFile(file, "rw")); //$NON-NLS-1$
+				}
+				else
+				{
+					File dir = new File(baseDir, (String) iinarchive.getProperty(i, PropID.PATH));
+					FileUtils.forceMkdir(dir);
+				}
+			}
+			
+			iinarchive.extract(in, false, new IArchiveExtractCallback()
+			{
+				private boolean skipExtraction;
+				private int index;
+				
+				@Override
+				public void setTotal(long total) throws SevenZipException
+				{
+				}
+				
+				@Override
+				public void setCompleted(long complete) throws SevenZipException
+				{
+				}
+				
+				@Override
+				public void prepareOperation(ExtractAskMode extractAskMode) throws SevenZipException
+				{
+				}
+				
+				@Override
+				public void setOperationResult(ExtractOperationResult extractOperationResult) throws SevenZipException
+				{
+					if (skipExtraction)
+						return;
+					if (extractOperationResult != ExtractOperationResult.OK)
+						System.err.println("Extraction error");
+					else
+					{
+						try
+						{
+							rafs.get(index).close();
+							String path  = (String) iinarchive.getProperty(index, PropID.PATH);
+							File tmpfile = tmpfiles.get(index);
+							File dstfile = new File(baseDir,path);
+							FileUtils.forceMkdirParent(dstfile);
+							if(!dstfile.exists())
+								FileUtils.moveFile(tmpfile, dstfile);
+						}
+						catch (IOException e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+				
+				@Override
+				public ISequentialOutStream getStream(int index, ExtractAskMode extractAskMode) throws SevenZipException
+				{
+					this.index = index;
+					skipExtraction = (Boolean) iinarchive.getProperty(index, PropID.IS_FOLDER);
+					if (skipExtraction || extractAskMode != ExtractAskMode.EXTRACT)
+						return null;
+					return new ISequentialOutStream()
+					{
+						@Override
+						public int write(byte[] data) throws SevenZipException
+						{
+							try
+							{
+								rafs.get(index).write(data);
+								return data.length;
+							}
+							catch (IOException e)
+							{
+								e.printStackTrace();
+							}
+							return 0;
+						}
+					};
+				}
+			});
+			return 0;
 		}
 		return -1;
 	}
 
+	@Override
+	public int extract() throws IOException
+	{
+		return extract(getTempDir(), null);
+	}
+	
 	@Override
 	public File extract(final String entry) throws IOException
 	{

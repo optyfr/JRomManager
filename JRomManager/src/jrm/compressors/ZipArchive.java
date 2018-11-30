@@ -20,13 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -218,6 +212,14 @@ public class ZipArchive implements Archive
 		return -1;
 	}
 
+	@Override
+	public int extract() throws IOException
+	{
+		if(native_zip != null)
+			return native_zip.extract();
+		return extract(getTempDir(), null);
+	}
+	
 	@Override
 	public File extract(final String entry) throws IOException
 	{
