@@ -120,6 +120,11 @@ public class WebSckt extends WebSocket implements SessionStub
 						new TrntChkWS(this).start(jso);
 						break;
 					}
+					case "Compressor.start":
+					{
+						new CompressorWS(this).start(jso);
+						break;
+					}
 					case "Dat2Dir.settings":
 					{
 						new Dat2DirWS(this).settings(jso);

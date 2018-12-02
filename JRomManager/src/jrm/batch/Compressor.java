@@ -34,6 +34,17 @@ public class Compressor implements HTMLRenderer
 	int total;
 	ProgressHandler progress;
 	
+	public static class FileResult
+	{
+		public File file;
+		public String result = "";
+		
+		public FileResult(File file)
+		{
+			this.file = file;
+		}
+	}
+
 	public Compressor(Session session, AtomicInteger cnt, int total, ProgressHandler progress)
 	{
 		this.session = session;

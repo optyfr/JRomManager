@@ -93,6 +93,9 @@ task distZip(type: Zip, dependsOn: jar) {
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
+	from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
+		into('webclient')
+	}
 	from ('dist') {
 		include '*.bat'
 		include '*.sh'
@@ -125,6 +128,9 @@ ospackage {
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
+	from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
+		into('webclient')
+	}
 	from ('dist') {
 		include '*.bat'
 		include '*.sh'
@@ -184,6 +190,9 @@ if (os.contains("windows"))
 			}
 			from (jar)
 			from (project(':JUpdater').jar)
+			from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
+				into('webclient')
+			}
 			desktopStarter {
 				displayName = project.name
 				executable = project.name + '.exe'

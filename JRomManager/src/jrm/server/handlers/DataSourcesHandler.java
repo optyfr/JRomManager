@@ -80,6 +80,8 @@ public class DataSourcesHandler extends DefaultHandler
 							return new BatchTrntChkSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "BatchTrntChkReportTree":
 							return new BatchTrntChkReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+						case "BatchCompressorFR":
+							return new BatchCompressorFRXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						default:
 							new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen);
 							break;

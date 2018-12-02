@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.TreeMap;
 
+import jrm.batch.Compressor.FileResult;
 import jrm.batch.TrntChkReport;
 import jrm.profile.report.Report;
 import jrm.security.Session;
@@ -16,6 +17,7 @@ public class WebSession extends Session
 	public Report tmp_report = null;
 	public TrntChkReport tmp_tc_report = null;
 	public TreeMap<Integer,Path> tmp_profile_lst = null;
+	public TreeMap<String,FileResult> tmp_compressor_lst = null;
 	
 	public WebSession(String sessionId)
 	{

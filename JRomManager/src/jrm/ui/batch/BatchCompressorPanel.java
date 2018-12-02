@@ -22,13 +22,13 @@ import javax.swing.table.TableCellRenderer;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.batch.Compressor;
+import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.security.Session;
 import jrm.ui.basic.EnhTableModel;
 import jrm.ui.batch.BatchCompressorPanel.BatchCompressorTable.AddCallBack;
-import jrm.ui.batch.BatchCompressorPanel.BatchCompressorTableModel.FileResult;
 import jrm.ui.progress.Progress;
 import one.util.streamex.StreamEx;
 
@@ -42,16 +42,6 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 	
 	static class BatchCompressorTableModel implements EnhTableModel
 	{
-		static class FileResult
-		{
-			File file;
-			String result = "";
-			
-			public FileResult(File file)
-			{
-				this.file = file;
-			}
-		}
 		
 		private List<FileResult> data = new ArrayList<>();
 	    private final EventListenerList listenerList = new EventListenerList();
@@ -426,7 +416,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 										else
 											cb.apply("Skipped");
 										break;
-									case "rar":
+									default:
 										compressor.sevenZip2SevenZip(file, cb, scb);
 										break;
 								}
@@ -436,15 +426,14 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 							{
 								switch(FilenameUtils.getExtension(file.getName()))
 								{
-									case "rar":
-									case "7z":
-										compressor.sevenZip2Zip(file, false, cb, scb);
-										break;
 									case "zip":
 										if(chckbxForce.isSelected())
 											compressor.zip2Zip(file, cb, scb);
 										else
 											cb.apply("Skipped");
+										break;
+									default:
+										compressor.sevenZip2Zip(file, false, cb, scb);
 										break;
 								}
 								break;
@@ -453,14 +442,13 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 							{
 								switch(FilenameUtils.getExtension(file.getName()))
 								{
-									case "rar":
-									case "7z":
+									case "zip":
+										compressor.zip2TZip(file, chckbxForce.isSelected(), cb);
+										break;
+									default:
 										file = compressor.sevenZip2Zip(file, true, cb, scb);
 										if(file!=null && file.exists())
 											compressor.zip2TZip(file, chckbxForce.isSelected(), cb);
-										break;
-									case "zip":
-										compressor.zip2TZip(file, chckbxForce.isSelected(), cb);
 										break;
 								}
 								break;
