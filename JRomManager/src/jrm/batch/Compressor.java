@@ -101,7 +101,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
-			File tmpfile = Files.createTempFile(file.getParentFile().toPath(), "JRM", ".7z").toFile();
+			File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
 			tmpfile.delete();
 			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
 			try(SevenZipArchive archive = new SevenZipArchive(session, file))
@@ -143,11 +143,15 @@ public class Compressor implements HTMLRenderer
 			}
 			if(tmpfile.exists())
 			{
-				file.delete();
-				tmpfile.renameTo(newfile);
-				scb.apply(newfile);
-				cb.apply("OK");
-				return newfile;
+				if(FileUtils.deleteQuietly(file))
+				{
+					FileUtils.moveFile(tmpfile, newfile);
+					scb.apply(newfile);
+					cb.apply("OK");
+					return newfile;
+				}
+				else
+					cb.apply("Failed");
 			}
 		}
 		catch(IOException e)
@@ -161,7 +165,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
-			File tmpfile = Files.createTempFile(file.getParentFile().toPath(), "JRM", ".zip").toFile();
+			File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
 			tmpfile.delete();
 			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
 			try(SevenZipArchive archive = new SevenZipArchive(session, file))
@@ -214,11 +218,15 @@ public class Compressor implements HTMLRenderer
 			}
 			if(tmpfile.exists())
 			{
-				file.delete();
-				tmpfile.renameTo(newfile);
-				scb.apply(newfile);
-				cb.apply("OK");
-				return newfile;
+				if(FileUtils.deleteQuietly(file))
+				{
+					FileUtils.moveFile(tmpfile, newfile);
+					scb.apply(newfile);
+					cb.apply("OK");
+					return newfile;
+				}
+				else
+					cb.apply("Failed");
 			}
 		}
 		catch (IOException e)
@@ -232,7 +240,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
-			File tmpfile = Files.createTempFile(file.getParentFile().toPath(), "JRM", ".zip").toFile();
+			File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
 			tmpfile.delete();
 			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
 			try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + file.toURI()), new HashMap<>());) //$NON-NLS-1$
@@ -267,11 +275,15 @@ public class Compressor implements HTMLRenderer
 			}
 			if(tmpfile.exists())
 			{
-				file.delete();
-				tmpfile.renameTo(newfile);
-				scb.apply(newfile);
-				cb.apply("OK");
-				return newfile;
+				if(FileUtils.deleteQuietly(file))
+				{
+					FileUtils.moveFile(tmpfile, newfile);
+					scb.apply(newfile);
+					cb.apply("OK");
+					return newfile;
+				}
+				else
+					cb.apply("Failed");
 			}
 		}
 		catch(IOException e)
@@ -285,7 +297,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
-			File tmpfile = Files.createTempFile(file.getParentFile().toPath(), "JRM", ".7z").toFile();
+			File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
 			tmpfile.delete();
 			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
 			try(SevenZipArchive archive = new SevenZipArchive(session, tmpfile))
@@ -317,11 +329,15 @@ public class Compressor implements HTMLRenderer
 			}
 			if(tmpfile.exists())
 			{
-				file.delete();
-				tmpfile.renameTo(newfile);
-				scb.apply(newfile);
-				cb.apply("OK");
-				return newfile;
+				if(FileUtils.deleteQuietly(file))
+				{
+					FileUtils.moveFile(tmpfile, newfile);
+					scb.apply(newfile);
+					cb.apply("OK");
+					return newfile;
+				}
+				else
+					cb.apply("Failed");
 			}
 		}
 		catch(IOException e)

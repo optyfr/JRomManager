@@ -1,18 +1,47 @@
 package jrm.ui.batch;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FontMetrics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.*;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import javax.swing.*;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -28,6 +57,9 @@ import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.security.Session;
 import jrm.ui.basic.EnhTableModel;
+import jrm.ui.basic.JRMFileChooser;
+import jrm.ui.basic.JRMFileChooser.CallBack;
+import jrm.ui.basic.SrcDstResult;
 import jrm.ui.batch.BatchCompressorPanel.BatchCompressorTable.AddCallBack;
 import jrm.ui.progress.Progress;
 import one.util.streamex.StreamEx;
@@ -39,6 +71,9 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 	private JCheckBox chckbxForce;
 	private JComboBox<CompressorFormat> comboBox;
 	private JButton btnClear;
+	private JPopupMenu popupMenu;
+	private JMenuItem mntmAddArchive;
+	private JMenuItem mntmRemoveSelectedArchives;
 	
 	static class BatchCompressorTableModel implements EnhTableModel
 	{
@@ -295,15 +330,15 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 				if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 				{
 					dtde.acceptDrop(DnDConstants.ACTION_COPY);
+
+					final String[] extensions = new String[] {"zip", "7z"};
 					
 					FileFilter filter = new FileFilter()
 					{
-						String[] extensions = new String[] {"zip", "7z"};
-						
 						@Override
 						public boolean accept(File pathname)
 						{
-							return FilenameUtils.isExtension(pathname.getName(), extensions);
+							return pathname.isDirectory()||FilenameUtils.isExtension(pathname.getName(), extensions);
 						}
 					};
 		            @SuppressWarnings("unchecked")
@@ -311,8 +346,13 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 					if (files.size() > 0)
 					{
 						int start_size = model.getData().size();
-						for (int i = 0; i < files.size(); i++)
-							model.getData().add(new FileResult(files.get(i)));
+						for(File f : files)
+						{
+							if(f.isDirectory())
+								Files.walk(f.toPath()).filter(p->Files.isRegularFile(p)&&FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p->model.getData().add(new FileResult(p.toFile())));
+							else
+								model.getData().add(new FileResult(f));
+						}
 						if (start_size != model.getData().size())
 							model.fireTableChanged(new TableModelEvent(model, start_size, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
 						callback.call(model.getData());
@@ -335,6 +375,31 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 			}
 		}
 		
+		/**
+		 * Del.
+		 *
+		 * @param sdrl the data to delete
+		 */
+		public void del(final List<FileResult> sdrl)
+		{
+			for (final FileResult sdr : sdrl)
+				model.getData().remove(sdr);
+			model.fireTableChanged(new TableModelEvent(model));
+			callback.call(model.getData());
+		}
+		
+		/**
+		 * get selected values as a {@link List} of {@link SrcDstResult}
+		 * @return the {@link List} of {@link FileResult} corresponding to selected values
+		 */
+		public List<FileResult> getSelectedValuesList()
+		{
+			int[] rows = getSelectedRows();
+			List<FileResult> list = new ArrayList<>();
+			for(int row : rows)
+				list.add(model.getData().get(row));
+			return list;
+		}
 	}
 	
 	public BatchCompressorPanel(Session session)
@@ -365,9 +430,74 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		});
 		scrollPane.setViewportView(table);
 		
+		popupMenu = new JPopupMenu();
+		addPopup(table, popupMenu);
+		
+		mntmAddArchive = new JMenuItem(Messages.getString("BatchCompressorPanel.mntmAddArchive.text")); //$NON-NLS-1$
+		mntmAddArchive.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				final String[] extensions = new String[] {"zip", "7z"};
+				new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_AND_DIRECTORIES, null, null, Collections.singletonList(new javax.swing.filechooser.FileFilter()
+				{
+					@Override
+					public String getDescription()
+					{
+						return "Archive files";
+					}
+					
+					@Override
+					public boolean accept(File f)
+					{
+						return f.isDirectory() || FilenameUtils.isExtension(f.getName(), extensions);
+					}
+				}), Messages.getString("BatchCompressorPanel.mntmAddArchive.text"), true).showOpen(SwingUtilities.windowForComponent(BatchCompressorPanel.this), new CallBack<Void>()
+				{
+					@Override
+					public Void call(JRMFileChooser<Void> chooser)
+					{
+						File[] files = chooser.getSelectedFiles();
+						BatchCompressorTableModel model = (BatchCompressorTableModel)table.getModel();
+						if (files.length > 0)
+						{
+							int start_size = model.getData().size();
+							for(File f : files)
+							{
+								if(f.isDirectory())
+								{
+									try
+									{
+										Files.walk(f.toPath()).filter(p->Files.isRegularFile(p)&&FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p->model.getData().add(new FileResult(p.toFile())));
+									}
+									catch (IOException e)
+									{
+										e.printStackTrace();
+									}
+								}
+								else
+									model.getData().add(new FileResult(f));
+							}
+							if (start_size != model.getData().size())
+								model.fireTableChanged(new TableModelEvent(model, start_size, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+						}
+						return null;
+					}
+				});
+			}
+		});
+		popupMenu.add(mntmAddArchive);
+		
+		mntmRemoveSelectedArchives = new JMenuItem(Messages.getString("BatchCompressorPanel.mntmRemoveSelectedArchives.text")); //$NON-NLS-1$
+		mntmRemoveSelectedArchives.addActionListener((e)->table.del(table.getSelectedValuesList()));
+		popupMenu.add(mntmRemoveSelectedArchives);
+		
 		comboBox = new JComboBox<>();
 		comboBox.setModel(new DefaultComboBoxModel<>(CompressorFormat.values()));
 		comboBox.setSelectedIndex(1);
+		if(session!=null)
+			comboBox.setSelectedItem(CompressorFormat.valueOf(session.getUser().settings.getProperty("compressor.format", CompressorFormat.TZIP.toString()))); //$NON-NLS-1$
+		comboBox.addActionListener(e -> {
+			session.getUser().settings.setProperty("compressor.format", comboBox.getSelectedItem().toString());
+		});
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 0, 5);
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
@@ -376,6 +506,9 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		add(comboBox, gbc_comboBox);
 		
 		chckbxForce = new JCheckBox(Messages.getString("BatchCompressorPanel.Force")); //$NON-NLS-1$
+		chckbxForce.addActionListener(e -> session.getUser().settings.setProperty("compressor.force", chckbxForce.isSelected()));
+		if(session!=null)
+			chckbxForce.setSelected(session.getUser().settings.getProperty("compressor.force", false)); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxForce = new GridBagConstraints();
 		gbc_chckbxForce.insets = new Insets(0, 0, 0, 5);
 		gbc_chckbxForce.gridx = 2;
@@ -483,4 +616,21 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 	}
 	
 	
+	private static void addPopup(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
+	}
 }
