@@ -145,12 +145,19 @@ public interface HTMLRenderer
 	{
 		return String.format("<html>" //$NON-NLS-1$
 				+ "<table cellpadding=2 cellspacing=0><tr>" //$NON-NLS-1$
-				+ "	<td valign='middle'><table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray;table-layout:fixed'><tr>" //$NON-NLS-1$
-				+ "		<td style='width:%dpx;height:2px;background-color:#00ff00'></td>" //$NON-NLS-1$
-				+ "		<td></td>" //$NON-NLS-1$
-				+ "	</table></td>" //$NON-NLS-1$
+				+ "	<td valign='middle'>%s</td>" //$NON-NLS-1$
 				+ "	<td style='font-size:95%%;white-space:nowrap'>%s</td>" //$NON-NLS-1$
 				+ "</table>" //$NON-NLS-1$
-			, 108, i*100/max, StringEscapeUtils.escapeHtml4(msg));
+			, progress(100, i, max), StringEscapeUtils.escapeHtml4(msg));
+	}
+	
+	
+	public default String progress(final int width, final long i, final long max)
+	{
+		return String.format("<table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray;table-layout:fixed'><tr>"
+				+ "<td style='width:%dpx;height:2px;background-color:#00ff00'></td>" //$NON-NLS-1$
+				+ "<td></td>" //$NON-NLS-1$
+				+ "</table>" //$NON-NLS-1$
+			, width + 8, i * width / max);
 	}
 }

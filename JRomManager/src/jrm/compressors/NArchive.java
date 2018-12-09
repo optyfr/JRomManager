@@ -30,6 +30,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.GlobalSettings;
 import jrm.security.Session;
+import jrm.ui.progress.ProgressNarchiveCallBack;
 import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.OutItemFactory;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
@@ -54,6 +55,7 @@ abstract class NArchive implements Archive
 	private File archive;
 	private File tempDir = null;
 	private final boolean readonly;
+	private ProgressNarchiveCallBack cb = null;
 	
 	/*
 	 * These fields are only used, if archive already exists, otherwise we are in creation mode
@@ -83,7 +85,20 @@ abstract class NArchive implements Archive
 	 */
 	public NArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException
 	{
-		this(session, archive, false);
+		this(session, archive, false, null);
+		// System.out.println("SevenZipNArchive " + archive);
+	}
+
+	/**
+	 * Constructor that default to readwrite
+	 * @param archive {@link File} to archive
+	 * @param cb {@link ProgressNarchiveCallBack} to show progress
+	 * @throws IOException
+	 * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
+	 */
+	public NArchive(final Session session, final File archive, final ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException
+	{
+		this(session, archive, false, cb);
 		// System.out.println("SevenZipNArchive " + archive);
 	}
 
@@ -91,12 +106,14 @@ abstract class NArchive implements Archive
 	 * Constructor with optional readonly mode
 	 * @param archive {@link File} to archive
 	 * @param readonly if true, will set archive in readonly safe mode
+	 * @param cb {@link ProgressNarchiveCallBack} to show progress
 	 * @throws IOException
 	 * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
 	 */
-	public NArchive(final Session session, final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
+	public NArchive(final Session session, final File archive, final boolean readonly, final ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException
 	{
 		this.session = session;
+		this.cb = cb;
 		if(!SevenZip.isInitializedSuccessfully())
 			SevenZip.initSevenZipFromPlatformJAR(session.getUser().settings.getTmpPath(true).toFile());
 		ext = FilenameUtils.getExtension(archive.getName());
@@ -188,11 +205,15 @@ abstract class NArchive implements Archive
 				@Override
 				public void setTotal(final long total) throws SevenZipException
 				{
+					if (cb != null)
+						cb.setTotal(total);
 				}
 
 				@Override
 				public void setCompleted(final long complete) throws SevenZipException
 				{
+					if (cb != null)
+						cb.setCompleted(complete);
 				}
 
 				@Override
@@ -500,11 +521,15 @@ abstract class NArchive implements Archive
 				@Override
 				public void setTotal(long total) throws SevenZipException
 				{
+					if(cb != null)
+						cb.setTotal(total);
 				}
 				
 				@Override
 				public void setCompleted(long complete) throws SevenZipException
 				{
+					if(cb != null)
+						cb.setCompleted(complete);
 				}
 				
 				@Override

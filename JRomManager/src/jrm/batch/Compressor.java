@@ -19,12 +19,15 @@ import JTrrntzip.SimpleTorrentZipOptions;
 import JTrrntzip.TorrentZip;
 import JTrrntzip.TrrntZipStatus;
 import jrm.compressors.SevenZipArchive;
+import jrm.compressors.ZipArchive;
+import jrm.compressors.ZipArchive.CustomVisitor;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.misc.HTMLRenderer;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
+import jrm.ui.progress.ProgressNarchiveCallBack;
 import jrm.ui.progress.ProgressTZipCallBack;
 
 public class Compressor implements HTMLRenderer
@@ -101,15 +104,16 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
+			cb.apply("Processing "+file.getName());
 			File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
 			tmpfile.delete();
 			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
-			try(SevenZipArchive archive = new SevenZipArchive(session, file))
+			try(SevenZipArchive archive = new SevenZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)))
 			{
 				progress.setProgress(toHTML("extracting " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 				if(archive.extract()==0)
 				{
-					try(SevenZipArchive newarchive = new SevenZipArchive(session, tmpfile))
+					try(SevenZipArchive newarchive = new SevenZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
 					{
 						Path basedir = archive.getTempDir().toPath();
 						Files.walkFileTree(basedir, new SimpleFileVisitor<Path>() {
@@ -158,6 +162,10 @@ public class Compressor implements HTMLRenderer
 		{
 			cb.apply("Failed");
 		}
+		finally
+		{
+			progress.setProgress("", null, null, "");
+		}
 		return null;
 	}
 
@@ -165,10 +173,11 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
+			cb.apply("Processing "+file.getName());
 			File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
 			tmpfile.delete();
 			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
-			try(SevenZipArchive archive = new SevenZipArchive(session, file))
+			try(SevenZipArchive archive = new SevenZipArchive(session, file, false, new ProgressNarchiveCallBack(progress)))
 			{
 				progress.setProgress(toHTML("extracting " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 				if(archive.extract()==0)
@@ -180,13 +189,13 @@ public class Compressor implements HTMLRenderer
 					env.put("compressionLevel", tzip ? 1 :  ZipLevel.valueOf(session.getUser().settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 					FileUtils.forceMkdirParent(tmpfile);
 					progress.setProgress(toHTML("creating " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
-					try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + tmpfile.toURI()), env);) //$NON-NLS-1$
+					try(ZipArchive dstarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
 					{
-						Files.walkFileTree(basedir.toPath(), new SimpleFileVisitor<Path>() {
+						dstarchive.compress_custom(new CustomVisitor(basedir.toPath()) {
 							@Override
 							public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
 							{
-								Path dst = fs.getPath(basedir.toPath().relativize(file).toString());
+								Path dst = getFileSystem().getPath(basedir.toPath().relativize(file).toString());
 								if(dst.getParent()!=null)
 									Files.createDirectories(dst.getParent());
 								Files.copy(file, dst, StandardCopyOption.REPLACE_EXISTING);
@@ -195,11 +204,11 @@ public class Compressor implements HTMLRenderer
 							@Override
 							public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
 							{
-								Path dst = fs.getPath(basedir.toPath().relativize(dir).toString());
+								Path dst = getFileSystem().getPath(basedir.toPath().relativize(dir).toString());
 								Files.createDirectories(dst);
 								return FileVisitResult.CONTINUE;
 							};
-						});
+						}, env);
 					}
 				}
 				else
@@ -233,6 +242,10 @@ public class Compressor implements HTMLRenderer
 		{
 			cb.apply("Failed");
 		}
+		finally
+		{
+			progress.setProgress("", null, null, "");
+		}
 		return null;
 	}
 
@@ -240,6 +253,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
+			cb.apply("Processing "+file.getName());
 			File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
 			tmpfile.delete();
 			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
@@ -251,13 +265,13 @@ public class Compressor implements HTMLRenderer
 				env.put("useTempFile", size(basedir) > ZipTempThreshold.valueOf(session.getUser().settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
 				env.put("compressionLevel", ZipLevel.valueOf(session.getUser().settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$
 				progress.setProgress(toHTML("Crunching " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
-				try (FileSystem newfs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + tmpfile.toURI()), env);) //$NON-NLS-1$
+				try (ZipArchive newarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
 				{
-					Files.walkFileTree(basedir, new SimpleFileVisitor<Path>() {
+					newarchive.compress_custom(new CustomVisitor(basedir) {
 						@Override
 						public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
 						{
-							Path dst = newfs.getPath(basedir.relativize(file).toString());
+							Path dst = getFileSystem().getPath(basedir.relativize(file).toString());
 							if(dst.getParent()!=null)
 								Files.createDirectories(dst.getParent());
 							Files.copy(file, dst, StandardCopyOption.REPLACE_EXISTING);
@@ -266,11 +280,11 @@ public class Compressor implements HTMLRenderer
 						@Override
 						public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
 						{
-							Path dst = newfs.getPath(basedir.relativize(dir).toString());
+							Path dst = getFileSystem().getPath(basedir.relativize(dir).toString());
 							Files.createDirectories(dst);
 							return FileVisitResult.CONTINUE;
 						};
-					});
+					}, env);
 				}
 			}
 			if(tmpfile.exists())
@@ -290,6 +304,10 @@ public class Compressor implements HTMLRenderer
 		{
 			cb.apply("failed");
 		}
+		finally
+		{
+			progress.setProgress("", null, null, "");
+		}
 		return null;
 	}
 	
@@ -297,33 +315,31 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
+			cb.apply("Processing "+file.getName());
 			File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
 			tmpfile.delete();
 			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
-			try(SevenZipArchive archive = new SevenZipArchive(session, tmpfile))
+			try(SevenZipArchive archive = new SevenZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
 			{
 				progress.setProgress(toHTML("extracting " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
-				try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + file.toURI()), new HashMap<>())) //$NON-NLS-1$
+				try(ZipArchive srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress));)
 				{
-					Path basedir = fs.getPath("/");
-					Files.walkFileTree(basedir, new SimpleFileVisitor<Path>() {
+					srcarchive.extract_custom(new CustomVisitor() {
 						@Override
 						public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
 						{
-							archive.add_stdin(Files.newInputStream(file), basedir.relativize(file).toString());
+							archive.add_stdin(Files.newInputStream(file), getSourcePath().relativize(file).toString());
 							return FileVisitResult.CONTINUE;
 						}
-						@Override
-						public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-						{
-							return FileVisitResult.CONTINUE;
-						};
 					});
 				}
 				progress.setProgress(toHTML("Crunching " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
 			}
 			catch (Exception e)
 			{
+				e.printStackTrace();
+				if(tmpfile.exists())
+					tmpfile.delete();
 				cb.apply("7z creation failed");
 				return null;
 			}
@@ -337,12 +353,16 @@ public class Compressor implements HTMLRenderer
 					return newfile;
 				}
 				else
-					cb.apply("Failed");
+					cb.apply("Failed to replace original file");
 			}
 		}
 		catch(IOException e)
 		{
 			cb.apply("failed");
+		}
+		finally
+		{
+			progress.setProgress("", null, null, "");
 		}
 		return null;
 	}
@@ -352,7 +372,7 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			progress.setProgress(toHTML("Crunching " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
-			cb.apply("Crunching to "+file.getName());
+			cb.apply("Processing "+file.getName());
 			final EnumSet<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(progress), new SimpleTorrentZipOptions(force,false)).Process(file);
 			if(status.contains(TrrntZipStatus.ValidTrrntzip))
 			{
@@ -364,6 +384,10 @@ public class Compressor implements HTMLRenderer
 		catch(IOException e)
 		{
 			cb.apply("failed");
+		}
+		finally
+		{
+			progress.setProgress("", null, null, "");
 		}
 		return null;
 	}

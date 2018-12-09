@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import jrm.security.Session;
+import jrm.ui.progress.ProgressNarchiveCallBack;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**
@@ -34,9 +35,9 @@ class ZipNArchive extends NArchive
 		super(session, archive);
 	}
 
-	public ZipNArchive(final Session session, final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException
+	public ZipNArchive(final Session session, final File archive, final boolean readonly, ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException
 	{
-		super(session, archive, readonly);
+		super(session, archive, readonly, cb);
 	}
 
 }

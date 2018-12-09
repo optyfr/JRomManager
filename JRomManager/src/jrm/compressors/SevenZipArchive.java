@@ -32,6 +32,7 @@ import org.apache.commons.io.FileUtils;
 
 import jrm.misc.FindCmd;
 import jrm.security.Session;
+import jrm.ui.progress.ProgressNarchiveCallBack;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**
@@ -57,15 +58,20 @@ public class SevenZipArchive implements Archive
 
 	public SevenZipArchive(final Session session, final File archive) throws IOException
 	{
-		this(session, archive, false);
+		this(session, archive, false, null);
 	}
 
-	public SevenZipArchive(final Session session, final File archive, final boolean readonly) throws IOException
+	public SevenZipArchive(final Session session, final File archive, ProgressNarchiveCallBack cb) throws IOException
+	{
+		this(session, archive, false, cb);
+	}
+
+	public SevenZipArchive(final Session session, final File archive, final boolean readonly, ProgressNarchiveCallBack cb) throws IOException
 	{
 		this.session = session;
 		try
 		{
-			native_7zip = new SevenZipNArchive(session, archive, readonly);
+			native_7zip = new SevenZipNArchive(session, archive, readonly, cb);
 		}
 		catch(final SevenZipNativeInitializationException e)
 		{

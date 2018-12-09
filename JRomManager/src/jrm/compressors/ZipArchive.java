@@ -20,17 +20,21 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.misc.FindCmd;
 import jrm.security.Session;
+import jrm.ui.progress.ProgressNarchiveCallBack;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**
@@ -49,6 +53,7 @@ public class ZipArchive implements Archive
 	private File archive;
 	private String cmd;
 	private boolean readonly;
+	private ProgressNarchiveCallBack cb;
 
 	private boolean is_7z;
 
@@ -58,20 +63,26 @@ public class ZipArchive implements Archive
 
 	public ZipArchive(final Session session, final File archive) throws IOException
 	{
-		this(session, archive, false);
+		this(session, archive, false, null);
 	}
 
-	public ZipArchive(final Session session, final File archive, final boolean readonly) throws IOException
+	public ZipArchive(final Session session, final File archive, ProgressNarchiveCallBack cb) throws IOException
+	{
+		this(session, archive, false, cb);
+	}
+
+	public ZipArchive(final Session session, final File archive, final boolean readonly, ProgressNarchiveCallBack cb) throws IOException
 	{
 		this.session = session;
+		this.cb = cb;
+		this.archive = archive;
 		try
 		{
-			native_zip = new ZipNArchive(session, archive, readonly);
+			native_zip = new ZipNArchive(session, archive, readonly, cb);
 		}
 		catch(final SevenZipNativeInitializationException e)
 		{
 			this.readonly = readonly;
-			this.archive = archive;
 			cmd = session.getUser().settings.getProperty("zip_cmd", FindCmd.find7z()); //$NON-NLS-1$
 			if(!new File(cmd).exists() && !new File(cmd + ".exe").exists()) //$NON-NLS-1$
 				throw new IOException(cmd + " does not exists"); //$NON-NLS-1$
@@ -158,7 +169,7 @@ public class ZipArchive implements Archive
 
 	private int extract(final File baseDir, final String entry) throws IOException
 	{
-		final List<String> cmd = new ArrayList<>();
+/*		final List<String> cmd = new ArrayList<>();
 		if(is_7z)
 		{
 			Collections.addAll(cmd, session.getUser().settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -178,7 +189,7 @@ public class ZipArchive implements Archive
 				}
 			}
 		}
-		else
+		else*/
 		{
 			try(FileSystem srcfs = FileSystems.newFileSystem(archive.toPath(), null);)
 			{
@@ -188,8 +199,12 @@ public class ZipArchive implements Archive
 				{
 					final Path sourcePath = srcfs.getPath("/"); //$NON-NLS-1$
 					final Path targetPath = baseDir.toPath();
+					if(cb != null)
+						cb.setTotal(Files.walk(sourcePath).filter(p->Files.isRegularFile(p)).count());
 					Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
 					{
+						long cnt = 0;
+
 						@Override
 						public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
 						{
@@ -201,6 +216,8 @@ public class ZipArchive implements Archive
 						public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
 						{
 							Files.copy(file, targetPath.resolve(sourcePath.relativize(file)));
+							if(cb != null)
+								cb.setCompleted(++cnt);
 							return FileVisitResult.CONTINUE;
 						}
 					});
@@ -212,6 +229,125 @@ public class ZipArchive implements Archive
 		return -1;
 	}
 
+	public static class CustomVisitor extends SimpleFileVisitor<Path>
+	{
+		private Path sourcePath = null;
+		private FileSystem fs = null;
+
+		public CustomVisitor()
+		{
+		}
+		
+		public CustomVisitor(Path sourcePath)
+		{
+			setSourcePath(sourcePath);
+		}
+		
+		public Path getSourcePath()
+		{
+			return sourcePath;
+		}
+
+		private void setSourcePath(Path sourcePath)
+		{
+			this.sourcePath = sourcePath;
+		}
+		
+		private void setFileSystem(FileSystem fs)
+		{
+			this.fs = fs;;
+		}
+
+		public FileSystem getFileSystem()
+		{
+			return fs;
+		}
+}
+	
+	public int extract_custom(CustomVisitor sfv)
+	{
+		try(FileSystem srcfs = FileSystems.newFileSystem(archive.toPath(), null);)
+		{
+			sfv.setFileSystem(srcfs);
+			sfv.setSourcePath(srcfs.getPath("/"));
+			if(cb != null)
+				cb.setTotal(Files.walk(sfv.getSourcePath()).filter(p->Files.isRegularFile(p)).count());
+			Files.walkFileTree(sfv.getSourcePath(), new SimpleFileVisitor<Path>()
+			{
+				long cnt = 0;
+
+				@Override
+				public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+				{
+					return sfv.preVisitDirectory(dir, attrs);
+				}
+
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
+				{
+					sfv.postVisitDirectory(dir, exc);
+					return FileVisitResult.CONTINUE;
+				};
+
+				@Override
+				public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
+				{
+					sfv.visitFile(file, attrs);
+					if(cb != null)
+						cb.setCompleted(++cnt);
+					return FileVisitResult.CONTINUE;
+				}
+			});
+			return 0;
+		}
+		catch(IOException ex)
+		{
+			ex.printStackTrace();
+		}
+		return -1;
+	}
+	
+	public int compress_custom(CustomVisitor sfv, Map<String, Object> env)
+	{
+		try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + archive.toURI()), env);) //$NON-NLS-1$
+		{
+			sfv.setFileSystem(fs);
+			if(cb != null)
+				cb.setTotal(Files.walk(sfv.getSourcePath()).filter(p->Files.isRegularFile(p)).count());
+			Files.walkFileTree(sfv.getSourcePath(), new SimpleFileVisitor<Path>()
+			{
+				long cnt = 0;
+
+				@Override
+				public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+				{
+					return sfv.preVisitDirectory(dir, attrs);
+				}
+
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
+				{
+					sfv.postVisitDirectory(dir, exc);
+					return FileVisitResult.CONTINUE;
+				};
+
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
+				{
+					sfv.visitFile(file, attr);
+					if(cb != null)
+						cb.setCompleted(++cnt);
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		}
+		catch(IOException ex)
+		{
+			ex.printStackTrace();
+		}
+		return -1;
+	}
+	
 	@Override
 	public int extract() throws IOException
 	{
