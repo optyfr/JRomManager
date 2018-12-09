@@ -103,7 +103,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Dir2Dat
 - Batch Tools
 	- Dir Updater : to update many dats files to many dirs. Accept dirs of dats as source (software list mode)
-	- Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode
+	- Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode. Include detail viewer to see what is missing and what is wrong (tree view by piece for SHA1 mode)
 	- Compressor : to compress many files at a time from any format to Zip, TrntZip, or 7ZIP 
 - Server mode + Web Client (EXPERIMENTAL).
 	- JRomManager can listen to a defined port and serve a web interface instead of the classical Swing gui
@@ -117,8 +117,8 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 		
 
 ## Short Term Planned Features
-- More detail in Torrent checker (already available in WebClient)
 - Mode to keep existing container archive format
+- Install as a service (Server mode)
 - Multi User and access rights (Server mode)
 - Encrypted connections (Server mode)
 
