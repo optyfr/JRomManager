@@ -82,7 +82,10 @@ public class Settings implements SettingsImpl
 	@Override
 	public void setProperty(final String property, final String value)
 	{
-		properties.setProperty(property, value);
+		if(value==null)
+			properties.remove(property);
+		else
+			properties.setProperty(property, value);
 	}
 
 	@Override

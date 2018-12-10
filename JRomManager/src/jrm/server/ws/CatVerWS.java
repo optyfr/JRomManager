@@ -3,6 +3,7 @@ package jrm.server.ws;
 import java.io.IOException;
 
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 
 import jrm.profile.Profile;
 
@@ -17,7 +18,8 @@ public class CatVerWS
 
 	void load(JsonObject jso)
 	{
-		ws.session.curr_profile.setProperty("filter.catver.ini", jso.get("params").asObject().getString("path", null)); //$NON-NLS-1$
+		JsonValue jsv = jso.get("params").asObject().get("path");
+		ws.session.curr_profile.setProperty("filter.catver.ini", jsv!=null&&!jsv.isNull()?jsv.asString():null); //$NON-NLS-1$
 		ws.session.curr_profile.loadCatVer(null);
 		ws.session.curr_profile.saveSettings();
 		loaded(ws.session.curr_profile);

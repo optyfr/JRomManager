@@ -1,21 +1,10 @@
 package jrm.ui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JCheckBox;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -25,12 +14,7 @@ import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.security.Session;
-import jrm.ui.basic.JCheckBoxList;
-import jrm.ui.basic.JCheckBoxTree;
-import jrm.ui.basic.JFileDropMode;
-import jrm.ui.basic.JFileDropTextField;
-import jrm.ui.basic.JTextFieldHintUI;
-import jrm.ui.basic.NGTreeNode;
+import jrm.ui.basic.*;
 import jrm.ui.profile.filter.CatVerModel;
 
 @SuppressWarnings("serial")
@@ -142,6 +126,19 @@ public class ScannerAdvFilterPanel extends JPanel
 		JMenuItem mntmInvertSelectionNPlay = new JMenuItem(Messages.getString("MainFrame.InvertSelection")); //$NON-NLS-1$
 		mntmInvertSelectionNPlay.addActionListener(e -> listNPlayers.selectInvert());
 		popupMenuNPlay.add(mntmInvertSelectionNPlay);
+		
+		JSeparator separator_1 = new JSeparator();
+		popupMenuNPlay.add(separator_1);
+		
+		JMenuItem mntmClearNPlayers = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear_1.text")); //$NON-NLS-1$
+		mntmClearNPlayers.addActionListener((e)->{
+			session.curr_profile.saveSettings();
+			session.curr_profile.nplayers=null;
+			session.curr_profile.saveSettings();
+			tfNPlayers.setText(null);
+			listNPlayers.setModel(new DefaultListModel<>());
+		});
+		popupMenuNPlay.add(mntmClearNPlayers);
 
 		JScrollPane scrollPaneCatVer = new JScrollPane();
 		scrollPaneCatVer.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.Categories"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
@@ -225,6 +222,19 @@ public class ScannerAdvFilterPanel extends JPanel
 			treeCatVer.unselect(mature_nodes.toArray(new NGTreeNode[0]));
 		});
 		mnUnselectCat.add(mntmUnselectMatureCat);
+		
+		JSeparator separator = new JSeparator();
+		popupMenuCat.add(separator);
+		
+		JMenuItem mntmClearCat = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear.text")); //$NON-NLS-1$
+		mntmClearCat.addActionListener((e) -> {
+			session.curr_profile.setProperty("filter.catver.ini", null); //$NON-NLS-1$
+			session.curr_profile.catver = null;
+			session.curr_profile.saveSettings();
+			tfCatVer.setText(null);
+			treeCatVer.setModel(new CatVerModel());
+		});
+		popupMenuCat.add(mntmClearCat);
 
 	}
 

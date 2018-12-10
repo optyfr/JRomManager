@@ -1,20 +1,10 @@
 package jrm.ui.batch;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FontMetrics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -29,19 +19,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -60,7 +38,6 @@ import jrm.ui.basic.EnhTableModel;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JRMFileChooser.CallBack;
 import jrm.ui.basic.SrcDstResult;
-import jrm.ui.batch.BatchCompressorPanel.BatchCompressorTable.AddCallBack;
 import jrm.ui.progress.Progress;
 import one.util.streamex.StreamEx;
 
@@ -331,7 +308,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 				{
 					dtde.acceptDrop(DnDConstants.ACTION_COPY);
 
-					final String[] extensions = new String[] {"zip", "7z"};
+					final String[] extensions = new String[] {"zip", "7z", "rar", "arj", "tar", "lzh", "lha" , "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab"};
 					
 					FileFilter filter = new FileFilter()
 					{
@@ -420,14 +397,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		gbc_scrollPane.gridy = 0;
 		add(scrollPane, gbc_scrollPane);
 		
-		table = new BatchCompressorTable(new BatchCompressorTableModel(),new AddCallBack()
-		{
-			@Override
-			public void call(List<FileResult> files)
-			{
-				// TODO Auto-generated method stub
-			}
-		});
+		table = new BatchCompressorTable(new BatchCompressorTableModel(),(files)->{});
 		scrollPane.setViewportView(table);
 		
 		popupMenu = new JPopupMenu();
@@ -435,8 +405,9 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		
 		mntmAddArchive = new JMenuItem(Messages.getString("BatchCompressorPanel.mntmAddArchive.text")); //$NON-NLS-1$
 		mntmAddArchive.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				final String[] extensions = new String[] {"zip", "7z"};
+				final String[] extensions = new String[] {"zip", "7z", "rar", "arj", "tar", "lzh", "lha" , "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab"};
 				new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_AND_DIRECTORIES, null, null, Collections.singletonList(new javax.swing.filechooser.FileFilter()
 				{
 					@Override
@@ -618,11 +589,13 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 	
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mousePressed(MouseEvent e) {
 				if (e.isPopupTrigger()) {
 					showMenu(e);
 				}
 			}
+			@Override
 			public void mouseReleased(MouseEvent e) {
 				if (e.isPopupTrigger()) {
 					showMenu(e);
