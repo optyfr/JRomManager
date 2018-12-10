@@ -38,18 +38,24 @@ public class ProfileWS
 			{
 				JsonObject jsobj = jso.get("params").asObject();
 				session.curr_profile = Profile.load(session, new File(new File(jsobj.getString("parent", null)), jsobj.getString("file", null)), session.worker.progress);
-				session.curr_profile.nfo.save(session);
-				session.report.setProfile(session.curr_profile);
+				if (session.curr_profile != null)
+				{
+					session.curr_profile.nfo.save(session);
+					session.report.setProfile(session.curr_profile);
+					loaded(session.curr_profile);
+					new CatVerWS(ws).loaded(session.curr_profile);
+					new NPlayersWS(ws).loaded(session.curr_profile);
+				}
 			}
 			catch(BreakException ex)
 			{
 			}
-			session.worker.progress.close();
-			session.worker.progress = null;
-			session.lastAction = new Date();
-			loaded(session.curr_profile);
-			new CatVerWS(ws).loaded(session.curr_profile);
-			new NPlayersWS(ws).loaded(session.curr_profile);
+			finally
+			{
+				session.worker.progress.close();
+				session.worker.progress = null;
+				session.lastAction = new Date();
+			}
 		})).start();
 	}
 	
