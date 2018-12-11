@@ -16,14 +16,7 @@
  */
 package jrm.ui.profile.report;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -37,6 +30,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
+import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
 import jrm.ui.progress.StatusHandler;
 
@@ -67,6 +61,11 @@ public class ReportFrame extends JDialog implements StatusHandler
 			@Override
 			public void windowClosing(final WindowEvent e) {
 				session.getUser().settings.setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+			}
+			@Override
+			public void windowOpened(WindowEvent e)
+			{
+				session.report.getModel().filter(session.report.getModel().getFilterOptions().toArray(new FilterOptions[0]));
 			}
 		});
 		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
@@ -100,6 +99,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 		getContentPane().add(lblStatus, gbc_lblStatus);
 
 		pack();
+
 
 		try
 		{

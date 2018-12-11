@@ -598,4 +598,10 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		return subjects.size();
 	}
 	
+	@Override
+	public String toString()
+	{
+		return "Report";
+	}
+	
 }

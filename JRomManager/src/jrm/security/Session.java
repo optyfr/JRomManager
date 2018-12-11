@@ -28,8 +28,10 @@ public class Session
 	/** The curr scan. */
 	public Scan curr_scan;
 
-	Session()
+	Session(boolean multiuser, boolean noupdate)
 	{
+		this.multiuser = multiuser;
+		this.noupdate = noupdate;
 		this.sessionId = null;
 		user = new User(this,"JRomManager");
 	}

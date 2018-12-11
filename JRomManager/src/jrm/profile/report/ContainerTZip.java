@@ -53,6 +53,12 @@ public class ContainerTZip extends Subject implements Serializable
 	}
 
 	@Override
+	public String getHTML()
+	{
+		return toString();
+	}
+	
+	@Override
 	public Subject clone(final List<FilterOptions> filterOptions)
 	{
 		return new ContainerTZip(container);

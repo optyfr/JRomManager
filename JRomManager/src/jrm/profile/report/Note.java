@@ -38,7 +38,7 @@ public abstract class Note implements TreeNode,HTMLRenderer,Serializable
 */
 	@Override
 	public abstract String toString();
-
+	
 	@Override
 	public TreeNode getChildAt(final int childIndex)
 	{
@@ -84,5 +84,11 @@ public abstract class Note implements TreeNode,HTMLRenderer,Serializable
 	public int getId()
 	{
 		return id;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return System.identityHashCode(this);
 	}
 }

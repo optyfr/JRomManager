@@ -196,12 +196,10 @@ public class GlobalSettings extends Settings
 		if (settings == null)
 			settings = new ProfileSettings();
 		if (getProfileSettingsFile(file).exists())
-		{
 			settings.loadSettings(getProfileSettingsFile(file));
-			settings.merge_mode = MergeOptions.valueOf(settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()));
-			settings.hash_collision_mode = HashCollisionOptions.valueOf(settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()));
-			settings.implicit_merge = settings.getProperty("implicit_merge", false);
-		}
+		settings.merge_mode = MergeOptions.valueOf(settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()));
+		settings.hash_collision_mode = HashCollisionOptions.valueOf(settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()));
+		settings.implicit_merge = settings.getProperty("implicit_merge", false);
 		return settings;
 	}
 }

@@ -169,6 +169,11 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected void done()
 			{
+				if(MainFrame.report_frame != null)
+				{
+					MainFrame.report_frame.setVisible(true);
+					session.report.getModel().initClone();
+				}
 				progress.dispose();
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)

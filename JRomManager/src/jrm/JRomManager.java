@@ -39,19 +39,20 @@ public final class JRomManager
 	public static void main(final String[] args)
 	{
 		Sessions.single_mode = true;
-		Session session  = Sessions.getSession();
+		boolean multiuser = false, noupdate = false;
 		for(int i = 0; i < args.length; i++)
 		{
 			switch(args[i])
 			{
 				case "--multiuser":	// will write settings, cache and dat into home directory instead of app directory //$NON-NLS-1$
-					session.multiuser = true;
+					multiuser = true;
 					break;
 				case "--noupdate":	// will disable update check //$NON-NLS-1$
-					session.noupdate = true;
+					noupdate = true;
 					break;
 			}
 		}
+		Session session  = Sessions.getSession(multiuser,noupdate);
 		if (JRomManager.lockInstance(session, FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
 			if(!session.noupdate)

@@ -111,6 +111,9 @@ public abstract class Subject extends AbstractList<Note> implements TreeNode, HT
 	public abstract void updateStats();
 
 	@Override
+	public abstract String getHTML();
+
+	@Override
 	public abstract String toString();
 
 	@Override
@@ -171,4 +174,11 @@ public abstract class Subject extends AbstractList<Note> implements TreeNode, HT
 	{
 		return notes.get(index);
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		return System.identityHashCode(this);
+	}
+
 }

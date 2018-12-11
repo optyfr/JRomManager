@@ -48,7 +48,12 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 	{
 		try
 		{
-			super.getTreeCellRendererComponent(tree, ((HTMLRenderer)value).getHTML(), sel, expanded, leaf, row, hasFocus);
+			if(value instanceof Subject)
+				super.getTreeCellRendererComponent(tree, ((Subject)value).getHTML(), sel, expanded, leaf, row, hasFocus);
+			else if(value instanceof Note)
+				super.getTreeCellRendererComponent(tree, ((Note)value).getHTML(), sel, expanded, leaf, row, hasFocus);
+			else
+				super.getTreeCellRendererComponent(tree, ((HTMLRenderer)value).getHTML(), sel, expanded, leaf, row, hasFocus);
 			if(value instanceof RomSuspiciousCRC)
 				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/information.png"))); //$NON-NLS-1$
 			else if(value instanceof ContainerUnknown)

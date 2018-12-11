@@ -10,11 +10,11 @@ public final class Sessions
 
 	private final static Map<String, Session> sessions = new HashMap<>();
 
-	public static Session getSession()
+	public static Session getSession(boolean multiuser, boolean noupdate)
 	{
 		assert single_mode == true;
 		if (single_session == null)
-			single_session = new Session();
+			single_session = new Session(multiuser, noupdate);
 		return single_session;
 	}
 

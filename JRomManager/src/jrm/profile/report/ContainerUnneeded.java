@@ -37,6 +37,12 @@ public class ContainerUnneeded extends Subject implements Serializable
 	}
 
 	@Override
+	public String getHTML()
+	{
+		return toString();
+	}
+	
+	@Override
 	public Subject clone(final List<FilterOptions> filterOptions)
 	{
 		return new ContainerUnneeded(container);
