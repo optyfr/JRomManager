@@ -21,6 +21,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -397,6 +398,44 @@ public class ProfilePanel extends JPanel
 							progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
 							final Import imprt = new Import(session, selectedfile, sl);
 							progress.dispose();
+							if(!imprt.is_mame)
+							{
+								File curr_dir = ((FileTableModel)profilesList.getModel()).curr_dir.getFile();
+								File file = new File(curr_dir, imprt.file.getName());
+								int mode = -1;
+								if(file.exists())
+								{
+									String[] options = {"Overwrite", "Auto Rename", "File Chooser", "Cancel"};
+									mode = JOptionPane.showOptionDialog(ProfilePanel.this, "File already exists, choose what to do", "File already exists", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+									if(mode == 1)
+									{
+										for (int i = 1;; i++)
+										{
+											final File test_file = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + '_' + i + '.' + FilenameUtils.getExtension(file.getName()));
+											if(!test_file.exists())
+											{
+												file = test_file;
+												break;
+											}
+										}
+									}
+									else if(mode == 3)
+										return null;
+								}
+								if(!file.exists() || mode == 0)
+								{
+									try
+									{
+										FileUtils.copyFile(imprt.file, file);
+										((FileTableModel)profilesList.getModel()).populate(session);
+										return null;
+									}
+									catch (IOException e)
+									{
+										e.printStackTrace();
+									}
+								}
+							}
 							final File workdir = session.getUser().settings.getWorkPath().toFile(); // $NON-NLS-1$
 							final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 							new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
