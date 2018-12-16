@@ -14,6 +14,12 @@ version = props.getProperty("Specification-Version")+props.getProperty("Implemen
 
 repositories {
 	mavenCentral()
+	ivy {
+		url "https://freefr.dl.sourceforge.net/project"
+		layout 'pattern', {
+			artifact '[organisation]/[organisation]/[module]/[organisation]-stable-[revision].[ext]'
+        }
+	}
 }
 
 eclipse {
@@ -24,6 +30,7 @@ eclipse {
 }
 
 dependencies {
+	compile 'yajsw:yajsw-stable-12.13:12.13a@zip'
 	compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
 	compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
@@ -87,15 +94,22 @@ task docZip(type: Zip, dependsOn: javadoc) {
 	destinationDir = file("$buildDir/distributions/")
 }
 
-task distZip(type: Zip, dependsOn: jar) {
+task distZip(type: Zip, dependsOn: [jar, ':WebClient:build']) {
 	from (configurations.compile) {
 		into('lib')
+		exclude '*.zip'
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
 	from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
 		into('webclient')
 	}
+	from (zipTree(file(project.configurations.compile.find {it.name.startsWith("yajsw") }))) {
+		eachFile { fcp ->
+			fcp.path = fcp.path.replaceFirst("^yajsw-stable-[0-9a-z\\.]*", 'yajsw')
+		}
+		includeEmptyDirs false
+  	}
 	from ('dist') {
 		include '*.bat'
 		include '*.sh'
@@ -125,6 +139,7 @@ ospackage {
 	url 'https://github.com/optyfr/JRomManager'
 	from (configurations.compile) {
 		into('lib')
+		exclude '*.zip'
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
