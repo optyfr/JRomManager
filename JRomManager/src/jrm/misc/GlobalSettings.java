@@ -53,7 +53,24 @@ public class GlobalSettings extends Settings
 	 */
 	public Path getWorkPath()
 	{
-		if (parent.parent.multiuser)
+		if(parent.parent.server)
+		{
+			final String prop = System.getProperty("jrommanager.dir");
+			final Path work = (prop != null ? Paths.get(prop) : Paths.get(System.getProperty("user.dir"))).toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
+			if (!Files.exists(work))
+			{
+				try
+				{
+					Files.createDirectories(work);
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			return work;
+		}
+		else if (parent.parent.multiuser)
 		{
 			final Path work = Paths.get(System.getProperty("user.home"), ".jrommanager").toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
 			if (!Files.exists(work))

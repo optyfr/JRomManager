@@ -105,11 +105,18 @@ task distZip(type: Zip, dependsOn: [jar, ':WebClient:build']) {
 		into('webclient')
 	}
 	from (zipTree(file(project.configurations.compile.find {it.name.startsWith("yajsw") }))) {
+		exclude '*/src/**'
+		exclude '*/build/**'
+		exclude '*/conf/wrapper.conf'
 		eachFile { fcp ->
 			fcp.path = fcp.path.replaceFirst("^yajsw-stable-[0-9a-z\\.]*", 'yajsw')
 		}
 		includeEmptyDirs false
   	}
+	from ('dist') {
+		include 'wrapper.conf'
+		into 'yajsw/conf'
+	}
 	from ('dist') {
 		include '*.bat'
 		include '*.sh'
@@ -146,10 +153,23 @@ ospackage {
 	from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
 		into('webclient')
 	}
+	from (zipTree(file(project.configurations.compile.find {it.name.startsWith("yajsw") }))) {
+		exclude '*/src/**'
+		exclude '*/build/**'
+		exclude '*/conf/wrapper.conf'
+		eachFile { fcp ->
+			fcp.path = fcp.path.replaceFirst("^yajsw-stable-[0-9a-z\\.]*", 'yajsw')
+		}
+		includeEmptyDirs false
+  	}
 	from ('dist') {
 		include '*.bat'
 		include '*.sh'
 		fileMode = 0755
+	}
+	from ('dist') {
+		include 'wrapper.conf'
+		into 'yajsw/conf'
 	}
 	from ('dist') {
 		include name+'.desktop'
@@ -202,11 +222,25 @@ if (os.contains("windows"))
 		    icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
 			from (configurations.compile) {
 				into('lib')
+				exclude '*.zip'
 			}
 			from (jar)
 			from (project(':JUpdater').jar)
 			from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
 				into('webclient')
+			}
+			from (zipTree(file(project.configurations.compile.find {it.name.startsWith("yajsw") }))) {
+				exclude '*/src/**'
+				exclude '*/build/**'
+				exclude '*/conf/wrapper.conf'
+				eachFile { fcp ->
+					fcp.path = fcp.path.replaceFirst("^yajsw-stable-[0-9a-z\\.]*", 'yajsw')
+				}
+				includeEmptyDirs false
+		  	}
+			from ('dist') {
+				include 'wrapper.conf'
+				into 'yajsw/conf'
 			}
 			desktopStarter {
 				displayName = project.name

@@ -15,6 +15,7 @@ public class Session
 	public ResourceBundle msgs = null;
 
 	// Extra settings coming from cmdline args
+	public boolean server = false;
 	public boolean multiuser = false;
 	public boolean noupdate = false;
 
@@ -38,6 +39,7 @@ public class Session
 	
 	public Session(String sessionId)
 	{
+		this.server = true;
 		this.sessionId = sessionId;
 	}
 	

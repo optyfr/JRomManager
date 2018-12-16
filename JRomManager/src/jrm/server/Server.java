@@ -3,6 +3,7 @@ package jrm.server;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
@@ -86,7 +87,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 			{
 			}
 			if(cmd.hasOption('w'))
-				System.setProperty("user.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
+				System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
 		}
 		catch (ParseException e)
 		{
@@ -104,6 +105,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 				System.out.println("Start server");
 				System.out.println("port: "+port);
 				System.out.println("clientPath: "+clientPath);
+				System.out.println("workPath: "+(System.getProperty("jrommanager.dir")!=null?System.getProperty("jrommanager.dir"):Paths.get(System.getProperty("user.dir"))));
 				System.in.read();
 			}
 			catch (Throwable ignored)
