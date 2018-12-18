@@ -15,9 +15,9 @@ version = props.getProperty("Specification-Version")+props.getProperty("Implemen
 repositories {
 	mavenCentral()
 	ivy {
-		url "https://freefr.dl.sourceforge.net/project"
+		url "https://download.tanukisoftware.com"
 		layout 'pattern', {
-			artifact '[organisation]/[organisation]/[module]/[organisation]-stable-[revision].[ext]'
+			artifact '[organisation]/[revision]/[module]-delta-pack-[revision].[ext]'
         }
 	}
 }
@@ -30,7 +30,7 @@ eclipse {
 }
 
 dependencies {
-	compile 'yajsw:yajsw-stable-12.13:12.13a@zip'
+	compile 'wrapper:wrapper:3.5.37@zip'
 	compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
 	compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
@@ -104,18 +104,33 @@ task distZip(type: Zip, dependsOn: [jar, ':WebClient:build']) {
 	from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
 		into('webclient')
 	}
-	from (zipTree(file(project.configurations.compile.find {it.name.startsWith("yajsw") }))) {
+	from (zipTree(file(project.configurations.compile.find {it.name.startsWith("wrapper") }))) {
+		exclude '*/bin/*.bat'
+		exclude '*/*/*test*'
+		exclude '*/*/*demo*'
 		exclude '*/src/**'
-		exclude '*/build/**'
-		exclude '*/conf/wrapper.conf'
+		exclude '*/conf/*'
 		eachFile { fcp ->
-			fcp.path = fcp.path.replaceFirst("^yajsw-stable-[0-9a-z\\.]*", 'yajsw')
+			fcp.path = fcp.path.replaceFirst("^wrapper-delta-pack-[0-9a-z\\.]*", 'wrapper')
+			if(fcp.path.endsWith(".sh") || fcp.name.startsWith("wrapper")) {
+				fcp.mode = 0755
+			}
 		}
 		includeEmptyDirs false
   	}
-	from ('dist') {
+	from ('dist/wrapper') {
+		include '*.bat'
+		include '*.sh'
+		into 'wrapper/bin'
+		fileMode = 0755
+	}
+	from ('dist/wrapper') {
 		include 'wrapper.conf'
-		into 'yajsw/conf'
+		into 'wrapper/conf'
+	}
+	from ('dist/wrapper') {
+		include 'wrapper.dll'
+		into 'wrapper/lib'
 	}
 	from ('dist') {
 		include '*.bat'
@@ -150,26 +165,14 @@ ospackage {
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
-	from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
-		into('webclient')
-	}
-	from (zipTree(file(project.configurations.compile.find {it.name.startsWith("yajsw") }))) {
-		exclude '*/src/**'
-		exclude '*/build/**'
-		exclude '*/conf/wrapper.conf'
-		eachFile { fcp ->
-			fcp.path = fcp.path.replaceFirst("^yajsw-stable-[0-9a-z\\.]*", 'yajsw')
-		}
-		includeEmptyDirs false
+	from (zipTree(distZip.archivePath)) {
+		include 'wrapper/**'
+		include 'webclient/**'
   	}
 	from ('dist') {
 		include '*.bat'
 		include '*.sh'
 		fileMode = 0755
-	}
-	from ('dist') {
-		include 'wrapper.conf'
-		into 'yajsw/conf'
 	}
 	from ('dist') {
 		include name+'.desktop'
@@ -226,22 +229,10 @@ if (os.contains("windows"))
 			}
 			from (jar)
 			from (project(':JUpdater').jar)
-			from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
-				into('webclient')
-			}
-			from (zipTree(file(project.configurations.compile.find {it.name.startsWith("yajsw") }))) {
-				exclude '*/src/**'
-				exclude '*/build/**'
-				exclude '*/conf/wrapper.conf'
-				eachFile { fcp ->
-					fcp.path = fcp.path.replaceFirst("^yajsw-stable-[0-9a-z\\.]*", 'yajsw')
-				}
-				includeEmptyDirs false
+			from (zipTree(distZip.archivePath)) {
+				include 'wrapper/**'
+				include 'webclient/**'
 		  	}
-			from ('dist') {
-				include 'wrapper.conf'
-				into 'yajsw/conf'
-			}
 			desktopStarter {
 				displayName = project.name
 				executable = project.name + '.exe'
