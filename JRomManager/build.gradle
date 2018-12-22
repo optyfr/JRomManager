@@ -10,7 +10,7 @@ apply plugin: 'eclipse'
 ext.props = new Properties()
 file("dist/ver.properties").withInputStream { props.load(it) }
 
-version = props.getProperty("Specification-Version")+props.getProperty("Implementation-Version")
+version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
 
 repositories {
 	mavenCentral()
@@ -44,6 +44,7 @@ dependencies {
 	compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.12.1'
 	compile group: 'org.nanohttpd', name: 'nanohttpd-nanolets', version: '2.3.1'
 	compile group: 'org.nanohttpd', name: 'nanohttpd-websocket', version: '2.3.1'
+//	runtime 'org.apache.tika:tika-core:1.19.1'
 	compileOnly 'net.jcip:jcip-annotations:1.0'
 	compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.7'
 }
@@ -220,7 +221,7 @@ if (os.contains("windows"))
 		    vendor = 'optyfr'
 		    application = project.name
 		    appIdentifier = project.name
-		    version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version").substring(1);
+		    version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version");
 		    licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
 		    icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
 			from (configurations.compile) {
