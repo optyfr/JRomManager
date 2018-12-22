@@ -61,6 +61,7 @@ import java.util.regex.Pattern;
 import java.util.zip.*;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jrm.misc.Log;
 
 /**
  * A FileSystem built on a zip file
@@ -1510,7 +1511,7 @@ class ZipFileSystem extends FileSystem
 					}
 					catch (IOException x)
 					{
-						x.printStackTrace(); // skip any in-accurate entry
+						Log.err(x.getMessage(),x); // skip any in-accurate entry
 					}
 				}
 				else
@@ -1527,7 +1528,7 @@ class ZipFileSystem extends FileSystem
 					}
 					catch (IOException x)
 					{
-						x.printStackTrace(); // skip any wrong entry
+						Log.err(x.getMessage(),x); // skip any wrong entry
 					}
 				}
 			}

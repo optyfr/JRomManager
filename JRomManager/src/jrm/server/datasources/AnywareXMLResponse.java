@@ -2,6 +2,7 @@ package jrm.server.datasources;
 
 import javax.xml.stream.XMLStreamException;
 
+import jrm.misc.Log;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
 import jrm.profile.data.Disk;
@@ -95,7 +96,7 @@ public class AnywareXMLResponse extends XMLResponse
 		}
 		catch (XMLStreamException ex)
 		{
-			ex.printStackTrace();
+			Log.err(ex.getMessage(),ex);
 		}
 	}
 	

@@ -15,12 +15,12 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
-import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -28,6 +28,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
+import jrm.misc.Log;
 import jrm.server.handlers.DataSourcesHandler;
 import jrm.server.handlers.EnhStaticPageHandler;
 import jrm.server.handlers.ResourceHandler;
@@ -60,7 +61,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 					Entry<String, WebSession> entry = iterator.next();
 					if((new Date().getTime() - entry.getValue().lastAction.getTime())>86400L*1000L)
 					{
-						System.out.println("Session "+entry.getKey()+" removed");
+						Log.info("Session "+entry.getKey()+" removed");
 						iterator.remove();
 					}
 				}
@@ -80,15 +81,12 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		options.addOption(new Option("p", "port", true, "Server Port"));
 		options.addOption(new Option("w", "workpath", true, "Working Path"));
 		options.addOption(new Option("d", "debug", false, "Debug"));
-		CommandLineParser parser = new DefaultParser();
-		HelpFormatter formatter = new HelpFormatter();
-		CommandLine cmd;
 
 		String clientPath = null;
 		int port = 8080;
 		try
 		{
-			cmd = parser.parse(options, args);
+			CommandLine cmd = new DefaultParser().parse(options, args);
 			if (null == (clientPath = cmd.getOptionValue('c')))
 			{
 				try
@@ -97,7 +95,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 				}
 				catch (URISyntaxException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 			try
@@ -115,27 +113,35 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		}
 		catch (ParseException e)
 		{
-			System.out.println(e.getMessage());
-			formatter.printHelp("Server", options);
+			Log.err(e.getMessage(),e);
+			new HelpFormatter().printHelp("Server", options);
 			System.exit(1);
 		}
 		try
 		{
 			Locale.setDefault(Locale.US);
 			System.setProperty("file.encoding", "UTF-8");
-			for (Handler h : Logger.getGlobal().getHandlers())
-				Logger.getGlobal().removeHandler(h);
-			Logger.getGlobal().addHandler(new FileHandler(getLogPath() + "/Server.%g.log", 1024 * 1024, 5, false));
+			FileHandler filehandler = new FileHandler(getLogPath() + "/Server.%g.log", 1024 * 1024, 5, false);
+			filehandler.setFormatter(Log.formatter);
+			Logger.getGlobal().addHandler(filehandler);
+			if(debug)
+			{
+				ConsoleHandler consolehandler = new ConsoleHandler();
+				consolehandler.setLevel(Level.FINE);
+				consolehandler.setFormatter(Log.formatter);
+				Logger.getGlobal().addHandler(consolehandler);
+				Logger.getGlobal().setLevel(Level.FINE);
+			}
 			Server server = new Server(port, clientPath);
 			server.start(0);
-			System.out.println("Start server");
-			System.out.println("port: " + port);
-			System.out.println("clientPath: " + clientPath);
-			System.out.println("workPath: " + (System.getProperty("jrommanager.dir") != null ? System.getProperty("jrommanager.dir") : Paths.get(System.getProperty("user.dir"))));
+			Log.config("Start server");
+			Log.config("port: " + port);
+			Log.config("clientPath: " + clientPath);
+			Log.config("workPath: " + getWorkPath());
 			Runtime.getRuntime().addShutdownHook(new Thread(()->{
 				WebSckt.saveAllSettings();
 				server.stop();
-				System.out.println("Server stopped.\n");
+				Log.info("Server stopped.");
 			}));
 			if(debug)
 			{
@@ -145,8 +151,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
 		}
 	}
 	

@@ -23,6 +23,7 @@ import java.nio.file.*;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.data.Container.Type;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
@@ -93,7 +94,7 @@ public class AddEntry extends EntryAction
 		}
 		catch(final Throwable e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 			System.err.println("add from " + entry.parent.file + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
@@ -140,7 +141,7 @@ public class AddEntry extends EntryAction
 				}
 				catch(final IOException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 			else
@@ -155,7 +156,7 @@ public class AddEntry extends EntryAction
 		}
 		catch(final Throwable e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 			System.err.println("add from " + entry.parent.file.getName() + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
@@ -186,7 +187,7 @@ public class AddEntry extends EntryAction
 			}
 			catch(final IOException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		}
 

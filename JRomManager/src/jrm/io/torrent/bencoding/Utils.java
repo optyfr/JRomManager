@@ -25,6 +25,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 
+import jrm.misc.Log;
+
 /**
  * @author Created by christophe on 15.01.15.
  * @author Fixed by optyfr on 2018-08-15
@@ -81,10 +83,10 @@ public class Utils
             return curr;
         } catch (FileNotFoundException e)
         {
-            e.printStackTrace();
+            Log.err(e.getMessage(),e);
         } catch (IOException e)
         {
-            e.printStackTrace();
+            Log.err(e.getMessage(),e);
         } finally
         {
             assert rf != null;
@@ -93,7 +95,7 @@ public class Utils
                 rf.close();
             } catch (IOException e)
             {
-                e.printStackTrace();
+                Log.err(e.getMessage(),e);
             }
         }
         return 0;
@@ -153,7 +155,7 @@ public class Utils
             return byteArray2Hex(md.digest(input));
         } catch (NoSuchAlgorithmException e)
         {
-            e.printStackTrace();
+            Log.err(e.getMessage(),e);
         }
         return null;
     }

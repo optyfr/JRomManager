@@ -34,6 +34,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import jrm.misc.Log;
 import jrm.security.Session;
 
 /**
@@ -154,7 +155,7 @@ public final class ProfileNFO implements Serializable
 			}
 			catch(final Throwable e)
 			{
-			//	e.printStackTrace();
+			//	Log.err(e.getMessage(),e);
 			}
 		}
 		return new ProfileNFO(file);
@@ -174,7 +175,7 @@ public final class ProfileNFO implements Serializable
 		}
 		catch (ParserConfigurationException | TransformerException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		try(ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(ProfileNFO.getFileNfo(session, file)))))
 		{
@@ -182,7 +183,7 @@ public final class ProfileNFO implements Serializable
 		}
 		catch(final Throwable e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -246,7 +247,7 @@ public final class ProfileNFO implements Serializable
 		catch(ParserConfigurationException | SAXException | IOException e)
 		{
 			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 

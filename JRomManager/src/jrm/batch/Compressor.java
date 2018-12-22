@@ -25,6 +25,7 @@ import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.misc.HTMLRenderer;
+import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 import jrm.ui.progress.ProgressNarchiveCallBack;
@@ -220,7 +221,7 @@ public class Compressor implements HTMLRenderer
 			}
 			catch (Exception e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 				tmpfile.delete();
 				cb.apply("zip creation failed");
 				return null;
@@ -337,7 +338,7 @@ public class Compressor implements HTMLRenderer
 			}
 			catch (Exception e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 				if(tmpfile.exists())
 					tmpfile.delete();
 				cb.apply("7z creation failed");

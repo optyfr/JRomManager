@@ -30,6 +30,7 @@ import jrm.io.torrent.TorrentParser;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
+import jrm.misc.Log;
 import jrm.misc.UnitRenderer;
 import jrm.security.Session;
 import jrm.ui.basic.ResultColUpdater;
@@ -69,7 +70,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		});
 	}
@@ -414,11 +415,11 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 				}
 				catch (IOException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 			else
-				System.out.println(archive);
+				Log.debug(archive);
 		}
 	}
 	
@@ -431,7 +432,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 
 		try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipFile, null))
 		{
-			System.out.println("unzipping : "+zipFile);
+			Log.debug(()->"unzipping : "+zipFile);
 			final Path root = zipFileSystem.getRootDirectories().iterator().next();
 
 			Files.walkFileTree(root, new SimpleFileVisitor<Path>()

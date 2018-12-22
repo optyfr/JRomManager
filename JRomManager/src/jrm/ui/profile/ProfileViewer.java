@@ -78,6 +78,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
@@ -636,7 +637,7 @@ public class ProfileViewer extends JDialog
 												rompaths.add(profile.getProperty("disks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 											if (profile.getProperty("swdisks_dest_dir_enabled", false)) //$NON-NLS-1$
 												rompaths.add(profile.getProperty("swdisks_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
-											System.out.println(((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility); //$NON-NLS-1$
+											Log.debug(()->((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility); //$NON-NLS-1$
 											JList<Machine> machines = new JList<Machine>(profile.machinelist_list.getSortedMachines(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility).toArray(new Machine[0]));
 											machines.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 											if (machines.getModel().getSize() > 0)
@@ -645,20 +646,20 @@ public class ProfileViewer extends JDialog
 											final Machine machine = machines.getSelectedValue();
 											if (machine != null)
 											{
-												String device = ""; //$NON-NLS-1$
+												StringBuffer device = new StringBuffer(); //$NON-NLS-1$
 												for(Device dev : machine.devices)
 												{
 													if(Objects.equals(((Software) ware).parts.get(0).intrface,dev.intrface))
 													{
 														if(dev.instance!=null)
 														{
-															device =  "-" + dev.instance.name; //$NON-NLS-1$
+															device.append("-" + dev.instance.name); //$NON-NLS-1$
 															break;
 														}
 													}
 												}
-												System.out.println("-> " + machine.getBaseName() + " " + device + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), device, ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+												Log.debug(()->"-> " + machine.getBaseName() + " " + device + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+												args = new String[] { mame.getFile().getAbsolutePath(), machine.getBaseName(), device.toString(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 											}
 										}
 										else
@@ -783,7 +784,7 @@ public class ProfileViewer extends JDialog
 		}
 		catch (final DecoderException e1)
 		{
-			e1.printStackTrace();
+			Log.err(e1.getMessage(),e1);
 		}
 		setVisible(true);
 	}

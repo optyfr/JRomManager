@@ -26,6 +26,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
+import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.fix.actions.BackupContainer;
 import jrm.profile.fix.actions.ContainerAction;
@@ -87,7 +88,7 @@ public class Fix
 				catch (final Throwable e)
 				{
 					// oups! something unexpected happened
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			});
 			// close all open FS from backup (if the last actions was backup)
@@ -104,7 +105,7 @@ public class Fix
 		curr_profile.nfo.stats.fixed = new Date();
 		
 		// output to console timing information
-		System.out.println("Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
+		Log.info(()->"Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
 	}
 
 	/**

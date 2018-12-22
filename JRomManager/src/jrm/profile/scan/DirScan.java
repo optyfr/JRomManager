@@ -140,7 +140,7 @@ public final class DirScan
 			}
 			catch(final Exception e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		}
 	}
@@ -413,7 +413,7 @@ public final class DirScan
 				}
 				catch(final IOException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 
 			});
@@ -969,7 +969,7 @@ public final class DirScan
 			}
 			catch (NoSuchAlgorithmException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		}
 		else
@@ -1000,7 +1000,7 @@ public final class DirScan
 		catch(final Exception e)
 		{
 			System.err.println(entry_path);
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		return md;
 	}

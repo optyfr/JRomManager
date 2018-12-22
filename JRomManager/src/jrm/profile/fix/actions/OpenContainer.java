@@ -35,6 +35,7 @@ import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
@@ -106,7 +107,7 @@ public class OpenContainer extends ContainerAction
 				}
 				catch (final Throwable e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 			else if (format == FormatOptions.ZIPE)
@@ -127,7 +128,7 @@ public class OpenContainer extends ContainerAction
 				}
 				catch (final Throwable e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 		}
@@ -149,7 +150,7 @@ public class OpenContainer extends ContainerAction
 			}
 			catch (final Throwable e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		}
 		else if (container.getType() == Container.Type.DIR)
@@ -220,7 +221,7 @@ public class OpenContainer extends ContainerAction
 		}
 		catch (final IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		return totalSize;
 	}

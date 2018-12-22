@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.io.FileUtils;
 
+import jrm.misc.Log;
 import jrm.server.datasources.XMLRequest.Operation;
 import jrm.ui.profile.manager.DirNode;
 
@@ -103,9 +104,8 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	protected void update(Operation operation) throws Exception
 	{
 		Integer ID = Integer.valueOf(operation.getData("ID"));
-		System.out.println(ID);
 		Path path = request.session.tmp_profile_lst.get(ID);
-		System.out.println(path);
+		Log.debug(path);
 		String title = operation.getData("title");
 		path = Files.move(path, path.getParent().resolve(title));
 		request.session.tmp_profile_lst.put(ID, path);

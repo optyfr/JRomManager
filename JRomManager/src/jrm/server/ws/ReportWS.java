@@ -7,6 +7,7 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonObject.Member;
 
+import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
 
@@ -59,7 +60,7 @@ public class ReportWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 }

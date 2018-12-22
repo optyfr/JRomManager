@@ -23,6 +23,7 @@ import java.nio.file.StandardCopyOption;
 
 import jrm.compressors.Archive;
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.data.Entry;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
@@ -66,7 +67,7 @@ public class DuplicateEntry extends EntryAction
 		}
 		catch(final Throwable e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 			System.err.println("duplicate " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;

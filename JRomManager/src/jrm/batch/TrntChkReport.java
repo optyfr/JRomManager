@@ -22,6 +22,7 @@ import java.util.zip.CRC32;
 import javax.swing.tree.TreeNode;
 
 import jrm.misc.HTMLRenderer;
+import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Subject;
 import jrm.security.Session;
@@ -293,7 +294,7 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 		}
 		catch (final Throwable e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 			// may fail to load because serialized classes did change since last cache save 
 		}
 		return null;

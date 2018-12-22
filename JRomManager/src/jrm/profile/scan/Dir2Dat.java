@@ -21,6 +21,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.data.*;
 import jrm.profile.data.Entry.Type;
 import jrm.profile.manager.Export;
@@ -341,7 +342,7 @@ public class Dir2Dat
 		catch(FactoryConfigurationError | XMLStreamException | IOException e)
 		{
 			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 	

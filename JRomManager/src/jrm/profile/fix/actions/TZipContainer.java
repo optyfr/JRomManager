@@ -24,6 +24,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import JTrrntzip.SimpleTorrentZipOptions;
 import JTrrntzip.TorrentZip;
 import JTrrntzip.TrrntZipStatus;
+import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
@@ -70,7 +71,7 @@ public class TZipContainer extends ContainerAction
 				catch(/*InterruptedException |*/ final IOException e)
 				{
 					System.err.println(container.file);
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 				handler.setProgress(""); //$NON-NLS-1$
 			}

@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import jrm.misc.FindCmd;
+import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressNarchiveCallBack;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
@@ -111,7 +112,7 @@ public class SevenZipArchive implements Archive
 				}
 				catch(final InterruptedException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 				FileUtils.deleteDirectory(tempDir);
 				if(err != 0)
@@ -166,7 +167,7 @@ public class SevenZipArchive implements Archive
 			}
 			catch(final InterruptedException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		}
 		return -1;

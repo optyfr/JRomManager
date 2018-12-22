@@ -22,6 +22,7 @@ import org.apache.commons.io.FilenameUtils;
 import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
@@ -344,7 +345,7 @@ public class BatchDirUpd8rPanel extends JPanel
 					}
 					catch (IOException e1)
 					{
-						e1.printStackTrace();
+						Log.err(e1.getMessage(),e1);
 					}
 				}
 			}
@@ -382,7 +383,7 @@ public class BatchDirUpd8rPanel extends JPanel
 					}
 					catch (IOException e1)
 					{
-						e1.printStackTrace();
+						Log.err(e1.getMessage(),e1);
 					}
 				}
 			}
@@ -412,7 +413,7 @@ public class BatchDirUpd8rPanel extends JPanel
 					}
 					catch (IOException e1)
 					{
-						e1.printStackTrace();
+						Log.err(e1.getMessage(),e1);
 					}
 				}
 			}

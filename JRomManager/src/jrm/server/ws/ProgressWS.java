@@ -8,6 +8,7 @@ import java.util.Map;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 
+import jrm.misc.Log;
 import jrm.ui.progress.ProgressHandler;
 import jrm.ui.progress.ProgressInputStream;
 
@@ -45,7 +46,7 @@ public class ProgressWS implements ProgressHandler
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -86,7 +87,7 @@ public class ProgressWS implements ProgressHandler
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -110,7 +111,7 @@ public class ProgressWS implements ProgressHandler
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -211,7 +212,7 @@ public class ProgressWS implements ProgressHandler
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		
 	}
@@ -258,7 +259,7 @@ public class ProgressWS implements ProgressHandler
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -302,7 +303,7 @@ public class ProgressWS implements ProgressHandler
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 

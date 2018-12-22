@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import jrm.misc.Log;
 import jrm.profile.Profile;
 
 public class CatVerWS
@@ -42,7 +43,7 @@ public class CatVerWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 }

@@ -32,6 +32,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.ui.profile.ProfileViewer;
 
 // TODO: Auto-generated Javadoc
@@ -216,7 +217,7 @@ public class KeywordFilter extends JDialog
 			}
 			catch (UnsupportedFlavorException | IOException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 			return success;
 		}
@@ -274,7 +275,7 @@ public class KeywordFilter extends JDialog
 				}
 				catch (UnsupportedFlavorException | IOException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 		}

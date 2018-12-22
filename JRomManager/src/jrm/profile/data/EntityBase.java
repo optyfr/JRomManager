@@ -19,6 +19,8 @@ package jrm.profile.data;
 import java.io.*;
 import java.lang.reflect.Field;
 
+import jrm.misc.Log;
+
 /**
  * The abstract base class for {@link Entity} and {@link Sample}, main purpose is to define parent relationship and scan status
  * @author optyfr
@@ -111,7 +113,7 @@ public abstract class EntityBase extends NameBase implements Serializable
 		}
 		catch (SecurityException | IllegalArgumentException | IllegalAccessException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		return null;
 	}

@@ -17,9 +17,20 @@
 package jrm;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.Log;
@@ -38,21 +49,48 @@ public final class JRomManager
 {
 	public static void main(final String[] args)
 	{
+		System.setProperty("file.encoding", "UTF-8");
 		Sessions.single_mode = true;
-		boolean multiuser = false, noupdate = false;
-		for(int i = 0; i < args.length; i++)
+		boolean multiuser = false, noupdate = false, debug = false;
+		Options options = new Options();
+		options.addOption(new Option("m", "multiuser", false, "Multi-user mode"));
+		options.addOption(new Option("n", "noupdate", false, "Don't search for update"));
+		options.addOption(new Option("d", "debug", false, "Activate debug mode"));
+		try
 		{
-			switch(args[i])
-			{
-				case "--multiuser":	// will write settings, cache and dat into home directory instead of app directory //$NON-NLS-1$
-					multiuser = true;
-					break;
-				case "--noupdate":	// will disable update check //$NON-NLS-1$
-					noupdate = true;
-					break;
-			}
+			CommandLine cmd = new DefaultParser().parse(options, args);
+			if(cmd.hasOption('m'))
+				multiuser = true;
+			if(cmd.hasOption('n'))
+				noupdate = true;
+			if(cmd.hasOption('d'))
+				debug = true;
+		}
+		catch (ParseException e)
+		{
+			Log.err(e.getMessage(),e);
+			new HelpFormatter().printHelp("JRomManager", options);
+			System.exit(1);
 		}
 		Session session  = Sessions.getSession(multiuser,noupdate);
+		try
+		{
+			FileHandler filehandler = new FileHandler(session.getUser().settings.getLogPath() + "/JRM.%g.log", 1024 * 1024, 5, false);
+			filehandler.setFormatter(Log.formatter);
+			Logger.getGlobal().addHandler(filehandler);
+			if(debug)
+			{
+				ConsoleHandler consolehandler = new ConsoleHandler();
+				consolehandler.setLevel(Level.FINE);
+				consolehandler.setFormatter(Log.formatter);
+				Logger.getGlobal().addHandler(consolehandler);
+				Logger.getGlobal().setLevel(Level.FINE);
+			}
+		}
+		catch (SecurityException | IOException e)
+		{
+			e.printStackTrace();
+		}
 		if (JRomManager.lockInstance(session, FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
 			if(!session.noupdate)

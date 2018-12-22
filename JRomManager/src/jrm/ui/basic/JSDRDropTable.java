@@ -18,6 +18,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 
+import jrm.misc.Log;
+
 @SuppressWarnings("serial")
 public class JSDRDropTable extends JTable implements DropTargetListener, ResultColUpdater
 {
@@ -200,7 +202,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 		}
 		catch (final Exception e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 			dtde.rejectDrop();
 		}
 	}

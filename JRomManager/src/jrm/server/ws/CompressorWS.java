@@ -14,6 +14,7 @@ import jrm.batch.Compressor;
 import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
 import jrm.misc.BreakException;
+import jrm.misc.Log;
 import jrm.server.WebSession;
 import one.util.streamex.StreamEx;
 
@@ -132,7 +133,7 @@ public class CompressorWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -154,7 +155,7 @@ public class CompressorWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -172,7 +173,7 @@ public class CompressorWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -190,7 +191,7 @@ public class CompressorWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 

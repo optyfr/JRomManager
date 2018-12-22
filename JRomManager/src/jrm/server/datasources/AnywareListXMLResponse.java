@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
+import jrm.misc.Log;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
 import jrm.profile.data.Machine;
@@ -135,7 +136,7 @@ public class AnywareListXMLResponse extends XMLResponse
 		}
 		catch (XMLStreamException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 	

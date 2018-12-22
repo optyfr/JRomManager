@@ -68,7 +68,7 @@ public class Import
 			catch(DOMException | ParserConfigurationException | TransformerException | IOException e)
 			{
 				JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		}
 		else

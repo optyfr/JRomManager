@@ -9,6 +9,7 @@ import java.util.HashMap;
 import com.eclipsesource.json.JsonObject;
 
 import jrm.misc.BreakException;
+import jrm.misc.Log;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.scan.Dir2Dat;
 import jrm.profile.scan.DirScan;
@@ -94,7 +95,7 @@ public class Dir2DatWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 

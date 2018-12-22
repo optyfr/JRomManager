@@ -794,7 +794,6 @@ public class Scan
 	private boolean scanRoms(final Anyware ware, final List<Rom> roms, final Container archive, final SubjectSet report_subject)
 	{
 		boolean missing_set = true;
-		final boolean debug = false;
 		final Container container;
 		if (null != (container = roms_dstscan.getContainerByName(ware.getDest().getNormalizedName() + format.getExt())))
 		{	// found container
@@ -846,27 +845,22 @@ public class Scan
 						for (final Entry candidate_entry : entries)
 						{
 							final String efile = candidate_entry.getName();
-							if (debug)
-								System.out.println("The entry " + efile + " match hash from rom " + rom.getNormalizedName());
+							Log.debug(()->"The entry " + efile + " match hash from rom " + rom.getNormalizedName());
 							if (!rom.getNormalizedName().equals(efile)) // but this entry name does not match the rom name
 							{
-								if (debug)
-									System.out.println("\tbut this entry name does not match the rom name");
+								Log.debug(()->"\tbut this entry name does not match the rom name");
 								final Rom another_rom;
 								if (null != (another_rom = roms_byname.get(efile)) && candidate_entry.equals(another_rom))
 								{
-									if (debug)
-										System.out.println("\t\t\tand the entry " + efile + " is ANOTHER the rom");
+									Log.debug(()->"\t\t\tand the entry " + efile + " is ANOTHER the rom");
 									if (entries_byname.containsKey(rom.getNormalizedName())) // and rom name is in the entries
 									{
-										if (debug)
-											System.out.println("\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entries_byname");
+										Log.debug(()->"\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entries_byname");
 										// report_w.println("[" + m.name + "] " + r.getName() + " == " + e.file);
 									}
 									else
 									{
-										if (debug)
-											System.out.println("\\t\\t\\t\\twe must duplicate rom " + rom.getNormalizedName() + " to ");
+										Log.debug(()->"\\t\\t\\t\\twe must duplicate rom " + rom.getNormalizedName() + " to ");
 										// we must duplicate
 										report_subject.add(new EntryMissingDuplicate(rom, candidate_entry));
 										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
@@ -878,22 +872,23 @@ public class Scan
 								{
 									if (another_rom == null)
 									{
-										if (debug)
+										Log.debug(()->
 										{
-											System.out.println("\t" + efile + " in roms_byname not found");
-											roms_byname.forEach((k, v) -> System.out.println("\troms_byname: " + k));
-										}
+											final StringBuffer str = new StringBuffer("\t" + efile + " in roms_byname not found");
+											roms_byname.forEach((k, v) -> str.append("\troms_byname: " + k));
+											return str.toString();
+										});
 									}
-									else if (debug)
-										System.out.println("\t" + efile + " in roms_byname found but does not match hash");
+									else Log.debug(()->"\t" + efile + " in roms_byname found but does not match hash");
 
 									if (!entries_byname.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
 									{
-										if (debug)
+										Log.debug(()->
 										{
-											System.out.println("\t\tand rom " + rom.getNormalizedName() + " is NOT in the entries_byname");
-											entries_byname.forEach((k, v) -> System.out.println("\t\tentries_byname: " + k));
-										}
+											final StringBuffer str = new StringBuffer("\t\tand rom " + rom.getNormalizedName() + " is NOT in the entries_byname");
+											entries_byname.forEach((k, v) -> str.append("\t\tentries_byname: " + k));
+											return str.toString();
+										});
 
 										report_subject.add(new EntryWrongName(rom, candidate_entry));
 										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
@@ -904,14 +899,12 @@ public class Scan
 										found_entry = candidate_entry;
 										break;
 									}
-									else if (debug)
-										System.out.println("\t\tand rom " + rom.getNormalizedName() + " is in the entries_byname");
+									else Log.debug(()->"\t\tand rom " + rom.getNormalizedName() + " is in the entries_byname");
 								}
 							}
 							else
 							{
-								if (debug)
-									System.out.println("\tThe entry " + efile + " match hash and name for rom " + rom.getNormalizedName());
+								Log.debug(()->"\tThe entry " + efile + " match hash and name for rom " + rom.getNormalizedName());
 								found_entry = candidate_entry;
 								break;
 							}
@@ -923,7 +916,7 @@ public class Scan
 						if((candidate_entry = entries_byname.get(rom.getNormalizedName()))!=null)
 						{
 							final String efile = candidate_entry.getName();
-							if(debug) System.out.println("\tOups! we got wrong hash in "+efile+" for "+rom.getNormalizedName());
+							Log.debug(()->"\tOups! we got wrong hash in "+efile+" for "+rom.getNormalizedName());
 							//report_subject.add(new EntryWrongHash(rom, candidate_entry));
 							wrong_hash = candidate_entry;
 						}
@@ -935,22 +928,22 @@ public class Scan
 						final String efile = candidate_entry.getName();
 						if (candidate_entry.equals(rom)) // The entry 'candidate_entry' match hash from 'rom'
 						{
-							if(debug) System.out.println("The entry "+efile+" match hash from rom "+rom.getNormalizedName());
+							Log.debug(()->"The entry "+efile+" match hash from rom "+rom.getNormalizedName());
 							if (!rom.getNormalizedName().equals(efile)) // but this entry name does not match the rom name
 							{
-								if(debug) System.out.println("\tbut this entry name does not match the rom name");
+								Log.debug(()->"\tbut this entry name does not match the rom name");
 								final Rom another_rom;
 								if (null != (another_rom = roms_byname.get(efile)) && candidate_entry.equals(another_rom))
 								{
-									if(debug) System.out.println("\t\t\tand the entry "+efile+" is ANOTHER the rom");
+									Log.debug(()->"\t\t\tand the entry "+efile+" is ANOTHER the rom");
 									if (entries_byname.containsKey(rom.getNormalizedName())) // and rom name is in the entries
 									{
-										if(debug) System.out.println("\t\t\t\tand rom "+rom.getNormalizedName()+" is in the entries_byname");
+										Log.debug(()->"\t\t\t\tand rom "+rom.getNormalizedName()+" is in the entries_byname");
 										// report_w.println("[" + m.name + "] " + r.getName() + " == " + e.file);
 									}
 									else
 									{
-										if(debug) System.out.println("\\t\\t\\t\\twe must duplicate rom "+rom.getNormalizedName()+" to ");
+										Log.debug(()->"\\t\\t\\t\\twe must duplicate rom "+rom.getNormalizedName()+" to ");
 										// we must duplicate
 										report_subject.add(new EntryMissingDuplicate(rom, candidate_entry));
 										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
@@ -962,18 +955,21 @@ public class Scan
 								{
 									if(another_rom==null)
 									{
-										if(debug) System.out.println("\t"+efile+" in roms_byname not found");
-										roms_byname.forEach((k,v)->System.out.println("\troms_byname: "+k));
+										Log.debug(()->{
+											StringBuffer str = new StringBuffer("\t"+efile+" in roms_byname not found");
+											roms_byname.forEach((k,v)->str.append("\troms_byname: "+k));
+											return str.toString();
+										}
 									}
 									else
-										if(debug) System.out.println("\t"+efile+" in roms_byname found but does not match hash");
+										Log.debug(()->"\t"+efile+" in roms_byname found but does not match hash");
 									
 									if (!entries_byname.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
 									{
-										if(debug) 
-										{
-											System.out.println("\t\tand rom "+rom.getNormalizedName()+" is NOT in the entries_byname");
-											entries_byname.forEach((k,v)->System.out.println("\t\tentries_byname: "+k));
+										Log.debug(()->{
+											StringBuffer str = new StringBuffer("\t\tand rom "+rom.getNormalizedName()+" is NOT in the entries_byname");
+											entries_byname.forEach((k,v)->str.append("\t\tentries_byname: "+k));
+											return str;
 										}
 										
 										report_subject.add(new EntryWrongName(rom, candidate_entry));
@@ -986,26 +982,26 @@ public class Scan
 										break;
 									}
 									else
-										if(debug) System.out.println("\t\tand rom "+rom.getNormalizedName()+" is in the entries_byname");
+										Log.debug(()->"\t\tand rom "+rom.getNormalizedName()+" is in the entries_byname");
 								}
 							}
 							else
 							{
-								if(debug) System.out.println("\tThe entry "+efile+" match hash and name for rom "+rom.getNormalizedName());
+								Log.debug(()->"\tThe entry "+efile+" match hash and name for rom "+rom.getNormalizedName());
 								found_entry = candidate_entry;
 								break;
 							}
 						}
 						else if (rom.getNormalizedName().equals(efile))	// oups! we got a wrong rom hash
 						{
-							if(debug) System.out.println("\tOups! we got wrong hash in "+efile+" for "+rom.getNormalizedName());
+							Log.debug(()->"\tOups! we got wrong hash in "+efile+" for "+rom.getNormalizedName());
 							//report_subject.add(new EntryWrongHash(rom, candidate_entry));
 							wrong_hash = candidate_entry;
 							break;
 						}
 						else
 						{
-//							System.out.println("\tnot found");
+//							Log.debug(()->"\tnot found");
 						}
 					}
 */

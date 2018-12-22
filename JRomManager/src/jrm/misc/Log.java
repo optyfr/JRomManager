@@ -16,8 +16,13 @@
  */
 package jrm.misc;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Date;
+import java.util.function.Supplier;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 /**
@@ -27,28 +32,137 @@ import java.util.logging.Logger;
  */
 public class Log
 {
+	static class Formatter extends java.util.logging.Formatter
+	{
+		@Override
+		public String format(LogRecord record)
+		{
+			Date dat = new Date();
+			dat.setTime(record.getMillis());
+			String message = formatMessage(record);
+			String throwable = "";
+			if (record.getThrown() != null)
+			{
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				pw.println();
+				record.getThrown().printStackTrace(pw);
+				pw.close();
+				throwable = sw.toString();
+			}
+			return String.format("[%1$tF %1$tT] [%2$s] %3$s%4$s%n", dat, record.getLevel().getName(), message, throwable);
+		}
+	}
+
+	public final static Formatter formatter = new Formatter();
+	
 	public Log()
 	{
 		Logger.getGlobal().addHandler(new ConsoleHandler());
 	}
 
-	public static void info(final String msg)
+	public static void info(final Object msg)
 	{
-		Logger.getGlobal().info(msg);
+		if(msg==null)
+			return;
+		if(msg instanceof String)
+			Logger.getGlobal().info((String)msg);
+		else
+			Logger.getGlobal().info(msg.toString());
 	}
 
-	public static void warn(final String msg)
+	public static void info(Supplier<String> msgSupplier)
 	{
-		Logger.getGlobal().warning(msg);
+		Logger.getGlobal().info(msgSupplier);
 	}
 
-	public static void err(final String msg)
+	public static void warn(final Object msg)
 	{
-		Logger.getGlobal().severe(msg);
+		if(msg==null)
+			return;
+		if(msg instanceof String)
+			Logger.getGlobal().warning((String)msg);
+		else
+			Logger.getGlobal().warning(msg.toString());
+	}
+
+	public static void warn(Supplier<String> msgSupplier)
+	{
+		Logger.getGlobal().warning(msgSupplier);
+	}
+
+	public static void err(final Object msg)
+	{
+		if(msg==null)
+			return;
+		if(msg instanceof String)
+			Logger.getGlobal().severe((String)msg);
+		else
+			Logger.getGlobal().severe(msg.toString());
+	}
+
+	public static void err(Supplier<String> msgSupplier)
+	{
+		Logger.getGlobal().severe(msgSupplier);
 	}
 
 	public static void err(final String msg, final Throwable e)
 	{
 		Logger.getGlobal().log(Level.SEVERE, msg, e);
+	}
+	
+	public static void err(final Supplier<String> msgSupplier, final Throwable e)
+	{
+		Logger.getGlobal().log(Level.SEVERE, e, msgSupplier);
+	}
+	
+	public static void debug(final Object msg)
+	{
+		if(msg==null)
+			return;
+		if(msg instanceof String)
+			Logger.getGlobal().fine((String)msg);
+		else
+			Logger.getGlobal().fine(msg.toString());
+	}
+	
+	public static void debug(Supplier<String> msgSupplier)
+	{
+		Logger.getGlobal().fine(msgSupplier);
+	}
+	
+	public static void trace(final Object msg)
+	{
+		if(msg==null)
+			return;
+		if(msg instanceof String)
+			Logger.getGlobal().finest((String)msg);
+		else
+			Logger.getGlobal().finest(msg.toString());
+	}
+	
+	public static void trace(Supplier<String> msgSupplier)
+	{
+		Logger.getGlobal().finest(msgSupplier);
+	}
+	
+	public static void config(final Object msg)
+	{
+		if(msg==null)
+			return;
+		if(msg instanceof String)
+			Logger.getGlobal().config((String)msg);
+		else
+			Logger.getGlobal().config(msg.toString());
+	}
+	
+	public static void config(Supplier<String> msgSupplier)
+	{
+		Logger.getGlobal().config(msgSupplier);
+	}
+	
+	public static void throwing(String sourceClass, String sourceMethod, Throwable thrown)
+	{
+		Logger.getGlobal().throwing(sourceClass, sourceMethod, thrown);
 	}
 }

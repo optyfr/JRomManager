@@ -43,6 +43,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.manager.Dir;
 import jrm.profile.manager.Import;
 import jrm.profile.manager.ProfileNFO;
@@ -277,7 +278,7 @@ public class ProfilePanel extends JPanel
 				}
 				catch (final Exception e1)
 				{
-					e1.printStackTrace();
+					Log.err(e1.getMessage(),e1);
 				}
 			}
 		});
@@ -432,7 +433,7 @@ public class ProfilePanel extends JPanel
 									}
 									catch (IOException e)
 									{
-										e.printStackTrace();
+										Log.err(e.getMessage(),e);
 									}
 								}
 							}
@@ -482,7 +483,7 @@ public class ProfilePanel extends JPanel
 										}
 										catch (final IOException e)
 										{
-											e.printStackTrace();
+											Log.err(e.getMessage(),e);
 										}
 										return null;
 									});

@@ -12,6 +12,7 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.server.Server;
 import jrm.server.SessionStub;
 import jrm.server.WebSession;
@@ -55,11 +56,11 @@ public class SessionHandler extends DefaultHandler
 			String oldsession = session.getCookies().read("session");
 			if(oldsession!=null)
 			{
-				System.out.println("session:"+oldsession);
+				Log.info("session:"+oldsession);
 				WebSession sess;
 				if((sess=Server.getSession(oldsession))!=null)
 				{
-					System.out.println("reusing session:"+oldsession);
+					Log.info("reusing session:"+oldsession);
 					sessionid = oldsession;
 					sessionStub.setSession(sess);
 				}

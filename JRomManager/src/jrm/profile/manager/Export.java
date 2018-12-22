@@ -25,6 +25,7 @@ import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
+import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.data.SoftwareList;
 import jrm.ui.progress.ProgressHandler;
@@ -88,7 +89,7 @@ public class Export
 		catch(FactoryConfigurationError | XMLStreamException | IOException e)
 		{
 			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 

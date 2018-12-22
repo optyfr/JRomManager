@@ -20,6 +20,7 @@ import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
+import jrm.misc.Log;
 
 public class UploadHandler extends DefaultHandler
 {
@@ -93,7 +94,7 @@ public class UploadHandler extends DefaultHandler
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 			return new Error500UriHandler(e).get(uriResource, urlParams, session);
 		}
 	}

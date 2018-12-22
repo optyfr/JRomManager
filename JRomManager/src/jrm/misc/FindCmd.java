@@ -50,7 +50,7 @@ public class FindCmd
 		}
 		catch (IOException | InterruptedException exp)
 		{
-			exp.printStackTrace();
+			Log.err(exp.getMessage(),exp);
 		}
 		return cmd;
 

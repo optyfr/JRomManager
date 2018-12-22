@@ -31,6 +31,7 @@ import javax.swing.tree.TreeNode;
 
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
+import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.security.Session;
@@ -472,11 +473,11 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		}
 		catch(final FileNotFoundException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		catch(final IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 
 	}

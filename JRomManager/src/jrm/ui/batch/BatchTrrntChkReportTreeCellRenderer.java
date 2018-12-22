@@ -23,6 +23,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import jrm.batch.TrntChkReport.Node;
+import jrm.misc.Log;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -121,7 +122,7 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 		}
 		catch(Throwable e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		return this;
 	}

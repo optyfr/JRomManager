@@ -9,6 +9,7 @@ import com.eclipsesource.json.JsonObject;
 import jrm.batch.TorrentChecker;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.BreakException;
+import jrm.misc.Log;
 import jrm.server.WebSession;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SrcDstResult;
@@ -58,7 +59,7 @@ public class TrntChkWS
 				}
 				catch (IOException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 			catch(BreakException e)
@@ -95,7 +96,7 @@ public class TrntChkWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -113,7 +114,7 @@ public class TrntChkWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -131,7 +132,7 @@ public class TrntChkWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 

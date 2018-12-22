@@ -14,6 +14,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import jrm.misc.Log;
 import jrm.server.TempFileInputStream;
 import jrm.server.WebSession;
 import jrm.server.datasources.XMLRequest.Operation.Sorter;
@@ -239,7 +240,7 @@ public class XMLRequest
 		}
 		catch (ParserConfigurationException | SAXException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 

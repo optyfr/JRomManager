@@ -33,6 +33,7 @@ import org.apache.commons.io.FileUtils;
 
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.misc.FindCmd;
+import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressNarchiveCallBack;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
@@ -128,7 +129,7 @@ public class ZipArchive implements Archive
 				}
 				catch(final InterruptedException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 				FileUtils.deleteDirectory(tempDir);
 				if(err != 0)
@@ -185,7 +186,7 @@ public class ZipArchive implements Archive
 				}
 				catch(final InterruptedException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 		}
@@ -302,7 +303,7 @@ public class ZipArchive implements Archive
 		}
 		catch(IOException ex)
 		{
-			ex.printStackTrace();
+			Log.err(ex.getMessage(),ex);
 		}
 		return -1;
 	}
@@ -343,7 +344,7 @@ public class ZipArchive implements Archive
 		}
 		catch(IOException ex)
 		{
-			ex.printStackTrace();
+			Log.err(ex.getMessage(),ex);
 		}
 		return -1;
 	}

@@ -65,7 +65,7 @@ public class GlobalSettings extends Settings
 				}
 				catch (IOException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 			return work;
@@ -81,7 +81,7 @@ public class GlobalSettings extends Settings
 				}
 				catch (IOException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 			return work;
@@ -102,7 +102,25 @@ public class GlobalSettings extends Settings
 		}
 		return new File(parent, name + ext); 
 	}
-	
+
+	public String getLogPath()
+	{
+		Path path = getWorkPath().resolve("logs");
+		if (!Files.exists(path))
+		{
+			try
+			{
+				Files.createDirectories(path);
+			}
+			catch (IOException e)
+			{
+				Log.err(e.getMessage(),e);
+			}
+		}
+		return path.toString();
+	}
+
+
 	/**
 	 * get the temporary path 
 	 * @param local if local is true, then a "tmp" dir is created into current workpath (multiuser) or a subdir from default temp dir (not multiuser). If local is false, the default system temporary path is directly returned 
@@ -120,7 +138,7 @@ public class GlobalSettings extends Settings
 				}
 				catch (IOException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(),e);
 				}
 			}
 			try
@@ -129,7 +147,7 @@ public class GlobalSettings extends Settings
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		}
 		return Paths.get(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$

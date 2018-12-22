@@ -33,6 +33,7 @@ import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
+import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.ui.basic.EnhTableModel;
 import jrm.ui.basic.JRMFileChooser;
@@ -347,7 +348,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 			}
 			catch (final Exception e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 				dtde.rejectDrop();
 			}
 		}
@@ -441,7 +442,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 									}
 									catch (IOException e)
 									{
-										e.printStackTrace();
+										Log.err(e.getMessage(),e);
 									}
 								}
 								else

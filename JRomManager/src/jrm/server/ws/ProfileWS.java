@@ -12,6 +12,7 @@ import com.eclipsesource.json.JsonObject.Member;
 import com.eclipsesource.json.JsonValue;
 
 import jrm.misc.BreakException;
+import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
@@ -142,7 +143,7 @@ public class ProfileWS
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 	
@@ -185,7 +186,7 @@ public class ProfileWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -209,7 +210,7 @@ public class ProfileWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 	
@@ -232,7 +233,7 @@ public class ProfileWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 }

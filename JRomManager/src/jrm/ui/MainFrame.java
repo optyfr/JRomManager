@@ -35,6 +35,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.ui.batch.BatchPanel;
 import jrm.ui.profile.ProfileViewer;
@@ -89,7 +90,7 @@ public class MainFrame extends JFrame
 		catch (final Exception e)
 		{
 			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		build();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -151,7 +152,7 @@ public class MainFrame extends JFrame
 		}
 		catch (final DecoderException e1)
 		{
-			e1.printStackTrace();
+			Log.err(e1.getMessage(),e1);
 		}
 
 	}

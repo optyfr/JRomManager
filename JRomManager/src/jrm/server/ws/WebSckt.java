@@ -16,6 +16,7 @@ import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
+import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.server.Server;
 import jrm.server.SessionStub;
@@ -34,7 +35,7 @@ public class WebSckt extends WebSocket implements SessionStub
 		super(handshakeRequest);
 //		this.server = server;
 		setSession(Server.getSession(handshakeRequest.getCookies().read("session")));
-		System.out.println("websocket created for session "+session);
+		Log.info("websocket created for session "+session);
 	}
 
 	public static WebSckt get(Session session)
@@ -144,21 +145,21 @@ public class WebSckt extends WebSocket implements SessionStub
 		catch (Exception e)
 		{
 			System.err.println(messageFrame.getTextPayload());
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
 	@Override
 	protected void onClose(CloseCode code, String reason, boolean initiatedByRemote)
 	{
-		System.out.println("websocket close for session "+sessionid);
+		Log.info("websocket close for session "+sessionid);
 		try
 		{
 			pingService.close();
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		if(session!=null)
 			unsetSession(session);
@@ -173,7 +174,7 @@ public class WebSckt extends WebSocket implements SessionStub
 	@Override
 	protected void onOpen()
 	{
-		System.out.println("websocket opened for session "+sessionid);
+		Log.info("websocket opened for session "+sessionid);
 		pingService = new PingService();
 		if(session.curr_profile!=null)
 		{
@@ -213,7 +214,7 @@ public class WebSckt extends WebSocket implements SessionStub
 			try
 			{
 				WebSckt.this.ping(PAYLOAD);
-			//	System.out.println("sent ping");
+				Log.trace("sent ping");
 				ping++;
 				if (ping - pong > 3)
 					WebSckt.this.close(CloseCode.GoingAway, "Missed too many ping requests.", false);
@@ -225,7 +226,7 @@ public class WebSckt extends WebSocket implements SessionStub
 
 		private void pong()
 		{
-		//	System.out.println("rec pong");
+			Log.trace("rec pong");
 			pong++;
 		}
 

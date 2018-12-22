@@ -2,6 +2,7 @@ package jrm.server.datasources;
 
 import javax.xml.stream.XMLStreamException;
 
+import jrm.misc.Log;
 import jrm.profile.data.AnywareList;
 import jrm.profile.data.MachineList;
 import jrm.profile.data.MachineListList;
@@ -39,7 +40,7 @@ public class AnywareListListXMLResponse extends XMLResponse
 			}
 			catch (XMLStreamException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		});
 		writer.writeEndElement();

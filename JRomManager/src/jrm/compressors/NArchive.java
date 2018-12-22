@@ -29,6 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.GlobalSettings;
+import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressNarchiveCallBack;
 import net.sf.sevenzipjbinding.*;
@@ -221,7 +222,7 @@ abstract class NArchive implements Archive
 				{
 					/*
 					 * System.out.println("setOperationResult "+curr_index); try { if (curr_index >= 0) { if (rafs.containsKey(-1)) rafs.remove(curr_index).close(); if (tmpfiles.containsKey(curr_index)) tmpfiles.remove(curr_index).delete();
-					 * curr_index = -1; } } catch (IOException e) { e.printStackTrace(); }
+					 * curr_index = -1; } } catch (IOException e) { Log.err(e.getMessage(),e); }
 					 */
 				}
 
@@ -240,11 +241,11 @@ abstract class NArchive implements Archive
 						}
 						catch(final FileNotFoundException e)
 						{
-							e.printStackTrace();
+							Log.err(e.getMessage(),e);
 						}
 						catch(final IOException e)
 						{
-							e.printStackTrace();
+							Log.err(e.getMessage(),e);
 						}
 					}
 					if(index + idx_to_delete.size() - old_tot - to_add.size() < to_duplicate.size())
@@ -308,7 +309,7 @@ abstract class NArchive implements Archive
 						}
 						catch(final IOException e)
 						{
-							e.printStackTrace();
+							Log.err(e.getMessage(),e);
 						}
 					}
 					return null;
@@ -342,7 +343,7 @@ abstract class NArchive implements Archive
 								}
 								catch(final IOException e)
 								{
-									e.printStackTrace();
+									Log.err(e.getMessage(),e);
 								}
 								item.setUpdateIsNewData(true);
 								item.setUpdateIsNewProperties(true);
@@ -428,7 +429,7 @@ abstract class NArchive implements Archive
 		}
 		catch(final Exception e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -558,7 +559,7 @@ abstract class NArchive implements Archive
 						}
 						catch (IOException e)
 						{
-							e.printStackTrace();
+							Log.err(e.getMessage(),e);
 						}
 					}
 				}
@@ -582,7 +583,7 @@ abstract class NArchive implements Archive
 							}
 							catch (IOException e)
 							{
-								e.printStackTrace();
+								Log.err(e.getMessage(),e);
 							}
 							return 0;
 						}

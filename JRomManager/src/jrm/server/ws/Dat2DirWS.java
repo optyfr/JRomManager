@@ -13,6 +13,7 @@ import com.eclipsesource.json.JsonObject;
 import jrm.batch.DirUpdater;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
+import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
 import jrm.server.WebSession;
 import jrm.ui.basic.ResultColUpdater;
@@ -105,7 +106,7 @@ public class Dat2DirWS
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		}
 	}
@@ -129,7 +130,7 @@ public class Dat2DirWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -147,7 +148,7 @@ public class Dat2DirWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 
@@ -165,7 +166,7 @@ public class Dat2DirWS
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 	}
 

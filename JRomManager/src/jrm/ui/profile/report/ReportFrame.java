@@ -30,6 +30,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
 import jrm.ui.progress.StatusHandler;
@@ -107,7 +108,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 		}
 		catch(final DecoderException e1)
 		{
-			e1.printStackTrace();
+			Log.err(e1.getMessage(),e1);
 		}
 	}
 

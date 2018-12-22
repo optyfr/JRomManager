@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.zip.CRC32;
 
 import jrm.compressors.zipfs.ZipFileSystemProvider;
+import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
 import jrm.profile.scan.options.FormatOptions;
@@ -108,7 +109,7 @@ public class BackupContainer extends ContainerAction
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		});
 		filesystems.clear();
@@ -140,7 +141,7 @@ public class BackupContainer extends ContainerAction
 		}
 		catch (final Throwable e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(),e);
 		}
 		return false;
 	}

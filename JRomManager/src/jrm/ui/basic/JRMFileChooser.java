@@ -27,6 +27,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -65,7 +66,7 @@ public class JRMFileChooser<V> extends JFileChooser
 			catch(final IOException e1)
 			{
 				JOptionPane.showMessageDialog(null, e1, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-				e1.printStackTrace();
+				Log.err(e1.getMessage(),e1);
 			}
 		}
 

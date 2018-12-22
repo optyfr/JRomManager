@@ -17,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
+import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.DirScan;
@@ -96,7 +97,7 @@ public class DirUpdater
 			}
 			catch (Throwable e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(),e);
 			}
 		});
 	}
