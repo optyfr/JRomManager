@@ -3,24 +3,45 @@ package jrm.server;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
-import jrm.server.handlers.*;
+import jrm.server.handlers.DataSourcesHandler;
+import jrm.server.handlers.EnhStaticPageHandler;
+import jrm.server.handlers.ResourceHandler;
+import jrm.server.handlers.SessionHandler;
+import jrm.server.handlers.UploadHandler;
 import jrm.server.ws.WebSckt;
 
 public class Server extends EnhRouterNanoHTTPD implements SessionStub
 {
 	private String clientPath;
+	private static boolean debug = false;
 
 	final static Map<String, WebSession> sessions = new HashMap<>();
+	
 		
 	public Server(int port, String clientPath)
 	{
@@ -58,6 +79,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		options.addOption(new Option("c", "client", true, "Client Path"));
 		options.addOption(new Option("p", "port", true, "Server Port"));
 		options.addOption(new Option("w", "workpath", true, "Working Path"));
+		options.addOption(new Option("d", "debug", false, "Debug"));
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter formatter = new HelpFormatter();
 		CommandLine cmd;
@@ -88,6 +110,8 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 			}
 			if(cmd.hasOption('w'))
 				System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
+			if(cmd.hasOption('d'))
+				debug = true;
 		}
 		catch (ParseException e)
 		{
@@ -98,29 +122,47 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		try
 		{
 			Locale.setDefault(Locale.US);
+			System.setProperty("file.encoding", "UTF-8");
+			for (Handler h : Logger.getGlobal().getHandlers())
+				Logger.getGlobal().removeHandler(h);
+			Logger.getGlobal().addHandler(new FileHandler(getLogPath() + "/Server.%g.log", 1024 * 1024, 5, false));
 			Server server = new Server(port, clientPath);
 			server.start(0);
-			try
+			System.out.println("Start server");
+			System.out.println("port: " + port);
+			System.out.println("clientPath: " + clientPath);
+			System.out.println("workPath: " + (System.getProperty("jrommanager.dir") != null ? System.getProperty("jrommanager.dir") : Paths.get(System.getProperty("user.dir"))));
+			Runtime.getRuntime().addShutdownHook(new Thread(()->{
+				WebSckt.saveAllSettings();
+				server.stop();
+				System.out.println("Server stopped.\n");
+			}));
+			if(debug)
 			{
-				System.out.println("Start server");
-				System.out.println("port: "+port);
-				System.out.println("clientPath: "+clientPath);
-				System.out.println("workPath: "+(System.getProperty("jrommanager.dir")!=null?System.getProperty("jrommanager.dir"):Paths.get(System.getProperty("user.dir"))));
 				System.in.read();
+				System.exit(0);
 			}
-			catch (Throwable ignored)
-			{
-			}
-			WebSckt.saveAllSettings();
-			server.stop();
-			System.out.println("Server stopped.\n");
-			System.exit(0);
 		}
 		catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private static Path getWorkPath()
+	{
+		String base = System.getProperty("jrommanager.dir");
+		if (base == null)
+			base = System.getProperty("user.dir");
+		return Paths.get(base);
+	}
+	
+	private static String getLogPath() throws IOException
+	{
+		Path path = getWorkPath().resolve("logs");
+		Files.createDirectories(path);
+		return path.toString();
 	}
 
 	@Override
