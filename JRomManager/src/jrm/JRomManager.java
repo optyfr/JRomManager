@@ -17,13 +17,8 @@
 package jrm;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -73,24 +68,7 @@ public final class JRomManager
 			System.exit(1);
 		}
 		Session session  = Sessions.getSession(multiuser,noupdate);
-		try
-		{
-			FileHandler filehandler = new FileHandler(session.getUser().settings.getLogPath() + "/JRM.%g.log", 1024 * 1024, 5, false);
-			filehandler.setFormatter(Log.formatter);
-			Logger.getGlobal().addHandler(filehandler);
-			if(debug)
-			{
-				ConsoleHandler consolehandler = new ConsoleHandler();
-				consolehandler.setLevel(Level.FINE);
-				consolehandler.setFormatter(Log.formatter);
-				Logger.getGlobal().addHandler(consolehandler);
-				Logger.getGlobal().setLevel(Level.FINE);
-			}
-		}
-		catch (SecurityException | IOException e)
-		{
-			e.printStackTrace();
-		}
+		Log.init(session.getUser().settings.getLogPath() + "/JRM.%g.log", debug, 1024 * 1024, 5);
 		if (JRomManager.lockInstance(session, FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
 			if(!session.noupdate)

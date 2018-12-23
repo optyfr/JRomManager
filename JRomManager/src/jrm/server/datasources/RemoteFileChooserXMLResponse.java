@@ -1,14 +1,23 @@
 package jrm.server.datasources;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.commons.io.FilenameUtils;
 
 import jrm.server.datasources.XMLRequest.Operation;
 
@@ -213,5 +222,75 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		}
 		else
 			failure("Can't remove " + name);
+	}
+	
+	@Override
+	protected void custom(Operation operation) throws Exception
+	{
+		
+		if(operation.operationId.toString().equals("expand"))
+		{
+			if(operation.hasData("paths"))
+			{
+				Path dir = request.session.getUser().settings.getWorkPath();
+				if(operation.hasData("parent"))
+					dir = new File(operation.getData("parent")).toPath();
+				writer.writeStartElement("response");
+				writer.writeElement("status", "0");
+				writer.writeElement("parent", dir.toString());
+				writer.writeStartElement("data");
+				AtomicInteger cnt = new AtomicInteger();
+				switch(operation.getData("context"))
+				{
+					case "addArc":
+						for(String path : operation.getDatas("paths"))
+						{
+							Path entry = Paths.get(path);
+							Files.walkFileTree(entry, new SimpleFileVisitor<Path>()
+							{
+								String[] exts = new String[] {"zip","7z","rar","arj","tar","lzh","lha","tgz","tbz","tbz2","rpm","iso","deb","cab"};
+								
+								@Override
+								public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+								{
+									if(FilenameUtils.isExtension(file.getFileName().toString(), exts))
+									{
+										try
+										{
+											writer.writeEmptyElement("record");
+											writer.writeAttribute("Name", file.getFileName().toString());
+											writer.writeAttribute("Path", file.toString());
+											cnt.incrementAndGet();
+										}
+										catch (XMLStreamException e)
+										{
+										}
+									}
+									return FileVisitResult.CONTINUE;
+								}
+							});
+						}
+						break;
+					default:
+						for(String path : operation.getDatas("paths"))
+						{
+							Path entry = Paths.get(path);
+							writer.writeEmptyElement("record");
+							writer.writeAttribute("Name", entry.getFileName().toString());
+							writer.writeAttribute("Path", entry.toString());
+							cnt.incrementAndGet();
+						}
+						break;
+				}
+				writer.writeEndElement();
+				writer.writeElement("endRow", Long.toString(cnt.get()-1));
+				writer.writeElement("totalRows", Long.toString(cnt.get()));
+				writer.writeEndElement();
+			}
+			else
+				failure("paths missing");
+		}
+		else
+			super.custom(operation);
 	}
 }

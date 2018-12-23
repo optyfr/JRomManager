@@ -15,10 +15,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -121,17 +117,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		{
 			Locale.setDefault(Locale.US);
 			System.setProperty("file.encoding", "UTF-8");
-			FileHandler filehandler = new FileHandler(getLogPath() + "/Server.%g.log", 1024 * 1024, 5, false);
-			filehandler.setFormatter(Log.formatter);
-			Logger.getGlobal().addHandler(filehandler);
-			if(debug)
-			{
-				ConsoleHandler consolehandler = new ConsoleHandler();
-				consolehandler.setLevel(Level.FINE);
-				consolehandler.setFormatter(Log.formatter);
-				Logger.getGlobal().addHandler(consolehandler);
-				Logger.getGlobal().setLevel(Level.FINE);
-			}
+			Log.init(getLogPath() + "/Server.%g.log", debug, 1024 * 1024, 5);
 			Server server = new Server(port, clientPath);
 			server.start(0);
 			Log.config("Start server");

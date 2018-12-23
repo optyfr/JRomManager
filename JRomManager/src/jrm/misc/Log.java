@@ -16,11 +16,13 @@
  */
 package jrm.misc;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.function.Supplier;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -59,6 +61,30 @@ public class Log
 	public Log()
 	{
 		Logger.getGlobal().addHandler(new ConsoleHandler());
+	}
+	
+	public static void init(final String file, final boolean debug, final int limit, final int count)
+	{
+		try
+		{
+			final FileHandler filehandler = new FileHandler(file, 1024 * 1024, 5, false);
+			filehandler.setFormatter(Log.formatter);
+			Logger.getGlobal().setUseParentHandlers(false);
+			Logger.getGlobal().addHandler(filehandler);
+			if(debug)
+			{
+				final ConsoleHandler consolehandler = new ConsoleHandler();
+				consolehandler.setLevel(Level.FINE);
+				consolehandler.setFormatter(Log.formatter);
+				Logger.getGlobal().addHandler(consolehandler);
+				Logger.getGlobal().setLevel(Level.FINE);
+			}
+		}
+		catch (SecurityException | IOException e)
+		{
+			e.printStackTrace();
+		}
+		
 	}
 
 	public static void info(final Object msg)
