@@ -113,12 +113,11 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 		- It has not been tested over the internet => the purpose is to access from intranet
 		- It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
 		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
-
+- Install as a service (Server mode)
 		
 
 ## Short Term Planned Features
 - Mode to keep existing container archive format
-- Install as a service (Server mode)
 - Multi User and access rights (Server mode)
 - Encrypted connections (Server mode)
 
