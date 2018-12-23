@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import JTrrntzip.TrrntZipStatus;
 import jrm.locale.Messages;
@@ -238,7 +239,7 @@ public class Scan
 		 * explode all src dir string into an ArrayList<File>
 		 */
 		final ArrayList<File> srcdirs = new ArrayList<>();
-		for (final String s : profile.getProperty("src_dir", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		for (final String s : StringUtils.split(profile.getProperty("src_dir", ""),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		{
 			if (!s.isEmpty())
 			{

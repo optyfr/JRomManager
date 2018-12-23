@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
@@ -36,7 +38,7 @@ public class Dat2DirWS
 			session.worker.progress = new ProgressWS(ws);
 			try
 			{
-				String[] srcdirs = session.getUser().settings.getProperty("dat2dir.srcdirs", "").split("\\|");
+				String[] srcdirs = StringUtils.split(session.getUser().settings.getProperty("dat2dir.srcdirs", ""),'|');
 				if (srcdirs.length > 0)
 				{
 					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().settings.getProperty("dat2dir.sdr", "[]"));

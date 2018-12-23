@@ -48,6 +48,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				isDir = false;
 				break;
 			case "importDat":
+				pathmatcher = "glob:*.{xml,dat}";
+				isDir = false;
+				break;
 			case "addDat":
 				pathmatcher = "glob:*.{xml,dat}";
 				isDir = false;

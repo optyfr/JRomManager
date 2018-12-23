@@ -22,6 +22,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.apache.commons.lang3.StringUtils;
+
 import jrm.locale.Messages;
 import jrm.security.Session;
 import jrm.ui.basic.JFileDropList;
@@ -380,7 +382,7 @@ public class ScannerDirPanel extends JPanel
 		lblSamplesDest.setSelected(session.curr_profile.getProperty("samples_dest_dir_enabled", false)); //$NON-NLS-1$
 		tfSamplesDest.setText(session.curr_profile.getProperty("samples_dest_dir", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		listSrcDir.getModel().removeAllElements();
-		for (final String s : session.curr_profile.getProperty("src_dir", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		for (final String s : StringUtils.split(session.curr_profile.getProperty("src_dir", ""),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (!s.isEmpty())
 				listSrcDir.getModel().addElement(new File(s));
 		

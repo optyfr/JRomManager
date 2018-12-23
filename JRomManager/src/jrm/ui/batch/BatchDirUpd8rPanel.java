@@ -18,6 +18,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
@@ -420,7 +421,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		});
 		mnDat2DirPresets.add(mntmCustom);
 		if(session!=null)
-			for (final String s : session.getUser().settings.getProperty("dat2dir.srcdirs", "").split("\\|")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			for (final String s : StringUtils.split(session.getUser().settings.getProperty("dat2dir.srcdirs", ""),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				if (!s.isEmpty())
 					listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
 

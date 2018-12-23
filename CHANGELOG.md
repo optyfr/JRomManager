@@ -1,3 +1,18 @@
+## Release v2.0.0
+- New naming scheme
+- Batch Compressor : to compress many files at a time from any format to Zip, TrntZip, or 7ZIP 
+- Server mode + Web Client (EXPERIMENTAL).
+	- JRomManager can listen to a defined port and serve a web interface instead of the classical Swing gui
+	- The initial purpose of the server mode is to run JRomManager on headless server and directly on NAS
+	- The Web interface is full feature complete, and very powerful, thanks to SmartGWT from isomorphic
+	- This feature is **experimental**, it means that :
+		- It has not been tested over the internet => the purpose is to access from intranet
+		- It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
+		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
+	- See the [wiki](https://github.com/optyfr/JRomManager/wiki) for more informations on server mode and web client
+- Fixed [issue #17](https://github.com/optyfr/JRomManager/issues/17)
+- Various fixes (and maybe new bugs?) implied by some code rework for server mode
+
 ## Release v1.9 build 29
 - Enhancements  
 	- Custom scan settings for dir updater batch tool

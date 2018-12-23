@@ -23,6 +23,8 @@ import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.commons.lang3.StringUtils;
+
 import jrm.profile.Profile;
 import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers.NPlayer;
@@ -268,7 +270,7 @@ public class Machine extends Anyware implements Serializable
 	public int isCompatible(final String softwarelist, final String compatibility)
 	{
 		if(compatibility != null)
-			if(new HashSet<>(Arrays.asList(compatibility.split(","))).contains(swlists.get(softwarelist).filter)) //$NON-NLS-1$
+			if(new HashSet<>(Arrays.asList(StringUtils.split(compatibility,','))).contains(swlists.get(softwarelist).filter)) //$NON-NLS-1$
 				return swlists.get(softwarelist).status == SWStatus.original ? 20 : 10;
 		return swlists.get(softwarelist).status == SWStatus.original ? 2 : 1;
 	}

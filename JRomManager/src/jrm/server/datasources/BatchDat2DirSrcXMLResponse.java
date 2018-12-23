@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+
 import jrm.server.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
 
@@ -19,7 +21,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		String[] srcdirs = request.session.getUser().settings.getProperty("dat2dir.srcdirs", "").split("\\|");
+		String[] srcdirs = StringUtils.split(request.session.getUser().settings.getProperty("dat2dir.srcdirs", ""),'|');
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
@@ -41,7 +43,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("name"))
 		{
-			String[] srcdirs = request.session.getUser().settings.getProperty("dat2dir.srcdirs", "").split("\\|");
+			String[] srcdirs = StringUtils.split(request.session.getUser().settings.getProperty("dat2dir.srcdirs", ""),'|');
 			List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
 			final List<String> names = operation.getDatas("name").stream().filter(n->!lsrcdirs.contains(n)).collect(Collectors.toList());
 			if(names.size()>0)
@@ -69,7 +71,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("name"))
 		{
-			final String[] srcdirs = request.session.getUser().settings.getProperty("dat2dir.srcdirs", "").split("\\|");
+			final String[] srcdirs = StringUtils.split(request.session.getUser().settings.getProperty("dat2dir.srcdirs", ""),'|');
 			final List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
 			final List<String> names = operation.getDatas("name").stream().filter(lsrcdirs::contains).collect(Collectors.toList());
 			if(names.size()>0)
