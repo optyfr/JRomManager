@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.function.Supplier;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -86,7 +87,19 @@ public class Log
 		}
 		
 	}
+	
+	public static void setLevel(Level level)
+	{
+		for(Handler h : Logger.getGlobal().getHandlers())
+			h.setLevel(level);
+		Logger.getGlobal().setLevel(level);
+	}
 
+	public static Level getLevel()
+	{
+		return Logger.getGlobal().getLevel();
+	}
+	
 	public static void info(final Object msg)
 	{
 		if(msg==null)

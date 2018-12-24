@@ -43,7 +43,7 @@ public class SettingsPanel extends JPanel
 
 	private void buildSettingsDebugTab(final Session session)
 	{
-		SettingsDbgPanel debug = new SettingsDbgPanel();
+		SettingsDbgPanel debug = new SettingsDbgPanel(session);
 		settingsPane.addTab(Messages.getString("MainFrame.Debug"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bug.png")), debug, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

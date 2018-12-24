@@ -43,7 +43,7 @@ public class Dat2DirWS
 				{
 					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().settings.getProperty("dat2dir.sdr", "[]"));
 					if (sdrl.stream().filter((sdr) -> !session.getUser().settings.getProfileSettingsFile(sdr.src).exists()).count() > 0)
-						System.err.println(Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
+						new GlobalWS(ws).warn(Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
 					{
 						new DirUpdater(session, sdrl, session.worker.progress, Stream.of(srcdirs).map(s->new File(s)).collect(Collectors.toList()), new ResultColUpdater()
@@ -67,7 +67,7 @@ public class Dat2DirWS
 					}
 				}
 				else
-					System.err.println(Messages.getString("MainFrame.AtLeastOneSrcDir"));
+					new GlobalWS(ws).warn(Messages.getString("MainFrame.AtLeastOneSrcDir"));
 			}
 			catch(BreakException e)
 			{

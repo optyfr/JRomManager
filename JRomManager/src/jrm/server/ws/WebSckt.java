@@ -65,6 +65,16 @@ public class WebSckt extends WebSocket implements SessionStub
 						new GlobalWS(this).setProperty(jso);
 						break;
 					}
+					case "Global.getMemory":
+					{
+						new GlobalWS(this).setMemory(jso);
+						break;
+					}
+					case "Global.GC":
+					{
+						new GlobalWS(this).gc(jso);
+						break;
+					}
 					case "Profile.load":
 					{
 						new ProfileWS(this).load(jso);

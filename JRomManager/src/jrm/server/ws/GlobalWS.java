@@ -1,7 +1,13 @@
 package jrm.server.ws;
 
+import java.io.IOException;
+
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonObject.Member;
+
+import jrm.locale.Messages;
+import jrm.misc.Log;
+
 import com.eclipsesource.json.JsonValue;
 
 public class GlobalWS
@@ -29,4 +35,53 @@ public class GlobalWS
 		ws.session.getUser().settings.saveSettings();
 	}
 	
+	@SuppressWarnings("serial")
+	void setMemory(JsonObject jso)
+	{
+		try
+		{
+			if(ws.isOpen())
+			{
+				final Runtime rt = Runtime.getRuntime();
+				String msg = (String.format(Messages.getString("MainFrame.MemoryUsage"), String.format("%.2f MiB", rt.totalMemory() / 1048576.0), String.format("%.2f MiB", (rt.totalMemory() - rt.freeMemory()) / 1048576.0), String.format("%.2f MiB", rt.freeMemory() / 1048576.0), String.format("%.2f MiB", rt.maxMemory() / 1048576.0))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				ws.send(new JsonObject() {{
+					add("cmd", "Global.setMemory");
+					add("params", new JsonObject() {{
+						add("msg", msg);
+					}});
+				}}.toString());
+			}
+		}
+		catch (IOException e)
+		{
+			Log.err(e.getMessage(),e);
+		}
+	}
+
+	void gc(JsonObject jso)
+	{
+		System.gc();
+		setMemory(jso);
+	}
+	
+	@SuppressWarnings("serial")
+	void warn(String msg)
+	{
+		try
+		{
+			if(ws.isOpen())
+			{
+				ws.send(new JsonObject() {{
+					add("cmd", "Global.warn");
+					add("params", new JsonObject() {{
+						add("msg", msg);
+					}});
+				}}.toString());
+			}
+		}
+		catch (IOException e)
+		{
+			Log.err(e.getMessage(),e);
+		}		
+	}
 }

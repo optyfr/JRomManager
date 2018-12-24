@@ -77,6 +77,16 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
 		Path dir = request.session.getUser().settings.getWorkPath();
+		if (operation.hasData("context"))
+		{
+			String saved_dir = request.session.getUser().settings.getProperty("dir." + operation.getData("context"), null);
+			if (saved_dir != null && !saved_dir.isEmpty())
+			{
+				Path saved_path = Paths.get(saved_dir);
+				if (Files.isDirectory(saved_path))
+					dir = saved_path;
+			}
+		}
 		if(operation.hasData("parent"))
 			dir = new File(operation.getData("parent")).toPath();
 		writer.writeElement("parent", dir.toString());

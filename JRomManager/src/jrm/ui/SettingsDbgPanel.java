@@ -6,7 +6,9 @@ import java.awt.Insets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -16,12 +18,14 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
+import jrm.security.Session;
 
 @SuppressWarnings("serial")
 public class SettingsDbgPanel extends JPanel
 {
 	/** The cb log level. */
-	private JComboBox<?> cbLogLevel;
+	private JComboBox<Level> cbLogLevel;
 
 	/** The lbl memory usage. */
 	private JLabel lblMemoryUsage;
@@ -29,11 +33,12 @@ public class SettingsDbgPanel extends JPanel
 	/** The scheduler. */
 	final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+	final Level[] levels = new Level[] {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.CONFIG,Level.FINE,Level.FINER,Level.FINEST,Level.ALL};
 
 	/**
 	 * Create the panel.
 	 */
-	public SettingsDbgPanel()
+	public SettingsDbgPanel(final Session session)
 	{
 		final GridBagLayout gbl_debug = new GridBagLayout();
 		gbl_debug.columnWidths = new int[] { 100, 0, 0, 0 };
@@ -51,8 +56,7 @@ public class SettingsDbgPanel extends JPanel
 		gbc_lblLogLevel.gridy = 1;
 		this.add(lblLogLevel, gbc_lblLogLevel);
 
-		cbLogLevel = new JComboBox<>();
-		cbLogLevel.setEnabled(false);
+		cbLogLevel = new JComboBox<>(new DefaultComboBoxModel<>(levels));
 		final GridBagConstraints gbc_cbLogLevel = new GridBagConstraints();
 		gbc_cbLogLevel.gridwidth = 2;
 		gbc_cbLogLevel.insets = new Insets(0, 0, 5, 5);
@@ -60,6 +64,11 @@ public class SettingsDbgPanel extends JPanel
 		gbc_cbLogLevel.gridx = 1;
 		gbc_cbLogLevel.gridy = 1;
 		this.add(cbLogLevel, gbc_cbLogLevel);
+		cbLogLevel.addActionListener(arg0 -> {
+			session.getUser().settings.setProperty("debug_level", cbLogLevel.getSelectedItem().toString());
+			Log.setLevel(Level.parse(cbLogLevel.getSelectedItem().toString()));
+		}); //$NON-NLS-1$
+		cbLogLevel.setSelectedItem(Level.parse(session.getUser().settings.getProperty("debug_level", Log.getLevel().toString()))); //$NON-NLS-1$
 
 		JLabel lblMemory = new JLabel(Messages.getString("MainFrame.lblMemory.text")); //$NON-NLS-1$
 		lblMemory.setHorizontalAlignment(SwingConstants.TRAILING);
