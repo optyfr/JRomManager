@@ -9,7 +9,7 @@
 		- It has not been tested over the internet => the purpose is to access from intranet
 		- It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
 		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
-	- See the [wiki](https://github.com/optyfr/JRomManager/wiki) for more informations on server mode and web client
+	- See the [wiki](https://github.com/optyfr/JRomManager/wiki/Server-mode#server-mode) for more informations on server mode and web client
 - Fixed [issue #17](https://github.com/optyfr/JRomManager/issues/17)
 - Various fixes (and maybe new bugs?) implied by some code rework for server mode
 
