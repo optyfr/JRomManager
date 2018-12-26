@@ -53,6 +53,7 @@ dependencies {
 //	runtime 'org.apache.tika:tika-core:1.19.1'
 	compileOnly 'net.jcip:jcip-annotations:1.0'
 	compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.7'
+	implementation 'com.sun.activation:javax.activation:1.2.0'
 }
 
 sourceSets {
@@ -273,7 +274,7 @@ else
 
 if (Os.isFamily(Os.FAMILY_MAC))
 {
-	task buildDMG(type: com.inet.gradle.setup.dmg.Dmg, dependsOn: ':JLauncher:build') {
+	task buildDMG(type: com.inet.gradle.setup.dmg.Dmg, dependsOn: distZip) {
 		onlyIf {
 	    	Os.isFamily(Os.FAMILY_MAC)
 	    }
