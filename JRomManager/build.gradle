@@ -234,7 +234,7 @@ setupBuilder {
 		executable = project.name + '.exe'
 	}
 	mainJar = 'JRomManager.jar'
-	mainClass = 'jrm.JRomManager'
+	mainClass = 'jrm.JRomManagerMulti'
 //	setup.bundleJre = 1.8
 }
 
