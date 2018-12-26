@@ -10,9 +10,11 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import lombok.Getter;
+
 public class Settings implements SettingsImpl
 {
-	private final Properties properties = new Properties();
+	private final @Getter Properties properties = new Properties();
 
 	
 	public Settings()
@@ -40,13 +42,16 @@ public class Settings implements SettingsImpl
 	@Override
 	public void loadSettings(final File file)
 	{
-		try(FileInputStream is = new FileInputStream(file))
+		if(file.exists())
 		{
-			properties.loadFromXML(is);
-		}
-		catch(final IOException e)
-		{
-			Log.err("IO", e); //$NON-NLS-1$
+			try(FileInputStream is = new FileInputStream(file))
+			{
+				properties.loadFromXML(is);
+			}
+			catch(final IOException e)
+			{
+				Log.err("IO", e); //$NON-NLS-1$
+			}
 		}
 	}
 
@@ -86,12 +91,6 @@ public class Settings implements SettingsImpl
 			properties.remove(property);
 		else
 			properties.setProperty(property, value);
-	}
-
-	@Override
-	public Properties getProperties()
-	{
-		return properties;
 	}
 	
 	@SuppressWarnings("serial")

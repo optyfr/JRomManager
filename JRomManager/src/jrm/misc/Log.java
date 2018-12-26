@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -27,6 +28,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+
+import lombok.NonNull;
 
 /**
  * Console Logger
@@ -95,9 +98,9 @@ public class Log
 		Logger.getGlobal().setLevel(level);
 	}
 
-	public static Level getLevel()
+	public static @NonNull Level getLevel()
 	{
-		return Logger.getGlobal().getLevel();
+		return Optional.ofNullable(Logger.getGlobal().getLevel()).orElse(Level.INFO);
 	}
 	
 	public static void info(final Object msg)
