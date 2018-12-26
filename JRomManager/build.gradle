@@ -193,12 +193,12 @@ ospackage {
 }
 
 buildDeb {
-	requires('java8-runtime').or('java9-runtime').or('java10-runtime')
+	requires('java8-runtime').or('java9-runtime').or('java10-runtime').or('java11-runtime')
 	arch = "all"
 }
 
 buildRpm {
-	requires('java', '1:1.8.0', EQUAL).or('java', '1:9', EQUAL).or('java', '1:10', EQUAL)
+	requires('java', '1:1.8.0', EQUAL).or('java', '1:9', EQUAL).or('java', '1:10', EQUAL).or('java', '1:11', EQUAL)
 	arch = NOARCH
 	os = LINUX
 	addParentDirs = false
@@ -208,8 +208,36 @@ buildRpm {
 build.dependsOn buildRpm
 build.dependsOn buildDeb
 
-def os = System.getProperty("os.name").toLowerCase()
-if (os.contains("windows"))
+apply plugin: "de.inetsoftware.setupbuilder"
+		
+setupBuilder {
+    vendor = 'optyfr'
+    application = project.name
+    appIdentifier = project.name
+    version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version");
+    licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
+    icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
+	from (configurations.compile) {
+		into('lib')
+		exclude '*.zip'
+	}
+	from (jar)
+	from (project(':JUpdater').jar)
+	from (zipTree(distZip.archivePath)) {
+		include 'wrapper/**'
+		include 'webclient/**'
+  	}
+	desktopStarter {
+		displayName = project.name
+		executable = project.name + '.exe'
+	}
+	mainJar = 'JRomManager.jar'
+	mainClass = 'jrm.JRomManager'
+//	setup.bundleJre = 1.8
+}
+
+import org.apache.tools.ant.taskdefs.condition.Os
+if (Os.isFamily(Os.FAMILY_WINDOWS))
 {
 	def result = exec{
 		executable =  "where"
@@ -221,31 +249,6 @@ if (os.contains("windows"))
 	
 	if(result.getExitValue()==0)
 	{
-		apply plugin: "de.inetsoftware.setupbuilder"
-		
-		setupBuilder {
-		    vendor = 'optyfr'
-		    application = project.name
-		    appIdentifier = project.name
-		    version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version");
-		    licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
-		    icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
-			from (configurations.compile) {
-				into('lib')
-				exclude '*.zip'
-			}
-			from (jar)
-			from (project(':JUpdater').jar)
-			from (zipTree(distZip.archivePath)) {
-				include 'wrapper/**'
-				include 'webclient/**'
-		  	}
-			desktopStarter {
-				displayName = project.name
-				executable = project.name + '.exe'
-			}
-//			setup.bundleJre = 1.8
-		}
 		
 		task buildMSI(type: com.inet.gradle.setup.msi.Msi, dependsOn: ':JLauncher:build') {
 			arch = 'x86'
@@ -255,6 +258,9 @@ if (os.contains("windows"))
 				include 'JLauncher.exe'
 				rename { project.name+'.exe' }
 			}
+			onlyIf {
+		    	Os.isFamily(Os.FAMILY_WINDOWS)
+		    }
 		}
 		
 		build.dependsOn buildMSI
@@ -264,3 +270,16 @@ if (os.contains("windows"))
 }
 else
 	logger.info('Not on Windows, skipping MSI build.')
+
+if (Os.isFamily(Os.FAMILY_MAC))
+{
+	task buildDMG(type: com.inet.gradle.setup.dmg.Dmg, dependsOn: ':JLauncher:build') {
+		onlyIf {
+	    	Os.isFamily(Os.FAMILY_MAC)
+	    }
+	}
+		
+	build.dependsOn buildDMG
+}
+else
+	logger.info('Not on Mac, skipping DMG build.')
