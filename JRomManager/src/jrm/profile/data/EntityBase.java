@@ -95,7 +95,7 @@ public abstract class EntityBase extends NameBase implements Serializable
 
 	/**
 	 * special method to get the value of a field outside its scope<br>
-	 * <center><b style='color:red'>*** USE WITH CAUTION ***</b></center> 
+	 * <b style='color:red'>*** USE WITH CAUTION ***</b> 
 	 * @param name the property name as a string (case sensitive)
 	 * @return the value as an {@link Object} or null;
 	 */
