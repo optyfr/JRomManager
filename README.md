@@ -10,7 +10,7 @@ A Rom Manager entirely written in Java and released under GPL-2
 - **MIT** : [Jtrrntzip](https://github.com/optyfr/Jtrrntzip) (based on [trrntZipDN](https://github.com/arogl/trrntzipDN) by Gordon J), [commonmark](https://github.com/atlassian/commonmark-java) (by Atlassian), [minimal-json](https://github.com/ralfstx/minimal-json) (by Ralf Sternberg), the [Lombok](https://projectlombok.org/) project
 - **LGPL 2.1 with unRAR restriction** : [SevenZipJBinding](https://github.com/borisbrodski/sevenzipjbinding) (by Boris Brodski)
 - **LGPL 3** : [SmartGWT](https://www.smartclient.com/product/smartgwt.jsp) (Isomorphic)
-- **Apache 2.0** : [StreamEx](https://github.com/amaembo/streamex) (by Tagir Valeev), [Lombok Gradle plugin](https://github.com/franzbecker/gradle-lombok), [Gradle Wrapper](https://github.com/gradle/gradle), [GWT SDK](http://www.gwtproject.org) (Google), [GWT WebSockets](https://github.com/sksamuel/gwt-websockets) (Stephen Samuel), and all the [Apache commons](https://commons.apache.org/) libraries
+- **Apache 2.0** : [StreamEx](https://github.com/amaembo/streamex) (by Tagir Valeev), [Gradle build tool](https://github.com/gradle/gradle), [Lombok Gradle plugin](https://github.com/franzbecker/gradle-lombok), [GWT SDK](http://www.gwtproject.org) (Google), [GWT WebSockets](https://github.com/sksamuel/gwt-websockets) (Stephen Samuel), and all the [Apache commons](https://commons.apache.org/) libraries
 
 ## Technical
 _Minimal developement requirements_:
