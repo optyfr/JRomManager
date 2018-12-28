@@ -485,7 +485,9 @@ abstract class NArchive implements Archive
 			{
 				if(item.getPath().equals(entry))
 				{
-					try(RandomAccessFile out = new RandomAccessFile(new File(baseDir, entry), "rw")) //$NON-NLS-1$
+					File file = new File(baseDir, entry);
+					FileUtils.forceMkdirParent(file);
+					try(RandomAccessFile out = new RandomAccessFile(file, "rw")) //$NON-NLS-1$
 					{
 						if(item.extractSlow(new RandomAccessFileOutStream(out)) == ExtractOperationResult.OK)
 							return 0;
