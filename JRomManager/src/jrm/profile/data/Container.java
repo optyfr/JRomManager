@@ -206,8 +206,13 @@ public class Container implements Serializable
 			case "7z": //$NON-NLS-1$
 				return Type.SEVENZIP;
 			case "rar": //$NON-NLS-1$
+				if(file.getName().contains(".part"))
+					if(!file.getName().endsWith(".part001.rar"))
+						return Type.UNK;
 				return Type.RAR;
 		}
+		if(file.getName().endsWith(".7z.001"))
+			return Type.SEVENZIP;
 		return Type.UNK;
 	}
 

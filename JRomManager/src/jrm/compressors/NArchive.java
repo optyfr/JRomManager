@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
 
@@ -32,10 +33,12 @@ import jrm.misc.GlobalSettings;
 import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressNarchiveCallBack;
+import lombok.Getter;
 import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.OutItemFactory;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileOutStream;
+import net.sf.sevenzipjbinding.impl.VolumedArchiveInStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
 
@@ -61,8 +64,8 @@ abstract class NArchive implements Archive
 	/*
 	 * These fields are only used, if archive already exists, otherwise we are in creation mode
 	 */
-	private IInArchive iinarchive = null;
-	private IInStream iinstream = null;
+	private @Getter IInArchive iInArchive = null;
+	private IInStream iInStream = null;
 
 	private final static HashMap<String, File> archives = new HashMap<>();
 	private final List<Closeable> closeables = new ArrayList<>();
@@ -118,23 +121,35 @@ abstract class NArchive implements Archive
 		if(!SevenZip.isInitializedSuccessfully())
 			SevenZip.initSevenZipFromPlatformJAR(session.getUser().settings.getTmpPath(true).toFile());
 		ext = FilenameUtils.getExtension(archive.getName());
+		switch(ext.toLowerCase())
+		{
+			case "zip": //$NON-NLS-1$
+				format = ArchiveFormat.ZIP;
+				break;
+			case "rar":
+				format = ArchiveFormat.RAR;
+				break;
+			case "7z": //$NON-NLS-1$
+			default:
+				format = ArchiveFormat.SEVEN_ZIP;
+				break;
+		}
 		if(archive.exists())
 		{
-			closeables.add(iinstream = new RandomAccessFileInStream(new RandomAccessFile(archive, "r"))); //$NON-NLS-1$
-			closeables.add(iinarchive = SevenZip.openInArchive(null, iinstream));
-			format = iinarchive.getArchiveFormat();
-		}
-		else
-		{
-			switch(ext.toLowerCase())
+			if(format==ArchiveFormat.RAR)	// RAR and RAR multipart
 			{
-				case "zip": //$NON-NLS-1$
-					format = ArchiveFormat.ZIP;
-					break;
-				case "7z": //$NON-NLS-1$
-				default:
-					format = ArchiveFormat.SEVEN_ZIP;
-					break;
+				ArchiveRAROpenVolumeCallback archiveOpenVolumeCallback = new ArchiveRAROpenVolumeCallback();
+				closeables.add(iInArchive = SevenZip.openInArchive(format, iInStream = archiveOpenVolumeCallback.getStream(archive.getAbsolutePath()), archiveOpenVolumeCallback));
+			}
+			else if(format==ArchiveFormat.SEVEN_ZIP && archive.getName().endsWith(".7z.001"))	// SevenZip multipart
+			{
+				closeables.add(iInArchive = SevenZip.openInArchive(format, new VolumedArchiveInStream(archive.getAbsolutePath(), new Archive7ZOpenVolumeCallback())));
+			}
+			else	// auto detect
+			{
+				closeables.add(iInStream = new RandomAccessFileInStream(new RandomAccessFile(archive, "r"))); //$NON-NLS-1$
+				closeables.add(iInArchive = SevenZip.openInArchive(null, iInStream));
+				format = iInArchive.getArchiveFormat();
 			}
 		}
 		this.readonly = readonly;
@@ -142,6 +157,90 @@ abstract class NArchive implements Archive
 			NArchive.archives.put(archive.getAbsolutePath(), this.archive = archive);
 	}
 
+	private class Archive7ZOpenVolumeCallback implements IArchiveOpenVolumeCallback
+	{
+		private Map<String, RandomAccessFile> openedRandomAccessFileList = new HashMap<String, RandomAccessFile>();
+
+		public Object getProperty(PropID propID) throws SevenZipException
+		{
+			return null;
+		}
+
+		public IInStream getStream(String filename) throws SevenZipException
+		{
+			try
+			{
+				RandomAccessFile randomAccessFile = openedRandomAccessFileList.get(filename);
+				if (randomAccessFile != null)
+					randomAccessFile.seek(0);
+				else
+				{
+					closeables.add(randomAccessFile = new RandomAccessFile(filename, "r"));
+					openedRandomAccessFileList.put(filename, randomAccessFile);					
+				}
+				return new RandomAccessFileInStream(randomAccessFile);
+			}
+			catch (FileNotFoundException fileNotFoundException)
+			{
+				return null; // We return always null in this case
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
+	private class ArchiveRAROpenVolumeCallback implements IArchiveOpenVolumeCallback, IArchiveOpenCallback
+	{
+		private Map<String, RandomAccessFile> openedRandomAccessFileList = new HashMap<String, RandomAccessFile>();
+		private String name;
+
+		@SuppressWarnings("incomplete-switch")
+		public Object getProperty(PropID propID) throws SevenZipException
+		{
+			switch (propID)
+			{
+				case NAME:
+					return name;
+			}
+			return null;
+		}
+
+		public IInStream getStream(String filename) throws SevenZipException
+		{
+			try
+			{
+				RandomAccessFile randomAccessFile = openedRandomAccessFileList.get(filename);
+				if (randomAccessFile != null)
+					randomAccessFile.seek(0);
+				else
+				{
+					closeables.add(randomAccessFile = new RandomAccessFile(filename, "r"));
+					openedRandomAccessFileList.put(filename, randomAccessFile);
+				}
+				name = filename;
+				return new RandomAccessFileInStream(randomAccessFile);
+			}
+			catch (FileNotFoundException fileNotFoundException)
+			{
+				return null; // We return always null in this case
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+
+		public void setCompleted(Long files, Long bytes) throws SevenZipException
+		{
+		}
+
+		public void setTotal(Long files, Long bytes) throws SevenZipException
+		{
+		}
+	}
+	
 	/**
 	 * This is where all operations really take place! Almost all is inside {@link IOutCreateCallback} callback,
 	 * then we are using {@link IOutUpdateArchive} or {@link IOutCreateArchive} in case of creation mode (where archive does not already exist)  
@@ -164,12 +263,12 @@ abstract class NArchive implements Archive
 
 				// anonymous constructor
 				{
-					if(iinarchive != null)
+					if(iInArchive != null)
 					{
-						old_tot = iinarchive.getNumberOfItems();
+						old_tot = iInArchive.getNumberOfItems();
 						for(int i = 0; i < old_tot; i++)
 						{
-							final String path = iinarchive.getProperty(i, PropID.PATH).toString();
+							final String path = iInArchive.getProperty(i, PropID.PATH).toString();
 							for(final String to_d : to_delete)
 							{
 								if(path.equals(to_d))
@@ -268,7 +367,7 @@ abstract class NArchive implements Archive
 
 								final int[] indices = idx_to_duplicate.stream().flatMapToInt(objs -> IntStream.of((Integer) objs[0])).toArray();
 								// idx_to_duplicate.forEach(objs->System.out.println("will extract for "+objs[1]));
-								iinarchive.extract(indices, false, new IArchiveExtractCallback()
+								iInArchive.extract(indices, false, new IArchiveExtractCallback()
 								{
 
 									@Override
@@ -352,7 +451,7 @@ abstract class NArchive implements Archive
 							else
 							{
 								final Object[] objects = idx_to_duplicate.get(old_idx - old_tot - to_add.size());
-								final ISimpleInArchiveItem ref_item = iinarchive.getSimpleInterface().getArchiveItem((Integer) objects[0]);
+								final ISimpleInArchiveItem ref_item = iInArchive.getSimpleInterface().getArchiveItem((Integer) objects[0]);
 								objects[2] = index;
 								final IOutItemAllFormats item = outItemFactory.createOutItem();
 								item.setPropertyPath((String) objects[1]);
@@ -370,17 +469,17 @@ abstract class NArchive implements Archive
 				}
 			};
 
-			if(archive.exists() && iinarchive != null)
+			if(archive.exists() && iInArchive != null)
 			{
 				// System.out.println("modifying archive "+archive);
 				final File tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", "." + ext).toFile(); //$NON-NLS-1$ //$NON-NLS-2$
 				tmpfile.delete();
 				try(RandomAccessFile raf = new RandomAccessFile(tmpfile, "rw")) //$NON-NLS-1$
 				{
-					final IOutUpdateArchive<IOutItemAllFormats> iout = iinarchive.getConnectedOutArchive();
+					final IOutUpdateArchive<IOutItemAllFormats> iout = iInArchive.getConnectedOutArchive();
 					SetOptions(iout);
 
-					final int itemsCount = iinarchive.getNumberOfItems() - to_delete.size() + to_add.size() + to_duplicate.size();
+					final int itemsCount = iInArchive.getNumberOfItems() - to_delete.size() + to_add.size() + to_duplicate.size();
 					// System.err.println(itemsCount);
 					iout.updateItems(new RandomAccessFileOutStream(raf), itemsCount, callback);
 				}
@@ -480,12 +579,14 @@ abstract class NArchive implements Archive
 	{
 		if(entry != null)
 		{
-			final ISimpleInArchive simpleInArchive = iinarchive.getSimpleInterface();
+			final ISimpleInArchive simpleInArchive = iInArchive.getSimpleInterface();
 			for(final ISimpleInArchiveItem item : simpleInArchive.getArchiveItems())
 			{
 				if(item.getPath().equals(entry))
 				{
-					try(RandomAccessFile out = new RandomAccessFile(new File(baseDir, entry), "rw")) //$NON-NLS-1$
+					File file = new File(baseDir, entry);
+					FileUtils.forceMkdirParent(file);
+					try(RandomAccessFile out = new RandomAccessFile(file, "rw")) //$NON-NLS-1$
 					{
 						if(item.extractSlow(new RandomAccessFileOutStream(out)) == ExtractOperationResult.OK)
 							return 0;
@@ -497,11 +598,11 @@ abstract class NArchive implements Archive
 		{
 			final HashMap<Integer, File> tmpfiles = new HashMap<>();
 			final HashMap<Integer, RandomAccessFile> rafs = new HashMap<>();
-			final int[] in = new int[iinarchive.getNumberOfItems()];
+			final int[] in = new int[iInArchive.getNumberOfItems()];
 			for (int i = 0; i < in.length; i++)
 			{
 				in[i] = i;
-				if(!(Boolean)iinarchive.getProperty(i, PropID.IS_FOLDER))
+				if(!(Boolean)iInArchive.getProperty(i, PropID.IS_FOLDER))
 				{
 					final File file = Files.createTempFile("JRM", null).toFile();
 					tmpfiles.put(i, file); //$NON-NLS-1$
@@ -509,12 +610,12 @@ abstract class NArchive implements Archive
 				}
 				else
 				{
-					File dir = new File(baseDir, (String) iinarchive.getProperty(i, PropID.PATH));
+					File dir = new File(baseDir, (String) iInArchive.getProperty(i, PropID.PATH));
 					FileUtils.forceMkdir(dir);
 				}
 			}
 			
-			iinarchive.extract(in, false, new IArchiveExtractCallback()
+			iInArchive.extract(in, false, new IArchiveExtractCallback()
 			{
 				private boolean skipExtraction;
 				private int index;
@@ -550,7 +651,7 @@ abstract class NArchive implements Archive
 						try
 						{
 							rafs.get(index).close();
-							String path  = (String) iinarchive.getProperty(index, PropID.PATH);
+							String path  = (String) iInArchive.getProperty(index, PropID.PATH);
 							File tmpfile = tmpfiles.get(index);
 							File dstfile = new File(baseDir,path);
 							FileUtils.forceMkdirParent(dstfile);
@@ -568,7 +669,7 @@ abstract class NArchive implements Archive
 				public ISequentialOutStream getStream(int index, ExtractAskMode extractAskMode) throws SevenZipException
 				{
 					this.index = index;
-					skipExtraction = (Boolean) iinarchive.getProperty(index, PropID.IS_FOLDER);
+					skipExtraction = (Boolean) iInArchive.getProperty(index, PropID.IS_FOLDER);
 					if (skipExtraction || extractAskMode != ExtractAskMode.EXTRACT)
 						return null;
 					return new ISequentialOutStream()

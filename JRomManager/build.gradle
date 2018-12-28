@@ -37,7 +37,7 @@ eclipse {
 }
 
 dependencies {
-	compile 'wrapper:wrapper:3.5.37@zip'
+	compile group: 'wrapper', name: 'wrapper', version: '3.5.37', ext: 'zip'
 	compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
 	compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
@@ -51,10 +51,10 @@ dependencies {
 	compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.12.1'
 	compile group: 'org.nanohttpd', name: 'nanohttpd-nanolets', version: '2.3.1'
 	compile group: 'org.nanohttpd', name: 'nanohttpd-websocket', version: '2.3.1'
-//	runtime 'org.apache.tika:tika-core:1.19.1'
-	compileOnly 'net.jcip:jcip-annotations:1.0'
-	compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.7'
-	implementation 'com.sun.activation:javax.activation:1.2.0'
+	compile group: 'org.apache.tika', name: 'tika-core', version: '1.20'
+	compile group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
+	compileOnly group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
+	compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations', version: '3.1.7'
 }
 
 sourceSets {

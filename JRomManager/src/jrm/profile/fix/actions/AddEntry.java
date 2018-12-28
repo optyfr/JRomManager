@@ -79,7 +79,7 @@ public class AddEntry extends EntryAction
 					return true;
 				}
 			}
-			else if(entry.parent.getType() == Type.SEVENZIP)
+			else
 			{
 				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
 				{
@@ -108,7 +108,15 @@ public class AddEntry extends EntryAction
 		Path srcpath = null;
 		try
 		{
-			if(entry.parent.getType() == Type.ZIP)
+			if(entry.parent.getType() == Type.DIR)
+			{
+				srcpath = entry.parent.file.toPath().resolve(entry.file);
+				Path parent = dstpath.getParent(); 
+				if(parent != null)
+					Files.createDirectories(parent);
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			}
+			else if(entry.parent.getType() == Type.ZIP)
 			{
 				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
 				{
@@ -124,7 +132,7 @@ public class AddEntry extends EntryAction
 				}
 
 			}
-			else if(entry.parent.getType() == Type.SEVENZIP)
+			else
 			{
 
 				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
@@ -144,14 +152,6 @@ public class AddEntry extends EntryAction
 					Log.err(e.getMessage(),e);
 				}
 			}
-			else
-			{
-				srcpath = entry.parent.file.toPath().resolve(entry.file);
-				Path parent = dstpath.getParent(); 
-				if(parent != null)
-					Files.createDirectories(parent);
-				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-			}
 			return true;
 		}
 		catch(final Throwable e)
@@ -166,7 +166,8 @@ public class AddEntry extends EntryAction
 	public boolean doAction(final Session session, final Archive archive, final ProgressHandler handler, int i, int max)
 	{
 		handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
-		if(entry.parent.getType() == Type.ZIP)
+		if(entry.parent.getType() == Type.DIR) /*NOOP*/;
+		else if(entry.parent.getType() == Type.ZIP)
 		{
 			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
 			{
@@ -177,7 +178,7 @@ public class AddEntry extends EntryAction
 				System.err.println("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
-		else if(entry.parent.getType() == Type.SEVENZIP)
+		else
 		{
 			try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
 			{

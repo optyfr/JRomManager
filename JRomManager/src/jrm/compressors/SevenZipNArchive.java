@@ -27,7 +27,7 @@ import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
  * SevenZip native archive class, should not be used directly
  * @author optyfr
  */
-class SevenZipNArchive extends NArchive
+public class SevenZipNArchive extends NArchive
 {
 
 	public SevenZipNArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException

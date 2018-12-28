@@ -16,14 +16,36 @@
  */
 package jrm.profile.scan;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
-import java.nio.file.*;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -44,13 +66,24 @@ import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profile.Profile;
-import jrm.profile.data.*;
+import jrm.profile.data.Archive;
+import jrm.profile.data.Container;
 import jrm.profile.data.Container.Type;
+import jrm.profile.data.Directory;
+import jrm.profile.data.Disk;
+import jrm.profile.data.Entity;
+import jrm.profile.data.Entry;
+import jrm.profile.data.Rom;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
-import net.sf.sevenzipjbinding.*;
-import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
+import net.sf.sevenzipjbinding.ExtractAskMode;
+import net.sf.sevenzipjbinding.ExtractOperationResult;
+import net.sf.sevenzipjbinding.IArchiveExtractCallback;
+import net.sf.sevenzipjbinding.IInArchive;
+import net.sf.sevenzipjbinding.ISequentialOutStream;
+import net.sf.sevenzipjbinding.SevenZip;
+import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
 import one.util.streamex.IntStreamEx;
@@ -494,6 +527,7 @@ public final class DirScan
 						}
 						break;
 					}
+					case RAR:
 					case SEVENZIP:
 					{
 						try(SevenZUpdateEntries entries = new SevenZUpdateEntries(c))
@@ -572,10 +606,6 @@ public final class DirScan
 	private class SevenZUpdateEntries implements Closeable
 	{
 		/**
-		 * The {@link RandomAccessFile} used to read 7z file
-		 */
-		private RandomAccessFile randomAccessFile = null;
-		/**
 		 * The container to read
 		 */
 		private final Container container;
@@ -588,17 +618,13 @@ public final class DirScan
 		 */
 		private final MDigest[] digest;
 		/**
-		 * the interface to archive in case of sevenzipjbinding usage
-		 */
-		private IInArchive nArchive = null;
-		/**
 		 * the class to archive in case of org.apache.commons.compress usage
 		 */
-		private SevenZFile jArchive = null;
+		private SevenZFile cArchive = null;
 		/**
 		 * the class to archive in case of external 7z cmd usage 
 		 */
-		private SevenZipArchive jArchive2 = null;
+		private SevenZipArchive archive = null;
 
 		/**
 		 * The constructor
@@ -621,28 +647,10 @@ public final class DirScan
 		@Override
 		public void close() throws IOException
 		{
-			if(jArchive2 != null)
-				jArchive2.close();
-			if(jArchive != null)
-				jArchive.close();
-			if(nArchive != null)
-				nArchive.close();
-			if(randomAccessFile != null)
-				randomAccessFile.close();
-		}
-
-		/**
-		 * get {@link IInArchive} interface from {@link Container#file}
-		 * @return an {@link IInArchive}
-		 * @throws IOException
-		 */
-		private IInArchive getNArchive() throws IOException
-		{
-			if(randomAccessFile == null)
-				randomAccessFile = new RandomAccessFile(container.file, "r"); //$NON-NLS-1$
-			if(nArchive == null)
-				nArchive = SevenZip.openInArchive(null, new RandomAccessFileInStream(randomAccessFile));
-			return nArchive;
+			if(archive != null)
+				archive.close();
+			if(cArchive != null)
+				cArchive.close();
 		}
 
 		/**
@@ -650,11 +658,23 @@ public final class DirScan
 		 * @return {@link SevenZFile}
 		 * @throws IOException
 		 */
-		private SevenZFile getJArchive() throws IOException
+		private SevenZFile getCArchive() throws IOException
 		{
-			if(jArchive == null)
-				jArchive = new SevenZFile(container.file);
-			return jArchive;
+			if(cArchive == null)
+				cArchive = new SevenZFile(container.file);
+			return cArchive;
+		}
+
+		/**
+		 * get {@link SevenZipArchive} from  {@link Container#file}
+		 * @return {@link SevenZipArchive}
+		 * @throws IOException
+		 */
+		private SevenZipArchive getArchive() throws IOException
+		{
+			if(archive == null)
+				archive = new SevenZipArchive(session, container.file);
+			return archive;
 		}
 
 		/**
@@ -664,19 +684,7 @@ public final class DirScan
 		 */
 		private ISimpleInArchive getNInterface() throws IOException
 		{
-			return getNArchive().getSimpleInterface();
-		}
-
-		/**
-		 * get {@link SevenZipArchive} from  {@link Container#file}
-		 * @return {@link SevenZipArchive}
-		 * @throws IOException
-		 */
-		private SevenZipArchive getJInterface() throws IOException
-		{
-			if(jArchive2 == null)
-				jArchive2 = new SevenZipArchive(session, container.file);
-			return jArchive2;
+			return getArchive().getNative7Zip().getIInArchive().getSimpleInterface();
 		}
 
 		/**
@@ -709,10 +717,10 @@ public final class DirScan
 			}
 			else
 			{
-				final HashSet<Entry> entries = new HashSet<>();
+				final HashMap<String, Entry> entries = new HashMap<>();
 				if(container.loaded < 1 || (need_sha1_or_md5 && container.loaded < 2))
 				{
-					for(final SevenZArchiveEntry archive_entry : getJArchive().getEntries())
+					for(final SevenZArchiveEntry archive_entry : getCArchive().getEntries())
 					{
 						if(archive_entry.isDirectory())
 							continue;
@@ -777,7 +785,7 @@ public final class DirScan
 		 * @param archive_entry the {@link SevenZArchiveEntry} in relation with {@link Entry}
 		 * @throws IOException
 		 */
-		private void updateEntry(final Entry entry, final HashSet<Entry> entries, final SevenZArchiveEntry archive_entry) throws IOException
+		private void updateEntry(final Entry entry, final Map<String,Entry> entries, final SevenZArchiveEntry archive_entry) throws IOException
 		{
 			if(entry.size == 0 && entry.crc == null && archive_entry != null)
 			{
@@ -787,7 +795,7 @@ public final class DirScan
 			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 			{
-				entries.add(entry);
+				entries.put(entry.file, entry);
 			}
 			else
 			{
@@ -796,6 +804,7 @@ public final class DirScan
 				if(entry.md5 != null)
 					entries_bymd5.put(entry.md5, entry);
 			}
+			
 		}
 
 		/**
@@ -808,7 +817,7 @@ public final class DirScan
 		{
 			if(entries.size() > 0)
 			{
-				getNArchive().extract(IntStreamEx.of(entries.keySet()).toArray(), false, new IArchiveExtractCallback()
+				getArchive().getNative7Zip().getIInArchive().extract(IntStreamEx.of(entries.keySet()).toArray(), false, new IArchiveExtractCallback()
 				{
 					Entry entry;
 
@@ -864,11 +873,38 @@ public final class DirScan
 		 * @param entries the {@link HashSet} of {@link Entry} to be computed
 		 * @throws IOException
 		 */
-		private void computeHashes(final HashSet<Entry> entries) throws IOException
+		private void computeHashes(final HashMap<String, Entry> entries) throws IOException
 		{
-			for(final Entry entry : entries)
+			SevenZArchiveEntry entry7z;
+			Entry entry;
+			while (null != (entry7z = getCArchive().getNextEntry()))
 			{
-				for(final MDigest d : MDigest.computeHash(getJInterface().extract_stdout(entry.getName()), digest))
+				if (null != (entry = entries.get(entry7z.getName())))
+				{
+					long size = entry7z.getSize();
+					byte[] buffer = new byte[8192];
+					while (size > 0)
+					{
+						int read = getCArchive().read(buffer, 0, (int) Math.min((long) buffer.length, size));
+						if(read == -1)
+							break;
+						for (MDigest d : digest)
+							d.update(buffer, 0, read);
+						size -= read;
+					}
+					for (MDigest d : digest)
+					{
+						if (d.getAlgorithm().equals("SHA-1")) //$NON-NLS-1$
+							entries_bysha1.put(entry.sha1 = d.toString(), entry);
+						if (d.getAlgorithm().equals("MD5")) //$NON-NLS-1$
+							entries_bymd5.put(entry.md5 = d.toString(), entry);
+						d.reset();
+					}
+				}
+			}
+			/*		for(final Entry entry : entries)
+			{
+				for(final MDigest d : MDigest.computeHash(getArchive().extract_stdout(entry.getName()), digest))
 				{
 					if(d.getAlgorithm().equals("SHA-1")) //$NON-NLS-1$
 						entries_bysha1.put(entry.sha1 = d.toString(), entry);
@@ -876,7 +912,7 @@ public final class DirScan
 						entries_bymd5.put(entry.md5 = d.toString(), entry);
 					d.reset();
 				}
-			}
+			}*/
 
 		}
 
