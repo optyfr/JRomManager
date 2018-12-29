@@ -727,7 +727,9 @@ abstract class NArchive implements Archive
 		if(readonly)
 			return -1;
 		// System.out.println("add "+new File(baseDir, entry)+" to "+new File(getTempDir(), entry));
-		if(!baseDir.equals(getTempDir()))
+		if(baseDir.isFile())
+			FileUtils.copyFile(baseDir, new File(getTempDir(), entry));
+		else if(!baseDir.equals(getTempDir()))
 			FileUtils.copyFile(new File(baseDir, entry), new File(getTempDir(), entry));
 		to_add.add(entry);
 		return 0;
