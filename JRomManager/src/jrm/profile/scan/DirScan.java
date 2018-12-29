@@ -192,6 +192,8 @@ public final class DirScan
 			FormatOptions format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
 			if (FormatOptions.TZIP == format)
 				options.add(Options.FORMAT_TZIP);
+			else if (FormatOptions.DIR == format)
+				options.add(Options.RECURSE);
 			if (profile.md5_roms)
 				options.add(Options.MD5_ROMS);
 			if (profile.md5_disks)
