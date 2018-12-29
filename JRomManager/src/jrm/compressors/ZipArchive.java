@@ -395,7 +395,9 @@ public class ZipArchive implements Archive
 			return native_zip.add(baseDir, entry);
 		if(readonly)
 			return -1;
-		if(!baseDir.equals(getTempDir()))
+		if(baseDir.isFile())
+			FileUtils.copyFile(baseDir, new File(getTempDir(), entry));
+		else if(!baseDir.equals(getTempDir()))
 			FileUtils.copyFile(new File(baseDir, entry), new File(getTempDir(), entry));
 		return 0;
 	}

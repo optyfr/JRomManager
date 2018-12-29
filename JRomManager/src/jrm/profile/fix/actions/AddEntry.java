@@ -18,7 +18,11 @@ package jrm.profile.fix.actions;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
@@ -59,43 +63,57 @@ public class AddEntry extends EntryAction
 		final Path dstpath = dstfs.getPath(entity.getName());
 		handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
-		try
+		if(entry.parent.getType() == Type.DIR)
 		{
-			Path parent = dstpath.getParent(); 
-			if(parent != null)
-				Files.createDirectories(parent);
-			if(entry.parent.getType() == Type.DIR)
+			try
 			{
+				Path parent_dstpath = dstpath.getParent(); 
+				if(parent_dstpath != null)
+					Files.createDirectories(parent_dstpath);
 				srcpath = entry.parent.file.toPath().resolve(entry.file);
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
-			else if(entry.parent.getType() == Type.ZIP)
+			catch (IOException e)
 			{
-				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+				Log.err("add from " + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			}
+		}
+		else if(entry.parent.getType() == Type.ZIP)
+		{
+			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+			{
+				Path parent_dstpath = dstpath.getParent(); 
+				if(parent_dstpath != null)
+					Files.createDirectories(parent_dstpath);
+				srcpath = srcfs.getPath(entry.file);
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				return true;
+			}
+			catch (IOException e)
+			{
+				Log.err("add from " + entry.parent.file + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			}
+		}
+		else
+		{
+			try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
+			{
+				final File srcfile;
+				if((srcfile=srcarchive.extract(entry.file)) != null)
 				{
-					srcpath = srcfs.getPath(entry.file);
+					Path parent_dstpath = dstpath.getParent(); 
+					if(parent_dstpath != null)
+						Files.createDirectories(parent_dstpath);
+					srcpath = srcfile.toPath();
 					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 					return true;
 				}
 			}
-			else if(entry.parent.getType() == Type.SEVENZIP)
+			catch (IOException e)
 			{
-				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
-				{
-					if(srcarchive.extract(entry.file) != null)
-					{
-						srcpath = new File(srcarchive.getTempDir(), entry.file).toPath();
-						Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-						return true;
-					}
-				}
+				Log.err("add from " + entry.parent.file + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
-		}
-		catch(final Throwable e)
-		{
-			Log.err(e.getMessage(),e);
-			System.err.println("add from " + entry.parent.file + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}
@@ -106,88 +124,102 @@ public class AddEntry extends EntryAction
 		final Path dstpath = target.resolve(entity.getName());
 		handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
-		try
+		if(entry.parent.getType() == Type.DIR)
 		{
-			if(entry.parent.getType() == Type.ZIP)
-			{
-				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
-				{
-					srcpath = srcfs.getPath(entry.file);
-					Path parent = dstpath.getParent(); 
-					if(parent != null)
-						Files.createDirectories(parent);
-					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-				}
-				catch(final Throwable e)
-				{
-					System.err.println("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-				}
-
-			}
-			else if(entry.parent.getType() == Type.SEVENZIP)
-			{
-
-				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
-				{
-					if(srcarchive.extract(entry.file) != null)
-					{
-						srcpath = new File(srcarchive.getTempDir(), entry.file).toPath();
-						Path parent = dstpath.getParent();
-						if(parent != null)
-							Files.createDirectories(parent);
-						Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-					}
-					// return archive.add_stdin(srcarchive.extract_stdout(entry.file) , entity.getName()) == 0;
-				}
-				catch(final IOException e)
-				{
-					Log.err(e.getMessage(),e);
-				}
-			}
-			else
+			try
 			{
 				srcpath = entry.parent.file.toPath().resolve(entry.file);
 				Path parent = dstpath.getParent(); 
 				if(parent != null)
 					Files.createDirectories(parent);
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				return true;
 			}
-			return true;
+			catch (IOException e)
+			{
+				Log.err("add from " + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			}
 		}
-		catch(final Throwable e)
+		else if(entry.parent.getType() == Type.ZIP)
 		{
-			Log.err(e.getMessage(),e);
-			System.err.println("add from " + entry.parent.file.getName() + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+			{
+				srcpath = srcfs.getPath(entry.file);
+				Path parent = dstpath.getParent(); 
+				if(parent != null)
+					Files.createDirectories(parent);
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				return true;
+			}
+			catch(final Throwable e)
+			{
+				Log.err("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			}
+
+		}
+		else
+		{
+
+			try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
+			{
+				final File srcfile;
+				if((srcfile=srcarchive.extract(entry.file)) != null)
+				{
+					srcpath = srcfile.toPath();
+					Path parent = dstpath.getParent();
+					if(parent != null)
+						Files.createDirectories(parent);
+					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				}
+				return true;
+			}
+			catch(final IOException e)
+			{
+				Log.err("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			}
 		}
 		return false;
 	}
 
 	@Override
-	public boolean doAction(final Session session, final Archive archive, final ProgressHandler handler, int i, int max)
+	public boolean doAction(final Session session, final Archive dstarchive, final ProgressHandler handler, int i, int max)
 	{
 		handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
-		if(entry.parent.getType() == Type.ZIP)
+		if(entry.parent.getType() == Type.DIR)
+		{
+			try
+			{
+				Path srcpath = entry.parent.file.toPath().resolve(entry.file);
+				return dstarchive.add(srcpath.toFile(), entity.getName()) == 0;
+			}
+			catch (IOException e)
+			{
+				Log.err("add from " + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed",e);
+			}
+		}
+		else if(entry.parent.getType() == Type.ZIP)
 		{
 			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
 			{
-				return archive.add_stdin(Files.newInputStream(srcfs.getPath(entry.file)), entity.getName()) == 0;
+				return dstarchive.add_stdin(Files.newInputStream(srcfs.getPath(entry.file)), entity.getName()) == 0;
 			}
 			catch(final Throwable e)
 			{
-				System.err.println("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				Log.err("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
-		else if(entry.parent.getType() == Type.SEVENZIP)
+		else
 		{
 			try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
 			{
-				if(srcarchive.extract(entry.file) != null)
-					return archive.add(srcarchive.getTempDir(), entry.file) == 0;
+				final File file;
+				if ((file = srcarchive.extract(entry.file)) != null)
+					return dstarchive.add(file, entity.getName()) == 0;
 				// return archive.add_stdin(srcarchive.extract_stdout(entry.file) , entity.getName()) == 0;
 			}
 			catch(final IOException e)
 			{
-				Log.err(e.getMessage(),e);
+				Log.err("add from " + entry.parent.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + entity.getName() + " failed",e);
 			}
 		}
 
