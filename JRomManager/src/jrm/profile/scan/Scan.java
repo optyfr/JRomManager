@@ -643,8 +643,10 @@ public class Scan
 
 				final ArrayList<Entry> disks_found = new ArrayList<>();
 				final Map<String, Disk> disks_byname = Disk.getDisksByName(disks);
-				OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null,
-						duplicate_set = null;
+				OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null, duplicate_set = null;
+
+				final Set<Entry> marked_for_rename = new HashSet<>();
+
 				for (final Disk disk : disks)
 				{
 					disk.setStatus(EntityStatus.KO);
@@ -675,9 +677,18 @@ public class Scan
 								{
 									if (!entries_byname.containsKey(disk.getNormalizedName())) // and disk name is not in the entries
 									{
-										report_subject.add(new EntryWrongName(disk, candidate_entry));
-										(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format, 0L)).addAction(new RenameEntry(candidate_entry));
-										(rename_after_set = OpenContainer.getInstance(rename_after_set, directory, format, 0L)).addAction(new RenameEntry(disk.getName(), candidate_entry));
+										if(!marked_for_rename.contains(candidate_entry))
+										{
+											report_subject.add(new EntryWrongName(disk, candidate_entry));
+											(rename_before_set = OpenContainer.getInstance(rename_before_set, directory, format, 0L)).addAction(new RenameEntry(candidate_entry));
+											(rename_after_set = OpenContainer.getInstance(rename_after_set, directory, format, 0L)).addAction(new RenameEntry(disk.getName(), candidate_entry));
+											marked_for_rename.add(candidate_entry);
+										}
+										else
+										{
+											report_subject.add(new EntryAdd(disk, candidate_entry));
+											(duplicate_set = OpenContainer.getInstance(duplicate_set, directory, format, 0L)).addAction(new DuplicateEntry(disk.getName(), candidate_entry));
+										}
 										found_entry = candidate_entry;
 										break;
 									}
@@ -796,6 +807,8 @@ public class Scan
 	{
 		boolean missing_set = true;
 		final Container container;
+		final long estimated_roms_size = roms.stream().mapToLong(Rom::getSize).sum();
+		
 		if (null != (container = roms_dstscan.getContainerByName(ware.getDest().getNormalizedName() + format.getExt())))
 		{	// found container
 			missing_set = false;
@@ -807,8 +820,7 @@ public class Scan
 				final Map<String, Rom> roms_byname = Rom.getRomsByName(roms);
 				
 				BackupContainer backup_set = null;
-				OpenContainer add_set = null, delete_set = null, rename_before_set = null;
-				final OpenContainer rename_after_set = null;
+				OpenContainer add_set = null, delete_set = null, rename_before_set = null, rename_after_set = null;
 				OpenContainer duplicate_set = null;
 
 				final Map<String, Entry> entries_byname = container.getEntriesByName();
@@ -828,6 +840,8 @@ public class Scan
 						entries_bycrc.computeIfAbsent(e.crc + '.' + e.size, k -> new ArrayList<>()).add(e);
 				});
 
+				final Set<Entry> marked_for_rename = new HashSet<>();
+				
 				for (final Rom rom : roms)	// check roms
 				{
 					rom.setStatus(EntityStatus.KO);
@@ -864,7 +878,7 @@ public class Scan
 										Log.debug(()->"\\t\\t\\t\\twe must duplicate rom " + rom.getNormalizedName() + " to ");
 										// we must duplicate
 										report_subject.add(new EntryMissingDuplicate(rom, candidate_entry));
-										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
+										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, estimated_roms_size)).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
 										found_entry = candidate_entry;
 										break;
 									}
@@ -891,11 +905,20 @@ public class Scan
 											return str.toString();
 										});
 
-										report_subject.add(new EntryWrongName(rom, candidate_entry));
-										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
-										// (rename_after_set = OpenContainer.getInstance(rename_after_set, archive, format)).addAction(new RenameEntry(r.getName(), e));
-										(backup_set = BackupContainer.getInstance(backup_set, archive)).addAction(new BackupEntry(candidate_entry));
-										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
+										if(!marked_for_rename.contains(candidate_entry))
+										{
+											report_subject.add(new EntryWrongName(rom, candidate_entry));
+											(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format, estimated_roms_size)).addAction(new RenameEntry(candidate_entry));
+											(rename_after_set = OpenContainer.getInstance(rename_after_set, archive, format, estimated_roms_size)).addAction(new RenameEntry(rom.getName(), candidate_entry));
+											marked_for_rename.add(candidate_entry);
+										}
+										else
+										{
+											report_subject.add(new EntryAdd(rom, candidate_entry));
+											(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, estimated_roms_size)).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
+										}
+										//(backup_set = BackupContainer.getInstance(backup_set, archive)).addAction(new BackupEntry(candidate_entry));
+										//(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
 										// (delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(candidate_entry));
 										found_entry = candidate_entry;
 										break;
@@ -1014,7 +1037,7 @@ public class Scan
 							if (null != (found_entry = scan.find_byhash(rom)))
 							{
 								report_subject.add(new EntryAdd(rom, found_entry));
-								(add_set = OpenContainer.getInstance(add_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new AddEntry(rom, found_entry));
+								(add_set = OpenContainer.getInstance(add_set, archive, format, estimated_roms_size)).addAction(new AddEntry(rom, found_entry));
 								// roms_found.add(found);
 								break;
 							}
@@ -1038,7 +1061,7 @@ public class Scan
 						report_subject.add(new EntryUnneeded(unneeded_entry));
 						(backup_set = BackupContainer.getInstance(backup_set, archive)).addAction(new BackupEntry(unneeded_entry));
 						(rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new RenameEntry(unneeded_entry));
-						(delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(unneeded_entry));
+						(delete_set = OpenContainer.getInstance(delete_set, archive, format, estimated_roms_size)).addAction(new DeleteEntry(unneeded_entry));
 					}
 				}
 				ContainerAction.addToList(backup_actions, backup_set);
@@ -1069,7 +1092,7 @@ public class Scan
 							if (null != (entry_found = scan.find_byhash(rom)))
 							{
 								report_subject.add(new EntryAdd(rom, entry_found));
-								(createset = CreateContainer.getInstance(createset, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new AddEntry(rom, entry_found));
+								(createset = CreateContainer.getInstance(createset, archive, format, estimated_roms_size)).addAction(new AddEntry(rom, entry_found));
 								roms_found++;
 								break;
 							}
