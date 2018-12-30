@@ -717,7 +717,7 @@ public final class DirScan
 				}
 				computeHashes(entries);
 			}
-			else
+			else	// in that case we support only sevenzip, not rar or whatever
 			{
 				final HashMap<String, Entry> entries = new HashMap<>();
 				if(container.loaded < 1 || (need_sha1_or_md5 && container.loaded < 2))
