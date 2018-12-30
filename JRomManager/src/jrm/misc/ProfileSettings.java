@@ -24,4 +24,16 @@ public class ProfileSettings extends Settings
 		super();
 	}
 
+
+	@Override
+	protected void propagate(String property, String value)
+	{
+		if("merge_mode".equals(property))
+			merge_mode = value!=null?MergeOptions.valueOf(value):null;
+		else if("implicit_merge".equals(property))
+			implicit_merge = value!=null?Boolean.parseBoolean(value):null;
+		else if("hash_collision_mode".equals(property))
+			hash_collision_mode = value!=null?HashCollisionOptions.valueOf(value):null;
+	}
+
 }
