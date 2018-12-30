@@ -237,4 +237,11 @@ public class GlobalSettings extends Settings
 		settings.implicit_merge = settings.getProperty("implicit_merge", false);
 		return settings;
 	}
+
+	@Override
+	protected void propagate(String property, String value)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }

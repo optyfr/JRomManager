@@ -12,7 +12,7 @@ import com.eclipsesource.json.JsonValue;
 
 import lombok.Getter;
 
-public class Settings implements SettingsImpl
+public abstract class Settings implements SettingsImpl
 {
 	private final @Getter Properties properties = new Properties();
 
@@ -91,7 +91,10 @@ public class Settings implements SettingsImpl
 			properties.remove(property);
 		else
 			properties.setProperty(property, value);
+		propagate(property, value);
 	}
+	
+	protected abstract void propagate(final String property, final String value);
 	
 	@SuppressWarnings("serial")
 	public JsonObject asJSO()
