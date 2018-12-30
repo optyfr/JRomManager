@@ -19,6 +19,7 @@ package jrm.profile.scan.options;
 import java.util.EnumSet;
 
 import jrm.locale.Messages;
+import lombok.Getter;
 
 /**
  * All possible merge options
@@ -55,24 +56,15 @@ public enum MergeOptions
 	/**
 	 * the name of the option
 	 */
-	private String name;
+	private @Getter String desc;
 
 	/**
 	 * internal constructor
-	 * @param name the name of the option
+	 * @param desc the name of the option
 	 */
-	private MergeOptions(String name)
+	private MergeOptions(String desc)
 	{
-		this.name = name;
-	}
-
-	/**
-	 * get description
-	 * @return description {@link String}
-	 */
-	public String getDesc()
-	{
-		return name;
+		this.desc = desc;
 	}
 
 	/**

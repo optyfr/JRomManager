@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 
 import JTrrntzip.TrrntZipStatus;
+import lombok.Getter;
 
 /**
  * the class for group of entities representation on the filesystem (ie : archive or folder)
@@ -109,7 +110,7 @@ public class Container implements Serializable
 		RAR
 	};
 
-	private Type type = Type.UNK;
+	private @Getter Type type = Type.UNK;
 
 	/**
 	 * Construct an archive where set is known
@@ -180,15 +181,6 @@ public class Container implements Serializable
 	public Map<String, Entry> getEntriesByName()
 	{
 		return entries_byname.values().stream().collect(Collectors.toMap(Entry::getName, Function.identity(), (n, e) -> n));
-	}
-
-	/**
-	 * get the container type
-	 * @return {@link Type}
-	 */
-	public Type getType()
-	{
-		return type;
 	}
 
 	/**

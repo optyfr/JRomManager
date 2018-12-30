@@ -18,6 +18,8 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 
+import lombok.Getter;
+
 /**
  * Describe a machine Driver (used for filtering)
  * @author optyfr
@@ -29,19 +31,19 @@ public class Driver implements Serializable
 	/**
 	 * global {@link StatusType} of the machine (default to preliminary)
 	 */
-	private StatusType status = StatusType.preliminary;
+	private @Getter StatusType status = StatusType.preliminary;
 	/**
 	 * emulation {@link StatusType} of the machine (default to preliminary)
 	 */
-	private StatusType emulation = StatusType.preliminary;
+	private @Getter StatusType emulation = StatusType.preliminary;
 	/**
 	 * cocktail mode {@link StatusType} of the machine  (default to preliminary)
 	 */
-	private StatusType cocktail = StatusType.preliminary;
+	private @Getter StatusType cocktail = StatusType.preliminary;
 	/**
 	 * save state as {@link SaveStateType} (default to unsupported)
 	 */
-	private SaveStateType savestate = SaveStateType.unsupported;
+	private @Getter SaveStateType saveState = SaveStateType.unsupported;
 
 	/**
 	 * Enumerate the various status type of a machine driver
@@ -102,42 +104,6 @@ public class Driver implements Serializable
 	 */
 	public void setSaveState(final String status)
 	{
-		savestate = SaveStateType.valueOf(status);
-	}
-
-	/**
-	 * get the current global status
-	 * @return {@link StatusType}
-	 */
-	public StatusType getStatus()
-	{
-		return status;
-	}
-
-	/**
-	 * get the current emulation status
-	 * @return {@link StatusType}
-	 */
-	public StatusType getEmulation()
-	{
-		return emulation;
-	}
-
-	/**
-	 * get the current cocktail status
-	 * @return {@link StatusType}
-	 */
-	public StatusType getCocktail()
-	{
-		return cocktail;
-	}
-
-	/**
-	 * get the current save state
-	 * @return {@link SaveStateType}
-	 */
-	public SaveStateType getSaveState()
-	{
-		return savestate;
+		saveState = SaveStateType.valueOf(status);
 	}
 }

@@ -20,6 +20,7 @@ import java.util.EnumSet;
 
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.locale.Messages;
+import lombok.Getter;
 
 /**
  * The supported format options
@@ -102,11 +103,11 @@ public enum FormatOptions
 	/**
 	 * Format description 
 	 */
-	private String desc;
+	private @Getter String desc;
 	/**
 	 * Format extension
 	 */
-	private Ext ext;
+	private @Getter Ext ext;
 
 	/**
 	 * internal constructor
@@ -119,23 +120,6 @@ public enum FormatOptions
 		this.ext = ext;
 	}
 
-	/**
-	 * get the extension
-	 * @return {@link Ext}
-	 */
-	public Ext getExt()
-	{
-		return ext;
-	}
-
-	/**
-	 * get the description
-	 * @return a description {@link String}
-	 */
-	public String getDesc()
-	{
-		return desc;
-	}
 
 	/**
 	 * get all formats except current one (and {@link #DIR})

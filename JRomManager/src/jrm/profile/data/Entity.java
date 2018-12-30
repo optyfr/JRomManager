@@ -20,6 +20,7 @@ import java.io.*;
 
 import jrm.misc.ProfileSettings;
 import jrm.profile.scan.options.HashCollisionOptions;
+import lombok.Getter;
 
 /**
  * the common class for {@link Rom} and {@link Disk}
@@ -33,19 +34,19 @@ public abstract class Entity extends EntityBase implements Serializable
 	/**
 	 * the date size in bytes, 0 by default (always 0 for disks)
 	 */
-	public long size = 0;
+	public @Getter long size = 0;
 	/**
 	 * the crc value as a lowercase hex {@link String}, null if none defined (disks case)
 	 */
-	public String crc = null;
+	public @Getter String crc = null;
 	/**
 	 * the sha1 value as a lowercase hex {@link String}, null if none defined
 	 */
-	public String sha1 = null;
+	public @Getter String sha1 = null;
 	/**
 	 * the md5 value as a lowercase hex {@link String}, null if none defined
 	 */
-	public String md5 = null;
+	public @Getter String md5 = null;
 	/**
 	 * the merge name of this Entity, null if no explicit merge defined
 	 */
@@ -191,39 +192,4 @@ public abstract class Entity extends EntityBase implements Serializable
 		return getParent(Anyware.class);
 	}
 
-	/**
-	 * get the crc string
-	 * @return the crc {@link String} or null
-	 */
-	public String getCRC()
-	{
-		return crc;
-	}
-
-	/**
-	 * get the md5 string
-	 * @return the md5 {@link String} or null
-	 */
-	public String getMD5()
-	{
-		return md5;
-	}
-
-	/**
-	 * get the sha1 string
-	 * @return the sha1 {@link String} or null
-	 */
-	public String getSHA1()
-	{
-		return sha1;
-	}
-
-	/**
-	 * get data size
-	 * @return size in bytes or 0 if not defined
-	 */
-	public long getSize()
-	{
-		return size;
-	}
 }

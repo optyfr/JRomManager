@@ -17,6 +17,7 @@
 package jrm.compressors;
 
 import jrm.locale.Messages;
+import lombok.Getter;
 
 /**
  * Zip supported levels of compression
@@ -32,22 +33,12 @@ public enum ZipOptions
 	MAXIMUM(Messages.getString("ZipOptions.MAXIMUM"), 7), //$NON-NLS-1$
 	ULTRA(Messages.getString("ZipOptions.ULTRA"), 9); //$NON-NLS-1$
 
-	private String desc;
-	private int level;
+	private @Getter String desc;
+	private @Getter int level;
 
 	private ZipOptions(final String desc, final int level)
 	{
 		this.desc = desc;
 		this.level = level;
-	}
-
-	public String getName()
-	{
-		return desc;
-	}
-
-	public int getLevel()
-	{
-		return level;
 	}
 }

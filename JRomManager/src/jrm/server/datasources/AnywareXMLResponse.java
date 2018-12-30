@@ -61,12 +61,12 @@ public class AnywareXMLResponse extends XMLResponse
 				writer.writeAttribute("type", "ROM");
 				if(r.getSize()>0)
 					writer.writeAttribute("size", Long.toString(r.getSize()));
-				if(r.getCRC()!=null)
-					writer.writeAttribute("crc", r.getCRC());
-				if(r.getMD5()!=null)
-					writer.writeAttribute("md5", r.getMD5());
-				if(r.getSHA1()!=null)
-					writer.writeAttribute("sha1", r.getSHA1());
+				if(r.getCrc()!=null)
+					writer.writeAttribute("crc", r.getCrc());
+				if(r.getMd5()!=null)
+					writer.writeAttribute("md5", r.getMd5());
+				if(r.getSha1()!=null)
+					writer.writeAttribute("sha1", r.getSha1());
 				if(r.merge!=null)
 					writer.writeAttribute("merge", r.merge);
 				if(r.status!=null)
@@ -78,12 +78,12 @@ public class AnywareXMLResponse extends XMLResponse
 				writer.writeAttribute("type", "DISK");
 				if(d.getSize()>0)
 					writer.writeAttribute("size", Long.toString(d.getSize()));
-				if(d.getCRC()!=null)
-					writer.writeAttribute("crc", d.getCRC());
-				if(d.getMD5()!=null)
-					writer.writeAttribute("md5", d.getMD5());
-				if(d.getSHA1()!=null)
-					writer.writeAttribute("sha1", d.getSHA1());
+				if(d.getCrc()!=null)
+					writer.writeAttribute("crc", d.getCrc());
+				if(d.getMd5()!=null)
+					writer.writeAttribute("md5", d.getMd5());
+				if(d.getSha1()!=null)
+					writer.writeAttribute("sha1", d.getSha1());
 				if(d.merge!=null)
 					writer.writeAttribute("merge", d.merge);
 				if(d.status!=null)

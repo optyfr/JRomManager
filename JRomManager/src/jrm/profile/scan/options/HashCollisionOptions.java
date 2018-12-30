@@ -17,6 +17,7 @@
 package jrm.profile.scan.options;
 
 import jrm.locale.Messages;
+import lombok.Getter;
 
 /**
  * All possible hash collision options
@@ -53,23 +54,15 @@ public enum HashCollisionOptions
 	/**
 	 * The name of the option
 	 */
-	private String name;
+	private @Getter String desc;
 
 	/**
 	 * internal constructor
 	 * @param name the name of the option
 	 */
-	private HashCollisionOptions(String name)
+	private HashCollisionOptions(String desc)
 	{
-		this.name = name;
+		this.desc = desc;
 	}
 
-	/**
-	 * get description
-	 * @return description {@link String}
-	 */
-	public String getDesc()
-	{
-		return name;
-	}
 }
