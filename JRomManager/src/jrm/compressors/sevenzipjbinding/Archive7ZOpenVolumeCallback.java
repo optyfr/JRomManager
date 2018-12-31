@@ -13,14 +13,8 @@ import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
 public class Archive7ZOpenVolumeCallback implements IArchiveOpenVolumeCallback
 {
-	/**
-	 * 
-	 */
 	private final Closeables closeables;
 
-	/**
-	 * @param nArchive
-	 */
 	public Archive7ZOpenVolumeCallback(Closeables closeables)
 	{
 		this.closeables = closeables;

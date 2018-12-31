@@ -47,6 +47,7 @@ dependencies {
 	compile group: 'one.util', name: 'streamex', version: '0.6.7'
 	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding', version: '9.20-2.00beta'
 	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms', version: '9.20-2.00beta'
+	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-linux-arm', version: '9.20-2.00beta'
 	compile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 	compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.12.1'
 	compile group: 'org.nanohttpd', name: 'nanohttpd-nanolets', version: '2.3.1'
@@ -79,8 +80,30 @@ javadoc {
 
 build.dependsOn javadoc
 
+
+task sevenzip(type: Jar) {
+	def sevenzip_dirs = [] as Set
+	def paths = configurations.compile.filter { it.name.startsWith('sevenzipjbinding-') && !it.name.startsWith('sevenzipjbinding-9') }
+	paths.each( {
+		zipTree(it).filter { it.name.endsWith('sevenzipjbinding-lib.properties') }.each { 
+			sevenzip_dirs += java.nio.file.Paths.get(it.path).getParent().getFileName().toString()
+		}
+		from (zipTree(it)) {
+			include '*/**'
+			exclude '*.properties'
+	  	}
+	})
+	def props = new Properties()
+	sevenzip_dirs.eachWithIndex{ item, idx -> props.setProperty('platform.'+(idx+1), item) }
+	def propertyFile = file "sevenzipjbinding-platforms.properties"
+	propertyFile.withWriter { props.store(it, null) }
+	from(propertyFile)
+	archiveName 'sevenzipjbinding-all.' + extension
+}
+
 jar {
 	manifest {
+		def path = configurations.compile.filter { it.name.endsWith('.jar') && (!it.name.startsWith('sevenzip') || it.name.startsWith('sevenzipjbinding-9')) }.collect { 'lib/' + it.getName() }.join(' ') + ' lib/sevenzipjbinding-all.jar'
 		attributes(
 			"Manifest-Version"     : "1.0",
 			"Specification-Title"  : "JRomManager",
@@ -88,7 +111,7 @@ jar {
 			"Implementation-Title" : "jrm",
 			"Implementation-Version" : props.getProperty("Implementation-Version"),
 			"Main-Class"           : "jrm.JRomManager",
-			"Class-Path"           : configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
+			"Class-Path"           : path
 		)
 		archiveName baseName + '.' + extension
 	}
@@ -103,10 +126,19 @@ task docZip(type: Zip, dependsOn: javadoc) {
 	destinationDir = file("$buildDir/distributions/")
 }
 
-task distZip(type: Zip, dependsOn: [jar, ':WebClient:build']) {
+task distZip(type: Zip, dependsOn: [jar, sevenzip, ':WebClient:build']) {
 	from (configurations.compile) {
 		into('lib')
 		exclude '*.zip'
+		include '*.jar'
+		exclude 'sevenzipjbinding*.jar'
+	}
+	from (configurations.compile) {
+		into('lib')
+		include 'sevenzipjbinding-9*.jar'
+	}
+	from (sevenzip) {
+		into('lib')
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
@@ -171,6 +203,15 @@ ospackage {
 	from (configurations.compile) {
 		into('lib')
 		exclude '*.zip'
+		include '*.jar'
+		exclude 'sevenzipjbinding*.jar'
+	}
+	from (configurations.compile) {
+		into('lib')
+		include 'sevenzipjbinding-9*.jar'
+	}
+	from (sevenzip) {
+		into('lib')
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
@@ -222,6 +263,15 @@ setupBuilder {
 	from (configurations.compile) {
 		into('lib')
 		exclude '*.zip'
+		include '*.jar'
+		exclude 'sevenzipjbinding*.jar'
+	}
+	from (configurations.compile) {
+		into('lib')
+		include 'sevenzipjbinding-9*.jar'
+	}
+	from (sevenzip) {
+		into('lib')
 	}
 	from (jar)
 	from (project(':JUpdater').jar)

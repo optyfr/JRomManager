@@ -58,7 +58,7 @@ public enum HashCollisionOptions
 
 	/**
 	 * internal constructor
-	 * @param name the name of the option
+	 * @param desc the name of the option
 	 */
 	private HashCollisionOptions(String desc)
 	{

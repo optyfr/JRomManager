@@ -14,14 +14,8 @@ import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
 public class ArchiveRAROpenVolumeCallback implements IArchiveOpenVolumeCallback, IArchiveOpenCallback
 {
-	/**
-	 * 
-	 */
 	private final Closeables closeables;
 
-	/**
-	 * @param nArchive
-	 */
 	public ArchiveRAROpenVolumeCallback(Closeables closeables)
 	{
 		this.closeables = closeables;
