@@ -511,8 +511,19 @@ public class Scan
 							tzipcontainer = container;
 
 					}
-					else if (create_mode && report_subject.hasFix())
-						tzipcontainer = archive;
+					else if (create_mode)
+					{
+						if(createfull_mode)
+						{
+							if(report_subject.isFixable())
+								tzipcontainer = archive;
+						}
+						else
+						{
+							if(report_subject.hasFix())
+								tzipcontainer = archive;
+						}
+					}
 					if (tzipcontainer != null)
 					{
 						tzipcontainer.m = ware;

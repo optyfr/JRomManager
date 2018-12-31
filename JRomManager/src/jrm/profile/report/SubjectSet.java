@@ -176,7 +176,7 @@ public class SubjectSet extends Subject implements Serializable
 	 */
 	public boolean isFixable()
 	{
-		return notes.stream().filter(n -> {return n instanceof EntryMissing || n instanceof EntryWrongHash;}).count()==0;
+		return notes.stream().filter(n -> (n instanceof EntryMissing || n instanceof EntryWrongHash)).count()==0;
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class SubjectSet extends Subject implements Serializable
 	 */
 	public boolean hasFix()
 	{
-		return notes.stream().filter(n -> {return !(n instanceof EntryOK || n instanceof EntryMissing || n instanceof EntryWrongHash);}).count()>0;
+		return notes.stream().filter(n -> !(n instanceof EntryOK || n instanceof EntryMissing || n instanceof EntryWrongHash)).count()>0;
 	}
 
 	/**
