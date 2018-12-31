@@ -504,15 +504,35 @@ public class Scan
 					if (container != null)
 					{
 						if (container.lastTZipCheck < container.modified)
+						{
+							System.out.println(container.file+":check<modified");
 							tzipcontainer = container;
+						}
 						else if (!container.lastTZipStatus.contains(TrrntZipStatus.ValidTrrntzip))
+						{
+							System.out.println(container.file+":tzip valid");
 							tzipcontainer = container;
+						}
 						else if (report_subject.hasFix())
+						{
+							System.out.println(container.file+":hasfix");
 							tzipcontainer = container;
+						}
 
 					}
-					else if (create_mode && report_subject.hasFix())
-						tzipcontainer = archive;
+					else if (create_mode)
+					{
+						if(createfull_mode)
+						{
+							if(report_subject.isFixable())
+								tzipcontainer = archive;
+						}
+						else
+						{
+							if(report_subject.hasFix())
+								tzipcontainer = archive;
+						}
+					}
 					if (tzipcontainer != null)
 					{
 						tzipcontainer.m = ware;
