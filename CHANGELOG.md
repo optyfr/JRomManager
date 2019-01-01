@@ -1,3 +1,20 @@
+## Release v2.1.0
+- RAR4 extraction
+- RAR4 and 7Zip multi-volume extraction
+- Included ARM for sevenazipjbinding
+- Fully functional on Raspberry PI
+- Service is now configured for a maximum of 75% percentage of memory instead of a fixed size of 4GB this should resolve launching problems on low memory devices  
+## Release v2.0.4
+- Fixed tzip marked as needed when an archive is partially fixable but we asked to build only fully fixable
+## Release v2.0.3
+- Fixed clones subdirs in merged mode when destination format is DIR
+- Fixed dir->7z and 7z->any
+- Fixed problem in the way we fix wrong named entries in some cases
+## Release v2.0.2
+- Fixed 7z archive extraction
+## Release v2.0.1
+- Fixed a launch problem without debug mode
+- Added Mac OS X DMG package
 ## Release v2.0.0
 - New naming scheme
 - Batch Compressor : to compress many files at a time from any format to Zip, TrntZip, or 7ZIP 
