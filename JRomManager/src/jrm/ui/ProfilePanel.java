@@ -262,7 +262,10 @@ public class ProfilePanel extends JPanel
 						return MameStatus.NOTFOUND;
 					}) == MameStatus.NEEDUPDATE))
 					{
-						final Import imprt = new Import(session, nfo.mame.getFile(), nfo.mame.isSL());
+						final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
+						progress.setVisible(true);
+						progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+						final Import imprt = new Import(session, nfo.mame.getFile(), nfo.mame.isSL(), progress);
 						nfo.mame.delete();
 						nfo.mame.fileroms = new File(nfo.file.getParentFile(), imprt.roms_file.getName());
 						Files.copy(imprt.roms_file.toPath(), nfo.mame.fileroms.toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
@@ -274,6 +277,7 @@ public class ProfilePanel extends JPanel
 						nfo.mame.setUpdated();
 						nfo.stats.reset();
 						nfo.save(session);
+						progress.dispose();
 					}
 				}
 				catch (final Exception e1)
@@ -397,7 +401,7 @@ public class ProfilePanel extends JPanel
 						{
 							progress.setVisible(true);
 							progress.setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
-							final Import imprt = new Import(session, selectedfile, sl);
+							final Import imprt = new Import(session, selectedfile, sl, progress);
 							progress.dispose();
 							if(!imprt.is_mame)
 							{

@@ -24,18 +24,21 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.compress.utils.Sets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.DOMException;
 
 import jrm.misc.Log;
+import jrm.misc.UnitRenderer;
 import jrm.security.Session;
+import jrm.ui.progress.ProgressHandler;
 
 /**
  * Import from Mame (and variants)
  * @author optyfr
  *
  */
-public class Import
+public class Import implements UnitRenderer
 {
 	public final File org_file;
 	public File file;
@@ -47,7 +50,7 @@ public class Import
 	 * @param file the file to analyze, and eventually extract from
 	 * @param sl do we need to load software lists
 	 */
-	public Import(final Session session, final File file, final boolean sl)
+	public Import(final Session session, final File file, final boolean sl, ProgressHandler progress)
 	{
 		org_file = file;
 		final File workdir = session.getUser().settings.getWorkPath().toFile(); //$NON-NLS-1$
@@ -59,9 +62,9 @@ public class Import
 		{
 			try
 			{
-				if((roms_file = importMame(file, false)) != null)
+				if((roms_file = importMame(file, false, progress)) != null)
 				{
-					this.file = ProfileNFO.saveJrm(File.createTempFile("JRM", ".jrm"), roms_file, sl_file = sl ? importMame(file, true) : null); //$NON-NLS-1$ //$NON-NLS-2$
+					this.file = ProfileNFO.saveJrm(File.createTempFile("JRM", ".jrm"), roms_file, sl_file = sl ? importMame(file, true, progress) : null); //$NON-NLS-1$ //$NON-NLS-2$
 					is_mame = true;
 				}
 			}
@@ -82,7 +85,7 @@ public class Import
 	 * @param sl if true, will return software list imported file (.jrm2), otherwise will return roms list file (.jrm1}
 	 * @return an existing temporary {@link File}, or null if failed
 	 */
-	public File importMame(final File file, final boolean sl)
+	public File importMame(final File file, final boolean sl, ProgressHandler progress)
 	{
 		// Log.info("Get dat file from Mame...");
 		try
@@ -91,6 +94,7 @@ public class Import
 			tmpfile.deleteOnExit();
 			final Process process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$ //$NON-NLS-2$
 
+			long linecnt = 0, size = 0;
 			try(BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpfile), Charset.forName("UTF-8"))); BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				String line;
@@ -101,7 +105,11 @@ public class Import
 					if(line.startsWith("<?xml")) //$NON-NLS-1$
 						xml = true;
 					if(xml)
+					{
 						out.write(line + "\n"); //$NON-NLS-1$
+						size += line.getBytes("UTF-8").length;
+						progress.setProgress(null, null, null, (sl?"Reading Softwares list":"Reading roms list")+" / "+(++linecnt)+" lines / " + humanReadableByteCount(size, false));
+					}
 				}
 			}
 			process.waitFor();

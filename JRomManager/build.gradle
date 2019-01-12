@@ -52,7 +52,7 @@ dependencies {
 	compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.12.1'
 	compile group: 'org.nanohttpd', name: 'nanohttpd-nanolets', version: '2.3.1'
 	compile group: 'org.nanohttpd', name: 'nanohttpd-websocket', version: '2.3.1'
-	compile group: 'org.apache.tika', name: 'tika-core', version: '1.20'
+//	compile group: 'org.apache.tika', name: 'tika-core', version: '1.20'
 	compile group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
 	compileOnly group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
 	compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations', version: '3.1.7'
@@ -95,7 +95,7 @@ task sevenzip(type: Jar) {
 	})
 	def props = new Properties()
 	sevenzip_dirs.eachWithIndex{ item, idx -> props.setProperty('platform.'+(idx+1), item) }
-	def propertyFile = file "sevenzipjbinding-platforms.properties"
+	def propertyFile = file "$buildDir/sevenzipjbinding-platforms.properties"
 	propertyFile.withWriter { props.store(it, null) }
 	from(propertyFile)
 	archiveName 'sevenzipjbinding-all.' + extension
