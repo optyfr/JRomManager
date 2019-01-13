@@ -24,7 +24,20 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
-import jrm.profile.report.*;
+import jrm.profile.report.ContainerTZip;
+import jrm.profile.report.ContainerUnknown;
+import jrm.profile.report.ContainerUnneeded;
+import jrm.profile.report.EntryAdd;
+import jrm.profile.report.EntryMissing;
+import jrm.profile.report.EntryMissingDuplicate;
+import jrm.profile.report.EntryOK;
+import jrm.profile.report.EntryUnneeded;
+import jrm.profile.report.EntryWrongHash;
+import jrm.profile.report.EntryWrongName;
+import jrm.profile.report.Note;
+import jrm.profile.report.RomSuspiciousCRC;
+import jrm.profile.report.Subject;
+import jrm.profile.report.SubjectSet;
 
 // TODO: Auto-generated Javadoc
 /**

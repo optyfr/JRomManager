@@ -396,6 +396,7 @@ public class ProfilePanel extends JPanel
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
 					.show(SwingUtilities.getWindowAncestor(this), chooser -> {
 						final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
+						progress.canCancel(false);
 						session.getUser().settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 						for (final File selectedfile : chooser.getSelectedFiles())
 						{

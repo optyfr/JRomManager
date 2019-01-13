@@ -75,6 +75,11 @@ public class WebSckt extends WebSocket implements SessionStub
 						new GlobalWS(this).gc(jso);
 						break;
 					}
+					case "Profile.import":
+					{
+						new ProfileWS(this).imprt(jso);
+						break;
+					}
 					case "Profile.load":
 					{
 						new ProfileWS(this).load(jso);

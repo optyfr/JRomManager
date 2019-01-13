@@ -17,12 +17,19 @@
  */
 package jrm.io.torrent.bencoding;
 
-import jrm.io.torrent.bencoding.types.*;
-import org.apache.commons.io.IOUtils;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+
+import jrm.io.torrent.bencoding.types.BByteString;
+import jrm.io.torrent.bencoding.types.BDictionary;
+import jrm.io.torrent.bencoding.types.BInt;
+import jrm.io.torrent.bencoding.types.BList;
+import jrm.io.torrent.bencoding.types.IBencodable;
 
 public class Reader
 {

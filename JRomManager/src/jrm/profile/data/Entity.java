@@ -16,7 +16,11 @@
  */
 package jrm.profile.data;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamField;
+import java.io.Serializable;
 
 import jrm.misc.ProfileSettings;
 import jrm.profile.scan.options.HashCollisionOptions;

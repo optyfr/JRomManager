@@ -17,9 +17,9 @@
  */
 package jrm.io.torrent.bencoding.types;
 
-import jrm.io.torrent.bencoding.Utils;
-
 import java.util.ArrayList;
+
+import jrm.io.torrent.bencoding.Utils;
 
 /**
  * Created by christophe on 15.01.15.

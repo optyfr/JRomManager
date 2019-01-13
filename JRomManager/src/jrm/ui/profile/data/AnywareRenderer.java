@@ -27,7 +27,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import jrm.locale.Messages;
-import jrm.profile.data.*;
+import jrm.profile.data.Disk;
+import jrm.profile.data.Entity;
+import jrm.profile.data.EntityBase;
+import jrm.profile.data.Rom;
+import jrm.profile.data.Sample;
 
 // TODO: Auto-generated Javadoc
 /**

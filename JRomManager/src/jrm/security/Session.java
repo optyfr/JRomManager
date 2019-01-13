@@ -2,6 +2,7 @@ package jrm.security;
 
 import java.util.ResourceBundle;
 
+import jrm.locale.Messages;
 import jrm.profile.Profile;
 import jrm.profile.report.Report;
 import jrm.profile.scan.Scan;
@@ -35,6 +36,7 @@ public class Session
 		this.noupdate = noupdate;
 		this.sessionId = null;
 		user = new User(this,"JRomManager");
+		msgs = Messages.getBundle();
 	}
 	
 	public Session(String sessionId)

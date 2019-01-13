@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
+
+import org.apache.commons.io.FileUtils;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
@@ -12,10 +15,13 @@ import com.eclipsesource.json.JsonObject.Member;
 import com.eclipsesource.json.JsonValue;
 
 import jrm.misc.BreakException;
+import jrm.misc.FindCmd;
 import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
+import jrm.profile.manager.Import;
+import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
 import jrm.server.WebSession;
 
@@ -26,6 +32,74 @@ public class ProfileWS
 	public ProfileWS(WebSckt ws)
 	{
 		this.ws = ws;
+	}
+	
+	void imprt(JsonObject jso)
+	{
+		(ws.session.worker = new Worker(()->{
+			WebSession session = ws.session;
+			session.worker.progress = new ProgressWS(ws);
+			session.worker.progress.canCancel(false);
+			session.worker.progress.setProgress(session.msgs.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+			try
+			{
+				JsonObject jsobj = jso.get("params").asObject();
+				String filename = FindCmd.findMame();
+				if (filename != null)
+				{
+					final boolean sl = jsobj.getBoolean("sl", false);
+					final Import imprt = new Import(session, new File(filename), sl, session.worker.progress);
+					if(imprt.file != null)
+					{
+						final File parent = new File(Optional.ofNullable(jsobj.get("parent")).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().settings.getWorkPath().toString()));
+						final File file = new File(parent, imprt.file.getName());
+						FileUtils.copyFile(imprt.file, file);
+						final ProfileNFO pnfo = ProfileNFO.load(session, file);
+						pnfo.mame.set(imprt.org_file, sl);
+						if (imprt.roms_file != null)
+						{
+							FileUtils.copyFileToDirectory(imprt.roms_file, parent);
+							pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
+							if(sl)
+							{
+								if (imprt.sl_file != null)
+								{
+									FileUtils.copyFileToDirectory(imprt.sl_file, parent);
+									pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
+								}
+								else
+									new GlobalWS(ws).warn("Could not import softwares list");
+							}
+							pnfo.save(session);
+							imported(pnfo.file);
+						}
+						else
+						{
+							new GlobalWS(ws).warn("Could not import roms list");
+							file.delete();
+						}
+					}
+					else
+						new GlobalWS(ws).warn("Could not import anything from Mame");
+				}
+				else
+					new GlobalWS(ws).warn("Mame not found in system's search path");
+			}
+			catch(BreakException ex)
+			{
+			}
+			catch (IOException e)
+			{
+				Log.err(e.getMessage(), e);
+				new GlobalWS(ws).warn(e.getMessage());
+			}
+			finally
+			{
+				session.worker.progress.close();
+				session.worker.progress = null;
+				session.lastAction = new Date();
+			}
+		})).start();
 	}
 
 	void load(JsonObject jso)
@@ -227,6 +301,29 @@ public class ProfileWS
 						add("success", fix!=null);
 						if(fix!=null)
 							add("actions", fix.getActionsRemain());
+					}});
+				}}.toString());
+			}
+		}
+		catch (IOException e)
+		{
+			Log.err(e.getMessage(),e);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	void imported(final File file)
+	{
+		try
+		{
+			if(ws.isOpen())
+			{
+				ws.send(new JsonObject() {{
+					add("cmd", "Profile.imported");
+					add("params", new JsonObject() {{
+						add("path", file.getPath());
+						add("parent", file.getParent());
+						add("name", file.getName());
 					}});
 				}}.toString());
 			}

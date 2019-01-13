@@ -13,7 +13,23 @@ import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.misc.Log;
 import jrm.server.Server;
 import jrm.server.WebSession;
-import jrm.server.datasources.*;
+import jrm.server.datasources.AnywareListListXMLResponse;
+import jrm.server.datasources.AnywareListXMLResponse;
+import jrm.server.datasources.AnywareXMLResponse;
+import jrm.server.datasources.BatchCompressorFRXMLResponse;
+import jrm.server.datasources.BatchDat2DirResultXMLResponse;
+import jrm.server.datasources.BatchDat2DirSDRXMLResponse;
+import jrm.server.datasources.BatchDat2DirSrcXMLResponse;
+import jrm.server.datasources.BatchTrntChkReportTreeXMLResponse;
+import jrm.server.datasources.BatchTrntChkSDRXMLResponse;
+import jrm.server.datasources.CatVerXMLResponse;
+import jrm.server.datasources.NPlayersXMLResponse;
+import jrm.server.datasources.ProfilesListXMLResponse;
+import jrm.server.datasources.ProfilesTreeXMLResponse;
+import jrm.server.datasources.RemoteFileChooserXMLResponse;
+import jrm.server.datasources.RemoteRootChooserXMLResponse;
+import jrm.server.datasources.ReportTreeXMLResponse;
+import jrm.server.datasources.XMLRequest;
 
 public class DataSourcesHandler extends DefaultHandler
 {

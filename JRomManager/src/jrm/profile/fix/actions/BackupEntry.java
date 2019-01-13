@@ -17,14 +17,18 @@
 package jrm.profile.fix.actions;
 
 import java.io.File;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.misc.Log;
 import jrm.profile.data.Container.Type;
-import jrm.security.Session;
 import jrm.profile.data.Entry;
+import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
 /**

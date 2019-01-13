@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
-import jrm.locale.Messages;
 import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
 import jrm.ui.profile.data.SoftwareListRenderer;
@@ -276,7 +275,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		final List<Software> list = filtered?getFilteredStream().collect(Collectors.toList()):getList();
 		for(final Software s : list)
 		{
-			progress.setProgress(String.format(Messages.getString("SoftwareList.Exporting_%s"), s.getFullName()), progress.getValue()+1); //$NON-NLS-1$
+			progress.setProgress(String.format(profile.session.msgs.getString("SoftwareList.Exporting_%s"), s.getFullName()), progress.getValue()+1); //$NON-NLS-1$
 			if(!filtered || s.selected)
 				s.export(writer,null);
 		}

@@ -16,7 +16,13 @@
  */
 package jrm.ui.profile.filter;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -28,7 +34,17 @@ import java.util.Collections;
 
 import javax.activation.ActivationDataFlavor;
 import javax.activation.DataHandler;
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.DropMode;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.SwingConstants;
+import javax.swing.TransferHandler;
 import javax.swing.border.TitledBorder;
 
 import jrm.locale.Messages;

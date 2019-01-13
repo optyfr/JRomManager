@@ -17,13 +17,23 @@
  */
 package jrm.io.torrent;
 
-import jrm.io.torrent.bencoding.*;
-import jrm.io.torrent.bencoding.types.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import jrm.io.torrent.bencoding.Reader;
+import jrm.io.torrent.bencoding.Utils;
+import jrm.io.torrent.bencoding.types.BByteString;
+import jrm.io.torrent.bencoding.types.BDictionary;
+import jrm.io.torrent.bencoding.types.BInt;
+import jrm.io.torrent.bencoding.types.BList;
+import jrm.io.torrent.bencoding.types.IBencodable;
 
 /**
  * Created by christophe on 17.01.15.

@@ -66,7 +66,8 @@ public class ProfilesListXMLResponse extends XMLResponse
 				try
 				{
 					File dst = new File(dir, operation.getData("File"));
-					FileUtils.copyFile(src, dst, true);
+					if(!src.equals(dst))
+						FileUtils.copyFile(src, dst, true);
 					ProfileNFO nfo = ProfileNFO.load(request.session, dst);
 					writer.writeStartElement("response");
 					writer.writeElement("status", "0");

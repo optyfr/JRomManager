@@ -17,7 +17,8 @@
  */
 package jrm.io.torrent;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by christophe on 16.01.15.

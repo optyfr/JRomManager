@@ -6,12 +6,11 @@ import java.util.EnumSet;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonObject.Member;
+import com.eclipsesource.json.JsonValue;
 
 import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
-
-import com.eclipsesource.json.JsonValue;
 
 public class ReportWS
 {

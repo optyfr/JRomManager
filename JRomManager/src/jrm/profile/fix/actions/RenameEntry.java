@@ -67,7 +67,7 @@ public class RenameEntry extends EntryAction
 		Path dstpath = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
 			final Path srcpath = fs.getPath(entry.file);
 			dstpath = fs.getPath(newname);
 			if(dstpath!=null)
@@ -95,7 +95,7 @@ public class RenameEntry extends EntryAction
 		try
 		{
 			dstpath = target.resolve(newname);
-			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
 			final Path srcpath = target.resolve(entry.file);
 			Path parent = dstpath.getParent();
 			if(parent != null)
@@ -117,7 +117,7 @@ public class RenameEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(Messages.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
 			if(archive.rename(entry.file, newname) == 0)
 			{
 				entry.file = newname;

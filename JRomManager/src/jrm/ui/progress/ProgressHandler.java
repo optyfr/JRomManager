@@ -118,6 +118,18 @@ public interface ProgressHandler
 	public void cancel();
 	
 	/**
+	 * Set Can Cancel.
+	 * @param canCancel set if we can cancel or not
+	 */
+	public void canCancel(boolean canCancel);
+	
+	/**
+	 * Can Cancel?
+	 * @return true if we can cancel
+	 */
+	public boolean canCancel();
+	
+	/**
 	 * Gets the input stream.
 	 *
 	 * @param in the in

@@ -29,6 +29,11 @@ public class Messages {
 	{
 		return ResourceBundle.getBundle(Messages.BUNDLE_NAME, locale);
 	}
+	
+	public static ResourceBundle getBundle()
+	{
+		return Beans.isDesignTime() ? Messages.loadBundle() : Messages.RESOURCE_BUNDLE;
+	}
 	////////////////////////////////////////////////////////////////////////////
 	//
 	// Strings access
@@ -36,8 +41,7 @@ public class Messages {
 	////////////////////////////////////////////////////////////////////////////
 	public static String getString(final String key) {
 		try {
-			final ResourceBundle bundle = Beans.isDesignTime() ? Messages.loadBundle() : Messages.RESOURCE_BUNDLE;
-			return bundle.getString(key);
+			return getBundle().getString(key);
 		} catch (final MissingResourceException e) {
 			return "!" + key + "!"; //$NON-NLS-1$ //$NON-NLS-2$
 		}

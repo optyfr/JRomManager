@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FilenameUtils;
 
-import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profile.Profile;
@@ -41,7 +40,7 @@ public class DirUpdater
 	 * @param sdrl the data obtained from {@link SDRTableModel}
 	 * @param progress the progression handler
 	 * @param srcdirs the list of source directory containing new roms
-	 * @param result the result interface
+	 * @param result the result interfaceo
 	 * @param dryrun tell not to fix
 	 */
 	public DirUpdater(Session session, List<SrcDstResult> sdrl, final ProgressHandler progress, List<File> srcdirs, ResultColUpdater result, boolean dryrun)
@@ -87,7 +86,7 @@ public class DirUpdater
 					session.report.save(session);
 					if (!dryrun)
 						new Fix(session.curr_profile, scan, progress);
-					result.updateResult(row, String.format(Messages.getString("DirUpdater.Result"), ok * 100.0 / total, total - ok, total)); //$NON-NLS-1$
+					result.updateResult(row, String.format(session.msgs.getString("DirUpdater.Result"), ok * 100.0 / total, total - ok, total)); //$NON-NLS-1$
 				}
 				dur.save(session);
 			}

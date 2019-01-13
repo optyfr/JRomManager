@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.profile.Profile;
@@ -63,7 +62,7 @@ public class Fix
 		 */
 		final AtomicInteger i = new AtomicInteger(0), max = new AtomicInteger(0);
 		curr_scan.actions.forEach(actions -> max.addAndGet(actions.size()));
-		progress.setProgress(Messages.getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
+		progress.setProgress(curr_profile.session.msgs.getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
 		
 		// foreach ordered action groups
 		curr_scan.actions.forEach(actions -> {

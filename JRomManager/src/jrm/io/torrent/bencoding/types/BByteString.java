@@ -17,9 +17,9 @@
  */
 package jrm.io.torrent.bencoding.types;
 
-import jrm.io.torrent.bencoding.Utils;
-
 import java.util.Arrays;
+
+import jrm.io.torrent.bencoding.Utils;
 
 public class BByteString implements IBencodable
 {

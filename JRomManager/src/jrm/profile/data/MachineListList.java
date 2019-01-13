@@ -19,7 +19,11 @@ package jrm.profile.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,7 +34,6 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 
-import jrm.locale.Messages;
 import jrm.profile.Profile;
 import jrm.profile.manager.Export;
 import jrm.ui.profile.data.AnywareListListRenderer;
@@ -156,7 +159,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 				case 0:
 					return ml_list.get(rowIndex);
 				case 1:
-					return Messages.getString("MachineListList.AllMachines"); //$NON-NLS-1$
+					return profile.session.msgs.getString("MachineListList.AllMachines"); //$NON-NLS-1$
 				case 2:
 					return String.format("%d/%d", ml_list.get(rowIndex).countHave(), ml_list.get(rowIndex).countAll()); //$NON-NLS-1$
 			}

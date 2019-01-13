@@ -1,10 +1,22 @@
 package jrm.ui;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JCheckBox;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -14,7 +26,12 @@ import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.SubCategory;
 import jrm.profile.filter.NPlayers.NPlayer;
 import jrm.security.Session;
-import jrm.ui.basic.*;
+import jrm.ui.basic.JCheckBoxList;
+import jrm.ui.basic.JCheckBoxTree;
+import jrm.ui.basic.JFileDropMode;
+import jrm.ui.basic.JFileDropTextField;
+import jrm.ui.basic.JTextFieldHintUI;
+import jrm.ui.basic.NGTreeNode;
 import jrm.ui.profile.filter.CatVerModel;
 
 @SuppressWarnings("serial")

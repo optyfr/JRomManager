@@ -24,13 +24,13 @@
 
 package jrm.compressors.zipfs;
 
-import java.nio.file.DirectoryStream;
+import java.io.IOException;
 import java.nio.file.ClosedDirectoryStreamException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.io.IOException;
 
 /**
  *

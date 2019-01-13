@@ -16,7 +16,13 @@
  */
 package jrm.profile.manager;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 import javax.swing.JOptionPane;
@@ -24,7 +30,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.compress.utils.Sets;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.DOMException;
 
@@ -108,7 +113,7 @@ public class Import implements UnitRenderer
 					{
 						out.write(line + "\n"); //$NON-NLS-1$
 						size += line.getBytes("UTF-8").length;
-						progress.setProgress(null, null, null, (sl?"Reading Softwares list":"Reading roms list")+" / "+(++linecnt)+" lines / " + humanReadableByteCount(size, false));
+						progress.setProgress(null, null, null, (sl ? "Reading Softwares list" : "Reading roms list") + " / " + (++linecnt) + " lines / " + humanReadableByteCount(size, false));
 					}
 				}
 			}

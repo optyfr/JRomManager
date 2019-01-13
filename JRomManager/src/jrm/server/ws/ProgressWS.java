@@ -27,6 +27,8 @@ public class ProgressWS implements ProgressHandler
 	/** The cancel. */
 	private boolean cancel = false;
 	
+	private boolean canCancel = true;
+	
 	private int val = 0, val2 = 0, max = 0, max2 = 0;
 	
 	private String infos[] = {null}, subinfos[] = {null}, msg2;
@@ -172,8 +174,7 @@ public class ProgressWS implements ProgressHandler
 		int offset = threadId_Offset.get(Thread.currentThread().getId());
 		if (val != null && val > 0)
 			this.val = val;
-		
-		infos[offset] = msg;
+			infos[offset] = msg;
 		subinfos[subinfos.length==1?0:offset] = submsg;
 /*		if(val!=null)
 			this.val = val;*/
@@ -312,6 +313,35 @@ public class ProgressWS implements ProgressHandler
 		{
 			if(ws.isOpen())
 				ws.send(Json.object().add("cmd", "Progress.close").toString());
+		}
+		catch (IOException e)
+		{
+			Log.err(e.getMessage(),e);
+		}
+	}
+
+	public boolean canCancel()
+	{
+		return canCancel;
+	}
+
+	public void canCancel(boolean canCancel)
+	{
+		this.canCancel = canCancel;
+		sendCanCancel();
+	}
+
+	private void sendCanCancel()
+	{
+		try
+		{
+			if(ws.isOpen())
+				ws.send(Json.object()
+						.add("cmd", "Progress.canCancel")
+						.add("params", Json.object()
+							.add("canCancel", canCancel)
+						).toString()
+					);
 		}
 		catch (IOException e)
 		{

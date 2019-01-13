@@ -18,7 +18,11 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,7 +30,6 @@ import java.util.stream.Stream;
 import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
-import jrm.locale.Messages;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
 import jrm.profile.data.Machine.CabinetType;
@@ -308,10 +311,10 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			writer.writeStartElement("datafile"); //$NON-NLS-1$
 		final List<Machine> list = filtered ? getFilteredStream().collect(Collectors.toList()) : getList();
 		int i = 0;
-		progress.setProgress(Messages.getString("MachineList.Exporting"), i, list.size()); //$NON-NLS-1$
+		progress.setProgress(profile.session.msgs.getString("MachineList.Exporting"), i, list.size()); //$NON-NLS-1$
 		for(final Machine m : list)
 		{
-			progress.setProgress(String.format(Messages.getString("MachineList.Exporting_%s"), m.name), ++i); //$NON-NLS-1$
+			progress.setProgress(String.format(profile.session.msgs.getString("MachineList.Exporting_%s"), m.name), ++i); //$NON-NLS-1$
 			if(!filtered || m.selected)
 				m.export(writer, is_mame);
 		}

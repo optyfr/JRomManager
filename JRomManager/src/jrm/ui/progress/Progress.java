@@ -16,14 +16,28 @@
  */
 package jrm.ui.progress;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -57,6 +71,10 @@ public class Progress extends JDialog implements ProgressHandler
 	
 	/** The cancel. */
 	private boolean cancel = false;
+	
+	/** Can we cancel. */
+	private boolean canCancel = false;
+	
 
 	/**
 	 * Instantiates a new progress.
@@ -414,5 +432,18 @@ public class Progress extends JDialog implements ProgressHandler
 	public void close()
 	{
 		dispose();
+	}
+
+	@Override
+	public void canCancel(boolean canCancel)
+	{
+		this.canCancel = canCancel;
+		btnCancel.setEnabled(canCancel);
+	}
+
+	@Override
+	public boolean canCancel()
+	{
+		return canCancel;
 	}
 }

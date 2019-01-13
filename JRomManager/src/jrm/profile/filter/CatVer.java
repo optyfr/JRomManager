@@ -20,13 +20,21 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang3.StringUtils;
 
-import jrm.locale.Messages;
 import jrm.profile.Profile;
 import jrm.profile.data.PropertyStub;
 import jrm.ui.basic.AbstractNGTreeNode;
@@ -514,7 +522,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 			for(final Category cat : list_categories)
 				cat.list_subcategories.addAll(cat.subcategories.values());
 			if(list_categories.isEmpty())
-				throw new IOException(Messages.getString("CatVer.NoCatVerData")); //$NON-NLS-1$
+				throw new IOException(profile.session.msgs.getString("CatVer.NoCatVerData")); //$NON-NLS-1$
 		}
 	}
 
@@ -574,7 +582,7 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 	@Override
 	public Object getUserObject()
 	{
-		return String.format("%s (%d)", Messages.getString("CatVer.AllCategories"), list_categories.stream().flatMap(c -> c.list_subcategories.stream().filter(SubCategory::isSelected)).mapToInt(SubCategory::size).sum()); //$NON-NLS-1$ //$NON-NLS-2$
+		return String.format("%s (%d)", profile.session.msgs.getString("CatVer.AllCategories"), list_categories.stream().flatMap(c -> c.list_subcategories.stream().filter(SubCategory::isSelected)).mapToInt(SubCategory::size).sum()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override

@@ -22,8 +22,12 @@ import org.apache.commons.io.IOUtils;
 
 import jrm.locale.Messages;
 import jrm.misc.Log;
-import jrm.profile.data.*;
+import jrm.profile.data.Container;
+import jrm.profile.data.Entry;
 import jrm.profile.data.Entry.Type;
+import jrm.profile.data.Machine;
+import jrm.profile.data.Software;
+import jrm.profile.data.SoftwareList;
 import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.scan.DirScan.Options;

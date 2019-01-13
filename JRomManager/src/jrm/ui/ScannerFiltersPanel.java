@@ -1,5 +1,6 @@
 package jrm.ui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -18,6 +19,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
 import jrm.locale.Messages;
@@ -29,8 +31,6 @@ import jrm.profile.data.Systm;
 import jrm.profile.data.Years;
 import jrm.security.Session;
 import jrm.ui.basic.JCheckBoxList;
-import javax.swing.UIManager;
-import java.awt.Color;
 
 @SuppressWarnings("serial")
 public class ScannerFiltersPanel extends JSplitPane
