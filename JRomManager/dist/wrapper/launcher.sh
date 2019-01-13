@@ -344,7 +344,7 @@ done
 # Try to source a file with the same filename as the script and with the '.shconf' extension.
 case $REALPATH in
     *.sh)
-        SHCONF_FILE="$REALPATH" | rev | cut -d"." -f2- | rev
+        SHCONF_FILE=`echo "$REALPATH" | rev | cut -d"." -f2- | rev`
         ;;
     *)
         SHCONF_FILE="$REALPATH"

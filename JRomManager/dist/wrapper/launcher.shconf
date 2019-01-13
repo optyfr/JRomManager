@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# change to another existing user here if you don't want it to be run as root
+RUN_AS_USER=root
+
+# This is where PID dir will reside
+PIDDIR="/var/run/jrommanager"
+mkdir -p $PIDDIR
+chown -R $RUN_AS_USER $PIDDIR
+chmod 700 $PIDDIR

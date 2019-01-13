@@ -162,6 +162,7 @@ task distZip(type: Zip, dependsOn: [jar, sevenzip, ':WebClient:build']) {
 	from ('dist/wrapper') {
 		include '*.bat'
 		include '*.sh'
+		include '*.shconf'
 		into 'wrapper/bin'
 		fileMode = 0755
 	}
@@ -222,6 +223,7 @@ ospackage {
 	from ('dist') {
 		include '*.bat'
 		include '*.sh'
+		include '*.shconf'
 		fileMode = 0755
 	}
 	from ('dist') {
