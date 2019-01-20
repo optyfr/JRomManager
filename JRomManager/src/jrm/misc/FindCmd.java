@@ -21,8 +21,6 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
 
-import lombok.val;
-
 /**
  * Wrapper to which or where.exe system commands (depends of the OS)
  * @author optyfr

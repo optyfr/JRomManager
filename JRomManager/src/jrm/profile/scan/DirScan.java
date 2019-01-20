@@ -513,7 +513,7 @@ public final class DirScan
 								});
 								c.loaded = need_sha1_or_md5 ? 2 : 1;
 							}
-							catch (ZipError e) {
+							catch (ZipError|IOException e) {
 								System.err.println(c.file+" : "+e.getMessage()); //$NON-NLS-1$
 							}
 						}
