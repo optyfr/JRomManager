@@ -1,5 +1,6 @@
 package jrm.server.datasources;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -84,7 +85,10 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	{
 	//	DirNode root = new DirNode(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
 		int key = request.session.tmp_profile_lst.lastKey()+1;
-		Path path = Files.createDirectory(Paths.get(operation.getData("Path"), operation.getData("title")));
+		String basepath = operation.getData("Path");
+		if(basepath==null || basepath.isEmpty())
+			basepath = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toString();
+		Path path = Files.createDirectory(Paths.get(basepath, operation.getData("title")));
 		request.session.tmp_profile_lst.put(key, path);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");

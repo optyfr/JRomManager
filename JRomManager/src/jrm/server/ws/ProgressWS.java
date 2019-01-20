@@ -29,7 +29,7 @@ public class ProgressWS implements ProgressHandler
 	
 	private boolean canCancel = true;
 	
-	private int val = 0, val2 = 0, max = 0, max2 = 0;
+	private int val = 0, oldval = Integer.MIN_VALUE, val2 = 0, oldval2 = Integer.MIN_VALUE, max = 0, max2 = 0;
 	
 	private String infos[] = {null}, subinfos[] = {null}, msg2;
 	
@@ -172,14 +172,17 @@ public class ProgressWS implements ProgressHandler
 			}
 		}
 		int offset = threadId_Offset.get(Thread.currentThread().getId());
+		if(max!=null)
+		{
+			if(max != this.max)
+				this.val = -1;
+			this.max = max;
+		}
 		if (val != null && val > 0)
 			this.val = val;
+		if(msg!=null)
 			infos[offset] = msg;
 		subinfos[subinfos.length==1?0:offset] = submsg;
-/*		if(val!=null)
-			this.val = val;*/
-		if(max!=null)
-			this.max = max;
 		sendSetProgress(offset, val, max);
 	}
 	
@@ -192,7 +195,7 @@ public class ProgressWS implements ProgressHandler
 		{
 			if(ws.isOpen())
 			{
-				if (System.currentTimeMillis() - lastSetProgress > 500 || (val != null && (val == 0 || val == this.max)))
+				if (System.currentTimeMillis() - lastSetProgress > 500 || (val != null && ((val != oldval && val <= 0) || val == this.max)))
 				{
 					ws.send(
 						new JsonObject() {{
@@ -201,7 +204,7 @@ public class ProgressWS implements ProgressHandler
 									add("offset", offset);
 									add("msg", infos[offset]);
 									if(val==null)
-										add("val", (String)null);
+										add("val", ProgressWS.this.val);
 									else
 										add("val", val);
 									if(max==null)
@@ -214,6 +217,8 @@ public class ProgressWS implements ProgressHandler
 						}}.toString()
 					);
 					lastSetProgress = System.currentTimeMillis();
+					if(val != null)
+						oldval = val;
 				}
 			}
 		}
@@ -233,10 +238,14 @@ public class ProgressWS implements ProgressHandler
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
+		if (max != null)
+		{
+			if(max != this.max2)
+				this.val2 = -1;
+			this.max2 = max;
+		}
 		if (val != null)
 			this.val2 = val;
-		if (max != null)
-			this.max2 = max;
 		this.msg2 = msg;
 		sendSetProgress2(val, max);
 	}
@@ -250,7 +259,7 @@ public class ProgressWS implements ProgressHandler
 		{
 			if(ws.isOpen())
 			{
-				if (System.currentTimeMillis() - lastSetProgress2 > 500 || (val != null && (val == 0 || val == this.max2)))
+				if (System.currentTimeMillis() - lastSetProgress2 > 500 || (val != null && ((val != oldval2 && val <= 0) || val == this.max2)))
 				{
 					ws.send(new JsonObject() {{
 						add("cmd", "Progress.setProgress2");
@@ -259,7 +268,7 @@ public class ProgressWS implements ProgressHandler
 							if (val != null)
 								add("val", val);
 							else
-								add("val", (String)null);
+								add("val", ProgressWS.this.val2);
 							if (max != null)
 								add("max", max);
 							else
@@ -267,6 +276,8 @@ public class ProgressWS implements ProgressHandler
 						}});
 					}}.toString());
 					lastSetProgress2 = System.currentTimeMillis();
+					if(val!=null)
+						oldval2=val;
 				}
 			}
 		}
