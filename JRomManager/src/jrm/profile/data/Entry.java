@@ -109,26 +109,33 @@ public class Entry implements Serializable
 		modified = attr.lastModifiedTime().toMillis();
 	}
 
+	
+	private String cached_name = null;
+	
 	/**
 	 * get the relativized (against its parent) and normalized name (according parent or file type)
 	 * @return the relativized name string
 	 */
 	public String getName()
 	{
-		final Path path = Paths.get(file);
-		if(parent.getType() == Container.Type.DIR)
+		if(cached_name==null)
 		{
-			//	System.out.println(parent.file.toPath().relativize(path).toString().replace('\\', '/'));
-			return parent.file.toPath().relativize(path).toString().replace('\\', '/');
+			final Path path = Paths.get(file);
+			if(parent.getType() == Container.Type.DIR)
+			{
+				//	System.out.println(parent.file.toPath().relativize(path).toString().replace('\\', '/'));
+				return cached_name=parent.file.toPath().relativize(path).toString().replace('\\', '/');
+			}
+			if(type == Type.CHD)
+			{
+				Path fileName = path.getFileName();
+				if(fileName==null)
+					return null;
+				return cached_name=fileName.toString();
+			}
+			return cached_name=path.subpath(0, path.getNameCount()).toString().replace('\\', '/');
 		}
-		if(type == Type.CHD)
-		{
-			Path fileName = path.getFileName();
-			if(fileName==null)
-				return null;
-			return fileName.toString();
-		}
-		return path.subpath(0, path.getNameCount()).toString().replace('\\', '/');
+		return cached_name;
 	}
 
 	/**

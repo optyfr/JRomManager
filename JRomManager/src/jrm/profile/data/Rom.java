@@ -102,7 +102,7 @@ public class Rom extends Entity implements Serializable
 	@Override
 	public String getName()
 	{
-		if (getParent().profile.settings!=null && getParent().profile.settings.merge_mode.isMerge())
+		if (parent.getProfile().settings!=null && parent.getProfile().settings.merge_mode.isMerge())
 		{
 			if (merge == null)
 			{
