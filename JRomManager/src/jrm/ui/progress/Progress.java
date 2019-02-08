@@ -189,37 +189,39 @@ public class Progress extends JDialog implements ProgressHandler
 	@Override
 	public void setInfos(int threadCnt, boolean multipleSubInfos)
 	{
-		panel.removeAll();
-		
-		lblInfo = new JLabel[threadCnt];
-		lblSubInfo = new JLabel[multipleSubInfos?threadCnt:1];
 		threadId_Offset.clear();
-		
-		for(int i = 0; i < threadCnt; i++)
+		if(lblInfo==null || lblInfo.length!=threadCnt || lblSubInfo==null || lblSubInfo.length!=(multipleSubInfos?threadCnt:1))
 		{
-			panel.add(lblInfo[i] = new JLabel());
-			lblInfo[i].setPreferredSize(new Dimension(0, 20));
-			lblInfo[i].setMinimumSize(new Dimension(0, 20));
-			lblInfo[i].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-	
-			if(multipleSubInfos)
+			panel.removeAll();
+			
+			lblInfo = new JLabel[threadCnt];
+			lblSubInfo = new JLabel[multipleSubInfos?threadCnt:1];
+			
+			for(int i = 0; i < threadCnt; i++)
 			{
-				panel.add(lblSubInfo[i] = new JLabel());
-				lblSubInfo[i].setPreferredSize(new Dimension(0, 20));
-				lblSubInfo[i].setMinimumSize(new Dimension(0, 20));
-				lblSubInfo[i].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-			}
-		}
-		if(!multipleSubInfos)
-		{
-			panel.add(lblSubInfo[0] = new JLabel());
-			lblSubInfo[0].setPreferredSize(new Dimension(0, 20));
-			lblSubInfo[0].setMinimumSize(new Dimension(0, 20));
-			lblSubInfo[0].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		}
+				panel.add(lblInfo[i] = new JLabel());
+				lblInfo[i].setPreferredSize(new Dimension(0, 20));
+				lblInfo[i].setMinimumSize(new Dimension(0, 20));
+				lblInfo[i].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		
-		packHeight();
-
+				if(multipleSubInfos)
+				{
+					panel.add(lblSubInfo[i] = new JLabel());
+					lblSubInfo[i].setPreferredSize(new Dimension(0, 20));
+					lblSubInfo[i].setMinimumSize(new Dimension(0, 20));
+					lblSubInfo[i].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+				}
+			}
+			if(!multipleSubInfos)
+			{
+				panel.add(lblSubInfo[0] = new JLabel());
+				lblSubInfo[0].setPreferredSize(new Dimension(0, 20));
+				lblSubInfo[0].setMinimumSize(new Dimension(0, 20));
+				lblSubInfo[0].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+			}
+			
+			packHeight();
+		}
 	}
 	
 	@Override

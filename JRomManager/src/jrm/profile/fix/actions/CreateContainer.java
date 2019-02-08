@@ -193,4 +193,9 @@ public class CreateContainer extends ContainerAction
 		return str;
 	}
 
+	@Override
+	public long estimatedSize()
+	{
+		return dataSize;
+	}
 }

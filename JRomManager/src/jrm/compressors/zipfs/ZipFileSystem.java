@@ -476,19 +476,22 @@ class ZipFileSystem extends FileSystem
 				{
 					AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>) () -> Files.deleteIfExists(p));
 				}
-				catch (PrivilegedActionException e)
+/*				catch (PrivilegedActionException e)
 				{
 					IOException x = (IOException) e.getException();
 					if (ioe == null)
 						ioe = x;
 					else
 						ioe.addSuppressed(x);
+				}*/
+				catch(Exception e)
+				{
 				}
 			}
 		}
 		provider.removeFileSystem(zfpath, this);
-		if (ioe != null)
-			throw ioe;
+//		if (ioe != null)
+//			throw ioe;
 	}
 
 	ZipFileAttributes getFileAttributes(byte[] path) throws IOException

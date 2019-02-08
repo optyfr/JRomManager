@@ -30,7 +30,7 @@ import jrm.ui.progress.ProgressHandler;
  * @author optyfr
  *
  */
-abstract public class ContainerAction implements HTMLRenderer
+abstract public class ContainerAction implements HTMLRenderer, Comparable<ContainerAction>
 {
 	/**
 	 * the container on which applying actions
@@ -83,5 +83,21 @@ abstract public class ContainerAction implements HTMLRenderer
 	 * @return true if successful, false otherwise
 	 */
 	public abstract boolean doAction(final Session session, ProgressHandler handler);
+	
+	public long estimatedSize()
+	{
+		return 0L;
+	}
+	
+	@Override
+	public int compareTo(ContainerAction o)
+	{
+		if(estimatedSize()<o.estimatedSize())
+			return -1;
+		if(estimatedSize()>o.estimatedSize())
+			return 1;
+		return 0;
+	}
+
 
 }
