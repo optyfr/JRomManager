@@ -38,15 +38,17 @@ import jrm.ui.progress.ProgressTZipCallBack;
  */
 public class TZipContainer extends ContainerAction
 {
-
+	private long dataSize;
+	
 	/**
 	 * Constructor
 	 * @param container the container to tzip
 	 * @param format the desired format (should be always {@link FormatOptions#TZIP} otherwise nothing will happen)
 	 */
-	public TZipContainer(final Container container, final FormatOptions format)
+	public TZipContainer(final Container container, final FormatOptions format, final long dataSize)
 	{
 		super(container, format);
+		this.dataSize = dataSize;
 	}
 
 	@Override
@@ -79,4 +81,8 @@ public class TZipContainer extends ContainerAction
 		return false;
 	}
 
+	public long estimatedSize()
+	{
+		return dataSize<Long.MAX_VALUE?dataSize:0;
+	}
 }

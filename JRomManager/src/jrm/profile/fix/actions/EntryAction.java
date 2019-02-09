@@ -81,4 +81,10 @@ abstract public class EntryAction implements HTMLRenderer
 	 * @return true if successful, otherwise false
 	 */
 	public abstract boolean doAction(final Session session, Path target, ProgressHandler handler, int i, int max);
+	
+	public long estimatedSize()
+	{
+		return 0L;
+	}
+
 }

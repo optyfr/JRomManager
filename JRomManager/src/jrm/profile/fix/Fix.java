@@ -17,14 +17,11 @@
 package jrm.profile.fix;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -38,7 +35,6 @@ import jrm.profile.fix.actions.BackupContainer;
 import jrm.profile.fix.actions.ContainerAction;
 import jrm.profile.scan.Scan;
 import jrm.ui.progress.ProgressHandler;
-import one.util.streamex.StreamEx;
 
 /**
  * The class that fix apply all the fixes on your set
@@ -68,7 +64,10 @@ public class Fix
 		 * Initialize global progression
 		 */
 		final AtomicInteger i = new AtomicInteger(0), max = new AtomicInteger(0);
-		curr_scan.actions.forEach(actions -> max.addAndGet(actions.size()));
+		curr_scan.actions.forEach(actions -> {
+			max.addAndGet(actions.size());
+			actions.forEach(action->max.addAndGet(action.count() + (int)(action.estimatedSize()>>20)));
+		});
 		progress.setProgress(curr_profile.session.msgs.getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
 		
 		// foreach ordered action groups
@@ -89,7 +88,7 @@ public class Fix
 							progress.cancel(); // ... and cancel all if it failed
 						else
 							done.add(action);	// add to "done" list successful action 
-						progress.setProgress(null, i.incrementAndGet());	// update progression
+						progress.setProgress(null, i.addAndGet(1 + action.count() + (int)(action.estimatedSize()>>20)));	// update progression
 					}
 					catch(final BreakException be)
 					{

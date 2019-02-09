@@ -229,4 +229,19 @@ public class OpenContainer extends ContainerAction
 			str += "\n\t" + action; //$NON-NLS-1$
 		return str;
 	}
+	
+	@Override
+	public long estimatedSize()
+	{
+		long size = 0;
+		for (final EntryAction action : entry_actions)
+			size += action.estimatedSize();
+		return size;
+	}
+	
+	@Override
+	public int count()
+	{
+		return entry_actions.size();
+	}
 }

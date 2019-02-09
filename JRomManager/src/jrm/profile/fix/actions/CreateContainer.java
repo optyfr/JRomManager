@@ -196,6 +196,12 @@ public class CreateContainer extends ContainerAction
 	@Override
 	public long estimatedSize()
 	{
-		return dataSize;
+		return dataSize<Long.MAX_VALUE?dataSize:0;
+	}
+	
+	@Override
+	public int count()
+	{
+		return entry_actions.size();
 	}
 }

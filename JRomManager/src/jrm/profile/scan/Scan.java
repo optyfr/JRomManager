@@ -571,8 +571,9 @@ public class Scan
 					}
 					if (tzipcontainer != null)
 					{
+						final long estimated_roms_size = roms.stream().mapToLong(Rom::getSize).sum();
 						tzipcontainer.m = ware;
-						tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
+						tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format, estimated_roms_size));
 						report.add(new ContainerTZip(tzipcontainer));
 					}
 				}
@@ -608,7 +609,7 @@ public class Scan
 				if (tzipcontainer != null)
 				{
 					tzipcontainer.m = set;
-					tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format));
+					tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format, Long.MAX_VALUE));
 					report.add(new ContainerTZip(tzipcontainer));
 				}
 			}

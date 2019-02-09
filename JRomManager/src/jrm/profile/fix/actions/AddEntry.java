@@ -29,6 +29,7 @@ import jrm.compressors.SevenZipArchive;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Container.Type;
+import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 import jrm.profile.data.Rom;
@@ -230,5 +231,13 @@ public class AddEntry extends EntryAction
 	public String toString()
 	{
 		return String.format(Messages.getString("AddEntry.Add"), entry, entity); //$NON-NLS-1$
+	}
+	
+	@Override
+	public long estimatedSize()
+	{
+		if(entity instanceof Entity)
+			return ((Entity)entity).getSize();
+		return 0L;
 	}
 }

@@ -89,6 +89,11 @@ abstract public class ContainerAction implements HTMLRenderer, Comparable<Contai
 		return 0L;
 	}
 	
+	public int count()
+	{
+		return 0;
+	}
+	
 	@Override
 	public int compareTo(ContainerAction o)
 	{
