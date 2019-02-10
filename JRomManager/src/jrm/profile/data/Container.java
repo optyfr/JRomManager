@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,7 @@ import lombok.Getter;
  *
  */
 @SuppressWarnings("serial")
-public class Container implements Serializable
+public class Container implements Serializable, Comparable<Container>
 {
 	/**
 	 * file or directory of the container
@@ -51,6 +52,7 @@ public class Container implements Serializable
 	 * file size in bytes or 0 if folder
 	 */
 	public long size = 0L;
+
 	/**
 	 * keep entries by name
 	 */
@@ -213,5 +215,40 @@ public class Container implements Serializable
 	{
 		return "Container " + file; //$NON-NLS-1$
 
+	}
+
+	@Override
+	public int compareTo(Container o)
+	{
+		if (size < o.size)
+			return -1;
+		if (size > o.size)
+			return 1;
+		return 0;
+	}
+	
+	public static Comparator<Container> comparator()
+	{
+		return new Comparator<Container>()
+		{
+			@Override
+			public int compare(Container o1, Container o2)
+			{
+				return o1.compareTo(o2);
+			}
+		};
+	}
+
+	
+	public static Comparator<Container> rcomparator()
+	{
+		return new Comparator<Container>()
+		{
+			@Override
+			public int compare(Container o1, Container o2)
+			{
+				return -o1.compareTo(o2);
+			}
+		};
 	}
 }

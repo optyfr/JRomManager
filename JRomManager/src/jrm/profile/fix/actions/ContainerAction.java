@@ -17,6 +17,7 @@
 package jrm.profile.fix.actions;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import jrm.misc.HTMLRenderer;
@@ -97,12 +98,39 @@ abstract public class ContainerAction implements HTMLRenderer, Comparable<Contai
 	@Override
 	public int compareTo(ContainerAction o)
 	{
-		if(estimatedSize()<o.estimatedSize())
+		if (estimatedSize() < o.estimatedSize())
 			return -1;
-		if(estimatedSize()>o.estimatedSize())
+		if (estimatedSize() > o.estimatedSize())
+			return 1;
+		if (count() < o.count())
+			return -1;
+		if (count() > o.count())
 			return 1;
 		return 0;
 	}
+	
+	public static Comparator<ContainerAction> comparator()
+	{
+		return new Comparator<ContainerAction>()
+		{
+			@Override
+			public int compare(ContainerAction o1, ContainerAction o2)
+			{
+				return o1.compareTo(o2);
+			}
+		};
+	}
 
-
+	
+	public static Comparator<ContainerAction> rcomparator()
+	{
+		return new Comparator<ContainerAction>()
+		{
+			@Override
+			public int compare(ContainerAction o1, ContainerAction o2)
+			{
+				return -o1.compareTo(o2);
+			}
+		};
+	}
 }

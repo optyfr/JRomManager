@@ -65,6 +65,8 @@ import jrm.io.chd.CHDInfoReader;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.MultiThreading;
+import jrm.misc.MultiThreading.CallableWith;
 import jrm.profile.Profile;
 import jrm.profile.data.Archive;
 import jrm.profile.data.Container;
@@ -77,6 +79,7 @@ import jrm.profile.data.Rom;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
+import lombok.val;
 import net.sf.sevenzipjbinding.ExtractAskMode;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
 import net.sf.sevenzipjbinding.IArchiveExtractCallback;
@@ -307,6 +310,7 @@ public final class DirScan
 		final boolean format_tzip = options.contains(Options.FORMAT_TZIP);
 		final boolean include_empty_dirs = options.contains(Options.EMPTY_DIRS);
 		final boolean archives_and_chd_as_roms = options.contains(Options.ARCHIVES_AND_CHD_AS_ROMS);
+		val nThreads = use_parallelism?Runtime.getRuntime().availableProcessors():1;
 		
 		final Path path = Paths.get(dir.getAbsolutePath());
 
@@ -329,7 +333,7 @@ public final class DirScan
 		 * Initialize progression
 		 */
 		handler.clearInfos();
-		handler.setInfos(use_parallelism?Runtime.getRuntime().availableProcessors():1,false);
+		handler.setInfos(nThreads,false);
 		
 
 		/*
@@ -478,120 +482,129 @@ public final class DirScan
 		 */
 		final AtomicInteger i = new AtomicInteger(0);
 		handler.clearInfos();
-		handler.setInfos(use_parallelism?Runtime.getRuntime().availableProcessors():1,true);
+		handler.setInfos(nThreads,true);
 		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), dir) , i.get(), containers.size()); //$NON-NLS-1$
 		handler.setProgress2("", 0, containers.size()); //$NON-NLS-1$
-		StreamEx.of(use_parallelism ? containers.parallelStream().unordered() : containers.stream()).takeWhile((c) -> !handler.isCancel()).forEach(c -> {
-			try
+		MultiThreading.execute(nThreads, containers.stream().sorted(Container.rcomparator()), new CallableWith<Container>()
+		{
+			@Override
+			public Void call() throws Exception
 			{
-				switch(c.getType())
+				val c = get();
+				if(handler.isCancel())
+					return null;
+				try
 				{
-					case ZIP:
+					switch(c.getType())
 					{
-						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
+						case ZIP:
 						{
-							final Map<String, Object> env = new HashMap<>();
-							env.put("useTempFile", true); //$NON-NLS-1$
-							env.put("readOnly", true); //$NON-NLS-1$
-							try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.file.toURI()), env);) //$NON-NLS-1$
+							if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
 							{
-								final Path root = fs.getPath("/"); //$NON-NLS-1$
-								Files.walkFileTree(root, new SimpleFileVisitor<Path>()
+								final Map<String, Object> env = new HashMap<>();
+								env.put("useTempFile", true); //$NON-NLS-1$
+								env.put("readOnly", true); //$NON-NLS-1$
+								try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.file.toURI()), env);) //$NON-NLS-1$
+								{
+									final Path root = fs.getPath("/"); //$NON-NLS-1$
+									Files.walkFileTree(root, new SimpleFileVisitor<Path>()
+									{
+										@Override
+										public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
+										{
+											update_entry(c.add(new Entry(entry_path.toString())), entry_path);
+											return FileVisitResult.CONTINUE;
+										}
+
+										@Override
+										public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+										{
+											return FileVisitResult.CONTINUE;
+										}
+									});
+									c.loaded = need_sha1_or_md5 ? 2 : 1;
+								}
+								catch (ZipError|IOException e) {
+									System.err.println(c.file+" : "+e.getMessage()); //$NON-NLS-1$
+								}
+							}
+							else
+							{
+								for(final Entry entry : c.getEntries())
+									update_entry(entry);
+							}
+							if(is_dest && format_tzip && c.lastTZipCheck < c.modified)
+							{
+								c.lastTZipStatus = torrentzip.Process(c.file);
+								c.lastTZipCheck = System.currentTimeMillis();
+							}
+							break;
+						}
+						case RAR:
+						case SEVENZIP:
+						{
+							try(SevenZUpdateEntries entries = new SevenZUpdateEntries(c))
+							{
+								entries.updateEntries();
+							}
+							break;
+						}
+						case DIR:
+						{
+							try
+							{
+								Files.walkFileTree(c.file.toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
 								{
 									@Override
 									public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
 									{
-										update_entry(c.add(new Entry(entry_path.toString())), entry_path);
+										if(attrs.isRegularFile())
+										{
+											Entry entry = new Entry(entry_path.toString(), attrs);
+											if(archives_and_chd_as_roms)
+												entry.type = Entry.Type.UNK;
+											handler.setProgress(c.file.getName() , -1, null, File.separator+c.file.toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+											update_entry(c.add(entry), entry_path);
+										}
 										return FileVisitResult.CONTINUE;
 									}
-
+		
 									@Override
 									public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
 									{
 										return FileVisitResult.CONTINUE;
 									}
 								});
-								c.loaded = need_sha1_or_md5 ? 2 : 1;
 							}
-							catch (ZipError|IOException e) {
-								System.err.println(c.file+" : "+e.getMessage()); //$NON-NLS-1$
-							}
-						}
-						else
-						{
-							for(final Entry entry : c.getEntries())
-								update_entry(entry);
-						}
-						if(is_dest && format_tzip && c.lastTZipCheck < c.modified)
-						{
-							c.lastTZipStatus = torrentzip.Process(c.file);
-							c.lastTZipCheck = System.currentTimeMillis();
-						}
-						break;
-					}
-					case RAR:
-					case SEVENZIP:
-					{
-						try(SevenZUpdateEntries entries = new SevenZUpdateEntries(c))
-						{
-							entries.updateEntries();
-						}
-						break;
-					}
-					case DIR:
-					{
-						try
-						{
-							Files.walkFileTree(c.file.toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
+							catch(AccessDeniedException e)
 							{
-								@Override
-								public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
-								{
-									if(attrs.isRegularFile())
-									{
-										Entry entry = new Entry(entry_path.toString(), attrs);
-										if(archives_and_chd_as_roms)
-											entry.type = Entry.Type.UNK;
-										handler.setProgress(c.file.getName() , -1, null, File.separator+c.file.toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
-										update_entry(c.add(entry), entry_path);
-									}
-									return FileVisitResult.CONTINUE;
-								}
-	
-								@Override
-								public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-								{
-									return FileVisitResult.CONTINUE;
-								}
-							});
+								
+							}
+							c.loaded = need_sha1_or_md5 ? 2 : 1;
+							break;
 						}
-						catch(AccessDeniedException e)
-						{
-							
-						}
-						c.loaded = need_sha1_or_md5 ? 2 : 1;
-						break;
+						default:
+							break;
 					}
-					default:
-						break;
+					handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.file.getName())); //$NON-NLS-1$
+					handler.setProgress2(String.format("%d/%d (%d%%)", i.get(), containers.size(), (int)(i.get() * 100.0 / containers.size())), i.incrementAndGet()); //$NON-NLS-1$
 				}
-				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.file.getName())); //$NON-NLS-1$
-				handler.setProgress2(String.format("%d/%d (%d%%)", i.get(), containers.size(), (int)(i.get() * 100.0 / containers.size())), i.incrementAndGet()); //$NON-NLS-1$
-			}
-			catch(final IOException e)
-			{
-				c.loaded = 0;
-				Log.err("IOException when scanning", e); //$NON-NLS-1$
-			}
-			catch(final BreakException e)
-			{
-				c.loaded = 0;
-				handler.cancel();
-			}
-			catch(final Throwable e)
-			{
-				c.loaded = 0;
-				Log.err("Other Exception when listing", e); //$NON-NLS-1$
+				catch(final IOException e)
+				{
+					c.loaded = 0;
+					Log.err("IOException when scanning", e); //$NON-NLS-1$
+				}
+				catch(final BreakException e)
+				{
+					c.loaded = 0;
+					handler.cancel();
+				}
+				catch(final Throwable e)
+				{
+					c.loaded = 0;
+					Log.err("Other Exception when listing", e); //$NON-NLS-1$
+				}
+				return null;
 			}
 		});
 

@@ -20,21 +20,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.MultiThreading;
+import jrm.misc.MultiThreading.CallableWith;
 import jrm.profile.Profile;
 import jrm.profile.fix.actions.BackupContainer;
 import jrm.profile.fix.actions.ContainerAction;
 import jrm.profile.scan.Scan;
 import jrm.ui.progress.ProgressHandler;
+import lombok.val;
 
 /**
  * The class that fix apply all the fixes on your set
@@ -56,7 +55,8 @@ public class Fix
 	{
 		this.curr_scan = curr_scan;
 
-		final boolean use_parallelism = curr_profile.getProperty("use_parallelism", false); //$NON-NLS-1$
+		val use_parallelism = curr_profile.getProperty("use_parallelism", false); //$NON-NLS-1$
+		val nThreads = use_parallelism ? Runtime.getRuntime().availableProcessors() : 1;
 
 		final long start = System.currentTimeMillis();
 		
@@ -74,44 +74,35 @@ public class Fix
 		curr_scan.actions.forEach(actions -> {
 			final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
 			// resets progression parallelism (needed since thread IDs may change between to parallel streaming)
-			progress.setInfos(use_parallelism ? Runtime.getRuntime().availableProcessors() : 1, use_parallelism);
-			ExecutorService service = Executors.newFixedThreadPool(use_parallelism ? Runtime.getRuntime().availableProcessors() : 1);
-			for(ContainerAction action : actions.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList()))
+			progress.setInfos(nThreads, use_parallelism);
+			MultiThreading.execute(nThreads, actions.stream().sorted(ContainerAction.rcomparator()), new CallableWith<ContainerAction>()
 			{
-				service.submit(()->
+				@Override
+				public Void call() throws Exception
 				{
-					if(progress.isCancel())
-						return;
+					val action = get();
+					if (progress.isCancel())
+						return null;
 					try
 					{
-						if(!action.doAction(curr_profile.session, progress)) // do action...
+						if (!action.doAction(curr_profile.session, progress)) // do action...
 							progress.cancel(); // ... and cancel all if it failed
 						else
-							done.add(action);	// add to "done" list successful action 
-						progress.setProgress(null, i.addAndGet(1 + action.count() + (int)(action.estimatedSize()>>20)));	// update progression
+							done.add(action); // add to "done" list successful action
+						progress.setProgress(null, i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression
 					}
-					catch(final BreakException be)
-					{
-						// special catch case from BreakException thrown from underlying streams 
+					catch (final BreakException be)
+					{	// special catch case from BreakException thrown from underlying streams
 						progress.cancel();
 					}
 					catch (final Throwable e)
-					{
-						// oups! something unexpected happened
-						Log.err(e.getMessage(),e);
+					{	// oups! something unexpected happened
+						Log.err(e.getMessage(), e);
 					}
-				});
-			}
-			service.shutdown();
-			try
-			{
-				service.awaitTermination(1, TimeUnit.DAYS);
-			}
-			catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+					return null;
+				}
+
+			});
 			// close all open FS from backup (if the last actions was backup)
 			if (done.size() > 0 && done.get(0) instanceof BackupContainer)
 				BackupContainer.closeAllFS();
@@ -121,42 +112,6 @@ public class Fix
 			progress.clearInfos();
 
 		});		
-/*		
-		// foreach ordered action groups
-		curr_scan.actions.forEach(actions -> {
-			final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
-			// resets progression parallelism (needed since thread IDs may change between to parallel streaming)
-			progress.setInfos(use_parallelism ? Runtime.getRuntime().availableProcessors() : 1, use_parallelism);
-			// stream actions while not canceled
-			StreamEx.of(use_parallelism ? actions.parallelStream().unordered() : actions.stream()).takeWhile((action) -> !progress.isCancel()).forEach(action -> {
-				try
-				{
-					if(!action.doAction(curr_profile.session, progress)) // do action...
-						progress.cancel(); // ... and cancel all if it failed
-					else
-						done.add(action);	// add to "done" list successful action 
-					progress.setProgress(null, i.incrementAndGet());	// update progression
-				}
-				catch(final BreakException be)
-				{
-					// special catch case from BreakException thrown from underlying streams 
-					progress.cancel();
-				}
-				catch (final Throwable e)
-				{
-					// oups! something unexpected happened
-					Log.err(e.getMessage(),e);
-				}
-			});
-			// close all open FS from backup (if the last actions was backup)
-			if (done.size() > 0 && done.get(0) instanceof BackupContainer)
-				BackupContainer.closeAllFS();
-			// remove all done actions
-			actions.removeAll(done);
-			// this actions group is finished, clear progression status
-			progress.clearInfos();
-		});*/
-		
 		
 		// reset progression to normal before leaving
 		progress.setInfos(1,false);
