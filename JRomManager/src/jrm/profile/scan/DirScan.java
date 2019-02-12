@@ -345,6 +345,7 @@ public final class DirScan
 		{
 			final AtomicInteger i = new AtomicInteger();
 			handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles"), dir), 0); //$NON-NLS-1$
+			handler.setProgress2("", null); //$NON-NLS-1$
 			StreamEx.of(StreamSupport.stream(stream.spliterator(), use_parallelism)).unordered().takeWhile((p) -> !handler.isCancel()).forEach(p -> {
 				Container c = null;
 				if(path.equals(p))
@@ -480,11 +481,13 @@ public final class DirScan
 		/*
 		 * Now read at least archives content, add eventually calculate checksum for each entries if needed
 		 */
-		final AtomicInteger i = new AtomicInteger(0);
+		final AtomicInteger i = new AtomicInteger(0), j = new AtomicInteger(0), max = new AtomicInteger(0);
+		max.addAndGet(containers.size());
+		containers.forEach(c->max.addAndGet((int)(c.size>>20)));
 		handler.clearInfos();
 		handler.setInfos(nThreads,true);
-		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), dir) , i.get(), containers.size()); //$NON-NLS-1$
-		handler.setProgress2("", 0, containers.size()); //$NON-NLS-1$
+		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), dir) , -1); //$NON-NLS-1$
+		handler.setProgress2("", j.get(), max.get()); //$NON-NLS-1$
 		MultiThreading.execute(nThreads, containers.stream().sorted(Container.rcomparator()), new CallableWith<Container>()
 		{
 			@Override
@@ -587,7 +590,7 @@ public final class DirScan
 							break;
 					}
 					handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.file.getName())); //$NON-NLS-1$
-					handler.setProgress2(String.format("%d/%d (%d%%)", i.get(), containers.size(), (int)(i.get() * 100.0 / containers.size())), i.incrementAndGet()); //$NON-NLS-1$
+					handler.setProgress2(String.format("%d/%d (%d%%)", i.incrementAndGet(), containers.size(), (int)(j.addAndGet(1+(int)(c.size>>20)) * 100.0 / max.get())), j.get()); //$NON-NLS-1$
 				}
 				catch(final IOException e)
 				{

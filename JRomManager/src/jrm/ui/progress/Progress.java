@@ -314,13 +314,14 @@ public class Progress extends JDialog implements ProgressHandler
 				lblTimeleft.setVisible(false);
 				packHeight();
 			}
-			else if (val > 0 && !progressBar.isVisible())
+			else if (val >= 0 && !progressBar.isVisible())
 			{
 				progressBar.setVisible(true);
 				lblTimeleft.setVisible(true);
 				packHeight();
 			}
-			progressBar.setStringPainted(true);
+			progressBar.setStringPainted(val!=0);
+			progressBar.setIndeterminate(val==0);
 			if (max != null)
 				progressBar.setMaximum(max);
 			if (val > 0)
@@ -376,8 +377,9 @@ public class Progress extends JDialog implements ProgressHandler
 				lblTimeLeft2.setVisible(true);
 				packHeight();
 			}
-			progressBar2.setStringPainted(true);
+			progressBar2.setStringPainted(val!=0);
 			progressBar2.setString(msg);
+			progressBar2.setIndeterminate(val==0);
 			if (max != null)
 				progressBar2.setMaximum(max);
 			if (val > 0)
