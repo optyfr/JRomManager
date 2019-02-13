@@ -136,14 +136,14 @@ public class ProfileWS
 	
 	void scan(JsonObject jso)
 	{
-		(ws.session.worker = new Worker(()->{
+		(ws.session.worker = new Worker(() -> {
 			WebSession session = ws.session;
 			session.worker.progress = new ProgressWS(ws);
 			try
 			{
 				session.curr_scan = new Scan(session.curr_profile, session.worker.progress);
 			}
-			catch(BreakException ex)
+			catch (BreakException ex)
 			{
 			}
 			session.worker.progress.close();
@@ -162,20 +162,6 @@ public class ProfileWS
 			{
 				if(session.curr_profile.hasPropsChanged())
 				{
-	/*				switch (JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), Messages.getString("MainFrame.WarnSettingsChanged"), Messages.getString("MainFrame.RescanBeforeFix"), JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$ //$NON-NLS-2$
-					{
-						case JOptionPane.YES_OPTION:
-							session.curr_scan = new Scan(session.curr_profile, progress);
-							btnFix.setEnabled(session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
-							if (!btnFix.isEnabled())
-								return null;
-							break;
-						case JOptionPane.NO_OPTION:
-							break;
-						case JOptionPane.CANCEL_OPTION:
-						default:
-							return null;
-					}*/
 					session.curr_scan = new Scan(session.curr_profile, session.worker.progress);
 					boolean needfix = session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0;
 					if (!needfix)

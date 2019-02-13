@@ -8,15 +8,14 @@ import java.util.stream.Stream;
 
 public final class MultiThreading
 {
-
-	public static <T> void execute(int threads, Stream<T> stream, CallableWith<T> task)
+	public static <T> void execute(int nThreads, Stream<T> stream, CallableWith<T> task)
 	{
-		ExecutorService service = Executors.newFixedThreadPool(threads);
-		stream.forEach(entry -> service.submit(task.clone().set(entry)));
-		service.shutdown();
 		try
 		{
-			service.awaitTermination(1, TimeUnit.DAYS);
+			ExecutorService service = Executors.newFixedThreadPool(nThreads); // allocate a thread pool with n threads
+			stream.forEach(entry -> service.submit(task.clone().set(entry))); // submit all entries from stream using a task
+			service.shutdown(); // does not accept submission after stream as been consumed
+			service.awaitTermination(1, TimeUnit.DAYS); // wait max for 1 day for all tasks to terminate
 		}
 		catch (InterruptedException e)
 		{
@@ -24,28 +23,28 @@ public final class MultiThreading
 		}
 	}
 
-	public static abstract class CallableWith<T> implements Callable<Void>,Cloneable
+	public static abstract class CallableWith<T> implements Callable<Void>, Cloneable
 	{
-		T t;
+		T entry;
 
-		private CallableWith<T> set(T t)
+		private CallableWith<T> set(T entry)
 		{
-			this.t = t;
+			this.entry = entry;
 			return this;
 		}
 
 		public T get()
 		{
-			return t;
+			return entry;
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		protected CallableWith<T> clone()
 		{
 			try
 			{
-				return (CallableWith<T>)super.clone();
+				return (CallableWith<T>) super.clone();
 			}
 			catch (CloneNotSupportedException e)
 			{

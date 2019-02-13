@@ -403,7 +403,7 @@ public class Scan
 				unneeded.forEach(c->{
 					report.add(new ContainerUnneeded(c));
 					backup_actions.add(new BackupContainer(c));
-					delete_actions.add(new DeleteContainer(c, format));					
+					delete_actions.add(new DeleteContainer(c, format));
 				});
 			}
 			/*

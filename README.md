@@ -115,11 +115,14 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
 - Install as a service (Server mode)
 	- See [Server Mode](https://github.com/optyfr/JRomManager/wiki/Server-mode#server-mode) in the wiki
+- RAR4 decompression
+- Multi-volume decompression (RAR4 and 7Zip)
 
 ## Short Term Planned Features
 - Mode to keep existing container archive format
 - Multi User and access rights (Server mode)
 - Encrypted connections (Server mode)
+- RAR5 support
 
 ## Middle Term Planned Features
 - Alternative to WebSockets (Server mode)
@@ -132,7 +135,6 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Emulator-friendly format converter?
 - Interoperability with other managers?
 - Torrent7Z support ?
-- RAR decompression support ?
 
 ## Not planned features
 - Inverted/complemented CRC: obsolete replaced by "status" attribute since Mame 0.68
