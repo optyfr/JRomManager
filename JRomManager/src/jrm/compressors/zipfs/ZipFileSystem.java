@@ -467,7 +467,7 @@ class ZipFileSystem extends FileSystem
 				def.end();
 		}
 
-		IOException ioe = null;
+//		IOException ioe = null;
 		synchronized (tmppaths)
 		{
 			for (Path p : tmppaths)
