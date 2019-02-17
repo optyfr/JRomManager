@@ -119,13 +119,13 @@ public class ZipArchive implements Archive
 				if(is_7z)
 				{
 					Collections.addAll(cmd_add, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					Collections.addAll(cmd_add, "-mx=" + session.getUser().settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmd_add, "-mx=" + ZipOptions.valueOf(session.getUser().settings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				else
 				{
 					Collections.addAll(cmd_add, cmd, "-r"); //$NON-NLS-1$
-					Collections.addAll(cmd_add, "-" + session.getUser().settings.getProperty("zip_level", ZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmd_add, "-" + ZipOptions.valueOf(session.getUser().settings.getProperty("zip_level", ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				final Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();

@@ -18,13 +18,14 @@ package jrm.profile.scan.options;
 
 import jrm.locale.Messages;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * All possible hash collision options
  * @author optyfr
  *
  */
-public enum HashCollisionOptions
+public @RequiredArgsConstructor enum HashCollisionOptions
 {
 	/**
 	 * only collisioned entries in clone subfolder
@@ -54,15 +55,10 @@ public enum HashCollisionOptions
 	/**
 	 * The name of the option
 	 */
-	private @Getter String desc;
-
+	private final
 	/**
 	 * internal constructor
 	 * @param desc the name of the option
 	 */
-	private HashCollisionOptions(String desc)
-	{
-		this.desc = desc;
-	}
-
+	@Getter String desc;
 }

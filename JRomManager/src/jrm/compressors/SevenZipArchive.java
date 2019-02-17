@@ -104,7 +104,7 @@ public class SevenZipArchive implements Archive
 				final Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 				tmpfile.toFile().delete();
 				Collections.addAll(cmd_add, session.getUser().settings.getProperty("7z_cmd", FindCmd.find7z()), "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				Collections.addAll(cmd_add, "-ms=" + (session.getUser().settings.getProperty("7z_solid", false) ? "on" : "off"), "-mx=" + session.getUser().settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				Collections.addAll(cmd_add, "-ms=" + (session.getUser().settings.getProperty("7z_solid", false) ? "on" : "off"), "-mx=" + SevenZipOptions.valueOf(session.getUser().settings.getProperty("7z_level", SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 				Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				final Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
 				try

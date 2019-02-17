@@ -20,13 +20,14 @@ import java.util.EnumSet;
 
 import jrm.locale.Messages;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * All possible merge options
  * @author optyfr
  *
  */
-public enum MergeOptions
+public @RequiredArgsConstructor enum MergeOptions
 {
 	/**
 	 * merge clones and bioses into parent
@@ -56,16 +57,12 @@ public enum MergeOptions
 	/**
 	 * the name of the option
 	 */
-	private @Getter String desc;
-
+	private final 
 	/**
 	 * internal constructor
 	 * @param desc the name of the option
 	 */
-	private MergeOptions(String desc)
-	{
-		this.desc = desc;
-	}
+	@Getter String desc;
 
 	/**
 	 * Is is a merge option?

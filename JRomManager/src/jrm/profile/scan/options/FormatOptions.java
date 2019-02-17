@@ -21,13 +21,14 @@ import java.util.EnumSet;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.locale.Messages;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * The supported format options
  * @author optyfr
  *
  */
-public enum FormatOptions
+public @RequiredArgsConstructor enum FormatOptions
 {
 	/**
 	 * Standard folder
@@ -53,7 +54,7 @@ public enum FormatOptions
 	/**
 	 * Supported file container extensions
 	 */
-	public enum Ext
+	public @RequiredArgsConstructor enum Ext
 	{
 		/**
 		 * folder (no extension)
@@ -68,12 +69,7 @@ public enum FormatOptions
 		 */
 		SEVENZIP(".7z"); //$NON-NLS-1$
 
-		private String ext;
-
-		private Ext(String ext)
-		{
-			this.ext = ext;
-		}
+		private final String ext;
 
 		@Override
 		public String toString()
@@ -103,23 +99,11 @@ public enum FormatOptions
 	/**
 	 * Format description 
 	 */
-	private @Getter String desc;
+	private final @Getter String desc;
 	/**
 	 * Format extension
 	 */
-	private @Getter Ext ext;
-
-	/**
-	 * internal constructor
-	 * @param desc the description
-	 * @param ext the extension ({@link Ext})
-	 */
-	private FormatOptions(String desc, Ext ext)
-	{
-		this.desc = desc;
-		this.ext = ext;
-	}
-
+	private final @Getter Ext ext;
 
 	/**
 	 * get all formats except current one (and {@link #DIR})

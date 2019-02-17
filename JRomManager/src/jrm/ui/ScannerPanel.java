@@ -22,6 +22,7 @@ import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
+import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.Session;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.progress.Progress;
@@ -39,7 +40,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	private ScannerFiltersPanel scannerFilters;
 
 	private ScannerAdvFilterPanel scannerAdvFilters;
-	
+
+	private ScannerAutomationPanel scannerAutomation;
+
 	/** The btn fix. */
 	private JButton btnFix;
 
@@ -95,7 +98,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		scannerBtnPanel.add(btnFix);
 		btnFix.addActionListener(e -> fix(session));
 		btnFix.setEnabled(false);
-		btnScan.addActionListener(e -> scan(session));
+		btnScan.addActionListener(e -> scan(session, true));
 
 		scannerTabbedPane = new JTabbedPane(SwingConstants.TOP);
 		final GridBagConstraints gbc_scannerTabbedPane = new GridBagConstraints();
@@ -108,6 +111,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		buildScannerSettingsTab(session);
 		buildScannerFiltersTab(session);
 		buildScannerAdvFiltersTab(session);
+		buildScannerAutomationTab(session);
 
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
 		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -148,10 +152,17 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 
 	}
 
+	private void buildScannerAutomationTab(final Session session)
+	{
+		scannerAutomation = new ScannerAutomationPanel();
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.Automation"), null, scannerAutomation, null); //$NON-NLS-1$
+
+	}
+
 	/**
 	 * Scan.
 	 */
-	private void scan(final Session session)
+	private void scan(final Session session, final boolean automate)
 	{
 		String txtdstdir = scannerDirPanel.txtRomsDest.getText();
 		if (txtdstdir.isEmpty())
@@ -177,15 +188,23 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected void done()
 			{
-				if(MainFrame.report_frame != null)
-				{
-					MainFrame.report_frame.setVisible(true);
-					session.report.getModel().initClone();
-				}
 				progress.dispose();
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
+				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty("automation.scan", ScanAutomation.SCAN.toString()));
+				if(MainFrame.report_frame != null && automation.hasReport())
+				{
+					MainFrame.report_frame.setVisible(true);
+					session.report.getModel().initClone();
+				}
+				if(automate)
+				{
+					if(btnFix.isEnabled() && automation.hasFix())
+					{
+						fix(session);
+					}
+				}
 			}
 
 		};
@@ -234,6 +253,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
+				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty("automation.scan", ScanAutomation.SCAN.toString()));
+				if(automation.hasScanAgain())
+					scan(session, false);
 			}
 
 		};
@@ -250,6 +272,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		scannerDirPanel.initProfileSettings(session);
 		scannerFilters.initProfileSettings(session);
 		scannerAdvFilters.initProfileSettings(session);
+		scannerAutomation.initProfileSettings(session.curr_profile.settings);
 	}
 
 	/**
