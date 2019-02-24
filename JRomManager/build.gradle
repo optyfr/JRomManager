@@ -37,28 +37,27 @@ eclipse {
 }
 
 dependencies {
-	compile group: 'wrapper', name: 'wrapper', version: '3.5.37', ext: 'zip'
-	compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
-	compile group: 'commons-io', name: 'commons-io', version: '2.6'
-	compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
-	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
-	compile group: 'org.apache.commons', name: 'commons-text', version: '1.6'
-	compile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
-	compile group: 'one.util', name: 'streamex', version: '0.6.7'
-	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding', version: '9.20-2.00beta'
-	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms', version: '9.20-2.00beta'
-	compile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-linux-arm', version: '9.20-2.00beta'
-	compile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-	compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.12.1'
-	compile group: 'org.nanohttpd', name: 'nanohttpd-nanolets', version: '2.3.1'
-	compile group: 'org.nanohttpd', name: 'nanohttpd-websocket', version: '2.3.1'
-//	compile group: 'org.apache.tika', name: 'tika-core', version: '1.20'
-	compile group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
 	compileOnly group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
 	compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations', version: '3.1.7'
-	compile group: 'org.eclipse.jetty', name:'jetty-server', version:'9.4.15.v20190215'
-	compile group: 'org.eclipse.jetty', name:'jetty-servlet', version:'9.4.15.v20190215'
-	compile group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl', version:'9.4.15.v20190215'
+	implementation group: 'commons-codec', name: 'commons-codec', version: '1.11'
+	implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+	implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
+	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+	implementation group: 'org.apache.commons', name: 'commons-text', version: '1.6'
+	implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
+	implementation group: 'one.util', name: 'streamex', version: '0.6.7'
+	implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
+	implementation group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.12.1'
+	implementation group: 'org.nanohttpd', name: 'nanohttpd-nanolets', version: '2.3.1'
+	implementation group: 'org.nanohttpd', name: 'nanohttpd-websocket', version: '2.3.1'
+	implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
+	implementation group: 'org.eclipse.jetty', name:'jetty-server', version:'9.4.15.v20190215'
+	implementation group: 'org.eclipse.jetty', name:'jetty-servlet', version:'9.4.15.v20190215'
+	implementation group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl', version:'9.4.15.v20190215'
+	implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding', version: '9.20-2.00beta'
+	runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms', version: '9.20-2.00beta'
+	runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-linux-arm', version: '9.20-2.00beta'
+	runtime group: 'wrapper', name: 'wrapper', version: '3.5.37', ext: 'zip'
 }
 
 sourceSets {
@@ -68,6 +67,16 @@ sourceSets {
 		}
 		resources {
 			srcDirs = ["src","../Jtrrntzip/src"]
+		}
+	}
+	standalone {
+		java {
+			srcDirs = ["src-standalone"]
+		}
+	}
+	server {
+		java {
+			srcDirs = ["src-server"]
 		}
 	}
 }
@@ -86,7 +95,7 @@ build.dependsOn javadoc
 
 task sevenzip(type: Jar) {
 	def sevenzip_dirs = [] as Set
-	def paths = configurations.compile.filter { it.name.startsWith('sevenzipjbinding-') && !it.name.startsWith('sevenzipjbinding-9') }
+	def paths = configurations.runtime.filter { it.name.startsWith('sevenzipjbinding-') && !it.name.startsWith('sevenzipjbinding-9') }
 	paths.each( {
 		zipTree(it).filter { it.name.endsWith('sevenzipjbinding-lib.properties') }.each { 
 			sevenzip_dirs += java.nio.file.Paths.get(it.path).getParent().getFileName().toString()
@@ -105,6 +114,9 @@ task sevenzip(type: Jar) {
 }
 
 jar {
+	from sourceSets.main.output
+	from sourceSets.standalone.output
+	from sourceSets.server.output
 	manifest {
 		def path = configurations.compile.filter { it.name.endsWith('.jar') && (!it.name.startsWith('sevenzip') || it.name.startsWith('sevenzipjbinding-9')) }.collect { 'lib/' + it.getName() }.join(' ') + ' lib/sevenzipjbinding-all.jar'
 		attributes(
@@ -130,13 +142,13 @@ task docZip(type: Zip, dependsOn: javadoc) {
 }
 
 task distZip(type: Zip, dependsOn: [jar, sevenzip, ':WebClient:build']) {
-	from (configurations.compile) {
+	from (configurations.runtimeClasspath) {
 		into('lib')
 		exclude '*.zip'
 		include '*.jar'
 		exclude 'sevenzipjbinding*.jar'
 	}
-	from (configurations.compile) {
+	from (configurations.runtimeClasspath) {
 		into('lib')
 		include 'sevenzipjbinding-9*.jar'
 	}
@@ -148,7 +160,7 @@ task distZip(type: Zip, dependsOn: [jar, sevenzip, ':WebClient:build']) {
 	from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
 		into('webclient')
 	}
-	from (zipTree(file(project.configurations.compile.find {it.name.startsWith("wrapper") }))) {
+	from (zipTree(file(project.configurations.runtimeClasspath.find {it.name.startsWith("wrapper") }))) {
 		exclude '*/bin/*.bat'
 		exclude '*/*/*test*'
 		exclude '*/*/*demo*'
@@ -209,13 +221,13 @@ ospackage {
 	permissionGroup 'root'
 	into '/opt/jrommanager'
 	url 'https://github.com/optyfr/JRomManager'
-	from (configurations.compile) {
+	from (configurations.runtimeClasspath) {
 		into('lib')
 		exclude '*.zip'
 		include '*.jar'
 		exclude 'sevenzipjbinding*.jar'
 	}
-	from (configurations.compile) {
+	from (configurations.runtimeClasspath) {
 		into('lib')
 		include 'sevenzipjbinding-9*.jar'
 	}
@@ -270,13 +282,13 @@ setupBuilder {
     version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version");
     licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
     icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
-	from (configurations.compile) {
+	from (configurations.runtimeClasspath) {
 		into('lib')
 		exclude '*.zip'
 		include '*.jar'
 		exclude 'sevenzipjbinding*.jar'
 	}
-	from (configurations.compile) {
+	from (configurations.runtimeClasspath) {
 		into('lib')
 		include 'sevenzipjbinding-9*.jar'
 	}
