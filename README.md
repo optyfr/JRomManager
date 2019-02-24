@@ -120,8 +120,9 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 
 ## Short Term Planned Features
 - Mode to keep existing container archive format
-- Multi User and access rights (Server mode)
-- Encrypted connections (Server mode)
+- Use jetty instead of nanoHttpd for a more robust http server (Server mode)
+- Multi User and access rights (Server mode with jetty)
+- Encrypted connections (Server mode with jetty)
 - RAR5 support
 
 ## Middle Term Planned Features
