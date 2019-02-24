@@ -56,6 +56,9 @@ dependencies {
 	compile group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
 	compileOnly group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
 	compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations', version: '3.1.7'
+	compile group: 'org.eclipse.jetty', name:'jetty-server', version:'9.4.15.v20190215'
+	compile group: 'org.eclipse.jetty', name:'jetty-servlet', version:'9.4.15.v20190215'
+	compile group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl', version:'9.4.15.v20190215'
 }
 
 sourceSets {
