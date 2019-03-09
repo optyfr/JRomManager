@@ -87,7 +87,7 @@ public class WebSckt extends WebSocket implements SessionStub
 					}
 					case "Profile.scan":
 					{
-						new ProfileWS(this).scan(jso);
+						new ProfileWS(this).scan(jso, true);
 						break;
 					}
 					case "Profile.fix":
