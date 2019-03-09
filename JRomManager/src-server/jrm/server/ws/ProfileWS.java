@@ -23,6 +23,7 @@ import jrm.profile.fix.Fix;
 import jrm.profile.manager.Import;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
+import jrm.profile.scan.options.ScanAutomation;
 import jrm.server.WebSession;
 
 public class ProfileWS
@@ -134,7 +135,7 @@ public class ProfileWS
 		})).start();
 	}
 	
-	void scan(JsonObject jso)
+	void scan(JsonObject jso, final boolean automate)
 	{
 		(ws.session.worker = new Worker(() -> {
 			WebSession session = ws.session;
@@ -149,7 +150,15 @@ public class ProfileWS
 			session.worker.progress.close();
 			session.worker.progress = null;
 			session.lastAction = new Date();
-			scanned(session.curr_scan);
+			ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty("automation.scan", ScanAutomation.SCAN.toString()));
+			scanned(session.curr_scan, automation.hasReport());
+			if(automate)
+			{
+				if(session.curr_scan!=null && session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
+				{
+					fix(jso);
+				}
+			}
 		})).start();
 	}
 	
@@ -172,6 +181,9 @@ public class ProfileWS
 			}
 			finally
 			{
+				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty("automation.scan", ScanAutomation.SCAN.toString()));
+				if(automation.hasScanAgain())
+					scan(jso, false);
 				session.worker.progress.close();
 				session.worker.progress = null;
 				session.lastAction = new Date();
@@ -252,7 +264,7 @@ public class ProfileWS
 
 	
 	@SuppressWarnings("serial")
-	void scanned(final Scan scan)
+	void scanned(final Scan scan, final boolean hasReport)
 	{
 		try
 		{
@@ -263,7 +275,10 @@ public class ProfileWS
 					add("params", new JsonObject() {{
 						add("success", scan!=null);
 						if(scan!=null)
+						{
 							add("actions", scan.actions.stream().mapToInt(Collection::size).sum());
+							add("report", hasReport);
+						}
 					}});
 				}}.toString());
 			}
