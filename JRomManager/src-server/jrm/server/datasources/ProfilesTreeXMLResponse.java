@@ -3,7 +3,6 @@ package jrm.server.datasources;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Enumeration;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,8 +12,10 @@ import javax.xml.stream.XMLStreamWriter;
 import org.apache.commons.io.FileUtils;
 
 import jrm.misc.Log;
+import jrm.profile.manager.Dir;
+import jrm.profile.manager.DirTree;
 import jrm.server.datasources.XMLRequest.Operation;
-import jrm.ui.profile.manager.DirNode;
+import lombok.val;
 
 public class ProfilesTreeXMLResponse extends XMLResponse
 {
@@ -24,12 +25,11 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		super(request);
 	}
 
-	private int countNode(DirNode node)
+	private int countNode(DirTree.Node<Dir> node)
 	{
 		int count = 0;
-		for (final Enumeration<?> children = node.children(); children.hasMoreElements();)
+		for(val child : node)
 		{
-			final DirNode child = (DirNode) children.nextElement();
 			if (child.getChildCount() > 0)
 				count += countNode(child);
 			else
@@ -38,16 +38,16 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		return ++count;
 	}
 
-	private void outputNode(XMLStreamWriter writer, DirNode node, String parentID, AtomicInteger id) throws XMLStreamException
+	private void outputNode(XMLStreamWriter writer, DirTree.Node<Dir> node, String parentID, AtomicInteger id) throws XMLStreamException
 	{
 		String strID = id.toString();
 		if (id.get() > 0)
 		{
-			request.session.tmp_profile_lst.put(id.get(), node.getDir().getFile().toPath());
+			request.session.tmp_profile_lst.put(id.get(), node.getData().getFile().toPath());
 			writer.writeStartElement("record");
 			writer.writeAttribute("ID", id.toString());
-			writer.writeAttribute("Path", node.getDir().getFile().getPath());
-			writer.writeAttribute("title", node.getDir().getFile().getName());
+			writer.writeAttribute("Path", node.getData().getFile().getPath());
+			writer.writeAttribute("title", node.getData().getFile().getName());
 			writer.writeAttribute("isFolder", "true");
 			if(parentID!=null)
 				writer.writeAttribute("ParentID", parentID);
@@ -56,25 +56,22 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		else
 			request.session.tmp_profile_lst = new TreeMap<>();
 		id.incrementAndGet();
-		for (final Enumeration<?> children = node.children(); children.hasMoreElements();)
-		{
-			final DirNode child = (DirNode) children.nextElement();
+		for(val child : node)
 			outputNode(writer, child, strID, id);
-		}
 	}
 
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		DirNode root = new DirNode(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
-		int nodecount = countNode(root);
+		DirTree root = new DirTree(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
+		int nodecount = countNode(root.getRoot());
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
 		writer.writeElement("endRow", Integer.toString(nodecount-1));
 		writer.writeElement("totalRows", Integer.toString(nodecount));
 		writer.writeStartElement("data");
-		outputNode(writer, root, null, new AtomicInteger());
+		outputNode(writer, root.getRoot(), null, new AtomicInteger());
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}
