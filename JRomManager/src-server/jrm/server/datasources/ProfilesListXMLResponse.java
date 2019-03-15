@@ -6,10 +6,9 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import jrm.profile.manager.Dir;
 import jrm.profile.manager.ProfileNFO;
 import jrm.server.datasources.XMLRequest.Operation;
-import jrm.ui.profile.manager.FileTableModel;
+import lombok.val;
 
 public class ProfilesListXMLResponse extends XMLResponse
 {
@@ -26,27 +25,27 @@ public class ProfilesListXMLResponse extends XMLResponse
 		File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 		if(operation.hasData("Parent"))
 			dir = new File(operation.getData("Parent"));
-		FileTableModel model = new FileTableModel(request.session, new Dir(dir));
+		val rows = ProfileNFO.list(request.session, dir);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
 		writer.writeElement("parent", dir.toString());
-		writer.writeElement("endRow", Integer.toString(model.getRowCount()-1));
-		writer.writeElement("totalRows", Integer.toString(model.getRowCount()));
+		writer.writeElement("endRow", Integer.toString(rows.size()-1));
+		writer.writeElement("totalRows", Integer.toString(rows.size()));
 		writer.writeStartElement("data");
-		for(int i = 0; i < model.getRowCount(); i++)
+		for(int i = 0; i < rows.size(); i++)
 		{
 			writer.writeEmptyElement("record");
-			writer.writeAttribute("Name", model.getValueAt(i, 0).toString());
-			writer.writeAttribute("Parent", model.getNfoAt(i).file.getParent());
-			writer.writeAttribute("File", model.getNfoAt(i).file.getName());
-			writer.writeAttribute("version", model.getValueAt(i, 1).toString());
-			writer.writeAttribute("haveSets", model.getValueAt(i, 2).toString());
-			writer.writeAttribute("haveRoms", model.getValueAt(i, 3).toString());
-			writer.writeAttribute("haveDisks", model.getValueAt(i, 4).toString());
-			writer.writeAttribute("created", model.getValueAt(i, 5).toString());
-			writer.writeAttribute("scanned", model.getValueAt(i, 6).toString());
-			writer.writeAttribute("fixed", model.getValueAt(i, 7).toString());
+			writer.writeAttribute("Name", rows.get(i).getName());
+			writer.writeAttribute("Parent", rows.get(i).file.getParent());
+			writer.writeAttribute("File", rows.get(i).file.getName());
+			writer.writeAttribute("version", rows.get(i).getVersion());
+			writer.writeAttribute("haveSets", rows.get(i).getHaveSets());
+			writer.writeAttribute("haveRoms", rows.get(i).getHaveRoms());
+			writer.writeAttribute("haveDisks", rows.get(i).getHaveDisks());
+			writer.writeAttribute("created", rows.get(i).getCreated());
+			writer.writeAttribute("scanned", rows.get(i).getScanned());
+			writer.writeAttribute("fixed", rows.get(i).getFixed());
 		}
 		writer.writeEndElement();
 		writer.writeEndElement();
@@ -73,16 +72,16 @@ public class ProfilesListXMLResponse extends XMLResponse
 					writer.writeElement("status", "0");
 					writer.writeStartElement("data");
 					writer.writeEmptyElement("record");
-					writer.writeAttribute("Name", FileTableModel.getValueAt_(nfo, 0).toString());
+					writer.writeAttribute("Name", nfo.getName());
 					writer.writeAttribute("Parent", nfo.file.getParent());
 					writer.writeAttribute("File", nfo.file.getName());
-					writer.writeAttribute("version", FileTableModel.getValueAt_(nfo, 1).toString());
-					writer.writeAttribute("haveSets", FileTableModel.getValueAt_(nfo, 2).toString());
-					writer.writeAttribute("haveRoms", FileTableModel.getValueAt_(nfo, 3).toString());
-					writer.writeAttribute("haveDisks", FileTableModel.getValueAt_(nfo, 4).toString());
-					writer.writeAttribute("created", FileTableModel.getValueAt_(nfo, 5).toString());
-					writer.writeAttribute("scanned", FileTableModel.getValueAt_(nfo, 6).toString());
-					writer.writeAttribute("fixed", FileTableModel.getValueAt_(nfo, 7).toString());
+					writer.writeAttribute("version", nfo.getVersion());
+					writer.writeAttribute("haveSets", nfo.getHaveSets());
+					writer.writeAttribute("haveRoms", nfo.getHaveRoms());
+					writer.writeAttribute("haveDisks", nfo.getHaveDisks());
+					writer.writeAttribute("created", nfo.getCreated());
+					writer.writeAttribute("scanned", nfo.getScanned());
+					writer.writeAttribute("fixed", nfo.getFixed());
 					writer.writeEndElement();
 					writer.writeEndElement();
 				}

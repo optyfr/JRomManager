@@ -21,12 +21,17 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
@@ -47,6 +52,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.security.Session;
 
@@ -54,9 +60,9 @@ import jrm.security.Session;
  * The Profile NFO file managing class with tolerant manual (de)serialization
  * @author optyfr
  */
-public final class ProfileNFO implements Serializable
+public final class ProfileNFO implements Serializable, HTMLRenderer
 {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	/**
 	 * The Profile {@link File} (can be a jrm, a dat, or an xml file)
@@ -308,5 +314,73 @@ public final class ProfileNFO implements Serializable
 			return true;
 		}
 		return false;
+	}
+	
+	public String getName()
+	{
+		return name;
+	}
+	
+	public String getVersion()
+	{
+		return toHTML(stats.version == null ? toGray("???") : toNoBR(stats.version)); //$NON-NLS-1$
+	}
+	
+	public String getHaveSets()
+	{
+		return toHTML(stats.haveSets == null ? (stats.totalSets == null ? toGray("?/?") : String.format("%s/%d", toGray("?"), stats.totalSets)) : String.format("%s/%d", stats.haveSets == 0 && stats.totalSets > 0 ? toRed("0") : (stats.haveSets.equals(stats.totalSets) ? toGreen(stats.haveSets + "") : toOrange(stats.haveSets + "")), stats.totalSets)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+	}
+	
+	public String getHaveRoms()
+	{
+		return toHTML(stats.haveRoms == null ? (stats.totalRoms == null ? toGray("?/?") : String.format("%s/%d", toGray("?"), stats.totalRoms)) : String.format("%s/%d", stats.haveRoms == 0 && stats.totalRoms > 0 ? toRed("0") : (stats.haveRoms.equals(stats.totalRoms) ? toGreen(stats.haveRoms + "") : toOrange(stats.haveRoms + "")), stats.totalRoms)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+	}
+	
+	public String getHaveDisks()
+	{
+		return toHTML(stats.haveDisks == null ? (stats.totalDisks == null ? toGray("?/?") : String.format("%s/%d", toGray("?"), stats.totalDisks)) : String.format("%s/%d", stats.haveDisks == 0 && stats.totalDisks > 0 ? toRed("0") : (stats.haveDisks.equals(stats.totalDisks) ? toGreen(stats.haveDisks + "") : toOrange(stats.haveDisks + "")), stats.totalDisks)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+	}
+	
+	public String getCreated()
+	{
+		return toHTML(stats.created == null ? toGray("????-??-?? ??:??:??") : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(stats.created)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public String getScanned()
+	{
+		return toHTML(stats.scanned == null ? toGray("????-??-?? ??:??:??") : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(stats.scanned)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public String getFixed()
+	{
+		return toHTML(stats.fixed == null ? toGray("????-??-?? ??:??:??") : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(stats.fixed)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public static List<ProfileNFO> list(Session session, File dir)
+	{
+		List<ProfileNFO> rows = new ArrayList<>();
+		if(dir != null && dir.exists())
+		{
+			File filedir = dir;
+			if(filedir!=null)
+			{
+				File[] files = filedir.listFiles((FilenameFilter) (dir1, name) -> {
+					final File f = new File(dir1, name);
+					if(f.isFile())
+						if(!Arrays.asList("cache", "properties", "nfo", "jrm1", "jrm2").contains(FilenameUtils.getExtension(name))) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+							return true;
+					return false;
+				});
+				if(files!=null)
+				{
+					Arrays.asList(files).stream().map(f -> {
+						return ProfileNFO.load(session, f);
+					}).forEach(pnfo -> {
+						rows.add(pnfo);
+					});
+				}
+			}
+		}
+		return rows;
 	}
 }
