@@ -87,6 +87,7 @@ import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Device;
 import jrm.profile.data.EntityStatus;
 import jrm.profile.data.Machine;
+import jrm.profile.data.MachineList;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
 import jrm.profile.manager.Export;
@@ -95,6 +96,11 @@ import jrm.profile.manager.ProfileNFOMame;
 import jrm.profile.manager.ProfileNFOMame.MameStatus;
 import jrm.security.Session;
 import jrm.ui.basic.JRMFileChooser;
+import jrm.ui.profile.data.AnywareListModel;
+import jrm.ui.profile.data.AnywareModel;
+import jrm.ui.profile.data.MachineListListModel;
+import jrm.ui.profile.data.MachineListModel;
+import jrm.ui.profile.data.SoftwareListModel;
 import jrm.ui.profile.filter.KeywordFilter;
 import jrm.ui.progress.Progress;
 
@@ -301,13 +307,13 @@ public class ProfileViewer extends JDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
+				final AnywareListModel list = (AnywareListModel) tableW.getModel();
 				final Pattern pattern = Pattern.compile("^(.*?)(\\(.*\\))+"); //$NON-NLS-1$
 				final Pattern pattern_parenthesis = Pattern.compile("\\((.*?)\\)"); //$NON-NLS-1$
 				final Pattern pattern_split = Pattern.compile(","); //$NON-NLS-1$
 				final Pattern pattern_alpha = Pattern.compile("^[a-zA-Z]*$"); //$NON-NLS-1$
 				final HashSet<String> keywords = new HashSet<>();
-				list.getFilteredStream().forEach(ware -> {
+				list.getList().getFilteredStream().forEach(ware -> {
 					final Matcher matcher = pattern.matcher(ware.getDescription());
 					if (matcher.find())
 					{
@@ -326,7 +332,7 @@ public class ProfileViewer extends JDialog
 				}).toArray(size -> new String[size]), f -> {
 					ArrayList<String> filter = f.getFilter();
 					HashMap<String, keypref> prefmap = new HashMap<>();
-					list.getFilteredStream().forEach(ware -> {
+					list.getList().getFilteredStream().forEach(ware -> {
 						final Matcher matcher = pattern.matcher(ware.getDescription());
 						keywords.clear();
 						if (matcher.find())
@@ -379,8 +385,8 @@ public class ProfileViewer extends JDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
-				list.getFilteredStream().forEach(ware -> {
+				final AnywareListModel list = (AnywareListModel) tableW.getModel();
+				list.getList().getFilteredStream().forEach(ware -> {
 					ware.selected = false;
 				});
 				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
@@ -393,8 +399,8 @@ public class ProfileViewer extends JDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
-				list.getFilteredStream().forEach(ware -> {
+				final AnywareListModel list = (AnywareListModel) tableW.getModel();
+				list.getList().getFilteredStream().forEach(ware -> {
 					ware.selected = true;
 				});
 				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
@@ -407,8 +413,8 @@ public class ProfileViewer extends JDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				final AnywareList<?> list = (AnywareList<?>) tableW.getModel();
-				list.getFilteredStream().forEach(ware -> {
+				final AnywareListModel list = (AnywareListModel) tableW.getModel();
+				list.getList().getFilteredStream().forEach(ware -> {
 					ware.selected ^= true;
 				});
 				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
@@ -426,7 +432,7 @@ public class ProfileViewer extends JDialog
 		tableWL = new JTable();
 		scrollPaneWL.setViewportView(tableWL);
 		tableWL.setPreferredScrollableViewportSize(new Dimension(300, 400));
-		tableWL.setModel(profile.machinelist_list);
+		tableWL.setModel(new MachineListListModel(profile.machinelist_list));
 		tableWL.setTableHeader(new JTableHeader(tableWL.getColumnModel())
 		{
 			@Override
@@ -509,7 +515,7 @@ public class ProfileViewer extends JDialog
 			{
 				final boolean has_machines = session.curr_profile.machinelist_list.getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
 				final boolean has_filtered_machines = session.curr_profile.machinelist_list.getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
-				final boolean has_selected_swlist = tableWL.getSelectedRowCount() == 1 && tableWL.getModel() instanceof AnywareListList<?> && ((AnywareListList<?>) tableWL.getModel()).getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
+				final boolean has_selected_swlist = tableWL.getSelectedRowCount() == 1 && tableWL.getModel() instanceof AnywareListList<?> && ((MachineListListModel) tableWL.getModel()).getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
 				mntmAllAsMameDat.setEnabled(has_machines);
 				mntmAllAsLogiqxDat.setEnabled(has_machines);
 				mntmAllAsSoftwareLists.setEnabled(session.curr_profile.machinelist_list.softwarelist_list.size() > 0);
@@ -555,7 +561,8 @@ public class ProfileViewer extends JDialog
 				{
 					if (!model.isSelectionEmpty())
 					{
-						final AnywareList<?> anywarelist = (AnywareList<?>) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
+						final AnywareList<?> awlist = (AnywareList<?>) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
+						final AnywareListModel anywarelist = awlist instanceof MachineList ? new MachineListModel((MachineList)awlist) : new SoftwareListModel((SoftwareList)awlist); 
 						anywarelist.reset();
 						tableW.setModel(anywarelist);
 						tableW.setTableHeader(new JTableHeader(tableW.getColumnModel())
@@ -604,7 +611,7 @@ public class ProfileViewer extends JDialog
 					int row = target.getSelectedRow();
 					if (row >= 0)
 					{
-						final AnywareList<?> tablemodel = (AnywareList<?>) target.getModel();
+						final AnywareListModel tablemodel = (AnywareListModel) target.getModel();
 						final int column = target.columnAtPoint(e.getPoint());
 						final Object obj = tablemodel.getValueAt(row, column);
 						if (obj instanceof Anyware)
@@ -612,7 +619,7 @@ public class ProfileViewer extends JDialog
 							final Anyware ware = (Anyware) obj;
 							if (column > 1)
 							{
-								row = tablemodel.find(ware);
+								row = tablemodel.getList().find(ware);
 								if (row >= 0)
 								{
 									target.setRowSelectionInterval(row, row);
@@ -710,7 +717,7 @@ public class ProfileViewer extends JDialog
 				{
 					if (!model.isSelectionEmpty())
 					{
-						final Anyware anyware = (Anyware) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
+						final AnywareModel anyware = new AnywareModel((Anyware) tablemodel.getValueAt(model.getMinSelectionIndex(), 0));
 						anyware.reset();
 						tableEntity.setModel(anyware);
 						tableEntity.setTableHeader(new JTableHeader(tableEntity.getColumnModel())
@@ -890,7 +897,7 @@ public class ProfileViewer extends JDialog
 	 */
 	public void reset(final Profile profile)
 	{
-		final AnywareListList<?> model = profile.machinelist_list;
+		final MachineListListModel model = new MachineListListModel(profile.machinelist_list);
 		model.reset();
 		if (tableWL.getModel() != model)
 			tableWL.setModel(model);
@@ -920,14 +927,14 @@ public class ProfileViewer extends JDialog
 	public void reload()
 	{
 		TableModel tablemodel = tableWL.getModel();
-		if (tablemodel instanceof AnywareListList<?>)
-			((AnywareListList<?>) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((AnywareListList<?>) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+		if (tablemodel instanceof MachineListListModel)
+			((MachineListListModel) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((MachineListListModel) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		tablemodel = tableW.getModel();
-		if (tablemodel instanceof AnywareList<?>)
-			((AnywareList<?>) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((AnywareList<?>) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+		if (tablemodel instanceof AnywareListModel)
+			((AnywareListModel) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((AnywareListModel) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		tablemodel = tableEntity.getModel();
-		if (tablemodel instanceof Anyware)
-			((Anyware) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((Anyware) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+		if (tablemodel instanceof AnywareModel)
+			((AnywareModel) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((AnywareModel) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 	}
 
 	/**

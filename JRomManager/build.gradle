@@ -1,8 +1,9 @@
 plugins {
-  id "nebula.ospackage" version "4.9.3"
-  id "de.inetsoftware.setupbuilder" version "4.8.5"
-  id 'io.franzbecker.gradle-lombok' version '1.14'
-//  id "edu.sc.seis.macAppBundle" version "2.3.0"
+	id "de.undercouch.download" version "3.4.3"
+	id "nebula.ospackage" version "4.9.3"
+	id "de.inetsoftware.setupbuilder" version "4.8.5"
+	id 'io.franzbecker.gradle-lombok' version '1.14'
+//	id "edu.sc.seis.macAppBundle" version "2.3.0"
 }
 
 
@@ -43,12 +44,6 @@ version = props.getProperty("Specification-Version")+'.'+props.getProperty("Impl
 
 repositories {
 	mavenCentral()
-	ivy {
-		url "https://download.tanukisoftware.com"
-		layout 'pattern', {
-			artifact '[organisation]/[revision]/[module]-delta-pack-[revision].[ext]'
-		}
-	}
 }
 
 sourceSets {
@@ -143,7 +138,6 @@ dependencies {
 	serverCompile group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl', version:'9.4.15.v20190215'
 	serverCompile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 	serverCompile group: 'one.util', name: 'streamex', version: '0.6.8'
-	serverRuntime group: 'wrapper', name: 'wrapper', version: '3.5.37', ext: 'zip'
 	
 //	implementation group: 'org.apache.commons', name: 'commons-text', version: '1.6'
 }
@@ -229,7 +223,13 @@ task docZip(type: Zip, dependsOn: javadoc) {
 	destinationDir = file("$buildDir/distributions/")
 }
 
-task distZip(type: Zip, dependsOn: [jar, sevenzip, ':WebClient:build']) {
+task downloadWrapper(type: Download) {
+	src 'https://download.tanukisoftware.com/wrapper/3.5.37/wrapper-delta-pack-3.5.37.zip'
+	dest file("$buildDir/wrapper.zip")
+	onlyIfModified true
+}
+
+task distZip(type: Zip, dependsOn: [jar, sevenzip, ':WebClient:build',downloadWrapper]) {
 	from (configurations.runtimeClasspath) {
 		into('lib')
 		exclude '*.zip'
@@ -248,7 +248,7 @@ task distZip(type: Zip, dependsOn: [jar, sevenzip, ':WebClient:build']) {
 	from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
 		into('webclient')
 	}
-	from (zipTree(file(project.configurations.runtimeClasspath.find {it.name.startsWith("wrapper") }))) {
+	from (zipTree(file("$buildDir/wrapper.zip"))) {
 		exclude '*/bin/*.bat'
 		exclude '*/*/*test*'
 		exclude '*/*/*demo*'

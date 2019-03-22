@@ -26,12 +26,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
 import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
-import jrm.ui.profile.data.SoftwareListRenderer;
 import jrm.ui.progress.ProgressHandler;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
@@ -92,86 +90,6 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		software.sl = this;
 		s_byname.put(software.name, software);
 		return s_list.add(software);
-	}
-
-	@Override
-	public int getColumnCount()
-	{
-		return SoftwareListRenderer.columns.length;
-	}
-
-	@Override
-	public String getColumnName(final int columnIndex)
-	{
-		return SoftwareListRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public String getColumnTT(final int columnIndex)
-	{
-		return SoftwareListRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public Class<?> getColumnClass(final int columnIndex)
-	{
-		return SoftwareListRenderer.columnsTypes[columnIndex];
-	}
-
-	@Override
-	public TableCellRenderer getColumnRenderer(final int columnIndex)
-	{
-		return SoftwareListRenderer.columnsRenderers[columnIndex];
-	}
-
-	@Override
-	public int getColumnWidth(final int columnIndex)
-	{
-		return SoftwareListRenderer.columnsWidths[columnIndex];
-	}
-
-	@Override
-	public int getRowCount()
-	{
-		return getFilteredList().size();
-	}
-
-	@Override
-	public Object getValueAt(final int rowIndex, final int columnIndex)
-	{
-		final Software software = getFilteredList().get(rowIndex);
-		switch(columnIndex)
-		{
-			case 0:
-				return software;
-			case 1:
-				return software;
-			case 2:
-				return software.description.toString();
-			case 3:
-				return String.format("%d/%d", software.countHave(), software.roms.size() + software.disks.size()); //$NON-NLS-1$
-			case 4:
-				return software.cloneof != null ? s_byname.get(software.cloneof) : null;
-			case 5:
-				return software.selected;
-		}
-		return null;
-	}
-
-	@Override
-	public boolean isCellEditable(final int rowIndex, final int columnIndex)
-	{
-		return columnIndex==5;
-	}
-
-	@Override
-	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
-	{
-		if(columnIndex==5 && aValue instanceof Boolean)
-		{
-			final Software software = getFilteredList().get(rowIndex);
-			software.selected = (Boolean)aValue;
-		}
 	}
 
 	@Override
@@ -327,9 +245,4 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		return s_filtered_byname.get(name);
 	}
 
-	@Override
-	public TableCellRenderer[] getCellRenderers()
-	{
-		return SoftwareListRenderer.columnsRenderers;
-	}
 }

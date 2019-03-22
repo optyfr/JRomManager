@@ -30,16 +30,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.swing.event.TableModelEvent;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 
 import jrm.profile.Profile;
 import jrm.profile.manager.Export;
-import jrm.ui.profile.data.AnywareListListRenderer;
 import jrm.ui.progress.ProgressHandler;
 import jrm.xml.EnhancedXMLStreamWriter;
 
@@ -88,73 +84,16 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		super.initTransient();
 	}
 
-	@Override
-	public int getColumnCount()
-	{
-		return AnywareListListRenderer.columns.length;
-	}
-
-	@Override
-	public String getColumnName(final int columnIndex)
-	{
-		return AnywareListListRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public String getColumnTT(final int columnIndex)
-	{
-		return AnywareListListRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public Class<?> getColumnClass(final int columnIndex)
-	{
-		return AnywareListListRenderer.columnsTypes[columnIndex];
-	}
-
-	@Override
-	public TableCellRenderer getColumnRenderer(final int columnIndex)
-	{
-		return AnywareListListRenderer.columnsRenderers[columnIndex] != null ? AnywareListListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
-	}
-
-	@Override
-	public int getColumnWidth(final int columnIndex)
-	{
-		return AnywareListListRenderer.columnsWidths[columnIndex];
-	}
 
 	@Override
 	public void reset()
 	{
 		this.filtered_list = null;
-		fireTableChanged(new TableModelEvent(this));
 	}
 
 	@Override
 	public void setFilter(final EnumSet<AnywareStatus> filter)
 	{
-	}
-
-	@Override
-	public int getRowCount()
-	{
-		return getFilteredList().size();
-	}
-
-	@Override
-	public Object getValueAt(final int rowIndex, final int columnIndex)
-	{
-		switch(columnIndex)
-		{
-			case 0:
-				return getFilteredList().get(rowIndex);
-			case 1:
-				return getFilteredList().get(rowIndex).description.toString();
-			case 2:
-				return String.format("%d/%d", getFilteredList().get(rowIndex).countHave(), getFilteredList().get(rowIndex).countAll()); //$NON-NLS-1$
-		}
-		return null;
 	}
 
 	@Override
@@ -174,7 +113,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	}
 
 	@Override
-	protected List<SoftwareList> getFilteredList()
+	public List<SoftwareList> getFilteredList()
 	{
 		if(filtered_list == null)
 			filtered_list = getFilteredStream().filter(t -> profile.filter_ll.contains(t.getStatus())).sorted().collect(Collectors.toList());
@@ -258,11 +197,4 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 			resetFilteredName();
 		return sl_filtered_byname.get(name);
 	}
-
-	@Override
-	public TableCellRenderer[] getCellRenderers()
-	{
-		return AnywareListListRenderer.columnsRenderers;
-	}
-
 }

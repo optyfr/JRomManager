@@ -28,19 +28,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.swing.event.EventListenerList;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
-
 import jrm.misc.ProfileSettings;
 import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
-import jrm.ui.basic.EnhTableModel;
-import jrm.ui.profile.data.AnywareRenderer;
 import one.util.streamex.StreamEx;
 
 /**
@@ -49,7 +41,7 @@ import one.util.streamex.StreamEx;
  *  
  */
 @SuppressWarnings("serial")
-public abstract class Anyware extends AnywareBase implements Serializable, EnhTableModel, Systm
+public abstract class Anyware extends AnywareBase implements Serializable, Systm
 {
 	Profile profile;
 	
@@ -96,10 +88,6 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	protected transient boolean collision;
 
 	/**
-	 * Event Listener list for firing events to Swing controls (Table)
-	 */
-	private static transient EventListenerList listenerList;
-	/**
 	 * entities list cache (according current {@link Profile#filter_e})
 	 */
 	private transient List<EntityBase> table_entities;
@@ -132,8 +120,6 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	{
 		collision = false;
 		table_entities = null;
-		if (Anyware.listenerList == null)
-			Anyware.listenerList = new EventListenerList();
 		roms.forEach(r->r.parent=this);
 		disks.forEach(d->d.parent=this);
 		samples.forEach(s->s.parent=this);
@@ -424,7 +410,6 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	public void reset()
 	{
 		table_entities = null;
-		fireTableChanged(new TableModelEvent(this));
 	}
 
 	/**
@@ -441,130 +426,13 @@ public abstract class Anyware extends AnywareBase implements Serializable, EnhTa
 	 * get the entities current list cache
 	 * @return a {@link List}{@literal <}{@link EntityBase}{@literal >}
 	 */
-	private List<EntityBase> getEntities()
+	public List<EntityBase> getEntities()
 	{
 		if (table_entities == null)
 			table_entities = Stream.of(roms.stream(), disks.stream(), samples.stream()).flatMap(s -> s).filter(t -> profile.filter_e.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return table_entities;
 	}
 
-	@Override
-	public int getRowCount()
-	{
-		return getEntities().size();
-	}
-
-	@Override
-	public int getColumnCount()
-	{
-		return AnywareRenderer.columns.length;
-	}
-
-	@Override
-	public String getColumnName(final int columnIndex)
-	{
-		return AnywareRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public String getColumnTT(final int columnIndex)
-	{
-		return AnywareRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public Class<?> getColumnClass(final int columnIndex)
-	{
-		return AnywareRenderer.columnsTypes[columnIndex];
-	}
-
-	/**
-	 * get the declared renderer for a given column
-	 * @param columnIndex the requested column index
-	 * @return a {@link TableCellRenderer} associated with the given columnindex 
-	 */
-	@Override
-	public TableCellRenderer getColumnRenderer(final int columnIndex)
-	{
-		return columnIndex < AnywareRenderer.columnsRenderers.length && AnywareRenderer.columnsRenderers[columnIndex] != null ? AnywareRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
-	}
-
-	@Override
-	public TableCellRenderer[] getCellRenderers()
-	{
-		return AnywareRenderer.columnsRenderers;
-	}
-	
-	/**
-	 * get the declared width for a given column
-	 * @param columnIndex the requested column index
-	 * @return a width in pixel (if negative then it's a fixed column width)
-	 */
-	@Override
-	public int getColumnWidth(final int columnIndex)
-	{
-		return AnywareRenderer.columnsWidths[columnIndex];
-	}
-
-	@Override
-	public boolean isCellEditable(final int rowIndex, final int columnIndex)
-	{
-		return false;
-	}
-
-	@Override
-	public Object getValueAt(final int rowIndex, final int columnIndex)
-	{
-		switch (columnIndex)
-		{
-			case 0:
-				return getEntities().get(rowIndex);
-			case 1:
-				return getEntities().get(rowIndex);
-			case 2:
-				return getEntities().get(rowIndex).getProperty("size"); //$NON-NLS-1$
-			case 3:
-				return getEntities().get(rowIndex).getProperty("crc"); //$NON-NLS-1$
-			case 4:
-				return getEntities().get(rowIndex).getProperty("md5"); //$NON-NLS-1$
-			case 5:
-				return getEntities().get(rowIndex).getProperty("sha1"); //$NON-NLS-1$
-			case 6:
-				return getEntities().get(rowIndex).getProperty("merge"); //$NON-NLS-1$
-			case 7:
-				return getEntities().get(rowIndex).getProperty("status"); //$NON-NLS-1$
-		}
-		return null;
-	}
-
-	@Override
-	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
-	{
-	}
-
-	@Override
-	public void addTableModelListener(final TableModelListener l)
-	{
-		Anyware.listenerList.add(TableModelListener.class, l);
-	}
-
-	@Override
-	public void removeTableModelListener(final TableModelListener l)
-	{
-		Anyware.listenerList.remove(TableModelListener.class, l);
-	}
-
-	/**
-	 * Sends TableChanged event to listeners
-	 * @param e the {@link TableModelEvent} to send
-	 */
-	public void fireTableChanged(final TableModelEvent e)
-	{
-		final Object[] listeners = Anyware.listenerList.getListenerList();
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
-			if (listeners[i] == TableModelListener.class)
-				((TableModelListener) listeners[i + 1]).tableChanged(e);
-	}
 
 	/**
 	 * get the ware current status according the status of its attached entities (roms, disks, ...)

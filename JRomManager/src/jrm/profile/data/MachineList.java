@@ -27,14 +27,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
-import jrm.ui.profile.data.MachineListRenderer;
 import jrm.ui.progress.ProgressHandler;
 import jrm.xml.EnhancedXMLStreamWriter;
 
@@ -88,89 +86,6 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		super.initTransient();
 	}
 
-	@Override
-	public int getColumnCount()
-	{
-		return MachineListRenderer.columns.length;
-	}
-
-	@Override
-	public String getColumnName(final int columnIndex)
-	{
-		return MachineListRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public String getColumnTT(final int columnIndex)
-	{
-		return MachineListRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public Class<?> getColumnClass(final int columnIndex)
-	{
-		return MachineListRenderer.columnsTypes[columnIndex];
-	}
-
-	@Override
-	public TableCellRenderer getColumnRenderer(final int columnIndex)
-	{
-		return MachineListRenderer.columnsRenderers[columnIndex];
-	}
-
-	@Override
-	public int getColumnWidth(final int columnIndex)
-	{
-		return MachineListRenderer.columnsWidths[columnIndex];
-	}
-
-	@Override
-	public int getRowCount()
-	{
-		return getFilteredList().size();
-	}
-
-	@Override
-	public Object getValueAt(final int rowIndex, final int columnIndex)
-	{
-		final Machine machine = getFilteredList().get(rowIndex);
-		switch(columnIndex)
-		{
-			case 0:
-				return machine;
-			case 1:
-				return machine;
-			case 2:
-				return machine.description.toString();
-			case 3:
-				return String.format("%d/%d", machine.countHave(), machine.countAll()); //$NON-NLS-1$
-			case 4:
-				return machine.cloneof != null ? (m_byname.containsKey(machine.cloneof) ? m_byname.get(machine.cloneof) : machine.cloneof) : null;
-			case 5:
-				return machine.romof != null && !machine.romof.equals(machine.cloneof) ? (m_byname.containsKey(machine.romof) ? m_byname.get(machine.romof) : machine.romof) : null;
-			case 6:
-				return machine.sampleof != null ? (samplesets.containsName(machine.sampleof) ? samplesets.getByName(machine.sampleof) : machine.sampleof) : null;
-			case 7:
-				return machine.selected;
-		}
-		return null;
-	}
-
-	@Override
-	public boolean isCellEditable(final int rowIndex, final int columnIndex)
-	{
-		return columnIndex==7;
-	}
-
-	@Override
-	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
-	{
-		if(columnIndex==7 && aValue instanceof Boolean)
-		{
-			final Machine machine = getFilteredList().get(rowIndex);
-			machine.selected = (Boolean)aValue;
-		}
-	}
 
 	@Override
 	public List<Machine> getList()
@@ -370,12 +285,6 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		if(m_filtered_byname==null)
 			resetFilteredName();
 		return m_filtered_byname.get(name);
-	}
-
-	@Override
-	public TableCellRenderer[] getCellRenderers()
-	{
-		return MachineListRenderer.columnsRenderers;
 	}
 
 }

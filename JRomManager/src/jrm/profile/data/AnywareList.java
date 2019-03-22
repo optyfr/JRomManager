@@ -25,13 +25,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.Stream;
 
-import javax.swing.event.EventListenerList;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableCellRenderer;
-
 import jrm.profile.Profile;
-import jrm.ui.basic.EnhTableModel;
 import one.util.streamex.StreamEx;
 
 /**
@@ -41,13 +35,10 @@ import one.util.streamex.StreamEx;
  * @param <T> extends {@link Anyware} (generally a {@link Machine} or a {@link Software})
  */
 @SuppressWarnings("serial")
-public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, EnhTableModel, List<T>, ByName<T>
+public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, List<T>, ByName<T>
 {
 	Profile profile;
-	/**
-	 * Event Listener list for firing events to Swing controls (Table)
-	 */
-	private static transient EventListenerList listenerList;
+
 	/**
 	 * {@link T} list cache (according current {@link Profile#filter_l})
 	 */
@@ -79,8 +70,6 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	protected void initTransient()
 	{
-		if(AnywareList.listenerList == null)
-			AnywareList.listenerList = new EventListenerList();
 		filtered_list = null;
 	}
 
@@ -96,7 +85,6 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	public void reset()
 	{
 		this.filtered_list = null;
-		fireTableChanged(new TableModelEvent(this));
 	}
 
 	/**
@@ -126,56 +114,6 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	public abstract List<T> getFilteredList();
 
-	/**
-	 * get the declared renderer for a given column
-	 * @param columnIndex the requested column index
-	 * @return a {@link TableCellRenderer} associated with the given columnindex 
-	 */
-	@Override
-	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
-
-	/**
-	 * get the declared width for a given column
-	 * @param columnIndex the requested column index
-	 * @return a width in pixel (if negative then it's a fixed column width)
-	 */
-	@Override
-	public abstract int getColumnWidth(int columnIndex);
-
-	@Override
-	public boolean isCellEditable(final int rowIndex, final int columnIndex)
-	{
-		return false;
-	}
-
-	@Override
-	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex)
-	{
-	}
-
-	@Override
-	public void addTableModelListener(final TableModelListener l)
-	{
-		AnywareList.listenerList.add(TableModelListener.class, l);
-	}
-
-	@Override
-	public void removeTableModelListener(final TableModelListener l)
-	{
-		AnywareList.listenerList.remove(TableModelListener.class, l);
-	}
-
-	/**
-	 * Sends TableChanged event to listeners
-	 * @param e the {@link TableModelEvent} to send
-	 */
-	public void fireTableChanged(final TableModelEvent e)
-	{
-		final Object[] listeners = AnywareList.listenerList.getListenerList();
-		for(int i = listeners.length - 2; i >= 0; i -= 2)
-			if(listeners[i] == TableModelListener.class)
-				((TableModelListener) listeners[i + 1]).tableChanged(e);
-	}
 
 	@Override
 	public int size()

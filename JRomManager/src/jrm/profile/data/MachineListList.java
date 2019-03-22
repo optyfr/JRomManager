@@ -27,16 +27,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.swing.event.TableModelEvent;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 
 import jrm.profile.Profile;
 import jrm.profile.manager.Export;
-import jrm.ui.profile.data.AnywareListListRenderer;
 import jrm.ui.progress.ProgressHandler;
 import jrm.xml.EnhancedXMLStreamWriter;
 
@@ -93,46 +89,9 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	}
 
 	@Override
-	public int getColumnCount()
-	{
-		return AnywareListListRenderer.columns.length;
-	}
-
-	@Override
-	public String getColumnName(final int columnIndex)
-	{
-		return AnywareListListRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public String getColumnTT(final int columnIndex)
-	{
-		return AnywareListListRenderer.columns[columnIndex];
-	}
-
-	@Override
-	public Class<?> getColumnClass(final int columnIndex)
-	{
-		return AnywareListListRenderer.columnsTypes[columnIndex];
-	}
-
-	@Override
-	public TableCellRenderer getColumnRenderer(final int columnIndex)
-	{
-		return AnywareListListRenderer.columnsRenderers[columnIndex] != null ? AnywareListListRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
-	}
-
-	@Override
-	public int getColumnWidth(final int columnIndex)
-	{
-		return AnywareListListRenderer.columnsWidths[columnIndex];
-	}
-
-	@Override
 	public void reset()
 	{
 		this.filtered_list = null;
-		fireTableChanged(new TableModelEvent(this));
 		softwarelist_list.reset();
 	}
 
@@ -141,32 +100,6 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	{
 		profile.filter_ll = filter;
 		reset();
-	}
-
-	@Override
-	public int getRowCount()
-	{
-		return ml_list.size() + softwarelist_list.getRowCount();
-	}
-
-	@Override
-	public Object getValueAt(final int rowIndex, final int columnIndex)
-	{
-		if(rowIndex < ml_list.size())
-		{
-			switch(columnIndex)
-			{
-				case 0:
-					return ml_list.get(rowIndex);
-				case 1:
-					return profile.session.msgs.getString("MachineListList.AllMachines"); //$NON-NLS-1$
-				case 2:
-					return String.format("%d/%d", ml_list.get(rowIndex).countHave(), ml_list.get(rowIndex).countAll()); //$NON-NLS-1$
-			}
-		}
-		else
-			return softwarelist_list.getValueAt(rowIndex - ml_list.size(), columnIndex);
-		return null;
 	}
 
 	@Override
@@ -259,11 +192,5 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 				list.export(writer, progress, is_mame, filtered);
 			writer.writeEndDocument();
 		}
-	}
-
-	@Override
-	public TableCellRenderer[] getCellRenderers()
-	{
-		return AnywareListListRenderer.columnsRenderers;
 	}
 }
