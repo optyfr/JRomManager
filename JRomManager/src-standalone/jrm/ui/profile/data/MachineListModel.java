@@ -1,8 +1,11 @@
 package jrm.ui.profile.data;
 
+import java.util.EnumSet;
+
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Machine;
 import jrm.profile.data.MachineList;
 
@@ -107,7 +110,7 @@ public class MachineListModel extends AnywareListModel
 
 	public void reset()
 	{
-		machineList.reset();
+		machineList.resetCache();
 		fireTableChanged(new TableModelEvent(this));
 	}
 
@@ -115,5 +118,12 @@ public class MachineListModel extends AnywareListModel
 	public MachineList getList()
 	{
 		return machineList;
+	}
+
+	@Override
+	public void setFilter(EnumSet<AnywareStatus> filter)
+	{
+		machineList.setFilterCache(filter);
+		reset();
 	}
 }

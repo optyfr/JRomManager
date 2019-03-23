@@ -1,9 +1,12 @@
 package jrm.ui.profile.data;
 
+import java.util.EnumSet;
+
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.SoftwareListList;
 
 public class SoftwareListListModel extends AnywareListListModel
@@ -69,11 +72,11 @@ public class SoftwareListListModel extends AnywareListListModel
 		switch(columnIndex)
 		{
 			case 0:
-				return softwareListList.getFilteredList().get(rowIndex);
+				return softwareListList.getObject(rowIndex);
 			case 1:
-				return softwareListList.getFilteredList().get(rowIndex).description.toString();
+				return softwareListList.getDescription(rowIndex);
 			case 2:
-				return String.format("%d/%d", softwareListList.getFilteredList().get(rowIndex).countHave(), softwareListList.getFilteredList().get(rowIndex).countAll()); //$NON-NLS-1$
+				return softwareListList.getHaveTot(rowIndex);
 		}
 		return null;
 	}
@@ -91,8 +94,13 @@ public class SoftwareListListModel extends AnywareListListModel
 	
 	public void reset()
 	{
-		softwareListList.reset();
+		softwareListList.resetCache();
 		fireTableChanged(new TableModelEvent(this));
 	}
 
+	public void setFilter(final EnumSet<AnywareStatus> filter)
+	{
+		softwareListList.setFilterCache(filter);
+		reset();
+	}
 }

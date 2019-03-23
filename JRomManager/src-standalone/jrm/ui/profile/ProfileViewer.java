@@ -96,6 +96,7 @@ import jrm.profile.manager.ProfileNFOMame;
 import jrm.profile.manager.ProfileNFOMame.MameStatus;
 import jrm.security.Session;
 import jrm.ui.basic.JRMFileChooser;
+import jrm.ui.profile.data.AnywareListListModel;
 import jrm.ui.profile.data.AnywareListModel;
 import jrm.ui.profile.data.AnywareModel;
 import jrm.ui.profile.data.MachineListListModel;
@@ -836,7 +837,7 @@ public class ProfileViewer extends JDialog
 			filter.add(AnywareStatus.PARTIAL);
 		if (complete)
 			filter.add(AnywareStatus.COMPLETE);
-		((AnywareListList<?>) tableWL.getModel()).setFilter(filter);
+		((AnywareListListModel) tableWL.getModel()).setFilter(filter);
 		if (tableWL.getRowCount() > 0)
 			tableWL.setRowSelectionInterval(0, 0);
 	}
@@ -857,7 +858,7 @@ public class ProfileViewer extends JDialog
 			filter.add(AnywareStatus.PARTIAL);
 		if (complete)
 			filter.add(AnywareStatus.COMPLETE);
-		((AnywareList<?>) tableW.getModel()).setFilter(filter);
+		((AnywareListModel)tableW.getModel()).setFilter(filter);
 		if (tableW.getRowCount() > 0)
 			tableW.setRowSelectionInterval(0, 0);
 	}
@@ -875,7 +876,7 @@ public class ProfileViewer extends JDialog
 			filter.add(EntityStatus.KO);
 		if (ok)
 			filter.add(EntityStatus.OK);
-		((Anyware) tableEntity.getModel()).setFilter(filter);
+		((AnywareModel) tableEntity.getModel()).setFilter(filter);
 		if (tableEntity.getRowCount() > 0)
 			tableEntity.setRowSelectionInterval(0, 0);
 	}

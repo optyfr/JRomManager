@@ -1,11 +1,14 @@
 package jrm.ui.profile.data;
 
+import java.util.EnumSet;
+
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 
 import jrm.profile.data.AnywareList;
+import jrm.profile.data.AnywareStatus;
 import jrm.ui.basic.EnhTableModel;
 
 public abstract class AnywareListModel implements EnhTableModel
@@ -54,6 +57,13 @@ public abstract class AnywareListModel implements EnhTableModel
 			if(listeners[i] == TableModelListener.class)
 				((TableModelListener) listeners[i + 1]).tableChanged(e);
 	}
+	
+	/**
+	 * resets {@link T} list cache and fire a TableChanged event to listeners
+	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
+	 */
+	public abstract void setFilter(final EnumSet<AnywareStatus> filter);
+
 	
 	public abstract void reset();
 	

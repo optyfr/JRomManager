@@ -82,7 +82,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	/**
 	 * resets {@link T} list cache and fire a TableChanged event to listeners
 	 */
-	public void reset()
+	public void resetCache()
 	{
 		this.filtered_list = null;
 	}
@@ -91,10 +91,9 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 * resets {@link T} list cache and fire a TableChanged event to listeners
 	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
 	 */
-	public void setFilter(final EnumSet<AnywareStatus> filter)
+	public void setFilterCache(final EnumSet<AnywareStatus> filter)
 	{
 		profile.filter_l = filter;
-		reset();
 	}
 	
 	public EnumSet<AnywareStatus> getFilter()

@@ -16,8 +16,7 @@ public class AnywareListListXMLResponse extends XMLResponse
 	{
 		super(request);
 	}
-
-
+	
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
@@ -26,16 +25,16 @@ public class AnywareListListXMLResponse extends XMLResponse
 		final boolean reset = Boolean.valueOf(operation.getData("reset"));
 		final MachineListList mll = request.session.curr_profile.machinelist_list;
 		if(reset)
-			mll.reset();
-		fetch_array(operation,mll==null?0:mll.getRowCount(), (i,count)->{
-			AnywareList<?> list = (AnywareList<?>)mll.getValueAt(i, 0);
+			mll.resetCache();
+		fetch_array(operation,mll==null?0:mll.count(), (i,count)->{
+			AnywareList<?> list = mll.getObject(i);
 			try
 			{
 				writer.writeElement("record", 
 					new SimpleAttribute("status", list.getStatus()),
 					new SimpleAttribute("name", list instanceof MachineList?"*":list.getBaseName()),
-					new SimpleAttribute("description", mll.getValueAt(i, 1)),
-					new SimpleAttribute("have", mll.getValueAt(i, 2))
+					new SimpleAttribute("description", mll.getDescription(i)),
+					new SimpleAttribute("have", mll.getHaveTot(i))
 				);
 			}
 			catch (XMLStreamException e)

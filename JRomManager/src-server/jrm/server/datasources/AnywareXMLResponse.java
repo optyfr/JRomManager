@@ -111,9 +111,9 @@ public class AnywareXMLResponse extends XMLResponse
 		if(aw!=null)
 		{
 			if(reset)
-				aw.reset();
-			fetch_array(operation, aw.getRowCount(), (i, count) -> {
-				write_record(al, aw, (EntityBase)aw.getValueAt(i, 0));
+				aw.resetCache();
+			fetch_array(operation, aw.count(), (i, count) -> {
+				write_record(al, aw, aw.getObject(i));
 			});
 		}
 		writer.writeEndElement();

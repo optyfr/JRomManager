@@ -407,7 +407,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	/**
 	 * resets entities list cache and fire a TableChanged event to listeners
 	 */
-	public void reset()
+	public void resetCache()
 	{
 		table_entities = null;
 	}
@@ -416,10 +416,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 * Set a new Entity status set filter and reset list cache
 	 * @param filter the new entity status set filter to apply
 	 */
-	public void setFilter(final EnumSet<EntityStatus> filter)
+	public void setFilterCache(final EnumSet<EntityStatus> filter)
 	{
 		profile.filter_e = filter;
-		reset();
 	}
 
 	/**
@@ -550,5 +549,16 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	public Profile getProfile()
 	{
 		return profile;
+	}
+	
+	
+	public int count()
+	{
+		return getEntities().size();
+	}
+
+	public EntityBase getObject(int i)
+	{
+		return getEntities().get(i);
 	}
 }

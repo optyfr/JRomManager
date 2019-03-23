@@ -76,12 +76,12 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	/**
 	 * resets {@link T} list cache and fire a TableChanged event to listeners
 	 */
-	public abstract void reset();
+	public abstract void resetCache();
 	/**
 	 * resets {@link T} list cache and fire a TableChanged event to listeners
 	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
 	 */
-	public abstract void setFilter(final EnumSet<AnywareStatus> filter);
+	public abstract void setFilterCache(final EnumSet<AnywareStatus> filter);
 
 	/**
 	 * get a cached and filtered stream
@@ -245,4 +245,12 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	{
 		return getList().subList(fromIndex, toIndex);
 	}
+	
+	public abstract int count();
+	
+	public abstract AnywareList<?> getObject(int i);
+
+	public abstract String getDescription(int i);
+
+	public abstract String getHaveTot(int i);
 }

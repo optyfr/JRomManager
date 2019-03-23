@@ -150,7 +150,7 @@ public class AnywareListXMLResponse extends XMLResponse
 		if(al != null)
 		{
 			if(reset)
-				al.reset();
+				al.resetCache();
 			List<Anyware> list = build_list(al, operation);
 			fetch_array(operation, list.size(), (i, count) -> {
 				write_record(al, list.get(i));

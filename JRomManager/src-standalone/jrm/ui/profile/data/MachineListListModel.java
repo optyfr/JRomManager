@@ -1,9 +1,12 @@
 package jrm.ui.profile.data;
 
+import java.util.EnumSet;
+
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.MachineListList;
 
 public class MachineListListModel extends AnywareListListModel
@@ -74,11 +77,11 @@ public class MachineListListModel extends AnywareListListModel
 			switch(columnIndex)
 			{
 				case 0:
-					return machineListList.getList().get(rowIndex);
+					return machineListList.getObject(rowIndex);
 				case 1:
-					return machineListList.profile.session.msgs.getString("MachineListList.AllMachines"); //$NON-NLS-1$
+					return machineListList.getDescription(rowIndex);
 				case 2:
-					return String.format("%d/%d", machineListList.getList().get(rowIndex).countHave(), machineListList.getList().get(rowIndex).countAll()); //$NON-NLS-1$
+					return machineListList.getHaveTot(rowIndex);
 			}
 		}
 		else
@@ -99,8 +102,13 @@ public class MachineListListModel extends AnywareListListModel
 
 	public void reset()
 	{
-		machineListList.reset();
+		machineListList.resetCache();
 		fireTableChanged(new TableModelEvent(this));
 	}
 	
+	public void setFilter(final EnumSet<AnywareStatus> filter)
+	{
+		machineListList.setFilterCache(filter);
+		reset();
+	}
 }

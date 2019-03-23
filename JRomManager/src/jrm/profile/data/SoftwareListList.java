@@ -86,13 +86,13 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 
 
 	@Override
-	public void reset()
+	public void resetCache()
 	{
 		this.filtered_list = null;
 	}
 
 	@Override
-	public void setFilter(final EnumSet<AnywareStatus> filter)
+	public void setFilterCache(final EnumSet<AnywareStatus> filter)
 	{
 	}
 
@@ -196,5 +196,29 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		if(sl_filtered_byname==null)
 			resetFilteredName();
 		return sl_filtered_byname.get(name);
+	}
+
+	@Override
+	public int count()
+	{
+		return getFilteredList().size();
+	}
+
+	@Override
+	public SoftwareList getObject(int i)
+	{
+		return getFilteredList().get(i);
+	}
+
+	@Override
+	public String getDescription(int i)
+	{
+		return getObject(i).description.toString();
+	}
+
+	@Override
+	public String getHaveTot(int i)
+	{
+		return String.format("%d/%d", getFilteredList().get(i).countHave(), getFilteredList().get(i).countAll()); //$NON-NLS-1$
 	}
 }

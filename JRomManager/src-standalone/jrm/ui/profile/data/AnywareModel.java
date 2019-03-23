@@ -1,5 +1,7 @@
 package jrm.ui.profile.data;
 
+import java.util.EnumSet;
+
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -7,6 +9,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import jrm.profile.data.Anyware;
+import jrm.profile.data.EntityStatus;
 import jrm.ui.basic.EnhTableModel;
 
 public class AnywareModel implements EnhTableModel
@@ -141,7 +144,18 @@ public class AnywareModel implements EnhTableModel
 	 */
 	public void reset()
 	{
-		anyware.reset();
+		anyware.resetCache();
 		fireTableChanged(new TableModelEvent(this));
 	}
+	
+	/**
+	 * Set a new Entity status set filter and reset list cache
+	 * @param filter the new entity status set filter to apply
+	 */
+	public void setFilter(final EnumSet<EntityStatus> filter)
+	{
+		anyware.setFilterCache(filter);
+		reset();
+	}
+
 }

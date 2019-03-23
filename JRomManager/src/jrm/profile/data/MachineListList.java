@@ -89,17 +89,16 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	}
 
 	@Override
-	public void reset()
+	public void resetCache()
 	{
 		this.filtered_list = null;
-		softwarelist_list.reset();
+		softwarelist_list.resetCache();
 	}
 
 	@Override
-	public void setFilter(final EnumSet<AnywareStatus> filter)
+	public void setFilterCache(final EnumSet<AnywareStatus> filter)
 	{
 		profile.filter_ll = filter;
-		reset();
 	}
 
 	@Override
@@ -192,5 +191,35 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 				list.export(writer, progress, is_mame, filtered);
 			writer.writeEndDocument();
 		}
+	}
+
+	@Override
+	public int count()
+	{
+		return getList().size() + softwarelist_list.count();
+	}
+
+	@Override
+	public AnywareList<?> getObject(int i)
+	{
+		if(i < getList().size())
+			return getList().get(i);
+		return softwarelist_list.getFilteredList().get(i - getList().size());
+	}
+
+	@Override
+	public String getDescription(int i)
+	{
+		if(i < getList().size())
+			return profile.session.msgs.getString("MachineListList.AllMachines");
+		return softwarelist_list.getDescription(i - getList().size());
+	}
+
+	@Override
+	public String getHaveTot(int i)
+	{
+		if(i < getList().size())
+			return String.format("%d/%d", getList().get(i).countHave(), getList().get(i).countAll()); //$NON-NLS-1$
+		return softwarelist_list.getHaveTot(i - getList().size());
 	}
 }
