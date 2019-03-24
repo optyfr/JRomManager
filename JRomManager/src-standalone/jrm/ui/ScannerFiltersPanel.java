@@ -28,9 +28,9 @@ import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
 import jrm.profile.data.Software.Supported;
 import jrm.profile.data.Systm;
-import jrm.profile.data.Years;
 import jrm.security.Session;
 import jrm.ui.basic.JCheckBoxList;
+import jrm.ui.profile.data.YearsModel;
 
 @SuppressWarnings("serial")
 public class ScannerFiltersPanel extends JSplitPane
@@ -354,9 +354,9 @@ public class ScannerFiltersPanel extends JSplitPane
 		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(session.curr_profile.getProperty("filter.CabinetType", CabinetType.any.toString()))); //$NON-NLS-1$
 		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(session.curr_profile.getProperty("filter.DisplayOrientation", DisplayOrientation.any.toString()))); //$NON-NLS-1$
 		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(session.curr_profile.getProperty("filter.MinSoftwareSupportedLevel", Supported.no.toString()))); //$NON-NLS-1$
-		cbbxYearMin.setModel(new Years(session.curr_profile.years));
+		cbbxYearMin.setModel(new YearsModel(session.curr_profile.years));
 		cbbxYearMin.setSelectedItem(session.curr_profile.getProperty("filter.YearMin", cbbxYearMin.getModel().getElementAt(0))); //$NON-NLS-1$
-		cbbxYearMax.setModel(new Years(session.curr_profile.years));
+		cbbxYearMax.setModel(new YearsModel(session.curr_profile.years));
 		cbbxYearMax.setSelectedItem(session.curr_profile.getProperty("filter.YearMax", cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1))); //$NON-NLS-1$
 		
 	}

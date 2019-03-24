@@ -25,6 +25,7 @@ import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.Session;
 import jrm.ui.profile.ProfileViewer;
+import jrm.ui.profile.data.SystmsModel;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
@@ -304,7 +305,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				btnScan.setEnabled(success);
 				btnFix.setEnabled(false);
 				lblProfileinfo.setText(session.curr_profile.getName());
-				scannerFilters.checkBoxListSystems.setModel(session.curr_profile.systems);
+				scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.curr_profile.systems));
 				return null;
 			}
 

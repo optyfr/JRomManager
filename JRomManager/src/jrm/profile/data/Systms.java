@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.swing.AbstractListModel;
+import lombok.Getter;
 
 /**
  * ListModel of systems
@@ -28,24 +28,12 @@ import javax.swing.AbstractListModel;
  *
  */
 @SuppressWarnings("serial")
-public final class Systms extends AbstractListModel<Systm> implements Serializable, Iterable<Systm>
+public final class Systms implements Serializable, Iterable<Systm>
 {
 	/**
 	 * The internal {@link ArrayList} of {@link Systm}s
 	 */
-	private final ArrayList<Systm> systems = new ArrayList<>();
-
-	@Override
-	public int getSize()
-	{
-		return systems.size();
-	}
-
-	@Override
-	public Systm getElementAt(final int index)
-	{
-		return systems.get(index);
-	}
+	private final @Getter ArrayList<Systm> systems = new ArrayList<>();
 
 	/**
 	 * add a {@link Systm} to the list

@@ -1,20 +1,4 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
-package jrm.profile.data;
+package jrm.ui.profile.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,14 +7,12 @@ import java.util.Collection;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
-/**
- * ListModel of years
- * @author optyfr
- *
- */
 @SuppressWarnings("serial")
-public final class Years extends AbstractListModel<String> implements ComboBoxModel<String>, Serializable
+public final class YearsModel extends AbstractListModel<String> implements ComboBoxModel<String>,Serializable
 {
+
+	Object selectedObject = null;
+
 	/**
 	 * The internal list of years
 	 */
@@ -38,16 +20,28 @@ public final class Years extends AbstractListModel<String> implements ComboBoxMo
 	/**
 	 * The currently selected object
 	 */
-	Object selectedObject = null;
 
 	/**
 	 * Constructor, will build a sorted list of years
 	 * @param years a {@link Collection} of years {@link String}s
 	 */
-	public Years(final Collection<String> years)
+	public YearsModel(final Collection<String> years)
 	{
 		this.years = new ArrayList<>(years);
 		this.years.sort(String::compareTo);
+	}
+
+
+	/**
+	 * Returns the index-position of the specified object in the list.
+	 *
+	 * @param anObject The combo box value
+	 * 
+	 * @return an int representing the index position, where 0 is the first position
+	 */
+	public int getIndexOf(final Object anObject)
+	{
+		return years.indexOf(anObject);
 	}
 
 	// implements javax.swing.ComboBoxModel
@@ -89,18 +83,6 @@ public final class Years extends AbstractListModel<String> implements ComboBoxMo
 			return years.get(index);
 		else
 			return null;
-	}
-
-	/**
-	 * Returns the index-position of the specified object in the list.
-	 *
-	 * @param anObject The combo box value
-	 * 
-	 * @return an int representing the index position, where 0 is the first position
-	 */
-	public int getIndexOf(final Object anObject)
-	{
-		return years.indexOf(anObject);
 	}
 
 }
