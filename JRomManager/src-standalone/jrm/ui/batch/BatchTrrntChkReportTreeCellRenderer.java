@@ -22,7 +22,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import jrm.batch.TrntChkReport.Node;
+import jrm.batch.TrntChkReport.Child;
 import jrm.misc.Log;
 
 // TODO: Auto-generated Javadoc
@@ -48,9 +48,9 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 	{
 		try
 		{
-			if(value instanceof Node)
+			if(value instanceof Child)
 			{
-				Node node = (Node)value;
+				Child node = (Child)value;
 				String title = node.data.title;
 				if(node.data.length!=null)
 					title+=" ("+node.data.length+")";

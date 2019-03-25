@@ -12,7 +12,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import jrm.batch.TrntChkReport;
 import jrm.security.Session;
 
 @SuppressWarnings("serial")
@@ -23,7 +22,7 @@ public class BatchTrrntChkResultsDialog extends JDialog
 	/**
 	 * Create the dialog.
 	 */
-	public BatchTrrntChkResultsDialog(final Session session, Window parent, TrntChkReport results)
+	public BatchTrrntChkResultsDialog(final Session session, Window parent, TrntChkReportNode results)
 	{
 		super(parent);
 		this.parent = parent;

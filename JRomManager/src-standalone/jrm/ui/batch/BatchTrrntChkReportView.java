@@ -13,7 +13,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 
-import jrm.batch.TrntChkReport;
 import jrm.locale.Messages;
 import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
@@ -21,7 +20,7 @@ import jrm.security.Session;
 @SuppressWarnings("serial")
 public class BatchTrrntChkReportView extends JScrollPane
 {
-	public BatchTrrntChkReportView(Session session, TrntChkReport report)
+	public BatchTrrntChkReportView(Session session, TrntChkReportNode report)
 	{
 		final JTree tree = new JTree();
 		tree.setShowsRootHandles(true);

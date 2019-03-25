@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 
-import jrm.batch.TrntChkReport.Node;
+import jrm.batch.TrntChkReport.Child;
 import jrm.batch.TrntChkReport.Status;
 import jrm.io.torrent.Torrent;
 import jrm.io.torrent.TorrentFile;
@@ -112,7 +112,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 							file = file.resolve(path);
 						paths.add(file.toAbsolutePath());
 						final Path identity = Paths.get(".");
-						final Node node = report.add(tfile.getFileDirs().stream().map(Paths::get).reduce(identity, (r,e)->r.resolve(e)).toString());
+						final Child node = report.add(tfile.getFileDirs().stream().map(Paths::get).reduce(identity, (r,e)->r.resolve(e)).toString());
 						progress.setProgress(toHTML(toPurple(sdr.src.getAbsolutePath())), -1, null, file.toString());
 						progress.setProgress2(current + "/" + processing, current.get(), processing.get()); //$NON-NLS-1$
 						if (Files.exists(file))
@@ -167,9 +167,9 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 						progress.setProgress(sdr.src.getAbsolutePath(), -1, null, ""); //$NON-NLS-1$
 						progress.setProgress2(String.format(session.msgs.getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), -1, processing.get()); //$NON-NLS-1$
 						piece_cnt++;
-						Node block = report.add(String.format("Piece %d", piece_cnt));
+						Child block = report.add(String.format("Piece %d", piece_cnt));
 						block.data.length = piece_length;
-						Node node = null;
+						Child node = null;
 						boolean valid = true;
 						MessageDigest md = MessageDigest.getInstance("SHA-1"); //$NON-NLS-1$
 						byte[] buffer = new byte[8192];
@@ -329,11 +329,11 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		int count = files_to_remove.size();
 		if (count > 0)
 		{
-			Node lostfound = report.add("Unknown files");
+			Child lostfound = report.add("Unknown files");
 			lostfound.data.length = 0L;
 			for (Path p : files_to_remove)
 			{
-				Node entry = lostfound.add(p.toString());
+				Child entry = lostfound.add(p.toString());
 				lostfound.data.length += (entry.data.length = Files.size(p));
 			}
 			if (remove)

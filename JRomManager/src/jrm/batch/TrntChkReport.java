@@ -9,8 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,21 +17,18 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 
-import javax.swing.tree.TreeNode;
-
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Subject;
 import jrm.security.Session;
-import jrm.ui.batch.BatchTrrntChkReportTreeModel;
 
-public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
+public final class TrntChkReport implements Serializable, HTMLRenderer
 {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 	
-	public List<Node> nodes = new ArrayList<>();
-	public Map<Long,Node> all = new HashMap<>();
+	public List<Child> nodes = new ArrayList<>();
+	public Map<Long,Child> all = new HashMap<>();
 	
 	private transient AtomicLong uid_cnt = new AtomicLong(); 
 	private transient File file = null;
@@ -42,13 +37,9 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 	/**
 	 * the linked UI tree model
 	 */
-	private transient BatchTrrntChkReportTreeModel model = null;
-
 	public TrntChkReport(File src)
 	{
 		this.file = src;
-		this.model = new BatchTrrntChkReportTreeModel(this);
-		this.model.initClone();
 	}
 	
 	public enum Status
@@ -66,7 +57,7 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 	 * @author optyfr
 	 *
 	 */
-	class FilterPredicate implements Predicate<Node>
+	class FilterPredicate implements Predicate<Child>
 	{
 		/**
 		 * {@link List} of {@link FilterOptions}
@@ -83,7 +74,7 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 		}
 
 		@Override
-		public boolean test(final Node t)
+		public boolean test(final Child t)
 		{
 			if(!filterOptions.contains(FilterOptions.SHOWOK) && t.data.status==Status.OK)
 				return false;
@@ -99,7 +90,7 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 	 */
 	private transient FilterPredicate filterPredicate = new FilterPredicate(new ArrayList<>());
 
-	public final static class NodeData implements Serializable
+	public final static class ChildData implements Serializable
 	{
 		private static final long serialVersionUID = 1L;
 		public String title;
@@ -107,35 +98,35 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 		public Status status = Status.UNKNOWN;
 	}
 	
-	public final class Node implements Serializable, TreeNode, HTMLRenderer
+	public final class Child implements Serializable, HTMLRenderer
 	{
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 2L;
 
-		public List<Node> children;
+		public List<Child> children;
 
 		public long uid;
-		public Node parent = null;
-		public NodeData data = null;
+		public Child parent = null;
+		public ChildData data = null;
 
-		public Node()
+		public Child()
 		{
 			uid = uid_cnt.incrementAndGet();
 			all.put(uid, this);
 			this.parent = null;
-			this.data = new NodeData();
+			this.data = new ChildData();
 		}
 
-		public Node(Node parent)
+		public Child(Child parent)
 		{
 			uid = uid_cnt.incrementAndGet();
 			all.put(uid, this);
 			this.parent = parent;
-			this.data = new NodeData();
+			this.data = new ChildData();
 		}
 
-		Node add(String title)
+		Child add(String title)
 		{
-			Node node = new Node(this);
+			Child node = new Child(this);
 			node.data.title = title;
 			if (children == null)
 				children = new ArrayList<>();
@@ -143,9 +134,9 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 			return node;
 		}
 		
-		Node add(Node org)
+		Child add(Child org)
 		{
-			Node node = new Node(this);
+			Child node = new Child(this);
 			node.data = org.data;
 			if (children == null)
 				children = new ArrayList<>();
@@ -171,56 +162,14 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 			StringBuffer sb = new StringBuffer();
 			sb.append(String.format("%s%-50s %12d %s\n", parent==null?"":"|_ ", data.title, data.length, data.status));
 			if (children != null)
-				for (Node child : children)
+				for (Child child : children)
 					sb.append(child);
 			return sb.toString();
 		}
-
-		@Override
-		public TreeNode getChildAt(int childIndex)
-		{
-			return children==null?null:children.get(childIndex);
-		}
-
-		@Override
-		public int getChildCount()
-		{
-			return children==null?0:children.size();
-		}
-
-		@Override
-		public TreeNode getParent()
-		{
-			return parent;
-		}
-
-		@Override
-		public int getIndex(TreeNode node)
-		{
-			return children==null?-1:children.indexOf(node);
-		}
-
-		@Override
-		public boolean getAllowsChildren()
-		{
-			return true;
-		}
-
-		@Override
-		public boolean isLeaf()
-		{
-			return children==null||children.size()==0;
-		}
-
-		@Override
-		public Enumeration<Node> children()
-		{
-			return children==null?null:Collections.enumeration(children);
-		}
 		
-		public Node clone()
+		public Child clone()
 		{
-			Node node = new Node();
+			Child node = new Child();
 			node.uid = this.uid;
 			node.children = this.children;
 			node.parent = this.parent;
@@ -229,9 +178,9 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 		}
 	}
 	
-	Node add(String title)
+	Child add(String title)
 	{
-		Node node = new Node();
+		Child node = new Child();
 		node.data.title = title;
 		nodes.add(node);
 		return node;
@@ -241,7 +190,7 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer();
-		for (Node node : nodes)
+		for (Child node : nodes)
 			sb.append(node);
 		return sb.toString();
 	}
@@ -288,8 +237,6 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 			TrntChkReport report = (TrntChkReport)ois.readObject();
 			report.file = file;
 			report.file_modified = getReportFile(session, file).lastModified();
-			report.model = new BatchTrrntChkReportTreeModel(report);
-			report.model.initClone();
 			return report;
 		}
 		catch (final Throwable e)
@@ -300,52 +247,6 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 		return null;
 	}
 
-	@Override
-	public TreeNode getChildAt(int childIndex)
-	{
-		return nodes.get(childIndex);
-	}
-
-	@Override
-	public int getChildCount()
-	{
-		return nodes.size();
-	}
-
-	@Override
-	public TreeNode getParent()
-	{
-		return null;
-	}
-
-	@Override
-	public int getIndex(TreeNode node)
-	{
-		return nodes.indexOf(node);
-	}
-
-	@Override
-	public boolean getAllowsChildren()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean isLeaf()
-	{
-		return nodes.size()==0;
-	}
-
-	@Override
-	public Enumeration<Node> children()
-	{
-		return Collections.enumeration(nodes);
-	}
-
-	public BatchTrrntChkReportTreeModel getModel()
-	{
-		return this.model;
-	}
 	
 	private TrntChkReport(TrntChkReport report, List<FilterOptions> filterOptions)
 	{
@@ -353,7 +254,6 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 		file_modified = report.file_modified;
 		uid_cnt = new AtomicLong();
 		nodes = report.filter(filterOptions);
-		model = report.model;
 		all = report.all;
 	}
 	
@@ -367,7 +267,7 @@ public final class TrntChkReport implements Serializable, TreeNode, HTMLRenderer
 	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
 	 * @return a {@link List} of {@link Subject}
 	 */
-	public List<Node> filter(final List<FilterOptions> filterOptions)
+	public List<Child> filter(final List<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
 		return nodes.stream().filter(filterPredicate)/*.map(n -> n.clone())*/.collect(Collectors.toList());

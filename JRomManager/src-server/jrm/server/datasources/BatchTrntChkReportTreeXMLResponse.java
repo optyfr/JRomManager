@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jrm.batch.TrntChkReport;
-import jrm.batch.TrntChkReport.Node;
+import jrm.batch.TrntChkReport.Child;
 import jrm.batch.TrntChkReport.Status;
 import jrm.server.datasources.XMLRequest.Operation;
 
@@ -38,7 +38,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 			Long parentID = Long.valueOf(operation.getData("ParentID"));
 			if (parentID == 0)
 			{
-				List<Node> nodes = report.nodes.stream().filter(n -> showok || n.data.status != Status.OK).collect(Collectors.toList());
+				List<Child> nodes = report.nodes.stream().filter(n -> showok || n.data.status != Status.OK).collect(Collectors.toList());
 				int start, end, nodecount = nodes.size();
 				writer.writeElement("startRow", Integer.toString(start = Math.min(nodecount - 1, operation.startRow)));
 				writer.writeElement("endRow", Integer.toString(end = Math.min(nodecount - 1, operation.endRow)));
@@ -49,7 +49,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 					writer.writeStartElement("data");
 					for (int i = start; i <= end; i++)
 					{
-						Node n = nodes.get(i);
+						Child n = nodes.get(i);
 						writer.writeStartElement("record");
 						writer.writeAttribute("ID", Long.toString(n.uid));
 						writer.writeAttribute("ParentID", parentID.toString());
@@ -65,7 +65,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 			}
 			else
 			{
-				Node parent = report.all.get(parentID);
+				Child parent = report.all.get(parentID);
 				if (parent != null)
 				{
 					int nodecount = parent.children != null ? parent.children.size() : 0;
@@ -74,7 +74,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 					writer.writeElement("totalRows", Integer.toString(nodecount));
 					writer.writeStartElement("data");
 					if (parent.children != null)
-						for (Node n : parent.children)
+						for (Child n : parent.children)
 						{
 							writer.writeStartElement("record");
 							writer.writeAttribute("ID", Long.toString(n.uid));

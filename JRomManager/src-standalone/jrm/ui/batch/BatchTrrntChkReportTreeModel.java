@@ -7,19 +7,18 @@ import java.util.List;
 
 import javax.swing.tree.DefaultTreeModel;
 
-import jrm.batch.TrntChkReport;
 import jrm.profile.report.FilterOptions;
 
 @SuppressWarnings("serial")
 public class BatchTrrntChkReportTreeModel extends DefaultTreeModel
 {
 	/** The org root. */
-	private final TrntChkReport org_root;
+	private final TrntChkReportNode org_root;
 	
 	/** The filter options. */
 	private List<FilterOptions> filterOptions = new ArrayList<>();
 
-	public BatchTrrntChkReportTreeModel(TrntChkReport root)
+	public BatchTrrntChkReportTreeModel(TrntChkReportNode root)
 	{
 		super(root);
 		org_root = root;
@@ -30,7 +29,7 @@ public class BatchTrrntChkReportTreeModel extends DefaultTreeModel
 	 */
 	public void initClone()
 	{
-		setRoot(org_root.clone(filterOptions));
+		setRoot(new TrntChkReportNode(org_root.getReport().clone(filterOptions)));
 	}
 
 	/**
@@ -51,7 +50,7 @@ public class BatchTrrntChkReportTreeModel extends DefaultTreeModel
 	public void filter(final List<FilterOptions> filterOptions)
 	{
 		this.filterOptions = filterOptions;
-		setRoot(org_root.clone(filterOptions));
+		setRoot(new TrntChkReportNode(org_root.getReport().clone(filterOptions)));
 	}
 
 	/**

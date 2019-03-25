@@ -95,7 +95,7 @@ public class BatchTrrntChkPanel extends JPanel
 			public void onButtonPress(int row, int column)
 			{
 				final SrcDstResult sdr = model.getData().get(row);
-				new BatchTrrntChkResultsDialog(session, SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this),TrntChkReport.load(session, sdr.src));
+				new BatchTrrntChkResultsDialog(session, SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this), new TrntChkReportNode(TrntChkReport.load(session, sdr.src)));
 			}
 		});
 		tableTrntChk.addMouseListener(new MouseAdapter() {
