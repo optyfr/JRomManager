@@ -5,7 +5,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import jrm.profile.filter.CatVer;
 import jrm.profile.filter.CatVer.Category;
-import jrm.profile.filter.CatVer.SubCategory;
+import jrm.profile.filter.CatVer.Category.SubCategory;
 import jrm.server.datasources.XMLRequest.Operation;
 
 public class CatVerXMLResponse extends XMLResponse
@@ -22,11 +22,11 @@ public class CatVerXMLResponse extends XMLResponse
 		if(catver!=null)
 		{
 			count++;
-			for(int i = 0; i < catver.getChildCount(); i++)
+			for(int i = 0; i < catver.getListCategories().size(); i++)
 			{
 				count++;
-				Category cat = (Category)catver.getChildAt(i);
-				for(int j = 0; j < cat.getChildCount(); j++)
+				Category cat = (Category)catver.getListCategories().get(i);
+				for(int j = 0; j < cat.getListSubCategories().size(); j++)
 					count++;
 			}
 		}
@@ -41,37 +41,34 @@ public class CatVerXMLResponse extends XMLResponse
 			writer.writeAttribute("ID", catver.getPropertyName());
 			writer.writeAttribute("Name", request.session.msgs.getString("CatVer.AllCategories"));
 			writer.writeAttribute("ParentID", "1");
-			writer.writeAttribute("isFolder", Boolean.toString(!catver.isLeaf()));
+			writer.writeAttribute("isFolder", Boolean.toString(catver.getListCategories().size()!=0));
 			writer.writeAttribute("isSelected", Boolean.toString(catver.isSelected()));
 			writer.writeAttribute("isOpen", Boolean.TRUE.toString());
 			writer.writeEndElement();
-			for(int i = 0; i < catver.getChildCount(); i++)
+			for(Category cat : catver)
 			{
-				Category cat = (Category)catver.getChildAt(i);
 				writer.writeStartElement("record");
 				writer.writeAttribute("ID", cat.getPropertyName());
 				writer.writeAttribute("Name", cat.name);
 				writer.writeAttribute("ParentID", catver.getPropertyName());
-				writer.writeAttribute("isFolder", Boolean.toString(!cat.isLeaf()));
+				writer.writeAttribute("isFolder", Boolean.toString(cat.getListSubCategories().size()!=0));
 				writer.writeAttribute("isSelected", Boolean.toString(cat.isSelected()));
 				byte isOpen = 0;
-				for(int j = 0; j < cat.getChildCount(); j++)
+				for(SubCategory subcat : cat)
 				{
-					SubCategory subcat = (SubCategory)cat.getChildAt(j);
 					isOpen |= (subcat.isSelected()?0x1:0x0);
 					isOpen |= (!subcat.isSelected()?0x2:0x0);
 				}
 				writer.writeAttribute("isOpen", Boolean.toString(isOpen==3));
 				writer.writeEndElement();
-				for(int j = 0; j < cat.getChildCount(); j++)
+				for(SubCategory subcat : cat)
 				{
-					SubCategory subcat = (SubCategory)cat.getChildAt(j);
 					writer.writeStartElement("record");
 					writer.writeAttribute("ID", subcat.getPropertyName());
 					writer.writeAttribute("Name", subcat.name);
 					writer.writeAttribute("ParentID", cat.getPropertyName());
 					writer.writeAttribute("Cnt", Integer.toString(subcat.size()));
-					writer.writeAttribute("isFolder", Boolean.toString(!subcat.isLeaf()));
+					writer.writeAttribute("isFolder", Boolean.toString(false));
 					writer.writeAttribute("isSelected", Boolean.toString(subcat.isSelected()));
 					writer.writeEndElement();
 				}

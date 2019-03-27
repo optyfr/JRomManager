@@ -43,6 +43,12 @@ public class CatVerModel extends DefaultTreeModel
 		super(root);
 	}
 
+	@Override
+	public NGTreeNode getRoot()
+	{
+		return (NGTreeNode)super.getRoot();
+	}
+	
 	/**
 	 * Instantiates a new cat ver model.
 	 */

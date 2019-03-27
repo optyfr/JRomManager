@@ -22,8 +22,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -31,35 +29,29 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.swing.tree.TreeNode;
-
 import org.apache.commons.lang3.StringUtils;
 
 import jrm.profile.Profile;
 import jrm.profile.data.PropertyStub;
-import jrm.ui.basic.AbstractNGTreeNode;
+import lombok.Getter;
 
 /**
- * catver.ini management class and {@link AbstractNGTreeNode} root
+ * catver.ini management class
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.profile.filter.CatVer.Category>, PropertyStub
+public final class CatVer implements Iterable<jrm.profile.filter.CatVer.Category>, PropertyStub
 {
 	/**
 	 * class describing games category with sub-categories list
 	 * @author optyfr
 	 */
-	public final class Category extends AbstractNGTreeNode implements Map<String, SubCategory>, Iterable<SubCategory>, PropertyStub
+	public final class Category implements Map<String, Category.SubCategory>, Iterable<Category.SubCategory>, PropertyStub
 	{
 		/**
 		 * Category name
 		 */
 		public final String name;
-		/**
-		 * {@link CatVer} parent
-		 */
-		private final CatVer parent;
 		/**
 		 * {@link Map} of {@link SubCategory} with {@link SubCategory#name} as key
 		 */
@@ -67,17 +59,16 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		/**
 		 * {@link List} of {@link SubCategory}
 		 */
-		private final List<SubCategory> list_subcategories = new ArrayList<>();
+		private final @Getter List<SubCategory> listSubCategories = new ArrayList<>();
 
 		/**
 		 * Build a Category
 		 * @param name the name of the category
 		 * @param parent the {@link CatVer} root
 		 */
-		public Category(final String name, final CatVer parent)
+		public Category(final String name)
 		{
 			this.name = name;
-			this.parent = parent;
 		}
 
 		@Override
@@ -152,58 +143,15 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 			return subcategories.entrySet();
 		}
 
-		@Override
-		public TreeNode getChildAt(final int childIndex)
-		{
-			return list_subcategories.get(childIndex);
-		}
-
-		@Override
-		public int getChildCount()
-		{
-			return list_subcategories.size();
-		}
-
-		@Override
-		public TreeNode getParent()
-		{
-			return parent;
-		}
-
-		@Override
-		public int getIndex(final TreeNode node)
-		{
-			return list_subcategories.indexOf(node);
-		}
-
-		@Override
-		public boolean getAllowsChildren()
-		{
-			return true;
-		}
-
-		@Override
-		public boolean isLeaf()
-		{
-			return list_subcategories.size() == 0;
-		}
-
-		@Override
-		public Enumeration<SubCategory> children()
-		{
-			return Collections.enumeration(list_subcategories);
-		}
-
-		@Override
 		public Object getUserObject()
 		{
-			return String.format("%s (%d)", name, list_subcategories.stream().filter(SubCategory::isSelected).mapToInt(SubCategory::size).sum()); //$NON-NLS-1$
+			return String.format("%s (%d)", name, listSubCategories.stream().filter(SubCategory::isSelected).mapToInt(SubCategory::size).sum()); //$NON-NLS-1$
 		}
 
 		@Override
 		public Iterator<SubCategory> iterator()
 		{
-			return list_subcategories.iterator();
+			return listSubCategories.iterator();
 		}
 
 		@Override
@@ -212,261 +160,209 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 			return "filter.cat." + name; //$NON-NLS-1$
 		}
 
-		@Override
 		public void setSelected(final boolean selected)
 		{
 			PropertyStub.super.setSelected(profile, selected);
 		}
 
-		@Override
 		public boolean isSelected()
 		{
 			return PropertyStub.super.isSelected(profile);
 		}
 
+		/**
+		 * Describing games subcategory with all corresponding games listed by code names
+		 * @author optyfr
+		 *
+		 */
+		public final class SubCategory implements List<String>, PropertyStub
+		{
+			/**
+			 * name of the subcategory
+			 */
+			public final String name;
+			/**
+			 * the {@link List} of games code names
+			 */
+			private final List<String> games = new ArrayList<>();
+
+			/**
+			 * Build a sub-category
+			 * @param name name of the sub-category
+			 * @param parent the paarent {@link Category}
+			 */
+			public SubCategory(final String name)
+			{
+				this.name = name;
+			}
+
+			@Override
+			public Iterator<String> iterator()
+			{
+				return games.iterator();
+			}
+
+			@Override
+			public int size()
+			{
+				return games.size();
+			}
+
+			@Override
+			public boolean isEmpty()
+			{
+				return games.isEmpty();
+			}
+
+			@Override
+			public boolean contains(final Object o)
+			{
+				return games.contains(o);
+			}
+
+			@Override
+			public Object[] toArray()
+			{
+				return games.toArray();
+			}
+
+			@Override
+			public <T> T[] toArray(final T[] a)
+			{
+				return games.toArray(a);
+			}
+
+			@Override
+			public boolean add(final String e)
+			{
+				return games.add(e);
+			}
+
+			@Override
+			public boolean remove(final Object o)
+			{
+				return games.remove(o);
+			}
+
+			@Override
+			public boolean containsAll(final Collection<?> c)
+			{
+				return games.containsAll(c);
+			}
+
+			@Override
+			public boolean addAll(final Collection<? extends String> c)
+			{
+				return games.addAll(c);
+			}
+
+			@Override
+			public boolean addAll(final int index, final Collection<? extends String> c)
+			{
+				return games.addAll(index, c);
+			}
+
+			@Override
+			public boolean removeAll(final Collection<?> c)
+			{
+				return games.removeAll(c);
+			}
+
+			@Override
+			public boolean retainAll(final Collection<?> c)
+			{
+				return games.retainAll(c);
+			}
+
+			@Override
+			public void clear()
+			{
+				games.clear();
+			}
+
+			@Override
+			public String get(final int index)
+			{
+				return games.get(index);
+			}
+
+			@Override
+			public String set(final int index, final String element)
+			{
+				return games.set(index, element);
+			}
+
+			@Override
+			public void add(final int index, final String element)
+			{
+				games.add(index, element);
+			}
+
+			@Override
+			public String remove(final int index)
+			{
+				return games.remove(index);
+			}
+
+			@Override
+			public int indexOf(final Object o)
+			{
+				return games.indexOf(o);
+			}
+
+			@Override
+			public int lastIndexOf(final Object o)
+			{
+				return games.lastIndexOf(o);
+			}
+
+			@Override
+			public ListIterator<String> listIterator()
+			{
+				return games.listIterator();
+			}
+
+			@Override
+			public ListIterator<String> listIterator(final int index)
+			{
+				return games.listIterator(index);
+			}
+
+			@Override
+			public List<String> subList(final int fromIndex, final int toIndex)
+			{
+				return games.subList(fromIndex, toIndex);
+			}
+
+			public Object getUserObject()
+			{
+				return name + " (" + games.size() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+
+			@Override
+			public String getPropertyName()
+			{
+				return "filter.cat." + Category.this.name + "." + name; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+
+			public void setSelected(final boolean selected)
+			{
+				PropertyStub.super.setSelected(profile, selected);
+			}
+
+			public boolean isSelected()
+			{
+				return PropertyStub.super.isSelected(profile);
+			}
+		}
 	}
 
-	/**
-	 * Describing games subcategory with all corresponding games listed by code names
-	 * @author optyfr
-	 *
-	 */
-	public final class SubCategory extends AbstractNGTreeNode implements List<String>, PropertyStub
-	{
-		/**
-		 * name of the subcategory
-		 */
-		public final String name;
-		/**
-		 * the parent {@link Category}
-		 */
-		private final Category parent;
-		/**
-		 * the {@link List} of games code names
-		 */
-		private final List<String> games = new ArrayList<>();
-
-		/**
-		 * Build a sub-category
-		 * @param name name of the sub-category
-		 * @param parent the paarent {@link Category}
-		 */
-		public SubCategory(final String name, final Category parent)
-		{
-			this.name = name;
-			this.parent = parent;
-		}
-
-		@Override
-		public Iterator<String> iterator()
-		{
-			return games.iterator();
-		}
-
-		@Override
-		public int size()
-		{
-			return games.size();
-		}
-
-		@Override
-		public boolean isEmpty()
-		{
-			return games.isEmpty();
-		}
-
-		@Override
-		public boolean contains(final Object o)
-		{
-			return games.contains(o);
-		}
-
-		@Override
-		public Object[] toArray()
-		{
-			return games.toArray();
-		}
-
-		@Override
-		public <T> T[] toArray(final T[] a)
-		{
-			return games.toArray(a);
-		}
-
-		@Override
-		public boolean add(final String e)
-		{
-			return games.add(e);
-		}
-
-		@Override
-		public boolean remove(final Object o)
-		{
-			return games.remove(o);
-		}
-
-		@Override
-		public boolean containsAll(final Collection<?> c)
-		{
-			return games.containsAll(c);
-		}
-
-		@Override
-		public boolean addAll(final Collection<? extends String> c)
-		{
-			return games.addAll(c);
-		}
-
-		@Override
-		public boolean addAll(final int index, final Collection<? extends String> c)
-		{
-			return games.addAll(index, c);
-		}
-
-		@Override
-		public boolean removeAll(final Collection<?> c)
-		{
-			return games.removeAll(c);
-		}
-
-		@Override
-		public boolean retainAll(final Collection<?> c)
-		{
-			return games.retainAll(c);
-		}
-
-		@Override
-		public void clear()
-		{
-			games.clear();
-		}
-
-		@Override
-		public String get(final int index)
-		{
-			return games.get(index);
-		}
-
-		@Override
-		public String set(final int index, final String element)
-		{
-			return games.set(index, element);
-		}
-
-		@Override
-		public void add(final int index, final String element)
-		{
-			games.add(index, element);
-		}
-
-		@Override
-		public String remove(final int index)
-		{
-			return games.remove(index);
-		}
-
-		@Override
-		public int indexOf(final Object o)
-		{
-			return games.indexOf(o);
-		}
-
-		@Override
-		public int lastIndexOf(final Object o)
-		{
-			return games.lastIndexOf(o);
-		}
-
-		@Override
-		public ListIterator<String> listIterator()
-		{
-			return games.listIterator();
-		}
-
-		@Override
-		public ListIterator<String> listIterator(final int index)
-		{
-			return games.listIterator(index);
-		}
-
-		@Override
-		public List<String> subList(final int fromIndex, final int toIndex)
-		{
-			return games.subList(fromIndex, toIndex);
-		}
-
-		@Override
-		public TreeNode getChildAt(final int childIndex)
-		{
-			return null;
-		}
-
-		@Override
-		public int getChildCount()
-		{
-			return 0;
-		}
-
-		@Override
-		public TreeNode getParent()
-		{
-			return parent;
-		}
-
-		@Override
-		public int getIndex(final TreeNode node)
-		{
-			return 0;
-		}
-
-		@Override
-		public boolean getAllowsChildren()
-		{
-			return false;
-		}
-
-		@Override
-		public boolean isLeaf()
-		{
-			return true;
-		}
-
-		@Override
-		public Enumeration<? extends TreeNode> children()
-		{
-			return null;
-		}
-
-		@Override
-		public Object getUserObject()
-		{
-			return name + " (" + games.size() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		@Override
-		public String getPropertyName()
-		{
-			return "filter.cat." + parent.name + "." + name; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		@Override
-		public void setSelected(final boolean selected)
-		{
-			PropertyStub.super.setSelected(profile, selected);
-		}
-
-		@Override
-		public boolean isSelected()
-		{
-			return PropertyStub.super.isSelected(profile);
-		}
-	}
 
 	private final Profile profile;
 	/**
 	 * The list of fetched {@link Category}
 	 */
-	private final List<Category> list_categories = new ArrayList<>();
+	private final @Getter List<Category> listCategories = new ArrayList<>();
 	/**
 	 * The {@link File} location to catver.ini
 	 */
@@ -505,12 +401,12 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 							final String sc = v[1].trim();
 							Category cat;
 							if(!categories.containsKey(c))
-								categories.put(c, cat = new Category(c, CatVer.this));
+								categories.put(c, cat = new Category(c));
 							else
 								cat = categories.get(c);
-							SubCategory subcat;
+							Category.SubCategory subcat;
 							if(!cat.containsKey(sc))
-								cat.put(sc, subcat = new SubCategory(sc, cat));
+								cat.put(sc, subcat = cat.new SubCategory(sc));
 							else
 								subcat = cat.get(sc);
 							subcat.add(k);
@@ -518,10 +414,10 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 					}
 				}
 			}
-			list_categories.addAll(categories.values());
-			for(final Category cat : list_categories)
-				cat.list_subcategories.addAll(cat.subcategories.values());
-			if(list_categories.isEmpty())
+			listCategories.addAll(categories.values());
+			for(final Category cat : listCategories)
+				cat.listSubCategories.addAll(cat.subcategories.values());
+			if(listCategories.isEmpty())
 				throw new IOException(profile.session.msgs.getString("CatVer.NoCatVerData")); //$NON-NLS-1$
 		}
 	}
@@ -537,58 +433,15 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		return new CatVer(profile, file);
 	}
 
-	@Override
-	public TreeNode getChildAt(final int childIndex)
-	{
-		return list_categories.get(childIndex);
-	}
-
-	@Override
-	public int getChildCount()
-	{
-		return list_categories.size();
-	}
-
-	@Override
-	public TreeNode getParent()
-	{
-		return null;
-	}
-
-	@Override
-	public int getIndex(final TreeNode node)
-	{
-		return list_categories.indexOf(node);
-	}
-
-	@Override
-	public boolean getAllowsChildren()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean isLeaf()
-	{
-		return list_categories.size() == 0;
-	}
-
-	@Override
-	public Enumeration<Category> children()
-	{
-		return Collections.enumeration(list_categories);
-	}
-
-	@Override
 	public Object getUserObject()
 	{
-		return String.format("%s (%d)", profile.session.msgs.getString("CatVer.AllCategories"), list_categories.stream().flatMap(c -> c.list_subcategories.stream().filter(SubCategory::isSelected)).mapToInt(SubCategory::size).sum()); //$NON-NLS-1$ //$NON-NLS-2$
+		return String.format("%s (%d)", profile.session.msgs.getString("CatVer.AllCategories"), listCategories.stream().flatMap(c -> c.listSubCategories.stream().filter(Category.SubCategory::isSelected)).mapToInt(Category.SubCategory::size).sum()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
 	public Iterator<Category> iterator()
 	{
-		return list_categories.iterator();
+		return listCategories.iterator();
 	}
 
 	@Override
@@ -597,13 +450,11 @@ public final class CatVer extends AbstractNGTreeNode implements Iterable<jrm.pro
 		return "filter.cat"; //$NON-NLS-1$
 	}
 
-	@Override
 	public void setSelected(final boolean selected)
 	{
 		PropertyStub.super.setSelected(profile, selected);
 	}
 
-	@Override
 	public boolean isSelected()
 	{
 		return PropertyStub.super.isSelected(profile);

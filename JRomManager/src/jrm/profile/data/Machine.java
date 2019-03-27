@@ -31,8 +31,8 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang3.StringUtils;
 
 import jrm.profile.Profile;
-import jrm.profile.filter.CatVer.SubCategory;
-import jrm.profile.filter.NPlayers.NPlayer;
+import jrm.profile.filter.CatVer.Category.SubCategory;
+import jrm.profile.filter.NPlayer;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
 

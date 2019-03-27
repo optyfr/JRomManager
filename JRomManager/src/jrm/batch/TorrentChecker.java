@@ -33,7 +33,6 @@ import jrm.misc.Log;
 import jrm.misc.UnitRenderer;
 import jrm.security.Session;
 import jrm.ui.basic.ResultColUpdater;
-//import jrm.ui.basic.SDRTableModel;
 import jrm.ui.basic.SrcDstResult;
 import jrm.ui.progress.ProgressHandler;
 import one.util.streamex.StreamEx;
