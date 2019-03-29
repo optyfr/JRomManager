@@ -45,7 +45,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	/**
 	 * Check a dir versus torrent data 
 	 * @param progress the progressions handler
-	 * @param sdrl the data obtained from {@link SDRTableModel}
+	 * @param sdrl the data obtained from SDRTableModel
 	 * @param mode the check mode (see {@link TrntChkMode}
 	 * @param updater the result interface
 	 * @throws IOException

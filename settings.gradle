@@ -1,6 +1,11 @@
 rootProject.name = 'JRomManagerDist'
-include ':JLauncher'
-include ':Jtrrntzip'
-include ':JUpdater'
-include ':JRomManager'
-include ':WebClient'
+include "JLauncher"
+include "Jtrrntzip"
+include "JUpdater"
+include "JRomManager"
+include "JRomManager:trrntzip"
+include "JRomManager:core"
+include "JRomManager:updater"
+include "JRomManager:standalone"
+include "JRomManager:server"
+include "WebClient"

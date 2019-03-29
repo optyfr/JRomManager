@@ -1,40 +1,44 @@
 plugins {
+	id 'java' 
 	id "de.undercouch.download" version "3.4.3"
 	id "nebula.ospackage" version "4.9.3"
 	id "de.inetsoftware.setupbuilder" version "4.8.5"
-	id 'io.franzbecker.gradle-lombok' version '1.14'
+	id "io.freefair.lombok" version "3.2.0"
+//	id 'io.franzbecker.gradle-lombok' version '1.14'
 //	id "edu.sc.seis.macAppBundle" version "2.3.0"
 }
 
 
 apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 apply plugin: 'eclipse'
 eclipse {
-    classpath {
+	classpath {
 		downloadJavadoc = true
 		downloadSources = true
-        file {
-            whenMerged { classpath ->
-                classpath.entries.removeAll { entry ->
-                    if ( entry.kind == 'src' ) {
-                        entry.includes = []
-                        entry.excludes = []
-                        entry.getEntryAttributes().clear()
-                    }
-                    if ( entry.hasProperty('output') ) {
-                        entry.output = null // use the default
-                    }
-                    false
-                }
-            }
-        }
-    }
+		file {
+			whenMerged { classpath ->
+				classpath.entries.removeAll { entry ->
+					if ( entry.kind == 'src' ) {
+//						entry.includes = []
+//						entry.excludes = []
+						entry.getEntryAttributes().clear()
+					}
+					if ( entry.hasProperty('output') ) {
+						entry.output = null // use the default
+					}
+					false
+				}
+			}
+		}
+	}
 }
 
 
 lombok {
 	version = '1.18.6'
-	sha256 = ""
+//	sha256 = ""
 }
 
 ext.props = new Properties()
@@ -46,129 +50,165 @@ repositories {
 	mavenCentral()
 }
 
-sourceSets {
-	standalone {
-		java {
-			srcDirs = ["src-standalone"]
-		}
+subprojects {
+	apply plugin: 'java'
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+	apply plugin: 'eclipse'
+	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
+	repositories {
+		mavenCentral()
 	}
-	server {
-		java {
-			srcDirs = ["src-server"]
-		}
-	}
-	core {
-		java {
-			srcDirs = ["src"]
-		}
-		resources {
-			srcDirs = ["src"]
-		}
-	}
-	trrntzip {
-		java {
-			srcDirs = ["../Jtrrntzip/src"]
-		}
-		resources {
-			srcDirs = ["../Jtrrntzip/src"]
-		}
-	}
-	updater {
-		java {
-			srcDirs = ["../JUpdater/src"]
+	eclipse {
+		classpath {
+			downloadJavadoc = true
+			downloadSources = true
+			file {
+				whenMerged { classpath ->
+					classpath.entries.removeAll { entry ->
+						if ( entry.kind == 'src' ) {
+//							entry.includes = []
+//							entry.excludes = []
+							entry.getEntryAttributes().clear()
+						}
+						if ( entry.hasProperty('output') ) {
+							entry.output = null // use the default
+						}
+						false
+					}
+				}
+			}
 		}
 	}
 }
 
-configurations {
-	compile.extendsFrom trrntzipCompile
-	compile.extendsFrom coreCompile
-	compile.extendsFrom updaterCompile
-	compile.extendsFrom standaloneCompile
-	compile.extendsFrom serverCompile
-	compileOnly.extendsFrom trrntzipCompileOnly
-	compileOnly.extendsFrom coreCompileOnly
-	compileOnly.extendsFrom standaloneCompileOnly
-	compileOnly.extendsFrom serverCompileOnly
-	runtime.extendsFrom coreRuntime
-	runtime.extendsFrom serverRuntime
+project(':JRomManager:trrntzip') {
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["../../Jtrrntzip/src"]
+			}
+			resources {
+				srcDirs = ["../../Jtrrntzip/src"]
+			}
+		}
+	}
+	dependencies {
+		implementation group: 'commons-codec', name:'commons-codec', version:'1.12'
+		implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+	}
 }
+
+project(':JRomManager:core') {
+	apply plugin: "io.freefair.lombok"
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["../src"]
+			}
+			resources {
+				srcDirs = ["../src"]
+			}
+		}
+	}
+	dependencies {
+		implementation project(':JRomManager:trrntzip')
+		implementation group: 'commons-codec', name:'commons-codec', version:'1.12'
+		implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+		implementation group: 'org.apache.commons', name: 'commons-text', version: '1.6'
+		implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
+		implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding', version: '9.20-2.00beta'
+		runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms', version: '9.20-2.00beta'
+		runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-linux-arm', version: '9.20-2.00beta'
+		implementation group: 'one.util', name: 'streamex', version: '0.6.8'
+		implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
+	//	compileOnly group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
+		compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations', version: '3.1.7'
+	//	compileOnly group: 'org.projectlombok', name:'lombok', version:'1.18.6'
+	}
+}
+
+project(':JRomManager:updater') {
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["../../JUpdater/src"]
+			}
+		}
+	}
+	dependencies {
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
+		implementation group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.12.1'
+	}
+}
+
+project(':JRomManager:standalone') {
+	apply plugin: "io.freefair.lombok"
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["../src-standalone"]
+			}
+		}
+	}
+	dependencies {
+		implementation project(':JRomManager:core')
+		implementation project(':JRomManager:updater')
+		implementation group: 'commons-codec', name:'commons-codec', version:'1.12'
+		implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
+		implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+		implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+		implementation group: 'one.util', name: 'streamex', version: '0.6.8'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
+	}
+}
+
+project(':JRomManager:server') {
+	apply plugin: "io.freefair.lombok"
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["../src-server"]
+			}
+		}
+	}
+	dependencies {
+		implementation project(':JRomManager:core')
+		implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
+		implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+		implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+		implementation group: 'org.nanohttpd', name: 'nanohttpd-nanolets', version: '2.3.1'
+		implementation group: 'org.nanohttpd', name: 'nanohttpd-websocket', version: '2.3.1'
+		implementation group: 'org.eclipse.jetty', name:'jetty-server', version:'9.4.15.v20190215'
+		implementation group: 'org.eclipse.jetty', name:'jetty-servlet', version:'9.4.15.v20190215'
+		implementation group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl', version:'9.4.15.v20190215'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
+		implementation group: 'one.util', name: 'streamex', version: '0.6.8'
+	}
+}
+
 dependencies {
+	implementation project(':JRomManager:standalone')
+	implementation project(':JRomManager:server')
 
-	trrntzipCompile group: 'commons-codec', name:'commons-codec', version:'1.12'
-	trrntzipCompile group: 'commons-io', name: 'commons-io', version: '2.6'
-	
-	coreCompileOnly sourceSets.trrntzip.output
-	coreCompile group: 'commons-codec', name:'commons-codec', version:'1.12'
-	coreCompile group: 'commons-io', name: 'commons-io', version: '2.6'
-	coreCompile group: 'org.apache.commons', name: 'commons-text', version: '1.6'
-	coreCompile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
-	coreCompile group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding', version: '9.20-2.00beta'
-	coreRuntime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms', version: '9.20-2.00beta'
-	coreRuntime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-linux-arm', version: '9.20-2.00beta'
-	coreCompile group: 'one.util', name: 'streamex', version: '0.6.8'
-	coreCompile group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
-	coreCompile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-//	coreCompileOnly group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
-	coreCompileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations', version: '3.1.7'
-	coreCompileOnly group: 'org.projectlombok', name:'lombok', version:'1.18.6'
-
-	updaterCompile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-	updaterCompile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.12.1'
-
-	standaloneCompileOnly sourceSets.core.output
-	standaloneCompileOnly sourceSets.updater.output
-	standaloneCompileOnly group: 'org.projectlombok', name:'lombok', version:'1.18.6'
-	standaloneCompile group: 'commons-codec', name:'commons-codec', version:'1.12'
-	standaloneCompile group: 'commons-cli', name: 'commons-cli', version: '1.4'
-	standaloneCompile group: 'commons-io', name: 'commons-io', version: '2.6'
-	standaloneCompile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
-	standaloneCompile group: 'one.util', name: 'streamex', version: '0.6.8'
-	standaloneCompile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-	
-	serverCompileOnly sourceSets.core.output
-//	serverCompileOnly sourceSets.standalone.output
-	serverCompileOnly group: 'org.projectlombok', name:'lombok', version:'1.18.6'
-	serverCompile group: 'commons-cli', name: 'commons-cli', version: '1.4'
-	serverCompile group: 'commons-io', name: 'commons-io', version: '2.6'
-	serverCompile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
-	serverCompile group: 'org.nanohttpd', name: 'nanohttpd-nanolets', version: '2.3.1'
-	serverCompile group: 'org.nanohttpd', name: 'nanohttpd-websocket', version: '2.3.1'
-	serverCompile group: 'org.eclipse.jetty', name:'jetty-server', version:'9.4.15.v20190215'
-	serverCompile group: 'org.eclipse.jetty', name:'jetty-servlet', version:'9.4.15.v20190215'
-	serverCompile group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl', version:'9.4.15.v20190215'
-	serverCompile group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-	serverCompile group: 'one.util', name: 'streamex', version: '0.6.8'
-	
-//	implementation group: 'org.apache.commons', name: 'commons-text', version: '1.6'
 }
-
-
-compileCoreJava {
-	dependsOn compileTrrntzipJava
-}
-
-compileStandaloneJava {
-	dependsOn compileCoreJava
-	dependsOn compileUpdaterJava
-}
-
-compileServerJava {
-	dependsOn compileStandaloneJava
-}
-
-compileJava {
-	dependsOn compileServerJava
-}
-
 
 javadoc {
-	source += sourceSets.main.allJava
-	classpath += sourceSets.main.compileClasspath
+	source += project(':JRomManager:trrntzip').sourceSets.main.allJava
+	source += project(':JRomManager:core').sourceSets.main.allJava
+	source += project(':JRomManager:updater').sourceSets.main.allJava
+	source += project(':JRomManager:standalone').sourceSets.main.allJava
+	source += project(':JRomManager:server').sourceSets.main.allJava
+	classpath += project(':JRomManager:trrntzip').sourceSets.main.compileClasspath
+	classpath += project(':JRomManager:core').sourceSets.main.compileClasspath
+	classpath += project(':JRomManager:updater').sourceSets.main.compileClasspath
+	classpath += project(':JRomManager:standalone').sourceSets.main.compileClasspath
+	classpath += project(':JRomManager:server').sourceSets.main.compileClasspath
 	options.showAll()
 	options.with {
-        links 'https://docs.oracle.com/javase/8/docs/api/'
-    }
+		links 'https://docs.oracle.com/javase/8/docs/api/'
+	}
 }
 
 build.dependsOn javadoc
@@ -176,7 +216,7 @@ build.dependsOn javadoc
 
 task sevenzip(type: Jar) {
 	def sevenzip_dirs = [] as Set
-	def paths = configurations.runtime.filter { it.name.startsWith('sevenzipjbinding-') && !it.name.startsWith('sevenzipjbinding-9') }
+	def paths = project(':JRomManager:core').configurations.runtime.filter { it.name.startsWith('sevenzipjbinding-') && !it.name.startsWith('sevenzipjbinding-9') }
 	paths.each( {
 		zipTree(it).filter { it.name.endsWith('sevenzipjbinding-lib.properties') }.each { 
 			sevenzip_dirs += java.nio.file.Paths.get(it.path).getParent().getFileName().toString()
@@ -195,20 +235,16 @@ task sevenzip(type: Jar) {
 }
 
 jar {
-	from sourceSets.trrntzip.output
-	from sourceSets.core.output
-	from sourceSets.updater.output
-	from sourceSets.standalone.output
-	from sourceSets.server.output
+	def mainClassName="jrm.JRomManager"
 	manifest {
-		def path = configurations.compile.filter { it.name.endsWith('.jar') && (!it.name.startsWith('sevenzip') || it.name.startsWith('sevenzipjbinding-9')) }.collect { 'lib/' + it.getName() }.join(' ') + ' lib/sevenzipjbinding-all.jar'
+		def path = configurations.runtimeClasspath.filter { it.name.endsWith('.jar') && (!it.name.startsWith('sevenzip') || it.name.startsWith('sevenzipjbinding-9')) }.collect { 'lib/' + it.getName() }.join(' ') + ' lib/sevenzipjbinding-all.jar'
 		attributes(
 			"Manifest-Version"     : "1.0",
 			"Specification-Title"  : "JRomManager",
 			"Specification-Version": props.getProperty("Specification-Version"),
 			"Implementation-Title" : "jrm",
 			"Implementation-Version" : props.getProperty("Implementation-Version"),
-			"Main-Class"           : "jrm.JRomManager",
+			"Main-Class"           : mainClassName,
 			"Class-Path"           : path
 		)
 		archiveName baseName + '.' + extension
@@ -365,12 +401,12 @@ build.dependsOn buildDeb
 apply plugin: "de.inetsoftware.setupbuilder"
 		
 setupBuilder {
-    vendor = 'optyfr'
-    application = project.name
-    appIdentifier = project.name
-    version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version");
-    licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
-    icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
+	vendor = 'optyfr'
+	application = project.name
+	appIdentifier = project.name
+	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version");
+	licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
+	icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
 	from (configurations.runtimeClasspath) {
 		into('lib')
 		exclude '*.zip'
@@ -422,11 +458,11 @@ if (Os.isFamily(Os.FAMILY_WINDOWS))
 				rename { project.name+'.exe' }
 			}
 			onlyIf {
-		    	Os.isFamily(Os.FAMILY_WINDOWS)
-		    }
+				Os.isFamily(Os.FAMILY_WINDOWS)
+			}
 		}
 		
-		build.dependsOn buildMSI
+//		build.dependsOn buildMSI
 	}
 	else
 		logger.warn("Can't find WIX ToolSet binaries in PATH, Skipping MSI build.")

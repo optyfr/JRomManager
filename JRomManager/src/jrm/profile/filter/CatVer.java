@@ -64,7 +64,6 @@ public final class CatVer implements Iterable<jrm.profile.filter.CatVer.Category
 		/**
 		 * Build a Category
 		 * @param name the name of the category
-		 * @param parent the {@link CatVer} root
 		 */
 		public Category(final String name)
 		{
@@ -189,7 +188,6 @@ public final class CatVer implements Iterable<jrm.profile.filter.CatVer.Category
 			/**
 			 * Build a sub-category
 			 * @param name name of the sub-category
-			 * @param parent the paarent {@link Category}
 			 */
 			public SubCategory(final String name)
 			{

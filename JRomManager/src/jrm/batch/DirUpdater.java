@@ -36,7 +36,7 @@ public class DirUpdater
 
 	/**
 	 * Update dir list from dat list
-	 * @param sdrl the data obtained from {@link SDRTableModel}
+	 * @param sdrl the data obtained from SDRTableModel
 	 * @param progress the progression handler
 	 * @param srcdirs the list of source directory containing new roms
 	 * @param result the result interfaceo

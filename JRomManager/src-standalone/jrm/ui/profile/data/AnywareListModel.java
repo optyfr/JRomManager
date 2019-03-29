@@ -59,7 +59,7 @@ public abstract class AnywareListModel implements EnhTableModel
 	}
 	
 	/**
-	 * resets {@link T} list cache and fire a TableChanged event to listeners
+	 * filter then fire a TableChanged event to listeners
 	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
 	 */
 	public abstract void setFilter(final EnumSet<AnywareStatus> filter);
