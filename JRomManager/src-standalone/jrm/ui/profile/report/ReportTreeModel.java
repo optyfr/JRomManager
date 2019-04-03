@@ -21,10 +21,13 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
 
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
+import one.util.streamex.IntStreamEx;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -33,11 +36,11 @@ import jrm.profile.report.Report;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public final class ReportTreeModel extends DefaultTreeModel
+public final class ReportTreeModel extends DefaultTreeModel implements ReportTreeHandler
 {
 	
 	/** The org root. */
-	private final Report org_root;
+	private Report org_root;
 	
 	/** The filter options. */
 	private List<FilterOptions> filterOptions = new ArrayList<>();
@@ -47,12 +50,23 @@ public final class ReportTreeModel extends DefaultTreeModel
 	 *
 	 * @param root the root
 	 */
-	public ReportTreeModel(final Report root)
+	private ReportTreeModel(final Report root)
 	{
 		super(root);
 		org_root = root;
+		root.setModel(this);
+		initClone();
 	}
 
+	public ReportTreeModel(final ReportTreeHandler handler)
+	{
+		super(handler.getFilteredReport());
+		getFilteredReport().setModel(this);
+		org_root = handler.getOriginalReport();
+		org_root.setModel(this);
+	}
+	
+	
 	/**
 	 * Inits the clone.
 	 */
@@ -94,4 +108,33 @@ public final class ReportTreeModel extends DefaultTreeModel
 		return EnumSet.copyOf(filterOptions);
 	}
 
+	@Override
+	public Report getFilteredReport()
+	{
+		return (Report)getRoot();
+	}
+
+	@Override
+	public Report getOriginalReport()
+	{
+		return org_root;
+	}
+
+	@Override
+	public boolean hasListeners()
+	{
+		return getTreeModelListeners().length>0;
+	}
+	
+	@Override
+	public void notifyInsertion(int[] childIndices, Object[] children)
+	{
+		if(getTreeModelListeners().length>0)
+		{
+			final TreeModelEvent event = new TreeModelEvent(this, getPathToRoot(getFilteredReport()), childIndices, children);
+			for(final TreeModelListener l : getTreeModelListeners())
+				l.treeNodesInserted(event);
+		}
+	}
+	
 }

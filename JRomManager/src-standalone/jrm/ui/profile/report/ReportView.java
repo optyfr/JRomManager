@@ -24,7 +24,7 @@ public class ReportView extends JScrollPane
 		final JTree tree = new JTree();
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
-		tree.setModel(report.getModel());
+		tree.setModel(new ReportTreeModel(report.getModel()));
 		tree.setCellRenderer(new ReportTreeCellRenderer());
 		this.setViewportView(tree);
 

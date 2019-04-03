@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -265,7 +264,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 		}
 		catch(ParserConfigurationException | SAXException | IOException e)
 		{
-			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+//			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 			Log.err(e.getMessage(),e);
 		}
 	}
