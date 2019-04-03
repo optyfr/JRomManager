@@ -73,7 +73,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 			@Override
 			public void windowOpened(WindowEvent e)
 			{
-				session.report.getModel().filter(session.report.getModel().getFilterOptions().toArray(new FilterOptions[0]));
+				session.report.getHandler().filter(session.report.getHandler().getFilterOptions().toArray(new FilterOptions[0]));
 			}
 		});
 		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$

@@ -27,7 +27,6 @@ import javax.swing.tree.DefaultTreeModel;
 
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
-import one.util.streamex.IntStreamEx;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -54,16 +53,16 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	{
 		super(root);
 		org_root = root;
-		root.setModel(this);
+		root.setHandler(this);
 		initClone();
 	}
 
 	public ReportTreeModel(final ReportTreeHandler handler)
 	{
 		super(handler.getFilteredReport());
-		getFilteredReport().setModel(this);
+		getFilteredReport().setHandler(this);
 		org_root = handler.getOriginalReport();
-		org_root.setModel(this);
+		org_root.setHandler(this);
 	}
 	
 	

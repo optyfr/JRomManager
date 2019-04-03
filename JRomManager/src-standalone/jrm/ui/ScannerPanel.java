@@ -197,7 +197,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				if(MainFrame.report_frame != null && automation.hasReport())
 				{
 					MainFrame.report_frame.setVisible(true);
-					session.report.getModel().initClone();
+					session.report.getHandler().initClone();
 				}
 				if(automate)
 				{

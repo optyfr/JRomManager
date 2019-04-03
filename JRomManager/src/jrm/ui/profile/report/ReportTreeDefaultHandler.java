@@ -20,7 +20,7 @@ public class ReportTreeDefaultHandler implements ReportTreeHandler
 	public ReportTreeDefaultHandler(final Report root)
 	{
 		this.org_root = root;
-		root.setModel(this);
+		root.setHandler(this);
 		initClone();
 	}
 

@@ -26,7 +26,7 @@ public class ReportWS
 	{
 		final JsonObject pjso = jso.get("params").asObject();
 		final Report report = lite?ws.session.tmp_report:ws.session.report;
-		EnumSet<FilterOptions> options = report.getModel().getFilterOptions().clone();
+		EnumSet<FilterOptions> options = report.getHandler().getFilterOptions().clone();
 		for(Member m : pjso)
 		{
 			try
@@ -44,7 +44,7 @@ public class ReportWS
 				
 			}
 		}
-		report.getModel().filter(options.toArray(new FilterOptions[0]));
+		report.getHandler().filter(options.toArray(new FilterOptions[0]));
 		try
 		{
 			if(ws.isOpen())

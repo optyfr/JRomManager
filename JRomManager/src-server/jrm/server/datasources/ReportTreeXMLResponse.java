@@ -36,7 +36,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 		if(parentID==0)
 		{
 			int start, end;
-			int nodecount = report.getModel().getFilteredReport().size();
+			int nodecount = report.getHandler().getFilteredReport().size();
 			writer.writeElement("startRow", Integer.toString(start=Math.min(nodecount-1,operation.startRow)));
 			writer.writeElement("endRow", Integer.toString(end=Math.min(nodecount-1,operation.endRow)));
 			writer.writeElement("totalRows", Integer.toString(nodecount));
@@ -46,7 +46,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 				writer.writeStartElement("data");
 				for(int i = start; i <= end; i++)
 				{
-					Subject s = report.getModel().getFilteredReport().get(i);
+					Subject s = report.getHandler().getFilteredReport().get(i);
 					writer.writeStartElement("record");
 					writer.writeAttribute("ID", Integer.toString(s.getId()));
 					writer.writeAttribute("ParentID", Integer.toString(parentID));
@@ -66,7 +66,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 		}
 		else
 		{
-			Subject subject = report.getModel().getFilteredReport().findSubject(parentID);
+			Subject subject = report.getHandler().getFilteredReport().findSubject(parentID);
 			if(subject!=null)
 			{
 				int nodecount = subject.size();

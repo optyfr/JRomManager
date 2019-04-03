@@ -44,8 +44,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
 
 import jrm.locale.Messages;
@@ -56,7 +54,6 @@ import jrm.profile.data.Anyware;
 import jrm.security.Session;
 import jrm.ui.profile.report.ReportTreeDefaultHandler;
 import jrm.ui.profile.report.ReportTreeHandler;
-import jrm.ui.profile.report.ReportTreeModel;
 import jrm.ui.progress.StatusHandler;
 import one.util.streamex.IntStreamEx;
 
@@ -97,7 +94,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	/**
 	 * the linked UI tree model
 	 */
-	private transient ReportTreeHandler model = null;
+	private transient ReportTreeHandler handler = null;
 
 	
 	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("subjects", List.class), new ObjectStreamField("stats", Stats.class)}; //$NON-NLS-1$ //$NON-NLS-2$
@@ -118,7 +115,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		stats = (Stats) fields.get("stats", new Stats()); //$NON-NLS-1$
 		subject_hash = subjects.stream().peek(s->s.parent=this).collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		filterPredicate = new FilterPredicate(new ArrayList<>());
-		model = new ReportTreeDefaultHandler(this);
+		handler = new ReportTreeDefaultHandler(this);
 	}
 
 	public class Stats implements Serializable,Cloneable
@@ -224,7 +221,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		subjects = Collections.synchronizedList(new ArrayList<>());
 		subject_hash = Collections.synchronizedMap(new HashMap<>());
 		stats = new Stats();
-		model = new ReportTreeDefaultHandler(this);
+		handler = new ReportTreeDefaultHandler(this);
 	}
 
 	/**
@@ -277,7 +274,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		all = new HashMap<>();
 		id = id_cnt.getAndIncrement();
 		all.put(id, this);
-		model = report.model;
+		handler = report.handler;
 		profile = report.profile;
 		subjects = report.filter(filterOptions);
 		for(Subject s : subjects)
@@ -330,8 +327,8 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		subjects.clear();
 		insert_object_cache.clear();
 		stats.clear();
-		if(model != null)
-			model.filter(filterPredicate.filterOptions);
+		if(handler != null)
+			handler.filter(filterPredicate.filterOptions);
 		flush();
 	}
 
@@ -353,14 +350,14 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	 * get the current {@link ReportTreeModel}
 	 * @return a {@link ReportTreeModel}
 	 */
-	public ReportTreeHandler getModel()
+	public ReportTreeHandler getHandler()
 	{
-		return model;
+		return handler;
 	}
 
-	public void setModel(ReportTreeHandler handler)
+	public void setHandler(ReportTreeHandler handler)
 	{
-		model = handler;
+		this.handler = handler;
 	}
 	
 	/**
@@ -405,7 +402,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	}
 
 	/**
-	 * cache made to trigger {@link TreeModelEvent} as few as possible
+	 * cache made to trigger ui notification events as few as possible
 	 */
 	private transient final Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
 
@@ -427,7 +424,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 		if(subject.ware != null)	// add to subject_hash if there is a subject.ware
 			subject_hash.put(subject.ware.getFullName(), subject);
 		final boolean result = subjects.add(subject); // add to subjects list and keep result
-		final Report clone = model.getFilteredReport();	// get model Report clone (filtered one)
+		final Report clone = handler.getFilteredReport();	// get model Report clone (filtered one)
 		if(this != clone)	// if this report is not already the clone itself then update clone
 		{
 			subject.updateStats();
@@ -444,7 +441,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	}
 
 	/**
-	 * flush the current object cache by generating a {@link TreeModelEvent} to send to all {@link TreeModelListener}s available
+	 * flush the current object cache by generating a ui insertion event to send to all listeners available
 	 */
 	public synchronized void flush()
 	{
@@ -452,8 +449,8 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 			statusHandler.setStatus(stats.getStatus());
 		if(insert_object_cache.size() > 0)
 		{
-			if(model.hasListeners())
-				model.notifyInsertion(IntStreamEx.of(insert_object_cache.keySet()).toArray(), insert_object_cache.values().toArray());
+			if(handler.hasListeners())
+				handler.notifyInsertion(IntStreamEx.of(insert_object_cache.keySet()).toArray(), insert_object_cache.values().toArray());
 			insert_object_cache.clear();
 		}
 	}
@@ -591,7 +588,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 			Report report = (Report)ois.readObject();
 			report.file = file;
 			report.file_modified = getReportFile(session, file).lastModified();
-			report.model = new ReportTreeDefaultHandler(report);
+			report.handler = new ReportTreeDefaultHandler(report);
 			return report;
 		}
 		catch (final Throwable e)
