@@ -112,9 +112,9 @@ public class CatVerNode extends AbstractNGTreeNode
 		final private Category category;
 		
 		final private Map<String,SubCategoryNode> subcategoryNodeCache = new HashMap<>();
-		public CategoryNode(final Category catgegory)
+		public CategoryNode(final Category category)
 		{
-			this.category = catgegory;
+			this.category = category;
 		}
 
 		public SubCategoryNode getNode(SubCategory subcat)
