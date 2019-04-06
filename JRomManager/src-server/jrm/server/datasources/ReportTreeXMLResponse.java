@@ -58,7 +58,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 						writer.writeAttribute("hasNotes", Boolean.toString(((SubjectSet)s).hasNotes()));
 						writer.writeAttribute("isFixable", Boolean.toString(((SubjectSet)s).isFixable()));
 					}
-					writer.writeAttribute("isFolder", Boolean.toString(!s.isLeaf()));
+					writer.writeAttribute("isFolder", Boolean.toString(s.getNotes().size()!=0));
 					writer.writeEndElement();
 				}
 				writer.writeEndElement();
@@ -81,7 +81,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 					writer.writeAttribute("ParentID", Integer.toString(parentID));
 					writer.writeAttribute("title", n.getHTML());
 					writer.writeAttribute("class", n.getClass().getSimpleName());
-					writer.writeAttribute("isFolder", Boolean.toString(!n.isLeaf()));
+					writer.writeAttribute("isFolder", Boolean.toString(false));
 					writer.writeEndElement();
 				}
 				writer.writeEndElement();

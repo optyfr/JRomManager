@@ -38,6 +38,8 @@ import jrm.profile.report.Note;
 import jrm.profile.report.RomSuspiciousCRC;
 import jrm.profile.report.Subject;
 import jrm.profile.report.SubjectSet;
+import jrm.ui.profile.report.ReportNode.SubjectNode;
+import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -58,10 +60,16 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 	}
 
 	@Override
-	public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean sel, final boolean expanded, final boolean leaf, final int row, final boolean hasFocus)
+	public Component getTreeCellRendererComponent(final JTree tree, Object value, final boolean sel, final boolean expanded, final boolean leaf, final int row, final boolean hasFocus)
 	{
 		try
 		{
+			if(value instanceof ReportNode)
+				value = ((ReportNode)value).getReport();
+			else if(value instanceof SubjectNode)
+				value = ((SubjectNode)value).getSubject();
+			else if(value instanceof NoteNode)
+				value = ((NoteNode)value).getNote();
 			if(value instanceof Subject)
 				super.getTreeCellRendererComponent(tree, ((Subject)value).getHTML(), sel, expanded, leaf, row, hasFocus);
 			else if(value instanceof Note)

@@ -51,7 +51,7 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	 */
 	private ReportTreeModel(final Report root)
 	{
-		super(root);
+		super(new ReportNode(root));
 		org_root = root;
 		root.setHandler(this);
 		initClone();
@@ -59,7 +59,7 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 
 	public ReportTreeModel(final ReportTreeHandler handler)
 	{
-		super(handler.getFilteredReport());
+		super(new ReportNode(handler.getFilteredReport()));
 		getFilteredReport().setHandler(this);
 		org_root = handler.getOriginalReport();
 		org_root.setHandler(this);
@@ -71,7 +71,7 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	 */
 	public void initClone()
 	{
-		setRoot(org_root.clone(filterOptions));
+		setRoot(new ReportNode(org_root.clone(filterOptions)));
 	}
 
 	/**
@@ -92,7 +92,7 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	public void filter(final List<FilterOptions> filterOptions)
 	{
 		this.filterOptions = filterOptions;
-		setRoot(org_root.clone(filterOptions));
+		setRoot(new ReportNode(org_root.clone(filterOptions)));
 	}
 
 	/**
@@ -110,7 +110,7 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	@Override
 	public Report getFilteredReport()
 	{
-		return (Report)getRoot();
+		return ((ReportNode)getRoot()).getReport();
 	}
 
 	@Override
@@ -130,7 +130,7 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	{
 		if(getTreeModelListeners().length>0)
 		{
-			final TreeModelEvent event = new TreeModelEvent(this, getPathToRoot(getFilteredReport()), childIndices, children);
+			final TreeModelEvent event = new TreeModelEvent(this, getPathToRoot((ReportNode)getRoot()), childIndices, children);
 			for(final TreeModelListener l : getTreeModelListeners())
 				l.treeNodesInserted(event);
 		}

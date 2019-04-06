@@ -33,7 +33,6 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,8 +43,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 
-import javax.swing.tree.TreeNode;
-
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
@@ -55,6 +52,7 @@ import jrm.security.Session;
 import jrm.ui.profile.report.ReportTreeDefaultHandler;
 import jrm.ui.profile.report.ReportTreeHandler;
 import jrm.ui.progress.StatusHandler;
+import lombok.Getter;
 import one.util.streamex.IntStreamEx;
 
 /**
@@ -62,9 +60,9 @@ import one.util.streamex.IntStreamEx;
  * @author optyfr
  *
  */
-public class Report extends AbstractList<Subject> implements TreeNode, HTMLRenderer, Serializable
+public class Report extends AbstractList<Subject> implements HTMLRenderer, Serializable
 {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 	/**
 	 * the related {@link Profile}
 	 */
@@ -74,7 +72,7 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 	/**
 	 * the {@link List} of {@link Subject} nodes
 	 */
-	private List<Subject> subjects;
+	private @Getter List<Subject> subjects;
 
 	/**
 	 * a {@link Map} of {@link Subject} by fullname {@link String}
@@ -499,47 +497,6 @@ public class Report extends AbstractList<Subject> implements TreeNode, HTMLRende
 
 	}
 
-	@Override
-	public TreeNode getChildAt(final int childIndex)
-	{
-		return subjects.get(childIndex);
-	}
-
-	@Override
-	public int getChildCount()
-	{
-		return subjects.size();
-	}
-
-	@Override
-	public TreeNode getParent()
-	{
-		return null;
-	}
-
-	@Override
-	public int getIndex(final TreeNode node)
-	{
-		return subjects.indexOf(node);
-	}
-
-	@Override
-	public boolean getAllowsChildren()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean isLeaf()
-	{
-		return false;
-	}
-
-	@Override
-	public Enumeration<Subject> children()
-	{
-		return Collections.enumeration(subjects);
-	}
 
 	public File getFile()
 	{

@@ -7,23 +7,20 @@ import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
-
-import javax.swing.tree.TreeNode;
 
 import jrm.misc.HTMLRenderer;
 import jrm.profile.data.AnywareBase;
+import lombok.Getter;
 
 /**
  * A Subject is generally a report node about a container
  * @author optyfr
  *
  */
-public abstract class Subject extends AbstractList<Note> implements TreeNode, HTMLRenderer, Serializable
+public abstract class Subject extends AbstractList<Note> implements HTMLRenderer, Serializable
 {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	/**
 	 * The related {@link AnywareBase}
@@ -33,7 +30,7 @@ public abstract class Subject extends AbstractList<Note> implements TreeNode, HT
 	/**
 	 * the {@link List} of {@link Note}s
 	 */
-	protected List<Note> notes;
+	protected @Getter List<Note> notes;
 
 	/**
 	 * The {@link Report} root as parent
@@ -123,48 +120,6 @@ public abstract class Subject extends AbstractList<Note> implements TreeNode, HT
 
 	@Override
 	public abstract String toString();
-
-	@Override
-	public TreeNode getChildAt(final int childIndex)
-	{
-		return notes.get(childIndex);
-	}
-
-	@Override
-	public int getChildCount()
-	{
-		return notes.size();
-	}
-
-	@Override
-	public Report getParent()
-	{
-		return parent;
-	}
-
-	@Override
-	public int getIndex(final TreeNode node)
-	{
-		return notes.indexOf(node);
-	}
-
-	@Override
-	public boolean getAllowsChildren()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean isLeaf()
-	{
-		return notes.size()==0;
-	}
-
-	@Override
-	public Enumeration<Note> children()
-	{
-		return Collections.enumeration(notes);
-	}
 
 	public int getId()
 	{
