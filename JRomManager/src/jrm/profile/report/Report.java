@@ -345,8 +345,8 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	}
 
 	/**
-	 * get the current {@link ReportTreeModel}
-	 * @return a {@link ReportTreeModel}
+	 * get the current {@link ReportTreeHandler}
+	 * @return a {@link ReportTreeHandler}
 	 */
 	public ReportTreeHandler getHandler()
 	{
