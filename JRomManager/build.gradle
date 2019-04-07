@@ -80,6 +80,9 @@ subprojects {
 			}
 		}
 	}
+	jar {
+		archiveName 'jrm-' + baseName + '-' + version + '.' + extension
+	}
 }
 
 project(':JRomManager:trrntzip') {
@@ -143,6 +146,21 @@ project(':JRomManager:updater') {
 	}
 }
 
+project(':JRomManager:res-icons') {
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["../src-res-icons"]
+			}
+			resources {
+				srcDirs = ["../src-res-icons"]
+			}
+		}
+	}
+	dependencies {
+	}
+}
+
 project(':JRomManager:standalone') {
 	apply plugin: "io.freefair.lombok"
 	sourceSets {
@@ -154,6 +172,7 @@ project(':JRomManager:standalone') {
 	}
 	dependencies {
 		implementation project(':JRomManager:core')
+		implementation project(':JRomManager:res-icons')
 		implementation project(':JRomManager:updater')
 		implementation group: 'commons-codec', name:'commons-codec', version:'1.12'
 		implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
@@ -175,6 +194,7 @@ project(':JRomManager:server') {
 	}
 	dependencies {
 		implementation project(':JRomManager:core')
+		implementation project(':JRomManager:res-icons')
 		implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
 		implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 		implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'

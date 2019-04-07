@@ -1,5 +1,8 @@
 /**
  * 
- * @author optyfr
+ */
+/**
+ * @author opty
+ *
  */
 package jrm.resources.icons;
