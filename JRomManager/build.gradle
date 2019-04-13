@@ -84,6 +84,106 @@ subprojects {
 	jar {
 		archiveName 'jrm-' + baseName + '-' + version + '.' + extension
 	}
+	
+	dependencies {
+		constraints {
+			implementation('commons-codec:commons-codec') {
+				version {
+					prefer '1.+'
+				}
+			}
+			implementation('commons-io:commons-io') {
+				version {
+					prefer '2.+'
+				}
+			}
+			implementation('commons-cli:commons-cli') {
+				version {
+					prefer '1.+'
+				}
+			}
+			implementation('org.apache.commons:commons-text') {
+				version {
+					prefer '1.+'
+				}
+			}
+			implementation('org.apache.commons:commons-compress') {
+				version {
+					prefer '1.+'
+				}
+			}
+			implementation('org.apache.commons:commons-lang3') {
+				version {
+					prefer '3.+'
+				}
+			}
+			implementation('net.sf.sevenzipjbinding:sevenzipjbinding') {
+				version {
+					prefer '9.20-2.00beta'
+				}
+			}
+			runtime('net.sf.sevenzipjbinding:sevenzipjbinding-all-platforms') {
+				version {
+					prefer '9.20-2.00beta'
+				}
+			}
+			runtime('net.sf.sevenzipjbinding:sevenzipjbinding-linux-arm') {
+				version {
+					prefer '9.20-2.00beta'
+				}
+			}
+			implementation('one.util:streamex') {
+				version {
+					prefer '0.6.+'
+				}
+			}
+			implementation('com.sun.activation:javax.activation') {
+				version {
+					prefer '1.2.0'
+				}
+			}
+			implementation('com.eclipsesource.minimal-json:minimal-json') {
+				version {
+					prefer '0.9.5'
+				}
+			}
+			compileOnly('com.github.spotbugs:spotbugs-annotations') {
+				version {
+					prefer '3.1.+'
+				}
+			}
+			implementation('com.atlassian.commonmark:commonmark') {
+				version {
+					prefer '0.12.+'
+				}
+			}
+			implementation('org.nanohttpd:nanohttpd-nanolets') {
+				version {
+					prefer '2.+'
+				}
+			}
+			implementation('org.nanohttpd:nanohttpd-websocket') {
+				version {
+					prefer '2.+'
+				}
+			}
+			implementation('org.eclipse.jetty:jetty-server') {
+				version {
+					prefer 'latest.release'
+				}
+			}
+			implementation('org.eclipse.jetty:jetty-servlet') {
+				version {
+					prefer 'latest.release'
+				}
+			}
+			implementation('org.eclipse.jetty.websocket:javax-websocket-server-impl') {
+				version {
+					prefer 'latest.release'
+				}
+			}
+		}
+	}
 }
 
 project(':JRomManager:trrntzip') {
@@ -98,8 +198,8 @@ project(':JRomManager:trrntzip') {
 		}
 	}
 	dependencies {
-		implementation group: 'commons-codec', name:'commons-codec', version:'1.12'
-		implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+		implementation group: 'commons-codec', name:'commons-codec'
+		implementation group: 'commons-io', name: 'commons-io'
 	}
 }
 
@@ -117,19 +217,17 @@ project(':JRomManager:core') {
 	}
 	dependencies {
 		implementation project(':JRomManager:trrntzip')
-		implementation group: 'commons-codec', name:'commons-codec', version:'1.12'
-		implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-		implementation group: 'org.apache.commons', name: 'commons-text', version: '1.6'
-		implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
-		implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding', version: '9.20-2.00beta'
-		runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms', version: '9.20-2.00beta'
-		runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-linux-arm', version: '9.20-2.00beta'
-		implementation group: 'one.util', name: 'streamex', version: '0.6.8'
-		implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-	//	compileOnly group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
-		compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations', version: '3.1.7'
-	//	compileOnly group: 'org.projectlombok', name:'lombok', version:'1.18.6'
+		implementation group: 'commons-codec', name:'commons-codec'
+		implementation group: 'commons-io', name: 'commons-io'
+		implementation group: 'org.apache.commons', name: 'commons-text'
+		implementation group: 'org.apache.commons', name: 'commons-compress'
+		implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding'
+		runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms'
+		runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-linux-arm'
+		implementation group: 'one.util', name: 'streamex'
+		implementation group: 'com.sun.activation', name: 'javax.activation'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+		compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations'
 	}
 }
 
@@ -142,8 +240,8 @@ project(':JRomManager:updater') {
 		}
 	}
 	dependencies {
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-		implementation group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.12.1'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+		implementation group: 'com.atlassian.commonmark', name: 'commonmark'
 	}
 }
 
@@ -175,12 +273,12 @@ project(':JRomManager:standalone') {
 		implementation project(':JRomManager:core')
 		implementation project(':JRomManager:res-icons')
 		implementation project(':JRomManager:updater')
-		implementation group: 'commons-codec', name:'commons-codec', version:'1.12'
-		implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
-		implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-		implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
-		implementation group: 'one.util', name: 'streamex', version: '0.6.8'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
+		implementation group: 'commons-codec', name:'commons-codec'
+		implementation group: 'commons-cli', name: 'commons-cli'
+		implementation group: 'commons-io', name: 'commons-io'
+		implementation group: 'org.apache.commons', name: 'commons-lang3'
+		implementation group: 'one.util', name: 'streamex'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 	}
 }
 
@@ -196,16 +294,16 @@ project(':JRomManager:server') {
 	dependencies {
 		implementation project(':JRomManager:core')
 		implementation project(':JRomManager:res-icons')
-		implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
-		implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-		implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
-		implementation group: 'org.nanohttpd', name: 'nanohttpd-nanolets', version: '2.3.1'
-		implementation group: 'org.nanohttpd', name: 'nanohttpd-websocket', version: '2.3.1'
-		implementation group: 'org.eclipse.jetty', name:'jetty-server', version:'9.4.15.v20190215'
-		implementation group: 'org.eclipse.jetty', name:'jetty-servlet', version:'9.4.15.v20190215'
-		implementation group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl', version:'9.4.15.v20190215'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-		implementation group: 'one.util', name: 'streamex', version: '0.6.8'
+		implementation group: 'commons-cli', name: 'commons-cli'
+		implementation group: 'commons-io', name: 'commons-io'
+		implementation group: 'org.apache.commons', name: 'commons-lang3'
+		implementation group: 'org.nanohttpd', name: 'nanohttpd-nanolets'
+		implementation group: 'org.nanohttpd', name: 'nanohttpd-websocket'
+		implementation group: 'org.eclipse.jetty', name:'jetty-server'
+		implementation group: 'org.eclipse.jetty', name:'jetty-servlet'
+		implementation group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+		implementation group: 'one.util', name: 'streamex'
 	}
 }
 
