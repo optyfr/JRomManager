@@ -38,6 +38,7 @@ eclipse {
 
 lombok {
 	version = '1.18.6'
+	config['lombok.accessors.chain'] = 'true'
 //	sha256 = ""
 }
 
