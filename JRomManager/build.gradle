@@ -51,6 +51,62 @@ repositories {
 	mavenCentral()
 }
 
+apply plugin: 'de.undercouch.download'
+
+def SevenZipJBindingVersion = '16.02-2.01beta'
+
+task downloadSevenZipJBinding(type: Download) {
+	src 'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding.jar'
+	dest "$buildDir/SevenZipJBinding/sevenzipjbinding-"+SevenZipJBindingVersion+".jar"
+	onlyIfModified true
+}
+task downloadSevenZipJBindingPlatforms(type: Download) {
+	src([
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-FreeBSD-amd64.jar',
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-FreeBSD-i386.jar',
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Linux-aarch64.jar',
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Linux-amd64.jar',
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Linux-arm.jar',
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Linux-i386.jar',
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Mac-x86_64.jar',
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Windows-amd64.jar',
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Windows-x86.jar'
+	])
+	dest "$buildDir/SevenZipJBinding"
+	onlyIfModified true
+}
+
+task SevenZipJBinding {
+	dependsOn downloadSevenZipJBinding
+	outputs.file "$buildDir/SevenZipJBinding/sevenzipjbinding-"+SevenZipJBindingVersion+".jar" 
+}
+
+task SevenZipJBindingPlatforms {
+	dependsOn downloadSevenZipJBindingPlatforms
+	outputs.file fileTree(dir: "$buildDir/SevenZipJBinding/", exclude : "sevenzipjbinding-"+SevenZipJBindingVersion+".jar") 
+}
+
+task SevenZipJBindingAllPlatforms(type: Jar, dependsOn: SevenZipJBindingPlatforms) {
+	def sevenzip_dirs = [] as Set
+	def paths = files(SevenZipJBindingPlatforms)
+	paths.each( {
+		zipTree(it).filter { it.name.endsWith('sevenzipjbinding-lib.properties') }.each { 
+			sevenzip_dirs += java.nio.file.Paths.get(it.path).getParent().getFileName().toString()
+			println java.nio.file.Paths.get(it.path).getParent().getFileName().toString()
+		}
+		from (zipTree(it)) {
+			include '*/**'
+			exclude '*.properties'
+	  	}
+	})
+	def props = new Properties()
+	sevenzip_dirs.eachWithIndex{ item, idx -> props.setProperty('platform.'+(idx+1), item) }
+	def propertyFile = file "$buildDir/sevenzipjbinding-platforms.properties"
+	propertyFile.withWriter { props.store(it, null) }
+	from(propertyFile)
+	archiveName 'sevenzipjbinding-all-'+SevenZipJBindingVersion+'.' + extension
+}
+
 subprojects {
 	apply plugin: 'java'
 	sourceCompatibility = 1.8
@@ -85,6 +141,8 @@ subprojects {
 		archiveName 'jrm-' + baseName + '-' + version + '.' + extension
 	}
 	
+	
+	
 	dependencies {
 		constraints {
 			implementation('commons-codec:commons-codec') {
@@ -118,16 +176,6 @@ subprojects {
 				}
 			}
 			implementation('net.sf.sevenzipjbinding:sevenzipjbinding') {
-				version {
-					prefer '9.20-2.00beta'
-				}
-			}
-			runtime('net.sf.sevenzipjbinding:sevenzipjbinding-all-platforms') {
-				version {
-					prefer '9.20-2.00beta'
-				}
-			}
-			runtime('net.sf.sevenzipjbinding:sevenzipjbinding-linux-arm') {
 				version {
 					prefer '9.20-2.00beta'
 				}
@@ -203,6 +251,8 @@ project(':JRomManager:trrntzip') {
 	}
 }
 
+
+
 project(':JRomManager:core') {
 	apply plugin: "io.freefair.lombok"
 	sourceSets {
@@ -221,9 +271,8 @@ project(':JRomManager:core') {
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-text'
 		implementation group: 'org.apache.commons', name: 'commons-compress'
-		implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding'
-		runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-all-platforms'
-		runtime group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding-linux-arm'
+		implementation files(SevenZipJBinding)
+		runtime files(SevenZipJBindingAllPlatforms)
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.sun.activation', name: 'javax.activation'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
@@ -333,30 +382,11 @@ javadoc {
 build.dependsOn javadoc
 
 
-task sevenzip(type: Jar) {
-	def sevenzip_dirs = [] as Set
-	def paths = project(':JRomManager:core').configurations.runtime.filter { it.name.startsWith('sevenzipjbinding-') && !it.name.startsWith('sevenzipjbinding-9') }
-	paths.each( {
-		zipTree(it).filter { it.name.endsWith('sevenzipjbinding-lib.properties') }.each { 
-			sevenzip_dirs += java.nio.file.Paths.get(it.path).getParent().getFileName().toString()
-		}
-		from (zipTree(it)) {
-			include '*/**'
-			exclude '*.properties'
-	  	}
-	})
-	def props = new Properties()
-	sevenzip_dirs.eachWithIndex{ item, idx -> props.setProperty('platform.'+(idx+1), item) }
-	def propertyFile = file "$buildDir/sevenzipjbinding-platforms.properties"
-	propertyFile.withWriter { props.store(it, null) }
-	from(propertyFile)
-	archiveName 'sevenzipjbinding-all.' + extension
-}
 
 jar {
 	def mainClassName="jrm.JRomManager"
 	manifest {
-		def path = configurations.runtimeClasspath.filter { it.name.endsWith('.jar') && (!it.name.startsWith('sevenzip') || it.name.startsWith('sevenzipjbinding-9')) }.collect { 'lib/' + it.getName() }.join(' ') + ' lib/sevenzipjbinding-all.jar'
+		def path = configurations.runtimeClasspath.filter { it.name.endsWith('.jar') }.collect { 'lib/' + it.getName() }.join(' ')
 		attributes(
 			"Manifest-Version"     : "1.0",
 			"Specification-Title"  : "JRomManager",
@@ -385,19 +415,11 @@ task downloadWrapper(type: Download) {
 	onlyIfModified true
 }
 
-task distZip(type: Zip, dependsOn: [jar, sevenzip, ':WebClient:build',downloadWrapper]) {
+task distZip(type: Zip, dependsOn: [jar, SevenZipJBindingAllPlatforms, ':WebClient:build',downloadWrapper]) {
 	from (configurations.runtimeClasspath) {
 		into('lib')
 		exclude '*.zip'
 		include '*.jar'
-		exclude 'sevenzipjbinding*.jar'
-	}
-	from (configurations.runtimeClasspath) {
-		into('lib')
-		include 'sevenzipjbinding-9*.jar'
-	}
-	from (sevenzip) {
-		into('lib')
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
@@ -469,14 +491,6 @@ ospackage {
 		into('lib')
 		exclude '*.zip'
 		include '*.jar'
-		exclude 'sevenzipjbinding*.jar'
-	}
-	from (configurations.runtimeClasspath) {
-		into('lib')
-		include 'sevenzipjbinding-9*.jar'
-	}
-	from (sevenzip) {
-		into('lib')
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
@@ -530,14 +544,6 @@ setupBuilder {
 		into('lib')
 		exclude '*.zip'
 		include '*.jar'
-		exclude 'sevenzipjbinding*.jar'
-	}
-	from (configurations.runtimeClasspath) {
-		into('lib')
-		include 'sevenzipjbinding-9*.jar'
-	}
-	from (sevenzip) {
-		into('lib')
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
