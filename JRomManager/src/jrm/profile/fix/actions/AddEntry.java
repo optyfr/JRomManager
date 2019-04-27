@@ -23,9 +23,11 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
 
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
+import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Container.Type;
@@ -82,7 +84,7 @@ public class AddEntry extends EntryAction
 		}
 		else if(entry.parent.getType() == Type.ZIP)
 		{
-			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.file.toPath(), Collections.singletonMap("readOnly", true));)
 			{
 				Path parent_dstpath = dstpath.getParent(); 
 				if(parent_dstpath != null)
@@ -143,7 +145,7 @@ public class AddEntry extends EntryAction
 		}
 		else if(entry.parent.getType() == Type.ZIP)
 		{
-			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.file.toPath(), Collections.singletonMap("readOnly", true));)
 			{
 				srcpath = srcfs.getPath(entry.file);
 				Path parent = dstpath.getParent(); 
@@ -200,7 +202,7 @@ public class AddEntry extends EntryAction
 		}
 		else if(entry.parent.getType() == Type.ZIP)
 		{
-			try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.file.toPath(), Collections.singletonMap("readOnly", true));)
 			{
 				return dstarchive.add_stdin(Files.newInputStream(srcfs.getPath(entry.file)), entity.getName()) == 0;
 			}

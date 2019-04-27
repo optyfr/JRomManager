@@ -1680,7 +1680,10 @@ class ZipFileSystem extends FileSystem
 	{
 		if (path == null)
 			throw new NullPointerException("path"); //$NON-NLS-1$
-		return inodes.get(IndexNode.keyOf(path));
+		IndexNode node = inodes.get(IndexNode.keyOf(path));
+		if(node==null && zc.isUTF8())
+			node = inodes.get(IndexNode.keyOf(zc.toString(path).getBytes(ZipCoder.Cp437)));
+		return node;
 	}
 
 	Entry getEntry(byte[] path) throws IOException

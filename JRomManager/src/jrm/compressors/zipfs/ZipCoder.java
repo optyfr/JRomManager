@@ -58,7 +58,16 @@ class ZipCoder
 			for (int i = 0; i < s.length(); i++)
 			{
 				if (s.charAt(i) > 0x7f)
-					return super.getBytes(s);
+				{
+					try
+					{
+						return super.getBytes(s);
+					}
+					catch(Exception e)
+					{
+						return s.getBytes(Cp437);
+					}
+				}
 			}
 			return s.getBytes(ISO_8859_1);
 		}
@@ -69,13 +78,23 @@ class ZipCoder
 			for (byte b : ba)
 			{
 				if (b < 0)
-					return super.toString(ba);
+				{
+					try
+					{
+						return super.toString(ba);
+					}
+					catch(Exception e)
+					{
+						return new String(ba, Cp437);
+					}
+				}
 			}
 			return new String(ba, ISO_8859_1);
 		}
 	}
 
 	private static final ZipCoder utf8 = new UTF8();
+	static final Charset Cp437 = Charset.forName("Cp437");
 
 	public static ZipCoder get(String csn)
 	{
