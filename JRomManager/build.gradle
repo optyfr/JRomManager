@@ -280,6 +280,21 @@ project(':JRomManager:core') {
 	}
 }
 
+project(':JRomManager:cli') {
+	apply plugin: "io.freefair.lombok"
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["../src-cli"]
+			}
+		}
+	}
+	dependencies {
+		implementation project(':JRomManager:core')
+		implementation group: 'commons-cli', name: 'commons-cli'
+	}
+}
+
 project(':JRomManager:updater') {
 	sourceSets {
 		main {
@@ -358,8 +373,8 @@ project(':JRomManager:server') {
 
 dependencies {
 	implementation project(':JRomManager:standalone')
+	implementation project(':JRomManager:cli')
 	implementation project(':JRomManager:server')
-
 }
 
 javadoc {
@@ -386,7 +401,7 @@ build.dependsOn javadoc
 jar {
 	def mainClassName="jrm.JRomManager"
 	manifest {
-		def path = configurations.runtimeClasspath.filter { it.name.endsWith('.jar') }.collect { 'lib/' + it.getName() }.join(' ')
+		def path =configurations.runtimeClasspath.filter { it.name.endsWith('.jar') }.collect { 'lib/' + it.getName() }.join(' ')
 		attributes(
 			"Manifest-Version"     : "1.0",
 			"Specification-Title"  : "JRomManager",
@@ -399,6 +414,18 @@ jar {
 		archiveName baseName + '.' + extension
 	}
 }
+
+task cliFatJar(type: Jar) {
+	def mainClassName="jrm.JRomManagerCLI"
+	manifest {
+		attributes 'Main-Class': mainClassName
+	}
+	baseName = 'JRomManagerCLI'
+	from(project(':JRomManager:cli').sourceSets.main.output.classesDirs)
+	from { project(':JRomManager:cli').configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+build.dependsOn cliFatJar 
 
 task docZip(type: Zip, dependsOn: javadoc) {
 	destinationDir buildDir
