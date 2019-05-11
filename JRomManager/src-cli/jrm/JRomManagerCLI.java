@@ -6,12 +6,21 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.cli.*;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
+import jrm.cli.CMD;
 import jrm.cli.Progress;
 import jrm.misc.Log;
 import jrm.profile.Profile;
@@ -31,72 +40,113 @@ public class JRomManagerCLI
 	
 	Profile current_profile = null;
 
-	public JRomManagerCLI() throws IOException
+	public JRomManagerCLI(CommandLine cmd) throws IOException
 	{
-		String commandLine;
-		BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 		session = Sessions.getSession(true, false);
 		rootdir = cwdir = session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
 		Log.init(session.getUser().settings.getLogPath() + "/JRM.%g.log", true, 1024 * 1024, 5);
 		handler = new Progress();
 
-		// we break out with <control><C>
-		while (true)
+		BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+		do
 		{
-			// read what the user entered
-			System.out.print("jrm> ");
-			commandLine = console.readLine();
+			if (current_profile != null)
+				System.out.format("jrm [%s]> ", current_profile.nfo.file.getName());
+			else
+				System.out.format("jrm> ");
+			analyze(splitLine(console.readLine()));
+		}
+		while (true); // we break out with <control><C>
+	}
+	
+	Pattern splitLinePattern = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
-			// if the user entered a return, just loop again
-			if (commandLine.equals(""))
-				continue;
-
-			
-			String[] args = StringUtils.split(commandLine);
-			switch (args[0].toLowerCase())
+	private String[] splitLine(String line)
+	{
+		List<String> list = new ArrayList<>();
+		Matcher m = splitLinePattern.matcher(line);
+		while (m.find())
+			list.add(m.group(m.group(1) != null?1:2));
+		return list.stream().toArray(String[]::new);
+	}
+	
+	protected int analyze(String... args)
+	{
+		if (args.length == 0)
+			return 0;
+		try
+		{
+			switch (CMD.of(args[0]))
 			{
-				case "ls":
-				case "list":
-				case "dir":
-					list();
-					break;
-				case "cd":
-					if(args.length==1)
-						pwd();
+				case LS:
+					return list();
+				case CD:
+					if (args.length == 1)
+						return pwd();
+					return cd(args[1]);
+				case LOAD:
+					if (args.length == 2)
+						return load(args[1]);
+					return error("wrong arguments");
+				case PREFS:
+					if(args.length == 1)
+					{
+						for(Map.Entry<Object, Object> entry : session.getUser().settings.getProperties().entrySet())
+							System.out.format("%s=%s\n", entry.getKey(), entry.getValue());
+					}
+					return 0;
+				case SETTINGS:
+					if(current_profile!=null)
+					{
+						if(args.length == 1)
+						{
+							for(Map.Entry<Object, Object> entry : current_profile.settings.getProperties().entrySet())
+								System.out.format("%s=%s\n", entry.getKey(), entry.getValue());
+						}
+					}
 					else
-						cd(args[1]);
-					break;
-				case "load":
-					if(args.length==2)
-						load(args[1]);
-					else
-						System.out.println("wrong arguments");
-					break;
-				case "pwd":
-					pwd();
-					break;
-				case "exit":
-				case "quit":
-				case "bye":
-					System.exit(0);
-					break;
-				default:
-					System.out.println("Unknown command : "+Stream.of(args).collect(Collectors.joining(" ")));
-					break;
+						return error("No profile loaded");
+					return 0;
+				case PWD:
+					return pwd();
+				case EXIT:
+					return exit(0);
+				case EMPTY:
+					return 0;
+				case UNKNOWN:
+					return error("Unknown command : " + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" ")));
 			}
 		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		return -1;
 	}
 
-	private void load(String profile)
+	private int exit(int status)
+	{
+		System.exit(status);
+		return status;
+	}
+	
+	private int error(String msg)
+	{
+		System.out.println(msg);
+		return -1;
+	}
+	
+	private int load(String profile)
 	{
 		Path candidate = cwdir.resolve(profile);
 		if(Files.isRegularFile(candidate))
 			current_profile = Profile.load(session, candidate.toFile(), handler);
 		else
 			System.out.format("Error: profile \"%s\" does not exist\n",profile);
+		return 0;
 	}
 
-	private void cd(String dir)
+	private int cd(String dir)
 	{
 		if(dir.equals(File.separator))
 			cwdir = rootdir;
@@ -120,21 +170,22 @@ public class JRomManagerCLI
 			else
 				System.out.format("Unknown directory \"%s\"\n", dir);
 		}
+		return 0;
 	}
 		
 
-	private void pwd()
+	private int pwd()
 	{
 		System.out.println("~/" + rootdir.relativize(cwdir));
+		return 0;
 	}
 
-	private void list()
+	private int list() throws IOException
 	{
-		val rows = ProfileNFO.list(session, cwdir.toFile());
-		for(val row : rows)
-		{
-			System.out.println(row.getName());
-		}
+		Files.walk(cwdir,  1).filter(p->Files.isDirectory(p)&&!p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p->System.out.format("<DIR>\t%s\n",p));
+		for(val row : ProfileNFO.list(session, cwdir.toFile()))
+			System.out.format("<DAT>\t%s\n",row.getName());
+		return 0;
 	}
 
 	public static void main(String[] args)
@@ -142,8 +193,7 @@ public class JRomManagerCLI
 		Options options = new Options();
 		try
 		{
-			CommandLine cmd = new DefaultParser().parse(options, args);
-			new JRomManagerCLI();
+			new JRomManagerCLI(new DefaultParser().parse(options, args));
 		}
 		catch (ParseException e)
 		{

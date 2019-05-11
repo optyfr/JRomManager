@@ -60,15 +60,12 @@ public class Progress implements ProgressHandler
 	@Override
 	public void setProgress2(String msg, Integer val)
 	{
-		// TODO Auto-generated method stub
-
+		setProgress2(msg, val, null);
 	}
 
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

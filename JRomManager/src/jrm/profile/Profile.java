@@ -827,7 +827,7 @@ public class Profile implements Serializable
 						curr_software_list.add(curr_software);
 						softwares_cnt++;
 						curr_software = null;
-						handler.setProgress(String.format(Messages.getString("Profile.SWLoaded"), softwares_cnt, swroms_cnt, swdisks_cnt)); //$NON-NLS-1$
+						handler.setProgress(null,null,null,String.format(Messages.getString("Profile.SWLoaded"), softwares_cnt, swroms_cnt, swdisks_cnt)); //$NON-NLS-1$
 						if (handler.isCancel())
 							throw new BreakException();
 					}
@@ -840,7 +840,7 @@ public class Profile implements Serializable
 						machines_cnt++;
 						curr_machine = null;
 						curr_sampleset = null;
-						handler.setProgress(String.format(Messages.getString("Profile.Loaded"), machines_cnt, roms_cnt, disks_cnt, samples_cnt)); //$NON-NLS-1$
+						handler.setProgress(null,null,null,String.format(Messages.getString("Profile.Loaded"), machines_cnt, roms_cnt, disks_cnt, samples_cnt)); //$NON-NLS-1$
 						if (handler.isCancel())
 							throw new BreakException();
 					}
