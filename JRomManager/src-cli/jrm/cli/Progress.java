@@ -48,7 +48,7 @@ public class Progress implements ProgressHandler
 	{
 		if (max != null)
 			this.max = max;
-		if (msg != null)
+		if (msg != null && !msg.isEmpty())
 		{
 			if (val != null && val > 0)
 				System.out.format("%s (%d/%d)\n", msg, val, this.max);

@@ -212,6 +212,7 @@ public class Scan
 		this.report = profile.session.report;
 		profile.setPropsCheckPoint();
 		report.reset();
+		report.setProfile(profile);
 		
 		/*
 		 * Store locally various profile settings

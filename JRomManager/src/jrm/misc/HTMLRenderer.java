@@ -18,6 +18,8 @@ package jrm.misc;
 
 import org.apache.commons.text.StringEscapeUtils;
 
+import lombok.Setter;
+
 /**
  * An interface with default methods to wrap various HTML tags around {@link String} or {@link StringBuffer}
  * @author optyfr
@@ -34,6 +36,17 @@ public interface HTMLRenderer
 		return toString();
 	}
 
+	static class Options
+	{
+		private static @Setter boolean isPlain = false;
+	}
+	
+	public default boolean isPlain()
+	{
+		return Options.isPlain;
+	}
+	
+	
 	/**
 	 * Wrap {@code <html>} and {@code </html>} tags around a string
 	 * @param str the string to wrap
@@ -41,6 +54,8 @@ public interface HTMLRenderer
 	 */
 	public default String toHTML(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<html>"+str+"</html>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -51,6 +66,8 @@ public interface HTMLRenderer
 	 */
 	public default String toNoBR(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<nobr>"+str+"</nobr>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -61,6 +78,8 @@ public interface HTMLRenderer
 	 */
 	public default String toBlue(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<span style='color:blue'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -71,6 +90,8 @@ public interface HTMLRenderer
 	 */
 	public default String toRed(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<span style='color:red'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -81,6 +102,8 @@ public interface HTMLRenderer
 	 */
 	public default String toGreen(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<span style='color:green'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -91,6 +114,8 @@ public interface HTMLRenderer
 	 */
 	public default String toGray(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<span style='color:gray'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -101,6 +126,8 @@ public interface HTMLRenderer
 	 */
 	public default String toOrange(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<span style='color:orange'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -111,6 +138,8 @@ public interface HTMLRenderer
 	 */
 	public default String toPurple(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<span style='color:purple'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -121,6 +150,8 @@ public interface HTMLRenderer
 	 */
 	public default String toBold(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<b>"+str+"</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -131,6 +162,8 @@ public interface HTMLRenderer
 	 */
 	public default String toItalic(final CharSequence str)
 	{
+		if(isPlain())
+			return str.toString();
 		return "<i>"+str+"</i>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
@@ -143,6 +176,8 @@ public interface HTMLRenderer
 	 */
 	public default String progress(final int i, final int max, final String msg)
 	{
+		if(isPlain())
+			return msg + " " + progress(100, i, max);
 		return String.format("<html>" //$NON-NLS-1$
 				+ "<table cellpadding=2 cellspacing=0><tr>" //$NON-NLS-1$
 				+ "	<td valign='middle'>%s</td>" //$NON-NLS-1$
@@ -154,6 +189,8 @@ public interface HTMLRenderer
 	
 	public default String progress(final int width, final long i, final long max)
 	{
+		if(isPlain())
+			return String.format("(%d/%d)", i, max);
 		return String.format("<table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray;table-layout:fixed'><tr>"
 				+ "<td style='width:%dpx;height:2px;background-color:#00ff00'></td>" //$NON-NLS-1$
 				+ "<td></td>" //$NON-NLS-1$

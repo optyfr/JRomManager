@@ -4,13 +4,16 @@ import java.util.LinkedHashSet;
 
 public enum CMD
 {
-	LS("ls","list","dir"),
 	CD("cd"),
-	LOAD("load"),
 	PWD("pwd"),
-	EXIT("exit","quit","bye"),
+	LS("ls","list","dir"),
 	PREFS("prefs", "env"),
+	LOAD("load"),
 	SETTINGS("settings","set"),
+	SCAN("scan"),
+	SCANRESULT("scanresult","scanresults"),
+	FIX("fix"),
+	EXIT("exit","quit","bye"),
 	EMPTY(""),
 	UNKNOWN();
 	

@@ -67,4 +67,11 @@ public interface SettingsImpl
 	 * @param value the property value
 	 */
 	public void setProperty(final String property, final String value);
+	
+	/**
+	 * Does a property exist
+	 * @param property the name of the property
+	 * @return true if it exists, false otherwise
+	 */
+	public boolean hasProperty(final String property);
 }

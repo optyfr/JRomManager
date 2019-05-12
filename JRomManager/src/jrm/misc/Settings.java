@@ -94,6 +94,12 @@ public abstract class Settings implements SettingsImpl
 		propagate(property, value);
 	}
 	
+	@Override
+	public boolean hasProperty(String property)
+	{
+		return properties.containsKey(property);
+	}
+	
 	protected abstract void propagate(final String property, final String value);
 	
 	@SuppressWarnings("serial")
