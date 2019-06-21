@@ -137,6 +137,17 @@ public class JRomManagerCLI
 					final Fix fix = new Fix(session.curr_profile, session.curr_scan, handler);
 					System.out.format("%d actions remaining\n",fix.getActionsRemain());
 					return 0;
+				case HELP:
+					for(val cmd : CMD.values())
+					{
+						if(cmd!=CMD.EMPTY && cmd!=CMD.UNKNOWN)
+						{
+							System.out.println(cmd.allStrings().collect(Collectors.joining(", ")));
+							System.out.println("HELP_"+cmd.name());
+							System.out.println();
+						}
+					}
+					return 0;
 				case EXIT:
 					return exit(0);
 				case EMPTY:

@@ -1,6 +1,7 @@
 package jrm.cli;
 
 import java.util.LinkedHashSet;
+import java.util.stream.Stream;
 
 public enum CMD
 {
@@ -14,6 +15,7 @@ public enum CMD
 	SCANRESULT("scanresult","scanresults"),
 	FIX("fix"),
 	EXIT("exit","quit","bye"),
+	HELP("help","?"),
 	EMPTY(""),
 	UNKNOWN();
 	
@@ -37,5 +39,10 @@ public enum CMD
 	public String toString()
 	{
 		return names.stream().findFirst().orElse(super.toString());
+	}
+	
+	public Stream<String> allStrings()
+	{
+		return names.stream();
 	}
 }
