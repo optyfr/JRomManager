@@ -46,24 +46,24 @@ public class JRomManagerCLI
 	public JRomManagerCLI(CommandLine cmd) throws IOException
 	{
 		session = Sessions.getSession(true, false);
-		rootdir = cwdir = session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
+		rootdir = cwdir = session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize(); //$NON-NLS-1$
 		HTMLRenderer.Options.setPlain(true);
-		Log.init(session.getUser().settings.getLogPath() + "/JRM.%g.log", false, 1024 * 1024, 5);
+		Log.init(session.getUser().settings.getLogPath() + "/JRM.%g.log", false, 1024 * 1024, 5); //$NON-NLS-1$
 		handler = new Progress();
 
 		BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 		do
 		{
 			if (session.curr_profile != null)
-				System.out.format("jrm [%s]> ", session.curr_profile.nfo.file.getName());
+				System.out.format("jrm [%s]> ", session.curr_profile.nfo.file.getName()); //$NON-NLS-1$
 			else
-				System.out.format("jrm> ");
+				System.out.format("jrm> "); //$NON-NLS-1$
 			analyze(splitLine(console.readLine()));
 		}
 		while (true); // we break out with <control><C>
 	}
 	
-	Pattern splitLinePattern = Pattern.compile("\"([^\"]*)\"|(\\S+)");
+	Pattern splitLinePattern = Pattern.compile("\"([^\"]*)\"|(\\S+)"); //$NON-NLS-1$
 
 	private String[] splitLine(String line)
 	{
@@ -91,7 +91,7 @@ public class JRomManagerCLI
 						return pwd();
 					if (args.length == 2)
 						return cd(args[1]);
-					return error("wrong arguments");
+					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case PREFS:
 					if (args.length == 1)
 						return prefs();
@@ -99,52 +99,52 @@ public class JRomManagerCLI
 						return prefs(args[1]);
 					if (args.length == 3)
 						return prefs(args[1], args[2]);
-					return error("wrong arguments");
+					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case LOAD:
 					if (args.length == 2)
 						return load(args[1]);
-					return error("wrong arguments");
+					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case SETTINGS:
 					if(session.curr_profile==null)
-						return error("No profile loaded");
+						return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
 					if (args.length == 1)
 						return settings();
 					if (args.length == 2)
 						return settings(args[1]);
 					if (args.length == 3)
 						return settings(args[1], args[2]);
-					return error("wrong arguments");
+					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case SCAN:
 					if(session.curr_profile==null)
-						return error("No profile loaded");
+						return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
 					session.curr_scan = new Scan(session.curr_profile, handler);
 				case SCANRESULT:
 					if(session.curr_scan==null)
-						return error("Should scan first");
+						return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
 					if(session.curr_profile.hasPropsChanged())
-						return error("Properties have changed, you must rescan first");
+						return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
 					if(session.report==null)
-						return error("No report available");
+						return error(CLIMessages.getString("CLI_ERR_NoReport")); //$NON-NLS-1$
 					System.out.println(session.report.stats.getStatus());
 					return 0;
 				case FIX:
 					if(session.curr_scan==null)
-						return error("Should scan first");
+						return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
 					if(session.curr_profile.hasPropsChanged())
-						return error("Properties have changed, you must rescan first");
+						return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
 					if(session.curr_scan.actions.stream().mapToInt(Collection::size).sum() == 0)
-						return error("Nothing to fix");
+						return error(CLIMessages.getString("CLI_ERR_NothingToFix")); //$NON-NLS-1$
 					final Fix fix = new Fix(session.curr_profile, session.curr_scan, handler);
-					System.out.format("%d actions remaining\n",fix.getActionsRemain());
+					System.out.format(CLIMessages.getString("CLI_MSG_ActionRemaining"),fix.getActionsRemain()); //$NON-NLS-1$
 					return 0;
 				case HELP:
 					for(val cmd : CMD.values())
 					{
 						if(cmd!=CMD.EMPTY && cmd!=CMD.UNKNOWN)
 						{
-							System.out.println(cmd.allStrings().collect(Collectors.joining(", ")));
-							System.out.println("HELP_"+cmd.name());
-							System.out.println();
+							System.out.append(cmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$
+							System.out.append(": ").append(CLIMessages.getString("CLI_HELP_"+cmd.name())); //$NON-NLS-1$
+							System.out.append("\n");
 						}
 					}
 					return 0;
@@ -153,7 +153,7 @@ public class JRomManagerCLI
 				case EMPTY:
 					return 0;
 				case UNKNOWN:
-					return error(() -> "Unknown command : " + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" ")));
+					return error(() -> CLIMessages.getString("CLI_ERR_UnknownCommand") + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
 		catch (IOException e)
@@ -166,16 +166,16 @@ public class JRomManagerCLI
 	private int prefs()
 	{
 		for(Map.Entry<Object, Object> entry : session.getUser().settings.getProperties().entrySet())
-			System.out.format("%s=%s\n", entry.getKey(), entry.getValue());
+			System.out.format("%s=%s\n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
 		return 0;
 	}
 	
 	private int prefs(final String name)
 	{
 		if(!session.getUser().settings.hasProperty(name))
-			System.out.format("%s is not set\n", name);
+			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$
 		else
-			System.out.format("%s=%s\n", name, session.getUser().settings.getProperty(name,""));
+			System.out.format("%s=%s\n", name, session.getUser().settings.getProperty(name,"")); //$NON-NLS-1$ //$NON-NLS-2$
 		return 0;
 	}
 
@@ -188,16 +188,16 @@ public class JRomManagerCLI
 	private int settings()
 	{
 		for(Map.Entry<Object, Object> entry : session.curr_profile.settings.getProperties().entrySet())
-			System.out.format("%s=%s\n", entry.getKey(), entry.getValue());
+			System.out.format("%s=%s\n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
 		return 0;
 	}
 
 	private int settings(final String name)
 	{
 		if(!session.curr_profile.settings.hasProperty(name))
-			System.out.format("%s is not set\n", name);
+			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$
 		else
-			System.out.format("%s=%s\n", name, session.curr_profile.settings.getProperty(name,""));
+			System.out.format("%s=%s\n", name, session.curr_profile.settings.getProperty(name,"")); //$NON-NLS-1$ //$NON-NLS-2$
 		return 0;
 	}
 
@@ -231,7 +231,7 @@ public class JRomManagerCLI
 		if(Files.isRegularFile(candidate))
 			session.curr_profile = Profile.load(session, candidate.toFile(), handler);
 		else
-			System.out.format("Error: profile \"%s\" does not exist\n",profile);
+			System.out.format(CLIMessages.getString("CLI_ERR_ProfileNotExist"),profile); //$NON-NLS-1$
 		return 0;
 	}
 
@@ -241,23 +241,23 @@ public class JRomManagerCLI
 			cwdir = rootdir;
 		else
 		{
-			if(dir.startsWith("~"))
-				dir = dir.replace("~", rootdir.toString());
+			if(dir.startsWith("~")) //$NON-NLS-1$
+				dir = dir.replace("~", rootdir.toString()); //$NON-NLS-1$
 			Path candidate = cwdir.resolve(dir).normalize();
 			if(rootdir.startsWith(candidate) && !rootdir.equals(candidate))
 			{
 				cwdir = rootdir;
-				System.out.format("Can't go up from profiles dir\n", dir);
+				System.out.format(CLIMessages.getString("CLI_ERR_CantGoUpDir"), dir); //$NON-NLS-1$
 			}
 			else if(Files.isDirectory(candidate))
 			{
 				if(candidate.startsWith(rootdir))
 					cwdir = candidate;
 				else
-					System.out.format("Can't change to directory \"%s\"\n", dir);
+					System.out.format(CLIMessages.getString("CLI_ERR_CantChangeDir"), dir); //$NON-NLS-1$
 			}
 			else
-				System.out.format("Unknown directory \"%s\"\n", dir);
+				System.out.format(CLIMessages.getString("CLI_ERR_UnknownDir"), dir); //$NON-NLS-1$
 		}
 		return 0;
 	}
@@ -265,15 +265,15 @@ public class JRomManagerCLI
 
 	private int pwd()
 	{
-		System.out.println("~/" + rootdir.relativize(cwdir));
+		System.out.println("~/" + rootdir.relativize(cwdir)); //$NON-NLS-1$
 		return 0;
 	}
 
 	private int list() throws IOException
 	{
-		Files.walk(cwdir,  1).filter(p->Files.isDirectory(p)&&!p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p->System.out.format("<DIR>\t%s\n",p));
+		Files.walk(cwdir,  1).filter(p->Files.isDirectory(p)&&!p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p->System.out.format("<DIR>\t%s\n",p)); //$NON-NLS-1$
 		for(val row : ProfileNFO.list(session, cwdir.toFile()))
-			System.out.format("<DAT>\t%s\n",row.getName());
+			System.out.format("<DAT>\t%s\n",row.getName()); //$NON-NLS-1$
 		return 0;
 	}
 
