@@ -1,5 +1,7 @@
-apply plugin: "eclipse"
-apply plugin: "java"
+apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+apply plugin: 'eclipse'
 
 dependencies {
 	implementation project(':JUpdater')

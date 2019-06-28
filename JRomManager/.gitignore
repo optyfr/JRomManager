@@ -1,12 +1,12 @@
 /bin/
 /.gradle/
 /build/
-/core/
-/server/
-/standalone/
+/jrmcore/
+/jrmserver/
+/jrmstandalone/
 /trrntzip/
-/updater/
+/jrmupdater/
 /res-icons/
 /lombok.config
-/cli/
+/jrmcli/
 /.classpath
