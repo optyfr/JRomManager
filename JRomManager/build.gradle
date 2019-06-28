@@ -253,7 +253,7 @@ project(':JRomManager:trrntzip') {
 
 
 
-project(':JRomManager:core') {
+project(':JRomManager:jrmcore') {
 	apply plugin: "io.freefair.lombok"
 	sourceSets {
 		main {
@@ -280,7 +280,7 @@ project(':JRomManager:core') {
 	}
 }
 
-project(':JRomManager:cli') {
+project(':JRomManager:jrmcli') {
 	apply plugin: "io.freefair.lombok"
 	sourceSets {
 		main {
@@ -290,12 +290,12 @@ project(':JRomManager:cli') {
 		}
 	}
 	dependencies {
-		implementation project(':JRomManager:core')
+		implementation project(':JRomManager:jrmcore')
 		implementation group: 'commons-cli', name: 'commons-cli'
 	}
 }
 
-project(':JRomManager:updater') {
+project(':JRomManager:jrmupdater') {
 	sourceSets {
 		main {
 			java {
@@ -324,7 +324,7 @@ project(':JRomManager:res-icons') {
 	}
 }
 
-project(':JRomManager:standalone') {
+project(':JRomManager:jrmstandalone') {
 	apply plugin: "io.freefair.lombok"
 	sourceSets {
 		main {
@@ -334,19 +334,20 @@ project(':JRomManager:standalone') {
 		}
 	}
 	dependencies {
-		implementation project(':JRomManager:core')
+		implementation project(':JRomManager:jrmcore')
 		implementation project(':JRomManager:res-icons')
-		implementation project(':JRomManager:updater')
+		implementation project(':JRomManager:jrmupdater')
 		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'commons-cli', name: 'commons-cli'
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+		compile 'com.sun.activation:javax.activation:1.2.0'
 	}
 }
 
-project(':JRomManager:server') {
+project(':JRomManager:jrmserver') {
 	apply plugin: "io.freefair.lombok"
 	sourceSets {
 		main {
@@ -356,7 +357,7 @@ project(':JRomManager:server') {
 		}
 	}
 	dependencies {
-		implementation project(':JRomManager:core')
+		implementation project(':JRomManager:jrmcore')
 		implementation project(':JRomManager:res-icons')
 		implementation group: 'commons-cli', name: 'commons-cli'
 		implementation group: 'commons-io', name: 'commons-io'
@@ -372,22 +373,22 @@ project(':JRomManager:server') {
 }
 
 dependencies {
-	implementation project(':JRomManager:standalone')
-	implementation project(':JRomManager:cli')
-	implementation project(':JRomManager:server')
+	implementation project(':JRomManager:jrmstandalone')
+	implementation project(':JRomManager:jrmcli')
+	implementation project(':JRomManager:jrmserver')
 }
 
 javadoc {
 	source += project(':JRomManager:trrntzip').sourceSets.main.allJava
-	source += project(':JRomManager:core').sourceSets.main.allJava
-	source += project(':JRomManager:updater').sourceSets.main.allJava
-	source += project(':JRomManager:standalone').sourceSets.main.allJava
-	source += project(':JRomManager:server').sourceSets.main.allJava
+	source += project(':JRomManager:jrmcore').sourceSets.main.allJava
+	source += project(':JRomManager:jrmupdater').sourceSets.main.allJava
+	source += project(':JRomManager:jrmstandalone').sourceSets.main.allJava
+	source += project(':JRomManager:jrmserver').sourceSets.main.allJava
 	classpath += project(':JRomManager:trrntzip').sourceSets.main.compileClasspath
-	classpath += project(':JRomManager:core').sourceSets.main.compileClasspath
-	classpath += project(':JRomManager:updater').sourceSets.main.compileClasspath
-	classpath += project(':JRomManager:standalone').sourceSets.main.compileClasspath
-	classpath += project(':JRomManager:server').sourceSets.main.compileClasspath
+	classpath += project(':JRomManager:jrmcore').sourceSets.main.compileClasspath
+	classpath += project(':JRomManager:jrmupdater').sourceSets.main.compileClasspath
+	classpath += project(':JRomManager:jrmstandalone').sourceSets.main.compileClasspath
+	classpath += project(':JRomManager:jrmserver').sourceSets.main.compileClasspath
 	options.showAll()
 	options.with {
 		links 'https://docs.oracle.com/javase/8/docs/api/'
@@ -421,8 +422,8 @@ task cliFatJar(type: Jar) {
 		attributes 'Main-Class': mainClassName
 	}
 	baseName = 'JRomManagerCLI'
-	from(project(':JRomManager:cli').sourceSets.main.output.classesDirs)
-	from { project(':JRomManager:cli').configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	from(project(':JRomManager:jrmcli').sourceSets.main.output.classesDirs)
+	from { project(':JRomManager:jrmcli').configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
 build.dependsOn cliFatJar 
