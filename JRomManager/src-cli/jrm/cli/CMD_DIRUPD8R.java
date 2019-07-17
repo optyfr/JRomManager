@@ -3,42 +3,34 @@ package jrm.cli;
 import java.util.LinkedHashSet;
 import java.util.stream.Stream;
 
-public enum CMD
+public enum CMD_DIRUPD8R
 {
-	CD("cd"),
-	PWD("pwd"),
-	LS("ls","list","dir"),
-	PREFS("prefs", "env"),
-	LOAD("load"),
-	SETTINGS("settings","set"),
-	SCAN("scan"),
-	SCANRESULT("scanresult","scanresults"),
-	FIX("fix"),
-	DIRUPD8R("dirupdater","dirupd8r"),
-	TRNTCCK("torrentchecker","trntchk"),
-	COMPRESSOR("compressor","compress"),
-	EXIT("exit","quit","bye"),
+	LSSRC("lssrc"),
+	LSSDR("lssdr"),
+	CLEARSRC("clearsrc"),
+	CLEARSDR("clearsdr"),
+	ADDSRC("addsrc"),
+	ADDSDR("addsdr"),
 	HELP("help","?"),
 	EMPTY(""),
 	UNKNOWN();
 	
 	private LinkedHashSet<String> names = new LinkedHashSet<>();
 	
-	private CMD(String... names)
+	private CMD_DIRUPD8R(String... names)
 	{
 		for(final String name : names)
 			this.names.add(name.toLowerCase());
 	}
-	
-	public static CMD of(String name)
+
+	public static CMD_DIRUPD8R of(String name)
 	{
-		for(CMD value : CMD.values())
+		for(CMD_DIRUPD8R value : CMD_DIRUPD8R.values())
 			if(value.names.contains(name.toLowerCase()))
 				return value;
 		return UNKNOWN;
 	}
 	
-	@Override
 	public String toString()
 	{
 		return names.stream().findFirst().orElse(super.toString());
@@ -48,4 +40,5 @@ public enum CMD
 	{
 		return names.stream();
 	}
+
 }
