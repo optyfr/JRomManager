@@ -292,6 +292,7 @@ project(':JRomManager:jrmcli') {
 	dependencies {
 		implementation project(':JRomManager:jrmcore')
 		implementation group: 'commons-cli', name: 'commons-cli'
+		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 	}
