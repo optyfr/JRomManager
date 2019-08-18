@@ -3,13 +3,10 @@ package jrm.cli;
 import java.util.LinkedHashSet;
 import java.util.stream.Stream;
 
-public enum CMD_DIRUPD8R
+public enum CMD_TRNTCHK
 {
-	LSSRC("lssrc"),
 	LSSDR("lssdr"),
-	CLEARSRC("clearsrc"),
 	CLEARSDR("clearsdr"),
-	ADDSRC("addsrc"),
 	ADDSDR("addsdr"),
 	START("start"),
 	HELP("help","?"),
@@ -18,15 +15,15 @@ public enum CMD_DIRUPD8R
 	
 	private LinkedHashSet<String> names = new LinkedHashSet<>();
 	
-	private CMD_DIRUPD8R(String... names)
+	private CMD_TRNTCHK(String... names)
 	{
 		for(final String name : names)
 			this.names.add(name.toLowerCase());
 	}
 
-	public static CMD_DIRUPD8R of(String name)
+	public static CMD_TRNTCHK of(String name)
 	{
-		for(CMD_DIRUPD8R value : CMD_DIRUPD8R.values())
+		for(CMD_TRNTCHK value : CMD_TRNTCHK.values())
 			if(value.names.contains(name.toLowerCase()))
 				return value;
 		return UNKNOWN;

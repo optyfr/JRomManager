@@ -1,3 +1,9 @@
+## Release v2.2.0
+- Using custom sevenzipjbinding which include more architectures/os, and a more recent sevenzip version
+- RAR5 extraction
+- CLI version
+- Modularized building which permit special packages for server and cli excluding all code from standalone interface (swing)
+
 ## Release v2.1.0
 - RAR4 extraction
 - RAR4 and 7Zip multi-volume extraction

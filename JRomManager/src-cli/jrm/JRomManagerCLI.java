@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,13 +23,21 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.eclipsesource.json.Json;
 
+import jrm.batch.Compressor;
+import jrm.batch.Compressor.FileResult;
+import jrm.batch.CompressorFormat;
+import jrm.batch.DirUpdater;
+import jrm.batch.TorrentChecker;
 import jrm.cli.CMD;
 import jrm.cli.CMD_DIRUPD8R;
+import jrm.cli.CMD_TRNTCHK;
 import jrm.cli.Progress;
+import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.Profile;
@@ -37,6 +46,7 @@ import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
 import jrm.security.Session;
 import jrm.security.Sessions;
+import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SrcDstResult;
 import jrm.ui.progress.ProgressHandler;
 import lombok.val;
@@ -147,10 +157,16 @@ public class JRomManagerCLI
 					if(args.length==1)
 						error(CLIMessages.getString("CLI_ERR_DIRUPD8R_SubCmdMissing"));
 					return dirupd8r(args[1], Arrays.copyOfRange(args, 2, args.length));
-				case TRNTCCK:
-					return 0;
+				case TRNTCHK:
+					if(args.length==1)
+						error(CLIMessages.getString("CLI_ERR_TRNTCHK_SubCmdMissing"));
+					return trntchk(args[1], Arrays.copyOfRange(args, 2, args.length));
 				case COMPRESSOR:
-					return 0;
+				{
+					if(args.length<3)
+						return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+					return compressor(Arrays.copyOfRange(args, 1, args.length));
+				}
 				case HELP:
 					for(val cmd : CMD.values())
 					{
@@ -218,6 +234,31 @@ public class JRomManagerCLI
 				prefs("dat2dir.sdr", SrcDstResult.toJSON(list));
 				break;
 			}
+			case START:
+			{
+				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().settings.getProperty("dat2dir.sdr", "[]"));
+				List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().settings.getProperty("dat2dir.srcdirs", ""), '|')).map(s->new File(s)).collect(Collectors.toCollection(ArrayList::new));
+				final String[] results = new String[sdrl.size()]; 
+				ResultColUpdater resulthandler = new ResultColUpdater()
+				{
+					@Override
+					public void updateResult(int row, String result)
+					{
+						results[row] = result; 
+					}
+					
+					@Override
+					public void clearResults()
+					{
+						for(int i = 0; i < results.length; i++)
+							results[i] = "";
+					}
+				};
+				new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, false);
+				for(int i = 0; i < results.length; i++)
+					System.out.println(i + " = " + results[i]);
+				break;
+			}
 			case HELP:
 			{
 				for(val ducmd : CMD_DIRUPD8R.values())
@@ -236,6 +277,144 @@ public class JRomManagerCLI
 			case UNKNOWN:
 				return error(() -> CLIMessages.getString("CLI_ERR_UnknownCommand") + cmd + " " + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
+		return 0;
+	}
+	
+	private int trntchk(String cmd, String...args) throws IOException
+	{
+		switch(CMD_TRNTCHK.of(cmd))
+		{
+			case LSSDR:
+			{
+				System.out.append("sdr = [\n")
+					.append(SrcDstResult.fromJSON(session.getUser().settings.getProperty("trntchk.sdr", "[]")).stream().map(sdr->"\t"+sdr.toJSONObject().toString()).collect(Collectors.joining(",\n")))
+					.append("\n];\n");
+				break;
+			}
+			case CLEARSDR:
+				prefs("trntchk.sdr", "[]");
+				break;
+			case ADDSDR:
+			{
+				val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty("trntchk.sdr", "[]"));
+				val sdr = new SrcDstResult();
+				sdr.src = new File(args[0]);
+				sdr.dst = new File(args[1]);
+				list.add(sdr);
+				prefs("trntchk.sdr", SrcDstResult.toJSON(list));
+				break;
+			}
+			case START:
+			{
+				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().settings.getProperty("trntchk.sdr", "[]"));
+				final String[] results = new String[sdrl.size()]; 
+				ResultColUpdater resulthandler = new ResultColUpdater()
+				{
+					@Override
+					public void updateResult(int row, String result)
+					{
+						results[row] = result; 
+					}
+					
+					@Override
+					public void clearResults()
+					{
+						for(int i = 0; i < results.length; i++)
+							results[i] = "";
+					}
+				};
+				new TorrentChecker(session, handler, sdrl, TrntChkMode.valueOf(args[0]), resulthandler, args.length>1?Boolean.parseBoolean(args[1]):true, args.length>2?Boolean.parseBoolean(args[2]):false, args.length>3?Boolean.parseBoolean(args[3]):true);
+				break;
+			}
+			case HELP:
+			{
+				for (val ducmd : CMD_TRNTCHK.values())
+				{
+					if (ducmd != CMD_TRNTCHK.EMPTY && ducmd != CMD_TRNTCHK.UNKNOWN)
+					{
+						System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$
+						System.out.append(": ").append(CLIMessages.getString("CLI_HELP_TRNTCHK_" + ducmd.name())); //$NON-NLS-1$
+						System.out.append("\n");
+					}
+				}
+				break;
+			}
+			case EMPTY:
+				break;
+			case UNKNOWN:
+				return error(() -> CLIMessages.getString("CLI_ERR_UnknownCommand") + cmd + " " + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		return 0;
+	}
+
+	private int compressor(String... args) throws IOException
+	{
+		CompressorFormat format = CompressorFormat.valueOf(args[0]);
+		File path = new File(args[1]);
+		final String[] extensions = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
+		List<FileResult> frl = path.isDirectory() ? Files.walk(path.toPath()).filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), extensions)).map(p -> new FileResult(p.toFile())).collect(Collectors.toList()) : Arrays.asList(new FileResult(path));
+		AtomicInteger cnt = new AtomicInteger();
+		Compressor compressor = new Compressor(session, cnt, frl.size(), handler);
+		boolean force = args.length > 2 ? Boolean.parseBoolean(args[2]) : false;
+		frl.parallelStream().forEach(fr -> {
+			File file = fr.file;
+			cnt.incrementAndGet();
+			Compressor.UpdResultCallBack cb = txt -> fr.result = txt;
+			Compressor.UpdSrcCallBack scb = src -> fr.file = src;
+			switch (format)
+			{
+				case SEVENZIP:
+				{
+					switch (FilenameUtils.getExtension(file.getName()))
+					{
+						case "zip":
+							compressor.zip2SevenZip(file, cb, scb);
+							break;
+						case "7z":
+							if (force)
+								compressor.sevenZip2SevenZip(file, cb, scb);
+							else
+								cb.apply("Skipped");
+							break;
+						default:
+							compressor.sevenZip2SevenZip(file, cb, scb);
+							break;
+					}
+					break;
+				}
+				case ZIP:
+				{
+					switch (FilenameUtils.getExtension(file.getName()))
+					{
+						case "zip":
+							if (force)
+								compressor.zip2Zip(file, cb, scb);
+							else
+								cb.apply("Skipped");
+							break;
+						default:
+							compressor.sevenZip2Zip(file, false, cb, scb);
+							break;
+					}
+					break;
+				}
+				case TZIP:
+				{
+					switch (FilenameUtils.getExtension(file.getName()))
+					{
+						case "zip":
+							compressor.zip2TZip(file, force, cb);
+							break;
+						default:
+							file = compressor.sevenZip2Zip(file, true, cb, scb);
+							if (file != null && file.exists())
+								compressor.zip2TZip(file, force, cb);
+							break;
+					}
+					break;
+				}
+			}
+		});
 		return 0;
 	}
 	

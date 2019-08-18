@@ -217,12 +217,12 @@ subprojects {
 			}
 			implementation('org.eclipse.jetty:jetty-server') {
 				version {
-					prefer 'latest.release'
+					prefer '9.+'
 				}
 			}
 			implementation('org.eclipse.jetty:jetty-servlet') {
 				version {
-					prefer 'latest.release'
+					prefer '9.+'
 				}
 			}
 			implementation('org.eclipse.jetty.websocket:javax-websocket-server-impl') {
@@ -292,6 +292,8 @@ project(':JRomManager:jrmcli') {
 	dependencies {
 		implementation project(':JRomManager:jrmcore')
 		implementation group: 'commons-cli', name: 'commons-cli'
+		implementation group: 'org.apache.commons', name: 'commons-lang3'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 	}
 }
 

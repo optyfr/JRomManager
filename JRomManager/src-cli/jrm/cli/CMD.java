@@ -15,7 +15,7 @@ public enum CMD
 	SCANRESULT("scanresult","scanresults"),
 	FIX("fix"),
 	DIRUPD8R("dirupdater","dirupd8r"),
-	TRNTCCK("torrentchecker","trntchk"),
+	TRNTCHK("torrentchecker","trntchk"),
 	COMPRESSOR("compressor","compress"),
 	EXIT("exit","quit","bye"),
 	HELP("help","?"),
