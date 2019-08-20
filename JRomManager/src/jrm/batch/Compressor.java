@@ -379,7 +379,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
-			progress.setProgress(toHTML("Crunching " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
+			progress.setProgress(toHTML("TorrentZipping " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 			cb.apply("Processing "+file.getName());
 			final EnumSet<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(progress), new SimpleTorrentZipOptions(force,false)).Process(file);
 			if(status.contains(TrrntZipStatus.ValidTrrntzip))

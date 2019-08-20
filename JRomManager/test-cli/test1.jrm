@@ -7,7 +7,7 @@ scan
 quiet false
 scanresult
 fix
+compress ZIP "D:\JRomManager\roms" true
 compress SEVENZIP "D:\JRomManager\roms"
-compress ZIP "D:\JRomManager\roms"
 compress TZIP "D:\JRomManager\roms"
 exit
