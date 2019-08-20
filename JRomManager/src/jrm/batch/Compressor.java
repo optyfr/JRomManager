@@ -43,6 +43,8 @@ public class Compressor implements HTMLRenderer
 	int total;
 	ProgressHandler progress;
 	
+	public static final String[] extensions = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
+	
 	public static class FileResult
 	{
 		public File file;
@@ -396,5 +398,62 @@ public class Compressor implements HTMLRenderer
 			progress.setProgress("", null, null, "");
 		}
 		return null;
+	}
+	
+	public void compress(CompressorFormat format, File file, boolean force, UpdResultCallBack cb, UpdSrcCallBack scb)
+	{
+		switch (format)
+		{
+			case SEVENZIP:
+			{
+				switch (FilenameUtils.getExtension(file.getName()))
+				{
+					case "zip":
+						zip2SevenZip(file, cb, scb);
+						break;
+					case "7z":
+						if (force)
+							sevenZip2SevenZip(file, cb, scb);
+						else
+							cb.apply("Skipped");
+						break;
+					default:
+						sevenZip2SevenZip(file, cb, scb);
+						break;
+				}
+				break;
+			}
+			case ZIP:
+			{
+				switch (FilenameUtils.getExtension(file.getName()))
+				{
+					case "zip":
+						if (force)
+							zip2Zip(file, cb, scb);
+						else
+							cb.apply("Skipped");
+						break;
+					default:
+						sevenZip2Zip(file, false, cb, scb);
+						break;
+				}
+				break;
+			}
+			case TZIP:
+			{
+				switch (FilenameUtils.getExtension(file.getName()))
+				{
+					case "zip":
+						zip2TZip(file, force, cb);
+						break;
+					default:
+						file = sevenZip2Zip(file, true, cb, scb);
+						if (file != null && file.exists())
+							zip2TZip(file, force, cb);
+						break;
+				}
+				break;
+			}
+		}
 	}
 }

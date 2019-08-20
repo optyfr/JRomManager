@@ -7,6 +7,7 @@ import jrm.ui.progress.ProgressHandler;
 public class Progress implements ProgressHandler
 {
 	private Integer max = null;
+	private boolean quiet = false;
 	
 	public Progress()
 	{
@@ -48,7 +49,7 @@ public class Progress implements ProgressHandler
 	{
 		if (max != null)
 			this.max = max;
-		if (msg != null && !msg.isEmpty())
+		if (msg != null && !msg.isEmpty() && !quiet)
 		{
 			if (val != null && val > 0)
 				System.out.format("%s (%d/%d)\n", msg, val, this.max);
@@ -121,6 +122,16 @@ public class Progress implements ProgressHandler
 	{
 		// TODO Auto-generated method stub
 
+	}
+	
+	public void quiet(boolean quiet)
+	{
+		this.quiet  = quiet;
+	}
+	
+	public void quiet()
+	{
+		this.quiet = !this.quiet;
 	}
 
 }

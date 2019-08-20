@@ -1,0 +1,13 @@
+ls
+load JRM8620864008008549526.jrm
+settings src_dir "D:\JRomManager\roms.tst"
+settings roms_dest_dir "D:\JRomManager\roms"
+quiet true
+scan
+quiet false
+scanresult
+fix
+compress SEVENZIP "D:\JRomManager\roms"
+compress ZIP "D:\JRomManager\roms"
+compress TZIP "D:\JRomManager\roms"
+exit

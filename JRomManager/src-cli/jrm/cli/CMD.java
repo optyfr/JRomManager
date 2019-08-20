@@ -8,6 +8,7 @@ public enum CMD
 	CD("cd"),
 	PWD("pwd"),
 	LS("ls","list","dir"),
+	QUIET("quiet"),
 	PREFS("prefs", "env"),
 	LOAD("load"),
 	SETTINGS("settings","set"),
