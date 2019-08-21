@@ -124,10 +124,10 @@ public class JRomManagerCLI
 				case PWD:
 					return pwd();
 				case QUIET:
-					if(args.length>1)
-						handler.quiet(Boolean.parseBoolean(args[1]));
-					else
-						handler.quiet();
+					handler.quiet(true);
+					return 0;
+				case VERBOSE:
+					handler.quiet(false);
 					return 0;
 				case CD:
 					if (args.length == 1)
@@ -135,6 +135,13 @@ public class JRomManagerCLI
 					if (args.length == 2)
 						return cd(args[1]);
 					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+				case RM:
+				{
+					Options options = new Options().addOption("r", "recursive", false, "Recursive delete");
+					CommandLine cmdline =
+							new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
+					return 0;
+				}
 				case PREFS:
 					if (args.length == 1)
 						return prefs();
@@ -161,7 +168,7 @@ public class JRomManagerCLI
 					if (session.curr_profile == null)
 						return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
 					session.curr_scan = new Scan(session.curr_profile, handler);
-					return 0;
+					return session.curr_scan.actions.stream().mapToInt(c->c.size()).sum();
 				case SCANRESULT:
 					if (session.curr_scan == null)
 						return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
@@ -180,7 +187,7 @@ public class JRomManagerCLI
 						return error(CLIMessages.getString("CLI_ERR_NothingToFix")); //$NON-NLS-1$
 					final Fix fix = new Fix(session.curr_profile, session.curr_scan, handler);
 					System.out.format(CLIMessages.getString("CLI_MSG_ActionRemaining"), fix.getActionsRemain()); //$NON-NLS-1$
-					return 0;
+					return fix.getActionsRemain();
 				case DIRUPD8R:
 					if (args.length == 1)
 						error(CLIMessages.getString("CLI_ERR_DIRUPD8R_SubCmdMissing"));
@@ -214,12 +221,17 @@ public class JRomManagerCLI
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
+		}
+		catch (ParseException e)
+		{
+			System.out.println(e.getMessage());
+			Log.err(e.getMessage(), e);
 		}
 		return -1;
 	}
 
-	private int dirupd8r(String cmd, String... args)
+	private int dirupd8r(String cmd, String... args) throws ParseException
 	{
 		switch (CMD_DIRUPD8R.of(cmd))
 		{
@@ -276,7 +288,9 @@ public class JRomManagerCLI
 							results[i] = "";
 					}
 				};
-				new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, false);
+				Options options = new Options().addOption("d", "dryrun", true, "Dry run");
+				CommandLine cmdline = new DefaultParser().parse(options, args);
+				new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, cmdline.hasOption('d'));
 				for (int i = 0; i < results.length; i++)
 					System.out.println(i + " = " + results[i]);
 				break;
@@ -302,7 +316,7 @@ public class JRomManagerCLI
 		return 0;
 	}
 
-	private int trntchk(String cmd, String... args) throws IOException
+	private int trntchk(String cmd, String... args) throws IOException, ParseException
 	{
 		switch (CMD_TRNTCHK.of(cmd))
 		{
@@ -343,7 +357,17 @@ public class JRomManagerCLI
 							results[i] = "";
 					}
 				};
-				new TorrentChecker(session, handler, sdrl, TrntChkMode.valueOf(args[0]), resulthandler, args.length > 1 ? Boolean.parseBoolean(args[1]) : true, args.length > 2 ? Boolean.parseBoolean(args[2]) : false, args.length > 3 ? Boolean.parseBoolean(args[3]) : true);
+				Options options = new Options()
+						.addOption("m", "checkmode", true, "Check mode")
+						.addOption("u", "removeunknown", true, "Remove unknown files")
+						.addOption("w", "removewrongsized", true, "Remove wrong sized files")
+						.addOption("a", "detectarchives", true, "Detect archived folders");
+				CommandLine cmdline = new DefaultParser().parse(options, args);
+				TrntChkMode mode = cmdline.hasOption('m')?TrntChkMode.valueOf(cmdline.getOptionValue('m')):TrntChkMode.FILESIZE;
+				boolean removeunknown = cmdline.hasOption('u');
+				boolean removewrongsized = cmdline.hasOption('w');
+				boolean detectarchives = cmdline.hasOption('d');
+				new TorrentChecker(session, handler, sdrl, mode, resulthandler, removeunknown, removewrongsized, detectarchives);
 				break;
 			}
 			case HELP:
@@ -367,21 +391,37 @@ public class JRomManagerCLI
 		return 0;
 	}
 
-	private int compressor(String... args) throws IOException
+	private int compressor(String... args) throws IOException, ParseException
 	{
-		CompressorFormat format = CompressorFormat.valueOf(args[0]);
-		File path = new File(args[1]);
-		List<FileResult> frl = path.isDirectory() ? Files.walk(path.toPath()).filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.extensions)).map(p -> new FileResult(p.toFile())).collect(Collectors.toList()) : Arrays.asList(new FileResult(path));
-		AtomicInteger cnt = new AtomicInteger();
-		Compressor compressor = new Compressor(session, cnt, frl.size(), handler);
-		boolean force = args.length > 2 ? Boolean.parseBoolean(args[2]) : false;
-		frl.parallelStream().forEach(fr -> {
-			File file = fr.file;
-			cnt.incrementAndGet();
-			Compressor.UpdResultCallBack cb = txt -> fr.result = txt;
-			Compressor.UpdSrcCallBack scb = src -> fr.file = src;
-			compressor.compress(format, file, force, cb, scb);
-		});
+		Options options = new Options()
+				.addRequiredOption("c", "compressor", true, "Compression format")
+				.addOption("f", "force", false, "Force recompression");
+		try
+		{
+			CommandLine cmdline = new DefaultParser().parse(options, args, true);
+			CompressorFormat format = cmdline.hasOption('c')?CompressorFormat.valueOf(cmdline.getOptionValue('c')):CompressorFormat.TZIP;
+			boolean force = cmdline.hasOption('f');
+			for(String arg : cmdline.getArgList())
+			{
+				File path = new File(arg);
+				List<FileResult> frl = path.isDirectory() ? Files.walk(path.toPath()).filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.extensions)).map(p -> new FileResult(p.toFile())).collect(Collectors.toList()) : Arrays.asList(new FileResult(path));
+				AtomicInteger cnt = new AtomicInteger();
+				Compressor compressor = new Compressor(session, cnt, frl.size(), handler);
+				frl.parallelStream().forEach(fr -> {
+					File file = fr.file;
+					cnt.incrementAndGet();
+					Compressor.UpdResultCallBack cb = txt -> fr.result = txt;
+					Compressor.UpdSrcCallBack scb = src -> fr.file = src;
+					compressor.compress(format, file, force, cb, scb);
+				});
+			}
+		}
+		catch (ParseException e)
+		{
+			Log.err(e.getMessage(), e);
+			new HelpFormatter().printHelp(CMD.COMPRESSOR.toString(), options);
+			throw e;
+		}
 		return 0;
 	}
 
