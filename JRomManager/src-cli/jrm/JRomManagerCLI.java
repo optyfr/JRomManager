@@ -6,11 +6,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -138,9 +141,46 @@ public class JRomManagerCLI
 				case RM:
 				{
 					Options options = new Options().addOption("r", "recursive", false, "Recursive delete");
-					CommandLine cmdline =
-							new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
+					CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
+					for(String arg : cmdline.getArgList())
+					{
+						Path path = Paths.get(arg);
+						if(Files.exists(path))
+						{
+							if(Files.isDirectory(path))
+							{
+								try
+								{
+									Files.delete(path);
+								}
+								catch(DirectoryNotEmptyException e)
+								{
+									if(cmdline.hasOption('r'))
+										Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+								}
+							}
+							else
+								Files.delete(path);
+						}
+					}
 					return 0;
+				}
+				case MD:
+				{
+					Options options = new Options().addOption("p", "parents", false, "create parents up to this directory");
+					CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
+					for(String arg : cmdline.getArgList())
+					{
+						Path path = Paths.get(arg);
+						if(!Files.exists(path))
+						{
+							if(cmdline.hasOption('p'))
+								Files.createDirectories(path);
+							else
+								Files.createDirectory(path);
+						}
+					}
+					break;
 				}
 				case PREFS:
 					if (args.length == 1)

@@ -9,6 +9,7 @@ public enum CMD
 	PWD("pwd"),
 	LS("ls","list","dir"),
 	RM("rm","del"),
+	MD("md","mkdir"),
 	QUIET("quiet"),
 	VERBOSE("verbose"),
 	PREFS("prefs", "env"),

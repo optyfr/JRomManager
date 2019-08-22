@@ -2,9 +2,11 @@ ls
 load JRM8620864008008549526.jrm
 settings src_dir "D:\JRomManager\roms.tst"
 settings roms_dest_dir "D:\JRomManager\roms"
-quiet true
+rm -r "D:\JRomManager\roms"
+md "D:\JRomManager\roms"
+quiet
 scan
-quiet false
+verbose
 scanresult
 fix
 compress -c ZIP --force "D:\JRomManager\roms"
