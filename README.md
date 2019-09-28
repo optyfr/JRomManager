@@ -17,13 +17,13 @@ _Minimal developement requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature and Gradle Buildship
 - Java 8
 - Gradle dependencies (via Maven repositories)
-	- Apache Commons Codec 1.11 
+	- Apache Commons Codec 1.13 
 	- Apache Commons IO 2.6
-	- Apache Commons Lang3 3.7
-	- Apache Commons Text 1.3
-	- Apache Commons Compress 1.16 (used solely to list 7zip content)
-	- StreamEx 0.6.7
-	- SevenZipJBinding 9.20-2.00 (faster than using 7z cmd line)
+	- Apache Commons Lang3 3.9
+	- Apache Commons Text 1.8
+	- Apache Commons Compress 1.19 (used solely to list 7zip content)
+	- StreamEx 0.6.8
+	- SevenZipJBinding 16.02-2.01 (faster than using 7z cmd line)
 - Git submodules dependencies
 	- [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
 	- [JUpdater](https://github.com/optyfr/JUpdater)
@@ -115,19 +115,18 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
 - Install as a service (Server mode)
 	- See [Server Mode](https://github.com/optyfr/JRomManager/wiki/Server-mode#server-mode) in the wiki
-- RAR4 decompression
-- Multi-volume decompression (RAR4 and 7Zip)
+- RAR4 and RAR5 decompression
+- Multi-volume decompression (RAR and 7Zip)
+- Command Line Mode with access to all functionalities and environment variable support
 
 ## Short Term Planned Features
 - Mode to keep existing container archive format
 - Use jetty instead of nanoHttpd for a more robust http server (Server mode)
 - Multi User and access rights (Server mode with jetty)
 - Encrypted connections (Server mode with jetty)
-- RAR5 support
 
 ## Middle Term Planned Features
 - Alternative to WebSockets (Server mode)
-- Cmd Line mode
 - More Translations
 - Headered roms support
 - Auto update option (and show Changes log after auto-update)

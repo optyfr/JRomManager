@@ -1,8 +1,11 @@
 ## Release v2.2.0
 - Using custom sevenzipjbinding which include more architectures/os, and a more recent sevenzip version
-- RAR5 extraction
+- RAR5 extraction (as per sevenzipjbinding update)
 - CLI version
+	- include access to all functionalities and more
+	- support for environment variables (replacement) and java system properties (replacement, set, and clear)
 - Modularized building which permit special packages for server and cli excluding all code from standalone interface (swing)
+	- Most of the code were refactored and reorganized to get a total separation from core and standalone code
 
 ## Release v2.1.0
 - RAR4 extraction
