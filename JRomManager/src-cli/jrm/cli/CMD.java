@@ -7,6 +7,7 @@ public enum CMD
 {
 	CD("cd"),
 	PWD("pwd"),
+	SET("set"),
 	LS("ls","list","dir"),
 	RM("rm","del"),
 	MD("md","mkdir"),

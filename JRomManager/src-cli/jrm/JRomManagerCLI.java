@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -94,7 +95,11 @@ public class JRomManagerCLI
 			{
 				String line;
 				while (null != (line = in.readLine()))
+				{
+					if(line.startsWith("#"))
+						continue;
 					analyze(splitLine(line));
+				}
 			}
 			catch(IOException e)
 			{
@@ -103,14 +108,30 @@ public class JRomManagerCLI
 		}
 	}
 
-	Pattern splitLinePattern = Pattern.compile("\"([^\"]*)\"|(\\S+)"); //$NON-NLS-1$
+	private final Pattern splitLinePattern = Pattern.compile("\"([^\"]*)\"|(\\S+)"); //$NON-NLS-1$
+	private final Pattern envPattern = Pattern.compile("\\$(?:([\\w\\.]+)|\\{([\\w\\.]+)\\})"); //$NON-NLS-1$
 
+	private Optional<String> getEnv(String name)
+	{
+		Optional<String> ret = Optional.ofNullable(System.getProperty(name));
+		if(!ret.isPresent())
+			ret = Optional.ofNullable(System.getenv(name));
+		return ret;
+	}
+	
 	private String[] splitLine(String line)
 	{
 		List<String> list = new ArrayList<>();
 		Matcher m = splitLinePattern.matcher(line);
 		while (m.find())
-			list.add(m.group(m.group(1) != null ? 1 : 2));
+		{
+			Matcher im = envPattern.matcher(m.group(m.group(1) != null ? 1 : 2));
+			StringBuffer sb = new StringBuffer();
+			while (im.find())
+				im.appendReplacement(sb, getEnv(im.group(im.group(1) != null ? 1 : 2)).map(Matcher::quoteReplacement).orElse(""));
+			im.appendTail(sb);
+			list.add(sb.toString());
+		}
 		return list.stream().toArray(String[]::new);
 	}
 
@@ -132,6 +153,27 @@ public class JRomManagerCLI
 				case VERBOSE:
 					handler.quiet(false);
 					return 0;
+				case SET:
+					if(args.length == 1)
+					{
+						System.getProperties().forEach((k,v)->System.out.println(k+"="+v));
+						System.getenv().forEach((k,v)->System.out.println(k+"="+v));
+						return 0;
+					}
+					if (args.length == 2)
+					{
+						getEnv(args[1]).ifPresent(System.out::println);
+						return 0;
+					}
+					if(args.length == 3)
+					{
+						if(args[2].isEmpty())
+							System.clearProperty(args[1]);
+						else
+							System.setProperty(args[1], args[2]);
+						return 0;
+					}
+					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case CD:
 					if (args.length == 1)
 						return pwd();
@@ -155,7 +197,7 @@ public class JRomManagerCLI
 								}
 								catch(DirectoryNotEmptyException e)
 								{
-									if(cmdline.hasOption('r'))
+									if(cmdline.hasOption('r'))	// recursively delete from bottom to top
 										Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 								}
 							}
