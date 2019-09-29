@@ -47,6 +47,7 @@ import jrm.cli.Progress;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
+import jrm.misc.ProfileSettings;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
@@ -272,11 +273,11 @@ public class JRomManagerCLI
 					return fix.getActionsRemain();
 				case DIRUPD8R:
 					if (args.length == 1)
-						error(CLIMessages.getString("CLI_ERR_DIRUPD8R_SubCmdMissing"));
+						return error(CLIMessages.getString("CLI_ERR_DIRUPD8R_SubCmdMissing"));
 					return dirupd8r(args[1], Arrays.copyOfRange(args, 2, args.length));
 				case TRNTCHK:
 					if (args.length == 1)
-						error(CLIMessages.getString("CLI_ERR_TRNTCHK_SubCmdMissing"));
+						return error(CLIMessages.getString("CLI_ERR_TRNTCHK_SubCmdMissing"));
 					return trntchk(args[1], Arrays.copyOfRange(args, 2, args.length));
 				case COMPRESSOR:
 					if (args.length < 3)
@@ -333,6 +334,77 @@ public class JRomManagerCLI
 			case CLEARSDR:
 				prefs("dat2dir.sdr", "[]");
 				break;
+			case PRESETS:
+			{
+				if(args.length==0)
+				{
+					System.out.println("TZIP");
+					System.out.println("DIR");
+					return 0;
+				}
+				else if(args.length==2)
+				{
+					val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty("dat2dir.sdr", "[]"));
+					int index = Integer.parseInt(args[0]);
+					if(index < list.size())
+					{
+						try
+						{
+							switch (args[1])
+							{
+								case "TZIP":
+									ProfileSettings.TZIP(session, list.get(index).src);
+									break;
+								case "DIR":
+									ProfileSettings.DIR(session, list.get(index).src);
+									break;
+							}
+						}
+						catch (IOException e)
+						{
+							Log.err(e.getMessage(), e);
+						}
+					}
+					return 0;
+				}
+				else
+					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+			}
+			case SETTINGS:
+			{
+				if (args.length > 0)
+				{
+					val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty("dat2dir.sdr", "[]"));
+					if (args.length > 0)
+					{
+						int index = Integer.parseInt(args[0]);
+						if (index < list.size())
+						{
+							try
+							{
+								ProfileSettings settings = session.getUser().settings.loadProfileSettings(list.get(index).src, null);
+								if (args.length == 3)
+								{
+									settings.setProperty(args[1], args[2]);
+									session.getUser().settings.saveProfileSettings(list.get(index).src, settings);
+								}
+								else if (args.length == 2)
+									System.out.format("%s\n", settings.getProperty(args[1], "")); //$NON-NLS-1$
+								else
+									for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
+										System.out.format("%s=%s\n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
+							}
+							catch (IOException e)
+							{
+								Log.err(e.getMessage(), e);
+							}
+						}
+					}
+					return 0;
+				}
+				else
+					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+			}
 			case ADDSRC:
 			{
 				val list = Stream.of(StringUtils.split(session.getUser().settings.getProperty("dat2dir.srcdirs", ""), '|')).collect(Collectors.toCollection(ArrayList::new));
@@ -370,7 +442,7 @@ public class JRomManagerCLI
 							results[i] = "";
 					}
 				};
-				Options options = new Options().addOption("d", "dryrun", true, "Dry run");
+				Options options = new Options().addOption("d", "dryrun", false, "Dry run");
 				CommandLine cmdline = new DefaultParser().parse(options, args);
 				new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, cmdline.hasOption('d'));
 				for (int i = 0; i < results.length; i++)

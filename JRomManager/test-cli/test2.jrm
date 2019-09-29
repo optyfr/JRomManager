@@ -1,0 +1,14 @@
+# Test dirupdater
+#rm -r "${TEMP}/roms"
+#md "${TEMP}/roms"
+dirupdater clearsdr
+dirupdater clearsrc
+dirupdater addsrc 	"$SRC_DIR1",
+#dirupdater addsrc	"$SRC_DIR2"
+dirupdater lssrc
+dirupdater addsdr "$XML" "${TEMP}/roms"
+dirupdater lssdr
+dirupdater presets 0 TZIP
+dirupdater settings 0
+dirupdater start
+exit

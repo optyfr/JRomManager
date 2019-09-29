@@ -46,8 +46,6 @@ import jrm.batch.DirUpdaterResults;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
-import jrm.profile.scan.options.FormatOptions;
-import jrm.profile.scan.options.MergeOptions;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.JFileDropList;
@@ -352,24 +350,7 @@ public class BatchDirUpd8rPanel extends JPanel
 				{
 					try
 					{
-						ProfileSettings settings = new ProfileSettings();
-						settings.setProperty("need_sha1_or_md5", false); //$NON-NLS-1$
-						settings.setProperty("use_parallelism", true); //$NON-NLS-1$
-						settings.setProperty("create_mode", true); //$NON-NLS-1$
-						settings.setProperty("createfull_mode", false); //$NON-NLS-1$
-						settings.setProperty("ignore_unneeded_containers", false); //$NON-NLS-1$
-						settings.setProperty("ignore_unneeded_entries", false); //$NON-NLS-1$
-						settings.setProperty("ignore_unknown_containers", true); //$NON-NLS-1$
-						settings.setProperty("implicit_merge", false); //$NON-NLS-1$
-						settings.setProperty("ignore_merge_name_roms", false); //$NON-NLS-1$
-						settings.setProperty("ignore_merge_name_disks", false); //$NON-NLS-1$
-						settings.setProperty("exclude_games", false); //$NON-NLS-1$
-						settings.setProperty("exclude_machines", false); //$NON-NLS-1$
-						settings.setProperty("backup", true); //$NON-NLS-1$
-						settings.setProperty("format", FormatOptions.TZIP.toString()); //$NON-NLS-1$
-						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString()); //$NON-NLS-1$
-						settings.setProperty("archives_and_chd_as_roms", false); //$NON-NLS-1$
-						session.getUser().settings.saveProfileSettings(sdr.src, settings);
+						ProfileSettings.TZIP(session, sdr.src);
 					}
 					catch (IOException e1)
 					{
@@ -390,24 +371,7 @@ public class BatchDirUpd8rPanel extends JPanel
 				{
 					try
 					{
-						ProfileSettings settings = new ProfileSettings();
-						settings.setProperty("need_sha1_or_md5", false); //$NON-NLS-1$
-						settings.setProperty("use_parallelism", true); //$NON-NLS-1$
-						settings.setProperty("create_mode", true); //$NON-NLS-1$
-						settings.setProperty("createfull_mode", false); //$NON-NLS-1$
-						settings.setProperty("ignore_unneeded_containers", false); //$NON-NLS-1$
-						settings.setProperty("ignore_unneeded_entries", false); //$NON-NLS-1$
-						settings.setProperty("ignore_unknown_containers", true); //$NON-NLS-1$
-						settings.setProperty("implicit_merge", false); //$NON-NLS-1$
-						settings.setProperty("ignore_merge_name_roms", false); //$NON-NLS-1$
-						settings.setProperty("ignore_merge_name_disks", false); //$NON-NLS-1$
-						settings.setProperty("exclude_games", false); //$NON-NLS-1$
-						settings.setProperty("exclude_machines", false); //$NON-NLS-1$
-						settings.setProperty("backup", true); //$NON-NLS-1$
-						settings.setProperty("format", FormatOptions.DIR.toString()); //$NON-NLS-1$
-						settings.setProperty("merge_mode", MergeOptions.NOMERGE.toString()); //$NON-NLS-1$
-						settings.setProperty("archives_and_chd_as_roms", true); //$NON-NLS-1$
-						session.getUser().settings.saveProfileSettings(sdr.src, settings);
+						ProfileSettings.DIR(session, sdr.src);
 					}
 					catch (IOException e1)
 					{

@@ -1006,16 +1006,13 @@ public final class DirScan
 					switch (md.getAlgorithm())
 					{
 						case "CRC": //$NON-NLS-1$
-							if(null != (entry.crc = md.toString()))
-								entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
+							entry.crc = md.toString();
 							break;
 						case "MD5": //$NON-NLS-1$
-							if(null != (entry.md5 = md.toString()))
-								entries_bymd5.put(entry.md5, entry);
+							entry.md5 = md.toString();
 							break;
 						case "SHA-1": //$NON-NLS-1$
-							if(null != (entry.sha1 = md.toString()))
-								entries_bysha1.put(entry.sha1, entry);
+							entry.sha1 = md.toString();
 							break;
 					}
 				}
@@ -1026,6 +1023,12 @@ public final class DirScan
 			{
 				Log.err(e.getMessage(),e);
 			}
+			if(entry.crc != null)
+				entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
+			if(entry.sha1 != null)
+				entries_bysha1.put(entry.sha1, entry);
+			if(entry.md5 != null)
+				entries_bymd5.put(entry.md5, entry);
 		}
 		else
 		{

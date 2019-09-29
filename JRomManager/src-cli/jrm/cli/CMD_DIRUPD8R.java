@@ -12,6 +12,8 @@ public enum CMD_DIRUPD8R
 	ADDSRC("addsrc"),
 	ADDSDR("addsdr"),
 	START("start"),
+	PRESETS("presets"),
+	SETTINGS("settings"),
 	HELP("help","?"),
 	EMPTY(""),
 	UNKNOWN();
