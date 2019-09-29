@@ -287,6 +287,9 @@ project(':JRomManager:jrmcli') {
 			java {
 				srcDirs = ["../src-cli"]
 			}
+			resources {
+				srcDirs = ["../src-cli"]
+			}
 		}
 	}
 	dependencies {
@@ -426,6 +429,7 @@ task cliFatJar(type: Jar) {
 	}
 	baseName = 'JRomManagerCLI'
 	from(project(':JRomManager:jrmcli').sourceSets.main.output.classesDirs)
+	from(project(':JRomManager:jrmcli').sourceSets.main.resources)
 	from { project(':JRomManager:jrmcli').configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 

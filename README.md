@@ -13,7 +13,7 @@ A Rom Manager entirely written in Java and released under GPL-2
 - **Apache 2.0** : [StreamEx](https://github.com/amaembo/streamex) (by Tagir Valeev), [Gradle build tool](https://github.com/gradle/gradle), [Lombok Gradle plugin](https://github.com/franzbecker/gradle-lombok), [GWT SDK](http://www.gwtproject.org) (Google), [GWT WebSockets](https://github.com/sksamuel/gwt-websockets) (Stephen Samuel), and all the [Apache commons](https://commons.apache.org/) libraries
 
 ## Technical
-_Minimal developement requirements_:
+_Minimal development requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature and Gradle Buildship
 - Java 8
 - Gradle dependencies (via Maven repositories)
@@ -65,7 +65,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - CHD support
 - Software List support
 - Per profile settings (what to fix, how to scan, ...)
-- MultiThreading support (at least for archive manipulation and checksum calculation, fast disks required)
+- MultiThreading support (at least for archive manipulation and checksum calculation, **fast disks required**)
 - MD5 support (for old dats)
 - 7z support via SevenZipJBinding + 7z command line as functional backup
 - TorrentZip support using [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
@@ -73,12 +73,12 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Multiple Source Dir
 - Dat parsing caching via Java Serialization
 - Optimized to permit scan over shared network
-- Dir scan caching via Java Serialization based on FileMDate+FileSize, one cache file per romdir, reusable between different Dat Scans if same dir used
+- Dir scan caching via Java Serialization based on FileMDate+FileSize, one cache file per romdir, reusable between different Dat Scans if same dir is used
 - Enhanced Gui with Report
-- Translated to English and French
-- Filtering functionalities (clone, chds, systems list, display mode, cabinet type, driver status, ...)
+- Translated to English and French (volunteers needed for other languages)
+- Filtering functionalities (clone, CHDs, systems list, display mode, cabinet type, driver status, ...)
 - Optional Separate Dest dir between Roms, CHDs, Software Roms, Software CHDs
-- Drag & Drop on src/dest dirs controls
+- Drag&Drop on src/dest dirs controls
 - Double click on game name in profile viewer will launch game if (Mame is linked with profile and item is green)
 - Double click on software name in profile viewer will launch software with a valid machine (if Mame is linked with profile and item is green)
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
