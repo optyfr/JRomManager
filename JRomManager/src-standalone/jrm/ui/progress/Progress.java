@@ -408,10 +408,12 @@ public class Progress extends JDialog implements ProgressHandler
 	 */
 	public void packHeight()
 	{
+		invalidate();
 		final Dimension newSize = getPreferredSize();
 		final Rectangle rect = getBounds();
 		rect.height = Math.max(rect.height, newSize.height);
 		setBounds(rect);
+		validate();
 	}
 
 	@Override

@@ -425,7 +425,14 @@ jar {
 task cliFatJar(type: Jar) {
 	def mainClassName="jrm.JRomManagerCLI"
 	manifest {
-		attributes 'Main-Class': mainClassName
+		attributes(
+			"Manifest-Version"     : "1.0",
+			"Specification-Title"  : "JRomManager",
+			"Specification-Version": props.getProperty("Specification-Version"),
+			"Implementation-Title" : "jrm",
+			"Implementation-Version" : props.getProperty("Implementation-Version"),
+			'Main-Class': mainClassName
+		)
 	}
 	baseName = 'JRomManagerCLI'
 	from(project(':JRomManager:jrmcli').sourceSets.main.output.classesDirs)

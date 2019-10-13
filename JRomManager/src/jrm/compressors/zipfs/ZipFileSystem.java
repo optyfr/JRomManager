@@ -486,6 +486,7 @@ class ZipFileSystem extends FileSystem
 				}*/
 				catch(Exception e)
 				{
+					e.printStackTrace();
 				}
 			}
 		}
@@ -1671,7 +1672,24 @@ class ZipFileSystem extends FileSystem
 			Files.delete(zfpath);
 		}
 
-		Files.copy(tmpFile, zfpath, REPLACE_EXISTING);
+		try
+		{
+			Files.copy(tmpFile, zfpath, REPLACE_EXISTING);
+		}
+		catch(NoSuchFileException e)
+		{
+			System.err.println(tmpFile+" => "+zfpath);
+			e.printStackTrace();
+			try
+			{
+				Thread.sleep(1000);
+				
+			}
+			catch (InterruptedException e1)
+			{
+				Files.copy(tmpFile, zfpath, REPLACE_EXISTING);
+			}
+		}
 		Files.deleteIfExists(tmpFile);
 		hasUpdate = false; // clear
 	}

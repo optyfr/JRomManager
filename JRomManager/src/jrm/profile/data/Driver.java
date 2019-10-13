@@ -18,6 +18,8 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.EnumUtils;
+
 import lombok.Getter;
 
 /**
@@ -77,7 +79,8 @@ public class Driver implements Serializable
 	 */
 	public void setStatus(final String status)
 	{
-		this.status = StatusType.valueOf(status);
+		if(EnumUtils.isValidEnum(StatusType.class, status))
+			this.status = StatusType.valueOf(status);
 	}
 
 	/**
@@ -86,7 +89,8 @@ public class Driver implements Serializable
 	 */
 	public void setEmulation(final String status)
 	{
-		emulation = StatusType.valueOf(status);
+		if(EnumUtils.isValidEnum(StatusType.class, status))
+			emulation = StatusType.valueOf(status);
 	}
 
 	/**
@@ -95,7 +99,8 @@ public class Driver implements Serializable
 	 */
 	public void setCocktail(final String status)
 	{
-		cocktail = StatusType.valueOf(status);
+		if(EnumUtils.isValidEnum(StatusType.class, status))
+			cocktail = StatusType.valueOf(status);
 	}
 
 	/**
@@ -104,6 +109,7 @@ public class Driver implements Serializable
 	 */
 	public void setSaveState(final String status)
 	{
-		saveState = SaveStateType.valueOf(status);
+		if(EnumUtils.isValidEnum(SaveStateType.class, status))
+			saveState = SaveStateType.valueOf(status);
 	}
 }

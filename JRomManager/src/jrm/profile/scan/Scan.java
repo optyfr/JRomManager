@@ -83,6 +83,7 @@ import jrm.profile.report.SubjectSet.Status;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.progress.ProgressHandler;
+import lombok.val;
 
 /**
  * The scan class
@@ -242,7 +243,7 @@ public class Scan
 		/*
 		 * use disks dest dir if enabled otherwise it will be the same than roms dest dir
 		 */
-		File disks_dstdir = new File(roms_dstdir.getAbsolutePath());
+		final File disks_dstdir;
 		if (profile.getProperty("disks_dest_dir_enabled", false)) //$NON-NLS-1$
 		{
 			final String disks_dstdir_txt = profile.getProperty("disks_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -250,11 +251,13 @@ public class Scan
 				return; //TODO be more informative on failure
 			disks_dstdir = new File(disks_dstdir_txt);
 		}
+		else
+			disks_dstdir = new File(roms_dstdir.getAbsolutePath());
 		
 		/*
 		 * use sw roms dest dir if enabled otherwise it will be the same than roms dest dir
 		 */
-		File swroms_dstdir = new File(roms_dstdir.getAbsolutePath());
+		final File swroms_dstdir;
 		if (profile.getProperty("swroms_dest_dir_enabled", false)) //$NON-NLS-1$
 		{
 			final String swroms_dstdir_txt = profile.getProperty("swroms_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -262,11 +265,13 @@ public class Scan
 				return; //TODO be more informative on failure
 			swroms_dstdir = new File(swroms_dstdir_txt);
 		}
+		else
+			swroms_dstdir = new File(roms_dstdir.getAbsolutePath());
 		
 		/*
 		 * use sw disks dest dir if enabled otherwise it will be the same than disks dest dir (which in turn can be the same than roms dest dir)
 		 */
-		File swdisks_dstdir = new File(swroms_dstdir.getAbsolutePath());
+		final File swdisks_dstdir;
 		if (profile.getProperty("swdisks_dest_dir_enabled", false)) //$NON-NLS-1$
 		{
 			final String swdisks_dstdir_txt = profile.getProperty("swdisks_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -274,6 +279,8 @@ public class Scan
 				return; //TODO be more informative on failure
 			swdisks_dstdir = new File(swdisks_dstdir_txt);
 		}
+		else
+			swdisks_dstdir = new File(swroms_dstdir.getAbsolutePath());
 
 		/*
 		 * use samples dest dir if enabled and valid, otherwise it's null and not used
@@ -391,7 +398,17 @@ public class Scan
 			 */
 			if (!ignore_unknown_containers)
 			{
-				unknown.forEach((c) -> {
+				unknown.stream().filter(c -> {
+					if(samples_dstdir!=null && c.file.equals(samples_dstdir))
+						return false;
+					if(disks_dstdir!=roms_dstdir && c.file.equals(disks_dstdir))
+						return false;
+					if(swroms_dstdir!=roms_dstdir && c.file.equals(swroms_dstdir))
+						return false;
+					if(swdisks_dstdir!=swroms_dstdir && c.file.equals(swdisks_dstdir))
+						return false;
+					return true;
+				}).forEach((c) -> {
 					report.add(new ContainerUnknown(c));
 					delete_actions.add(new DeleteContainer(c, format));
 				});
