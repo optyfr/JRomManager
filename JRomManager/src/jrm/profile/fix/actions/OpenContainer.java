@@ -207,6 +207,8 @@ public class OpenContainer extends ContainerAction
 	public long deleteEmptyFolders(final Path baseFolder)
 	{
 		long filescnt = 0;
+		if(baseFolder==null)
+			return filescnt;
 		try
 		{
 			for (final Path folder : Files.list(baseFolder).collect(Collectors.toList()))
