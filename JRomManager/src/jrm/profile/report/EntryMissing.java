@@ -9,6 +9,7 @@ import java.io.Serializable;
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.locale.Messages;
+import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 
@@ -59,6 +60,12 @@ public class EntryMissing extends Note implements Serializable
 	@Override
 	public String getHTML()
 	{
+		if(entity instanceof Entity)
+		{
+			Entity e = (Entity)entity;
+			String hash = e.sha1==null?(e.md5==null?e.crc:e.md5):e.sha1;
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissing.Missing")), toBlue(parent.ware.getFullName()), toBold(entity.getName())) + " ("+hash+")"); //$NON-NLS-1$
+		}
 		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissing.Missing")), toBlue(parent.ware.getFullName()), toBold(entity.getName()))); //$NON-NLS-1$
 	}
 
