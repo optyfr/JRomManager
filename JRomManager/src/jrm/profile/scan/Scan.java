@@ -39,6 +39,7 @@ import JTrrntzip.TrrntZipStatus;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.Options;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
@@ -218,16 +219,16 @@ public class Scan
 		/*
 		 * Store locally various profile settings
 		 */
-		format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
-		merge_mode = MergeOptions.valueOf(profile.getProperty("merge_mode", MergeOptions.SPLIT.toString())); //$NON-NLS-1$
-		create_mode = profile.getProperty("create_mode", true); //$NON-NLS-1$
-		createfull_mode = profile.getProperty("createfull_mode", true); //$NON-NLS-1$
-		ignore_unneeded_containers = profile.getProperty("ignore_unneeded_containers", false); //$NON-NLS-1$
-		ignore_unneeded_entries = profile.getProperty("ignore_unneeded_entries", false); //$NON-NLS-1$
-		ignore_unknown_containers = profile.getProperty("ignore_unknown_containers", false); //$NON-NLS-1$
-		backup = profile.getProperty("backup", true); //$NON-NLS-1$
+		format = FormatOptions.valueOf(profile.getProperty(Options.format, FormatOptions.ZIP.toString())); //$NON-NLS-1$
+		merge_mode = MergeOptions.valueOf(profile.getProperty(Options.merge_mode, MergeOptions.SPLIT.toString())); //$NON-NLS-1$
+		create_mode = profile.getProperty(Options.create_mode, true); //$NON-NLS-1$
+		createfull_mode = profile.getProperty(Options.createfull_mode, true); //$NON-NLS-1$
+		ignore_unneeded_containers = profile.getProperty(Options.ignore_unneeded_containers, false); //$NON-NLS-1$
+		ignore_unneeded_entries = profile.getProperty(Options.ignore_unneeded_entries, false); //$NON-NLS-1$
+		ignore_unknown_containers = profile.getProperty(Options.ignore_unknown_containers, false); //$NON-NLS-1$
+		backup = profile.getProperty(Options.backup, true); //$NON-NLS-1$
 
-		final String dstdir_txt = profile.getProperty("roms_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final String dstdir_txt = profile.getProperty(Options.roms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dstdir_txt.isEmpty())
 		{
 			System.err.println("dst dir is empty"); //$NON-NLS-1$
@@ -244,9 +245,9 @@ public class Scan
 		 * use disks dest dir if enabled otherwise it will be the same than roms dest dir
 		 */
 		final File disks_dstdir;
-		if (profile.getProperty("disks_dest_dir_enabled", false)) //$NON-NLS-1$
+		if (profile.getProperty(Options.disks_dest_dir_enabled, false)) //$NON-NLS-1$
 		{
-			final String disks_dstdir_txt = profile.getProperty("disks_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			final String disks_dstdir_txt = profile.getProperty(Options.disks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (disks_dstdir_txt.isEmpty())
 				return; //TODO be more informative on failure
 			disks_dstdir = new File(disks_dstdir_txt);
@@ -258,9 +259,9 @@ public class Scan
 		 * use sw roms dest dir if enabled otherwise it will be the same than roms dest dir
 		 */
 		final File swroms_dstdir;
-		if (profile.getProperty("swroms_dest_dir_enabled", false)) //$NON-NLS-1$
+		if (profile.getProperty(Options.swroms_dest_dir_enabled, false)) //$NON-NLS-1$
 		{
-			final String swroms_dstdir_txt = profile.getProperty("swroms_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			final String swroms_dstdir_txt = profile.getProperty(Options.swroms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swroms_dstdir_txt.isEmpty())
 				return; //TODO be more informative on failure
 			swroms_dstdir = new File(swroms_dstdir_txt);
@@ -272,9 +273,9 @@ public class Scan
 		 * use sw disks dest dir if enabled otherwise it will be the same than disks dest dir (which in turn can be the same than roms dest dir)
 		 */
 		final File swdisks_dstdir;
-		if (profile.getProperty("swdisks_dest_dir_enabled", false)) //$NON-NLS-1$
+		if (profile.getProperty(Options.swdisks_dest_dir_enabled, false)) //$NON-NLS-1$
 		{
-			final String swdisks_dstdir_txt = profile.getProperty("swdisks_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			final String swdisks_dstdir_txt = profile.getProperty(Options.swdisks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swdisks_dstdir_txt.isEmpty())
 				return; //TODO be more informative on failure
 			swdisks_dstdir = new File(swdisks_dstdir_txt);
@@ -285,14 +286,14 @@ public class Scan
 		/*
 		 * use samples dest dir if enabled and valid, otherwise it's null and not used
 		 */
-		final String samples_dstdir_txt = profile.getProperty("samples_dest_dir", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final File samples_dstdir = profile.getProperty("samples_dest_dir_enabled", false) && samples_dstdir_txt.length() > 0 ? new File(samples_dstdir_txt) : null; //$NON-NLS-1$
+		final String samples_dstdir_txt = profile.getProperty(Options.samples_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final File samples_dstdir = profile.getProperty(Options.samples_dest_dir_enabled, false) && samples_dstdir_txt.length() > 0 ? new File(samples_dstdir_txt) : null; //$NON-NLS-1$
 
 		/*
 		 * explode all src dir string into an ArrayList<File>
 		 */
 		final ArrayList<File> srcdirs = new ArrayList<>();
-		for (final String s : StringUtils.split(profile.getProperty("src_dir", ""),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		for (final String s : StringUtils.split(profile.getProperty(Options.src_dir, ""),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		{
 			if (!s.isEmpty())
 			{

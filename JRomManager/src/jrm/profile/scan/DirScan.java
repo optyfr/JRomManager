@@ -219,13 +219,13 @@ public final class DirScan
 		 */
 		if(profile!=null)
 		{
-			if (profile.getProperty("need_sha1_or_md5", false)) //$NON-NLS-1$
+			if (profile.getProperty(jrm.misc.Options.need_sha1_or_md5, false)) //$NON-NLS-1$
 				options.add(Options.NEED_SHA1_OR_MD5);
-			if (profile.getProperty("use_parallelism", false)) //$NON-NLS-1$
+			if (profile.getProperty(jrm.misc.Options.use_parallelism, false)) //$NON-NLS-1$
 				options.add(Options.USE_PARALLELISM);
-			if (profile.getProperty("archives_and_chd_as_roms", false)) //$NON-NLS-1$
+			if (profile.getProperty(jrm.misc.Options.archives_and_chd_as_roms, false)) //$NON-NLS-1$
 				options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-			FormatOptions format = FormatOptions.valueOf(profile.getProperty("format", FormatOptions.ZIP.toString())); //$NON-NLS-1$
+			FormatOptions format = FormatOptions.valueOf(profile.getProperty(jrm.misc.Options.format, FormatOptions.ZIP.toString())); //$NON-NLS-1$
 			if (FormatOptions.TZIP == format)
 				options.add(Options.FORMAT_TZIP);
 			else if (FormatOptions.DIR == format)
@@ -317,7 +317,7 @@ public final class DirScan
 		/*
 		 * Loading scan cache
 		 */
-		if(!session.getUser().settings.getProperty("debug_nocache", false)) //$NON-NLS-1$
+		if(!session.getUser().settings.getProperty(jrm.misc.Options.debug_nocache, false)) //$NON-NLS-1$
 			containers_byname = load(dir);
 		else
 			containers_byname = Collections.synchronizedMap(new HashMap<>());

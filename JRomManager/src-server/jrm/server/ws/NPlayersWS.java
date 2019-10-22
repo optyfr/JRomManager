@@ -6,6 +6,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 import jrm.misc.Log;
+import jrm.misc.Options;
 import jrm.profile.Profile;
 
 public class NPlayersWS
@@ -20,7 +21,7 @@ public class NPlayersWS
 	void load(JsonObject jso)
 	{
 		JsonValue jsv = jso.get("params").asObject().get("path");
-		ws.session.curr_profile.setProperty("filter.nplayers.ini", jsv!=null&&!jsv.isNull()?jsv.asString():null); //$NON-NLS-1$
+		ws.session.curr_profile.setProperty(Options.filter_nplayers_ini, jsv!=null&&!jsv.isNull()?jsv.asString():null); //$NON-NLS-1$
 		ws.session.curr_profile.loadNPlayers(null);
 		ws.session.curr_profile.saveSettings();
 		loaded(ws.session.curr_profile);

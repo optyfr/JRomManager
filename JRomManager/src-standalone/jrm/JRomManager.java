@@ -70,7 +70,7 @@ public final class JRomManager
 		}
 		Session session  = Sessions.getSession(multiuser,noupdate);
 		Log.init(session.getUser().settings.getLogPath() + "/JRM.%g.log", debug, 1024 * 1024, 5);
-		if(!debug) Log.setLevel(Level.parse(session.getUser().settings.getProperty("debug_level", Log.getLevel().toString())));
+		if(!debug) Log.setLevel(Level.parse(session.getUser().settings.getProperty(jrm.misc.Options.debug_level, Log.getLevel().toString())));
 		if (JRomManager.lockInstance(session, FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
 			if(!session.noupdate)

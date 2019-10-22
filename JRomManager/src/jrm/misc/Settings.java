@@ -12,7 +12,7 @@ import com.eclipsesource.json.JsonValue;
 
 import lombok.Getter;
 
-public abstract class Settings implements SettingsImpl
+public abstract class Settings extends SettingsImpl
 {
 	private final @Getter Properties properties = new Properties();
 
@@ -22,13 +22,13 @@ public abstract class Settings implements SettingsImpl
 	}
 
 	@Override
-	public boolean getProperty(final String property, final boolean def)
+	protected boolean getProperty(final String property, final boolean def)
 	{
 		return Boolean.parseBoolean(properties.getProperty(property, Boolean.toString(def)));
 	}
 
 	@Override
-	public int getProperty(final String property, final int def)
+	protected int getProperty(final String property, final int def)
 	{
 		return Integer.parseInt(properties.getProperty(property, Integer.toString(def)));
 	}
@@ -79,11 +79,18 @@ public abstract class Settings implements SettingsImpl
 	}
 
 	@Override
-	public void setProperty(final String property, final int value)
+	protected void setProperty(final String property, final int value)
 	{
 		properties.setProperty(property, Integer.toString(value));
 	}
 
+	@Override
+	public void setProperty(Enum<?> property, String value)
+	{
+		super.setProperty(property, value);
+		propagate(property, value);
+	}
+	
 	@Override
 	public void setProperty(final String property, final String value)
 	{
@@ -91,16 +98,15 @@ public abstract class Settings implements SettingsImpl
 			properties.remove(property);
 		else
 			properties.setProperty(property, value);
-		propagate(property, value);
 	}
 	
 	@Override
-	public boolean hasProperty(String property)
+	protected boolean hasProperty(String property)
 	{
 		return properties.containsKey(property);
 	}
 	
-	protected abstract void propagate(final String property, final String value);
+	protected abstract void propagate(final Enum<?> property, final String value);
 	
 	@SuppressWarnings("serial")
 	public JsonObject asJSO()

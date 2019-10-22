@@ -239,7 +239,7 @@ public class GlobalSettings extends Settings
 	}
 
 	@Override
-	protected void propagate(String property, String value)
+	protected void propagate(Enum<?> property, String value)
 	{
 		// TODO Auto-generated method stub
 		

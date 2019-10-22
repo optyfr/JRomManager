@@ -193,8 +193,8 @@ public class Compressor implements HTMLRenderer
 					File basedir = archive.getTempDir();
 					final Map<String, Object> env = new HashMap<>();
 					env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-					env.put("useTempFile", FileUtils.sizeOf(basedir) > ZipTempThreshold.valueOf(session.getUser().settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
-					env.put("compressionLevel", tzip ? 1 :  ZipLevel.valueOf(session.getUser().settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+					env.put("useTempFile", FileUtils.sizeOf(basedir) > ZipTempThreshold.valueOf(session.getUser().settings.getProperty(jrm.misc.Options.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
+					env.put("compressionLevel", tzip ? 1 :  ZipLevel.valueOf(session.getUser().settings.getProperty(jrm.misc.Options.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 					FileUtils.forceMkdirParent(tmpfile);
 					progress.setProgress(toHTML("creating " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
 					try(ZipArchive dstarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
@@ -270,8 +270,8 @@ public class Compressor implements HTMLRenderer
 				Path basedir = fs.getPath("/");
 				final Map<String, Object> env = new HashMap<>();
 				env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("useTempFile", size(basedir) > ZipTempThreshold.valueOf(session.getUser().settings.getProperty("zip_temp_threshold", ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("compressionLevel", ZipLevel.valueOf(session.getUser().settings.getProperty("zip_compression_level", ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$
+				env.put("useTempFile", size(basedir) > ZipTempThreshold.valueOf(session.getUser().settings.getProperty(jrm.misc.Options.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
+				env.put("compressionLevel", ZipLevel.valueOf(session.getUser().settings.getProperty(jrm.misc.Options.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$
 				progress.setProgress(toHTML("Crunching " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
 				try (ZipArchive newarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
 				{

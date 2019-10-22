@@ -17,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.Options;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.DirScan;
@@ -74,10 +75,10 @@ public class DirUpdater
 				{
 					session.report.setProfile(Profile.load(session, datlist[j], progress));
 					if(session.curr_profile.softwares_list_cnt>0 && dat.isDirectory())
-						session.curr_profile.setProperty("roms_dest_dir", dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
+						session.curr_profile.setProperty(Options.roms_dest_dir, dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
 					else
-						session.curr_profile.setProperty("roms_dest_dir", dstlist[j].getAbsolutePath()); //$NON-NLS-1$
-					session.curr_profile.setProperty("src_dir", String.join("|", srcdirs.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
+						session.curr_profile.setProperty(Options.roms_dest_dir, dstlist[j].getAbsolutePath()); //$NON-NLS-1$
+					session.curr_profile.setProperty(Options.src_dir, String.join("|", srcdirs.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
 					Scan scan = new Scan(session.curr_profile, progress, scancache);
 					total += session.report.stats.set_create + session.report.stats.set_found + session.report.stats.set_missing;
 					ok += session.report.stats.set_create_complete + session.report.stats.set_found_fixcomplete + session.report.stats.set_found_ok;

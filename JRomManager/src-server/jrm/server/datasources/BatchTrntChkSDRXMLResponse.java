@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
+import jrm.misc.Options;
 import jrm.server.datasources.XMLRequest.Operation;
 import jrm.ui.basic.SrcDstResult;
 import jrm.xml.SimpleAttribute;
@@ -20,7 +21,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty("trntchk.sdr", "[]"));
+		List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty(Options.trntchk_sdr, "[]"));
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
@@ -45,12 +46,12 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("src"))
 		{
-			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty("trntchk.sdr", "[]"));
+			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty(Options.trntchk_sdr, "[]"));
 			final SrcDstResult sdr = new SrcDstResult() {{src=new File(operation.getData("src"));}};
 			if(!sdrl.contains(sdr))
 			{
 				sdrl.add(sdr);
-				request.session.getUser().settings.setProperty("trntchk.sdr",SrcDstResult.toJSON(sdrl));
+				request.session.getUser().settings.setProperty(Options.trntchk_sdr,SrcDstResult.toJSON(sdrl));
 				request.session.getUser().settings.saveSettings();
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
@@ -76,7 +77,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("src"))
 		{
-			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty("trntchk.sdr", "[]"));
+			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty(Options.trntchk_sdr, "[]"));
 			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.getData("src"));}};
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(p->p.equals(search)).findFirst();
 			if(candidate.isPresent())
@@ -87,7 +88,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 						candidate.get().dst = new File(operation.getData("dst"));
 					else
 						candidate.get().selected = Boolean.parseBoolean(operation.getData("selected"));
-					request.session.getUser().settings.setProperty("trntchk.sdr",SrcDstResult.toJSON(sdrl));
+					request.session.getUser().settings.setProperty(Options.trntchk_sdr,SrcDstResult.toJSON(sdrl));
 					request.session.getUser().settings.saveSettings();
 					writer.writeStartElement("response");
 					writer.writeElement("status", "0");
@@ -116,11 +117,11 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("src"))
 		{
-			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty("trntchk.sdr", "[]"));
+			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.session.getUser().settings.getProperty(Options.trntchk_sdr, "[]"));
 			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.getData("src"));}};
 			if(sdrl.remove(search))
 			{
-				request.session.getUser().settings.setProperty("trntchk.sdr",SrcDstResult.toJSON(sdrl));
+				request.session.getUser().settings.setProperty(Options.trntchk_sdr,SrcDstResult.toJSON(sdrl));
 				request.session.getUser().settings.saveSettings();
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");

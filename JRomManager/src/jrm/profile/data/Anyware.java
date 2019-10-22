@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import jrm.misc.Options;
 import jrm.misc.ProfileSettings;
 import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
@@ -285,9 +286,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		{
 			if(profile.settings.merge_mode.equals(MergeOptions.SUPERFULLNOMERGE))	// also include devices
 			{
-				if(profile.getProperty("exclude_games", false)) //$NON-NLS-1$
+				if(profile.getProperty(Options.exclude_games, false)) //$NON-NLS-1$
 				{
-					if(profile.getProperty("exclude_machines", false)) //$NON-NLS-1$
+					if(profile.getProperty(Options.exclude_machines, false)) //$NON-NLS-1$
 						stream = streamWithDevices(true, false, true);	// bios-devices
 					else
 						stream = streamWithDevices(true, false, true);	// machine-bios-devices
@@ -301,7 +302,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		return stream.filter(r -> {
 			if (r.status == Status.nodump)	// exclude nodump roms
 				return false;
-			if (r.crc == null)	// exclude nocrc roms
+			if (r.crc == null || "00000000".equals(r.crc))	// exclude nocrc roms
 				return false;
 			if (r.name.isEmpty())	// exclude empty name roms
 				return false;
