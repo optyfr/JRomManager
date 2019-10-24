@@ -1,8 +1,6 @@
 package jrm.misc;
 
-import org.omg.CORBA.portable.ValueOutputStream;
-
-public enum Options
+public enum SettingsEnum
 {
 	need_sha1_or_md5,
 	use_parallelism,
@@ -77,12 +75,12 @@ public enum Options
 	automation_scan("automation.scan");
 	
 	private String name = null;
-	private Options()
+	private SettingsEnum()
 	{
 		
 	}
 	
-	private Options(final String name)
+	private SettingsEnum(final String name)
 	{
 		this.name = name;
 	}
@@ -95,9 +93,9 @@ public enum Options
 		return name();
 	}
 	
-	public static Options from(String name)
+	public static SettingsEnum from(String name)
 	{
-		for(Options option : values())
+		for(SettingsEnum option : values())
 		{
 			if(option.name!=null && option.name.equals(name))
 				return option;

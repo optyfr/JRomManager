@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
 import jrm.profile.data.Machine.CabinetType;
@@ -100,16 +100,16 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		/*
 		 * get all needed profile options
 		 */
-		final boolean filterIncludeClones = profile.getProperty(Options.filter_InclClones, true); //$NON-NLS-1$
-		final boolean filterIncludeDisks = profile.getProperty(Options.filter_InclDisks, true); //$NON-NLS-1$
-		final boolean filterIncludeSamples = profile.getProperty(Options.filter_InclSamples, true); //$NON-NLS-1$
-		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty(Options.filter_DriverStatus, Driver.StatusType.preliminary.toString())); //$NON-NLS-1$
-		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(Options.filter_DisplayOrientation, DisplayOrientation.any.toString())); //$NON-NLS-1$
-		final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty(Options.filter_CabinetType, CabinetType.any.toString())); //$NON-NLS-1$
-		final String filterYearMin = profile.getProperty(Options.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final String filterYearMax = profile.getProperty(Options.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
-		final boolean excludeGames = profile.getProperty(Options.exclude_games, false); //$NON-NLS-1$
-		final boolean excludeMachines = profile.getProperty(Options.exclude_machines, false); //$NON-NLS-1$
+		final boolean filterIncludeClones = profile.getProperty(SettingsEnum.filter_InclClones, true); //$NON-NLS-1$
+		final boolean filterIncludeDisks = profile.getProperty(SettingsEnum.filter_InclDisks, true); //$NON-NLS-1$
+		final boolean filterIncludeSamples = profile.getProperty(SettingsEnum.filter_InclSamples, true); //$NON-NLS-1$
+		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty(SettingsEnum.filter_DriverStatus, Driver.StatusType.preliminary.toString())); //$NON-NLS-1$
+		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString())); //$NON-NLS-1$
+		final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString())); //$NON-NLS-1$
+		final String filterYearMin = profile.getProperty(SettingsEnum.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final String filterYearMax = profile.getProperty(SettingsEnum.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
+		final boolean excludeGames = profile.getProperty(SettingsEnum.exclude_games, false); //$NON-NLS-1$
+		final boolean excludeMachines = profile.getProperty(SettingsEnum.exclude_machines, false); //$NON-NLS-1$
 
 		if(excludeGames && !excludeMachines)
 		{	// special case where we want to keep computers & consoles machines but not arcade games machines (let's call it mess mode)

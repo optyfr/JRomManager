@@ -17,7 +17,7 @@ import com.eclipsesource.json.JsonValue;
 import jrm.misc.BreakException;
 import jrm.misc.FindCmd;
 import jrm.misc.Log;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
@@ -151,7 +151,7 @@ public class ProfileWS
 			session.worker.progress.close();
 			session.worker.progress = null;
 			session.lastAction = new Date();
-			ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(Options.automation_scan, ScanAutomation.SCAN.toString()));
+			ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 			scanned(session.curr_scan, automation.hasReport());
 			if(automate)
 			{
@@ -182,7 +182,7 @@ public class ProfileWS
 			}
 			finally
 			{
-				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(Options.automation_scan, ScanAutomation.SCAN.toString()));
+				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if(automation.hasScanAgain())
 					scan(jso, false);
 				session.worker.progress.close();

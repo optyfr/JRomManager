@@ -33,7 +33,7 @@ import jrm.compressors.sevenzipjbinding.CloseCreateCallback;
 import jrm.compressors.sevenzipjbinding.ExtractorCallback;
 import jrm.compressors.sevenzipjbinding.NArchiveBase;
 import jrm.misc.GlobalSettings;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressNarchiveCallBack;
 import lombok.*;
@@ -248,17 +248,17 @@ abstract class NArchive extends NArchiveBase
 		{
 			case SEVEN_ZIP:
 				if(iout instanceof IOutFeatureSetSolid)
-					((IOutFeatureSetSolid) iout).setSolid(session.getUser().settings.getProperty(Options.sevenzip_solid, true)); //$NON-NLS-1$
+					((IOutFeatureSetSolid) iout).setSolid(session.getUser().settings.getProperty(SettingsEnum.sevenzip_solid, true)); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(session.getUser().settings.getProperty(Options.sevenzip_level, SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
+					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(session.getUser().settings.getProperty(SettingsEnum.sevenzip_level, SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().settings.getProperty(Options.sevenzip_threads, -1)); //$NON-NLS-1$
+					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().settings.getProperty(SettingsEnum.sevenzip_threads, -1)); //$NON-NLS-1$
 				break;
 			case ZIP:
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(session.getUser().settings.getProperty(Options.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
+					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(session.getUser().settings.getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().settings.getProperty(Options.zip_threads, -1)); //$NON-NLS-1$
+					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().settings.getProperty(SettingsEnum.zip_threads, -1)); //$NON-NLS-1$
 			default:
 				break;
 		}

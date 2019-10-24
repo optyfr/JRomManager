@@ -15,7 +15,7 @@ import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.server.WebSession;
 import one.util.streamex.StreamEx;
 
@@ -32,8 +32,8 @@ public class CompressorWS
 	{
 		(ws.session.worker = new Worker(()->{
 			WebSession session = ws.session;
-			final CompressorFormat format = CompressorFormat.valueOf(session.getUser().settings.getProperty(Options.compressor_format, "TZIP"));
-			final boolean force = session.getUser().settings.getProperty(Options.compressor_force, false);
+			final CompressorFormat format = CompressorFormat.valueOf(session.getUser().settings.getProperty(SettingsEnum.compressor_format, "TZIP"));
+			final boolean force = session.getUser().settings.getProperty(SettingsEnum.compressor_force, false);
 
 			session.worker.progress = new ProgressWS(ws);
 			session.worker.progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),ws.session.tmp_compressor_lst.size()), true);

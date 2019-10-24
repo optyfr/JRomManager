@@ -45,7 +45,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Device;
@@ -1034,7 +1034,7 @@ public class Profile implements Serializable
 	{
 		Profile profile = null;
 		final File cachefile = session.getUser().settings.getCacheFile(nfo.file);
-		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !session.getUser().settings.getProperty(Options.debug_nocache, false)) //$NON-NLS-1$
+		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !session.getUser().settings.getProperty(SettingsEnum.debug_nocache, false)) //$NON-NLS-1$
 		{	// Load from cache if cachefile is not outdated and debug_nocache is disabled
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
 			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile), (int) cachefile.length()))))
@@ -1324,7 +1324,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			final File file = new File(getProperty(Options.filter_catver_ini, null));
+			final File file = new File(getProperty(SettingsEnum.filter_catver_ini, null));
 			if(file.exists())
 			{
 				if (handler != null)
@@ -1360,7 +1360,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			final File file = new File(getProperty(Options.filter_nplayers_ini, null));
+			final File file = new File(getProperty(SettingsEnum.filter_nplayers_ini, null));
 			if(file.exists())
 			{
 				if (handler != null)

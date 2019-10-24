@@ -15,7 +15,7 @@ import com.eclipsesource.json.JsonObject;
 import jrm.batch.DirUpdater;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
 import jrm.server.WebSession;
 import jrm.ui.basic.ResultColUpdater;
@@ -34,14 +34,14 @@ public class Dat2DirWS
 	{
 		(ws.session.worker = new Worker(()->{
 			WebSession session = ws.session;
-			boolean dryrun = session.getUser().settings.getProperty(Options.dat2dir_dry_run, true);
+			boolean dryrun = session.getUser().settings.getProperty(SettingsEnum.dat2dir_dry_run, true);
 			session.worker.progress = new ProgressWS(ws);
 			try
 			{
-				String[] srcdirs = StringUtils.split(session.getUser().settings.getProperty(Options.dat2dir_srcdirs, ""),'|');
+				String[] srcdirs = StringUtils.split(session.getUser().settings.getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
 				if (srcdirs.length > 0)
 				{
-					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().settings.getProperty(Options.dat2dir_sdr, "[]"));
+					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().settings.getProperty(SettingsEnum.dat2dir_sdr, "[]"));
 					if (sdrl.stream().filter((sdr) -> !session.getUser().settings.getProfileSettingsFile(sdr.src).exists()).count() > 0)
 						new GlobalWS(ws).warn(ws.session.msgs.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
@@ -52,7 +52,7 @@ public class Dat2DirWS
 							public void updateResult(int row, String result)
 							{
 								sdrl.get(row).result = result;
-								session.getUser().settings.setProperty(Options.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
+								session.getUser().settings.setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
 								Dat2DirWS.this.updateResult(row, result);
 							}
 							
@@ -60,7 +60,7 @@ public class Dat2DirWS
 							public void clearResults()
 							{
 								sdrl.forEach(sdr -> sdr.result = "");
-								session.getUser().settings.setProperty(Options.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
+								session.getUser().settings.setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
 								Dat2DirWS.this.clearResults();
 							}
 						}, dryrun);

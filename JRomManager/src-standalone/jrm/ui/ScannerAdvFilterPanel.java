@@ -22,7 +22,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import jrm.locale.Messages;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.Category.SubCategory;
 import jrm.profile.filter.NPlayer;
@@ -67,7 +67,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		this.setLayout(gbl_scannerAdvFilters);
 
 		tfNPlayers = new JFileDropTextField(txt -> {
-			session.curr_profile.setProperty(Options.filter_nplayers_ini, txt); //$NON-NLS-1$
+			session.curr_profile.setProperty(SettingsEnum.filter_nplayers_ini, txt); //$NON-NLS-1$
 			session.curr_profile.loadNPlayers(null);
 			session.curr_profile.saveSettings();
 			listNPlayers.setModel(new NPlayersModel(session.curr_profile.nplayers));
@@ -83,7 +83,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		this.add(tfNPlayers, gbc_tfNPlayers);
 
 		tfCatVer = new JFileDropTextField(txt -> {
-			session.curr_profile.setProperty(Options.filter_catver_ini, txt); //$NON-NLS-1$
+			session.curr_profile.setProperty(SettingsEnum.filter_catver_ini, txt); //$NON-NLS-1$
 			session.curr_profile.loadCatVer(null);
 			session.curr_profile.saveSettings();
 			treeCatVer.setModel(session.curr_profile.catver != null ? new CatVerModel(new CatVerNode(session.curr_profile.catver)) : new CatVerModel());
@@ -253,7 +253,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		
 		JMenuItem mntmClearCat = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear.text")); //$NON-NLS-1$
 		mntmClearCat.addActionListener((e) -> {
-			session.curr_profile.setProperty(Options.filter_catver_ini, null); //$NON-NLS-1$
+			session.curr_profile.setProperty(SettingsEnum.filter_catver_ini, null); //$NON-NLS-1$
 			session.curr_profile.catver = null;
 			session.curr_profile.saveSettings();
 			tfCatVer.setText(null);

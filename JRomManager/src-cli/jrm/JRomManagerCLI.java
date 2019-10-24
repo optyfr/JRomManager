@@ -229,9 +229,9 @@ public class JRomManagerCLI
 					if (args.length == 1)
 						return prefs();
 					if (args.length == 2)
-						return prefs(jrm.misc.Options.from(args[1]));
+						return prefs(jrm.misc.SettingsEnum.from(args[1]));
 					if (args.length == 3)
-						return prefs(jrm.misc.Options.from(args[1]), args[2]);
+						return prefs(jrm.misc.SettingsEnum.from(args[1]), args[2]);
 					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case LOAD:
 					if (args.length == 2)
@@ -243,9 +243,9 @@ public class JRomManagerCLI
 					if (args.length == 1)
 						return settings();
 					if (args.length == 2)
-						return settings(jrm.misc.Options.from(args[1]));
+						return settings(jrm.misc.SettingsEnum.from(args[1]));
 					if (args.length == 3)
-						return settings(jrm.misc.Options.from(args[1]), args[2]);
+						return settings(jrm.misc.SettingsEnum.from(args[1]), args[2]);
 					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case SCAN:
 					if (session.curr_profile == null)
@@ -320,20 +320,20 @@ public class JRomManagerCLI
 		{
 			case LSSRC:
 			{
-				System.out.append("srcdirs = [\n").append(Stream.of(StringUtils.split(session.getUser().settings.getProperty(jrm.misc.Options.dat2dir_srcdirs, ""), '|')).map(s -> "\t" + Json.value(s).toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				System.out.append("srcdirs = [\n").append(Stream.of(StringUtils.split(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(s -> "\t" + Json.value(s).toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 				
 				break;
 			}
 			case LSSDR:
 			{
-				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.Options.dat2dir_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 				break;
 			}
 			case CLEARSRC:
-				prefs(jrm.misc.Options.dat2dir_srcdirs, ""); //$NON-NLS-1$ //$NON-NLS-2$
+				prefs(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			case CLEARSDR:
-				prefs(jrm.misc.Options.dat2dir_sdr, "[]"); //$NON-NLS-1$ //$NON-NLS-2$
+				prefs(jrm.misc.SettingsEnum.dat2dir_sdr, "[]"); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			case PRESETS:
 			{
@@ -345,7 +345,7 @@ public class JRomManagerCLI
 				}
 				else if(args.length==2)
 				{
-					val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.Options.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+					val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
 					int index = Integer.parseInt(args[0]);
 					if(index < list.size())
 					{
@@ -375,7 +375,7 @@ public class JRomManagerCLI
 			{
 				if (args.length > 0)
 				{
-					val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.Options.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+					val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
 					if (args.length > 0)
 					{
 						int index = Integer.parseInt(args[0]);
@@ -386,11 +386,11 @@ public class JRomManagerCLI
 								ProfileSettings settings = session.getUser().settings.loadProfileSettings(list.get(index).src, null);
 								if (args.length == 3)
 								{
-									settings.setProperty(jrm.misc.Options.from(args[1]), args[2]);
+									settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
 									session.getUser().settings.saveProfileSettings(list.get(index).src, settings);
 								}
 								else if (args.length == 2)
-									System.out.format("%s\n", settings.getProperty(jrm.misc.Options.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$
+									System.out.format("%s\n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$
 								else
 									for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
 										System.out.format("%s=%s\n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
@@ -408,25 +408,25 @@ public class JRomManagerCLI
 			}
 			case ADDSRC:
 			{
-				val list = Stream.of(StringUtils.split(session.getUser().settings.getProperty(jrm.misc.Options.dat2dir_srcdirs, ""), '|')).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
+				val list = Stream.of(StringUtils.split(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
 				list.add(args[0]);
-				prefs(jrm.misc.Options.dat2dir_srcdirs, list.stream().collect(Collectors.joining("|"))); //$NON-NLS-1$ //$NON-NLS-2$
+				prefs(jrm.misc.SettingsEnum.dat2dir_srcdirs, list.stream().collect(Collectors.joining("|"))); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			}
 			case ADDSDR:
 			{
-				val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.Options.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+				val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
 				val sdr = new SrcDstResult();
 				sdr.src = new File(args[0]);
 				sdr.dst = new File(args[1]);
 				list.add(sdr);
-				prefs(jrm.misc.Options.dat2dir_sdr, SrcDstResult.toJSON(list)); //$NON-NLS-1$
+				prefs(jrm.misc.SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(list)); //$NON-NLS-1$
 				break;
 			}
 			case START:
 			{
-				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.Options.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-				List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().settings.getProperty(jrm.misc.Options.dat2dir_srcdirs, ""), '|')).map(s -> new File(s)).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
+				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+				List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(s -> new File(s)).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
 				final String[] results = new String[sdrl.size()];
 				ResultColUpdater resulthandler = new ResultColUpdater()
 				{
@@ -477,22 +477,22 @@ public class JRomManagerCLI
 		{
 			case LSSDR:
 			{
-				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.Options.trntchk_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 				break;
 			}
 			case CLEARSDR:
-				prefs(jrm.misc.Options.trntchk_sdr, "[]"); //$NON-NLS-1$ //$NON-NLS-2$
+				prefs(jrm.misc.SettingsEnum.trntchk_sdr, "[]"); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			case ADDSDR:
 			{
 				if(args.length==2)
 				{
-					val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.Options.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+					val list = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
 					val sdr = new SrcDstResult();
 					sdr.src = new File(args[0]);
 					sdr.dst = new File(args[1]);
 					list.add(sdr);
-					prefs(jrm.misc.Options.trntchk_sdr, SrcDstResult.toJSON(list)); //$NON-NLS-1$
+					prefs(jrm.misc.SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(list)); //$NON-NLS-1$
 				}
 				else
 					return error(CLIMessages.getString("CLI_ERR_WrongArgs"));
@@ -500,7 +500,7 @@ public class JRomManagerCLI
 			}
 			case START:
 			{
-				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.Options.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
 				final String[] results = new String[sdrl.size()];
 				ResultColUpdater resulthandler = new ResultColUpdater()
 				{

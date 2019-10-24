@@ -22,7 +22,7 @@ import javax.swing.UIManager;
 
 import jrm.locale.Messages;
 import jrm.misc.ProfileSettings;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
@@ -166,7 +166,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.setLayout(gbl_scannerSettingsPanel);
 
 		chckbxNeedSHA1 = new JCheckBox(Messages.getString("MainFrame.chckbxNeedSHA1.text")); //$NON-NLS-1$
-		chckbxNeedSHA1.addItemListener(e -> settings.setProperty(Options.need_sha1_or_md5, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxNeedSHA1.addItemListener(e -> settings.setProperty(SettingsEnum.need_sha1_or_md5, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		chckbxNeedSHA1.setToolTipText(Messages.getString("MainFrame.chckbxNeedSHA1.toolTipText")); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxNeedSHA1 = new GridBagConstraints();
 		gbc_chckbxNeedSHA1.fill = GridBagConstraints.BOTH;
@@ -176,11 +176,11 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxNeedSHA1, gbc_chckbxNeedSHA1);
 
 		chckbxUseParallelism = new JCheckBox(Messages.getString("MainFrame.chckbxUseParallelism.text")); //$NON-NLS-1$
-		chckbxUseParallelism.addItemListener(e -> settings.setProperty(Options.use_parallelism, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxUseParallelism.addItemListener(e -> settings.setProperty(SettingsEnum.use_parallelism, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 
 		chckbxCreateMissingSets = new JCheckBox(Messages.getString("MainFrame.chckbxCreateMissingSets.text")); //$NON-NLS-1$
 		chckbxCreateMissingSets.addItemListener(e -> {
-			settings.setProperty(Options.create_mode, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			settings.setProperty(SettingsEnum.create_mode, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			if (e.getStateChange() != ItemEvent.SELECTED)
 				chckbxCreateOnlyComplete.setSelected(false);
 			chckbxCreateOnlyComplete.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
@@ -200,7 +200,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxUseParallelism, gbc_chckbxUseParallelism);
 
 		chckbxCreateOnlyComplete = new JCheckBox(Messages.getString("MainFrame.chckbxCreateOnlyComplete.text")); //$NON-NLS-1$
-		chckbxCreateOnlyComplete.addItemListener(e -> settings.setProperty(Options.createfull_mode, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxCreateOnlyComplete.addItemListener(e -> settings.setProperty(SettingsEnum.createfull_mode, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxCreateOnlyComplete = new GridBagConstraints();
 		gbc_chckbxCreateOnlyComplete.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxCreateOnlyComplete.insets = new Insets(0, 0, 5, 0);
@@ -209,7 +209,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxCreateOnlyComplete, gbc_chckbxCreateOnlyComplete);
 
 		chckbxIgnoreUnneededContainers = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreUnneededContainers.text")); //$NON-NLS-1$
-		chckbxIgnoreUnneededContainers.addItemListener(e -> settings.setProperty(Options.ignore_unneeded_containers, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxIgnoreUnneededContainers.addItemListener(e -> settings.setProperty(SettingsEnum.ignore_unneeded_containers, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxIgnoreUnneededContainers = new GridBagConstraints();
 		gbc_chckbxIgnoreUnneededContainers.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxIgnoreUnneededContainers.insets = new Insets(0, 0, 5, 5);
@@ -218,7 +218,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxIgnoreUnneededContainers, gbc_chckbxIgnoreUnneededContainers);
 
 		chckbxIgnoreUnneededEntries = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreUnneededEntries.text")); //$NON-NLS-1$
-		chckbxIgnoreUnneededEntries.addItemListener(e -> settings.setProperty(Options.ignore_unneeded_entries, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxIgnoreUnneededEntries.addItemListener(e -> settings.setProperty(SettingsEnum.ignore_unneeded_entries, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxIgnoreUnneededEntries = new GridBagConstraints();
 		gbc_chckbxIgnoreUnneededEntries.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxIgnoreUnneededEntries.insets = new Insets(0, 0, 5, 0);
@@ -227,7 +227,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxIgnoreUnneededEntries, gbc_chckbxIgnoreUnneededEntries);
 
 		chckbxIgnoreUnknownContainers = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreUnknownContainers.text")); //$NON-NLS-1$
-		chckbxIgnoreUnknownContainers.addItemListener(e -> settings.setProperty(Options.ignore_unknown_containers, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxIgnoreUnknownContainers.addItemListener(e -> settings.setProperty(SettingsEnum.ignore_unknown_containers, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxIgnoreUnknownContainers = new GridBagConstraints();
 		gbc_chckbxIgnoreUnknownContainers.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxIgnoreUnknownContainers.insets = new Insets(0, 0, 5, 5);
@@ -236,7 +236,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxIgnoreUnknownContainers, gbc_chckbxIgnoreUnknownContainers);
 
 		chckbxUseImplicitMerge = new JCheckBox(Messages.getString("MainFrame.chckbxUseImplicitMerge.text")); //$NON-NLS-1$
-		chckbxUseImplicitMerge.addItemListener(e -> settings.setProperty(Options.implicit_merge, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxUseImplicitMerge.addItemListener(e -> settings.setProperty(SettingsEnum.implicit_merge, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxUseImplicitMerge = new GridBagConstraints();
 		gbc_chckbxUseImplicitMerge.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxUseImplicitMerge.insets = new Insets(0, 0, 5, 0);
@@ -245,7 +245,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxUseImplicitMerge, gbc_chckbxUseImplicitMerge);
 
 		chckbxIgnoreMergeNameRoms = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreMergeName.text")); //$NON-NLS-1$
-		chckbxIgnoreMergeNameRoms.addItemListener(e -> settings.setProperty(Options.ignore_merge_name_roms, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxIgnoreMergeNameRoms.addItemListener(e -> settings.setProperty(SettingsEnum.ignore_merge_name_roms, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxIgnoreMergeNameRoms = new GridBagConstraints();
 		gbc_chckbxIgnoreMergeNameRoms.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxIgnoreMergeNameRoms.insets = new Insets(0, 0, 5, 5);
@@ -254,7 +254,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxIgnoreMergeNameRoms, gbc_chckbxIgnoreMergeNameRoms);
 
 		chckbxIgnoreMergeNameDisks = new JCheckBox(Messages.getString("MainFrame.chckbxIgnoreMergeName_1.text")); //$NON-NLS-1$
-		chckbxIgnoreMergeNameDisks.addItemListener(e -> settings.setProperty(Options.ignore_merge_name_disks, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxIgnoreMergeNameDisks.addItemListener(e -> settings.setProperty(SettingsEnum.ignore_merge_name_disks, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxIgnoreMergeNameDisks = new GridBagConstraints();
 		gbc_chckbxIgnoreMergeNameDisks.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxIgnoreMergeNameDisks.insets = new Insets(0, 0, 5, 0);
@@ -263,7 +263,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxIgnoreMergeNameDisks, gbc_chckbxIgnoreMergeNameDisks);
 
 		chckbxExcludeGames = new JCheckBox(Messages.getString("MainFrame.chckbxExcludeGames.text")); //$NON-NLS-1$
-		chckbxExcludeGames.addItemListener(e -> settings.setProperty(Options.exclude_games, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxExcludeGames.addItemListener(e -> settings.setProperty(SettingsEnum.exclude_games, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxExcludeGames = new GridBagConstraints();
 		gbc_chckbxExcludeGames.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxExcludeGames.insets = new Insets(0, 0, 5, 5);
@@ -272,7 +272,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxExcludeGames, gbc_chckbxExcludeGames);
 
 		chckbxExcludeMachines = new JCheckBox(Messages.getString("MainFrame.chckbxExcludeMachines.text")); //$NON-NLS-1$
-		chckbxExcludeMachines.addItemListener(e -> settings.setProperty(Options.exclude_machines, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxExcludeMachines.addItemListener(e -> settings.setProperty(SettingsEnum.exclude_machines, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxExcludeMachines = new GridBagConstraints();
 		gbc_chckbxExcludeMachines.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxExcludeMachines.insets = new Insets(0, 0, 5, 0);
@@ -281,7 +281,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.add(chckbxExcludeMachines, gbc_chckbxExcludeMachines);
 
 		chckbxBackup = new JCheckBox(Messages.getString("MainFrame.chckbxBackup.text")); //$NON-NLS-1$
-		chckbxBackup.addItemListener(e -> settings.setProperty(Options.backup, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxBackup.addItemListener(e -> settings.setProperty(SettingsEnum.backup, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxBackup = new GridBagConstraints();
 		gbc_chckbxBackup.fill = GridBagConstraints.HORIZONTAL;
 		gbc_chckbxBackup.insets = new Insets(0, 0, 5, 5);
@@ -322,7 +322,7 @@ public class ScannerSettingsPanel extends JPanel
 				return this;
 			}
 		});
-		cbCompression.addActionListener(e -> settings.setProperty(Options.format, cbCompression.getSelectedItem().toString())); //$NON-NLS-1$
+		cbCompression.addActionListener(e -> settings.setProperty(SettingsEnum.format, cbCompression.getSelectedItem().toString())); //$NON-NLS-1$
 		final GridBagConstraints gbc_cbCompression = new GridBagConstraints();
 		gbc_cbCompression.gridwidth = 2;
 		gbc_cbCompression.insets = new Insets(0, 0, 5, 5);
@@ -359,7 +359,7 @@ public class ScannerSettingsPanel extends JPanel
 			}
 		});
 		cbbxMergeMode.addActionListener(e -> {
-			settings.setProperty(Options.merge_mode, cbbxMergeMode.getSelectedItem().toString()); //$NON-NLS-1$
+			settings.setProperty(SettingsEnum.merge_mode, cbbxMergeMode.getSelectedItem().toString()); //$NON-NLS-1$
 			cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
 		});
 
@@ -382,7 +382,7 @@ public class ScannerSettingsPanel extends JPanel
 				return this;
 			}
 		});
-		cbHashCollision.addActionListener(e -> settings.setProperty(Options.hash_collision_mode, cbHashCollision.getSelectedItem().toString())); //$NON-NLS-1$
+		cbHashCollision.addActionListener(e -> settings.setProperty(SettingsEnum.hash_collision_mode, cbHashCollision.getSelectedItem().toString())); //$NON-NLS-1$
 		final GridBagConstraints gbc_cbHashCollision = new GridBagConstraints();
 		gbc_cbHashCollision.gridwidth = 2;
 		gbc_cbHashCollision.insets = new Insets(0, 0, 5, 5);
@@ -398,23 +398,23 @@ public class ScannerSettingsPanel extends JPanel
 	public void initProfileSettings(final ProfileSettings settings)
 	{
 		this.settings = settings;
-		chckbxNeedSHA1.setSelected(settings.getProperty(Options.need_sha1_or_md5, false)); //$NON-NLS-1$
-		chckbxUseParallelism.setSelected(settings.getProperty(Options.use_parallelism, false)); //$NON-NLS-1$
-		chckbxCreateMissingSets.setSelected(settings.getProperty(Options.create_mode, false)); //$NON-NLS-1$
-		chckbxCreateOnlyComplete.setSelected(settings.getProperty(Options.createfull_mode, false) && chckbxCreateMissingSets.isSelected()); //$NON-NLS-1$
-		chckbxIgnoreUnneededContainers.setSelected(settings.getProperty(Options.ignore_unneeded_containers, false)); //$NON-NLS-1$
-		chckbxIgnoreUnneededEntries.setSelected(settings.getProperty(Options.ignore_unneeded_entries, false)); //$NON-NLS-1$
-		chckbxIgnoreUnknownContainers.setSelected(settings.getProperty(Options.ignore_unknown_containers, false)); //$NON-NLS-1$
-		chckbxUseImplicitMerge.setSelected(settings.getProperty(Options.implicit_merge, false)); //$NON-NLS-1$
-		chckbxIgnoreMergeNameRoms.setSelected(settings.getProperty(Options.ignore_merge_name_roms, false)); //$NON-NLS-1$
-		chckbxIgnoreMergeNameDisks.setSelected(settings.getProperty(Options.ignore_merge_name_disks, false)); //$NON-NLS-1$
-		chckbxExcludeGames.setSelected(settings.getProperty(Options.exclude_games, false)); //$NON-NLS-1$
-		chckbxExcludeMachines.setSelected(settings.getProperty(Options.exclude_machines, false)); //$NON-NLS-1$
-		chckbxBackup.setSelected(settings.getProperty(Options.backup, true)); //$NON-NLS-1$
+		chckbxNeedSHA1.setSelected(settings.getProperty(SettingsEnum.need_sha1_or_md5, false)); //$NON-NLS-1$
+		chckbxUseParallelism.setSelected(settings.getProperty(SettingsEnum.use_parallelism, false)); //$NON-NLS-1$
+		chckbxCreateMissingSets.setSelected(settings.getProperty(SettingsEnum.create_mode, false)); //$NON-NLS-1$
+		chckbxCreateOnlyComplete.setSelected(settings.getProperty(SettingsEnum.createfull_mode, false) && chckbxCreateMissingSets.isSelected()); //$NON-NLS-1$
+		chckbxIgnoreUnneededContainers.setSelected(settings.getProperty(SettingsEnum.ignore_unneeded_containers, false)); //$NON-NLS-1$
+		chckbxIgnoreUnneededEntries.setSelected(settings.getProperty(SettingsEnum.ignore_unneeded_entries, false)); //$NON-NLS-1$
+		chckbxIgnoreUnknownContainers.setSelected(settings.getProperty(SettingsEnum.ignore_unknown_containers, false)); //$NON-NLS-1$
+		chckbxUseImplicitMerge.setSelected(settings.getProperty(SettingsEnum.implicit_merge, false)); //$NON-NLS-1$
+		chckbxIgnoreMergeNameRoms.setSelected(settings.getProperty(SettingsEnum.ignore_merge_name_roms, false)); //$NON-NLS-1$
+		chckbxIgnoreMergeNameDisks.setSelected(settings.getProperty(SettingsEnum.ignore_merge_name_disks, false)); //$NON-NLS-1$
+		chckbxExcludeGames.setSelected(settings.getProperty(SettingsEnum.exclude_games, false)); //$NON-NLS-1$
+		chckbxExcludeMachines.setSelected(settings.getProperty(SettingsEnum.exclude_machines, false)); //$NON-NLS-1$
+		chckbxBackup.setSelected(settings.getProperty(SettingsEnum.backup, true)); //$NON-NLS-1$
 		
-		cbCompression.setSelectedItem(FormatOptions.valueOf(settings.getProperty(Options.format, FormatOptions.ZIP.toString()))); //$NON-NLS-1$
-		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(settings.getProperty(Options.merge_mode, MergeOptions.SPLIT.toString()))); //$NON-NLS-1$
-		cbHashCollision.setSelectedItem(HashCollisionOptions.valueOf(settings.getProperty(Options.hash_collision_mode, HashCollisionOptions.SINGLEFILE.toString()))); //$NON-NLS-1$
+		cbCompression.setSelectedItem(FormatOptions.valueOf(settings.getProperty(SettingsEnum.format, FormatOptions.ZIP.toString()))); //$NON-NLS-1$
+		cbbxMergeMode.setSelectedItem(MergeOptions.valueOf(settings.getProperty(SettingsEnum.merge_mode, MergeOptions.SPLIT.toString()))); //$NON-NLS-1$
+		cbHashCollision.setSelectedItem(HashCollisionOptions.valueOf(settings.getProperty(SettingsEnum.hash_collision_mode, HashCollisionOptions.SINGLEFILE.toString()))); //$NON-NLS-1$
 
 		cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
 		chckbxCreateOnlyComplete.setEnabled(chckbxCreateMissingSets.isSelected());

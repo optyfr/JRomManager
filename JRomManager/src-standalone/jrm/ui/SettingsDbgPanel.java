@@ -19,7 +19,7 @@ import javax.swing.border.SoftBevelBorder;
 
 import jrm.locale.Messages;
 import jrm.misc.Log;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.security.Session;
 
 @SuppressWarnings("serial")
@@ -66,10 +66,10 @@ public class SettingsDbgPanel extends JPanel
 		gbc_cbLogLevel.gridy = 1;
 		this.add(cbLogLevel, gbc_cbLogLevel);
 		cbLogLevel.addActionListener(arg0 -> {
-			session.getUser().settings.setProperty(Options.debug_level, cbLogLevel.getSelectedItem().toString());
+			session.getUser().settings.setProperty(SettingsEnum.debug_level, cbLogLevel.getSelectedItem().toString());
 			Log.setLevel(Level.parse(cbLogLevel.getSelectedItem().toString()));
 		}); //$NON-NLS-1$
-		cbLogLevel.setSelectedItem(Level.parse(session.getUser().settings.getProperty(Options.debug_level, Log.getLevel().toString()))); //$NON-NLS-1$
+		cbLogLevel.setSelectedItem(Level.parse(session.getUser().settings.getProperty(SettingsEnum.debug_level, Log.getLevel().toString()))); //$NON-NLS-1$
 
 		JLabel lblMemory = new JLabel(Messages.getString("MainFrame.lblMemory.text")); //$NON-NLS-1$
 		lblMemory.setHorizontalAlignment(SwingConstants.TRAILING);

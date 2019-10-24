@@ -28,7 +28,7 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.MultiThreading;
 import jrm.misc.MultiThreading.CallableWith;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.fix.actions.BackupContainer;
 import jrm.profile.fix.actions.ContainerAction;
@@ -56,7 +56,7 @@ public class Fix
 	{
 		this.curr_scan = curr_scan;
 
-		val use_parallelism = curr_profile.getProperty(Options.use_parallelism, false); //$NON-NLS-1$
+		val use_parallelism = curr_profile.getProperty(SettingsEnum.use_parallelism, false); //$NON-NLS-1$
 		val nThreads = use_parallelism ? Runtime.getRuntime().availableProcessors() : 1;
 
 		final long start = System.currentTimeMillis();

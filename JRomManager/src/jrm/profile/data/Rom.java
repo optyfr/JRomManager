@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
 
@@ -112,7 +112,7 @@ public class Rom extends Entity implements Serializable
 					return parent.name + "/" + name; //$NON-NLS-1$
 				}
 			}
-			else if (!parent.getProfile().getProperty(Options.ignore_merge_name_roms, false)) //$NON-NLS-1$
+			else if (!parent.getProfile().getProperty(SettingsEnum.ignore_merge_name_roms, false)) //$NON-NLS-1$
 				return merge;
 		}
 		return name;
@@ -126,7 +126,7 @@ public class Rom extends Entity implements Serializable
 	{
 		if (getParent().profile.settings!=null && getParent().profile.settings.merge_mode.isMerge())
 		{
-			if (merge != null && !parent.getProfile().getProperty(Options.ignore_merge_name_roms, false)) //$NON-NLS-1$
+			if (merge != null && !parent.getProfile().getProperty(SettingsEnum.ignore_merge_name_roms, false)) //$NON-NLS-1$
 				return parent.name + "/" + merge; //$NON-NLS-1$
 			return parent.name + "/" + name; //$NON-NLS-1$
 		}

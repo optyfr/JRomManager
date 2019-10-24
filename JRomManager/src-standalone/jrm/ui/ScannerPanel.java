@@ -18,7 +18,7 @@ import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
 
 import jrm.locale.Messages;
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
@@ -194,7 +194,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
-				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(Options.automation_scan, ScanAutomation.SCAN.toString()));
+				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if(MainFrame.report_frame != null && automation.hasReport())
 				{
 					MainFrame.report_frame.setVisible(true);
@@ -255,7 +255,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
-				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(Options.automation_scan, ScanAutomation.SCAN.toString()));
+				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if(automation.hasScanAgain())
 					scan(session, false);
 			}

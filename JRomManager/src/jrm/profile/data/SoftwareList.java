@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
-import jrm.misc.Options;
+import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
 import jrm.ui.progress.ProgressHandler;
@@ -129,11 +129,11 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		/*
 		 * get all needed profile options
 		 */
-		final boolean filterIncludeClones = profile.getProperty(Options.filter_InclClones, true); //$NON-NLS-1$
-		final boolean filterIncludeDisks = profile.getProperty(Options.filter_InclDisks, true); //$NON-NLS-1$
-		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(Options.filter_MinSoftwareSupportedLevel, Supported.no.toString())); //$NON-NLS-1$
-		final String filterYearMin = profile.getProperty(Options.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final String filterYearMax = profile.getProperty(Options.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
+		final boolean filterIncludeClones = profile.getProperty(SettingsEnum.filter_InclClones, true); //$NON-NLS-1$
+		final boolean filterIncludeDisks = profile.getProperty(SettingsEnum.filter_InclDisks, true); //$NON-NLS-1$
+		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString())); //$NON-NLS-1$
+		final String filterYearMin = profile.getProperty(SettingsEnum.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final String filterYearMax = profile.getProperty(SettingsEnum.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		return getList().stream().filter(t -> {
 			if(t.year.length()>0)
