@@ -13,6 +13,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 
+import jrm.batch.TrntChkReport;
 import jrm.locale.Messages;
 import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
@@ -20,12 +21,12 @@ import jrm.security.Session;
 @SuppressWarnings("serial")
 public class BatchTrrntChkReportView extends JScrollPane
 {
-	public BatchTrrntChkReportView(Session session, TrntChkReportNode report)
+	public BatchTrrntChkReportView(Session session, TrntChkReport report)
 	{
 		final JTree tree = new JTree();
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
-		tree.setModel(report.getModel());
+		tree.setModel(new BatchTrrntChkReportTreeModel(report));
 		tree.setCellRenderer(new BatchTrrntChkReportTreeCellRenderer());
 		this.setViewportView(tree);
 
@@ -67,24 +68,24 @@ public class BatchTrrntChkReportView extends JScrollPane
 		final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resources/folder_closed_green.png"))); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.addItemListener(e -> {
-			final EnumSet<FilterOptions> options = report.getModel().getFilterOptions();
+			final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
 				options.add(FilterOptions.SHOWOK);
 			else
 				options.remove(FilterOptions.SHOWOK);
-			report.getModel().filter(options.toArray(new FilterOptions[0]));
+			report.getHandler().filter(options.toArray(new FilterOptions[0]));
 		});
 		popupMenu.add(chckbxmntmShowOkEntries);
 
 		final JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resources/folder_closed_red.png"))); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.addItemListener(e -> {
-			final EnumSet<FilterOptions> options = report.getModel().getFilterOptions();
+			final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
 				options.add(FilterOptions.HIDEMISSING);
 			else
 				options.remove(FilterOptions.HIDEMISSING);
-			report.getModel().filter(options.toArray(new FilterOptions[0]));
+			report.getHandler().filter(options.toArray(new FilterOptions[0]));
 		});
 		popupMenu.add(chckbxmntmHideFullyMissing);
 	}

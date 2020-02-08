@@ -38,7 +38,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 			Long parentID = Long.valueOf(operation.getData("ParentID"));
 			if (parentID == 0)
 			{
-				List<Child> nodes = report.nodes.stream().filter(n -> showok || n.data.status != Status.OK).collect(Collectors.toList());
+				List<Child> nodes = report.getNodes().stream().filter(n -> showok || n.data.status != Status.OK).collect(Collectors.toList());
 				int start, end, nodecount = nodes.size();
 				writer.writeElement("startRow", Integer.toString(start = Math.min(nodecount - 1, operation.startRow)));
 				writer.writeElement("endRow", Integer.toString(end = Math.min(nodecount - 1, operation.endRow)));
@@ -65,7 +65,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 			}
 			else
 			{
-				Child parent = report.all.get(parentID);
+				Child parent = report.getAll().get(parentID);
 				if (parent != null)
 				{
 					int nodecount = parent.children != null ? parent.children.size() : 0;

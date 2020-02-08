@@ -24,6 +24,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import jrm.batch.TrntChkReport.Child;
 import jrm.misc.Log;
+import jrm.ui.batch.BatchTrrntChkReportNode.ChildNode;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -48,9 +49,9 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 	{
 		try
 		{
-			if(value instanceof Child)
+			if(value instanceof ChildNode)
 			{
-				Child node = (Child)value;
+				Child node = ((ChildNode)value).getChild();
 				String title = node.data.title;
 				if(node.data.length!=null)
 					title+=" ("+node.data.length+")";

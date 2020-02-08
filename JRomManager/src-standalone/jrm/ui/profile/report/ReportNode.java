@@ -120,9 +120,9 @@ public class ReportNode implements TreeNode
 		}
 
 		@Override
-		public SubjectNode getParent()
+		public TreeNode getParent()
 		{
-			return SubjectNode.this;
+			return ReportNode.this;
 		}
 
 		@Override

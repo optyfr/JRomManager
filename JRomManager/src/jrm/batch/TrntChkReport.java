@@ -22,21 +22,27 @@ import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Subject;
 import jrm.security.Session;
+import jrm.ui.batch.TrntChkReportTreeHandler;
+import lombok.Getter;
+import lombok.Setter;
 
 public final class TrntChkReport implements Serializable, HTMLRenderer
 {
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 3L;
 	
-	public List<Child> nodes = new ArrayList<>();
-	public Map<Long,Child> all = new HashMap<>();
 	
 	private transient AtomicLong uid_cnt = new AtomicLong(); 
 	private transient File file = null;
 	private transient long file_modified = 0L;
 	
+	private @Getter List<Child> nodes = new ArrayList<>();
+	private @Getter Map<Long,Child> all = new HashMap<>();
+
 	/**
 	 * the linked UI tree model
 	 */
+	private @Setter @Getter transient TrntChkReportTreeHandler handler = null;
+
 	public TrntChkReport(File src)
 	{
 		this.file = src;
@@ -253,6 +259,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 		filterPredicate = report.filterPredicate;
 		file_modified = report.file_modified;
 		uid_cnt = new AtomicLong();
+		handler = report.handler;
 		nodes = report.filter(filterOptions);
 		all = report.all;
 	}

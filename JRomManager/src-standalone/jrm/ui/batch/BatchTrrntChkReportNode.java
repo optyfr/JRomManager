@@ -9,49 +9,39 @@ import javax.swing.tree.TreeNode;
 
 import jrm.batch.TrntChkReport;
 import jrm.batch.TrntChkReport.Child;
-import jrm.ui.batch.BatchTrrntChkReportTreeModel;
 import lombok.Getter;
 
-public class TrntChkReportNode implements TreeNode
+public class BatchTrrntChkReportNode implements TreeNode
 {
 	private @Getter TrntChkReport report;
 	
 	private Map<Long,ChildNode> nodeCache = new HashMap<>();
 
-	private BatchTrrntChkReportTreeModel model;
-	
-	public TrntChkReportNode(final TrntChkReport report)
+	public BatchTrrntChkReportNode(final TrntChkReport report)
 	{
 		this.report = report;
-		this.model = new BatchTrrntChkReportTreeModel(this);
-		this.model.initClone();
 	}
 
-	public BatchTrrntChkReportTreeModel getModel()
-	{
-		return this.model;
-	}
-
-	ChildNode getNode(Child child)
+	public ChildNode getNode(Child child)
 	{
 		if(child==null)
 			return null;
 		ChildNode node;
 		if(null==(node=nodeCache.get(child.uid)))
-			return nodeCache.put(child.uid, node = new ChildNode(child));
+			nodeCache.put(child.uid, node = new ChildNode(child));
 		return node;
 	}
 	
 	@Override
 	public TreeNode getChildAt(int childIndex)
 	{
-		return getNode(report.nodes.get(childIndex));
+		return getNode(report.getNodes().get(childIndex));
 	}
 
 	@Override
 	public int getChildCount()
 	{
-		return report.nodes.size();
+		return report.getNodes().size();
 	}
 
 	@Override
@@ -63,7 +53,7 @@ public class TrntChkReportNode implements TreeNode
 	@Override
 	public int getIndex(TreeNode node)
 	{
-		return report.nodes.indexOf(((ChildNode)node).child);
+		return report.getNodes().indexOf(((ChildNode)node).child);
 	}
 
 	@Override
@@ -75,7 +65,7 @@ public class TrntChkReportNode implements TreeNode
 	@Override
 	public boolean isLeaf()
 	{
-		return report.nodes.size()==0;
+		return report.getNodes().size()==0;
 	}
 
 	@Override
@@ -83,7 +73,7 @@ public class TrntChkReportNode implements TreeNode
 	{
 		return new Enumeration<ChildNode>()
 		{
-			private final Iterator<Child> i = report.nodes.iterator();
+			private final Iterator<Child> i = report.getNodes().iterator();
 
 			public boolean hasMoreElements()
 			{
@@ -97,9 +87,9 @@ public class TrntChkReportNode implements TreeNode
 		};
 	}
 	
-	private class ChildNode implements TreeNode
+	public class ChildNode implements TreeNode
 	{
-		private Child child;
+		final private @Getter Child child;
 		
 		public ChildNode(final Child child)
 		{
@@ -121,7 +111,7 @@ public class TrntChkReportNode implements TreeNode
 		@Override
 		public TreeNode getParent()
 		{
-			return getNode(child.parent);
+			return BatchTrrntChkReportNode.this;
 		}
 
 		@Override
