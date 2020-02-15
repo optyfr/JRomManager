@@ -34,13 +34,13 @@ public class JTristateCheckBox extends JCheckBox
 	private boolean halfState;
 	
 	/** The selected. */
-	private static Icon selected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/selected.png")); //$NON-NLS-1$
+	private static Icon selected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resicons/selected.png")); //$NON-NLS-1$
 	
 	/** The unselected. */
-	private static Icon unselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/unselected.png")); //$NON-NLS-1$
+	private static Icon unselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resicons/unselected.png")); //$NON-NLS-1$
 	
 	/** The halfselected. */
-	private static Icon halfselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resources/halfselected.png")); //$NON-NLS-1$
+	private static Icon halfselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resicons/halfselected.png")); //$NON-NLS-1$
 
 	/**
 	 * Instantiates a new j tristate check box.

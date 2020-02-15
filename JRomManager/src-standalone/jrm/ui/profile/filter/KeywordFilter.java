@@ -78,7 +78,7 @@ public class KeywordFilter extends JDialog
 	public KeywordFilter(Window owner, String[] src, CallBack callback)
 	{
 		super(owner, Messages.getString("KeywordFilter.Title"), ModalityType.APPLICATION_MODAL); //$NON-NLS-1$
-		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
+		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resicons/rom.png"))); //$NON-NLS-1$
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);

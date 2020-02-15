@@ -38,13 +38,13 @@ public class SettingsPanel extends JPanel
 	private void buildSettingsCompressorsTab(final Session session)
 	{
 		SettingsCompressorsPanel compressors = new SettingsCompressorsPanel(session);
-		settingsPane.addTab(Messages.getString("MainFrame.Compressors"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/compress.png")), compressors, null); //$NON-NLS-1$ //$NON-NLS-2$
+		settingsPane.addTab(Messages.getString("MainFrame.Compressors"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/compress.png")), compressors, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void buildSettingsDebugTab(final Session session)
 	{
 		SettingsDbgPanel debug = new SettingsDbgPanel(session);
-		settingsPane.addTab(Messages.getString("MainFrame.Debug"), new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bug.png")), debug, null); //$NON-NLS-1$ //$NON-NLS-2$
+		settingsPane.addTab(Messages.getString("MainFrame.Debug"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/bug.png")), debug, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 

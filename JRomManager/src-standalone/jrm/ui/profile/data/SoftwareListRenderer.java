@@ -36,16 +36,16 @@ public final class SoftwareListRenderer
 {
 	
 	/** The Constant folder_closed_green. */
-	private final static ImageIcon folder_closed_green = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resources/folder_closed_green.png")); //$NON-NLS-1$
+	private final static ImageIcon folder_closed_green = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resicons/folder_closed_green.png")); //$NON-NLS-1$
 	
 	/** The Constant folder_closed_orange. */
-	private final static ImageIcon folder_closed_orange = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resources/folder_closed_orange.png")); //$NON-NLS-1$
+	private final static ImageIcon folder_closed_orange = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resicons/folder_closed_orange.png")); //$NON-NLS-1$
 	
 	/** The Constant folder_closed_red. */
-	private final static ImageIcon folder_closed_red = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resources/folder_closed_red.png")); //$NON-NLS-1$
+	private final static ImageIcon folder_closed_red = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resicons/folder_closed_red.png")); //$NON-NLS-1$
 	
 	/** The Constant folder_closed_gray. */
-	private final static ImageIcon folder_closed_gray = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resources/folder_closed_gray.png")); //$NON-NLS-1$
+	private final static ImageIcon folder_closed_gray = new ImageIcon(SoftwareListRenderer.class.getResource("/jrm/resicons/folder_closed_gray.png")); //$NON-NLS-1$
 
 	/** The Constant columns. */
 	public final static String[] columns = new String[] { Messages.getString("SoftwareListRenderer.Status"), Messages.getString("SoftwareListRenderer.Name"), Messages.getString("SoftwareListRenderer.Description"), Messages.getString("SoftwareListRenderer.Have"), Messages.getString("SoftwareListRenderer.CloneOf"), Messages.getString("SoftwareListRenderer.Selected") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$

@@ -82,21 +82,21 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				MainFrame.profile_viewer = new ProfileViewer(session, SwingUtilities.getWindowAncestor(this), session.curr_profile);
 			MainFrame.profile_viewer.setVisible(true);
 		});
-		btnInfo.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/information.png"))); //$NON-NLS-1$
+		btnInfo.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/information.png"))); //$NON-NLS-1$
 		scannerBtnPanel.add(btnInfo);
 
 		btnScan = new JButton(Messages.getString("MainFrame.btnScan.text")); //$NON-NLS-1$
-		btnScan.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/magnifier.png"))); //$NON-NLS-1$
+		btnScan.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/magnifier.png"))); //$NON-NLS-1$
 		scannerBtnPanel.add(btnScan);
 		btnScan.setEnabled(false);
 
 		JButton btnReport = new JButton(Messages.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
-		btnReport.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/report.png"))); //$NON-NLS-1$
+		btnReport.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/report.png"))); //$NON-NLS-1$
 		btnReport.addActionListener(e -> EventQueue.invokeLater(() -> MainFrame.report_frame.setVisible(true)));
 		scannerBtnPanel.add(btnReport);
 
 		btnFix = new JButton(Messages.getString("MainFrame.btnFix.text")); //$NON-NLS-1$
-		btnFix.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/tick.png"))); //$NON-NLS-1$
+		btnFix.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/tick.png"))); //$NON-NLS-1$
 		scannerBtnPanel.add(btnFix);
 		btnFix.addActionListener(e -> fix(session));
 		btnFix.setEnabled(false);

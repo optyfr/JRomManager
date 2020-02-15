@@ -77,30 +77,30 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 			else
 				super.getTreeCellRendererComponent(tree, ((HTMLRenderer)value).getHTML(), sel, expanded, leaf, row, hasFocus);
 			if(value instanceof RomSuspiciousCRC)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/information.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/information.png"))); //$NON-NLS-1$
 			else if(value instanceof ContainerUnknown)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/error.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/error.png"))); //$NON-NLS-1$
 			else if(value instanceof ContainerUnneeded)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/error.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/error.png"))); //$NON-NLS-1$
 			else if(value instanceof ContainerTZip)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/compress.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/compress.png"))); //$NON-NLS-1$
 			else if(value instanceof EntryOK)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_green.png"))); //$NON-NLS-1$
 			else if(value instanceof EntryAdd)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_blue.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_blue.png"))); //$NON-NLS-1$
 			else if(value instanceof EntryMissingDuplicate)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_purple.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_purple.png"))); //$NON-NLS-1$
 			else if(value instanceof EntryMissing)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_red.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_red.png"))); //$NON-NLS-1$
 			else if(value instanceof EntryUnneeded)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_black.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_black.png"))); //$NON-NLS-1$
 			else if(value instanceof EntryWrongHash)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_orange.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_orange.png"))); //$NON-NLS-1$
 			else if(value instanceof EntryWrongName)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_pink.png"))); //$NON-NLS-1$
+				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_pink.png"))); //$NON-NLS-1$
 			else if(!leaf)
 			{
-				String icon = "/jrm/resources/folder"; //$NON-NLS-1$
+				String icon = "/jrm/resicons/folder"; //$NON-NLS-1$
 				if(expanded)
 					icon += "_open"; //$NON-NLS-1$
 				else
@@ -147,7 +147,7 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 					switch(((SubjectSet) value).getStatus())
 					{
 						case FOUND:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resources/icons/bullet_green.png"))); //$NON-NLS-1$
+							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_green.png"))); //$NON-NLS-1$
 							break;
 						default:
 							break;

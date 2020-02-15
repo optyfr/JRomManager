@@ -188,7 +188,7 @@ public class ProfileViewer extends JDialog
 				session.getUser().settings.setProperty("ProfileViewer.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 		});
-		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
+		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resicons/rom.png"))); //$NON-NLS-1$
 		setTitle(Messages.getString("ProfileViewer.this.title")); //$NON-NLS-1$
 
 		final JSplitPane splitPane = new JSplitPane();
@@ -226,18 +226,18 @@ public class ProfileViewer extends JDialog
 		final JToggleButton tglbtnMissingW = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnMissingW.setSelected(true);
 		tglbtnMissingW.setToolTipText(Messages.getString("ProfileViewer.tglbtnMissingW.toolTipText")); //$NON-NLS-1$
-		tglbtnMissingW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_red.png"))); //$NON-NLS-1$
+		tglbtnMissingW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resicons/folder_closed_red.png"))); //$NON-NLS-1$
 		toolBarW.add(tglbtnMissingW);
 
 		final JToggleButton tglbtnPartialW = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnPartialW.setSelected(true);
 		tglbtnPartialW.setToolTipText(Messages.getString("ProfileViewer.tglbtnPartialW.toolTipText")); //$NON-NLS-1$
-		tglbtnPartialW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_orange.png"))); //$NON-NLS-1$
+		tglbtnPartialW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resicons/folder_closed_orange.png"))); //$NON-NLS-1$
 		toolBarW.add(tglbtnPartialW);
 
 		final JToggleButton tglbtnCompleteW = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnCompleteW.setSelected(true);
-		tglbtnCompleteW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/folder_closed_green.png"))); //$NON-NLS-1$
+		tglbtnCompleteW.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resicons/folder_closed_green.png"))); //$NON-NLS-1$
 		tglbtnCompleteW.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteW.toolTipText")); //$NON-NLS-1$
 		toolBarW.add(tglbtnCompleteW);
 
@@ -534,19 +534,19 @@ public class ProfileViewer extends JDialog
 
 		final JToggleButton tglbtnMissingWL = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnMissingWL.setSelected(true);
-		tglbtnMissingWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/disk_multiple_red.png"))); //$NON-NLS-1$
+		tglbtnMissingWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resicons/disk_multiple_red.png"))); //$NON-NLS-1$
 		tglbtnMissingWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnMissingWL.toolTipText")); //$NON-NLS-1$
 		toolBarWL.add(tglbtnMissingWL);
 
 		final JToggleButton tglbtnPartialWL = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnPartialWL.setSelected(true);
-		tglbtnPartialWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/disk_multiple_orange.png"))); //$NON-NLS-1$
+		tglbtnPartialWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resicons/disk_multiple_orange.png"))); //$NON-NLS-1$
 		tglbtnPartialWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnPartialWL.toolTipText")); //$NON-NLS-1$
 		toolBarWL.add(tglbtnPartialWL);
 
 		final JToggleButton tglbtnCompleteWL = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnCompleteWL.setSelected(true);
-		tglbtnCompleteWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/disk_multiple_green.png"))); //$NON-NLS-1$
+		tglbtnCompleteWL.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resicons/disk_multiple_green.png"))); //$NON-NLS-1$
 		tglbtnCompleteWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteWL.toolTipText")); //$NON-NLS-1$
 		toolBarWL.add(tglbtnCompleteWL);
 
@@ -767,14 +767,14 @@ public class ProfileViewer extends JDialog
 
 		final JToggleButton tglbtnBad = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnBad.setSelected(true);
-		tglbtnBad.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/icons/bullet_red.png"))); //$NON-NLS-1$
+		tglbtnBad.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resicons/icons/bullet_red.png"))); //$NON-NLS-1$
 		tglbtnBad.setToolTipText(Messages.getString("ProfileViewer.tglbtnBad.toolTipText")); //$NON-NLS-1$
 		toolBarEntity.add(tglbtnBad);
 
 		final JToggleButton tglbtnOK = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnOK.setSelected(true);
 		tglbtnOK.setToolTipText(Messages.getString("ProfileViewer.tglbtnOK.toolTipText")); //$NON-NLS-1$
-		tglbtnOK.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resources/icons/bullet_green.png"))); //$NON-NLS-1$
+		tglbtnOK.setIcon(new ImageIcon(ProfileViewer.class.getResource("/jrm/resicons/icons/bullet_green.png"))); //$NON-NLS-1$
 		toolBarEntity.add(tglbtnOK);
 
 		tglbtnBad.addItemListener(e -> setFilterE(tglbtnBad.isSelected(), tglbtnOK.isSelected()));

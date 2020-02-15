@@ -37,16 +37,16 @@ public final class MachineListRenderer
 {
 	
 	/** The Constant folder_closed_green. */
-	private final static ImageIcon folder_closed_green = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/folder_closed_green.png")); //$NON-NLS-1$
+	private final static ImageIcon folder_closed_green = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resicons/folder_closed_green.png")); //$NON-NLS-1$
 	
 	/** The Constant folder_closed_orange. */
-	private final static ImageIcon folder_closed_orange = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/folder_closed_orange.png")); //$NON-NLS-1$
+	private final static ImageIcon folder_closed_orange = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resicons/folder_closed_orange.png")); //$NON-NLS-1$
 	
 	/** The Constant folder_closed_red. */
-	private final static ImageIcon folder_closed_red = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/folder_closed_red.png")); //$NON-NLS-1$
+	private final static ImageIcon folder_closed_red = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resicons/folder_closed_red.png")); //$NON-NLS-1$
 	
 	/** The Constant folder_closed_gray. */
-	private final static ImageIcon folder_closed_gray = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/folder_closed_gray.png")); //$NON-NLS-1$
+	private final static ImageIcon folder_closed_gray = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resicons/folder_closed_gray.png")); //$NON-NLS-1$
 
 	/** The columns. */
 	public static String[] columns = new String[] { Messages.getString("MachineListRenderer.Status"), Messages.getString("MachineListRenderer.Name"), Messages.getString("MachineListRenderer.Description"), Messages.getString("MachineListRenderer.Have"), Messages.getString("MachineListRenderer.CloneOf"), Messages.getString("MachineListRenderer.RomOf"), Messages.getString("MachineListRenderer.SampleOf"), Messages.getString("MachineListRenderer.Selected") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
@@ -89,10 +89,10 @@ public final class MachineListRenderer
 		}
 	}, new DefaultTableCellRenderer()
 	{
-		ImageIcon application_osx_terminal = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/icons/application_osx_terminal.png")); //$NON-NLS-1$
-		ImageIcon computer = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/icons/computer.png")); //$NON-NLS-1$
-		ImageIcon wrench = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/icons/wrench.png")); //$NON-NLS-1$
-		ImageIcon joystick = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resources/icons/joystick.png")); //$NON-NLS-1$
+		ImageIcon application_osx_terminal = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resicons/icons/application_osx_terminal.png")); //$NON-NLS-1$
+		ImageIcon computer = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resicons/icons/computer.png")); //$NON-NLS-1$
+		ImageIcon wrench = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resicons/icons/wrench.png")); //$NON-NLS-1$
+		ImageIcon joystick = new ImageIcon(MachineListRenderer.class.getResource("/jrm/resicons/icons/joystick.png")); //$NON-NLS-1$
 
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)

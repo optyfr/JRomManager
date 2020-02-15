@@ -222,7 +222,7 @@ public class ProfilePanel extends JPanel
 				}
 			}
 		});
-		mntmDeleteProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_delete.png"))); //$NON-NLS-1$
+		mntmDeleteProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/script_delete.png"))); //$NON-NLS-1$
 		popupMenu_1.add(mntmDeleteProfile);
 
 		mntmRenameProfile = new JMenuItem(Messages.getString("MainFrame.mntmRenameProfile.text")); //$NON-NLS-1$
@@ -233,7 +233,7 @@ public class ProfilePanel extends JPanel
 				profilesList.editCellAt(row, 0);
 			}
 		});
-		mntmRenameProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_edit.png"))); //$NON-NLS-1$
+		mntmRenameProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/script_edit.png"))); //$NON-NLS-1$
 		popupMenu_1.add(mntmRenameProfile);
 
 		mntmDropCache = new JMenuItem(Messages.getString("MainFrame.mntmDropCache.text")); //$NON-NLS-1$
@@ -242,7 +242,7 @@ public class ProfilePanel extends JPanel
 			if (row >= 0)
 				new File(filemodel.getFileAt(row).getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
 		});
-		mntmDropCache.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/bin.png"))); //$NON-NLS-1$
+		mntmDropCache.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/bin.png"))); //$NON-NLS-1$
 		popupMenu_1.add(mntmDropCache);
 
 		JSeparator separator = new JSeparator();
@@ -324,7 +324,7 @@ public class ProfilePanel extends JPanel
 				profilesTree.startEditingAtPath(path);
 			}
 		});
-		mntmCreateFolder.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/folder_add.png"))); //$NON-NLS-1$
+		mntmCreateFolder.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/folder_add.png"))); //$NON-NLS-1$
 		popupMenu.add(mntmCreateFolder);
 
 		mntmDeleteFolder = new JMenuItem(Messages.getString("MainFrame.mntmDeleteFolder.text")); //$NON-NLS-1$
@@ -338,7 +338,7 @@ public class ProfilePanel extends JPanel
 				profilesTree.setSelectionPath(path);
 			}
 		});
-		mntmDeleteFolder.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/folder_delete.png"))); //$NON-NLS-1$
+		mntmDeleteFolder.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/folder_delete.png"))); //$NON-NLS-1$
 		popupMenu.add(mntmDeleteFolder);
 
 		JPanel profilesBtnPanel = new JPanel();
@@ -349,7 +349,7 @@ public class ProfilePanel extends JPanel
 		this.add(profilesBtnPanel, gbc_profilesBtnPanel);
 
 		JButton btnLoadProfile = new JButton(Messages.getString("MainFrame.btnLoadProfile.text")); //$NON-NLS-1$
-		btnLoadProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/add.png"))); //$NON-NLS-1$
+		btnLoadProfile.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/add.png"))); //$NON-NLS-1$
 		btnLoadProfile.setEnabled(false);
 		btnLoadProfile.addActionListener(e -> {
 			// chooseProfile();
@@ -357,13 +357,13 @@ public class ProfilePanel extends JPanel
 		profilesBtnPanel.add(btnLoadProfile);
 
 		JButton btnImportDat = new JButton(Messages.getString("MainFrame.btnImportDat.text")); //$NON-NLS-1$
-		btnImportDat.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/script_go.png"))); //$NON-NLS-1$
+		btnImportDat.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/script_go.png"))); //$NON-NLS-1$
 		btnImportDat.addActionListener(e -> importDat(session, false));
 		profilesBtnPanel.add(btnImportDat);
 
 		JButton btnImportSL = new JButton(Messages.getString("MainFrame.btnImportSL.text")); //$NON-NLS-1$
 		btnImportSL.addActionListener(e -> importDat(session, true));
-		btnImportSL.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/application_go.png"))); //$NON-NLS-1$
+		btnImportSL.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/application_go.png"))); //$NON-NLS-1$
 		profilesBtnPanel.add(btnImportSL);
 
 

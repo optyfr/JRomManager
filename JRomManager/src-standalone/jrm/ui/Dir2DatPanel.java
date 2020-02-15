@@ -395,7 +395,7 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatIO.add(tfDir2DatSrc, gbc_tfDir2DatSrc);
 
 		JButton btnDir2DatSrc = new JButton(""); //$NON-NLS-1$
-		btnDir2DatSrc.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
+		btnDir2DatSrc.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
 		btnDir2DatSrc.addActionListener(e -> {
 			final File workdir = session.getUser().settings.getWorkPath().toFile(); // $NON-NLS-1$
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getUser().settings.getProperty("MainFrame.ChooseDatSrc", workdir.getAbsolutePath())), new File(tfDir2DatSrc.getText()), null, Messages.getString("MainFrame.ChooseDatSrc"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
@@ -449,7 +449,7 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatIO.add(tfDir2DatDst, gbc_tfDir2DatDst);
 
 		JButton btnDir2DatDst = new JButton(""); //$NON-NLS-1$
-		btnDir2DatDst.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resources/icons/disk.png"))); //$NON-NLS-1$
+		btnDir2DatDst.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
 		btnDir2DatDst.addActionListener(e -> {
 			final File workdir = session.getUser().settings.getWorkPath().toFile(); // $NON-NLS-1$
 			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, new File(session.getUser().settings.getProperty("MainFrame.ChooseDatDst", workdir.getAbsolutePath())), new File(tfDir2DatDst.getText()), null, Messages.getString("MainFrame.ChooseDatDst"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$

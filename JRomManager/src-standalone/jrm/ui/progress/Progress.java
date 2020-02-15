@@ -84,7 +84,7 @@ public class Progress extends JDialog implements ProgressHandler
 	public Progress(final Window owner)
 	{
 		super(owner, Messages.getString("Progress.Title"), ModalityType.MODELESS); //$NON-NLS-1$
-		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/jrm/resources/rom.png"))); //$NON-NLS-1$
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/jrm/resicons/rom.png"))); //$NON-NLS-1$
 		getContentPane().setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
 		addWindowListener(new WindowAdapter()
 		{
@@ -150,7 +150,7 @@ public class Progress extends JDialog implements ProgressHandler
 		getContentPane().add(lblTimeleft, gbc_lblTimeleft);
 
 		btnCancel = new JButton(Messages.getString("Progress.btnCancel.text")); //$NON-NLS-1$
-		btnCancel.setIcon(new ImageIcon(Progress.class.getResource("/jrm/resources/icons/stop.png"))); //$NON-NLS-1$
+		btnCancel.setIcon(new ImageIcon(Progress.class.getResource("/jrm/resicons/icons/stop.png"))); //$NON-NLS-1$
 		btnCancel.addActionListener(e -> cancel());
 
 		progressBar2 = new JProgressBar();

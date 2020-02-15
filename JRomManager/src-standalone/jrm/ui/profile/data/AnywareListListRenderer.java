@@ -48,10 +48,10 @@ public final class AnywareListListRenderer
 	/** The Constant columnsRenderers. */
 	public final static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
-		ImageIcon disk_multiple_green = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resources/disk_multiple_green.png")); //$NON-NLS-1$
-		ImageIcon disk_multiple_orange = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resources/disk_multiple_orange.png")); //$NON-NLS-1$
-		ImageIcon disk_multiple_red = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resources/disk_multiple_red.png")); //$NON-NLS-1$
-		ImageIcon disk_multiple_gray = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resources/disk_multiple_gray.png")); //$NON-NLS-1$
+		ImageIcon disk_multiple_green = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resicons/disk_multiple_green.png")); //$NON-NLS-1$
+		ImageIcon disk_multiple_orange = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resicons/disk_multiple_orange.png")); //$NON-NLS-1$
+		ImageIcon disk_multiple_red = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resicons/disk_multiple_red.png")); //$NON-NLS-1$
+		ImageIcon disk_multiple_gray = new ImageIcon(AnywareListListRenderer.class.getResource("/jrm/resicons/disk_multiple_gray.png")); //$NON-NLS-1$
 
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)

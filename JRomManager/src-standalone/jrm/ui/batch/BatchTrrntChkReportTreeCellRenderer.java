@@ -59,7 +59,7 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 				super.getTreeCellRendererComponent(tree, title, sel, expanded, leaf, row, hasFocus);
 				if(!leaf)
 				{
-					String icon = "/jrm/resources/folder"; //$NON-NLS-1$
+					String icon = "/jrm/resicons/folder"; //$NON-NLS-1$
 					if(expanded)
 						icon += "_open"; //$NON-NLS-1$
 					else
@@ -92,7 +92,7 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 				}
 				else
 				{
-					String icon = "/jrm/resources/icons/bullet"; //$NON-NLS-1$
+					String icon = "/jrm/resicons/icons/bullet"; //$NON-NLS-1$
 					switch(node.data.status)
 					{
 						case OK:

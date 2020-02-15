@@ -5,4 +5,4 @@
  * @author opty
  *
  */
-package jrm.resources.icons;
+package jrm.resicons;

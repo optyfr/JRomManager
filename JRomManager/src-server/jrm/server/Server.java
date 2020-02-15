@@ -163,7 +163,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		addRoute("/", jrm.server.handlers.IndexHandler.class);
 		addRoute("/index.html", jrm.server.handlers.IndexHandler.class);
 		addRoute("/smartgwt/(.)+", EnhStaticPageHandler.class, new File(clientPath));
-		addRoute("/images/(.)+", ResourceHandler.class, Server.class.getResource("/jrm/resources/"));
+		addRoute("/images/(.)+", ResourceHandler.class, Server.class.getResource("/jrm/resicons/"));
 		addRoute("/datasources/:action/", DataSourcesHandler.class);
 		addRoute("/session/", SessionHandler.class, this);
 		addRoute("/upload/", UploadHandler.class, this);

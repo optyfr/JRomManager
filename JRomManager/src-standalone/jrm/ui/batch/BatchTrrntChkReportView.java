@@ -34,7 +34,7 @@ public class BatchTrrntChkReportView extends JScrollPane
 		BatchTrrntChkReportView.addPopup(tree, popupMenu);
 
 		final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
-		mntmOpenAllNodes.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resources/folder_open.png"))); //$NON-NLS-1$
+		mntmOpenAllNodes.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resicons/folder_open.png"))); //$NON-NLS-1$
 		mntmOpenAllNodes.addActionListener(e -> {
 			tree.invalidate();
 			int j = tree.getRowCount();
@@ -50,7 +50,7 @@ public class BatchTrrntChkReportView extends JScrollPane
 		popupMenu.add(mntmOpenAllNodes);
 
 		final JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
-		mntmCloseAllNodes.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resources/folder_closed.png"))); //$NON-NLS-1$
+		mntmCloseAllNodes.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resicons/folder_closed.png"))); //$NON-NLS-1$
 		mntmCloseAllNodes.addActionListener(e -> {
 			tree.invalidate();
 			int j = tree.getRowCount();
@@ -66,7 +66,7 @@ public class BatchTrrntChkReportView extends JScrollPane
 		popupMenu.add(mntmCloseAllNodes);
 
 		final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
-		chckbxmntmShowOkEntries.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resources/folder_closed_green.png"))); //$NON-NLS-1$
+		chckbxmntmShowOkEntries.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resicons/folder_closed_green.png"))); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.addItemListener(e -> {
 			final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
@@ -78,7 +78,7 @@ public class BatchTrrntChkReportView extends JScrollPane
 		popupMenu.add(chckbxmntmShowOkEntries);
 
 		final JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
-		chckbxmntmHideFullyMissing.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resources/folder_closed_red.png"))); //$NON-NLS-1$
+		chckbxmntmHideFullyMissing.setIcon(new ImageIcon(BatchTrrntChkReportView.class.getResource("/jrm/resicons/folder_closed_red.png"))); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.addItemListener(e -> {
 			final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
