@@ -195,9 +195,10 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
 				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
-				if(MainFrame.report_frame != null && automation.hasReport())
+				if(MainFrame.report_frame != null)
 				{
-					MainFrame.report_frame.setVisible(true);
+					if(automation.hasReport())
+						MainFrame.report_frame.setVisible(true);
 					session.report.getHandler().initClone();
 				}
 				if(automate)
