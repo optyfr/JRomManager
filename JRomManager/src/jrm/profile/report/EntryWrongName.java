@@ -47,4 +47,23 @@ public class EntryWrongName extends Note implements Serializable
 	{
 		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongName.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getName()), toBold(entity.getNormalizedName()))); //$NON-NLS-1$
 	}
+
+	@Override
+	public String getDetail()
+	{
+		String msg="";
+		msg += "== Expected == \n";
+		msg += "Name : " + entity.getBaseName() + "\n";
+		if (entity.getSize() >= 0)		msg += "Size : " + entity.getSize() + "\n";
+		if (entity.getCrc() != null)	msg += "CRC : " + entity.getCrc() + "\n";
+		if (entity.getMd5() != null)	msg += "MD5 : " + entity.getMd5() + "\n";
+		if (entity.getSha1() != null)	msg += "SHA1 : " + entity.getSha1() + "\n";
+		msg += "== Current == \n";
+		msg += "Name : " + entry.getName() + "\n";
+		if (entry.size >= 0)	msg += "Size : " + entry.size + "\n";
+		if (entry.crc != null)	msg += "CRC : " + entry.crc + "\n";
+		if (entry.md5 != null)	msg += "MD5 : " + entry.md5 + "\n";
+		if (entry.sha1 != null)	msg += "SHA1 : " + entry.sha1 + "\n";
+		return msg;
+	}
 }

@@ -9,13 +9,20 @@ import java.util.EnumSet;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreeSelectionModel;
 
 import jrm.locale.Messages;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
+import jrm.ui.profile.report.ReportNode.SubjectNode;
+import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
+import lombok.val;
 
 @SuppressWarnings("serial")
 public class ReportView extends JScrollPane
@@ -24,6 +31,9 @@ public class ReportView extends JScrollPane
 		final JTree tree = new JTree();
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
+		TreeSelectionModel selmodel = new DefaultTreeSelectionModel();
+		selmodel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.setSelectionModel(selmodel);
 		tree.setModel(new ReportTreeModel(report.getHandler()));
 		tree.setCellRenderer(new ReportTreeCellRenderer());
 		this.setViewportView(tree);
@@ -86,6 +96,40 @@ public class ReportView extends JScrollPane
 			report.getHandler().filter(options.toArray(new FilterOptions[0]));
 		});
 		popupMenu.add(chckbxmntmHideFullyMissing);
+		
+		popupMenu.addSeparator();
+		
+		JMenuItem mntmDetail = new JMenuItem(Messages.getString("ReportView.mntmNewMenuItem.text")); //$NON-NLS-1$
+		mntmDetail.addActionListener(e->{
+			val path = tree.getSelectionPath();
+			if(path!=null)
+			{
+				Object node = path.getLastPathComponent();
+				if(node instanceof NoteNode)
+				{
+					val msg = ((NoteNode)node).getNote().getDetail();
+					JOptionPane.showMessageDialog(this, new JTextArea(msg), "Details", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else if(node instanceof SubjectNode)
+				{
+					val subjectnode = (SubjectNode)node;
+					System.out.println(subjectnode.getSubject().getClass().getSimpleName());
+				}
+			}
+		});
+		mntmDetail.setEnabled(false);
+		popupMenu.add(mntmDetail);
+
+		tree.addTreeSelectionListener(e->{
+			val path  = e.getNewLeadSelectionPath();
+			if(path!=null)
+			{
+				val node = path.getLastPathComponent();
+				mntmDetail.setEnabled(node instanceof NoteNode);
+			}
+			else
+				mntmDetail.setEnabled(false);
+		});
 	}
 
 	/**

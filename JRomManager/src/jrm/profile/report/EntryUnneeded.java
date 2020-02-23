@@ -40,4 +40,17 @@ public class EntryUnneeded extends Note implements Serializable
 	{
 		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryUnneeded.Unneeded")), toBold(parent.ware.getFullName()), toBold(entry.file), entry.sha1==null?(entry.md5==null?entry.crc:entry.md5):entry.sha1)); //$NON-NLS-1$
 	}
+
+	@Override
+	public String getDetail()
+	{
+		String msg="";
+		msg += "== Current == \n";
+		msg += "Name : " + entry.getName() + "\n";
+		if (entry.size >= 0)	msg += "Size : " + entry.size + "\n";
+		if (entry.crc != null)	msg += "CRC : " + entry.crc + "\n";
+		if (entry.md5 != null)	msg += "MD5 : " + entry.md5 + "\n";
+		if (entry.sha1 != null)	msg += "SHA1 : " + entry.sha1 + "\n";
+		return msg;
+	}
 }

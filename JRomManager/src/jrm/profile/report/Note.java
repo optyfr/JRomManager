@@ -36,6 +36,8 @@ public abstract class Note implements HTMLRenderer,Serializable
 	@Override
 	public abstract String toString();
 	
+	public abstract String getDetail(); 
+	
 	public int getId()
 	{
 		return id;
