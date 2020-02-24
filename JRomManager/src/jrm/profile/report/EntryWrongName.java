@@ -66,4 +66,16 @@ public class EntryWrongName extends Note implements Serializable
 		if (entry.sha1 != null)	msg += "SHA1 : " + entry.sha1 + "\n";
 		return msg;
 	}
+
+	@Override
+	public String getName()
+	{
+		return entity.getBaseName();
+	}
+
+	@Override
+	public String getCrc()
+	{
+		return entity.getCrc();
+	}
 }

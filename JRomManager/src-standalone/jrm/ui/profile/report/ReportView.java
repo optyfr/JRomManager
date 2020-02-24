@@ -1,9 +1,16 @@
 package jrm.ui.profile.report;
 
 import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.EnumSet;
 
 import javax.swing.ImageIcon;
@@ -99,7 +106,7 @@ public class ReportView extends JScrollPane
 		
 		popupMenu.addSeparator();
 		
-		JMenuItem mntmDetail = new JMenuItem(Messages.getString("ReportView.mntmNewMenuItem.text")); //$NON-NLS-1$
+		JMenuItem mntmDetail = new JMenuItem(Messages.getString("ReportView.mntmDetail.text")); //$NON-NLS-1$
 		mntmDetail.addActionListener(e->{
 			val path = tree.getSelectionPath();
 			if(path!=null)
@@ -119,6 +126,62 @@ public class ReportView extends JScrollPane
 		});
 		mntmDetail.setEnabled(false);
 		popupMenu.add(mntmDetail);
+		
+		JMenuItem mntmCopyCRC = new JMenuItem("Copy CRC");
+		mntmCopyCRC.setEnabled(false);
+		mntmCopyCRC.addActionListener(e->{
+			val path = tree.getSelectionPath();
+			if(path!=null)
+			{
+				Object node = path.getLastPathComponent();
+				if(node instanceof NoteNode)
+				{
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(((NoteNode)node).getNote().getCrc()), null);
+				}
+			}
+		});
+		popupMenu.add(mntmCopyCRC);
+		
+		JMenuItem mntmCopyName = new JMenuItem("Copy Name");
+		mntmCopyName.setEnabled(false);
+		mntmCopyName.addActionListener(e->{
+			val path = tree.getSelectionPath();
+			if(path!=null)
+			{
+				Object node = path.getLastPathComponent();
+				if(node instanceof NoteNode)
+				{
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(((NoteNode)node).getNote().getName()), null);
+				}
+			}
+		});
+		popupMenu.add(mntmCopyName);
+		
+		JMenuItem mntmSearchWeb = new JMenuItem("Search on the Web");
+		mntmSearchWeb.setEnabled(false);
+		mntmSearchWeb.addActionListener(e->{
+			val path = tree.getSelectionPath();
+			if(path!=null)
+			{
+				Object node = path.getLastPathComponent();
+				if(node instanceof NoteNode)
+				{
+					String name = ((NoteNode)node).getNote().getName();
+					String crc = ((NoteNode)node).getNote().getCrc();
+					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+					    try
+						{
+							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q="+URLEncoder.encode('"'+name+'"', "UTF-8")+'+'+crc));
+						}
+						catch (IOException | URISyntaxException e1)
+						{
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		});
+		popupMenu.add(mntmSearchWeb);
 
 		tree.addTreeSelectionListener(e->{
 			val path  = e.getNewLeadSelectionPath();
@@ -126,9 +189,17 @@ public class ReportView extends JScrollPane
 			{
 				val node = path.getLastPathComponent();
 				mntmDetail.setEnabled(node instanceof NoteNode);
+				mntmCopyCRC.setEnabled(node instanceof NoteNode);
+				mntmCopyName.setEnabled(node instanceof NoteNode);
+				mntmSearchWeb.setEnabled(node instanceof NoteNode);
 			}
 			else
+			{
 				mntmDetail.setEnabled(false);
+				mntmCopyCRC.setEnabled(false);
+				mntmCopyName.setEnabled(false);
+				mntmSearchWeb.setEnabled(false);
+			}
 		});
 	}
 

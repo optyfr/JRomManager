@@ -67,4 +67,15 @@ public class EntryMissingDuplicate extends Note implements Serializable
 		return msg;
 	}
 
+	@Override
+	public String getName()
+	{
+		return entity.getBaseName();
+	}
+
+	@Override
+	public String getCrc()
+	{
+		return entity.getCrc();
+	}
 }

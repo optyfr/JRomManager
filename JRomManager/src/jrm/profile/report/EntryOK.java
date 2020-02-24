@@ -59,4 +59,17 @@ public class EntryOK extends Note implements Serializable
 		return msg;
 	}
 
+	@Override
+	public String getName()
+	{
+		return entity.getBaseName();
+	}
+
+	@Override
+	public String getCrc()
+	{
+		if(entity instanceof Entity)
+			return ((Entity)entity).getCrc();
+		return null;
+	}
 }

@@ -38,6 +38,10 @@ public abstract class Note implements HTMLRenderer,Serializable
 	
 	public abstract String getDetail(); 
 	
+	public abstract String getName();
+
+	public abstract String getCrc();
+
 	public int getId()
 	{
 		return id;

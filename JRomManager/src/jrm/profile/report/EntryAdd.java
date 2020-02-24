@@ -71,4 +71,18 @@ public class EntryAdd extends Note implements Serializable
 		if (entry.sha1 != null)	msg += "SHA1 : " + entry.sha1 + "\n";
 		return msg;
 	}
+
+	@Override
+	public String getName()
+	{
+		return entity.getBaseName();
+	}
+
+	@Override
+	public String getCrc()
+	{
+		if(entity instanceof Entity)
+			return ((Entity)entity).getCrc();
+		return null;
+	}
 }
