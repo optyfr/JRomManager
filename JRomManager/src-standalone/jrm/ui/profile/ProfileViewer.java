@@ -831,13 +831,14 @@ public class ProfileViewer extends JDialog
 				val index  = tableEntity.getSelectedRow();
 				if(index>=0)
 				{
-					val crc = tableEntity.getModel().getValueAt(index, 3).toString();
 					val name = tableEntity.getModel().getValueAt(index, 1).toString();
+					val crc = tableEntity.getModel().getValueAt(index, 3).toString();
+					val sha1 = tableEntity.getModel().getValueAt(index, 5).toString();
 					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
 					{
 						try
 						{
-							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + '+' + crc));
+							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + '+' + Optional.ofNullable(crc).orElse(sha1)));
 						}
 						catch (IOException | URISyntaxException e1)
 						{

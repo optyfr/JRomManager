@@ -89,4 +89,16 @@ public class ReportTreeXMLResponse extends XMLResponse
 		}
 		writer.writeEndElement();
 	}
+	
+	@Override
+	protected void custom(Operation operation) throws Exception
+	{
+		switch(operation.operationId.toString())
+		{
+			default:
+				System.out.println(operation.operationId);
+				break;
+		}
+		super.custom(operation);
+	}
 }
