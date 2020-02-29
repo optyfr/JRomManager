@@ -207,11 +207,12 @@ public class ProfileViewer extends JDialog
 		panelWare.add(splitPaneWLW, BorderLayout.CENTER);
 
 		tableEntity = new JTable();
+		tableEntity.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tableEntity.setPreferredScrollableViewportSize(new Dimension(1200, 300));
 		tableEntity.setShowGrid(false);
 		tableEntity.setShowHorizontalLines(false);
 		tableEntity.setShowVerticalLines(false);
-		tableEntity.setRowSelectionAllowed(false);
+		tableEntity.setRowSelectionAllowed(true);
 		tableEntity.setFillsViewportHeight(true);
 		tableEntity.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
