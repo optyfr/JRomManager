@@ -135,9 +135,9 @@ public final class AnywareRenderer
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			setText(value != null ? value.toString() : null);
-			setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
 			setBackground(AnywareRenderer.getBackground(row, column));
+			super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
+			setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
 			return this;
 		}
 	}, new DefaultTableCellRenderer()
