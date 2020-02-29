@@ -168,10 +168,11 @@ public class ReportView extends JScrollPane
 				{
 					String name = ((NoteNode)node).getNote().getName();
 					String crc = ((NoteNode)node).getNote().getCrc();
-					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-					    try
+					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+					{
+						try
 						{
-							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q="+URLEncoder.encode('"'+name+'"', "UTF-8")+'+'+crc));
+							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + '+' + crc));
 						}
 						catch (IOException | URISyntaxException e1)
 						{

@@ -18,12 +18,14 @@ package jrm.ui.profile;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -34,6 +36,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -105,6 +110,7 @@ import jrm.ui.profile.data.MachineListModel;
 import jrm.ui.profile.data.SoftwareListModel;
 import jrm.ui.profile.filter.KeywordFilter;
 import jrm.ui.progress.Progress;
+import lombok.val;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -785,6 +791,63 @@ public class ProfileViewer extends JDialog
 		panelEntity.add(scrollPaneEntity, BorderLayout.CENTER);
 
 		scrollPaneEntity.setViewportView(tableEntity);
+		
+		JPopupMenu popupEntMenu = new JPopupMenu();
+		addPopup(tableEntity, popupEntMenu);
+		
+		JMenuItem mntmCopyCRC = new JMenuItem("Copy CRC");
+		mntmCopyCRC.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				val index  = tableEntity.getSelectedRow();
+				if(index>=0)
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(tableEntity.getModel().getValueAt(index, 3).toString()),null);
+			}
+		});
+		popupEntMenu.add(mntmCopyCRC);
+		
+		JMenuItem mntmCopySHA1 = new JMenuItem("Copy SHA1");
+		mntmCopySHA1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				val index  = tableEntity.getSelectedRow();
+				if(index>=0)
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(tableEntity.getModel().getValueAt(index, 5).toString()),null);
+			}
+		});
+		popupEntMenu.add(mntmCopySHA1);
+		
+		JMenuItem mntmCopyName = new JMenuItem("Copy Name");
+		mntmCopyName.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				val index  = tableEntity.getSelectedRow();
+				if(index>=0)
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(tableEntity.getModel().getValueAt(index, 1).toString()),null);
+			}
+		});
+		popupEntMenu.add(mntmCopyName);
+		
+		JMenuItem mntmSearchWeb = new JMenuItem("Search on the Web");
+		mntmSearchWeb.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				val index  = tableEntity.getSelectedRow();
+				if(index>=0)
+				{
+					val crc = tableEntity.getModel().getValueAt(index, 3).toString();
+					val name = tableEntity.getModel().getValueAt(index, 1).toString();
+					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+					{
+						try
+						{
+							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + '+' + crc));
+						}
+						catch (IOException | URISyntaxException e1)
+						{
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		});
+		popupEntMenu.add(mntmSearchWeb);
 
 		reset(profile);
 		pack();
