@@ -95,10 +95,34 @@ public class ReportTreeXMLResponse extends XMLResponse
 	{
 		switch(operation.operationId.toString())
 		{
+			case "detail":
+				Report report = request.session.report;
+				int parentID = Integer.valueOf(operation.getData("ParentID"));
+				Subject subject = report.getHandler().getFilteredReport().findSubject(parentID);
+				writer.writeStartElement("response");
+				writer.writeElement("status", "0");
+				writer.writeStartElement("data");
+				for(Note n : subject)
+				{
+					if(n.getId()==Integer.valueOf(operation.getData("ID")))
+					{
+						writer.writeStartElement("record");
+						writer.writeAttribute("ID", Integer.toString(n.getId()));
+						writer.writeAttribute("ParentID", Integer.toString(parentID));
+						writer.writeAttribute("Name", n.getName());
+						writer.writeAttribute("CRC", n.getCrc());
+						writer.writeStartElement("Detail");
+						writer.writeCData(n.getDetail());
+						writer.writeEndElement();
+						writer.writeEndElement();
+					}
+				}
+				writer.writeEndElement();
+				writer.writeEndElement();
+				break;
 			default:
-				System.out.println(operation.operationId);
+				super.custom(operation);
 				break;
 		}
-		super.custom(operation);
 	}
 }

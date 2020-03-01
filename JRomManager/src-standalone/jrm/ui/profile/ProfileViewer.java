@@ -850,6 +850,35 @@ public class ProfileViewer extends JDialog
 		});
 		popupEntMenu.add(mntmSearchWeb);
 
+		popupEntMenu.addPopupMenuListener(new PopupMenuListener()
+		{
+			
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+			{
+				final boolean has_selected_entity = tableEntity.getSelectedRowCount()>0;
+				mntmCopyCRC.setEnabled(has_selected_entity);
+				mntmCopySHA1.setEnabled(has_selected_entity);
+				mntmCopyName.setEnabled(has_selected_entity);
+				mntmSearchWeb.setEnabled(has_selected_entity);
+			}
+			
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+		});
+
+		
 		reset(profile);
 		pack();
 		try
