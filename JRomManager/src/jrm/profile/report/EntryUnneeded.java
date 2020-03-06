@@ -65,4 +65,10 @@ public class EntryUnneeded extends Note implements Serializable
 	{
 		return entry.crc;
 	}
+
+	@Override
+	public String getSha1()
+	{
+		return entry.sha1;
+	}
 }

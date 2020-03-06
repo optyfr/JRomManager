@@ -85,4 +85,12 @@ public class EntryAdd extends Note implements Serializable
 			return ((Entity)entity).getCrc();
 		return null;
 	}
+
+	@Override
+	public String getSha1()
+	{
+		if(entity instanceof Entity)
+			return ((Entity)entity).getSha1();
+		return null;
+	}
 }

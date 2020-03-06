@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.EnumSet;
+import java.util.Optional;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -142,6 +143,21 @@ public class ReportView extends JScrollPane
 		});
 		popupMenu.add(mntmCopyCRC);
 		
+		JMenuItem mntmCopySHA1 = new JMenuItem("Copy SHA1");
+		mntmCopySHA1.setEnabled(false);
+		mntmCopySHA1.addActionListener(e->{
+			val path = tree.getSelectionPath();
+			if(path!=null)
+			{
+				Object node = path.getLastPathComponent();
+				if(node instanceof NoteNode)
+				{
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(((NoteNode)node).getNote().getSha1()), null);
+				}
+			}
+		});
+		popupMenu.add(mntmCopySHA1);
+		
 		JMenuItem mntmCopyName = new JMenuItem("Copy Name");
 		mntmCopyName.setEnabled(false);
 		mntmCopyName.addActionListener(e->{
@@ -166,13 +182,15 @@ public class ReportView extends JScrollPane
 				Object node = path.getLastPathComponent();
 				if(node instanceof NoteNode)
 				{
-					String name = ((NoteNode)node).getNote().getName();
-					String crc = ((NoteNode)node).getNote().getCrc();
 					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
 					{
 						try
 						{
-							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + '+' + crc));
+							val name = ((NoteNode)node).getNote().getName();
+							val crc = ((NoteNode)node).getNote().getCrc();
+							val sha1 = ((NoteNode)node).getNote().getSha1();
+							val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h).orElse("");
+							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash));
 						}
 						catch (IOException | URISyntaxException e1)
 						{
@@ -191,6 +209,7 @@ public class ReportView extends JScrollPane
 				val node = path.getLastPathComponent();
 				mntmDetail.setEnabled(node instanceof NoteNode);
 				mntmCopyCRC.setEnabled(node instanceof NoteNode);
+				mntmCopySHA1.setEnabled(node instanceof NoteNode);
 				mntmCopyName.setEnabled(node instanceof NoteNode);
 				mntmSearchWeb.setEnabled(node instanceof NoteNode);
 			}
@@ -198,6 +217,7 @@ public class ReportView extends JScrollPane
 			{
 				mntmDetail.setEnabled(false);
 				mntmCopyCRC.setEnabled(false);
+				mntmCopySHA1.setEnabled(false);
 				mntmCopyName.setEnabled(false);
 				mntmSearchWeb.setEnabled(false);
 			}

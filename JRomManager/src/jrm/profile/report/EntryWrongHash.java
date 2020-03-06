@@ -88,4 +88,10 @@ public class EntryWrongHash extends Note implements Serializable
 	{
 		return entity.getCrc();
 	}
+
+	@Override
+	public String getSha1()
+	{
+		return entity.getSha1();
+	}
 }

@@ -273,8 +273,7 @@ public class ProfileViewer extends JDialog
 			public void keyReleased(final KeyEvent e)
 			{
 				final String search = txtSearch.getText();
-				@SuppressWarnings("unchecked")
-				final int row = ((AnywareList<Anyware>) tableW.getModel()).find(search);
+				final int row = ((AnywareListModel) tableW.getModel()).getList().find(search);
 				if (row >= 0)
 				{
 					tableW.setRowSelectionInterval(row, row);
@@ -800,7 +799,11 @@ public class ProfileViewer extends JDialog
 			public void actionPerformed(ActionEvent e) {
 				val index  = tableEntity.getSelectedRow();
 				if(index>=0)
-					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(tableEntity.getModel().getValueAt(index, 3).toString()),null);
+				{
+					val crc = tableEntity.getModel().getValueAt(index, 3);
+					if(crc!=null)
+						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(crc.toString()),null);
+				}
 			}
 		});
 		popupEntMenu.add(mntmCopyCRC);
@@ -810,7 +813,11 @@ public class ProfileViewer extends JDialog
 			public void actionPerformed(ActionEvent e) {
 				val index  = tableEntity.getSelectedRow();
 				if(index>=0)
-					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(tableEntity.getModel().getValueAt(index, 5).toString()),null);
+				{
+					val sha1 = tableEntity.getModel().getValueAt(index, 5);
+					if(sha1!=null)
+						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(sha1.toString()),null);
+				}
 			}
 		});
 		popupEntMenu.add(mntmCopySHA1);
@@ -820,7 +827,11 @@ public class ProfileViewer extends JDialog
 			public void actionPerformed(ActionEvent e) {
 				val index  = tableEntity.getSelectedRow();
 				if(index>=0)
-					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(tableEntity.getModel().getValueAt(index, 1).toString()),null);
+				{
+					val name = tableEntity.getModel().getValueAt(index, 1);
+					if(name!=null)
+						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(name.toString()),null);
+				}
 			}
 		});
 		popupEntMenu.add(mntmCopyName);
@@ -831,14 +842,15 @@ public class ProfileViewer extends JDialog
 				val index  = tableEntity.getSelectedRow();
 				if(index>=0)
 				{
-					val name = tableEntity.getModel().getValueAt(index, 1).toString();
-					val crc = tableEntity.getModel().getValueAt(index, 3).toString();
-					val sha1 = tableEntity.getModel().getValueAt(index, 5).toString();
 					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
 					{
 						try
 						{
-							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + '+' + Optional.ofNullable(crc).orElse(sha1)));
+							val name = tableEntity.getModel().getValueAt(index, 1).toString();
+							val crc = tableEntity.getModel().getValueAt(index, 3);
+							val sha1 = tableEntity.getModel().getValueAt(index, 5);
+							val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h.toString()).orElse("");
+							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash));
 						}
 						catch (IOException | URISyntaxException e1)
 						{

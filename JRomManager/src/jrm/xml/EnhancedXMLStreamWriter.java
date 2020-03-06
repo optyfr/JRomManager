@@ -138,19 +138,22 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 	@Override
 	public void writeAttribute(final String localName, final String value) throws XMLStreamException
 	{
-		writer.writeAttribute(localName, value);
+		if(value!=null)
+			writer.writeAttribute(localName, value);
 	}
 
 	@Override
 	public void writeAttribute(final String prefix, final String namespaceURI, final String localName, final String value) throws XMLStreamException
 	{
-		writer.writeAttribute(prefix, namespaceURI, localName, value);
+		if(value!=null)
+			writer.writeAttribute(prefix, namespaceURI, localName, value);
 	}
 
 	@Override
 	public void writeAttribute(final String namespaceURI, final String localName, final String value) throws XMLStreamException
 	{
-		writer.writeAttribute(namespaceURI, localName, value);
+		if(value!=null)
+			writer.writeAttribute(namespaceURI, localName, value);
 	}
 
 	@Override

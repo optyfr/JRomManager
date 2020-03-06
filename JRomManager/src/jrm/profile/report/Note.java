@@ -42,6 +42,8 @@ public abstract class Note implements HTMLRenderer,Serializable
 
 	public abstract String getCrc();
 
+	public abstract String getSha1();
+
 	public int getId()
 	{
 		return id;

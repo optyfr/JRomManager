@@ -111,6 +111,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 						writer.writeAttribute("ParentID", Integer.toString(parentID));
 						writer.writeAttribute("Name", n.getName());
 						writer.writeAttribute("CRC", n.getCrc());
+						writer.writeAttribute("SHA1", n.getSha1());
 						writer.writeStartElement("Detail");
 						writer.writeCData(n.getDetail());
 						writer.writeEndElement();
