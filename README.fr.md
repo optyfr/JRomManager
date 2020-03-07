@@ -8,23 +8,27 @@ Un gestionnaire de Roms entièrement écrit en Java et distribué sous la licens
 - **MIT** : Jtrrntzip (basé sur trrntZipDN par Gordon J), commonmark (par Atlassian), minimal-json (par Ralf Sternberg)
 - **LGPL 2.1 + restriction unRAR** : SevenZipJBinding (par Boris Brodski)
 - **Apache 2.0** : StreamEx (par Tagir Valeev), Gradle Wrapper, et toutes les librairies "Apache commons"
+- **BSD 3** : NanoHTTPD
 
 ## Technique
 _Prérequis de développement minimum_:
 - Eclipse Oxygen pour Java avec le module WindowBuilder (module standard d'Eclipse) et Gradle Buildship (dans Eclipse Marketplace)
 - Java SDK 8
 - Dependances Gradle (via dépôts Maven)
-	- Apache Commons Codec 1.11 
-	- Apache Commons IO 2.6
-	- Apache Commons Lang3 3.7
-	- Apache Commons Text 1.3
-	- Apache Commons Compress 1.16 (utilisé uniquement pour lister le contenu des fichiers 7zip)
-	- StreamEx 0.6.7
-	- SevenZipJBinding 9.20-2.00 (plus rapide que l'usage de la commande en ligne de 7zip)
+	- Apache Commons Codec 1.+ 
+	- Apache Commons CLI 1.+ 
+	- Apache Commons IO 2.+
+	- Apache Commons Lang3 3.+
+	- Apache Commons Text 1.+
+	- Apache Commons Compress 1.+ (utilisé uniquement pour lister le contenu des fichiers 7zip)
+	- StreamEx 0.7.+
+	- SevenZipJBinding 16.20-2.01 (plus rapide que l'usage de la commande en ligne de 7zip)
+	- NanoHTTPD 2.+
 - Dépendances via sous-modules Git
 	- [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
 	- [JUpdater](https://github.com/optyfr/JUpdater)
 	- [JLauncher](https://github.com/optyfr/JLauncher)
+	- [JRomManager-WebClient](https://github.com/optyfr/JRomManager-WebClient)
 
 _Prérequis d'utilisation minimum_:
 - 1Go de Ram libre (2Go ou plus si utilisation des Software Lists, l'option multicoeur, la compression 7z en mode ultra, ...)

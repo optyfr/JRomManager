@@ -1,3 +1,5 @@
+## A METTRE A JOUR
+
 ## Release v1.4 build 15
 - Ajout de la vérification de la disponibilité d'une mise à jour au démarrage avec Historique des changement (entre la version actuelle et la dernière) le tout affiché dans boite de dialogue
 - Ajout de la mise à jour en un clic: cliquez juste sur le lien dans la boite de dialogue de la recherche de mise à jour, et ça va télécharger et mettre à jour tout seul, puis redémarrer en utilisant [JUpdater](https://github.com/optyfr/JUpdater)

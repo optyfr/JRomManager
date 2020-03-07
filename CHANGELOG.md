@@ -1,3 +1,10 @@
+## Release v2.3.0
+- Added "Copy CRC/SHA1/Name" menu entries on entities in Report views and in ProfileViewer
+- Added "Detail" menu on entries in Report views
+- Added "Search on the Web" menu on entries in Report views and in ProfileViewer
+- Fixed Torrent Check report problem
+- Reuse back new latest SevenZipJBinding from official repository 
+
 ## Release v2.2.0
 - Using custom sevenzipjbinding which include more architectures/os, and a more recent sevenzip version
 - RAR5 extraction (as per sevenzipjbinding update)

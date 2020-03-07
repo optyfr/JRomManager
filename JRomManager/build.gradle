@@ -53,7 +53,8 @@ repositories {
 
 apply plugin: 'de.undercouch.download'
 
-def SevenZipJBindingVersion = '16.02-2.01beta'
+def SevenZipJBindingMyVersion = '16.02-2.01beta'
+def SevenZipJBindingVersion = '16.02-2.01'
 
 task downloadSevenZipJBinding(type: Download) {
 	src 'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding.jar'
@@ -62,15 +63,17 @@ task downloadSevenZipJBinding(type: Download) {
 }
 task downloadSevenZipJBindingPlatforms(type: Download) {
 	src([
-		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-FreeBSD-amd64.jar',
-		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-FreeBSD-i386.jar',
-		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Linux-aarch64.jar',
-		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Linux-amd64.jar',
-		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Linux-arm.jar',
-		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Linux-i386.jar',
-		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Mac-x86_64.jar',
-		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Windows-amd64.jar',
-		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingVersion+'/sevenzipjbinding-Windows-x86.jar'
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingMyVersion+'/sevenzipjbinding-FreeBSD-amd64.jar',
+		'https://github.com/optyfr/sevenzipjbinding/releases/download/'+SevenZipJBindingMyVersion+'/sevenzipjbinding-FreeBSD-i386.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-linux-armv71/'+SevenZipJBindingVersion+'/sevenzipjbinding-linux-armv71-'+SevenZipJBindingVersion+'.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-linux-armv6/'+SevenZipJBindingVersion+'/sevenzipjbinding-linux-armv6-'+SevenZipJBindingVersion+'.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-linux-armv5/'+SevenZipJBindingVersion+'/sevenzipjbinding-linux-armv5-'+SevenZipJBindingVersion+'.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-linux-arm64/'+SevenZipJBindingVersion+'/sevenzipjbinding-linux-arm64-'+SevenZipJBindingVersion+'.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-linux-amd64/'+SevenZipJBindingVersion+'/sevenzipjbinding-linux-amd64-'+SevenZipJBindingVersion+'.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-linux-i386/'+SevenZipJBindingVersion+'/sevenzipjbinding-linux-i386-'+SevenZipJBindingVersion+'.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-mac-x86_64/'+SevenZipJBindingVersion+'/sevenzipjbinding-mac-x86_64-'+SevenZipJBindingVersion+'.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-windows-amd64/'+SevenZipJBindingVersion+'/sevenzipjbinding-windows-amd64-'+SevenZipJBindingVersion+'.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-windows-x86/'+SevenZipJBindingVersion+'/sevenzipjbinding-windows-x86-'+SevenZipJBindingVersion+'.jar'
 	])
 	dest "$buildDir/SevenZipJBinding"
 	onlyIfModified true
@@ -83,7 +86,8 @@ task SevenZipJBinding {
 
 task SevenZipJBindingPlatforms {
 	dependsOn downloadSevenZipJBindingPlatforms
-	outputs.file fileTree(dir: "$buildDir/SevenZipJBinding/", exclude : "sevenzipjbinding-"+SevenZipJBindingVersion+".jar") 
+	outputs.file fileTree(dir: "$buildDir/SevenZipJBinding/") 
+//	outputs.file fileTree(dir: "$buildDir/SevenZipJBinding/", exclude : "sevenzipjbinding-"+SevenZipJBindingVersion+".jar") 
 }
 
 task SevenZipJBindingAllPlatforms(type: Jar, dependsOn: SevenZipJBindingPlatforms) {
@@ -177,7 +181,7 @@ subprojects {
 			}
 			implementation('net.sf.sevenzipjbinding:sevenzipjbinding') {
 				version {
-					prefer '9.20-2.00beta'
+					prefer SevenZipJBindingVersion
 				}
 			}
 			implementation('one.util:streamex') {
@@ -271,7 +275,7 @@ project(':JRomManager:jrmcore') {
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-text'
 		implementation group: 'org.apache.commons', name: 'commons-compress'
-		implementation files(SevenZipJBinding)
+		implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding'
 		runtime files(SevenZipJBindingAllPlatforms)
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.sun.activation', name: 'javax.activation'

@@ -11,19 +11,22 @@ A Rom Manager entirely written in Java and released under GPL-2
 - **LGPL 2.1 with unRAR restriction** : [SevenZipJBinding](https://github.com/borisbrodski/sevenzipjbinding) (by Boris Brodski)
 - **LGPL 3** : [SmartGWT](https://www.smartclient.com/product/smartgwt.jsp) (Isomorphic)
 - **Apache 2.0** : [StreamEx](https://github.com/amaembo/streamex) (by Tagir Valeev), [Gradle build tool](https://github.com/gradle/gradle), [Lombok Gradle plugin](https://github.com/franzbecker/gradle-lombok), [GWT SDK](http://www.gwtproject.org) (Google), [GWT WebSockets](https://github.com/sksamuel/gwt-websockets) (Stephen Samuel), and all the [Apache commons](https://commons.apache.org/) libraries
+- **BSD 3** : [NanoHTTPD](https://github.com/NanoHttpd/nanohttpd)
 
 ## Technical
 _Minimal development requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature and Gradle Buildship
 - Java 8
 - Gradle dependencies (via Maven repositories)
-	- Apache Commons Codec 1.13 
-	- Apache Commons IO 2.6
-	- Apache Commons Lang3 3.9
-	- Apache Commons Text 1.8
-	- Apache Commons Compress 1.19 (used solely to list 7zip content)
-	- StreamEx 0.6.8
+	- Apache Commons Codec 1.+ 
+	- Apache Commons CLI 1.+ 
+	- Apache Commons IO 2.+
+	- Apache Commons Lang3 3.+
+	- Apache Commons Text 1.+
+	- Apache Commons Compress 1.+ (used solely to list 7zip content)
+	- StreamEx 0.7.+
 	- SevenZipJBinding 16.02-2.01 (faster than using 7z cmd line)
+	- NanoHTTPD 2.+
 - Git submodules dependencies
 	- [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
 	- [JUpdater](https://github.com/optyfr/JUpdater)
@@ -118,6 +121,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - RAR4 and RAR5 decompression
 - Multi-volume decompression (RAR and 7Zip)
 - Command Line Mode with access to all functionalities and environment variable support
+- Copy to clipboard and search on the web functions 
 
 ## Short Term Planned Features
 - Mode to keep existing container archive format
