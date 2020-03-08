@@ -4,6 +4,7 @@
 - Added "Search on the Web" menu on entries in Report views and in ProfileViewer
 - Fixed Torrent Check report problem
 - Reuse back new latest SevenZipJBinding from official repository 
+- Various fixes and sanitizations
 
 ## Release v2.2.0
 - Using custom sevenzipjbinding which include more architectures/os, and a more recent sevenzip version
