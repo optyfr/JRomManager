@@ -1,7 +1,9 @@
 package jrm.server.handlers;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -37,27 +39,21 @@ public class ActionHandler extends DefaultHandler
 	{
 		try
 		{
-			final Map<String, String> headers = session.getHeaders();
-			final String bodylenstr = headers.get("content-length");
-			if (bodylenstr != null)
+			WebSession sess = Server.getSession(session.getCookies().read("session"));
+			if(sess!=null)
 			{
-				long bodylen = Long.parseLong(bodylenstr);
-				WebSession sess = Server.getSession(session.getCookies().read("session"));
-				if (headers.get("content-type").equals("text/xml"))
+				System.err.println(urlParams.get("action"));
+				switch (urlParams.get("action"))
 				{
-					switch (urlParams.get("action"))
-					{
-						case "lpr":
-							break;
-						default:
-							Log.err(urlParams.get("action"));
-							session.getInputStream().skip(bodylen);
-							break;
-					}
+					case "lpr":
+						return NanoHTTPD.newFixedLengthResponse(Status.OK, "application/json", sess.lprMsg.poll(1, TimeUnit.MINUTES));
+					default:
+						Log.err(urlParams.get("action"));
+						break;
 				}
-				else
-					session.getInputStream().skip(bodylen);
 			}
+			else
+				return NanoHTTPD.newFixedLengthResponse(Status.UNAUTHORIZED, "text/plain", "No session");
 		}
 		catch (Exception e)
 		{
