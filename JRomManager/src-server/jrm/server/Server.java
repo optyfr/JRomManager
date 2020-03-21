@@ -25,6 +25,7 @@ import org.apache.commons.cli.ParseException;
 
 import fi.iki.elonen.NanoWSD.WebSocket;
 import jrm.misc.Log;
+import jrm.server.handlers.ActionHandler;
 import jrm.server.handlers.DataSourcesHandler;
 import jrm.server.handlers.EnhStaticPageHandler;
 import jrm.server.handlers.ResourceHandler;
@@ -165,6 +166,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		addRoute("/smartgwt/(.)+", EnhStaticPageHandler.class, new File(clientPath));
 		addRoute("/images/(.)+", ResourceHandler.class, Server.class.getResource("/jrm/resicons/"));
 		addRoute("/datasources/:action/", DataSourcesHandler.class);
+		addRoute("/actions/:action/", ActionHandler.class, this);
 		addRoute("/session/", SessionHandler.class, this);
 		addRoute("/upload/", UploadHandler.class, this);
 	}
