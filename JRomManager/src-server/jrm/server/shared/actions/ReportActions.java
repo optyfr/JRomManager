@@ -1,4 +1,4 @@
-package jrm.server.ws;
+package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -12,54 +12,54 @@ import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
 
-public class ReportWS
+public class ReportActions
 {
-	private final WebSckt ws;
+	private final ActionsMgr ws;
 
-	public ReportWS(WebSckt ws)
+	public ReportActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 	}
-	
+
 	@SuppressWarnings("serial")
-	void setFilter(JsonObject jso, boolean lite)
+	public void setFilter(JsonObject jso, boolean lite)
 	{
 		final JsonObject pjso = jso.get("params").asObject();
-		final Report report = lite?ws.session.tmp_report:ws.session.report;
+		final Report report = lite ? ws.getSession().tmp_report : ws.getSession().report;
 		EnumSet<FilterOptions> options = report.getHandler().getFilterOptions().clone();
-		for(Member m : pjso)
+		for (Member m : pjso)
 		{
 			try
 			{
 				FilterOptions option = FilterOptions.valueOf(m.getName());
 				JsonValue value = m.getValue();
-				if(value.asBoolean())
+				if (value.asBoolean())
 					options.add(option);
 				else
 					options.remove(option);
-				
+
 			}
-			catch(IllegalArgumentException ex)
+			catch (IllegalArgumentException ex)
 			{
-				
+
 			}
 		}
 		report.getHandler().filter(options.toArray(new FilterOptions[0]));
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
-				ws.send(Json.object()
-					.add("cmd", lite?"ReportLite.applyFilters":"Report.applyFilters")
-					.add("params", new JsonObject() {{
-						EnumSet.allOf(FilterOptions.class).forEach(f->add(f.toString(),options.contains(f)));
-					}}).toString()
-				);
+				ws.send(Json.object().add("cmd", lite ? "ReportLite.applyFilters" : "Report.applyFilters").add("params", new JsonObject()
+				{
+					{
+						EnumSet.allOf(FilterOptions.class).forEach(f -> add(f.toString(), options.contains(f)));
+					}
+				}).toString());
 			}
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 }

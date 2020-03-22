@@ -1,4 +1,4 @@
-package jrm.server.ws;
+package jrm.server.shared.actions;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,22 +14,23 @@ import jrm.profile.manager.Export.ExportType;
 import jrm.profile.scan.Dir2Dat;
 import jrm.profile.scan.DirScan;
 import jrm.profile.scan.DirScan.Options;
-import jrm.server.WebSession;
+import jrm.server.shared.WebSession;
+import jrm.server.shared.Worker;
 
-public class Dir2DatWS
+public class Dir2DatActions
 {
-	private final WebSckt ws;
+	private final ActionsMgr ws;
 
-	public Dir2DatWS(WebSckt ws)
+	public Dir2DatActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 	}
 
-	void start(JsonObject jso)
+	public void start(JsonObject jso)
 	{
-		(ws.session.worker = new Worker(() -> {
-			WebSession session = ws.session;
-			session.worker.progress = new ProgressWS(ws);
+		(ws.getSession().worker = new Worker(() -> {
+			WebSession session = ws.getSession();
+			session.worker.progress = new ProgressActions(ws);
 			try
 			{
 				String srcdir = session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, null);
@@ -60,7 +61,7 @@ public class Dir2DatWS
 						headers.put(m.getName(), m.getValue().asString());
 				});
 				if (srcdir != null && dstdat != null)
-					new Dir2Dat(ws.session, new File(srcdir), new File(dstdat), session.worker.progress, options, ExportType.valueOf(format), headers);
+					new Dir2Dat(ws.getSession(), new File(srcdir), new File(dstdat), session.worker.progress, options, ExportType.valueOf(format), headers);
 			}
 			catch (BreakException e)
 			{
@@ -68,7 +69,7 @@ public class Dir2DatWS
 			}
 			finally
 			{
-				Dir2DatWS.this.end();
+				Dir2DatActions.this.end();
 				session.curr_profile = null;
 				session.curr_scan = null;
 				session.worker.progress.close();

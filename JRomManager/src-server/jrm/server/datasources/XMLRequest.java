@@ -15,9 +15,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import jrm.misc.Log;
-import jrm.server.TempFileInputStream;
-import jrm.server.WebSession;
 import jrm.server.datasources.XMLRequest.Operation.Sorter;
+import jrm.server.shared.TempFileInputStream;
+import jrm.server.shared.WebSession;
 
 public class XMLRequest
 {

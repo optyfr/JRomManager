@@ -1,5 +1,6 @@
 package jrm.server.handlers;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -12,7 +13,11 @@ import fi.iki.elonen.router.RouterNanoHTTPD.Error404UriHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.misc.Log;
 import jrm.server.Server;
-import jrm.server.WebSession;
+import jrm.server.lpr.LongPollingReqMgr;
+import jrm.server.shared.WebSession;
+import jrm.server.shared.actions.CatVerActions;
+import jrm.server.shared.actions.NPlayersActions;
+import jrm.server.shared.actions.ProfileActions;
 
 public class ActionHandler extends DefaultHandler
 {
@@ -42,11 +47,24 @@ public class ActionHandler extends DefaultHandler
 			WebSession sess = Server.getSession(session.getCookies().read("session"));
 			if(sess!=null)
 			{
-				System.err.println(urlParams.get("action"));
 				switch (urlParams.get("action"))
 				{
+					case "init":
+					{
+						LongPollingReqMgr cmd = new LongPollingReqMgr(sess);
+						if(sess.curr_profile!=null)
+						{
+							new ProfileActions(cmd).loaded(sess.curr_profile);
+							new CatVerActions(cmd).loaded(sess.curr_profile);
+							new NPlayersActions(cmd).loaded(sess.curr_profile);
+						}
+						if(sess.worker != null && sess.worker.isAlive())
+							if(sess.worker.progress!=null)
+								sess.worker.progress.reload(cmd);
+						return NanoHTTPD.newFixedLengthResponse(Status.OK, "application/json", sess.lprMsg.poll(20, TimeUnit.SECONDS));
+					}
 					case "lpr":
-						return NanoHTTPD.newFixedLengthResponse(Status.OK, "application/json", sess.lprMsg.poll(1, TimeUnit.MINUTES));
+						return NanoHTTPD.newFixedLengthResponse(Status.OK, "application/json", sess.lprMsg.poll(20, TimeUnit.SECONDS));
 					default:
 						Log.err(urlParams.get("action"));
 						break;
@@ -72,12 +90,17 @@ public class ActionHandler extends DefaultHandler
 			final String bodylenstr = headers.get("content-length");
 			if (bodylenstr != null)
 			{
-				long bodylen = Long.parseLong(bodylenstr);
+				int bodylen = Integer.parseInt(bodylenstr);
 				WebSession sess = Server.getSession(session.getCookies().read("session"));
-				if (headers.get("content-type").equals("text/xml"))
+				if (headers.get("content-type").equals("application/json"))
 				{
 					switch (urlParams.get("action"))
 					{
+						case "cmd":
+							byte[] buf = new byte[bodylen];
+							session.getInputStream().read( buf, 0, bodylen );
+							new LongPollingReqMgr(sess).process(new String(buf,StandardCharsets.UTF_8));
+							return NanoHTTPD.newFixedLengthResponse(Status.OK, "application/json", null);
 						default:
 							Log.err(urlParams.get("action"));
 							session.getInputStream().skip(bodylen);

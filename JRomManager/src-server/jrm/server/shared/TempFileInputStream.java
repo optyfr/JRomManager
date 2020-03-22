@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.shared;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

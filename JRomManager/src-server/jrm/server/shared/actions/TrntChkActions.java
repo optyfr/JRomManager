@@ -1,4 +1,4 @@
-package jrm.server.ws;
+package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.util.Date;
@@ -11,29 +11,30 @@ import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
-import jrm.server.WebSession;
+import jrm.server.shared.WebSession;
+import jrm.server.shared.Worker;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SrcDstResult;
 
-public class TrntChkWS
+public class TrntChkActions
 {
-	private final WebSckt ws;
+	private final ActionsMgr ws;
 
-	public TrntChkWS(WebSckt ws)
+	public TrntChkActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 	}
 
-	void start(JsonObject jso)
+	public void start(JsonObject jso)
 	{
-		(ws.session.worker = new Worker(()->{
-			WebSession session = ws.session;
+		(ws.getSession().worker = new Worker(()->{
+			WebSession session = ws.getSession();
 			final TrntChkMode mode = TrntChkMode.valueOf(session.getUser().settings.getProperty(SettingsEnum.trntchk_mode, "FILENAME"));
 			final boolean removeUnknownFiles = session.getUser().settings.getProperty(SettingsEnum.trntchk_remove_unknown_files, false);
 			final boolean removeWrongSizedFiles = session.getUser().settings.getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, false);
 			final boolean detectArchivedFolders = session.getUser().settings.getProperty(SettingsEnum.trntchk_detect_archived_folders, true);
 
-			session.worker.progress = new ProgressWS(ws);
+			session.worker.progress = new ProgressActions(ws);
 			try
 			{
 				List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().settings.getProperty(SettingsEnum.trntchk_sdr, "[]"));
@@ -46,7 +47,7 @@ public class TrntChkWS
 						{
 							sdrl.get(row).result = result;
 							session.getUser().settings.setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
-							TrntChkWS.this.updateResult(row, result);
+							TrntChkActions.this.updateResult(row, result);
 						}
 						
 						@Override
@@ -54,7 +55,7 @@ public class TrntChkWS
 						{
 							sdrl.forEach(sdr -> sdr.result = "");
 							session.getUser().settings.setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
-							TrntChkWS.this.clearResults();
+							TrntChkActions.this.clearResults();
 						}
 					}, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
 				}
@@ -69,7 +70,7 @@ public class TrntChkWS
 			}
 			finally
 			{
-				TrntChkWS.this.end();
+				TrntChkActions.this.end();
 				session.curr_profile = null;
 				session.curr_scan = null;
 				session.worker.progress.close();

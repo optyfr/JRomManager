@@ -1,4 +1,4 @@
-package jrm.server.ws;
+package jrm.server.shared.actions;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,34 +16,35 @@ import jrm.batch.CompressorFormat;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
-import jrm.server.WebSession;
+import jrm.server.shared.WebSession;
+import jrm.server.shared.Worker;
 import one.util.streamex.StreamEx;
 
-public class CompressorWS
+public class CompressorActions
 {
-	private final WebSckt ws;
+	private final ActionsMgr ws;
 
-	public CompressorWS(WebSckt ws)
+	public CompressorActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 	}
 
-	void start(JsonObject jso)
+	public void start(JsonObject jso)
 	{
-		(ws.session.worker = new Worker(()->{
-			WebSession session = ws.session;
+		(ws.getSession().worker = new Worker(()->{
+			WebSession session = ws.getSession();
 			final CompressorFormat format = CompressorFormat.valueOf(session.getUser().settings.getProperty(SettingsEnum.compressor_format, "TZIP"));
 			final boolean force = session.getUser().settings.getProperty(SettingsEnum.compressor_force, false);
 
-			session.worker.progress = new ProgressWS(ws);
-			session.worker.progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),ws.session.tmp_compressor_lst.size()), true);
+			session.worker.progress = new ProgressActions(ws);
+			session.worker.progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),ws.getSession().tmp_compressor_lst.size()), true);
 			try
 			{
 				clearResults();
 				AtomicInteger cnt = new AtomicInteger();
-				final Compressor compressor = new Compressor(session, cnt, ws.session.tmp_compressor_lst.size(), session.worker.progress);
-				List<FileResult> values = new ArrayList<>(ws.session.tmp_compressor_lst.values());
-				StreamEx.of(ws.session.tmp_compressor_lst.values().parallelStream().unordered()).takeWhile(p->!session.worker.progress.isCancel()).forEach(fr->{
+				final Compressor compressor = new Compressor(session, cnt, ws.getSession().tmp_compressor_lst.size(), session.worker.progress);
+				List<FileResult> values = new ArrayList<>(ws.getSession().tmp_compressor_lst.values());
+				StreamEx.of(ws.getSession().tmp_compressor_lst.values().parallelStream().unordered()).takeWhile(p->!session.worker.progress.isCancel()).forEach(fr->{
 					final int i = values.indexOf(fr);
 					File file = fr.file;
 					cnt.incrementAndGet();
@@ -111,7 +112,7 @@ public class CompressorWS
 			finally
 			{
 				session.worker.progress.close();
-				CompressorWS.this.end();
+				CompressorActions.this.end();
 			}
 		})).start();
 	}

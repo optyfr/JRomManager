@@ -1,4 +1,4 @@
-package jrm.server.ws;
+package jrm.server.shared.actions;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,25 +17,26 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
-import jrm.server.WebSession;
+import jrm.server.shared.WebSession;
+import jrm.server.shared.Worker;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SrcDstResult;
 
-public class Dat2DirWS
+public class Dat2DirActions
 {
-	private final WebSckt ws;
+	private final ActionsMgr ws;
 
-	public Dat2DirWS(WebSckt ws)
+	public Dat2DirActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 	}
 
-	void start(JsonObject jso)
+	public void start(JsonObject jso)
 	{
-		(ws.session.worker = new Worker(()->{
-			WebSession session = ws.session;
+		(ws.getSession().worker = new Worker(()->{
+			WebSession session = ws.getSession();
 			boolean dryrun = session.getUser().settings.getProperty(SettingsEnum.dat2dir_dry_run, true);
-			session.worker.progress = new ProgressWS(ws);
+			session.worker.progress = new ProgressActions(ws);
 			try
 			{
 				String[] srcdirs = StringUtils.split(session.getUser().settings.getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
@@ -43,7 +44,7 @@ public class Dat2DirWS
 				{
 					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().settings.getProperty(SettingsEnum.dat2dir_sdr, "[]"));
 					if (sdrl.stream().filter((sdr) -> !session.getUser().settings.getProfileSettingsFile(sdr.src).exists()).count() > 0)
-						new GlobalWS(ws).warn(ws.session.msgs.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
+						new GlobalActions(ws).warn(ws.getSession().msgs.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
 					{
 						new DirUpdater(session, sdrl, session.worker.progress, Stream.of(srcdirs).map(s->new File(s)).collect(Collectors.toList()), new ResultColUpdater()
@@ -53,7 +54,7 @@ public class Dat2DirWS
 							{
 								sdrl.get(row).result = result;
 								session.getUser().settings.setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
-								Dat2DirWS.this.updateResult(row, result);
+								Dat2DirActions.this.updateResult(row, result);
 							}
 							
 							@Override
@@ -61,13 +62,13 @@ public class Dat2DirWS
 							{
 								sdrl.forEach(sdr -> sdr.result = "");
 								session.getUser().settings.setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
-								Dat2DirWS.this.clearResults();
+								Dat2DirActions.this.clearResults();
 							}
 						}, dryrun);
 					}
 				}
 				else
-					new GlobalWS(ws).warn(ws.session.msgs.getString("MainFrame.AtLeastOneSrcDir"));
+					new GlobalActions(ws).warn(ws.getSession().msgs.getString("MainFrame.AtLeastOneSrcDir"));
 			}
 			catch(BreakException e)
 			{
@@ -75,7 +76,7 @@ public class Dat2DirWS
 			}
 			finally
 			{
-				Dat2DirWS.this.end();
+				Dat2DirActions.this.end();
 				session.curr_profile = null;
 				session.curr_scan = null;
 				session.worker.progress.close();
@@ -86,7 +87,7 @@ public class Dat2DirWS
 	}
 
 	@SuppressWarnings("serial")
-	void settings(JsonObject jso)
+	public void settings(JsonObject jso)
 	{
 		JsonArray srcs = jso.get("params").asObject().get("srcs").asArray();
 		if(srcs!=null && srcs.size()>0)
@@ -94,7 +95,7 @@ public class Dat2DirWS
 			String src = srcs.get(0).asString();
 			try
 			{
-				ProfileSettings settings = ws.session.getUser().settings.loadProfileSettings(new File(src), null);
+				ProfileSettings settings = ws.getSession().getUser().settings.loadProfileSettings(new File(src), null);
 				if(ws.isOpen())
 				{
 					ws.send(new JsonObject() {{

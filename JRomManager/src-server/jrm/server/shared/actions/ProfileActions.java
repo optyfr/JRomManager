@@ -1,4 +1,4 @@
-package jrm.server.ws;
+package jrm.server.shared.actions;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,28 +19,28 @@ import jrm.misc.FindCmd;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
-import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.Import;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.ScanAutomation;
-import jrm.server.WebSession;
+import jrm.server.shared.WebSession;
+import jrm.server.shared.Worker;
 
-public class ProfileWS
+public class ProfileActions
 {
-	private final WebSckt ws;
+	private final ActionsMgr ws;
 
-	public ProfileWS(WebSckt ws)
+	public ProfileActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 	}
 	
-	void imprt(JsonObject jso)
+	public void imprt(JsonObject jso)
 	{
-		(ws.session.worker = new Worker(()->{
-			WebSession session = ws.session;
-			session.worker.progress = new ProgressWS(ws);
+		(ws.getSession().worker = new Worker(()->{
+			WebSession session = ws.getSession();
+			session.worker.progress = new ProgressActions(ws);
 			session.worker.progress.canCancel(false);
 			session.worker.progress.setProgress(session.msgs.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
 			try
@@ -70,22 +70,22 @@ public class ProfileWS
 									pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
 								}
 								else
-									new GlobalWS(ws).warn("Could not import softwares list");
+									new GlobalActions(ws).warn("Could not import softwares list");
 							}
 							pnfo.save(session);
 							imported(pnfo.file);
 						}
 						else
 						{
-							new GlobalWS(ws).warn("Could not import roms list");
+							new GlobalActions(ws).warn("Could not import roms list");
 							file.delete();
 						}
 					}
 					else
-						new GlobalWS(ws).warn("Could not import anything from Mame");
+						new GlobalActions(ws).warn("Could not import anything from Mame");
 				}
 				else
-					new GlobalWS(ws).warn("Mame not found in system's search path");
+					new GlobalActions(ws).warn("Mame not found in system's search path");
 			}
 			catch(BreakException ex)
 			{
@@ -93,7 +93,7 @@ public class ProfileWS
 			catch (IOException e)
 			{
 				Log.err(e.getMessage(), e);
-				new GlobalWS(ws).warn(e.getMessage());
+				new GlobalActions(ws).warn(e.getMessage());
 			}
 			finally
 			{
@@ -104,24 +104,24 @@ public class ProfileWS
 		})).start();
 	}
 
-	void load(JsonObject jso)
+	public void load(JsonObject jso)
 	{
-		(ws.session.worker = new Worker(()->{
-			WebSession session = ws.session;
+		(ws.getSession().worker = new Worker(()->{
+			WebSession session = ws.getSession();
 			if (session.curr_profile != null)
 				session.curr_profile.saveSettings();
-			session.worker.progress = new ProgressWS(ws);
+			session.worker.progress = new ProgressActions(ws);
 			try
 			{
 				JsonObject jsobj = jso.get("params").asObject();
-				session.curr_profile = Profile.load(session, new File(new File(jsobj.getString("parent", null)), jsobj.getString("file", null)), session.worker.progress);
+				session.curr_profile = jrm.profile.Profile.load(session, new File(new File(jsobj.getString("parent", null)), jsobj.getString("file", null)), session.worker.progress);
 				if (session.curr_profile != null)
 				{
 					session.curr_profile.nfo.save(session);
 					session.report.setProfile(session.curr_profile);
 					loaded(session.curr_profile);
-					new CatVerWS(ws).loaded(session.curr_profile);
-					new NPlayersWS(ws).loaded(session.curr_profile);
+					new CatVerActions(ws).loaded(session.curr_profile);
+					new NPlayersActions(ws).loaded(session.curr_profile);
 				}
 			}
 			catch(BreakException ex)
@@ -136,11 +136,11 @@ public class ProfileWS
 		})).start();
 	}
 	
-	void scan(JsonObject jso, final boolean automate)
+	public void scan(JsonObject jso, final boolean automate)
 	{
-		(ws.session.worker = new Worker(() -> {
-			WebSession session = ws.session;
-			session.worker.progress = new ProgressWS(ws);
+		(ws.getSession().worker = new Worker(() -> {
+			WebSession session = ws.getSession();
+			session.worker.progress = new ProgressActions(ws);
 			try
 			{
 				session.curr_scan = new Scan(session.curr_profile, session.worker.progress);
@@ -163,11 +163,11 @@ public class ProfileWS
 		})).start();
 	}
 	
-	void fix(JsonObject jso)
+	public void fix(JsonObject jso)
 	{
-		(ws.session.worker = new Worker(()->{
-			WebSession session = ws.session;
-			session.worker.progress = new ProgressWS(ws);
+		(ws.getSession().worker = new Worker(()->{
+			WebSession session = ws.getSession();
+			session.worker.progress = new ProgressActions(ws);
 			try
 			{
 				if(session.curr_profile.hasPropsChanged())
@@ -192,10 +192,10 @@ public class ProfileWS
 		})).start();
 	}
 	
-	void setProperty(JsonObject jso)
+	public void setProperty(JsonObject jso)
 	{
 		final String profile = jso.getString("profile", null);
-		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.session.curr_profile.settings;
+		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().curr_profile.settings;
 		JsonObject pjso = jso.get("params").asObject();
 		for (Member m : pjso)
 		{
@@ -210,9 +210,9 @@ public class ProfileWS
 		try
 		{
 			if (profile != null)
-				ws.session.getUser().settings.saveProfileSettings(new File(profile), settings);
+				ws.getSession().getUser().settings.saveProfileSettings(new File(profile), settings);
 			else
-				ws.session.curr_profile.saveSettings();
+				ws.getSession().curr_profile.saveSettings();
 		}
 		catch (Exception e)
 		{
@@ -221,7 +221,7 @@ public class ProfileWS
 	}
 	
 	@SuppressWarnings("serial")
-	void loaded(final Profile profile)
+	public void loaded(final jrm.profile.Profile profile)
 	{
 		try
 		{

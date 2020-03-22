@@ -31,7 +31,9 @@ import jrm.server.handlers.EnhStaticPageHandler;
 import jrm.server.handlers.ResourceHandler;
 import jrm.server.handlers.SessionHandler;
 import jrm.server.handlers.UploadHandler;
-import jrm.server.ws.WebSckt;
+import jrm.server.shared.SessionStub;
+import jrm.server.shared.WebSession;
+import jrm.server.ws.WebScktMgr;
 
 public class Server extends EnhRouterNanoHTTPD implements SessionStub
 {
@@ -126,7 +128,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 			Log.config("clientPath: " + clientPath);
 			Log.config("workPath: " + getWorkPath());
 			Runtime.getRuntime().addShutdownHook(new Thread(()->{
-				WebSckt.saveAllSettings();
+				WebScktMgr.saveAllSettings();
 				server.stop();
 				Log.info("Server stopped.");
 			}));
@@ -174,7 +176,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 	@Override
 	protected WebSocket openWebSocket(IHTTPSession handshake)
 	{
-		return new WebSckt(this, handshake);
+		return new WebScktMgr(this, handshake);
 	}
 
 	public static WebSession getSession(String session)

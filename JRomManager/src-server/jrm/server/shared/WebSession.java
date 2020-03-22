@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.shared;
 
 import java.nio.file.Path;
 import java.util.Date;
@@ -10,7 +10,6 @@ import jrm.batch.Compressor.FileResult;
 import jrm.batch.TrntChkReport;
 import jrm.profile.report.Report;
 import jrm.security.Session;
-import jrm.server.ws.Worker;
 
 public class WebSession extends Session
 {

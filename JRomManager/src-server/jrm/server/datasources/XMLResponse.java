@@ -15,8 +15,8 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import jrm.misc.Log;
-import jrm.server.TempFileInputStream;
 import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.TempFileInputStream;
 import jrm.xml.EnhancedXMLStreamWriter;
 
 abstract class XMLResponse implements Closeable

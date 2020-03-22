@@ -1,4 +1,4 @@
-package jrm.server.ws;
+package jrm.server.shared.actions;
 
 import java.io.IOException;
 
@@ -9,26 +9,26 @@ import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 
-public class NPlayersWS
+public class NPlayersActions
 {
-	private final WebSckt ws;
+	private final ActionsMgr ws;
 
-	public NPlayersWS(WebSckt ws)
+	public NPlayersActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 	}
 
-	void load(JsonObject jso)
+	public void load(JsonObject jso)
 	{
 		JsonValue jsv = jso.get("params").asObject().get("path");
-		ws.session.curr_profile.setProperty(SettingsEnum.filter_nplayers_ini, jsv!=null&&!jsv.isNull()?jsv.asString():null); //$NON-NLS-1$
-		ws.session.curr_profile.loadNPlayers(null);
-		ws.session.curr_profile.saveSettings();
-		loaded(ws.session.curr_profile);
+		ws.getSession().curr_profile.setProperty(SettingsEnum.filter_nplayers_ini, jsv!=null&&!jsv.isNull()?jsv.asString():null); //$NON-NLS-1$
+		ws.getSession().curr_profile.loadNPlayers(null);
+		ws.getSession().curr_profile.saveSettings();
+		loaded(ws.getSession().curr_profile);
 	}
 	
 	@SuppressWarnings("serial")
-	void loaded(final Profile profile)
+	public void loaded(final Profile profile)
 	{
 		try
 		{

@@ -1,4 +1,4 @@
-package jrm.server.ws;
+package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,12 +9,13 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 
 import jrm.misc.Log;
+import jrm.server.ws.WebScktMgr;
 import jrm.ui.progress.ProgressHandler;
 import jrm.ui.progress.ProgressInputStream;
 
-public class ProgressWS implements ProgressHandler
+public class ProgressActions implements ProgressHandler
 {
-	private WebSckt ws;
+	private ActionsMgr ws;
 	
 	/** The thread id offset. */
 	private final Map<Long,Integer> threadId_Offset = new HashMap<>();
@@ -33,7 +34,7 @@ public class ProgressWS implements ProgressHandler
 	
 	private String infos[] = {null}, subinfos[] = {null}, msg2;
 	
-	public ProgressWS(WebSckt ws)
+	public ProgressActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 		sendOpen();
@@ -52,7 +53,7 @@ public class ProgressWS implements ProgressHandler
 		}
 	}
 
-	public void reload(WebSckt ws)
+	public void reload(ActionsMgr ws)
 	{
 		this.ws = ws;
 		sendOpen();
@@ -204,7 +205,7 @@ public class ProgressWS implements ProgressHandler
 									add("offset", offset);
 									add("msg", infos[offset]);
 									if(val==null)
-										add("val", ProgressWS.this.val);
+										add("val", ProgressActions.this.val);
 									else
 										add("val", val);
 									if(max==null)
@@ -268,7 +269,7 @@ public class ProgressWS implements ProgressHandler
 							if (val != null)
 								add("val", val);
 							else
-								add("val", ProgressWS.this.val2);
+								add("val", ProgressActions.this.val2);
 							if (max != null)
 								add("max", max);
 							else

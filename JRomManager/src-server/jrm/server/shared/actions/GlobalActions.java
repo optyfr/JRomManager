@@ -1,4 +1,4 @@
-package jrm.server.ws;
+package jrm.server.shared.actions;
 
 import java.io.IOException;
 
@@ -8,40 +8,40 @@ import com.eclipsesource.json.JsonValue;
 
 import jrm.misc.Log;
 
-public class GlobalWS
+public class GlobalActions
 {
-	private final WebSckt ws;
+	private final ActionsMgr ws;
 
-	public GlobalWS(WebSckt ws)
+	public GlobalActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 	}
 
-	void setProperty(JsonObject jso)
+	public void setProperty(JsonObject jso)
 	{
 		JsonObject pjso = jso.get("params").asObject();
 		for(Member m : pjso)
 		{
 			JsonValue value = m.getValue();
 			if(value.isBoolean())
-				ws.session.getUser().settings.setProperty(m.getName(), value.asBoolean());
+				ws.getSession().getUser().settings.setProperty(m.getName(), value.asBoolean());
 			else if(value.isString())
-				ws.session.getUser().settings.setProperty(m.getName(), value.asString());
+				ws.getSession().getUser().settings.setProperty(m.getName(), value.asString());
 			else
-				ws.session.getUser().settings.setProperty(m.getName(), value.toString());
+				ws.getSession().getUser().settings.setProperty(m.getName(), value.toString());
 		}
-		ws.session.getUser().settings.saveSettings();
+		ws.getSession().getUser().settings.saveSettings();
 	}
 	
 	@SuppressWarnings("serial")
-	void setMemory(JsonObject jso)
+	public void setMemory(JsonObject jso)
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
 				final Runtime rt = Runtime.getRuntime();
-				String msg = (String.format(ws.session.msgs.getString("MainFrame.MemoryUsage"), String.format("%.2f MiB", rt.totalMemory() / 1048576.0), String.format("%.2f MiB", (rt.totalMemory() - rt.freeMemory()) / 1048576.0), String.format("%.2f MiB", rt.freeMemory() / 1048576.0), String.format("%.2f MiB", rt.maxMemory() / 1048576.0))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				String msg = (String.format(ws.getSession().msgs.getString("MainFrame.MemoryUsage"), String.format("%.2f MiB", rt.totalMemory() / 1048576.0), String.format("%.2f MiB", (rt.totalMemory() - rt.freeMemory()) / 1048576.0), String.format("%.2f MiB", rt.freeMemory() / 1048576.0), String.format("%.2f MiB", rt.maxMemory() / 1048576.0))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 				ws.send(new JsonObject() {{
 					add("cmd", "Global.setMemory");
 					add("params", new JsonObject() {{
@@ -56,14 +56,14 @@ public class GlobalWS
 		}
 	}
 
-	void gc(JsonObject jso)
+	public void gc(JsonObject jso)
 	{
 		System.gc();
 		setMemory(jso);
 	}
 	
 	@SuppressWarnings("serial")
-	void warn(String msg)
+	public void warn(String msg)
 	{
 		try
 		{

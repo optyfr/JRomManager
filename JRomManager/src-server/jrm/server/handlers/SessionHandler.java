@@ -19,8 +19,8 @@ import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.server.Server;
-import jrm.server.SessionStub;
-import jrm.server.WebSession;
+import jrm.server.shared.SessionStub;
+import jrm.server.shared.WebSession;
 
 public class SessionHandler extends DefaultHandler
 {

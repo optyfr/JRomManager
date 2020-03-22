@@ -1,4 +1,4 @@
-package jrm.server;
+package jrm.server.shared;
 
 public interface SessionStub
 {

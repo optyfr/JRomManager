@@ -12,7 +12,6 @@ import fi.iki.elonen.router.RouterNanoHTTPD.Error404UriHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.misc.Log;
 import jrm.server.Server;
-import jrm.server.WebSession;
 import jrm.server.datasources.AnywareListListXMLResponse;
 import jrm.server.datasources.AnywareListXMLResponse;
 import jrm.server.datasources.AnywareXMLResponse;
@@ -30,6 +29,7 @@ import jrm.server.datasources.RemoteFileChooserXMLResponse;
 import jrm.server.datasources.RemoteRootChooserXMLResponse;
 import jrm.server.datasources.ReportTreeXMLResponse;
 import jrm.server.datasources.XMLRequest;
+import jrm.server.shared.WebSession;
 
 public class DataSourcesHandler extends DefaultHandler
 {
@@ -75,9 +75,9 @@ public class DataSourcesHandler extends DefaultHandler
 							return new RemoteFileChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "remoteRootChooser":
 							return new RemoteRootChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
-						case "CatVer":
+						case "CatVerCmd":
 							return new CatVerXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
-						case "NPlayers":
+						case "NPlayersCmd":
 							return new NPlayersXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 						case "AnywareListList":
 							return new AnywareListListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
