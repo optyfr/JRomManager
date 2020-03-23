@@ -84,7 +84,6 @@ import jrm.profile.report.SubjectSet.Status;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.progress.ProgressHandler;
-import lombok.val;
 
 /**
  * The scan class

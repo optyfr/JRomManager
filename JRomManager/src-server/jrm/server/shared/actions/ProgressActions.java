@@ -9,7 +9,6 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 
 import jrm.misc.Log;
-import jrm.server.ws.WebScktMgr;
 import jrm.ui.progress.ProgressHandler;
 import jrm.ui.progress.ProgressInputStream;
 
