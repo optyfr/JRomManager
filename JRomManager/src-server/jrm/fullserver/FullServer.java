@@ -8,7 +8,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 
-import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -16,20 +18,16 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.session.Session;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
+import jrm.fullserver.handlers.DataSourceServlet;
+import jrm.fullserver.handlers.ImageServlet;
+import jrm.fullserver.handlers.SessionServlet;
 import jrm.misc.Log;
+import jrm.server.shared.WebSession;
 
 public class FullServer
 {
@@ -46,7 +44,11 @@ public class FullServer
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setBaseResource(Resource.newResource(this.clientPath));
 		context.setContextPath("/");
-
+		
+		context.addServlet(new ServletHolder("datasources", DataSourceServlet.class), "/datasources/*");
+		context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
+		context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
+		
 		ServletHolder holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
 		holderStaticNoCache.setInitParameter("dirAllowed", "false");
 		holderStaticNoCache.setInitParameter("acceptRanges", "true");
@@ -74,7 +76,26 @@ public class FullServer
 		context.addServlet(holderStatic, "/");
 		
 		context.getSessionHandler().setMaxInactiveInterval(300);
-
+		context.getSessionHandler().addEventListener(new HttpSessionListener()
+		{
+			
+			@Override
+			public void sessionDestroyed(HttpSessionEvent se)
+			{
+				System.out.println("Destroying session "+se.getSession().getId());
+				WebSession ws = (WebSession) se.getSession().getAttribute("session");
+				if (ws != null)
+					/*ws.close()*/;
+			}
+			
+			@Override
+			public void sessionCreated(HttpSessionEvent se)
+			{
+				System.out.println("Creating session "+se.getSession().getId());
+				se.getSession().setAttribute("session", new WebSession(se.getSession().getId()));
+			}
+		});
+		
 		server.setHandler(context);
 		server.setStopAtShutdown(true);
 		server.start();
@@ -165,47 +186,4 @@ public class FullServer
 		return path.toString();
 	}
 
-	@SuppressWarnings("serial")
-	@WebServlet(name = "WebSocket Servlet", urlPatterns = {"/socket"})
-	public class SocketServlet extends WebSocketServlet
-	{
-	    @Override
-	    public void configure(WebSocketServletFactory factory)
-	    {
-	        // set a 10 second timeout
-	        factory.getPolicy().setIdleTimeout(10000);
-
-	        // register MyEchoSocket as the WebSocket to create on Upgrade
-	        factory.register(Socket.class);
-	    }
-	}
-	
-	@WebSocket
-	class Socket
-	{
-		@OnWebSocketConnect
-		public void connect(Session session)
-		{
-			System.out.println("Socket connect for session  "+session.getId()); 
-		}
-		
-		@OnWebSocketClose
-		public void close(Session session, int statusCode, String reason)
-		{
-			System.out.println("Socket close for session  " + session.getId() + " with status " + statusCode + " and reason " + reason);
-		}
-		
-		@OnWebSocketError
-		public void error(Session session, Throwable error)
-		{
-			System.out.println("Socket error for session  " + session.getId() + " with error message " + error.getMessage());
-		}
-		
-		@OnWebSocketMessage
-		public void message(Session session, String msg)
-		{
-			System.out.println("Socket message for session  " + session.getId() + " with message " + msg);
-		}
-	}
-	
 }
