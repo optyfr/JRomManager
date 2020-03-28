@@ -224,14 +224,24 @@ subprojects {
 					prefer '9.+'
 				}
 			}
+			implementation('org.eclipse.jetty:jetty-alpn-server') {
+				version {
+					prefer '9.+'
+				}
+			}
+			implementation('org.eclipse.jetty:jetty-alpn-conscrypt-server') {
+				version {
+					prefer '9.+'
+				}
+			}
 			implementation('org.eclipse.jetty:jetty-servlet') {
 				version {
 					prefer '9.+'
 				}
 			}
-			implementation('org.eclipse.jetty.websocket:javax-websocket-server-impl') {
+			implementation('org.eclipse.jetty.http2:http2-server') {
 				version {
-					prefer 'latest.release'
+					prefer '9.+'
 				}
 			}
 			implementation(group: 'com.google.code.gson', name: 'gson') {
@@ -381,7 +391,10 @@ project(':JRomManager:jrmserver') {
 		implementation group: 'org.nanohttpd', name: 'nanohttpd-websocket'
 		implementation group: 'org.eclipse.jetty', name:'jetty-server'
 		implementation group: 'org.eclipse.jetty', name:'jetty-servlet'
-		implementation group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl'
+		implementation 'org.eclipse.jetty:jetty-security'
+		implementation 'org.eclipse.jetty:jetty-alpn-server'
+		implementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
+		implementation 'org.eclipse.jetty.http2:http2-server'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		implementation group: 'com.google.code.gson', name: 'gson'
 		implementation group: 'one.util', name: 'streamex'
