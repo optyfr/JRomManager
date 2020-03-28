@@ -234,6 +234,11 @@ subprojects {
 					prefer 'latest.release'
 				}
 			}
+			implementation(group: 'com.google.code.gson', name: 'gson') {
+				version {
+					prefer 'latest.release'
+				}
+			}
 		}
 	}
 }
@@ -378,6 +383,7 @@ project(':JRomManager:jrmserver') {
 		implementation group: 'org.eclipse.jetty', name:'jetty-servlet'
 		implementation group: 'org.eclipse.jetty.websocket', name:'javax-websocket-server-impl'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+		implementation group: 'com.google.code.gson', name: 'gson'
 		implementation group: 'one.util', name: 'streamex'
 	}
 }

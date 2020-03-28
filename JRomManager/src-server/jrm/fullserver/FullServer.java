@@ -27,6 +27,7 @@ import jrm.fullserver.handlers.ActionServlet;
 import jrm.fullserver.handlers.DataSourceServlet;
 import jrm.fullserver.handlers.ImageServlet;
 import jrm.fullserver.handlers.SessionServlet;
+import jrm.fullserver.handlers.UploadServlet;
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 
@@ -51,6 +52,7 @@ public class FullServer
 		context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
 		context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
 		context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
+		context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
 		
 		ServletHolder holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
 		holderStaticNoCache.setInitParameter("dirAllowed", "false");

@@ -2,16 +2,23 @@ package jrm.server.handlers;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 
-import com.eclipsesource.json.JsonObject;
+import org.apache.commons.io.IOUtils;
+
+import com.google.gson.Gson;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
@@ -24,6 +31,12 @@ import jrm.misc.Log;
 
 public class UploadHandler extends DefaultHandler
 {
+	static class Result
+	{
+		int status = -1;
+		String extstatus = "";
+	}
+
 	@Override
 	public String getText()
 	{
@@ -42,12 +55,12 @@ public class UploadHandler extends DefaultHandler
 		return "text/json";
 	}
 
-	@SuppressWarnings("serial")
 	@Override
 	public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session)
 	{
 		try
 		{
+			final Result result = new Result();
 			final Map<String, String> headers = session.getHeaders();
 			final String bodylenstr = headers.get("content-length");
 			List<String> init = session.getParameters().get("init");
@@ -58,38 +71,103 @@ public class UploadHandler extends DefaultHandler
 					int bodylen = Integer.parseInt(bodylenstr);
 					session.getInputStream().skip(bodylen);
 				}
-				return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), new JsonObject() {{
-					add("status", 0);
-					add("extstatus", "continue...");
-				}}.toString());
+				result.status = 0;
+				result.extstatus = "continue...";
+				final String filename =  URLDecoder.decode(headers.get("x-file-name"), "UTF-8");
+				final String fileparent = URLDecoder.decode(headers.get("x-file-parent"), "UTF-8");
+				long filesize;
+				try
+				{
+					filesize = Long.parseLong(headers.get("x-file-size"));
+				}
+				catch(NumberFormatException e)
+				{
+					filesize = -1;
+				}
+				try
+				{
+					final Path dest = Paths.get(fileparent);
+					if(!(Files.exists(dest) && Files.isDirectory(dest)))
+					{
+						result.status=6;
+						result.extstatus="Error: destination " + dest + " must be an existing directory";
+					}
+					else
+					{
+						final FileStore fs = Files.getFileStore(dest);
+						final long free = fs.getUsableSpace();
+						if(free < filesize)
+						{
+							result.status=7;
+							result.extstatus="Error: not enough free space, need " + filesize + " but only " + free + " is available";
+						}
+						else
+						{
+							final Path filepath = dest.resolve(filename);
+							Files.getLastModifiedTime(filepath);
+						}
+					}
+				}
+				catch(NoSuchFileException e)
+				{	// that's ok
+				}
+				catch(InvalidPathException e)
+				{	// invalid filename (case 1)
+					result.status=8;
+					result.extstatus=e.getMessage();
+				}
+				catch(FileSystemException e)
+				{	// invalid filename (case 2)
+					result.status=9;
+					result.extstatus=e.getMessage();
+				}
+				return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), new Gson().toJson(result));
 			}
 			else
 			{
 				if (bodylenstr != null)
 				{
-					long bodylen = Long.parseLong(bodylenstr);
 					InputStream in = new BufferedInputStream(session.getInputStream());
 					final String filename =  URLDecoder.decode(headers.get("x-file-name"), "UTF-8");
 					final String fileparent = URLDecoder.decode(headers.get("x-file-parent"), "UTF-8");
-					Path dstpath = Paths.get(fileparent, filename);
-					Files.createDirectories(dstpath.getParent());
-					BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(dstpath, StandardOpenOption.CREATE));
-					int c;
-					long cnt = 0;
-					for(long i = 0; i < bodylen; i++, cnt++)
+					long filesize;
+					try
 					{
-						if((c=in.read())==-1)
-							break;
-						out.write(c);
+						filesize = Long.parseLong(headers.get("x-file-size"));
 					}
-					out.close();
-					if(cnt != bodylen)
-						Files.delete(dstpath);
+					catch(NumberFormatException e)
+					{
+						filesize = -1;
+					}
+					Path filepath = Paths.get(fileparent, filename);
+					Files.createDirectories(filepath.getParent());
+					long size = 0;
+					try(BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(filepath, StandardOpenOption.CREATE));)
+					{
+						size = IOUtils.copy(in, out);
+						result.status = 3;
+						result.extstatus = filename + " done";
+					}
+					catch(IOException e)
+					{
+						result.status = 20;
+						result.extstatus = filename + " : " + e.getMessage();
+					}
+					finally
+					{
+						if(filesize >= 0 && size != filesize)
+						{
+							result.status = 21;
+							result.extstatus = "Error: " + filename + " size should be " + filesize + " bytes long but got " + size + " bytes";
+						}
+					}
+					if(result.status != 3)
+					{
+						System.err.println(result.status + " : " + result.extstatus);
+						Files.delete(filepath);
+					}
 				}
-				return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), new JsonObject() {{
-					add("status", 3);
-					add("extstatus", "done");
-				}}.toString());
+				return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), new Gson().toJson(result));
 			}
 		}
 		catch (Exception e)
