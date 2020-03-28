@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.io.File;
 
@@ -6,7 +6,7 @@ import jrm.profile.report.Note;
 import jrm.profile.report.Report;
 import jrm.profile.report.Subject;
 import jrm.profile.report.SubjectSet;
-import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 
 public class ReportTreeXMLResponse extends XMLResponse
 {
@@ -22,14 +22,14 @@ public class ReportTreeXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		
-		Report report = request.session.report;
+		Report report = request.getSession().report;
 		if(operation.hasData("src"))
 		{
 			final File srcfile = new File(operation.getData("src"));
-			final File reportfile = Report.getReportFile(request.session, srcfile);
-			if(request.session.tmp_report==null || !(request.session.tmp_report.getReportFile(request.session).equals(reportfile) && request.session.tmp_report.getFileModified()==reportfile.lastModified()))
-				request.session.tmp_report = Report.load(request.session, srcfile);
-			report = request.session.tmp_report;
+			final File reportfile = Report.getReportFile(request.getSession(), srcfile);
+			if(request.getSession().tmp_report==null || !(request.getSession().tmp_report.getReportFile(request.getSession()).equals(reportfile) && request.getSession().tmp_report.getFileModified()==reportfile.lastModified()))
+				request.getSession().tmp_report = Report.load(request.getSession(), srcfile);
+			report = request.getSession().tmp_report;
 		}
 		
 		int parentID = Integer.valueOf(operation.getData("ParentID"));
@@ -37,8 +37,8 @@ public class ReportTreeXMLResponse extends XMLResponse
 		{
 			int start, end;
 			int nodecount = report.getHandler().getFilteredReport().size();
-			writer.writeElement("startRow", Integer.toString(start=Math.min(nodecount-1,operation.startRow)));
-			writer.writeElement("endRow", Integer.toString(end=Math.min(nodecount-1,operation.endRow)));
+			writer.writeElement("startRow", Integer.toString(start=Math.min(nodecount-1,operation.getStartRow())));
+			writer.writeElement("endRow", Integer.toString(end=Math.min(nodecount-1,operation.getEndRow())));
 			writer.writeElement("totalRows", Integer.toString(nodecount));
 	
 			if(nodecount>0)
@@ -93,10 +93,10 @@ public class ReportTreeXMLResponse extends XMLResponse
 	@Override
 	protected void custom(Operation operation) throws Exception
 	{
-		switch(operation.operationId.toString())
+		switch(operation.getOperationId().toString())
 		{
 			case "detail":
-				Report report = request.session.report;
+				Report report = request.getSession().report;
 				int parentID = Integer.valueOf(operation.getData("ParentID"));
 				Subject subject = report.getHandler().getFilteredReport().findSubject(parentID);
 				writer.writeStartElement("response");

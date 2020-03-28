@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -6,7 +6,7 @@ import jrm.misc.Log;
 import jrm.profile.data.AnywareList;
 import jrm.profile.data.MachineList;
 import jrm.profile.data.MachineListList;
-import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
 
 public class AnywareListListXMLResponse extends XMLResponse
@@ -23,7 +23,7 @@ public class AnywareListListXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		final boolean reset = Boolean.valueOf(operation.getData("reset"));
-		final MachineListList mll = request.session.curr_profile.machinelist_list;
+		final MachineListList mll = request.getSession().curr_profile.machinelist_list;
 		if(reset)
 			mll.resetCache();
 		fetch_array(operation,mll==null?0:mll.count(), (i,count)->{

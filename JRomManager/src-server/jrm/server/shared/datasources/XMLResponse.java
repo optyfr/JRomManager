@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.io.Closeable;
 import java.io.File;
@@ -11,12 +11,9 @@ import java.util.Map;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
 import jrm.misc.Log;
-import jrm.server.datasources.XMLRequest.Operation;
 import jrm.server.shared.TempFileInputStream;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.EnhancedXMLStreamWriter;
 
 abstract class XMLResponse implements Closeable
@@ -37,7 +34,7 @@ abstract class XMLResponse implements Closeable
 	
 	private void processOperation(Operation operation) throws Exception
 	{
-		switch(operation.operationType.toString())
+		switch(operation.getOperationType().toString())
 		{
 			case "fetch":
 				fetch(operation);
@@ -55,23 +52,23 @@ abstract class XMLResponse implements Closeable
 				custom(operation);
 				break;
 			default:
-				failure(operation.operationType + " not implemented");
+				failure(operation.getOperationType() + " not implemented");
 				break;
 		}
 	}
 	
-	public Response processRequest() throws Exception
+	public TempFileInputStream processRequest() throws Exception
 	{
-		if(request.transaction!=null)
+		if(request.getTransaction()!=null)
 		{
 			writer.writeStartElement("responses");
-			for(Operation operation : request.transaction.operations)
+			for(Operation operation : request.getTransaction().getOperations())
 				processOperation(operation);
 			writer.writeEndElement();
 		}
 		else
-			processOperation(request.operation);
-		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/xml", new TempFileInputStream(tmpfile), tmpfile.length());
+			processOperation(request.getOperation());
+		return new TempFileInputStream(tmpfile);
 	}
 	
 	protected void fetch(Operation operation) throws Exception
@@ -195,8 +192,8 @@ abstract class XMLResponse implements Closeable
 	protected void fetch_array(Operation operation, int count, fetchArrayCallback cb) throws Exception
 	{
 		int start, end;
-		writer.writeElement("startRow", Integer.toString(start=Math.min(count-1,operation.startRow)));
-		writer.writeElement("endRow", Integer.toString(end=Math.min(count-1,operation.endRow)));
+		writer.writeElement("startRow", Integer.toString(start=Math.min(count-1,operation.getStartRow())));
+		writer.writeElement("endRow", Integer.toString(end=Math.min(count-1,operation.getEndRow())));
 		writer.writeElement("totalRows", Integer.toString(count));
 		writer.writeStartElement("data");
 		if(count>0)

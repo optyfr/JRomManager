@@ -3,6 +3,7 @@ package jrm.server.handlers;
 import java.io.BufferedInputStream;
 import java.util.Map;
 
+import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.IStatus;
@@ -12,24 +13,25 @@ import fi.iki.elonen.router.RouterNanoHTTPD.Error404UriHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.misc.Log;
 import jrm.server.Server;
-import jrm.server.datasources.AnywareListListXMLResponse;
-import jrm.server.datasources.AnywareListXMLResponse;
-import jrm.server.datasources.AnywareXMLResponse;
-import jrm.server.datasources.BatchCompressorFRXMLResponse;
-import jrm.server.datasources.BatchDat2DirResultXMLResponse;
-import jrm.server.datasources.BatchDat2DirSDRXMLResponse;
-import jrm.server.datasources.BatchDat2DirSrcXMLResponse;
-import jrm.server.datasources.BatchTrntChkReportTreeXMLResponse;
-import jrm.server.datasources.BatchTrntChkSDRXMLResponse;
-import jrm.server.datasources.CatVerXMLResponse;
-import jrm.server.datasources.NPlayersXMLResponse;
-import jrm.server.datasources.ProfilesListXMLResponse;
-import jrm.server.datasources.ProfilesTreeXMLResponse;
-import jrm.server.datasources.RemoteFileChooserXMLResponse;
-import jrm.server.datasources.RemoteRootChooserXMLResponse;
-import jrm.server.datasources.ReportTreeXMLResponse;
-import jrm.server.datasources.XMLRequest;
+import jrm.server.shared.TempFileInputStream;
 import jrm.server.shared.WebSession;
+import jrm.server.shared.datasources.AnywareListListXMLResponse;
+import jrm.server.shared.datasources.AnywareListXMLResponse;
+import jrm.server.shared.datasources.AnywareXMLResponse;
+import jrm.server.shared.datasources.BatchCompressorFRXMLResponse;
+import jrm.server.shared.datasources.BatchDat2DirResultXMLResponse;
+import jrm.server.shared.datasources.BatchDat2DirSDRXMLResponse;
+import jrm.server.shared.datasources.BatchDat2DirSrcXMLResponse;
+import jrm.server.shared.datasources.BatchTrntChkReportTreeXMLResponse;
+import jrm.server.shared.datasources.BatchTrntChkSDRXMLResponse;
+import jrm.server.shared.datasources.CatVerXMLResponse;
+import jrm.server.shared.datasources.NPlayersXMLResponse;
+import jrm.server.shared.datasources.ProfilesListXMLResponse;
+import jrm.server.shared.datasources.ProfilesTreeXMLResponse;
+import jrm.server.shared.datasources.RemoteFileChooserXMLResponse;
+import jrm.server.shared.datasources.RemoteRootChooserXMLResponse;
+import jrm.server.shared.datasources.ReportTreeXMLResponse;
+import jrm.server.shared.datasources.XMLRequest;
 
 public class DataSourcesHandler extends DefaultHandler
 {
@@ -65,44 +67,63 @@ public class DataSourcesHandler extends DefaultHandler
 				WebSession sess = Server.getSession(session.getCookies().read("session"));
 				if (headers.get("content-type").equals("text/xml"))
 				{
+					TempFileInputStream response = null;
 					switch (urlParams.get("action"))
 					{
 						case "profilesTree":
-							return new ProfilesTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new ProfilesTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "profilesList":
-							return new ProfilesListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new ProfilesListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "remoteFileChooser":
-							return new RemoteFileChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new RemoteFileChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "remoteRootChooser":
-							return new RemoteRootChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new RemoteRootChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "CatVerCmd":
-							return new CatVerXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new CatVerXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "NPlayersCmd":
-							return new NPlayersXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new NPlayersXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "AnywareListList":
-							return new AnywareListListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new AnywareListListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "AnywareList":
-							return new AnywareListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new AnywareListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "Anyware":
-							return new AnywareXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new AnywareXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "Report":
-							return new ReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new ReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "BatchDat2DirSrc":
-							return new BatchDat2DirSrcXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new BatchDat2DirSrcXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "BatchDat2DirSDR":
-							return new BatchDat2DirSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new BatchDat2DirSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "BatchDat2DirResult":
-							return new BatchDat2DirResultXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new BatchDat2DirResultXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "BatchTrntChkSDR":
-							return new BatchTrntChkSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new BatchTrntChkSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "BatchTrntChkReportTree":
-							return new BatchTrntChkReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new BatchTrntChkReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						case "BatchCompressorFR":
-							return new BatchCompressorFRXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							response = new BatchCompressorFRXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
+							break;
 						default:
 							new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen);
 							break;
 					}
+					if(response!=null)
+						NanoHTTPD.newFixedLengthResponse(Status.OK, "text/xml", response, response.getLength());
 				}
 				else
 					session.getInputStream().skip(bodylen);

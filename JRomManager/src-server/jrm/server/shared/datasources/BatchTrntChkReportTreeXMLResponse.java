@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.io.File;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import jrm.batch.TrntChkReport;
 import jrm.batch.TrntChkReport.Child;
 import jrm.batch.TrntChkReport.Status;
-import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 
 public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 {
@@ -24,10 +24,10 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 		if (operation.hasData("src"))
 		{
 			final File srcfile = new File(operation.getData("src"));
-			final File reportfile = TrntChkReport.getReportFile(request.session, srcfile);
-			if (request.session.tmp_tc_report == null || !(request.session.tmp_tc_report.getReportFile(request.session).equals(reportfile) && request.session.tmp_tc_report.getFileModified() == reportfile.lastModified()))
-				request.session.tmp_tc_report = TrntChkReport.load(request.session, srcfile);
-			report = request.session.tmp_tc_report;
+			final File reportfile = TrntChkReport.getReportFile(request.getSession(), srcfile);
+			if (request.getSession().tmp_tc_report == null || !(request.getSession().tmp_tc_report.getReportFile(request.getSession()).equals(reportfile) && request.getSession().tmp_tc_report.getFileModified() == reportfile.lastModified()))
+				request.getSession().tmp_tc_report = TrntChkReport.load(request.getSession(), srcfile);
+			report = request.getSession().tmp_tc_report;
 		}
 		if (report != null)
 		{
@@ -40,8 +40,8 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 			{
 				List<Child> nodes = report.getNodes().stream().filter(n -> showok || n.data.status != Status.OK).collect(Collectors.toList());
 				int start, end, nodecount = nodes.size();
-				writer.writeElement("startRow", Integer.toString(start = Math.min(nodecount - 1, operation.startRow)));
-				writer.writeElement("endRow", Integer.toString(end = Math.min(nodecount - 1, operation.endRow)));
+				writer.writeElement("startRow", Integer.toString(start = Math.min(nodecount - 1, operation.getStartRow())));
+				writer.writeElement("endRow", Integer.toString(end = Math.min(nodecount - 1, operation.getEndRow())));
 				writer.writeElement("totalRows", Integer.toString(nodecount));
 
 				if (nodecount > 0)

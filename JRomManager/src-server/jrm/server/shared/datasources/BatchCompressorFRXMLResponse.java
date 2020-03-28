@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.io.File;
 import java.util.Map.Entry;
@@ -6,7 +6,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 import jrm.batch.Compressor.FileResult;
-import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
 
 public class BatchCompressorFRXMLResponse extends XMLResponse
@@ -21,15 +21,15 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		if (request.session.tmp_compressor_lst == null)
-			request.session.tmp_compressor_lst = new TreeMap<>();
+		if (request.getSession().tmp_compressor_lst == null)
+			request.getSession().tmp_compressor_lst = new TreeMap<>();
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString(request.session.tmp_compressor_lst.size() - 1));
-		writer.writeElement("totalRows", Integer.toString(request.session.tmp_compressor_lst.size()));
+		writer.writeElement("endRow", Integer.toString(request.getSession().tmp_compressor_lst.size() - 1));
+		writer.writeElement("totalRows", Integer.toString(request.getSession().tmp_compressor_lst.size()));
 		writer.writeStartElement("data");
-		for(Entry<String, FileResult> sr : request.session.tmp_compressor_lst.entrySet())
+		for(Entry<String, FileResult> sr : request.getSession().tmp_compressor_lst.entrySet())
 		{
 			writer.writeElement("record", 
 				new SimpleAttribute("id", sr.getKey()),
@@ -48,7 +48,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		{
 			String id = UUID.randomUUID().toString();
 			FileResult fr = new FileResult(new File(operation.getData("file")));
-			request.session.tmp_compressor_lst.put(id, fr);
+			request.getSession().tmp_compressor_lst.put(id, fr);
 			writer.writeStartElement("response");
 			writer.writeElement("status", "0");
 			writer.writeStartElement("data");
@@ -70,7 +70,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		if(operation.hasData("id"))
 		{
 			final String id = operation.getData("id");
-			final FileResult fr = request.session.tmp_compressor_lst.get(id);
+			final FileResult fr = request.getSession().tmp_compressor_lst.get(id);
 			if(fr!=null)
 			{
 				if(operation.hasData("file") || operation.hasData("result"))
@@ -106,7 +106,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		if(operation.hasData("id"))
 		{
 			final String id = operation.getData("id");
-			if(request.session.tmp_compressor_lst.remove(id)!=null)
+			if(request.getSession().tmp_compressor_lst.remove(id)!=null)
 			{
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
@@ -126,10 +126,10 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	@Override
 	protected void custom(Operation operation) throws Exception
 	{
-		switch(operation.operationId.toString())
+		switch(operation.getOperationId().toString())
 		{
 			case "clear":
-				request.session.tmp_compressor_lst.clear();
+				request.getSession().tmp_compressor_lst.clear();
 				success();
 				break;
 		}

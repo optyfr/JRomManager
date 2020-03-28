@@ -1,10 +1,10 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.io.File;
 
 import jrm.batch.DirUpdaterResults;
 import jrm.batch.DirUpdaterResults.DirUpdaterResult;
-import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
 
 public class BatchDat2DirResultXMLResponse extends XMLResponse
@@ -20,7 +20,7 @@ public class BatchDat2DirResultXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws Exception
 	{
 		final String src = operation.getData("src");
-		final DirUpdaterResults results = src!=null?DirUpdaterResults.load(request.session, new File(src)):null;
+		final DirUpdaterResults results = src!=null?DirUpdaterResults.load(request.getSession(), new File(src)):null;
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");

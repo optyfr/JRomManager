@@ -21,8 +21,10 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.annotation.Name;
 import org.eclipse.jetty.util.resource.Resource;
 
+import jrm.fullserver.handlers.ActionServlet;
 import jrm.fullserver.handlers.DataSourceServlet;
 import jrm.fullserver.handlers.ImageServlet;
 import jrm.fullserver.handlers.SessionServlet;
@@ -39,6 +41,7 @@ public class FullServer
 	{
 		this.clientPath = clientPath;
 		
+		
 		Server server = new Server(8080);
 		
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
@@ -48,6 +51,7 @@ public class FullServer
 		context.addServlet(new ServletHolder("datasources", DataSourceServlet.class), "/datasources/*");
 		context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
 		context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
+		context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
 		
 		ServletHolder holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
 		holderStaticNoCache.setInitParameter("dirAllowed", "false");

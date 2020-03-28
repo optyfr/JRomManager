@@ -1,10 +1,10 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
 
 public class RemoteRootChooserXMLResponse extends XMLResponse

@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.FilenameUtils;
 
-import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 
 public class RemoteFileChooserXMLResponse extends XMLResponse
 {
@@ -76,10 +76,10 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		Path dir = request.session.getUser().settings.getWorkPath();
+		Path dir = request.getSession().getUser().settings.getWorkPath();
 		if (operation.hasData("context"))
 		{
-			String saved_dir = request.session.getUser().settings.getProperty("dir." + operation.getData("context"), null);
+			String saved_dir = request.getSession().getUser().settings.getProperty("dir." + operation.getData("context"), null);
 			if (saved_dir != null && !saved_dir.isEmpty())
 			{
 				Path saved_path = Paths.get(saved_dir);
@@ -133,7 +133,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void add(Operation operation) throws Exception
 	{
-		Path dir = request.session.getUser().settings.getWorkPath();
+		Path dir = request.getSession().getUser().settings.getWorkPath();
 		if(operation.hasData("parent"))
 			dir = new File(operation.getData("parent")).toPath();
 		String name = operation.getData("Name");
@@ -168,11 +168,11 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void update(Operation operation) throws Exception
 	{
-		Path dir = request.session.getUser().settings.getWorkPath();
+		Path dir = request.getSession().getUser().settings.getWorkPath();
 		if(operation.hasData("parent"))
 			dir = new File(operation.getData("parent")).toPath();
 		String name = operation.getData("Name");
-		String oldname = operation.oldValues.get("Name");
+		String oldname = operation.getOldValues().get("Name");
 		Path entry = dir.resolve(name);
 		Path oldentry = dir.resolve(oldname);
 		if(name!=null && oldname!=null && Files.isDirectory(dir) && Files.exists(oldentry) && !Files.exists(entry))
@@ -205,7 +205,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void remove(Operation operation) throws Exception
 	{
-		Path dir = request.session.getUser().settings.getWorkPath();
+		Path dir = request.getSession().getUser().settings.getWorkPath();
 		if(operation.hasData("parent"))
 			dir = new File(operation.getData("parent")).toPath();
 		String name = operation.getData("Name");
@@ -238,11 +238,11 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	protected void custom(Operation operation) throws Exception
 	{
 		
-		if(operation.operationId.toString().equals("expand"))
+		if(operation.getOperationId().toString().equals("expand"))
 		{
 			if(operation.hasData("paths"))
 			{
-				Path dir = request.session.getUser().settings.getWorkPath();
+				Path dir = request.getSession().getUser().settings.getWorkPath();
 				if(operation.hasData("parent"))
 					dir = new File(operation.getData("parent")).toPath();
 				writer.writeStartElement("response");

@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import jrm.profile.manager.ProfileNFO;
-import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 import lombok.val;
 
 public class ProfilesListXMLResponse extends XMLResponse
@@ -22,10 +22,10 @@ public class ProfilesListXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+		File dir = request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 		if(operation.hasData("Parent"))
 			dir = new File(operation.getData("Parent"));
-		val rows = ProfileNFO.list(request.session, dir);
+		val rows = ProfileNFO.list(request.getSession(), dir);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
@@ -56,7 +56,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("Src"))
 		{
-			File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+			File dir = request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 			if(operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
 				dir = new File(operation.getData("Parent"));
 			File src = new File(operation.getData("Src"));
@@ -67,7 +67,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 					File dst = new File(dir, operation.getData("File"));
 					if(!src.equals(dst))
 						FileUtils.copyFile(src, dst, true);
-					ProfileNFO nfo = ProfileNFO.load(request.session, dst);
+					ProfileNFO nfo = ProfileNFO.load(request.getSession(), dst);
 					writer.writeStartElement("response");
 					writer.writeElement("status", "0");
 					writer.writeStartElement("data");
@@ -100,12 +100,12 @@ public class ProfilesListXMLResponse extends XMLResponse
 	@Override
 	protected void remove(Operation operation) throws Exception
 	{
-		File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+		File dir = request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 		if(operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
 			dir = new File(operation.getData("Parent"));
 		File dst = new File(dir, operation.getData("File"));
-		ProfileNFO nfo = ProfileNFO.load(request.session, dst);
-		if(request.session.curr_profile == null || !request.session.curr_profile.nfo.equals(nfo))
+		ProfileNFO nfo = ProfileNFO.load(request.getSession(), dst);
+		if(request.getSession().curr_profile == null || !request.getSession().curr_profile.nfo.equals(nfo))
 		{
 			if(nfo.delete())
 			{
@@ -128,10 +128,10 @@ public class ProfilesListXMLResponse extends XMLResponse
 	@Override
 	protected void custom(Operation operation) throws Exception
 	{
-		switch(operation.operationId.toString())
+		switch(operation.getOperationId().toString())
 		{
 			case "DropCache":
-				File dir = request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+				File dir = request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 				if(operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
 					dir = new File(operation.getData("Parent"));
 				File dst = new File(dir, operation.getData("File"));

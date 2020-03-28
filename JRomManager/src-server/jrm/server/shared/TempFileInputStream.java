@@ -10,12 +10,14 @@ import java.io.InputStream;
 
 public class TempFileInputStream extends FileInputStream
 {
-	private File file;
+	private final File file;
+	private final long length;
 	
 	public TempFileInputStream(File file) throws FileNotFoundException
 	{
 		super(file);
 		this.file = file;
+		this.length = file.length();
 	}
 	
 	@Override
@@ -56,6 +58,14 @@ public class TempFileInputStream extends FileInputStream
 			out.close();
 		}
 		return new TempFileInputStream(tmpfile);
+	}
+
+	/**
+	 * @return the len
+	 */
+	public long getLength()
+	{
+		return length;
 	}
 
 }

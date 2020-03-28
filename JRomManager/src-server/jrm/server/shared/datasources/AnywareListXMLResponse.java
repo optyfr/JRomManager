@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,8 +10,8 @@ import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
 import jrm.profile.data.Machine;
 import jrm.profile.data.MachineList;
-import jrm.server.datasources.XMLRequest.Operation;
-import jrm.server.datasources.XMLRequest.Operation.Sorter;
+import jrm.server.shared.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation.Sorter;
 
 public class AnywareListXMLResponse extends XMLResponse
 {
@@ -29,9 +29,9 @@ public class AnywareListXMLResponse extends XMLResponse
 		if(list==null)
 			al = null;
 		else if(list.equals("*"))
-			al = request.session.curr_profile.machinelist_list.get(0);
+			al = request.getSession().curr_profile.machinelist_list.get(0);
 		else
-			al = request.session.curr_profile.machinelist_list.softwarelist_list.getByName(list);
+			al = request.getSession().curr_profile.machinelist_list.softwarelist_list.getByName(list);
 		return al;
 	}
 	
@@ -64,22 +64,22 @@ public class AnywareListXMLResponse extends XMLResponse
 					return false;
 			return true;
 		}).sorted((o1,o2)->{
-			if(operation.sort.size()>0)
+			if(operation.getSort().size()>0)
 			{
-				for(Sorter s : operation.sort)
+				for(Sorter s : operation.getSort())
 				{
-					switch(s.name)
+					switch(s.getName())
 					{
 						case "name":
 						{
-							int ret = (s.desc ? o2 : o1).getBaseName().compareToIgnoreCase((s.desc ? o1 : o2).getBaseName());
+							int ret = (s.isDesc() ? o2 : o1).getBaseName().compareToIgnoreCase((s.isDesc() ? o1 : o2).getBaseName());
 							if (ret != 0)
 								return ret;
 							break;
 						}
 						case "description":
 						{
-							int ret = (s.desc ? o2 : o1).description.toString().compareToIgnoreCase((s.desc ? o1 : o2).description.toString());
+							int ret = (s.isDesc() ? o2 : o1).description.toString().compareToIgnoreCase((s.isDesc() ? o1 : o2).description.toString());
 							if (ret != 0)
 								return ret;
 							break;
@@ -186,7 +186,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	@Override
 	protected void custom(Operation operation) throws Exception
 	{
-		if(operation.operationId.toString().equals("find"))
+		if(operation.getOperationId().toString().equals("find"))
 		{
 			writer.writeStartElement("response");
 			writer.writeElement("status", "0");
@@ -209,7 +209,7 @@ public class AnywareListXMLResponse extends XMLResponse
 			}
 			writer.writeEndElement();
 		}
-		else if(operation.operationId.toString().equals("selectNone"))
+		else if(operation.getOperationId().toString().equals("selectNone"))
 		{
 			writer.writeStartElement("response");
 			writer.writeElement("status", "0");
@@ -222,7 +222,7 @@ public class AnywareListXMLResponse extends XMLResponse
 			}
 			writer.writeEndElement();
 		}
-		else if(operation.operationId.toString().equals("selectAll"))
+		else if(operation.getOperationId().toString().equals("selectAll"))
 		{
 			writer.writeStartElement("response");
 			writer.writeElement("status", "0");
@@ -235,7 +235,7 @@ public class AnywareListXMLResponse extends XMLResponse
 			}
 			writer.writeEndElement();
 		}
-		else if(operation.operationId.toString().equals("selectInvert"))
+		else if(operation.getOperationId().toString().equals("selectInvert"))
 		{
 			writer.writeStartElement("response");
 			writer.writeElement("status", "0");
@@ -249,6 +249,6 @@ public class AnywareListXMLResponse extends XMLResponse
 			writer.writeEndElement();
 		}
 		else
-			failure("custom operation with id "+operation.operationId+" not implemented");
+			failure("custom operation with id "+operation.getOperationId()+" not implemented");
 	}
 }

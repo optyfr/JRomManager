@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,15 +15,15 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import jrm.misc.Log;
-import jrm.server.datasources.XMLRequest.Operation.Sorter;
 import jrm.server.shared.TempFileInputStream;
 import jrm.server.shared.WebSession;
+import jrm.server.shared.datasources.XMLRequest.Operation.Sorter;
 
 public class XMLRequest
 {
-	static class Operation
+	public static class Operation
 	{
-		static class Sorter
+		public static class Sorter
 		{
 			String name;
 			boolean desc = false;
@@ -38,6 +38,22 @@ public class XMLRequest
 				else
 					name = value;
 			}
+
+			/**
+			 * @return the name
+			 */
+			public String getName()
+			{
+				return name;
+			}
+
+			/**
+			 * @return the desc
+			 */
+			public boolean isDesc()
+			{
+				return desc;
+			}
 		}
 		StringBuffer operationType = new StringBuffer();
 		StringBuffer operationId = new StringBuffer();
@@ -47,12 +63,12 @@ public class XMLRequest
 		private Map<String,List<String>> data = new HashMap<>();
 		Map<String,String> oldValues = new HashMap<>();
 		
-		boolean hasData(String key)
+		public boolean hasData(String key)
 		{
 			return data.containsKey(key);
 		}
 		
-		String getData(String key)
+		public String getData(String key)
 		{
 			if(data.containsKey(key))
 			{
@@ -70,15 +86,71 @@ public class XMLRequest
 			return data.get(key).add(value);
 		}
 		
-		List<String> getDatas(String key)
+		public List<String> getDatas(String key)
 		{
 			return data.get(key);
 		}
+
+		/**
+		 * @return the sort
+		 */
+		public List<Sorter> getSort()
+		{
+			return sort;
+		}
+
+		/**
+		 * @return the operationId
+		 */
+		public StringBuffer getOperationId()
+		{
+			return operationId;
+		}
+
+		/**
+		 * @return the operationType
+		 */
+		public StringBuffer getOperationType()
+		{
+			return operationType;
+		}
+
+		/**
+		 * @return the startRow
+		 */
+		public int getStartRow()
+		{
+			return startRow;
+		}
+
+		/**
+		 * @return the endRow
+		 */
+		public int getEndRow()
+		{
+			return endRow;
+		}
+
+		/**
+		 * @return the oldValues
+		 */
+		public Map<String,String> getOldValues()
+		{
+			return oldValues;
+		}
 	}
 	
-	class Transaction
+	public class Transaction
 	{
 		List<Operation> operations = new ArrayList<>();
+
+		/**
+		 * @return the operations
+		 */
+		public List<Operation> getOperations()
+		{
+			return operations;
+		}
 	}
 	
 	Operation operation = null;
@@ -115,8 +187,8 @@ public class XMLRequest
 					if (qName.equals("request"))
 					{
 						current_request = new Operation();
-						if(transaction != null)
-							transaction.operations.add(current_request);
+						if(getTransaction() != null)
+							getTransaction().getOperations().add(current_request);
 						else
 							operation = current_request;
 						isRequest = true;
@@ -196,7 +268,7 @@ public class XMLRequest
 							break;
 						case "sortBy":
 							inSortBy = false;
-							current_request.sort.add(new Sorter(datavalue.toString()));
+							current_request.getSort().add(new Sorter(datavalue.toString()));
 							datavalue.setLength(0);
 							break;
 						case "data":
@@ -213,7 +285,7 @@ public class XMLRequest
 							}
 							else if(inOldValues)
 							{
-								current_request.oldValues.put(qName, datavalue.toString());
+								current_request.getOldValues().put(qName, datavalue.toString());
 								datavalue.setLength(0);
 							}
 							break;
@@ -224,9 +296,9 @@ public class XMLRequest
 				public void characters(char[] ch, int start, int length) throws SAXException
 				{
 					if (inOperationType)
-						current_request.operationType.append(ch, start, length);
+						current_request.getOperationType().append(ch, start, length);
 					else if (inOperationId)
-						current_request.operationId.append(ch, start, length);
+						current_request.getOperationId().append(ch, start, length);
 					else if (inStartRow || inEndRow)
 						datavalue.append(ch, start, length);
 					else if (inSortBy)
@@ -242,6 +314,30 @@ public class XMLRequest
 		{
 			Log.err(e.getMessage(),e);
 		}
+	}
+
+	/**
+	 * @return the session
+	 */
+	public WebSession getSession()
+	{
+		return session;
+	}
+
+	/**
+	 * @return the transaction
+	 */
+	public Transaction getTransaction()
+	{
+		return transaction;
+	}
+
+	/**
+	 * @return the operation
+	 */
+	public Operation getOperation()
+	{
+		return operation;
 	}
 
 }

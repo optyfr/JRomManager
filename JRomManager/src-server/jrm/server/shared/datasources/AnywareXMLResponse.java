@@ -1,4 +1,4 @@
-package jrm.server.datasources;
+package jrm.server.shared.datasources;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -10,7 +10,7 @@ import jrm.profile.data.EntityBase;
 import jrm.profile.data.MachineList;
 import jrm.profile.data.Rom;
 import jrm.profile.data.Sample;
-import jrm.server.datasources.XMLRequest.Operation;
+import jrm.server.shared.datasources.XMLRequest.Operation;
 
 public class AnywareXMLResponse extends XMLResponse
 {
@@ -28,9 +28,9 @@ public class AnywareXMLResponse extends XMLResponse
 		if(list==null)
 			al = null;
 		else if(list.equals("*"))
-			al = request.session.curr_profile.machinelist_list.get(0);
+			al = request.getSession().curr_profile.machinelist_list.get(0);
 		else
-			al = request.session.curr_profile.machinelist_list.softwarelist_list.getByName(list);
+			al = request.getSession().curr_profile.machinelist_list.softwarelist_list.getByName(list);
 		return al;
 	}
 	
