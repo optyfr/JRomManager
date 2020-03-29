@@ -66,7 +66,6 @@ import lombok.val;
 			user = sql.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<>(UserCredential.class), username);
 			if (user != null) // si il y a un bien un user avec le login correspondant
 			{
-				System.out.println(user.getLogin()+":"+user.getPassword());
 				if(user.getPassword().startsWith("$argon2"))
 				{
 					Argon2 argon2;

@@ -220,6 +220,7 @@ public class FullServer
 		if (debug)
 		{
 			System.in.read();
+			jettyserver.stop();
 			System.exit(0);
 		}
 		else
