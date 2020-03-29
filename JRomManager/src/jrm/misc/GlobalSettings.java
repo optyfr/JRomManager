@@ -104,6 +104,8 @@ public class GlobalSettings extends Settings implements SystemSettings
 		Path base = getBasePath();
 		if(user.getSession().server && user.getSession().multiuser)
 		{
+			if(!user.getName().equals("server"))
+				return base;
 			Path work = base.resolve("users").resolve(user.getName());
 			if(!Files.exists(work))
 			{

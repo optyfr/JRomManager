@@ -50,7 +50,7 @@ public class Session
 		this.multiuser = true;
 		this.server = true;
 		this.sessionId = sessionId;
-		this.user = new User(this, user==null?"global":user);
+		this.user = new User(this, user==null?"server":user);
 	}
 
 	public User getUser()
