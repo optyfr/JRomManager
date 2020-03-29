@@ -76,10 +76,10 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		Path dir = request.getSession().getUser().settings.getWorkPath();
+		Path dir = request.getSession().getUser().getSettings().getWorkPath();
 		if (operation.hasData("context"))
 		{
-			String saved_dir = request.getSession().getUser().settings.getProperty("dir." + operation.getData("context"), null);
+			String saved_dir = request.getSession().getUser().getSettings().getProperty("dir." + operation.getData("context"), null);
 			if (saved_dir != null && !saved_dir.isEmpty())
 			{
 				Path saved_path = Paths.get(saved_dir);
@@ -133,7 +133,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void add(Operation operation) throws Exception
 	{
-		Path dir = request.getSession().getUser().settings.getWorkPath();
+		Path dir = request.getSession().getUser().getSettings().getWorkPath();
 		if(operation.hasData("parent"))
 			dir = new File(operation.getData("parent")).toPath();
 		String name = operation.getData("Name");
@@ -168,7 +168,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void update(Operation operation) throws Exception
 	{
-		Path dir = request.getSession().getUser().settings.getWorkPath();
+		Path dir = request.getSession().getUser().getSettings().getWorkPath();
 		if(operation.hasData("parent"))
 			dir = new File(operation.getData("parent")).toPath();
 		String name = operation.getData("Name");
@@ -205,7 +205,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void remove(Operation operation) throws Exception
 	{
-		Path dir = request.getSession().getUser().settings.getWorkPath();
+		Path dir = request.getSession().getUser().getSettings().getWorkPath();
 		if(operation.hasData("parent"))
 			dir = new File(operation.getData("parent")).toPath();
 		String name = operation.getData("Name");
@@ -242,7 +242,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		{
 			if(operation.hasData("paths"))
 			{
-				Path dir = request.getSession().getUser().settings.getWorkPath();
+				Path dir = request.getSession().getUser().getSettings().getWorkPath();
 				if(operation.hasData("parent"))
 					dir = new File(operation.getData("parent")).toPath();
 				writer.writeStartElement("response");

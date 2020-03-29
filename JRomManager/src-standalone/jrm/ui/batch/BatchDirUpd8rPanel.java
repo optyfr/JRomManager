@@ -97,7 +97,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		splitPane.setLeftComponent(scrollPane_5);
 		scrollPane_5.setBorder(new TitledBorder(null, Messages.getString("MainFrame.SrcDirs"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
-		listBatchToolsDat2DirSrc = new JFileDropList(files -> session.getUser().settings.setProperty(SettingsEnum.dat2dir_srcdirs, String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); //$NON-NLS-1$ //$NON-NLS-2$
+		listBatchToolsDat2DirSrc = new JFileDropList(files -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, String.join("|", files.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList())))); //$NON-NLS-1$ //$NON-NLS-2$
 		listBatchToolsDat2DirSrc.setMode(JFileDropMode.DIRECTORY);
 		listBatchToolsDat2DirSrc.setUI(new JListHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		listBatchToolsDat2DirSrc.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirSrc.toolTipText")); //$NON-NLS-1$
@@ -148,7 +148,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		splitPane.setRightComponent(scrollPane_6);
 
 		BatchTableModel model = new BatchTableModel();
-		tableBatchToolsDat2Dir = new JSDRDropTable(model, files -> session.getUser().settings.setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(files))); //$NON-NLS-1$
+		tableBatchToolsDat2Dir = new JSDRDropTable(model, files -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(files))); //$NON-NLS-1$
 		model.setButtonHandler(new TableButtonPressedHandler()
 		{
 			@Override
@@ -159,7 +159,7 @@ public class BatchDirUpd8rPanel extends JPanel
 			}
 		});
 		if(session!=null)
-			tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(session.getUser().settings.getProperty(SettingsEnum.dat2dir_sdr, "[]")));
+			tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]")));
 		tableBatchToolsDat2Dir.setCellSelectionEnabled(false);
 		tableBatchToolsDat2Dir.setRowSelectionAllowed(true);
 		tableBatchToolsDat2Dir.getSDRModel().setSrcFilter(file -> {
@@ -394,13 +394,13 @@ public class BatchDirUpd8rPanel extends JPanel
 					SrcDstResult entry = list.get(0);
 					try
 					{
-						dialog.settingsPanel.initProfileSettings(session.getUser().settings.loadProfileSettings(entry.src, null));
+						dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(entry.src, null));
 						dialog.setVisible(true);
 						if(dialog.success)
 						{
 							for(SrcDstResult sdr : list)
 							{
-								session.getUser().settings.saveProfileSettings(sdr.src, dialog.settingsPanel.settings);
+								session.getUser().getSettings().saveProfileSettings(sdr.src, dialog.settingsPanel.settings);
 							}
 						}
 					}
@@ -413,14 +413,14 @@ public class BatchDirUpd8rPanel extends JPanel
 		});
 		mnDat2DirPresets.add(mntmCustom);
 		if(session!=null)
-			for (final String s : StringUtils.split(session.getUser().settings.getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			for (final String s : StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				if (!s.isEmpty())
 					listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
 
 		JCheckBox cbBatchToolsDat2DirDryRun = new JCheckBox(Messages.getString("MainFrame.cbBatchToolsDat2DirDryRun.text")); //$NON-NLS-1$
 		if(session!=null)
-			cbBatchToolsDat2DirDryRun.setSelected(session.getUser().settings.getProperty(SettingsEnum.dat2dir_dry_run, false)); //$NON-NLS-1$
-		cbBatchToolsDat2DirDryRun.addItemListener(e -> session.getUser().settings.setProperty(SettingsEnum.dat2dir_dry_run, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+			cbBatchToolsDat2DirDryRun.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, false)); //$NON-NLS-1$
+		cbBatchToolsDat2DirDryRun.addItemListener(e -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 
 		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$
 		btnBatchToolsDir2DatStart.addActionListener((e) -> dat2dir(session, cbBatchToolsDat2DirDryRun.isSelected()));
@@ -443,7 +443,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		if (listBatchToolsDat2DirSrc.getModel().getSize() > 0)
 		{
 			List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
-			if (sdrl.stream().filter((sdr) -> !session.getUser().settings.getProfileSettingsFile(sdr.src).exists()).count() > 0)
+			if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(sdr.src).exists()).count() > 0)
 				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 			else
 			{

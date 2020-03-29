@@ -140,7 +140,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	 */
 	private static File getFileNfo(final Session session, final File file)
 	{
-		return session.getUser().settings.getWorkFile(file.getParentFile(), file.getName(), ".nfo");
+		return session.getUser().getSettings().getWorkFile(file.getParentFile(), file.getName(), ".nfo");
 	}
 
 	/**

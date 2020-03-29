@@ -24,13 +24,13 @@ public class GlobalActions
 		{
 			JsonValue value = m.getValue();
 			if(value.isBoolean())
-				ws.getSession().getUser().settings.setProperty(m.getName(), value.asBoolean());
+				ws.getSession().getUser().getSettings().setProperty(m.getName(), value.asBoolean());
 			else if(value.isString())
-				ws.getSession().getUser().settings.setProperty(m.getName(), value.asString());
+				ws.getSession().getUser().getSettings().setProperty(m.getName(), value.asString());
 			else
-				ws.getSession().getUser().settings.setProperty(m.getName(), value.toString());
+				ws.getSession().getUser().getSettings().setProperty(m.getName(), value.toString());
 		}
-		ws.getSession().getUser().settings.saveSettings();
+		ws.getSession().getUser().getSettings().saveSettings();
 	}
 	
 	@SuppressWarnings("serial")

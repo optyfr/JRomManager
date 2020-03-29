@@ -48,7 +48,7 @@ public class ProfileSettings extends Settings
 		settings.setProperty(SettingsEnum.format, FormatOptions.DIR.toString()); //$NON-NLS-1$
 		settings.setProperty(SettingsEnum.merge_mode, MergeOptions.NOMERGE.toString()); //$NON-NLS-1$
 		settings.setProperty(SettingsEnum.archives_and_chd_as_roms, true); //$NON-NLS-1$
-		session.getUser().settings.saveProfileSettings(src, settings);
+		session.getUser().getSettings().saveProfileSettings(src, settings);
 	}
 	
 	public static void TZIP(Session session, File src) throws IOException
@@ -70,7 +70,7 @@ public class ProfileSettings extends Settings
 		settings.setProperty(SettingsEnum.format, FormatOptions.TZIP.toString()); //$NON-NLS-1$
 		settings.setProperty(SettingsEnum.merge_mode, MergeOptions.NOMERGE.toString()); //$NON-NLS-1$
 		settings.setProperty(SettingsEnum.archives_and_chd_as_roms, false); //$NON-NLS-1$
-		session.getUser().settings.saveProfileSettings(src, settings);
+		session.getUser().getSettings().saveProfileSettings(src, settings);
 	}
 
 	@Override

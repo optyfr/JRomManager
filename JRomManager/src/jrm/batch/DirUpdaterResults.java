@@ -42,7 +42,7 @@ public class DirUpdaterResults implements Serializable
 	{
 		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		final File reports = session.getUser().settings.getWorkPath().resolve("work").toFile(); //$NON-NLS-1$
+		final File reports = session.getUser().getSettings().getWorkPath().resolve("work").toFile(); //$NON-NLS-1$
 		reports.mkdirs();
 		return new File(reports, String.format("%08x", crc.getValue()) + ".results"); //$NON-NLS-1$
 	}

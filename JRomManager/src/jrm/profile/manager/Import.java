@@ -57,7 +57,7 @@ public class Import implements UnitRenderer
 	public Import(final Session session, final File file, final boolean sl, ProgressHandler progress)
 	{
 		org_file = file;
-		final File workdir = session.getUser().settings.getWorkPath().toFile(); //$NON-NLS-1$
+		final File workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
 		final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 		xmldir.mkdir();
 

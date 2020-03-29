@@ -35,15 +35,15 @@ public class Dat2DirActions
 	{
 		(ws.getSession().worker = new Worker(()->{
 			WebSession session = ws.getSession();
-			boolean dryrun = session.getUser().settings.getProperty(SettingsEnum.dat2dir_dry_run, true);
+			boolean dryrun = session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, true);
 			session.worker.progress = new ProgressActions(ws);
 			try
 			{
-				String[] srcdirs = StringUtils.split(session.getUser().settings.getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
+				String[] srcdirs = StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
 				if (srcdirs.length > 0)
 				{
-					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().settings.getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-					if (sdrl.stream().filter((sdr) -> !session.getUser().settings.getProfileSettingsFile(sdr.src).exists()).count() > 0)
+					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
+					if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(sdr.src).exists()).count() > 0)
 						new GlobalActions(ws).warn(ws.getSession().msgs.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
 					{
@@ -53,7 +53,7 @@ public class Dat2DirActions
 							public void updateResult(int row, String result)
 							{
 								sdrl.get(row).result = result;
-								session.getUser().settings.setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
+								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
 								Dat2DirActions.this.updateResult(row, result);
 							}
 							
@@ -61,7 +61,7 @@ public class Dat2DirActions
 							public void clearResults()
 							{
 								sdrl.forEach(sdr -> sdr.result = "");
-								session.getUser().settings.setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
+								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
 								Dat2DirActions.this.clearResults();
 							}
 						}, dryrun);
@@ -95,7 +95,7 @@ public class Dat2DirActions
 			String src = srcs.get(0).asString();
 			try
 			{
-				ProfileSettings settings = ws.getSession().getUser().settings.loadProfileSettings(new File(src), null);
+				ProfileSettings settings = ws.getSession().getUser().getSettings().loadProfileSettings(new File(src), null);
 				if(ws.isOpen())
 				{
 					ws.send(new JsonObject() {{

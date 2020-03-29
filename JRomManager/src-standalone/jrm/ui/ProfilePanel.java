@@ -170,7 +170,7 @@ public class ProfilePanel extends JPanel
 		profilesTree = new JTree();
 		scrollPane_1.setViewportView(profilesTree);
 
-		final DirTreeModel profilesTreeModel = new DirTreeModel(new DirNode(session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile())); //$NON-NLS-1$
+		final DirTreeModel profilesTreeModel = new DirTreeModel(new DirNode(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile())); //$NON-NLS-1$
 		profilesTree.setModel(profilesTreeModel);
 		profilesTree.setRootVisible(true);
 		profilesTree.setShowsRootHandles(true);
@@ -393,11 +393,11 @@ public class ProfilePanel extends JPanel
 				}
 			}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			);
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().settings.getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
 					.show(SwingUtilities.getWindowAncestor(this), chooser -> {
 						final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
 						progress.canCancel(false);
-						session.getUser().settings.setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+						session.getUser().getSettings().setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 						for (final File selectedfile : chooser.getSelectedFiles())
 						{
 							progress.setVisible(true);
@@ -442,7 +442,7 @@ public class ProfilePanel extends JPanel
 									}
 								}
 							}
-							final File workdir = session.getUser().settings.getWorkPath().toFile(); // $NON-NLS-1$
+							final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
 							final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 							new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 									.show(SwingUtilities.getWindowAncestor(this), chooser1 -> {

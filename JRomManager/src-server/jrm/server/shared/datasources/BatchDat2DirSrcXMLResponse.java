@@ -22,7 +22,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		String[] srcdirs = StringUtils.split(request.getSession().getUser().settings.getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
+		String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
@@ -44,14 +44,14 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("name"))
 		{
-			String[] srcdirs = StringUtils.split(request.getSession().getUser().settings.getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
+			String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
 			List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
 			final List<String> names = operation.getDatas("name").stream().filter(n->!lsrcdirs.contains(n)).collect(Collectors.toList());
 			if(names.size()>0)
 			{
 				lsrcdirs.addAll(names);
-				request.getSession().getUser().settings.setProperty(SettingsEnum.dat2dir_srcdirs, lsrcdirs.stream().collect(Collectors.joining("|")));
-				request.getSession().getUser().settings.saveSettings();
+				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, lsrcdirs.stream().collect(Collectors.joining("|")));
+				request.getSession().getUser().getSettings().saveSettings();
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
 				writer.writeStartElement("data");
@@ -72,14 +72,14 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("name"))
 		{
-			final String[] srcdirs = StringUtils.split(request.getSession().getUser().settings.getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
+			final String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
 			final List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
 			final List<String> names = operation.getDatas("name").stream().filter(lsrcdirs::contains).collect(Collectors.toList());
 			if(names.size()>0)
 			{
 				lsrcdirs.removeAll(names);
-				request.getSession().getUser().settings.setProperty(SettingsEnum.dat2dir_srcdirs, lsrcdirs.stream().collect(Collectors.joining("|")));
-				request.getSession().getUser().settings.saveSettings();
+				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, lsrcdirs.stream().collect(Collectors.joining("|")));
+				request.getSession().getUser().getSettings().saveSettings();
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
 				writer.writeStartElement("data");

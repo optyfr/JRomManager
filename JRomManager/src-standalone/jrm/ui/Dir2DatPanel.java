@@ -83,8 +83,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatOptions.setLayout(gbl_panelDir2DatOptions);
 
 		JCheckBox cbDir2DatScanSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxScanSubfolders.text")); //$NON-NLS-1$
-		cbDir2DatScanSubfolders.setSelected(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, true)); //$NON-NLS-1$
-		cbDir2DatScanSubfolders.addItemListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbDir2DatScanSubfolders.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, true)); //$NON-NLS-1$
+		cbDir2DatScanSubfolders.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatScanSubfolders = new GridBagConstraints();
 		gbc_cbDir2DatScanSubfolders.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatScanSubfolders.insets = new Insets(0, 0, 5, 5);
@@ -93,8 +93,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatOptions.add(cbDir2DatScanSubfolders, gbc_cbDir2DatScanSubfolders);
 
 		JCheckBox cbDir2DatDeepScan = new JCheckBox(Messages.getString("MainFrame.chckbxDeepScanFor.text")); //$NON-NLS-1$
-		cbDir2DatDeepScan.setSelected(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, false)); //$NON-NLS-1$
-		cbDir2DatDeepScan.addItemListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbDir2DatDeepScan.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, false)); //$NON-NLS-1$
+		cbDir2DatDeepScan.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatDeepScan = new GridBagConstraints();
 		gbc_cbDir2DatDeepScan.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatDeepScan.insets = new Insets(0, 0, 5, 5);
@@ -103,8 +103,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatOptions.add(cbDir2DatDeepScan, gbc_cbDir2DatDeepScan);
 
 		JCheckBox cbDir2DatAddMd5 = new JCheckBox(Messages.getString("MainFrame.chckbxAddMd.text")); //$NON-NLS-1$
-		cbDir2DatAddMd5.setSelected(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, false)); //$NON-NLS-1$
-		cbDir2DatAddMd5.addItemListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbDir2DatAddMd5.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, false)); //$NON-NLS-1$
+		cbDir2DatAddMd5.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatAddMd5 = new GridBagConstraints();
 		gbc_cbDir2DatAddMd5.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatAddMd5.insets = new Insets(0, 0, 5, 5);
@@ -113,8 +113,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatOptions.add(cbDir2DatAddMd5, gbc_cbDir2DatAddMd5);
 
 		JCheckBox cbDir2DatAddSha1 = new JCheckBox(Messages.getString("MainFrame.chckbxAddShamd.text")); //$NON-NLS-1$
-		cbDir2DatAddSha1.setSelected(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, false)); //$NON-NLS-1$
-		cbDir2DatAddSha1.addItemListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbDir2DatAddSha1.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, false)); //$NON-NLS-1$
+		cbDir2DatAddSha1.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatAddSha1 = new GridBagConstraints();
 		gbc_cbDir2DatAddSha1.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatAddSha1.insets = new Insets(0, 0, 5, 5);
@@ -123,8 +123,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatOptions.add(cbDir2DatAddSha1, gbc_cbDir2DatAddSha1);
 
 		JCheckBox cbDir2DatJunkSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxJunkSubfolders.text")); //$NON-NLS-1$
-		cbDir2DatJunkSubfolders.setSelected(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, false)); //$NON-NLS-1$
-		cbDir2DatJunkSubfolders.addItemListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbDir2DatJunkSubfolders.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, false)); //$NON-NLS-1$
+		cbDir2DatJunkSubfolders.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatJunkSubfolders = new GridBagConstraints();
 		gbc_cbDir2DatJunkSubfolders.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatJunkSubfolders.insets = new Insets(0, 0, 5, 5);
@@ -133,8 +133,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatOptions.add(cbDir2DatJunkSubfolders, gbc_cbDir2DatJunkSubfolders);
 
 		JCheckBox cbDir2DatDoNotScan = new JCheckBox(Messages.getString("MainFrame.chckbxDoNotScan.text")); //$NON-NLS-1$
-		cbDir2DatDoNotScan.setSelected(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, false)); //$NON-NLS-1$
-		cbDir2DatDoNotScan.addItemListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbDir2DatDoNotScan.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, false)); //$NON-NLS-1$
+		cbDir2DatDoNotScan.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatDoNotScan = new GridBagConstraints();
 		gbc_cbDir2DatDoNotScan.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatDoNotScan.insets = new Insets(0, 0, 5, 5);
@@ -143,8 +143,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatOptions.add(cbDir2DatDoNotScan, gbc_cbDir2DatDoNotScan);
 
 		JCheckBox cbDir2DatMatchCurrentProfile = new JCheckBox(Messages.getString("MainFrame.chckbxMatchCurrentProfile.text")); //$NON-NLS-1$
-		cbDir2DatMatchCurrentProfile.setSelected(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, false)); //$NON-NLS-1$
-		cbDir2DatMatchCurrentProfile.addItemListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbDir2DatMatchCurrentProfile.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, false)); //$NON-NLS-1$
+		cbDir2DatMatchCurrentProfile.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatMatchCurrentProfile = new GridBagConstraints();
 		gbc_cbDir2DatMatchCurrentProfile.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatMatchCurrentProfile.insets = new Insets(0, 0, 5, 5);
@@ -153,8 +153,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatOptions.add(cbDir2DatMatchCurrentProfile, gbc_cbDir2DatMatchCurrentProfile);
 
 		JCheckBox cbDir2DatIncludeEmptyDirs = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeEmptyDirs.text")); //$NON-NLS-1$
-		cbDir2DatIncludeEmptyDirs.setSelected(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, false)); //$NON-NLS-1$
-		cbDir2DatIncludeEmptyDirs.addItemListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		cbDir2DatIncludeEmptyDirs.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, false)); //$NON-NLS-1$
+		cbDir2DatIncludeEmptyDirs.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		GridBagConstraints gbc_cbDir2DatIncludeEmptyDirs = new GridBagConstraints();
 		gbc_cbDir2DatIncludeEmptyDirs.anchor = GridBagConstraints.WEST;
 		gbc_cbDir2DatIncludeEmptyDirs.insets = new Insets(0, 0, 5, 5);
@@ -381,8 +381,8 @@ public class Dir2DatPanel extends JPanel
 		gbc_lblDir2DatSrc.gridy = 0;
 		panelDir2DatIO.add(lblDir2DatSrc, gbc_lblDir2DatSrc);
 
-		tfDir2DatSrc = new JFileDropTextField(txt -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, txt)); //$NON-NLS-1$
-		tfDir2DatSrc.setText(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		tfDir2DatSrc = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, txt)); //$NON-NLS-1$
+		tfDir2DatSrc.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		tfDir2DatSrc.setMode(JFileDropMode.DIRECTORY);
 		tfDir2DatSrc.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfDir2DatSrc.setColumns(10);
@@ -397,11 +397,11 @@ public class Dir2DatPanel extends JPanel
 		JButton btnDir2DatSrc = new JButton(""); //$NON-NLS-1$
 		btnDir2DatSrc.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
 		btnDir2DatSrc.addActionListener(e -> {
-			final File workdir = session.getUser().settings.getWorkPath().toFile(); // $NON-NLS-1$
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getUser().settings.getProperty("MainFrame.ChooseDatSrc", workdir.getAbsolutePath())), new File(tfDir2DatSrc.getText()), null, Messages.getString("MainFrame.ChooseDatSrc"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
-				session.getUser().settings.setProperty("MainFrame.ChooseDatSrc", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getUser().getSettings().getProperty("MainFrame.ChooseDatSrc", workdir.getAbsolutePath())), new File(tfDir2DatSrc.getText()), null, Messages.getString("MainFrame.ChooseDatSrc"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
+				session.getUser().getSettings().setProperty("MainFrame.ChooseDatSrc", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfDir2DatSrc.setText(chooser.getSelectedFile().getAbsolutePath());
-				session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, tfDir2DatSrc.getText()); //$NON-NLS-1$
+				session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, tfDir2DatSrc.getText()); //$NON-NLS-1$
 				return null;
 			});
 		});
@@ -435,8 +435,8 @@ public class Dir2DatPanel extends JPanel
 		gbc_lblDir2DatDst.gridy = 1;
 		panelDir2DatIO.add(lblDir2DatDst, gbc_lblDir2DatDst);
 
-		tfDir2DatDst = new JFileDropTextField(txt -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt)); //$NON-NLS-1$
-		tfDir2DatDst.setText(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		tfDir2DatDst = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt)); //$NON-NLS-1$
+		tfDir2DatDst.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		tfDir2DatDst.setMode(JFileDropMode.FILE);
 		tfDir2DatDst.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropFileHint"), Color.gray)); //$NON-NLS-1$
 		tfDir2DatDst.setColumns(10);
@@ -451,11 +451,11 @@ public class Dir2DatPanel extends JPanel
 		JButton btnDir2DatDst = new JButton(""); //$NON-NLS-1$
 		btnDir2DatDst.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
 		btnDir2DatDst.addActionListener(e -> {
-			final File workdir = session.getUser().settings.getWorkPath().toFile(); // $NON-NLS-1$
-			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, new File(session.getUser().settings.getProperty("MainFrame.ChooseDatDst", workdir.getAbsolutePath())), new File(tfDir2DatDst.getText()), null, Messages.getString("MainFrame.ChooseDatDst"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
-				session.getUser().settings.setProperty("MainFrame.ChooseDatDst", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
+			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, new File(session.getUser().getSettings().getProperty("MainFrame.ChooseDatDst", workdir.getAbsolutePath())), new File(tfDir2DatDst.getText()), null, Messages.getString("MainFrame.ChooseDatDst"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
+				session.getUser().getSettings().setProperty("MainFrame.ChooseDatDst", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfDir2DatDst.setText(chooser.getSelectedFile().getAbsolutePath());
-				session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, tfDir2DatDst.getText()); //$NON-NLS-1$
+				session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, tfDir2DatDst.getText()); //$NON-NLS-1$
 				return null;
 			});
 		});
@@ -475,8 +475,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatIO.add(lblDir2DatFormat, gbc_lblDir2DatFormat);
 
 		JRadioButton rdbtnDir2DatMame = new JRadioButton(Messages.getString("MainFrame.rdbtnMame.text")); //$NON-NLS-1$
-		rdbtnDir2DatMame.setSelected(ExportType.valueOf(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())) == ExportType.MAME); //$NON-NLS-1$
-		rdbtnDir2DatMame.addActionListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())); //$NON-NLS-1$
+		rdbtnDir2DatMame.setSelected(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())) == ExportType.MAME); //$NON-NLS-1$
+		rdbtnDir2DatMame.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())); //$NON-NLS-1$
 		Dir2DatFormatGroup.add(rdbtnDir2DatMame);
 		GridBagConstraints gbc_rdbtnDir2DatMame = new GridBagConstraints();
 		gbc_rdbtnDir2DatMame.insets = new Insets(0, 0, 0, 5);
@@ -485,8 +485,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatIO.add(rdbtnDir2DatMame, gbc_rdbtnDir2DatMame);
 
 		JRadioButton rdbtnDir2DatLogiqxDat = new JRadioButton(Messages.getString("MainFrame.rdbtnLogiqxDat.text")); //$NON-NLS-1$
-		rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())) == ExportType.DATAFILE); //$NON-NLS-1$
-		rdbtnDir2DatLogiqxDat.addActionListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.DATAFILE.toString())); //$NON-NLS-1$
+		rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())) == ExportType.DATAFILE); //$NON-NLS-1$
+		rdbtnDir2DatLogiqxDat.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.DATAFILE.toString())); //$NON-NLS-1$
 		Dir2DatFormatGroup.add(rdbtnDir2DatLogiqxDat);
 		GridBagConstraints gbc_rdbtnDir2DatLogiqxDat = new GridBagConstraints();
 		gbc_rdbtnDir2DatLogiqxDat.insets = new Insets(0, 0, 0, 5);
@@ -495,8 +495,8 @@ public class Dir2DatPanel extends JPanel
 		panelDir2DatIO.add(rdbtnDir2DatLogiqxDat, gbc_rdbtnDir2DatLogiqxDat);
 
 		JRadioButton rdbtnDir2DatSwList = new JRadioButton(Messages.getString("MainFrame.rdbtnSwList.text")); //$NON-NLS-1$
-		rdbtnDir2DatSwList.setSelected(ExportType.valueOf(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())) == ExportType.SOFTWARELIST); //$NON-NLS-1$
-		rdbtnDir2DatSwList.addActionListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.SOFTWARELIST.toString())); //$NON-NLS-1$
+		rdbtnDir2DatSwList.setSelected(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())) == ExportType.SOFTWARELIST); //$NON-NLS-1$
+		rdbtnDir2DatSwList.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.SOFTWARELIST.toString())); //$NON-NLS-1$
 		Dir2DatFormatGroup.add(rdbtnDir2DatSwList);
 		GridBagConstraints gbc_rdbtnDir2DatSwList = new GridBagConstraints();
 		gbc_rdbtnDir2DatSwList.gridwidth = 2;
@@ -529,23 +529,23 @@ public class Dir2DatPanel extends JPanel
 						if (dstdat.getParentFile().isDirectory() && (dstdat.exists() || dstdat.createNewFile()))
 						{
 							EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
-							if (session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, true)) //$NON-NLS-1$
+							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, true)) //$NON-NLS-1$
 								options.add(Options.RECURSE);
-							if (!session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, false)) //$NON-NLS-1$
+							if (!session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, false)) //$NON-NLS-1$
 								options.add(Options.IS_DEST);
-							if (session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, false)) //$NON-NLS-1$
+							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, false)) //$NON-NLS-1$
 								options.add(Options.NEED_MD5);
-							if (session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, false)) //$NON-NLS-1$
+							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, false)) //$NON-NLS-1$
 								options.add(Options.NEED_SHA1);
-							if (session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, false)) //$NON-NLS-1$
+							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, false)) //$NON-NLS-1$
 								options.add(Options.JUNK_SUBFOLDERS);
-							if (session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, false)) //$NON-NLS-1$
+							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, false)) //$NON-NLS-1$
 								options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-							if (session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, false)) //$NON-NLS-1$
+							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, false)) //$NON-NLS-1$
 								options.add(Options.MATCH_PROFILE);
-							if (session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, false)) //$NON-NLS-1$
+							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, false)) //$NON-NLS-1$
 								options.add(Options.EMPTY_DIRS);
-							final ExportType type = ExportType.valueOf(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())); //$NON-NLS-1$
+							final ExportType type = ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())); //$NON-NLS-1$
 							HashMap<String, String> headers = new HashMap<>();
 							headers.put("name", tfDir2DatName.getText()); //$NON-NLS-1$
 							headers.put("description", tfDir2DatDescription.getText()); //$NON-NLS-1$

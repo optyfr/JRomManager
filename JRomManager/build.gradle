@@ -249,6 +249,26 @@ subprojects {
 					prefer 'latest.release'
 				}
 			}
+			implementation('commons-dbutils:commons-dbutils') {
+				version {
+					prefer 'latest.release'
+				}
+			}
+			implementation('com.h2database:h2') {
+				version {
+					prefer 'latest.release'
+				}
+			}
+			implementation('de.mkammerer:argon2-jvm') { 
+				version { 
+					prefer '2.+' 
+				}
+			}
+			implementation('org.mindrot:jbcrypt') { 
+				version { 
+					prefer '0.4' 
+				}
+			}
 		}
 	}
 }
@@ -398,6 +418,10 @@ project(':JRomManager:jrmserver') {
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		implementation group: 'com.google.code.gson', name: 'gson'
 		implementation group: 'one.util', name: 'streamex'
+		implementation group: 'commons-dbutils', name:'commons-dbutils'
+		implementation group: 'com.h2database', name:'h2'
+		implementation group: 'org.mindrot', name:'jbcrypt'
+		implementation group: 'de.mkammerer', name:'argon2-jvm'
 	}
 }
 

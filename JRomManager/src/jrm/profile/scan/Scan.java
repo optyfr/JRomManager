@@ -302,7 +302,7 @@ public class Scan
 			}
 		}
 		/* then add extra backup dir to that list */
-		srcdirs.add(new File(profile.session.getUser().settings.getWorkPath().toFile(), "backup")); //$NON-NLS-1$
+		srcdirs.add(new File(profile.session.getUser().getSettings().getWorkPath().toFile(), "backup")); //$NON-NLS-1$
 		/* then scan all dirs from that list */
 		for (final File dir : srcdirs)
 		{

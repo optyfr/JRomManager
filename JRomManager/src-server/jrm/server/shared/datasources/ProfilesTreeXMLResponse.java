@@ -63,7 +63,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		DirTree root = new DirTree(request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
+		DirTree root = new DirTree(request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
 		int nodecount = countNode(root.getRoot());
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
@@ -83,7 +83,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		int key = request.getSession().tmp_profile_lst.lastKey()+1;
 		String basepath = operation.getData("Path");
 		if(basepath==null || basepath.isEmpty())
-			basepath = request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toString();
+			basepath = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toString();
 		Path path = Files.createDirectory(Paths.get(basepath, operation.getData("title")));
 		request.getSession().tmp_profile_lst.put(key, path);
 		writer.writeStartElement("response");

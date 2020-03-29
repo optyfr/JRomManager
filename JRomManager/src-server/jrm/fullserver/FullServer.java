@@ -8,12 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Security;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Locale;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -29,7 +24,6 @@ import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -40,7 +34,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
@@ -53,7 +46,6 @@ import jrm.fullserver.handlers.ImageServlet;
 import jrm.fullserver.handlers.SessionServlet;
 import jrm.fullserver.handlers.UploadServlet;
 import jrm.misc.Log;
-import jrm.server.shared.WebSession;
 import lombok.val;
 
 public class FullServer
@@ -86,7 +78,7 @@ public class FullServer
 		gzipHandler.setInflateBufferSize(2048);
 		gzipHandler.setMinGzipSize(2048);
 		context.setGzipHandler(gzipHandler);
-		
+
 		context.addServlet(new ServletHolder("datasources", DataSourceServlet.class), "/datasources/*");
 		context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
 		context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
@@ -122,20 +114,19 @@ public class FullServer
 		context.getSessionHandler().setMaxInactiveInterval(300);
 
 		// Authentification server by login & password
-		/*
-		 * ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-		 * security.setAuthenticator(new BasicAuthenticator());
-		 * security.setLoginService(new Login());
-		 * 
-		 * Constraint constraint = new Constraint(); constraint.setName("auth");
-		 * constraint.setAuthenticate(true); constraint.setRoles(new String[] { "admin"
-		 * }); final ConstraintMapping constraintMapping = new ConstraintMapping();
-		 * constraintMapping.setConstraint(constraint);
-		 * constraintMapping.setPathSpec("/*");
-		 * security.setConstraintMappings(Collections.singletonList(constraintMapping));
-		 * 
-		 * context.setSecurityHandler(security);
-		 */
+		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+		security.setAuthenticator(new BasicAuthenticator());
+		security.setLoginService(new Login());
+
+		Constraint constraint = new Constraint();
+		constraint.setName("auth");
+		constraint.setAuthenticate(true);
+		constraint.setRoles(new String[] { "admin" });
+		final ConstraintMapping constraintMapping = new ConstraintMapping();
+		constraintMapping.setConstraint(constraint);
+		constraintMapping.setPathSpec("/*");
+		security.setConstraintMappings(Collections.singletonList(constraintMapping));
+		context.setSecurityHandler(security);
 
 		context.getSessionHandler().addEventListener(new SessionListener());
 
@@ -158,7 +149,7 @@ public class FullServer
 			httpConnector.setName("HTTP");
 			jettyserver.addConnector(httpConnector);
 		}
-		
+
 		if ((PROTOCOLS & 0x2) == 0x2 && Files.exists(Paths.get(KEY_STORE_PATH)))
 		{
 			// Create the HTTPS end point
@@ -219,8 +210,8 @@ public class FullServer
 
 		jettyserver.start();
 		Log.config("Start server");
-		for(val connector : jettyserver.getConnectors())
-			Log.config(((ServerConnector)connector).getName()+" with port on " + ((ServerConnector)connector).getPort());
+		for (val connector : jettyserver.getConnectors())
+			Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort());
 		Log.config("clientPath: " + clientPath);
 		Log.config("workPath: " + getWorkPath());
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {

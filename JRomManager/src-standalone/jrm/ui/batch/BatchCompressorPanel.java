@@ -488,9 +488,9 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		comboBox.setModel(new DefaultComboBoxModel<>(CompressorFormat.values()));
 		comboBox.setSelectedIndex(1);
 		if(session!=null)
-			comboBox.setSelectedItem(CompressorFormat.valueOf(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.compressor_format, CompressorFormat.TZIP.toString()))); //$NON-NLS-1$
+			comboBox.setSelectedItem(CompressorFormat.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_format, CompressorFormat.TZIP.toString()))); //$NON-NLS-1$
 		comboBox.addActionListener(e -> {
-			session.getUser().settings.setProperty(jrm.misc.SettingsEnum.compressor_format, comboBox.getSelectedItem().toString());
+			session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_format, comboBox.getSelectedItem().toString());
 		});
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 0, 5);
@@ -500,9 +500,9 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		add(comboBox, gbc_comboBox);
 		
 		chckbxForce = new JCheckBox(Messages.getString("BatchCompressorPanel.Force")); //$NON-NLS-1$
-		chckbxForce.addActionListener(e -> session.getUser().settings.setProperty(jrm.misc.SettingsEnum.compressor_force, chckbxForce.isSelected()));
+		chckbxForce.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_force, chckbxForce.isSelected()));
 		if(session!=null)
-			chckbxForce.setSelected(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.compressor_force, false)); //$NON-NLS-1$
+			chckbxForce.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_force, false)); //$NON-NLS-1$
 		GridBagConstraints gbc_chckbxForce = new GridBagConstraints();
 		gbc_chckbxForce.insets = new Insets(0, 0, 0, 5);
 		gbc_chckbxForce.gridx = 2;

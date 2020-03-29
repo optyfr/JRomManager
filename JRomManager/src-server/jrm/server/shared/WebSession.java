@@ -28,4 +28,9 @@ public class WebSession extends Session
 		super(sessionId);
 	}
 
+	public WebSession(String sessionId, String user)
+	{
+		super(sessionId, user);
+	}
+
 }

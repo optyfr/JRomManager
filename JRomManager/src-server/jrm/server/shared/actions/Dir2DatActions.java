@@ -33,9 +33,9 @@ public class Dir2DatActions
 			session.worker.progress = new ProgressActions(ws);
 			try
 			{
-				String srcdir = session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, null);
-				String dstdat = session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, null);
-				String format = session.getUser().settings.getProperty(jrm.misc.SettingsEnum.dir2dat_format, "MAME");
+				String srcdir = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, null);
+				String dstdat = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, null);
+				String format = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, "MAME");
 				JsonObject opts = jso.get("params").asObject().get("options").asObject();
 				EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
 				if (opts.getBoolean("dir2dat.scan_subfolders", true)) //$NON-NLS-1$

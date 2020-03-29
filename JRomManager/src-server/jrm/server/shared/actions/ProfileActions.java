@@ -53,7 +53,7 @@ public class ProfileActions
 					final Import imprt = new Import(session, new File(filename), sl, session.worker.progress);
 					if(imprt.file != null)
 					{
-						final File parent = new File(Optional.ofNullable(jsobj.get("parent")).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().settings.getWorkPath().toString()));
+						final File parent = new File(Optional.ofNullable(jsobj.get("parent")).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().getSettings().getWorkPath().toString()));
 						final File file = new File(parent, imprt.file.getName());
 						FileUtils.copyFile(imprt.file, file);
 						final ProfileNFO pnfo = ProfileNFO.load(session, file);
@@ -210,7 +210,7 @@ public class ProfileActions
 		try
 		{
 			if (profile != null)
-				ws.getSession().getUser().settings.saveProfileSettings(new File(profile), settings);
+				ws.getSession().getUser().getSettings().saveProfileSettings(new File(profile), settings);
 			else
 				ws.getSession().curr_profile.saveSettings();
 		}

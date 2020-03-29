@@ -10,9 +10,9 @@ import jrm.profile.scan.Scan;
 public class Session
 {
 	private final String sessionId;
-	
+
 	User user = null;
-	
+
 	public ResourceBundle msgs = null;
 
 	// Extra settings coming from cmdline args
@@ -20,8 +20,8 @@ public class Session
 	public boolean multiuser = false;
 	public boolean noupdate = false;
 
-	public final Report report  = new Report();
-	
+	public final Report report = new Report();
+
 	/**
 	 * This contain the current loaded profile
 	 */
@@ -35,23 +35,36 @@ public class Session
 		this.multiuser = multiuser;
 		this.noupdate = noupdate;
 		this.sessionId = null;
-		user = new User(this,"JRomManager");
+		user = new User(this, "JRomManager");
 		msgs = Messages.getBundle();
 	}
-	
+
 	public Session(String sessionId)
 	{
 		this.server = true;
 		this.sessionId = sessionId;
 	}
-	
+
+	public Session(String sessionId, String user)
+	{
+		this.multiuser = true;
+		this.server = true;
+		this.sessionId = sessionId;
+		this.user = new User(this, user==null?"global":user);
+	}
+
 	public User getUser()
 	{
-		if(user==null)
+		if (user == null)
 			user = new User(this, "JRomManager");
 		return user;
 	}
 	
+	public void setUser(String user)
+	{
+		this.user = new User(this, user);
+	}
+
 	public String getSessionId()
 	{
 		return sessionId;

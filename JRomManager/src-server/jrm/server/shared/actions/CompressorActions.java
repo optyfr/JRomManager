@@ -33,8 +33,8 @@ public class CompressorActions
 	{
 		(ws.getSession().worker = new Worker(()->{
 			WebSession session = ws.getSession();
-			final CompressorFormat format = CompressorFormat.valueOf(session.getUser().settings.getProperty(SettingsEnum.compressor_format, "TZIP"));
-			final boolean force = session.getUser().settings.getProperty(SettingsEnum.compressor_force, false);
+			final CompressorFormat format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format, "TZIP"));
+			final boolean force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, false);
 
 			session.worker.progress = new ProgressActions(ws);
 			session.worker.progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),ws.getSession().tmp_compressor_lst.size()), true);

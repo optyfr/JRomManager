@@ -458,7 +458,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	 */
 	public void write(final Session session)
 	{
-		final File workdir = session.getUser().settings.getWorkPath().toFile(); //$NON-NLS-1$
+		final File workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
 		final File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
 		reportdir.mkdirs();
 		final File report_file = new File(reportdir, "report-"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".log"); //$NON-NLS-1$
@@ -517,7 +517,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	{
 		final CRC32 crc = new CRC32();
 		crc.update(file.getAbsolutePath().getBytes());
-		final File reports = session.getUser().settings.getWorkPath().resolve("reports").toFile(); //$NON-NLS-1$
+		final File reports = session.getUser().getSettings().getWorkPath().resolve("reports").toFile(); //$NON-NLS-1$
 		reports.mkdirs();
 		return new File(reports, String.format("%08x", crc.getValue()) + ".report"); //$NON-NLS-1$
 	}

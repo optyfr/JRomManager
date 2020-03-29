@@ -82,13 +82,13 @@ public class MainFrame extends JFrame
 			@Override
 			public void windowClosing(final WindowEvent e)
 			{
-				session.getUser().settings.setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+				session.getUser().getSettings().setProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 		});
 		try
 		{
-			UIManager.setLookAndFeel(session.getUser().settings.getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName() */)); //$NON-NLS-1$
-			final File workdir = session.getUser().settings.getWorkPath().toFile(); // $NON-NLS-1$
+			UIManager.setLookAndFeel(session.getUser().getSettings().getProperty("LookAndFeel", UIManager.getSystemLookAndFeelClassName()/* UIManager.getCrossPlatformLookAndFeelClassName() */)); //$NON-NLS-1$
+			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
 			final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 			xmldir.mkdir();
 			ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
@@ -102,7 +102,7 @@ public class MainFrame extends JFrame
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			if (session.curr_profile != null)
 				session.curr_profile.saveSettings();
-			session.getUser().settings.saveSettings();
+			session.getUser().getSettings().saveSettings();
 		}));
 	}
 
@@ -154,7 +154,7 @@ public class MainFrame extends JFrame
 
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(session.getUser().settings.getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 720, 300))))))); //$NON-NLS-1$
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(session.getUser().getSettings().getProperty("MainFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(50, 50, 720, 300))))))); //$NON-NLS-1$
 		}
 		catch (final DecoderException e1)
 		{

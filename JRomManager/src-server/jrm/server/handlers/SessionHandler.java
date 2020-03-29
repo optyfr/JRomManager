@@ -85,7 +85,7 @@ public class SessionHandler extends DefaultHandler
 							add(k, rb.getString(k));
 					});
 				}});
-				add("settings", Server.getSession(sessionid).getUser().settings.asJSO());
+				add("settings", Server.getSession(sessionid).getUser().getSettings().asJSO());
 			}}.toString());
 		}
 		catch (Exception e)

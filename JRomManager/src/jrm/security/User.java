@@ -1,21 +1,21 @@
 package jrm.security;
 
 import jrm.misc.GlobalSettings;
+import lombok.Getter;
 
 public class User
 {
-	public final Session parent;
+	private final @Getter Session session;
 	
-	public final String name;
+	private final @Getter String name;
 	
-	public final GlobalSettings settings;
+	private final @Getter GlobalSettings settings;
 	
-	public User(final Session parent, final String name)
+	public User(final Session session, final String name)
 	{
-		this.parent = parent;
-		this.parent.user = this;
+		this.session = session;
+		this.session.user = this;
 		this.name = name;
 		this.settings = new GlobalSettings(this);
 	}
-
 }

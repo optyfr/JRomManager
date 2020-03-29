@@ -22,7 +22,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		File dir = request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+		File dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 		if(operation.hasData("Parent"))
 			dir = new File(operation.getData("Parent"));
 		val rows = ProfileNFO.list(request.getSession(), dir);
@@ -56,7 +56,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("Src"))
 		{
-			File dir = request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+			File dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 			if(operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
 				dir = new File(operation.getData("Parent"));
 			File src = new File(operation.getData("Src"));
@@ -100,7 +100,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 	@Override
 	protected void remove(Operation operation) throws Exception
 	{
-		File dir = request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+		File dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 		if(operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
 			dir = new File(operation.getData("Parent"));
 		File dst = new File(dir, operation.getData("File"));
@@ -131,7 +131,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 		switch(operation.getOperationId().toString())
 		{
 			case "DropCache":
-				File dir = request.getSession().getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
+				File dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
 				if(operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
 					dir = new File(operation.getData("Parent"));
 				File dst = new File(dir, operation.getData("File"));

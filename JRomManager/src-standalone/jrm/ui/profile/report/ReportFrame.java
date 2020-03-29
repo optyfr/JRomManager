@@ -68,7 +68,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent e) {
-				session.getUser().settings.setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+				session.getUser().getSettings().setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
 			}
 			@Override
 			public void windowOpened(WindowEvent e)
@@ -111,7 +111,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 
 		try
 		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(session.getUser().settings.getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10,10,800,600))))))); //$NON-NLS-1$
+			setBounds(SerializationUtils.deserialize(Hex.decodeHex(session.getUser().getSettings().getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10,10,800,600))))))); //$NON-NLS-1$
 		}
 		catch(final DecoderException e1)
 		{

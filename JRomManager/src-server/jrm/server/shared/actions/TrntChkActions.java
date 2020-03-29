@@ -29,15 +29,15 @@ public class TrntChkActions
 	{
 		(ws.getSession().worker = new Worker(()->{
 			WebSession session = ws.getSession();
-			final TrntChkMode mode = TrntChkMode.valueOf(session.getUser().settings.getProperty(SettingsEnum.trntchk_mode, "FILENAME"));
-			final boolean removeUnknownFiles = session.getUser().settings.getProperty(SettingsEnum.trntchk_remove_unknown_files, false);
-			final boolean removeWrongSizedFiles = session.getUser().settings.getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, false);
-			final boolean detectArchivedFolders = session.getUser().settings.getProperty(SettingsEnum.trntchk_detect_archived_folders, true);
+			final TrntChkMode mode = TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode, "FILENAME"));
+			final boolean removeUnknownFiles = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, false);
+			final boolean removeWrongSizedFiles = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, false);
+			final boolean detectArchivedFolders = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, true);
 
 			session.worker.progress = new ProgressActions(ws);
 			try
 			{
-				List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().settings.getProperty(SettingsEnum.trntchk_sdr, "[]"));
+				List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]"));
 				try
 				{
 					new TorrentChecker(session, session.worker.progress, sdrl, mode, new ResultColUpdater()
@@ -46,7 +46,7 @@ public class TrntChkActions
 						public void updateResult(int row, String result)
 						{
 							sdrl.get(row).result = result;
-							session.getUser().settings.setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
+							session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
 							TrntChkActions.this.updateResult(row, result);
 						}
 						
@@ -54,7 +54,7 @@ public class TrntChkActions
 						public void clearResults()
 						{
 							sdrl.forEach(sdr -> sdr.result = "");
-							session.getUser().settings.setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
+							session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
 							TrntChkActions.this.clearResults();
 						}
 					}, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);

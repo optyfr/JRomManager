@@ -43,7 +43,7 @@ public class SessionServlet extends HttpServlet
 							add(k, rb.getString(k));
 					});
 				}});
-				add("settings", ws.getUser().settings.asJSO());
+				add("settings", ws.getUser().getSettings().asJSO());
 			}}.toString();
 			resp.setContentLength(msg.getBytes().length);
 			resp.getWriter().write(msg);

@@ -172,7 +172,7 @@ public final class DirScan
 		{
 			try
 			{
-				SevenZip.initSevenZipFromPlatformJAR(session.getUser().settings.getTmpPath(true).toFile());
+				SevenZip.initSevenZipFromPlatformJAR(session.getUser().getSettings().getTmpPath(true).toFile());
 			}
 			catch(final Exception e)
 			{
@@ -317,7 +317,7 @@ public final class DirScan
 		/*
 		 * Loading scan cache
 		 */
-		if(!session.getUser().settings.getProperty(jrm.misc.SettingsEnum.debug_nocache, false)) //$NON-NLS-1$
+		if(!session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_nocache, false)) //$NON-NLS-1$
 			containers_byname = load(dir);
 		else
 			containers_byname = Collections.synchronizedMap(new HashMap<>());
@@ -1151,7 +1151,7 @@ public final class DirScan
 	 */
 	public static File getCacheFile(final Session session, final File file, EnumSet<Options> options)
 	{
-		final File workdir = session.getUser().settings.getWorkPath().toFile(); //$NON-NLS-1$
+		final File workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
 		final File cachedir = new File(workdir, "cache"); //$NON-NLS-1$
 		cachedir.mkdirs();
 		final CRC32 crc = new CRC32();

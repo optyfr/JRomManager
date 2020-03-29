@@ -69,8 +69,8 @@ public final class JRomManager
 			System.exit(1);
 		}
 		Session session  = Sessions.getSession(multiuser,noupdate);
-		Log.init(session.getUser().settings.getLogPath() + "/JRM.%g.log", debug, 1024 * 1024, 5);
-		if(!debug) Log.setLevel(Level.parse(session.getUser().settings.getProperty(jrm.misc.SettingsEnum.debug_level, Log.getLevel().toString())));
+		Log.init(session.getUser().getSettings().getLogPath() + "/JRM.%g.log", debug, 1024 * 1024, 5);
+		if(!debug) Log.setLevel(Level.parse(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_level, Log.getLevel().toString())));
 		if (JRomManager.lockInstance(session, FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
 			if(!session.noupdate)
@@ -94,7 +94,7 @@ public final class JRomManager
 	{
 		try
 		{
-			final File file = new File(session.getUser().settings.getWorkPath().toFile(),lockFile);
+			final File file = new File(session.getUser().getSettings().getWorkPath().toFile(),lockFile);
 			final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw"); //$NON-NLS-1$
 			final FileLock fileLock = randomAccessFile.getChannel().tryLock();
 			if (fileLock != null)

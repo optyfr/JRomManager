@@ -27,33 +27,37 @@ import java.util.zip.CRC32;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.security.User;
+import lombok.Getter;
 
 /**
  * The Settings back-end
  * @author optyfr
  *
  */
-public class GlobalSettings extends Settings
+public class GlobalSettings extends Settings implements SystemSettings
 {
-	public final User parent;
+	private final @Getter User user;
 	/**
-	 * @param parent
+	 * @param user
 	 */
-	public GlobalSettings(User parent)
+	public GlobalSettings(User user)
 	{
 		super();
-		this.parent = parent;
+		this.user = user;
 		loadSettings();
 	}
 	
+	
 	/**
-	 * Return the current work path, the one where we save working dirs (xml, cache, backup, ...)
-	 * By default, this where the program reside... but if multiuser mode is enabled, it will be $HOME/.jrommanager (or %HOMEPATH%\.jrommanager for Windows)
+	 * Return the current base path, the one where we save working dirs (xml, cache, backup, ...)<br>
+	 * By default, this where the program reside... but<br>
+	 * - if server mode is enabled, it will from java property jrommanager.dir, otherwise user.dir property
+	 * - if multiuser mode is enabled, it will be $HOME/.jrommanager (or %HOMEPATH%\.jrommanager for Windows)
 	 * @return the current working path
 	 */
-	public Path getWorkPath()
+	public Path getBasePath()
 	{
-		if(parent.parent.server)
+		if(user.getSession().server)
 		{
 			final String prop = System.getProperty("jrommanager.dir");
 			final Path work = (prop != null ? Paths.get(prop) : Paths.get(System.getProperty("user.dir"))).toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -70,7 +74,7 @@ public class GlobalSettings extends Settings
 			}
 			return work;
 		}
-		else if (parent.parent.multiuser)
+		else if (user.getSession().multiuser)
 		{
 			final Path work = Paths.get(System.getProperty("user.home"), ".jrommanager").toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
 			if (!Files.exists(work))
@@ -87,6 +91,34 @@ public class GlobalSettings extends Settings
 			return work;
 		}
 		return Paths.get(".").toAbsolutePath().normalize(); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Return the current work path, the one where we save working dirs (xml, cache, backup, ...)<br>
+	 * By default, this is equivalent to the base path... but<br>
+	 * if server AND multiuser mode are enabled, then there will be a subdir "users/$login" added
+	 * @return the current working path
+	 */
+	public Path getWorkPath()
+	{
+		Path base = getBasePath();
+		if(user.getSession().server && user.getSession().multiuser)
+		{
+			Path work = base.resolve("users").resolve(user.getName());
+			if(!Files.exists(work))
+			{
+				try
+				{
+					Files.createDirectories(work);
+				}
+				catch (IOException e)
+				{
+					Log.err(e.getMessage(),e);
+				}
+			}
+			return work;
+		}
+		return base;
 	}
 	
 	public File getWorkFile(final File parent, final String name, final String ext)
@@ -130,7 +162,7 @@ public class GlobalSettings extends Settings
 	{
 		if(local)
 		{
-			if(parent.parent.multiuser)
+			if(user.getSession().multiuser)
 			{
 				try
 				{
@@ -162,7 +194,7 @@ public class GlobalSettings extends Settings
 	{
 		final File workdir = getWorkPath().toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
 		final File cachedir = new File(workdir, "settings"); //$NON-NLS-1$
-		final File settingsfile = new File(cachedir, parent.name+".properties"); //$NON-NLS-1$
+		final File settingsfile = new File(cachedir, user.getName()+".properties"); //$NON-NLS-1$
 		settingsfile.getParentFile().mkdirs();
 		return settingsfile;
 

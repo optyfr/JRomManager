@@ -1003,7 +1003,7 @@ public class Profile implements Serializable
 	 */
 	public void save()
 	{
-		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(session.getUser().settings.getCacheFile(nfo.file)))))
+		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(session.getUser().getSettings().getCacheFile(nfo.file)))))
 		{
 			oos.writeObject(this);
 		}
@@ -1033,8 +1033,8 @@ public class Profile implements Serializable
 	public static Profile load(final Session session, final ProfileNFO nfo, final ProgressHandler handler)
 	{
 		Profile profile = null;
-		final File cachefile = session.getUser().settings.getCacheFile(nfo.file);
-		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !session.getUser().settings.getProperty(SettingsEnum.debug_nocache, false)) //$NON-NLS-1$
+		final File cachefile = session.getUser().getSettings().getCacheFile(nfo.file);
+		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, false)) //$NON-NLS-1$
 		{	// Load from cache if cachefile is not outdated and debug_nocache is disabled
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
 			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile), (int) cachefile.length()))))
@@ -1147,7 +1147,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			settings = session.getUser().settings.saveProfileSettings(nfo.file, settings);
+			settings = session.getUser().getSettings().saveProfileSettings(nfo.file, settings);
 			nfo.save(session);
 		}
 		catch (final IOException e)
@@ -1163,7 +1163,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			settings = session.getUser().settings.loadProfileSettings(nfo.file, settings);
+			settings = session.getUser().getSettings().loadProfileSettings(nfo.file, settings);
 		}
 		catch (final IOException e)
 		{
@@ -1258,7 +1258,7 @@ public class Profile implements Serializable
 	 */
 	public String getName()
 	{
-		String name = "<html><body>[<span style='color:blue'>" + session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String name = "<html><body>[<span style='color:blue'>" + session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if (build != null)
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if (header.size() > 0)
