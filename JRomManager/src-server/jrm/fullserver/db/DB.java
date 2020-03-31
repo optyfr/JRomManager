@@ -11,8 +11,6 @@ import lombok.Getter;
 
 public abstract class DB
 {
-//	private static final HashMap<String, DB> instances = new HashMap<>();
-	
 	protected @Getter SystemSettings settings; 
 	
 	protected DB(SystemSettings settings)
@@ -44,9 +42,6 @@ public abstract class DB
 	{
 		try
 		{
-		//	if(!instances.containsKey(cls.getCanonicalName()))
-		//		instances.put(cls.getCanonicalName(), cls.getConstructor(Settings.class).newInstance(settings));
-		//	return (T)instances.get(cls.getCanonicalName());
 			return cls.getConstructor(SystemSettings.class).newInstance(settings);
 		}
 		catch(Exception e)
@@ -65,7 +60,6 @@ public abstract class DB
 	 *            if true, delete the database before
 	 * @return a {@link Connection} object
 	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
 	public abstract Connection connectToDB(final String name, final boolean drop, final boolean safe, boolean ifexists) throws IOException, SQLException;

@@ -16,9 +16,11 @@ import jrm.misc.Log;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
+import lombok.experimental.Accessors;
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.IInStream;
 
+@Accessors(chain = true)
 public abstract class NArchiveBase implements Archive, Closeables
 {
 	private @Getter @Setter IInArchive iInArchive = null;

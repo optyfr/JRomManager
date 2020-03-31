@@ -45,6 +45,9 @@ import jrm.fullserver.handlers.DataSourceServlet;
 import jrm.fullserver.handlers.ImageServlet;
 import jrm.fullserver.handlers.SessionServlet;
 import jrm.fullserver.handlers.UploadServlet;
+import jrm.fullserver.security.BasicAuthenticator;
+import jrm.fullserver.security.Login;
+import jrm.fullserver.security.SSLReload;
 import jrm.misc.Log;
 import lombok.val;
 
@@ -211,7 +214,7 @@ public class FullServer
 		jettyserver.start();
 		Log.config("Start server");
 		for (val connector : jettyserver.getConnectors())
-			Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort());
+			Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort()+ " binded to " +((ServerConnector) connector).getHost());
 		Log.config("clientPath: " + clientPath);
 		Log.config("workPath: " + getWorkPath());
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {

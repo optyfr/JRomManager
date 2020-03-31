@@ -1,4 +1,4 @@
-package jrm.fullserver;
+package jrm.fullserver.security;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -15,6 +15,7 @@ import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.UserIdentity;
 
+import jrm.fullserver.ServerSettings;
 import jrm.fullserver.db.DB;
 import jrm.fullserver.db.SQL;
 import jrm.server.shared.WebSession;
@@ -23,19 +24,16 @@ import lombok.val;
 /**
  * Service d'identification avec backend SQL
  */
-class Login extends SQL implements LoginService
+public class Login extends SQL implements LoginService
 {
 	protected IdentityService _identityService = new DefaultIdentityService();
 
 	public Login() throws IOException, SQLException
 	{
-		super(true,new ServerSettings());
-		// On se connecte ici dans le constructeur pour garder la connexion Ã  la base et
-		// pas devoir se reconnecter Ã  chaque identification au serveur
+		super(true, new ServerSettings());
 		db = DB.getInstance(getSettings()).connectToDB("Server.sys", false, true);
-		// On crÃ©e la table user et on ne la rempli que si nÃ©cessaire
 		update("CREATE TABLE IF NOT EXISTS USERS(LOGIN VARCHAR_IGNORECASE(255) PRIMARY KEY, PASSWORD VARCHAR(255), ROLES VARCHAR(255))");
-		if(count("SELECT * FROM USERS") == 0)
+		if (count("SELECT * FROM USERS") == 0)
 			update("INSERT INTO USERS VALUES(?, ?, ?)", "admin", CryptCredential.hash("admin"), "admin");
 	}
 
@@ -53,41 +51,40 @@ class Login extends SQL implements LoginService
 	{
 		String sessionid = null;
 		WebSession sess = null;
-		if(request instanceof Request)
+		if (request instanceof Request)
 		{
-			val session = ((Request)request).getSession();
-			if(session != null)
+			val session = ((Request) request).getSession();
+			if (session != null)
 			{
 				sessionid = session.getId();
-				if(sessionid!=null)
-					sess = (WebSession)session.getAttribute("session");
+				if (sessionid != null)
+					sess = (WebSession) session.getAttribute("session");
 			}
 		}
-		synchronized(cache)
+		synchronized (cache)
 		{
-			if(60000 < (System.currentTimeMillis() - cachetime))
+			if (60000 < (System.currentTimeMillis() - cachetime))
 			{
 				cache.clear();
 				cachetime = System.currentTimeMillis();
 			}
-			if(sessionid != null && cache.containsKey(username + ":" + sessionid))
+			if (sessionid != null && cache.containsKey(username + ":" + sessionid))
 				return cache.get(username + ":" + sessionid);
 			else
 			{
 				CryptCredential credential = new CryptCredential(username, this);
-				if(credential.check(credentials)) // si le hash bcrypt matche
+				if (credential.check(credentials))
 				{
-					// Creation d'un UserIdentity
 					UserPrincipal principal = new UserPrincipal(credential.getUser().getLogin(), credential);
 					Subject subject = new Subject();
 					subject.getPrincipals().add(principal);
 					subject.getPublicCredentials().add(username + ":" + sessionid);
 					String[] roles = credential.getUser().getRoles().split(";");
-					for(String role : roles)
+					for (String role : roles)
 						subject.getPrincipals().add(new AbstractLoginService.RolePrincipal(role));
 
 					UserIdentity identity = _identityService.newUserIdentity(subject, principal, roles);
-					if(sessionid != null)
+					if (sessionid != null)
 					{
 						cache.put(username + ":" + sessionid, identity);
 						sess.setUser(username);
@@ -103,8 +100,9 @@ class Login extends SQL implements LoginService
 	public boolean validate(UserIdentity user)
 	{
 		System.out.println("validate");
-		for(val credential : user.getSubject().getPublicCredentials())
-			if(cache.containsKey(credential)) return true;
+		for (val credential : user.getSubject().getPublicCredentials())
+			if (cache.containsKey(credential))
+				return true;
 		return false;
 	}
 
@@ -122,7 +120,7 @@ class Login extends SQL implements LoginService
 	@Override
 	public void logout(UserIdentity user)
 	{
-		for(val credential : user.getSubject().getPublicCredentials())
+		for (val credential : user.getSubject().getPublicCredentials())
 			cache.remove(credential);
 	}
 

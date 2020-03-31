@@ -1,4 +1,4 @@
-package jrm.fullserver;
+package jrm.fullserver.security;
 
 import java.time.LocalDate;
 import java.time.ZoneId;

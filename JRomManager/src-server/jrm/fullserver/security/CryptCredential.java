@@ -1,4 +1,4 @@
-package jrm.fullserver;
+package jrm.fullserver.security;
 
 import java.sql.SQLException;
 
@@ -10,6 +10,7 @@ import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import de.mkammerer.argon2.Argon2Factory.Argon2Types;
 import jrm.fullserver.db.SQL;
+import lombok.Data;
 import lombok.Getter;
 import lombok.val;
 
@@ -25,12 +26,12 @@ import lombok.val;
 		this.sql = sql;
 	}
 	
-	static public class UserCredential
+	static public @Data class UserCredential
 	{
 		private String login;
 		private String password;
 		private String roles;
-
+/*
 		public String getLogin()
 		{
 			return login;
@@ -54,7 +55,7 @@ import lombok.val;
 		public void setRoles(String roles)
 		{
 			this.roles = roles;
-		}
+		}*/
 	}
 	
 	@Override
@@ -62,7 +63,6 @@ import lombok.val;
 	{
 		try
 		{
-			// methode "magique" de la classe SQL qui rempli un bean (ou une liste de beans) avec une requete select
 			user = sql.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<>(UserCredential.class), username);
 			if (user != null) // si il y a un bien un user avec le login correspondant
 			{

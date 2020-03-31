@@ -1,4 +1,4 @@
-package jrm.fullserver;
+package jrm.fullserver.security;
 
 
 import java.io.IOException;
