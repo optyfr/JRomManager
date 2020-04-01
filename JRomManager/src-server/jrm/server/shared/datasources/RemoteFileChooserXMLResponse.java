@@ -88,7 +88,21 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			}
 		}
 		if(operation.hasData("parent"))
-			dir = new File(operation.getData("parent")).toPath();
+		{
+			switch(operation.getData("parent"))
+			{
+				case "%work":
+					dir = request.getSession().getUser().getSettings().getWorkPath();
+					break;
+				case "%shared":
+					dir = request.getSession().getUser().getSettings().getBasePath().resolve("users").resolve("shared");
+					Files.createDirectories(dir);
+					break;
+				default:
+					dir = new File(operation.getData("parent")).toPath();
+					break;
+			}
+		}
 		writer.writeElement("parent", dir.toString());
 		PathMatcher matcher = pathmatcher!=null ? dir.getFileSystem().getPathMatcher(pathmatcher) : null;
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, entry -> {
