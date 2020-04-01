@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.security.Security;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.Scanner;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -45,10 +46,12 @@ import jrm.fullserver.handlers.DataSourceServlet;
 import jrm.fullserver.handlers.ImageServlet;
 import jrm.fullserver.handlers.SessionServlet;
 import jrm.fullserver.handlers.UploadServlet;
+import jrm.fullserver.lpr.LongPollingReqMgr;
 import jrm.fullserver.security.BasicAuthenticator;
 import jrm.fullserver.security.Login;
 import jrm.fullserver.security.SSLReload;
 import jrm.misc.Log;
+import jrm.server.shared.WebSession;
 import lombok.val;
 
 public class FullServer
@@ -222,9 +225,18 @@ public class FullServer
 		}));
 		if (debug)
 		{
-			System.in.read();
-			jettyserver.stop();
-			System.exit(0);
+			try (Scanner sc = new Scanner(System.in))
+			{
+				// wait until receive stop command from keyboard
+				System.out.println("Enter 'stop' to halt: ");
+				while (!sc.nextLine().toLowerCase().equals("stop"))
+					Thread.sleep(1000);
+				if (!jettyserver.isStopped())
+				{
+					WebSession.closeAll();
+					jettyserver.stop();
+				}
+			}
 		}
 		else
 			jettyserver.join();

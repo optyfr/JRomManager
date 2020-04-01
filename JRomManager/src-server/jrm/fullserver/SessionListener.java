@@ -14,7 +14,7 @@ public class SessionListener implements HttpSessionListener
 		System.out.println("Destroying session " + se.getSession().getId());
 		WebSession ws = (WebSession) se.getSession().getAttribute("session");
 		if (ws != null)
-			/* ws.close() */;
+			ws.close();
 	}
 
 	@Override

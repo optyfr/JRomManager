@@ -80,30 +80,50 @@ public class ActionServlet extends HttpServlet
 					if (sess.worker != null && sess.worker.isAlive())
 						if (sess.worker.progress != null)
 							sess.worker.progress.reload(cmd);
-					val msg = sess.lprMsg.poll(20, TimeUnit.SECONDS);
-					resp.setContentType("application/json");
-					resp.setStatus(HttpServletResponse.SC_OK);
-					if (msg != null)
+					if(!WebSession.isTerminate())
 					{
-						resp.setContentLength(msg.getBytes(StandardCharsets.UTF_8).length);
-						resp.getWriter().write(msg);
+						val msg = sess.lprMsg.poll(20, TimeUnit.SECONDS);
+						if(msg == null && WebSession.isTerminate())
+							resp.setStatus(HttpServletResponse.SC_GONE);
+						else
+						{
+							resp.setContentType("application/json");
+							resp.setStatus(HttpServletResponse.SC_OK);
+							if (msg != null)
+							{
+								resp.setContentLength(msg.getBytes(StandardCharsets.UTF_8).length);
+								resp.getWriter().write(msg);
+							}
+							else
+								resp.setContentLength(0);
+						}
 					}
 					else
-						resp.setContentLength(0);
+						resp.setStatus(HttpServletResponse.SC_GONE);
 					break;
 				}
 				case "/actions/lpr":
 				{
-					val msg = sess.lprMsg.poll(20, TimeUnit.SECONDS);
-					resp.setContentType("application/json");
-					resp.setStatus(HttpServletResponse.SC_OK);
-					if (msg != null)
+					if(!WebSession.isTerminate())
 					{
-						resp.setContentLength(msg.getBytes(StandardCharsets.UTF_8).length);
-						resp.getWriter().write(msg);
+						val msg = sess.lprMsg.poll(20, TimeUnit.SECONDS);
+						if(msg == null && WebSession.isTerminate())
+							resp.setStatus(HttpServletResponse.SC_GONE);
+						else
+						{
+							resp.setContentType("application/json");
+							resp.setStatus(HttpServletResponse.SC_OK);
+							if (msg != null)
+							{
+								resp.setContentLength(msg.getBytes(StandardCharsets.UTF_8).length);
+								resp.getWriter().write(msg);
+							}
+							else
+								resp.setContentLength(0);
+						}
 					}
 					else
-						resp.setContentLength(0);
+						resp.setStatus(HttpServletResponse.SC_GONE);
 					break;
 				}
 				default:
