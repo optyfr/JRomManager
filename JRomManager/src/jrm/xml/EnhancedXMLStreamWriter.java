@@ -23,6 +23,8 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.lang3.StringUtils;
+
 // TODO: Auto-generated Javadoc
 /**
  * An XMLStreamWriter with indentation and line return.
@@ -433,4 +435,20 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 			writeCharacters(text.toString());
 		writeEndElement();
 	}
+	
+	/**
+	 * Ecrit un attribut en verifiant la validitÃ© du contenu des donnÃ©es
+	 * @param code
+	 * @param value
+	 * @throws XMLStreamException
+	 */
+	public void write(String code, Object value) throws XMLStreamException
+	{
+		if(value == null) return;
+		if(value instanceof String)
+			writer.writeAttribute(code, (String)value);
+		else
+			writer.writeAttribute(code, value.toString());
+	}
+	
 }

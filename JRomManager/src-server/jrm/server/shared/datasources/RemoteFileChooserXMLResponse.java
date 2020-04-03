@@ -13,17 +13,128 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import jrm.server.shared.datasources.XMLRequest.Operation;
+import lombok.val;
 
 public class RemoteFileChooserXMLResponse extends XMLResponse
 {
+	Path root;
+	Options options = null;
+	
+	static class Options
+	{
+		final boolean isDir;
+		final String pathmatcher;
+		
+		public Options(String context)
+		{
+			switch(context)
+			{
+				case "tfRomsDest":
+				case "tfDisksDest":
+				case "tfSWDest":
+				case "tfSWDisksDest":
+				case "tfSamplesDest":
+				case "listSrcDir":
+				case "addDatSrc":
+					isDir = true;
+					pathmatcher = null;
+					break;
+				case "updDat":
+				case "updTrnt":
+					isDir = true;
+					pathmatcher = null;
+					break;
+				case "addTrnt":
+					pathmatcher = "glob:*.torrent";
+					isDir = false;
+					break;
+				case "importDat":
+					pathmatcher = "glob:*.{xml,dat}";
+					isDir = false;
+					break;
+				case "addDat":
+					pathmatcher = "glob:*.{xml,dat}";
+					isDir = false;
+					break;
+				case "addArc":
+					pathmatcher = "glob:*.{zip,7z,rar,arj,tar,lzh,lha,tgz,tbz,tbz2,rpm,iso,deb,cab}";
+					isDir = false;
+					break;
+				default:
+					pathmatcher = null;
+					isDir = false;
+					break;
+			}
+		}
+	}
 
+	public static class CaseInsensitiveFileFinder
+	{
+
+		private static Path findDir(Path dir) throws IOException
+		{
+			return Files.list(dir.getParent()).filter(Files::isDirectory).filter(p -> p.getFileName().toString().equalsIgnoreCase(dir.getFileName().toString())).findFirst().orElse(null);
+		}
+
+		private static Path findLast(Path path) throws IOException
+		{
+			if(Files.exists(path)) return path;
+			return Files.list(path.getParent()).filter(p -> p.getFileName().toString().equalsIgnoreCase(path.getFileName().toString())).findFirst().orElse(null);
+		}
+
+		public static Optional<Path> findFileIgnoreCase(final Path parent, final String fileName)
+		{
+			Path testpath = null;
+			try
+			{
+				if(!Files.exists(parent))
+				{
+					// test all
+					testpath = parent.getRoot();
+					for(int i = 0; i < parent.getNameCount(); i++)
+						if(null == (testpath = findDir(testpath.resolve(parent.getName(i))))) break;
+				}
+				else
+					testpath = parent;
+				if(testpath != null) testpath = findLast(testpath.resolve(fileName));
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+			return Optional.ofNullable(testpath);
+		}
+
+		public static Optional<Path> findFileIgnoreCase(final Path path)
+		{
+			return findFileIgnoreCase(path.getParent(), path.getFileName().toString());
+		}
+
+		public static Optional<File> findFileIgnoreCase(final String file)
+		{
+			Path path = Paths.get(file);
+			return findFileIgnoreCase(path.getParent(), path.getFileName().toString()).map(Path::toFile);
+		}
+
+		public static Optional<File> findFileIgnoreCase(final String parentDir, final String fileName)
+		{
+			return findFileIgnoreCase(Paths.get(parentDir), fileName).map(Path::toFile);
+		}
+	}
+	
 	public RemoteFileChooserXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
@@ -33,80 +144,15 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		final boolean isDir;
-		final String pathmatcher;
-		switch(operation.getData("context"))
-		{
-			case "tfRomsDest":
-			case "tfDisksDest":
-			case "tfSWDest":
-			case "tfSWDisksDest":
-			case "tfSamplesDest":
-			case "listSrcDir":
-			case "addDatSrc":
-				isDir = true;
-				pathmatcher = null;
-				break;
-			case "updDat":
-			case "updTrnt":
-				isDir = true;
-				pathmatcher = null;
-				break;
-			case "addTrnt":
-				pathmatcher = "glob:*.torrent";
-				isDir = false;
-				break;
-			case "importDat":
-				pathmatcher = "glob:*.{xml,dat}";
-				isDir = false;
-				break;
-			case "addDat":
-				pathmatcher = "glob:*.{xml,dat}";
-				isDir = false;
-				break;
-			case "addArc":
-				pathmatcher = "glob:*.{zip,7z,rar,arj,tar,lzh,lha,tgz,tbz,tbz2,rpm,iso,deb,cab}";
-				isDir = false;
-				break;
-			default:
-				pathmatcher = null;
-				isDir = false;
-				break;
-		}
+		if (operation.hasData("context"))
+			options = new Options(operation.getData("context"));
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		Path dir = request.getSession().getUser().getSettings().getWorkPath();
-		if (operation.hasData("context"))
-		{
-			String saved_dir = request.getSession().getUser().getSettings().getProperty("dir." + operation.getData("context"), null);
-			if (saved_dir != null && !saved_dir.isEmpty())
-			{
-				Path saved_path = Paths.get(saved_dir);
-				if (Files.isDirectory(saved_path))
-					dir = saved_path;
-			}
-		}
-		if(operation.hasData("parent"))
-		{
-			switch(operation.getData("parent"))
-			{
-				case "%work":
-					dir = request.getSession().getUser().getSettings().getWorkPath();
-					break;
-				case "%shared":
-					dir = request.getSession().getUser().getSettings().getBasePath().resolve("users").resolve("shared");
-					Files.createDirectories(dir);
-					break;
-				default:
-					dir = new File(operation.getData("parent")).toPath();
-					break;
-			}
-		}
-		writer.writeElement("parent", dir.toString());
-		PathMatcher matcher = pathmatcher!=null ? dir.getFileSystem().getPathMatcher(pathmatcher) : null;
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, entry -> {
-			if(isDir)
+		Path parent = writeParent(getParent(operation));
+		PathMatcher matcher = options.pathmatcher!=null ? parent.getFileSystem().getPathMatcher(options.pathmatcher) : null;
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(parent, entry -> {
+			if(options.isDir)
 				return Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS);
 			else if(matcher!=null && Files.isRegularFile(entry))
 				return matcher.matches(entry.getFileName());
@@ -115,26 +161,31 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		{
 			long cnt = 0;
 			writer.writeStartElement("data");
-			if (dir.getParent() != null)
+			if (!parent.equals(root) && parent.getParent() != null)
 			{
-				writer.writeEmptyElement("record");
-				writer.writeAttribute("Name", "..");
-				writer.writeAttribute("Path", dir.getParent().toString());
-				writer.writeAttribute("Size", "-1");
-				writer.writeAttribute("Modified", Files.getLastModifiedTime(dir.getParent()).toString());
-				writer.writeAttribute("isDir", "true");
+				writer.writeStartElement("record");
+				writer.write("Name", "..");
+				writer.write("Path", parent.getParent());
+				writer.write("Size", -1);
+				writer.write("Modified", Files.getLastModifiedTime(parent.getParent()));
+				writer.write("isDir", true);
+				writer.writeEndElement();
 				cnt++;
 			}
+			val initialPath = operation.hasData("initialPath")?CaseInsensitiveFileFinder.findFileIgnoreCase(getAbsolutePath(operation.getData("initialPath"))):Optional.empty();
 			for (Path entry : stream)
 			{
 				BasicFileAttributeView view = Files.getFileAttributeView(entry, BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
 				BasicFileAttributes attr = view.readAttributes();
-				writer.writeEmptyElement("record");
-				writer.writeAttribute("Name", entry.getFileName().toString());
-				writer.writeAttribute("Path", entry.toString());
-				writer.writeAttribute("Size", !attr.isRegularFile()?"-1":Long.toString(attr.size()));
-				writer.writeAttribute("Modified", attr.lastModifiedTime().toString());
-				writer.writeAttribute("isDir", Boolean.toString(attr.isDirectory()));
+				writer.writeStartElement("record");
+				writer.write("Name", entry.getFileName());
+				writer.write("Path", entry);
+				writer.write("RelPath", getRelativePath(entry));
+				writer.write("Size", !attr.isRegularFile()?-1:attr.size());
+				writer.write("Modified", attr.lastModifiedTime());
+				writer.write("isDir", attr.isDirectory());
+				if(initialPath.isPresent() && entry.equals(initialPath.get())) writer.write("isSelected", true);
+				writer.writeEndElement();
 				cnt++;
 			}
 			writer.writeEndElement();
@@ -147,26 +198,28 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void add(Operation operation) throws Exception
 	{
-		Path dir = request.getSession().getUser().getSettings().getWorkPath();
-		if(operation.hasData("parent"))
-			dir = new File(operation.getData("parent")).toPath();
+		if (operation.hasData("context"))
+			options = new Options(operation.getData("context"));
+		Path parent = getParent(operation);
 		String name = operation.getData("Name");
-		Path entry = dir.resolve(name);
-		if(name!=null && Files.isDirectory(dir) && !Files.exists(entry))
+		Path entry = parent.resolve(name);
+		if(name!=null && Files.isDirectory(parent) && !Files.exists(entry))
 		{
 			try
 			{
 				Files.createDirectory(entry);
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
-				writer.writeElement("parent", dir.toString());
+				writeParent(parent);
 				writer.writeStartElement("data");
-				writer.writeEmptyElement("record");
+				writer.writeStartElement("record");
 				writer.writeAttribute("Name", entry.getFileName().toString());
 				writer.writeAttribute("Path", entry.toString());
+				writer.writeAttribute("RelPath", getRelativePath(entry).toString());
 				writer.writeAttribute("Size", "-1");
 				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
 				writer.writeAttribute("isDir", Boolean.TRUE.toString());
+				writer.writeEndElement();
 				writer.writeEndElement();
 				writer.writeEndElement();
 			}
@@ -182,28 +235,30 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void update(Operation operation) throws Exception
 	{
-		Path dir = request.getSession().getUser().getSettings().getWorkPath();
-		if(operation.hasData("parent"))
-			dir = new File(operation.getData("parent")).toPath();
+		if (operation.hasData("context"))
+			options = new Options(operation.getData("context"));
+		Path parent = getParent(operation);
 		String name = operation.getData("Name");
-		String oldname = operation.getOldValues().get("Name");
-		Path entry = dir.resolve(name);
-		Path oldentry = dir.resolve(oldname);
-		if(name!=null && oldname!=null && Files.isDirectory(dir) && Files.exists(oldentry) && !Files.exists(entry))
+		String oldname = operation.oldValues.get("Name");
+		Path entry = parent.resolve(name);
+		Path oldentry = parent.resolve(oldname);
+		if(name!=null && oldname!=null && Files.isDirectory(parent) && Files.exists(oldentry) && !Files.exists(entry))
 		{
 			try
 			{
 				Files.move(oldentry, entry);
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
-				writer.writeElement("parent", dir.toString());
+				writeParent(parent);
 				writer.writeStartElement("data");
-				writer.writeEmptyElement("record");
+				writer.writeStartElement("record");
 				writer.writeAttribute("Name", entry.getFileName().toString());
 				writer.writeAttribute("Path", entry.toString());
+				writer.writeAttribute("RelPath", getRelativePath(entry).toString());
 				writer.writeAttribute("Size", "-1");
 				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
 				writer.writeAttribute("isDir", Boolean.TRUE.toString());
+				writer.writeEndElement();
 				writer.writeEndElement();
 				writer.writeEndElement();
 			}
@@ -219,11 +274,11 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	@Override
 	protected void remove(Operation operation) throws Exception
 	{
-		Path dir = request.getSession().getUser().getSettings().getWorkPath();
-		if(operation.hasData("parent"))
-			dir = new File(operation.getData("parent")).toPath();
+		if (operation.hasData("context"))
+			options = new Options(operation.getData("context"));
+		Path parent = getParent(operation);
 		String name = operation.getData("Name");
-		Path entry = dir.resolve(name);
+		Path entry = parent.resolve(name);
 		if(name!=null && Files.exists(entry))
 		{
 			try
@@ -232,10 +287,11 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				Files.walk(entry).map(Path::toFile).sorted(Comparator.reverseOrder()).forEach(File::delete);	// recursive dir delete
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
-				writer.writeElement("parent", dir.toString());
+				writeParent(parent);
 				writer.writeStartElement("data");
-				writer.writeEmptyElement("record");
+				writer.writeStartElement("record");
 				writer.writeAttribute("Name", entry.getFileName().toString());
+				writer.writeEndElement();
 				writer.writeEndElement();
 				writer.writeEndElement();
 			}
@@ -314,7 +370,146 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			else
 				failure("paths missing");
 		}
+		else if(operation.operationId.toString().equals("extract_subfolder"))
+		{
+			if(operation.hasData("Path"))
+			{
+				Path zipfile = Paths.get(operation.getData("Path"));
+				Path dest = zipfile.getParent().resolve(StringUtils.substring(zipfile.getFileName().toString(), 0, -4));
+				unzip(zipfile, dest);
+				success();
+			}
+			else
+				failure("path missing");
+		}
+		else if(operation.operationId.toString().equals("extract_here"))
+		{
+			if(operation.hasData("Path"))
+			{
+				Path zipfile = Paths.get(operation.getData("Path"));
+				Path dest = zipfile.getParent();
+				unzip(zipfile, dest);
+				success();
+			}
+			else
+				failure("path missing");
+		}
 		else
 			super.custom(operation);
 	}
+	
+	private Path getRelativePath(Path path)
+	{
+		try
+		{
+			val wdir = request.getSession().getUser().getSettings().getWorkPath();
+			if(path.startsWith(wdir)) return Paths.get("%work", wdir.relativize(path).toString());
+			val sdir = request.getSession().getUser().getSettings().getBasePath().resolve("users").resolve("shared");
+			if(path.startsWith(sdir)) return Paths.get("%shared", sdir.relativize(path).toString());
+		}
+		catch(Exception e)
+		{
+		}
+		return path;
+	}
+	
+	private Path getAbsolutePath(String path)
+	{
+		try
+		{
+			path = path.replace("%work", request.getSession().getUser().getSettings().getWorkPath().toString());
+			path = path.replace("%shared", request.getSession().getUser().getSettings().getBasePath().resolve("users").resolve("shared").toString());
+		}
+		catch(Exception e)
+		{
+		}
+		return Paths.get(path);
+	}
+
+	private Path getParent(Operation operation)
+	{
+		Path parent = request.getSession().getUser().getSettings().getWorkPath();
+		root = parent;
+		if(operation.hasData("root")) root = parent = new File(operation.getData("root")).toPath();
+		if(operation.hasData("parent"))
+			parent = new File(operation.getData("parent")).toPath();
+		else if(operation.hasData("initialPath"))
+		{
+			parent = getAbsolutePath(operation.getData("initialPath"));
+			if(!Files.isDirectory(parent)) parent = parent.getParent();
+		}
+		return parent;
+	}
+
+	private Path writeParent(Path parent) throws XMLStreamException
+	{
+		writer.writeElement("parent", parent.toString());
+		writer.writeElement("relparent", getRelativePath(parent).toString());
+		writer.writeElement("root", root.toString());
+		writer.writeElement("parentRelative", Paths.get("[ROOT]").resolve(root.relativize(parent)).toString());
+		return parent;
+	}
+	
+	
+	private static class EnumerationToIterator<T> implements Iterator<T>
+	{
+		Enumeration<T> enmueration;
+
+		public EnumerationToIterator(Enumeration<T> enmueration)
+		{
+			this.enmueration = enmueration;
+		}
+
+		public boolean hasNext()
+		{
+			return enmueration.hasMoreElements();
+		}
+
+		public T next()
+		{
+			return enmueration.nextElement();
+		}
+
+		public void remove()
+		{
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	private void unzip(Path zipfile, Path outputPath)
+	{
+		try (ZipFile zf = new ZipFile(zipfile.toFile()))
+		{
+
+			Enumeration<? extends ZipEntry> zipEntries = zf.entries();
+			new EnumerationToIterator<>(zipEntries).forEachRemaining(entry -> {
+				try
+				{
+					if(entry.isDirectory())
+					{
+						Path dirToCreate = outputPath.resolve(entry.getName());
+						if(!Files.exists(dirToCreate))
+							Files.createDirectories(dirToCreate);
+					}
+					else
+					{
+						Path fileToCreate = outputPath.resolve(entry.getName());
+						if(!Files.exists(fileToCreate.getParent()))
+							Files.createDirectories(fileToCreate.getParent());
+						Files.copy(zf.getInputStream(entry), fileToCreate);
+					}
+				}
+				catch(IOException ei)
+				{
+					ei.printStackTrace();
+				}
+			});
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+	
 }
