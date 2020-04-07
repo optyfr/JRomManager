@@ -165,7 +165,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			{
 				writer.writeStartElement("record");
 				writer.write("Name", "..");
-				writer.write("Path", parent.getParent());
+				writer.write("Path",  getRelativePath(parent).getParent());
 				writer.write("Size", -1);
 				writer.write("Modified", Files.getLastModifiedTime(parent.getParent()));
 				writer.write("isDir", true);
@@ -179,7 +179,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				BasicFileAttributes attr = view.readAttributes();
 				writer.writeStartElement("record");
 				writer.write("Name", entry.getFileName());
-				writer.write("Path", entry);
+				writer.write("Path",  getRelativePath(entry));
 				writer.write("RelPath", getRelativePath(entry));
 				writer.write("Size", !attr.isRegularFile()?-1:attr.size());
 				writer.write("Modified", attr.lastModifiedTime());
@@ -214,7 +214,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				writer.writeStartElement("data");
 				writer.writeStartElement("record");
 				writer.writeAttribute("Name", entry.getFileName().toString());
-				writer.writeAttribute("Path", entry.toString());
+				writer.writeAttribute("Path",  getRelativePath(entry).toString());
 				writer.writeAttribute("RelPath", getRelativePath(entry).toString());
 				writer.writeAttribute("Size", "-1");
 				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
@@ -253,7 +253,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				writer.writeStartElement("data");
 				writer.writeStartElement("record");
 				writer.writeAttribute("Name", entry.getFileName().toString());
-				writer.writeAttribute("Path", entry.toString());
+				writer.writeAttribute("Path",  getRelativePath(entry).toString());
 				writer.writeAttribute("RelPath", getRelativePath(entry).toString());
 				writer.writeAttribute("Size", "-1");
 				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
@@ -339,7 +339,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 										{
 											writer.writeEmptyElement("record");
 											writer.writeAttribute("Name", file.getFileName().toString());
-											writer.writeAttribute("Path", file.toString());
+											writer.writeAttribute("Path",  getRelativePath(file).toString());
 											cnt.incrementAndGet();
 										}
 										catch (XMLStreamException e)
@@ -357,7 +357,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 							Path entry = Paths.get(path);
 							writer.writeEmptyElement("record");
 							writer.writeAttribute("Name", entry.getFileName().toString());
-							writer.writeAttribute("Path", entry.toString());
+							writer.writeAttribute("Path",  getRelativePath(entry).toString());
 							cnt.incrementAndGet();
 						}
 						break;
@@ -413,6 +413,16 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		return path;
 	}
 	
+	private String getRootName()
+	{
+		switch(getRelativePath(root).toString())
+		{
+			case "%work": return "[Work]";
+			case "%shared": return "[Shared]";
+			default : return "["+root.toString()+"]";
+		}
+	}
+	
 	private Path getAbsolutePath(String path)
 	{
 		try
@@ -430,9 +440,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	{
 		Path parent = request.getSession().getUser().getSettings().getWorkPath();
 		root = parent;
-		if(operation.hasData("root")) root = parent = new File(operation.getData("root")).toPath();
+		if(operation.hasData("root")) root = parent = getAbsolutePath(operation.getData("root"));
 		if(operation.hasData("parent"))
-			parent = new File(operation.getData("parent")).toPath();
+			parent = getAbsolutePath(operation.getData("parent"));
 		else if(operation.hasData("initialPath"))
 		{
 			parent = getAbsolutePath(operation.getData("initialPath"));
@@ -443,10 +453,10 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 
 	private Path writeParent(Path parent) throws XMLStreamException
 	{
-		writer.writeElement("parent", parent.toString());
+		writer.writeElement("parent",  getRelativePath(parent).toString());
 		writer.writeElement("relparent", getRelativePath(parent).toString());
-		writer.writeElement("root", root.toString());
-		writer.writeElement("parentRelative", Paths.get("[ROOT]").resolve(root.relativize(parent)).toString());
+		writer.writeElement("root",  getRelativePath(root).toString());
+		writer.writeElement("parentRelative", Paths.get(getRootName()).resolve(root.relativize(parent)).toString());
 		return parent;
 	}
 	
@@ -460,16 +470,19 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			this.enmueration = enmueration;
 		}
 
+		@Override
 		public boolean hasNext()
 		{
 			return enmueration.hasMoreElements();
 		}
 
+		@Override
 		public T next()
 		{
 			return enmueration.nextElement();
 		}
 
+		@Override
 		public void remove()
 		{
 			throw new UnsupportedOperationException();

@@ -3,6 +3,7 @@ package jrm.server.shared.datasources;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,10 +26,12 @@ public class RemoteRootChooserXMLResponse extends XMLResponse
 		Map<String,Path> paths = new LinkedHashMap<>();
 		if(request.session.server && request.session.multiuser)
 		{
-			paths.put("Work", request.getSession().getUser().getSettings().getWorkPath());
+/*			paths.put("Work", request.getSession().getUser().getSettings().getWorkPath());
 			val shared = request.getSession().getUser().getSettings().getBasePath().resolve("users").resolve("shared");
 			paths.put("Shared", shared);
-			Files.createDirectories(shared);
+			Files.createDirectories(shared);*/
+			paths.put("Work", Paths.get("%work"));
+			paths.put("Shared", Paths.get("%shared"));
 		}
 		else
 		{
