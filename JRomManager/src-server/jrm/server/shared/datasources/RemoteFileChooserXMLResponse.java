@@ -415,12 +415,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	
 	private String getRootName()
 	{
-		switch(getRelativePath(root).toString())
-		{
-			case "%work": return "[Work]";
-			case "%shared": return "[Shared]";
-			default : return "["+root.toString()+"]";
-		}
+		return getRelativePath(root).toString();
 	}
 	
 	private Path getAbsolutePath(String path)

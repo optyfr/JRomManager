@@ -23,8 +23,6 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.lang3.StringUtils;
-
 // TODO: Auto-generated Javadoc
 /**
  * An XMLStreamWriter with indentation and line return.

@@ -87,7 +87,7 @@ public class Login extends SQL implements LoginService
 					if (sessionid != null)
 					{
 						cache.put(username + ":" + sessionid, identity);
-						sess.setUser(username);
+						sess.setUser(username, roles);
 					}
 					return identity;
 				}

@@ -35,7 +35,7 @@ public class Session
 		this.multiuser = multiuser;
 		this.noupdate = noupdate;
 		this.sessionId = null;
-		user = new User(this, "JRomManager");
+		user = new User(this, "JRomManager", new String[] {"admin"});
 		msgs = Messages.getBundle();
 	}
 
@@ -45,24 +45,24 @@ public class Session
 		this.sessionId = sessionId;
 	}
 
-	public Session(String sessionId, String user)
+	public Session(String sessionId, String user, String[] roles)
 	{
 		this.multiuser = true;
 		this.server = true;
 		this.sessionId = sessionId;
-		this.user = new User(this, user==null?"server":user);
+		this.user = new User(this, user==null?"server":user, roles==null?new String[] {"admin"}:roles);
 	}
 
 	public User getUser()
 	{
 		if (user == null)
-			user = new User(this, "JRomManager");
+			user = new User(this, "JRomManager", new String[] {"admin"});
 		return user;
 	}
 	
-	public void setUser(String user)
+	public void setUser(String user, String[] roles)
 	{
-		this.user = new User(this, user);
+		this.user = new User(this, user, roles);
 	}
 
 	public String getSessionId()

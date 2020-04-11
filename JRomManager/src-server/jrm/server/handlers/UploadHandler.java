@@ -28,6 +28,9 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.misc.Log;
+import jrm.server.Server;
+import jrm.server.shared.WebSession;
+import lombok.val;
 
 public class UploadHandler extends DefaultHandler
 {
@@ -60,6 +63,7 @@ public class UploadHandler extends DefaultHandler
 	{
 		try
 		{
+			WebSession sess = Server.getSession(session.getCookies().read("session"));
 			final Result result = new Result();
 			final Map<String, String> headers = session.getHeaders();
 			final String bodylenstr = headers.get("content-length");
@@ -75,61 +79,8 @@ public class UploadHandler extends DefaultHandler
 				result.extstatus = "continue...";
 				final String filename =  URLDecoder.decode(headers.get("x-file-name"), "UTF-8");
 				final String fileparent = URLDecoder.decode(headers.get("x-file-parent"), "UTF-8");
-				long filesize;
-				try
+				if(isWriteable(sess, fileparent))
 				{
-					filesize = Long.parseLong(headers.get("x-file-size"));
-				}
-				catch(NumberFormatException e)
-				{
-					filesize = -1;
-				}
-				try
-				{
-					final Path dest = Paths.get(fileparent);
-					if(!(Files.exists(dest) && Files.isDirectory(dest)))
-					{
-						result.status=6;
-						result.extstatus="Error: destination " + dest + " must be an existing directory";
-					}
-					else
-					{
-						final FileStore fs = Files.getFileStore(dest);
-						final long free = fs.getUsableSpace();
-						if(free < filesize)
-						{
-							result.status=7;
-							result.extstatus="Error: not enough free space, need " + filesize + " but only " + free + " is available";
-						}
-						else
-						{
-							final Path filepath = dest.resolve(filename);
-							Files.getLastModifiedTime(filepath);
-						}
-					}
-				}
-				catch(NoSuchFileException e)
-				{	// that's ok
-				}
-				catch(InvalidPathException e)
-				{	// invalid filename (case 1)
-					result.status=8;
-					result.extstatus=e.getMessage();
-				}
-				catch(FileSystemException e)
-				{	// invalid filename (case 2)
-					result.status=9;
-					result.extstatus=e.getMessage();
-				}
-				return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), new Gson().toJson(result));
-			}
-			else
-			{
-				if (bodylenstr != null)
-				{
-					InputStream in = new BufferedInputStream(session.getInputStream());
-					final String filename =  URLDecoder.decode(headers.get("x-file-name"), "UTF-8");
-					final String fileparent = URLDecoder.decode(headers.get("x-file-parent"), "UTF-8");
 					long filesize;
 					try
 					{
@@ -139,32 +90,102 @@ public class UploadHandler extends DefaultHandler
 					{
 						filesize = -1;
 					}
-					Path filepath = Paths.get(fileparent, filename);
-					Files.createDirectories(filepath.getParent());
-					long size = 0;
-					try(BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(filepath, StandardOpenOption.CREATE));)
+					try
 					{
-						size = IOUtils.copy(in, out);
-						result.status = 3;
-						result.extstatus = filename + " done";
-					}
-					catch(IOException e)
-					{
-						result.status = 20;
-						result.extstatus = filename + " : " + e.getMessage();
-					}
-					finally
-					{
-						if(filesize >= 0 && size != filesize)
+						final Path dest = getAbsolutePath(sess, fileparent);
+						if(!(Files.exists(dest) && Files.isDirectory(dest)))
 						{
-							result.status = 21;
-							result.extstatus = "Error: " + filename + " size should be " + filesize + " bytes long but got " + size + " bytes";
+							result.status=6;
+							result.extstatus="Error: destination " + dest + " must be an existing directory";
+						}
+						else
+						{
+							final FileStore fs = Files.getFileStore(dest);
+							final long free = fs.getUsableSpace();
+							if(free < filesize)
+							{
+								result.status=7;
+								result.extstatus="Error: not enough free space, need " + filesize + " but only " + free + " is available";
+							}
+							else
+							{
+								final Path filepath = dest.resolve(filename);
+								Files.getLastModifiedTime(filepath);
+							}
 						}
 					}
-					if(result.status != 3)
+					catch(NoSuchFileException e)
+					{	// that's ok
+					}
+					catch(InvalidPathException e)
+					{	// invalid filename (case 1)
+						result.status=8;
+						result.extstatus=e.getMessage();
+					}
+					catch(FileSystemException e)
+					{	// invalid filename (case 2)
+						result.status=9;
+						result.extstatus=e.getMessage();
+					}
+				}
+				else
+				{
+					result.status=10;
+					result.extstatus="Is read only";
+				}
+				return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), new Gson().toJson(result));
+			}
+			else
+			{
+				if (bodylenstr != null)
+				{
+					InputStream in = new BufferedInputStream(session.getInputStream());
+					final String filename =  URLDecoder.decode(headers.get("x-file-name"), "UTF-8");
+					String fileparent = URLDecoder.decode(headers.get("x-file-parent"), "UTF-8");
+					if(isWriteable(sess, fileparent))
 					{
-						System.err.println(result.status + " : " + result.extstatus);
-						Files.delete(filepath);
+						long filesize;
+						try
+						{
+							filesize = Long.parseLong(headers.get("x-file-size"));
+						}
+						catch(NumberFormatException e)
+						{
+							filesize = -1;
+						}
+						final Path dest = getAbsolutePath(sess, fileparent);
+						final Path filepath = dest.resolve(filename);
+						Files.createDirectories(filepath.getParent());
+						long size = 0;
+						try(BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(filepath, StandardOpenOption.CREATE));)
+						{
+							size = IOUtils.copy(in, out);
+							result.status = 3;
+							result.extstatus = filename + " done";
+						}
+						catch(IOException e)
+						{
+							result.status = 20;
+							result.extstatus = filename + " : " + e.getMessage();
+						}
+						finally
+						{
+							if(filesize >= 0 && size != filesize)
+							{
+								result.status = 21;
+								result.extstatus = "Error: " + filename + " size should be " + filesize + " bytes long but got " + size + " bytes";
+							}
+						}
+						if(result.status != 3)
+						{
+							System.err.println(result.status + " : " + result.extstatus);
+							Files.delete(filepath);
+						}
+					}
+					else
+					{
+						result.status=10;
+						result.extstatus="Is read only";
 					}
 				}
 				return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), new Gson().toJson(result));
@@ -176,4 +197,39 @@ public class UploadHandler extends DefaultHandler
 			return new Error500UriHandler(e).get(uriResource, urlParams, session);
 		}
 	}
+	
+	private boolean isWriteable(WebSession sess, String strpath)
+	{
+		if(strpath.startsWith("%work"))
+			return true;
+		if(strpath.startsWith("%shared"))
+			return sess.getUser().isAdmin();
+		return sess.getUser().isAdmin();
+	}
+	
+	private Path getAbsolutePath(WebSession sess, String strpath)
+	{
+		final Path path;
+		if(strpath.startsWith("%work"))
+		{
+			val basepath = sess.getUser().getSettings().getWorkPath();
+			strpath = strpath.replace("%work", sess.getUser().getSettings().getWorkPath().toString());
+			path = Paths.get(strpath).toAbsolutePath();
+			if(!path.startsWith(basepath))
+				return null;
+		}
+		else if(strpath.startsWith("%shared"))
+		{
+			val basepath = sess.getUser().getSettings().getBasePath().resolve("users").resolve("shared");
+			strpath = strpath.replace("%shared", basepath.toString());
+			path = Paths.get(strpath).toAbsolutePath();
+			if(!path.startsWith(basepath))
+				return null;
+		}
+		else
+			path = Paths.get(strpath);
+		return path;
+	}
+
+
 }

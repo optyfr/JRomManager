@@ -35,9 +35,9 @@ public class WebSession extends Session implements Closeable
 		allSessions.put(sessionId, this);
 	}
 
-	public WebSession(String sessionId, String user)
+	public WebSession(String sessionId, String user, String[] roles)
 	{
-		super(sessionId, user);
+		super(sessionId, user, roles);
 		allSessions.put(sessionId, this);
 	}
 
