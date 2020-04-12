@@ -27,20 +27,20 @@ public class TrntChkActions
 
 	public void start(JsonObject jso)
 	{
-		(ws.getSession().worker = new Worker(()->{
+		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
 			final TrntChkMode mode = TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode, "FILENAME"));
 			final boolean removeUnknownFiles = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, false);
 			final boolean removeWrongSizedFiles = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, false);
 			final boolean detectArchivedFolders = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, true);
 
-			session.worker.progress = new ProgressActions(ws);
+			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
 				List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]"));
 				try
 				{
-					new TorrentChecker(session, session.worker.progress, sdrl, mode, new ResultColUpdater()
+					new TorrentChecker(session, session.getWorker().progress, sdrl, mode, new ResultColUpdater()
 					{
 						@Override
 						public void updateResult(int row, String result)
@@ -73,11 +73,11 @@ public class TrntChkActions
 				TrntChkActions.this.end();
 				session.curr_profile = null;
 				session.curr_scan = null;
-				session.worker.progress.close();
-				session.worker.progress = null;
-				session.lastAction = new Date();
+				session.getWorker().progress.close();
+				session.getWorker().progress = null;
+				session.setLastAction(new Date());
 			}
-		})).start();
+		}))).start();
 	}
 	
 	@SuppressWarnings("serial")

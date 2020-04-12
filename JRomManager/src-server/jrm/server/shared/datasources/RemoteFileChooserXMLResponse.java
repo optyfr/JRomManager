@@ -165,22 +165,22 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			{
 				writer.writeStartElement("record");
 				writer.write("Name", "..");
-				writer.write("Path",  getRelativePath(parent).getParent());
+				writer.write("Path",  pathAbstractor.getRelativePath(parent).getParent());
 				writer.write("Size", -1);
 				writer.write("Modified", Files.getLastModifiedTime(parent.getParent()));
 				writer.write("isDir", true);
 				writer.writeEndElement();
 				cnt++;
 			}
-			val initialPath = operation.hasData("initialPath")?CaseInsensitiveFileFinder.findFileIgnoreCase(getAbsolutePath(operation.getData("initialPath"))):Optional.empty();
+			val initialPath = operation.hasData("initialPath")?CaseInsensitiveFileFinder.findFileIgnoreCase(pathAbstractor.getAbsolutePath(operation.getData("initialPath"))):Optional.empty();
 			for (Path entry : stream)
 			{
 				BasicFileAttributeView view = Files.getFileAttributeView(entry, BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
 				BasicFileAttributes attr = view.readAttributes();
 				writer.writeStartElement("record");
 				writer.write("Name", entry.getFileName());
-				writer.write("Path",  getRelativePath(entry));
-				writer.write("RelPath", getRelativePath(entry));
+				writer.write("Path",  pathAbstractor.getRelativePath(entry));
+				writer.write("RelPath", pathAbstractor.getRelativePath(entry));
 				writer.write("Size", !attr.isRegularFile()?-1:attr.size());
 				writer.write("Modified", attr.lastModifiedTime());
 				writer.write("isDir", attr.isDirectory());
@@ -214,8 +214,8 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				writer.writeStartElement("data");
 				writer.writeStartElement("record");
 				writer.writeAttribute("Name", entry.getFileName().toString());
-				writer.writeAttribute("Path",  getRelativePath(entry).toString());
-				writer.writeAttribute("RelPath", getRelativePath(entry).toString());
+				writer.writeAttribute("Path",  pathAbstractor.getRelativePath(entry).toString());
+				writer.writeAttribute("RelPath", pathAbstractor.getRelativePath(entry).toString());
 				writer.writeAttribute("Size", "-1");
 				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
 				writer.writeAttribute("isDir", Boolean.TRUE.toString());
@@ -253,8 +253,8 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				writer.writeStartElement("data");
 				writer.writeStartElement("record");
 				writer.writeAttribute("Name", entry.getFileName().toString());
-				writer.writeAttribute("Path",  getRelativePath(entry).toString());
-				writer.writeAttribute("RelPath", getRelativePath(entry).toString());
+				writer.writeAttribute("Path",  pathAbstractor.getRelativePath(entry).toString());
+				writer.writeAttribute("RelPath", pathAbstractor.getRelativePath(entry).toString());
 				writer.writeAttribute("Size", "-1");
 				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
 				writer.writeAttribute("isDir", Boolean.TRUE.toString());
@@ -339,7 +339,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 										{
 											writer.writeEmptyElement("record");
 											writer.writeAttribute("Name", file.getFileName().toString());
-											writer.writeAttribute("Path",  getRelativePath(file).toString());
+											writer.writeAttribute("Path",  pathAbstractor.getRelativePath(file).toString());
 											cnt.incrementAndGet();
 										}
 										catch (XMLStreamException e)
@@ -357,7 +357,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 							Path entry = Paths.get(path);
 							writer.writeEmptyElement("record");
 							writer.writeAttribute("Name", entry.getFileName().toString());
-							writer.writeAttribute("Path",  getRelativePath(entry).toString());
+							writer.writeAttribute("Path",  pathAbstractor.getRelativePath(entry).toString());
 							cnt.incrementAndGet();
 						}
 						break;
@@ -398,49 +398,21 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			super.custom(operation);
 	}
 	
-	private Path getRelativePath(Path path)
-	{
-		try
-		{
-			val wdir = request.getSession().getUser().getSettings().getWorkPath();
-			if(path.startsWith(wdir)) return Paths.get("%work", wdir.relativize(path).toString());
-			val sdir = request.getSession().getUser().getSettings().getBasePath().resolve("users").resolve("shared");
-			if(path.startsWith(sdir)) return Paths.get("%shared", sdir.relativize(path).toString());
-		}
-		catch(Exception e)
-		{
-		}
-		return path;
-	}
-	
 	private String getRootName()
 	{
-		return getRelativePath(root).toString();
+		return pathAbstractor.getRelativePath(root).toString();
 	}
 	
-	private Path getAbsolutePath(String path)
-	{
-		try
-		{
-			path = path.replace("%work", request.getSession().getUser().getSettings().getWorkPath().toString());
-			path = path.replace("%shared", request.getSession().getUser().getSettings().getBasePath().resolve("users").resolve("shared").toString());
-		}
-		catch(Exception e)
-		{
-		}
-		return Paths.get(path);
-	}
-
 	private Path getParent(Operation operation)
 	{
 		Path parent = request.getSession().getUser().getSettings().getWorkPath();
 		root = parent;
-		if(operation.hasData("root")) root = parent = getAbsolutePath(operation.getData("root"));
+		if(operation.hasData("root")) root = parent = pathAbstractor.getAbsolutePath(operation.getData("root"));
 		if(operation.hasData("parent"))
-			parent = getAbsolutePath(operation.getData("parent"));
+			parent = pathAbstractor.getAbsolutePath(operation.getData("parent"));
 		else if(operation.hasData("initialPath"))
 		{
-			parent = getAbsolutePath(operation.getData("initialPath"));
+			parent = pathAbstractor.getAbsolutePath(operation.getData("initialPath"));
 			if(!Files.isDirectory(parent)) parent = parent.getParent();
 		}
 		return parent;
@@ -448,9 +420,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 
 	private Path writeParent(Path parent) throws XMLStreamException
 	{
-		writer.writeElement("parent",  getRelativePath(parent).toString());
-		writer.writeElement("relparent", getRelativePath(parent).toString());
-		writer.writeElement("root",  getRelativePath(root).toString());
+		writer.writeElement("parent",  pathAbstractor.getRelativePath(parent).toString());
+		writer.writeElement("relparent", pathAbstractor.getRelativePath(parent).toString());
+		writer.writeElement("root",  pathAbstractor.getRelativePath(root).toString());
 		writer.writeElement("parentRelative", Paths.get(getRootName()).resolve(root.relativize(parent)).toString());
 		return parent;
 	}

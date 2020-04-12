@@ -39,7 +39,7 @@ public class CatVerXMLResponse extends XMLResponse
 		{
 			writer.writeStartElement("record");
 			writer.writeAttribute("ID", catver.getPropertyName());
-			writer.writeAttribute("Name", request.getSession().msgs.getString("CatVerCmd.AllCategories"));
+			writer.writeAttribute("Name", request.session.msgs.getString("CatVerCmd.AllCategories"));
 			writer.writeAttribute("ParentID", "1");
 			writer.writeAttribute("isFolder", Boolean.toString(catver.getListCategories().size()!=0));
 			writer.writeAttribute("isSelected", Boolean.toString(catver.isSelected()));
@@ -79,14 +79,14 @@ public class CatVerXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		int nodecount = countNode(request.getSession().curr_profile.catver);
+		int nodecount = countNode(request.session.curr_profile.catver);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
 		writer.writeElement("endRow", Integer.toString(nodecount-1));
 		writer.writeElement("totalRows", Integer.toString(nodecount));
 		writer.writeStartElement("data");
-		outputNode(writer, request.getSession().curr_profile.catver);
+		outputNode(writer, request.session.curr_profile.catver);
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}

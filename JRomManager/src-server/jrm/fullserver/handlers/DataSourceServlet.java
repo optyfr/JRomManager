@@ -117,6 +117,7 @@ public class DataSourceServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}

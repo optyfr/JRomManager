@@ -22,14 +22,14 @@ public class ReportTreeXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		
-		Report report = request.getSession().report;
+		Report report = request.session.report;
 		if(operation.hasData("src"))
 		{
 			final File srcfile = new File(operation.getData("src"));
-			final File reportfile = Report.getReportFile(request.getSession(), srcfile);
-			if(request.getSession().tmp_report==null || !(request.getSession().tmp_report.getReportFile(request.getSession()).equals(reportfile) && request.getSession().tmp_report.getFileModified()==reportfile.lastModified()))
-				request.getSession().tmp_report = Report.load(request.getSession(), srcfile);
-			report = request.getSession().tmp_report;
+			final File reportfile = Report.getReportFile(request.session, srcfile);
+			if(request.session.tmp_report==null || !(request.session.tmp_report.getReportFile(request.session).equals(reportfile) && request.session.tmp_report.getFileModified()==reportfile.lastModified()))
+				request.session.tmp_report = Report.load(request.session, srcfile);
+			report = request.session.tmp_report;
 		}
 		
 		int parentID = Integer.valueOf(operation.getData("ParentID"));
@@ -96,7 +96,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 		switch(operation.getOperationId().toString())
 		{
 			case "detail":
-				Report report = request.getSession().report;
+				Report report = request.session.report;
 				int parentID = Integer.valueOf(operation.getData("ParentID"));
 				Subject subject = report.getHandler().getFilteredReport().findSubject(parentID);
 				writer.writeStartElement("response");

@@ -6,6 +6,7 @@ import jrm.locale.Messages;
 import jrm.profile.Profile;
 import jrm.profile.report.Report;
 import jrm.profile.scan.Scan;
+import lombok.Getter;
 
 public class Session
 {
@@ -13,7 +14,7 @@ public class Session
 
 	User user = null;
 
-	public ResourceBundle msgs = null;
+	public @Getter ResourceBundle msgs = null;
 
 	// Extra settings coming from cmdline args
 	public boolean server = false;
@@ -25,7 +26,7 @@ public class Session
 	/**
 	 * This contain the current loaded profile
 	 */
-	public Profile curr_profile = null;
+	public @Getter Profile curr_profile = null;
 
 	/** The curr scan. */
 	public Scan curr_scan;

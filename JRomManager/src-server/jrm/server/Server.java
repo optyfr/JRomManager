@@ -58,7 +58,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 				while(iterator.hasNext())
 				{
 					Entry<String, WebSession> entry = iterator.next();
-					if((new Date().getTime() - entry.getValue().lastAction.getTime())>86400L*1000L)
+					if((new Date().getTime() - entry.getValue().getLastAction().getTime())>86400L*1000L)
 					{
 						Log.info("Session "+entry.getKey()+" removed");
 						iterator.remove();
@@ -183,7 +183,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 	{
 		WebSession s = sessions.get(session);
 		if (s != null)
-			s.lastAction = new Date();
+			s.setLastAction(new Date());
 		return s;
 	};
 

@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,7 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import jrm.misc.Log;
+import jrm.security.PathAbstractor;
 import jrm.server.Server;
 import jrm.server.shared.WebSession;
 import lombok.val;
@@ -64,6 +64,7 @@ public class UploadHandler extends DefaultHandler
 		try
 		{
 			WebSession sess = Server.getSession(session.getCookies().read("session"));
+			val pathAbstractor = new PathAbstractor(sess);
 			final Result result = new Result();
 			final Map<String, String> headers = session.getHeaders();
 			final String bodylenstr = headers.get("content-length");
@@ -79,7 +80,7 @@ public class UploadHandler extends DefaultHandler
 				result.extstatus = "continue...";
 				final String filename =  URLDecoder.decode(headers.get("x-file-name"), "UTF-8");
 				final String fileparent = URLDecoder.decode(headers.get("x-file-parent"), "UTF-8");
-				if(isWriteable(sess, fileparent))
+				if(pathAbstractor.isWriteable(fileparent))
 				{
 					long filesize;
 					try
@@ -92,7 +93,7 @@ public class UploadHandler extends DefaultHandler
 					}
 					try
 					{
-						final Path dest = getAbsolutePath(sess, fileparent);
+						final Path dest = pathAbstractor.getAbsolutePath(fileparent);
 						if(!(Files.exists(dest) && Files.isDirectory(dest)))
 						{
 							result.status=6;
@@ -142,7 +143,7 @@ public class UploadHandler extends DefaultHandler
 					InputStream in = new BufferedInputStream(session.getInputStream());
 					final String filename =  URLDecoder.decode(headers.get("x-file-name"), "UTF-8");
 					String fileparent = URLDecoder.decode(headers.get("x-file-parent"), "UTF-8");
-					if(isWriteable(sess, fileparent))
+					if(pathAbstractor.isWriteable(fileparent))
 					{
 						long filesize;
 						try
@@ -153,7 +154,7 @@ public class UploadHandler extends DefaultHandler
 						{
 							filesize = -1;
 						}
-						final Path dest = getAbsolutePath(sess, fileparent);
+						final Path dest = pathAbstractor.getAbsolutePath(fileparent);
 						final Path filepath = dest.resolve(filename);
 						Files.createDirectories(filepath.getParent());
 						long size = 0;
@@ -198,38 +199,4 @@ public class UploadHandler extends DefaultHandler
 		}
 	}
 	
-	private boolean isWriteable(WebSession sess, String strpath)
-	{
-		if(strpath.startsWith("%work"))
-			return true;
-		if(strpath.startsWith("%shared"))
-			return sess.getUser().isAdmin();
-		return sess.getUser().isAdmin();
-	}
-	
-	private Path getAbsolutePath(WebSession sess, String strpath)
-	{
-		final Path path;
-		if(strpath.startsWith("%work"))
-		{
-			val basepath = sess.getUser().getSettings().getWorkPath();
-			strpath = strpath.replace("%work", sess.getUser().getSettings().getWorkPath().toString());
-			path = Paths.get(strpath).toAbsolutePath();
-			if(!path.startsWith(basepath))
-				return null;
-		}
-		else if(strpath.startsWith("%shared"))
-		{
-			val basepath = sess.getUser().getSettings().getBasePath().resolve("users").resolve("shared");
-			strpath = strpath.replace("%shared", basepath.toString());
-			path = Paths.get(strpath).toAbsolutePath();
-			if(!path.startsWith(basepath))
-				return null;
-		}
-		else
-			path = Paths.get(strpath);
-		return path;
-	}
-
-
 }

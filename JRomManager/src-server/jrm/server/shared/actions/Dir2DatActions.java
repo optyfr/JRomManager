@@ -28,9 +28,9 @@ public class Dir2DatActions
 
 	public void start(JsonObject jso)
 	{
-		(ws.getSession().worker = new Worker(() -> {
+		(ws.getSession().setWorker(new Worker(() -> {
 			WebSession session = ws.getSession();
-			session.worker.progress = new ProgressActions(ws);
+			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
 				String srcdir = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, null);
@@ -61,7 +61,7 @@ public class Dir2DatActions
 						headers.put(m.getName(), m.getValue().asString());
 				});
 				if (srcdir != null && dstdat != null)
-					new Dir2Dat(ws.getSession(), new File(srcdir), new File(dstdat), session.worker.progress, options, ExportType.valueOf(format), headers);
+					new Dir2Dat(ws.getSession(), new File(srcdir), new File(dstdat), session.getWorker().progress, options, ExportType.valueOf(format), headers);
 			}
 			catch (BreakException e)
 			{
@@ -72,11 +72,11 @@ public class Dir2DatActions
 				Dir2DatActions.this.end();
 				session.curr_profile = null;
 				session.curr_scan = null;
-				session.worker.progress.close();
-				session.worker.progress = null;
-				session.lastAction = new Date();
+				session.getWorker().progress.close();
+				session.getWorker().progress = null;
+				session.setLastAction(new Date());
 			}
-		})).start();
+		}))).start();
 	}
 
 	@SuppressWarnings("serial")

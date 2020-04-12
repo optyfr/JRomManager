@@ -2,7 +2,6 @@ package jrm.server.shared.datasources;
 
 import java.io.File;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.UUID;
 
 import jrm.batch.Compressor.FileResult;
@@ -21,15 +20,13 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		if (request.getSession().tmp_compressor_lst == null)
-			request.getSession().tmp_compressor_lst = new TreeMap<>();
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString(request.getSession().tmp_compressor_lst.size() - 1));
-		writer.writeElement("totalRows", Integer.toString(request.getSession().tmp_compressor_lst.size()));
+		writer.writeElement("endRow", Integer.toString(request.getSession().getCachedCompressorList().size() - 1));
+		writer.writeElement("totalRows", Integer.toString(request.getSession().getCachedCompressorList().size()));
 		writer.writeStartElement("data");
-		for(Entry<String, FileResult> sr : request.getSession().tmp_compressor_lst.entrySet())
+		for(Entry<String, FileResult> sr : request.getSession().getCachedCompressorList().entrySet())
 		{
 			writer.writeElement("record", 
 				new SimpleAttribute("id", sr.getKey()),
@@ -48,7 +45,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		{
 			String id = UUID.randomUUID().toString();
 			FileResult fr = new FileResult(new File(operation.getData("file")));
-			request.getSession().tmp_compressor_lst.put(id, fr);
+			request.getSession().getCachedCompressorList().put(id, fr);
 			writer.writeStartElement("response");
 			writer.writeElement("status", "0");
 			writer.writeStartElement("data");
@@ -70,7 +67,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		if(operation.hasData("id"))
 		{
 			final String id = operation.getData("id");
-			final FileResult fr = request.getSession().tmp_compressor_lst.get(id);
+			final FileResult fr = request.getSession().getCachedCompressorList().get(id);
 			if(fr!=null)
 			{
 				if(operation.hasData("file") || operation.hasData("result"))
@@ -106,7 +103,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		if(operation.hasData("id"))
 		{
 			final String id = operation.getData("id");
-			if(request.getSession().tmp_compressor_lst.remove(id)!=null)
+			if(request.getSession().getCachedCompressorList().remove(id)!=null)
 			{
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
@@ -129,7 +126,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		switch(operation.getOperationId().toString())
 		{
 			case "clear":
-				request.getSession().tmp_compressor_lst.clear();
+				request.getSession().getCachedCompressorList().clear();
 				success();
 				break;
 		}

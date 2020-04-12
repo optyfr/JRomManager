@@ -46,7 +46,6 @@ import jrm.fullserver.handlers.DataSourceServlet;
 import jrm.fullserver.handlers.ImageServlet;
 import jrm.fullserver.handlers.SessionServlet;
 import jrm.fullserver.handlers.UploadServlet;
-import jrm.fullserver.lpr.LongPollingReqMgr;
 import jrm.fullserver.security.BasicAuthenticator;
 import jrm.fullserver.security.Login;
 import jrm.fullserver.security.SSLReload;

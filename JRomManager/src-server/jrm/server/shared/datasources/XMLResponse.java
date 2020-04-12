@@ -12,6 +12,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
 import jrm.misc.Log;
+import jrm.security.PathAbstractor;
 import jrm.server.shared.TempFileInputStream;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.EnhancedXMLStreamWriter;
@@ -22,10 +23,12 @@ abstract class XMLResponse implements Closeable
 	private final File tmpfile;
 	private final OutputStream out;
 	protected final EnhancedXMLStreamWriter writer;
+	protected PathAbstractor pathAbstractor;
 
 	public XMLResponse(XMLRequest request) throws Exception
 	{
 		this.request = request;
+		pathAbstractor = new PathAbstractor(request.getSession());
 		tmpfile = File.createTempFile("JRM", null);
 		out = new FileOutputStream(tmpfile);
 		writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(out));

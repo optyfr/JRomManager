@@ -58,9 +58,9 @@ public class ActionHandler extends DefaultHandler
 							new CatVerActions(cmd).loaded(sess.curr_profile);
 							new NPlayersActions(cmd).loaded(sess.curr_profile);
 						}
-						if(sess.worker != null && sess.worker.isAlive())
-							if(sess.worker.progress!=null)
-								sess.worker.progress.reload(cmd);
+						if(sess.getWorker() != null && sess.getWorker().isAlive())
+							if(sess.getWorker().progress!=null)
+								sess.getWorker().progress.reload(cmd);
 						return NanoHTTPD.newFixedLengthResponse(Status.OK, "application/json", sess.lprMsg.poll(20, TimeUnit.SECONDS));
 					}
 					case "lpr":

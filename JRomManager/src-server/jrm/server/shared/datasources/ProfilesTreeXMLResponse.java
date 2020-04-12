@@ -3,7 +3,6 @@ package jrm.server.shared.datasources;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.stream.XMLStreamException;
@@ -43,10 +42,10 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		String strID = id.toString();
 		if (id.get() > 0)
 		{
-			request.getSession().tmp_profile_lst.put(id.get(), node.getData().getFile().toPath());
+			request.getSession().putProfileList(id.get(), node.getData().getFile().toPath());
 			writer.writeStartElement("record");
 			writer.writeAttribute("ID", id.toString());
-			writer.writeAttribute("Path", node.getData().getFile().getPath());
+			writer.writeAttribute("Path", pathAbstractor.getRelativePath(node.getData().getFile().toPath()).toString());
 			writer.writeAttribute("title", node.getData().getFile().getName());
 			writer.writeAttribute("isFolder", "true");
 			if(parentID!=null)
@@ -54,7 +53,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 			writer.writeEndElement();
 		}
 		else
-			request.getSession().tmp_profile_lst = new TreeMap<>();
+			request.getSession().newProfileList();
 		id.incrementAndGet();
 		for(val child : node)
 			outputNode(writer, child, strID, id);
@@ -63,7 +62,9 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		DirTree root = new DirTree(request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
+		val rootpath = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
+		Files.createDirectories(rootpath);
+		DirTree root = new DirTree(rootpath.toFile());
 		int nodecount = countNode(root.getRoot());
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
@@ -80,18 +81,18 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	protected void add(Operation operation) throws Exception
 	{
 	//	DirNode root = new DirNode(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
-		int key = request.getSession().tmp_profile_lst.lastKey()+1;
+		int key = request.getSession().getLastProfileListKey()+1;
 		String basepath = operation.getData("Path");
 		if(basepath==null || basepath.isEmpty())
 			basepath = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toString();
 		Path path = Files.createDirectory(Paths.get(basepath, operation.getData("title")));
-		request.getSession().tmp_profile_lst.put(key, path);
+		request.getSession().putProfileList(key, path);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeStartElement("data");
 		writer.writeStartElement("record");
 		writer.writeAttribute("ID", Integer.toString(key));
-		writer.writeAttribute("Path", path.toString());
+		writer.writeAttribute("Path", pathAbstractor.getRelativePath(path).toString());
 		writer.writeAttribute("title", operation.getData("title"));
 		writer.writeAttribute("isFolder", "true");
 		writer.writeAttribute("ParentID", operation.getData("ParentID"));
@@ -104,17 +105,17 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	protected void update(Operation operation) throws Exception
 	{
 		Integer ID = Integer.valueOf(operation.getData("ID"));
-		Path path = request.getSession().tmp_profile_lst.get(ID);
+		Path path = request.getSession().getProfileList(ID);
 		Log.debug(path);
 		String title = operation.getData("title");
 		path = Files.move(path, path.getParent().resolve(title));
-		request.getSession().tmp_profile_lst.put(ID, path);
+		request.getSession().putProfileList(ID, path);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeStartElement("data");
 		writer.writeStartElement("record");
 		writer.writeAttribute("ID", ID.toString());
-		writer.writeAttribute("Path", path.toString());
+		writer.writeAttribute("Path", pathAbstractor.getRelativePath(path).toString());
 		writer.writeAttribute("title", title);
 		writer.writeAttribute("isFolder", "true");
 		writer.writeAttribute("ParentID", operation.getOldValues().get("ParentID"));
@@ -127,9 +128,9 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	protected void remove(Operation operation) throws Exception
 	{
 		Integer ID = Integer.valueOf(operation.getData("ID"));
-		Path path = request.getSession().tmp_profile_lst.get(ID);
+		Path path = request.getSession().getProfileList(ID);
 		FileUtils.deleteDirectory(path.toFile());
-		request.getSession().tmp_profile_lst.remove(ID);
+		request.getSession().removeProfileList(ID);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeStartElement("data");

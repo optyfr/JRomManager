@@ -14,21 +14,28 @@ import jrm.batch.TrntChkReport;
 import jrm.profile.report.Report;
 import jrm.security.Session;
 import lombok.Getter;
+import lombok.Setter;
 
 public class WebSession extends Session implements Closeable
 {
-	private static Map<String,WebSession> allSessions = new ConcurrentHashMap<>();
+	private static Map<String, WebSession> allSessions = new ConcurrentHashMap<>();
 	private static @Getter boolean terminate = false;
 	public BlockingDeque<String> lprMsg = new LinkedBlockingDeque<>();
 
-	public Worker worker = null;
-	public Date lastAction = new Date();
+	private @Getter Worker worker = null;
 	
+	public Worker setWorker(Worker worker)
+	{
+		return this.worker = worker;
+	}
+
+	private @Getter @Setter Date lastAction = new Date();
+
 	public Report tmp_report = null;
 	public TrntChkReport tmp_tc_report = null;
-	public TreeMap<Integer,Path> tmp_profile_lst = null;
-	public TreeMap<String,FileResult> tmp_compressor_lst = null;
-	
+	private TreeMap<Integer, Path> cachedProfileList = null;
+	private @Getter TreeMap<String, FileResult> cachedCompressorList = new TreeMap<>();
+
 	public WebSession(String sessionId)
 	{
 		super(sessionId);
@@ -44,17 +51,39 @@ public class WebSession extends Session implements Closeable
 	@Override
 	public void close()
 	{
-		if(lprMsg.isEmpty())
+		if (lprMsg.isEmpty())
 			lprMsg.add("");
 		allSessions.remove(getSessionId());
 	}
-	
+
 	public static void closeAll()
 	{
 		terminate = true;
-		allSessions.forEach((k,s)->s.close());
+		allSessions.forEach((k, s) -> s.close());
 	}
-	
-	
 
+	public void putProfileList(Integer id, Path path)
+	{
+		cachedProfileList.put(id, path);
+	}
+
+	public void removeProfileList(Integer id)
+	{
+		cachedProfileList.remove(id);
+	}
+
+	public void newProfileList()
+	{
+		cachedProfileList = new TreeMap<>();
+	}
+
+	public Integer getLastProfileListKey()
+	{
+		return cachedProfileList != null && !cachedProfileList.isEmpty() ? cachedProfileList.lastKey() : 0;
+	}
+
+	public Path getProfileList(Integer id)
+	{
+		return cachedProfileList.get(id);
+	}
 }

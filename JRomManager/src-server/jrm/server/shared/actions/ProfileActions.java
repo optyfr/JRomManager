@@ -24,25 +24,28 @@ import jrm.profile.manager.Import;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.ScanAutomation;
+import jrm.security.PathAbstractor;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
+import lombok.val;
 
-public class ProfileActions
+public class ProfileActions extends PathAbstractor
 {
 	private final ActionsMgr ws;
 
 	public ProfileActions(ActionsMgr ws)
 	{
+		super(ws.getSession());
 		this.ws = ws;
 	}
 	
 	public void imprt(JsonObject jso)
 	{
-		(ws.getSession().worker = new Worker(()->{
+		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
-			session.worker.progress = new ProgressActions(ws);
-			session.worker.progress.canCancel(false);
-			session.worker.progress.setProgress(session.msgs.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+			session.getWorker().progress = new ProgressActions(ws);
+			session.getWorker().progress.canCancel(false);
+			session.getWorker().progress.setProgress(session.msgs.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
 			try
 			{
 				JsonObject jsobj = jso.get("params").asObject();
@@ -50,10 +53,10 @@ public class ProfileActions
 				if (filename != null)
 				{
 					final boolean sl = jsobj.getBoolean("sl", false);
-					final Import imprt = new Import(session, new File(filename), sl, session.worker.progress);
+					final Import imprt = new Import(session, new File(filename), sl, session.getWorker().progress);
 					if(imprt.file != null)
 					{
-						final File parent = new File(Optional.ofNullable(jsobj.get("parent")).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().getSettings().getWorkPath().toString()));
+						final File parent = getAbsolutePath(Optional.ofNullable(jsobj.get("parent")).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().getSettings().getWorkPath().toString())).toFile();
 						final File file = new File(parent, imprt.file.getName());
 						FileUtils.copyFile(imprt.file, file);
 						final ProfileNFO pnfo = ProfileNFO.load(session, file);
@@ -97,24 +100,25 @@ public class ProfileActions
 			}
 			finally
 			{
-				session.worker.progress.close();
-				session.worker.progress = null;
-				session.lastAction = new Date();
+				session.getWorker().progress.close();
+				session.getWorker().progress = null;
+				session.setLastAction(new Date());
 			}
-		})).start();
+		}))).start();
 	}
 
 	public void load(JsonObject jso)
 	{
-		(ws.getSession().worker = new Worker(()->{
+		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
 			if (session.curr_profile != null)
 				session.curr_profile.saveSettings();
-			session.worker.progress = new ProgressActions(ws);
+			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
 				JsonObject jsobj = jso.get("params").asObject();
-				session.curr_profile = jrm.profile.Profile.load(session, new File(new File(jsobj.getString("parent", null)), jsobj.getString("file", null)), session.worker.progress);
+				val file = getAbsolutePath(jsobj.getString("parent", null)).resolve(jsobj.getString("file", null));
+				session.curr_profile = jrm.profile.Profile.load(session, file.toFile(), session.getWorker().progress);
 				if (session.curr_profile != null)
 				{
 					session.curr_profile.nfo.save(session);
@@ -129,28 +133,28 @@ public class ProfileActions
 			}
 			finally
 			{
-				session.worker.progress.close();
-				session.worker.progress = null;
-				session.lastAction = new Date();
+				session.getWorker().progress.close();
+				session.getWorker().progress = null;
+				session.setLastAction(new Date());
 			}
-		})).start();
+		}))).start();
 	}
 	
 	public void scan(JsonObject jso, final boolean automate)
 	{
-		(ws.getSession().worker = new Worker(() -> {
+		(ws.getSession().setWorker(new Worker(() -> {
 			WebSession session = ws.getSession();
-			session.worker.progress = new ProgressActions(ws);
+			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
-				session.curr_scan = new Scan(session.curr_profile, session.worker.progress);
+				session.curr_scan = new Scan(session.curr_profile, session.getWorker().progress);
 			}
 			catch (BreakException ex)
 			{
 			}
-			session.worker.progress.close();
-			session.worker.progress = null;
-			session.lastAction = new Date();
+			session.getWorker().progress.close();
+			session.getWorker().progress = null;
+			session.setLastAction(new Date());
 			ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 			scanned(session.curr_scan, automation.hasReport());
 			if(automate)
@@ -160,24 +164,24 @@ public class ProfileActions
 					fix(jso);
 				}
 			}
-		})).start();
+		}))).start();
 	}
 	
 	public void fix(JsonObject jso)
 	{
-		(ws.getSession().worker = new Worker(()->{
+		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
-			session.worker.progress = new ProgressActions(ws);
+			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
 				if(session.curr_profile.hasPropsChanged())
 				{
-					session.curr_scan = new Scan(session.curr_profile, session.worker.progress);
+					session.curr_scan = new Scan(session.curr_profile, session.getWorker().progress);
 					boolean needfix = session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0;
 					if (!needfix)
 						return;
 				}
-				final Fix fix = new Fix(session.curr_profile, session.curr_scan, session.worker.progress);
+				final Fix fix = new Fix(session.curr_profile, session.curr_scan, session.getWorker().progress);
 				fixed(fix);
 			}
 			finally
@@ -185,11 +189,11 @@ public class ProfileActions
 				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if(automation.hasScanAgain())
 					scan(jso, false);
-				session.worker.progress.close();
-				session.worker.progress = null;
-				session.lastAction = new Date();
+				session.getWorker().progress.close();
+				session.getWorker().progress = null;
+				session.setLastAction(new Date());
 			}
-		})).start();
+		}))).start();
 	}
 	
 	public void setProperty(JsonObject jso)
@@ -212,7 +216,7 @@ public class ProfileActions
 			if (profile != null)
 				ws.getSession().getUser().getSettings().saveProfileSettings(new File(profile), settings);
 			else
-				ws.getSession().curr_profile.saveSettings();
+				ws.getSession().getCurr_profile().saveSettings();
 		}
 		catch (Exception e)
 		{

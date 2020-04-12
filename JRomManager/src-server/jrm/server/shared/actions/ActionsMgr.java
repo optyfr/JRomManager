@@ -23,7 +23,7 @@ public interface ActionsMgr extends SessionStub
 		{
 			if (jso != null)
 			{
-				mgr.getSession().lastAction = new Date();
+				mgr.getSession().setLastAction(new Date());
 				switch (jso.getString("cmd", "unknown"))
 				{
 					case "Global.setProperty":
@@ -88,8 +88,8 @@ public interface ActionsMgr extends SessionStub
 					}
 					case "Progress.cancel":
 					{
-						if (mgr.getSession().worker != null && mgr.getSession().worker.isAlive() && mgr.getSession().worker.progress != null)
-							mgr.getSession().worker.progress.cancel();
+						if (mgr.getSession().getWorker() != null && mgr.getSession().getWorker().isAlive() && mgr.getSession().getWorker().progress != null)
+							mgr.getSession().getWorker().getProgress().cancel();
 						break;
 					}
 					case "Dat2Dir.start":

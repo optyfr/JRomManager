@@ -1,10 +1,11 @@
 package jrm.server.shared;
 
 import jrm.server.shared.actions.ProgressActions;
+import lombok.Getter;
 
 public class Worker extends Thread
 {
-	public ProgressActions progress = null;
+	public @Getter ProgressActions progress = null;
 	
 	public Worker(Runnable target)
 	{

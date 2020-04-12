@@ -18,6 +18,7 @@ import jrm.misc.Log;
 import jrm.server.shared.TempFileInputStream;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.datasources.XMLRequest.Operation.Sorter;
+import lombok.Getter;
 
 public class XMLRequest
 {
@@ -157,7 +158,7 @@ public class XMLRequest
 	
 	Transaction transaction = null;
 	
-	WebSession session;
+	@Getter WebSession session;
 
 	public XMLRequest(WebSession session, InputStream in, long len) throws IOException
 	{
@@ -314,14 +315,6 @@ public class XMLRequest
 		{
 			Log.err(e.getMessage(),e);
 		}
-	}
-
-	/**
-	 * @return the session
-	 */
-	public WebSession getSession()
-	{
-		return session;
 	}
 
 	/**

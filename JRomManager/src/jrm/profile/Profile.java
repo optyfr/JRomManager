@@ -79,6 +79,7 @@ import jrm.profile.filter.CatVer.Category.SubCategory;
 import jrm.profile.filter.NPlayer;
 import jrm.profile.filter.NPlayers;
 import jrm.profile.manager.ProfileNFO;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
@@ -173,7 +174,7 @@ public class Profile implements Serializable
 	 */
 	private boolean _load(final File file, final ProgressHandler handler)
 	{
-		handler.setProgress(String.format(Messages.getString("Profile.Parsing"), file), -1); //$NON-NLS-1$
+		handler.setProgress(String.format(Messages.getString("Profile.Parsing"), new PathAbstractor(session).getRelativePath(file.toPath())), -1); //$NON-NLS-1$
 		try (InputStream in = handler.getInputStream(new FileInputStream(file), (int) file.length()))
 		{
 			final SAXParserFactory factory = SAXParserFactory.newInstance();

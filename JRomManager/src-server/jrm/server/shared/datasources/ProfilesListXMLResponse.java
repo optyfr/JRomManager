@@ -1,9 +1,10 @@
 package jrm.server.shared.datasources;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import jrm.profile.manager.ProfileNFO;
@@ -18,26 +19,25 @@ public class ProfilesListXMLResponse extends XMLResponse
 		super(request);
 	}
 
-
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		File dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
-		if(operation.hasData("Parent"))
-			dir = new File(operation.getData("Parent"));
-		val rows = ProfileNFO.list(request.getSession(), dir);
+		Path dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
+		if (operation.hasData("Parent"))
+			dir = pathAbstractor.getAbsolutePath(operation.getData("Parent"));
+		val rows = ProfileNFO.list(request.getSession(), dir.toFile());
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("parent", dir.toString());
-		writer.writeElement("endRow", Integer.toString(rows.size()-1));
+		writer.writeElement("parent", pathAbstractor.getRelativePath(dir).toString());
+		writer.writeElement("endRow", Integer.toString(rows.size() - 1));
 		writer.writeElement("totalRows", Integer.toString(rows.size()));
 		writer.writeStartElement("data");
-		for(int i = 0; i < rows.size(); i++)
+		for (int i = 0; i < rows.size(); i++)
 		{
 			writer.writeEmptyElement("record");
 			writer.writeAttribute("Name", rows.get(i).getName());
-			writer.writeAttribute("Parent", rows.get(i).file.getParent());
+			writer.writeAttribute("Parent", pathAbstractor.getRelativePath(rows.get(i).file.getParentFile().toPath()).toString());
 			writer.writeAttribute("File", rows.get(i).file.getName());
 			writer.writeAttribute("version", rows.get(i).getVersion());
 			writer.writeAttribute("haveSets", rows.get(i).getHaveSets());
@@ -50,30 +50,30 @@ public class ProfilesListXMLResponse extends XMLResponse
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}
-	
+
 	@Override
 	protected void add(Operation operation) throws Exception
 	{
-		if(operation.hasData("Src"))
+		if (operation.hasData("Src"))
 		{
-			File dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
-			if(operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
-				dir = new File(operation.getData("Parent"));
-			File src = new File(operation.getData("Src"));
-			if(src.exists() && src.isFile())
+			Path dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
+			if (operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
+				dir = pathAbstractor.getAbsolutePath(operation.getData("Parent"));
+			val src = pathAbstractor.getAbsolutePath(operation.getData("Src"));
+			if (Files.exists(src) && Files.isRegularFile(src))
 			{
 				try
 				{
-					File dst = new File(dir, operation.getData("File"));
-					if(!src.equals(dst))
-						FileUtils.copyFile(src, dst, true);
-					ProfileNFO nfo = ProfileNFO.load(request.getSession(), dst);
+					Path dst = dir.resolve(operation.getData("File"));
+					if (!src.equals(dst))
+						Files.copy(src, dst, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+					ProfileNFO nfo = ProfileNFO.load(request.getSession(), dst.toFile());
 					writer.writeStartElement("response");
 					writer.writeElement("status", "0");
 					writer.writeStartElement("data");
 					writer.writeEmptyElement("record");
 					writer.writeAttribute("Name", nfo.getName());
-					writer.writeAttribute("Parent", nfo.file.getParent());
+					writer.writeAttribute("Parent", pathAbstractor.getRelativePath(nfo.file.getParentFile().toPath()).toString());
 					writer.writeAttribute("File", nfo.file.getName());
 					writer.writeAttribute("version", nfo.getVersion());
 					writer.writeAttribute("haveSets", nfo.getHaveSets());
@@ -85,7 +85,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 					writer.writeEndElement();
 					writer.writeEndElement();
 				}
-				catch(IOException ex)
+				catch (IOException ex)
 				{
 					failure(ex.getMessage());
 				}
@@ -96,24 +96,24 @@ public class ProfilesListXMLResponse extends XMLResponse
 		else
 			failure("Src is needed");
 	}
-	
+
 	@Override
 	protected void remove(Operation operation) throws Exception
 	{
-		File dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
-		if(operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
-			dir = new File(operation.getData("Parent"));
-		File dst = new File(dir, operation.getData("File"));
-		ProfileNFO nfo = ProfileNFO.load(request.getSession(), dst);
-		if(request.getSession().curr_profile == null || !request.getSession().curr_profile.nfo.equals(nfo))
+		Path dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
+		if (operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
+			dir = pathAbstractor.getAbsolutePath(operation.getData("Parent"));
+		val dst = dir.resolve(operation.getData("File"));
+		ProfileNFO nfo = ProfileNFO.load(request.getSession(), dst.toFile());
+		if (request.session.curr_profile == null || !request.getSession().curr_profile.nfo.equals(nfo))
 		{
-			if(nfo.delete())
+			if (nfo.delete())
 			{
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
 				writer.writeStartElement("data");
 				writer.writeEmptyElement("record");
-				writer.writeAttribute("Parent", nfo.file.getParent());
+				writer.writeAttribute("Parent", pathAbstractor.getRelativePath(nfo.file.getParentFile().toPath()).toString());
 				writer.writeAttribute("File", nfo.file.getName());
 				writer.writeEndElement();
 				writer.writeEndElement();
@@ -124,28 +124,30 @@ public class ProfilesListXMLResponse extends XMLResponse
 		else
 			failure("Can't delete current loaded profile");
 	}
-	
+
 	@Override
 	protected void custom(Operation operation) throws Exception
 	{
-		switch(operation.getOperationId().toString())
+		switch (operation.getOperationId().toString())
 		{
 			case "DropCache":
-				File dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile();
-				if(operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
-					dir = new File(operation.getData("Parent"));
-				File dst = new File(dir, operation.getData("File"));
-				if(dst.isFile())
+			{
+				Path dir = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
+				if (operation.hasData("Parent") && !StringUtils.isEmpty(operation.getData("Parent")))
+					dir = pathAbstractor.getAbsolutePath(operation.getData("Parent"));
+				val dst = dir.resolve(operation.getData("File"));
+				if (Files.isRegularFile(dst))
 				{
-					File cache = new File(dst.getAbsolutePath() + ".cache");
-					if (cache.exists() && !cache.delete())
-						failure("Can't delete " + cache.getPath());
+					val cache = dir.resolve(operation.getData("File") + ".cache");
+					if (Files.exists(cache) && !cache.toFile().delete())
+						failure("Can't delete " + cache);
 					else
 						success();
 				}
 				else
-					failure("Can't find "+dst.getPath());
+					failure("Can't find " + dst);
 				break;
+			}
 			default:
 				super.custom(operation);
 				break;

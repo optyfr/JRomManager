@@ -33,10 +33,10 @@ public class Dat2DirActions
 
 	public void start(JsonObject jso)
 	{
-		(ws.getSession().worker = new Worker(()->{
+		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
 			boolean dryrun = session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, true);
-			session.worker.progress = new ProgressActions(ws);
+			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
 				String[] srcdirs = StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
@@ -44,10 +44,10 @@ public class Dat2DirActions
 				{
 					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
 					if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(sdr.src).exists()).count() > 0)
-						new GlobalActions(ws).warn(ws.getSession().msgs.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
+						new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
 					{
-						new DirUpdater(session, sdrl, session.worker.progress, Stream.of(srcdirs).map(s->new File(s)).collect(Collectors.toList()), new ResultColUpdater()
+						new DirUpdater(session, sdrl, session.getWorker().progress, Stream.of(srcdirs).map(s->new File(s)).collect(Collectors.toList()), new ResultColUpdater()
 						{
 							@Override
 							public void updateResult(int row, String result)
@@ -68,7 +68,7 @@ public class Dat2DirActions
 					}
 				}
 				else
-					new GlobalActions(ws).warn(ws.getSession().msgs.getString("MainFrame.AtLeastOneSrcDir"));
+					new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AtLeastOneSrcDir"));
 			}
 			catch(BreakException e)
 			{
@@ -79,11 +79,11 @@ public class Dat2DirActions
 				Dat2DirActions.this.end();
 				session.curr_profile = null;
 				session.curr_scan = null;
-				session.worker.progress.close();
-				session.worker.progress = null;
-				session.lastAction = new Date();
+				session.getWorker().progress.close();
+				session.getWorker().progress = null;
+				session.setLastAction(new Date());
 			}
-		})).start();
+		}))).start();
 	}
 
 	@SuppressWarnings("serial")

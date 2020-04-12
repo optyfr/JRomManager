@@ -31,20 +31,20 @@ public class CompressorActions
 
 	public void start(JsonObject jso)
 	{
-		(ws.getSession().worker = new Worker(()->{
+		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
 			final CompressorFormat format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format, "TZIP"));
 			final boolean force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, false);
 
-			session.worker.progress = new ProgressActions(ws);
-			session.worker.progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),ws.getSession().tmp_compressor_lst.size()), true);
+			session.getWorker().progress = new ProgressActions(ws);
+			session.getWorker().progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),ws.getSession().getCachedCompressorList().size()), true);
 			try
 			{
 				clearResults();
 				AtomicInteger cnt = new AtomicInteger();
-				final Compressor compressor = new Compressor(session, cnt, ws.getSession().tmp_compressor_lst.size(), session.worker.progress);
-				List<FileResult> values = new ArrayList<>(ws.getSession().tmp_compressor_lst.values());
-				StreamEx.of(ws.getSession().tmp_compressor_lst.values().parallelStream().unordered()).takeWhile(p->!session.worker.progress.isCancel()).forEach(fr->{
+				final Compressor compressor = new Compressor(session, cnt, ws.getSession().getCachedCompressorList().size(), session.getWorker().progress);
+				List<FileResult> values = new ArrayList<>(ws.getSession().getCachedCompressorList().values());
+				StreamEx.of(ws.getSession().getCachedCompressorList().values().parallelStream().unordered()).takeWhile(p->!session.getWorker().progress.isCancel()).forEach(fr->{
 					final int i = values.indexOf(fr);
 					File file = fr.file;
 					cnt.incrementAndGet();
@@ -111,10 +111,10 @@ public class CompressorActions
 			}
 			finally
 			{
-				session.worker.progress.close();
+				session.getWorker().progress.close();
 				CompressorActions.this.end();
 			}
-		})).start();
+		}))).start();
 	}
 	
 	@SuppressWarnings("serial")

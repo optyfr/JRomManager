@@ -1,5 +1,6 @@
 package jrm.security;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,7 +22,7 @@ public class User
 		this.session = session;
 		this.session.user = this;
 		this.name = name;
-		this.roles = Stream.of(roles).map(s->s.toLowerCase()).collect(Collectors.toSet());
+		this.roles = roles!=null?Stream.of(roles).map(s->s.toLowerCase()).collect(Collectors.toSet()):Collections.emptySet();
 		this.settings = new GlobalSettings(this);
 	}
 	

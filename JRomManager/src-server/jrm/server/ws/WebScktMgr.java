@@ -89,11 +89,11 @@ public class WebScktMgr extends WebSocket implements ActionsMgr
 			new CatVerActions(this).loaded(session.curr_profile);
 			new NPlayersActions(this).loaded(session.curr_profile);
 		}
-		if(session.worker != null && session.worker.isAlive())
+		if(session.getWorker() != null && session.getWorker().isAlive())
 		{
-			if(session.worker.progress!=null)
+			if(session.getWorker().progress!=null)
 			{
-				session.worker.progress.reload(this);
+				session.getWorker().progress.reload(this);
 			}
 		}
 	}
