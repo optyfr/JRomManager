@@ -83,13 +83,14 @@ import jrm.profile.report.SubjectSet;
 import jrm.profile.report.SubjectSet.Status;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
+import jrm.security.PathAbstractor;
 import jrm.ui.progress.ProgressHandler;
 
 /**
  * The scan class
  * @author optyfr
  */
-public class Scan
+public class Scan extends PathAbstractor
 {
 	/**
 	 * the attached {@link Report}
@@ -209,6 +210,7 @@ public class Scan
 	 */
 	public Scan(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache) throws BreakException
 	{
+		super(profile.session);
 		this.profile = profile;
 		this.report = profile.session.report;
 		profile.setPropsCheckPoint();
@@ -233,7 +235,7 @@ public class Scan
 			System.err.println("dst dir is empty"); //$NON-NLS-1$
 			return; //TODO be more informative on failure
 		}
-		final File roms_dstdir = new File(dstdir_txt);
+		final File roms_dstdir = getAbsolutePath(dstdir_txt).toFile();
 		if (!roms_dstdir.isDirectory())
 		{
 			System.err.println("dst dir is not a directory"); //$NON-NLS-1$
@@ -249,7 +251,7 @@ public class Scan
 			final String disks_dstdir_txt = profile.getProperty(SettingsEnum.disks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (disks_dstdir_txt.isEmpty())
 				return; //TODO be more informative on failure
-			disks_dstdir = new File(disks_dstdir_txt);
+			disks_dstdir = getAbsolutePath(disks_dstdir_txt).toFile();
 		}
 		else
 			disks_dstdir = new File(roms_dstdir.getAbsolutePath());
@@ -263,7 +265,7 @@ public class Scan
 			final String swroms_dstdir_txt = profile.getProperty(SettingsEnum.swroms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swroms_dstdir_txt.isEmpty())
 				return; //TODO be more informative on failure
-			swroms_dstdir = new File(swroms_dstdir_txt);
+			swroms_dstdir = getAbsolutePath(swroms_dstdir_txt).toFile();
 		}
 		else
 			swroms_dstdir = new File(roms_dstdir.getAbsolutePath());
@@ -277,7 +279,7 @@ public class Scan
 			final String swdisks_dstdir_txt = profile.getProperty(SettingsEnum.swdisks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swdisks_dstdir_txt.isEmpty())
 				return; //TODO be more informative on failure
-			swdisks_dstdir = new File(swdisks_dstdir_txt);
+			swdisks_dstdir = getAbsolutePath(swdisks_dstdir_txt).toFile();
 		}
 		else
 			swdisks_dstdir = new File(swroms_dstdir.getAbsolutePath());
@@ -286,7 +288,7 @@ public class Scan
 		 * use samples dest dir if enabled and valid, otherwise it's null and not used
 		 */
 		final String samples_dstdir_txt = profile.getProperty(SettingsEnum.samples_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final File samples_dstdir = profile.getProperty(SettingsEnum.samples_dest_dir_enabled, false) && samples_dstdir_txt.length() > 0 ? new File(samples_dstdir_txt) : null; //$NON-NLS-1$
+		final File samples_dstdir = profile.getProperty(SettingsEnum.samples_dest_dir_enabled, false) && samples_dstdir_txt.length() > 0 ? getAbsolutePath(samples_dstdir_txt).toFile() : null; //$NON-NLS-1$
 
 		/*
 		 * explode all src dir string into an ArrayList<File>
@@ -296,7 +298,7 @@ public class Scan
 		{
 			if (!s.isEmpty())
 			{
-				final File f = new File(s);
+				final File f = getAbsolutePath(s).toFile();
 				if (f.isDirectory())
 					srcdirs.add(f);
 			}
@@ -366,7 +368,7 @@ public class Scan
 				if(files!=null) for (final File f : files)
 				{
 					if (!swroms_dstscans.containsKey(f.getName()))
-						unknown.add(f.isDirectory() ? new Directory(f, (Machine) null) : new Archive(f, (Machine) null));
+						unknown.add(f.isDirectory() ? new Directory(f, getRelativePath(f), (Machine) null) : new Archive(f, getRelativePath(f), (Machine) null));
 					if (handler.isCancel())
 						throw new BreakException();
 				}
@@ -379,7 +381,7 @@ public class Scan
 					if(files!=null) for (final File f : files)
 					{
 						if (!swdisks_dstscans.containsKey(f.getName()))
-							unknown.add(f.isDirectory() ? new Directory(f, (Machine) null) : new Archive(f, (Machine) null));
+							unknown.add(f.isDirectory() ? new Directory(f, getRelativePath(f), (Machine) null) : new Archive(f, getRelativePath(f), (Machine) null));
 						if (handler.isCancel())
 							throw new BreakException();
 					}
@@ -399,13 +401,13 @@ public class Scan
 			if (!ignore_unknown_containers)
 			{
 				unknown.stream().filter(c -> {
-					if(samples_dstdir!=null && c.file.equals(samples_dstdir))
+					if(samples_dstdir!=null && c.getRelFile().equals(samples_dstdir))
 						return false;
-					if(disks_dstdir!=roms_dstdir && c.file.equals(disks_dstdir))
+					if(disks_dstdir!=roms_dstdir && c.getRelFile().equals(disks_dstdir))
 						return false;
-					if(swroms_dstdir!=roms_dstdir && c.file.equals(swroms_dstdir))
+					if(swroms_dstdir!=roms_dstdir && c.getRelFile().equals(swroms_dstdir))
 						return false;
-					if(swdisks_dstdir!=swroms_dstdir && c.file.equals(swdisks_dstdir))
+					if(swdisks_dstdir!=swroms_dstdir && c.getRelFile().equals(swdisks_dstdir))
 						return false;
 					return true;
 				}).forEach((c) -> {
@@ -536,9 +538,9 @@ public class Scan
 		{
 			if (c.getType() == Container.Type.UNK)
 				unknown.add(c);
-			else if (!byname.containsFilteredName(FilenameUtils.getBaseName(c.file.toString())))
+			else if (!byname.containsFilteredName(FilenameUtils.getBaseName(c.getFile().toString())))
 			{
-				if(byname.containsName(FilenameUtils.getBaseName(c.file.toString())))
+				if(byname.containsName(FilenameUtils.getBaseName(c.getFile().toString())))
 					unneeded.add(c);
 				else
 					unknown.add(c);
@@ -591,7 +593,7 @@ public class Scan
 					{
 						final long estimated_roms_size = roms.stream().mapToLong(Rom::getSize).sum();
 						tzipcontainer.m = ware;
-						tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format, estimated_roms_size));
+						tzip_actions.put(tzipcontainer.getFile().getAbsolutePath(), new TZipContainer(tzipcontainer, format, estimated_roms_size));
 						report.add(new ContainerTZip(tzipcontainer));
 					}
 				}
@@ -612,7 +614,7 @@ public class Scan
 			if (!report_subject.isMissing() && !report_subject.isUnneeded() && set.samples.size()>0)
 			{
 				Container tzipcontainer = null;
-				final Container container = samples_dstscan.getContainerByName(archive.file.getName());
+				final Container container = samples_dstscan.getContainerByName(archive.getFile().getName());
 				if (container != null)
 				{
 					if (container.lastTZipCheck < container.modified)
@@ -627,7 +629,7 @@ public class Scan
 				if (tzipcontainer != null)
 				{
 					tzipcontainer.m = set;
-					tzip_actions.put(tzipcontainer.file.getAbsolutePath(), new TZipContainer(tzipcontainer, format, Long.MAX_VALUE));
+					tzip_actions.put(tzipcontainer.getFile().getAbsolutePath(), new TZipContainer(tzipcontainer, format, Long.MAX_VALUE));
 					report.add(new ContainerTZip(tzipcontainer));
 				}
 			}
@@ -1203,10 +1205,11 @@ public class Scan
 	{
 		boolean missing_set = true;
 		final Container archive;
+		File f;
 		if (format.getExt().isDir())
-			archive = new Directory(new File(samples_dstscan.getDir(), set.getName()), set);
+			archive = new Directory(f=new File(samples_dstscan.getDir(), set.getName()), getRelativePath(f), set);
 		else
-			archive = new Archive(new File(samples_dstscan.getDir(), set.getName() + format.getExt()), set);
+			archive = new Archive(f=new File(samples_dstscan.getDir(), set.getName() + format.getExt()), getRelativePath(f), set);
 		final SubjectSet report_subject = new SubjectSet(set);
 		if(!scanSamples(set, archive, report_subject))
 			missing_set = false;
@@ -1231,7 +1234,7 @@ public class Scan
 	{
 		boolean missing_set = true;
 		final Container container;
-		if (null != (container = samples_dstscan.getContainerByName(archive.file.getName())))
+		if (null != (container = samples_dstscan.getContainerByName(archive.getFile().getName())))
 		{
 			missing_set = false;
 			report_subject.setFound();
@@ -1369,12 +1372,13 @@ public class Scan
 		final SubjectSet report_subject = new SubjectSet(ware);
 
 		boolean missing_set = true;
-		final Directory directory = new Directory(new File(disks_dstscan.getDir(), ware.getDest().getName()), ware);
+		File f;
+		final Directory directory = new Directory(f=new File(disks_dstscan.getDir(), ware.getDest().getName()), getRelativePath(f), ware);
 		final Container archive;
 		if (format.getExt().isDir())
-			archive = new Directory(new File(roms_dstscan.getDir(), ware.getDest().getName()), ware);
+			archive = new Directory(f=new File(roms_dstscan.getDir(), ware.getDest().getName()), getRelativePath(f), ware);
 		else
-			archive = new Archive(new File(roms_dstscan.getDir(), ware.getDest().getName() + format.getExt()), ware);
+			archive = new Archive(f=new File(roms_dstscan.getDir(), ware.getDest().getName() + format.getExt()), getRelativePath(f), ware);
 		final List<Rom> roms = ware.filterRoms();
 		final List<Disk> disks = ware.filterDisks();
 		if (!scanRoms(ware, roms, archive, report_subject))

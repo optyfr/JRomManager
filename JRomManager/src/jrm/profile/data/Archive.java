@@ -33,9 +33,9 @@ public class Archive extends Container implements Serializable
 	 * @param file the archive {@link File}
 	 * @param m the corresponding {@link AnywareBase} set
 	 */
-	public Archive(final File file, final AnywareBase m)
+	public Archive(final File file, final File relfile, final AnywareBase m)
 	{
-		super(Container.getType(file), file, m);
+		super(Container.getType(file), file, relfile, m);
 	}
 
 	/**
@@ -43,9 +43,9 @@ public class Archive extends Container implements Serializable
 	 * @param file the archive {@link File}
 	 * @param attr the file attributes
 	 */
-	public Archive(final File file, final BasicFileAttributes attr)
+	public Archive(final File file, final File relfile, final BasicFileAttributes attr)
 	{
-		super(Container.getType(file), file, attr);
+		super(Container.getType(file), file, relfile, attr);
 	}
 
 }

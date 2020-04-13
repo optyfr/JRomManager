@@ -1,5 +1,6 @@
 package jrm.security;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -16,6 +17,11 @@ public class PathAbstractor
 
 	public boolean isWriteable(String strpath)
 	{
+		return isWriteable(session, strpath);
+	}
+	
+	public static boolean isWriteable(Session session, String strpath)
+	{
 		if (strpath.startsWith("%work"))
 			return true;
 		if (strpath.startsWith("%shared"))
@@ -23,7 +29,17 @@ public class PathAbstractor
 		return session.getUser().isAdmin();
 	}
 
+	public File getRelativePath(File file)
+	{
+		return getRelativePath(session, file.toPath()).toFile();
+	}
+	
 	public Path getRelativePath(Path path)
+	{
+		return getRelativePath(session, path);
+	}
+	
+	public static Path getRelativePath(Session session, Path path)
 	{
 		try
 		{
@@ -41,6 +57,11 @@ public class PathAbstractor
 	}
 
 	public Path getAbsolutePath(final String strpath) throws SecurityException
+	{
+		return getAbsolutePath(session, strpath);
+	}
+
+	public static Path getAbsolutePath(Session session, final String strpath) throws SecurityException
 	{
 		final Path path;
 		if (strpath.startsWith("%work"))

@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,9 @@ public class Container implements Serializable, Comparable<Container>
 	/**
 	 * file or directory of the container
 	 */
-	public final File file;
+	private final File file;
+	private final File relfile;
+	
 	/**
 	 * Last modified date
 	 */
@@ -120,10 +123,11 @@ public class Container implements Serializable, Comparable<Container>
 	 * @param file the archive {@link File}
 	 * @param m the corresponding {@link AnywareBase} set
 	 */
-	protected Container(final Type type, final File file, final AnywareBase m)
+	protected Container(final Type type, final File file, final File relfile, final AnywareBase m)
 	{
 		this.type = type;
 		this.file = file;
+		this.relfile = relfile;
 		this.m = m;
 	}
 
@@ -133,12 +137,22 @@ public class Container implements Serializable, Comparable<Container>
 	 * @param file the archive {@link File}
 	 * @param attr the file attributes (modified time and size are stored)
 	 */
-	protected Container(final Type type, final File file, final BasicFileAttributes attr)
+	protected Container(final Type type, final File file, final File relfile, final BasicFileAttributes attr)
 	{
-		this(type, file, (AnywareBase) null);
+		this(type, file, relfile, (AnywareBase) null);
 		modified = attr.lastModifiedTime().toMillis();
 		if(type != Type.DIR)
 			size = attr.size();
+	}
+
+	public File getRelFile()
+	{
+		return Optional.ofNullable(relfile).orElse(file);
+	}
+	
+	public File getFile()
+	{
+		return file;
 	}
 
 	/**
@@ -149,10 +163,10 @@ public class Container implements Serializable, Comparable<Container>
 	public Entry add(final Entry e)
 	{
 		Entry old_e;
-		if(null != (old_e = entries_byname.get(e.file)))
+		if(null != (old_e = entries_byname.get(e.getFile())))
 			if(old_e.modified == e.modified && old_e.size == e.size)
 				return old_e;
-		entries_byname.put(e.file, e);
+		entries_byname.put(e.getFile(), e);
 		e.parent = this;
 		return e;
 	}
@@ -164,7 +178,7 @@ public class Container implements Serializable, Comparable<Container>
 	 */
 	public Entry find(final Entry e)
 	{
-		return entries_byname.get(e.file);
+		return entries_byname.get(e.getFile());
 	}
 
 	/**

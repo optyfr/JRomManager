@@ -53,7 +53,7 @@ public class ContainerTZip extends Subject implements Serializable
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("ContainerTZip.NeedTZip"), container.file); //$NON-NLS-1$
+		return String.format(Messages.getString("ContainerTZip.NeedTZip"), container.getRelFile()); //$NON-NLS-1$
 	}
 
 	@Override

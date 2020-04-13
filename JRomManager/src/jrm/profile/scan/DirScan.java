@@ -77,6 +77,7 @@ import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
 import jrm.profile.data.Rom;
 import jrm.profile.scan.options.FormatOptions;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 import lombok.val;
@@ -97,7 +98,7 @@ import one.util.streamex.StreamEx;
  * @author optyfr
  *
  */
-public final class DirScan
+public final class DirScan extends PathAbstractor
 {
 	/**
 	 * List of found {@link Container}s
@@ -290,6 +291,7 @@ public final class DirScan
 	 */
 	private DirScan(final Session session, final File dir, final ProgressHandler handler, final HashSet<String> suspicious_crc, EnumSet<Options> options) throws BreakException
 	{
+		super(session);
 		this.session = session;
 
 		init7zJBinding();
@@ -344,7 +346,7 @@ public final class DirScan
 		try(Stream<Path> stream = Files.walk(path, is_dest ? 1 : 100, FileVisitOption.FOLLOW_LINKS))
 		{
 			final AtomicInteger i = new AtomicInteger();
-			handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles"), dir), 0); //$NON-NLS-1$
+			handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles"), getRelativePath(dir.toPath())), 0); //$NON-NLS-1$
 			handler.setProgress2("", null); //$NON-NLS-1$
 			StreamEx.of(StreamSupport.stream(stream.spliterator(), use_parallelism)).unordered().takeWhile((p) -> !handler.isCancel()).forEach(p -> {
 				Container c = null;
@@ -359,9 +361,9 @@ public final class DirScan
 						if(null == (c = containers_byname.get(file.getName())) /* new container */ || ((c.modified != attr.lastModifiedTime().toMillis() /* container date changed */ || (c instanceof Archive && c.size != attr.size()) /* container size changed */) && !c.up2date /* not up to date */))
 						{
 							if(attr.isRegularFile())
-								containers.add(c = new Archive(file, attr));
+								containers.add(c = new Archive(file, getRelativePath(file), attr));
 							else
-								containers.add(c = new Directory(file, attr));
+								containers.add(c = new Directory(file, getRelativePath(file), attr));
 							if(c != null)
 							{
 								// container listed
@@ -392,7 +394,7 @@ public final class DirScan
 								final Path relative  = path.relativize(p.getParent());
 								if(null == (c = containers_byname.get(relative.toString())) || (c.modified != parent_attr.lastModifiedTime().toMillis() && !c.up2date))
 								{
-									containers.add(c = new Directory(parent_dir, attr));
+									containers.add(c = new Directory(parent_dir, getRelativePath(parent_dir), attr));
 									if(c != null)
 									{
 										c.up2date = true;
@@ -410,7 +412,7 @@ public final class DirScan
 								final Path relative  = path.relativize(p);
 								if(null == (c = containers_byname.get(relative.toString())) || ((c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size()) && !c.up2date))
 								{
-									containers.add(c = new Archive(file, attr));
+									containers.add(c = new Archive(file, getRelativePath(file), attr));
 									if(c != null)
 									{
 										c.up2date = true;
@@ -433,7 +435,7 @@ public final class DirScan
 									final Path relative  = path.relativize(p);
 									if(null == (c = containers_byname.get(relative.toString())) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
 									{
-										containers.add(c = new Directory(file, attr));
+										containers.add(c = new Directory(file, getRelativePath(file), attr));
 										if(c != null)
 										{
 											c.up2date = true;
@@ -449,7 +451,7 @@ public final class DirScan
 							}
 						}
 					}
-					handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles2"), dir, i.incrementAndGet()) ); //$NON-NLS-1$
+					handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles2"), getRelativePath(dir.toPath()), i.incrementAndGet()) ); //$NON-NLS-1$
 				}
 				catch(final IOException e)
 				{
@@ -486,7 +488,7 @@ public final class DirScan
 		containers.forEach(c->max.addAndGet((int)(c.size>>20)));
 		handler.clearInfos();
 		handler.setInfos(nThreads,true);
-		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), dir) , -1); //$NON-NLS-1$
+		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), getRelativePath(dir.toPath())) , -1); //$NON-NLS-1$
 		handler.setProgress2("", j.get(), max.get()); //$NON-NLS-1$
 		MultiThreading.execute(nThreads, containers.stream().sorted(Container.rcomparator()), new CallableWith<Container>()
 		{
@@ -507,7 +509,7 @@ public final class DirScan
 								final Map<String, Object> env = new HashMap<>();
 								env.put("useTempFile", true); //$NON-NLS-1$
 								env.put("readOnly", true); //$NON-NLS-1$
-								try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.file.toURI()), env);) //$NON-NLS-1$
+								try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.getFile().toURI()), env);) //$NON-NLS-1$
 								{
 									final Path root = fs.getPath("/"); //$NON-NLS-1$
 									Files.walkFileTree(root, new SimpleFileVisitor<Path>()
@@ -515,7 +517,7 @@ public final class DirScan
 										@Override
 										public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
 										{
-											update_entry(c.add(new Entry(entry_path.toString())), entry_path);
+											update_entry(c.add(new Entry(entry_path.toString(),getRelativePath(entry_path).toString())), entry_path);
 											return FileVisitResult.CONTINUE;
 										}
 
@@ -529,7 +531,7 @@ public final class DirScan
 								}
 								catch (ZipError | IOException e)
 								{
-									System.err.println(c.file + " : " + e.getMessage()); //$NON-NLS-1$
+									System.err.println(c.getRelFile() + " : " + e.getMessage()); //$NON-NLS-1$
 								}
 							}
 							else
@@ -539,7 +541,7 @@ public final class DirScan
 							}
 							if(is_dest && format_tzip && c.lastTZipCheck < c.modified)
 							{
-								c.lastTZipStatus = torrentzip.Process(c.file);
+								c.lastTZipStatus = torrentzip.Process(c.getFile());
 								c.lastTZipCheck = System.currentTimeMillis();
 							}
 							break;
@@ -557,17 +559,17 @@ public final class DirScan
 						{
 							try
 							{
-								Files.walkFileTree(c.file.toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
+								Files.walkFileTree(c.getFile().toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
 								{
 									@Override
 									public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
 									{
 										if(attrs.isRegularFile())
 										{
-											Entry entry = new Entry(entry_path.toString(), attrs);
+											Entry entry = new Entry(entry_path.toString(),getRelativePath(entry_path).toString(), attrs);
 											if(archives_and_chd_as_roms)
 												entry.type = Entry.Type.UNK;
-											handler.setProgress(c.file.getName() , -1, null, File.separator+c.file.toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+											handler.setProgress(c.getFile().getName() , -1, null, File.separator+c.getFile().toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
 											update_entry(c.add(entry), entry_path);
 										}
 										return FileVisitResult.CONTINUE;
@@ -590,7 +592,7 @@ public final class DirScan
 						default:
 							break;
 					}
-					handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.file.getName())); //$NON-NLS-1$
+					handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.getFile().getName())); //$NON-NLS-1$
 					handler.setProgress2(String.format("%d/%d (%d%%)", i.incrementAndGet(), containers.size(), (int)(j.addAndGet(1+(int)(c.size>>20)) * 100.0 / max.get())), j.get()); //$NON-NLS-1$
 				}
 				catch(final IOException e)
@@ -680,7 +682,7 @@ public final class DirScan
 		private SevenZFile getCArchive() throws IOException
 		{
 			if(cArchive == null)
-				cArchive = new SevenZFile(container.file);
+				cArchive = new SevenZFile(container.getFile());
 			return cArchive;
 		}
 
@@ -692,7 +694,7 @@ public final class DirScan
 		private SevenZipArchive getArchive() throws IOException
 		{
 			if(archive == null)
-				archive = new SevenZipArchive(session, container.file);
+				archive = new SevenZipArchive(session, container.getFile());
 			return archive;
 		}
 
@@ -722,7 +724,7 @@ public final class DirScan
 					{
 						if(item.isFolder())
 							continue;
-						updateEntry(container.add(new Entry(item.getPath())), entries, item);
+						updateEntry(container.add(new Entry(item.getPath(),null)), entries, item);
 
 					}
 					container.loaded = need_sha1_or_md5 ? 2 : 1;
@@ -743,7 +745,7 @@ public final class DirScan
 					{
 						if(archive_entry.isDirectory())
 							continue;
-						updateEntry(container.add(new Entry(archive_entry.getName())), entries, archive_entry);
+						updateEntry(container.add(new Entry(archive_entry.getName(),null)), entries, archive_entry);
 					}
 					container.loaded = need_sha1_or_md5 ? 2 : 1;
 				}
@@ -777,7 +779,7 @@ public final class DirScan
 				{
 					for(final ISimpleInArchiveItem itm : getNInterface().getArchiveItems())
 					{
-						if(entry.file.equals(itm.getPath()))
+						if(entry.getFile().equals(itm.getPath()))
 						{
 							item = itm;
 							break;
@@ -814,7 +816,7 @@ public final class DirScan
 			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 			{
-				entries.put(entry.file, entry);
+				entries.put(entry.getFile(), entry);
 			}
 			else
 			{
@@ -1072,8 +1074,8 @@ public final class DirScan
 	 */
 	private Path getPath(final Entry entry) throws IOException
 	{
-		final FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);
-		return srcfs.getPath(entry.file);
+		final FileSystem srcfs = FileSystems.newFileSystem(entry.parent.getFile().toPath(), null);
+		return srcfs.getPath(entry.getFile());
 	}
 
 	/**
@@ -1185,7 +1187,7 @@ public final class DirScan
 		final File cachefile = getCacheFile(session, file, options);
 		try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 		{
-			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), file) , 0); //$NON-NLS-1$
+			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), getRelativePath(file.toPath())) , 0); //$NON-NLS-1$
 			return (Map<String, Container>) ois.readObject();
 		}
 		catch(final Throwable e)

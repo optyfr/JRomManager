@@ -81,7 +81,7 @@ public class BackupContainer extends ContainerAction
 			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
 			final File backupdir = new File(workdir, "backup"); //$NON-NLS-1$
 			final CRC32 crc = new CRC32();
-			crc.update(container.file.getAbsoluteFile().getParent().getBytes());
+			crc.update(container.getFile().getAbsoluteFile().getParent().getBytes());
 			final File backupfile = new File(new File(backupdir, String.format("%08x", crc.getValue())), crc2 + ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 			backupfile.getParentFile().mkdirs();
 			final Map<String, Object> env = new HashMap<>();
@@ -132,7 +132,7 @@ public class BackupContainer extends ContainerAction
 				{
 					if (!action.doAction(session, fs, handler, i, entry_actions.size()))
 					{
-						System.err.println("action to " + container.file.getName() + "@" + action.entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
 					}
 				}

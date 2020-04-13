@@ -65,26 +65,26 @@ public class BackupEntry extends EntryAction
 				return true;
 			if(entry.parent.getType() == Type.DIR)
 			{
-				srcpath = entry.parent.file.toPath().resolve(entry.file);
+				srcpath = entry.parent.getFile().toPath().resolve(entry.getFile());
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
 			else if(entry.parent.getType() == Type.ZIP)
 			{
-				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.file.toPath(), null);)
+				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.getFile().toPath(), null);)
 				{
-					srcpath = srcfs.getPath(entry.file);
+					srcpath = srcfs.getPath(entry.getFile());
 					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 					return true;
 				}
 			}
 			else if(entry.parent.getType() == Type.SEVENZIP)
 			{
-				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.file))
+				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.getFile()))
 				{
-					if(srcarchive.extract(entry.file) != null)
+					if(srcarchive.extract(entry.getFile()) != null)
 					{
-						srcpath = new File(srcarchive.getTempDir(), entry.file).toPath();
+						srcpath = new File(srcarchive.getTempDir(), entry.getFile()).toPath();
 						Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 						return true;
 					}
@@ -94,7 +94,7 @@ public class BackupEntry extends EntryAction
 		catch(final Throwable e)
 		{
 			Log.err(e.getMessage(),e);
-			System.err.println("add from " + entry.parent.file + "@" + srcpath + " to " + parent.container.file.getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			System.err.println("add from " + entry.parent.getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}

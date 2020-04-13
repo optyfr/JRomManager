@@ -58,21 +58,21 @@ public class TZipContainer extends ContainerAction
 		{
 			if(format == FormatOptions.TZIP)
 			{
-				handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4("TorrentZipping %s [%s]"), toBlue(container.m.getFullName(container.file.getName())), toPurple(container.m.getDescription()))))); //$NON-NLS-1$
+				handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4("TorrentZipping %s [%s]"), toBlue(container.m.getFullName(container.getFile().getName())), toPurple(container.m.getDescription()))))); //$NON-NLS-1$
 				try
 				{
-					if(container.file.exists())
+					if(container.getFile().exists())
 					{
-						final EnumSet<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).Process(container.file);
+						final EnumSet<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).Process(container.getFile());
 						if(!status.contains(TrrntZipStatus.ValidTrrntzip))
-							System.out.format("%-64s => %s\n", container.file, status.toString()); //$NON-NLS-1$
+							System.out.format("%-64s => %s\n", container.getRelFile(), status.toString()); //$NON-NLS-1$
 					}
 					handler.setProgress(""); //$NON-NLS-1$
 					return true;
 				}
 				catch(/*InterruptedException |*/ final IOException e)
 				{
-					System.err.println(container.file);
+					System.err.println(container.getRelFile());
 					Log.err(e.getMessage(),e);
 				}
 				handler.setProgress(""); //$NON-NLS-1$

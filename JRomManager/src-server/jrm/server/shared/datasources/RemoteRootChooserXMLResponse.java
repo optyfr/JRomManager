@@ -30,6 +30,8 @@ public class RemoteRootChooserXMLResponse extends XMLResponse
 			{
 				case "listSrcDir":
 				case "importDat":
+				case "addDatSrc":
+				case "addDat":
 					paths.put("Work", Paths.get("%work"));
 					paths.put("Shared", Paths.get("%shared"));
 					break;

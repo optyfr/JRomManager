@@ -1,6 +1,5 @@
 package jrm.server.shared.datasources;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,8 +30,8 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 		for(SrcDstResult sdr : sdrl)
 		{
 			writer.writeElement("record", 
-				new SimpleAttribute("src", sdr.src),
-				new SimpleAttribute("dst", sdr.dst!=null?sdr.dst:""),
+				new SimpleAttribute("src", pathAbstractor.getRelativePath(sdr.src)),
+				new SimpleAttribute("dst", sdr.dst!=null?pathAbstractor.getRelativePath(sdr.dst):""),
 				new SimpleAttribute("result", sdr.result),
 				new SimpleAttribute("selected", sdr.selected)
 			);
@@ -47,7 +46,7 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 		if(operation.hasData("src"))
 		{
 			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-			final SrcDstResult sdr = new SrcDstResult() {{src=new File(operation.getData("src"));}};
+			final SrcDstResult sdr = new SrcDstResult() {{src=pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();}};
 			if(!sdrl.contains(sdr))
 			{
 				sdrl.add(sdr);
@@ -57,8 +56,8 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 				writer.writeElement("status", "0");
 				writer.writeStartElement("data");
 				writer.writeElement("record", 
-					new SimpleAttribute("src", sdr.src),
-					new SimpleAttribute("dst", sdr.dst!=null?sdr.dst:""),
+					new SimpleAttribute("src", pathAbstractor.getRelativePath(sdr.src)),
+					new SimpleAttribute("dst", sdr.dst!=null?pathAbstractor.getRelativePath(sdr.dst):""),
 					new SimpleAttribute("result", sdr.result),
 					new SimpleAttribute("selected", sdr.selected)
 				);
@@ -78,14 +77,14 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 		if(operation.hasData("src"))
 		{
 			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.getData("src"));}};
+			final SrcDstResult search = new SrcDstResult() {{src=pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();}};
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(p->p.equals(search)).findFirst();
 			if(candidate.isPresent())
 			{
 				if(operation.hasData("dst") || operation.hasData("selected"))
 				{
 					if(operation.hasData("dst"))
-						candidate.get().dst = new File(operation.getData("dst"));
+						candidate.get().dst = pathAbstractor.getAbsolutePath(operation.getData("dst")).toFile();
 					else
 						candidate.get().selected = Boolean.parseBoolean(operation.getData("selected"));
 					request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
@@ -94,8 +93,8 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 					writer.writeElement("status", "0");
 					writer.writeStartElement("data");
 					writer.writeElement("record", 
-						new SimpleAttribute("src", candidate.get().src),
-						new SimpleAttribute("dst", candidate.get().dst!=null?candidate.get().dst:""),
+						new SimpleAttribute("src", pathAbstractor.getRelativePath(candidate.get().src)),
+						new SimpleAttribute("dst", candidate.get().dst!=null?pathAbstractor.getRelativePath(candidate.get().dst):""),
 						new SimpleAttribute("result", candidate.get().result),
 						new SimpleAttribute("selected", candidate.get().selected)
 					);
@@ -118,7 +117,7 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 		if(operation.hasData("src"))
 		{
 			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.getData("src"));}};
+			final SrcDstResult search = new SrcDstResult() {{src=pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();}};
 			if(sdrl.remove(search))
 			{
 				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
@@ -126,7 +125,7 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 				writer.writeStartElement("response");
 				writer.writeElement("status", "0");
 				writer.writeStartElement("data");
-				writer.writeElement("record", new SimpleAttribute("src", search.src));
+				writer.writeElement("record", new SimpleAttribute("src", pathAbstractor.getRelativePath(search.src)));
 				writer.writeEndElement();
 				writer.writeEndElement();
 				

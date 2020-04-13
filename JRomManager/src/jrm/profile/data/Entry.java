@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -36,7 +37,10 @@ public class Entry implements Serializable
 	/**
 	 * the entry name (with relative path)
 	 */
-	public String file;
+	private String file;
+	
+	private String relfile;
+	
 	/**
 	 * the entry size
 	 */
@@ -85,9 +89,10 @@ public class Entry implements Serializable
 	 * construct based of a file string
 	 * @param file the file string (with relative path), extension will be tested against known types
 	 */
-	public Entry(final String file)
+	public Entry(final String file, final String relfile)
 	{
 		this.file = file;
+		this.relfile = relfile;
 		final String ext = FilenameUtils.getExtension(file);
 		switch(ext.toLowerCase())
 		{
@@ -102,13 +107,28 @@ public class Entry implements Serializable
 	 * @param file the file string (with relative path), extension will be tested against known types
 	 * @param attr the attributes as {@link BasicFileAttributes} class, will get file size and last modified time 
 	 */
-	public Entry(final String file, final BasicFileAttributes attr)
+	public Entry(final String file, final String relfile, final BasicFileAttributes attr)
 	{
-		this(file);
+		this(file, relfile);
 		size = attr.size();
 		modified = attr.lastModifiedTime().toMillis();
 	}
 
+	public void rename(final String file, final String relfile)
+	{
+		this.file = file;
+		this.relfile = relfile;
+	}
+	
+	public String getRelFile()
+	{
+		return Optional.ofNullable(relfile).orElse(file);
+	}
+	
+	public String getFile()
+	{
+		return file;
+	}
 	
 	private String cached_name = null;
 	
@@ -124,7 +144,7 @@ public class Entry implements Serializable
 			if(parent.getType() == Container.Type.DIR)
 			{
 				//	System.out.println(parent.file.toPath().relativize(path).toString().replace('\\', '/'));
-				return cached_name=parent.file.toPath().relativize(path).toString().replace('\\', '/');
+				return cached_name=parent.getFile().toPath().relativize(path).toString().replace('\\', '/');
 			}
 			if(type == Type.CHD)
 			{
@@ -188,6 +208,6 @@ public class Entry implements Serializable
 	@Override
 	public String toString()
 	{
-		return parent.file + "::" + file; //$NON-NLS-1$
+		return parent.getRelFile() + "::" + getRelFile(); //$NON-NLS-1$
 	}
 }

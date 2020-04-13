@@ -63,10 +63,10 @@ public class DataSourceServlet extends HttpServlet
 							case "/datasources/remoteRootChooser":
 								response = new RemoteRootChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
 								break;
-							case "/datasources/CatVerCmd":
+							case "/datasources/CatVer":
 								response = new CatVerXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
 								break;
-							case "/datasources/NPlayersCmd":
+							case "/datasources/NPlayers":
 								response = new NPlayersXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
 								break;
 							case "/datasources/AnywareListList":

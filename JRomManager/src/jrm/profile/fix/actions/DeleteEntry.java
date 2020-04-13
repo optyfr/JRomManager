@@ -48,14 +48,14 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.file))); //$NON-NLS-1$
-			path = dstfs.getPath(entry.file);
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
+			path = dstfs.getPath(entry.getFile());
 			Files.deleteIfExists(path);
 			return true;
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			System.err.println("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}
@@ -66,14 +66,14 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.file))); //$NON-NLS-1$
-			path = target.resolve(entry.file);
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
+			path = target.resolve(entry.getFile());
 			Files.deleteIfExists(path);
 			return true;
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("delete " + parent.container.file.getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			System.err.println("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}
@@ -83,12 +83,12 @@ public class DeleteEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.file))); //$NON-NLS-1$
-			return archive.delete(entry.file) == 0;
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
+			return archive.delete(entry.getFile()) == 0;
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("delete " + parent.container.file.getName() + "@" + entry.file + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			System.err.println("delete " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}

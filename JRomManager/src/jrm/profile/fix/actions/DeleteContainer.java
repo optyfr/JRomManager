@@ -62,26 +62,26 @@ public class DeleteContainer extends ContainerAction
 	@Override
 	public boolean doAction(final Session session, final ProgressHandler handler)
 	{
-		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(session.msgs.getString("DeleteContainer.Deleting")), toBlue(container.file.getName()))))); //$NON-NLS-1$
+		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(session.msgs.getString("DeleteContainer.Deleting")), toBlue(container.getFile().getName()))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP)
-			return container.file.delete();
+			return container.getFile().delete();
 		else if(container.getType() == Container.Type.SEVENZIP)
-			return container.file.delete();
+			return container.getFile().delete();
 		else if(container.getType() == Container.Type.DIR)
 		{
 			try
 			{
-				FileUtils.deleteDirectory(container.file);
+				FileUtils.deleteDirectory(container.getFile());
 				return true;
 			}
 			catch(final IOException e)
 			{
-				System.err.println("failed to delete " + container.file.getName()); //$NON-NLS-1$
+				System.err.println("failed to delete " + container.getRelFile()); //$NON-NLS-1$
 				return false;
 			}
 		}
 		else if(container.getType() == Container.Type.UNK)
-			return container.file.delete();
+			return container.getFile().delete();
 		return false;
 	}
 

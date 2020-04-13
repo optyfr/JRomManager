@@ -82,10 +82,10 @@ public class DataSourcesHandler extends DefaultHandler
 						case "remoteRootChooser":
 							response = new RemoteRootChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 							break;
-						case "CatVerCmd":
+						case "CatVer":
 							response = new CatVerXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 							break;
-						case "NPlayersCmd":
+						case "NPlayers":
 							response = new NPlayersXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 							break;
 						case "AnywareListList":

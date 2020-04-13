@@ -67,7 +67,7 @@ public class Dir2Dat
 					Map<String,AtomicInteger> counter = new HashMap<>();
 					for(Container c : scan.getContainersIterable())
 					{
-						String name = FilenameUtils.removeExtension(c.file.getName());
+						String name = FilenameUtils.removeExtension(c.getFile().getName());
 						Machine machine = null;
 						if(session.curr_profile != null &&  options.contains(Options.MATCH_PROFILE))
 							machine = session.curr_profile.machinelist_list.get(0).getByName(name);
@@ -144,7 +144,7 @@ public class Dir2Dat
 					Map<String,AtomicInteger> counter = new HashMap<>();
 					for(Container c : scan.getContainersIterable())
 					{
-						String name = FilenameUtils.removeExtension(c.file.getName());
+						String name = FilenameUtils.removeExtension(c.getFile().getName());
 						Machine machine = null;
 						if(session.curr_profile != null &&  options.contains(Options.MATCH_PROFILE))
 							machine = session.curr_profile.machinelist_list.get(0).getByName(name);
@@ -218,7 +218,7 @@ public class Dir2Dat
 					{
 						progress.setProgress(Messages.getString("Dir2Dat.Saving"), i.incrementAndGet()); //$NON-NLS-1$
 						Software software = null;
-						Path relativized = scan.getDir().toPath().relativize(c.file.toPath());
+						Path relativized = scan.getDir().toPath().relativize(c.getFile().toPath());
 						Path filename = relativized.getFileName();
 						Path parent = relativized.getParent();
 						if(filename != null && parent != null)

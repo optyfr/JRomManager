@@ -39,13 +39,13 @@ public class EntryMissingDuplicate extends Note implements Serializable
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("EntryMissingDuplicate.MissingDuplicate"), parent.ware.getFullName(), entry.file, entity.getName()); //$NON-NLS-1$
+		return String.format(Messages.getString("EntryMissingDuplicate.MissingDuplicate"), parent.ware.getFullName(), entry.getRelFile(), entity.getName()); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getHTML()
 	{
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissingDuplicate.MissingDuplicate")), toBlue(parent.ware.getFullName()), toBold(entry.file), toBold(entity.getName()))); //$NON-NLS-1$
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissingDuplicate.MissingDuplicate")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), toBold(entity.getName()))); //$NON-NLS-1$
 	}
 
 	@Override

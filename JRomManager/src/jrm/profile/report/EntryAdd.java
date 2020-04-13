@@ -40,13 +40,13 @@ public class EntryAdd extends Note implements Serializable
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("EntryAddAdd"), parent.ware.getFullName(), entity.getNormalizedName(), entry.parent.file.getName(), entry.file); //$NON-NLS-1$
+		return String.format(Messages.getString("EntryAddAdd"), parent.ware.getFullName(), entity.getNormalizedName(), entry.parent.getRelFile().getName(), entry.getRelFile()); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getHTML()
 	{
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()), toItalic(entry.parent.file.getName()), toBold(entry.file))); //$NON-NLS-1$
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()), toItalic(entry.parent.getRelFile().getName()), toBold(entry.getRelFile()))); //$NON-NLS-1$
 	}
 
 	@Override

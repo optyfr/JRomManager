@@ -25,6 +25,7 @@ import java.util.UUID;
 import jrm.compressors.Archive;
 import jrm.locale.Messages;
 import jrm.profile.data.Entry;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
 
@@ -67,8 +68,8 @@ public class RenameEntry extends EntryAction
 		Path dstpath = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
-			final Path srcpath = fs.getPath(entry.file);
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("RenameEntry.Renaming"), entry.getRelFile(), newname))); //$NON-NLS-1$
+			final Path srcpath = fs.getPath(entry.getFile());
 			dstpath = fs.getPath(newname);
 			if(dstpath!=null)
 			{
@@ -76,14 +77,14 @@ public class RenameEntry extends EntryAction
 				if(parent != null)
 					Files.createDirectories(parent);
 				Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
-				entry.file = dstpath.toString();
+				entry.rename(dstpath.toString(), PathAbstractor.getRelativePath(session, dstpath).toString());
 			}
 			// System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);
 			return true;
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			System.err.println("rename " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}
@@ -95,19 +96,19 @@ public class RenameEntry extends EntryAction
 		try
 		{
 			dstpath = target.resolve(newname);
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
-			final Path srcpath = target.resolve(entry.file);
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("RenameEntry.Renaming"), entry.getRelFile(), newname))); //$NON-NLS-1$
+			final Path srcpath = target.resolve(entry.getFile());
 			Path parent = dstpath.getParent();
 			if(parent != null)
 				Files.createDirectories(parent);
 			Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
-			entry.file = dstpath.toString();
+			entry.rename(dstpath.toString(), PathAbstractor.getRelativePath(session, dstpath).toString());
 			// System.out.println("rename "+parent.container.file.getName()+"@"+srcpath+" to "+parent.container.file.getName()+"@"+dstpath);
 			return true;
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			System.err.println("rename " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}
@@ -117,16 +118,16 @@ public class RenameEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("RenameEntry.Renaming"), entry.file, newname))); //$NON-NLS-1$
-			if(archive.rename(entry.file, newname) == 0)
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("RenameEntry.Renaming"), entry.getRelFile(), newname))); //$NON-NLS-1$
+			if(archive.rename(entry.getFile(), newname) == 0)
 			{
-				entry.file = newname;
+				entry.rename(newname, null);
 				return true;
 			}
 		}
 		catch(final Throwable e)
 		{
-			System.err.println("rename " + parent.container.file.getName() + "@" + entry.file + " to " + parent.container.file.getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			System.err.println("rename " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}

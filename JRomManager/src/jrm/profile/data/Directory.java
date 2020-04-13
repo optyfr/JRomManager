@@ -33,9 +33,9 @@ public class Directory extends Container implements Serializable
 	 * @param file the directory {@link File}
 	 * @param m the corresponding {@link AnywareBase} set
 	 */
-	public Directory(final File file, final AnywareBase m)
+	public Directory(final File file, final File relfile, final AnywareBase m)
 	{
-		super(Type.DIR, file, m);
+		super(Type.DIR, file, relfile, m);
 	}
 
 	/**
@@ -43,9 +43,9 @@ public class Directory extends Container implements Serializable
 	 * @param file the directory {@link File}
 	 * @param attr the directory attributes
 	 */
-	public Directory(final File file, final BasicFileAttributes attr)
+	public Directory(final File file, final File relfile, final BasicFileAttributes attr)
 	{
-		super(Type.DIR, file, attr);
+		super(Type.DIR, file, relfile, attr);
 	}
 
 }
