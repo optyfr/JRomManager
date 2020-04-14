@@ -16,6 +16,7 @@ import jrm.batch.DirUpdater;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
+import jrm.security.PathAbstractor;
 import jrm.misc.ProfileSettings;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
@@ -43,7 +44,7 @@ public class Dat2DirActions
 				if (srcdirs.length > 0)
 				{
 					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-					if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(sdr.src).exists()).count() > 0)
+					if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.src).toFile()).exists()).count() > 0)
 						new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
 					{

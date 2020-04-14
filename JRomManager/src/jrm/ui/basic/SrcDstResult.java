@@ -1,6 +1,5 @@
 package jrm.ui.basic;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,26 +10,32 @@ import com.eclipsesource.json.JsonValue;
 
 public class SrcDstResult
 {
-	public File src = null;
-	public File dst = null;
+	public String src = null;
+	public String dst = null;
 	public String result = ""; //$NON-NLS-1$
 	public boolean selected = true;
 
-	public JsonObject toJSONObject()
-	{
-		JsonObject jso = Json.object();
-		jso.add("src", src != null ? src.getAbsolutePath() : null); //$NON-NLS-1$
-		jso.add("dst", dst != null ? dst.getAbsolutePath() : null); //$NON-NLS-1$
-		jso.add("result", result); //$NON-NLS-1$
-		jso.add("selected", selected); //$NON-NLS-1$
-		return jso;
-	}
-	
 	public SrcDstResult()
 	{
-		
+	}
+
+	public SrcDstResult(String src)
+	{
+		this.src= src;
+	}
+
+	public SrcDstResult(String src, String dst)
+	{
+		this.src= src;
+		this.dst = dst;
+	}
+
+	public SrcDstResult(JsonObject jso)
+	{
+		fromJSONObject(jso);
 	}
 	
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -39,19 +44,24 @@ public class SrcDstResult
 		return false;
 	}
 	
-	public SrcDstResult(JsonObject jso)
+	public JsonObject toJSONObject()
 	{
-		fromJSONObject(jso);
+		JsonObject jso = Json.object();
+		jso.add("src", src != null ? src.toString() : null); //$NON-NLS-1$
+		jso.add("dst", dst != null ? dst.toString() : null); //$NON-NLS-1$
+		jso.add("result", result); //$NON-NLS-1$
+		jso.add("selected", selected); //$NON-NLS-1$
+		return jso;
 	}
 	
 	public void fromJSONObject(JsonObject jso)
 	{
 		JsonValue src = jso.get("src"); //$NON-NLS-1$
 		if (src != Json.NULL)
-			this.src = new File(src.asString());
+			this.src = src.asString();
 		JsonValue dst = jso.get("dst"); //$NON-NLS-1$
 		if (dst != Json.NULL)
-			this.dst = new File(dst.asString());
+			this.dst = dst.asString();
 		this.result = jso.get("result").asString(); //$NON-NLS-1$
 		this.selected = jso.getBoolean("selected", true); //$NON-NLS-1$
 	}

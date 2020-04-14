@@ -1,6 +1,5 @@
 package jrm.server.shared.datasources;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +46,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 		if(operation.hasData("src"))
 		{
 			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]"));
-			final SrcDstResult sdr = new SrcDstResult() {{src=new File(operation.getData("src"));}};
+			final SrcDstResult sdr = new SrcDstResult(operation.getData("src"));
 			if(!sdrl.contains(sdr))
 			{
 				sdrl.add(sdr);
@@ -78,14 +77,14 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 		if(operation.hasData("src"))
 		{
 			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]"));
-			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.getData("src"));}};
+			final SrcDstResult search = new SrcDstResult(operation.getData("src"));
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(p->p.equals(search)).findFirst();
 			if(candidate.isPresent())
 			{
 				if(operation.hasData("dst") || operation.hasData("selected"))
 				{
 					if(operation.hasData("dst"))
-						candidate.get().dst = new File(operation.getData("dst"));
+						candidate.get().dst = operation.getData("dst");
 					else
 						candidate.get().selected = Boolean.parseBoolean(operation.getData("selected"));
 					request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,SrcDstResult.toJSON(sdrl));
@@ -118,7 +117,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 		if(operation.hasData("src"))
 		{
 			final List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]"));
-			final SrcDstResult search = new SrcDstResult() {{src=new File(operation.getData("src"));}};
+			final SrcDstResult search = new SrcDstResult(operation.getData("src"));
 			if(sdrl.remove(search))
 			{
 				request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,SrcDstResult.toJSON(sdrl));

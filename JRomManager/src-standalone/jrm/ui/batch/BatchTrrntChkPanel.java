@@ -44,6 +44,7 @@ import jrm.batch.TrntChkReport;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
 import jrm.misc.SettingsEnum;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.JRMFileChooser;
@@ -96,7 +97,7 @@ public class BatchTrrntChkPanel extends JPanel
 			public void onButtonPress(int row, int column)
 			{
 				final SrcDstResult sdr = model.getData().get(row);
-				new BatchTrrntChkResultsDialog(session, SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this), TrntChkReport.load(session, sdr.src));
+				new BatchTrrntChkResultsDialog(session, SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this), TrntChkReport.load(session, PathAbstractor.getAbsolutePath(session, sdr.src).toFile()));
 			}
 		});
 		tableTrntChk.addMouseListener(new MouseAdapter() {
@@ -124,10 +125,10 @@ public class BatchTrrntChkPanel extends JPanel
 				final JsonObject jso = arrv.asObject();
 				final JsonValue src = jso.get("src"); //$NON-NLS-1$
 				if (src != Json.NULL)
-					sdr.src = new File(src.asString());
+					sdr.src = src.asString();
 				final JsonValue dst = jso.get("dst"); //$NON-NLS-1$
 				if (dst != Json.NULL)
-					sdr.dst = new File(dst.asString());
+					sdr.dst = dst.asString();
 				final JsonValue result = jso.get("result"); //$NON-NLS-1$
 				sdr.result = result.asString();
 				sdr.selected = jso.getBoolean("selected", true); //$NON-NLS-1$
@@ -163,7 +164,7 @@ public class BatchTrrntChkPanel extends JPanel
 				new JRMFileChooser<Void>(
 						col == 0 ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG,
 						col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY,
-						list.size() > 0 ? Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(f->f.getParentFile()).orElse(null) : null, // currdir
+						list.size() > 0 ? Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(f->new File(f).getParentFile()).orElse(null) : null, // currdir
 						null,	// selected
 						Collections.singletonList(new FileFilter()
 						{
@@ -220,9 +221,9 @@ public class BatchTrrntChkPanel extends JPanel
 									else
 										line = model.getData().get(row + i);
 									if (col == 1)
-										line.dst = file;
+										line.dst = file.getPath();
 									else
-										line.src = file;
+										line.src = file.getPath();
 								}
 							}
 							if (row != -1)

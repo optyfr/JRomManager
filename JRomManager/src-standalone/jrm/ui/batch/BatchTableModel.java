@@ -157,10 +157,10 @@ public class BatchTableModel extends SDRTableModel
 		switch(columnIndex)
 		{
 			case 0:
-				getData().get(rowIndex).src = (File) aValue;
+				getData().get(rowIndex).src = ((File) aValue).getPath();
 				break;
 			case 1:
-				getData().get(rowIndex).dst = (File) aValue;
+				getData().get(rowIndex).dst = ((File) aValue).getPath();
 				break;
 			case 2:
 				getData().get(rowIndex).result = (String) aValue;

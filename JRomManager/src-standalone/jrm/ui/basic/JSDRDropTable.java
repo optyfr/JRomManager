@@ -184,9 +184,9 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	            		else
 	            			line = model.getData().get(row + i);
 		            	if(col==1)
-		            		line.dst = file;
+		            		line.dst = file.getPath();
 		            	else
-		            		line.src = file;
+		            		line.src = file.getPath();
 	            	}
 	            	if(row != -1)
 	            		model.fireTableChanged(new TableModelEvent(model, row, start_size-1, col));

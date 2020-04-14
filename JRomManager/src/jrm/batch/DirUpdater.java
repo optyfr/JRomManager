@@ -22,6 +22,7 @@ import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.scan.DirScan;
 import jrm.profile.scan.Scan;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SrcDstResult;
@@ -52,8 +53,8 @@ public class DirUpdater
 		StreamEx.of(sdrl).filter(sdr->sdr.selected).takeWhile(p->!progress.isCancel()).forEach(sdr->{
 			int row = sdrl.indexOf(sdr);
 			result.updateResult(row, "In progress..."); //$NON-NLS-1$
-			final File dat = sdr.src;
-			final File dst = sdr.dst;
+			final File dat = PathAbstractor.getAbsolutePath(session, sdr.src).toFile();
+			final File dst = PathAbstractor.getAbsolutePath(session, sdr.dst).toFile();
 			DirUpdaterResults dur = new DirUpdaterResults();
 			dur.dat = dat;
 			try

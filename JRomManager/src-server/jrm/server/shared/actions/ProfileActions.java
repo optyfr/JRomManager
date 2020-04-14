@@ -214,7 +214,7 @@ public class ProfileActions extends PathAbstractor
 		try
 		{
 			if (profile != null)
-				ws.getSession().getUser().getSettings().saveProfileSettings(new File(profile), settings);
+				ws.getSession().getUser().getSettings().saveProfileSettings(getAbsolutePath(profile).toFile(), settings);
 			else
 				ws.getSession().getCurr_profile().saveSettings();
 		}

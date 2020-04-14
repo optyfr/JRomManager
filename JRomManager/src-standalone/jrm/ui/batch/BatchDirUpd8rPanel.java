@@ -47,6 +47,7 @@ import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.JFileDropList;
@@ -155,7 +156,7 @@ public class BatchDirUpd8rPanel extends JPanel
 			public void onButtonPress(int row, int column)
 			{
 				final SrcDstResult sdr = model.getData().get(row);
-				new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),DirUpdaterResults.load(session, sdr.src));
+				new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),DirUpdaterResults.load(session, new File(sdr.src)));
 			}
 		});
 		if(session!=null)
@@ -195,7 +196,7 @@ public class BatchDirUpd8rPanel extends JPanel
 						final SrcDstResult sdr = tablemodel.getData().get(row);
 /*						if(sdr.src.isFile())
 							new ReportLite(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),sdr.src);*/
-						new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),DirUpdaterResults.load(session, sdr.src));
+						new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),DirUpdaterResults.load(session, new File(sdr.src)));
 					}
 				}
 			}
@@ -228,7 +229,7 @@ public class BatchDirUpd8rPanel extends JPanel
 				new JRMFileChooser<Void>(
 						col == 0 ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG,
 						col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY,
-						list.size() > 0 ? Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(f->f.getParentFile()).orElse(null) : null, // currdir
+						list.size() > 0 ? Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(f->new File(f).getParentFile()).orElse(null) : null, // currdir
 						null,	// selected
 						Collections.singletonList(new FileFilter()
 						{
@@ -285,9 +286,9 @@ public class BatchDirUpd8rPanel extends JPanel
 									else
 										line = model.getData().get(row + i);
 									if (col == 1)
-										line.dst = file;
+										line.dst = file.getPath();
 									else
-										line.src = file;
+										line.src = file.getPath();
 								}
 							}
 							if (row != -1)
@@ -351,7 +352,7 @@ public class BatchDirUpd8rPanel extends JPanel
 				{
 					try
 					{
-						ProfileSettings.TZIP(session, sdr.src);
+						ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, sdr.src).toFile());
 					}
 					catch (IOException e1)
 					{
@@ -372,7 +373,7 @@ public class BatchDirUpd8rPanel extends JPanel
 				{
 					try
 					{
-						ProfileSettings.DIR(session, sdr.src);
+						ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.src).toFile());
 					}
 					catch (IOException e1)
 					{
@@ -394,13 +395,13 @@ public class BatchDirUpd8rPanel extends JPanel
 					SrcDstResult entry = list.get(0);
 					try
 					{
-						dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(entry.src, null));
+						dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.src).toFile(), null));
 						dialog.setVisible(true);
 						if(dialog.success)
 						{
 							for(SrcDstResult sdr : list)
 							{
-								session.getUser().getSettings().saveProfileSettings(sdr.src, dialog.settingsPanel.settings);
+								session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.src).toFile(), dialog.settingsPanel.settings);
 							}
 						}
 					}
@@ -443,7 +444,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		if (listBatchToolsDat2DirSrc.getModel().getSize() > 0)
 		{
 			List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
-			if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(sdr.src).exists()).count() > 0)
+			if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.src).toFile()).exists()).count() > 0)
 				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 			else
 			{

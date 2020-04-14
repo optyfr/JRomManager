@@ -52,6 +52,7 @@ import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.security.Sessions;
 import jrm.ui.basic.ResultColUpdater;
@@ -354,10 +355,10 @@ public class JRomManagerCLI
 							switch (args[1])
 							{
 								case "TZIP": //$NON-NLS-1$
-									ProfileSettings.TZIP(session, list.get(index).src);
+									ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile());
 									break;
 								case "DIR": //$NON-NLS-1$
-									ProfileSettings.DIR(session, list.get(index).src);
+									ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile());
 									break;
 							}
 						}
@@ -383,11 +384,11 @@ public class JRomManagerCLI
 						{
 							try
 							{
-								ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(list.get(index).src, null);
+								ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), null);
 								if (args.length == 3)
 								{
 									settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
-									session.getUser().getSettings().saveProfileSettings(list.get(index).src, settings);
+									session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), settings);
 								}
 								else if (args.length == 2)
 									System.out.format("%s\n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -416,10 +417,7 @@ public class JRomManagerCLI
 			case ADDSDR:
 			{
 				val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-				val sdr = new SrcDstResult();
-				sdr.src = new File(args[0]);
-				sdr.dst = new File(args[1]);
-				list.add(sdr);
+				list.add(new SrcDstResult(args[0],args[1]));
 				prefs(jrm.misc.SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(list)); //$NON-NLS-1$
 				break;
 			}
@@ -488,10 +486,7 @@ public class JRomManagerCLI
 				if(args.length==2)
 				{
 					val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-					val sdr = new SrcDstResult();
-					sdr.src = new File(args[0]);
-					sdr.dst = new File(args[1]);
-					list.add(sdr);
+					list.add(new SrcDstResult(args[0],args[1]));
 					prefs(jrm.misc.SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(list)); //$NON-NLS-1$
 				}
 				else

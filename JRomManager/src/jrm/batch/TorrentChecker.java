@@ -1,6 +1,7 @@
 package jrm.batch;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
@@ -31,6 +32,7 @@ import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.misc.UnitRenderer;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SrcDstResult;
@@ -39,8 +41,9 @@ import one.util.streamex.StreamEx;
 
 public class TorrentChecker implements UnitRenderer,HTMLRenderer
 {
-	AtomicInteger processing = new AtomicInteger();
-	AtomicInteger current = new AtomicInteger();
+	private AtomicInteger processing = new AtomicInteger();
+	private AtomicInteger current = new AtomicInteger();
+	private final Session session;
 
 	/**
 	 * Check a dir versus torrent data 
@@ -52,6 +55,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	 */
 	public TorrentChecker(final Session session, final ProgressHandler progress, List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater, boolean removeUnknownFiles, boolean removeWrongSizedFiles, boolean detectArchivedFolders) throws IOException
 	{
+		this.session = session;
 		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),(int)sdrl.stream().filter(sdr->sdr.selected).count()), true);
 		progress.setProgress2("", 0, 1); //$NON-NLS-1$
 		StreamEx.of(sdrl).filter(sdr->sdr.selected).forEach(sdr->{
@@ -62,7 +66,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			{
 				int row = sdrl.indexOf(sdr);
 				updater.updateResult(row, "In progress...");
-				final String result = check(session, progress, mode, sdr, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
+				final String result = check(progress, mode, sdr, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
 				updater.updateResult(row, result);
 				progress.setProgress(null, -1, null, "");
 			}
@@ -80,16 +84,18 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	 * @return
 	 * @throws IOException
 	 */
-	private String check(final Session session, final ProgressHandler progress, TrntChkMode mode, SrcDstResult sdr, boolean removeUnknownFiles, boolean removeWrongSizedFiles, boolean detectArchivedFolders) throws IOException
+	private String check(final ProgressHandler progress, TrntChkMode mode, SrcDstResult sdr, boolean removeUnknownFiles, boolean removeWrongSizedFiles, boolean detectArchivedFolders) throws IOException
 	{
 		String result = ""; //$NON-NLS-1$
 		if (sdr.src != null && sdr.dst != null)
 		{
-			if (sdr.src.exists() && sdr.dst.exists())
+			final File src = PathAbstractor.getAbsolutePath(session, sdr.src).toFile();
+			final File dst = PathAbstractor.getAbsolutePath(session, sdr.dst).toFile();
+			if (src.exists() && dst.exists())
 			{
-				TrntChkReport report = new TrntChkReport(sdr.src);
+				TrntChkReport report = new TrntChkReport(src);
 				
-				Torrent torrent = TorrentParser.parseTorrent(sdr.src.getAbsolutePath());
+				Torrent torrent = TorrentParser.parseTorrent(src.getAbsolutePath());
 				List<TorrentFile> tfiles = torrent.getFileList();
 				int total = tfiles.size(), ok = 0;
 				long missing_bytes = 0;
@@ -106,13 +112,13 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 					{
 						current.incrementAndGet();
 						TorrentFile tfile = tfiles.get(j);
-						Path file = sdr.dst.toPath();
+						Path file = dst.toPath();
 						for (String path : tfile.getFileDirs())
 							file = file.resolve(path);
 						paths.add(file.toAbsolutePath());
 						final Path identity = Paths.get(".");
 						final Child node = report.add(tfile.getFileDirs().stream().map(Paths::get).reduce(identity, (r,e)->r.resolve(e)).toString());
-						progress.setProgress(toHTML(toPurple(sdr.src.getAbsolutePath())), -1, null, file.toString());
+						progress.setProgress(toHTML(toPurple(src.getAbsolutePath())), -1, null, file.toString());
 						progress.setProgress2(current + "/" + processing, current.get(), processing.get()); //$NON-NLS-1$
 						if (Files.exists(file))
 						{
@@ -163,7 +169,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 						long to_go = piece_length;
 						int piece_cnt = 0, piece_valid = 0;
 						processing.addAndGet(pieces.size());
-						progress.setProgress(sdr.src.getAbsolutePath(), -1, null, ""); //$NON-NLS-1$
+						progress.setProgress(src.getAbsolutePath(), -1, null, ""); //$NON-NLS-1$
 						progress.setProgress2(String.format(session.msgs.getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), -1, processing.get()); //$NON-NLS-1$
 						piece_cnt++;
 						Child block = report.add(String.format("Piece %d", piece_cnt));
@@ -175,7 +181,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 						for (TorrentFile tfile : tfiles)
 						{
 							BufferedInputStream in = null;
-							Path file = sdr.dst.toPath();
+							Path file = dst.toPath();
 							for (String path : tfile.getFileDirs())
 								file = file.resolve(path);
 							paths.add(file.toAbsolutePath());
@@ -196,7 +202,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 							}
 							else
 								in = new BufferedInputStream(new FileInputStream(file.toFile()));
-							progress.setProgress(toHTML(toPurple(sdr.src.getAbsolutePath())), -1, null, file.toString());
+							progress.setProgress(toHTML(toPurple(src.getAbsolutePath())), -1, null, file.toString());
 							long flen = (node.data.length = tfile.getFileLength());
 							while (flen >= to_go)
 							{
@@ -305,7 +311,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 				report.save(report.getReportFile(session));
 			}
 			else
-				result = sdr.src.exists() ? session.msgs.getString("TorrentChecker.DstMustExist") : session.msgs.getString("TorrentChecker.SrcMustExist"); //$NON-NLS-1$ //$NON-NLS-2$
+				result = src.exists() ? session.msgs.getString("TorrentChecker.DstMustExist") : session.msgs.getString("TorrentChecker.SrcMustExist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		else
 			result = sdr.src == null ? session.msgs.getString("TorrentChecker.SrcNotDefined") : session.msgs.getString("TorrentChecker.DstNotDefined"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -315,7 +321,8 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	private int removeUnknownFiles(TrntChkReport report, HashSet<Path> paths, SrcDstResult sdr, boolean remove) throws IOException
 	{
 		List<Path> files_to_remove = new ArrayList<>();
-		Files.walkFileTree(sdr.dst.toPath(), new SimpleFileVisitor<Path>()
+		final Path dst = PathAbstractor.getAbsolutePath(session, sdr.dst);
+		Files.walkFileTree(dst, new SimpleFileVisitor<Path>()
 		{
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
@@ -355,6 +362,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	{
 		HashSet<String> components = new HashSet<>();
 		HashSet<Path> archives = new HashSet<>();
+		final Path dst = PathAbstractor.getAbsolutePath(session, sdr.dst);
 		for (int j = 0; j < tfiles.size(); j++)
 		{
 			TorrentFile tfile = tfiles.get(j);
@@ -366,7 +374,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 				{
 					components.add(path);
 					
-					Path file = sdr.dst.toPath();
+					Path file = dst;
 					file = file.resolve(path);
 					
 					Path parent = file.getParent();
@@ -388,7 +396,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		for (int j = 0; j < tfiles.size(); j++)
 		{
 			TorrentFile tfile = tfiles.get(j);
-			Path file = sdr.dst.toPath();
+			Path file = dst;
 			for (String path : tfile.getFileDirs())
 				file = file.resolve(path);
 			if(archives.contains(file))
