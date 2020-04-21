@@ -1,6 +1,6 @@
 package jrm.server.shared.datasources;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -44,7 +44,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		if(operation.hasData("file"))
 		{
 			String id = UUID.randomUUID().toString();
-			FileResult fr = new FileResult(new File(operation.getData("file")));
+			FileResult fr = new FileResult(Paths.get(operation.getData("file")));
 			request.getSession().getCachedCompressorList().put(id, fr);
 			writer.writeStartElement("response");
 			writer.writeElement("status", "0");
@@ -73,7 +73,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 				if(operation.hasData("file") || operation.hasData("result"))
 				{
 					if(operation.hasData("file"))
-						fr.file = new File(operation.getData("file"));
+						fr.file = Paths.get(operation.getData("file"));
 					if(operation.hasData("result"))
 						fr.result = operation.getData("result");
 					writer.writeStartElement("response");

@@ -1,6 +1,5 @@
 package jrm.server.shared.actions;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -15,9 +14,9 @@ import com.eclipsesource.json.JsonObject;
 import jrm.batch.DirUpdater;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.ProfileSettings;
 import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
-import jrm.misc.ProfileSettings;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
 import jrm.ui.basic.ResultColUpdater;
@@ -48,7 +47,7 @@ public class Dat2DirActions
 						new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
 					{
-						new DirUpdater(session, sdrl, session.getWorker().progress, Stream.of(srcdirs).map(s->new File(s)).collect(Collectors.toList()), new ResultColUpdater()
+						new DirUpdater(session, sdrl, session.getWorker().progress, Stream.of(srcdirs).map(s->PathAbstractor.getAbsolutePath(session, s).toFile()).collect(Collectors.toList()), new ResultColUpdater()
 						{
 							@Override
 							public void updateResult(int row, String result)
@@ -96,7 +95,8 @@ public class Dat2DirActions
 			String src = srcs.get(0).asString();
 			try
 			{
-				ProfileSettings settings = ws.getSession().getUser().getSettings().loadProfileSettings(new File(src), null);
+				WebSession session = ws.getSession();
+				ProfileSettings settings = ws.getSession().getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session,src).toFile(), null);
 				if(ws.isOpen())
 				{
 					ws.send(new JsonObject() {{

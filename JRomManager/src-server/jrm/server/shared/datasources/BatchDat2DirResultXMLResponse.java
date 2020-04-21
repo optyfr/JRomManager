@@ -1,7 +1,5 @@
 package jrm.server.shared.datasources;
 
-import java.io.File;
-
 import jrm.batch.DirUpdaterResults;
 import jrm.batch.DirUpdaterResults.DirUpdaterResult;
 import jrm.server.shared.datasources.XMLRequest.Operation;
@@ -20,7 +18,7 @@ public class BatchDat2DirResultXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws Exception
 	{
 		final String src = operation.getData("src");
-		final DirUpdaterResults results = src!=null?DirUpdaterResults.load(request.getSession(), new File(src)):null;
+		final DirUpdaterResults results = src!=null?DirUpdaterResults.load(request.getSession(), pathAbstractor.getAbsolutePath(src).toFile()):null;
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
@@ -32,8 +30,10 @@ public class BatchDat2DirResultXMLResponse extends XMLResponse
 			for(DirUpdaterResult result : results.results)
 			{
 				writer.writeElement("record", 
-					new SimpleAttribute("src", result.dat.toString()),
-					new SimpleAttribute("have", result.stats.set_create_complete + result.stats.set_found_fixcomplete + result.stats.set_found_ok),
+					new SimpleAttribute("src", pathAbstractor.getRelativePath((result.dat))),
+					new SimpleAttribute("have", result.stats.set_found_ok),
+					new SimpleAttribute("create", result.stats.set_create_complete),
+					new SimpleAttribute("fix", result.stats.set_found_fixcomplete),
 					new SimpleAttribute("miss", result.stats.set_create + result.stats.set_found + result.stats.set_missing - (result.stats.set_create_complete + result.stats.set_found_fixcomplete + result.stats.set_found_ok)),
 					new SimpleAttribute("total", result.stats.set_create + result.stats.set_found + result.stats.set_missing)
 				);

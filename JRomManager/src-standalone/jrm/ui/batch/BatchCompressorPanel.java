@@ -215,7 +215,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 			switch (columnIndex)
 			{
 				case 0:
-					getData().get(rowIndex).file = (File)aValue;
+					getData().get(rowIndex).file = ((File)aValue).toPath();
 					break;
 				case 1:
 					getData().get(rowIndex).result = (String)aValue;
@@ -349,9 +349,9 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 						for(File f : files)
 						{
 							if(f.isDirectory())
-								Files.walk(f.toPath()).filter(p->Files.isRegularFile(p)&&FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p->model.getData().add(new FileResult(p.toFile())));
+								Files.walk(f.toPath()).filter(p->Files.isRegularFile(p)&&FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p->model.getData().add(new FileResult(p)));
 							else
-								model.getData().add(new FileResult(f));
+								model.getData().add(new FileResult(f.toPath()));
 						}
 						if (start_size != model.getData().size())
 							model.fireTableChanged(new TableModelEvent(model, start_size, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
@@ -460,7 +460,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 								{
 									try
 									{
-										Files.walk(f.toPath()).filter(p->Files.isRegularFile(p)&&FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p->model.getData().add(new FileResult(p.toFile())));
+										Files.walk(f.toPath()).filter(p->Files.isRegularFile(p)&&FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p->model.getData().add(new FileResult(p)));
 									}
 									catch (IOException e)
 									{
@@ -468,7 +468,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 									}
 								}
 								else
-									model.getData().add(new FileResult(f));
+									model.getData().add(new FileResult(f.toPath()));
 							}
 							if (start_size != model.getData().size())
 								model.fireTableChanged(new TableModelEvent(model, start_size, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
@@ -524,7 +524,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 					final Compressor compressor = new Compressor(session, cnt, table.getRowCount(), progress);
 					StreamEx.of(table.model.getData().parallelStream().unordered()).takeWhile(p->!progress.isCancel()).forEach(fr->{
 						final int i = table.model.getData().indexOf(fr);
-						File file = fr.file;
+						File file = fr.file.toFile();
 						cnt.incrementAndGet();
 						Compressor.UpdResultCallBack cb = txt -> table.setValueAt(txt, i, 1);
 						Compressor.UpdSrcCallBack scb = src -> table.setValueAt(src, i, 0);

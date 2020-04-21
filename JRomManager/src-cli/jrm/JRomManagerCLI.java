@@ -556,18 +556,18 @@ public class JRomManagerCLI
 			CommandLine cmdline = new DefaultParser().parse(options, args, true);
 			CompressorFormat format = cmdline.hasOption('c')?CompressorFormat.valueOf(cmdline.getOptionValue('c')):CompressorFormat.TZIP;
 			boolean force = cmdline.hasOption('f');
-			for(String arg : cmdline.getArgList())
+			for(final String arg : cmdline.getArgList())
 			{
-				File path = new File(arg);
-				List<FileResult> frl = path.isDirectory() ? Files.walk(path.toPath()).filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.extensions)).map(p -> new FileResult(p.toFile())).collect(Collectors.toList()) : Arrays.asList(new FileResult(path));
+				Path path = Paths.get(arg);
+				List<FileResult> frl = Files.isDirectory(path) ? Files.walk(path).filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.extensions)).map(p -> new FileResult(p)).collect(Collectors.toList()) : Arrays.asList(new FileResult(path));
 				AtomicInteger cnt = new AtomicInteger();
 				Compressor compressor = new Compressor(session, cnt, frl.size(), handler);
 				frl.parallelStream().forEach(fr -> {
-					File file = fr.file;
+					Path file = fr.file;
 					cnt.incrementAndGet();
 					Compressor.UpdResultCallBack cb = txt -> fr.result = txt;
-					Compressor.UpdSrcCallBack scb = src -> fr.file = src;
-					compressor.compress(format, file, force, cb, scb);
+					Compressor.UpdSrcCallBack scb = src -> fr.file = src.toPath();
+					compressor.compress(format, file.toFile(), force, cb, scb);
 				});
 			}
 		}

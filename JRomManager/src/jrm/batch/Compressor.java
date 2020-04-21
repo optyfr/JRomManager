@@ -47,10 +47,10 @@ public class Compressor implements HTMLRenderer
 	
 	public static class FileResult
 	{
-		public File file;
+		public Path file;
 		public String result = "";
 		
-		public FileResult(File file)
+		public FileResult(Path file)
 		{
 			this.file = file;
 		}

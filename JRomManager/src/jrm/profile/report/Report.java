@@ -283,6 +283,8 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		}
 		subject_hash = subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		stats = report.stats;
+		file = report.file;
+		file_modified = report.file_modified;
 	}
 
 	/**

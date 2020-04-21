@@ -325,7 +325,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 					case "addArc":
 						for(String path : operation.getDatas("paths"))
 						{
-							Path entry = Paths.get(path);
+							Path entry = pathAbstractor.getAbsolutePath(path);
 							Files.walkFileTree(entry, new SimpleFileVisitor<Path>()
 							{
 								String[] exts = new String[] {"zip","7z","rar","arj","tar","lzh","lha","tgz","tbz","tbz2","rpm","iso","deb","cab"};

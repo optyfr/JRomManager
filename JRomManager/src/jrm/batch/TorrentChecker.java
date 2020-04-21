@@ -339,7 +339,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			lostfound.data.length = 0L;
 			for (Path p : files_to_remove)
 			{
-				Child entry = lostfound.add(p.toString());
+				Child entry = lostfound.add(Paths.get(".").resolve(dst.relativize(p)).toString());
 				lostfound.data.length += (entry.data.length = Files.size(p));
 			}
 			if (remove)

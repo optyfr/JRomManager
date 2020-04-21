@@ -2,6 +2,7 @@ package jrm.server.shared.actions;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,6 +17,7 @@ import jrm.batch.CompressorFormat;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
+import jrm.security.PathAbstractor;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
 import one.util.streamex.StreamEx;
@@ -46,10 +48,10 @@ public class CompressorActions
 				List<FileResult> values = new ArrayList<>(ws.getSession().getCachedCompressorList().values());
 				StreamEx.of(ws.getSession().getCachedCompressorList().values().parallelStream().unordered()).takeWhile(p->!session.getWorker().progress.isCancel()).forEach(fr->{
 					final int i = values.indexOf(fr);
-					File file = fr.file;
+					File file = PathAbstractor.getAbsolutePath(session, fr.file.toString()).toFile();
 					cnt.incrementAndGet();
 					Compressor.UpdResultCallBack cb = txt -> updateResult(i, fr.result = txt);
-					Compressor.UpdSrcCallBack scb = src -> updateFile(i, fr.file = src);
+					Compressor.UpdSrcCallBack scb = src -> updateFile(i, fr.file = PathAbstractor.getRelativePath(session, src.toPath()));
 					switch(format)
 					{
 						case SEVENZIP:
@@ -118,7 +120,7 @@ public class CompressorActions
 	}
 	
 	@SuppressWarnings("serial")
-	void updateFile(int row, File file)
+	void updateFile(int row, Path file)
 	{
 		try
 		{

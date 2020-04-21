@@ -25,7 +25,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 		Report report = request.session.report;
 		if(operation.hasData("src"))
 		{
-			final File srcfile = new File(operation.getData("src"));
+			final File srcfile = pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();
 			final File reportfile = Report.getReportFile(request.session, srcfile);
 			if(request.session.tmp_report==null || !(request.session.tmp_report.getReportFile(request.session).equals(reportfile) && request.session.tmp_report.getFileModified()==reportfile.lastModified()))
 				request.session.tmp_report = Report.load(request.session, srcfile);
@@ -97,6 +97,14 @@ public class ReportTreeXMLResponse extends XMLResponse
 		{
 			case "detail":
 				Report report = request.session.report;
+				if(operation.hasData("src"))
+				{
+					final File srcfile = pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();
+					final File reportfile = Report.getReportFile(request.session, srcfile);
+					if(request.session.tmp_report==null || !(request.session.tmp_report.getReportFile(request.session).equals(reportfile) && request.session.tmp_report.getFileModified()==reportfile.lastModified()))
+						request.session.tmp_report = Report.load(request.session, srcfile);
+					report = request.session.tmp_report;
+				}
 				int parentID = Integer.valueOf(operation.getData("ParentID"));
 				Subject subject = report.getHandler().getFilteredReport().findSubject(parentID);
 				writer.writeStartElement("response");
