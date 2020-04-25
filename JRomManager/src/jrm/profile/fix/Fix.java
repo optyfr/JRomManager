@@ -56,7 +56,7 @@ public class Fix
 	{
 		this.curr_scan = curr_scan;
 
-		val use_parallelism = curr_profile.getProperty(SettingsEnum.use_parallelism, false); //$NON-NLS-1$
+		val use_parallelism = curr_profile.getProperty(SettingsEnum.use_parallelism, curr_profile.session.server); //$NON-NLS-1$
 		val nThreads = use_parallelism ? Runtime.getRuntime().availableProcessors() : 1;
 
 		final long start = System.currentTimeMillis();
