@@ -17,7 +17,7 @@ import jrm.server.shared.TempFileInputStream;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.EnhancedXMLStreamWriter;
 
-abstract class XMLResponse implements Closeable
+public abstract class XMLResponse implements Closeable
 {
 	protected XMLRequest request;
 	private final File tmpfile;

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
+import jrm.fullserver.datasources.AdminXMLResponse;
 import jrm.server.shared.TempFileInputStream;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.datasources.AnywareListListXMLResponse;
@@ -51,57 +52,60 @@ public class DataSourceServlet extends HttpServlet
 					int bodylen = req.getContentLength();
 					switch (req.getRequestURI())
 					{
-							case "/datasources/profilesTree":
-								response = new ProfilesTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/profilesList":
-								response = new ProfilesListXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/remoteFileChooser":
-								response = new RemoteFileChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/remoteRootChooser":
-								response = new RemoteRootChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/CatVer":
-								response = new CatVerXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/NPlayers":
-								response = new NPlayersXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/AnywareListList":
-								response = new AnywareListListXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/AnywareList":
-								response = new AnywareListXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/Anyware":
-								response = new AnywareXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/Report":
-								response = new ReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/BatchDat2DirSrc":
-								response = new BatchDat2DirSrcXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/BatchDat2DirSDR":
-								response = new BatchDat2DirSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/BatchDat2DirResult":
-								response = new BatchDat2DirResultXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/BatchTrntChkSDR":
-								response = new BatchTrntChkSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/BatchTrntChkReportTree":
-								response = new BatchTrntChkReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							case "/datasources/BatchCompressorFR":
-								response = new BatchCompressorFRXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-								break;
-							default:
-								resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
-								break;
+						case "/datasources/admin":
+							response = new AdminXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/profilesTree":
+							response = new ProfilesTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/profilesList":
+							response = new ProfilesListXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/remoteFileChooser":
+							response = new RemoteFileChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/remoteRootChooser":
+							response = new RemoteRootChooserXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/CatVer":
+							response = new CatVerXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/NPlayers":
+							response = new NPlayersXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/AnywareListList":
+							response = new AnywareListListXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/AnywareList":
+							response = new AnywareListXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/Anyware":
+							response = new AnywareXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/Report":
+							response = new ReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/BatchDat2DirSrc":
+							response = new BatchDat2DirSrcXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/BatchDat2DirSDR":
+							response = new BatchDat2DirSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/BatchDat2DirResult":
+							response = new BatchDat2DirResultXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/BatchTrntChkSDR":
+							response = new BatchTrntChkSDRXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/BatchTrntChkReportTree":
+							response = new BatchTrntChkReportTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						case "/datasources/BatchCompressorFR":
+							response = new BatchCompressorFRXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
+							break;
+						default:
+							resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+							break;
 					}
 					if(response!=null)
 					{

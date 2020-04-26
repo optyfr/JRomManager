@@ -10,11 +10,10 @@ import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import de.mkammerer.argon2.Argon2Factory.Argon2Types;
 import jrm.fullserver.db.SQL;
-import lombok.Data;
 import lombok.Getter;
 import lombok.val;
 
-@SuppressWarnings("serial") class CryptCredential extends Credential
+@SuppressWarnings("serial") public class CryptCredential extends Credential
 {
 	private String username;
 	private SQL sql;
@@ -26,38 +25,6 @@ import lombok.val;
 		this.sql = sql;
 	}
 	
-	static public @Data class UserCredential
-	{
-		private String login;
-		private String password;
-		private String roles;
-/*
-		public String getLogin()
-		{
-			return login;
-		}
-		public void setLogin(String login)
-		{
-			this.login = login;
-		}
-		public String getPassword()
-		{
-			return password;
-		}
-		public void setPassword(String password)
-		{
-			this.password = password;
-		}
-		public String getRoles()
-		{
-			return roles;
-		}
-		public void setRoles(String roles)
-		{
-			this.roles = roles;
-		}*/
-	}
-	
 	@Override
 	public boolean check(Object credentials)
 	{
@@ -65,24 +32,7 @@ import lombok.val;
 		{
 			user = sql.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<>(UserCredential.class), username);
 			if (user != null) // si il y a un bien un user avec le login correspondant
-			{
-				if(user.getPassword().startsWith("$argon2"))
-				{
-					Argon2 argon2;
-					if(user.getPassword().startsWith("$argon2id$"))
-						argon2 = Argon2Factory.create(Argon2Types.ARGON2id);
-					else if(user.getPassword().startsWith("$argon2i$"))
-						argon2 = Argon2Factory.create(Argon2Types.ARGON2i);
-					else if(user.getPassword().startsWith("$argon2d$"))
-						argon2 = Argon2Factory.create(Argon2Types.ARGON2d);
-					else
-						argon2 = Argon2Factory.create();
-					if(argon2.verify(user.getPassword(), credentials.toString().toCharArray()))
-						return true;
-				}
-				else if (BCrypt.checkpw(credentials.toString(), user.getPassword())) // si le hash bcrypt matche
-					return true;
-			}
+				return check(credentials.toString(), user.getPassword());
 		
 		}
 		catch(SQLException e)
@@ -92,16 +42,38 @@ import lombok.val;
 		return false;
 	}
 	
+	public static boolean check(String credentials, String password)
+	{
+		if(password.startsWith("$argon2"))
+		{
+			Argon2 argon2;
+			if(password.startsWith("$argon2id$"))
+				argon2 = Argon2Factory.create(Argon2Types.ARGON2id);
+			else if(password.startsWith("$argon2i$"))
+				argon2 = Argon2Factory.create(Argon2Types.ARGON2i);
+			else if(password.startsWith("$argon2d$"))
+				argon2 = Argon2Factory.create(Argon2Types.ARGON2d);
+			else
+				argon2 = Argon2Factory.create();
+			if(argon2.verify(password, credentials.toCharArray()))
+				return true;
+		}
+		else if (BCrypt.checkpw(credentials, password)) // si le hash bcrypt matche
+			return true;
+		return false;
+	}
+	
 	public static String hash(String password)
 	{
+		if (password.startsWith("$2a$") || password.startsWith("$argon2"))
+			return password;
 		try
 		{
 			val argon2 = Argon2Factory.create(Argon2Types.ARGON2id);
 			password = argon2.hash(40, 65536, 4, password.toCharArray());
 		}
-		catch(Throwable e)
+		catch (Throwable e)
 		{
-			System.err.println(e.getMessage());
 			password = BCrypt.hashpw(password, BCrypt.gensalt());
 		}
 		return password;

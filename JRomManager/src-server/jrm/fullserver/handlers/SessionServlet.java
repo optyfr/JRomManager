@@ -35,6 +35,7 @@ public class SessionServlet extends HttpServlet
 			{{
 				add("session", sessionid);
 				add("authenticated", true);
+				add("admin", ws.getUser().isAdmin());
 				add("msgs", new JsonObject()
 				{{
 					List<LanguageRange> lr = LanguageRange.parse(req.getHeader("accept-language"));

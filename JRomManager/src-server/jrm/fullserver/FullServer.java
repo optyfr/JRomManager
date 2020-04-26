@@ -126,7 +126,7 @@ public class FullServer
 		Constraint constraint = new Constraint();
 		constraint.setName("auth");
 		constraint.setAuthenticate(true);
-		constraint.setRoles(new String[] { "admin" });
+		constraint.setRoles(new String[] { "admin", "user" });
 		final ConstraintMapping constraintMapping = new ConstraintMapping();
 		constraintMapping.setConstraint(constraint);
 		constraintMapping.setPathSpec("/*");
