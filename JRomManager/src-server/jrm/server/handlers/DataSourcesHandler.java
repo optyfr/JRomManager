@@ -61,19 +61,23 @@ public class DataSourcesHandler extends DefaultHandler
 		{
 			final Map<String, String> headers = session.getHeaders();
 			final String bodylenstr = headers.get("content-length");
+			System.out.println(bodylenstr);
 			if (bodylenstr != null)
 			{
 				long bodylen = Long.parseLong(bodylenstr);
 				WebSession sess = Server.getSession(session.getCookies().read("session"));
+				System.out.println(headers.get("content-type"));
 				if (headers.get("content-type").equals("text/xml"))
 				{
 					TempFileInputStream response = null;
 					switch (urlParams.get("action"))
 					{
 						case "profilesTree":
+							System.out.println(urlParams.get("action"));
 							response = new ProfilesTreeXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 							break;
 						case "profilesList":
+							System.out.println(urlParams.get("action"));
 							response = new ProfilesListXMLResponse(new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen)).processRequest();
 							break;
 						case "remoteFileChooser":
@@ -122,8 +126,9 @@ public class DataSourcesHandler extends DefaultHandler
 							new XMLRequest(sess, new BufferedInputStream(session.getInputStream()), bodylen);
 							break;
 					}
+					System.out.println(response);
 					if(response!=null)
-						NanoHTTPD.newFixedLengthResponse(Status.OK, "text/xml", response, response.getLength());
+						return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/xml", response, response.getLength());
 				}
 				else
 					session.getInputStream().skip(bodylen);

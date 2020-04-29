@@ -11,7 +11,6 @@ import de.mkammerer.argon2.Argon2Factory;
 import de.mkammerer.argon2.Argon2Factory.Argon2Types;
 import jrm.fullserver.db.SQL;
 import lombok.Getter;
-import lombok.val;
 
 @SuppressWarnings("serial") public class CryptCredential extends Credential
 {
@@ -30,8 +29,7 @@ import lombok.val;
 	{
 		try
 		{
-			user = sql.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<>(UserCredential.class), username);
-			if (user != null) // si il y a un bien un user avec le login correspondant
+			if (null != (user = sql.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<>(UserCredential.class), username)))
 				return check(credentials.toString(), user.getPassword());
 		
 		}
@@ -69,8 +67,7 @@ import lombok.val;
 			return password;
 		try
 		{
-			val argon2 = Argon2Factory.create(Argon2Types.ARGON2id);
-			password = argon2.hash(40, 65536, 4, password.toCharArray());
+			password = Argon2Factory.create(Argon2Types.ARGON2id).hash(40, 65536, 4, password.toCharArray());
 		}
 		catch (Throwable e)
 		{
