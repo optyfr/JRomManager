@@ -155,15 +155,21 @@ public class CreateContainer extends ContainerAction
 				Log.err(e.getMessage(),e);
 			}
 		}
-		else if (container.getType() == Container.Type.DIR)
+		else if (container.getType() == Container.Type.DIR || container.getType() == Container.Type.FAKE)
 		{
 			try
 			{
-				final Path target = container.getFile().toPath();
-				if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
-					Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x"))); //$NON-NLS-1$
+				final Path target;
+				if (container.getType() == Container.Type.DIR)
+				{
+					target = container.getFile().toPath();
+					if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
+						Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x"))); //$NON-NLS-1$
+					else
+						Files.createDirectories(target);
+				}
 				else
-					Files.createDirectories(target);
+					target = container.getFile().getParentFile().toPath();
 				int i = 0;
 				for (final EntryAction action : entry_actions)
 				{

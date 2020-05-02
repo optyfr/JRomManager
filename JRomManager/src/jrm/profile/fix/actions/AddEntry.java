@@ -81,6 +81,22 @@ public class AddEntry extends EntryAction
 				Log.err("add from " + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
+		else if(entry.parent.getType() == Type.FAKE)
+		{
+			try
+			{
+				Path parent_dstpath = dstpath.getParent(); 
+				if(parent_dstpath != null)
+					Files.createDirectories(parent_dstpath);
+				srcpath = entry.parent.getFile().getParentFile().toPath().resolve(entry.getFile());
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				return true;
+			}
+			catch (IOException e)
+			{
+				Log.err("add from " + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			}
+		}
 		else if(entry.parent.getType() == Type.ZIP)
 		{
 			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.getFile().toPath(), Collections.singletonMap("readOnly", true));)
@@ -142,6 +158,22 @@ public class AddEntry extends EntryAction
 				Log.err("add from " + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
+		else if(entry.parent.getType() == Type.FAKE)
+		{
+			try
+			{
+				srcpath = entry.parent.getFile().getParentFile().toPath().resolve(entry.getFile());
+				Path parent = dstpath.getParent(); 
+				if(parent != null)
+					Files.createDirectories(parent);
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				return true;
+			}
+			catch (IOException e)
+			{
+				Log.err("add from " + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			}
+		}
 		else if(entry.parent.getType() == Type.ZIP)
 		{
 			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.getFile().toPath(), Collections.singletonMap("readOnly", true));)
@@ -192,6 +224,18 @@ public class AddEntry extends EntryAction
 			try
 			{
 				Path srcpath = entry.parent.getFile().toPath().resolve(entry.getFile());
+				return dstarchive.add(srcpath.toFile(), entity.getName()) == 0;
+			}
+			catch (IOException e)
+			{
+				Log.err("add from " + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed",e);
+			}
+		}
+		else if(entry.parent.getType() == Type.FAKE)
+		{
+			try
+			{
+				Path srcpath = entry.parent.getFile().getParentFile().toPath().resolve(entry.getFile());
 				return dstarchive.add(srcpath.toFile(), entity.getName()) == 0;
 			}
 			catch (IOException e)

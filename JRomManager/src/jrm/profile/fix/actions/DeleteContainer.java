@@ -17,6 +17,7 @@
 package jrm.profile.fix.actions;
 
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -26,6 +27,7 @@ import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
+import lombok.val;
 
 /**
  * Delete a container (will all its entries)
@@ -78,6 +80,22 @@ public class DeleteContainer extends ContainerAction
 			{
 				System.err.println("failed to delete " + container.getRelFile()); //$NON-NLS-1$
 				return false;
+			}
+		}
+		else if(container.getType() == Container.Type.FAKE)
+		{
+			for(val entry : container.getEntries())
+			{
+				try
+				{
+					Files.deleteIfExists(container.getFile().getParentFile().toPath().resolve(entry.getFile())); 
+					return true;
+				}
+				catch(final IOException e)
+				{
+					System.err.println("failed to delete " + container.getRelFile()); //$NON-NLS-1$
+					return false;
+				}
 			}
 		}
 		else if(container.getType() == Container.Type.UNK)

@@ -32,7 +32,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import JTrrntzip.TrrntZipStatus;
@@ -50,12 +49,14 @@ import jrm.profile.data.Directory;
 import jrm.profile.data.Disk;
 import jrm.profile.data.EntityStatus;
 import jrm.profile.data.Entry;
+import jrm.profile.data.FakeDirectory;
 import jrm.profile.data.Machine;
 import jrm.profile.data.Rom;
 import jrm.profile.data.Sample;
 import jrm.profile.data.Samples;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
+import jrm.profile.data.Container.Type;
 import jrm.profile.fix.actions.AddEntry;
 import jrm.profile.fix.actions.BackupContainer;
 import jrm.profile.fix.actions.BackupEntry;
@@ -536,11 +537,15 @@ public class Scan extends PathAbstractor
 		allscans.add(dstscan = new DirScan(profile, dstdir, handler, true));
 		for (final Container c : dstscan.getContainersIterable())
 		{
-			if (c.getType() == Container.Type.UNK)
+			if (c.getType() == Type.UNK)
 				unknown.add(c);
-			else if (!byname.containsFilteredName(FilenameUtils.getBaseName(c.getFile().toString())))
+/*			else if(c.getType() == Type.FAKE && format == FormatOptions.DIR)
+				unknown.add(c);*/
+			else if(c.getType() == Type.DIR && format == FormatOptions.FAKE)
+				unknown.add(c);
+			else if (!byname.containsFilteredName(getBaseName(c.getFile())))
 			{
-				if(byname.containsName(FilenameUtils.getBaseName(c.getFile().toString())))
+				if(byname.containsName(getBaseName(c.getFile())))
 					unneeded.add(c);
 				else
 					unknown.add(c);
@@ -549,6 +554,16 @@ public class Scan extends PathAbstractor
 		return dstscan;
 	}
 
+	private static String getBaseName(File file)
+	{
+		String name = file.getName();
+		final int last = name.lastIndexOf('.');
+		if(last > 0)
+			if(name.substring(last).indexOf(' ')==-1)
+				name = name.substring(0, last);
+		return name;
+	}
+	
 	/**
 	 * Determinate if a container need to be torrentzipped
 	 * @param report_subject a SubjectSet containing the report about this archive
@@ -945,7 +960,7 @@ public class Scan extends PathAbstractor
 								final Rom another_rom;
 								if (null != (another_rom = roms_byname.get(efile)) && candidate_entry.equals(another_rom))
 								{
-									Log.debug(()->"\t\t\tand the entry " + efile + " is ANOTHER the rom");
+									Log.debug(()->"\t\t\tand the entry " + efile + " is ANOTHER rom");
 									if (entries_byname.containsKey(rom.getNormalizedName())) // and rom name is in the entries
 									{
 										Log.debug(()->"\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entries_byname");
@@ -1375,8 +1390,10 @@ public class Scan extends PathAbstractor
 		File f;
 		final Directory directory = new Directory(f=new File(disks_dstscan.getDir(), ware.getDest().getName()), getRelativePath(f), ware);
 		final Container archive;
-		if (format.getExt().isDir())
+		if (format==FormatOptions.DIR)
 			archive = new Directory(f=new File(roms_dstscan.getDir(), ware.getDest().getName()), getRelativePath(f), ware);
+		else if (format==FormatOptions.FAKE)
+			archive = new FakeDirectory(f=new File(roms_dstscan.getDir(), ware.getDest().getName()), getRelativePath(f), ware);
 		else
 			archive = new Archive(f=new File(roms_dstscan.getDir(), ware.getDest().getName() + format.getExt()), getRelativePath(f), ware);
 		final List<Rom> roms = ware.filterRoms();

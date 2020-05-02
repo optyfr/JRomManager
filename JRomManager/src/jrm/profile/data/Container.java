@@ -50,11 +50,11 @@ public class Container implements Serializable, Comparable<Container>
 	/**
 	 * Last modified date
 	 */
-	public long modified = 0L;
+	public @Getter long modified = 0L;
 	/**
 	 * file size in bytes or 0 if folder
 	 */
-	public long size = 0L;
+	public @Getter long size = 0L;
 
 	/**
 	 * keep entries by name
@@ -112,7 +112,11 @@ public class Container implements Serializable, Comparable<Container>
 		/**
 		 * This is a Rar archive
 		 */
-		RAR
+		RAR,
+		/**
+		 * Fake container
+		 */
+		FAKE
 	};
 
 	private @Getter Type type = Type.UNK;

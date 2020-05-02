@@ -105,6 +105,7 @@ public class Entry implements Serializable
 	/**
 	 * construct based of a file string and its fetched attributes
 	 * @param file the file string (with relative path), extension will be tested against known types
+	 * @param relfile the relative version to show to user
 	 * @param attr the attributes as {@link BasicFileAttributes} class, will get file size and last modified time 
 	 */
 	public Entry(final String file, final String relfile, final BasicFileAttributes attr)
@@ -112,6 +113,20 @@ public class Entry implements Serializable
 		this(file, relfile);
 		size = attr.size();
 		modified = attr.lastModifiedTime().toMillis();
+	}
+
+	/**
+	 * construct based of a file string and its fetched attributes
+	 * @param file the file string (with relative path), extension will be tested against known types
+	 * @param relfile the relative version to show to user
+	 * @param size size of entry 
+	 * @param modified last modified time 
+	 */
+	public Entry(final String file, final String relfile, final long size, final long modified)
+	{
+		this(file, relfile);
+		this.size = size;
+		this.modified = modified;
 	}
 
 	public void rename(final String file, final String relfile)

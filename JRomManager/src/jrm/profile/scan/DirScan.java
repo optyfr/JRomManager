@@ -54,6 +54,7 @@ import java.util.zip.ZipError;
 
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+import org.apache.commons.io.FilenameUtils;
 
 import JTrrntzip.DummyLogCallback;
 import JTrrntzip.SimpleTorrentZipOptions;
@@ -75,8 +76,10 @@ import jrm.profile.data.Directory;
 import jrm.profile.data.Disk;
 import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
+import jrm.profile.data.FakeDirectory;
 import jrm.profile.data.Rom;
 import jrm.profile.scan.options.FormatOptions;
+import jrm.profile.scan.options.FormatOptions.Ext;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.progress.ProgressHandler;
@@ -358,18 +361,21 @@ public final class DirScan extends PathAbstractor
 					final BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
 					if(is_dest)
 					{
-						if(null == (c = containers_byname.get(file.getName())) /* new container */ || ((c.modified != attr.lastModifiedTime().toMillis() /* container date changed */ || (c instanceof Archive && c.size != attr.size()) /* container size changed */) && !c.up2date /* not up to date */))
+						val type = attr.isRegularFile() ? Container.getType(file) : Type.DIR;
+						val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
+						if(null == (c = containers_byname.get(fname)) /* new container */ || ((c.modified != attr.lastModifiedTime().toMillis() /* container date changed */ || (c instanceof Archive && c.size != attr.size()) /* container size changed */) && !c.up2date /* not up to date */))
 						{
 							if(attr.isRegularFile())
-								containers.add(c = new Archive(file, getRelativePath(file), attr));
+							{
+								if (type != Container.Type.UNK)
+									containers.add(c = new Archive(file, getRelativePath(file), attr));
+								else
+									containers.add(c = new FakeDirectory(file, getRelativePath(file), attr));
+							}
 							else
 								containers.add(c = new Directory(file, getRelativePath(file), attr));
-							if(c != null)
-							{
-								// container listed
-								c.up2date = true;
-								containers_byname.put(file.getName(), c);
-							}
+							containers_byname.put(fname, c);
+							c.up2date = true;
 						}
 						else if(!c.up2date)
 						{
@@ -385,26 +391,40 @@ public final class DirScan extends PathAbstractor
 						 */
 						if(attr.isRegularFile()) // We test only regular files even for directory containers (must contains at least 1 file)
 						{
-							if(Container.getType(file) == Type.UNK || archives_and_chd_as_roms)	// maybe we did found a potential directory container with unknown type files inside)
+							val type = Container.getType(file);
+							if(type == Type.UNK || archives_and_chd_as_roms)	// maybe we did found a potential directory container with unknown type files inside)
 							{
 								if(path.equals(file.getParentFile().toPath()))	// skip if parent is the entry point
-									return;
-								final File parent_dir = file.getParentFile();
-								final BasicFileAttributes parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
-								final Path relative  = path.relativize(p.getParent());
-								if(null == (c = containers_byname.get(relative.toString())) || (c.modified != parent_attr.lastModifiedTime().toMillis() && !c.up2date))
 								{
-									containers.add(c = new Directory(parent_dir, getRelativePath(parent_dir), attr));
-									if(c != null)
+									val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
+									if(null == (c = containers_byname.get(fname)) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
 									{
+										containers.add(c = new FakeDirectory(file, getRelativePath(file), attr));
+										containers_byname.put(fname, c);
+										c.up2date = true;
+									}
+									else if(!c.up2date)
+									{
+										containers.add(c);
+										c.up2date = true;
+									}
+								}
+								else
+								{
+									final File parent_dir = file.getParentFile();
+									final BasicFileAttributes parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
+									final Path relative  = path.relativize(p.getParent());
+									if(null == (c = containers_byname.get(relative.toString())) || (c.modified != parent_attr.lastModifiedTime().toMillis() && !c.up2date))
+									{
+										containers.add(c = new Directory(parent_dir, getRelativePath(parent_dir), attr));
 										c.up2date = true;
 										containers_byname.put(relative.toString(), c);
 									}
-								}
-								else if(!c.up2date)
-								{
-									c.up2date = true;
-									containers.add(c);
+									else if(!c.up2date)
+									{
+										c.up2date = true;
+										containers.add(c);
+									}
 								}
 							}
 							else	// otherwise it's an archive file
@@ -413,11 +433,8 @@ public final class DirScan extends PathAbstractor
 								if(null == (c = containers_byname.get(relative.toString())) || ((c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size()) && !c.up2date))
 								{
 									containers.add(c = new Archive(file, getRelativePath(file), attr));
-									if(c != null)
-									{
-										c.up2date = true;
-										containers_byname.put(relative.toString(), c);
-									}
+									c.up2date = true;
+									containers_byname.put(relative.toString(), c);
 								}
 								else if(!c.up2date)
 								{
@@ -436,11 +453,8 @@ public final class DirScan extends PathAbstractor
 									if(null == (c = containers_byname.get(relative.toString())) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
 									{
 										containers.add(c = new Directory(file, getRelativePath(file), attr));
-										if(c != null)
-										{
-											c.up2date = true;
-											containers_byname.put(relative.toString(), c);
-										}
+										c.up2date = true;
+										containers_byname.put(relative.toString(), c);
 									}
 									else if(!c.up2date)
 									{
@@ -586,6 +600,16 @@ public final class DirScan extends PathAbstractor
 							{
 								
 							}
+							c.loaded = need_sha1_or_md5 ? 2 : 1;
+							break;
+						}
+						case FAKE:
+						{
+							Entry entry = new Entry(c.getFile().getName().toString(),c.getRelFile().getName().toString(), c.getSize(), c.getModified());
+							if(archives_and_chd_as_roms)
+								entry.type = Entry.Type.UNK;
+							handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()) , -1, null, c.getFile().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+							update_entry(c.add(entry), c.getFile().toPath());
 							c.loaded = need_sha1_or_md5 ? 2 : 1;
 							break;
 						}

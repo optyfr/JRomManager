@@ -69,6 +69,12 @@ public class BackupEntry extends EntryAction
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
+			else if(entry.parent.getType() == Type.FAKE)
+			{
+				srcpath = entry.parent.getFile().getParentFile().toPath().resolve(entry.getFile());
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				return true;
+			}
 			else if(entry.parent.getType() == Type.ZIP)
 			{
 				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.getFile().toPath(), null);)

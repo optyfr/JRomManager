@@ -31,10 +31,6 @@ import lombok.RequiredArgsConstructor;
 public @RequiredArgsConstructor enum FormatOptions
 {
 	/**
-	 * Standard folder
-	 */
-	DIR(Messages.getString("FormatOptions.Directories"), Ext.DIR), //$NON-NLS-1$
-	/**
 	 * Zip (internally handled via {@link ZipFileSystemProvider})
 	 */
 	ZIP(Messages.getString("FormatOptions.Zip"), Ext.ZIP), //$NON-NLS-1$
@@ -49,7 +45,16 @@ public @RequiredArgsConstructor enum FormatOptions
 	/**
 	 * Zip (torrentzipped by jtrrntzip)
 	 */
-	TZIP(Messages.getString("FormatOptions.TorrentZip"), Ext.ZIP); //$NON-NLS-1$
+	TZIP(Messages.getString("FormatOptions.TorrentZip"), Ext.ZIP), //$NON-NLS-1$
+	/**
+	 * Standard folder
+	 */
+	DIR(Messages.getString("FormatOptions.Directories"), Ext.DIR), //$NON-NLS-1$
+	/**
+	 * Single file (fake folder)
+	 */
+	FAKE(Messages.getString("FormatOptions.SingleFile"), Ext.FAKE); //$NON-NLS-1$
+
 
 	/**
 	 * Supported file container extensions
@@ -67,7 +72,11 @@ public @RequiredArgsConstructor enum FormatOptions
 		/**
 		 * .7z for sevenzip format
 		 */
-		SEVENZIP(".7z"); //$NON-NLS-1$
+		SEVENZIP(".7z"), //$NON-NLS-1$
+		/**
+		 * fake folder (fake extension)
+		 */
+		FAKE(".$$$"); //$NON-NLS-1$
 
 		private final String ext;
 

@@ -153,9 +153,9 @@ public class OpenContainer extends ContainerAction
 				Log.err(e.getMessage(),e);
 			}
 		}
-		else if (container.getType() == Container.Type.DIR)
+		else if (container.getType() == Container.Type.DIR || container.getType() == Container.Type.FAKE)
 		{
-			final Path target = container.getFile().toPath();
+			final Path target = container.getType() == Container.Type.DIR ? container.getFile().toPath() : container.getFile().getParentFile().toPath();
 			int i = 0;
 			for (final EntryAction action : entry_actions)
 			{
@@ -166,7 +166,8 @@ public class OpenContainer extends ContainerAction
 					return false;
 				}
 			}
-			deleteEmptyFolders(container.getFile());
+			if (container.getType() == Container.Type.DIR)
+				deleteEmptyFolders(container.getFile());
 			return true;
 		}
 		return false;
