@@ -5,7 +5,7 @@ A Rom Manager entirely written in Java and released under GPL-2
 [Screenshots](https://github.com/optyfr/JRomManager/wiki/Screenshots)
 
 ## Disclaimer
-**Your are responsible of the rom that you donwload or that you share, in other words, if you don't own the original game and the game is not copyleft then downloading or sharing roms is illegal!!!**
+**Your are responsible of the rom that you donwload or that you share using this Software, in other words: if you don't own the original game and the game is not copyleft, then downloading or sharing roms is illegal!!!**
 
 ## Licensing
 - **GPL-2** : JRomManager, [JUpdater](https://github.com/optyfr/JUpdater), [JLauncher](https://github.com/optyfr/JLauncher), TorrentParser (based on [torrent-parser](https://github.com/m1dnight/torrent-parser) by Christophe de Troyer), [Tanuki Java Service Wrapper](https://wrapper.tanukisoftware.com)
@@ -157,6 +157,5 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Rom resizing
 
 ## Known issues
-- ~~Never ever launch multiple instances of JRomManager, because 7zJBinding does have problem with this , and also because you may get stranges other things~~ *(Prevented app to launch twice)*
-- JRomManager is still in early developpement stage, do not complain if it broke your romset and you didn't make any copy or backup
+- JRomManager were made on my free time, it may not be perfect for all usage, please don't complain if it broke your romset, it is your responsability to make backup before using this tool
 - Zip integrated in java can leave useless directory entries in zip central directory, it is by design, and this implementation is the fastest available, this will not disturb Mame or any emulator, but clrmamepro will complain about useless dirs, and trrntzip will remove those entries as expected :wink:
