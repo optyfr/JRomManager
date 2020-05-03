@@ -108,14 +108,20 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 	- Dir Updater : to update many dats files to many dirs. Accept dirs of dats as source (software list mode)
 	- Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode. Include detail viewer to see what is missing and what is wrong (tree view by piece for SHA1 mode)
 	- Compressor : to compress many files at a time from any format to Zip, TrntZip, or 7ZIP 
-- Server mode + Web Client (EXPERIMENTAL).
+- Simple Server mode.
 	- JRomManager can listen to a defined port and serve a web interface instead of the classical Swing gui
 	- The initial purpose of the server mode is to run JRomManager on headless server and directly on NAS
 	- The Web interface is full feature complete, and very powerful, thanks to SmartGWT from isomorphic
-	- This feature is **experimental**, it means that :
+	- This feature is for basic usage, it means that :
 		- It has not been tested over the internet => the purpose is to access from intranet
 		- It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
 		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
+- Full Server mode, include all features from Simple server mode plus the following:
+	- Made for a "community or family usage" over the Internet **provided that each one own the original version of the shared roms, or that the roms are copyleft**
+	- Multi-user with access rights, and separated workdir, a shared read-only space, and no access to entire FileSystem
+	- Totally secured (separate accounts with login/password, HTTPS with TLS 1.3, server certificate handling and auto reload, ...)
+	- HTTP2 support (only with TLS 1.2) which permit long polling request usage in place of websockets without loosing too much network performance
+	- This mode is still **experimental**, work still need to be made on disk/thread quotas, and a firewall with IP filtering may be required to get full control on who is attempting to connect 
 - Install as a service (Server mode)
 	- See [Server Mode](https://github.com/optyfr/JRomManager/wiki/Server-mode#server-mode) in the wiki
 - RAR4 and RAR5 decompression
