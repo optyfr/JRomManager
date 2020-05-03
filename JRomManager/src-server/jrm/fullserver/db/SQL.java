@@ -39,7 +39,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import lombok.var;
 
 @RequiredArgsConstructor
 public abstract class SQL implements SQLUtils, Closeable
@@ -97,8 +96,8 @@ public abstract class SQL implements SQLUtils, Closeable
 	{
 		if(!supportsArrayParams() && findArrayParam(args) != -1)
 		{
-			final var select_ref = new AtomicReference<String>(select);
-			final var args_ref = new AtomicReference<Object[]>(args);
+			val select_ref = new AtomicReference<String>(select);
+			val args_ref = new AtomicReference<Object[]>(args);
 			convertArrayParams(select_ref, args_ref);
 			select = select_ref.get();
 			args = args_ref.get();
@@ -111,8 +110,8 @@ public abstract class SQL implements SQLUtils, Closeable
 	{
 		if(!supportsArrayParams() && findArrayParam(args) != -1)
 		{
-			final var select_ref = new AtomicReference<String>(select);
-			final var args_ref = new AtomicReference<Object[]>(args);
+			val select_ref = new AtomicReference<String>(select);
+			val args_ref = new AtomicReference<Object[]>(args);
 			convertArrayParams(select_ref, args_ref);
 			select = select_ref.get();
 			args = args_ref.get();
@@ -685,8 +684,8 @@ public abstract class SQL implements SQLUtils, Closeable
 	{
 		if(!supportsArrayParams() && findArrayParam(args) != -1)
 		{
-			final var select_ref = new AtomicReference<String>(select);
-			final var args_ref = new AtomicReference<Object[]>(args);
+			val select_ref = new AtomicReference<String>(select);
+			val args_ref = new AtomicReference<Object[]>(args);
 			convertArrayParams(select_ref, args_ref);
 			select = select_ref.get();
 			args = args_ref.get();
@@ -707,8 +706,8 @@ public abstract class SQL implements SQLUtils, Closeable
 	{
 		if(!supportsArrayParams() && findArrayParam(args) != -1)
 		{
-			final var select_ref = new AtomicReference<String>(select);
-			final var args_ref = new AtomicReference<Object[]>(args);
+			val select_ref = new AtomicReference<String>(select);
+			val args_ref = new AtomicReference<Object[]>(args);
 			convertArrayParams(select_ref, args_ref);
 			select = select_ref.get();
 			args = args_ref.get();
@@ -723,8 +722,8 @@ public abstract class SQL implements SQLUtils, Closeable
 			select += " LIMIT 1";
 		if(!supportsArrayParams() && findArrayParam(args) != -1)
 		{
-			final var select_ref = new AtomicReference<String>(select);
-			final var args_ref = new AtomicReference<Object[]>(args);
+			val select_ref = new AtomicReference<String>(select);
+			val args_ref = new AtomicReference<Object[]>(args);
 			convertArrayParams(select_ref, args_ref);
 			select = select_ref.get();
 			args = args_ref.get();
@@ -737,8 +736,8 @@ public abstract class SQL implements SQLUtils, Closeable
 	{
 		if(!supportsArrayParams() && findArrayParam(args) != -1)
 		{
-			final var update_ref = new AtomicReference<String>(update);
-			final var args_ref = new AtomicReference<Object[]>(args);
+			val update_ref = new AtomicReference<String>(update);
+			val args_ref = new AtomicReference<Object[]>(args);
 			convertArrayParams(update_ref, args_ref);
 			update = update_ref.get();
 			args = args_ref.get();
@@ -790,8 +789,8 @@ public abstract class SQL implements SQLUtils, Closeable
 	
 	private void convertArrayParams(AtomicReference<String> query_ref, AtomicReference<Object[]> args_ref)
 	{
-		var args = args_ref.get();
-		var query = query_ref.get();
+		Object[] args = args_ref.get();
+		String query = query_ref.get();
 		int pos;
 		while(-1 != (pos = findArrayParam(args)))
 		{

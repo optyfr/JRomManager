@@ -445,6 +445,7 @@ javadoc {
 	options.showAll()
 	options.with {
 		links 'https://docs.oracle.com/javase/8/docs/api/'
+		source '8'
 	}
 }
 
