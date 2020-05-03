@@ -26,7 +26,8 @@ _Minimal development requirements_:
 	- Apache Commons Compress 1.+ (used solely to list 7zip content)
 	- StreamEx 0.7.+
 	- SevenZipJBinding 16.02-2.01 (faster than using 7z cmd line)
-	- NanoHTTPD 2.+
+	- NanoHTTPD 2.+ (simple server mode)
+	- Jetty 9.x (full server mode)
 - Git submodules dependencies
 	- [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
 	- [JUpdater](https://github.com/optyfr/JUpdater)
@@ -118,6 +119,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
 - Full Server mode, include all features from Simple server mode plus the following:
 	- Made for a "community or family usage" over the Internet **provided that each one own the original version of the shared roms, or that the roms are copyleft**
+	- Jetty is used instead of NanoHTTPd
 	- Multi-user with access rights, and separated workdir, a shared read-only space, and no access to entire FileSystem
 	- Totally secured (separate accounts with login/password, HTTPS with TLS 1.3, server certificate handling and auto reload, ...)
 	- HTTP2 support (only with TLS 1.2) which permit long polling request usage in place of websockets without loosing too much network performance
@@ -128,15 +130,14 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Multi-volume decompression (RAR and 7Zip)
 - Command Line Mode with access to all functionalities and environment variable support
 - Copy to clipboard and search on the web functions 
+- "Single file" compression mode : to store single rom games without directories nor compression, this mode will work correctly only if:
+	- There is only 1 rom per game and no relationship between games (parent/clone)
+	- The name of the game is the same than the name of the rom (minus the rom file extension)
 
 ## Short Term Planned Features
 - Mode to keep existing container archive format
-- Use jetty instead of nanoHttpd for a more robust http server (Server mode)
-- Multi User and access rights (Server mode with jetty)
-- Encrypted connections (Server mode with jetty)
 
 ## Middle Term Planned Features
-- Alternative to WebSockets (Server mode)
 - More Translations
 - Headered roms support
 - Auto update option (and show Changes log after auto-update)
