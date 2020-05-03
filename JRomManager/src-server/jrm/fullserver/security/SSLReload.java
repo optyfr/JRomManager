@@ -39,6 +39,7 @@ public class SSLReload extends TimerTask
 		{
 			Log.err("Error while reloading SSL certificate", e);
 		}
+		cancel();
 		schedule();
 	}
 	
