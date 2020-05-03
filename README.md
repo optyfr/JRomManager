@@ -4,6 +4,9 @@ A Rom Manager entirely written in Java and released under GPL-2
 
 [Screenshots](https://github.com/optyfr/JRomManager/wiki/Screenshots)
 
+## Disclaimer
+**Your are responsible of the rom that you donwload or that you share, in other words, if you don't own the original game and the game is not copyleft then downloading or sharing roms is illegal!!!**
+
 ## Licensing
 - **GPL-2** : JRomManager, [JUpdater](https://github.com/optyfr/JUpdater), [JLauncher](https://github.com/optyfr/JLauncher), TorrentParser (based on [torrent-parser](https://github.com/m1dnight/torrent-parser) by Christophe de Troyer), [Tanuki Java Service Wrapper](https://wrapper.tanukisoftware.com)
 - **GPL-2 with classpath exception** : zipfs (from [OpenJDK 9](http://hg.openjdk.java.net/jdk9/jdk9/jdk/))
@@ -118,7 +121,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 		- It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
 		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
 - Full Server mode, include all features from Simple server mode plus the following:
-	- Made for a "community or family usage" over the Internet **provided that each one own the original version of the shared roms, or that the roms are copyleft**
+	- Made for a "community or family usage" over the Internet **provided that each one own the original games for the shared roms, or that the roms are copyleft (see [disclaimer](#disclaimer) above)**
 	- Jetty is used instead of NanoHTTPd
 	- Multi-user with access rights, and separated workdir, a shared read-only space, and no access to entire FileSystem
 	- Totally secured (separate accounts with login/password, HTTPS with TLS 1.3, server certificate handling and auto reload, ...)
