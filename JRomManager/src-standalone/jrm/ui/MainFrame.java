@@ -116,9 +116,11 @@ public class MainFrame extends JFrame
 		String version = ""; //$NON-NLS-1$
 		final Package pkg = this.getClass().getPackage();
 		if (pkg.getSpecificationVersion() != null)
-			version += " " + pkg.getSpecificationVersion(); //$NON-NLS-1$
-		if (pkg.getImplementationVersion() != null)
-			version += " " + pkg.getImplementationVersion(); //$NON-NLS-1$
+		{
+			version += pkg.getSpecificationVersion(); //$NON-NLS-1$
+			if (pkg.getImplementationVersion() != null)
+				version += "." + pkg.getImplementationVersion(); //$NON-NLS-1$
+		}
 		return version;
 	}
 
@@ -128,9 +130,7 @@ public class MainFrame extends JFrame
 	private void build()
 	{
 		setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/jrm/resicons/rom.png"))); //$NON-NLS-1$
-		setTitle(Messages.getString("MainFrame.Title")
-				+ getVersion()	// $hide$
-		); //$NON-NLS-1$
+		setTitle(Messages.getString("MainFrame.Title") + " " + getVersion()); //$NON-NLS-1$ $NON-NLS-2$
 		setBounds(50, 50, 1007, 601);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
