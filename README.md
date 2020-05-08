@@ -9,27 +9,27 @@ A Rom Manager entirely written in Java and released under GPL-2
 
 ## Licensing
 - **GPL-2** :
-	- JRomManager,
-	- [JUpdater](https://github.com/optyfr/JUpdater),
-	- [JLauncher](https://github.com/optyfr/JLauncher),
-	- TorrentParser (based on [torrent-parser](https://github.com/m1dnight/torrent-parser) by Christophe de Troyer),
-	- [Tanuki Java Service Wrapper](https://wrapper.tanukisoftware.com)
+    - JRomManager,
+    - [JUpdater](https://github.com/optyfr/JUpdater),
+    - [JLauncher](https://github.com/optyfr/JLauncher),
+    - TorrentParser (based on [torrent-parser](https://github.com/m1dnight/torrent-parser) by Christophe de Troyer),
+    - [Tanuki Java Service Wrapper](https://wrapper.tanukisoftware.com)
 - **GPL-2 with classpath exception** : zipfs (from [OpenJDK 9](http://hg.openjdk.java.net/jdk9/jdk9/jdk/))
 - **MIT** : 
-	- [Jtrrntzip](https://github.com/optyfr/Jtrrntzip) (based on [trrntZipDN](https://github.com/arogl/trrntzipDN) by Gordon J),
-	- [commonmark](https://github.com/atlassian/commonmark-java) (by Atlassian),
-	- [minimal-json](https://github.com/ralfstx/minimal-json) (by Ralf Sternberg),
-	- the [Lombok](https://projectlombok.org/) project
+    - [Jtrrntzip](https://github.com/optyfr/Jtrrntzip) (based on [trrntZipDN](https://github.com/arogl/trrntzipDN) by Gordon J),
+    - [commonmark](https://github.com/atlassian/commonmark-java) (by Atlassian),
+    - [minimal-json](https://github.com/ralfstx/minimal-json) (by Ralf Sternberg),
+    - the [Lombok](https://projectlombok.org/) project
 - **LGPL 2.1 with unRAR restriction** : [SevenZipJBinding](https://github.com/borisbrodski/sevenzipjbinding) (by Boris Brodski)
 - **LGPL 3** : [SmartGWT](https://www.smartclient.com/product/smartgwt.jsp) (Isomorphic)
 - **Apache 2.0** : 
-	- [StreamEx](https://github.com/amaembo/streamex) (by Tagir Valeev), 
-	- [Gradle build tool](https://github.com/gradle/gradle), 
-	- [Lombok Gradle plugin](https://github.com/franzbecker/gradle-lombok),
-	- [GWT SDK](http://www.gwtproject.org) (Google),
-	- [GWT WebSockets](https://github.com/sksamuel/gwt-websockets) (Stephen Samuel),
-	- [Jetty](https://www.eclipse.org/jetty/)
-	- and all the [Apache commons](https://commons.apache.org/) libraries
+    - [StreamEx](https://github.com/amaembo/streamex) (by Tagir Valeev), 
+    - [Gradle build tool](https://github.com/gradle/gradle), 
+    - [Lombok Gradle plugin](https://github.com/franzbecker/gradle-lombok),
+    - [GWT SDK](http://www.gwtproject.org) (Google),
+    - [GWT WebSockets](https://github.com/sksamuel/gwt-websockets) (Stephen Samuel),
+    - [Jetty](https://www.eclipse.org/jetty/)
+    - and all the [Apache commons](https://commons.apache.org/) libraries
 - **BSD 3** : [NanoHTTPD](https://github.com/NanoHttpd/nanohttpd)
 
 ## Technical
@@ -37,21 +37,21 @@ _Minimal development requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature and Gradle Buildship
 - Java 8
 - Gradle dependencies (via Maven repositories)
-	- Apache Commons Codec 1.+ 
-	- Apache Commons CLI 1.+ 
-	- Apache Commons IO 2.+
-	- Apache Commons Lang3 3.+
-	- Apache Commons Text 1.+
-	- Apache Commons Compress 1.+ (used solely to list 7zip content)
-	- StreamEx 0.7.+
-	- SevenZipJBinding 16.02-2.01 (faster than using 7z cmd line)
-	- NanoHTTPD 2.+ (simple server mode)
-	- Jetty 9.x (full server mode)
+    - Apache Commons Codec 1.+ 
+    - Apache Commons CLI 1.+ 
+    - Apache Commons IO 2.+
+    - Apache Commons Lang3 3.+
+    - Apache Commons Text 1.+
+    - Apache Commons Compress 1.+ (used solely to list 7zip content)
+    - StreamEx 0.7.+
+    - SevenZipJBinding 16.02-2.01 (faster than using 7z cmd line)
+    - NanoHTTPD 2.+ (simple server mode)
+    - Jetty 9.x (full server mode)
 - Git submodules dependencies
-	- [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
-	- [JUpdater](https://github.com/optyfr/JUpdater)
-	- [JLauncher](https://github.com/optyfr/JLauncher)
-	- [JRomManager-WebClient](https://github.com/optyfr/JRomManager-WebClient)
+    - [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
+    - [JUpdater](https://github.com/optyfr/JUpdater)
+    - [JLauncher](https://github.com/optyfr/JLauncher)
+    - [JRomManager-WebClient](https://github.com/optyfr/JRomManager-WebClient)
 
 _Minimal usage requirements_:
 - 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)
@@ -110,12 +110,12 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - One-click easy updater (can be manually disabled at launch)
 - Jar installer
 - Extra merging and collision modes to generate PleasureDome compatible Mame sets, as of v0.198 :
-	- ROMs split => 100% torrent joining
-	- ROMs merged => 99.89% torrent joining (64MB missed)
-	- ROMs non-merged => 100% torrent joining
-	- BIOS-Devices => 90.60% torrent joining (12MB missed)
-	- SoftwareList Machine-BIOS-Devices => 70% torrent joining (10MB missed) since some machines exist with no SoftwareList available
-	- SoftwareList ROMs => not tested since it contains some non-supported software lists
+    - ROMs split => 100% torrent joining
+    - ROMs merged => 99.89% torrent joining (64MB missed)
+    - ROMs non-merged => 100% torrent joining
+    - BIOS-Devices => 90.60% torrent joining (12MB missed)
+    - SoftwareList Machine-BIOS-Devices => 70% torrent joining (10MB missed) since some machines exist with no SoftwareList available
+    - SoftwareList ROMs => not tested since it contains some non-supported software lists
 - An advanced progression window taking into account multi-threading operations
 - Backup option (per profile)
 - (De)select Game or Software individually, or upon keywords selection (keywords are terms between parenthesis in description), similar to 1G1R mode
@@ -125,36 +125,37 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Documented source and javadoc available
 - Dir2Dat
 - Batch Tools
-	- Dir Updater : to update many dats files to many dirs. Accept dirs of dats as source (software list mode)
-	- Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode. Include detail viewer to see what is missing and what is wrong (tree view by piece for SHA1 mode)
-	- Compressor : to compress many files at a time from any format to Zip, TrntZip, or 7ZIP 
+    - Dir Updater : to update many dats files to many dirs. Accept dirs of dats as source (software list mode)
+    - Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode. Include detail viewer to see what is missing and what is wrong (tree view by piece for SHA1 mode)
+    - Compressor : to compress many files at a time from any format to Zip, TrntZip, or 7ZIP 
 - Simple Server mode.
-	- JRomManager can listen to a defined port and serve a web interface instead of the classical Swing gui
-	- The initial purpose of the server mode is to run JRomManager on headless server and directly on NAS
-	- The Web interface is full feature complete, and very powerful, thanks to SmartGWT from isomorphic
-	- This feature is for basic usage, it means that :
-		- It has not been tested over the internet => the purpose is to access from intranet
-		- It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
-		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
+    - JRomManager can listen to a defined port and serve a web interface instead of the classical Swing gui
+    - The initial purpose of the server mode is to run JRomManager on headless server and directly on NAS
+    - The Web interface is full feature complete, and very powerful, thanks to SmartGWT from isomorphic
+    - This feature is for basic usage, it means that :
+        - It has not been tested over the internet => the purpose is to access from intranet
+        - It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
+        - There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
 - Full Server mode, include all features from Simple server mode plus the following:
-	- Made for a "community or family usage" over the Internet **provided that each one own the original games for the shared roms, or that the roms are copyleft (see [disclaimer](#disclaimer) above)**
-	- Jetty is used instead of NanoHTTPd
-	- Multi-user with access rights, and separated workdir, a shared read-only space, and no access to entire FileSystem
-	- Totally secured (separate accounts with login/password, HTTPS with TLS 1.3, server certificate handling and auto reload, ...)
-	- HTTP2 support (only with TLS 1.2) which permit long polling request usage in place of websockets without loosing too much network performance
-	- This mode is still **experimental**, work still need to be made on disk/thread quotas, and a firewall with IP filtering may be required to get full control on who is attempting to connect 
+    - Made for a "community or family usage" over the Internet **provided that each one own the original games for the shared roms, or that the roms are copyleft (see [disclaimer](#disclaimer) above)**
+    - Jetty is used instead of NanoHTTPd
+    - Multi-user with access rights, and separated workdir, a shared read-only space, and no access to entire FileSystem
+    - Totally secured (separate accounts with login/password, HTTPS with TLS 1.3, server certificate handling and auto reload, ...)
+    - HTTP2 support (only with TLS 1.2) which permit long polling request usage in place of websockets without loosing too much network performance
+    - This mode is still **experimental**, work still need to be made on disk/thread quotas, and a firewall with IP filtering may be required to get full control on who is attempting to connect 
 - Install as a service (Server mode)
-	- See [Server Mode](https://github.com/optyfr/JRomManager/wiki/Server-mode#server-mode) in the wiki
+    - See [Server Mode](https://github.com/optyfr/JRomManager/wiki/Server-mode#server-mode) in the wiki
 - RAR4 and RAR5 decompression
 - Multi-volume decompression (RAR and 7Zip)
 - Command Line Mode with access to all functionalities and environment variable support
 - Copy to clipboard and search on the web functions 
 - "Single file" compression mode : to store single rom games without directories nor compression, this mode will work correctly only if:
-	- There is only 1 rom per game and no relationship between games (parent/clone)
-	- The name of the game is the same than the name of the rom (minus the rom file extension)
+    - There is only 1 rom per game and no relationship between games (parent/clone)
+    - The name of the game is the same than the name of the rom (minus the rom file extension)
 
 ## Short Term Planned Features
 - Mode to keep existing container archive format
+- Disk/Threads quotas for "Full Server" mode
 
 ## Middle Term Planned Features
 - More Translations

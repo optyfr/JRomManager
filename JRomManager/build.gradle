@@ -142,6 +142,15 @@ subprojects {
 		}
 	}
 	jar {
+		manifest {
+			attributes(
+				"Manifest-Version"     : "1.0",
+				"Specification-Title"  : "JRomManager",
+				"Specification-Version": props.getProperty("Specification-Version"),
+				"Implementation-Title" : "jrm",
+				"Implementation-Version" : props.getProperty("Implementation-Version")
+			)
+		}
 		archiveName 'jrm-' + baseName + '-' + version + '.' + extension
 	}
 	
@@ -317,6 +326,14 @@ project(':JRomManager:jrmcore') {
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations'
 	}
+	jar {
+		manifest {
+			attributes(
+				"Specification-Title"  : "JRomManager Core",
+				"Implementation-Title" : "jrmcore",
+			)
+		}
+	}
 }
 
 project(':JRomManager:jrmcli') {
@@ -338,6 +355,14 @@ project(':JRomManager:jrmcli') {
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 	}
+	jar {
+		manifest {
+			attributes(
+				"Specification-Title"  : "JRomManager CLI",
+				"Implementation-Title" : "jrmcli",
+			)
+		}
+	}
 }
 
 project(':JRomManager:jrmupdater') {
@@ -351,6 +376,14 @@ project(':JRomManager:jrmupdater') {
 	dependencies {
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		implementation group: 'com.atlassian.commonmark', name: 'commonmark'
+	}
+	jar {
+		manifest {
+			attributes(
+				"Specification-Title"  : "JRomManager Updater",
+				"Implementation-Title" : "jupdater",
+			)
+		}
 	}
 }
 
@@ -366,6 +399,14 @@ project(':JRomManager:res-icons') {
 		}
 	}
 	dependencies {
+	}
+	jar {
+		manifest {
+			attributes(
+				"Specification-Title"  : "JRomManager Resources",
+				"Implementation-Title" : "res-icons",
+			)
+		}
 	}
 }
 
@@ -389,6 +430,14 @@ project(':JRomManager:jrmstandalone') {
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		compile 'com.sun.activation:javax.activation:1.2.0'
+	}
+	jar {
+		manifest {
+			attributes(
+				"Specification-Title"  : "JRomManager Standalone",
+				"Implementation-Title" : "jrmstandalone",
+			)
+		}
 	}
 }
 
@@ -422,6 +471,14 @@ project(':JRomManager:jrmserver') {
 		implementation group: 'com.h2database', name:'h2'
 		implementation group: 'org.mindrot', name:'jbcrypt'
 		implementation group: 'de.mkammerer', name:'argon2-jvm'
+	}
+	jar {
+		manifest {
+			attributes(
+				"Specification-Title"  : "JRomManager Server",
+				"Implementation-Title" : "jrmserver",
+			)
+		}
 	}
 }
 

@@ -1,3 +1,15 @@
+## Release v2.4.0
+- Added full server mode
+    - Made for an usage over the Internet (but it should be kept legal between users)
+    - Jetty is used instead of NanoHTTPd
+    - Multi-user with access rights, a per user WorkDir, a shared read-only space, and no access to the rest of the entire FileSystem
+    - Totally secured (separate accounts with login/password, HTTPS with TLS 1.3, server certificate handling and auto reload, obfuscated paths, ...)
+    - HTTP2 support (only with TLS 1.2) which permit long polling request usage in place of WebSockets without loosing too much network performance
+    - This mode is still **experimental**, work still need to be made on disk/thread quotas, and a firewall with IP filtering may be required to get full control on who is attempting to connect 
+- Implemented Long polling Request as alternative of WebSockets for simple server mode
+- New "Single File" mode, made for single ROM per game sets than can be kept in base directory without creating a sub-directory for each game...
+- Various fixes
+
 ## Release v2.3.0
 - Added "Copy CRC/SHA1/Name" menu entries on entities in Report views and in ProfileViewer
 - Added "Detail" menu on entries in Report views
@@ -10,10 +22,10 @@
 - Using custom sevenzipjbinding which include more architectures/os, and a more recent sevenzip version
 - RAR5 extraction (as per sevenzipjbinding update)
 - CLI version
-	- include access to all functionalities and more
-	- support for environment variables (replacement) and java system properties (replacement, set, and clear)
+    - include access to all functionalities and more
+    - support for environment variables (replacement) and java system properties (replacement, set, and clear)
 - Modularized building which permit special packages for server and cli excluding all code from standalone interface (swing)
-	- Most of the code were refactored and reorganized to get a total separation from core and standalone code
+    - Most of the code were refactored and reorganized to get a total separation from core and standalone code
 
 ## Release v2.1.0
 - RAR4 extraction
@@ -44,57 +56,57 @@
 - New naming scheme
 - Batch Compressor : to compress many files at a time from any format to Zip, TrntZip, or 7ZIP 
 - Server mode + Web Client (EXPERIMENTAL).
-	- JRomManager can listen to a defined port and serve a web interface instead of the classical Swing gui
-	- The initial purpose of the server mode is to run JRomManager on headless server and directly on NAS
-	- The Web interface is full feature complete, and very powerful, thanks to SmartGWT from isomorphic
-	- This feature is **experimental**, it means that :
-		- It has not been tested over the internet => the purpose is to access from intranet
-		- It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
-		- There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
-	- See the [wiki](https://github.com/optyfr/JRomManager/wiki/Server-mode#server-mode) for more informations on server mode and web client
+    - JRomManager can listen to a defined port and serve a web interface instead of the classical Swing gui
+    - The initial purpose of the server mode is to run JRomManager on headless server and directly on NAS
+    - The Web interface is full feature complete, and very powerful, thanks to SmartGWT from isomorphic
+    - This feature is **experimental**, it means that :
+        - It has not been tested over the internet => the purpose is to access from intranet
+        - It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
+        - There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
+    - See the [wiki](https://github.com/optyfr/JRomManager/wiki/Server-mode#server-mode) for more informations on server mode and web client
 - Fixed [issue #17](https://github.com/optyfr/JRomManager/issues/17)
 - Various fixes (and maybe new bugs?) implied by some code rework for server mode
 
 ## Release v1.9 build 29
 - Enhancements  
-	- Custom scan settings for dir updater batch tool
-	- Details and Report lists in Batch dir updater
-	- Torrent checker is able to detect wrongly archived folders and unzip them
-	- Created our own overlay for Gentoo Linux, releases will be in sync for this distribution :
-		- add the overlay using command `layman -o https://raw.githubusercontent.com/optyfr/jrommanager-gentoo/master/overlay.xml -f -a jrommanager`
-		- to keep in sync use `layman -s jrommanager`
+    - Custom scan settings for dir updater batch tool
+    - Details and Report lists in Batch dir updater
+    - Torrent checker is able to detect wrongly archived folders and unzip them
+    - Created our own overlay for Gentoo Linux, releases will be in sync for this distribution :
+        - add the overlay using command `layman -o https://raw.githubusercontent.com/optyfr/jrommanager-gentoo/master/overlay.xml -f -a jrommanager`
+        - to keep in sync use `layman -s jrommanager`
 - Minor enhancements  
-	- Torrent checker can now delete useless files and wrong files  
-	- Report log now include datetime in its name and does not overwrite the former log  
-	- Report log now include informations about originating dat/xml file and used scan settings 
-	- Added file selectors to Dir Updater and Torrent checker (drag & drop alternative)
+    - Torrent checker can now delete useless files and wrong files  
+    - Report log now include datetime in its name and does not overwrite the former log  
+    - Report log now include informations about originating dat/xml file and used scan settings 
+    - Added file selectors to Dir Updater and Torrent checker (drag & drop alternative)
 - Fixes  
-	- Added tooltips in table headers (batch tools and profile viewer)
-	- Bad Zip64 reading header
-	- Performance problem with machines with lot of roms (and so archives with lot of entries to compare to)
+    - Added tooltips in table headers (batch tools and profile viewer)
+    - Bad Zip64 reading header
+    - Performance problem with machines with lot of roms (and so archives with lot of entries to compare to)
 
 ## Release v1.8 build 28
 - Fixes
-  - Edge case found in scanner when two roms in same set need to be swapped (was resulting in removing one of the roms)
-  - Does not report wrong hash entry when it is fixable (and will be fixed), so that "dry run" mode return good fixed count
-  - More explicit result when torrent checking is successful
-  - Made multithreaded progress interface more robust, because it may be wrong under Linux as thread IDs are not reused like on windows 
+    - Edge case found in scanner when two roms in same set need to be swapped (was resulting in removing one of the roms)
+    - Does not report wrong hash entry when it is fixable (and will be fixed), so that "dry run" mode return good fixed count
+    - More explicit result when torrent checking is successful
+    - Made multithreaded progress interface more robust, because it may be wrong under Linux as thread IDs are not reused like on windows 
 
 ## Release v1.8 build 27
 - Fixes
-  - pop-up menu was missing in torrent checker, so that deleting entries was impossible
-  - torrent checking was unstoppable
-  - out of <workdir> dats (batch tools case) won't have anymore their cache, properties, and nfo files saved with them but instead they will be stored in <workdir>/work special dir
+    - pop-up menu was missing in torrent checker, so that deleting entries was impossible
+    - torrent checking was unstoppable
+    - out of <workdir> dats (batch tools case) won't have anymore their cache, properties, and nfo files saved with them but instead they will be stored in <workdir>/work special dir
 - Minor enhancements
-  - Multithreading enabled for torrent checker
-  - Individual selection for torrent check and directories updater
-  - added hints in batch tools tables
+    - Multithreading enabled for torrent checker
+    - Individual selection for torrent check and directories updater
+    - added hints in batch tools tables
 
 ## Release v1.8 build 26
 - Dir2Dat
 - Batch Tools
-  - Dir Updater : to update many dats files to many dirs. Accept dirs of dats as source (software list mode)
-  - Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode
+    - Dir Updater : to update many dats files to many dirs. Accept dirs of dats as source (software list mode)
+    - Torrent checker : to check many torrent to many dirs. From file name mode to sha1 mode
 
 ## Release v1.7 build 24
 - Executable launcher for windows (using [JLauncher](https://github.com/optyfr/JLauncher) project)
@@ -106,14 +118,14 @@
 ## Release v1.6 build 20
 - Machine/Software can individually (de)selected in Profile Viewer, this will impact the scan and filtered export
 - Possibility to auto(de)select by keywords,
-  - keywords list is built with all terms between parenthesis in each description
-  - keywords selection interface permit to choose which keywords is accepted and by order of priority
-  - autoselection will do the best to select only one game with the same name without keywords, and based upon keywords preference order (so that 1G1R and more should be possible this way)
+    - keywords list is built with all terms between parenthesis in each description
+    - keywords selection interface permit to choose which keywords is accepted and by order of priority
+    - autoselection will do the best to select only one game with the same name without keywords, and based upon keywords preference order (so that 1G1R and more should be possible this way)
 - backup profile option : Each deleted rom will be stored in a backup folder which is reused upon future scans, so that roms are never loose (but eat some disk space)
 - load device descriptions from profile to launch softwares with the correct media
 - there is now 2 launch options (made for packaging via official linux distribution tools) :
-  - --multiuser : set working folder inside home directory instead of app directory
-  - --noupdate : disable search for update 
+    - --multiuser : set working folder inside home directory instead of app directory
+    - --noupdate : disable search for update 
 - documentation available on [github wiki](https://github.com/optyfr/JRomManager/wiki)
 - fixed wrongly unneeded files when software list is present in profile
 - fixed problem with progress bar when thread id changed in between two parallel streams
@@ -171,18 +183,18 @@ dir but one is not present (should be green)
 - Export all/selected + filtered/unfiltered
 - Basic filter by Min/Max year
 - Advanced filtering:
-  - Filter by categories/subcategories using catver.ini (with an extra menu shortcut for mature exclusion/inclusion)
-  - Filter by nb of players using nplayers.ini
+    - Filter by categories/subcategories using catver.ini (with an extra menu shortcut for mature exclusion/inclusion)
+    - Filter by nb of players using nplayers.ini
 - More Drag & Drop
 - Added Samples support
 - Various code cleanups and optimizations
 
 ## Release v1.2 build 8
 - When Importing Software List, Roms will be also imported... As a consequence:
-  - Roms are displayed with software lists in profile viewer
-  - There is a jrm profile format (xml inside), that tell where to find the two mame xml files (roms + swlists)
-  - Roms ans SWLists are scanned at the same time
-  - There is now an optional software dir and an even more optional software disks dir
+    - Roms are displayed with software lists in profile viewer
+    - There is a jrm profile format (xml inside), that tell where to find the two mame xml files (roms + swlists)
+    - Roms ans SWLists are scanned at the same time
+    - There is now an optional software dir and an even more optional software disks dir
 - Double click on game name in profile viewer will launch game if (Mame is linked with profile and item is green)
 - Double click on software name in profile viewer will launch software with a valid machine (if Mame is linked with profile and item is green)
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
