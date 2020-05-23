@@ -106,6 +106,7 @@ public class ScannerSettingsPanel extends JPanel
 
 		JMenuItem mntmPdMameSplit = new JMenuItem(Messages.getString("MainFrame.mntmPdMameSplit.text")); //$NON-NLS-1$
 		mnPdMame.add(mntmPdMameSplit);
+		
 		mntmPdMameSplit.addActionListener(new ActionListener()
 		{
 			@Override

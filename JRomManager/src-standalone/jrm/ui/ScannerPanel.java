@@ -4,10 +4,13 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -16,6 +19,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import jrm.locale.Messages;
 import jrm.misc.SettingsEnum;
@@ -25,9 +30,17 @@ import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.Session;
+import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.data.SystmsModel;
 import jrm.ui.progress.Progress;
+import javax.swing.JSeparator;
+import java.awt.Dimension;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class ScannerPanel extends JPanel implements ProfileLoader
@@ -55,6 +68,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	private JLabel lblProfileinfo;
 
 	private JTabbedPane mainPane;
+	private JSeparator separator;
+	private JButton btnLoadPreset;
+	private JButton btnSavePreset;
 
 	/**
 	 * Create the panel.
@@ -100,6 +116,59 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		scannerBtnPanel.add(btnFix);
 		btnFix.addActionListener(e -> fix(session));
 		btnFix.setEnabled(false);
+		
+		separator = new JSeparator();
+		separator.setSize(new Dimension(2, 20));
+		separator.setPreferredSize(new Dimension(2, 20));
+		separator.setOrientation(SwingConstants.VERTICAL);
+		scannerBtnPanel.add(separator);
+		
+		btnLoadPreset = new JButton("Load Preset");
+		btnLoadPreset.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
+				final Path presets = session.getUser().getSettings().getWorkPath().resolve("Presets");
+				try
+				{
+					Files.createDirectories(presets);
+					new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Load Preset", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
+						session.getCurr_profile().loadSettings(chooser.getSelectedFile());
+						initProfileSettings(session);
+						return null;
+					});
+				}
+				catch (IOException e1)
+				{
+					e1.printStackTrace();
+				}
+			}
+		});
+		scannerBtnPanel.add(btnLoadPreset);
+		
+		btnSavePreset = new JButton("Save Preset");
+		btnSavePreset.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
+				final Path presets = session.getUser().getSettings().getWorkPath().resolve("Presets");
+				try
+				{
+					Files.createDirectories(presets);
+					new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Save Preset", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
+						session.getCurr_profile().saveSettings(chooser.getSelectedFile());
+						return null;
+					});
+				}
+				catch (IOException e1)
+				{
+					e1.printStackTrace();
+				}
+			}
+		});
+		scannerBtnPanel.add(btnSavePreset);
 		btnScan.addActionListener(e -> scan(session, true));
 
 		scannerTabbedPane = new JTabbedPane(SwingConstants.TOP);

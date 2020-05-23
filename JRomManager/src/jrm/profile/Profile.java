@@ -45,8 +45,8 @@ import org.xml.sax.helpers.DefaultHandler;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
+import jrm.misc.SettingsEnum;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Device;
 import jrm.profile.data.Disk;
@@ -1146,9 +1146,17 @@ public class Profile implements Serializable
 	 */
 	public void saveSettings()
 	{
+		saveSettings(nfo.file);
+	}
+	
+	/**
+	 * Save settings as XML
+	 */
+	public void saveSettings(File file)
+	{
 		try
 		{
-			settings = session.getUser().getSettings().saveProfileSettings(nfo.file, settings);
+			settings = session.getUser().getSettings().saveProfileSettings(file, settings);
 			nfo.save(session);
 		}
 		catch (final IOException e)
@@ -1162,9 +1170,17 @@ public class Profile implements Serializable
 	 */
 	public void loadSettings()
 	{
+		loadSettings(nfo.file);
+	}
+	
+	/**
+	 * Load settings from XML settings file
+	 */
+	public void loadSettings(File file)
+	{
 		try
 		{
-			settings = session.getUser().getSettings().loadProfileSettings(nfo.file, settings);
+			settings = session.getUser().getSettings().loadProfileSettings(file, settings);
 		}
 		catch (final IOException e)
 		{
