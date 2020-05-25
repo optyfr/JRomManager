@@ -73,6 +73,11 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 					pathmatcher = "glob:*.{zip,7z,rar,arj,tar,lzh,lha,tgz,tbz,tbz2,rpm,iso,deb,cab}";
 					isDir = false;
 					break;
+				case "importSettings":
+				case "exportSettings":
+					pathmatcher = "glob:*.properties";
+					isDir = false;
+					break;
 				default:
 					pathmatcher = null;
 					isDir = false;

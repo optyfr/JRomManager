@@ -140,6 +140,37 @@ public class ProfileActions extends PathAbstractor
 		}))).start();
 	}
 	
+	public void importSettings(JsonObject jso)
+	{
+		WebSession session = ws.getSession();
+		if (session.curr_profile != null)
+		{
+			JsonValue jsv = jso.get("params").asObject().get("path");
+			if (jsv != null && !jsv.isNull())
+			{
+				session.curr_profile.loadSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
+				session.curr_profile.loadCatVer(null);
+				session.curr_profile.loadNPlayers(null);
+				loaded(session.curr_profile);
+				new CatVerActions(ws).loaded(session.curr_profile);
+				new NPlayersActions(ws).loaded(session.curr_profile);
+			}
+		}
+	}
+	
+	public void exportSettings(JsonObject jso)
+	{
+		WebSession session = ws.getSession();
+		if (session.curr_profile != null)
+		{
+			JsonValue jsv = jso.get("params").asObject().get("path");
+			if (jsv != null && !jsv.isNull())
+			{
+				session.curr_profile.saveSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
+			}
+		}
+	}
+	
 	public void scan(JsonObject jso, final boolean automate)
 	{
 		(ws.getSession().setWorker(new Worker(() -> {

@@ -35,6 +35,10 @@ public class RemoteRootChooserXMLResponse extends XMLResponse
 					paths.put("Work", Paths.get("%work"));
 					paths.put("Shared", Paths.get("%shared"));
 					break;
+				case "importSettings":
+				case "exportSettings":
+					paths.put("Presets", Paths.get("%presets"));
+					break;
 				default:
 					paths.put("Work", Paths.get("%work"));
 					break;

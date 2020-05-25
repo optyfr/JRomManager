@@ -1,6 +1,8 @@
 package jrm.security;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -43,12 +45,21 @@ public class PathAbstractor
 	{
 		try
 		{
-			val wdir = session.getUser().getSettings().getWorkPath();
-			if (path.startsWith(wdir))
-				return Paths.get("%work", wdir.relativize(path).toString());
-			val sdir = session.getUser().getSettings().getBasePath().resolve("users").resolve("shared");
-			if (path.startsWith(sdir))
-				return Paths.get("%shared", sdir.relativize(path).toString());
+			val pdir = session.getUser().getSettings().getWorkPath().resolve("presets");
+			if (path.startsWith(pdir))
+				return Paths.get("%presets", pdir.relativize(path).toString());
+			else
+			{
+				val wdir = session.getUser().getSettings().getWorkPath();
+				if (path.startsWith(wdir))
+					return Paths.get("%work", wdir.relativize(path).toString());
+				else
+				{
+					val sdir = session.getUser().getSettings().getBasePath().resolve("users").resolve("shared");
+					if (path.startsWith(sdir))
+						return Paths.get("%shared", sdir.relativize(path).toString());
+				}
+			}
 		}
 		catch (Exception e)
 		{
@@ -64,7 +75,21 @@ public class PathAbstractor
 	public static Path getAbsolutePath(Session session, final String strpath) throws SecurityException
 	{
 		final Path path;
-		if (strpath.startsWith("%work"))
+		if (strpath.startsWith("%presets"))
+		{
+			val basepath = session.getUser().getSettings().getWorkPath().resolve("presets");
+			try
+			{
+				Files.createDirectories(basepath);
+			}
+			catch (IOException e)
+			{
+			}
+			path = Paths.get(strpath.replace("%presets", basepath.toString())).toAbsolutePath().normalize();
+			if (!path.startsWith(basepath))
+				throw new SecurityException("Forged path");
+		}
+		else if (strpath.startsWith("%work"))
 		{
 			val basepath = session.getUser().getSettings().getWorkPath();
 			path = Paths.get(strpath.replace("%work", basepath.toString())).toAbsolutePath().normalize();

@@ -43,7 +43,7 @@ public class Rom extends Entity implements Serializable
 	/**
 	 * the in memory offset (kept for export)
 	 */
-	public Integer offset = null;
+	public Long offset = null;
 	/**
 	 * the in memory load flag (kept for export)
 	 */
@@ -255,7 +255,7 @@ public class Rom extends Entity implements Serializable
 					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("value", value), //$NON-NLS-1$
 					new SimpleAttribute("loadflag", loadflag), //$NON-NLS-1$
-					new SimpleAttribute("offset", offset == null ? null : ("0x" + Integer.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute("offset", offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
 			);
 		}
 		else if (is_mame)
@@ -270,7 +270,7 @@ public class Rom extends Entity implements Serializable
 					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("optional", optional ? "yes" : null), //$NON-NLS-1$ //$NON-NLS-2$
 					new SimpleAttribute("region", region), //$NON-NLS-1$
-					new SimpleAttribute("offset", offset == null ? null : ("0x" + Integer.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute("offset", offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
 			);
 		}
 		else

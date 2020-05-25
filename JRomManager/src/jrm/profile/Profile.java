@@ -38,6 +38,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -285,7 +286,7 @@ public class Profile implements Serializable
 							switch (attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_software.setName(attributes.getValue(i).trim());
+									curr_software.setName(StringUtils.stripEnd(attributes.getValue(i).trim(),"."));
 									break;
 								case "cloneof": //$NON-NLS-1$
 									curr_software.cloneof = attributes.getValue(i);
@@ -381,14 +382,14 @@ public class Profile implements Serializable
 							switch (attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_machine.setName(attributes.getValue(i).trim());
+									curr_machine.setName(StringUtils.stripEnd(attributes.getValue(i).trim(), "."));
 									machinelist_list.get(0).putByName(curr_machine);
 									break;
 								case "romof": //$NON-NLS-1$
-									curr_machine.romof = attributes.getValue(i).trim();
+									curr_machine.romof = StringUtils.stripEnd(attributes.getValue(i).trim(), ".");
 									break;
 								case "cloneof": //$NON-NLS-1$
-									curr_machine.cloneof = attributes.getValue(i).trim();
+									curr_machine.cloneof = StringUtils.stripEnd(attributes.getValue(i).trim(), ".");
 									break;
 								case "sampleof": //$NON-NLS-1$
 									curr_machine.sampleof = attributes.getValue(i).trim();
@@ -711,14 +712,10 @@ public class Profile implements Serializable
 										curr_rom.size = Long.decode(attributes.getValue(i));
 										break;
 									case "offset": //$NON-NLS-1$
-										try
-										{
-											curr_rom.offset = Integer.decode(attributes.getValue(i));
-										}
-										catch (final NumberFormatException e)
-										{
-											curr_rom.offset = Integer.decode("0x" + attributes.getValue(i)); //$NON-NLS-1$
-										}
+										if(attributes.getValue(i).toLowerCase().startsWith("0x"))
+											curr_rom.offset = Long.decode(attributes.getValue(i));
+										else
+											curr_rom.offset = Long.decode("0x" + attributes.getValue(i)); //$NON-NLS-1$
 										break;
 									case "value": //$NON-NLS-1$
 										curr_rom.value = attributes.getValue(i);
@@ -772,8 +769,13 @@ public class Profile implements Serializable
 								switch (attributes.getQName(i))
 								{
 									case "name": //$NON-NLS-1$
-										curr_disk.setName(attributes.getValue(i).trim());
+									{
+										String name = StringUtils.stripEnd(attributes.getValue(i).trim(), ".");
+										if(name.endsWith(".chd"))
+											name = name.substring(0, name.length()-4);
+										curr_disk.setName(name);
 										break;
+									}
 									case "sha1": //$NON-NLS-1$
 										curr_disk.sha1 = attributes.getValue(i).toLowerCase();
 										sha1_disks = true;

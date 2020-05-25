@@ -24,6 +24,8 @@ import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.zip.CRC32;
 
+import org.apache.commons.io.FilenameUtils;
+
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.security.User;
@@ -134,6 +136,8 @@ public class GlobalSettings extends Settings implements SystemSettings
 			return new File(work, String.format("%08x", crc.getValue()) + ext); //$NON-NLS-1$
 			
 		}
+		if(FilenameUtils.getExtension(name).equalsIgnoreCase(ext.substring(1)))
+			return new File(parent, name);
 		return new File(parent, name + ext); 
 	}
 

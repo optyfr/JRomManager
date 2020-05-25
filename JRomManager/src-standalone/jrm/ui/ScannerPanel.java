@@ -68,9 +68,10 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	private JLabel lblProfileinfo;
 
 	private JTabbedPane mainPane;
-	private JSeparator separator;
+	private JSeparator separator2;
 	private JButton btnLoadPreset;
 	private JButton btnSavePreset;
+	private JSeparator separator1;
 
 	/**
 	 * Create the panel.
@@ -100,6 +101,12 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		});
 		btnInfo.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/information.png"))); //$NON-NLS-1$
 		scannerBtnPanel.add(btnInfo);
+		
+		separator1 = new JSeparator();
+		separator1.setOrientation(SwingConstants.VERTICAL);
+		separator1.setSize(new Dimension(2, 20));
+		separator1.setPreferredSize(new Dimension(2, 20));
+		scannerBtnPanel.add(separator1);
 
 		btnScan = new JButton(Messages.getString("MainFrame.btnScan.text")); //$NON-NLS-1$
 		btnScan.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/magnifier.png"))); //$NON-NLS-1$
@@ -117,24 +124,26 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		btnFix.addActionListener(e -> fix(session));
 		btnFix.setEnabled(false);
 		
-		separator = new JSeparator();
-		separator.setSize(new Dimension(2, 20));
-		separator.setPreferredSize(new Dimension(2, 20));
-		separator.setOrientation(SwingConstants.VERTICAL);
-		scannerBtnPanel.add(separator);
+		separator2 = new JSeparator();
+		separator2.setOrientation(SwingConstants.VERTICAL);
+		separator2.setSize(new Dimension(2, 20));
+		separator2.setPreferredSize(new Dimension(2, 20));
+		scannerBtnPanel.add(separator2);
 		
-		btnLoadPreset = new JButton("Load Preset");
+		btnLoadPreset = new JButton("Import Settings");
 		btnLoadPreset.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
 				final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
-				final Path presets = session.getUser().getSettings().getWorkPath().resolve("Presets");
+				final Path presets = session.getUser().getSettings().getWorkPath().resolve("presets");
 				try
 				{
 					Files.createDirectories(presets);
-					new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Load Preset", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
+					new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Import Settings", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
 						session.getCurr_profile().loadSettings(chooser.getSelectedFile());
+						session.getCurr_profile().loadCatVer(null);
+						session.getCurr_profile().loadNPlayers(null);
 						initProfileSettings(session);
 						return null;
 					});
@@ -147,17 +156,17 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		});
 		scannerBtnPanel.add(btnLoadPreset);
 		
-		btnSavePreset = new JButton("Save Preset");
+		btnSavePreset = new JButton("Export Settings");
 		btnSavePreset.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
 				final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
-				final Path presets = session.getUser().getSettings().getWorkPath().resolve("Presets");
+				final Path presets = session.getUser().getSettings().getWorkPath().resolve("presets");
 				try
 				{
 					Files.createDirectories(presets);
-					new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Save Preset", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
+					new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Export Settings", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
 						session.getCurr_profile().saveSettings(chooser.getSelectedFile());
 						return null;
 					});

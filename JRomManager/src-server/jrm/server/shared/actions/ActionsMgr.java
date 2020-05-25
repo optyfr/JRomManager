@@ -61,6 +61,16 @@ public interface ActionsMgr extends SessionStub
 						new ProfileActions(this).fix(jso);
 						break;
 					}
+					case "Profile.importSettings":
+					{
+						new ProfileActions(this).importSettings(jso);
+						break;
+					}
+					case "Profile.exportSettings":
+					{
+						new ProfileActions(this).exportSettings(jso);
+						break;
+					}
 					case "Profile.setProperty":
 					{
 						new ProfileActions(this).setProperty(jso);
