@@ -43,6 +43,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import jrm.fullserver.handlers.ActionServlet;
 import jrm.fullserver.handlers.DataSourceServlet;
+import jrm.fullserver.handlers.DownloadServlet;
 import jrm.fullserver.handlers.ImageServlet;
 import jrm.fullserver.handlers.SessionServlet;
 import jrm.fullserver.handlers.UploadServlet;
@@ -89,6 +90,7 @@ public class FullServer
 		context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
 		context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
 		context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
+		context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
 
 		ServletHolder holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
 		holderStaticNoCache.setInitParameter("dirAllowed", "false");
