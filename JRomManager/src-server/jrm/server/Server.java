@@ -27,6 +27,7 @@ import fi.iki.elonen.NanoWSD.WebSocket;
 import jrm.misc.Log;
 import jrm.server.handlers.ActionHandler;
 import jrm.server.handlers.DataSourcesHandler;
+import jrm.server.handlers.DownloadHandler;
 import jrm.server.handlers.EnhStaticPageHandler;
 import jrm.server.handlers.ResourceHandler;
 import jrm.server.handlers.SessionHandler;
@@ -171,6 +172,7 @@ public class Server extends EnhRouterNanoHTTPD implements SessionStub
 		addRoute("/actions/:action/", ActionHandler.class);
 		addRoute("/session/", SessionHandler.class, this);
 		addRoute("/upload/", UploadHandler.class, this);
+		addRoute("/download/", DownloadHandler.class, this);
 	}
 	
 	@Override
