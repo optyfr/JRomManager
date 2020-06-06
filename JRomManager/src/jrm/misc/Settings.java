@@ -46,6 +46,7 @@ public abstract class Settings extends SettingsImpl
 		{
 			try(FileInputStream is = new FileInputStream(file))
 			{
+				properties.clear();
 				properties.loadFromXML(is);
 			}
 			catch(final IOException e)

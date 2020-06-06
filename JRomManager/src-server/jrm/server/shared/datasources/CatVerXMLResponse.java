@@ -39,7 +39,7 @@ public class CatVerXMLResponse extends XMLResponse
 		{
 			writer.writeStartElement("record");
 			writer.writeAttribute("ID", catver.getPropertyName());
-			writer.writeAttribute("Name", request.session.msgs.getString("CatVerCmd.AllCategories"));
+			writer.writeAttribute("Name", request.session.msgs.getString("CatVer.AllCategories"));
 			writer.writeAttribute("ParentID", "1");
 			writer.writeAttribute("isFolder", Boolean.toString(catver.getListCategories().size()!=0));
 			writer.writeAttribute("isSelected", Boolean.toString(catver.isSelected()));

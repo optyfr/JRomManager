@@ -8,6 +8,7 @@ import com.eclipsesource.json.JsonValue;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
+import jrm.security.PathAbstractor;
 
 public class NPlayersActions
 {
@@ -37,7 +38,7 @@ public class NPlayersActions
 				ws.send(new JsonObject() {{
 					add("cmd", "NPlayers.loaded");
 					add("params", new JsonObject() {{
-						add("path", profile.nplayers != null ? profile.nplayers.file.getAbsolutePath() : null);
+						add("path", profile.nplayers != null ? PathAbstractor.getRelativePath(ws.getSession(), profile.nplayers.file.toPath()).toString() : null);
 					}});
 				}}.toString());
 			}

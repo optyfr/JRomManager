@@ -8,6 +8,7 @@ import com.eclipsesource.json.JsonValue;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
+import jrm.security.PathAbstractor;
 
 public class CatVerActions
 {
@@ -37,7 +38,7 @@ public class CatVerActions
 				ws.send(new JsonObject() {{
 					add("cmd", "CatVer.loaded");
 					add("params", new JsonObject() {{
-						add("path", profile.catver != null ? profile.catver.file.getAbsolutePath() : null);
+						add("path", profile.catver != null ? PathAbstractor.getRelativePath(ws.getSession(), profile.catver.file.toPath()).toString() : null);
 					}});
 				}}.toString());
 			}

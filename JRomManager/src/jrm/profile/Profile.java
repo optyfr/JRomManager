@@ -1343,7 +1343,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			final File file = new File(getProperty(SettingsEnum.filter_catver_ini, null));
+			final File file = PathAbstractor.getAbsolutePath(session, getProperty(SettingsEnum.filter_catver_ini, null)).toFile();
 			if(file.exists())
 			{
 				if (handler != null)
@@ -1379,7 +1379,7 @@ public class Profile implements Serializable
 	{
 		try
 		{
-			final File file = new File(getProperty(SettingsEnum.filter_nplayers_ini, null));
+			final File file = PathAbstractor.getAbsolutePath(session, getProperty(SettingsEnum.filter_nplayers_ini, null)).toFile();
 			if(file.exists())
 			{
 				if (handler != null)

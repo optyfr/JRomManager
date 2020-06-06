@@ -230,7 +230,7 @@ public class ProfileActions extends PathAbstractor
 	public void setProperty(JsonObject jso)
 	{
 		final String profile = jso.getString("profile", null);
-		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().curr_profile.settings;
+		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().getCurr_profile().settings;
 		JsonObject pjso = jso.get("params").asObject();
 		for (Member m : pjso)
 		{
