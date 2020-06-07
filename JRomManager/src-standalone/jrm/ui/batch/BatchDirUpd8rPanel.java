@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -424,6 +425,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		cbBatchToolsDat2DirDryRun.addItemListener(e -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 
 		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$
+		btnBatchToolsDir2DatStart.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/bullet_go.png")));
 		btnBatchToolsDir2DatStart.addActionListener((e) -> dat2dir(session, cbBatchToolsDat2DirDryRun.isSelected()));
 
 		GridBagConstraints gbc_cbBatchToolsDat2DirDryRun = new GridBagConstraints();

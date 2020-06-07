@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -280,6 +281,7 @@ public class BatchTrrntChkPanel extends JPanel
 		this.add(cbbxTrntChk, gbc_cbbxTrntChk);
 
 		final JButton btnBatchToolsTrntChkStart = new JButton(Messages.getString("BatchToolsTrrntChkPanel.TrntCheckStart.text")); //$NON-NLS-1$
+		btnBatchToolsTrntChkStart.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/bullet_go.png")));
 		btnBatchToolsTrntChkStart.addActionListener((e) -> trrntChk(session));
 
 		chckbxDetectArchivedFolder = new JCheckBox(Messages.getString("BatchTrrntChkPanel.chckbxDetectArchivedFolder.text")); //$NON-NLS-1$

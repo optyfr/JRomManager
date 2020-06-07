@@ -8,7 +8,10 @@
     - This mode is still **experimental**, work still need to be made on disk/thread quotas, and a firewall with IP filtering may be required to get full control on who is attempting to connect 
 - Implemented Long polling Request as alternative of WebSockets for simple server mode
 - New "Single File" mode, made for single ROM per game sets than can be kept in base directory without creating a sub-directory for each game...
+- Added support for import/export of settings from one profile to another
+- More graphical icons for tabs and buttons
 - Various fixes
+- ** This will be the last version supporting Java 8, next one will require at least Java 11 **
 
 ## Release v2.3.0
 - Added "Copy CRC/SHA1/Name" menu entries on entities in Report views and in ProfileViewer

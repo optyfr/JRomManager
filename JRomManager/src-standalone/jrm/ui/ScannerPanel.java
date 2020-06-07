@@ -131,6 +131,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		scannerBtnPanel.add(separator2);
 		
 		btnLoadPreset = new JButton("Import Settings");
+		btnLoadPreset.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/table_refresh.png"))); //$NON-NLS-1$
 		btnLoadPreset.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -157,6 +158,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		scannerBtnPanel.add(btnLoadPreset);
 		
 		btnSavePreset = new JButton("Export Settings");
+		btnSavePreset.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/table_save.png"))); //$NON-NLS-1$
 		btnSavePreset.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -208,34 +210,34 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	private void buildScannerDirTab(final Session session)
 	{
 		scannerDirPanel = new ScannerDirPanel(session);
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerDirectories.title"), null, scannerDirPanel, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerDirectories.title"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/folder.png")), scannerDirPanel, null); //$NON-NLS-1$
 	}
 
 	private void buildScannerSettingsTab(final Session session)
 	{
 		scannerSettingsPanel = new ScannerSettingsPanel();
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), null, scannerSettingsPanel, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/cog.png")), scannerSettingsPanel, null); //$NON-NLS-1$
 
 	}
 
 	private void buildScannerFiltersTab(final Session session)
 	{
 		scannerFilters = new ScannerFiltersPanel(session);
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.Filters"), null, scannerFilters, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.Filters"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/arrow_join.png")), scannerFilters, null); //$NON-NLS-1$
 
 	}
 
 	private void buildScannerAdvFiltersTab(final Session session)
 	{
 		scannerAdvFilters = new ScannerAdvFilterPanel(session);
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.AdvFilters"), null, scannerAdvFilters, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.AdvFilters"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/arrow_in.png")), scannerAdvFilters, null); //$NON-NLS-1$
 
 	}
 
 	private void buildScannerAutomationTab(final Session session)
 	{
 		scannerAutomation = new ScannerAutomationPanel();
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.Automation"), null, scannerAutomation, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.Automation"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/link.png")), scannerAutomation, null); //$NON-NLS-1$
 
 	}
 

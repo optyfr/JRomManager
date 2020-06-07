@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -57,6 +58,7 @@ import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.security.Session;
+import jrm.ui.MainFrame;
 import jrm.ui.basic.EnhTableModel;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JRMFileChooser.CallBack;
@@ -510,6 +512,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		add(chckbxForce, gbc_chckbxForce);
 		
 		JButton btnStart = new JButton(Messages.getString("BatchCompressorPanel.Start")); //$NON-NLS-1$
+		btnStart.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/bullet_go.png")));
 		btnStart.addActionListener(e->{
 			final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
 			progress.setInfos(Runtime.getRuntime().availableProcessors(), true);
@@ -597,6 +600,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		});
 		
 		btnClear = new JButton(Messages.getString("BatchCompressorPanel.btnClear.text")); //$NON-NLS-1$
+		btnClear.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/bin.png")));
 		btnClear.addActionListener(e->table.model.setData(new ArrayList<>()));
 		GridBagConstraints gbc_btnClear = new GridBagConstraints();
 		gbc_btnClear.insets = new Insets(0, 0, 0, 5);
