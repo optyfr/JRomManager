@@ -11,7 +11,7 @@
 - Added support for import/export of settings from one profile to another
 - More graphical icons for tabs and buttons
 - Various fixes
-- ** This will be the last version supporting Java 8, next one will require at least Java 11 **
+- **This will be the last version supporting Java 8, next one will require at least Java 11**
 
 ## Release v2.3.0
 - Added "Copy CRC/SHA1/Name" menu entries on entities in Report views and in ProfileViewer
