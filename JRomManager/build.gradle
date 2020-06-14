@@ -570,8 +570,14 @@ task distZip(type: Zip, dependsOn: [jar, SevenZipJBindingAllPlatforms, ':WebClie
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
-	from (new File(project(':WebClient').buildDir,"/gwt/out/smartgwt")) {
+	from (new File(project(':WebClient').buildDir,"/gwt/out")) {
 		into('webclient')
+	}
+	from (new File(project(':WebClient').projectDir,"/war/index.html")) {
+		into('webclient')
+	}
+	from ('certs') {
+		into('certs')
 	}
 	from (zipTree(file("$buildDir/wrapper.zip"))) {
 		exclude '*/bin/*.bat'
