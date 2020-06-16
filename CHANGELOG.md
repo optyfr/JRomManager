@@ -1,3 +1,7 @@
+## Release v2.4.1
+- Fixed wrong packaging for webclient
+- Included a self signed "localhost" certificate for full server mode HTTPS
+
 ## Release v2.4.0
 - Added full server mode
     - Made for an usage over the Internet (but it should be kept legal between users)
