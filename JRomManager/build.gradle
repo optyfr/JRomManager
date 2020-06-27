@@ -650,6 +650,7 @@ ospackage {
 	from (zipTree(distZip.archivePath)) {
 		include 'wrapper/**'
 		include 'webclient/**'
+		include 'certs/**'
   	}
 	from ('dist') {
 		include '*.bat'
@@ -703,6 +704,7 @@ setupBuilder {
 	from (zipTree(distZip.archivePath)) {
 		include 'wrapper/**'
 		include 'webclient/**'
+		include 'certs/**'
   	}
 	desktopStarter {
 		displayName = project.name
