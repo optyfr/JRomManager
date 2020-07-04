@@ -30,7 +30,21 @@ public class GlobalActions
 			else
 				ws.getSession().getUser().getSettings().setProperty(m.getName(), value.toString());
 		}
-		ws.getSession().getUser().getSettings().saveSettings();
+		try
+		{
+			if(ws.isOpen())
+			{
+				ws.getSession().getUser().getSettings().saveSettings();
+				final JsonObject rjso = new JsonObject();
+				rjso.add("cmd", "Global.updateProperty");
+				rjso.add("params", pjso);
+				ws.send(rjso.toString());
+			}
+		}
+		catch (IOException e)
+		{
+			Log.err(e.getMessage(),e);
+		}
 	}
 	
 	@SuppressWarnings("serial")

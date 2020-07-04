@@ -47,6 +47,7 @@ public class TrntChkActions
 						{
 							sdrl.get(row).result = result;
 							session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
+							session.getUser().getSettings().saveSettings();
 							TrntChkActions.this.updateResult(row, result);
 						}
 						
@@ -55,6 +56,7 @@ public class TrntChkActions
 						{
 							sdrl.forEach(sdr -> sdr.result = "");
 							session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
+							session.getUser().getSettings().saveSettings();
 							TrntChkActions.this.clearResults();
 						}
 					}, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);

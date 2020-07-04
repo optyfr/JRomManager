@@ -80,9 +80,12 @@ public class DirUpdater
 					else
 						session.curr_profile.setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getAbsolutePath()); //$NON-NLS-1$
 					session.curr_profile.setProperty(SettingsEnum.src_dir, String.join("|", srcdirs.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
-					if (!dryrun)
-						new Fix(session.curr_profile, new Scan(session.curr_profile, progress, scancache), progress);
-					new Scan(session.curr_profile, progress, scancache);
+					Scan scan = new Scan(session.curr_profile, progress, scancache);
+					if (!dryrun && scan.actions.size()>0)
+					{
+						new Fix(session.curr_profile, scan, progress);
+						new Scan(session.curr_profile, progress, scancache);
+					}
 					total += session.report.stats.set_create + session.report.stats.set_found + session.report.stats.set_missing;
 					ok += session.report.stats.set_create_complete + session.report.stats.set_found_fixcomplete + session.report.stats.set_found_ok;
 					dur.add(datlist[j],session.report.stats.clone());

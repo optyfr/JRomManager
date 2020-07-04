@@ -54,6 +54,7 @@ public class Dat2DirActions
 							{
 								sdrl.get(row).result = result;
 								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
+								session.getUser().getSettings().saveSettings();
 								Dat2DirActions.this.updateResult(row, result);
 							}
 							
@@ -62,6 +63,7 @@ public class Dat2DirActions
 							{
 								sdrl.forEach(sdr -> sdr.result = "");
 								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
+								session.getUser().getSettings().saveSettings();
 								Dat2DirActions.this.clearResults();
 							}
 						}, dryrun);
