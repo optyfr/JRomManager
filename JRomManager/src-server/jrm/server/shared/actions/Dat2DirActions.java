@@ -2,7 +2,6 @@ package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,6 +20,7 @@ import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SrcDstResult;
+import jrm.ui.basic.SrcDstResult.SDRList;
 
 public class Dat2DirActions
 {
@@ -42,7 +42,7 @@ public class Dat2DirActions
 				String[] srcdirs = StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
 				if (srcdirs.length > 0)
 				{
-					List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
+					SDRList sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
 					if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.src).toFile()).exists()).count() > 0)
 						new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else

@@ -1,31 +1,47 @@
 package jrm.ui.basic;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import lombok.Getter;
+
 public class SrcDstResult
 {
+	public String id = null;
 	public String src = null;
 	public String dst = null;
 	public String result = ""; //$NON-NLS-1$
 	public boolean selected = true;
 
+	@SuppressWarnings("serial")
+	public static class SDRList extends ArrayList<SrcDstResult>
+	{
+		private @Getter boolean needSave = false;
+		
+		public SDRList()
+		{
+			super();
+		}
+	}
+	
 	public SrcDstResult()
 	{
 	}
 
 	public SrcDstResult(String src)
 	{
+		this.id = UUID.randomUUID().toString();
 		this.src= src;
 	}
 
 	public SrcDstResult(String src, String dst)
 	{
+		this.id = UUID.randomUUID().toString();
 		this.src= src;
 		this.dst = dst;
 	}
@@ -35,18 +51,10 @@ public class SrcDstResult
 		fromJSONObject(jso);
 	}
 	
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if(obj != null && obj instanceof SrcDstResult)
-			return src.equals(((SrcDstResult)obj).src);
-		return false;
-	}
-	
 	public JsonObject toJSONObject()
 	{
 		JsonObject jso = Json.object();
+		jso.add("id", id != null ? id : UUID.randomUUID().toString()); //$NON-NLS-1$
 		jso.add("src", src != null ? src.toString() : null); //$NON-NLS-1$
 		jso.add("dst", dst != null ? dst.toString() : null); //$NON-NLS-1$
 		jso.add("result", result); //$NON-NLS-1$
@@ -56,6 +64,9 @@ public class SrcDstResult
 	
 	public void fromJSONObject(JsonObject jso)
 	{
+		JsonValue id = jso.get("id"); //$NON-NLS-1$
+		if (id != null && id != Json.NULL)
+			this.id = id.asString();
 		JsonValue src = jso.get("src"); //$NON-NLS-1$
 		if (src != Json.NULL)
 			this.src = src.asString();
@@ -66,7 +77,7 @@ public class SrcDstResult
 		this.selected = jso.getBoolean("selected", true); //$NON-NLS-1$
 	}
 	
-	public static String toJSON(List<SrcDstResult> list)
+	public static String toJSON(SDRList list)
 	{
 		JsonArray array = Json.array();
 		for (SrcDstResult sdr : list)
@@ -74,11 +85,19 @@ public class SrcDstResult
 		return array.toString();
 	}
 	
-	public static List<SrcDstResult> fromJSON(String json)
+	public static SDRList fromJSON(String json)
 	{
-		List<SrcDstResult> sdrl = new ArrayList<>();
+		SDRList sdrl = new SDRList();
 		for (JsonValue arrv : Json.parse(json).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
-			sdrl.add(new SrcDstResult(arrv.asObject()));
+		{
+			SrcDstResult sdr = new SrcDstResult(arrv.asObject());
+			if(sdr.id==null)
+			{
+				sdrl.needSave = true;
+				sdr.id = UUID.randomUUID().toString();
+			}
+			sdrl.add(sdr);
+		}
 		return sdrl;
 	}
 }
