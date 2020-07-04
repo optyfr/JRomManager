@@ -10,8 +10,8 @@ plugins {
 
 
 apply plugin: 'java'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 apply plugin: 'eclipse'
 eclipse {
 	classpath {
@@ -113,8 +113,8 @@ task SevenZipJBindingAllPlatforms(type: Jar, dependsOn: SevenZipJBindingPlatform
 
 subprojects {
 	apply plugin: 'java'
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
+	sourceCompatibility = 11
+	targetCompatibility = 11
 	apply plugin: 'eclipse'
 	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
 	repositories {
