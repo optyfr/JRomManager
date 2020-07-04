@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,6 +54,7 @@ import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.basic.SrcDstResult;
+import jrm.ui.basic.SrcDstResult.SDRList;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
@@ -117,7 +117,7 @@ public class BatchTrrntChkPanel extends JPanel
 			}
 		});
 		((BatchTableModel) tableTrntChk.getModel()).applyColumnsWidths(tableTrntChk);
-		final List<SrcDstResult> sdrl2 = new ArrayList<>();
+		final SDRList sdrl2 = new SDRList();
 		if(session!=null)
 		{
 			for (final JsonValue arrv : Json.parse(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$

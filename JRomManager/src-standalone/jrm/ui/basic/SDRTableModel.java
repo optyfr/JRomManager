@@ -1,16 +1,16 @@
 package jrm.ui.basic;
 
 import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import jrm.ui.basic.SrcDstResult.SDRList;
+
 public abstract class SDRTableModel implements EnhTableModel
 {
-	private List<SrcDstResult> data = new ArrayList<>();
+	private SDRList data = new SDRList();
     private final EventListenerList listenerList = new EventListenerList();
     private FileFilter srcFilter = null;
     private FileFilter dstFilter = null;
@@ -58,7 +58,7 @@ public abstract class SDRTableModel implements EnhTableModel
 	/**
 	 * @return the data
 	 */
-	public List<SrcDstResult> getData()
+	public SDRList getData()
 	{
 		return data;
 	}
@@ -66,7 +66,7 @@ public abstract class SDRTableModel implements EnhTableModel
 	/**
 	 * @param data initialize data
 	 */
-	public void setData(List<SrcDstResult> data)
+	public void setData(SDRList data)
 	{
 		current_row = -1;
 		this.data = data;

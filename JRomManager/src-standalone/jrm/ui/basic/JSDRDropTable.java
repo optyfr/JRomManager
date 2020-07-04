@@ -24,6 +24,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 
 import jrm.misc.Log;
+import jrm.ui.basic.SrcDstResult.SDRList;
 
 @SuppressWarnings("serial")
 public class JSDRDropTable extends JTable implements DropTargetListener, ResultColUpdater
@@ -45,7 +46,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	@FunctionalInterface
 	public interface AddDelCallBack
 	{
-		public void call(List<SrcDstResult> files);
+		public void call(SDRList files);
 	}
 
 	public JSDRDropTable(SDRTableModel model, AddDelCallBack callback)

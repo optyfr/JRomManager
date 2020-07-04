@@ -2,7 +2,6 @@ package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 import com.eclipsesource.json.JsonObject;
 
@@ -15,6 +14,7 @@ import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
 import jrm.ui.basic.ResultColUpdater;
 import jrm.ui.basic.SrcDstResult;
+import jrm.ui.basic.SrcDstResult.SDRList;
 
 public class TrntChkActions
 {
@@ -37,7 +37,7 @@ public class TrntChkActions
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
-				List<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]"));
+				SDRList sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]"));
 				try
 				{
 					new TorrentChecker(session, session.getWorker().progress, sdrl, mode, new ResultColUpdater()
