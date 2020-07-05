@@ -1,3 +1,12 @@
+## Release v2.4.3
+- Property fixes with WebClient
+- Better RemoteFileChooser handling for BatchTools in WebClient
+
+## Release v2.4.2
+- Fixed "dry run" bug for server mode
+- Certs dir was missing (was only in zip version)
+- Rescan after fix in batch mode
+
 ## Release v2.4.1
 - Fixed wrong packaging for webclient
 - Included a self signed "localhost" certificate for full server mode HTTPS
