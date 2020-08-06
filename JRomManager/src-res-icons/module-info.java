@@ -1,0 +1,3 @@
+module res.icons
+{
+}
