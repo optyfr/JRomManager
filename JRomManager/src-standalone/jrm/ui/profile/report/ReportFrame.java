@@ -36,11 +36,11 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
+import jrm.aui.progress.StatusHandler;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
-import jrm.ui.progress.StatusHandler;
 
 // TODO: Auto-generated Javadoc
 /**

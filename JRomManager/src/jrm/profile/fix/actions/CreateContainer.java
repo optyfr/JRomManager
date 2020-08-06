@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.commons.text.StringEscapeUtils;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
@@ -38,7 +39,6 @@ import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * specialized class when container need to be created before doing actions on entries (which should be only {@link AddEntry}) 

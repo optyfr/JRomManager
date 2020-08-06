@@ -20,11 +20,11 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
 import jrm.locale.Messages;
 import jrm.profile.data.Entry;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * Delete an entry from its container

@@ -30,11 +30,11 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
+import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.misc.FindCmd;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressNarchiveCallBack;
 import lombok.Getter;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 

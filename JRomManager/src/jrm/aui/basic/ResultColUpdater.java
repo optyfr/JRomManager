@@ -1,4 +1,4 @@
-package jrm.ui.basic;
+package jrm.aui.basic;
 
 public interface ResultColUpdater
 {

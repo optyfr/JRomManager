@@ -40,12 +40,12 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
+import jrm.ui.profile.report.ReportFrame;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.ui.batch.BatchPanel;
 import jrm.ui.profile.ProfileViewer;
-import jrm.ui.profile.report.ReportFrame;
 
 // TODO: Auto-generated Javadoc
 /**

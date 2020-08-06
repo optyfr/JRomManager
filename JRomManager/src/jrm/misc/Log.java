@@ -38,7 +38,7 @@ import lombok.NonNull;
  */
 public class Log
 {
-	static class Formatter extends java.util.logging.Formatter
+	public static class Formatter extends java.util.logging.Formatter
 	{
 		@Override
 		public String format(LogRecord record)

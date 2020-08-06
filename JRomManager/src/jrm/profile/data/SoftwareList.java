@@ -28,10 +28,10 @@ import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
-import jrm.ui.progress.ProgressHandler;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
 

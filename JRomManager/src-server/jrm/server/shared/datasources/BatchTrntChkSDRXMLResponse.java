@@ -2,10 +2,10 @@ package jrm.server.shared.datasources;
 
 import java.util.Optional;
 
+import jrm.aui.basic.SrcDstResult;
+import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.misc.SettingsEnum;
 import jrm.server.shared.datasources.XMLRequest.Operation;
-import jrm.ui.basic.SrcDstResult;
-import jrm.ui.basic.SrcDstResult.SDRList;
 import jrm.xml.SimpleAttribute;
 
 public class BatchTrntChkSDRXMLResponse extends XMLResponse

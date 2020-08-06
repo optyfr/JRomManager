@@ -24,13 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.CRC32;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * Special class aimed to backup some or all entries from a container

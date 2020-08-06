@@ -19,6 +19,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
@@ -31,7 +32,6 @@ import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.scan.DirScan.Options;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
 

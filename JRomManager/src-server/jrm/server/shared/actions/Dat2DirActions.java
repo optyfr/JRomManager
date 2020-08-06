@@ -10,6 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
+import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SrcDstResult;
+import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.batch.DirUpdater;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
@@ -18,9 +21,6 @@ import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
-import jrm.ui.basic.ResultColUpdater;
-import jrm.ui.basic.SrcDstResult;
-import jrm.ui.basic.SrcDstResult.SDRList;
 
 public class Dat2DirActions
 {

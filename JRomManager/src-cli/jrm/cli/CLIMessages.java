@@ -1,4 +1,4 @@
-package jrm;
+package jrm.cli;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

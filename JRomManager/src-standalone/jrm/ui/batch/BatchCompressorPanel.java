@@ -51,6 +51,8 @@ import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.aui.basic.SrcDstResult;
+import jrm.ui.basic.JRMFileChooser.CallBack;
 import jrm.batch.Compressor;
 import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
@@ -61,8 +63,6 @@ import jrm.security.Session;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.EnhTableModel;
 import jrm.ui.basic.JRMFileChooser;
-import jrm.ui.basic.JRMFileChooser.CallBack;
-import jrm.ui.basic.SrcDstResult;
 import jrm.ui.progress.Progress;
 import one.util.streamex.StreamEx;
 

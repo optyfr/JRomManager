@@ -1,4 +1,4 @@
-package jrm.ui.progress;
+package jrm.aui.progress;
 
 import jrm.misc.HTMLRenderer;
 import net.sf.sevenzipjbinding.IProgress;

@@ -1,4 +1,4 @@
-package jrm;
+package jrm.cli;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,15 +35,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.eclipsesource.json.Json;
 
+import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SrcDstResult;
 import jrm.batch.Compressor;
 import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
 import jrm.batch.DirUpdater;
 import jrm.batch.TorrentChecker;
-import jrm.cli.CMD;
-import jrm.cli.CMD_DIRUPD8R;
-import jrm.cli.CMD_TRNTCHK;
-import jrm.cli.Progress;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
@@ -55,8 +53,6 @@ import jrm.profile.scan.Scan;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.security.Sessions;
-import jrm.ui.basic.ResultColUpdater;
-import jrm.ui.basic.SrcDstResult;
 import lombok.val;
 
 public class JRomManagerCLI

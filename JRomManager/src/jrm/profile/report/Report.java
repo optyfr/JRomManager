@@ -43,15 +43,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 
+import jrm.aui.profile.report.ReportTreeDefaultHandler;
+import jrm.aui.profile.report.ReportTreeHandler;
+import jrm.aui.progress.StatusHandler;
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.security.Session;
-import jrm.ui.profile.report.ReportTreeDefaultHandler;
-import jrm.ui.profile.report.ReportTreeHandler;
-import jrm.ui.progress.StatusHandler;
 import lombok.Getter;
 import one.util.streamex.IntStreamEx;
 

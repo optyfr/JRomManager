@@ -39,6 +39,13 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import jrm.ui.basic.JSDRDropTable;
+import jrm.aui.basic.ResultColUpdater;
+import jrm.ui.basic.SDRTableModel;
+import jrm.aui.basic.SrcDstResult;
+import jrm.ui.basic.JRMFileChooser.CallBack;
+import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
+import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.batch.TorrentChecker;
 import jrm.batch.TrntChkReport;
 import jrm.io.torrent.options.TrntChkMode;
@@ -48,13 +55,6 @@ import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.JRMFileChooser;
-import jrm.ui.basic.JRMFileChooser.CallBack;
-import jrm.ui.basic.JSDRDropTable;
-import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
-import jrm.ui.basic.ResultColUpdater;
-import jrm.ui.basic.SDRTableModel;
-import jrm.ui.basic.SrcDstResult;
-import jrm.ui.basic.SrcDstResult.SDRList;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")

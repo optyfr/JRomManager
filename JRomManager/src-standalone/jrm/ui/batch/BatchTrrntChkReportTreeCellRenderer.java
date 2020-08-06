@@ -22,9 +22,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import jrm.ui.batch.BatchTrrntChkReportNode.ChildNode;
 import jrm.batch.TrntChkReport.Child;
 import jrm.misc.Log;
-import jrm.ui.batch.BatchTrrntChkReportNode.ChildNode;
 
 // TODO: Auto-generated Javadoc
 /**

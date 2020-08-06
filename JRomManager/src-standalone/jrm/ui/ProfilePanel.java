@@ -42,6 +42,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.ui.basic.JRMFileChooser.OneRootFileSystemView;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.manager.Dir;
@@ -50,7 +51,6 @@ import jrm.profile.manager.ProfileNFO;
 import jrm.profile.manager.ProfileNFOMame.MameStatus;
 import jrm.security.Session;
 import jrm.ui.basic.JRMFileChooser;
-import jrm.ui.basic.JRMFileChooser.OneRootFileSystemView;
 import jrm.ui.profile.manager.DirNode;
 import jrm.ui.profile.manager.DirTreeCellEditor;
 import jrm.ui.profile.manager.DirTreeCellRenderer;

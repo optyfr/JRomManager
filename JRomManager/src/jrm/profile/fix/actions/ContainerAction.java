@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.misc.HTMLRenderer;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * The base class for container operations

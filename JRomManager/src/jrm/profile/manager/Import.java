@@ -32,10 +32,10 @@ import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.DOMException;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.misc.Log;
 import jrm.misc.UnitRenderer;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * Import from Mame (and variants)

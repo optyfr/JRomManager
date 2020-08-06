@@ -1,4 +1,4 @@
-package jrm.ui.batch;
+package jrm.aui.batch;
 
 import java.util.ArrayList;
 import java.util.EnumSet;

@@ -7,12 +7,12 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import jrm.ui.profile.report.ReportLite;
 import jrm.batch.DirUpdaterResults;
 import jrm.batch.DirUpdaterResults.DirUpdaterResult;
 import jrm.security.Session;
 import jrm.ui.basic.EnhTableModel;
 import jrm.ui.basic.JTableButton;
-import jrm.ui.profile.report.ReportLite;
 
 @SuppressWarnings("serial")
 public class BatchDirUpdResultsView extends JScrollPane

@@ -6,7 +6,7 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import jrm.ui.basic.SrcDstResult.SDRList;
+import jrm.aui.basic.SrcDstResult.SDRList;
 
 public abstract class SDRTableModel implements EnhTableModel
 {

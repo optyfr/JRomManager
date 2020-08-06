@@ -1,4 +1,4 @@
-package jrm.ui.profile.report;
+package jrm.aui.profile.report;
 
 import java.util.ArrayList;
 import java.util.EnumSet;

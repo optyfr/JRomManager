@@ -25,6 +25,7 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
 
+import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
 

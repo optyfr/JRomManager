@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SrcDstResult;
+import jrm.aui.progress.ProgressHandler;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
@@ -24,9 +27,6 @@ import jrm.profile.scan.DirScan;
 import jrm.profile.scan.Scan;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
-import jrm.ui.basic.ResultColUpdater;
-import jrm.ui.basic.SrcDstResult;
-import jrm.ui.progress.ProgressHandler;
 import one.util.streamex.StreamEx;
 
 /**

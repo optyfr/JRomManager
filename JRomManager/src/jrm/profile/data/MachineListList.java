@@ -31,9 +31,9 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.profile.Profile;
 import jrm.profile.manager.Export;
-import jrm.ui.progress.ProgressHandler;
 import jrm.xml.EnhancedXMLStreamWriter;
 
 /**

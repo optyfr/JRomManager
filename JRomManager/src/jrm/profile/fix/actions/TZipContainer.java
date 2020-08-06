@@ -24,12 +24,12 @@ import org.apache.commons.text.StringEscapeUtils;
 import JTrrntzip.SimpleTorrentZipOptions;
 import JTrrntzip.TorrentZip;
 import JTrrntzip.TrrntZipStatus;
+import jrm.aui.progress.ProgressHandler;
+import jrm.aui.progress.ProgressTZipCallBack;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
-import jrm.ui.progress.ProgressTZipCallBack;
 
 /**
  * The specialized container action for trrntzipping zip containers

@@ -22,11 +22,11 @@ import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.locale.Messages;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 import lombok.val;
 
 /**

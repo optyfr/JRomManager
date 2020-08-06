@@ -19,8 +19,8 @@ package jrm.compressors;
 import java.io.File;
 import java.io.IOException;
 
+import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressNarchiveCallBack;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**

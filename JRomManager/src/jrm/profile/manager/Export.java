@@ -24,10 +24,10 @@ import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.data.SoftwareList;
-import jrm.ui.progress.ProgressHandler;
 import jrm.xml.EnhancedXMLStreamWriter;
 
 /**

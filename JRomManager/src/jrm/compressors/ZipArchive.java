@@ -37,12 +37,12 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.misc.FindCmd;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressNarchiveCallBack;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**

@@ -25,11 +25,11 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import jrm.ui.profile.report.ReportNode.SubjectNode;
+import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 import jrm.locale.Messages;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
-import jrm.ui.profile.report.ReportNode.SubjectNode;
-import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 import lombok.val;
 
 @SuppressWarnings("serial")

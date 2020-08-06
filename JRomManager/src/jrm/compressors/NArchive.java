@@ -27,6 +27,7 @@ import java.util.HashMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.compressors.sevenzipjbinding.Archive7ZOpenVolumeCallback;
 import jrm.compressors.sevenzipjbinding.ArchiveRAROpenVolumeCallback;
 import jrm.compressors.sevenzipjbinding.CloseCreateCallback;
@@ -35,7 +36,6 @@ import jrm.compressors.sevenzipjbinding.NArchiveBase;
 import jrm.misc.GlobalSettings;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressNarchiveCallBack;
 import lombok.*;
 import net.sf.sevenzipjbinding.ArchiveFormat;
 import net.sf.sevenzipjbinding.ExtractOperationResult;

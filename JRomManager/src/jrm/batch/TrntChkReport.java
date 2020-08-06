@@ -17,12 +17,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 
+import jrm.aui.batch.TrntChkReportTreeHandler;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Subject;
 import jrm.security.Session;
-import jrm.ui.batch.TrntChkReportTreeHandler;
 import lombok.Getter;
 import lombok.Setter;
 

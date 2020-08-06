@@ -23,6 +23,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SrcDstResult;
+import jrm.aui.progress.ProgressHandler;
 import jrm.batch.TrntChkReport.Child;
 import jrm.batch.TrntChkReport.Status;
 import jrm.io.torrent.Torrent;
@@ -34,9 +37,6 @@ import jrm.misc.Log;
 import jrm.misc.UnitRenderer;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
-import jrm.ui.basic.ResultColUpdater;
-import jrm.ui.basic.SrcDstResult;
-import jrm.ui.progress.ProgressHandler;
 import one.util.streamex.StreamEx;
 
 public class TorrentChecker implements UnitRenderer,HTMLRenderer

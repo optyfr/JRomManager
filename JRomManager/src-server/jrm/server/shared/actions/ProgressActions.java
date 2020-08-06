@@ -8,9 +8,9 @@ import java.util.Map;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 
+import jrm.aui.progress.ProgressHandler;
+import jrm.aui.progress.ProgressInputStream;
 import jrm.misc.Log;
-import jrm.ui.progress.ProgressHandler;
-import jrm.ui.progress.ProgressInputStream;
 
 public class ProgressActions implements ProgressHandler
 {

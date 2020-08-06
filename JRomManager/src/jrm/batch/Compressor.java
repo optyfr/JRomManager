@@ -23,6 +23,9 @@ import org.apache.commons.text.StringEscapeUtils;
 import JTrrntzip.SimpleTorrentZipOptions;
 import JTrrntzip.TorrentZip;
 import JTrrntzip.TrrntZipStatus;
+import jrm.aui.progress.ProgressHandler;
+import jrm.aui.progress.ProgressNarchiveCallBack;
+import jrm.aui.progress.ProgressTZipCallBack;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
 import jrm.compressors.ZipArchive.CustomVisitor;
@@ -32,9 +35,6 @@ import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
-import jrm.ui.progress.ProgressNarchiveCallBack;
-import jrm.ui.progress.ProgressTZipCallBack;
 
 public class Compressor implements HTMLRenderer
 {

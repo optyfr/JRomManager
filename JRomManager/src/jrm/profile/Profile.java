@@ -43,6 +43,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
@@ -82,7 +83,6 @@ import jrm.profile.filter.NPlayers;
 import jrm.profile.manager.ProfileNFO;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * Load a Profile which consist of :

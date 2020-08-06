@@ -1,13 +1,13 @@
-package jrm.ui.batch;
+package jrm.aui.profile.report;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import jrm.batch.TrntChkReport;
 import jrm.profile.report.FilterOptions;
+import jrm.profile.report.Report;
 
-public interface TrntChkReportTreeHandler
+public interface ReportTreeHandler
 {
 	/**
 	 * Inits the clone.
@@ -48,7 +48,7 @@ public interface TrntChkReportTreeHandler
 		
 	}
 	
-	public TrntChkReport getFilteredReport();
-	public TrntChkReport getOriginalReport();
+	public Report getFilteredReport();
+	public Report getOriginalReport();
 	
 }

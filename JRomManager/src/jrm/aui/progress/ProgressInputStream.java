@@ -1,4 +1,4 @@
-package jrm.ui.progress;
+package jrm.aui.progress;
 
 import java.io.FilterInputStream;
 import java.io.IOException;

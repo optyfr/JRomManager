@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 import JTrrntzip.TrrntZipStatus;
+import jrm.aui.progress.ProgressHandler;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
@@ -85,7 +86,6 @@ import jrm.profile.report.SubjectSet.Status;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.security.PathAbstractor;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * The scan class

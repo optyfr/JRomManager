@@ -1,13 +1,14 @@
 plugins {
 	id 'java' 
-	id "de.undercouch.download" version "4.0.4"
-	id "nebula.ospackage" version "8.1.0"
+	id "de.undercouch.download" version "4.1.1"
+	id "nebula.ospackage" version "8.4.1"
 	id "de.inetsoftware.setupbuilder" version "4.8.7"
 	id "io.freefair.lombok" version "4.1.6"
 //	id 'io.franzbecker.gradle-lombok' version '1.14'
 //	id "edu.sc.seis.macAppBundle" version "2.3.0"
+	id "org.beryx.jlink" version "2.21.2"
+	id "org.javamodularity.moduleplugin" version "1.7.0"
 }
-
 
 apply plugin: 'java'
 sourceCompatibility = 11
@@ -52,7 +53,6 @@ repositories {
 }
 
 apply plugin: 'de.undercouch.download'
-
 def SevenZipJBindingMyVersion = '16.02-2.01beta'
 def SevenZipJBindingVersion = '16.02-2.01'
 
@@ -86,13 +86,13 @@ task SevenZipJBinding {
 
 task SevenZipJBindingPlatforms {
 	dependsOn downloadSevenZipJBindingPlatforms
-	outputs.file fileTree(dir: "$buildDir/SevenZipJBinding/") 
+//	outputs.file fileTree(dir: "$buildDir/SevenZipJBinding/") 
 //	outputs.file fileTree(dir: "$buildDir/SevenZipJBinding/", exclude : "sevenzipjbinding-"+SevenZipJBindingVersion+".jar") 
 }
 
 task SevenZipJBindingAllPlatforms(type: Jar, dependsOn: SevenZipJBindingPlatforms) {
 	def sevenzip_dirs = [] as Set
-	def paths = files(SevenZipJBindingPlatforms)
+	def paths = fileTree(dir: "$buildDir/SevenZipJBinding/")
 	paths.each( {
 		zipTree(it).filter { it.name.endsWith('sevenzipjbinding-lib.properties') }.each { 
 			sevenzip_dirs += java.nio.file.Paths.get(it.path).getParent().getFileName().toString()
@@ -116,10 +116,24 @@ subprojects {
 	sourceCompatibility = 11
 	targetCompatibility = 11
 	apply plugin: 'eclipse'
+	apply plugin: 'org.javamodularity.moduleplugin'
+	
 	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
 	repositories {
 		mavenCentral()
 	}
+	ext.moduleName = 'minimal.json'
+
+	compileJava {
+		inputs.property('moduleName', moduleName)
+		doFirst {
+			options.compilerArgs = [
+				'--module-path', classpath.asPath,
+			]
+			classpath = files()
+		}
+	}
+
 	eclipse {
 		classpath {
 			downloadJavadoc = true
@@ -140,6 +154,9 @@ subprojects {
 				}
 			}
 		}
+	}
+	java {
+		modularity.inferModulePath.set(true)
 	}
 	jar {
 		manifest {
@@ -313,6 +330,7 @@ project(':JRomManager:jrmcore') {
 			}
 		}
 	}
+	
 	dependencies {
 		implementation project(':JRomManager:trrntzip')
 		implementation group: 'commons-codec', name:'commons-codec'
@@ -456,8 +474,6 @@ project(':JRomManager:jrmserver') {
 		implementation group: 'commons-cli', name: 'commons-cli'
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
-		implementation group: 'org.nanohttpd', name: 'nanohttpd-nanolets'
-		implementation group: 'org.nanohttpd', name: 'nanohttpd-websocket'
 		implementation group: 'org.eclipse.jetty', name:'jetty-server'
 		implementation group: 'org.eclipse.jetty', name:'jetty-servlet'
 		implementation 'org.eclipse.jetty:jetty-security'
@@ -487,7 +503,7 @@ dependencies {
 	implementation project(':JRomManager:jrmcli')
 	implementation project(':JRomManager:jrmserver')
 }
-
+/*
 javadoc {
 	source += project(':JRomManager:trrntzip').sourceSets.main.allJava
 	source += project(':JRomManager:jrmcore').sourceSets.main.allJava
@@ -501,11 +517,11 @@ javadoc {
 	classpath += project(':JRomManager:jrmserver').sourceSets.main.compileClasspath
 	options.showAll()
 	options.with {
-		links 'https://docs.oracle.com/javase/8/docs/api/'
-		source '8'
+		links 'https://docs.oracle.com/javase/11/docs/api/'
+		source '11'
 	}
 }
-
+*/
 build.dependsOn javadoc
 
 
@@ -562,7 +578,7 @@ task downloadWrapper(type: Download) {
 	onlyIfModified true
 }
 
-task distZip(type: Zip, dependsOn: [jar, SevenZipJBindingAllPlatforms, ':WebClient:build',downloadWrapper]) {
+task distZip2(type: Zip, dependsOn: [jar, SevenZipJBindingAllPlatforms, ':WebClient:build',downloadWrapper]) {
 	from (configurations.runtimeClasspath) {
 		into('lib')
 		exclude '*.zip'
@@ -622,7 +638,7 @@ task distZip(type: Zip, dependsOn: [jar, SevenZipJBindingAllPlatforms, ':WebClie
 	destinationDir = file("$buildDir/distributions/")
 }
 
-build.dependsOn distZip
+build.dependsOn distZip2
 build.dependsOn docZip
 
 apply plugin: 'nebula.ospackage'

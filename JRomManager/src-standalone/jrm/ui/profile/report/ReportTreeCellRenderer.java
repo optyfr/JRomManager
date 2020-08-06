@@ -22,6 +22,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import jrm.ui.profile.report.ReportNode.SubjectNode;
+import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.report.ContainerTZip;
@@ -38,8 +40,6 @@ import jrm.profile.report.Note;
 import jrm.profile.report.RomSuspiciousCRC;
 import jrm.profile.report.Subject;
 import jrm.profile.report.SubjectSet;
-import jrm.ui.profile.report.ReportNode.SubjectNode;
-import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 
 // TODO: Auto-generated Javadoc
 /**

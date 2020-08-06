@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
@@ -35,7 +36,6 @@ import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 import jrm.profile.data.Rom;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * Add an entry to a container

@@ -2,7 +2,7 @@ package jrm.cli;
 
 import java.io.InputStream;
 
-import jrm.ui.progress.ProgressHandler;
+import jrm.aui.progress.ProgressHandler;
 
 public class Progress implements ProgressHandler
 {

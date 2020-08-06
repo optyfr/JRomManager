@@ -42,6 +42,8 @@ import javax.swing.border.BevelBorder;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+import jrm.aui.progress.ProgressHandler;
+import jrm.aui.progress.ProgressInputStream;
 import jrm.locale.Messages;
 
 // TODO: Auto-generated Javadoc

@@ -42,6 +42,11 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import jrm.ui.basic.JSDRDropTable;
+import jrm.ui.basic.SDRTableModel;
+import jrm.aui.basic.SrcDstResult;
+import jrm.ui.basic.JRMFileChooser.CallBack;
+import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
 import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
 import jrm.locale.Messages;
@@ -55,11 +60,6 @@ import jrm.ui.basic.JFileDropList;
 import jrm.ui.basic.JFileDropMode;
 import jrm.ui.basic.JListHintUI;
 import jrm.ui.basic.JRMFileChooser;
-import jrm.ui.basic.JRMFileChooser.CallBack;
-import jrm.ui.basic.JSDRDropTable;
-import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
-import jrm.ui.basic.SDRTableModel;
-import jrm.ui.basic.SrcDstResult;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")

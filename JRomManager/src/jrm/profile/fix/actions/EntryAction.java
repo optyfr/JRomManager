@@ -19,11 +19,11 @@ package jrm.profile.fix.actions;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
 import jrm.misc.HTMLRenderer;
 import jrm.profile.data.Entry;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * the base class for entry actions

@@ -5,6 +5,9 @@ import java.util.Date;
 
 import com.eclipsesource.json.JsonObject;
 
+import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SrcDstResult;
+import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.batch.TorrentChecker;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.BreakException;
@@ -12,9 +15,6 @@ import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
-import jrm.ui.basic.ResultColUpdater;
-import jrm.ui.basic.SrcDstResult;
-import jrm.ui.basic.SrcDstResult.SDRList;
 
 public class TrntChkActions
 {

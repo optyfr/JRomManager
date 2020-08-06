@@ -21,12 +21,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Entry;
 import jrm.security.Session;
-import jrm.ui.progress.ProgressHandler;
 
 /**
  * Duplicate an entry inside the *same* container

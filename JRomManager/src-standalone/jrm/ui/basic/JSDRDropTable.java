@@ -23,8 +23,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 
+import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SrcDstResult;
+import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.misc.Log;
-import jrm.ui.basic.SrcDstResult.SDRList;
 
 @SuppressWarnings("serial")
 public class JSDRDropTable extends JTable implements DropTargetListener, ResultColUpdater

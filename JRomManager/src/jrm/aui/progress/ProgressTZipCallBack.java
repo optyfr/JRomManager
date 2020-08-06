@@ -1,4 +1,4 @@
-package jrm.ui.progress;
+package jrm.aui.progress;
 
 import JTrrntzip.LogCallback;
 import jrm.misc.HTMLRenderer;
