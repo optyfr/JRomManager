@@ -24,8 +24,6 @@ import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * Entry is a container item (ie: a directory file or an archive entry)
  * @author optyfr
@@ -177,7 +175,6 @@ public class Entry implements Serializable
 	 * This version will test against hash values and also support comparison with {@link Rom} / {@link Disk} / {@link Sample} classes
 	 */
 	@Override
-	@SuppressFBWarnings
 	public boolean equals(final Object obj)
 	{
 		if(obj instanceof Entry)

@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -49,7 +48,7 @@ import javax.swing.border.TitledBorder;
 
 import jrm.locale.Messages;
 import jrm.misc.Log;
-import jrm.ui.profile.ProfileViewer;
+import jrm.ui.MainFrame;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -78,7 +77,7 @@ public class KeywordFilter extends JDialog
 	public KeywordFilter(Window owner, String[] src, CallBack callback)
 	{
 		super(owner, Messages.getString("KeywordFilter.Title"), ModalityType.APPLICATION_MODAL); //$NON-NLS-1$
-		setIconImage(Toolkit.getDefaultToolkit().getImage(ProfileViewer.class.getResource("/jrm/resicons/rom.png"))); //$NON-NLS-1$
+		setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);

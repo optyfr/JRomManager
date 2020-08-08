@@ -2,7 +2,6 @@ package jrm.ui;
 
 import java.awt.BorderLayout;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
@@ -38,13 +37,13 @@ public class SettingsPanel extends JPanel
 	private void buildSettingsCompressorsTab(final Session session)
 	{
 		SettingsCompressorsPanel compressors = new SettingsCompressorsPanel(session);
-		settingsPane.addTab(Messages.getString("MainFrame.Compressors"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/compress.png")), compressors, null); //$NON-NLS-1$ //$NON-NLS-2$
+		settingsPane.addTab(Messages.getString("MainFrame.Compressors"), MainFrame.getIcon("/jrm/resicons/icons/compress.png"), compressors, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void buildSettingsDebugTab(final Session session)
 	{
 		SettingsDbgPanel debug = new SettingsDbgPanel(session);
-		settingsPane.addTab(Messages.getString("MainFrame.Debug"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/bug.png")), debug, null); //$NON-NLS-1$ //$NON-NLS-2$
+		settingsPane.addTab(Messages.getString("MainFrame.Debug"), MainFrame.getIcon("/jrm/resicons/icons/bug.png"), debug, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 

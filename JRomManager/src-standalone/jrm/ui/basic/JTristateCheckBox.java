@@ -19,8 +19,9 @@ package jrm.ui.basic;
 import java.awt.Graphics;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+
+import jrm.ui.MainFrame;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -34,13 +35,13 @@ public class JTristateCheckBox extends JCheckBox
 	private boolean halfState;
 	
 	/** The selected. */
-	private static Icon selected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resicons/selected.png")); //$NON-NLS-1$
+	private static Icon selected = MainFrame.getIcon("/jrm/resicons/selected.png"); //$NON-NLS-1$
 	
 	/** The unselected. */
-	private static Icon unselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resicons/unselected.png")); //$NON-NLS-1$
+	private static Icon unselected = MainFrame.getIcon("/jrm/resicons/unselected.png"); //$NON-NLS-1$
 	
 	/** The halfselected. */
-	private static Icon halfselected = new ImageIcon(JTristateCheckBox.class.getResource("/jrm/resicons/halfselected.png")); //$NON-NLS-1$
+	private static Icon halfselected = MainFrame.getIcon("/jrm/resicons/halfselected.png"); //$NON-NLS-1$
 
 	/**
 	 * Instantiates a new j tristate check box.

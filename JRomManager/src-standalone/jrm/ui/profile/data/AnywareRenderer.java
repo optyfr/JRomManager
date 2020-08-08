@@ -32,6 +32,7 @@ import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Rom;
 import jrm.profile.data.Sample;
+import jrm.ui.MainFrame;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -53,9 +54,9 @@ public final class AnywareRenderer
 	/** The Constant columnsRenderers. */
 	public final static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
-		ImageIcon bullet_green = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
-		ImageIcon bullet_red = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/icons/bullet_red.png")); //$NON-NLS-1$
-		ImageIcon bullet_black = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/icons/bullet_black.png")); //$NON-NLS-1$
+		ImageIcon bullet_green = MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"); //$NON-NLS-1$
+		ImageIcon bullet_red = MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png"); //$NON-NLS-1$
+		ImageIcon bullet_black = MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png"); //$NON-NLS-1$
 
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
@@ -82,9 +83,9 @@ public final class AnywareRenderer
 		}
 	}, new DefaultTableCellRenderer()
 	{
-		ImageIcon rom_small = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/rom_small.png")); //$NON-NLS-1$
-		ImageIcon drive = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/icons/drive.png")); //$NON-NLS-1$
-		ImageIcon sound = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/icons/sound.png")); //$NON-NLS-1$
+		ImageIcon rom_small = MainFrame.getIcon("/jrm/resicons/rom_small.png"); //$NON-NLS-1$
+		ImageIcon drive = MainFrame.getIcon("/jrm/resicons/icons/drive.png"); //$NON-NLS-1$
+		ImageIcon sound = MainFrame.getIcon("/jrm/resicons/icons/sound.png"); //$NON-NLS-1$
 
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
@@ -170,10 +171,10 @@ public final class AnywareRenderer
 		}
 	}, new DefaultTableCellRenderer()
 	{
-		ImageIcon verified = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/icons/star.png")); //$NON-NLS-1$
-		ImageIcon good = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/icons/tick.png")); //$NON-NLS-1$
-		ImageIcon baddump = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/icons/delete.png")); //$NON-NLS-1$
-		ImageIcon nodump = new ImageIcon(AnywareRenderer.class.getResource("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
+		ImageIcon verified = MainFrame.getIcon("/jrm/resicons/icons/star.png"); //$NON-NLS-1$
+		ImageIcon good = MainFrame.getIcon("/jrm/resicons/icons/tick.png"); //$NON-NLS-1$
+		ImageIcon baddump = MainFrame.getIcon("/jrm/resicons/icons/delete.png"); //$NON-NLS-1$
+		ImageIcon nodump = MainFrame.getIcon("/jrm/resicons/icons/error.png"); //$NON-NLS-1$
 		{
 			setHorizontalAlignment(SwingConstants.CENTER);
 		}

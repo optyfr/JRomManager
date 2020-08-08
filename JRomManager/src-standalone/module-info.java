@@ -17,9 +17,11 @@ module jrmstandalone
 	requires org.apache.commons.io;
 	requires org.apache.commons.lang3;
 	requires org.apache.commons.codec;
+	requires one.util.streamex;
 	
-	requires lombok;
+	requires static lombok;
 	
 	requires jrmcore;
 	requires jrmupdater;
+	requires res.icons;
 }

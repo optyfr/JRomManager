@@ -22,7 +22,6 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -41,6 +40,7 @@ import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
+import jrm.ui.MainFrame;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -79,7 +79,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
 		setPreferredSize(new Dimension(800, 600));
 		setMinimumSize(new Dimension(400, 300));
-		setIconImage(Toolkit.getDefaultToolkit().getImage(ReportFrame.class.getResource("/jrm/resicons/rom.png"))); //$NON-NLS-1$
+		setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 784, 0 };
 		gridBagLayout.rowHeights = new int[] { 280, 24, 0 };

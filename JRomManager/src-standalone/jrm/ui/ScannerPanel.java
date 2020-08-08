@@ -1,19 +1,25 @@
 package jrm.ui;
 
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -34,13 +40,6 @@ import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.data.SystmsModel;
 import jrm.ui.progress.Progress;
-import javax.swing.JSeparator;
-import java.awt.Dimension;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class ScannerPanel extends JPanel implements ProfileLoader
@@ -99,7 +98,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				MainFrame.profile_viewer = new ProfileViewer(session, SwingUtilities.getWindowAncestor(this), session.curr_profile);
 			MainFrame.profile_viewer.setVisible(true);
 		});
-		btnInfo.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/information.png"))); //$NON-NLS-1$
+		btnInfo.setIcon(MainFrame.getIcon("/jrm/resicons/icons/information.png")); //$NON-NLS-1$
 		scannerBtnPanel.add(btnInfo);
 		
 		separator1 = new JSeparator();
@@ -109,17 +108,17 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		scannerBtnPanel.add(separator1);
 
 		btnScan = new JButton(Messages.getString("MainFrame.btnScan.text")); //$NON-NLS-1$
-		btnScan.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/magnifier.png"))); //$NON-NLS-1$
+		btnScan.setIcon(MainFrame.getIcon("/jrm/resicons/icons/magnifier.png")); //$NON-NLS-1$
 		scannerBtnPanel.add(btnScan);
 		btnScan.setEnabled(false);
 
 		JButton btnReport = new JButton(Messages.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
-		btnReport.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/report.png"))); //$NON-NLS-1$
+		btnReport.setIcon(MainFrame.getIcon("/jrm/resicons/icons/report.png")); //$NON-NLS-1$
 		btnReport.addActionListener(e -> EventQueue.invokeLater(() -> MainFrame.report_frame.setVisible(true)));
 		scannerBtnPanel.add(btnReport);
 
 		btnFix = new JButton(Messages.getString("MainFrame.btnFix.text")); //$NON-NLS-1$
-		btnFix.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/tick.png"))); //$NON-NLS-1$
+		btnFix.setIcon(MainFrame.getIcon("/jrm/resicons/icons/tick.png")); //$NON-NLS-1$
 		scannerBtnPanel.add(btnFix);
 		btnFix.addActionListener(e -> fix(session));
 		btnFix.setEnabled(false);
@@ -131,7 +130,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		scannerBtnPanel.add(separator2);
 		
 		btnLoadPreset = new JButton("Import Settings");
-		btnLoadPreset.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/table_refresh.png"))); //$NON-NLS-1$
+		btnLoadPreset.setIcon(MainFrame.getIcon("/jrm/resicons/icons/table_refresh.png")); //$NON-NLS-1$
 		btnLoadPreset.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -158,7 +157,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		scannerBtnPanel.add(btnLoadPreset);
 		
 		btnSavePreset = new JButton("Export Settings");
-		btnSavePreset.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/table_save.png"))); //$NON-NLS-1$
+		btnSavePreset.setIcon(MainFrame.getIcon("/jrm/resicons/icons/table_save.png")); //$NON-NLS-1$
 		btnSavePreset.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -210,34 +209,34 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	private void buildScannerDirTab(final Session session)
 	{
 		scannerDirPanel = new ScannerDirPanel(session);
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerDirectories.title"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/folder.png")), scannerDirPanel, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerDirectories.title"), MainFrame.getIcon("/jrm/resicons/icons/folder.png"), scannerDirPanel, null); //$NON-NLS-1$
 	}
 
 	private void buildScannerSettingsTab(final Session session)
 	{
 		scannerSettingsPanel = new ScannerSettingsPanel();
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/cog.png")), scannerSettingsPanel, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), MainFrame.getIcon("/jrm/resicons/icons/cog.png"), scannerSettingsPanel, null); //$NON-NLS-1$
 
 	}
 
 	private void buildScannerFiltersTab(final Session session)
 	{
 		scannerFilters = new ScannerFiltersPanel(session);
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.Filters"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/arrow_join.png")), scannerFilters, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.Filters"), MainFrame.getIcon("/jrm/resicons/icons/arrow_join.png"), scannerFilters, null); //$NON-NLS-1$
 
 	}
 
 	private void buildScannerAdvFiltersTab(final Session session)
 	{
 		scannerAdvFilters = new ScannerAdvFilterPanel(session);
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.AdvFilters"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/arrow_in.png")), scannerAdvFilters, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.AdvFilters"), MainFrame.getIcon("/jrm/resicons/icons/arrow_in.png"), scannerAdvFilters, null); //$NON-NLS-1$
 
 	}
 
 	private void buildScannerAutomationTab(final Session session)
 	{
 		scannerAutomation = new ScannerAutomationPanel();
-		scannerTabbedPane.addTab(Messages.getString("MainFrame.Automation"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/link.png")), scannerAutomation, null); //$NON-NLS-1$
+		scannerTabbedPane.addTab(Messages.getString("MainFrame.Automation"), MainFrame.getIcon("/jrm/resicons/icons/link.png"), scannerAutomation, null); //$NON-NLS-1$
 
 	}
 

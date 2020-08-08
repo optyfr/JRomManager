@@ -164,7 +164,6 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.ZipException;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jrm.misc.Log;
 
 /**
@@ -173,7 +172,6 @@ import jrm.misc.Log;
  * @author Xueming Shen
  */
 
-@SuppressFBWarnings
 class ZipFileSystem extends FileSystem
 {
 

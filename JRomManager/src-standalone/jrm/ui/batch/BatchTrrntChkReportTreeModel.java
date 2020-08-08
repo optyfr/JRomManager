@@ -10,9 +10,9 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
 
 import jrm.aui.batch.TrntChkReportTreeHandler;
-import jrm.ui.profile.report.ReportNode;
 import jrm.batch.TrntChkReport;
 import jrm.profile.report.FilterOptions;
+import jrm.ui.profile.report.ReportNode;
 
 @SuppressWarnings("serial")
 public class BatchTrrntChkReportTreeModel extends DefaultTreeModel implements TrntChkReportTreeHandler

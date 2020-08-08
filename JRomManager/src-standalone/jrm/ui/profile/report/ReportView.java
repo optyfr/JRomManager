@@ -14,7 +14,6 @@ import java.net.URLEncoder;
 import java.util.EnumSet;
 import java.util.Optional;
 
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -25,11 +24,12 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import jrm.ui.profile.report.ReportNode.SubjectNode;
-import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 import jrm.locale.Messages;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
+import jrm.ui.MainFrame;
+import jrm.ui.profile.report.ReportNode.SubjectNode;
+import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 import lombok.val;
 
 @SuppressWarnings("serial")
@@ -50,7 +50,7 @@ public class ReportView extends JScrollPane
 		ReportView.addPopup(tree, popupMenu);
 
 		final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
-		mntmOpenAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/folder_open.png"))); //$NON-NLS-1$
+		mntmOpenAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_open.png")); //$NON-NLS-1$
 		mntmOpenAllNodes.addActionListener(e -> {
 			tree.invalidate();
 			int j = tree.getRowCount();
@@ -66,7 +66,7 @@ public class ReportView extends JScrollPane
 		popupMenu.add(mntmOpenAllNodes);
 
 		final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
-		chckbxmntmShowOkEntries.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/folder_closed_green.png"))); //$NON-NLS-1$
+		chckbxmntmShowOkEntries.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_green.png")); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.addItemListener(e -> {
 			final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
@@ -89,12 +89,12 @@ public class ReportView extends JScrollPane
 			}
 			tree.validate();
 		});
-		mntmCloseAllNodes.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/folder_closed.png"))); //$NON-NLS-1$
+		mntmCloseAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed.png")); //$NON-NLS-1$
 		popupMenu.add(mntmCloseAllNodes);
 		popupMenu.add(chckbxmntmShowOkEntries);
 
 		final JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
-		chckbxmntmHideFullyMissing.setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/folder_closed_red.png"))); //$NON-NLS-1$
+		chckbxmntmHideFullyMissing.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_red.png")); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.addItemListener(e -> {
 			final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)

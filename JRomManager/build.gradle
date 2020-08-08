@@ -18,7 +18,7 @@ eclipse {
 	classpath {
 		downloadJavadoc = true
 		downloadSources = true
-		file {
+/*		file {
 			whenMerged { classpath ->
 				classpath.entries.removeAll { entry ->
 					if ( entry.kind == 'src' ) {
@@ -32,7 +32,7 @@ eclipse {
 					false
 				}
 			}
-		}
+		}*/
 	}
 }
 
@@ -342,7 +342,7 @@ project(':JRomManager:jrmcore') {
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.sun.activation', name: 'javax.activation'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
-		compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations'
+	//	compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations'
 	}
 	jar {
 		manifest {
@@ -356,6 +356,7 @@ project(':JRomManager:jrmcore') {
 
 project(':JRomManager:jrmcli') {
 	apply plugin: "io.freefair.lombok"
+	apply plugin: "org.beryx.jlink"
 	sourceSets {
 		main {
 			java {
@@ -381,6 +382,17 @@ project(':JRomManager:jrmcli') {
 			)
 		}
 	}
+	jlink {
+		mainClass = 'jrm.cli.JRomManagerCLI'
+		options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+		launcher {
+			name = 'JRomManagerCLI'
+			jvmArgs = ['-XX:MaxRAMPercentage=75']
+		}
+		targetPlatform("win") {
+			jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10_openj9-0.21.0/OpenJDK11U-jdk_x64_windows_openj9_11.0.8_10_openj9-0.21.0.zip")
+		}
+	}	
 }
 
 project(':JRomManager:jrmupdater') {
@@ -430,6 +442,7 @@ project(':JRomManager:res-icons') {
 
 project(':JRomManager:jrmstandalone') {
 	apply plugin: "io.freefair.lombok"
+	apply plugin: "org.beryx.jlink"
 	sourceSets {
 		main {
 			java {
@@ -452,9 +465,35 @@ project(':JRomManager:jrmstandalone') {
 	jar {
 		manifest {
 			attributes(
+				"Manifest-Version"     : "1.0",
 				"Specification-Title"  : "JRomManager Standalone",
-				"Implementation-Title" : "jrmstandalone",
 			)
+		}
+	}
+	jlink {
+		mainClass = 'jrm.JRomManagerMulti'
+		options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+		launcher {
+			name = 'JRomManager'
+			jvmArgs = ['-XX:MaxRAMPercentage=75']
+		}
+		targetPlatform("win") {
+			jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10_openj9-0.21.0/OpenJDK11U-jdk_x64_windows_openj9_11.0.8_10_openj9-0.21.0.zip")
+		}
+		jpackage {
+			installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
+			if (installerType == 'msi') {
+				imageOptions += ['--icon', '../dist/JRomManager.ico']
+				installerOptions += [
+					'--win-per-user-install', '--win-dir-chooser',
+					'--win-menu', '--win-shortcut'
+				]
+			}
+		}	
+	}
+	jpackage {
+		doFirst {
+			project.getProperty('installerType') // throws exception if its missing
 		}
 	}
 }
@@ -503,28 +542,6 @@ dependencies {
 	implementation project(':JRomManager:jrmcli')
 	implementation project(':JRomManager:jrmserver')
 }
-/*
-javadoc {
-	source += project(':JRomManager:trrntzip').sourceSets.main.allJava
-	source += project(':JRomManager:jrmcore').sourceSets.main.allJava
-	source += project(':JRomManager:jrmupdater').sourceSets.main.allJava
-	source += project(':JRomManager:jrmstandalone').sourceSets.main.allJava
-	source += project(':JRomManager:jrmserver').sourceSets.main.allJava
-	classpath += project(':JRomManager:trrntzip').sourceSets.main.compileClasspath
-	classpath += project(':JRomManager:jrmcore').sourceSets.main.compileClasspath
-	classpath += project(':JRomManager:jrmupdater').sourceSets.main.compileClasspath
-	classpath += project(':JRomManager:jrmstandalone').sourceSets.main.compileClasspath
-	classpath += project(':JRomManager:jrmserver').sourceSets.main.compileClasspath
-	options.showAll()
-	options.with {
-		links 'https://docs.oracle.com/javase/11/docs/api/'
-		source '11'
-	}
-}
-*/
-build.dependsOn javadoc
-
-
 
 jar {
 	def mainClassName="jrm.JRomManager"
@@ -686,12 +703,12 @@ ospackage {
 }
 
 buildDeb {
-	requires('java8-runtime').or('java9-runtime').or('java10-runtime').or('java11-runtime')
+	requires('java11-runtime').or('java12-runtime').or('java13-runtime').or('java14-runtime')
 	arch = "all"
 }
 
 buildRpm {
-	requires('java', '1:1.8.0', EQUAL).or('java', '1:9', EQUAL).or('java', '1:10', EQUAL).or('java', '1:11', EQUAL)
+	requires('java', '1:11', EQUAL).or('java', '1:12', EQUAL).or('java', '1:13', EQUAL).or('java', '1:14', EQUAL)
 	arch = NOARCH
 	os = LINUX
 	addParentDirs = false
@@ -701,88 +718,3 @@ buildRpm {
 build.dependsOn buildRpm
 build.dependsOn buildDeb
 
-apply plugin: "de.inetsoftware.setupbuilder"
-		
-setupBuilder {
-	vendor = 'optyfr'
-	application = project.name
-	appIdentifier = project.name
-	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version");
-	licenseFile = new File(project(':JLauncher').projectDir,'LICENSE')
-	icons = new File(new File(project.projectDir,'dist'),project.name+'.png')
-	from (configurations.runtimeClasspath) {
-		into('lib')
-		exclude '*.zip'
-		include '*.jar'
-	}
-	from (jar)
-	from (project(':JUpdater').jar)
-	from (zipTree(distZip.archivePath)) {
-		include 'wrapper/**'
-		include 'webclient/**'
-		include 'certs/**'
-  	}
-	desktopStarter {
-		displayName = project.name
-		executable = project.name + '.exe'
-	}
-	mainJar = 'JRomManager.jar'
-	mainClass = 'jrm.JRomManagerMulti'
-//	setup.bundleJre = 1.8
-}
-
-import org.apache.tools.ant.taskdefs.condition.Os
-if (Os.isFamily(Os.FAMILY_WINDOWS))
-{
-	def result = exec{
-		executable =  "where"
-		args = ["candle.exe"]
-		ignoreExitValue = true
-		standardOutput = new ByteArrayOutputStream()
-		errorOutput = new ByteArrayOutputStream()
-	}
-	
-	if(result.getExitValue()==0)
-	{
-		
-		task buildMSI(type: com.inet.gradle.setup.msi.Msi, dependsOn: ':JLauncher:build') {
-			arch = 'x86'
-			languages = ['en_us'] 
-			from (new File(project(':JLauncher').buildDir , 'exe/JLauncher'))
-			{
-				include 'JLauncher.exe'
-				rename { project.name+'.exe' }
-			}
-			onlyIf {
-				Os.isFamily(Os.FAMILY_WINDOWS)
-			}
-		}
-		
-//		build.dependsOn buildMSI
-	}
-	else
-		logger.warn("Can't find WIX ToolSet binaries in PATH, Skipping MSI build.")
-}
-else
-	logger.info('Not on Windows, skipping MSI build.')
-
-if (Os.isFamily(Os.FAMILY_MAC))
-{
-	task buildDMG(type: com.inet.gradle.setup.dmg.Dmg, dependsOn: distZip) {
-		onlyIf {
-			Os.isFamily(Os.FAMILY_MAC)
-		}
-	}
-		
-	build.dependsOn buildDMG
-
-/*	apply plugin: "edu.sc.seis.macAppBundle"
-
-	macAppBundle {
-		mainClassName = "jrm.JRomManager"
-	}
-
-	build.dependsOn createDmg*/
-}
-else
-	logger.info('Not on Mac, skipping DMG build.')

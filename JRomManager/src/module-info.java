@@ -28,7 +28,6 @@ module jrmcore
 	exports jrm.aui.profile.report;
 	exports jrm.xml;
 
-	requires com.github.spotbugs.annotations;
 	requires java.desktop;
 	requires transitive java.logging;
 	requires transitive java.xml;

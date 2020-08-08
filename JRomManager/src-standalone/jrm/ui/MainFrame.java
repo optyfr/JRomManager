@@ -20,13 +20,12 @@ package jrm.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.ResourceBundle;
+import java.util.NoSuchElementException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -40,12 +39,13 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
-import jrm.ui.profile.report.ReportFrame;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.ui.batch.BatchPanel;
 import jrm.ui.profile.ProfileViewer;
+import jrm.ui.profile.report.ReportFrame;
+import lombok.val;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -68,8 +68,8 @@ public class MainFrame extends JFrame
 
 	private ProfilePanel profilesPanel;
 
-	
 	private Session session;
+
 	/**
 	 * Instantiates a new main frame.
 	 */
@@ -91,12 +91,12 @@ public class MainFrame extends JFrame
 			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
 			final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 			xmldir.mkdir();
-			ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
+	//		ResourceBundle.getBundle("jrm.resources.Messages"); //$NON-NLS-1$
 		}
 		catch (final Exception e)
 		{
 			JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 		build();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -117,7 +117,7 @@ public class MainFrame extends JFrame
 		final Package pkg = this.getClass().getPackage();
 		if (pkg.getSpecificationVersion() != null)
 		{
-			version += pkg.getSpecificationVersion(); //$NON-NLS-1$
+			version += pkg.getSpecificationVersion(); // $NON-NLS-1$
 			if (pkg.getImplementationVersion() != null)
 				version += "." + pkg.getImplementationVersion(); //$NON-NLS-1$
 		}
@@ -129,7 +129,7 @@ public class MainFrame extends JFrame
 	 */
 	private void build()
 	{
-		setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/jrm/resicons/rom.png"))); //$NON-NLS-1$
+		setIconImage(getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
 		setTitle(Messages.getString("MainFrame.Title") + " " + getVersion()); //$NON-NLS-1$ $NON-NLS-2$
 		setBounds(50, 50, 1007, 601);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -158,7 +158,7 @@ public class MainFrame extends JFrame
 		}
 		catch (final DecoderException e1)
 		{
-			Log.err(e1.getMessage(),e1);
+			Log.err(e1.getMessage(), e1);
 		}
 
 	}
@@ -166,7 +166,7 @@ public class MainFrame extends JFrame
 	private void buildProfileTab()
 	{
 		profilesPanel = new ProfilePanel(session);
-		mainPane.addTab(Messages.getString("MainFrame.Profiles"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/script.png")), profilesPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
+		mainPane.addTab(Messages.getString("MainFrame.Profiles"), MainFrame.getIcon("/jrm/resicons/icons/script.png"), profilesPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void buildScannerTab()
@@ -174,29 +174,28 @@ public class MainFrame extends JFrame
 		ScannerPanel scannerPanel = new ScannerPanel(session);
 		profilesPanel.setProfileLoader(scannerPanel);
 		scannerPanel.setMainPane(mainPane);
-		mainPane.addTab(Messages.getString("MainFrame.Scanner"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/drive_magnify.png")), scannerPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
+		mainPane.addTab(Messages.getString("MainFrame.Scanner"), MainFrame.getIcon("/jrm/resicons/icons/drive_magnify.png"), scannerPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 		mainPane.setEnabledAt(1, false);
 	}
 
 	private void buildDir2DatTab()
 	{
 		Dir2DatPanel dir2datPanel = new Dir2DatPanel(session);
-		mainPane.addTab(Messages.getString("MainFrame.Dir2Dat"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/drive_go.png")), dir2datPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
+		mainPane.addTab(Messages.getString("MainFrame.Dir2Dat"), MainFrame.getIcon("/jrm/resicons/icons/drive_go.png"), dir2datPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 
 	}
 
 	private void buildBatchToolsTab()
 	{
 		BatchPanel batchToolsPanel = new BatchPanel(session);
-		mainPane.addTab(Messages.getString("MainFrame.BatchTools"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/application_osx_terminal.png")), batchToolsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
+		mainPane.addTab(Messages.getString("MainFrame.BatchTools"), MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"), batchToolsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void buildSettingsTab()
 	{
 		settingsPanel = new SettingsPanel(session);
-		mainPane.addTab(Messages.getString("MainFrame.Settings"), new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/cog.png")), settingsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
+		mainPane.addTab(Messages.getString("MainFrame.Settings"), MainFrame.getIcon("/jrm/resicons/icons/cog.png"), settingsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-
 
 	/**
 	 * Adds and show the popup menu.
@@ -233,6 +232,35 @@ public class MainFrame extends JFrame
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
 		});
+	}
+
+	public static ImageIcon getIcon(String res)
+	{
+		try
+		{
+			Module module = ModuleLayer.boot().findModule("res.icons").orElseThrow();
+			try (val in = module.getResourceAsStream(res))
+			{
+				return in!=null?new ImageIcon(in.readAllBytes()):new ImageIcon();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				return new ImageIcon();
+			}
+		}
+		catch (NoSuchElementException ex)
+		{
+			try (val in = MainFrame.class.getResourceAsStream(res))
+			{
+				return in!=null?new ImageIcon(in.readAllBytes()):new ImageIcon();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				return new ImageIcon();
+			}
+		}
 	}
 
 }

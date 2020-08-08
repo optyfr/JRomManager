@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -42,17 +41,13 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import jrm.ui.basic.JSDRDropTable;
-import jrm.ui.basic.SDRTableModel;
 import jrm.aui.basic.SrcDstResult;
-import jrm.ui.basic.JRMFileChooser.CallBack;
-import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
 import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
 import jrm.locale.Messages;
 import jrm.misc.Log;
-import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
+import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
@@ -60,6 +55,10 @@ import jrm.ui.basic.JFileDropList;
 import jrm.ui.basic.JFileDropMode;
 import jrm.ui.basic.JListHintUI;
 import jrm.ui.basic.JRMFileChooser;
+import jrm.ui.basic.JRMFileChooser.CallBack;
+import jrm.ui.basic.JSDRDropTable;
+import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
+import jrm.ui.basic.SDRTableModel;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
@@ -425,7 +424,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		cbBatchToolsDat2DirDryRun.addItemListener(e -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 
 		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$
-		btnBatchToolsDir2DatStart.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/bullet_go.png")));
+		btnBatchToolsDir2DatStart.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_go.png"));
 		btnBatchToolsDir2DatStart.addActionListener((e) -> dat2dir(session, cbBatchToolsDat2DirDryRun.isSelected()));
 
 		GridBagConstraints gbc_cbBatchToolsDat2DirDryRun = new GridBagConstraints();

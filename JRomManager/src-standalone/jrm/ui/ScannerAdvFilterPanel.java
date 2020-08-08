@@ -35,8 +35,8 @@ import jrm.ui.basic.JTextFieldHintUI;
 import jrm.ui.basic.NGTreeNode;
 import jrm.ui.profile.filter.CatVerModel;
 import jrm.ui.profile.filter.CatVerNode;
-import jrm.ui.profile.filter.NPlayersModel;
 import jrm.ui.profile.filter.CatVerNode.CategoryNode;
+import jrm.ui.profile.filter.NPlayersModel;
 
 @SuppressWarnings("serial")
 public class ScannerAdvFilterPanel extends JPanel

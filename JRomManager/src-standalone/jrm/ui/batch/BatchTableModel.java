@@ -12,9 +12,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import jrm.ui.basic.SDRTableModel;
 import jrm.locale.Messages;
 import jrm.ui.basic.JTableButton;
+import jrm.ui.basic.SDRTableModel;
 
 public class BatchTableModel extends SDRTableModel
 {

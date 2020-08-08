@@ -49,4 +49,5 @@ module jrmserver
 	requires sevenzipjbinding.all;
 	
 	requires transitive jrmcore;
+	requires res.icons;
 }

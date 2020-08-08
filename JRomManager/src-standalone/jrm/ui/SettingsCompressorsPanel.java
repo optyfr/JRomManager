@@ -14,7 +14,6 @@ import java.awt.event.FocusEvent;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -191,7 +190,7 @@ public class SettingsCompressorsPanel extends JPanel
 		tfZipECmd.setColumns(30);
 
 		JButton btZipECmd = new JButton(""); //$NON-NLS-1$
-		btZipECmd.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
+		btZipECmd.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 		final GridBagConstraints gbc_btZipECmd = new GridBagConstraints();
 		gbc_btZipECmd.fill = GridBagConstraints.BOTH;
 		gbc_btZipECmd.insets = new Insets(0, 0, 5, 5);
@@ -293,7 +292,7 @@ public class SettingsCompressorsPanel extends JPanel
 		panel7Zip.add(tf7zCmd, gbc_tf7zCmd);
 
 		JButton btn7zCmd = new JButton(""); //$NON-NLS-1$
-		btn7zCmd.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
+		btn7zCmd.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 		final GridBagConstraints gbc_btn7zCmd = new GridBagConstraints();
 		gbc_btn7zCmd.fill = GridBagConstraints.BOTH;
 		gbc_btn7zCmd.insets = new Insets(0, 0, 5, 5);

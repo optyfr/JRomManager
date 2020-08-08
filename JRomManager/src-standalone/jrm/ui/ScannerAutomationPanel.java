@@ -13,8 +13,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 
 import jrm.locale.Messages;
-import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
+import jrm.misc.SettingsEnum;
 import jrm.profile.scan.options.ScanAutomation;
 
 @SuppressWarnings("serial")

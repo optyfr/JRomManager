@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jrm.profile.Profile;
 import jrm.profile.data.Software.Part.DataArea;
 import jrm.profile.data.Software.Part.DiskArea;
@@ -218,7 +217,6 @@ public class Software extends Anyware implements Serializable
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unlikely-arg-type")
-	@SuppressFBWarnings
 	public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries) throws XMLStreamException, IOException
 	{
 		writer.writeStartElement("software", //$NON-NLS-1$

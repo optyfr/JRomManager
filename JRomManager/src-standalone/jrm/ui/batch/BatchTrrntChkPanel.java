@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -39,12 +38,8 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
-import jrm.ui.basic.JSDRDropTable;
 import jrm.aui.basic.ResultColUpdater;
-import jrm.ui.basic.SDRTableModel;
 import jrm.aui.basic.SrcDstResult;
-import jrm.ui.basic.JRMFileChooser.CallBack;
-import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
 import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.batch.TorrentChecker;
 import jrm.batch.TrntChkReport;
@@ -55,6 +50,10 @@ import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.JRMFileChooser;
+import jrm.ui.basic.JRMFileChooser.CallBack;
+import jrm.ui.basic.JSDRDropTable;
+import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
+import jrm.ui.basic.SDRTableModel;
 import jrm.ui.progress.Progress;
 
 @SuppressWarnings("serial")
@@ -281,7 +280,7 @@ public class BatchTrrntChkPanel extends JPanel
 		this.add(cbbxTrntChk, gbc_cbbxTrntChk);
 
 		final JButton btnBatchToolsTrntChkStart = new JButton(Messages.getString("BatchToolsTrrntChkPanel.TrntCheckStart.text")); //$NON-NLS-1$
-		btnBatchToolsTrntChkStart.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/bullet_go.png")));
+		btnBatchToolsTrntChkStart.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_go.png"));
 		btnBatchToolsTrntChkStart.addActionListener((e) -> trrntChk(session));
 
 		chckbxDetectArchivedFolder = new JCheckBox(Messages.getString("BatchTrrntChkPanel.chckbxDetectArchivedFolder.text")); //$NON-NLS-1$

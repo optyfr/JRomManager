@@ -8,7 +8,6 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import java.util.stream.Collectors;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -118,7 +117,7 @@ public class ScannerDirPanel extends JPanel
 		gbc_btnRomsDest.gridx = 2;
 		gbc_btnRomsDest.gridy = 0;
 		this.add(btnRomsDest, gbc_btnRomsDest);
-		btnRomsDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
+		btnRomsDest.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 		btnRomsDest.addActionListener(e -> {
 			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.curr_profile.getProperty("MainFrame.ChooseRomsDestination", workdir.getAbsolutePath())), new File(txtRomsDest.getText()), null, Messages.getString("MainFrame.ChooseRomsDestination"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
@@ -158,7 +157,7 @@ public class ScannerDirPanel extends JPanel
 
 		btDisksDest = new JButton(""); //$NON-NLS-1$
 		btDisksDest.setEnabled(false);
-		btDisksDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
+		btDisksDest.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 		final GridBagConstraints gbc_btDisksDest = new GridBagConstraints();
 		gbc_btDisksDest.insets = new Insets(0, 0, 5, 5);
 		gbc_btDisksDest.gridx = 2;
@@ -212,7 +211,7 @@ public class ScannerDirPanel extends JPanel
 			});
 		});
 		btnSWDest.setEnabled(false);
-		btnSWDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
+		btnSWDest.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 		final GridBagConstraints gbc_btnSWDest = new GridBagConstraints();
 		gbc_btnSWDest.insets = new Insets(0, 0, 5, 5);
 		gbc_btnSWDest.gridx = 2;
@@ -255,7 +254,7 @@ public class ScannerDirPanel extends JPanel
 			});
 		});
 		btSWDisksDest.setEnabled(false);
-		btSWDisksDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
+		btSWDisksDest.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 		final GridBagConstraints gbc_btSWDisksDest = new GridBagConstraints();
 		gbc_btSWDisksDest.insets = new Insets(0, 0, 5, 5);
 		gbc_btSWDisksDest.gridx = 2;
@@ -300,7 +299,7 @@ public class ScannerDirPanel extends JPanel
 			});
 		});
 		btSamplesDest.setEnabled(false);
-		btSamplesDest.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/disk.png"))); //$NON-NLS-1$
+		btSamplesDest.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 		final GridBagConstraints gbc_btSamplesDest = new GridBagConstraints();
 		gbc_btSamplesDest.insets = new Insets(0, 0, 5, 5);
 		gbc_btSamplesDest.gridx = 2;
@@ -353,7 +352,7 @@ public class ScannerDirPanel extends JPanel
 
 		mntmDeleteSelected = new JMenuItem(Messages.getString("MainFrame.mntmDeleteSelected.text")); //$NON-NLS-1$
 		mntmDeleteSelected.addActionListener(e -> listSrcDir.del(listSrcDir.getSelectedValuesList()));
-		mntmDeleteSelected.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/folder_delete.png"))); //$NON-NLS-1$
+		mntmDeleteSelected.setIcon(MainFrame.getIcon("/jrm/resicons/icons/folder_delete.png")); //$NON-NLS-1$
 		popupMenu.add(mntmDeleteSelected);
 
 		JMenuItem mntmAddDirectory = new JMenuItem(Messages.getString("MainFrame.mntmAddDirectory.text")); //$NON-NLS-1$
@@ -365,7 +364,7 @@ public class ScannerDirPanel extends JPanel
 				return true;
 			});
 		});
-		mntmAddDirectory.setIcon(new ImageIcon(MainFrame.class.getResource("/jrm/resicons/icons/folder_add.png"))); //$NON-NLS-1$
+		mntmAddDirectory.setIcon(MainFrame.getIcon("/jrm/resicons/icons/folder_add.png")); //$NON-NLS-1$
 		popupMenu.add(mntmAddDirectory);
 
 

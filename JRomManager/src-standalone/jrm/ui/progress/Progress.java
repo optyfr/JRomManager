@@ -22,7 +22,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -30,7 +29,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -45,6 +43,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressInputStream;
 import jrm.locale.Messages;
+import jrm.ui.MainFrame;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -86,7 +85,7 @@ public class Progress extends JDialog implements ProgressHandler
 	public Progress(final Window owner)
 	{
 		super(owner, Messages.getString("Progress.Title"), ModalityType.MODELESS); //$NON-NLS-1$
-		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/jrm/resicons/rom.png"))); //$NON-NLS-1$
+		setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
 		getContentPane().setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
 		addWindowListener(new WindowAdapter()
 		{
@@ -152,7 +151,7 @@ public class Progress extends JDialog implements ProgressHandler
 		getContentPane().add(lblTimeleft, gbc_lblTimeleft);
 
 		btnCancel = new JButton(Messages.getString("Progress.btnCancel.text")); //$NON-NLS-1$
-		btnCancel.setIcon(new ImageIcon(Progress.class.getResource("/jrm/resicons/icons/stop.png"))); //$NON-NLS-1$
+		btnCancel.setIcon(MainFrame.getIcon("/jrm/resicons/icons/stop.png")); //$NON-NLS-1$
 		btnCancel.addActionListener(e -> cancel());
 
 		progressBar2 = new JProgressBar();

@@ -18,13 +18,13 @@ package jrm.ui.batch;
 
 import java.awt.Component;
 
-import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import jrm.ui.batch.BatchTrrntChkReportNode.ChildNode;
 import jrm.batch.TrntChkReport.Child;
 import jrm.misc.Log;
+import jrm.ui.MainFrame;
+import jrm.ui.batch.BatchTrrntChkReportNode.ChildNode;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -88,7 +88,7 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 							break;
 					}
 					icon += ".png"; //$NON-NLS-1$
-					setIcon(new ImageIcon(BatchTrrntChkReportTreeCellRenderer.class.getResource(icon)));
+					setIcon(MainFrame.getIcon(icon));
 				}
 				else
 				{
@@ -115,7 +115,7 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 							break;
 					}
 					icon += ".png"; //$NON-NLS-1$
-					setIcon(new ImageIcon(BatchTrrntChkReportTreeCellRenderer.class.getResource(icon)));
+					setIcon(MainFrame.getIcon(icon));
 				}
 			}
 			else

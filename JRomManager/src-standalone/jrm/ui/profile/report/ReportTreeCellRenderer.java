@@ -18,12 +18,9 @@ package jrm.ui.profile.report;
 
 import java.awt.Component;
 
-import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import jrm.ui.profile.report.ReportNode.SubjectNode;
-import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.report.ContainerTZip;
@@ -40,6 +37,9 @@ import jrm.profile.report.Note;
 import jrm.profile.report.RomSuspiciousCRC;
 import jrm.profile.report.Subject;
 import jrm.profile.report.SubjectSet;
+import jrm.ui.MainFrame;
+import jrm.ui.profile.report.ReportNode.SubjectNode;
+import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -77,27 +77,27 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 			else
 				super.getTreeCellRendererComponent(tree, ((HTMLRenderer)value).getHTML(), sel, expanded, leaf, row, hasFocus);
 			if(value instanceof RomSuspiciousCRC)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/information.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/information.png")); //$NON-NLS-1$
 			else if(value instanceof ContainerUnknown)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/error.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
 			else if(value instanceof ContainerUnneeded)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/error.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
 			else if(value instanceof ContainerTZip)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/compress.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/compress.png")); //$NON-NLS-1$
 			else if(value instanceof EntryOK)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_green.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
 			else if(value instanceof EntryAdd)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_blue.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_blue.png")); //$NON-NLS-1$
 			else if(value instanceof EntryMissingDuplicate)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_purple.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_purple.png")); //$NON-NLS-1$
 			else if(value instanceof EntryMissing)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_red.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png")); //$NON-NLS-1$
 			else if(value instanceof EntryUnneeded)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_black.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png")); //$NON-NLS-1$
 			else if(value instanceof EntryWrongHash)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_orange.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_orange.png")); //$NON-NLS-1$
 			else if(value instanceof EntryWrongName)
-				setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_pink.png"))); //$NON-NLS-1$
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png")); //$NON-NLS-1$
 			else if(!leaf)
 			{
 				String icon = "/jrm/resicons/folder"; //$NON-NLS-1$
@@ -138,7 +138,7 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 					}
 				}
 				icon += ".png"; //$NON-NLS-1$
-				setIcon(new ImageIcon(ReportFrame.class.getResource(icon)));
+				setIcon(MainFrame.getIcon(icon));
 			}
 			else
 			{
@@ -147,7 +147,7 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 					switch(((SubjectSet) value).getStatus())
 					{
 						case FOUND:
-							setIcon(new ImageIcon(ReportFrame.class.getResource("/jrm/resicons/icons/bullet_green.png"))); //$NON-NLS-1$
+							setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
 							break;
 						default:
 							break;
