@@ -109,11 +109,11 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
 - One-click easy updater (can be manually disabled at launch)
 - Jar installer
-- Extra merging and collision modes to generate PleasureDome compatible Mame sets, as of v0.198 :
+- Extra merging and collision modes to generate PleasureDome compatible Mame sets, as of v0.223 :
     - ROMs split => 100% torrent joining
-    - ROMs merged => 99.89% torrent joining (64MB missed)
-    - ROMs non-merged => 100% torrent joining
-    - BIOS-Devices => 90.60% torrent joining (12MB missed)
+    - ROMs merged => 
+    - ROMs non-merged => 99.969% torrent joining (7MB to complete, 11 archives with more files than in PD related to devices)
+    - BIOS-Devices => 83.351% torrent joining (119MB missed, 152 archives with more files than in PD and 66 extreaneous archives)
     - SoftwareList Machine-BIOS-Devices => 70% torrent joining (10MB missed) since some machines exist with no SoftwareList available
     - SoftwareList ROMs => not tested since it contains some non-supported software lists
 - An advanced progression window taking into account multi-threading operations
