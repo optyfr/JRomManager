@@ -1,4 +1,4 @@
-package jrm.fullserver.handlers;
+package jrm.server.shared.handlers;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

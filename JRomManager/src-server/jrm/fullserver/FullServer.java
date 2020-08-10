@@ -41,17 +41,17 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import jrm.fullserver.handlers.ActionServlet;
 import jrm.fullserver.handlers.DataSourceServlet;
-import jrm.fullserver.handlers.DownloadServlet;
-import jrm.fullserver.handlers.ImageServlet;
 import jrm.fullserver.handlers.SessionServlet;
-import jrm.fullserver.handlers.UploadServlet;
 import jrm.fullserver.security.BasicAuthenticator;
 import jrm.fullserver.security.Login;
 import jrm.fullserver.security.SSLReload;
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
+import jrm.server.shared.handlers.ActionServlet;
+import jrm.server.shared.handlers.DownloadServlet;
+import jrm.server.shared.handlers.ImageServlet;
+import jrm.server.shared.handlers.UploadServlet;
 import lombok.val;
 
 public class FullServer

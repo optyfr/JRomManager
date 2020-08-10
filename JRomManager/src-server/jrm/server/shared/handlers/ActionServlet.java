@@ -1,4 +1,4 @@
-package jrm.fullserver.handlers;
+package jrm.server.shared.handlers;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -9,11 +9,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import jrm.server.lpr.LongPollingReqMgr;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.actions.CatVerActions;
 import jrm.server.shared.actions.NPlayersActions;
 import jrm.server.shared.actions.ProfileActions;
+import jrm.server.shared.lpr.LongPollingReqMgr;
 import lombok.val;
 
 @SuppressWarnings("serial")

@@ -46,6 +46,7 @@ public class RemoteRootChooserXMLResponse extends XMLResponse
 		}
 		else
 		{
+			paths.put("Work", Paths.get("%work"));
 			for(Path root : FileSystems.getDefault().getRootDirectories())
 			{
 				try

@@ -21,7 +21,7 @@ public class SessionListener implements HttpSessionListener
 	public void sessionCreated(HttpSessionEvent se)
 	{
 		System.out.println("Creating session " + se.getSession().getId());
-		se.getSession().setAttribute("session", new WebSession(se.getSession().getId(), null, null));
+		se.getSession().setAttribute("session", new WebSession(se.getSession().getId()));
 	}
 
 }

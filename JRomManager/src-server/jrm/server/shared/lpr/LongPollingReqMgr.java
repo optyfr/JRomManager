@@ -1,4 +1,4 @@
-package jrm.server.lpr;
+package jrm.server.shared.lpr;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -46,6 +46,13 @@ public class LongPollingReqMgr implements ActionsMgr
 	public void send(String msg) throws IOException
 	{
 		session.lprMsg.add(msg);
+	}
+
+	@Override
+	public void sendOptional(String msg) throws IOException
+	{
+		if(session.lprMsg.isEmpty())
+			session.lprMsg.add(msg);
 	}
 
 	@Override

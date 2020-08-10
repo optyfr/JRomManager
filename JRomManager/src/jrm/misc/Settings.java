@@ -77,12 +77,14 @@ public abstract class Settings extends SettingsImpl
 	public void setProperty(final String property, final boolean value)
 	{
 		properties.setProperty(property, Boolean.toString(value));
+		propagate(SettingsEnum.from(property), Boolean.toString(value));
 	}
 
 	@Override
-	protected void setProperty(final String property, final int value)
+	public void setProperty(final String property, final int value)
 	{
 		properties.setProperty(property, Integer.toString(value));
+		propagate(SettingsEnum.from(property), Integer.toString(value));
 	}
 
 	@Override
@@ -99,6 +101,7 @@ public abstract class Settings extends SettingsImpl
 			properties.remove(property);
 		else
 			properties.setProperty(property, value);
+		propagate(SettingsEnum.from(property), value);
 	}
 	
 	@Override

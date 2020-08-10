@@ -224,7 +224,7 @@ public class Scan extends PathAbstractor
 		format = FormatOptions.valueOf(profile.getProperty(SettingsEnum.format, FormatOptions.ZIP.toString())); //$NON-NLS-1$
 		merge_mode = MergeOptions.valueOf(profile.getProperty(SettingsEnum.merge_mode, MergeOptions.SPLIT.toString())); //$NON-NLS-1$
 		create_mode = profile.getProperty(SettingsEnum.create_mode, true); //$NON-NLS-1$
-		createfull_mode = profile.getProperty(SettingsEnum.createfull_mode, true); //$NON-NLS-1$
+		createfull_mode = profile.getProperty(SettingsEnum.createfull_mode, false); //$NON-NLS-1$
 		ignore_unneeded_containers = profile.getProperty(SettingsEnum.ignore_unneeded_containers, false); //$NON-NLS-1$
 		ignore_unneeded_entries = profile.getProperty(SettingsEnum.ignore_unneeded_entries, false); //$NON-NLS-1$
 		ignore_unknown_containers = profile.getProperty(SettingsEnum.ignore_unknown_containers, false); //$NON-NLS-1$

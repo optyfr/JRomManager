@@ -237,6 +237,8 @@ public class ProfileActions extends PathAbstractor
 			JsonValue value = m.getValue();
 			if (value.isBoolean())
 				settings.setProperty(m.getName(), value.asBoolean());
+			else if(value.isNumber())
+				settings.setProperty(m.getName(), value.asInt());
 			else if (value.isString())
 				settings.setProperty(m.getName(), value.asString());
 			else

@@ -178,6 +178,13 @@ public class ScannerSettingsPanel extends JPanel
 
 		chckbxUseParallelism = new JCheckBox(Messages.getString("MainFrame.chckbxUseParallelism.text")); //$NON-NLS-1$
 		chckbxUseParallelism.addItemListener(e -> settings.setProperty(SettingsEnum.use_parallelism, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
+		chckbxUseParallelism.setToolTipText(Messages.getString("MainFrame.chckbxUseParallelism.toolTipText")); //$NON-NLS-1$
+		final GridBagConstraints gbc_chckbxUseParallelism = new GridBagConstraints();
+		gbc_chckbxUseParallelism.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxUseParallelism.fill = GridBagConstraints.BOTH;
+		gbc_chckbxUseParallelism.gridx = 0;
+		gbc_chckbxUseParallelism.gridy = 1;
+		this.add(chckbxUseParallelism, gbc_chckbxUseParallelism);
 
 		chckbxCreateMissingSets = new JCheckBox(Messages.getString("MainFrame.chckbxCreateMissingSets.text")); //$NON-NLS-1$
 		chckbxCreateMissingSets.addItemListener(e -> {
@@ -192,14 +199,7 @@ public class ScannerSettingsPanel extends JPanel
 		gbc_chckbxCreateMissingSets.gridx = 1;
 		gbc_chckbxCreateMissingSets.gridy = 0;
 		this.add(chckbxCreateMissingSets, gbc_chckbxCreateMissingSets);
-		chckbxUseParallelism.setToolTipText(Messages.getString("MainFrame.chckbxUseParallelism.toolTipText")); //$NON-NLS-1$
-		final GridBagConstraints gbc_chckbxUseParallelism = new GridBagConstraints();
-		gbc_chckbxUseParallelism.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxUseParallelism.fill = GridBagConstraints.BOTH;
-		gbc_chckbxUseParallelism.gridx = 0;
-		gbc_chckbxUseParallelism.gridy = 1;
-		this.add(chckbxUseParallelism, gbc_chckbxUseParallelism);
-
+		
 		chckbxCreateOnlyComplete = new JCheckBox(Messages.getString("MainFrame.chckbxCreateOnlyComplete.text")); //$NON-NLS-1$
 		chckbxCreateOnlyComplete.addItemListener(e -> settings.setProperty(SettingsEnum.createfull_mode, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
 		final GridBagConstraints gbc_chckbxCreateOnlyComplete = new GridBagConstraints();
@@ -401,7 +401,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.settings = settings;
 		chckbxNeedSHA1.setSelected(settings.getProperty(SettingsEnum.need_sha1_or_md5, false)); //$NON-NLS-1$
 		chckbxUseParallelism.setSelected(settings.getProperty(SettingsEnum.use_parallelism, false)); //$NON-NLS-1$
-		chckbxCreateMissingSets.setSelected(settings.getProperty(SettingsEnum.create_mode, false)); //$NON-NLS-1$
+		chckbxCreateMissingSets.setSelected(settings.getProperty(SettingsEnum.create_mode, true)); //$NON-NLS-1$
 		chckbxCreateOnlyComplete.setSelected(settings.getProperty(SettingsEnum.createfull_mode, false) && chckbxCreateMissingSets.isSelected()); //$NON-NLS-1$
 		chckbxIgnoreUnneededContainers.setSelected(settings.getProperty(SettingsEnum.ignore_unneeded_containers, false)); //$NON-NLS-1$
 		chckbxIgnoreUnneededEntries.setSelected(settings.getProperty(SettingsEnum.ignore_unneeded_entries, false)); //$NON-NLS-1$

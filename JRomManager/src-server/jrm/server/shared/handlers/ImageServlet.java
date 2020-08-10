@@ -1,4 +1,4 @@
-package jrm.server.handlers;
+package jrm.server.shared.handlers;
 
 import java.io.IOException;
 import java.net.URL;

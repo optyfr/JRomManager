@@ -361,9 +361,9 @@ public class SettingsCompressorsPanel extends JPanel
 
 		ckbx7zSolid = new JCheckBox(Messages.getString("MainFrame.ckbx7zSolid.text")); //$NON-NLS-1$
 		ckbx7zSolid.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, true)); //$NON-NLS-1$
-		cb7zArgs.setEnabled(ckbx7zSolid.isSelected());
+//		cb7zArgs.setEnabled(ckbx7zSolid.isSelected());
 		ckbx7zSolid.addActionListener(arg0 -> {
-			cb7zArgs.setEnabled(ckbx7zSolid.isSelected());
+//			cb7zArgs.setEnabled(ckbx7zSolid.isSelected());
 			session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_solid, ckbx7zSolid.isSelected()); //$NON-NLS-1$
 		});
 		final GridBagConstraints gbc_ckbx7zSolid = new GridBagConstraints();

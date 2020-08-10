@@ -12,6 +12,7 @@ import jrm.server.shared.WebSession;
 public interface ActionsMgr extends SessionStub
 {
 	public void send(String msg) throws IOException;
+	public void sendOptional(String msg) throws IOException;
 
 	public boolean isOpen();
 

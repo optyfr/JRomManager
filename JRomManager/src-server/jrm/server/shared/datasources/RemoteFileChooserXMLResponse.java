@@ -379,7 +379,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		{
 			if(operation.hasData("Path"))
 			{
-				Path zipfile = Paths.get(operation.getData("Path"));
+				Path zipfile = pathAbstractor.getAbsolutePath(operation.getData("Path"));
 				Path dest = zipfile.getParent().resolve(StringUtils.substring(zipfile.getFileName().toString(), 0, -4));
 				unzip(zipfile, dest);
 				success();
@@ -391,7 +391,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		{
 			if(operation.hasData("Path"))
 			{
-				Path zipfile = Paths.get(operation.getData("Path"));
+				Path zipfile = pathAbstractor.getAbsolutePath(operation.getData("Path"));
 				Path dest = zipfile.getParent();
 				unzip(zipfile, dest);
 				success();

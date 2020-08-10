@@ -87,7 +87,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 	@Override
 	protected void update(Operation operation) throws Exception
 	{
-		if(operation.hasData("src"))
+		if(operation.hasData("id"))
 		{
 			final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]"));
 			if (sdrl.isNeedSave())

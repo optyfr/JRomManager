@@ -83,6 +83,7 @@ import jrm.profile.filter.NPlayers;
 import jrm.profile.manager.ProfileNFO;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
+import lombok.val;
 
 /**
  * Load a Profile which consist of :
@@ -1226,12 +1227,14 @@ public class Profile implements Serializable
 	 */
 	public boolean getProperty(final Enum<?> property, final boolean def)
 	{
-		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
+		val ret = Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
+		return ret;
 	}
 
 	public boolean getProperty(final String property, final boolean def)
 	{
-		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
+		val ret = Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
+		return ret;
 	}
 
 	/**
@@ -1242,11 +1245,13 @@ public class Profile implements Serializable
 	 */
 	public String getProperty(final Enum<?> property, final String def)
 	{
-		return settings.getProperty(property, def);
+		val ret = settings.getProperty(property, def);
+		return ret;
 	}
 	public String getProperty(final String property, final String def)
 	{
-		return settings.getProperty(property, def);
+		val ret = settings.getProperty(property, def);
+		return ret;
 	}
 
 	/**

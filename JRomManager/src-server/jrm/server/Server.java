@@ -26,15 +26,14 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 
-import jrm.fullserver.SessionListener;
 import jrm.misc.Log;
-import jrm.server.handlers.ActionServlet;
-import jrm.server.handlers.DataSourceServlet;
-import jrm.server.handlers.DownloadServlet;
-import jrm.server.handlers.ImageServlet;
 import jrm.server.handlers.SessionServlet;
-import jrm.server.handlers.UploadServlet;
 import jrm.server.shared.WebSession;
+import jrm.server.shared.handlers.ActionServlet;
+import jrm.server.shared.handlers.DataSourceServlet;
+import jrm.server.shared.handlers.DownloadServlet;
+import jrm.server.shared.handlers.ImageServlet;
+import jrm.server.shared.handlers.UploadServlet;
 import lombok.val;
 
 public class Server
