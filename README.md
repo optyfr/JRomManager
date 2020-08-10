@@ -111,7 +111,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Jar installer
 - Extra merging and collision modes to generate PleasureDome compatible Mame sets, as of v0.223 :
     - ROMs split => 100% torrent joining
-    - ROMs merged => 
+    - ROMs merged => 99.962% torrent joining (435KB to complete, 4 archives with more files than in PD related to devices)
     - ROMs non-merged => 99.969% torrent joining (7MB to complete, 11 archives with more files than in PD related to devices)
     - BIOS-Devices => 83.351% torrent joining (119MB missed, 152 archives with more files than in PD and 66 extreaneous archives)
     - SoftwareList Machine-BIOS-Devices => 70% torrent joining (10MB missed) since some machines exist with no SoftwareList available
