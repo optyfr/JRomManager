@@ -1,3 +1,13 @@
+## Release v2.5.0
+- Java 11 is now a minimal source/target requirement
+- Dropped obsolete/unmaintained NanoHTTPd, and using only Jetty
+- Modularized code and dependencies to bundle inside a designated java runtime that target some specific platforms (currently jre_11_openj9 + Windows_64)
+- Rebranded MSI installer for windows (using jpackage from Java 14)
+- 
+
+## Release v2.4.4
+- Dummy release because 2.4.3 packages were build with wrong jdk...
+
 ## Release v2.4.3
 - Property fixes with WebClient
 - Better RemoteFileChooser handling for BatchTools in WebClient
