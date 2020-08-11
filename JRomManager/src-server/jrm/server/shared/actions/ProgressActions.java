@@ -229,7 +229,7 @@ public class ProgressActions implements ProgressHandler
 			data.pb1.indeterminate = val == 0;
 			if (max != null)
 				data.pb1.max = max;
-			if (val > 0)
+			if (val >= 0)
 				data.pb1.val = val;
 			if (val == 0)
 				data.pb1.startTime = System.currentTimeMillis();

@@ -73,8 +73,6 @@ public class TrntChkActions
 			finally
 			{
 				TrntChkActions.this.end();
-				session.curr_profile = null;
-				session.curr_scan = null;
 				session.getWorker().progress.close();
 				session.getWorker().progress = null;
 				session.setLastAction(new Date());

@@ -40,6 +40,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 			writer.writeElement("startRow", Integer.toString(start=Math.min(nodecount-1,operation.getStartRow())));
 			writer.writeElement("endRow", Integer.toString(end=Math.min(nodecount-1,operation.getEndRow())));
 			writer.writeElement("totalRows", Integer.toString(nodecount));
+			writer.writeElement("infos", report.stats.getStatus());
 	
 			if(nodecount>0)
 			{
