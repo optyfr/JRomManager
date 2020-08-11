@@ -4,11 +4,10 @@ module jrmserver
 	exports jrm.fullserver.datasources;
 	exports jrm.fullserver.db;
 	exports jrm.fullserver.handlers;
-	exports jrm.fullserver.lpr;
 	exports jrm.fullserver.security;
 	exports jrm.server;
 	exports jrm.server.handlers;
-	exports jrm.server.lpr;
+	exports jrm.server.shared.lpr;
 	exports jrm.server.shared;
 	exports jrm.server.shared.actions;
 	exports jrm.server.shared.datasources;

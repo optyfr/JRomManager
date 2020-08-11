@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
+
 import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
+import com.google.gson.Gson;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressInputStream;
@@ -15,40 +17,72 @@ import jrm.misc.Log;
 public class ProgressActions implements ProgressHandler
 {
 	private ActionsMgr ws;
-	
+
 	/** The thread id offset. */
-	private final Map<Long,Integer> threadId_Offset = new HashMap<>();
-	
-	/** Current thread cnt */
-	private int threadCnt = 1;
-	
-	private boolean multipleSubInfos = false;
+	private final Map<Long, Integer> threadId_Offset = new HashMap<>();
 
 	/** The cancel. */
 	private boolean cancel = false;
-	
+
 	private boolean canCancel = true;
-	
-	private int val = 0, oldval = Integer.MIN_VALUE, val2 = 0, oldval2 = Integer.MIN_VALUE, max = 0, max2 = 0;
-	
-	private String infos[] = {null}, subinfos[] = {null}, msg2;
-	
+
+	final static class Cmd
+	{
+		final static class Data
+		{
+			final static class PB
+			{
+				boolean visibility = false;
+				boolean stringPainted = false;
+				boolean indeterminate = false;
+				int max = 0;
+				int val = 0;
+				float perc = 0f;
+				String msg = null;
+				String timeleft;
+
+				transient long startTime = 0;
+			}
+
+			/** Current thread cnt */
+			int threadCnt = 1;
+
+			boolean multipleSubInfos = false;
+
+			String infos[] = { null };
+			String subinfos[] = { null };
+
+			final PB pb1 = new PB();
+			final PB pb2 = new PB();
+		}
+
+		final String cmd = "Progress.setFullProgress";
+		final Data params;
+
+		Cmd(Data data)
+		{
+			this.params = data;
+		}
+	}
+
+	private final Cmd.Data data = new Cmd.Data();
+
 	public ProgressActions(ActionsMgr ws)
 	{
 		this.ws = ws;
 		sendOpen();
 	}
-	
+
 	private void sendOpen()
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 				ws.send(Json.object().add("cmd", "Progress").toString());
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
@@ -57,63 +91,70 @@ public class ProgressActions implements ProgressHandler
 		this.ws = ws;
 		sendOpen();
 		sendSetInfos();
-		for(int i = 0; i < threadCnt; i++)
-			sendSetProgress(i, i==0?val:null, i==0?max:null);
-		sendSetProgress2(val2, max2);
+		sendSetProgress();
 	}
-	
+
+	private void sendSetProgress()
+	{
+		try
+		{
+			if (data.pb1.val > 0 && data.pb1.max == data.pb1.val)
+				ws.send(new Gson().toJson(new Cmd(data)));
+			else
+				ws.sendOptional(new Gson().toJson(new Cmd(data)));
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	public synchronized void setInfos(int threadCnt, boolean multipleSubInfos)
 	{
-		this.threadCnt = threadCnt;
-		this.multipleSubInfos = multipleSubInfos;
-		this.infos = new String[threadCnt];
-		this.subinfos = new String[multipleSubInfos?threadCnt:1];
+		this.data.threadCnt = threadCnt;
+		this.data.multipleSubInfos = multipleSubInfos;
+		this.data.infos = new String[threadCnt];
+		this.data.subinfos = new String[multipleSubInfos ? threadCnt : 1];
 		sendSetInfos();
 	}
-	
+
 	private void sendSetInfos()
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
-				ws.send(Json.object()
-					.add("cmd", "Progress.setInfos")
-					.add("params", Json.object()
-						.add("threadCnt", threadCnt)
-						.add("multipleSubInfos", multipleSubInfos)
-					).toString()
-				);
+				ws.send(Json.object().add("cmd", "Progress.setInfos").add("params", Json.object().add("threadCnt", data.threadCnt).add("multipleSubInfos", data.multipleSubInfos)).toString());
 			}
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
 	@Override
 	public void clearInfos()
 	{
-		for(int i = 0; i < infos.length; i++)
-			infos[i] = null;			
-		for(int i = 0; i < subinfos.length; i++)
-			subinfos[i] = null;		
-		msg2 = null;
+		for (int i = 0; i < data.infos.length; i++)
+			data.infos[i] = null;
+		for (int i = 0; i < data.subinfos.length; i++)
+			data.subinfos[i] = null;
+		data.pb2.msg = null;
 		sendClearInfos();
 	}
-	
+
 	private void sendClearInfos()
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 				ws.send(Json.object().add("cmd", "Progress.clearInfos").toString());
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
@@ -140,7 +181,7 @@ public class ProgressActions implements ProgressHandler
 	{
 		if (!threadId_Offset.containsKey(Thread.currentThread().getId()))
 		{
-			if (threadId_Offset.size() < threadCnt)
+			if (threadId_Offset.size() < data.threadCnt)
 				threadId_Offset.put(Thread.currentThread().getId(), threadId_Offset.size());
 			else
 			{
@@ -172,61 +213,42 @@ public class ProgressActions implements ProgressHandler
 			}
 		}
 		int offset = threadId_Offset.get(Thread.currentThread().getId());
-		if(max!=null)
+		if (msg != null)
+			data.infos[offset] = msg;
+		if (val != null)
 		{
-			if(max != this.max)
-				this.val = -1;
-			this.max = max;
-		}
-		if (val != null && val > 0)
-			this.val = val;
-		if(msg!=null)
-			infos[offset] = msg;
-		subinfos[subinfos.length==1?0:offset] = submsg;
-		sendSetProgress(offset, val, max);
-	}
-	
-	private long lastSetProgress = 0L;
-	
-	@SuppressWarnings("serial")
-	private void sendSetProgress(int offset, Integer val, Integer max)
-	{
-		try
-		{
-			if(ws.isOpen())
+			if (val < 0 && data.pb1.visibility)
 			{
-				if (System.currentTimeMillis() - lastSetProgress > 500 || (val != null && ((val != oldval && val <= 0) || val == this.max)))
-				{
-					ws.send(
-						new JsonObject() {{
-							add("cmd", "Progress.setProgress");
-							add("params", new JsonObject() {{
-									add("offset", offset);
-									add("msg", infos[offset]);
-									if(val==null)
-										add("val", ProgressActions.this.val);
-									else
-										add("val", val);
-									if(max==null)
-										add("max", (String)null);
-									else
-										add("max", max);
-									add("submsg", subinfos[subinfos.length==1?0:offset]);
-								}}
-							);
-						}}.toString()
-					);
-					lastSetProgress = System.currentTimeMillis();
-					if(val != null)
-						oldval = val;
-				}
+				data.pb1.visibility = false;
 			}
+			else if (val >= 0 && !data.pb1.visibility)
+			{
+				data.pb1.visibility = true;
+			}
+			data.pb1.stringPainted = val != 0;
+			data.pb1.indeterminate = val == 0;
+			if (max != null)
+				data.pb1.max = max;
+			if (val > 0)
+				data.pb1.val = val;
+			if (val == 0)
+				data.pb1.startTime = System.currentTimeMillis();
+			if (val > 0)
+			{
+				data.pb1.perc = data.pb1.val * 100.0f / data.pb1.max;
+				data.pb1.msg = String.format("%.02f%%", data.pb1.perc);
+				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb1.startTime) * (data.pb1.max - val) / val, "HH:mm:ss"); //$NON-NLS-1$
+				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb1.startTime) * data.pb1.max / val, "HH:mm:ss"); //$NON-NLS-1$
+				data.pb1.timeleft = String.format("%s / %s", left, total); //$NON-NLS-1$
+			}
+			else
+				data.pb1.timeleft = "--:--:-- / --:--:--"; //$NON-NLS-1$
 		}
-		catch (IOException e)
-		{
-			Log.err(e.getMessage(),e);
-		}
-		
+		if (data.subinfos.length == 1)
+			data.subinfos[0] = submsg;
+		else
+			data.subinfos[offset] = submsg;
+		sendSetProgress();
 	}
 
 	@Override
@@ -238,65 +260,46 @@ public class ProgressActions implements ProgressHandler
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
-		if (max != null)
+		if (msg != null && val != null)
 		{
-			if(max != this.max2)
-				this.val2 = -1;
-			this.max2 = max;
-		}
-		if (val != null)
-			this.val2 = val;
-		this.msg2 = msg;
-		sendSetProgress2(val, max);
-	}
-	
-	private long lastSetProgress2 = 0L;
-
-	@SuppressWarnings("serial")
-	private void sendSetProgress2(Integer val, Integer max)
-	{
-		try
-		{
-			if(ws.isOpen())
+			if (!data.pb2.visibility)
+				data.pb2.visibility = true;
+			data.pb2.stringPainted = val != 0;
+			data.pb2.msg = msg;
+			data.pb2.indeterminate = val == 0;
+			if (max != null)
+				data.pb2.max = max;
+			if (val > 0)
+				data.pb2.val = val;
+			if (val == 0)
+				data.pb2.startTime = System.currentTimeMillis();
+			if (val > 0)
 			{
-				if (System.currentTimeMillis() - lastSetProgress2 > 500 || (val != null && ((val != oldval2 && val <= 0) || val == this.max2)))
-				{
-					ws.send(new JsonObject() {{
-						add("cmd", "Progress.setProgress2");
-						add("params", new JsonObject() {{
-							add("msg", msg2);
-							if (val != null)
-								add("val", val);
-							else
-								add("val", ProgressActions.this.val2);
-							if (max != null)
-								add("max", max);
-							else
-								add("max", (String)null);
-						}});
-					}}.toString());
-					lastSetProgress2 = System.currentTimeMillis();
-					if(val!=null)
-						oldval2=val;
-				}
+				data.pb2.perc = data.pb2.val * 100.0f / data.pb2.max;
+				if (data.pb2.msg == null)
+					data.pb2.msg = String.format("%.02f", data.pb2.perc);
+				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb2.startTime) * (data.pb2.max - val) / val, "HH:mm:ss"); //$NON-NLS-1$
+				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb2.startTime) * data.pb2.max / val, "HH:mm:ss"); //$NON-NLS-1$
+				data.pb2.timeleft = String.format("%s / %s", left, total); //$NON-NLS-1$
 			}
+			else
+				data.pb2.timeleft = "--:--:-- / --:--:--"; //$NON-NLS-1$
 		}
-		catch (IOException e)
-		{
-			Log.err(e.getMessage(),e);
-		}
+		else if (data.pb2.visibility)
+			data.pb2.visibility = false;
+		sendSetProgress();
 	}
 
 	@Override
 	public int getValue()
 	{
-		return val;
+		return data.pb1.val;
 	}
 
 	@Override
 	public int getValue2()
 	{
-		return val2;
+		return data.pb2.val;
 	}
 
 	@Override
@@ -322,12 +325,12 @@ public class ProgressActions implements ProgressHandler
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 				ws.send(Json.object().add("cmd", "Progress.close").toString());
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
@@ -346,17 +349,12 @@ public class ProgressActions implements ProgressHandler
 	{
 		try
 		{
-			if(ws.isOpen())
-				ws.send(Json.object()
-						.add("cmd", "Progress.canCancel")
-						.add("params", Json.object()
-							.add("canCancel", canCancel)
-						).toString()
-					);
+			if (ws.isOpen())
+				ws.send(Json.object().add("cmd", "Progress.canCancel").add("params", Json.object().add("canCancel", canCancel)).toString());
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
