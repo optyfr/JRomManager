@@ -10,8 +10,8 @@ A Rom Manager entirely written in Java and released under GPL-2
 ## Licensing
 - **GPL-2** :
     - JRomManager,
+    - [JRomManager-WebClient](https://github.com/optyfr/JRomManager-WebClient),
     - [JUpdater](https://github.com/optyfr/JUpdater),
-    - [JLauncher](https://github.com/optyfr/JLauncher),
     - TorrentParser (based on [torrent-parser](https://github.com/m1dnight/torrent-parser) by Christophe de Troyer),
     - [Tanuki Java Service Wrapper](https://wrapper.tanukisoftware.com)
 - **GPL-2 with classpath exception** : zipfs (from [OpenJDK 9](http://hg.openjdk.java.net/jdk9/jdk9/jdk/))
@@ -30,12 +30,12 @@ A Rom Manager entirely written in Java and released under GPL-2
     - [GWT WebSockets](https://github.com/sksamuel/gwt-websockets) (Stephen Samuel),
     - [Jetty](https://www.eclipse.org/jetty/)
     - and all the [Apache commons](https://commons.apache.org/) libraries
-- **BSD 3** : [NanoHTTPD](https://github.com/NanoHttpd/nanohttpd)
+
 
 ## Technical
 _Minimal development requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature and Gradle Buildship
-- Java 8
+- Java 11
 - Gradle dependencies (via Maven repositories)
     - Apache Commons Codec 1.+ 
     - Apache Commons CLI 1.+ 
@@ -45,12 +45,10 @@ _Minimal development requirements_:
     - Apache Commons Compress 1.+ (used solely to list 7zip content)
     - StreamEx 0.7.+
     - SevenZipJBinding 16.02-2.01 (faster than using 7z cmd line)
-    - NanoHTTPD 2.+ (simple server mode)
-    - Jetty 9.x (full server mode)
+    - Jetty 9.x (server mode)
 - Git submodules dependencies
     - [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
     - [JUpdater](https://github.com/optyfr/JUpdater)
-    - [JLauncher](https://github.com/optyfr/JLauncher)
     - [JRomManager-WebClient](https://github.com/optyfr/JRomManager-WebClient)
 
 _Minimal usage requirements_:
@@ -65,14 +63,15 @@ _Behavior compared to other Rom managers_
 _Minimal instructions for cmdline compilation_:  
 
 If you just want to recompile sources without using an IDE (Eclipse), here are the steps to follow...
-- First, you need Java JDK 8 installed from your system package manager or from the official installer, or at least take care that all java jdk binaries are accessible from your current $PATH or %PATH%
-  - [Required] If your are on Windows, you'll also need Visual C++ 2017 installed which is needed to build the JLauncher executable (gradle native plugin will detect Visual C++ installed and build/link using the VC++ compiler)
-  - [Optional] If your are on Windows, and you want to build the MSI installer, you'll need the latest WIX Toolset to be installed and its bin/ folder added in your %PATH% 
+- First, you need OpenJDK 11 installed from your system package manager or from the official installer, or at least take care that all java jdk binaries are accessible from your current $PATH or %PATH%
+    - [Optional] If your are on Windows, and you want to build the MSI installer, you'll need
+       - the latest WIX Toolset to be installed and its bin/ folder added in your %PATH% 
+       - OpenJDK 14 installed (for jpackage)
 - Download and unarchive `https://github.com/optyfr/JRomManager/releases/download/<version>/JRomManager-<version>-src.tgz` (use sevenzip for Windows); **Do not download `Source Code (zip)` or `Source Code (tar.gz)`, those ones are automatically built by github and unfortunately does not contains required submodules**
 - `cd JRomManager-<version>`
 - run
-  - Unix: `sh ./gradlew build`
-  - Windows: `.\gradlew.bat build`
+    - Unix: `sh ./gradlew build`
+    - Windows: `.\gradlew.bat build`
 - This is the included gradle-wrapper, it will download the right gradle binaries package version, then compile and package all (see build subdirs)
 
 ## Current Features

@@ -1,5 +1,4 @@
 rootProject.name = 'JRomManagerDist'
-include "JLauncher"
 include "Jtrrntzip"
 include "JUpdater"
 include "JRomManager"
