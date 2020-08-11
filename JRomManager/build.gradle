@@ -235,16 +235,6 @@ subprojects {
 					prefer '0.12.+'
 				}
 			}
-			implementation('org.nanohttpd:nanohttpd-nanolets') {
-				version {
-					prefer '2.+'
-				}
-			}
-			implementation('org.nanohttpd:nanohttpd-websocket') {
-				version {
-					prefer '2.+'
-				}
-			}
 			implementation('org.eclipse.jetty:jetty-server') {
 				version {
 					prefer '9.+'
