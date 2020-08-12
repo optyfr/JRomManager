@@ -91,14 +91,18 @@ public class ProgressActions implements ProgressHandler
 		this.ws = ws;
 		sendOpen();
 		sendSetInfos();
-		sendSetProgress();
+		sendSetProgress(0);
 	}
 
-	private void sendSetProgress()
+	private void sendSetProgress(int pb)
 	{
 		try
 		{
-			if (data.pb1.val > 0 && data.pb1.max == data.pb1.val)
+			if (!data.pb1.visibility && !data.pb2.visibility)
+				ws.send(new Gson().toJson(new Cmd(data)));
+			else if (pb==1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
+				ws.send(new Gson().toJson(new Cmd(data)));
+			else if (pb==2 && data.pb2.visibility && !data.pb1.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
 				ws.send(new Gson().toJson(new Cmd(data)));
 			else
 				ws.sendOptional(new Gson().toJson(new Cmd(data)));
@@ -248,7 +252,7 @@ public class ProgressActions implements ProgressHandler
 			data.subinfos[0] = submsg;
 		else
 			data.subinfos[offset] = submsg;
-		sendSetProgress();
+		sendSetProgress(1);
 	}
 
 	@Override
@@ -287,7 +291,7 @@ public class ProgressActions implements ProgressHandler
 		}
 		else if (data.pb2.visibility)
 			data.pb2.visibility = false;
-		sendSetProgress();
+		sendSetProgress(2);
 	}
 
 	@Override
