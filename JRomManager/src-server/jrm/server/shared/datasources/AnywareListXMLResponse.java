@@ -1,7 +1,11 @@
 package jrm.server.shared.datasources;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -22,7 +26,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	}
 
 
-	private AnywareList<?> get_list(Operation operation) throws Exception
+	private AnywareList<? extends Anyware> get_list(Operation operation) throws Exception
 	{
 		String list = operation.getData("list");
 		final AnywareList<?> al;
@@ -35,15 +39,19 @@ public class AnywareListXMLResponse extends XMLResponse
 		return al;
 	}
 	
-	private List<Anyware> build_list(AnywareList<?> al, Operation operation)
+	private Predicate<Anyware> getFilter(Operation operation)
 	{
+		final Set<String> lstatus = operation.hasData("status")?Stream.of(operation.getData("status").split(",")).collect(Collectors.toSet()):null;
 		final String lname = operation.hasData("name")?operation.getData("name").toLowerCase():null;
 		final String ldesc = operation.hasData("description")?operation.getData("description").toLowerCase():null;
 		final String lcloneof = operation.hasData("cloneof")?operation.getData("cloneof").toLowerCase():null;
 		final String lromof = operation.hasData("romof")?operation.getData("romof").toLowerCase():null;
 		final String lsampleof = operation.hasData("sampleof")?operation.getData("sampleof").toLowerCase():null;
 		final Boolean lselected = operation.hasData("selected")?Boolean.valueOf(operation.getData("selected")):null;
-		final List<Anyware> list = al.getFilteredList().stream().filter(ware -> {
+		return (ware) -> {
+			if(lstatus!=null)
+				if(!lstatus.contains(ware.getStatus().toString()))
+					return false;
 			if(lselected!=null)
 				if(ware.selected!=lselected)
 					return false;
@@ -63,7 +71,12 @@ public class AnywareListXMLResponse extends XMLResponse
 				if(((Machine)ware).sampleof==null || !((Machine)ware).sampleof.toString().toLowerCase().contains(lsampleof))
 					return false;
 			return true;
-		}).sorted((o1,o2)->{
+		};
+	}
+	
+	private Comparator<Anyware> getSorter(Operation operation)
+	{
+		return (o1,o2)->{
 			if(operation.getSort().size()>0)
 			{
 				for(Sorter s : operation.getSort())
@@ -90,10 +103,19 @@ public class AnywareListXMLResponse extends XMLResponse
 			}
 			else
 				return o1.getBaseName().compareToIgnoreCase(o2.getBaseName());
-		}).collect(Collectors.toList());
-		return list;
+		};
 	}
 	
+	private Stream<? extends Anyware> build_stream(AnywareList<? extends Anyware> al, Operation operation)
+	{
+		return al.getFilteredList().stream().filter(getFilter(operation)).sorted(getSorter(operation));
+	}
+	
+	private List<Anyware> build_list(AnywareList<?> al, Operation operation)
+	{
+		return al.getFilteredList().stream().filter(getFilter(operation)).sorted(getSorter(operation)).collect(Collectors.toList());
+	}
+
 	private void write_record(final AnywareList<?> al, final Anyware aw)
 	{
 		try
@@ -151,10 +173,11 @@ public class AnywareListXMLResponse extends XMLResponse
 		{
 			if(reset)
 				al.resetCache();
-			List<Anyware> list = build_list(al, operation);
+			fetch_stream(operation, build_stream(al, operation), record -> write_record(al, record));
+/*			List<Anyware> list = build_list(al, operation);
 			fetch_array(operation, list.size(), (i, count) -> {
 				write_record(al, list.get(i));
-			});
+			});*/
 		}
 		writer.writeEndElement();
 	}

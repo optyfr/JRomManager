@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -56,8 +57,8 @@ public class Fix
 	{
 		this.curr_scan = curr_scan;
 
-		val use_parallelism = curr_profile.getProperty(SettingsEnum.use_parallelism, curr_profile.session.server); //$NON-NLS-1$
-		val nThreads = use_parallelism ? Runtime.getRuntime().availableProcessors() : 1;
+		val use_parallelism = curr_profile.getProperty(SettingsEnum.use_parallelism, curr_profile.session.server); // $NON-NLS-1$
+		val nThreads = use_parallelism ? Optional.of(curr_profile.session.getUser().getSettings().getProperty(SettingsEnum.thread_count, 0)).filter(n -> n > 0).orElse(Runtime.getRuntime().availableProcessors()) : 1;
 
 		final long start = System.currentTimeMillis();
 		

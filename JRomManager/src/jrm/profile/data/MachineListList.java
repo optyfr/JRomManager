@@ -114,7 +114,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	}
 
 	@Override
-	protected List<MachineList> getFilteredList()
+	public List<MachineList> getFilteredList()
 	{
 		if(filtered_list == null)
 			filtered_list = getFilteredStream().filter(t -> profile.filter_ll.contains(t.getStatus())).sorted().collect(Collectors.toList());

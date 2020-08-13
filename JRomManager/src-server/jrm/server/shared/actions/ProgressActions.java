@@ -35,7 +35,7 @@ public class ProgressActions implements ProgressHandler
 				boolean visibility = false;
 				boolean stringPainted = false;
 				boolean indeterminate = false;
-				int max = 0;
+				int max = 100;
 				int val = 0;
 				float perc = 0f;
 				String msg = null;
@@ -237,9 +237,10 @@ public class ProgressActions implements ProgressHandler
 				data.pb1.val = val;
 			if (val == 0)
 				data.pb1.startTime = System.currentTimeMillis();
+			if (data.pb1.val >= 0 && data.pb1.max > 0)
+				data.pb1.perc = data.pb1.val * 100.0f / data.pb1.max;
 			if (val > 0)
 			{
-				data.pb1.perc = data.pb1.val * 100.0f / data.pb1.max;
 				data.pb1.msg = String.format("%.02f%%", data.pb1.perc);
 				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb1.startTime) * (data.pb1.max - val) / val, "HH:mm:ss"); //$NON-NLS-1$
 				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb1.startTime) * data.pb1.max / val, "HH:mm:ss"); //$NON-NLS-1$
@@ -268,18 +269,19 @@ public class ProgressActions implements ProgressHandler
 		{
 			if (!data.pb2.visibility)
 				data.pb2.visibility = true;
-			data.pb2.stringPainted = val != 0;
+			data.pb2.stringPainted = msg != null || val > 0;
 			data.pb2.msg = msg;
-			data.pb2.indeterminate = val == 0;
+			data.pb2.indeterminate = val == 0 && msg == null;
 			if (max != null)
 				data.pb2.max = max;
-			if (val > 0)
+			if (val >= 0)
 				data.pb2.val = val;
 			if (val == 0)
 				data.pb2.startTime = System.currentTimeMillis();
+			if (data.pb2.val >= 0 && data.pb2.max > 0)
+				data.pb2.perc = data.pb2.val * 100.0f / data.pb2.max;
 			if (val > 0)
 			{
-				data.pb2.perc = data.pb2.val * 100.0f / data.pb2.max;
 				if (data.pb2.msg == null)
 					data.pb2.msg = String.format("%.02f", data.pb2.perc);
 				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb2.startTime) * (data.pb2.max - val) / val, "HH:mm:ss"); //$NON-NLS-1$

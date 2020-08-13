@@ -1238,6 +1238,24 @@ public class Profile implements Serializable
 	}
 
 	/**
+	 * get a property int value
+	 * @param property the property name
+	 * @param def the default int value if no property is defined
+	 * @return the property value if it exists, otherwise {@code def} is returned
+	 */
+	public int getProperty(final Enum<?> property, final int def)
+	{
+		val ret = Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
+		return ret;
+	}
+
+	public int getProperty(final String property, final int def)
+	{
+		val ret = Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
+		return ret;
+	}
+
+	/**
 	 * get a property string value
 	 * @param property the property name
 	 * @param def the default string value if no property is defined

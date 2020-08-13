@@ -4,6 +4,7 @@ public enum SettingsEnum
 {
 	need_sha1_or_md5,
 	use_parallelism,
+	thread_count,
 	create_mode,
 	createfull_mode,
 	ignore_unneeded_containers,

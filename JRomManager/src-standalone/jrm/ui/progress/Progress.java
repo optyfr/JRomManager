@@ -325,7 +325,7 @@ public class Progress extends JDialog implements ProgressHandler
 			progressBar.setIndeterminate(val==0);
 			if (max != null)
 				progressBar.setMaximum(max);
-			if (val > 0)
+			if (val >= 0)
 				progressBar.setValue(val);
 			if (val == 0)
 				startTime = System.currentTimeMillis();
@@ -378,12 +378,12 @@ public class Progress extends JDialog implements ProgressHandler
 				lblTimeLeft2.setVisible(true);
 				packHeight();
 			}
-			progressBar2.setStringPainted(val!=0);
+			progressBar2.setStringPainted(msg != null || val > 0);
 			progressBar2.setString(msg);
 			progressBar2.setIndeterminate(val==0);
 			if (max != null)
 				progressBar2.setMaximum(max);
-			if (val > 0)
+			if (val >= 0)
 				progressBar2.setValue(val);
 			if (val == 0)
 				startTime2 = System.currentTimeMillis();

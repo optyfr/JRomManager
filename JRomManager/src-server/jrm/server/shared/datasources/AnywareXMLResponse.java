@@ -1,5 +1,11 @@
 package jrm.server.shared.datasources;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.xml.stream.XMLStreamException;
 
 import jrm.misc.Log;
@@ -105,6 +111,7 @@ public class AnywareXMLResponse extends XMLResponse
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
+		final Set<String> lstatus = operation.hasData("status")?Stream.of(operation.getData("status").split(",")).collect(Collectors.toSet()):null;
 		final boolean reset = Boolean.valueOf(operation.getData("reset"));
 		final AnywareList<?> al = get_list(operation);
 		final Anyware aw = get_ware(al,operation);
@@ -112,9 +119,16 @@ public class AnywareXMLResponse extends XMLResponse
 		{
 			if(reset)
 				aw.resetCache();
-			fetch_array(operation, aw.count(), (i, count) -> {
-				write_record(al, aw, aw.getObject(i));
-			});
+			final List<EntityBase> faw = new ArrayList<>();
+			for(int i = 0; i < aw.count(); i++)
+			{
+				var a = aw.getObject(i);
+				if(lstatus!=null)
+					if(!lstatus.contains(a.getStatus().toString()))
+						continue;
+				faw.add(a);
+			}
+			fetch_list(operation, faw, (a, i) -> write_record(al, aw, a));
 		}
 		writer.writeEndElement();
 	}
