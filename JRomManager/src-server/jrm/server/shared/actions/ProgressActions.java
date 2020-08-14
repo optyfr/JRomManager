@@ -116,10 +116,10 @@ public class ProgressActions implements ProgressHandler
 	@Override
 	public synchronized void setInfos(int threadCnt, boolean multipleSubInfos)
 	{
-		this.data.threadCnt = threadCnt;
+		this.data.threadCnt = threadCnt<=0?Runtime.getRuntime().availableProcessors():threadCnt;
 		this.data.multipleSubInfos = multipleSubInfos;
-		this.data.infos = new String[threadCnt];
-		this.data.subinfos = new String[multipleSubInfos ? threadCnt : 1];
+		this.data.infos = new String[this.data.threadCnt];
+		this.data.subinfos = new String[multipleSubInfos ? this.data.threadCnt : 1];
 		sendSetInfos();
 	}
 

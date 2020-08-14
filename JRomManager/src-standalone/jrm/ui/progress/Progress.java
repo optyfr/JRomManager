@@ -190,6 +190,7 @@ public class Progress extends JDialog implements ProgressHandler
 	@Override
 	public void setInfos(int threadCnt, boolean multipleSubInfos)
 	{
+		threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
 		threadId_Offset.clear();
 		if(lblInfo==null || lblInfo.length!=threadCnt || lblSubInfo==null || lblSubInfo.length!=(multipleSubInfos?threadCnt:1))
 		{

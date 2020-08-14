@@ -74,16 +74,16 @@ public final class MultiThreading extends ThreadPoolExecutor
 		if (adaptive)
 		{
 			final var elapsed = System.currentTimeMillis() - time;
-			if (elapsed > 10_000)
+			if (elapsed > 60_000)	//	evaluate every 60s (TODO should be tunable)
 			{
 				synchronized (this)
 				{
 					double load = (statusByThread.entrySet().stream().filter(e->e.getKey().isAlive()).mapToLong(e -> {
 						return tmxb.getThreadCpuTime(e.getKey().getId()) - e.getValue();
-					}).sum() / 1_000_000.0) / elapsed;
+					}).sum() / 1_000_000.0 /* ns to ms */) / elapsed;
 					double usage = load / getActiveCount();
 					System.out.format("load is %.03f so usage ratio is %.03f with %d active threads\n", load, usage, getActiveCount());
-					if (usage <= .8)
+					if (usage <= .8) // under 80% usage (TODO should be tunable)
 					{
 						if (getMaximumPoolSize() >= getActiveCount())
 						{
