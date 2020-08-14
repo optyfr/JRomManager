@@ -32,7 +32,7 @@ public final class MultiThreading extends ThreadPoolExecutor
 
 	private static boolean isAdaptive(int nThreads)
 	{
-		return true;// nThreads < 0;
+		return nThreads < 0;
 	}
 
 	public <T> void execute(Stream<T> stream, CallableWith<T> task)

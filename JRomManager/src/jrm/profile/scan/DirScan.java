@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
@@ -315,7 +314,7 @@ public final class DirScan extends PathAbstractor
 		final boolean format_tzip = options.contains(Options.FORMAT_TZIP);
 		final boolean include_empty_dirs = options.contains(Options.EMPTY_DIRS);
 		final boolean archives_and_chd_as_roms = options.contains(Options.ARCHIVES_AND_CHD_AS_ROMS);
-		val nThreads = use_parallelism ? Optional.of(session.getUser().getSettings().getProperty(SettingsEnum.thread_count, 0)).filter(n -> n > 0).orElse(Runtime.getRuntime().availableProcessors()) : 1;
+		val nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 		
 		final Path path = Paths.get(dir.getAbsolutePath());
 
