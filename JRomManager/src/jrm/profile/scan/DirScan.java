@@ -354,7 +354,7 @@ public final class DirScan extends PathAbstractor
 			handler.setProgress(null, -1);
 			handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles"), getRelativePath(dir.toPath())), 0, 100); //$NON-NLS-1$
 			
-			MultiThreading.execute(nThreads, stream, new CallableWith<Path>()
+			new MultiThreading(nThreads).execute(stream, new CallableWith<Path>()
 			{
 				@Override
 				public Void call() throws Exception
@@ -521,7 +521,7 @@ public final class DirScan extends PathAbstractor
 		handler.setInfos(nThreads,true);
 		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), getRelativePath(dir.toPath())) , -1); //$NON-NLS-1$
 		handler.setProgress2("", j.get(), max.get()); //$NON-NLS-1$
-		MultiThreading.execute(nThreads, containers.stream().sorted(Container.rcomparator()), new CallableWith<Container>()
+		new MultiThreading(nThreads).execute(containers.stream().sorted(Container.rcomparator()), new CallableWith<Container>()
 		{
 			@Override
 			public Void call() throws Exception

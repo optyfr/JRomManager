@@ -41,4 +41,5 @@ module jrmcore
 	requires minimal.json;
 	requires trrntzip;
 	requires sevenzipjbinding;
+	requires java.management;
 }

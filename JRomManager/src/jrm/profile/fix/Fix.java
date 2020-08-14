@@ -74,45 +74,47 @@ public class Fix
 		
 		// foreach ordered action groups
 		curr_scan.actions.forEach(actions -> {
-			final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
-			// resets progression parallelism (needed since thread IDs may change between to parallel streaming)
-			progress.setInfos(nThreads, use_parallelism);
-			MultiThreading.execute(nThreads, actions.stream().sorted(ContainerAction.rcomparator()), new CallableWith<ContainerAction>()
+			if(actions.size() > 0)
 			{
-				@Override
-				public Void call() throws Exception
+				final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
+				// resets progression parallelism (needed since thread IDs may change between to parallel streaming)
+				progress.setInfos(nThreads, use_parallelism);
+				new MultiThreading(nThreads).execute(actions.stream().sorted(ContainerAction.rcomparator()), new CallableWith<ContainerAction>()
 				{
-					val action = get();
-					if (progress.isCancel())
-						return null;
-					try
+					@Override
+					public Void call() throws Exception
 					{
-						if (!action.doAction(curr_profile.session, progress)) // do action...
-							progress.cancel(); // ... and cancel all if it failed
-						else
-							done.add(action); // add to "done" list successful action
-						progress.setProgress(null, i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression
+						val action = get();
+						if (progress.isCancel())
+							return null;
+						try
+						{
+							if (!action.doAction(curr_profile.session, progress)) // do action...
+								progress.cancel(); // ... and cancel all if it failed
+							else
+								done.add(action); // add to "done" list successful action
+							progress.setProgress(null, i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression
+						}
+						catch (final BreakException be)
+						{	// special catch case from BreakException thrown from underlying streams
+							progress.cancel();
+						}
+						catch (final Throwable e)
+						{	// oups! something unexpected happened
+							Log.err(e.getMessage(), e);
+						}
+						return null;
 					}
-					catch (final BreakException be)
-					{	// special catch case from BreakException thrown from underlying streams
-						progress.cancel();
-					}
-					catch (final Throwable e)
-					{	// oups! something unexpected happened
-						Log.err(e.getMessage(), e);
-					}
-					return null;
-				}
-
-			});
-			// close all open FS from backup (if the last actions was backup)
-			if (done.size() > 0 && done.get(0) instanceof BackupContainer)
-				BackupContainer.closeAllFS();
-			// remove all done actions
-			actions.removeAll(done);
-			// this actions group is finished, clear progression status
-			progress.clearInfos();
-
+	
+				});
+				// close all open FS from backup (if the last actions was backup)
+				if (done.size() > 0 && done.get(0) instanceof BackupContainer)
+					BackupContainer.closeAllFS();
+				// remove all done actions
+				actions.removeAll(done);
+				// this actions group is finished, clear progression status
+				progress.clearInfos();
+			}
 		});		
 		
 		// reset progression to normal before leaving

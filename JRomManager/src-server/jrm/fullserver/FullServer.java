@@ -294,7 +294,7 @@ public class FullServer
 			{
 				Locale.setDefault(Locale.US);
 				System.setProperty("file.encoding", "UTF-8");
-				Log.init(getLogPath() + "/Server.%g.log", debug, 1024 * 1024, 5);
+				Log.init(getLogPath() + "/Server.%g.log", false, 1024 * 1024, 5);
 				new FullServer(clientPath);
 			}
 			catch (Exception e)
