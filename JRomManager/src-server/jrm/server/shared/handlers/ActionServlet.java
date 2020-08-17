@@ -2,7 +2,9 @@ package jrm.server.shared.handlers;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -80,37 +82,24 @@ public class ActionServlet extends HttpServlet
 					if (sess.getWorker() != null && sess.getWorker().isAlive())
 						if (sess.getWorker().progress != null)
 							sess.getWorker().progress.reload(cmd);
-					if(!WebSession.isTerminate())
-					{
-						val msg = sess.lprMsg.poll(20, TimeUnit.SECONDS);
-						if(msg == null && WebSession.isTerminate())
-							resp.setStatus(HttpServletResponse.SC_GONE);
-						else
-						{
-							resp.setContentType("application/json");
-							resp.setStatus(HttpServletResponse.SC_OK);
-							if (msg != null)
-							{
-								resp.setContentLength(msg.getBytes(StandardCharsets.UTF_8).length);
-								resp.getWriter().write(msg);
-							}
-							else
-								resp.setContentLength(0);
-						}
-					}
-					else
-						resp.setStatus(HttpServletResponse.SC_GONE);
-					break;
 				}
 				case "/actions/lpr":
 				{
 					if(!WebSession.isTerminate())
 					{
-						val msg = sess.lprMsg.poll(20, TimeUnit.SECONDS);
+						val msgs = new ArrayList<String>();
+						var msg = sess.lprMsg.poll(20, TimeUnit.SECONDS);
 						if(msg == null && WebSession.isTerminate())
 							resp.setStatus(HttpServletResponse.SC_GONE);
 						else
 						{
+							msgs.add(msg);
+							while (null != (msg = sess.lprMsg.poll()))
+								msgs.add(msg);
+							if (msgs.size() > 1)
+								msg = "{\"cmd\":\"Global.multiCMD\",\"params\":[" + msgs.stream().collect(Collectors.joining(",")) + "]}";
+							else
+								msg = msgs.get(0);
 							resp.setContentType("application/json");
 							resp.setStatus(HttpServletResponse.SC_OK);
 							if (msg != null)

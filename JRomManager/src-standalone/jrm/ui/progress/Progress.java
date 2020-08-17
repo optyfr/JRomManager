@@ -25,7 +25,6 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,8 +39,6 @@ import javax.swing.border.BevelBorder;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import jrm.aui.progress.ProgressHandler;
-import jrm.aui.progress.ProgressInputStream;
 import jrm.locale.Messages;
 import jrm.ui.MainFrame;
 
@@ -52,7 +49,7 @@ import jrm.ui.MainFrame;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public class Progress extends JDialog implements ProgressHandler
+public class Progress extends JDialog
 {
 	
 	/** The panel. */
@@ -187,7 +184,6 @@ public class Progress extends JDialog implements ProgressHandler
 		setLocationRelativeTo(owner);
 	}
 
-	@Override
 	public void setInfos(int threadCnt, boolean multipleSubInfos)
 	{
 		threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
@@ -226,7 +222,6 @@ public class Progress extends JDialog implements ProgressHandler
 		}
 	}
 	
-	@Override
 	public void clearInfos()
 	{
 		for(JLabel label : lblInfo)
@@ -235,24 +230,6 @@ public class Progress extends JDialog implements ProgressHandler
 			label.setText(null);
 	}
 	
-	@Override
-	public void setProgress(final String msg)
-	{
-		setProgress(msg, null, null, null);
-	}
-
-	@Override
-	public void setProgress(final String msg, final Integer val)
-	{
-		setProgress(msg, val, null, null);
-	}
-
-	@Override
-	public void setProgress(final String msg, final Integer val, final Integer max)
-	{
-		setProgress(msg, val, max, null);
-	}
-
 	/** The lbl timeleft. */
 	private final JLabel lblTimeleft;
 	
@@ -268,7 +245,6 @@ public class Progress extends JDialog implements ProgressHandler
 	/** The lbl time left 2. */
 	private final JLabel lblTimeLeft2;
 
-	@Override
 	public synchronized void setProgress(final String msg, final Integer val, final Integer max, final String submsg)
 	{
 		if (!threadId_Offset.containsKey(Thread.currentThread().getId()))
@@ -345,13 +321,11 @@ public class Progress extends JDialog implements ProgressHandler
 			lblSubInfo[offset].setText(submsg);
 	}
 
-	@Override
 	public boolean isCancel()
 	{
 		return cancel;
 	}
 
-	@Override
 	public void cancel()
 	{
 		cancel = true;
@@ -359,16 +333,9 @@ public class Progress extends JDialog implements ProgressHandler
 		btnCancel.setText(Messages.getString("Progress.Canceling")); //$NON-NLS-1$
 	}
 
-	@Override
-	public void setProgress2(final String msg, final Integer val)
-	{
-		setProgress2(msg, val, null);
-	}
-
 	/** The start time 2. */
 	private long startTime2 = System.currentTimeMillis();
 
-	@Override
 	public void setProgress2(final String msg, final Integer val, final Integer max)
 	{
 		if (msg != null && val != null)
@@ -418,38 +385,27 @@ public class Progress extends JDialog implements ProgressHandler
 		validate();
 	}
 
-	@Override
 	public int getValue()
 	{
 		return progressBar.getValue();
 	}
 
-	@Override
 	public int getValue2()
 	{
 		return progressBar2.getValue();
 	}
 
-	@Override
-	public InputStream getInputStream(InputStream in, Integer len)
-	{
-		return new ProgressInputStream(in, len, this);
-	}
-
-	@Override
 	public void close()
 	{
 		dispose();
 	}
 
-	@Override
 	public void canCancel(boolean canCancel)
 	{
 		this.canCancel = canCancel;
 		btnCancel.setEnabled(canCancel);
 	}
 
-	@Override
 	public boolean canCancel()
 	{
 		return canCancel;

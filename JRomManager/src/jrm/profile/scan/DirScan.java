@@ -67,7 +67,6 @@ import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.MultiThreading;
-import jrm.misc.MultiThreading.CallableWith;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Archive;
@@ -353,95 +352,74 @@ public final class DirScan extends PathAbstractor
 			handler.setProgress(null, -1);
 			handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles"), getRelativePath(dir.toPath())), 0, 100); //$NON-NLS-1$
 			
-			new MultiThreading(nThreads).execute(stream, new CallableWith<Path>()
-			{
-				@Override
-				public Void call() throws Exception
+			new MultiThreading<Path>(nThreads, p -> {
+				if(handler.isCancel())
+					return;
+				if(path.equals(p))
+					return;
+				Container c = null;
+				final File file = p.toFile();
+				try
 				{
-					val p = get();
-					if(handler.isCancel())
-						return null;
-					if(path.equals(p))
-						return null;
-					Container c = null;
-					final File file = p.toFile();
-					try
+					final BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
+					if(is_dest)
 					{
-						final BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
-						if(is_dest)
+						val type = attr.isRegularFile() ? Container.getType(file) : Type.DIR;
+						val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
+						if(null == (c = containers_byname.get(fname)) /* new container */ || ((c.modified != attr.lastModifiedTime().toMillis() /* container date changed */ || (c instanceof Archive && c.size != attr.size()) /* container size changed */) && !c.up2date /* not up to date */))
 						{
-							val type = attr.isRegularFile() ? Container.getType(file) : Type.DIR;
-							val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
-							if(null == (c = containers_byname.get(fname)) /* new container */ || ((c.modified != attr.lastModifiedTime().toMillis() /* container date changed */ || (c instanceof Archive && c.size != attr.size()) /* container size changed */) && !c.up2date /* not up to date */))
+							if(attr.isRegularFile())
 							{
-								if(attr.isRegularFile())
+								if (type != Container.Type.UNK)
+									containers.add(c = new Archive(file, getRelativePath(file), attr));
+								else
+									containers.add(c = new FakeDirectory(file, getRelativePath(file), attr));
+							}
+							else
+								containers.add(c = new Directory(file, getRelativePath(file), attr));
+							containers_byname.put(fname, c);
+							c.up2date = true;
+						}
+						else if(!c.up2date)
+						{
+							// container listed but did not change
+							c.up2date = true;
+							containers.add(c);
+						}
+					}
+					else
+					{
+						/*
+						 * With src type dir, we need to find each potential container end points while walking into the entire hierarchy   
+						 */
+						if(attr.isRegularFile()) // We test only regular files even for directory containers (must contains at least 1 file)
+						{
+							val type = Container.getType(file);
+							if(type == Type.UNK || archives_and_chd_as_roms)	// maybe we did found a potential directory container with unknown type files inside)
+							{
+								if(path.equals(file.getParentFile().toPath()))	// skip if parent is the entry point
 								{
-									if (type != Container.Type.UNK)
-										containers.add(c = new Archive(file, getRelativePath(file), attr));
-									else
+									val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
+									if(null == (c = containers_byname.get(fname)) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
+									{
 										containers.add(c = new FakeDirectory(file, getRelativePath(file), attr));
+										containers_byname.put(fname, c);
+										c.up2date = true;
+									}
+									else if(!c.up2date)
+									{
+										containers.add(c);
+										c.up2date = true;
+									}
 								}
 								else
-									containers.add(c = new Directory(file, getRelativePath(file), attr));
-								containers_byname.put(fname, c);
-								c.up2date = true;
-							}
-							else if(!c.up2date)
-							{
-								// container listed but did not change
-								c.up2date = true;
-								containers.add(c);
-							}
-						}
-						else
-						{
-							/*
-							 * With src type dir, we need to find each potential container end points while walking into the entire hierarchy   
-							 */
-							if(attr.isRegularFile()) // We test only regular files even for directory containers (must contains at least 1 file)
-							{
-								val type = Container.getType(file);
-								if(type == Type.UNK || archives_and_chd_as_roms)	// maybe we did found a potential directory container with unknown type files inside)
 								{
-									if(path.equals(file.getParentFile().toPath()))	// skip if parent is the entry point
+									final File parent_dir = file.getParentFile();
+									final BasicFileAttributes parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
+									final Path relative  = path.relativize(p.getParent());
+									if(null == (c = containers_byname.get(relative.toString())) || (c.modified != parent_attr.lastModifiedTime().toMillis() && !c.up2date))
 									{
-										val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
-										if(null == (c = containers_byname.get(fname)) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
-										{
-											containers.add(c = new FakeDirectory(file, getRelativePath(file), attr));
-											containers_byname.put(fname, c);
-											c.up2date = true;
-										}
-										else if(!c.up2date)
-										{
-											containers.add(c);
-											c.up2date = true;
-										}
-									}
-									else
-									{
-										final File parent_dir = file.getParentFile();
-										final BasicFileAttributes parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
-										final Path relative  = path.relativize(p.getParent());
-										if(null == (c = containers_byname.get(relative.toString())) || (c.modified != parent_attr.lastModifiedTime().toMillis() && !c.up2date))
-										{
-											containers.add(c = new Directory(parent_dir, getRelativePath(parent_dir), attr));
-											c.up2date = true;
-											containers_byname.put(relative.toString(), c);
-										}
-										else if(!c.up2date)
-										{
-											c.up2date = true;
-											containers.add(c);
-										}
-									}
-								}
-								else	// otherwise it's an archive file
-								{
-									final Path relative  = path.relativize(p);
-									if(null == (c = containers_byname.get(relative.toString())) || ((c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size()) && !c.up2date))
-									{
-										containers.add(c = new Archive(file, getRelativePath(file), attr));
+										containers.add(c = new Directory(parent_dir, getRelativePath(parent_dir), attr));
 										c.up2date = true;
 										containers_byname.put(relative.toString(), c);
 									}
@@ -452,42 +430,57 @@ public final class DirScan extends PathAbstractor
 									}
 								}
 							}
-							else if(include_empty_dirs)
+							else	// otherwise it's an archive file
 							{
-								try(DirectoryStream<Path> dirstream = Files.newDirectoryStream(p))
+								final Path relative  = path.relativize(p);
+								if(null == (c = containers_byname.get(relative.toString())) || ((c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size()) && !c.up2date))
 								{
-									if(!dirstream.iterator().hasNext())
+									containers.add(c = new Archive(file, getRelativePath(file), attr));
+									c.up2date = true;
+									containers_byname.put(relative.toString(), c);
+								}
+								else if(!c.up2date)
+								{
+									c.up2date = true;
+									containers.add(c);
+								}
+							}
+						}
+						else if(include_empty_dirs)
+						{
+							try(DirectoryStream<Path> dirstream = Files.newDirectoryStream(p))
+							{
+								if(!dirstream.iterator().hasNext())
+								{
+									final Path relative  = path.relativize(p);
+									if(null == (c = containers_byname.get(relative.toString())) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
 									{
-										final Path relative  = path.relativize(p);
-										if(null == (c = containers_byname.get(relative.toString())) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
-										{
-											containers.add(c = new Directory(file, getRelativePath(file), attr));
-											c.up2date = true;
-											containers_byname.put(relative.toString(), c);
-										}
-										else if(!c.up2date)
-										{
-											c.up2date = true;
-											containers.add(c);
-										}
+										containers.add(c = new Directory(file, getRelativePath(file), attr));
+										c.up2date = true;
+										containers_byname.put(relative.toString(), c);
+									}
+									else if(!c.up2date)
+									{
+										c.up2date = true;
+										containers.add(c);
 									}
 								}
 							}
 						}
-						handler.setProgress(path.relativize(p).toString(), -1); //$NON-NLS-1$
-						handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), getRelativePath(dir.toPath()), i.incrementAndGet()), 0); //$NON-NLS-1$
 					}
-					catch(final IOException e)
-					{
-						Log.err(e.getMessage(),e);
-					}
-					catch(final BreakException e)
-					{
-						handler.cancel();
-					}
-					return null;
+					handler.setProgress(path.relativize(p).toString(), -1); //$NON-NLS-1$
+					handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), getRelativePath(dir.toPath()), i.incrementAndGet()), 0); //$NON-NLS-1$
 				}
-			});
+				catch(final IOException e)
+				{
+					Log.err(e.getMessage(),e);
+				}
+				catch(final BreakException e)
+				{
+					handler.cancel();
+				}
+				return;
+			}).start(stream);
 			
 			/*
 			 * Remove files from cache that are not in up2date state, because that mean that those files were removed from FS since the previous scan
@@ -520,139 +513,133 @@ public final class DirScan extends PathAbstractor
 		handler.setInfos(nThreads,true);
 		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), getRelativePath(dir.toPath())) , -1); //$NON-NLS-1$
 		handler.setProgress2("", j.get(), max.get()); //$NON-NLS-1$
-		new MultiThreading(nThreads).execute(containers.stream().sorted(Container.rcomparator()), new CallableWith<Container>()
-		{
-			@Override
-			public Void call() throws Exception
+		new MultiThreading<Container>(nThreads, c -> {
+			if(handler.isCancel())
+				return;
+			try
 			{
-				val c = get();
-				if(handler.isCancel())
-					return null;
-				try
+				switch(c.getType())
 				{
-					switch(c.getType())
+					case ZIP:
 					{
-						case ZIP:
+						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
 						{
-							if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
+							final Map<String, Object> env = new HashMap<>();
+							env.put("useTempFile", true); //$NON-NLS-1$
+							env.put("readOnly", true); //$NON-NLS-1$
+							try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.getFile().toURI()), env);) //$NON-NLS-1$
 							{
-								final Map<String, Object> env = new HashMap<>();
-								env.put("useTempFile", true); //$NON-NLS-1$
-								env.put("readOnly", true); //$NON-NLS-1$
-								try(FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.getFile().toURI()), env);) //$NON-NLS-1$
-								{
-									final Path root = fs.getPath("/"); //$NON-NLS-1$
-									Files.walkFileTree(root, new SimpleFileVisitor<Path>()
-									{
-										@Override
-										public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
-										{
-											update_entry(c.add(new Entry(entry_path.toString(),getRelativePath(entry_path).toString())), entry_path);
-											return FileVisitResult.CONTINUE;
-										}
-
-										@Override
-										public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-										{
-											return FileVisitResult.CONTINUE;
-										}
-									});
-									c.loaded = need_sha1_or_md5 ? 2 : 1;
-								}
-								catch (ZipError | IOException e)
-								{
-									System.err.println(c.getRelFile() + " : " + e.getMessage()); //$NON-NLS-1$
-								}
-							}
-							else
-							{
-								for(final Entry entry : c.getEntries())
-									update_entry(entry);
-							}
-							if(is_dest && format_tzip && c.lastTZipCheck < c.modified)
-							{
-								c.lastTZipStatus = torrentzip.Process(c.getFile());
-								c.lastTZipCheck = System.currentTimeMillis();
-							}
-							break;
-						}
-						case RAR:
-						case SEVENZIP:
-						{
-							try(SevenZUpdateEntries entries = new SevenZUpdateEntries(c))
-							{
-								entries.updateEntries();
-							}
-							break;
-						}
-						case DIR:
-						{
-							try
-							{
-								Files.walkFileTree(c.getFile().toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
+								final Path root = fs.getPath("/"); //$NON-NLS-1$
+								Files.walkFileTree(root, new SimpleFileVisitor<Path>()
 								{
 									@Override
 									public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
 									{
-										if(attrs.isRegularFile())
-										{
-											Entry entry = new Entry(entry_path.toString(),getRelativePath(entry_path).toString(), attrs);
-											if(archives_and_chd_as_roms)
-												entry.type = Entry.Type.UNK;
-											handler.setProgress(c.getFile().getName() , -1, null, File.separator+c.getFile().toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
-											update_entry(c.add(entry), entry_path);
-										}
+										update_entry(c.add(new Entry(entry_path.toString(),getRelativePath(entry_path).toString())), entry_path);
 										return FileVisitResult.CONTINUE;
 									}
-		
+
 									@Override
 									public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
 									{
 										return FileVisitResult.CONTINUE;
 									}
 								});
+								c.loaded = need_sha1_or_md5 ? 2 : 1;
 							}
-							catch(AccessDeniedException e)
+							catch (ZipError | IOException e)
 							{
-								
+								System.err.println(c.getRelFile() + " : " + e.getMessage()); //$NON-NLS-1$
 							}
-							c.loaded = need_sha1_or_md5 ? 2 : 1;
-							break;
 						}
-						case FAKE:
+						else
 						{
-							Entry entry = new Entry(c.getFile().getName().toString(),c.getRelFile().getName().toString(), c.getSize(), c.getModified());
-							if(archives_and_chd_as_roms)
-								entry.type = Entry.Type.UNK;
-							handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()) , -1, null, c.getFile().getName()); //$NON-NLS-1$ //$NON-NLS-2$
-							update_entry(c.add(entry), c.getFile().toPath());
-							c.loaded = need_sha1_or_md5 ? 2 : 1;
-							break;
+							for(final Entry entry : c.getEntries())
+								update_entry(entry);
 						}
-						default:
-							break;
+						if(is_dest && format_tzip && c.lastTZipCheck < c.modified)
+						{
+							c.lastTZipStatus = torrentzip.Process(c.getFile());
+							c.lastTZipCheck = System.currentTimeMillis();
+						}
+						break;
 					}
-					handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.getFile().getName())); //$NON-NLS-1$
-					handler.setProgress2(String.format("%d/%d (%d%%)", i.incrementAndGet(), containers.size(), (int)(j.addAndGet(1+(int)(c.size>>20)) * 100.0 / max.get())), j.get()); //$NON-NLS-1$
+					case RAR:
+					case SEVENZIP:
+					{
+						try(SevenZUpdateEntries entries = new SevenZUpdateEntries(c))
+						{
+							entries.updateEntries();
+						}
+						break;
+					}
+					case DIR:
+					{
+						try
+						{
+							Files.walkFileTree(c.getFile().toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
+							{
+								@Override
+								public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
+								{
+									if(attrs.isRegularFile())
+									{
+										Entry entry = new Entry(entry_path.toString(),getRelativePath(entry_path).toString(), attrs);
+										if(archives_and_chd_as_roms)
+											entry.type = Entry.Type.UNK;
+										handler.setProgress(c.getFile().getName() , -1, null, File.separator+c.getFile().toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+										update_entry(c.add(entry), entry_path);
+									}
+									return FileVisitResult.CONTINUE;
+								}
+	
+								@Override
+								public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+								{
+									return FileVisitResult.CONTINUE;
+								}
+							});
+						}
+						catch(AccessDeniedException e)
+						{
+							
+						}
+						c.loaded = need_sha1_or_md5 ? 2 : 1;
+						break;
+					}
+					case FAKE:
+					{
+						Entry entry = new Entry(c.getFile().getName().toString(),c.getRelFile().getName().toString(), c.getSize(), c.getModified());
+						if(archives_and_chd_as_roms)
+							entry.type = Entry.Type.UNK;
+						handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()) , -1, null, c.getFile().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+						update_entry(c.add(entry), c.getFile().toPath());
+						c.loaded = need_sha1_or_md5 ? 2 : 1;
+						break;
+					}
+					default:
+						break;
 				}
-				catch(final IOException e)
-				{
-					c.loaded = 0;
-					Log.err("IOException when scanning", e); //$NON-NLS-1$
-				}
-				catch(final BreakException e)
-				{
-					c.loaded = 0;
-					handler.cancel();
-				}
-				catch(final Throwable e)
-				{
-					c.loaded = 0;
-					Log.err("Other Exception when listing", e); //$NON-NLS-1$
-				}
-				return null;
+				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.getFile().getName())); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d (%d%%)", i.incrementAndGet(), containers.size(), (int)(j.addAndGet(1+(int)(c.size>>20)) * 100.0 / max.get())), j.get()); //$NON-NLS-1$
 			}
-		});
+			catch(final IOException e)
+			{
+				c.loaded = 0;
+				Log.err("IOException when scanning", e); //$NON-NLS-1$
+			}
+			catch(final BreakException e)
+			{
+				c.loaded = 0;
+				handler.cancel();
+			}
+			catch(final Throwable e)
+			{
+				c.loaded = 0;
+				Log.err("Other Exception when listing", e); //$NON-NLS-1$
+			}
+			return;
+		}).start(containers.stream().sorted(Container.rcomparator()));
 
 		if(!handler.isCancel())
 			save(dir);

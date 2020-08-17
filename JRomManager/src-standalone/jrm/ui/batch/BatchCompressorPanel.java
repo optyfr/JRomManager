@@ -41,7 +41,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -57,13 +56,14 @@ import jrm.batch.CompressorFormat;
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
+import jrm.misc.MultiThreading;
+import jrm.misc.SettingsEnum;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.EnhTableModel;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JRMFileChooser.CallBack;
-import jrm.ui.progress.Progress;
-import one.util.streamex.StreamEx;
+import jrm.ui.progress.SwingWorkerProgress;
 
 @SuppressWarnings("serial")
 public class BatchCompressorPanel extends JPanel implements HTMLRenderer
@@ -513,18 +513,21 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		JButton btnStart = new JButton(Messages.getString("BatchCompressorPanel.Start")); //$NON-NLS-1$
 		btnStart.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_go.png"));
 		btnStart.addActionListener(e->{
-			final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
-			progress.setInfos(Runtime.getRuntime().availableProcessors(), true);
-			final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+			new SwingWorkerProgress<Void, Void>(SwingUtilities.getWindowAncestor(this))
 			{
 				@Override
 				protected Void doInBackground() throws Exception
 				{
+					setInfos(Runtime.getRuntime().availableProcessors(), true);
 					for(int i = 0; i < table.getRowCount(); i++)
 						table.setValueAt("", i, 1);
 					AtomicInteger cnt = new AtomicInteger();
-					final Compressor compressor = new Compressor(session, cnt, table.getRowCount(), progress);
-					StreamEx.of(table.model.getData().parallelStream().unordered()).takeWhile(p->!progress.isCancel()).forEach(fr->{
+					final Compressor compressor = new Compressor(session, cnt, table.getRowCount(), this);
+					final var use_parallelism = true;
+					final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+					new MultiThreading<FileResult>(nThreads, fr -> {
+						if(isCancel())
+							return;
 						final int i = table.model.getData().indexOf(fr);
 						File file = fr.file.toFile();
 						cnt.incrementAndGet();
@@ -583,19 +586,17 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 								break;
 							}
 						}
-					});
+					}).start(table.model.getData().stream());
 					return null;
 				}
 
 				@Override
 				protected void done()
 				{
-					progress.dispose();
+					close();
 				}
 
-			};
-			worker.execute();
-			progress.setVisible(true);
+			}.execute();
 		});
 		
 		btnClear = new JButton(Messages.getString("BatchCompressorPanel.btnClear.text")); //$NON-NLS-1$

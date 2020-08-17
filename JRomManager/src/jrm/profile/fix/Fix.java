@@ -28,7 +28,6 @@ import jrm.aui.progress.ProgressHandler;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.MultiThreading;
-import jrm.misc.MultiThreading.CallableWith;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.fix.actions.BackupContainer;
@@ -78,34 +77,28 @@ public class Fix
 				final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
 				// resets progression parallelism (needed since thread IDs may change between to parallel streaming)
 				progress.setInfos(nThreads, use_parallelism);
-				new MultiThreading(nThreads).execute(actions.stream().sorted(ContainerAction.rcomparator()), new CallableWith<ContainerAction>()
-				{
-					@Override
-					public Void call() throws Exception
+				new MultiThreading<ContainerAction>(nThreads, action -> {
+					if (progress.isCancel())
+						return;
+					try
 					{
-						val action = get();
-						if (progress.isCancel())
-							return null;
-						try
-						{
-							if (!action.doAction(curr_profile.session, progress)) // do action...
-								progress.cancel(); // ... and cancel all if it failed
-							else
-								done.add(action); // add to "done" list successful action
-							progress.setProgress(null, i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression
-						}
-						catch (final BreakException be)
-						{	// special catch case from BreakException thrown from underlying streams
-							progress.cancel();
-						}
-						catch (final Throwable e)
-						{	// oups! something unexpected happened
-							Log.err(e.getMessage(), e);
-						}
-						return null;
+						if (!action.doAction(curr_profile.session, progress)) // do action...
+							progress.cancel(); // ... and cancel all if it failed
+						else
+							done.add(action); // add to "done" list successful action
+						progress.setProgress("", i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression
 					}
-	
-				});
+					catch (final BreakException be)
+					{	// special catch case from BreakException thrown from underlying streams
+						progress.cancel();
+					}
+					catch (final Throwable e)
+					{	// oups! something unexpected happened
+						progress.setProgress("");
+						Log.err(e.getMessage(), e);
+					}
+					return;
+				}).start(actions.stream().sorted(ContainerAction.rcomparator()));
 				// close all open FS from backup (if the last actions was backup)
 				if (done.size() > 0 && done.get(0) instanceof BackupContainer)
 					BackupContainer.closeAllFS();

@@ -26,7 +26,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TableModelEvent;
@@ -54,7 +53,7 @@ import jrm.ui.basic.JRMFileChooser.CallBack;
 import jrm.ui.basic.JSDRDropTable;
 import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
 import jrm.ui.basic.SDRTableModel;
-import jrm.ui.progress.Progress;
+import jrm.ui.progress.SwingWorkerProgress;
 
 @SuppressWarnings("serial")
 public class BatchTrrntChkPanel extends JPanel
@@ -324,32 +323,27 @@ public class BatchTrrntChkPanel extends JPanel
 
 	private void trrntChk(final Session session)
 	{
-		final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
-		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-		{
+		final List<SrcDstResult> sdrl = ((SDRTableModel) tableTrntChk.getModel()).getData();
+		final TrntChkMode mode = (TrntChkMode) cbbxTrntChk.getSelectedItem();
+		final ResultColUpdater updater = tableTrntChk;
+		final boolean detectArchivedFolders = chckbxDetectArchivedFolder.isSelected();
+		final boolean removeUnknownFiles = cbRemoveUnknownFiles.isSelected();
+		final boolean removeWrongSizedFiles = cbRemoveWrongSizedFiles.isSelected();
 
+		new SwingWorkerProgress<TorrentChecker, Void>(SwingUtilities.getWindowAncestor(this))
+		{
 			@Override
-			protected Void doInBackground() throws Exception
+			protected TorrentChecker doInBackground() throws Exception
 			{
-				final List<SrcDstResult> sdrl = ((SDRTableModel) tableTrntChk.getModel()).getData();
-				final TrntChkMode mode = (TrntChkMode) cbbxTrntChk.getSelectedItem();
-				final ResultColUpdater updater = tableTrntChk;
-				final boolean detectArchivedFolders = chckbxDetectArchivedFolder.isSelected();
-				final boolean removeUnknownFiles = cbRemoveUnknownFiles.isSelected();
-				final boolean removeWrongSizedFiles = cbRemoveWrongSizedFiles.isSelected();
-				new TorrentChecker(session, progress, sdrl, mode, updater, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
-				return null;
+				return new TorrentChecker(session, this, sdrl, mode, updater, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
 			}
 
 			@Override
 			protected void done()
 			{
-				progress.dispose();
+				close();
 			}
-
-		};
-		worker.execute();
-		progress.setVisible(true);
+		}.execute();;
 	}
 
 }

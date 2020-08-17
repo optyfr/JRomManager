@@ -1,6 +1,7 @@
 package jrm.misc;
 
 import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ThreadMXBean;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -9,20 +10,43 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-public final class MultiThreading extends ThreadPoolExecutor
+/**
+ * Class to handle Multithreading via a ThreadPoolExecutor with an optional adaptive algorithm
+ * that try to adjust dynamically the number of thread according the cumulated cputime of each thread 
+ * known caveat for adaptive mode : native call thru jni is not taken into account for cputime computation
+ * NB1 : load avg method is more accurate but may not be available everywhere (ie : not on windows)
+ * @param <T> the type of object to process
+ * @author opty
+ */
+public final class MultiThreading<T> extends ThreadPoolExecutor
 {
-	private final ThreadMXBean tmxb = ManagementFactory.getThreadMXBean();
+	private final static ThreadMXBean tmxb = ManagementFactory.getThreadMXBean();
+	private final static OperatingSystemMXBean osmxb = ManagementFactory.getOperatingSystemMXBean();
 	private final int nStartThreads;
+	private final CalledWith<T> cw;
 	private final boolean adaptive;
+	private final long interval;
 	private long time = System.currentTimeMillis();
 
-	public MultiThreading(int nThreads)
+	/**
+	 * create a new Multithreading according number of thread and a task to do on each object
+	 * @param nThreads The requested number of thread, if negative adaptive mode will be used, if 0 all available processors will be used
+	 * @param cw the task code to handle each object
+	 */
+	public MultiThreading(int nThreads, CalledWith<T> cw)
 	{
 		super(getNStartThreads(nThreads), getNStartThreads(nThreads), 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()); 
 		this.nStartThreads = getNStartThreads(nThreads);
+		this.cw = cw;
 		this.adaptive = isAdaptive(nThreads);
+		this.interval = 60_000;	// check interval for adaptive mode (expressed in milliseconds)
 	}
 
+	/**
+	 * Return absolute maximum number of threads to use
+	 * @param nThreads
+	 * @return
+	 */
 	private static int getNStartThreads(int nThreads)
 	{
 		if (nThreads <= 0)
@@ -30,17 +54,27 @@ public final class MultiThreading extends ThreadPoolExecutor
 		return nThreads;
 	}
 
+	/**
+	 * determine if nThreads is set to adaptive mode
+	 * @param nThreads the maximum number of threads to use (or negative for adaptive mode)
+	 * @return true if nThreads is negative
+	 */
 	private static boolean isAdaptive(int nThreads)
 	{
 		return nThreads < 0;
 	}
 
-	public <T> void execute(Stream<T> stream, CallableWith<T> task)
+	/**
+	 * Start processing all objects from a stream according the task<br>
+	 * <b>-== This is the main method to call ==-</b>
+	 * @param stream the stream of objects to process
+	 */
+	public void start(Stream<T> stream)
 	{
 		try
 		{
 			System.out.format("Starting MultiThreading with %d threads...\n", nStartThreads);
-			stream.forEach(entry -> submit(task.clone().set(entry))); // submit all entries from stream using a task
+			stream.forEach(entry -> submit(new CallableWith(entry))); // submit all entries from stream using a task
 			shutdown(); // does not accept submission after stream as been consumed
 			awaitTermination(1, TimeUnit.DAYS); // wait max for 1 day for all tasks to terminate
 			System.out.format("Ending MultiThreading...\n");
@@ -51,7 +85,10 @@ public final class MultiThreading extends ThreadPoolExecutor
 		}
 	}
 
-	private final HashMap<Thread, Long> statusByThread = new HashMap<>();
+	/**
+	 * keep track of start cputime for each thread
+	 */
+	private final HashMap<Thread, Long> startCPUTimeByThread = new HashMap<>();
 	
 	@Override
 	protected void beforeExecute(Thread t, Runnable r)
@@ -61,8 +98,8 @@ public final class MultiThreading extends ThreadPoolExecutor
 		{
 			synchronized (this)
 			{
-				if (!statusByThread.containsKey(t))
-					statusByThread.put(t, tmxb.getCurrentThreadCpuTime());
+				if (!startCPUTimeByThread.containsKey(t))
+					startCPUTimeByThread.put(t, tmxb.getCurrentThreadCpuTime());
 			}
 		}
 	}
@@ -74,74 +111,105 @@ public final class MultiThreading extends ThreadPoolExecutor
 		if (adaptive)
 		{
 			final var elapsed = System.currentTimeMillis() - time;
-			if (elapsed > 60_000)	//	evaluate every 60s (TODO should be tunable)
+			if (elapsed > interval)
 			{
 				synchronized (this)
 				{
-					double load = (statusByThread.entrySet().stream().filter(e->e.getKey().isAlive()).mapToLong(e -> {
-						return tmxb.getThreadCpuTime(e.getKey().getId()) - e.getValue();
-					}).sum() / 1_000_000.0 /* ns to ms */) / elapsed;
-					double usage = load / getActiveCount();
-					System.out.format("load is %.03f so usage ratio is %.03f with %d active threads\n", load, usage, getActiveCount());
-					if (usage <= .8) // under 80% usage (TODO should be tunable)
+					double load = osmxb.getSystemLoadAverage();
+					if (load < 0)
 					{
-						if (getMaximumPoolSize() >= getActiveCount())
+						// Compute cumulated load of all alive threads (number between 0.0 and n with n the count of active threads)
+						load = (startCPUTimeByThread.entrySet().stream().filter(e->e.getKey().isAlive()).mapToLong(e -> {
+							return tmxb.getThreadCpuTime(e.getKey().getId()) - e.getValue();
+						}).sum() / 1_000_000.0 /* ns to ms */) / elapsed;
+						// Compute usage ratio (number between 0.0 and 1.0)
+						double usage = load / getPoolSize();
+						System.out.format("cpu load is %.03f so usage ratio is %.03f with %d active threads\n", load, usage, getPoolSize());
+						if (getMaximumPoolSize() == getPoolSize())	// make sure that used threads is not different than current maximum (as a result of a former thread reduction not yet taken into account or because we are near the end)
 						{
-							final var newThreadCnt = (int) Math.ceil(usage * getMaximumPoolSize());
-							if (newThreadCnt < getMaximumPoolSize())
+							final var threshold = 1.0 / getMaximumPoolSize();
+							if (usage < 1.0 - threshold) // there was at least 1 unused thread during the last sample 
 							{
-								System.out.format("setting down to %d from %d threads...\n", newThreadCnt, getMaximumPoolSize());
-								setCorePoolSize(newThreadCnt);
-								setMaximumPoolSize(newThreadCnt);
+								final var newThreadCnt = Math.max(1, (int)Math.ceil(load));	// down to the rounded up used thread (equiv. to the load)
+								if (newThreadCnt < getMaximumPoolSize())
+								{
+									System.out.format("setting down to %d from %d threads...\n", newThreadCnt, getMaximumPoolSize());
+									setCorePoolSize(newThreadCnt);	// core pool must be lowered first or we will get illegalArgumentException
+									setMaximumPoolSize(newThreadCnt);
+								}
+							}
+							else if(usage > 1.0 - 0.5 * threshold)	// there was less than half of a thread unused
+							{
+								final var newThreadCnt = Math.min(nStartThreads, getMaximumPoolSize() + 1);	// add 1 thread
+								if (newThreadCnt > getMaximumPoolSize())
+								{
+									System.out.format("setting up to %d from %d threads...\n", newThreadCnt, getMaximumPoolSize());
+									setMaximumPoolSize(newThreadCnt);
+									setCorePoolSize(newThreadCnt);	// core pool must be augmented last or we will get illegalArgumentException
+								}
 							}
 						}
+						else
+							System.out.format("pools size of %d <> max pool size of %d...\n", getPoolSize(), getMaximumPoolSize());
 					}
 					else
 					{
-						final var newThreadCnt = Math.min(nStartThreads, (int) Math.ceil(usage * getMaximumPoolSize()) + 1);
-						if (newThreadCnt > getMaximumPoolSize())
+						// Compute usage ratio (number between 0.0 and 1.0)
+						double usage = load / getPoolSize();
+						System.out.format("sys load avg is %.03f so usage ratio is %.03f with %d active threads\n", load, usage, getPoolSize());
+						if (getMaximumPoolSize() == getPoolSize())	// make sure that used threads is not different than current maximum (as a result of a former thread reduction not yet taken into account or because we are near the end)
 						{
-							System.out.format("setting up to %d from %d threads...\n", newThreadCnt, getMaximumPoolSize());
-							setMaximumPoolSize(newThreadCnt);
-							setCorePoolSize(newThreadCnt);
+							if(load > getMaximumPoolSize() + 1)
+							{
+								final var newThreadCnt = Math.max(1, getMaximumPoolSize() - 1);	// sub 1 thread
+								if (newThreadCnt < getMaximumPoolSize())
+								{
+									System.out.format("setting down to %d from %d threads...\n", newThreadCnt, getMaximumPoolSize());
+									setCorePoolSize(newThreadCnt);	// core pool must be lowered first or we will get illegalArgumentException
+									setMaximumPoolSize(newThreadCnt);
+								}
+							}
+							else if(load < getMaximumPoolSize() - 1)
+							{
+								final var newThreadCnt = Math.min(nStartThreads, getMaximumPoolSize() + 1);	// add 1 thread
+								if (newThreadCnt > getMaximumPoolSize())
+								{
+									System.out.format("setting up to %d from %d threads...\n", newThreadCnt, getMaximumPoolSize());
+									setMaximumPoolSize(newThreadCnt);
+									setCorePoolSize(newThreadCnt);	// core pool must be augmented last or we will get illegalArgumentException
+								}
+							}
 						}
+						else
+							System.out.format("pools size of %d <> max pool size of %d...\n", getPoolSize(), getMaximumPoolSize());
 					}
 					time = System.currentTimeMillis();
-					statusByThread.entrySet().removeIf(e->!e.getKey().isAlive());
-					statusByThread.entrySet().stream().forEach(e -> e.setValue(tmxb.getThreadCpuTime(e.getKey().getId())));
+					startCPUTimeByThread.entrySet().removeIf(e->!e.getKey().isAlive());	// cleanup dead thread from list
+					startCPUTimeByThread.entrySet().stream().forEach(e -> e.setValue(tmxb.getThreadCpuTime(e.getKey().getId())));	// reset startCPUTime
 				}
 			}
 		}
 	}
 
-	public static abstract class CallableWith<T> implements Callable<Void>, Cloneable
+	public abstract interface CalledWith<T>
 	{
-		T entry;
-
-		private CallableWith<T> set(T entry)
+		public void call(T t) throws Exception;
+	}
+	
+	public class CallableWith implements Callable<Void>
+	{
+		private T t;
+		
+		public CallableWith(T entry)
 		{
-			this.entry = entry;
-			return this;
+			this.t = entry;
 		}
-
-		public T get()
-		{
-			return entry;
-		}
-
-		@SuppressWarnings("unchecked")
+		
 		@Override
-		protected CallableWith<T> clone()
+		public Void call() throws Exception
 		{
-			try
-			{
-				return (CallableWith<T>) super.clone();
-			}
-			catch (CloneNotSupportedException e)
-			{
-				return null;
-			}
+			cw.call(t);
+			return null;
 		}
 	}
-
 }

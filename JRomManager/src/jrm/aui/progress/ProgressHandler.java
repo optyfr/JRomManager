@@ -45,7 +45,10 @@ public interface ProgressHandler
 	 *
 	 * @param msg the new progress
 	 */
-	public void setProgress(String msg);
+	public default void setProgress(String msg)
+	{
+		setProgress(msg, null, null, null);
+	}
 
 	/**
 	 * Sets the progress.
@@ -53,7 +56,10 @@ public interface ProgressHandler
 	 * @param msg the msg
 	 * @param val the val
 	 */
-	public void setProgress(String msg, Integer val);
+	public default void setProgress(String msg, Integer val)
+	{
+		setProgress(msg, val, null, null);
+	}
 
 	/**
 	 * Sets the progress.
@@ -62,7 +68,10 @@ public interface ProgressHandler
 	 * @param val the val
 	 * @param max the max
 	 */
-	public void setProgress(String msg, Integer val, Integer max);
+	public default void setProgress(String msg, Integer val, Integer max)
+	{
+		setProgress(msg, val, max, null);
+	}
 
 	/**
 	 * Sets the progress.
@@ -80,7 +89,10 @@ public interface ProgressHandler
 	 * @param msg the msg
 	 * @param val the val
 	 */
-	public void setProgress2(String msg, Integer val);
+	public default void setProgress2(String msg, Integer val)
+	{
+		setProgress2(msg, val, null);
+	}
 
 	/**
 	 * Sets the progress 2.

@@ -172,7 +172,7 @@ public class Compressor implements HTMLRenderer
 		}
 		finally
 		{
-			progress.setProgress("", null, null, "");
+//			progress.setProgress("", null, null, "");
 		}
 		return null;
 	}

@@ -34,6 +34,8 @@ import jrm.io.torrent.TorrentParser;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
+import jrm.misc.MultiThreading;
+import jrm.misc.SettingsEnum;
 import jrm.misc.UnitRenderer;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
@@ -61,7 +63,11 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		StreamEx.of(sdrl).filter(sdr->sdr.selected).forEach(sdr->{
 			updater.updateResult(sdrl.indexOf(sdr), "");
 		});
-		StreamEx.of(sdrl).filter(sdr->sdr.selected).parallel().takeWhile(sdr->!progress.isCancel()).forEach(sdr->{
+		final var use_parallelism = true;
+		final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+		new MultiThreading<SrcDstResult>(nThreads, sdr -> {
+			if(progress.isCancel())
+				return;
 			try
 			{
 				int row = sdrl.indexOf(sdr);
@@ -74,7 +80,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			{
 				Log.err(e.getMessage(),e);
 			}
-		});
+		}).start(sdrl.stream().filter(sdr->sdr.selected));
 	}
 
 	/**

@@ -21,7 +21,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
@@ -35,7 +34,7 @@ import jrm.ui.basic.JFileDropMode;
 import jrm.ui.basic.JFileDropTextField;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JTextFieldHintUI;
-import jrm.ui.progress.Progress;
+import jrm.ui.progress.SwingWorkerProgress;
 
 @SuppressWarnings("serial")
 public class Dir2DatPanel extends JPanel
@@ -510,10 +509,8 @@ public class Dir2DatPanel extends JPanel
 	 */
 	private void dir2dat(final Session session)
 	{
-		final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
-		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+		new SwingWorkerProgress<Void, Void>(SwingUtilities.getWindowAncestor(this))
 		{
-
 			@Override
 			protected Void doInBackground() throws Exception
 			{
@@ -556,7 +553,7 @@ public class Dir2DatPanel extends JPanel
 							headers.put("email", tfDir2DatEMail.getText()); //$NON-NLS-1$
 							headers.put("homepage", tfDir2DatHomepage.getText()); //$NON-NLS-1$
 							headers.put("url", tfDir2DatURL.getText()); //$NON-NLS-1$
-							new Dir2Dat(session, srcdir, dstdat, progress, options, type, headers);
+							new Dir2Dat(session, srcdir, dstdat, this, options, type, headers);
 						}
 					}
 				}
@@ -566,12 +563,11 @@ public class Dir2DatPanel extends JPanel
 			@Override
 			protected void done()
 			{
-				progress.dispose();
+				close();
 			}
 
-		};
-		worker.execute();
-		progress.setVisible(true);
+		}.execute();;
+		
 	}
 
 }

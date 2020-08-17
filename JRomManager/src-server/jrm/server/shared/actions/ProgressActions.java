@@ -91,14 +91,16 @@ public class ProgressActions implements ProgressHandler
 		this.ws = ws;
 		sendOpen();
 		sendSetInfos();
-		sendSetProgress(0);
+		sendSetProgress(0, true);
 	}
 
-	private void sendSetProgress(int pb)
+	private void sendSetProgress(final int pb, final boolean force)
 	{
 		try
 		{
-			if (!data.pb1.visibility && !data.pb2.visibility)
+			if(force)
+				ws.send(new Gson().toJson(new Cmd(data)));
+			else if (!data.pb1.visibility && !data.pb2.visibility)
 				ws.send(new Gson().toJson(new Cmd(data)));
 			else if (pb==1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
 				ws.send(new Gson().toJson(new Cmd(data)));
@@ -219,6 +221,7 @@ public class ProgressActions implements ProgressHandler
 		int offset = threadId_Offset.get(Thread.currentThread().getId());
 		if (msg != null)
 			data.infos[offset] = msg;
+		var force = false;
 		if (val != null)
 		{
 			if (val < 0 && data.pb1.visibility)
@@ -238,7 +241,11 @@ public class ProgressActions implements ProgressHandler
 			if (val == 0)
 				data.pb1.startTime = System.currentTimeMillis();
 			if (data.pb1.val >= 0 && data.pb1.max > 0)
-				data.pb1.perc = data.pb1.val * 100.0f / data.pb1.max;
+			{
+				final var perc = data.pb1.val * 100.0f / data.pb1.max;
+				force = (int)data.pb1.perc != (int)perc; 
+				data.pb1.perc = perc;
+			}
 			if (val > 0)
 			{
 				data.pb1.msg = String.format("%.02f%%", data.pb1.perc);
@@ -253,7 +260,7 @@ public class ProgressActions implements ProgressHandler
 			data.subinfos[0] = submsg;
 		else
 			data.subinfos[offset] = submsg;
-		sendSetProgress(1);
+		sendSetProgress(1, force);
 	}
 
 	@Override
@@ -265,6 +272,7 @@ public class ProgressActions implements ProgressHandler
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
+		var force = false;
 		if (msg != null && val != null)
 		{
 			if (!data.pb2.visibility)
@@ -279,7 +287,11 @@ public class ProgressActions implements ProgressHandler
 			if (val == 0)
 				data.pb2.startTime = System.currentTimeMillis();
 			if (data.pb2.val >= 0 && data.pb2.max > 0)
-				data.pb2.perc = data.pb2.val * 100.0f / data.pb2.max;
+			{
+				final var perc = data.pb2.val * 100.0f / data.pb2.max;
+				force = (int)data.pb2.perc != (int)perc;
+				data.pb2.perc = perc;
+			}
 			if (val > 0)
 			{
 				if (data.pb2.msg == null)
@@ -293,7 +305,7 @@ public class ProgressActions implements ProgressHandler
 		}
 		else if (data.pb2.visibility)
 			data.pb2.visibility = false;
-		sendSetProgress(2);
+		sendSetProgress(2, force);
 	}
 
 	@Override

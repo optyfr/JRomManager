@@ -23,7 +23,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -39,7 +38,7 @@ import jrm.security.Session;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.data.SystmsModel;
-import jrm.ui.progress.Progress;
+import jrm.ui.progress.SwingWorkerProgress;
 
 @SuppressWarnings("serial")
 public class ScannerPanel extends JPanel implements ProfileLoader
@@ -254,22 +253,21 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		if (txtdstdir.isEmpty())
 			return;
 
-		final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
-		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+		new SwingWorkerProgress<Void, Void>(SwingUtilities.getWindowAncestor(this))
 		{
 
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				session.curr_scan = new Scan(session.curr_profile, progress);
-				btnFix.setEnabled(session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
+				session.curr_scan = new Scan(session.curr_profile, this);
 				return null;
 			}
 
 			@Override
 			protected void done()
 			{
-				progress.dispose();
+				btnFix.setEnabled(session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
+				close();
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
@@ -288,10 +286,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 					}
 				}
 			}
-
-		};
-		worker.execute();
-		progress.setVisible(true);
+		}.execute();
 	}
 
 	/**
@@ -299,9 +294,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	 */
 	private void fix(final Session session)
 	{
-		final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
-		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+		new SwingWorkerProgress<Void, Void>(SwingUtilities.getWindowAncestor(this))
 		{
+			private boolean toFix = false;
 
 			@Override
 			protected Void doInBackground() throws Exception
@@ -311,9 +306,8 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 					switch (JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), Messages.getString("MainFrame.WarnSettingsChanged"), Messages.getString("MainFrame.RescanBeforeFix"), JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						case JOptionPane.YES_OPTION:
-							session.curr_scan = new Scan(session.curr_profile, progress);
-							btnFix.setEnabled(session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
-							if (!btnFix.isEnabled())
+							session.curr_scan = new Scan(session.curr_profile, this);
+							if (!(toFix = session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0))
 								return null;
 							break;
 						case JOptionPane.NO_OPTION:
@@ -323,15 +317,16 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 							return null;
 					}
 				}
-				final Fix fix = new Fix(session.curr_profile, session.curr_scan, progress);
-				btnFix.setEnabled(fix.getActionsRemain() > 0);
+				final Fix fix = new Fix(session.curr_profile, session.curr_scan, this);
+				toFix = fix.getActionsRemain() > 0;
 				return null;
 			}
 
 			@Override
 			protected void done()
 			{
-				progress.dispose();
+				btnFix.setEnabled(toFix);
+				close();
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
@@ -340,9 +335,8 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 					scan(session, false);
 			}
 
-		};
-		worker.execute();
-		progress.setVisible(true);
+		}.execute();
+		
 	}
 
 	/**
@@ -368,17 +362,24 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	{
 		if (session.curr_profile != null)
 			session.curr_profile.saveSettings();
-		final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
-		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+		
+		if (MainFrame.profile_viewer != null)
+			MainFrame.profile_viewer.clear();
+
+		new SwingWorkerProgress<Void, Void>(SwingUtilities.getWindowAncestor(this))
 		{
-			boolean success = false;
+			private boolean success = false;
 
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.clear();
-				success = (null != (Profile.load(session, profile, progress)));
+				success = (null != (Profile.load(session, profile, this)));
+				return null;
+			}
+
+			@Override
+			protected void done()
+			{
 				session.report.setProfile(session.curr_profile);
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reset(session.curr_profile);
@@ -387,23 +388,15 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				btnFix.setEnabled(false);
 				lblProfileinfo.setText(session.curr_profile.getName());
 				scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.curr_profile.systems));
-				return null;
-			}
-
-			@Override
-			protected void done()
-			{
 				if (success && session.curr_profile != null)
 				{
-					progress.close();
 					initProfileSettings(session);
 					mainPane.setSelectedIndex(1);
 				}
+				this.close();
 			}
-
-		};
-		worker.execute();
-		progress.setVisible(true);
+		}.execute();
+		
 	}
 
 	JTabbedPane getMainPane()

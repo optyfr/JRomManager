@@ -67,7 +67,6 @@ public class TZipContainer extends ContainerAction
 						if(!status.contains(TrrntZipStatus.ValidTrrntzip))
 							System.out.format("%-64s => %s\n", container.getRelFile(), status.toString()); //$NON-NLS-1$
 					}
-					handler.setProgress(""); //$NON-NLS-1$
 					return true;
 				}
 				catch(/*InterruptedException |*/ final IOException e)
@@ -75,7 +74,6 @@ public class TZipContainer extends ContainerAction
 					System.err.println(container.getRelFile());
 					Log.err(e.getMessage(),e);
 				}
-				handler.setProgress(""); //$NON-NLS-1$
 			}
 		}
 		return false;

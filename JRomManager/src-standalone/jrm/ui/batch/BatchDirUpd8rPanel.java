@@ -31,7 +31,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -59,7 +58,7 @@ import jrm.ui.basic.JRMFileChooser.CallBack;
 import jrm.ui.basic.JSDRDropTable;
 import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
 import jrm.ui.basic.SDRTableModel;
-import jrm.ui.progress.Progress;
+import jrm.ui.progress.SwingWorkerProgress;
 
 @SuppressWarnings("serial")
 public class BatchDirUpd8rPanel extends JPanel
@@ -449,26 +448,21 @@ public class BatchDirUpd8rPanel extends JPanel
 				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 			else
 			{
-				final Progress progress = new Progress(SwingUtilities.getWindowAncestor(this));
-				final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+				new SwingWorkerProgress<DirUpdater, Void>(SwingUtilities.getWindowAncestor(this))
 				{
-
 					@Override
-					protected Void doInBackground() throws Exception
+					protected DirUpdater doInBackground() throws Exception
 					{
-						new DirUpdater(session, sdrl, progress, Collections.list(listBatchToolsDat2DirSrc.getModel().elements()), tableBatchToolsDat2Dir, dryrun);
-						return null;
+						return new DirUpdater(session, sdrl, this, Collections.list(listBatchToolsDat2DirSrc.getModel().elements()), tableBatchToolsDat2Dir, dryrun);
 					}
 
 					@Override
 					protected void done()
 					{
-						progress.dispose();
+						close();
 					}
-
-				};
-				worker.execute();
-				progress.setVisible(true);
+				}.execute();;
+				
 			}
 		}
 		else
