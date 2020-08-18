@@ -397,148 +397,139 @@ public class ProfilePanel extends JPanel
 	 */
 	private void importDat(final Session session, final boolean sl)
 	{
-		new Thread(() -> {
-			final List<FileFilter> filters = Arrays.asList(new FileFilter()
+		final List<FileFilter> filters = Arrays.asList(new FileFilter()
+		{
+			@Override
+			public boolean accept(final File f)
+			{
+				return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute(); //$NON-NLS-1$
+			}
+
+			@Override
+			public String getDescription()
+			{
+				return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
+			}
+		}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		);
+		new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true).show(SwingUtilities.getWindowAncestor(this), chooser -> {
+			new SwingWorkerProgress<Void, Import>(SwingUtilities.getWindowAncestor(this))
 			{
 				@Override
-				public boolean accept(final File f)
+				protected Void doInBackground() throws Exception
 				{
-					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), "exe") || f.canExecute(); //$NON-NLS-1$
+					canCancel(false);
+					session.getUser().getSettings().setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+					for (final File selectedfile : chooser.getSelectedFiles())
+					{
+						setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+						publish(new Import(session, selectedfile, sl, this));
+					}
+					return null;
 				}
 
 				@Override
-				public String getDescription()
+				protected void process(List<Import> imprts)
 				{
-					return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
-				}
-			}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			);
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true) //$NON-NLS-1$ //$NON-NLS-2$
-					.show(SwingUtilities.getWindowAncestor(this), chooser -> {
-
-						new SwingWorkerProgress<Void, Import>(SwingUtilities.getWindowAncestor(this))
+					for (val imprt : imprts)
+					{
+						if (!imprt.is_mame)
 						{
-
-							@Override
-							protected Void doInBackground() throws Exception
+							File curr_dir = ((FileTableModel) profilesList.getModel()).curr_dir.getFile();
+							File file = new File(curr_dir, imprt.file.getName());
+							int mode = -1;
+							if (file.exists())
 							{
-								canCancel(false);
-								session.getUser().getSettings().setProperty("MainFrame.ChooseExeOrDatToImport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
-								for (final File selectedfile : chooser.getSelectedFiles())
+								String[] options = { "Overwrite", "Auto Rename", "File Chooser", "Cancel" };
+								mode = JOptionPane.showOptionDialog(ProfilePanel.this, "File already exists, choose what to do", "File already exists", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+								if (mode == 1)
 								{
-									setProgress(Messages.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
-									publish(new Import(session, selectedfile, sl, this));
-								}
-								return null;
-							}
-
-							@Override
-							protected void process(List<Import> imprts)
-							{
-								for (val imprt : imprts)
-								{
-									if (!imprt.is_mame)
+									for (int i = 1;; i++)
 									{
-										File curr_dir = ((FileTableModel) profilesList.getModel()).curr_dir.getFile();
-										File file = new File(curr_dir, imprt.file.getName());
-										int mode = -1;
-										if (file.exists())
+										final File test_file = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + '_' + i + '.' + FilenameUtils.getExtension(file.getName()));
+										if (!test_file.exists())
 										{
-											String[] options = { "Overwrite", "Auto Rename", "File Chooser", "Cancel" };
-											mode = JOptionPane.showOptionDialog(ProfilePanel.this, "File already exists, choose what to do", "File already exists", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
-											if (mode == 1)
-											{
-												for (int i = 1;; i++)
-												{
-													final File test_file = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + '_' + i + '.' + FilenameUtils.getExtension(file.getName()));
-													if (!test_file.exists())
-													{
-														file = test_file;
-														break;
-													}
-												}
-											}
-											else if (mode == 3)
-												return;
-										}
-										if (!file.exists() || mode == 0)
-										{
-											try
-											{
-												FileUtils.copyFile(imprt.file, file);
-												((FileTableModel) profilesList.getModel()).populate(session);
-												return;
-											}
-											catch (IOException e)
-											{
-												Log.err(e.getMessage(), e);
-											}
+											file = test_file;
+											break;
 										}
 									}
-									final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
-									final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
-									new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-										.show(SwingUtilities.getWindowAncestor(ProfilePanel.this), chooser1 -> {
-											try
-											{
-												final File file = chooser1.getSelectedFile();
-												final File parent = file.getParentFile();
-												FileUtils.copyFile(imprt.file, file);
-												if (imprt.is_mame)
-												{
-													final ProfileNFO pnfo = ProfileNFO.load(session, file);
-													pnfo.mame.set(imprt.org_file, sl);
-													if (imprt.roms_file != null)
-													{
-														FileUtils.copyFileToDirectory(imprt.roms_file, parent);
-														pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
-														if (imprt.sl_file != null)
-														{
-															FileUtils.copyFileToDirectory(imprt.sl_file, parent);
-															pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
-														}
-													}
-													pnfo.save(session);
-												}
-												final DirTreeModel model = (DirTreeModel) profilesTree.getModel();
-												final DirNode root = (DirNode) model.getRoot();
-												DirNode theNode = root.find(parent);
-												if (theNode != null)
-												{
-	
-													theNode.reload();
-													model.reload(theNode);
-													if ((theNode = root.find(parent)) != null)
-													{
-														profilesTree.clearSelection();
-														profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
-													}
-													else
-														System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
-												}
-												else
-													System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
-											}
-											catch (final IOException e)
-											{
-												Log.err(e.getMessage(), e);
-											}
-											return null;
-										}
-									);
+								}
+								else if (mode == 3)
+									continue;
+							}
+							if (!file.exists() || mode == 0)
+							{
+								try
+								{
+									FileUtils.copyFile(imprt.file, file);
+									((FileTableModel) profilesList.getModel()).populate(session);
+									continue;
+								}
+								catch (IOException e)
+								{
+									Log.err(e.getMessage(), e);
 								}
 							}
-
-							@Override
-							protected void done()
+						}
+						final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
+						final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
+						new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false).show(SwingUtilities.getWindowAncestor(ProfilePanel.this), chooser1 -> {
+							try
 							{
-								close();
+								final File file = chooser1.getSelectedFile();
+								final File parent = file.getParentFile();
+								FileUtils.copyFile(imprt.file, file);
+								if (imprt.is_mame)
+								{
+									final ProfileNFO pnfo = ProfileNFO.load(session, file);
+									pnfo.mame.set(imprt.org_file, sl);
+									if (imprt.roms_file != null)
+									{
+										FileUtils.copyFileToDirectory(imprt.roms_file, parent);
+										pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
+										if (imprt.sl_file != null)
+										{
+											FileUtils.copyFileToDirectory(imprt.sl_file, parent);
+											pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
+										}
+									}
+									pnfo.save(session);
+								}
+								final DirTreeModel model = (DirTreeModel) profilesTree.getModel();
+								final DirNode root = (DirNode) model.getRoot();
+								DirNode theNode = root.find(parent);
+								if (theNode != null)
+								{
+									theNode.reload();
+									model.reload(theNode);
+									if ((theNode = root.find(parent)) != null)
+									{
+										profilesTree.clearSelection();
+										profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
+									}
+									else
+										System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
+								}
+								else
+									System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
 							}
-						}.execute();
-						return null;
-					});
-		}).start();
+							catch (final IOException e)
+							{
+								Log.err(e.getMessage(), e);
+							}
+							return null;
+						});
+					}
+				}
 
+				@Override
+				protected void done()
+				{
+					close();
+				}
+			}.execute();
+			return null;
+		});
 	}
 
 	/**

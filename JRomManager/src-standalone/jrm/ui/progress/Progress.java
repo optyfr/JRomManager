@@ -25,8 +25,6 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -42,7 +40,6 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import jrm.locale.Messages;
 import jrm.ui.MainFrame;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Progress.
  *
@@ -60,9 +57,6 @@ public class Progress extends JDialog
 	
 	/** The lbl sub info. */
 	private JLabel[] lblSubInfo;
-	
-	/** The thread id offset. */
-	private Map<Long,Integer> threadId_Offset = new HashMap<>();
 	
 	/** The progress bar. */
 	private final JProgressBar progressBar;
@@ -186,8 +180,6 @@ public class Progress extends JDialog
 
 	public void setInfos(int threadCnt, boolean multipleSubInfos)
 	{
-		threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
-		threadId_Offset.clear();
 		if(lblInfo==null || lblInfo.length!=threadCnt || lblSubInfo==null || lblSubInfo.length!=(multipleSubInfos?threadCnt:1))
 		{
 			panel.removeAll();
@@ -245,42 +237,8 @@ public class Progress extends JDialog
 	/** The lbl time left 2. */
 	private final JLabel lblTimeLeft2;
 
-	public synchronized void setProgress(final String msg, final Integer val, final Integer max, final String submsg)
+	public synchronized void setProgress(final int offset, final String msg, final Integer val, final Integer max, final String submsg)
 	{
-		if (!threadId_Offset.containsKey(Thread.currentThread().getId()))
-		{
-			if (threadId_Offset.size() < lblInfo.length)
-				threadId_Offset.put(Thread.currentThread().getId(), threadId_Offset.size());
-			else
-			{
-				ThreadGroup tg = Thread.currentThread().getThreadGroup();
-				Thread[] tl = new Thread[tg.activeCount()];
-				int tl_count = tg.enumerate(tl, false);
-				boolean found = false;
-				for (Map.Entry<Long, Integer> e : threadId_Offset.entrySet())
-				{
-					boolean exists = false;
-					for (int i = 0; i < tl_count; i++)
-					{
-						if (e.getKey() == tl[i].getId())
-						{
-							exists = true;
-							break;
-						}
-					}
-					if (!exists)
-					{
-						threadId_Offset.remove(e.getKey());
-						threadId_Offset.put(Thread.currentThread().getId(), e.getValue());
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-					threadId_Offset.put(Thread.currentThread().getId(), 0);
-			}
-		}
-		int offset = threadId_Offset.get(Thread.currentThread().getId());
 		
 		if (msg != null)
 			lblInfo[offset].setText(msg);

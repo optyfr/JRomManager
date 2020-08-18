@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.swing.JButton;
@@ -155,7 +156,29 @@ public class BatchDirUpd8rPanel extends JPanel
 			public void onButtonPress(int row, int column)
 			{
 				final SrcDstResult sdr = model.getData().get(row);
-				new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),DirUpdaterResults.load(session, new File(sdr.src)));
+				new SwingWorkerProgress<DirUpdaterResults, Void>(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this))
+				{
+
+					@Override
+					protected DirUpdaterResults doInBackground() throws Exception
+					{
+						setProgress("Loading...");
+						return DirUpdaterResults.load(session, new File(sdr.src), this);
+					}
+					
+					@Override protected void done()
+					{
+						close();
+						try
+						{
+							new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),get());
+						}
+						catch (InterruptedException | ExecutionException e)
+						{
+							e.printStackTrace();
+						}
+					};
+				}.execute();;
 			}
 		});
 		if(session!=null)
@@ -195,7 +218,30 @@ public class BatchDirUpd8rPanel extends JPanel
 						final SrcDstResult sdr = tablemodel.getData().get(row);
 /*						if(sdr.src.isFile())
 							new ReportLite(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),sdr.src);*/
-						new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this),DirUpdaterResults.load(session, new File(sdr.src)));
+						new SwingWorkerProgress<DirUpdaterResults, Void>(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this))
+						{
+
+							@Override
+							protected DirUpdaterResults doInBackground() throws Exception
+							{
+								setProgress("Loading...");
+								return DirUpdaterResults.load(session, new File(sdr.src), this);
+							}
+							
+							@Override
+							protected void done()
+							{
+								close();
+								try
+								{
+									new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this), get());
+								}
+								catch (InterruptedException | ExecutionException e)
+								{
+									e.printStackTrace();
+								}
+							}
+						}.execute();
 					}
 				}
 			}

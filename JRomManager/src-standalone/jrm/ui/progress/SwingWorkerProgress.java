@@ -2,6 +2,8 @@ package jrm.ui.progress;
 
 import java.awt.Window;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.SwingWorker;
 
@@ -14,6 +16,10 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 {
 	private final Progress progress;
 	
+	/** The thread id offset. */
+	private Map<Long,Integer> threadId_Offset = new HashMap<>();
+	private int threadCnt;
+	
 	public SwingWorkerProgress(final Window owner)
 	{
 		super();
@@ -25,7 +31,7 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 					if(e.getNewValue() instanceof SetProgress)
 					{
 						SetProgress props = (SetProgress)e.getNewValue();
-						progress.setProgress(props.msg, props.val, props.max, props.submsg);
+						progress.setProgress(props.offset, props.msg, props.val, props.max, props.submsg);
 					}
 					break;
 				case "setProgress2":
@@ -69,7 +75,12 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 	@Override
 	public void setInfos(int threadCnt, boolean multipleSubInfos)
 	{
-		firePropertyChange("setInfos", null, new SetInfos(threadCnt, multipleSubInfos));
+		synchronized (threadId_Offset)
+		{
+			this.threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
+			threadId_Offset.clear();
+		}
+		firePropertyChange("setInfos", null, new SetInfos(this.threadCnt, multipleSubInfos));
 	}
 
 	@Override
@@ -81,6 +92,7 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 	@RequiredArgsConstructor
 	private static class SetProgress
 	{
+		private final int offset;
 		private final String msg;
 		private final Integer val;
 		private final Integer max;
@@ -90,7 +102,45 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 	@Override
 	public void setProgress(String msg, Integer val, Integer max, String submsg)
 	{
-		firePropertyChange("setProgress", null, new SetProgress(msg, val, max, submsg));
+		final int offset;
+		synchronized (threadId_Offset)
+		{
+			if (!threadId_Offset.containsKey(Thread.currentThread().getId()))
+			{
+				if (threadId_Offset.size() < threadCnt)
+					threadId_Offset.put(Thread.currentThread().getId(), threadId_Offset.size());
+				else
+				{
+					ThreadGroup tg = Thread.currentThread().getThreadGroup();
+					Thread[] tl = new Thread[tg.activeCount()];
+					int tl_count = tg.enumerate(tl, false);
+					boolean found = false;
+					for (Map.Entry<Long, Integer> e : threadId_Offset.entrySet())
+					{
+						boolean exists = false;
+						for (int i = 0; i < tl_count; i++)
+						{
+							if (e.getKey() == tl[i].getId())
+							{
+								exists = true;
+								break;
+							}
+						}
+						if (!exists)
+						{
+							threadId_Offset.remove(e.getKey());
+							threadId_Offset.put(Thread.currentThread().getId(), e.getValue());
+							found = true;
+							break;
+						}
+					}
+					if (!found)
+						threadId_Offset.put(Thread.currentThread().getId(), 0);
+				}
+			}
+			offset = threadId_Offset.get(Thread.currentThread().getId());
+		}
+		firePropertyChange("setProgress", null, new SetProgress(offset, msg, val, max, submsg));
 	}
 
 	@RequiredArgsConstructor

@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
 
+import jrm.aui.progress.ProgressHandler;
 import jrm.profile.report.Report;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 
 public class DirUpdaterResults implements Serializable
@@ -41,7 +43,7 @@ public class DirUpdaterResults implements Serializable
 	private static File getFile(final Session session, final File file)
 	{
 		final CRC32 crc = new CRC32();
-		crc.update(file.getAbsolutePath().getBytes());
+		crc.update(PathAbstractor.getAbsolutePath(session, file.toString()).toString().getBytes());
 		final File reports = session.getUser().getSettings().getWorkPath().resolve("work").toFile(); //$NON-NLS-1$
 		reports.mkdirs();
 		return new File(reports, String.format("%08x", crc.getValue()) + ".results"); //$NON-NLS-1$
@@ -58,6 +60,21 @@ public class DirUpdaterResults implements Serializable
 		}
 	}
 	
+	public static DirUpdaterResults load(final Session session, final File file, ProgressHandler progress)
+	{
+		final var rfile = getFile(session, file);
+		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(progress.getInputStream(new FileInputStream(rfile),(int)rfile.length()))))
+		{
+			return (DirUpdaterResults)ois.readObject();
+		}
+		catch (final Throwable e)
+		{
+			System.err.println(e.getMessage());
+		}
+		return null;
+	}
+
+	
 	public static DirUpdaterResults load(final Session session, final File file)
 	{
 		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(getFile(session, file)))))
@@ -66,6 +83,7 @@ public class DirUpdaterResults implements Serializable
 		}
 		catch (final Throwable e)
 		{
+			System.err.println(e.getMessage());
 		}
 		return null;
 	}

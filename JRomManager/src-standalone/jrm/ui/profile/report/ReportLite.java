@@ -6,6 +6,7 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -61,18 +62,35 @@ public class ReportLite extends JDialog
 				getRootPane().setDefaultButton(okButton);
 			}
 		}
-		new SwingWorker<Void, Void>()
+		new SwingWorker<Report, Void>()
 		{
 			@Override
-			protected Void doInBackground() throws Exception
+			protected Report doInBackground() throws Exception
 			{
-				Report report = Report.load(session, reportFile);
-				wait.setText("Building tree...");
-				ReportView contentPanel = new ReportView(report);
-				getContentPane().remove(wait);
-				getContentPane().add(contentPanel, BorderLayout.CENTER, 0);
-				validate();
+				try
+				{
+					return Report.load(session, reportFile);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 				return null;
+			}
+			
+			@Override
+			protected void done()
+			{
+				try
+				{
+					getContentPane().remove(wait);
+					getContentPane().add(new ReportView(get()), BorderLayout.CENTER, 0);
+					validate();
+				}
+				catch (InterruptedException | ExecutionException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}.execute();
 	}

@@ -28,7 +28,6 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
 import javax.swing.border.BevelBorder;
 
 import org.apache.commons.codec.DecoderException;
@@ -41,6 +40,7 @@ import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
+import lombok.Setter;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -54,6 +54,8 @@ public class ReportFrame extends JDialog implements StatusHandler
 	
 	/** The lbl status. */
 	private final JLabel lblStatus = new JLabel(""); //$NON-NLS-1$
+	
+	private final ReportView view;
 
 	/**
 	 * Instantiates a new report frame.
@@ -87,12 +89,12 @@ public class ReportFrame extends JDialog implements StatusHandler
 		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
-		final JScrollPane scrollPane = new ReportView(session.report);
+		view = new ReportView(session.report);
 		final GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 0;
-		getContentPane().add(scrollPane, gbc_scrollPane);
+		getContentPane().add(view, gbc_scrollPane);
 
 		session.report.setStatusHandler(this);
 
@@ -123,5 +125,30 @@ public class ReportFrame extends JDialog implements StatusHandler
 	public void setStatus(final String text)
 	{
 		lblStatus.setText(text);
+	}
+	
+	private boolean needUpdate = false;
+	
+	public void setNeedUpdate(boolean needUpdate)
+	{
+		this.needUpdate = needUpdate;
+		if(isVisible())
+			update();
+	}
+
+	private void update()
+	{
+		if(needUpdate)
+		{
+			view.update();
+			needUpdate = false;
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean b)
+	{
+		update();
+		super.setVisible(b);
 	}
 }

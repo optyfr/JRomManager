@@ -25,7 +25,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -234,33 +236,36 @@ public class MainFrame extends JFrame
 		});
 	}
 
+	private static HashMap<String, ImageIcon> iconsCache = new HashMap<>();
+	private static Optional<Module> iconsModule = ModuleLayer.boot().findModule("res.icons"); 
+
 	public static ImageIcon getIcon(String res)
 	{
-		try
+		if (!iconsCache.containsKey(res))
 		{
-			Module module = ModuleLayer.boot().findModule("res.icons").orElseThrow();
-			try (val in = module.getResourceAsStream(res))
-			{
-				return in!=null?new ImageIcon(in.readAllBytes()):new ImageIcon();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				return new ImageIcon();
-			}
+			iconsModule.ifPresentOrElse(module -> {
+				try (val in = module.getResourceAsStream(res))
+				{
+					iconsCache.put(res, in != null ? new ImageIcon(in.readAllBytes()) : new ImageIcon());
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					iconsCache.put(res, new ImageIcon());
+				}
+			}, () -> {
+				try (val in = MainFrame.class.getResourceAsStream(res))
+				{
+					iconsCache.put(res, in != null ? new ImageIcon(in.readAllBytes()) : new ImageIcon());
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					iconsCache.put(res, new ImageIcon());
+				}
+			});
 		}
-		catch (NoSuchElementException ex)
-		{
-			try (val in = MainFrame.class.getResourceAsStream(res))
-			{
-				return in!=null?new ImageIcon(in.readAllBytes()):new ImageIcon();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				return new ImageIcon();
-			}
-		}
+		return iconsCache.get(res);
 	}
 
 }

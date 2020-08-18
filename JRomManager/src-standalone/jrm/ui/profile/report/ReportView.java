@@ -13,15 +13,21 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
+import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import jrm.locale.Messages;
@@ -35,16 +41,51 @@ import lombok.val;
 @SuppressWarnings("serial")
 public class ReportView extends JScrollPane
 {
+	private final Report report;
+	private final JLabel wait;
+	private final JTree tree;
+	
 	public ReportView(Report report) {
-		final JTree tree = new JTree();
+		this.report = report;
+		tree = new JTree();
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
 		TreeSelectionModel selmodel = new DefaultTreeSelectionModel();
 		selmodel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setSelectionModel(selmodel);
-		tree.setModel(new ReportTreeModel(report.getHandler()));
-		tree.setCellRenderer(new ReportTreeCellRenderer());
-		this.setViewportView(tree);
+		wait = new JLabel("Building tree...");
+		wait.setFont(getFont().deriveFont(14.0f));
+		wait.setHorizontalAlignment(SwingConstants.CENTER);
+		wait.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setViewportView(wait);
+		
+		new SwingWorker<TreeModel, Void>()
+		{
+			@Override
+			protected TreeModel doInBackground() throws Exception
+			{
+				return new ReportTreeModel(report.getHandler());
+			}
+			
+			@Override
+			protected void done()
+			{
+				try
+				{
+					tree.setModel(get());
+					tree.setCellRenderer(new ReportTreeCellRenderer());
+					ReportView.this.setViewportView(tree);
+				}
+				catch (InterruptedException | ExecutionException e)
+				{
+					e.printStackTrace();
+				}
+				finally
+				{
+					setEnabled(true);
+				}
+			}
+		}.execute();
 
 		final JPopupMenu popupMenu = new JPopupMenu();
 		ReportView.addPopup(tree, popupMenu);
@@ -259,4 +300,24 @@ public class ReportView extends JScrollPane
 		});
 	}
 
+	public void update()
+	{
+		setViewportView(wait);
+		new SwingWorker<Void, Void>(){
+
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				report.getHandler().initClone();
+				return null;
+			}
+
+			protected void done()
+			{
+				setViewportView(tree);
+			}
+		}.execute();
+		
+	}
+	
 }
