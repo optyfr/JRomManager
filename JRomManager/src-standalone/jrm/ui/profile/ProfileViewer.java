@@ -913,33 +913,28 @@ public class ProfileViewer extends JDialog
 	 */
 	private void export(final Session session, final ExportType type, final boolean filtered, final SoftwareList selection)
 	{
-//		new Thread(() -> {
-			final FileNameExtensionFilter fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
-//				final Progress progress = new Progress(ProfileViewer.this);
-//				progress.setVisible(true);
-				session.getUser().getSettings().setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
-				final File selectedfile = chooser.getSelectedFile();
-				final File file = fnef.accept(selectedfile) ? selectedfile : new File(selectedfile.getAbsolutePath() + ".xml"); //$NON-NLS-1$
-				new SwingWorkerProgress<Void, Void>(ProfileViewer.this)
+		final FileNameExtensionFilter fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
+			session.getUser().getSettings().setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+			final File selectedfile = chooser.getSelectedFile();
+			final File file = fnef.accept(selectedfile) ? selectedfile : new File(selectedfile.getAbsolutePath() + ".xml"); //$NON-NLS-1$
+			new SwingWorkerProgress<Void, Void>(ProfileViewer.this)
+			{
+				@Override
+				protected Void doInBackground() throws Exception
 				{
-					@Override
-					protected Void doInBackground() throws Exception
-					{
-						new Export(session.curr_profile, file, type, filtered, selection, this);
-						return null;
-					}
-					
-					@Override
-					public void done()
-					{
-						close();
-					}
-				}.execute();
-//				progress.dispose();
-				return null;
-			});
-//		}).start();
+					new Export(session.curr_profile, file, type, filtered, selection, this);
+					return null;
+				}
+				
+				@Override
+				public void done()
+				{
+					close();
+				}
+			}.execute();
+			return null;
+		});
 	}
 
 	/**

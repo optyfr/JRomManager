@@ -114,7 +114,7 @@ public class ReportView extends JScrollPane
 				options.add(FilterOptions.SHOWOK);
 			else
 				options.remove(FilterOptions.SHOWOK);
-			report.getHandler().filter(options.toArray(new FilterOptions[0]));
+			update(options.toArray(FilterOptions[]::new));
 		});
 
 		final JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
@@ -142,7 +142,7 @@ public class ReportView extends JScrollPane
 				options.add(FilterOptions.HIDEMISSING);
 			else
 				options.remove(FilterOptions.HIDEMISSING);
-			report.getHandler().filter(options.toArray(new FilterOptions[0]));
+			update(options.toArray(FilterOptions[]::new));
 		});
 		popupMenu.add(chckbxmntmHideFullyMissing);
 		
@@ -302,19 +302,31 @@ public class ReportView extends JScrollPane
 
 	public void update()
 	{
+		update(new FilterOptions[0]);
+	}
+
+	private void update(FilterOptions[] options)
+	{
 		setViewportView(wait);
-		new SwingWorker<Void, Void>(){
+		new SwingWorker<FilterOptions[], Void>(){
 
 			@Override
-			protected Void doInBackground() throws Exception
+			protected FilterOptions[] doInBackground() throws Exception
 			{
-				report.getHandler().initClone();
-				return null;
+				return options;
 			}
 
 			protected void done()
 			{
-				setViewportView(tree);
+				try
+				{
+					setViewportView(tree);
+					report.getHandler().filter(get());
+				}
+				catch (InterruptedException | ExecutionException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}.execute();
 		

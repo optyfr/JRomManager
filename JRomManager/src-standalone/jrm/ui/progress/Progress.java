@@ -333,7 +333,7 @@ public class Progress extends JDialog
 	/**
 	 * Pack height.
 	 */
-	public void packHeight()
+	private void packHeight()
 	{
 		invalidate();
 		final Dimension newSize = getPreferredSize();
