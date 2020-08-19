@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.stream.IntStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -1040,6 +1039,7 @@ public class Profile implements Serializable
 		final File cachefile = session.getUser().getSettings().getCacheFile(nfo.file);
 		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, false)) //$NON-NLS-1$
 		{	// Load from cache if cachefile is not outdated and debug_nocache is disabled
+			handler.setInfos(1, null);
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
 			try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile), (int) cachefile.length()))))
 			{
@@ -1055,6 +1055,7 @@ public class Profile implements Serializable
 		}
 		if (profile == null)	// if cache failed to load or because it is outdated
 		{
+			handler.setInfos(1, true);
 			profile = new Profile();
 			profile.session = session;
 			session.curr_profile = profile;
@@ -1078,6 +1079,7 @@ public class Profile implements Serializable
 					return null;
 			}
 			// save cache
+			handler.setInfos(1, null);
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			profile.save();
 		}
@@ -1437,11 +1439,24 @@ public class Profile implements Serializable
 	}
 
 	/**
+	 * get number of entities after filtering
+	 * @return an int which is the sum of machines, samples, and softwares after filtering
+	 */
+	public int filteredSubsize()
+	{
+		return (int)machinelist_list.get(0).getFilteredStream().count()
+			+ machinelist_list.get(0).samplesets.size()
+			+ (int)machinelist_list.softwarelist_list.getFilteredStream().mapToLong(sl -> sl.getFilteredStream().count()).sum();
+	}
+
+	/**
 	 * get number of entities
 	 * @return an int which is the sum of machines, samples, and softwares
 	 */
 	public int subsize()
 	{
-		return machinelist_list.get(0).size() + machinelist_list.get(0).samplesets.size() + machinelist_list.softwarelist_list.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum();
+		return machinelist_list.get(0).size()
+				+ machinelist_list.get(0).samplesets.size()
+				+ machinelist_list.softwarelist_list.stream().mapToInt(sl -> sl.size()).sum();
 	}
 }

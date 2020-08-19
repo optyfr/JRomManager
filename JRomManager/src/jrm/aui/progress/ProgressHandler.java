@@ -33,7 +33,7 @@ public interface ProgressHandler
 	 * @param threadCnt the thread cnt
 	 * @param multipleSubInfos the multiple sub infos
 	 */
-	public void setInfos(int threadCnt, boolean multipleSubInfos);
+	public void setInfos(int threadCnt, Boolean multipleSubInfos);
 	
 	/**
 	 * Clear infos.

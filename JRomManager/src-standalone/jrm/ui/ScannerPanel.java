@@ -266,7 +266,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected void done()
 			{
-				btnFix.setEnabled(session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
+				btnFix.setEnabled(session.curr_scan!=null && session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
 				close();
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)

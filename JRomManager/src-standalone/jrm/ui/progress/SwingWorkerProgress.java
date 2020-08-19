@@ -69,11 +69,11 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 	private static class SetInfos
 	{
 		private final int threadCnt;
-		private final boolean multipleSubInfos;
+		private final Boolean multipleSubInfos;
 	}
 	
 	@Override
-	public void setInfos(int threadCnt, boolean multipleSubInfos)
+	public void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
 		synchronized (threadId_Offset)
 		{

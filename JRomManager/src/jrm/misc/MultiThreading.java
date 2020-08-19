@@ -4,11 +4,14 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ThreadMXBean;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Class to handle Multithreading via a ThreadPoolExecutor with an optional adaptive algorithm
@@ -23,23 +26,24 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 	private final static ThreadMXBean tmxb = ManagementFactory.getThreadMXBean();
 	private final static OperatingSystemMXBean osmxb = ManagementFactory.getOperatingSystemMXBean();
 	private final int nStartThreads;
-	private final CalledWith<T> cw;
 	private final boolean adaptive;
 	private final long interval;
 	private long time = System.currentTimeMillis();
+
+	private final CalledWith<T> calledWith;
 
 	/**
 	 * create a new Multithreading according number of thread and a task to do on each object
 	 * @param nThreads The requested number of thread, if negative adaptive mode will be used, if 0 all available processors will be used
 	 * @param cw the task code to handle each object
 	 */
-	public MultiThreading(int nThreads, CalledWith<T> cw)
+	public MultiThreading(final int nThreads, final CalledWith<T> cw)
 	{
 		super(getNStartThreads(nThreads), getNStartThreads(nThreads), 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()); 
 		this.nStartThreads = getNStartThreads(nThreads);
-		this.cw = cw;
 		this.adaptive = isAdaptive(nThreads);
 		this.interval = 60_000;	// check interval for adaptive mode (expressed in milliseconds)
+		this.calledWith = cw;
 	}
 
 	/**
@@ -47,7 +51,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 	 * @param nThreads
 	 * @return
 	 */
-	private static int getNStartThreads(int nThreads)
+	private static int getNStartThreads(final int nThreads)
 	{
 		if (nThreads <= 0)
 			return Runtime.getRuntime().availableProcessors();
@@ -59,7 +63,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 	 * @param nThreads the maximum number of threads to use (or negative for adaptive mode)
 	 * @return true if nThreads is negative
 	 */
-	private static boolean isAdaptive(int nThreads)
+	private static boolean isAdaptive(final int nThreads)
 	{
 		return nThreads < 0;
 	}
@@ -69,29 +73,32 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 	 * <b>-== This is the main method to call ==-</b>
 	 * @param stream the stream of objects to process
 	 */
-	public void start(Stream<T> stream)
+	public void start(final Stream<T> stream)
 	{
 		try
 		{
-			System.out.format("Starting MultiThreading with %d threads...\n", nStartThreads);
+			Objects.requireNonNull(calledWith);
 			stream.forEach(entry -> submit(new CallableWith(entry))); // submit all entries from stream using a task
 			shutdown(); // does not accept submission after stream as been consumed
 			awaitTermination(1, TimeUnit.DAYS); // wait max for 1 day for all tasks to terminate
-			System.out.format("Ending MultiThreading...\n");
 		}
 		catch (InterruptedException e)
 		{
 			Log.err(e.getMessage(), e);
 		}
+		catch (NullPointerException e)
+		{
+			Log.err(e.getMessage(), e);
+		}
 	}
-
+	
 	/**
 	 * keep track of start cputime for each thread
 	 */
 	private final HashMap<Thread, Long> startCPUTimeByThread = new HashMap<>();
 	
 	@Override
-	protected void beforeExecute(Thread t, Runnable r)
+	protected void beforeExecute(final Thread t, final Runnable r)
 	{
 		super.beforeExecute(t, r);
 		if (adaptive)
@@ -105,7 +112,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 	}
 
 	@Override
-	protected void afterExecute(Runnable r, Throwable t)
+	protected void afterExecute(final Runnable r, final Throwable t)
 	{
 		super.afterExecute(r, t);
 		if (adaptive)
@@ -116,9 +123,9 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 				synchronized (this)
 				{
 					double load = osmxb.getSystemLoadAverage();
-					if (load < 0)
+					if (load < 0)	// sys load is not computable
 					{
-						// Compute cumulated load of all alive threads (number between 0.0 and n with n the count of active threads)
+						// Compute cumulated CPUTime of all alive threads (number between 0.0 and n with n the count of active threads)
 						load = (startCPUTimeByThread.entrySet().stream().filter(e->e.getKey().isAlive()).mapToLong(e -> {
 							return tmxb.getThreadCpuTime(e.getKey().getId()) - e.getValue();
 						}).sum() / 1_000_000.0 /* ns to ms */) / elapsed;
@@ -191,24 +198,21 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 		}
 	}
 
-	public abstract interface CalledWith<T>
+	@FunctionalInterface
+	public interface CalledWith<T>
 	{
-		public void call(T t) throws Exception;
+		public void call(final T t) throws Exception;
 	}
 	
-	public class CallableWith implements Callable<Void>
+	@RequiredArgsConstructor
+	private class CallableWith implements Callable<Void>
 	{
-		private T t;
-		
-		public CallableWith(T entry)
-		{
-			this.t = entry;
-		}
+		private final T entry;
 		
 		@Override
 		public Void call() throws Exception
 		{
-			cw.call(t);
+			calledWith.call(entry);
 			return null;
 		}
 	}

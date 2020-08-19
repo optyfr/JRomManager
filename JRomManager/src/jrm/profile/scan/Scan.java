@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,6 +40,7 @@ import jrm.aui.progress.ProgressHandler;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.MultiThreading;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
@@ -86,6 +88,7 @@ import jrm.profile.report.SubjectSet.Status;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.security.PathAbstractor;
+import lombok.val;
 
 /**
  * The scan class
@@ -229,6 +232,8 @@ public class Scan extends PathAbstractor
 		ignore_unneeded_entries = profile.getProperty(SettingsEnum.ignore_unneeded_entries, false); //$NON-NLS-1$
 		ignore_unknown_containers = profile.getProperty(SettingsEnum.ignore_unknown_containers, false); //$NON-NLS-1$
 		backup = profile.getProperty(SettingsEnum.backup, true); //$NON-NLS-1$
+		val use_parallelism = profile.getProperty(SettingsEnum.use_parallelism, profile.session.server);
+		val nThreads = use_parallelism ? profile.session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 
 		final String dstdir_txt = profile.getProperty(SettingsEnum.roms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dstdir_txt.isEmpty())
@@ -391,7 +396,7 @@ public class Scan extends PathAbstractor
 		}
 
 		/* reset progress style */
-		handler.setInfos(1,false);
+		handler.setInfos(nThreads,null);
 
 		
 		try
@@ -437,51 +442,51 @@ public class Scan extends PathAbstractor
 			 */
 			final AtomicInteger i = new AtomicInteger();
 			final AtomicInteger j = new AtomicInteger();
-			handler.setProgress(Messages.getString("Scan.SearchingForFixes"), i.get(), profile.subsize()); //$NON-NLS-1$
-			handler.setProgress2(String.format("%d/%d", j.get(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
+			handler.setProgress(null, i.get(), profile.filteredSubsize()); //$NON-NLS-1$
+			handler.setProgress2(String.format("%s %d/%d", Messages.getString("Scan.SearchingForFixes"), j.get(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
 			if (profile.machinelist_list.get(0).size() > 0)
 			{
 				
 				/* Scan all samples */
-				handler.setProgress2(String.format("%d/%d", j.incrementAndGet(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
-				for(final Samples set : profile.machinelist_list.get(0).samplesets)
+				handler.setProgress2(String.format("%s %d/%d", Messages.getString("Scan.SearchingForFixes"), j.get(), profile.size()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
+				new MultiThreading<Samples>(nThreads, set ->
 				{
-					// for each sample
-					handler.setProgress(null, i.incrementAndGet(), null, set.getName());
+					if (handler.isCancel())
+						return;
+					handler.setProgress(set.getName(), i.getAndIncrement());
 					if (samples_dstscan != null)
 						scanSamples(set);
-					if (handler.isCancel())
-						throw new BreakException();
-				}
+				}).start(StreamSupport.stream(profile.machinelist_list.get(0).samplesets.spliterator(),false));
 				/* scan all machines */ 
 				profile.machinelist_list.get(0).forEach(Machine::resetCollisionMode);
-				profile.machinelist_list.get(0).getFilteredStream().forEach(m -> {
-					// for each machine
-					handler.setProgress(null, i.incrementAndGet(), null, m.getFullName());
-					scanWare(m);
+				new MultiThreading<Machine>(nThreads, m ->
+				{
 					if (handler.isCancel())
-						throw new BreakException();
-				});
+						return;
+					handler.setProgress(m.getFullName(), i.getAndIncrement());
+					scanWare(m);
+				}).start(profile.machinelist_list.get(0).getFilteredStream());
 			}
 			if (profile.machinelist_list.softwarelist_list.size() > 0)
 			{
 				/* scan all software lists */
-				profile.machinelist_list.softwarelist_list.getFilteredStream().forEach(sl -> {
+				profile.machinelist_list.softwarelist_list.getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
 					// for each software list
-					handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.size(), sl.getName()), j.get(), profile.size()); //$NON-NLS-1$
+					handler.setProgress2(String.format("%s %d/%d (%s)", Messages.getString("Scan.SearchingForFixes"), j.get(), profile.size(), sl.getName()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
 					roms_dstscan = swroms_dstscans.get(sl.getName());
 					disks_dstscan = swdisks_dstscans.get(sl.getName());
-					sl.getFilteredStream().forEach(Software::resetCollisionMode);
-					sl.getFilteredStream().forEach(s -> {
-						// for each software
-						handler.setProgress(null, i.incrementAndGet(), null, s.getFullName());
-						scanWare(s);
+					sl.forEach(Software::resetCollisionMode);
+					new MultiThreading<Software>(nThreads, s ->
+					{
 						if (handler.isCancel())
-							throw new BreakException();
-					});
+							return;
+						handler.setProgress(s.getFullName(), i.getAndIncrement());
+						scanWare(s);
+					}).start(sl.getFilteredStream());
 				});
 			}
-			handler.setProgress2(null, null);
+			handler.setProgress(null, i.get());
+			handler.setProgress2(null, j.get());
 		}
 		catch (final BreakException e)
 		{
@@ -493,6 +498,7 @@ public class Scan extends PathAbstractor
 		}
 		finally
 		{
+			handler.setInfos(1,null);
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			/* save report */
 			report.write(profile.session);

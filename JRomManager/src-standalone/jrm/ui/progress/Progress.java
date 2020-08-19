@@ -16,12 +16,14 @@
  */
 package jrm.ui.progress;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.SystemColor;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -178,33 +180,42 @@ public class Progress extends JDialog
 		setLocationRelativeTo(owner);
 	}
 
-	public void setInfos(int threadCnt, boolean multipleSubInfos)
+	public void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
-		if(lblInfo==null || lblInfo.length!=threadCnt || lblSubInfo==null || lblSubInfo.length!=(multipleSubInfos?threadCnt:1))
+		if(lblInfo==null || lblInfo.length!=threadCnt || lblSubInfo==null || lblSubInfo.length!=(multipleSubInfos==null?0:(multipleSubInfos?threadCnt:1)))
 		{
 			panel.removeAll();
 			
 			lblInfo = new JLabel[threadCnt];
-			lblSubInfo = new JLabel[multipleSubInfos?threadCnt:1];
+			lblSubInfo = new JLabel[multipleSubInfos==null?0:(multipleSubInfos?threadCnt:1)];
+			
+			final Color normal = SystemColor.control;
+			final Color light = SystemColor.controlLtHighlight;
+			final Color lighter = SystemColor.controlHighlight;
 			
 			for(int i = 0; i < threadCnt; i++)
 			{
 				panel.add(lblInfo[i] = new JLabel());
+				lblInfo[i].setOpaque(true);
+				lblInfo[i].setBackground((i%2)!=0?normal:light);
 				lblInfo[i].setPreferredSize(new Dimension(0, 20));
 				lblInfo[i].setMinimumSize(new Dimension(0, 20));
 				lblInfo[i].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		
-				if(multipleSubInfos)
+				if(multipleSubInfos!=null && multipleSubInfos)
 				{
 					panel.add(lblSubInfo[i] = new JLabel());
+					lblSubInfo[i].setOpaque(true);
+					lblSubInfo[i].setBackground((i%2)!=0?normal:light);
 					lblSubInfo[i].setPreferredSize(new Dimension(0, 20));
 					lblSubInfo[i].setMinimumSize(new Dimension(0, 20));
 					lblSubInfo[i].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 				}
 			}
-			if(!multipleSubInfos)
+			if(multipleSubInfos!=null && !multipleSubInfos)
 			{
 				panel.add(lblSubInfo[0] = new JLabel());
+				lblSubInfo[0].setBackground(lighter);
 				lblSubInfo[0].setPreferredSize(new Dimension(0, 20));
 				lblSubInfo[0].setMinimumSize(new Dimension(0, 20));
 				lblSubInfo[0].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -273,10 +284,13 @@ public class Progress extends JDialog
 			else
 				lblTimeleft.setText("--:--:-- / --:--:--"); //$NON-NLS-1$
 		}
-		if(lblSubInfo.length==1)
-			lblSubInfo[0].setText(submsg);
-		else
-			lblSubInfo[offset].setText(submsg);
+		if (submsg != null || (val != null && val == -1))
+		{
+			if (lblSubInfo.length == 1)
+				lblSubInfo[0].setText(submsg);
+			else if (lblSubInfo.length > 1)
+				lblSubInfo[offset].setText(submsg);
+		}
 	}
 
 	public boolean isCancel()

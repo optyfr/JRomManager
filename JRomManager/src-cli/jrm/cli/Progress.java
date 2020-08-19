@@ -15,7 +15,7 @@ public class Progress implements ProgressHandler
 	}
 
 	@Override
-	public void setInfos(int threadCnt, boolean multipleSubInfos)
+	public void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
 	}
 

@@ -336,7 +336,7 @@ public final class DirScan extends PathAbstractor
 		 * Initialize progression
 		 */
 		handler.clearInfos();
-		handler.setInfos(nThreads,false);
+		handler.setInfos(nThreads,null);
 		
 
 		/*
@@ -1214,6 +1214,7 @@ public final class DirScan extends PathAbstractor
 		final File cachefile = getCacheFile(session, file, options);
 		try(ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cachefile))))
 		{
+			handler.clearInfos();
 			handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), getRelativePath(file.toPath())) , 0); //$NON-NLS-1$
 			return (Map<String, Container>) ois.readObject();
 		}

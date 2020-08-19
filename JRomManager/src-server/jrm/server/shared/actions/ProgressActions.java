@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import com.eclipsesource.json.Json;
 import com.google.gson.Gson;
 
 import jrm.aui.progress.ProgressHandler;
@@ -26,7 +25,7 @@ public class ProgressActions implements ProgressHandler
 
 	private boolean canCancel = true;
 
-	final static class Cmd
+	final static class SetFullProgress
 	{
 		final static class Data
 		{
@@ -47,7 +46,7 @@ public class ProgressActions implements ProgressHandler
 			/** Current thread cnt */
 			int threadCnt = 1;
 
-			boolean multipleSubInfos = false;
+			Boolean multipleSubInfos = false;
 
 			String infos[] = { null };
 			String subinfos[] = { null };
@@ -59,13 +58,78 @@ public class ProgressActions implements ProgressHandler
 		final String cmd = "Progress.setFullProgress";
 		final Data params;
 
-		Cmd(Data data)
+		SetFullProgress(Data data)
 		{
 			this.params = data;
 		}
 	}
+	
+	final static class SetInfos
+	{
+		final String cmd = "Progress.setInfos";
+		final Data params;
 
-	private final Cmd.Data data = new Cmd.Data();
+		final static class Data
+		{
+			/** Current thread cnt */
+			int threadCnt = 1;
+
+			Boolean multipleSubInfos = false;
+			
+			Data(int threadCnt, Boolean multipleSubInfos)
+			{
+				this.threadCnt = threadCnt;
+				this.multipleSubInfos = multipleSubInfos;
+			}
+		}
+		
+		SetInfos(Data data)
+		{
+			this.params = data;
+		}
+		
+	}
+
+	final static class CanCancel
+	{
+		final String cmd = "Progress.canCancel";
+		final Data params;
+
+		final static class Data
+		{
+			final boolean canCancel;
+			
+			Data(boolean canCancel)
+			{
+				this.canCancel = canCancel;
+			}
+		}
+		
+		CanCancel(boolean canCancel)
+		{
+			this.params = new Data(canCancel);
+		}
+		
+	}
+
+
+	final static class ClearInfos
+	{
+		final String cmd = "Progress.clearInfos";
+	}
+	
+
+	final static class Open
+	{
+		final String cmd = "Progress";
+	}
+	
+	final static class Close
+	{
+		final String cmd = "Progress.close";
+	}
+	
+	private final SetFullProgress.Data data = new SetFullProgress.Data();
 
 	public ProgressActions(ActionsMgr ws)
 	{
@@ -78,7 +142,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(Json.object().add("cmd", "Progress").toString());
+				ws.send(new Gson().toJson(new Open()));
 		}
 		catch (IOException e)
 		{
@@ -99,15 +163,15 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if(force)
-				ws.send(new Gson().toJson(new Cmd(data)));
+				ws.send(new Gson().toJson(new SetFullProgress(data)));
 			else if (!data.pb1.visibility && !data.pb2.visibility)
-				ws.send(new Gson().toJson(new Cmd(data)));
+				ws.send(new Gson().toJson(new SetFullProgress(data)));
 			else if (pb==1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
-				ws.send(new Gson().toJson(new Cmd(data)));
+				ws.send(new Gson().toJson(new SetFullProgress(data)));
 			else if (pb==2 && data.pb2.visibility && !data.pb1.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
-				ws.send(new Gson().toJson(new Cmd(data)));
+				ws.send(new Gson().toJson(new SetFullProgress(data)));
 			else
-				ws.sendOptional(new Gson().toJson(new Cmd(data)));
+				ws.sendOptional(new Gson().toJson(new SetFullProgress(data)));
 		}
 		catch (IOException e)
 		{
@@ -116,12 +180,12 @@ public class ProgressActions implements ProgressHandler
 	}
 
 	@Override
-	public synchronized void setInfos(int threadCnt, boolean multipleSubInfos)
+	public synchronized void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
 		this.data.threadCnt = threadCnt<=0?Runtime.getRuntime().availableProcessors():threadCnt;
 		this.data.multipleSubInfos = multipleSubInfos;
 		this.data.infos = new String[this.data.threadCnt];
-		this.data.subinfos = new String[multipleSubInfos ? this.data.threadCnt : 1];
+		this.data.subinfos = new String[multipleSubInfos == null ? 0 : (multipleSubInfos ? this.data.threadCnt : 1)];
 		sendSetInfos();
 	}
 
@@ -131,7 +195,7 @@ public class ProgressActions implements ProgressHandler
 		{
 			if (ws.isOpen())
 			{
-				ws.send(Json.object().add("cmd", "Progress.setInfos").add("params", Json.object().add("threadCnt", data.threadCnt).add("multipleSubInfos", data.multipleSubInfos)).toString());
+				ws.send(new Gson().toJson(new SetInfos(new SetInfos.Data(data.threadCnt, data.multipleSubInfos))));
 			}
 		}
 		catch (IOException e)
@@ -156,7 +220,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(Json.object().add("cmd", "Progress.clearInfos").toString());
+				ws.send(new Gson().toJson(new ClearInfos()));
 		}
 		catch (IOException e)
 		{
@@ -256,10 +320,13 @@ public class ProgressActions implements ProgressHandler
 			else
 				data.pb1.timeleft = "--:--:-- / --:--:--"; //$NON-NLS-1$
 		}
-		if (data.subinfos.length == 1)
-			data.subinfos[0] = submsg;
-		else
-			data.subinfos[offset] = submsg;
+		if (submsg != null || (val != null && val == -1))
+		{
+			if (data.subinfos.length == 1)
+				data.subinfos[0] = submsg;
+			else if (data.subinfos.length > 1)
+				data.subinfos[offset] = submsg;
+		}
 		sendSetProgress(1, force);
 	}
 
@@ -344,7 +411,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(Json.object().add("cmd", "Progress.close").toString());
+				ws.send(new Gson().toJson(new Close()));
 		}
 		catch (IOException e)
 		{
@@ -368,7 +435,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(Json.object().add("cmd", "Progress.canCancel").add("params", Json.object().add("canCancel", canCancel)).toString());
+				ws.send(new Gson().toJson(new CanCancel(canCancel)));
 		}
 		catch (IOException e)
 		{
