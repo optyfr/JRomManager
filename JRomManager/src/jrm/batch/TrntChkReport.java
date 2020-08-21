@@ -28,7 +28,7 @@ import lombok.Setter;
 
 public final class TrntChkReport implements Serializable, HTMLRenderer
 {
-	private static final long serialVersionUID = 3L;
+	private static final long serialVersionUID = 4L;
 	
 	
 	private transient AtomicLong uid_cnt = new AtomicLong(); 
@@ -43,7 +43,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 	 */
 	private @Setter @Getter transient TrntChkReportTreeHandler handler = null;
 
-	public TrntChkReport(File src)
+	public TrntChkReport(final File src)
 	{
 		this.file = src;
 	}
@@ -165,7 +165,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 		@Override
 		public String toString()
 		{
-			StringBuffer sb = new StringBuffer();
+			final StringBuilder sb = new StringBuilder();
 			sb.append(String.format("%s%-50s %12d %s\n", parent==null?"":"|_ ", data.title, data.length, data.status));
 			if (children != null)
 				for (Child child : children)
@@ -175,7 +175,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 		
 		public Child clone()
 		{
-			Child node = new Child();
+			final Child node = new Child();
 			node.uid = this.uid;
 			node.children = this.children;
 			node.parent = this.parent;
@@ -186,7 +186,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 	
 	Child add(String title)
 	{
-		Child node = new Child();
+		final Child node = new Child();
 		node.data.title = title;
 		nodes.add(node);
 		return node;
@@ -195,8 +195,8 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer();
-		for (Child node : nodes)
+		final StringBuilder sb = new StringBuilder();
+		for (final Child node : nodes)
 			sb.append(node);
 		return sb.toString();
 	}
@@ -225,7 +225,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 		return new File(reports, String.format("%08x", crc.getValue()) + ".tc_report"); //$NON-NLS-1$
 	}
 
-	public void save(File file)
+	public void save(final File file)
 	{
 		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file))))
 		{
@@ -240,7 +240,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 	{
 		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(getReportFile(session, file)))))
 		{
-			TrntChkReport report = (TrntChkReport)ois.readObject();
+			final TrntChkReport report = (TrntChkReport)ois.readObject();
 			report.file = file;
 			report.file_modified = getReportFile(session, file).lastModified();
 			return report;

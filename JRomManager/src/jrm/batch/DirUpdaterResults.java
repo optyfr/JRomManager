@@ -19,7 +19,7 @@ import jrm.security.Session;
 
 public class DirUpdaterResults implements Serializable
 {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 	
 	public class DirUpdaterResult implements Serializable
 	{
@@ -30,9 +30,9 @@ public class DirUpdaterResults implements Serializable
 	}
 
 	public File dat;
-	public List<DirUpdaterResult> results = new ArrayList<>();
+	public final List<DirUpdaterResult> results = new ArrayList<>();
 	
-	public void add(File dat, Report.Stats stats)
+	public void add(final File dat, final Report.Stats stats)
 	{
 		DirUpdaterResult result = new DirUpdaterResult();
 		result.dat = dat;
@@ -60,7 +60,7 @@ public class DirUpdaterResults implements Serializable
 		}
 	}
 	
-	public static DirUpdaterResults load(final Session session, final File file, ProgressHandler progress)
+	public static DirUpdaterResults load(final Session session, final File file, final ProgressHandler progress)
 	{
 		final var rfile = getFile(session, file);
 		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(progress.getInputStream(new FileInputStream(rfile),(int)rfile.length()))))

@@ -43,8 +43,8 @@ import one.util.streamex.StreamEx;
 
 public class TorrentChecker implements UnitRenderer,HTMLRenderer
 {
-	private AtomicInteger processing = new AtomicInteger();
-	private AtomicInteger current = new AtomicInteger();
+	private final AtomicInteger processing = new AtomicInteger();
+	private final AtomicInteger current = new AtomicInteger();
 	private final Session session;
 
 	/**
@@ -70,7 +70,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 				return;
 			try
 			{
-				int row = sdrl.indexOf(sdr);
+				final int row = sdrl.indexOf(sdr);
 				updater.updateResult(row, "In progress...");
 				final String result = check(progress, mode, sdr, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
 				updater.updateResult(row, result);
@@ -90,7 +90,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 	 * @return
 	 * @throws IOException
 	 */
-	private String check(final ProgressHandler progress, TrntChkMode mode, SrcDstResult sdr, boolean removeUnknownFiles, boolean removeWrongSizedFiles, boolean detectArchivedFolders) throws IOException
+	private String check(final ProgressHandler progress, final TrntChkMode mode, final SrcDstResult sdr, final boolean removeUnknownFiles, final boolean removeWrongSizedFiles, final boolean detectArchivedFolders) throws IOException
 	{
 		String result = ""; //$NON-NLS-1$
 		if (sdr.src != null && sdr.dst != null)
@@ -99,15 +99,16 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			final File dst = PathAbstractor.getAbsolutePath(session, sdr.dst).toFile();
 			if (src.exists() && dst.exists())
 			{
-				TrntChkReport report = new TrntChkReport(src);
+				final TrntChkReport report = new TrntChkReport(src);
 				
-				Torrent torrent = TorrentParser.parseTorrent(src.getAbsolutePath());
-				List<TorrentFile> tfiles = torrent.getFileList();
-				int total = tfiles.size(), ok = 0;
+				final Torrent torrent = TorrentParser.parseTorrent(src.getAbsolutePath());
+				final List<TorrentFile> tfiles = torrent.getFileList();
+				final int total = tfiles.size();
+				int ok = 0;
 				long missing_bytes = 0;
 				int missing_files = 0;
 				int wrong_sized_files = 0;
-				HashSet<Path> paths = new HashSet<>();
+				final HashSet<Path> paths = new HashSet<>();
 				
 				detectArchives(sdr, tfiles, detectArchivedFolders);
 				
@@ -170,8 +171,8 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 				{
 					try
 					{
-						long piece_length = torrent.getPieceLength();
-						List<String> pieces = torrent.getPieces();
+						final long piece_length = torrent.getPieceLength();
+						final List<String> pieces = torrent.getPieces();
 						long to_go = piece_length;
 						int piece_cnt = 0, piece_valid = 0;
 						processing.addAndGet(pieces.size());
@@ -324,28 +325,28 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		return result;
 	}
 	
-	private int removeUnknownFiles(TrntChkReport report, HashSet<Path> paths, SrcDstResult sdr, boolean remove) throws IOException
+	private int removeUnknownFiles(final TrntChkReport report, final HashSet<Path> paths, final SrcDstResult sdr, final boolean remove) throws IOException
 	{
-		List<Path> files_to_remove = new ArrayList<>();
+		final List<Path> files_to_remove = new ArrayList<>();
 		final Path dst = PathAbstractor.getAbsolutePath(session, sdr.dst);
 		Files.walkFileTree(dst, new SimpleFileVisitor<Path>()
 		{
 			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+			public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
 			{
 				if (!paths.contains(file.toAbsolutePath()))
 					files_to_remove.add(file);
 				return super.visitFile(file, attrs);
 			}
 		});
-		int count = files_to_remove.size();
+		final int count = files_to_remove.size();
 		if (count > 0)
 		{
-			Child lostfound = report.add("Unknown files");
+			final Child lostfound = report.add("Unknown files");
 			lostfound.data.length = 0L;
-			for (Path p : files_to_remove)
+			for (final Path p : files_to_remove)
 			{
-				Child entry = lostfound.add(Paths.get(".").resolve(dst.relativize(p)).toString());
+				final Child entry = lostfound.add(Paths.get(".").resolve(dst.relativize(p)).toString());
 				lostfound.data.length += (entry.data.length = Files.size(p));
 			}
 			if (remove)
@@ -364,18 +365,18 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		return count;
 	}
 
-	private void detectArchives(SrcDstResult sdr, List<TorrentFile> tfiles, boolean unarchive)
+	private void detectArchives(final SrcDstResult sdr, final List<TorrentFile> tfiles, final boolean unarchive)
 	{
-		HashSet<String> components = new HashSet<>();
-		HashSet<Path> archives = new HashSet<>();
+		final HashSet<String> components = new HashSet<>();
+		final HashSet<Path> archives = new HashSet<>();
 		final Path dst = PathAbstractor.getAbsolutePath(session, sdr.dst);
 		for (int j = 0; j < tfiles.size(); j++)
 		{
-			TorrentFile tfile = tfiles.get(j);
-			List<String> filedirs = tfile.getFileDirs();
+			final TorrentFile tfile = tfiles.get(j);
+			final List<String> filedirs = tfile.getFileDirs();
 			if (tfile.getFileDirs().size() > 1)
 			{
-				String path = filedirs.get(0);
+				final String path = filedirs.get(0);
 				if(!components.contains(path))
 				{
 					components.add(path);
@@ -383,13 +384,13 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 					Path file = dst;
 					file = file.resolve(path);
 					
-					Path parent = file.getParent();
+					final Path parent = file.getParent();
 					if(parent!=null)
 					{
-						Path filename = file.getFileName();
+						final Path filename = file.getFileName();
 						if(filename!=null)
 						{
-							Path archive = parent.resolve(filename.toString() + ".zip");
+							final Path archive = parent.resolve(filename.toString() + ".zip");
 							if (Files.exists(archive))
 							{
 								archives.add(archive);
@@ -403,7 +404,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		{
 			TorrentFile tfile = tfiles.get(j);
 			Path file = dst;
-			for (String path : tfile.getFileDirs())
+			for (final String path : tfile.getFileDirs())
 				file = file.resolve(path);
 			if(archives.contains(file))
 				archives.remove(file);
@@ -442,7 +443,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			Files.createDirectories(destDir);
 		}
 
-		try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipFile, null))
+		try (final FileSystem zipFileSystem = FileSystems.newFileSystem(zipFile, null))
 		{
 			Log.debug(()->"unzipping : "+zipFile);
 			final Path root = zipFileSystem.getRootDirectories().iterator().next();

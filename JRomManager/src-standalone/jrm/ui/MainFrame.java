@@ -26,7 +26,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import javax.swing.ImageIcon;
@@ -47,6 +46,7 @@ import jrm.security.Session;
 import jrm.ui.batch.BatchPanel;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.report.ReportFrame;
+import lombok.Getter;
 import lombok.val;
 
 // TODO: Auto-generated Javadoc
@@ -64,7 +64,7 @@ public class MainFrame extends JFrame
 	public static ReportFrame report_frame = null;
 
 	/** The main pane. */
-	private JTabbedPane mainPane;
+	private @Getter JTabbedPane mainPane;
 
 	private SettingsPanel settingsPanel;
 

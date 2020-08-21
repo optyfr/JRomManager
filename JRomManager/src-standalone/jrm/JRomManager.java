@@ -34,6 +34,7 @@ import jrm.security.Session;
 import jrm.security.Sessions;
 import jrm.ui.MainFrame;
 import jupdater.JUpdater;
+import lombok.Getter;
 
 /**
  * Main class
@@ -43,6 +44,8 @@ import jupdater.JUpdater;
  */
 public final class JRomManager
 {
+	private static @Getter MainFrame mainFrame;
+	
 	public static void main(final String[] args)
 	{
 		System.setProperty("file.encoding", "UTF-8");
@@ -81,7 +84,8 @@ public final class JRomManager
 					updater.showMessage();	// Will show changes since your version and a link to updater
 			}
 			// Open main window
-			new MainFrame(session).setVisible(true);
+			mainFrame = new MainFrame(session);
+			mainFrame.setVisible(true);
 		}
 	}
 

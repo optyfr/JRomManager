@@ -38,10 +38,10 @@ import jrm.security.Session;
 
 public class Compressor implements HTMLRenderer
 {
-	Session session;
-	AtomicInteger cnt;
-	int total;
-	ProgressHandler progress;
+	private final Session session;
+	private final AtomicInteger cnt;
+	private final int total;
+	private final ProgressHandler progress;
 	
 	public static final String[] extensions = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
 	
@@ -108,22 +108,22 @@ public class Compressor implements HTMLRenderer
 		public abstract void apply(File file);
 	}
 
-	public File sevenZip2SevenZip(File file, UpdResultCallBack cb, UpdSrcCallBack scb)
+	public File sevenZip2SevenZip(final File file, final UpdResultCallBack cb, final UpdSrcCallBack scb)
 	{
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
+			final File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
 			tmpfile.delete();
-			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
-			try(SevenZipArchive archive = new SevenZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)))
+			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
+			try(final SevenZipArchive archive = new SevenZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)))
 			{
 				progress.setProgress(toHTML("extracting " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 				if(archive.extract()==0)
 				{
-					try(SevenZipArchive newarchive = new SevenZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
+					try(final SevenZipArchive newarchive = new SevenZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
 					{
-						Path basedir = archive.getTempDir().toPath();
+						final Path basedir = archive.getTempDir().toPath();
 						Files.walkFileTree(basedir, new SimpleFileVisitor<Path>() {
 							@Override
 							public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
@@ -177,33 +177,33 @@ public class Compressor implements HTMLRenderer
 		return null;
 	}
 
-	public File sevenZip2Zip(File file, boolean tzip, UpdResultCallBack cb, UpdSrcCallBack scb)
+	public File sevenZip2Zip(final File file, final boolean tzip, final UpdResultCallBack cb, final UpdSrcCallBack scb)
 	{
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
+			final File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
 			tmpfile.delete();
-			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
-			try(SevenZipArchive archive = new SevenZipArchive(session, file, false, new ProgressNarchiveCallBack(progress)))
+			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
+			try(final SevenZipArchive archive = new SevenZipArchive(session, file, false, new ProgressNarchiveCallBack(progress)))
 			{
 				progress.setProgress(toHTML("extracting " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 				if(archive.extract()==0)
 				{
-					File basedir = archive.getTempDir();
+					final File basedir = archive.getTempDir();
 					final Map<String, Object> env = new HashMap<>();
 					env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 					env.put("useTempFile", FileUtils.sizeOf(basedir) > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
 					env.put("compressionLevel", tzip ? 1 :  ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 					FileUtils.forceMkdirParent(tmpfile);
 					progress.setProgress(toHTML("creating " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
-					try(ZipArchive dstarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
+					try(final ZipArchive dstarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
 					{
 						dstarchive.compress_custom(new CustomVisitor(basedir.toPath()) {
 							@Override
 							public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
 							{
-								Path dst = getFileSystem().getPath(basedir.toPath().relativize(file).toString());
+								final Path dst = getFileSystem().getPath(basedir.toPath().relativize(file).toString());
 								if(dst.getParent()!=null)
 									Files.createDirectories(dst.getParent());
 								Files.copy(file, dst, StandardCopyOption.REPLACE_EXISTING);
@@ -212,7 +212,7 @@ public class Compressor implements HTMLRenderer
 							@Override
 							public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
 							{
-								Path dst = getFileSystem().getPath(basedir.toPath().relativize(dir).toString());
+								final Path dst = getFileSystem().getPath(basedir.toPath().relativize(dir).toString());
 								Files.createDirectories(dst);
 								return FileVisitResult.CONTINUE;
 							};
@@ -246,7 +246,7 @@ public class Compressor implements HTMLRenderer
 					cb.apply("Failed");
 			}
 		}
-		catch (IOException e)
+		catch (final IOException e)
 		{
 			cb.apply("Failed");
 		}
@@ -257,38 +257,38 @@ public class Compressor implements HTMLRenderer
 		return null;
 	}
 
-	public File zip2Zip(File file, UpdResultCallBack cb, UpdSrcCallBack scb)
+	public File zip2Zip(final File file, final UpdResultCallBack cb, final UpdSrcCallBack scb)
 	{
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
+			final File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
 			tmpfile.delete();
-			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
-			try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + file.toURI()), new HashMap<>());) //$NON-NLS-1$
+			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
+			try (final FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + file.toURI()), new HashMap<>());) //$NON-NLS-1$
 			{
-				Path basedir = fs.getPath("/");
+				final Path basedir = fs.getPath("/");
 				final Map<String, Object> env = new HashMap<>();
 				env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 				env.put("useTempFile", size(basedir) > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
 				env.put("compressionLevel", ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$
 				progress.setProgress(toHTML("Crunching " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
-				try (ZipArchive newarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
+				try (final ZipArchive newarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
 				{
 					newarchive.compress_custom(new CustomVisitor(basedir) {
 						@Override
-						public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
+						public FileVisitResult visitFile(final Path file, final BasicFileAttributes attr) throws IOException
 						{
-							Path dst = getFileSystem().getPath(basedir.relativize(file).toString());
+							final Path dst = getFileSystem().getPath(basedir.relativize(file).toString());
 							if(dst.getParent()!=null)
 								Files.createDirectories(dst.getParent());
 							Files.copy(file, dst, StandardCopyOption.REPLACE_EXISTING);
 							return FileVisitResult.CONTINUE;
 						}
 						@Override
-						public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
+						public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException
 						{
-							Path dst = getFileSystem().getPath(basedir.relativize(dir).toString());
+							final Path dst = getFileSystem().getPath(basedir.relativize(dir).toString());
 							Files.createDirectories(dst);
 							return FileVisitResult.CONTINUE;
 						};
@@ -319,18 +319,18 @@ public class Compressor implements HTMLRenderer
 		return null;
 	}
 	
-	public File zip2SevenZip(File file, UpdResultCallBack cb, UpdSrcCallBack scb)
+	public File zip2SevenZip(final File file, final UpdResultCallBack cb, final UpdSrcCallBack scb)
 	{
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
+			final File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
 			tmpfile.delete();
-			File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
-			try(SevenZipArchive archive = new SevenZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
+			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
+			try(final SevenZipArchive archive = new SevenZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
 			{
 				progress.setProgress(toHTML("extracting " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
-				try(ZipArchive srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress));)
+				try(final ZipArchive srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress));)
 				{
 					srcarchive.extract_custom(new CustomVisitor() {
 						@Override
@@ -375,7 +375,7 @@ public class Compressor implements HTMLRenderer
 		return null;
 	}
 
-	public File zip2TZip(File file, boolean force, UpdResultCallBack cb)
+	public File zip2TZip(final File file, final boolean force, final UpdResultCallBack cb)
 	{
 		try
 		{
@@ -400,7 +400,7 @@ public class Compressor implements HTMLRenderer
 		return null;
 	}
 	
-	public void compress(CompressorFormat format, File file, boolean force, UpdResultCallBack cb, UpdSrcCallBack scb)
+	public void compress(final CompressorFormat format, final File file, final boolean force, final UpdResultCallBack cb, final UpdSrcCallBack scb)
 	{
 		switch (format)
 		{
@@ -447,9 +447,9 @@ public class Compressor implements HTMLRenderer
 						zip2TZip(file, force, cb);
 						break;
 					default:
-						file = sevenZip2Zip(file, true, cb, scb);
-						if (file != null && file.exists())
-							zip2TZip(file, force, cb);
+						final File f = sevenZip2Zip(file, true, cb, scb);
+						if (f != null && f.exists())
+							zip2TZip(f, force, cb);
 						break;
 				}
 				break;

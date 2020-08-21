@@ -44,14 +44,14 @@ public class DirUpdater
 	 * @param result the result interfaceo
 	 * @param dryrun tell not to fix
 	 */
-	public DirUpdater(Session session, List<SrcDstResult> sdrl, final ProgressHandler progress, List<File> srcdirs, ResultColUpdater result, boolean dryrun)
+	public DirUpdater(final Session session, final List<SrcDstResult> sdrl, final ProgressHandler progress, final List<File> srcdirs, final ResultColUpdater result, final boolean dryrun)
 	{
 		final Map<String, DirScan> scancache = new HashMap<>();
-		StreamEx.of(sdrl).filter(sdr->sdr.selected).forEach(sdr->{
+		sdrl.stream().filter(sdr->sdr.selected).forEach(sdr->{
 			result.updateResult(sdrl.indexOf(sdr), ""); //$NON-NLS-1$
 		});
-		StreamEx.of(sdrl).filter(sdr->sdr.selected).takeWhile(p->!progress.isCancel()).forEach(sdr->{
-			int row = sdrl.indexOf(sdr);
+		sdrl.stream().filter(sdr->sdr.selected).takeWhile(p->!progress.isCancel()).forEach(sdr->{
+			final var row = sdrl.indexOf(sdr);
 			result.updateResult(row, "In progress..."); //$NON-NLS-1$
 			final File dat = PathAbstractor.getAbsolutePath(session, sdr.src).toFile();
 			final File dst = PathAbstractor.getAbsolutePath(session, sdr.dst).toFile();
@@ -94,11 +94,11 @@ public class DirUpdater
 				}
 				dur.save(session);
 			}
-			catch (BreakException e)
+			catch (final BreakException e)
 			{
 				throw e;
 			}
-			catch (Throwable e)
+			catch (final Throwable e)
 			{
 				Log.err(e.getMessage(),e);
 			}

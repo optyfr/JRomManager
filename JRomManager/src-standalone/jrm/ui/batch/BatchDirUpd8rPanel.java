@@ -41,6 +41,7 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import jrm.JRomManager;
 import jrm.aui.basic.SrcDstResult;
 import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
@@ -75,18 +76,18 @@ public class BatchDirUpd8rPanel extends JPanel
 	 */
 	public BatchDirUpd8rPanel(final Session session)
 	{
-		GridBagLayout gbl_panelBatchToolsDat2Dir = new GridBagLayout();
+		final GridBagLayout gbl_panelBatchToolsDat2Dir = new GridBagLayout();
 		gbl_panelBatchToolsDat2Dir.columnWidths = new int[] { 0, 0, 0, 0 };
 		gbl_panelBatchToolsDat2Dir.rowHeights = new int[] { 0, 0, 0 };
 		gbl_panelBatchToolsDat2Dir.columnWeights = new double[] { 1.0, 0.0, 0.0, Double.MIN_VALUE };
 		gbl_panelBatchToolsDat2Dir.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		this.setLayout(gbl_panelBatchToolsDat2Dir);
 
-		JSplitPane splitPane = new JSplitPane();
+		final JSplitPane splitPane = new JSplitPane();
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setResizeWeight(0.3);
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		GridBagConstraints gbc_splitPane = new GridBagConstraints();
+		final GridBagConstraints gbc_splitPane = new GridBagConstraints();
 		gbc_splitPane.gridwidth = 3;
 		gbc_splitPane.insets = new Insets(0, 0, 5, 0);
 		gbc_splitPane.fill = GridBagConstraints.BOTH;
@@ -94,7 +95,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		gbc_splitPane.gridy = 0;
 		this.add(splitPane, gbc_splitPane);
 
-		JScrollPane scrollPane_5 = new JScrollPane();
+		final JScrollPane scrollPane_5 = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane_5);
 		scrollPane_5.setBorder(new TitledBorder(null, Messages.getString("MainFrame.SrcDirs"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
@@ -104,7 +105,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		listBatchToolsDat2DirSrc.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirSrc.toolTipText")); //$NON-NLS-1$
 		scrollPane_5.setViewportView(listBatchToolsDat2DirSrc);
 
-		JPopupMenu popupMenu_2 = new JPopupMenu();
+		final JPopupMenu popupMenu_2 = new JPopupMenu();
 		MainFrame.addPopup(listBatchToolsDat2DirSrc, popupMenu_2);
 
 		JMenuItem mnDat2DirAddSrcDir = new JMenuItem(Messages.getString("MainFrame.AddSrcDir"));
@@ -489,7 +490,7 @@ public class BatchDirUpd8rPanel extends JPanel
 	{
 		if (listBatchToolsDat2DirSrc.getModel().getSize() > 0)
 		{
-			List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
+			final List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
 			if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.src).toFile()).exists()).count() > 0)
 				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 			else
@@ -506,6 +507,17 @@ public class BatchDirUpd8rPanel extends JPanel
 					protected void done()
 					{
 						close();
+						session.curr_profile = null;
+						session.curr_scan = null;
+						session.report.setProfile(session.curr_profile);
+						if (MainFrame.profile_viewer != null)
+						{
+							MainFrame.profile_viewer.dispose();
+							MainFrame.profile_viewer = null;
+						}
+						if (MainFrame.report_frame != null)
+							MainFrame.report_frame.setVisible(false);
+						JRomManager.getMainFrame().getMainPane().setEnabledAt(1, false);
 					}
 				}.execute();;
 				
