@@ -26,7 +26,6 @@ import java.util.ListIterator;
 import java.util.stream.Stream;
 
 import jrm.profile.Profile;
-import one.util.streamex.StreamEx;
 
 /**
  * A list of {@link Anyware} objects
@@ -307,6 +306,6 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	public int find(final String search)
 	{
-		return find(StreamEx.of(getFilteredStream()).findFirst(s -> s.getName().toLowerCase().startsWith(search.toLowerCase())).orElse(null));
+		return find(getFilteredStream().filter(s -> s.getName().toLowerCase().startsWith(search.toLowerCase())).findFirst().orElse(null));
 	}
 }

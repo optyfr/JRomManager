@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FilenameUtils;
@@ -27,7 +28,6 @@ import jrm.profile.scan.DirScan;
 import jrm.profile.scan.Scan;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
-import one.util.streamex.StreamEx;
 
 /**
  * @author optyfr
@@ -67,7 +67,7 @@ public class DirUpdater
 					Arrays.sort(datlist, (a, b) -> a.getAbsolutePath().compareTo(b.getAbsolutePath()));
 					for (File d : datlist)
 						Files.copy(session.getUser().getSettings().getProfileSettingsFile(dat).toPath(), session.getUser().getSettings().getProfileSettingsFile(d).toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-					dstlist = StreamEx.of(datlist).map(datfile -> new File(dst, FilenameUtils.removeExtension(datfile.getName()))).toArray(File.class);
+					dstlist = Stream.of(datlist).map(datfile -> new File(dst, FilenameUtils.removeExtension(datfile.getName()))).toArray(File[]::new);
 					for (File d : dstlist)
 						d.mkdir();
 				}

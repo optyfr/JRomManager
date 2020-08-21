@@ -39,7 +39,6 @@ import jrm.misc.SettingsEnum;
 import jrm.misc.UnitRenderer;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
-import one.util.streamex.StreamEx;
 
 public class TorrentChecker implements UnitRenderer,HTMLRenderer
 {
@@ -60,7 +59,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		this.session = session;
 		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),(int)sdrl.stream().filter(sdr->sdr.selected).count()), true);
 		progress.setProgress2("", 0, 1); //$NON-NLS-1$
-		StreamEx.of(sdrl).filter(sdr->sdr.selected).forEach(sdr->{
+		sdrl.stream().filter(sdr->sdr.selected).forEach(sdr->{
 			updater.updateResult(sdrl.indexOf(sdr), "");
 		});
 		final var use_parallelism = true;
