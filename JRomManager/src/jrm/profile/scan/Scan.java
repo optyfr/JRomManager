@@ -48,6 +48,7 @@ import jrm.profile.data.AnywareList;
 import jrm.profile.data.Archive;
 import jrm.profile.data.ByName;
 import jrm.profile.data.Container;
+import jrm.profile.data.Container.Type;
 import jrm.profile.data.Directory;
 import jrm.profile.data.Disk;
 import jrm.profile.data.EntityStatus;
@@ -59,7 +60,6 @@ import jrm.profile.data.Sample;
 import jrm.profile.data.Samples;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
-import jrm.profile.data.Container.Type;
 import jrm.profile.fix.actions.AddEntry;
 import jrm.profile.fix.actions.BackupContainer;
 import jrm.profile.fix.actions.BackupEntry;
@@ -524,7 +524,7 @@ public class Scan extends PathAbstractor
 		actions.add(add_actions);
 		actions.add(delete_actions);
 		actions.add(rename_after_actions);
-		actions.add(tzip_actions.values());
+		actions.add(new ArrayList<>(tzip_actions.values()));
 
 	}
 
