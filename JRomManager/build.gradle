@@ -670,7 +670,7 @@ ospackage {
 	}
 	from (jar)
 	from (project(':JUpdater').jar)
-	from (zipTree(distZip.archivePath)) {
+	from (zipTree(distZip2.archivePath)) {
 		include 'wrapper/**'
 		include 'webclient/**'
 		include 'certs/**'
@@ -705,6 +705,8 @@ buildRpm {
 	createDirectoryEntry = false
 }
 
+buildRpm.dependsOn distZip2
 build.dependsOn buildRpm
+buildDeb.dependsOn distZip2
 build.dependsOn buildDeb
 
