@@ -63,6 +63,24 @@ public class Progress extends JDialog
 	/** The progress bar. */
 	private final JProgressBar progressBar;
 	
+	/** The progress bar 2. */
+	private final JProgressBar progressBar2;
+	
+	/** The progress bar 3. */
+	private final JProgressBar progressBar3;
+	
+	/** The lbl timeleft. */
+	private final JLabel lblTimeleft;
+	
+	/** The lbl time left 2. */
+	private final JLabel lblTimeLeft2;
+
+	/** The lbl time left 3. */
+	private final JLabel lblTimeLeft3;
+
+	/** The btn cancel. */
+	private final JButton btnCancel;
+
 	/** The cancel. */
 	private boolean cancel = false;
 	
@@ -110,7 +128,7 @@ public class Progress extends JDialog
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 30, 0, 0, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
 		panel = new JPanel();
@@ -131,6 +149,7 @@ public class Progress extends JDialog
 		progressBar.setPreferredSize(new Dimension(450, 20));
 		final GridBagConstraints gbc_progressBar = new GridBagConstraints();
 		gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
+		gbc_progressBar.anchor = GridBagConstraints.SOUTH;
 		gbc_progressBar.insets = new Insets(0, 5, 5, 5);
 		gbc_progressBar.gridx = 0;
 		gbc_progressBar.gridy = 1;
@@ -138,14 +157,12 @@ public class Progress extends JDialog
 
 		lblTimeleft = new JLabel("--:--:--"); //$NON-NLS-1$
 		final GridBagConstraints gbc_lblTimeleft = new GridBagConstraints();
+		gbc_lblTimeleft.fill = GridBagConstraints.NONE;
+		gbc_lblTimeleft.anchor = GridBagConstraints.SOUTH;
 		gbc_lblTimeleft.insets = new Insets(0, 0, 5, 5);
 		gbc_lblTimeleft.gridx = 1;
 		gbc_lblTimeleft.gridy = 1;
 		getContentPane().add(lblTimeleft, gbc_lblTimeleft);
-
-		btnCancel = new JButton(Messages.getString("Progress.btnCancel.text")); //$NON-NLS-1$
-		btnCancel.setIcon(MainFrame.getIcon("/jrm/resicons/icons/stop.png")); //$NON-NLS-1$
-		btnCancel.addActionListener(e -> cancel());
 
 		progressBar2 = new JProgressBar();
 		progressBar2.setMaximumSize(new Dimension(32767, 20));
@@ -154,7 +171,7 @@ public class Progress extends JDialog
 		progressBar2.setMinimumSize(new Dimension(300, 20));
 		final GridBagConstraints gbc_progressBar2 = new GridBagConstraints();
 		gbc_progressBar2.fill = GridBagConstraints.HORIZONTAL;
-		gbc_progressBar2.insets = new Insets(0, 5, 0, 5);
+		gbc_progressBar2.insets = new Insets(0, 5, 5, 5);
 		gbc_progressBar2.gridx = 0;
 		gbc_progressBar2.gridy = 2;
 		getContentPane().add(progressBar2, gbc_progressBar2);
@@ -162,18 +179,42 @@ public class Progress extends JDialog
 		lblTimeLeft2 = new JLabel("--:--:--"); //$NON-NLS-1$
 		lblTimeLeft2.setVisible(false);
 		final GridBagConstraints gbc_lblTimeLeft2 = new GridBagConstraints();
-		gbc_lblTimeLeft2.fill = GridBagConstraints.VERTICAL;
-		gbc_lblTimeLeft2.insets = new Insets(0, 0, 0, 5);
+		gbc_lblTimeLeft2.fill = GridBagConstraints.NONE;
+		gbc_lblTimeLeft2.insets = new Insets(0, 0, 5, 5);
 		gbc_lblTimeLeft2.gridx = 1;
 		gbc_lblTimeLeft2.gridy = 2;
 		getContentPane().add(lblTimeLeft2, gbc_lblTimeLeft2);
+
+		progressBar3 = new JProgressBar();
+		progressBar3.setMaximumSize(new Dimension(32767, 20));
+		progressBar3.setVisible(false);
+		progressBar3.setPreferredSize(new Dimension(450, 20));
+		progressBar3.setMinimumSize(new Dimension(300, 20));
+		final GridBagConstraints gbc_progressBar3 = new GridBagConstraints();
+		gbc_progressBar3.fill = GridBagConstraints.HORIZONTAL;
+		gbc_progressBar3.insets = new Insets(0, 5, 0, 5);
+		gbc_progressBar3.gridx = 0;
+		gbc_progressBar3.gridy = 3;
+		getContentPane().add(progressBar3, gbc_progressBar3);
+
+		lblTimeLeft3 = new JLabel("--:--:--"); //$NON-NLS-1$
+		lblTimeLeft3.setVisible(false);
+		final GridBagConstraints gbc_lblTimeLeft3 = new GridBagConstraints();
+		gbc_lblTimeLeft3.fill = GridBagConstraints.NONE;
+		gbc_lblTimeLeft3.insets = new Insets(0, 0, 0, 5);
+		gbc_lblTimeLeft3.gridx = 1;
+		gbc_lblTimeLeft3.gridy = 3;
+		getContentPane().add(lblTimeLeft3, gbc_lblTimeLeft3);
+
+		btnCancel = new JButton(Messages.getString("Progress.btnCancel.text")); //$NON-NLS-1$
+		btnCancel.setIcon(MainFrame.getIcon("/jrm/resicons/icons/stop.png")); //$NON-NLS-1$
+		btnCancel.addActionListener(e -> cancel());
 		final GridBagConstraints gbc_btnCancel = new GridBagConstraints();
-		gbc_btnCancel.weighty = 200.0;
 		gbc_btnCancel.insets = new Insets(5, 5, 5, 5);
 		gbc_btnCancel.gridwidth = 2;
 		gbc_btnCancel.anchor = GridBagConstraints.SOUTH;
 		gbc_btnCancel.gridx = 0;
-		gbc_btnCancel.gridy = 3;
+		gbc_btnCancel.gridy = 4;
 		getContentPane().add(btnCancel, gbc_btnCancel);
 
 		pack();
@@ -233,21 +274,9 @@ public class Progress extends JDialog
 			label.setText(null);
 	}
 	
-	/** The lbl timeleft. */
-	private final JLabel lblTimeleft;
-	
-	/** The btn cancel. */
-	private final JButton btnCancel;
-
 	/** The start time. */
 	private long startTime = System.currentTimeMillis();
 	
-	/** The progress bar 2. */
-	private final JProgressBar progressBar2;
-	
-	/** The lbl time left 2. */
-	private final JLabel lblTimeLeft2;
-
 	public synchronized void setProgress(final int offset, final String msg, final Integer val, final Integer max, final String submsg)
 	{
 		
@@ -293,18 +322,6 @@ public class Progress extends JDialog
 		}
 	}
 
-	public boolean isCancel()
-	{
-		return cancel;
-	}
-
-	public void cancel()
-	{
-		cancel = true;
-		btnCancel.setEnabled(false);
-		btnCancel.setText(Messages.getString("Progress.Canceling")); //$NON-NLS-1$
-	}
-
 	/** The start time 2. */
 	private long startTime2 = System.currentTimeMillis();
 
@@ -344,6 +361,46 @@ public class Progress extends JDialog
 		}
 	}
 
+
+	/** The start time 2. */
+	private long startTime3 = System.currentTimeMillis();
+
+	public void setProgress3(final String msg, final Integer val, final Integer max)
+	{
+		if (msg != null && val != null)
+		{
+			if (!progressBar3.isVisible())
+			{
+				progressBar3.setVisible(true);
+				lblTimeLeft3.setVisible(true);
+				packHeight();
+			}
+			progressBar3.setStringPainted(msg != null || val > 0);
+			progressBar3.setString(msg);
+			progressBar3.setIndeterminate(val==0);
+			if (max != null)
+				progressBar3.setMaximum(max);
+			if (val >= 0)
+				progressBar3.setValue(val);
+			if (val == 0)
+				startTime3 = System.currentTimeMillis();
+			if (val > 0)
+			{
+				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime3) * (progressBar3.getMaximum() - val) / val, "HH:mm:ss"); //$NON-NLS-1$
+				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime3) * progressBar3.getMaximum() / val, "HH:mm:ss"); //$NON-NLS-1$
+				lblTimeLeft3.setText(String.format("%s / %s", left, total)); //$NON-NLS-1$
+			}
+			else
+				lblTimeLeft3.setText("--:--:-- / --:--:--"); //$NON-NLS-1$
+		}
+		else if (progressBar3.isVisible())
+		{
+			progressBar3.setVisible(false);
+			lblTimeLeft3.setVisible(false);
+			packHeight();
+		}
+	}
+
 	/**
 	 * Pack height.
 	 */
@@ -357,6 +414,18 @@ public class Progress extends JDialog
 		validate();
 	}
 
+	public boolean isCancel()
+	{
+		return cancel;
+	}
+
+	public void cancel()
+	{
+		cancel = true;
+		btnCancel.setEnabled(false);
+		btnCancel.setText(Messages.getString("Progress.Canceling")); //$NON-NLS-1$
+	}
+
 	public int getValue()
 	{
 		return progressBar.getValue();
@@ -365,6 +434,11 @@ public class Progress extends JDialog
 	public int getValue2()
 	{
 		return progressBar2.getValue();
+	}
+
+	public int getValue3()
+	{
+		return progressBar3.getValue();
 	}
 
 	public void close()

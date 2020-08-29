@@ -41,6 +41,13 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 						progress.setProgress2(props.msg, props.val, props.max);
 					}
 					break;
+				case "setProgress3":
+					if(e.getNewValue() instanceof SetProgress3)
+					{
+						SetProgress3 props = (SetProgress3)e.getNewValue();
+						progress.setProgress3(props.msg, props.val, props.max);
+					}
+					break;
 				case "setInfos":
 					if(e.getNewValue() instanceof SetInfos)
 					{
@@ -157,6 +164,20 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 		firePropertyChange("setProgress2", null, new SetProgress2(msg, val, max));
 	}
 
+	@RequiredArgsConstructor
+	private static class SetProgress3
+	{
+		private final String msg;
+		private final Integer val;
+		private final Integer max;
+	}
+	
+	@Override
+	public void setProgress3(String msg, Integer val, Integer max)
+	{
+		firePropertyChange("setProgress3", null, new SetProgress3(msg, val, max));
+	}
+
 	@Override
 	public int getValue()
 	{
@@ -167,6 +188,12 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 	public int getValue2()
 	{
 		return progress.getValue2();
+	}
+
+	@Override
+	public int getValue3()
+	{
+		return progress.getValue3();
 	}
 
 	@Override

@@ -104,6 +104,26 @@ public interface ProgressHandler
 	public void setProgress2(String msg, Integer val, Integer max);
 
 	/**
+	 * Sets the progress 3.
+	 *
+	 * @param msg the msg
+	 * @param val the val
+	 */
+	public default void setProgress3(String msg, Integer val)
+	{
+		setProgress3(msg, val, null);
+	}
+
+	/**
+	 * Sets the progress 3.
+	 *
+	 * @param msg the msg
+	 * @param val the val
+	 * @param max the max
+	 */
+	public void setProgress3(String msg, Integer val, Integer max);
+	
+	/**
 	 * Gets the value.
 	 *
 	 * @return the value
@@ -117,6 +137,13 @@ public interface ProgressHandler
 	 */
 	public int getValue2();
 
+	/**
+	 * Gets the value 3.
+	 *
+	 * @return the value 3
+	 */
+	public int getValue3();
+	
 	/**
 	 * Checks if is cancel.
 	 *

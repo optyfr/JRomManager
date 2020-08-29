@@ -53,6 +53,7 @@ public class ProgressActions implements ProgressHandler
 
 			final PB pb1 = new PB();
 			final PB pb2 = new PB();
+			final PB pb3 = new PB();
 		}
 
 		final String cmd = "Progress.setFullProgress";
@@ -164,11 +165,13 @@ public class ProgressActions implements ProgressHandler
 		{
 			if(force)
 				ws.send(new Gson().toJson(new SetFullProgress(data)));
-			else if (!data.pb1.visibility && !data.pb2.visibility)
+			else if (!data.pb1.visibility && !data.pb2.visibility && !data.pb3.visibility)
 				ws.send(new Gson().toJson(new SetFullProgress(data)));
 			else if (pb==1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
 				ws.send(new Gson().toJson(new SetFullProgress(data)));
-			else if (pb==2 && data.pb2.visibility && !data.pb1.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
+			else if (pb==2 && data.pb2.visibility && !data.pb2.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
+				ws.send(new Gson().toJson(new SetFullProgress(data)));
+			else if (pb==3 && data.pb3.visibility && !data.pb3.indeterminate && data.pb3.val > 0 && data.pb3.max == data.pb3.val)
 				ws.send(new Gson().toJson(new SetFullProgress(data)));
 			else
 				ws.sendOptional(new Gson().toJson(new SetFullProgress(data)));
@@ -226,24 +229,6 @@ public class ProgressActions implements ProgressHandler
 		{
 			Log.err(e.getMessage(), e);
 		}
-	}
-
-	@Override
-	public void setProgress(String msg)
-	{
-		setProgress(msg, null, null, null);
-	}
-
-	@Override
-	public void setProgress(String msg, Integer val)
-	{
-		setProgress(msg, val, null, null);
-	}
-
-	@Override
-	public void setProgress(String msg, Integer val, Integer max)
-	{
-		setProgress(msg, val, max, null);
 	}
 
 	@Override
@@ -331,12 +316,6 @@ public class ProgressActions implements ProgressHandler
 	}
 
 	@Override
-	public void setProgress2(String msg, Integer val)
-	{
-		setProgress2(msg, val, null);
-	}
-
-	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
 		var force = false;
@@ -376,6 +355,45 @@ public class ProgressActions implements ProgressHandler
 	}
 
 	@Override
+	public void setProgress3(String msg, Integer val, Integer max)
+	{
+		var force = false;
+		if (msg != null && val != null)
+		{
+			if (!data.pb3.visibility)
+				data.pb3.visibility = true;
+			data.pb3.stringPainted = msg != null || val > 0;
+			data.pb3.msg = msg;
+			data.pb3.indeterminate = val == 0 && msg == null;
+			if (max != null)
+				data.pb3.max = max;
+			if (val >= 0)
+				data.pb3.val = val;
+			if (val == 0)
+				data.pb3.startTime = System.currentTimeMillis();
+			if (data.pb3.val >= 0 && data.pb3.max > 0)
+			{
+				final var perc = data.pb3.val * 100.0f / data.pb3.max;
+				force = (int)data.pb3.perc != (int)perc;
+				data.pb3.perc = perc;
+			}
+			if (val > 0)
+			{
+				if (data.pb3.msg == null)
+					data.pb3.msg = String.format("%.02f", data.pb3.perc);
+				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb3.startTime) * (data.pb3.max - val) / val, "HH:mm:ss"); //$NON-NLS-1$
+				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb3.startTime) * data.pb3.max / val, "HH:mm:ss"); //$NON-NLS-1$
+				data.pb3.timeleft = String.format("%s / %s", left, total); //$NON-NLS-1$
+			}
+			else
+				data.pb3.timeleft = "--:--:-- / --:--:--"; //$NON-NLS-1$
+		}
+		else if (data.pb3.visibility)
+			data.pb3.visibility = false;
+		sendSetProgress(3, force);
+	}
+
+	@Override
 	public int getValue()
 	{
 		return data.pb1.val;
@@ -385,6 +403,12 @@ public class ProgressActions implements ProgressHandler
 	public int getValue2()
 	{
 		return data.pb2.val;
+	}
+
+	@Override
+	public int getValue3()
+	{
+		return data.pb3.val;
 	}
 
 	@Override

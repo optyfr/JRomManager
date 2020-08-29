@@ -27,24 +27,6 @@ public class Progress implements ProgressHandler
 	}
 
 	@Override
-	public void setProgress(String msg)
-	{
-		setProgress(msg, null, null, null);
-	}
-
-	@Override
-	public void setProgress(String msg, Integer val)
-	{
-		setProgress(msg, val, null, null);
-	}
-
-	@Override
-	public void setProgress(String msg, Integer val, Integer max)
-	{
-		setProgress(msg, val, max, null);
-	}
-
-	@Override
 	public void setProgress(String msg, Integer val, Integer max, String submsg)
 	{
 		if (max != null)
@@ -59,13 +41,12 @@ public class Progress implements ProgressHandler
 	}
 
 	@Override
-	public void setProgress2(String msg, Integer val)
+	public void setProgress2(String msg, Integer val, Integer max)
 	{
-		setProgress2(msg, val, null);
 	}
 
 	@Override
-	public void setProgress2(String msg, Integer val, Integer max)
+	public void setProgress3(String msg, Integer val, Integer max)
 	{
 	}
 
@@ -78,6 +59,13 @@ public class Progress implements ProgressHandler
 
 	@Override
 	public int getValue2()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getValue3()
 	{
 		// TODO Auto-generated method stub
 		return 0;
