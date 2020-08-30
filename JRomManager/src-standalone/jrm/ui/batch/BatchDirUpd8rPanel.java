@@ -61,6 +61,7 @@ import jrm.ui.basic.JSDRDropTable;
 import jrm.ui.basic.JTableButton.TableButtonPressedHandler;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.progress.SwingWorkerProgress;
+import one.util.streamex.StreamEx;
 
 @SuppressWarnings("serial")
 public class BatchDirUpd8rPanel extends JPanel
@@ -500,7 +501,7 @@ public class BatchDirUpd8rPanel extends JPanel
 					@Override
 					protected DirUpdater doInBackground() throws Exception
 					{
-						return new DirUpdater(session, sdrl, this, Collections.list(listBatchToolsDat2DirSrc.getModel().elements()), tableBatchToolsDat2Dir, dryrun);
+						return new DirUpdater(session, sdrl, this, StreamEx.of(listBatchToolsDat2DirSrc.getModel().elements()).map(f->PathAbstractor.getAbsolutePath(session, f.toString()).toFile()).toList(), tableBatchToolsDat2Dir, dryrun);
 					}
 
 					@Override

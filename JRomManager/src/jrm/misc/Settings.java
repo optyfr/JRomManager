@@ -1,5 +1,7 @@
 package jrm.misc;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,6 +13,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 import lombok.Getter;
+import lombok.val;
 
 public abstract class Settings extends SettingsImpl
 {
@@ -44,7 +47,7 @@ public abstract class Settings extends SettingsImpl
 	{
 		if(file.exists())
 		{
-			try(FileInputStream is = new FileInputStream(file))
+			try(val is = new BufferedInputStream(new FileInputStream(file)))
 			{
 				properties.clear();
 				properties.loadFromXML(is);
@@ -60,7 +63,7 @@ public abstract class Settings extends SettingsImpl
 	public void saveSettings(final File file)
 	{
 		Log.debug(()->"file="+file+", propsize="+properties.size());
-		try(FileOutputStream os = new FileOutputStream(file))
+		try(val os = new BufferedOutputStream(new FileOutputStream(file)))
 		{
 			Log.debug("before store");
 			properties.storeToXML(os, null);

@@ -501,7 +501,8 @@ public class Scan extends PathAbstractor
 			handler.setInfos(1,null);
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			/* save report */
-			report.write(profile.session);
+			if(!profile.session.server)
+				report.write(profile.session);
 			report.flush();
 			/* update and save stats */
 			profile.nfo.stats.scanned = new Date();

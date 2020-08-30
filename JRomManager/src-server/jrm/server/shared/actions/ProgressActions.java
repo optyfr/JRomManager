@@ -24,6 +24,8 @@ public class ProgressActions implements ProgressHandler
 	private boolean cancel = false;
 
 	private boolean canCancel = true;
+	
+	private Gson gson = new Gson();
 
 	final static class SetFullProgress
 	{
@@ -64,7 +66,7 @@ public class ProgressActions implements ProgressHandler
 			this.params = data;
 		}
 	}
-	
+
 	final static class SetInfos
 	{
 		final String cmd = "Progress.setInfos";
@@ -76,19 +78,19 @@ public class ProgressActions implements ProgressHandler
 			int threadCnt = 1;
 
 			Boolean multipleSubInfos = false;
-			
+
 			Data(int threadCnt, Boolean multipleSubInfos)
 			{
 				this.threadCnt = threadCnt;
 				this.multipleSubInfos = multipleSubInfos;
 			}
 		}
-		
+
 		SetInfos(Data data)
 		{
 			this.params = data;
 		}
-		
+
 	}
 
 	final static class CanCancel
@@ -99,37 +101,35 @@ public class ProgressActions implements ProgressHandler
 		final static class Data
 		{
 			final boolean canCancel;
-			
+
 			Data(boolean canCancel)
 			{
 				this.canCancel = canCancel;
 			}
 		}
-		
+
 		CanCancel(boolean canCancel)
 		{
 			this.params = new Data(canCancel);
 		}
-		
-	}
 
+	}
 
 	final static class ClearInfos
 	{
 		final String cmd = "Progress.clearInfos";
 	}
-	
 
 	final static class Open
 	{
 		final String cmd = "Progress";
 	}
-	
+
 	final static class Close
 	{
 		final String cmd = "Progress.close";
 	}
-	
+
 	private final SetFullProgress.Data data = new SetFullProgress.Data();
 
 	public ProgressActions(ActionsMgr ws)
@@ -143,7 +143,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(new Gson().toJson(new Open()));
+				ws.send(gson.toJson(new Open()));
 		}
 		catch (IOException e)
 		{
@@ -159,22 +159,59 @@ public class ProgressActions implements ProgressHandler
 		sendSetProgress(0, true);
 	}
 
+	private synchronized void cleanup()
+	{
+		final Thread ct = Thread.currentThread();
+		if (threadId_Offset.containsKey(ct.getId()))
+		{
+			final ThreadGroup tg = ct.getThreadGroup();
+			if (threadId_Offset.size() != tg.activeCount())
+			{
+				final Thread[] tl = new Thread[tg.activeCount()];
+				final int tl_count = tg.enumerate(tl, false);
+				final var itr = threadId_Offset.entrySet().iterator();
+				while (itr.hasNext())
+				{
+					final var e = itr.next();
+					boolean exists = false;
+					for (int i = 0; i < tl_count; i++)
+					{
+						if (e.getKey() == tl[i].getId())
+						{
+							exists = true;
+							break;
+						}
+					}
+					if (!exists)
+					{
+						data.infos[e.getValue()] = "";
+						if (data.infos.length == data.subinfos.length)
+							data.subinfos[e.getValue()] = "";
+						itr.remove();
+					}
+				}
+			}
+		}
+	}
+
 	private void sendSetProgress(final int pb, final boolean force)
 	{
 		try
 		{
-			if(force)
-				ws.send(new Gson().toJson(new SetFullProgress(data)));
+			if (pb == 1)
+				cleanup();
+			if (force)
+				ws.send(gson.toJson(new SetFullProgress(data)));
 			else if (!data.pb1.visibility && !data.pb2.visibility && !data.pb3.visibility)
-				ws.send(new Gson().toJson(new SetFullProgress(data)));
-			else if (pb==1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
-				ws.send(new Gson().toJson(new SetFullProgress(data)));
-			else if (pb==2 && data.pb2.visibility && !data.pb2.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
-				ws.send(new Gson().toJson(new SetFullProgress(data)));
-			else if (pb==3 && data.pb3.visibility && !data.pb3.indeterminate && data.pb3.val > 0 && data.pb3.max == data.pb3.val)
-				ws.send(new Gson().toJson(new SetFullProgress(data)));
+				ws.send(gson.toJson(new SetFullProgress(data)));
+			else if (pb == 1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
+				ws.send(gson.toJson(new SetFullProgress(data)));
+			else if (pb == 2 && data.pb2.visibility && !data.pb2.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
+				ws.send(gson.toJson(new SetFullProgress(data)));
+			else if (pb == 3 && data.pb3.visibility && !data.pb3.indeterminate && data.pb3.val > 0 && data.pb3.max == data.pb3.val)
+				ws.send(gson.toJson(new SetFullProgress(data)));
 			else
-				ws.sendOptional(new Gson().toJson(new SetFullProgress(data)));
+				ws.sendOptional(gson.toJson(new SetFullProgress(data)));
 		}
 		catch (IOException e)
 		{
@@ -185,7 +222,8 @@ public class ProgressActions implements ProgressHandler
 	@Override
 	public synchronized void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
-		this.data.threadCnt = threadCnt<=0?Runtime.getRuntime().availableProcessors():threadCnt;
+		threadId_Offset.clear();
+		this.data.threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
 		this.data.multipleSubInfos = multipleSubInfos;
 		this.data.infos = new String[this.data.threadCnt];
 		this.data.subinfos = new String[multipleSubInfos == null ? 0 : (multipleSubInfos ? this.data.threadCnt : 1)];
@@ -198,7 +236,7 @@ public class ProgressActions implements ProgressHandler
 		{
 			if (ws.isOpen())
 			{
-				ws.send(new Gson().toJson(new SetInfos(new SetInfos.Data(data.threadCnt, data.multipleSubInfos))));
+				ws.send(gson.toJson(new SetInfos(new SetInfos.Data(data.threadCnt, data.multipleSubInfos))));
 			}
 		}
 		catch (IOException e)
@@ -223,7 +261,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(new Gson().toJson(new ClearInfos()));
+				ws.send(gson.toJson(new ClearInfos()));
 		}
 		catch (IOException e)
 		{
@@ -240,9 +278,9 @@ public class ProgressActions implements ProgressHandler
 				threadId_Offset.put(Thread.currentThread().getId(), threadId_Offset.size());
 			else
 			{
-				ThreadGroup tg = Thread.currentThread().getThreadGroup();
-				Thread[] tl = new Thread[tg.activeCount()];
-				int tl_count = tg.enumerate(tl, false);
+				final ThreadGroup tg = Thread.currentThread().getThreadGroup();
+				final Thread[] tl = new Thread[tg.activeCount()];
+				final int tl_count = tg.enumerate(tl, false);
 				boolean found = false;
 				for (Map.Entry<Long, Integer> e : threadId_Offset.entrySet())
 				{
@@ -292,7 +330,7 @@ public class ProgressActions implements ProgressHandler
 			if (data.pb1.val >= 0 && data.pb1.max > 0)
 			{
 				final var perc = data.pb1.val * 100.0f / data.pb1.max;
-				force = (int)data.pb1.perc != (int)perc; 
+				force = (int) data.pb1.perc != (int) perc;
 				data.pb1.perc = perc;
 			}
 			if (val > 0)
@@ -335,7 +373,7 @@ public class ProgressActions implements ProgressHandler
 			if (data.pb2.val >= 0 && data.pb2.max > 0)
 			{
 				final var perc = data.pb2.val * 100.0f / data.pb2.max;
-				force = (int)data.pb2.perc != (int)perc;
+				force = (int) data.pb2.perc != (int) perc;
 				data.pb2.perc = perc;
 			}
 			if (val > 0)
@@ -374,7 +412,7 @@ public class ProgressActions implements ProgressHandler
 			if (data.pb3.val >= 0 && data.pb3.max > 0)
 			{
 				final var perc = data.pb3.val * 100.0f / data.pb3.max;
-				force = (int)data.pb3.perc != (int)perc;
+				force = (int) data.pb3.perc != (int) perc;
 				data.pb3.perc = perc;
 			}
 			if (val > 0)
@@ -435,7 +473,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(new Gson().toJson(new Close()));
+				ws.send(gson.toJson(new Close()));
 		}
 		catch (IOException e)
 		{
@@ -459,7 +497,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(new Gson().toJson(new CanCancel(canCancel)));
+				ws.send(gson.toJson(new CanCancel(canCancel)));
 		}
 		catch (IOException e)
 		{

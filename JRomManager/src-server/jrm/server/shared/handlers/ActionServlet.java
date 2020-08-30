@@ -94,8 +94,12 @@ public class ActionServlet extends HttpServlet
 						else
 						{
 							msgs.add(msg);
-							while (null != (msg = sess.lprMsg.poll()))
+							while (msgs.size() <= 100)
+							{
+								if(null == (msg = sess.lprMsg.poll()))
+									break;
 								msgs.add(msg);
+							}
 							if (msgs.size() > 1)
 								msg = "{\"cmd\":\"Global.multiCMD\",\"params\":[" + msgs.stream().collect(Collectors.joining(",")) + "]}";
 							else

@@ -49,6 +49,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 		loadSettings();
 	}
 	
+	private Path cachedBasePath = null;
 	
 	/**
 	 * Return the current base path, the one where we save working dirs (xml, cache, backup, ...)<br>
@@ -59,6 +60,8 @@ public class GlobalSettings extends Settings implements SystemSettings
 	 */
 	public Path getBasePath()
 	{
+		if (cachedBasePath != null)
+			return cachedBasePath;
 		if(user.getSession().server)
 		{
 			final String prop = System.getProperty("jrommanager.dir");
@@ -74,7 +77,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 					Log.err(e.getMessage(),e);
 				}
 			}
-			return work;
+			return cachedBasePath=work;
 		}
 		else if (user.getSession().multiuser)
 		{
@@ -90,10 +93,12 @@ public class GlobalSettings extends Settings implements SystemSettings
 					Log.err(e.getMessage(),e);
 				}
 			}
-			return work;
+			return cachedBasePath=work;
 		}
-		return Paths.get(".").toAbsolutePath().normalize(); //$NON-NLS-1$
+		return cachedBasePath=Paths.get(".").toAbsolutePath().normalize(); //$NON-NLS-1$
 	}
+	
+	private Path cachedWorkPath = null;
 	
 	/**
 	 * Return the current work path, the one where we save working dirs (xml, cache, backup, ...)<br>
@@ -103,11 +108,13 @@ public class GlobalSettings extends Settings implements SystemSettings
 	 */
 	public Path getWorkPath()
 	{
+		if(cachedWorkPath!=null)
+			return cachedWorkPath;
 		Path base = getBasePath();
 		if(user.getSession().server && user.getSession().multiuser)
 		{
 			if(user.getName().equals("server"))
-				return base;
+				return cachedWorkPath=base;
 			Path work = base.resolve("users").resolve(user.getName());
 			if(!Files.exists(work))
 			{
@@ -120,9 +127,9 @@ public class GlobalSettings extends Settings implements SystemSettings
 					Log.err(e.getMessage(),e);
 				}
 			}
-			return work;
+			return cachedWorkPath=work;
 		}
-		return base;
+		return cachedWorkPath=base;
 	}
 	
 	public File getWorkFile(final File parent, final String name, final String ext)

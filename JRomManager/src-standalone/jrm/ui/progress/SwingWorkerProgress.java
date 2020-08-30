@@ -12,46 +12,46 @@ import jrm.aui.progress.ProgressInputStream;
 
 import lombok.RequiredArgsConstructor;
 
-public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implements ProgressHandler
+public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implements ProgressHandler
 {
 	private final Progress progress;
-	
+
 	/** The thread id offset. */
-	private Map<Long,Integer> threadId_Offset = new HashMap<>();
+	private Map<Long, Integer> threadId_Offset = new HashMap<>();
 	private int threadCnt;
-	
+
 	public SwingWorkerProgress(final Window owner)
 	{
 		super();
 		progress = new Progress(owner);
 		addPropertyChangeListener(e -> {
-			switch(e.getPropertyName())
+			switch (e.getPropertyName())
 			{
 				case "setProgress":
-					if(e.getNewValue() instanceof SetProgress)
+					if (e.getNewValue() instanceof SetProgress)
 					{
-						SetProgress props = (SetProgress)e.getNewValue();
+						SetProgress props = (SetProgress) e.getNewValue();
 						progress.setProgress(props.offset, props.msg, props.val, props.max, props.submsg);
 					}
 					break;
 				case "setProgress2":
-					if(e.getNewValue() instanceof SetProgress2)
+					if (e.getNewValue() instanceof SetProgress2)
 					{
-						SetProgress2 props = (SetProgress2)e.getNewValue();
+						SetProgress2 props = (SetProgress2) e.getNewValue();
 						progress.setProgress2(props.msg, props.val, props.max);
 					}
 					break;
 				case "setProgress3":
-					if(e.getNewValue() instanceof SetProgress3)
+					if (e.getNewValue() instanceof SetProgress3)
 					{
-						SetProgress3 props = (SetProgress3)e.getNewValue();
+						SetProgress3 props = (SetProgress3) e.getNewValue();
 						progress.setProgress3(props.msg, props.val, props.max);
 					}
 					break;
 				case "setInfos":
-					if(e.getNewValue() instanceof SetInfos)
+					if (e.getNewValue() instanceof SetInfos)
 					{
-						SetInfos props = (SetInfos)e.getNewValue();
+						SetInfos props = (SetInfos) e.getNewValue();
 						progress.setInfos(props.threadCnt, props.multipleSubInfos);
 					}
 					break;
@@ -59,7 +59,7 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 					progress.clearInfos();
 					break;
 				case "canCancel":
-					progress.canCancel((Boolean)e.getNewValue());
+					progress.canCancel((Boolean) e.getNewValue());
 					break;
 				case "cancel":
 					progress.cancel();
@@ -78,7 +78,9 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 		private final int threadCnt;
 		private final Boolean multipleSubInfos;
 	}
-	
+
+	private Boolean multipleSubInfos = null;
+
 	@Override
 	public void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
@@ -87,7 +89,7 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 			this.threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
 			threadId_Offset.clear();
 		}
-		firePropertyChange("setInfos", null, new SetInfos(this.threadCnt, multipleSubInfos));
+		firePropertyChange("setInfos", null, new SetInfos(this.threadCnt, this.multipleSubInfos = multipleSubInfos));
 	}
 
 	@Override
@@ -105,7 +107,40 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 		private final Integer max;
 		private final String submsg;
 	}
-	
+
+	private synchronized void cleanup()
+	{
+		final Thread ct = Thread.currentThread();
+		if (threadId_Offset.containsKey(ct.getId()))
+		{
+			final ThreadGroup tg = ct.getThreadGroup();
+			if (threadId_Offset.size() != tg.activeCount())
+			{
+				final Thread[] tl = new Thread[tg.activeCount()];
+				final int tl_count = tg.enumerate(tl, false);
+				final var itr = threadId_Offset.entrySet().iterator();
+				while (itr.hasNext())
+				{
+					final var e = itr.next();
+					boolean exists = false;
+					for (int i = 0; i < tl_count; i++)
+					{
+						if (e.getKey() == tl[i].getId())
+						{
+							exists = true;
+							break;
+						}
+					}
+					if (!exists)
+					{
+						firePropertyChange("setProgress", null, new SetProgress(e.getValue(), "", null, null, this.multipleSubInfos != null && this.multipleSubInfos ? "" : null));
+						itr.remove();
+					}
+				}
+			}
+		}
+	}
+
 	@Override
 	public void setProgress(String msg, Integer val, Integer max, String submsg)
 	{
@@ -147,6 +182,7 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 			}
 			offset = threadId_Offset.get(Thread.currentThread().getId());
 		}
+		cleanup();
 		firePropertyChange("setProgress", null, new SetProgress(offset, msg, val, max, submsg));
 	}
 
@@ -157,7 +193,7 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 		private final Integer val;
 		private final Integer max;
 	}
-	
+
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
@@ -171,7 +207,7 @@ public abstract class SwingWorkerProgress<T,V> extends SwingWorker<T,V> implemen
 		private final Integer val;
 		private final Integer max;
 	}
-	
+
 	@Override
 	public void setProgress3(String msg, Integer val, Integer max)
 	{
