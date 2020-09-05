@@ -39,11 +39,17 @@ public interface HTMLRenderer
 	static class Options
 	{
 		private static @Setter boolean isPlain = false;
+		private static @Setter boolean isHTML5 = true;
 	}
 	
 	public default boolean isPlain()
 	{
 		return Options.isPlain;
+	}
+	
+	public default boolean isHTML5()
+	{
+		return Options.isHTML5;
 	}
 	
 	
@@ -191,6 +197,8 @@ public interface HTMLRenderer
 	{
 		if(isPlain())
 			return String.format("(%d/%d)", i, max);
+		if(isHTML5())
+			return String.format("<progress style='width:%dpx' value='%d' max='%d'></progress>", width, i, max);
 		return String.format("<table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray;table-layout:fixed'><tr>"
 				+ "<td style='width:%dpx;height:2px;background-color:#00ff00'></td>" //$NON-NLS-1$
 				+ "<td></td>" //$NON-NLS-1$

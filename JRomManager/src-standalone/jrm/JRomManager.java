@@ -29,6 +29,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.security.Sessions;
@@ -50,6 +51,7 @@ public final class JRomManager
 	{
 		System.setProperty("file.encoding", "UTF-8");
 		Sessions.single_mode = true;
+		HTMLRenderer.Options.setHTML5(false);
 		boolean multiuser = false, noupdate = false, debug = false;
 		Options options = new Options();
 		options.addOption(new Option("m", "multiuser", false, "Multi-user mode"));
