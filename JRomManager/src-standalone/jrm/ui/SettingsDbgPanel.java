@@ -42,9 +42,9 @@ public class SettingsDbgPanel extends JPanel
 	public SettingsDbgPanel(final Session session)
 	{
 		final GridBagLayout gbl_debug = new GridBagLayout();
-		gbl_debug.columnWidths = new int[] { 100, 0, 0, 0 };
+		gbl_debug.columnWidths = new int[] { 50, 0, 0, 10, 0 };
 		gbl_debug.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
-		gbl_debug.columnWeights = new double[] { 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		gbl_debug.columnWeights = new double[] { 1.0, 1.0, 0.0, 1.0, Double.MIN_VALUE };
 		gbl_debug.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		this.setLayout(gbl_debug);
 
@@ -74,7 +74,7 @@ public class SettingsDbgPanel extends JPanel
 		JLabel lblMemory = new JLabel(Messages.getString("MainFrame.lblMemory.text")); //$NON-NLS-1$
 		lblMemory.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbc_lblMemory = new GridBagConstraints();
-		gbc_lblMemory.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblMemory.anchor = GridBagConstraints.EAST;
 		gbc_lblMemory.insets = new Insets(0, 0, 5, 5);
 		gbc_lblMemory.gridx = 0;
 		gbc_lblMemory.gridy = 2;
@@ -84,7 +84,7 @@ public class SettingsDbgPanel extends JPanel
 		lblMemoryUsage.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		final GridBagConstraints gbc_lblMemoryUsage = new GridBagConstraints();
 		gbc_lblMemoryUsage.fill = GridBagConstraints.BOTH;
-		gbc_lblMemoryUsage.insets = new Insets(0, 0, 5, 2);
+		gbc_lblMemoryUsage.insets = new Insets(0, 0, 5, 5);
 		gbc_lblMemoryUsage.gridx = 1;
 		gbc_lblMemoryUsage.gridy = 2;
 		this.add(lblMemoryUsage, gbc_lblMemoryUsage);

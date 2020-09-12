@@ -27,13 +27,17 @@ public class SettingsPanel extends JPanel
 		settingsPane = new JTabbedPane(SwingConstants.TOP);
 		this.add(settingsPane);
 
+		buildSettingsGenTab(session);
 		buildSettingsCompressorsTab(session);
 		buildSettingsDebugTab(session);
 	}
 
-	/**
-	 * 
-	 */
+	private void buildSettingsGenTab(final Session session)
+	{
+		final SettingsGenPanel panel = new SettingsGenPanel(session);
+		settingsPane.addTab("General", MainFrame.getIcon("/jrm/resicons/icons/cog.png"), panel, null); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	private void buildSettingsCompressorsTab(final Session session)
 	{
 		SettingsCompressorsPanel compressors = new SettingsCompressorsPanel(session);
