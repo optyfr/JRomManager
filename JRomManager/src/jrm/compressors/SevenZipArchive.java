@@ -78,6 +78,7 @@ public class SevenZipArchive implements Archive
 		}
 		catch(final SevenZipNativeInitializationException e)
 		{
+			Log.err(e.getMessage(), e);
 			this.readonly = readonly;
 			cmd = session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd, FindCmd.find7z()); //$NON-NLS-1$
 			if(!new File(cmd).exists() && !new File(cmd + ".exe").exists()) //$NON-NLS-1$

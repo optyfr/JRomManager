@@ -45,8 +45,6 @@ module jrmserver
 	requires com.h2database;
 	requires one.util.streamex;
 	
-	requires sevenzipjbinding.all;
-	
 	requires transitive jrmcore;
 	requires res.icons;
 }

@@ -29,6 +29,7 @@ module jrmcore
 	exports jrm.xml;
 
 	requires java.desktop;
+	requires jdk.zipfs;
 	requires transitive java.logging;
 	requires transitive java.xml;
 	requires static lombok;
@@ -41,5 +42,6 @@ module jrmcore
 	requires minimal.json;
 	requires trrntzip;
 	requires sevenzipjbinding;
+//	requires sevenzipjbinding.all;
 	requires java.management;
 }

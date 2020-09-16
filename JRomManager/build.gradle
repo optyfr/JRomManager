@@ -73,7 +73,8 @@ task downloadSevenZipJBindingPlatforms(type: Download) {
 		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-linux-i386/'+SevenZipJBindingVersion+'/sevenzipjbinding-linux-i386-'+SevenZipJBindingVersion+'.jar',
 		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-mac-x86_64/'+SevenZipJBindingVersion+'/sevenzipjbinding-mac-x86_64-'+SevenZipJBindingVersion+'.jar',
 		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-windows-amd64/'+SevenZipJBindingVersion+'/sevenzipjbinding-windows-amd64-'+SevenZipJBindingVersion+'.jar',
-		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-windows-x86/'+SevenZipJBindingVersion+'/sevenzipjbinding-windows-x86-'+SevenZipJBindingVersion+'.jar'
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding-windows-x86/'+SevenZipJBindingVersion+'/sevenzipjbinding-windows-x86-'+SevenZipJBindingVersion+'.jar',
+		'https://repo1.maven.org/maven2/net/sf/sevenzipjbinding/sevenzipjbinding/'+SevenZipJBindingVersion+'/sevenzipjbinding-'+SevenZipJBindingVersion+'.jar'
 	])
 	dest "$buildDir/SevenZipJBinding"
 	onlyIfModified true
@@ -108,7 +109,8 @@ task SevenZipJBindingAllPlatforms(type: Jar, dependsOn: SevenZipJBindingPlatform
 	def propertyFile = file "$buildDir/sevenzipjbinding-platforms.properties"
 	propertyFile.withWriter { props.store(it, null) }
 	from(propertyFile)
-	archiveName 'sevenzipjbinding-all-'+SevenZipJBindingVersion+'.' + extension
+	from('net')
+	archiveName 'sevenzipjbinding-'+SevenZipJBindingVersion+'.' + extension
 }
 
 subprojects {
@@ -327,8 +329,8 @@ project(':JRomManager:jrmcore') {
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-text'
 		implementation group: 'org.apache.commons', name: 'commons-compress'
-		implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding'
-		runtime files(SevenZipJBindingAllPlatforms)
+	//	implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding'
+		implementation files(SevenZipJBindingAllPlatforms)
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.sun.activation', name: 'javax.activation'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
@@ -730,7 +732,6 @@ jlink {
 	launcher {
 		name = 'JRomManager'
 		moduleName = 'jrmstandalone'
-		noConsole = true
 		mainClass = 'jrm.JRomManagerMulti'
 		jvmArgs = ['-XX:MaxRAMPercentage=75']
 	}

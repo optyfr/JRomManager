@@ -108,33 +108,36 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 		private final String submsg;
 	}
 
-	private synchronized void cleanup()
+	private void cleanup()
 	{
-		final Thread ct = Thread.currentThread();
-		if (threadId_Offset.containsKey(ct.getId()))
+		synchronized (threadId_Offset)
 		{
-			final ThreadGroup tg = ct.getThreadGroup();
-			if (threadId_Offset.size() != tg.activeCount())
+			final Thread ct = Thread.currentThread();
+			if (threadId_Offset.containsKey(ct.getId()))
 			{
-				final Thread[] tl = new Thread[tg.activeCount()];
-				final int tl_count = tg.enumerate(tl, false);
-				final var itr = threadId_Offset.entrySet().iterator();
-				while (itr.hasNext())
+				final ThreadGroup tg = ct.getThreadGroup();
+				if (threadId_Offset.size() != tg.activeCount())
 				{
-					final var e = itr.next();
-					boolean exists = false;
-					for (int i = 0; i < tl_count; i++)
+					final Thread[] tl = new Thread[tg.activeCount()];
+					final int tl_count = tg.enumerate(tl, false);
+					final var itr = threadId_Offset.entrySet().iterator();
+					while (itr.hasNext())
 					{
-						if (e.getKey() == tl[i].getId())
+						final var e = itr.next();
+						boolean exists = false;
+						for (int i = 0; i < tl_count; i++)
 						{
-							exists = true;
-							break;
+							if (e.getKey() == tl[i].getId())
+							{
+								exists = true;
+								break;
+							}
 						}
-					}
-					if (!exists)
-					{
-						firePropertyChange("setProgress", null, new SetProgress(e.getValue(), "", null, null, this.multipleSubInfos != null && this.multipleSubInfos ? "" : null));
-						itr.remove();
+						if (!exists)
+						{
+							firePropertyChange("setProgress", null, new SetProgress(e.getValue(), "", null, null, this.multipleSubInfos != null && this.multipleSubInfos ? "" : null));
+							itr.remove();
+						}
 					}
 				}
 			}
