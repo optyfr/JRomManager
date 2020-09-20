@@ -1,8 +1,6 @@
 package jrm.server;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +25,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 
 import jrm.misc.Log;
+import jrm.misc.URIUtils;
 import jrm.server.handlers.SessionServlet;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.handlers.ActionServlet;
@@ -38,7 +37,7 @@ import lombok.val;
 
 public class Server
 {
-	private String clientPath;
+	private Path clientPath;
 	private static boolean debug = false;
 	private static int HTTP_PORT = 8080;
 	private static String BIND = "0.0.0.0";
@@ -47,7 +46,7 @@ public class Server
 	final static Map<String, WebSession> sessions = new HashMap<>();
 	
 		
-	public Server(String clientPath) throws Exception
+	public Server(Path clientPath) throws Exception
 	{
 		this.clientPath = clientPath;
 
@@ -157,21 +156,15 @@ public class Server
 		options.addOption(new Option("p", "http", true, "http port, default is " + HTTP_PORT));
 		options.addOption(new Option("b", "bind", true, "bind to address or host, default is " + BIND));
 
-		String clientPath = null;
+		Path clientPath = null;
 		try
 		{
 			CommandLine cmd = new DefaultParser().parse(options, args);
-			if (null == (clientPath = cmd.getOptionValue('c')))
-			{
-				try
-				{
-					clientPath = new File(new File(Server.class.getProtectionDomain().getCodeSource().getLocation().toURI()), "smartgwt").getPath();
-				}
-				catch (URISyntaxException e)
-				{
-					Log.err(e.getMessage(), e);
-				}
-			}
+			String cpath;
+			if (null == (cpath = cmd.getOptionValue('c')))
+				clientPath = URIUtils.getPath("jrt:/jrm.merged.module/webclient/");
+			else
+				clientPath = Paths.get(cpath);
 			if (cmd.hasOption('b'))
 				BIND = cmd.getOptionValue('b');
 			if (cmd.hasOption('p'))

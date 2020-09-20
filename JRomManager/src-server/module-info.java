@@ -1,4 +1,4 @@
-module jrmserver
+open module jrmserver
 {
 	exports jrm.fullserver;
 	exports jrm.fullserver.datasources;
@@ -7,10 +7,11 @@ module jrmserver
 	exports jrm.fullserver.security;
 	exports jrm.server;
 	exports jrm.server.handlers;
-	exports jrm.server.shared.lpr;
 	exports jrm.server.shared;
 	exports jrm.server.shared.actions;
 	exports jrm.server.shared.datasources;
+	exports jrm.server.shared.handlers;
+	exports jrm.server.shared.lpr;
 	
 	requires java.xml;
 	requires transitive java.sql;

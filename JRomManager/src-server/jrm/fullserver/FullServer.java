@@ -1,8 +1,6 @@
 package jrm.fullserver;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,7 +15,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FileUtils;
 import org.conscrypt.OpenSSLProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
@@ -47,6 +44,7 @@ import jrm.fullserver.security.BasicAuthenticator;
 import jrm.fullserver.security.Login;
 import jrm.fullserver.security.SSLReload;
 import jrm.misc.Log;
+import jrm.misc.URIUtils;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.handlers.ActionServlet;
 import jrm.server.shared.handlers.DownloadServlet;
@@ -56,11 +54,11 @@ import lombok.val;
 
 public class FullServer
 {
-	private String clientPath;
+	private Path clientPath;
 	private static boolean debug = false;
 
-	private static String KEY_STORE_PATH = "./certs/localhost.pfx";
-	private static String KEY_STORE_PASSWORD_PATH = "./certs/localhost.pw";
+	private static String KEY_STORE_PATH = "jrt:/jrm.merged.module/certs/localhost.pfx";
+	private static String KEY_STORE_PASSWORD_PATH = "jrt:/jrm.merged.module/certs/localhost.pw";
 
 	private static int PROTOCOLS = 0xff; // bit 1 = HTTP, bit 2 = HTTPS, bit 3 = HTTP2 (with bit 2)
 	private static int HTTP_PORT = 8080;
@@ -68,7 +66,7 @@ public class FullServer
 	private static String BIND = "0.0.0.0";
 	private static int CONNLIMIT = 50;
 
-	public FullServer(String clientPath) throws Exception
+	public FullServer(Path clientPath) throws Exception
 	{
 		this.clientPath = clientPath;
 
@@ -157,7 +155,7 @@ public class FullServer
 			jettyserver.addConnector(httpConnector);
 		}
 
-		if ((PROTOCOLS & 0x2) == 0x2 && Files.exists(Paths.get(KEY_STORE_PATH)))
+		if ((PROTOCOLS & 0x2) == 0x2 && URIUtils.URIExists(KEY_STORE_PATH))
 		{
 			// Create the HTTPS end point
 			final HttpConfiguration httpConfig = new HttpConfiguration();
@@ -171,7 +169,7 @@ public class FullServer
 			sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 			sslContextFactory.setUseCipherSuitesOrder(true);
 
-			String keyStorePassword = (KEY_STORE_PASSWORD_PATH != null && Files.exists(Paths.get(KEY_STORE_PASSWORD_PATH))) ? FileUtils.readFileToString(new File(KEY_STORE_PASSWORD_PATH), "UTF-8").trim() : "";
+			String keyStorePassword = (KEY_STORE_PASSWORD_PATH != null && URIUtils.URIExists(KEY_STORE_PASSWORD_PATH)) ? URIUtils.readString(KEY_STORE_PASSWORD_PATH).trim() : "";
 			sslContextFactory.setKeyStorePassword(keyStorePassword);
 			sslContextFactory.setKeyManagerPassword(keyStorePassword);
 
@@ -254,21 +252,15 @@ public class FullServer
 		options.addOption(new Option("p", "http", true, "http port, default is " + HTTP_PORT));
 		options.addOption(new Option("b", "bind", true, "bind to address or host, default is " + BIND));
 
-		String clientPath = null;
+		Path clientPath = null;
 		try
 		{
 			CommandLine cmd = new DefaultParser().parse(options, args);
-			if (null == (clientPath = cmd.getOptionValue('c')))
-			{
-				try
-				{
-					clientPath = new File(new File(Server.class.getProtectionDomain().getCodeSource().getLocation().toURI()), "smartgwt").getPath();
-				}
-				catch (URISyntaxException e)
-				{
-					Log.err(e.getMessage(), e);
-				}
-			}
+			String cpath;
+			if (null == (cpath = cmd.getOptionValue('c')))
+				clientPath = URIUtils.getPath("jrt:/jrm.merged.module/webclient/");
+			else
+				clientPath = Paths.get(cpath);
 			if (cmd.hasOption('b'))
 				BIND = cmd.getOptionValue('b');
 			if (cmd.hasOption('p'))
@@ -309,7 +301,7 @@ public class FullServer
 			System.exit(1);
 		}
 	}
-
+	
 	private static Path getWorkPath()
 	{
 		String base = System.getProperty("jrommanager.dir");

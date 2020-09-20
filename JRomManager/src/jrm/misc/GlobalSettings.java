@@ -227,6 +227,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 	public void loadSettings()
 	{
 		loadSettings(getSettingsFile());
+		setProperty("MaxThreadCount", Runtime.getRuntime().availableProcessors());
 	}
 	
 	/**

@@ -3,7 +3,7 @@ plugins {
 	id "de.undercouch.download" version "4.1.1"
 	id "nebula.ospackage" version "8.4.1"
 	id "de.inetsoftware.setupbuilder" version "4.8.7"
-	id "io.freefair.lombok" version "4.1.6"
+	id "io.freefair.lombok" version "5.2.1"
 //	id 'io.franzbecker.gradle-lombok' version '1.14'
 //	id "edu.sc.seis.macAppBundle" version "2.3.0"
 	id "org.beryx.jlink" version "2.22.0"
@@ -111,6 +111,19 @@ task SevenZipJBindingAllPlatforms(type: Jar, dependsOn: SevenZipJBindingPlatform
 	from(propertyFile)
 	from('net')
 	archiveName 'sevenzipjbinding-'+SevenZipJBindingVersion+'.' + extension
+}
+
+task WebClientJar(type: Jar, dependsOn: [':WebClient:build']) {
+	baseName = 'jrm-webui'
+	from (new File(project(':WebClient').buildDir,"/gwt/out")) {
+		into('webclient')
+	}
+	from (new File(project(':WebClient').projectDir,"/war/index.html")) {
+		into('webclient')
+	}
+	from ('certs') {
+		into('certs')
+	}
 }
 
 subprojects {
@@ -511,6 +524,7 @@ project(':JRomManager:jrmserver') {
 		}
 	}
 	dependencies {
+		implementation project(':JRomManager:jrmstandalone')
 		implementation project(':JRomManager:jrmcore')
 		implementation project(':JRomManager:res-icons')
 		implementation group: 'commons-cli', name: 'commons-cli'
@@ -529,6 +543,7 @@ project(':JRomManager:jrmserver') {
 		implementation group: 'com.h2database', name:'h2'
 		implementation group: 'org.mindrot', name:'jbcrypt'
 		implementation group: 'de.mkammerer', name:'argon2-jvm'
+		implementation files(WebClientJar)
 	}
 	jar {
 		manifest {
@@ -724,7 +739,7 @@ buildDeb.dependsOn distZip2
 build.dependsOn buildDeb
 
 jlink {
-	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+//	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 	mergedModuleName = "jrm.merged.module"
 	customImage {
 		appModules = ['jrm.merged.module','jrmstandalone','jrmcli','jrmserver']
@@ -746,13 +761,17 @@ jlink {
 		name = 'JRomManagerServer'
 		moduleName = 'jrmserver'
 		mainClass = 'jrm.server.Server'
+		winConsole = true
 		jvmArgs = ['-XX:MaxRAMPercentage=75']
+		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
 	secondaryLauncher {
 		name = 'JRomManagerFullServer'
 		moduleName = 'jrmserver'
 		mainClass = 'jrm.fullserver.FullServer'
+		winConsole = true
 		jvmArgs = ['-XX:MaxRAMPercentage=75']
+		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
 	targetPlatform("win") {
 		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.8_10.zip")

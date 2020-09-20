@@ -1,7 +1,8 @@
 package jrm.server.shared.handlers;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -16,16 +17,34 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
-import jrm.fullserver.FullServer;
+import jrm.misc.URIUtils;
 import lombok.val;
 
 @SuppressWarnings("serial")
 public class ImageServlet extends HttpServlet
 {
+	private static URI uri = null;
+	private static Boolean isModule = null;
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		val url = new URL(FullServer.class.getResource("/jrm/resicons/"), req.getRequestURI().substring(8));
+		if(isModule==null)
+		{
+			uri = URI.create("jrt:/res.icons/jrm/resicons/");
+			if (!(isModule = URIUtils.URIExists(uri)))
+			{
+				try
+				{
+					uri = ImageServlet.class.getResource("/jrm/resicons/").toURI();
+				}
+				catch (URISyntaxException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		val url = uri.resolve(req.getRequestURI().substring(8)).toURL();
 		val urlconn = url.openConnection();
 		urlconn.setDoInput(true);
 		try
