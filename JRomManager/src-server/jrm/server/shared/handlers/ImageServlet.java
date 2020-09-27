@@ -40,18 +40,19 @@ public class ImageServlet extends HttpServlet
 				}
 				catch (URISyntaxException e)
 				{
-					e.printStackTrace();
+					resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Icons resource missing?");
+					return;
 				}
 			}
 		}
 		val url = uri.resolve(req.getRequestURI().substring(8)).toURL();
-		val urlconn = url.openConnection();
-		urlconn.setDoInput(true);
 		try
 		{
+			val urlconn = url.openConnection();
+			urlconn.setDoInput(true);
 			if (urlconn.getContentLength() == 0)
 			{
-				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Empty result");
 				return;
 			}
 			try
@@ -59,7 +60,7 @@ public class ImageServlet extends HttpServlet
 				String ifModifiedSince = req.getHeader("if-modified-since");
 				if (ifModifiedSince != null && dateParse(ifModifiedSince).getTime() / 1000 == urlconn.getLastModified() / 1000)
 				{
-					resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+					resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 					return;
 				}
 			}
@@ -75,8 +76,7 @@ public class ImageServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
-			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
 		}
 	}
 
