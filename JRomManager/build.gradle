@@ -743,7 +743,7 @@ jlink {
 			]
 		}
 		if (installerType == 'deb' || installerType=='rpm') {
-			imageOptions += ['--icon', 'dist/JRomManager.ico']
+			imageOptions += ['--icon', 'dist/JRomManager.png']
 			installerOptions += [
 				'--linux-package-name', 'jrommanager',
 				'--linux-app-category', 'utils',
