@@ -747,7 +747,7 @@ jlink {
 			installerOptions += [
 				'--linux-package-name', 'jrommanager',
 				'--linux-app-category', 'utils',
-				'--linux-app-release', version,
+				'--linux-app-release', 1,
 				'--linux-rpm-license-type', 'GPL-2',
 				'--linux-menu-group', 'Utility',
 				'--linux-shortcut'
