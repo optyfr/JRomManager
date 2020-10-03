@@ -21,17 +21,20 @@ import java.nio.MappedByteBuffer;
 */
 class CHDHeader implements CHDHeaderIntf
 {
-	protected String tag;
-	protected int len;
-	protected int version;
+	protected String tag = "";
+	protected int len = 0;
+	protected int version = 0;
 
 	public CHDHeader(final MappedByteBuffer bb) throws UnsupportedEncodingException
 	{
-		final byte[] tag = new byte[8];
-		bb.get(tag);
-		this.tag= new String(tag, "ASCII"); //$NON-NLS-1$
-		len = bb.getInt();
-		version = bb.getInt();
+		if (bb.remaining() >= 16)
+		{
+			final byte[] tag = new byte[8];
+			bb.get(tag);
+			this.tag = new String(tag, "ASCII"); //$NON-NLS-1$
+			len = bb.getInt();
+			version = bb.getInt();
+		}
 	}
 
 	protected CHDHeader() {}
