@@ -386,10 +386,10 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				mainPane.setEnabledAt(1, success);
 				btnScan.setEnabled(success);
 				btnFix.setEnabled(false);
-				lblProfileinfo.setText(session.curr_profile.getName());
-				scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.curr_profile.systems));
 				if (success && session.curr_profile != null)
 				{
+					lblProfileinfo.setText(session.curr_profile.getName());
+					scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.curr_profile.systems));
 					initProfileSettings(session);
 					mainPane.setSelectedIndex(1);
 				}

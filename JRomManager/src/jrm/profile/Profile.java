@@ -286,7 +286,7 @@ public class Profile implements Serializable
 							switch (attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_software.setName(StringUtils.stripEnd(attributes.getValue(i).trim(),"."));
+									curr_software.setName(attributes.getValue(i).trim());
 									break;
 								case "cloneof": //$NON-NLS-1$
 									curr_software.cloneof = attributes.getValue(i);
@@ -382,14 +382,14 @@ public class Profile implements Serializable
 							switch (attributes.getQName(i))
 							{
 								case "name": //$NON-NLS-1$
-									curr_machine.setName(StringUtils.stripEnd(attributes.getValue(i).trim(), "."));
+									curr_machine.setName(attributes.getValue(i).trim());
 									machinelist_list.get(0).putByName(curr_machine);
 									break;
 								case "romof": //$NON-NLS-1$
-									curr_machine.romof = StringUtils.stripEnd(attributes.getValue(i).trim(), ".");
+									curr_machine.romof = attributes.getValue(i).trim();
 									break;
 								case "cloneof": //$NON-NLS-1$
-									curr_machine.cloneof = StringUtils.stripEnd(attributes.getValue(i).trim(), ".");
+									curr_machine.cloneof = attributes.getValue(i).trim();
 									break;
 								case "sampleof": //$NON-NLS-1$
 									curr_machine.sampleof = attributes.getValue(i).trim();
@@ -409,6 +409,10 @@ public class Profile implements Serializable
 									break;
 							}
 						}
+						if(curr_machine.romof!=null && curr_machine.romof.equals(curr_machine.getBaseName()))
+							curr_machine.romof = null;
+						if(curr_machine.cloneof!=null && curr_machine.cloneof.equals(curr_machine.getBaseName()))
+							curr_machine.cloneof = null;
 					}
 					else if (qName.equals("description") && (curr_machine != null || curr_software != null || curr_software_list != null)) //$NON-NLS-1$
 					{
@@ -709,7 +713,10 @@ public class Profile implements Serializable
 										curr_rom.setName(attributes.getValue(i).trim());
 										break;
 									case "size": //$NON-NLS-1$
-										curr_rom.size = Long.decode(attributes.getValue(i));
+										if(attributes.getValue(i).equals("-"))
+											curr_rom.size = -1;
+										else
+											curr_rom.size = Long.decode(attributes.getValue(i));
 										break;
 									case "offset": //$NON-NLS-1$
 										if(attributes.getValue(i).toLowerCase().startsWith("0x"))
@@ -770,7 +777,7 @@ public class Profile implements Serializable
 								{
 									case "name": //$NON-NLS-1$
 									{
-										String name = StringUtils.stripEnd(attributes.getValue(i).trim(), ".");
+										String name = attributes.getValue(i).trim();
 										if(name.endsWith(".chd"))
 											name = name.substring(0, name.length()-4);
 										curr_disk.setName(name);
@@ -1058,7 +1065,7 @@ public class Profile implements Serializable
 			handler.setInfos(1, true);
 			profile = new Profile();
 			profile.session = session;
-			session.curr_profile = profile;
+			session.curr_profile = null;
 			profile.nfo = nfo;
 			if (nfo.isJRM())
 			{	// we use JRM file keep ROMs/SL DATs in relation
@@ -1078,6 +1085,7 @@ public class Profile implements Serializable
 				if (!nfo.file.exists() || !profile._load(nfo.file, handler))
 					return null;
 			}
+			session.curr_profile = profile;
 			// save cache
 			handler.setInfos(1, null);
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
