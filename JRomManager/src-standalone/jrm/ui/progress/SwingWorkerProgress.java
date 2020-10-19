@@ -2,9 +2,13 @@ package jrm.ui.progress;
 
 import java.awt.Window;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import jrm.aui.progress.ProgressHandler;
@@ -16,6 +20,8 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 {
 	private final Progress progress;
 
+	private final List<String> errors = new ArrayList<>();
+	
 	/** The thread id offset. */
 	private Map<Long, Integer> threadId_Offset = new HashMap<>();
 	private int threadCnt;
@@ -66,6 +72,8 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 					break;
 				case "close":
 					progress.close();
+					if (errors.size() > 0)
+						JOptionPane.showMessageDialog(owner, errors.stream().collect(Collectors.joining("\n")), "Error", JOptionPane.ERROR_MESSAGE);
 					break;
 			}
 		});
@@ -269,5 +277,11 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 	public void close()
 	{
 		firePropertyChange("close", false, true);
+	}
+	
+	@Override
+	public void addError(String error)
+	{
+		errors.add(error);
 	}
 }

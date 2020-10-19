@@ -2,7 +2,9 @@ package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -16,6 +18,7 @@ import jrm.misc.Log;
 public class ProgressActions implements ProgressHandler
 {
 	private ActionsMgr ws;
+	private final List<String> errors = new ArrayList<>();
 
 	/** The thread id offset. */
 	private final Map<Long, Integer> threadId_Offset = new HashMap<>();
@@ -128,6 +131,22 @@ public class ProgressActions implements ProgressHandler
 	final static class Close
 	{
 		final String cmd = "Progress.close";
+		final Data params;
+
+		final static class Data
+		{
+			String errors[] = null;
+			
+			public Data(List<String> errors)
+			{
+				this.errors = errors.toArray(String[]::new); 
+			}
+		}
+		
+		public Close(List<String> errors)
+		{
+			this.params = new Data(errors);
+		}
 	}
 
 	private final SetFullProgress.Data data = new SetFullProgress.Data();
@@ -473,7 +492,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(gson.toJson(new Close()));
+				ws.send(gson.toJson(new Close(errors)));
 		}
 		catch (IOException e)
 		{
@@ -503,6 +522,12 @@ public class ProgressActions implements ProgressHandler
 		{
 			Log.err(e.getMessage(), e);
 		}
+	}
+
+	@Override
+	public void addError(String error)
+	{
+		errors.add(error);
 	}
 
 }

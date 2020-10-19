@@ -1,11 +1,14 @@
 package jrm.cli;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import jrm.aui.progress.ProgressHandler;
 
 public class Progress implements ProgressHandler
 {
+	private List<String> errors = new ArrayList<>();
 	private Integer max = null;
 	private boolean quiet = false;
 	
@@ -108,8 +111,7 @@ public class Progress implements ProgressHandler
 	@Override
 	public void close()
 	{
-		// TODO Auto-generated method stub
-
+		errors.forEach(System.err::println);
 	}
 	
 	public void quiet(boolean quiet)
@@ -120,6 +122,12 @@ public class Progress implements ProgressHandler
 	public void quiet()
 	{
 		this.quiet = !this.quiet;
+	}
+
+	@Override
+	public void addError(String error)
+	{
+		errors.add(error);
 	}
 
 }

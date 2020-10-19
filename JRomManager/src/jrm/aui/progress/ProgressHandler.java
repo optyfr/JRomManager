@@ -181,4 +181,10 @@ public interface ProgressHandler
 	 * Destroy or hide the progress
 	 */
 	public void close();
+	
+	/**
+	 * add an error to show when closing progress
+	 * @param error
+	 */
+	public void addError(String error);
 }
