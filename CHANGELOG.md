@@ -3,7 +3,7 @@
 - Dropped obsolete/unmaintained NanoHTTPd, and using only Jetty
 - Modularized code and dependencies to bundle inside a designated java runtime that target some specific platforms (currently JRE11 + Windows_64)
 - Rebranded MSI installer for windows (using jpackage from Java 14+)
-- 
+- More informative about what's invalid in a datfile when it can't be loaded
 
 ## Release v2.4.4
 - Dummy release because 2.4.3 packages were build with wrong jdk...
