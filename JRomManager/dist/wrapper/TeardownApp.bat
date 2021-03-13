@@ -2,7 +2,7 @@
 setlocal
 
 rem
-rem Copyright (c) 1999, 2018 Tanuki Software, Ltd.
+rem Copyright (c) 1999, 2021 Tanuki Software, Ltd.
 rem http://www.tanukisoftware.com
 rem All rights reserved.
 rem
@@ -16,7 +16,7 @@ rem
 
 rem -----------------------------------------------------------------------------
 rem These settings can be modified to fit the needs of your application
-rem Optimized for use with version 3.5.37 of the Wrapper.
+rem Optimized for use with version 3.5.45 of the Wrapper.
 
 rem The base name for the Wrapper binary.
 set _WRAPPER_BASE=wrapper
@@ -36,6 +36,10 @@ set _WRAPPER_CONF_DEFAULT="../conf/%_WRAPPER_BASE%.conf"
 rem Makes it possible to override the Wrapper configuration file by specifying it
 rem  as the first parameter.
 rem set _WRAPPER_CONF_OVERRIDE=true
+
+rem If there are any errors, the script will pause for a specific number of seconds
+rem  or until the user presses a key. (0 not to wait, negative to wait forever).
+set _WRAPPER_TIMEOUT=-1
 
 rem Note that it is only possible to pass parameters through to the JVM when
 rem  installing the service, or when running in a console.
@@ -101,8 +105,7 @@ if %_BIN_BITS%=="64" goto x86_32
 echo Unable to locate a Wrapper executable using any of the following names:
 echo %_WRAPPER_L_EXE%
 echo %_WRAPPER_EXE%
-pause
-goto :eof
+goto preexitpause
 
 :check_lic_bits
 if %_BIN_BITS%=="64" (
@@ -117,13 +120,13 @@ if [%_WRAPPER_CONF_OVERRIDE%]==[true] (
     set _WRAPPER_CONF="%~f1"
     if not [%_WRAPPER_CONF%]==[""] (
         shift
-        goto :startup
+        goto callcommand
     )
 )
 set _WRAPPER_CONF="%_WRAPPER_CONF_DEFAULT:"=%"
 
 rem The command should not be called inside a IF, else errorlevel would be 0
-if not [%_CHECK_LIC_BITS%]==[true] goto startup
+if not [%_CHECK_LIC_BITS%]==[true] goto callcommand
 %_WRAPPER_EXE% --request_delta_binary_bits %_WRAPPER_CONF% > nul 2>&1
 if %errorlevel% equ 32 (
     set _LIC32_OS64=true
@@ -132,14 +135,24 @@ if %errorlevel% equ 32 (
 )
 
 rem
-rem Start the Wrapper
+rem Run the Wrapper
 rem
-:startup
+:callcommand
 if not [%1]==[] (
-    echo WARNING: Extra arguments will be ignored. Please check usage in the batch file.
+    echo Additional arguments are not allowed.
+    goto preexitpause
 )
 
 %_WRAPPER_EXE% -td %_WRAPPER_CONF%
 
 if not errorlevel 1 goto :eof
-pause
+
+:preexitpause
+if %_WRAPPER_TIMEOUT% gtr 0 (
+    timeout /t %_WRAPPER_TIMEOUT%
+) else (
+    if %_WRAPPER_TIMEOUT% lss 0 (
+        pause
+    )
+)
+

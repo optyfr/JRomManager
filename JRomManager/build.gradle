@@ -292,7 +292,7 @@ subprojects {
 			}
 			implementation('de.mkammerer:argon2-jvm') { 
 				version { 
-					prefer '2.+' 
+					prefer '2.7' 
 				}
 			}
 			implementation('org.mindrot:jbcrypt') { 
@@ -494,6 +494,7 @@ project(':JRomManager:jrmserver') {
 		implementation group: 'commons-dbutils', name:'commons-dbutils'
 		implementation group: 'com.h2database', name:'h2'
 		implementation group: 'org.mindrot', name:'jbcrypt'
+		implementation 'net.java.dev.jna:jna:5.6.0'
 		implementation group: 'de.mkammerer', name:'argon2-jvm'
 		implementation files(WebClientJar)
 	}
@@ -560,7 +561,7 @@ task docZip(type: Zip, dependsOn: javadoc) {
 }
 
 task downloadWrapper(type: Download) {
-	src 'https://download.tanukisoftware.com/wrapper/3.5.37/wrapper-delta-pack-3.5.37.zip'
+	src 'https://download.tanukisoftware.com/wrapper/3.5.45/wrapper-delta-pack-3.5.45.zip'
 	dest file("$buildDir/wrapper.zip")
 	onlyIfModified true
 }
@@ -607,10 +608,10 @@ task distZip2(type: Zip, dependsOn: [jar, SevenZipJBindingAllPlatforms, ':WebCli
 		include 'wrapper.conf'
 		into 'wrapper/conf'
 	}
-	from ('dist/wrapper') {
+/*	from ('dist/wrapper') {
 		include 'wrapper.dll'
 		into 'wrapper/lib'
-	}
+	}*/
 	from ('dist/logs') {
 		include '.do_not_delete'
 		into 'logs'
