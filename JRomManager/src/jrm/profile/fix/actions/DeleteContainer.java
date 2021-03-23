@@ -78,8 +78,10 @@ public class DeleteContainer extends ContainerAction
 			}
 			catch(final IOException e)
 			{
-				System.err.println("failed to delete " + container.getRelFile()); //$NON-NLS-1$
-				return false;
+				System.err.println("failed to delete " + container.getRelFile() + " ("+e.getMessage()+")"); //$NON-NLS-1$
+				if(container.getFile().exists())
+					FileUtils.deleteQuietly(container.getFile());
+				return true;
 			}
 		}
 		else if(container.getType() == Container.Type.FAKE)

@@ -575,46 +575,62 @@ public final class DirScan extends PathAbstractor
 					}
 					case DIR:
 					{
-						try
+						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
 						{
-							Files.walkFileTree(c.getFile().toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
+							try
 							{
-								@Override
-								public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
+								Files.walkFileTree(c.getFile().toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
 								{
-									if(attrs.isRegularFile())
+									@Override
+									public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
 									{
-										Entry entry = new Entry(entry_path.toString(),getRelativePath(entry_path).toString(), attrs);
-										if(archives_and_chd_as_roms)
-											entry.type = Entry.Type.UNK;
-										handler.setProgress(c.getFile().getName() , -1, null, File.separator+c.getFile().toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
-										update_entry(c.add(entry), entry_path);
+										if(attrs.isRegularFile())
+										{
+											Entry entry = new Entry(entry_path.toString(),getRelativePath(entry_path).toString(), attrs);
+											if(archives_and_chd_as_roms)
+												entry.type = Entry.Type.UNK;
+											handler.setProgress(c.getFile().getName() , -1, null, File.separator+c.getFile().toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+											update_entry(c.add(entry), entry_path);
+										}
+										return FileVisitResult.CONTINUE;
 									}
-									return FileVisitResult.CONTINUE;
-								}
-	
-								@Override
-								public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-								{
-									return FileVisitResult.CONTINUE;
-								}
-							});
+		
+									@Override
+									public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+									{
+										return FileVisitResult.CONTINUE;
+									}
+								});
+								c.loaded = need_sha1_or_md5 ? 2 : 1;
+							}
+							catch(AccessDeniedException e)
+							{
+								
+							}
 						}
-						catch(AccessDeniedException e)
+						else
 						{
-							
+							for(final Entry entry : c.getEntries())
+								update_entry(entry);
 						}
-						c.loaded = need_sha1_or_md5 ? 2 : 1;
 						break;
 					}
 					case FAKE:
 					{
-						Entry entry = new Entry(c.getFile().getName().toString(),c.getRelFile().getName().toString(), c.getSize(), c.getModified());
-						if(archives_and_chd_as_roms)
-							entry.type = Entry.Type.UNK;
-						handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()) , -1, null, c.getFile().getName()); //$NON-NLS-1$ //$NON-NLS-2$
-						update_entry(c.add(entry), c.getFile().toPath());
-						c.loaded = need_sha1_or_md5 ? 2 : 1;
+						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
+						{
+							Entry entry = new Entry(c.getFile().getName().toString(),c.getRelFile().getName().toString(), c.getSize(), c.getModified());
+							if(archives_and_chd_as_roms)
+								entry.type = Entry.Type.UNK;
+							handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()) , -1, null, c.getFile().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+							update_entry(c.add(entry), c.getFile().toPath());
+							c.loaded = need_sha1_or_md5 ? 2 : 1;
+						}
+						else
+						{
+							for(final Entry entry : c.getEntries())
+								update_entry(entry);
+						}
 						break;
 					}
 					default:
