@@ -110,11 +110,11 @@ task SevenZipJBindingAllPlatforms(type: Jar, dependsOn: SevenZipJBindingPlatform
 	propertyFile.withWriter { props.store(it, null) }
 	from(propertyFile)
 	from('net')
-	archiveName 'sevenzipjbinding-'+SevenZipJBindingVersion+'.' + extension
+	archiveFileName = 'sevenzipjbinding-' + SevenZipJBindingVersion + '.jar'
 }
 
 task WebClientJar(type: Jar, dependsOn: [':WebClient:build']) {
-	baseName = 'jrm-webui'
+	archiveBaseName = 'jrm-webui'
 	from (new File(project(':WebClient').buildDir,"/gwt/out")) {
 		into('webclient')
 	}
@@ -183,7 +183,7 @@ subprojects {
 				"Implementation-Version" : props.getProperty("Implementation-Version")
 			)
 		}
-		archiveName 'jrm-' + baseName + '-' + version + '.' + extension
+		archiveFileName = 'jrm-' + project.archivesBaseName + '-' + project.version + '.jar'
 	}
 	
 	
@@ -454,7 +454,7 @@ project(':JRomManager:jrmstandalone') {
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
-		compile 'com.sun.activation:javax.activation:1.2.0'
+		implementation 'com.sun.activation:javax.activation:1.2.0'
 	}
 	jar {
 		manifest {
@@ -527,7 +527,7 @@ jar {
 			"Main-Class"           : mainClassName,
 			"Class-Path"           : path
 		)
-		archiveName baseName + '.' + extension
+		archiveFileName = project.archivesBaseName + '.jar'
 	}
 }
 
@@ -543,7 +543,8 @@ task cliFatJar(type: Jar) {
 			'Main-Class': mainClassName
 		)
 	}
-	baseName = 'JRomManagerCLI'
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	archiveBaseName = 'JRomManagerCLI'
 	from(project(':JRomManager:jrmcli').sourceSets.main.output.classesDirs)
 	from(project(':JRomManager:jrmcli').sourceSets.main.resources)
 	from { project(':JRomManager:jrmcli').configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -552,12 +553,12 @@ task cliFatJar(type: Jar) {
 build.dependsOn cliFatJar 
 
 task docZip(type: Zip, dependsOn: javadoc) {
-	destinationDir buildDir
+	destinationDirectory = buildDir
 	classifier "javadocs"
 	from javadoc.outputs.files
 	into "docs"
-	archiveName baseName + '-' + version + '-apidocs' + '.' + extension
-	destinationDir = file("$buildDir/distributions/")
+	archiveFileName = project.archivesBaseName + '-' + project.version + '-apidocs' + '.zip'
+	destinationDirectory = file("$buildDir/distributions/")
 }
 
 task downloadWrapper(type: Download) {
@@ -622,8 +623,8 @@ task distZip2(type: Zip, dependsOn: [jar, SevenZipJBindingAllPlatforms, ':WebCli
 		include '*.sh'
 		fileMode = 0755
 	}
-	archiveName baseName + '-' + version + '.' + extension
-	destinationDir = file("$buildDir/distributions/")
+	archiveFileName = project.archivesBaseName + '-' + project.version + '.zip'
+	destinationDirectory = file("$buildDir/distributions/")
 }
 
 build.dependsOn distZip2
