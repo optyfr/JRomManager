@@ -650,7 +650,7 @@ ospackage {
 		include '*.jar'
 	}
 	from (jar)
-	from (project(':JUpdater').jar)
+//	from (project(':JUpdater').jar)
 	from (zipTree(distZip2.archivePath)) {
 		include 'wrapper/**'
 		include 'webclient/**'
