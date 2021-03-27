@@ -163,7 +163,7 @@ public class FullServer
 			httpConfig.setSecurePort(HTTPS_PORT);
 
 			// SSL Context Factory for HTTPS and HTTP/2
-			SslContextFactory sslContextFactory = new SslContextFactory.Server();
+			var sslContextFactory = new SslContextFactory.Server();
 			sslContextFactory.setKeyStoreType("PKCS12");
 			sslContextFactory.setKeyStorePath(KEY_STORE_PATH);
 			sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);

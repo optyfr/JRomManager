@@ -573,7 +573,7 @@ task distZip2(type: Zip, dependsOn: [jar, SevenZipJBindingAllPlatforms, ':WebCli
 		include '*.jar'
 	}
 	from (jar)
-	from (project(':JUpdater').jar)
+//	from (project(':JUpdater').jar)
 	from (new File(project(':WebClient').buildDir,"/gwt/out")) {
 		into('webclient')
 	}
@@ -674,12 +674,12 @@ ospackage {
 }
 
 buildDeb {
-	requires('java11-runtime').or('java12-runtime').or('java13-runtime').or('java14-runtime').or('java15-runtime')
+	requires('java11-runtime').or('java12-runtime').or('java13-runtime').or('java14-runtime').or('java15-runtime').or('java16-runtime')
 	arch = "all"
 }
 
 buildRpm {
-	requires('java', '1:11', EQUAL).or('java', '1:12', EQUAL).or('java', '1:13', EQUAL).or('java', '1:14', EQUAL).or('java', '1:15', EQUAL)
+	requires('java', '1:11', EQUAL).or('java', '1:12', EQUAL).or('java', '1:13', EQUAL).or('java', '1:14', EQUAL).or('java', '1:15', EQUAL).or('java', '1:16', EQUAL)
 	arch = NOARCH
 	os = LINUX
 	addParentDirs = false
@@ -727,10 +727,10 @@ jlink {
 		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
 	targetPlatform("win") {
-		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.8_10.zip")
+		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x86-32_windows_hotspot_11.0.10_9.zip")
 	}
 	targetPlatform("linux-x64") {
-		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.8_10.tar.gz")
+		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz")
 	}
 	jpackage {
 		installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
