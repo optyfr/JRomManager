@@ -1,3 +1,5 @@
+![Gradle Build](actions/workflows/gradle.yml/badge.svg)
+
 # JRomManager
 
 A Rom Manager entirely written in Java and released under GPL-2
