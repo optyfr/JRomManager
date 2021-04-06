@@ -1,4 +1,4 @@
-![Gradle Build](actions/workflows/gradle.yml/badge.svg)
+![Gradle Build](https://github.com/optyfr/JRomManager/actions/workflows/gradle.yml/badge.svg)
 
 # JRomManager
 
