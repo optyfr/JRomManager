@@ -1,7 +1,7 @@
 plugins {
 	id 'java' 
 	id "de.undercouch.download" version "4.1.1"
-	id "nebula.ospackage" version "8.4.1"
+	id "nebula.ospackage" version "8.5.6"
 	id "de.inetsoftware.setupbuilder" version "4.8.7"
 	id "io.freefair.lombok" version "5.3.3.3"
 //	id 'io.franzbecker.gradle-lombok' version '1.14'
