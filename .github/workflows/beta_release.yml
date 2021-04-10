@@ -9,6 +9,8 @@ jobs:
   build_linux:
     runs-on: ubuntu-latest
     steps:
+    - id: get_version
+      uses: battila7/get-version-action@v2
     - uses: actions/checkout@v2
       with:
         submodules: true
@@ -23,13 +25,13 @@ jobs:
     - name: Releasing
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "build/distributions/JRomManager-*-src.tgz,JRomManager/build/distributions/jrommanager_*_all.deb,jrommanager/build/distributions/jrommanager-*.noarch.rpm,jrommanager/build/distributions/JRomManager-*.zip"
+        artifacts: "build/distributions/JRomManager-*-src.tgz,JRomManager/build/distributions/jrommanager_*_all.deb,JRomManager/build/distributions/jrommanager-*.noarch.rpm,JRomManager/build/distributions/JRomManager-*.zip"
         draft: true
         prerelease: true
         allowUpdates: true
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
         replacesArtifacts: true
-        name: v${{ github.event.ref }}
-        tag: ${{ github.event.ref }}
+        name: ${{ steps.get_version.outputs.version }}
+        tag: ${{ steps.get_version.outputs.version-without-v }}
         token: ${{ secrets.GITHUB_TOKEN }}
