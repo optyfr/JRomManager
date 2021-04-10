@@ -119,7 +119,7 @@ jobs:
         java-version: 11
         
     - name: JPackage MSI with Gradle
-      run: ./gradlew :JRomManager:jpackage -PtargetPlatform=windows-x64 -PinstallerType=msi
+      run: ./gradlew :JRomManager:jpackage -PtargetPlatform=win -PinstallerType=msi
       env:
         JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
