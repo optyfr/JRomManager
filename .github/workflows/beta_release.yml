@@ -43,10 +43,10 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "build/distributions/JRomManager-*-src.tgz, JRomManager/build/distributions/jrommanager_*_*.deb, JRomManager/build/distributions/jrommanager-*.*.rpm, JRomManager/build/distributions/JRomManager-*.zip"
-        draft: true
+        draft: false
         prerelease: true
         allowUpdates: true
-        omitBodyDuringUpdate: true
+        bodyFile: "changelogs/${{ steps.get_version.outputs.version }}.md"
         omitNameDuringUpdate: true
         replacesArtifacts: true
         name: "v${{ steps.get_version.outputs.version }}"
@@ -61,7 +61,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "JRomManager/build/installer/*"
-        draft: true
+        draft: false
         prerelease: true
         allowUpdates: true
         omitBodyDuringUpdate: true
@@ -78,7 +78,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "JRomManager/build/installer/*"
-        draft: true
+        draft: false
         prerelease: true
         allowUpdates: true
         omitBodyDuringUpdate: true
@@ -122,7 +122,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "JRomManager/build/installer/*"
-        draft: true
+        draft: false
         prerelease: true
         allowUpdates: true
         omitBodyDuringUpdate: true
