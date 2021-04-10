@@ -3,7 +3,7 @@ plugins {
 	id "de.undercouch.download" version "4.1.1"
 	id "nebula.ospackage" version "8.4.1"
 	id "de.inetsoftware.setupbuilder" version "4.8.7"
-	id "io.freefair.lombok" version "5.2.1"
+	id "io.freefair.lombok" version "5.3.3.3"
 //	id 'io.franzbecker.gradle-lombok' version '1.14'
 //	id "edu.sc.seis.macAppBundle" version "2.3.0"
 	id "org.beryx.jlink" version "2.22.0"
