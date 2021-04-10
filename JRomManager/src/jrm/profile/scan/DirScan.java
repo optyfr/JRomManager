@@ -1117,7 +1117,7 @@ public final class DirScan extends PathAbstractor
 	 */
 	private Path getPath(final Entry entry) throws IOException
 	{
-		final FileSystem srcfs = FileSystems.newFileSystem(entry.parent.getFile().toPath(), null);
+		final FileSystem srcfs = FileSystems.newFileSystem(entry.parent.getFile().toPath(), (ClassLoader)null);
 		return srcfs.getPath(entry.getFile());
 	}
 

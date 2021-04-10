@@ -442,7 +442,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 			Files.createDirectories(destDir);
 		}
 
-		try (final FileSystem zipFileSystem = FileSystems.newFileSystem(zipFile, null))
+		try (final FileSystem zipFileSystem = FileSystems.newFileSystem(zipFile, (ClassLoader)null))
 		{
 			Log.debug(()->"unzipping : "+zipFile);
 			final Path root = zipFileSystem.getRootDirectories().iterator().next();

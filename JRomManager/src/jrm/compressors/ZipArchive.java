@@ -199,7 +199,7 @@ public class ZipArchive implements Archive
 		}
 		else*/
 		{
-			try(FileSystem srcfs = FileSystems.newFileSystem(archive.toPath(), null);)
+			try(FileSystem srcfs = FileSystems.newFileSystem(archive.toPath(), (ClassLoader)null);)
 			{
 				if(entry != null && !entry.isEmpty())
 					Files.copy(srcfs.getPath(entry), baseDir.toPath().resolve(entry));
@@ -274,7 +274,7 @@ public class ZipArchive implements Archive
 	
 	public int extract_custom(CustomVisitor sfv)
 	{
-		try(FileSystem srcfs = FileSystems.newFileSystem(archive.toPath(), null);)
+		try(FileSystem srcfs = FileSystems.newFileSystem(archive.toPath(), (ClassLoader)null);)
 		{
 			sfv.setFileSystem(srcfs);
 			sfv.setSourcePath(srcfs.getPath("/"));
