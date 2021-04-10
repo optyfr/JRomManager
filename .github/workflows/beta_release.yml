@@ -20,14 +20,16 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
-    - uses: ncipollo/release-action@v1
+    - name: Releasing
+      uses: ncipollo/release-action@v1
       with:
-        artifacts: "build/distributions/JRomManager-*-src.tgz,JRomManager/build/distributions/JRomManager_*_all.deb,JRomManager/build/distributions/JRomManager-*.noarch.rpm"
+        artifacts: "build/distributions/JRomManager-*-src.tgz,JRomManager/build/distributions/jrommanager_*_all.deb,jrommanager/build/distributions/JRomManager-*.noarch.rpm"
         draft: true
         prerelease: true
         allowUpdates: true
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
+        replacesArtifacts: true
         name: v${{ github.ref }}
         tag: ${{ github.ref }}
         token: ${{ secrets.GITHUB_TOKEN }}
