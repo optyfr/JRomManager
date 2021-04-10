@@ -1,9 +1,0 @@
-name: Dependabot
-version: 2
-updates:
-  - package-ecosystem: "gradle"
-    # path to build.gradle
-    directory: "/"
-    schedule:
-      interval: "daily"
-      
