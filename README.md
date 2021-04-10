@@ -1,4 +1,15 @@
+![GitHub top language](https://img.shields.io/github/languages/top/optyfr/JRomManager)
 ![Gradle Build](https://github.com/optyfr/JRomManager/actions/workflows/gradle.yml/badge.svg)
+![GitHub](https://img.shields.io/github/license/optyfr/JRomManager)
+![GitHub all releases](https://img.shields.io/github/downloads/optyfr/JRomManager/total?label=Downloads)
+
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/optyfr/JRomManager?label=Stable%20Release)
+![GitHub Release Date](https://img.shields.io/github/release-date/optyfr/JRomManager?label=Date)
+![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/optyfr/JRomManager/latest/total?label=Downloads)
+
+![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/optyfr/JRomManager?include_prereleases&label=Latest%20Release)
+![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/optyfr/JRomManager?label=Date)
+![GitHub release (latest by SemVer including pre-releases)](https://img.shields.io/github/downloads-pre/optyfr/JRomManager/latest/total?label=Downloads)
 
 # JRomManager
 
