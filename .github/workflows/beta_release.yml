@@ -22,10 +22,18 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Set up JDK 14
+      uses: actions/setup-java@v1
+      with:
+        java-version: 14
+    - name: JPackage DEB with Gradle
+      run: ./gradlew :JRomManager:jpackage -PtargetPlatform=linux-x64 -PinstallerType=deb
+    - name: JPackage RPM with Gradle
+      run: ./gradlew :JRomManager:jpackage -PtargetPlatform=linux-x64 -PinstallerType=rpm
     - name: Releasing
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "build/distributions/JRomManager-*-src.tgz,JRomManager/build/distributions/jrommanager_*_all.deb,JRomManager/build/distributions/jrommanager-*.noarch.rpm,JRomManager/build/distributions/JRomManager-*.zip"
+        artifacts: "build/distributions/JRomManager-*-src.tgz,JRomManager/build/distributions/jrommanager_*_*.deb,JRomManager/build/distributions/jrommanager-*.*.rpm,JRomManager/build/distributions/JRomManager-*.zip"
         draft: true
         prerelease: true
         allowUpdates: true
