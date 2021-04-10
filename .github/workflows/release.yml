@@ -3,11 +3,13 @@ name: Beta Release
 on: 
   push:
     tags:
-    - '[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+    - '*'
 
 jobs:
 
   build_linux:
+    env:
+      beta: ${{ github.ref.contains('beta') }}
     runs-on: ubuntu-latest
     steps:
     
@@ -44,7 +46,7 @@ jobs:
       with:
         artifacts: "build/distributions/JRomManager-*-src.tgz, JRomManager/build/distributions/jrommanager_*_*.deb, JRomManager/build/distributions/jrommanager-*.*.rpm, JRomManager/build/distributions/JRomManager-*.zip"
         draft: false
-        prerelease: true
+        prerelease: ${{ env.beta }}
         allowUpdates: true
         bodyFile: "changelogs/${{ steps.get_version.outputs.version }}.md"
         omitNameDuringUpdate: true
@@ -62,7 +64,7 @@ jobs:
       with:
         artifacts: "JRomManager/build/installer/*"
         draft: false
-        prerelease: true
+        prerelease: ${{ env.beta }}
         allowUpdates: true
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
@@ -79,7 +81,7 @@ jobs:
       with:
         artifacts: "JRomManager/build/installer/*"
         draft: false
-        prerelease: true
+        prerelease: ${{ env.beta }}
         allowUpdates: true
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
@@ -87,6 +89,8 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         
   build_windows:
+    env:
+      beta: ${{ github.ref.contains('beta') }}
     needs: build_linux
     runs-on: windows-latest
     steps:
@@ -123,7 +127,7 @@ jobs:
       with:
         artifacts: "JRomManager/build/installer/*"
         draft: false
-        prerelease: true
+        prerelease: ${{ env.beta }}
         allowUpdates: true
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
