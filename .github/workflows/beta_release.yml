@@ -49,8 +49,7 @@ jobs:
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
         replacesArtifacts: true
-        name: ${{ steps.get_version.outputs.version }}
-        tag: ${{ steps.get_version.outputs.version-without-v }}
+        name: "v${{ steps.get_version.outputs.version }}"
         token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: JPackage DEB with Gradle
@@ -68,8 +67,6 @@ jobs:
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
         replacesArtifacts: true
-        name: ${{ steps.get_version.outputs.version }}
-        tag: ${{ steps.get_version.outputs.version-without-v }}
         token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: JPackage RPM with Gradle
@@ -87,8 +84,6 @@ jobs:
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
         replacesArtifacts: true
-        name: ${{ steps.get_version.outputs.version }}
-        tag: ${{ steps.get_version.outputs.version-without-v }}
         token: ${{ secrets.GITHUB_TOKEN }}
         
   build_windows:
@@ -133,8 +128,6 @@ jobs:
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
         replacesArtifacts: true
-        name: ${{ steps.get_version.outputs.version }}
-        tag: ${{ steps.get_version.outputs.version-without-v }}
         token: ${{ secrets.GITHUB_TOKEN }}
         
         
