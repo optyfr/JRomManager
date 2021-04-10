@@ -673,10 +673,14 @@ jlink {
 	targetPlatform("linux-x64") {
 		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz")
 	}
+	targetPlatform("macos-x64") {
+		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_mac_hotspot_11.0.10_9.tar.gz")
+	}
 	jpackage {
 		installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
 		targetPlatformName = project.findProperty('targetPlatform') // we will pass this from the command line (example: -PtargetPlatform=win)
 		installerOutputDir = file("$buildDir/installer")
+		imageName = 'JRomManager'
 		icon = 'dist/JRomManager.ico'
 		if (installerType == 'msi') {
 			imageOptions += ['--icon', 'dist/JRomManager.ico']
@@ -694,6 +698,11 @@ jlink {
 				'--linux-menu-group', 'Utility',
 				'--linux-shortcut'
 			]
+		}
+		if (installerType == 'dmg') {
+/*			imageOptions += ['--icon', 'dist/JRomManager.png']
+			installerOptions += [
+			]*/
 		}
 	}	
 }
