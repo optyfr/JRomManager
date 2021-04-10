@@ -14,6 +14,15 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
+    - name: Set up JDK 14
+      uses: actions/setup-java@v1
+      with:
+        java-version: 14
+    - name: Retain JDK 14 Path
+      id: jdk14
+      run: echo 'JDK14 is ${{env.JDK14}}'
+      env:
+        JDK14: ${{env.JAVA_HOME}}
     - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
@@ -22,14 +31,14 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
-    - name: Set up JDK 14
-      uses: actions/setup-java@v1
-      with:
-        java-version: 14
     - name: JPackage DEB with Gradle
       run: ./gradlew :JRomManager:jpackage -PtargetPlatform=linux-x64 -PinstallerType=deb
+      env:
+        JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{steps.jdk14.env.JDK14}}
     - name: JPackage RPM with Gradle
       run: ./gradlew :JRomManager:jpackage -PtargetPlatform=linux-x64 -PinstallerType=rpm
+      env:
+        JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{steps.jdk14.env.JDK14}}
     - name: Releasing
       uses: ncipollo/release-action@v1
       with:
