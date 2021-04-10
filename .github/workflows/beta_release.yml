@@ -41,7 +41,7 @@ jobs:
     - name: Releasing
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "build/distributions/JRomManager-*-src.tgz,JRomManager/build/distributions/jrommanager_*_*.deb,JRomManager/build/distributions/jrommanager-*.*.rpm,JRomManager/build/distributions/JRomManager-*.zip"
+        artifacts: "build/distributions/JRomManager-*-src.tgz, JRomManager/build/distributions/jrommanager_*_*.deb, JRomManager/build/distributions/jrommanager-*.*.rpm, JRomManager/build/distributions/JRomManager-*.zip, JRomManager/build/installer/*"
         draft: true
         prerelease: true
         allowUpdates: true
