@@ -1,0 +1,33 @@
+name: Beta Release
+
+on: 
+  push:
+    tags:
+    - '*-beta.*'
+
+jobs:
+  build_linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew build
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: "build/distributions/JRomManager-*-src.tgz,JRomManager/build/distributions/JRomManager_*_all.deb,JRomManager/build/distributions/JRomManager-*.noarch.rpm"
+        draft: true
+        prerelease: true
+        allowUpdates: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        name: v${{ github.ref }}
+        tag: ${{ github.ref }}
+        token: ${{ secrets.GITHUB_TOKEN }}
