@@ -136,7 +136,7 @@ jobs:
         
   build_macos:
     env:
-      beta: ${{ github.ref.contains('beta') }}
+      beta: ${{contains(github.ref.contains, 'beta')}}
     needs: build_windows
     runs-on: macos-latest
     steps:
