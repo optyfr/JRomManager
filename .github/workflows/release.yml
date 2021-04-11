@@ -9,7 +9,7 @@ jobs:
 
   build_linux:
     env:
-      beta: ${{ github.ref.contains('beta') }}
+      beta: github.ref.contains('beta')
     runs-on: ubuntu-latest
     steps:
     
@@ -90,7 +90,7 @@ jobs:
         
   build_windows:
     env:
-      beta: ${{ github.ref.contains('beta') }}
+      beta: github.ref.contains('beta')
     needs: build_linux
     runs-on: windows-latest
     steps:
