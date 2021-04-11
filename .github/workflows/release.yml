@@ -117,6 +117,9 @@ jobs:
       with:
         java-version: 11
         
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
     - name: JPackage MSI with Gradle
       run: ./gradlew :JRomManager:jpackage -PtargetPlatform=win -PinstallerType=msi
       env:
