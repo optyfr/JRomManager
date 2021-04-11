@@ -136,11 +136,7 @@ jobs:
         
   build_macos:
     env:
-<<<<<<< HEAD
       beta: ${{contains(github.ref, 'beta')}}
-=======
-      beta: ${{contains(github.ref.contains, 'beta')}}
->>>>>>> branch 'master' of https://github.com/optyfr/JRomManager
     needs: build_windows
     runs-on: macos-latest
     steps:
@@ -182,5 +178,4 @@ jobs:
         omitNameDuringUpdate: true
         replacesArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
-        
         
