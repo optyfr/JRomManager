@@ -9,7 +9,7 @@ jobs:
 
   build_linux:
     env:
-      beta: ${{contains(github.ref.contains, 'beta')}}
+      beta: ${{contains(github.ref, 'beta')}}
     runs-on: ubuntu-latest
     steps:
     
@@ -90,7 +90,7 @@ jobs:
         
   build_windows:
     env:
-      beta: ${{contains(github.ref.contains, 'beta')}}
+      beta: ${{contains(github.ref, 'beta')}}
     needs: build_linux
     runs-on: windows-latest
     steps:
@@ -136,7 +136,7 @@ jobs:
         
   build_macos:
     env:
-      beta: ${{ github.ref.contains('beta') }}
+      beta: ${{contains(github.ref, 'beta')}}
     needs: build_windows
     runs-on: macos-latest
     steps:
@@ -155,7 +155,6 @@ jobs:
     - name: Retain JDK 14 Path
       id: jdk14
       run: |
-        chcp 65001 #set code page to utf-8
         echo ("JDK14=" + $env:JAVA_HOME) >> $env:GITHUB_ENV
         
     - name: Set up JDK 11
