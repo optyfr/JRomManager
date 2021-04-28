@@ -7,7 +7,7 @@ plugins {
 //	id 'io.franzbecker.gradle-lombok' version '1.14'
 //	id "edu.sc.seis.macAppBundle" version "2.3.0"
 	id "org.beryx.jlink" version "2.23.7"
-	id "org.javamodularity.moduleplugin" version "1.7.0"
+	id "org.javamodularity.moduleplugin" version "1.8.2"
 }
 
 apply plugin: 'java'
