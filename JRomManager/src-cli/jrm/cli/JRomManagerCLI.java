@@ -196,7 +196,10 @@ public class JRomManagerCLI
 								catch(DirectoryNotEmptyException e)
 								{
 									if(cmdline.hasOption('r'))	// recursively delete from bottom to top
-										Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+										try(final var stream = Files.walk(path))
+										{
+											stream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+										}
 								}
 							}
 							else
@@ -554,10 +557,19 @@ public class JRomManagerCLI
 			boolean force = cmdline.hasOption('f');
 			for(final String arg : cmdline.getArgList())
 			{
-				Path path = Paths.get(arg);
-				List<FileResult> frl = Files.isDirectory(path) ? Files.walk(path).filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.extensions)).map(p -> new FileResult(p)).collect(Collectors.toList()) : Arrays.asList(new FileResult(path));
-				AtomicInteger cnt = new AtomicInteger();
-				Compressor compressor = new Compressor(session, cnt, frl.size(), handler);
+				final var path = Paths.get(arg);
+				final List<FileResult> frl;
+				if(Files.isDirectory(path))
+				{
+					try(final var stream = Files.walk(path))
+					{
+						frl = stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.extensions)).map(FileResult::new).collect(Collectors.toList());
+					}
+				}
+				else
+					frl = Arrays.asList(new FileResult(path));
+				final var cnt = new AtomicInteger();
+				final var compressor = new Compressor(session, cnt, frl.size(), handler);
 				frl.parallelStream().forEach(fr -> {
 					Path file = fr.file;
 					cnt.incrementAndGet();
@@ -685,7 +697,10 @@ public class JRomManagerCLI
 
 	private int list() throws IOException
 	{
-		Files.walk(cwdir, 1).filter(p -> Files.isDirectory(p) && !p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p -> System.out.format("<DIR>\t%s\n", p)); //$NON-NLS-1$
+		try(final var stream = Files.walk(cwdir, 1))
+		{
+			stream.filter(p -> Files.isDirectory(p) && !p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p -> System.out.format("<DIR>\t%s\n", p)); //$NON-NLS-1$
+		}
 		for (val row : ProfileNFO.list(session, cwdir.toFile()))
 			System.out.format("<DAT>\t%s\n", row.getName()); //$NON-NLS-1$
 		return 0;

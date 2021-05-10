@@ -13,6 +13,31 @@ import java.util.zip.CRC32;
  */
 public abstract class MDigest
 {
+	public enum Algo
+	{
+		CRC32("CRC"), MD5("MD5"), SHA1("SHA-1");
+		
+		private String name;
+		
+		private Algo(String name)
+		{
+			this.name = name;
+		}
+		
+		public String getName()
+		{
+			return name;
+		}
+		
+		public static Algo fromName(String name)
+		{
+			for(var algo: Algo.values())
+				if(algo.name.equalsIgnoreCase(name))
+					return algo;
+			return null;
+		}
+	}
+	
 	/**
 	 * update digest with bytes input
 	 * @param input the bytes input
@@ -34,7 +59,7 @@ public abstract class MDigest
 	 * get the current named algorithm
 	 * @return the same string used when getting instance with {@link #getAlgorithm(String)}
 	 */
-	public abstract String getAlgorithm();
+	public abstract Algo getAlgorithm();
 	/**
 	 * reset the digest to 0 (for reuse)
 	 */
@@ -51,9 +76,9 @@ public abstract class MDigest
 	 * @return {@link MDigest}
 	 * @throws NoSuchAlgorithmException
 	 */
-	public static MDigest getAlgorithm(String algorithm) throws NoSuchAlgorithmException
+	public static MDigest getAlgorithm(Algo algorithm) throws NoSuchAlgorithmException
 	{
-		if(algorithm.equalsIgnoreCase("CRC")) //$NON-NLS-1$
+		if(algorithm==Algo.CRC32) //$NON-NLS-1$
 			return new CRCDigest();
 		return new MsgDigest(algorithm);
 	}
@@ -68,7 +93,7 @@ public abstract class MDigest
 	{
 		try(final InputStream is = new BufferedInputStream(in, 1024*1024))
 		{
-			final byte[] buffer = new byte[8192];
+			final var buffer = new byte[8192];
 			int len = is.read(buffer);
 			while(len != -1)
 			{

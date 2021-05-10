@@ -9,9 +9,9 @@ class MsgDigest extends MDigest
 {
 	private MessageDigest digest;
 	
-	MsgDigest(String algorithm) throws NoSuchAlgorithmException
+	MsgDigest(Algo algorithm) throws NoSuchAlgorithmException
 	{
-		digest = MessageDigest.getInstance(algorithm);
+		digest = MessageDigest.getInstance(algorithm.getName());
 	}
 	
 	@Override
@@ -27,9 +27,9 @@ class MsgDigest extends MDigest
 	}
 
 	@Override
-	public String getAlgorithm()
+	public Algo getAlgorithm()
 	{
-		return digest.getAlgorithm();
+		return Algo.fromName(digest.getAlgorithm());
 	}
 
 	@Override

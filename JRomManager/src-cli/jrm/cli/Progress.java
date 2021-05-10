@@ -12,21 +12,16 @@ public class Progress implements ProgressHandler
 	private Integer max = null;
 	private boolean quiet = false;
 	
-	public Progress()
-	{
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
+		// not implemented
 	}
 
 	@Override
 	public void clearInfos()
 	{
-		// TODO Auto-generated method stub
-
+		// not implemented
 	}
 
 	@Override
@@ -37,68 +32,63 @@ public class Progress implements ProgressHandler
 		if (msg != null && !msg.isEmpty() && !quiet)
 		{
 			if (val != null && val > 0)
-				System.out.format("%s (%d/%d)\n", msg, val, this.max);
+				System.out.format("%s (%d/%d)%n", msg, val, this.max);
 			else
-				System.out.format("%s\n", msg);
+				System.out.format("%s%n", msg);
 		}
 	}
 
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
+		// not implemented
 	}
 
 	@Override
 	public void setProgress3(String msg, Integer val, Integer max)
 	{
+		// not implemented
 	}
 
 	@Override
 	public int getValue()
 	{
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public int getValue2()
 	{
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public int getValue3()
 	{
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public boolean isCancel()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void cancel()
 	{
-		// TODO Auto-generated method stub
-
+		// not implemented
 	}
 
 	@Override
 	public void canCancel(boolean canCancel)
 	{
-		// TODO Auto-generated method stub
-
+		// not implemented
 	}
 
 	@Override
 	public boolean canCancel()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 

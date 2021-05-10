@@ -29,6 +29,7 @@ public enum CMD_TRNTCHK
 		return UNKNOWN;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return names.stream().findFirst().orElse(super.toString());

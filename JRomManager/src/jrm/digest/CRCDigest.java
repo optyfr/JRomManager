@@ -19,9 +19,9 @@ class CRCDigest extends MDigest
 	}
 
 	@Override
-	public String getAlgorithm()
+	public Algo getAlgorithm()
 	{
-		return "CRC"; //$NON-NLS-1$
+		return Algo.CRC32; //$NON-NLS-1$
 	}
 
 	@Override
