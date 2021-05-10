@@ -18,15 +18,15 @@ public class CatVerXMLResponse extends XMLResponse
 
 	private int countNode(CatVer catver)
 	{
-		int count = 0;
+		var count = 0;
 		if(catver!=null)
 		{
 			count++;
-			for(int i = 0; i < catver.getListCategories().size(); i++)
+			for(var i = 0; i < catver.getListCategories().size(); i++)
 			{
 				count++;
-				Category cat = (Category)catver.getListCategories().get(i);
-				for(int j = 0; j < cat.getListSubCategories().size(); j++)
+				final var cat = catver.getListCategories().get(i);
+				for(var j = 0; j < cat.getListSubCategories().size(); j++)
 					count++;
 			}
 		}
@@ -41,7 +41,7 @@ public class CatVerXMLResponse extends XMLResponse
 			writer.writeAttribute("ID", catver.getPropertyName());
 			writer.writeAttribute("Name", request.session.msgs.getString("CatVer.AllCategories"));
 			writer.writeAttribute("ParentID", "1");
-			writer.writeAttribute("isFolder", Boolean.toString(catver.getListCategories().size()!=0));
+			writer.writeAttribute("isFolder", Boolean.toString(!catver.getListCategories().isEmpty()));
 			writer.writeAttribute("isSelected", Boolean.toString(catver.isSelected()));
 			writer.writeAttribute("isOpen", Boolean.TRUE.toString());
 			writer.writeEndElement();
@@ -51,7 +51,7 @@ public class CatVerXMLResponse extends XMLResponse
 				writer.writeAttribute("ID", cat.getPropertyName());
 				writer.writeAttribute("Name", cat.name);
 				writer.writeAttribute("ParentID", catver.getPropertyName());
-				writer.writeAttribute("isFolder", Boolean.toString(cat.getListSubCategories().size()!=0));
+				writer.writeAttribute("isFolder", Boolean.toString(!cat.getListSubCategories().isEmpty()));
 				writer.writeAttribute("isSelected", Boolean.toString(cat.isSelected()));
 				byte isOpen = 0;
 				for(SubCategory subcat : cat)

@@ -566,7 +566,7 @@ public class Scan extends PathAbstractor
 		String name = file.getName();
 		final int last = name.lastIndexOf('.');
 		if(last > 0)
-			if(name.substring(last).indexOf(' ')==-1)
+			if(name.indexOf(' ', last)==-1)
 				name = name.substring(0, last);
 		return name;
 	}

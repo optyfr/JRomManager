@@ -54,7 +54,7 @@ public class RemoteRootChooserXMLResponse extends XMLResponse
 					if(Files.isDirectory(root) && Files.exists(root))
 						paths.put((root.getFileName() != null ? root.getFileName() : root).toString(), root);
 				}
-				catch(Throwable e)
+				catch(Exception e)
 				{
 				}
 			}
@@ -62,7 +62,7 @@ public class RemoteRootChooserXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Long.toString(paths.size()-1));
+		writer.writeElement("endRow", Long.toString(paths.size()-1L));
 		writer.writeElement("totalRows", Long.toString(paths.size()));
 		writer.writeStartElement("data");
 		for(val root : paths.entrySet())

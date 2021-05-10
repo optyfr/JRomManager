@@ -57,7 +57,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 				request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,SrcDstResult.toJSON(sdrl));
 				request.getSession().getUser().getSettings().saveSettings();
 			}
-			final SrcDstResult sdr = new SrcDstResult(operation.getData("src"));
+			final var sdr = new SrcDstResult(operation.getData("src"));
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(s->s.src.equals(operation.getData("src"))).findAny();
 			if(!candidate.isPresent())
 			{

@@ -33,7 +33,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 		writer.writeElement("endRow", Integer.toString(rows.size() - 1));
 		writer.writeElement("totalRows", Integer.toString(rows.size()));
 		writer.writeStartElement("data");
-		for (int i = 0; i < rows.size(); i++)
+		for (var i = 0; i < rows.size(); i++)
 		{
 			writer.writeEmptyElement("record");
 			writer.writeAttribute("Name", rows.get(i).getName());
@@ -67,7 +67,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 					Path dst = dir.resolve(operation.getData("File"));
 					if (!src.equals(dst))
 						Files.copy(src, dst, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-					ProfileNFO nfo = ProfileNFO.load(request.getSession(), dst.toFile());
+					final var nfo = ProfileNFO.load(request.getSession(), dst.toFile());
 					writer.writeStartElement("response");
 					writer.writeElement("status", "0");
 					writer.writeStartElement("data");

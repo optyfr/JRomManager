@@ -69,7 +69,7 @@ import lombok.Getter;
 		{
 			password = Argon2Factory.create(Argon2Types.ARGON2id).hash(40, 65536, 4, password.toCharArray());
 		}
-		catch (Throwable e)
+		catch (Exception e)
 		{
 			password = BCrypt.hashpw(password, BCrypt.gensalt());
 		}

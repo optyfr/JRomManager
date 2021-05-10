@@ -44,8 +44,8 @@ public class TempFileInputStream extends FileInputStream
 
 	public static InputStream newInstance(InputStream in, long len, boolean close) throws IOException
 	{
-		File tmpfile = File.createTempFile("JRMSRV", null);
-		try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(tmpfile));)
+		final var tmpfile = File.createTempFile("JRMSRV", null);
+		try (final var out = new BufferedOutputStream(new FileOutputStream(tmpfile));)
 		{
 			if (len < 0)
 				for (int b = in.read(); b != -1; b = in.read())
@@ -55,7 +55,6 @@ public class TempFileInputStream extends FileInputStream
 					out.write(in.read());
 			if (close)
 				in.close();
-			out.close();
 		}
 		return new TempFileInputStream(tmpfile);
 	}

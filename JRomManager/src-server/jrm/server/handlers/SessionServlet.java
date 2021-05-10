@@ -31,13 +31,13 @@ public class SessionServlet extends HttpServlet
 			resp.setContentType("text/json");
 			val ws = (WebSession)req.getSession().getAttribute("session");
 			val sessionid = req.getSession().getId();
-			String msg = new JsonObject()
+			var msg = new JsonObject()
 			{{
 				add("session", sessionid);
 				add("msgs", new JsonObject()
 				{{
 					List<LanguageRange> lr = LanguageRange.parse(req.getHeader("accept-language"));
-					ResourceBundle rb = ws.msgs = Messages.loadBundle(lr.size() > 0 ? Locale.lookup(lr, Arrays.asList(Locale.getAvailableLocales())) : Locale.getDefault());
+					ResourceBundle rb = ws.msgs = Messages.loadBundle(!lr.isEmpty() ? Locale.lookup(lr, Arrays.asList(Locale.getAvailableLocales())) : Locale.getDefault());
 					rb.keySet().forEach(k -> {
 						if (k != null && !k.isEmpty())
 							add(k, rb.getString(k));

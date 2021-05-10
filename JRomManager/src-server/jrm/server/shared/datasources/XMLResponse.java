@@ -28,7 +28,7 @@ public abstract class XMLResponse implements Closeable
 	protected final EnhancedXMLStreamWriter writer;
 	protected PathAbstractor pathAbstractor;
 
-	public XMLResponse(XMLRequest request) throws Exception
+	protected XMLResponse(XMLRequest request) throws Exception
 	{
 		this.request = request;
 		pathAbstractor = new PathAbstractor(request.getSession());
@@ -216,7 +216,9 @@ public abstract class XMLResponse implements Closeable
 
 	protected <T> void fetch_list(Operation operation, List<T> list, fetchListCallback<T> cb) throws Exception
 	{
-		final int start, end, count = list.size();
+		final int start;
+		final int end;
+		final int count = list.size();
 		writer.writeElement("startRow", Integer.toString(start = Math.min(count - 1, operation.getStartRow())));
 		writer.writeElement("endRow", Integer.toString(end = Math.min(count - 1, operation.getEndRow())));
 		writer.writeElement("totalRows", Integer.toString(count));
@@ -235,11 +237,12 @@ public abstract class XMLResponse implements Closeable
 
 	protected <T> void fetch_stream(Operation operation, Stream<T> stream, fetchStreamCallback<T> cb) throws Exception
 	{
-		final int start = operation.getStartRow(), end = operation.getEndRow();
+		final int start = operation.getStartRow();
+		final int end = operation.getEndRow();
 		final var range = Range.between(start, end);
 		final int[] count = { 0 };
 		writer.writeStartElement("data");
-		stream.peek(o -> count[0]++).filter(o -> range.contains(count[0])).forEachOrdered(cb::apply);
+		stream.filter(o -> range.contains(++count[0])).forEachOrdered(cb::apply);
 		writer.writeEndElement();
 		writer.writeElement("startRow", Integer.toString(Math.min(count[0] - 1, start)));
 		writer.writeElement("endRow", Integer.toString(Math.min(count[0] - 1, end)));

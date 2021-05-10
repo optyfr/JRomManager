@@ -1,7 +1,6 @@
 package jrm.server.shared.datasources;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,6 +10,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.apache.commons.io.FileUtils;
 
 import jrm.misc.Log;
+import jrm.misc.Tree.Node;
 import jrm.profile.manager.Dir;
 import jrm.profile.manager.DirTree;
 import jrm.server.shared.datasources.XMLRequest.Operation;
@@ -24,9 +24,9 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		super(request);
 	}
 
-	private int countNode(DirTree.Node<Dir> node)
+	private int countNode(Node<Dir> node)
 	{
-		int count = 0;
+		var count = 0;
 		for(val child : node)
 		{
 			if (child.getChildCount() > 0)
@@ -37,9 +37,9 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		return ++count;
 	}
 
-	private void outputNode(XMLStreamWriter writer, DirTree.Node<Dir> node, String parentID, AtomicInteger id) throws XMLStreamException
+	private void outputNode(XMLStreamWriter writer, Node<Dir> node, String parentID, AtomicInteger id) throws XMLStreamException
 	{
-		String strID = id.toString();
+		var strID = id.toString();
 		if (id.get() > 0)
 		{
 			request.getSession().putProfileList(id.get(), node.getData().getFile().toPath());
@@ -64,7 +64,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	{
 		val rootpath = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
 		Files.createDirectories(rootpath);
-		DirTree root = new DirTree(rootpath.toFile());
+		val root = new DirTree(rootpath.toFile());
 		int nodecount = countNode(root.getRoot());
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
@@ -81,11 +81,11 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	protected void add(Operation operation) throws Exception
 	{
 	//	DirNode root = new DirNode(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
-		int key = request.getSession().getLastProfileListKey()+1;
-		String basepath = operation.getData("Path");
+		var key = request.getSession().getLastProfileListKey()+1;
+		var basepath = operation.getData("Path");
 		if(basepath==null || basepath.isEmpty())
 			basepath = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toString();
-		Path path = Files.createDirectory(Paths.get(basepath, operation.getData("title")));
+		var path = Files.createDirectory(Paths.get(basepath, operation.getData("title")));
 		request.getSession().putProfileList(key, path);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
@@ -104,17 +104,17 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	@Override
 	protected void update(Operation operation) throws Exception
 	{
-		Integer ID = Integer.valueOf(operation.getData("ID"));
-		Path path = request.getSession().getProfileList(ID);
+		var id = Integer.valueOf(operation.getData("ID"));
+		var path = request.getSession().getProfileList(id);
 		Log.debug(path);
-		String title = operation.getData("title");
+		var title = operation.getData("title");
 		path = Files.move(path, path.getParent().resolve(title));
-		request.getSession().putProfileList(ID, path);
+		request.getSession().putProfileList(id, path);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeStartElement("data");
 		writer.writeStartElement("record");
-		writer.writeAttribute("ID", ID.toString());
+		writer.writeAttribute("ID", id.toString());
 		writer.writeAttribute("Path", pathAbstractor.getRelativePath(path).toString());
 		writer.writeAttribute("title", title);
 		writer.writeAttribute("isFolder", "true");
@@ -127,15 +127,15 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	@Override
 	protected void remove(Operation operation) throws Exception
 	{
-		Integer ID = Integer.valueOf(operation.getData("ID"));
-		Path path = request.getSession().getProfileList(ID);
+		var id = Integer.valueOf(operation.getData("ID"));
+		var path = request.getSession().getProfileList(id);
 		FileUtils.deleteDirectory(path.toFile());
-		request.getSession().removeProfileList(ID);
+		request.getSession().removeProfileList(id);
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeStartElement("data");
 		writer.writeStartElement("record");
-		writer.writeAttribute("ID", ID.toString());
+		writer.writeAttribute("ID", id.toString());
 		writer.writeEndElement();
 		writer.writeEndElement();
 		writer.writeEndElement();
