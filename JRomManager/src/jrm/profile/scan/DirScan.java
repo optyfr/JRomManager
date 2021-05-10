@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
@@ -145,7 +146,7 @@ public final class DirScan extends PathAbstractor
 	/**
 	 * contains the detected suspicious CRCs from profile
 	 */
-	private HashSet<String> suspicious_crc = null; 
+	private Set<String> suspicious_crc = null; 
 
 	/**
 	 * the current session
@@ -232,13 +233,13 @@ public final class DirScan extends PathAbstractor
 				options.add(Options.FORMAT_TZIP);
 			else if (FormatOptions.DIR == format)
 				options.add(Options.RECURSE);
-			if (profile.md5_roms)
+			if (profile.md5Roms)
 				options.add(Options.MD5_ROMS);
-			if (profile.md5_disks)
+			if (profile.md5Disks)
 				options.add(Options.MD5_DISKS);
-			if (profile.sha1_roms)
+			if (profile.sha1Roms)
 				options.add(Options.SHA1_ROMS);
-			if (profile.sha1_disks)
+			if (profile.sha1Disks)
 				options.add(Options.SHA1_DISKS);
 		}
 		return options;
@@ -267,7 +268,7 @@ public final class DirScan extends PathAbstractor
 	 */
 	DirScan(final Profile profile, final File dir, final ProgressHandler handler, final boolean is_dest) throws BreakException
 	{
-		this(profile.session, dir, handler, profile.suspicious_crc, getOptions(profile, is_dest));
+		this(profile.session, dir, handler, profile.suspiciousCRC, getOptions(profile, is_dest));
 	}
 	
 	/**
@@ -290,7 +291,7 @@ public final class DirScan extends PathAbstractor
 	 * @param options an {@link EnumSet} of {@link Options}
 	 * @throws BreakException in case user stopped processing thru {@link ProgressHandler}
 	 */
-	private DirScan(final Session session, final File dir, final ProgressHandler handler, final HashSet<String> suspicious_crc, EnumSet<Options> options) throws BreakException
+	private DirScan(final Session session, final File dir, final ProgressHandler handler, final Set<String> suspicious_crc, EnumSet<Options> options) throws BreakException
 	{
 		super(session);
 		this.session = session;

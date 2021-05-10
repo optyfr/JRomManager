@@ -481,9 +481,9 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 			});
 			report_w.println();
 			report_w.println("=== Statistics ===");
-			report_w.println(String.format(Messages.getString("Report.MissingSets"), stats.missing_set_cnt, profile.machines_cnt)); //$NON-NLS-1$
-			report_w.println(String.format(Messages.getString("Report.MissingRoms"), stats.missing_roms_cnt, profile.roms_cnt)); //$NON-NLS-1$
-			report_w.println(String.format(Messages.getString("Report.MissingDisks"), stats.missing_disks_cnt, profile.disks_cnt)); //$NON-NLS-1$
+			report_w.println(String.format(Messages.getString("Report.MissingSets"), stats.missing_set_cnt, profile.machinesCnt)); //$NON-NLS-1$
+			report_w.println(String.format(Messages.getString("Report.MissingRoms"), stats.missing_roms_cnt, profile.romsCnt)); //$NON-NLS-1$
+			report_w.println(String.format(Messages.getString("Report.MissingDisks"), stats.missing_disks_cnt, profile.disksCnt)); //$NON-NLS-1$
 			int total = stats.set_create + stats.set_found + stats.set_missing;
 			int ok = stats.set_create_complete + stats.set_found_fixcomplete + stats.set_found_ok;
 			report_w.println(String.format("Missing sets after Fix : %d\n", total - ok)); //$NON-NLS-1$

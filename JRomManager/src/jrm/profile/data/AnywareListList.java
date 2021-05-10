@@ -40,7 +40,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	public Profile profile;
 
 	/**
-	 * {@link T} list cache (according current {@link Profile#filter_ll})
+	 * {@link T} list cache (according current {@link Profile#filterListLists})
 	 */
 	protected transient List<T> filtered_list;
 

@@ -79,7 +79,7 @@ public class DirUpdater
 					else
 						progress.setProgress3(String.format("%s (%d/%d)", FilenameUtils.getBaseName(datlist[j].getName()), j , datlist.length), j, datlist.length);
 					session.report.setProfile(Profile.load(session, datlist[j], progress));
-					if(session.curr_profile.softwares_list_cnt>0 && dat.isDirectory())
+					if(session.curr_profile.softwaresListCnt>0 && dat.isDirectory())
 						session.curr_profile.setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
 					else
 						session.curr_profile.setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getAbsolutePath()); //$NON-NLS-1$

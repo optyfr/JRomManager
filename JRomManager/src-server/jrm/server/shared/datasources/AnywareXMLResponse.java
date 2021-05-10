@@ -34,9 +34,9 @@ public class AnywareXMLResponse extends XMLResponse
 		if(list==null)
 			al = null;
 		else if(list.equals("*"))
-			al = request.session.curr_profile.machinelist_list.get(0);
+			al = request.session.curr_profile.machineListList.get(0);
 		else
-			al = request.session.curr_profile.machinelist_list.softwarelist_list.getByName(list);
+			al = request.session.curr_profile.machineListList.softwarelist_list.getByName(list);
 		return al;
 	}
 	

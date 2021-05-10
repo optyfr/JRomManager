@@ -116,7 +116,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	public List<SoftwareList> getFilteredList()
 	{
 		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> profile.filter_ll.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			filtered_list = getFilteredStream().filter(t -> profile.filterListLists.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
 

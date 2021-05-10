@@ -48,7 +48,7 @@ public abstract class AnywareBase extends NameBase implements Serializable
 	/**
 	 * {@link AnywareBase} can have parent of the same type
 	 */
-	public transient AnywareBase parent = null;
+	protected transient AnywareBase parent = null;
 	
 	/**
 	 * get the parent casted according the given class

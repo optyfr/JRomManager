@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import jrm.profile.Profile;
@@ -39,9 +40,9 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	Profile profile;
 
 	/**
-	 * {@link T} list cache (according current {@link Profile#filter_l})
+	 * {@link T} list cache (according current {@link Profile#filterList})
 	 */
-	protected transient List<T> filtered_list;
+	protected transient List<T> filteredList;
 
 	/**
 	 * The constructor, will initialize transients fields
@@ -69,7 +70,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	protected void initTransient()
 	{
-		filtered_list = null;
+		filteredList = null;
 	}
 
 	/**
@@ -83,7 +84,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	public void resetCache()
 	{
-		this.filtered_list = null;
+		this.filteredList = null;
 	}
 
 	/**
@@ -92,12 +93,12 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	public void setFilterCache(final EnumSet<AnywareStatus> filter)
 	{
-		profile.filter_l = filter;
+		profile.filterList = filter;
 	}
 	
-	public EnumSet<AnywareStatus> getFilter()
+	public Set<AnywareStatus> getFilter()
 	{
-		return profile.filter_l;
+		return profile.filterList;
 	}
 
 	/**
@@ -258,7 +259,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
-		boolean ok = false;
+		var ok = false;
 		for(final Iterator<T> iterator = getFilteredStream().iterator(); iterator.hasNext();)
 		{
 			final AnywareStatus estatus = iterator.next().getStatus();

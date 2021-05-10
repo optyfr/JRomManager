@@ -440,7 +440,7 @@ public class ProfileViewer extends JDialog
 		tableWL = new JTable();
 		scrollPaneWL.setViewportView(tableWL);
 		tableWL.setPreferredScrollableViewportSize(new Dimension(300, 400));
-		tableWL.setModel(new MachineListListModel(profile.machinelist_list));
+		tableWL.setModel(new MachineListListModel(profile.machineListList));
 		tableWL.setTableHeader(new JTableHeader(tableWL.getColumnModel())
 		{
 			@Override
@@ -521,15 +521,15 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void popupMenuWillBecomeVisible(final PopupMenuEvent e)
 			{
-				final boolean has_machines = session.curr_profile.machinelist_list.getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
-				final boolean has_filtered_machines = session.curr_profile.machinelist_list.getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
+				final boolean has_machines = session.curr_profile.machineListList.getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
+				final boolean has_filtered_machines = session.curr_profile.machineListList.getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
 				final boolean has_selected_swlist = tableWL.getSelectedRowCount() == 1 && tableWL.getModel() instanceof AnywareListList<?> && ((MachineListListModel) tableWL.getModel()).getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
 				mntmAllAsMameDat.setEnabled(has_machines);
 				mntmAllAsLogiqxDat.setEnabled(has_machines);
-				mntmAllAsSoftwareLists.setEnabled(session.curr_profile.machinelist_list.softwarelist_list.size() > 0);
+				mntmAllAsSoftwareLists.setEnabled(session.curr_profile.machineListList.softwarelist_list.size() > 0);
 				mntmFilteredAsMameDat.setEnabled(has_filtered_machines);
 				mntmFilteredAsLogiqxDat.setEnabled(has_filtered_machines);
-				mntmFilteredAsSoftwareLists.setEnabled(session.curr_profile.machinelist_list.softwarelist_list.getFilteredStream().count() > 0);
+				mntmFilteredAsSoftwareLists.setEnabled(session.curr_profile.machineListList.softwarelist_list.getFilteredStream().count() > 0);
 				mntmSelectedAsSoftwareLists.setEnabled(has_selected_swlist);
 				mntmSelectedFilteredAsSoftwareList.setEnabled(has_selected_swlist);
 			}
@@ -653,7 +653,7 @@ public class ProfileViewer extends JDialog
 											if (profile.getProperty(SettingsEnum.swdisks_dest_dir_enabled, false)) //$NON-NLS-1$
 												rompaths.add(profile.getProperty(SettingsEnum.swdisks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
 											Log.debug(()->((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility); //$NON-NLS-1$
-											JList<Machine> machines = new JList<Machine>(profile.machinelist_list.getSortedMachines(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility).toArray(new Machine[0]));
+											JList<Machine> machines = new JList<Machine>(profile.machineListList.getSortedMachines(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility).toArray(new Machine[0]));
 											machines.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 											if (machines.getModel().getSize() > 0)
 												machines.setSelectedIndex(0);
@@ -1014,7 +1014,7 @@ public class ProfileViewer extends JDialog
 	 */
 	public void reset(final Profile profile)
 	{
-		final MachineListListModel model = new MachineListListModel(profile.machinelist_list);
+		final MachineListListModel model = new MachineListListModel(profile.machineListList);
 		model.reset();
 		if (tableWL.getModel() != model)
 			tableWL.setModel(model);

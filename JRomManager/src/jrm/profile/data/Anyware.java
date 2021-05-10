@@ -89,7 +89,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	protected transient boolean collision;
 
 	/**
-	 * entities list cache (according current {@link Profile#filter_e})
+	 * entities list cache (according current {@link Profile#filterEntities})
 	 */
 	private transient List<EntityBase> table_entities;
 
@@ -419,7 +419,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public void setFilterCache(final EnumSet<EntityStatus> filter)
 	{
-		profile.filter_e = filter;
+		profile.filterEntities = filter;
 	}
 
 	/**
@@ -429,7 +429,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	public List<EntityBase> getEntities()
 	{
 		if (table_entities == null)
-			table_entities = Stream.of(roms.stream(), disks.stream(), samples.stream()).flatMap(s -> s).filter(t -> profile.filter_e.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			table_entities = Stream.of(roms.stream(), disks.stream(), samples.stream()).flatMap(s -> s).filter(t -> profile.filterEntities.contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return table_entities;
 	}
 

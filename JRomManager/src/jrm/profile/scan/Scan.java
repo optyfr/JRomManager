@@ -334,24 +334,24 @@ public class Scan extends PathAbstractor
 		final ArrayList<Container> unneeded = new ArrayList<>();
 		final ArrayList<Container> samples_unknown = new ArrayList<>();
 		final ArrayList<Container> samples_unneeded = new ArrayList<>();
-		if (profile.machinelist_list.get(0).size() > 0)
+		if (profile.machineListList.get(0).size() > 0)
 		{
-			profile.machinelist_list.get(0).resetFilteredName();
-			roms_dstscan = dirscan(profile.machinelist_list.get(0), roms_dstdir, unknown, unneeded, handler);
+			profile.machineListList.get(0).resetFilteredName();
+			roms_dstscan = dirscan(profile.machineListList.get(0), roms_dstdir, unknown, unneeded, handler);
 			if (roms_dstdir.equals(disks_dstdir))
 				disks_dstscan = roms_dstscan;
 			else
-				disks_dstscan = dirscan(profile.machinelist_list.get(0), disks_dstdir, unknown, unneeded, handler);
+				disks_dstscan = dirscan(profile.machineListList.get(0), disks_dstdir, unknown, unneeded, handler);
 			if (samples_dstdir != null && samples_dstdir.isDirectory())
-				samples_dstscan = dirscan(profile.machinelist_list.get(0).samplesets, samples_dstdir, samples_unknown, samples_unneeded, handler);
+				samples_dstscan = dirscan(profile.machineListList.get(0).samplesets, samples_dstdir, samples_unknown, samples_unneeded, handler);
 			if (handler.isCancel())
 				throw new BreakException();
 		}
-		if (profile.machinelist_list.softwarelist_list.size() > 0)
+		if (profile.machineListList.softwarelist_list.size() > 0)
 		{
 			final AtomicInteger j = new AtomicInteger();
-			handler.setProgress2(String.format("%d/%d", j.get(), profile.machinelist_list.softwarelist_list.size()), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
-			for (final SoftwareList sl : profile.machinelist_list.softwarelist_list.getFilteredStream().collect(Collectors.toList()))
+			handler.setProgress2(String.format("%d/%d", j.get(), profile.machineListList.softwarelist_list.size()), j.get(), profile.machineListList.softwarelist_list.size()); //$NON-NLS-1$
+			for (final SoftwareList sl : profile.machineListList.softwarelist_list.getFilteredStream().collect(Collectors.toList()))
 			{
 				sl.resetFilteredName();
 				File sldir = new File(swroms_dstdir, sl.getName());
@@ -363,7 +363,7 @@ public class Scan extends PathAbstractor
 					sldir = new File(swdisks_dstdir, sl.getName());
 					swdisks_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
 				}
-				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machinelist_list.softwarelist_list.size(), sl.getName()), j.get(), profile.machinelist_list.softwarelist_list.size()); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machineListList.softwarelist_list.size(), sl.getName()), j.get(), profile.machineListList.softwarelist_list.size()); //$NON-NLS-1$
 				if (handler.isCancel())
 					throw new BreakException();
 			}
@@ -435,7 +435,7 @@ public class Scan extends PathAbstractor
 			/*
 			 * report suspicious CRCs
 			 */
-			profile.suspicious_crc.forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
+			profile.suspiciousCRC.forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
 
 			/*
 			 * Searching for fixes
@@ -444,7 +444,7 @@ public class Scan extends PathAbstractor
 			final AtomicInteger j = new AtomicInteger();
 			handler.setProgress(null, i.get(), profile.filteredSubsize()); //$NON-NLS-1$
 			handler.setProgress2(String.format("%s %d/%d", Messages.getString("Scan.SearchingForFixes"), j.get(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
-			if (profile.machinelist_list.get(0).size() > 0)
+			if (profile.machineListList.get(0).size() > 0)
 			{
 				
 				/* Scan all samples */
@@ -456,21 +456,21 @@ public class Scan extends PathAbstractor
 					handler.setProgress(set.getName(), i.getAndIncrement());
 					if (samples_dstscan != null)
 						scanSamples(set);
-				}).start(StreamSupport.stream(profile.machinelist_list.get(0).samplesets.spliterator(),false));
+				}).start(StreamSupport.stream(profile.machineListList.get(0).samplesets.spliterator(),false));
 				/* scan all machines */ 
-				profile.machinelist_list.get(0).forEach(Machine::resetCollisionMode);
+				profile.machineListList.get(0).forEach(Machine::resetCollisionMode);
 				new MultiThreading<Machine>(nThreads, m ->
 				{
 					if (handler.isCancel())
 						return;
 					handler.setProgress(m.getFullName(), i.getAndIncrement());
 					scanWare(m);
-				}).start(profile.machinelist_list.get(0).getFilteredStream());
+				}).start(profile.machineListList.get(0).getFilteredStream());
 			}
-			if (profile.machinelist_list.softwarelist_list.size() > 0)
+			if (profile.machineListList.softwarelist_list.size() > 0)
 			{
 				/* scan all software lists */
-				profile.machinelist_list.softwarelist_list.getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
+				profile.machineListList.softwarelist_list.getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
 					// for each software list
 					handler.setProgress2(String.format("%s %d/%d (%s)", Messages.getString("Scan.SearchingForFixes"), j.get(), profile.size(), sl.getName()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
 					roms_dstscan = swroms_dstscans.get(sl.getName());
@@ -506,9 +506,9 @@ public class Scan extends PathAbstractor
 			report.flush();
 			/* update and save stats */
 			profile.nfo.stats.scanned = new Date();
-			profile.nfo.stats.haveSets = Stream.concat(profile.machinelist_list.stream(), profile.machinelist_list.softwarelist_list.stream()).mapToLong(AnywareList::countHave).sum();
-			profile.nfo.stats.haveRoms = Stream.concat(profile.machinelist_list.stream(), profile.machinelist_list.softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum();
-			profile.nfo.stats.haveDisks = Stream.concat(profile.machinelist_list.stream(), profile.machinelist_list.softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum();
+			profile.nfo.stats.haveSets = Stream.concat(profile.machineListList.stream(), profile.machineListList.softwarelist_list.stream()).mapToLong(AnywareList::countHave).sum();
+			profile.nfo.stats.haveRoms = Stream.concat(profile.machineListList.stream(), profile.machineListList.softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum();
+			profile.nfo.stats.haveDisks = Stream.concat(profile.machineListList.stream(), profile.machineListList.softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum();
 			profile.nfo.save(profile.session);
 			/* save again profile cache with scan entity status */
 			profile.save(); 

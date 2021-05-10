@@ -189,11 +189,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	@Override
 	public List<Machine> getFilteredList()
 	{
-		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(machine -> {
-				return profile.filter_l.contains(machine.getStatus());
+		if(filteredList == null)
+			filteredList = getFilteredStream().filter(machine -> {
+				return profile.filterList.contains(machine.getStatus());
 			}).sorted().collect(Collectors.toList());
-		return filtered_list;
+		return filteredList;
 	}
 
 	@Override
