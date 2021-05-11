@@ -73,14 +73,14 @@ public class JRomManagerCLI
 
 		if (cmd.hasOption('i'))
 		{
-			try (BufferedReader console = new BufferedReader(new InputStreamReader(System.in));)
+			try (final var console = new BufferedReader(new InputStreamReader(System.in));)
 			{
 				do
 				{
 					if (session.curr_profile != null)
 						System.out.format("jrm [%s]> ", session.curr_profile.nfo.file.getName()); //$NON-NLS-1$
 					else
-						System.out.format("jrm> "); //$NON-NLS-1$
+						System.out.print("jrm> "); //$NON-NLS-1$
 					analyze(splitLine(console.readLine()));
 				}
 				while (true); // we break out with <control><C>
@@ -89,7 +89,7 @@ public class JRomManagerCLI
 		else
 		{
 			Reader reader = cmd.hasOption('f')?new FileReader(cmd.getOptionValue('f')):new InputStreamReader(System.in);
-			try (BufferedReader in = new BufferedReader(reader);)
+			try (final var in = new BufferedReader(reader);)
 			{
 				String line;
 				while (null != (line = in.readLine()))
@@ -120,11 +120,11 @@ public class JRomManagerCLI
 	private String[] splitLine(String line)
 	{
 		List<String> list = new ArrayList<>();
-		Matcher m = splitLinePattern.matcher(line);
+		final var m = splitLinePattern.matcher(line);
 		while (m.find())
 		{
-			Matcher im = envPattern.matcher(m.group(m.group(1) != null ? 1 : 2));
-			StringBuffer sb = new StringBuffer();
+			final var im = envPattern.matcher(m.group(m.group(1) != null ? 1 : 2));
+			final var sb = new StringBuilder();
 			while (im.find())
 				im.appendReplacement(sb, getEnv(im.group(im.group(1) != null ? 1 : 2)).map(Matcher::quoteReplacement).orElse("")); //$NON-NLS-1$
 			im.appendTail(sb);
@@ -180,11 +180,11 @@ public class JRomManagerCLI
 					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case RM:
 				{
-					Options options = new Options().addOption("r", "recursive", false, "Recursive delete"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					final var options = new Options().addOption("r", "recursive", false, "Recursive delete"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
 					for(String arg : cmdline.getArgList())
 					{
-						Path path = Paths.get(arg);
+						final var path = Paths.get(arg);
 						if(Files.exists(path))
 						{
 							if(Files.isDirectory(path))
@@ -210,11 +210,11 @@ public class JRomManagerCLI
 				}
 				case MD:
 				{
-					Options options = new Options().addOption("p", "parents", false, "create parents up to this directory"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					final var options = new Options().addOption("p", "parents", false, "create parents up to this directory"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
 					for(String arg : cmdline.getArgList())
 					{
-						Path path = Paths.get(arg);
+						final var path = Paths.get(arg);
 						if(!Files.exists(path))
 						{
 							if(cmdline.hasOption('p'))
@@ -251,7 +251,7 @@ public class JRomManagerCLI
 					if (session.curr_profile == null)
 						return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
 					session.curr_scan = new Scan(session.curr_profile, handler);
-					return session.curr_scan.actions.stream().mapToInt(c->c.size()).sum();
+					return session.curr_scan.actions.stream().mapToInt(Collection::size).sum();
 				case SCANRESULT:
 					if (session.curr_scan == null)
 						return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
@@ -268,7 +268,7 @@ public class JRomManagerCLI
 						return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
 					if (session.curr_scan.actions.stream().mapToInt(Collection::size).sum() == 0)
 						return error(CLIMessages.getString("CLI_ERR_NothingToFix")); //$NON-NLS-1$
-					final Fix fix = new Fix(session.curr_profile, session.curr_scan, handler);
+					final var fix = new Fix(session.curr_profile, session.curr_scan, handler);
 					System.out.format(CLIMessages.getString("CLI_MSG_ActionRemaining"), fix.getActionsRemain()); //$NON-NLS-1$
 					return fix.getActionsRemain();
 				case DIRUPD8R:
@@ -346,7 +346,7 @@ public class JRomManagerCLI
 				else if(args.length==2)
 				{
 					val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-					int index = Integer.parseInt(args[0]);
+					final var index = Integer.parseInt(args[0]);
 					if(index < list.size())
 					{
 						try
@@ -358,6 +358,8 @@ public class JRomManagerCLI
 									break;
 								case "DIR": //$NON-NLS-1$
 									ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile());
+									break;
+								default:
 									break;
 							}
 						}
@@ -378,7 +380,7 @@ public class JRomManagerCLI
 					val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
 					if (args.length > 0)
 					{
-						int index = Integer.parseInt(args[0]);
+						final var index = Integer.parseInt(args[0]);
 						if (index < list.size())
 						{
 							try
@@ -390,10 +392,10 @@ public class JRomManagerCLI
 									session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), settings);
 								}
 								else if (args.length == 2)
-									System.out.format("%s\n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$
+									System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$
 								else
 									for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
-										System.out.format("%s=%s\n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
+										System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
 							}
 							catch (IOException e)
 							{
@@ -423,9 +425,9 @@ public class JRomManagerCLI
 			case START:
 			{
 				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-				List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(s -> new File(s)).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
-				final String[] results = new String[sdrl.size()];
-				ResultColUpdater resulthandler = new ResultColUpdater()
+				List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(File::new).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
+				final var results = new String[sdrl.size()];
+				final var resulthandler = new ResultColUpdater()
 				{
 					@Override
 					public void updateResult(int row, String result)
@@ -436,14 +438,14 @@ public class JRomManagerCLI
 					@Override
 					public void clearResults()
 					{
-						for (int i = 0; i < results.length; i++)
+						for (var i = 0; i < results.length; i++)
 							results[i] = ""; //$NON-NLS-1$
 					}
 				};
-				Options options = new Options().addOption("d", "dryrun", false, "Dry run"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				final var options = new Options().addOption("d", "dryrun", false, "Dry run"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				CommandLine cmdline = new DefaultParser().parse(options, args);
 				new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, cmdline.hasOption('d'));
-				for (int i = 0; i < results.length; i++)
+				for (var i = 0; i < results.length; i++)
 					System.out.println(i + " = " + results[i]); //$NON-NLS-1$
 				break;
 			}
@@ -495,7 +497,7 @@ public class JRomManagerCLI
 			case START:
 			{
 				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-				final String[] results = new String[sdrl.size()];
+				final var results = new String[sdrl.size()];
 				ResultColUpdater resulthandler = new ResultColUpdater()
 				{
 					@Override
@@ -507,11 +509,11 @@ public class JRomManagerCLI
 					@Override
 					public void clearResults()
 					{
-						for (int i = 0; i < results.length; i++)
+						for (var i = 0; i < results.length; i++)
 							results[i] = ""; //$NON-NLS-1$
 					}
 				};
-				Options options = new Options()
+				final var options = new Options()
 						.addOption("m", "checkmode", true, "Check mode") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						.addOption("u", "removeunknown", false, "Remove unknown files") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						.addOption("w", "removewrongsized", false, "Remove wrong sized files") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -547,7 +549,7 @@ public class JRomManagerCLI
 
 	private int compressor(String... args) throws IOException, ParseException
 	{
-		Options options = new Options()
+		final var options = new Options()
 				.addRequiredOption("c", "compressor", true, "Compression format") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				.addOption("f", "force", false, "Force recompression"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		try
@@ -555,7 +557,7 @@ public class JRomManagerCLI
 			CommandLine cmdline = new DefaultParser().parse(options, args, true);
 			CompressorFormat format = cmdline.hasOption('c')?CompressorFormat.valueOf(cmdline.getOptionValue('c')):CompressorFormat.TZIP;
 			boolean force = cmdline.hasOption('f');
-			for(final String arg : cmdline.getArgList())
+			for(final var arg : cmdline.getArgList())
 			{
 				final var path = Paths.get(arg);
 				final List<FileResult> frl;
@@ -591,7 +593,7 @@ public class JRomManagerCLI
 	private int prefs()
 	{
 		for (Map.Entry<Object, Object> entry : session.getUser().getSettings().getProperties().entrySet())
-			System.out.format("%s=%s\n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
+			System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
 		return 0;
 	}
 
@@ -600,7 +602,7 @@ public class JRomManagerCLI
 		if (!session.getUser().getSettings().hasProperty(name))
 			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$
 		else
-			System.out.format("%s=%s\n", name, session.getUser().getSettings().getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.format("%s=%s%n", name, session.getUser().getSettings().getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		return 0;
 	}
 
@@ -614,7 +616,7 @@ public class JRomManagerCLI
 	private int settings()
 	{
 		for (Map.Entry<Object, Object> entry : session.curr_profile.settings.getProperties().entrySet())
-			System.out.format("%s=%s\n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
+			System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
 		return 0;
 	}
 
@@ -623,7 +625,7 @@ public class JRomManagerCLI
 		if (!session.curr_profile.settings.hasProperty(name))
 			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$
 		else
-			System.out.format("%s=%s\n", name, session.curr_profile.settings.getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.format("%s=%s%n", name, session.curr_profile.settings.getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		return 0;
 	}
 
@@ -699,7 +701,7 @@ public class JRomManagerCLI
 	{
 		try(final var stream = Files.walk(cwdir, 1))
 		{
-			stream.filter(p -> Files.isDirectory(p) && !p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p -> System.out.format("<DIR>\t%s\n", p)); //$NON-NLS-1$
+			stream.filter(p -> Files.isDirectory(p) && !p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p -> System.out.format("<DIR>\t%s%n", p)); //$NON-NLS-1$
 		}
 		for (val row : ProfileNFO.list(session, cwdir.toFile()))
 			System.out.format("<DAT>\t%s\n", row.getName()); //$NON-NLS-1$
@@ -708,7 +710,7 @@ public class JRomManagerCLI
 
 	public static void main(String[] args)
 	{
-		Options options = new Options();
+		final var options = new Options();
 		options.addOption(new Option("i", "interactive", false, "Interactive shell")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		options.addOption(new Option("f", "file", true, "Input file")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		try
