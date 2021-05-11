@@ -47,7 +47,7 @@ eclipse {
 
 
 lombok {
-	version = '1.18.12'
+	version = '1.18.20'
 	config['lombok.extern.findbugs.addSuppressFBWarnings'] = 'false'
 //	sha256 = ""
 }
