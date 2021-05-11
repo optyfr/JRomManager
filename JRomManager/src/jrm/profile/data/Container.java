@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -81,7 +82,7 @@ public class Container implements Serializable, Comparable<Container>
 	/**
 	 * last torrentzip check status (only valid for zip archives)
 	 */
-	public EnumSet<TrrntZipStatus> lastTZipStatus = EnumSet.noneOf(TrrntZipStatus.class);
+	public Set<TrrntZipStatus> lastTZipStatus = EnumSet.noneOf(TrrntZipStatus.class);
 
 	/**
 	 * related {@link AnywareBase} set

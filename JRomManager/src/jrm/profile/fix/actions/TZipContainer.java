@@ -17,7 +17,7 @@
 package jrm.profile.fix.actions;
 
 import java.io.IOException;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -63,9 +63,9 @@ public class TZipContainer extends ContainerAction
 				{
 					if(container.getFile().exists())
 					{
-						final EnumSet<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).Process(container.getFile());
+						final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).Process(container.getFile());
 						if(!status.contains(TrrntZipStatus.ValidTrrntzip))
-							System.out.format("%-64s => %s\n", container.getRelFile(), status.toString()); //$NON-NLS-1$
+							System.out.format("%-64s => %s%n", container.getRelFile(), status.toString()); //$NON-NLS-1$
 					}
 					return true;
 				}
@@ -79,6 +79,7 @@ public class TZipContainer extends ContainerAction
 		return false;
 	}
 
+	@Override
 	public long estimatedSize()
 	{
 		return dataSize<Long.MAX_VALUE?dataSize:0;

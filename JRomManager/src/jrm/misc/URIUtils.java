@@ -48,7 +48,6 @@ public class URIUtils
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
 			return Paths.get(path);
 		}
 		
