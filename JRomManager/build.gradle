@@ -1,6 +1,6 @@
 plugins {
 	id 'java' 
-	id "org.sonarqube" version "3.2.0"
+	id "org.sonarqube"
 	id "de.undercouch.download" version "4.1.1"
 	id "nebula.ospackage" version "8.5.6"
 	id "de.inetsoftware.setupbuilder" version "4.8.7"
@@ -11,13 +11,6 @@ plugins {
 	id "org.javamodularity.moduleplugin" version "1.8.3"
 }
 
-sonarqube {
-	properties {
-		property "sonar.projectKey", "optyfr_JRomManager"
-		property "sonar.organization", "optyfr"
-		property "sonar.host.url", "https://sonarcloud.io"
-	}
-}
 
 apply plugin: 'java'
 sourceCompatibility = 11
