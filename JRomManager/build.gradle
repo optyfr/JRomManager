@@ -259,7 +259,7 @@ subprojects {
 		}
 	}
 }
-
+/*
 project(':JRomManager:trrntzip') {
 	sourceSets {
 		main {
@@ -276,7 +276,7 @@ project(':JRomManager:trrntzip') {
 		implementation group: 'commons-io', name: 'commons-io'
 	}
 }
-
+*/
 
 
 project(':JRomManager:jrmcore') {
@@ -293,7 +293,7 @@ project(':JRomManager:jrmcore') {
 	}
 	dependencies {
 		implementation 'com.github.optyfr:SevenZipJBindingAllInOne:1.0'
-		implementation project(':JRomManager:trrntzip')
+		implementation project(':Jtrrntzip')
 		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-text'

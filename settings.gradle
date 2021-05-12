@@ -1,6 +1,6 @@
 rootProject.name = 'JRomManagerDist'
+include "Jtrrntzip"
 include "JRomManager"
-include "JRomManager:trrntzip"
 include "JRomManager:jrmcore"
 include "JRomManager:jrmcli"
 include "JRomManager:res-icons"
