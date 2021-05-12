@@ -24,6 +24,5 @@ module jrmstandalone
 	requires static lombok;
 	
 	requires jrmcore;
-	requires jrmupdater;
 	requires res.icons;
 }

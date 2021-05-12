@@ -4,12 +4,9 @@ targetCompatibility = 11
 apply plugin: 'eclipse'
 
 dependencies {
-	implementation project(':JUpdater')
 	implementation project(':JRomManager')
-	implementation project(':Jtrrntzip')
 }
 
-evaluationDependsOn(project(':JUpdater').path)
 evaluationDependsOn(project(':JRomManager').path)
 
 task installProperties {
@@ -27,27 +24,6 @@ task installProperties {
       writer.close()
    }
 }
-task oneJar( type: Jar , dependsOn: [':JUpdater:assemble', installProperties]) {
-    from project(':JUpdater').sourceSets.main.output.classesDirs
-	from project(':JUpdater').configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-	from project(':JRomManager').distZip
-	from file("$buildDir/tmp/install.properties")
-	manifest {
-		attributes(
-			"Manifest-Version"     : "1.0",
-			"Specification-Title"  : "JRomManager",
-			"Specification-Version": project(':JRomManager').props.getProperty("Specification-Version"),
-			"Implementation-Title" : "jrm",
-			"Implementation-Version" : project(':JRomManager').props.getProperty("Implementation-Version"),
-			"Main-Class"           : "jupdater.JUpdater",
-		)
-		archiveFileName = project(':JRomManager').name + '-' + project(':JRomManager').version + '-install' + '.jar'
-	}
-	destinationDirectory = file("$buildDir/distributions/")
-}
-
-build.dependsOn oneJar
-build.dependsOn ':Jtrrntzip:build'
 
 task sourcesZip(type: Tar, dependsOn: tasks.classes) {
 	from ('.') {

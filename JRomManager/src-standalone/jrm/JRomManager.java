@@ -34,7 +34,6 @@ import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.security.Sessions;
 import jrm.ui.MainFrame;
-import jupdater.JUpdater;
 import lombok.Getter;
 
 /**
@@ -78,13 +77,6 @@ public final class JRomManager
 		if(!debug) Log.setLevel(Level.parse(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_level, Log.getLevel().toString())));
 		if (JRomManager.lockInstance(session, FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
-			if(!session.noupdate)
-			{
-				// check for update
-				JUpdater updater = new JUpdater("optyfr","JRomManager"); //$NON-NLS-1$ //$NON-NLS-2$
-				if(updater.updateAvailable())
-					updater.showMessage();	// Will show changes since your version and a link to updater
-			}
 			// Open main window
 			mainFrame = new MainFrame(session);
 			mainFrame.setVisible(true);

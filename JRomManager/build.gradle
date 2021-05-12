@@ -345,28 +345,6 @@ project(':JRomManager:jrmcli') {
 	
 }
 
-project(':JRomManager:jrmupdater') {
-	sourceSets {
-		main {
-			java {
-				srcDirs = ["../../JUpdater/src"]
-			}
-		}
-	}
-	dependencies {
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
-		implementation group: 'com.atlassian.commonmark', name: 'commonmark'
-	}
-	jar {
-		manifest {
-			attributes(
-				"Specification-Title"  : "JRomManager Updater",
-				"Implementation-Title" : "jupdater",
-			)
-		}
-	}
-}
-
 project(':JRomManager:res-icons') {
 	sourceSets {
 		main {
@@ -403,7 +381,6 @@ project(':JRomManager:jrmstandalone') {
 	dependencies {
 		implementation project(':JRomManager:jrmcore')
 		implementation project(':JRomManager:res-icons')
-		implementation project(':JRomManager:jrmupdater')
 		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'commons-cli', name: 'commons-cli'
 		implementation group: 'commons-io', name: 'commons-io'
