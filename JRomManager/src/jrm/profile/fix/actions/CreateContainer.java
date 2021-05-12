@@ -164,7 +164,7 @@ public class CreateContainer extends ContainerAction
 				{
 					target = container.getFile().toPath();
 					if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
-						Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x"))); //$NON-NLS-1$
+						Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"))); //$NON-NLS-1$
 					else
 						Files.createDirectories(target);
 				}

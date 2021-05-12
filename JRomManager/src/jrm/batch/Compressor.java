@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -113,15 +114,16 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			final File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
-			tmpfile.delete();
+			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+			final Path tmpfile = Files.createTempFile("JRM", ".7z", attr);
+			Files.delete(tmpfile);
 			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
 			try(final SevenZipArchive archive = new SevenZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)))
 			{
 				progress.setProgress(toHTML("extracting " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 				if(archive.extract()==0)
 				{
-					try(final SevenZipArchive newarchive = new SevenZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
+					try(final SevenZipArchive newarchive = new SevenZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
 					{
 						final Path basedir = archive.getTempDir().toPath();
 						Files.walkFileTree(basedir, new SimpleFileVisitor<Path>() {
@@ -142,22 +144,22 @@ public class Compressor implements HTMLRenderer
 				}
 				else
 				{
-					tmpfile.delete();
+					Files.deleteIfExists(tmpfile);
 					cb.apply("extract failed");
 					return null;
 				}
 			}
 			catch(Exception e)
 			{
-				tmpfile.delete();
+				Files.deleteIfExists(tmpfile);
 				cb.apply("7z creation failed");
 				return null;
 			}
-			if(tmpfile.exists())
+			if(Files.exists(tmpfile))
 			{
 				if(FileUtils.deleteQuietly(file))
 				{
-					FileUtils.moveFile(tmpfile, newfile);
+					FileUtils.moveFile(tmpfile.toFile(), newfile);
 					scb.apply(newfile);
 					cb.apply("OK");
 					return newfile;
@@ -182,8 +184,9 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			final File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
-			tmpfile.delete();
+			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+			final var tmpfile = Files.createTempFile("JRM", ".zip", attr);
+			Files.delete(tmpfile);
 			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
 			try(final SevenZipArchive archive = new SevenZipArchive(session, file, false, new ProgressNarchiveCallBack(progress)))
 			{
@@ -195,9 +198,9 @@ public class Compressor implements HTMLRenderer
 					env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 					env.put("useTempFile", FileUtils.sizeOf(basedir) > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
 					env.put("compressionLevel", tzip ? 1 :  ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
-					FileUtils.forceMkdirParent(tmpfile);
+					FileUtils.forceMkdirParent(tmpfile.toFile());
 					progress.setProgress(toHTML("creating " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
-					try(final ZipArchive dstarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
+					try(final ZipArchive dstarchive = new ZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
 					{
 						dstarchive.compress_custom(new CustomVisitor(basedir.toPath()) {
 							@Override
@@ -221,7 +224,7 @@ public class Compressor implements HTMLRenderer
 				}
 				else
 				{
-					tmpfile.delete();
+					Files.deleteIfExists(tmpfile);
 					cb.apply("extract failed");
 					return null;
 				}
@@ -229,15 +232,15 @@ public class Compressor implements HTMLRenderer
 			catch (Exception e)
 			{
 				Log.err(e.getMessage(),e);
-				tmpfile.delete();
+				Files.deleteIfExists(tmpfile);
 				cb.apply("zip creation failed");
 				return null;
 			}
-			if(tmpfile.exists())
+			if(Files.exists(tmpfile))
 			{
 				if(FileUtils.deleteQuietly(file))
 				{
-					FileUtils.moveFile(tmpfile, newfile);
+					FileUtils.moveFile(tmpfile.toFile(), newfile);
 					scb.apply(newfile);
 					cb.apply("OK");
 					return newfile;
@@ -262,8 +265,9 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			final File tmpfile = Files.createTempFile("JRM", ".zip").toFile();
-			tmpfile.delete();
+			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+			final var tmpfile = Files.createTempFile("JRM", ".zip", attr);
+			Files.delete(tmpfile);
 			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
 			try (final FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + file.toURI()), new HashMap<>());) //$NON-NLS-1$
 			{
@@ -273,7 +277,7 @@ public class Compressor implements HTMLRenderer
 				env.put("useTempFile", size(basedir) > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
 				env.put("compressionLevel", ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$
 				progress.setProgress(toHTML("Crunching " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
-				try (final ZipArchive newarchive = new ZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
+				try (final ZipArchive newarchive = new ZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
 				{
 					newarchive.compress_custom(new CustomVisitor(basedir) {
 						@Override
@@ -295,11 +299,11 @@ public class Compressor implements HTMLRenderer
 					}, env);
 				}
 			}
-			if(tmpfile.exists())
+			if(Files.exists(tmpfile))
 			{
 				if(FileUtils.deleteQuietly(file))
 				{
-					FileUtils.moveFile(tmpfile, newfile);
+					FileUtils.moveFile(tmpfile.toFile(), newfile);
 					scb.apply(newfile);
 					cb.apply("OK");
 					return newfile;
@@ -324,10 +328,11 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			final File tmpfile = Files.createTempFile("JRM", ".7z").toFile();
-			tmpfile.delete();
+			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+			final var tmpfile = Files.createTempFile("JRM", ".7z", attr);
+			Files.delete(tmpfile);
 			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
-			try(final SevenZipArchive archive = new SevenZipArchive(session, tmpfile, new ProgressNarchiveCallBack(progress)))
+			try(final SevenZipArchive archive = new SevenZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
 			{
 				progress.setProgress(toHTML("extracting " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 				try(final ZipArchive srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress));)
@@ -346,16 +351,15 @@ public class Compressor implements HTMLRenderer
 			catch (Exception e)
 			{
 				Log.err(e.getMessage(),e);
-				if(tmpfile.exists())
-					tmpfile.delete();
+				Files.deleteIfExists(tmpfile);
 				cb.apply("7z creation failed");
 				return null;
 			}
-			if(tmpfile.exists())
+			if(Files.exists(tmpfile))
 			{
 				if(FileUtils.deleteQuietly(file))
 				{
-					FileUtils.moveFile(tmpfile, newfile);
+					FileUtils.moveFile(tmpfile.toFile(), newfile);
 					scb.apply(newfile);
 					cb.apply("OK");
 					return newfile;

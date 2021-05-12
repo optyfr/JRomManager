@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -115,8 +116,9 @@ public class ZipArchive implements Archive
 			{
 				int err = -1;
 				final List<String> cmd_add = new ArrayList<>();
-				final Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
-				tmpfile.toFile().delete();
+				final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+				final Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z", attr); //$NON-NLS-1$ //$NON-NLS-2$
+				Files.delete(tmpfile);
 				if(is_7z)
 				{
 					Collections.addAll(cmd_add, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

@@ -4,9 +4,10 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
 
 public class TempFileInputStream extends FileInputStream
 {
@@ -24,12 +25,13 @@ public class TempFileInputStream extends FileInputStream
 	public void close() throws IOException
 	{
 		super.close();
-		file.delete();
+		Files.deleteIfExists(file.toPath());
 	}
 
 	public static InputStream newInstance() throws IOException
 	{
-		return new TempFileInputStream(File.createTempFile("JRMSRV", null));
+		final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+		return new TempFileInputStream(Files.createTempFile("JRMSRV", null, attr).toFile());
 	}
 
 	public static InputStream newInstance(InputStream in) throws IOException
@@ -44,8 +46,9 @@ public class TempFileInputStream extends FileInputStream
 
 	public static InputStream newInstance(InputStream in, long len, boolean close) throws IOException
 	{
-		final var tmpfile = File.createTempFile("JRMSRV", null);
-		try (final var out = new BufferedOutputStream(new FileOutputStream(tmpfile));)
+		final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+		final var tmpfile = Files.createTempFile("JRMSRV", null, attr);
+		try (final var out = new BufferedOutputStream(Files.newOutputStream(tmpfile)))
 		{
 			if (len < 0)
 				for (int b = in.read(); b != -1; b = in.read())
@@ -56,7 +59,7 @@ public class TempFileInputStream extends FileInputStream
 			if (close)
 				in.close();
 		}
-		return new TempFileInputStream(tmpfile);
+		return new TempFileInputStream(tmpfile.toFile());
 	}
 
 	/**

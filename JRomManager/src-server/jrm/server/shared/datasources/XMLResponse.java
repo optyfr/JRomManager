@@ -1,10 +1,12 @@
 package jrm.server.shared.datasources;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -23,7 +25,7 @@ import jrm.xml.EnhancedXMLStreamWriter;
 public abstract class XMLResponse implements Closeable
 {
 	protected XMLRequest request;
-	private final File tmpfile;
+	private final Path tmpfile;
 	private final OutputStream out;
 	protected final EnhancedXMLStreamWriter writer;
 	protected PathAbstractor pathAbstractor;
@@ -32,8 +34,9 @@ public abstract class XMLResponse implements Closeable
 	{
 		this.request = request;
 		pathAbstractor = new PathAbstractor(request.getSession());
-		tmpfile = File.createTempFile("JRM", null);
-		out = new FileOutputStream(tmpfile);
+		final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+		tmpfile = Files.createTempFile("JRM", null, attr);
+		out = new BufferedOutputStream(Files.newOutputStream(tmpfile));
 		writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(out));
 		writer.writeStartDocument("utf-8", "1.0");
 	}
@@ -74,7 +77,7 @@ public abstract class XMLResponse implements Closeable
 		}
 		else
 			processOperation(request.getOperation());
-		return new TempFileInputStream(tmpfile);
+		return new TempFileInputStream(tmpfile.toFile());
 	}
 
 	protected void fetch(Operation operation) throws Exception

@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +57,10 @@ public abstract class NArchiveBase implements Archive, Closeables
 	public File getTempDir() throws IOException
 	{
 		if (tempDir == null)
-			tempDir = Files.createTempDirectory("JRM").toFile(); //$NON-NLS-1$
+		{
+			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+			tempDir = Files.createTempDirectory("JRM", null , attr).toFile(); //$NON-NLS-1$
+		}
 		return tempDir;
 	}
 

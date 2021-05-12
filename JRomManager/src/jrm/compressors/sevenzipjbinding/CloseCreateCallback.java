@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -123,7 +124,10 @@ public abstract class CloseCreateCallback implements IOutCreateCallback<IOutItem
 					for(final Object[] o : idx_to_duplicate)
 					{
 						if(!tmpfiles_by_oldindex.containsKey(o[0]))
-							tmpfiles_by_oldindex.put((Integer) o[0], Files.createTempFile("JRM", null).toFile()); //$NON-NLS-1$
+						{
+							final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+							tmpfiles_by_oldindex.put((Integer) o[0], Files.createTempFile("JRM", null, attr).toFile()); //$NON-NLS-1$
+						}
 						tmpfiles.put((Integer) o[2], tmpfiles_by_oldindex.get(o[0]));
 
 					}

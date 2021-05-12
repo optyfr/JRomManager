@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -68,7 +70,8 @@ public class Import implements UnitRenderer
 			{
 				if((roms_file = importMame(file, false, progress)) != null)
 				{
-					this.file = ProfileNFO.saveJrm(File.createTempFile("JRM", ".jrm"), roms_file, sl_file = sl ? importMame(file, true, progress) : null); //$NON-NLS-1$ //$NON-NLS-2$
+					final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+					this.file = ProfileNFO.saveJrm(Files.createTempFile("JRM", ".jrm", attr).toFile(), roms_file, sl_file = sl ? importMame(file, true, progress) : null); //$NON-NLS-1$ //$NON-NLS-2$
 					is_mame = true;
 				}
 			}
@@ -94,7 +97,8 @@ public class Import implements UnitRenderer
 		// Log.info("Get dat file from Mame...");
 		try
 		{
-			final File tmpfile = File.createTempFile("JRM", sl ? ".jrm2" : ".jrm1"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+			final File tmpfile = Files.createTempFile("JRM", sl ? ".jrm2" : ".jrm1", attr).toFile(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			tmpfile.deleteOnExit();
 			final Process process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$ //$NON-NLS-2$
 
