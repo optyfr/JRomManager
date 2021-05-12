@@ -271,6 +271,17 @@ project(':JRomManager:trrntzip') {
 }
 */
 
+project(':WebClient') {
+	sonarqube {
+		skipProject = true
+	}
+}
+
+project(':Jtrrntzip') {
+	sonarqube {
+		skipProject = true
+	}
+}
 
 project(':JRomManager:jrmcore') {
 	apply plugin: "io.freefair.lombok"
