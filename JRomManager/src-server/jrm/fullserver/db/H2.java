@@ -23,8 +23,8 @@ class H2 extends DB
 		super(settings);
 	}
 
-	final static boolean MV_STORE = false;
-	final static boolean MVCC = false;
+	private static final boolean MV_STORE = false;
+	private static final boolean MVCC = false;
 
 	/**
 	 * Open connection to the H2 database
@@ -40,34 +40,23 @@ class H2 extends DB
 	@Override
 	public Connection connectToDB(final String name, final boolean drop, final boolean safe, final boolean ifexists) throws IOException, SQLException
 	{
-		try
-		{
-			// STEP 1: Register JDBC driver
-			Class.forName("org.h2.Driver");
-
-			// STEP 2: Open a connection
-			if (drop)
-				dropDB(name);
-			StringBuffer url = new StringBuffer("jdbc:h2:");
-			url.append(getDBPath(name));
-			if (ifexists)
-				url.append(";IFEXISTS=TRUE");
-			if (MV_STORE)
-				url.append(";MV_STORE=TRUE;MVCC=" + (MVCC ? "TRUE" : "FALSE"));
-			else
-				url.append(";MV_STORE=FALSE");
-			if (!safe)
-				url.append(";LOG=0;LOCK_MODE=0;UNDO_LOG=0");
-			url.append(";MODE=MYSQL");
-			Log.debug("Opening " + url);
-			System.out.println("Opening " + url);
-			return DriverManager.getConnection(url.toString(), "sa", "");
-		}
-		catch (ClassNotFoundException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
+		// Open a connection
+		if (drop)
+			dropDB(name);
+		final var url = new StringBuilder("jdbc:h2:");
+		url.append(getDBPath(name));
+		if (ifexists)
+			url.append(";IFEXISTS=TRUE");
+		if (MV_STORE)
+			url.append(";MV_STORE=TRUE;MVCC=" + (MVCC ? "TRUE" : "FALSE"));
+		else
+			url.append(";MV_STORE=FALSE");
+		if (!safe)
+			url.append(";LOG=0;LOCK_MODE=0;UNDO_LOG=0");
+		url.append(";MODE=MYSQL");
+		Log.debug("Opening " + url);
+		System.out.println("Opening " + url);
+		return DriverManager.getConnection(url.toString(), "sa", System.getProperty("DB_PW", ""));
 	}
 
 	/**
@@ -88,19 +77,16 @@ class H2 extends DB
 	@Override
 	public boolean shouldDropDB(final @NonNull Path cpsPath, final Path capturePath) throws IOException
 	{
-		final String name = cpsPath.getFileName().toString();
+		final var name = cpsPath.getFileName().toString();
 		val dbpath = getDBPath(name, true);
 		if (!Files.exists(dbpath)) // pas de bd h2 => drop
 			return true;
 		if (!Files.exists(cpsPath)) // pas de source access mais une bd h2, pas d'import possible => pas de drop
 			return false;
 		val created = Files.exists(dbpath) ? Files.getFileAttributeView(dbpath, BasicFileAttributeView.class).readAttributes().creationTime().toMillis() : 0L;
-		if (cpsPath.toFile().lastModified() > created) // drop si la source access est plus rÃ©cente
+		if (cpsPath.toFile().lastModified() > created) // drop si la source access est plus récente
 			return true;
-		if (capturePath != null && capturePath.toFile().lastModified() > created) // drop si le capture access est plus
-																					// rÃ©cente
-			return true;
-		return false; // pas de drop dans les autres cas
+		return (capturePath != null && capturePath.toFile().lastModified() > created); // drop si le capture access est plus récente
 	}
 
 	private Path getDBPath(String name, final boolean full)
@@ -109,7 +95,7 @@ class H2 extends DB
 			name = name.replace("%w", getSettings().getWorkPath().toString());
 		if (!Paths.get(name).isAbsolute())
 		{
-			Path basepath = settings.getWorkPath();
+			var basepath = settings.getWorkPath();
 			String ext = FilenameUtils.getExtension(name).toLowerCase();
 			if (ext.equalsIgnoreCase("db"))
 			{
@@ -117,12 +103,8 @@ class H2 extends DB
 				if (ext.equalsIgnoreCase("mv") || ext.equalsIgnoreCase("h2"))
 					ext = FilenameUtils.getExtension(FilenameUtils.getBaseName(FilenameUtils.getBaseName(name))).toLowerCase();
 			}
-			switch (ext)
-			{
-				case "sys":
-					basepath = settings.getBasePath();
-					break;
-			}
+			if("sys".equals(ext))
+				basepath = settings.getBasePath();
 			if (full && !name.endsWith(".db"))
 				return basepath.resolve(name + (MV_STORE ? ".mv.db" : ".h2.db"));
 			else if (!full && name.endsWith(".db"))

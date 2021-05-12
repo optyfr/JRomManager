@@ -23,13 +23,6 @@ public interface SQLUtils
 		return "`" + name + "`";
 	}
 
-	default void appendComma(StringBuffer str, CharSequence toAppend)
-	{
-		if(str.length()>0)
-			str.append(", ");
-		str.append(toAppend);
-	}
-	
 	default void append(StringBuilder str, final String separator, CharSequence toAppend)
 	{
 		if(toAppend.length()>0)
@@ -58,7 +51,7 @@ public interface SQLUtils
 	{
 		if(str == null)
 			str = new StringBuilder();
-		for(int i = 0; i < count; i++)
+		for(var i = 0; i < count; i++)
 			appendComma(str, "?");
 		return str;
 	}
@@ -70,7 +63,7 @@ public interface SQLUtils
 
 	default CharSequence makeCols(Collection<String> cols, boolean withParenthesis)
 	{
-		StringBuilder set = new StringBuilder();
+		final var set = new StringBuilder();
 		cols.forEach(col-> appendComma(set, backquote(col)));
 		if(withParenthesis && cols.size()>1)
 			set.insert(0, '(').append(')');
@@ -79,25 +72,18 @@ public interface SQLUtils
 	
 	default <T> Iterable<T> getIterable(Collection<T> coll) 
 	{ 
-		return () -> coll.iterator(); 
+		return coll::iterator; 
 	} 
 	
 	default <T> Iterable<T> getReversedIterable(Collection<T> coll) 
 	{
-		return new Iterable<T>()
-		{
-			@Override
-			public Iterator<T> iterator()
-			{
-				return new LinkedList<>(coll).descendingIterator();
-			}
-		};
+		return () -> new LinkedList<>(coll).descendingIterator();
 	} 
 	
 	default CharSequence makeCols(Iterable<String> cols)
 	{
-		StringBuilder set = new StringBuilder();
-		for(final String col : cols)
+		final var set = new StringBuilder();
+		for(final var col : cols)
 			appendComma(set, backquote(col));
 		return set;
 	}
@@ -109,21 +95,21 @@ public interface SQLUtils
 
 	default CharSequence makeSet(Collection<String> cols)
 	{
-		StringBuilder set = new StringBuilder();
+		final var set = new StringBuilder();
 		cols.forEach(col -> appendComma(set, backquote(col) + "=?"));
 		return set;
 	}
 	
 	default CharSequence makeSet(LinkedHashMap<String, Object> map)
 	{
-		StringBuilder set = new StringBuilder();
+		final var set = new StringBuilder();
 		map.forEach((col, value) -> appendComma(set, backquote(col) + "=?"));
 		return set;
 	}
 	
 	default CharSequence makeSet(Set<Entry<String,Object>> map)
 	{
-		StringBuilder set = new StringBuilder();
+		final var set = new StringBuilder();
 		map.forEach(entry -> appendComma(set, backquote(entry.getKey()) + "=?"));
 		return set;
 	}
@@ -181,20 +167,17 @@ public interface SQLUtils
 					return " DEFAULT " + (notNull?"FALSE":"NULL");
 				if(value.length()>0)
 					return " DEFAULT " + value;
+				return "";
 			case INTEGER:
 			case TINYINT:
 			case SMALLINT:
-				if(value == null || value.length()==0)
-					return " DEFAULT " + (notNull?"0":"NULL");
-				if(value.length()>0)
-					return " DEFAULT " + value;
 			default:
 				if(value == null || value.length()==0)
 					return " DEFAULT " + (notNull?"0":"NULL");
 				if(value.length()>0)
 					return " DEFAULT " + value;
+				return "";
 		}
-		return "";
 	}
 	
 	public default Number val(String str)
@@ -206,12 +189,12 @@ public interface SQLUtils
 	{
 		if(strict)
 			return NumberUtils.createNumber(str);
-		StringBuilder validStr = new StringBuilder();
-		boolean seenDot = false; // when this is true, dots are not allowed
-		boolean seenDigit = false; // when this is true, signs are not allowed
-		for(int i = 0; i < str.length(); i++)
+		final var validStr = new StringBuilder();
+		var seenDot = false; // when this is true, dots are not allowed
+		var seenDigit = false; // when this is true, signs are not allowed
+		for(var i = 0; i < str.length(); i++)
 		{
-			char c = str.charAt(i);
+			final var c = str.charAt(i);
 			if(c == '.' && !seenDot)
 			{
 				seenDot = true;
@@ -226,9 +209,7 @@ public interface SQLUtils
 				seenDigit = true;
 				validStr.append(c);
 			}
-			else if(Character.isWhitespace(c))
-				continue;
-			else
+			else if(!Character.isWhitespace(c))
 				break;
 		}
 		return NumberUtils.createNumber(validStr.toString());
