@@ -50,15 +50,16 @@ import jrm.server.shared.handlers.ActionServlet;
 import jrm.server.shared.handlers.DownloadServlet;
 import jrm.server.shared.handlers.ImageServlet;
 import jrm.server.shared.handlers.UploadServlet;
-import lombok.val;
 
 public class FullServer
 {
 	private Path clientPath;
 	private static boolean debug = false;
 
-	private static String KEY_STORE_PATH = "jrt:/jrm.merged.module/certs/localhost.pfx";
-	private static String KEY_STORE_PASSWORD_PATH = "jrt:/jrm.merged.module/certs/localhost.pw";
+	private static final String KEY_STORE = "jrt:/jrm.merged.module/certs/";
+	
+	private static String KEY_STORE_PATH = KEY_STORE + "localhost.pfx";
+	private static String KEY_STORE_PW_PATH = KEY_STORE + "localhost.pw";
 
 	private static int PROTOCOLS = 0xff; // bit 1 = HTTP, bit 2 = HTTPS, bit 3 = HTTP2 (with bit 2)
 	private static int HTTP_PORT = 8080;
@@ -70,13 +71,13 @@ public class FullServer
 	{
 		this.clientPath = clientPath;
 
-		Server jettyserver = new Server();
+		final var jettyserver = new Server();
 
-		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setBaseResource(Resource.newResource(this.clientPath));
 		context.setContextPath("/");
 
-		GzipHandler gzipHandler = new GzipHandler();
+		final var gzipHandler = new GzipHandler();
 		gzipHandler.setIncludedMethods("POST", "GET");
 		gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
 		gzipHandler.setInflateBufferSize(2048);
@@ -90,27 +91,27 @@ public class FullServer
 		context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
 		context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
 
-		ServletHolder holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
+		final var holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
 		holderStaticNoCache.setInitParameter("dirAllowed", "false");
 		holderStaticNoCache.setInitParameter("acceptRanges", "true");
 		holderStaticNoCache.setInitParameter("precompressed", "false");
 		holderStaticNoCache.setInitParameter("cacheControl", "no-store");
 		context.addServlet(holderStaticNoCache, "*.nocache.js");
 
-		ServletHolder holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
+		final var holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
 		holderStaticCache.setInitParameter("dirAllowed", "false");
 		holderStaticCache.setInitParameter("acceptRanges", "true");
 		holderStaticCache.setInitParameter("precompressed", "true");
 		context.addServlet(holderStaticCache, "*.cache.js");
 
-		ServletHolder holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
+		final var holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
 		holderStaticJS.setInitParameter("dirAllowed", "false");
 		holderStaticJS.setInitParameter("acceptRanges", "true");
 		holderStaticJS.setInitParameter("precompressed", "true");
 		holderStaticJS.setInitParameter("cacheControl", "public, max-age=0, must-revalidate");
 		context.addServlet(holderStaticJS, "*.js");
 
-		ServletHolder holderStatic = new ServletHolder("static", DefaultServlet.class);
+		final var holderStatic = new ServletHolder("static", DefaultServlet.class);
 		holderStatic.setInitParameter("dirAllowed", "false");
 		holderStatic.setInitParameter("acceptRanges", "true");
 		holderStatic.setInitParameter("precompressed", "true");
@@ -119,15 +120,15 @@ public class FullServer
 		context.getSessionHandler().setMaxInactiveInterval(300);
 
 		// Authentification server by login & password
-		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+		final var security = new ConstraintSecurityHandler();
 		security.setAuthenticator(new BasicAuthenticator());
 		security.setLoginService(new Login());
 
-		Constraint constraint = new Constraint();
+		final var constraint = new Constraint();
 		constraint.setName("auth");
 		constraint.setAuthenticate(true);
 		constraint.setRoles(new String[] { "admin", "user" });
-		final ConstraintMapping constraintMapping = new ConstraintMapping();
+		final var constraintMapping = new ConstraintMapping();
 		constraintMapping.setConstraint(constraint);
 		constraintMapping.setPathSpec("/*");
 		security.setConstraintMappings(Collections.singletonList(constraintMapping));
@@ -140,15 +141,15 @@ public class FullServer
 
 		// LetsEncrypt certs with embedded Jetty on
 		// HTTP Configuration
-		HttpConfiguration config = new HttpConfiguration();
+		final var config = new HttpConfiguration();
 		config.addCustomizer(new SecureRequestCustomizer());
 		config.addCustomizer(new ForwardedRequestCustomizer());
 
 		if ((PROTOCOLS & 0x1) != 0)
 		{
 			// Create the HTTP connection
-			HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(config);
-			ServerConnector httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
+			final var httpConnectionFactory = new HttpConnectionFactory(config);
+			final var httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
 			httpConnector.setPort(HTTP_PORT);
 			httpConnector.setHost(BIND);
 			httpConnector.setName("HTTP");
@@ -158,7 +159,7 @@ public class FullServer
 		if ((PROTOCOLS & 0x2) == 0x2 && URIUtils.URIExists(KEY_STORE_PATH))
 		{
 			// Create the HTTPS end point
-			final HttpConfiguration httpConfig = new HttpConfiguration();
+			final var httpConfig = new HttpConfiguration();
 			httpConfig.setSecureScheme("https");
 			httpConfig.setSecurePort(HTTPS_PORT);
 
@@ -169,7 +170,7 @@ public class FullServer
 			sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 			sslContextFactory.setUseCipherSuitesOrder(true);
 
-			String keyStorePassword = (KEY_STORE_PASSWORD_PATH != null && URIUtils.URIExists(KEY_STORE_PASSWORD_PATH)) ? URIUtils.readString(KEY_STORE_PASSWORD_PATH).trim() : "";
+			String keyStorePassword = (KEY_STORE_PW_PATH != null && URIUtils.URIExists(KEY_STORE_PW_PATH)) ? URIUtils.readString(KEY_STORE_PW_PATH).trim() : "";
 			sslContextFactory.setKeyStorePassword(keyStorePassword);
 			sslContextFactory.setKeyManagerPassword(keyStorePassword);
 
@@ -177,24 +178,24 @@ public class FullServer
 			SSLReload.getInstance(sslContextFactory).start();
 
 			// HTTPS Configuration
-			HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
+			final var httpsConfig = new HttpConfiguration(httpConfig);
 			httpsConfig.addCustomizer(new SecureRequestCustomizer());
 
 			if ((PROTOCOLS & 0x4) == 0x4)
 			{
 
 				// HTTP/2 Connection Factory
-				final HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpsConfig);
+				final var h2 = new HTTP2ServerConnectionFactory(httpsConfig);
 
 				Security.insertProviderAt(new OpenSSLProvider(), 1); // Temporary fix for conflicting SSL providers
-				final ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
+				final var alpn = new ALPNServerConnectionFactory();
 				alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
 
 				// SSL Connection Factory
-				final SslConnectionFactory ssl = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
+				final var ssl = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
 				// HTTP/2 Connector
-				final ServerConnector http2Connector = new ServerConnector(jettyserver, ssl, alpn, h2, new HttpConnectionFactory(httpsConfig));
+				final var http2Connector = new ServerConnector(jettyserver, ssl, alpn, h2, new HttpConnectionFactory(httpsConfig));
 				http2Connector.setPort(HTTPS_PORT);
 				http2Connector.setHost(BIND);
 				http2Connector.setName("HTTP2");
@@ -203,7 +204,7 @@ public class FullServer
 			else
 			{
 				// HTTPS Connector
-				final ServerConnector httpsConnector = new ServerConnector(jettyserver, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
+				final var httpsConnector = new ServerConnector(jettyserver, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
 				httpsConnector.setPort(HTTPS_PORT);
 				httpsConnector.setHost(BIND);
 				httpsConnector.setName("HTTPS");
@@ -216,19 +217,27 @@ public class FullServer
 		jettyserver.start();
 		Log.config("Start server");
 		for (final var connector : jettyserver.getConnectors())
-			Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort()+ " binded to " +((ServerConnector) connector).getHost());
+			Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to " + ((ServerConnector) connector).getHost());
 		Log.config("clientPath: " + clientPath);
 		Log.config("workPath: " + getWorkPath());
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			Log.info("Server stopped.");
-		}));
+		waitStop(jettyserver);
+	}
+
+	/**
+	 * @param jettyserver
+	 * @throws InterruptedException
+	 * @throws Exception
+	 */
+	private void waitStop(final Server jettyserver) throws Exception
+	{
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.info("Server stopped.")));
 		if (debug)
 		{
-			try (Scanner sc = new Scanner(System.in))
+			try (final var sc = new Scanner(System.in))
 			{
 				// wait until receive stop command from keyboard
 				System.out.println("Enter 'stop' to halt: ");
-				while (!sc.nextLine().toLowerCase().equals("stop"))
+				while (!sc.nextLine().equalsIgnoreCase("stop"))
 					Thread.sleep(1000);
 				if (!jettyserver.isStopped())
 				{
@@ -243,7 +252,7 @@ public class FullServer
 
 	public static void main(String[] args)
 	{
-		Options options = new Options();
+		final var options = new Options();
 		options.addOption(new Option("c", "client", true, "Client Path"));
 		options.addOption(new Option("w", "workpath", true, "Working Path"));
 		options.addOption(new Option("d", "debug", false, "Debug"));
@@ -267,32 +276,22 @@ public class FullServer
 				HTTP_PORT = Integer.parseInt(cmd.getOptionValue('p'));
 			if (cmd.hasOption('s'))
 				HTTPS_PORT = Integer.parseInt(cmd.getOptionValue('s'));
-			if (cmd.hasOption('C'))
+			if (cmd.hasOption('C') && Files.exists(Paths.get(cmd.getOptionValue('C'))))
 			{
-				if (Files.exists(Paths.get(cmd.getOptionValue('C'))))
-				{
-					KEY_STORE_PATH = cmd.getOptionValue('C');
-					if (Files.exists(Paths.get(KEY_STORE_PATH + ".pw")))
-						KEY_STORE_PASSWORD_PATH = KEY_STORE_PATH + ".pw";
-					else
-						KEY_STORE_PASSWORD_PATH = null;
-				}
+				KEY_STORE_PATH = cmd.getOptionValue('C');
+				if (Files.exists(Paths.get(KEY_STORE_PATH + ".pw")))
+					KEY_STORE_PW_PATH = KEY_STORE_PATH + ".pw";
+				else
+					KEY_STORE_PW_PATH = null;
 			}
 			if (cmd.hasOption('w'))
 				System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
 			if (cmd.hasOption('d'))
 				debug = true;
-			try
-			{
-				Locale.setDefault(Locale.US);
-				System.setProperty("file.encoding", "UTF-8");
-				Log.init(getLogPath() + "/Server.%g.log", false, 1024 * 1024, 5);
-				new FullServer(clientPath);
-			}
-			catch (Exception e)
-			{
-				Log.err(e.getMessage(), e);
-			}
+			Locale.setDefault(Locale.US);
+			System.setProperty("file.encoding", "UTF-8");
+			Log.init(getLogPath() + "/Server.%g.log", false, 1024 * 1024, 5);
+			new FullServer(clientPath);
 		}
 		catch (ParseException e)
 		{
@@ -300,8 +299,12 @@ public class FullServer
 			new HelpFormatter().printHelp("Server", options);
 			System.exit(1);
 		}
+		catch (Exception e)
+		{
+			Log.err(e.getMessage(), e);
+		}
 	}
-	
+
 	private static Path getWorkPath()
 	{
 		String base = System.getProperty("jrommanager.dir");
@@ -312,7 +315,7 @@ public class FullServer
 
 	private static String getLogPath() throws IOException
 	{
-		Path path = getWorkPath().resolve("logs");
+		final var path = getWorkPath().resolve("logs");
 		Files.createDirectories(path);
 		return path.toString();
 	}
