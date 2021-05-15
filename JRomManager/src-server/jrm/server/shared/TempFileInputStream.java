@@ -6,21 +6,23 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 
 public class TempFileInputStream extends FileInputStream
 {
 	private final File file;
 	private final long length;
-	
+
 	public TempFileInputStream(File file) throws FileNotFoundException
 	{
 		super(file);
 		this.file = file;
 		this.length = file.length();
 	}
-	
+
 	@Override
 	public void close() throws IOException
 	{
@@ -30,8 +32,12 @@ public class TempFileInputStream extends FileInputStream
 
 	public static InputStream newInstance() throws IOException
 	{
-		final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-		return new TempFileInputStream(Files.createTempFile("JRMSRV", null, attr).toFile());
+		if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
+		{
+			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+			return new TempFileInputStream(Files.createTempFile("JRMSRV", null, attr).toFile());
+		}
+		return new TempFileInputStream(Files.createTempFile("JRMSRV", null).toFile());
 	}
 
 	public static InputStream newInstance(InputStream in) throws IOException
@@ -46,8 +52,14 @@ public class TempFileInputStream extends FileInputStream
 
 	public static InputStream newInstance(InputStream in, long len, boolean close) throws IOException
 	{
-		final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-		final var tmpfile = Files.createTempFile("JRMSRV", null, attr);
+		final Path tmpfile;
+		if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
+		{
+			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
+			tmpfile = Files.createTempFile("JRMSRV", null, attr);
+		}
+		else
+			tmpfile = Files.createTempFile("JRMSRV", null);
 		try (final var out = new BufferedOutputStream(Files.newOutputStream(tmpfile)))
 		{
 			if (len < 0)

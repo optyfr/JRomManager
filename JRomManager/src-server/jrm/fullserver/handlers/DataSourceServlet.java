@@ -1,7 +1,6 @@
 package jrm.fullserver.handlers;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,7 +14,7 @@ import jrm.server.shared.datasources.XMLRequest;
 public class DataSourceServlet extends jrm.server.shared.handlers.DataSourceServlet
 {
 	@Override
-	protected TempFileInputStream processResponse(WebSession sess, HttpServletRequest req, HttpServletResponse resp) throws IOException, Exception
+	protected TempFileInputStream processResponse(WebSession sess, HttpServletRequest req, HttpServletResponse resp) throws Exception
 	{
 		int bodylen = req.getContentLength();
 		switch (req.getRequestURI())

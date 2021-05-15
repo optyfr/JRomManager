@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -114,8 +115,11 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-			final Path tmpfile = Files.createTempFile("JRM", ".7z", attr);
+			final Path tmpfile;
+			if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
+				tmpfile = Files.createTempFile("JRM", ".7z", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---")));
+			else
+				tmpfile = Files.createTempFile("JRM", ".7z");
 			Files.delete(tmpfile);
 			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
 			try(final SevenZipArchive archive = new SevenZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)))
