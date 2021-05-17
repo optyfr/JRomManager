@@ -143,7 +143,7 @@ public class SevenZipArchive implements Archive
 			return native7Zip.getTempDir();
 		if(tempDir == null)
 		{
-			tempDir = Files.createTempDirectory("JRM").toFile(); //$NON-NLS-1$
+			tempDir = IOUtils.createTempDirectory("JRM").toFile(); //$NON-NLS-1$
 			if(archive.exists() && !readonly)
 			{
 				if(extract(tempDir, null) == 0)
