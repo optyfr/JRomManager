@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Properties;
 import java.util.zip.CRC32;
 
@@ -189,8 +188,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 			}
 			try
 			{
-				final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-				return Files.createTempDirectory("JRM", null, attr); //$NON-NLS-1$
+				return IOUtils.createTempDirectory("JRM"); //$NON-NLS-1$
 			}
 			catch (IOException e)
 			{

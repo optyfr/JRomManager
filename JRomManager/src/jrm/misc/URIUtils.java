@@ -11,6 +11,11 @@ import java.util.stream.Collectors;
 
 public class URIUtils
 {
+	private URIUtils()
+	{
+		
+	}
+	
 	public static boolean URIExists(String path)
 	{
 		try

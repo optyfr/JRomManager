@@ -6,10 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermissions;
+
+import jrm.misc.IOUtils;
 
 public class TempFileInputStream extends FileInputStream
 {
@@ -32,12 +31,7 @@ public class TempFileInputStream extends FileInputStream
 
 	public static InputStream newInstance() throws IOException
 	{
-		if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
-		{
-			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-			return new TempFileInputStream(Files.createTempFile("JRMSRV", null, attr).toFile());
-		}
-		return new TempFileInputStream(Files.createTempFile("JRMSRV", null).toFile());
+		return new TempFileInputStream(IOUtils.createTempFile("JRMSRV", null).toFile());
 	}
 
 	public static InputStream newInstance(InputStream in) throws IOException
@@ -52,14 +46,7 @@ public class TempFileInputStream extends FileInputStream
 
 	public static InputStream newInstance(InputStream in, long len, boolean close) throws IOException
 	{
-		final Path tmpfile;
-		if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
-		{
-			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-			tmpfile = Files.createTempFile("JRMSRV", null, attr);
-		}
-		else
-			tmpfile = Files.createTempFile("JRMSRV", null);
+		final var tmpfile = IOUtils.createTempFile("JRMSRV", null);
 		try (final var out = new BufferedOutputStream(Files.newOutputStream(tmpfile)))
 		{
 			if (len < 0)

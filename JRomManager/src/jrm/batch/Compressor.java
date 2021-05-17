@@ -4,14 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +33,7 @@ import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.misc.HTMLRenderer;
+import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.security.Session;
 
@@ -115,11 +114,7 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			final Path tmpfile;
-			if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
-				tmpfile = Files.createTempFile("JRM", ".7z", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---")));
-			else
-				tmpfile = Files.createTempFile("JRM", ".7z");
+			final Path tmpfile = IOUtils.createTempFile("JRM", ".7z");
 			Files.delete(tmpfile);
 			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
 			try(final SevenZipArchive archive = new SevenZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)))
@@ -188,8 +183,7 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-			final var tmpfile = Files.createTempFile("JRM", ".zip", attr);
+			final var tmpfile = IOUtils.createTempFile("JRM", ".zip");
 			Files.delete(tmpfile);
 			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
 			try(final SevenZipArchive archive = new SevenZipArchive(session, file, false, new ProgressNarchiveCallBack(progress)))
@@ -269,8 +263,7 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-			final var tmpfile = Files.createTempFile("JRM", ".zip", attr);
+			final var tmpfile = IOUtils.createTempFile("JRM", ".zip");
 			Files.delete(tmpfile);
 			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
 			try (final FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + file.toURI()), new HashMap<>());) //$NON-NLS-1$
@@ -332,8 +325,7 @@ public class Compressor implements HTMLRenderer
 		try
 		{
 			cb.apply("Processing "+file.getName());
-			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-			final var tmpfile = Files.createTempFile("JRM", ".7z", attr);
+			final var tmpfile = IOUtils.createTempFile("JRM", ".7z");
 			Files.delete(tmpfile);
 			final File newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
 			try(final SevenZipArchive archive = new SevenZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))

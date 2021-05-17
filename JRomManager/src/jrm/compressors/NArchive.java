@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
@@ -35,6 +34,7 @@ import jrm.compressors.sevenzipjbinding.CloseCreateCallback;
 import jrm.compressors.sevenzipjbinding.ExtractorCallback;
 import jrm.compressors.sevenzipjbinding.NArchiveBase;
 import jrm.misc.GlobalSettings;
+import jrm.misc.IOUtils;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
 import lombok.*;
@@ -302,8 +302,7 @@ abstract class NArchive extends NArchiveBase
 				idx[i] = i;
 				if(!(Boolean)getIInArchive().getProperty(i, PropID.IS_FOLDER))
 				{
-					final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-					val file = Files.createTempFile("JRM", null, attr).toFile();
+					val file = IOUtils.createTempFile("JRM", null).toFile();
 					tmpfiles.put(i, file); //$NON-NLS-1$
 					rafs.put(i, new RandomAccessFile(file, "rw")); //$NON-NLS-1$
 				}

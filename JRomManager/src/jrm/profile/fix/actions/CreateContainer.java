@@ -18,10 +18,7 @@ package jrm.profile.fix.actions;
 
 import java.net.URI;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +32,7 @@ import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.compressors.zipfs.ZipLevel;
 import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.locale.Messages;
+import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
@@ -163,10 +161,7 @@ public class CreateContainer extends ContainerAction
 				if (container.getType() == Container.Type.DIR)
 				{
 					target = container.getFile().toPath();
-					if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
-						Files.createDirectories(target, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"))); //$NON-NLS-1$
-					else
-						Files.createDirectories(target);
+					IOUtils.createDirectories(target);
 				}
 				else
 					target = container.getFile().getParentFile().toPath();

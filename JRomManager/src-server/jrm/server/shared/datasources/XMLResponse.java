@@ -4,10 +4,8 @@ import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -17,6 +15,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.lang3.Range;
 
+import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.security.PathAbstractor;
 import jrm.server.shared.TempFileInputStream;
@@ -35,13 +34,7 @@ public abstract class XMLResponse implements Closeable
 	{
 		this.request = request;
 		pathAbstractor = new PathAbstractor(request.getSession());
-		if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) //$NON-NLS-1$
-		{
-			final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-			tmpfile = Files.createTempFile("JRM", null, attr);
-		}
-		else
-			tmpfile = Files.createTempFile("JRM", null);
+		tmpfile = IOUtils.createTempFile("JRM", null);
 		out = new BufferedOutputStream(Files.newOutputStream(tmpfile));
 		writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(out));
 		writer.writeStartDocument("utf-8", "1.0");

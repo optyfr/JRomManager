@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +40,7 @@ import org.apache.commons.io.FileUtils;
 import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.misc.FindCmd;
+import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
@@ -116,8 +116,7 @@ public class ZipArchive implements Archive
 			{
 				int err = -1;
 				final List<String> cmd_add = new ArrayList<>();
-				final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---"));
-				final Path tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z", attr); //$NON-NLS-1$ //$NON-NLS-2$
+				final Path tmpfile = IOUtils.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 				Files.delete(tmpfile);
 				if(is_7z)
 				{
