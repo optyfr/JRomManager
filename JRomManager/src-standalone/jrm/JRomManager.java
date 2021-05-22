@@ -110,7 +110,6 @@ public final class JRomManager
 					}
 					catch (final Exception e)
 					{
-						e.printStackTrace();
 						Log.err("Unable to remove lock file: " + lockFile, e); //$NON-NLS-1$
 					}
 
@@ -122,7 +121,6 @@ public final class JRomManager
 		}
 		catch (final Exception e)
 		{
-			e.printStackTrace();
 			Log.err("Unable to create and/or lock file: " + lockFile, e); //$NON-NLS-1$
 		}
 		return false;
