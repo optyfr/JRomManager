@@ -185,7 +185,7 @@ public class AddEntry extends EntryAction
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
-			catch(final Throwable e)
+			catch(final Exception e)
 			{
 				Log.err("add from " + entry.parent.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
@@ -245,11 +245,14 @@ public class AddEntry extends EntryAction
 		}
 		else if(entry.parent.getType() == Type.ZIP)
 		{
-			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.getFile().toPath(), Collections.singletonMap("readOnly", true));)
+			try(final var srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.getFile().toPath(), Collections.singletonMap("readOnly", true));)
 			{
-				return dstarchive.add_stdin(Files.newInputStream(srcfs.getPath(entry.getFile())), entity.getName()) == 0;
+				try(final var in = Files.newInputStream(srcfs.getPath(entry.getFile())))
+				{
+					return dstarchive.add_stdin(in, entity.getName()) == 0;
+				}
 			}
-			catch(final Throwable e)
+			catch(final Exception e)
 			{
 				Log.err("add from " + entry.parent.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}

@@ -67,8 +67,10 @@ public class URIUtils
 	
 	public static String readString(String path) throws IOException
 	{
-		Path p = getPath(path);
-		return Files.newBufferedReader(p, StandardCharsets.UTF_8).lines().collect(Collectors.joining());
+		try(final var reader = Files.newBufferedReader(getPath(path), StandardCharsets.UTF_8))
+		{
+			return reader.lines().collect(Collectors.joining());
+		}
 	}
 
 }

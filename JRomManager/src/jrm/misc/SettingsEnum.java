@@ -62,6 +62,7 @@ public enum SettingsEnum
 	trntchk_remove_wrong_sized_files("trntchk.remove_wrong_sized_files"),
 	compressor_format("compressor.format"),
 	compressor_force("compressor.force"),
+	compressor_parallelism("compressor.parallelism"),
 	dir2dat_src_dir("dir2dat.src_dir"),
 	dir2dat_dst_file("dir2dat.dst_file"),
 	dir2dat_format("dir2dat.format"),

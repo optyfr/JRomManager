@@ -200,7 +200,7 @@ public class ZipArchive implements Archive
 		}
 		else*/
 		{
-			try(FileSystem srcfs = FileSystems.newFileSystem(archive.toPath(), (ClassLoader)null);)
+			try(final var srcfs = FileSystems.newFileSystem(archive.toPath(), (ClassLoader)null);)
 			{
 				if(entry != null && !entry.isEmpty())
 					Files.copy(srcfs.getPath(entry), baseDir.toPath().resolve(entry));
@@ -209,7 +209,10 @@ public class ZipArchive implements Archive
 					final Path sourcePath = srcfs.getPath("/"); //$NON-NLS-1$
 					final Path targetPath = baseDir.toPath();
 					if(cb != null)
-						cb.setTotal(Files.walk(sourcePath).filter(p->Files.isRegularFile(p)).count());
+						try(final var stream = Files.walk(sourcePath))
+						{
+							cb.setTotal(stream.filter(Files::isRegularFile).count());
+						}
 					Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
 					{
 						long cnt = 0;
@@ -280,7 +283,10 @@ public class ZipArchive implements Archive
 			sfv.setFileSystem(srcfs);
 			sfv.setSourcePath(srcfs.getPath("/"));
 			if(cb != null)
-				cb.setTotal(Files.walk(sfv.getSourcePath()).filter(p->Files.isRegularFile(p)).count());
+				try(final var stream = Files.walk(sfv.getSourcePath()))
+				{
+					cb.setTotal(stream.filter(Files::isRegularFile).count());
+				}
 			Files.walkFileTree(sfv.getSourcePath(), new SimpleFileVisitor<Path>()
 			{
 				long cnt = 0;
@@ -322,7 +328,10 @@ public class ZipArchive implements Archive
 		{
 			sfv.setFileSystem(fs);
 			if(cb != null)
-				cb.setTotal(Files.walk(sfv.getSourcePath()).filter(p->Files.isRegularFile(p)).count());
+				try(final var stream = Files.walk(sfv.getSourcePath()))
+				{
+					cb.setTotal(stream.filter(Files::isRegularFile).count());
+				}
 			Files.walkFileTree(sfv.getSourcePath(), new SimpleFileVisitor<Path>()
 			{
 				long cnt = 0;

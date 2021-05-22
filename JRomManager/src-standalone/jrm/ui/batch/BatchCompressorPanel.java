@@ -350,7 +350,10 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 						for(File f : files)
 						{
 							if(f.isDirectory())
-								Files.walk(f.toPath()).filter(p->Files.isRegularFile(p)&&FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p->model.getData().add(new FileResult(p)));
+								try(final var stream = Files.walk(f.toPath()))
+								{
+									stream.filter(p->Files.isRegularFile(p)&&FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p->model.getData().add(new FileResult(p)));
+								}
 							else
 								model.getData().add(new FileResult(f.toPath()));
 						}
@@ -459,9 +462,9 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 							{
 								if(f.isDirectory())
 								{
-									try
+									try(final var stream = Files.walk(f.toPath()))
 									{
-										Files.walk(f.toPath()).filter(p->Files.isRegularFile(p)&&FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p->model.getData().add(new FileResult(p)));
+										stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p -> model.getData().add(new FileResult(p)));
 									}
 									catch (IOException e)
 									{
@@ -521,15 +524,15 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 					setInfos(Runtime.getRuntime().availableProcessors(), true);
 					for(int i = 0; i < table.getRowCount(); i++)
 						table.setValueAt("", i, 1);
-					AtomicInteger cnt = new AtomicInteger();
-					final Compressor compressor = new Compressor(session, cnt, table.getRowCount(), this);
-					final var use_parallelism = true;
+					final var cnt = new AtomicInteger();
+					final var compressor = new Compressor(session, cnt, table.getRowCount(), this);
+					final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, true);
 					final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 					new MultiThreading<FileResult>(nThreads, fr -> {
 						if(isCancel())
 							return;
-						final int i = table.model.getData().indexOf(fr);
-						File file = fr.file.toFile();
+						final var i = table.model.getData().indexOf(fr);
+						var file = fr.file.toFile();
 						cnt.incrementAndGet();
 						Compressor.UpdResultCallBack cb = txt -> table.setValueAt(txt, i, 1);
 						Compressor.UpdSrcCallBack scb = src -> table.setValueAt(src, i, 0);
