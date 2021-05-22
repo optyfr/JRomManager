@@ -99,7 +99,8 @@ public class BackupContainer extends ContainerAction
 	 */
 	public static void closeAllFS()
 	{
-		filesystems.values().forEach(fs -> {
+		for(final var fs : filesystems.values())
+		{
 			try
 			{
 				synchronized (fs)
@@ -111,7 +112,7 @@ public class BackupContainer extends ContainerAction
 			{
 				Log.err(e.getMessage(),e);
 			}
-		});
+		}
 		filesystems.clear();
 	}
 

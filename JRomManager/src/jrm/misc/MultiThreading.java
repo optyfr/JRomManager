@@ -85,6 +85,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 		catch (InterruptedException e)
 		{
 			Log.err(e.getMessage(), e);
+			Thread.currentThread().interrupt();
 		}
 		catch (NullPointerException e)
 		{

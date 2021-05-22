@@ -160,7 +160,11 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	public Machine findMachine(final String softwarelist, final String compatibility)
 	{
 		if(softwarelist_defs.containsKey(softwarelist))
-			return getSortedMachines(softwarelist, compatibility).stream().findFirst().orElse(null);
+		{
+			final var list = getSortedMachines(softwarelist, compatibility);
+			if(list!=null)
+				return list.stream().findFirst().orElse(null);
+		}
 		return null;
 	}
 

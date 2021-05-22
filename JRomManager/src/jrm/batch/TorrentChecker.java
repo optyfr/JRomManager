@@ -62,7 +62,7 @@ public class TorrentChecker implements UnitRenderer,HTMLRenderer
 		sdrl.stream().filter(sdr->sdr.selected).forEach(sdr->{
 			updater.updateResult(sdrl.indexOf(sdr), "");
 		});
-		final var use_parallelism = true;
+		final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, true);
 		final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 		new MultiThreading<SrcDstResult>(nThreads, sdr -> {
 			if(progress.isCancel())
