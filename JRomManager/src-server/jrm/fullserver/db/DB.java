@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import jrm.misc.Log;
 import jrm.misc.SystemSettings;
 import lombok.Getter;
 
@@ -26,8 +27,7 @@ public abstract class DB
 		}
 		catch(ClassNotFoundException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
 		}
 		return null;
 	}
@@ -46,7 +46,7 @@ public abstract class DB
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
 		}
 		return null;
 	}

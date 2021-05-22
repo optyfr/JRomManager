@@ -484,7 +484,7 @@ class ZipFileSystem extends FileSystem
 				}*/
 				catch(Exception e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(), e);
 				}
 			}
 		}
@@ -1676,8 +1676,7 @@ class ZipFileSystem extends FileSystem
 		}
 		catch(NoSuchFileException e)
 		{
-			System.err.println(tmpFile+" => "+zfpath);
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
 			try
 			{
 				Thread.sleep(1000);

@@ -31,6 +31,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
 import jrm.ui.MainFrame;
@@ -78,7 +79,7 @@ public class ReportView extends JScrollPane
 				}
 				catch (InterruptedException | ExecutionException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(), e);
 				}
 				finally
 				{
@@ -235,7 +236,7 @@ public class ReportView extends JScrollPane
 						}
 						catch (IOException | URISyntaxException e1)
 						{
-							e1.printStackTrace();
+							Log.err(e1.getMessage(), e1);
 						}
 					}
 				}
@@ -316,6 +317,7 @@ public class ReportView extends JScrollPane
 				return options;
 			}
 
+			@Override
 			protected void done()
 			{
 				try
@@ -325,7 +327,7 @@ public class ReportView extends JScrollPane
 				}
 				catch (InterruptedException | ExecutionException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(), e);
 				}
 			}
 		}.execute();

@@ -234,7 +234,7 @@ public class ProgressActions implements ProgressHandler
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
 		}
 	}
 

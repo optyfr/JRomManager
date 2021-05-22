@@ -293,8 +293,7 @@ public class ProfilePanel extends JPanel
 								}
 								catch (InterruptedException | ExecutionException | IOException e)
 								{
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+									Log.err(e.getMessage(), e);
 								}
 							}
 						}.execute();

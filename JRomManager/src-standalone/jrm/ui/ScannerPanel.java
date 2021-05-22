@@ -28,6 +28,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
@@ -149,7 +150,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				}
 				catch (IOException e1)
 				{
-					e1.printStackTrace();
+					Log.err(e1.getMessage(), e1);
 				}
 			}
 		});
@@ -173,7 +174,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				}
 				catch (IOException e1)
 				{
-					e1.printStackTrace();
+					Log.err(e1.getMessage(), e1);
 				}
 			}
 		});

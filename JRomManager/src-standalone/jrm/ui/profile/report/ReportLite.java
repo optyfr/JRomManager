@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
+import jrm.misc.Log;
 import jrm.profile.report.Report;
 import jrm.security.Session;
 
@@ -73,7 +74,7 @@ public class ReportLite extends JDialog
 				}
 				catch (Exception e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(), e);
 				}
 				return null;
 			}
@@ -89,7 +90,7 @@ public class ReportLite extends JDialog
 				}
 				catch (InterruptedException | ExecutionException e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(), e);
 				}
 			}
 		}.execute();

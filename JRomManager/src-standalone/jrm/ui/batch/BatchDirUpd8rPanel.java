@@ -177,7 +177,7 @@ public class BatchDirUpd8rPanel extends JPanel
 						}
 						catch (InterruptedException | ExecutionException e)
 						{
-							e.printStackTrace();
+							Log.err(e.getMessage(), e);
 						}
 					};
 				}.execute();;
@@ -240,7 +240,7 @@ public class BatchDirUpd8rPanel extends JPanel
 								}
 								catch (InterruptedException | ExecutionException e)
 								{
-									e.printStackTrace();
+									Log.err(e.getMessage(), e);
 								}
 							}
 						}.execute();

@@ -26,6 +26,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import jrm.misc.Log;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 import lombok.val;
 
@@ -126,7 +127,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
+				Log.err(e.getMessage(), e);
 			}
 			return Optional.ofNullable(testpath);
 		}
@@ -502,13 +503,13 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				}
 				catch (IOException ei)
 				{
-					ei.printStackTrace();
+					Log.err(ei.getMessage(), ei);
 				}
 			});
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
 		}
 
 	}

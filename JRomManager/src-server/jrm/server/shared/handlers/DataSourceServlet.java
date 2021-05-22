@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
+import jrm.misc.Log;
 import jrm.server.shared.TempFileInputStream;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.datasources.AnywareListListXMLResponse;
@@ -64,7 +65,7 @@ public class DataSourceServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
 			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}

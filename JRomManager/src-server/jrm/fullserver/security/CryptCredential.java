@@ -10,6 +10,7 @@ import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import de.mkammerer.argon2.Argon2Factory.Argon2Types;
 import jrm.fullserver.db.SQL;
+import jrm.misc.Log;
 import lombok.Getter;
 
 @SuppressWarnings("serial") public class CryptCredential extends Credential
@@ -35,7 +36,7 @@ import lombok.Getter;
 		}
 		catch(SQLException e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
 		}
 		return false;
 	}

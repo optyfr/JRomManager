@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.eclipsesource.json.JsonObject;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 
 import lombok.val;
@@ -48,7 +49,7 @@ public class SessionServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Log.err(e.getMessage(), e);
 			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}

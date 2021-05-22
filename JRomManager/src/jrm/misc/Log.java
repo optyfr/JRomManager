@@ -41,28 +41,28 @@ public class Log
 	public static class Formatter extends java.util.logging.Formatter
 	{
 		@Override
-		public String format(LogRecord record)
+		public String format(LogRecord theRecord)
 		{
-			Date dat = new Date();
-			dat.setTime(record.getMillis());
-			String message = formatMessage(record);
-			String throwable = "";
-			if (record.getThrown() != null)
+			final var currDate = new Date();
+			currDate.setTime(theRecord.getMillis());
+			String message = formatMessage(theRecord);
+			var throwableMsg = "";
+			if (theRecord.getThrown() != null)
 			{
-				StringWriter sw = new StringWriter();
-				PrintWriter pw = new PrintWriter(sw);
+				final var sw = new StringWriter();
+				final var pw = new PrintWriter(sw);
 				pw.println();
-				record.getThrown().printStackTrace(pw);
+				theRecord.getThrown().printStackTrace(pw);
 				pw.close();
-				throwable = sw.toString();
+				throwableMsg = sw.toString();
 			}
-			return String.format("[%1$tF %1$tT] [%2$s] %3$s%4$s%n", dat, record.getLevel().getName(), message, throwable);
+			return String.format("[%1$tF %1$tT] [%2$s] %3$s%4$s%n", currDate, theRecord.getLevel().getName(), message, throwableMsg);
 		}
 	}
 
-	public final static Formatter formatter = new Formatter();
+	public static final Formatter formatter = new Formatter();
 	
-	public Log()
+	private Log()
 	{
 		Logger.getGlobal().addHandler(new ConsoleHandler());
 	}
@@ -71,13 +71,13 @@ public class Log
 	{
 		try
 		{
-			final FileHandler filehandler = new FileHandler(file, 1024 * 1024, 5, false);
+			final var filehandler = new FileHandler(file, 1024 * 1024, 5, false);
 			filehandler.setFormatter(Log.formatter);
 			Logger.getGlobal().setUseParentHandlers(false);
 			Logger.getGlobal().addHandler(filehandler);
 			if(debug)
 			{
-				final ConsoleHandler consolehandler = new ConsoleHandler();
+				final var consolehandler = new ConsoleHandler();
 				consolehandler.setLevel(Level.FINE);
 				consolehandler.setFormatter(Log.formatter);
 				Logger.getGlobal().addHandler(consolehandler);
@@ -86,7 +86,7 @@ public class Log
 		}
 		catch (SecurityException | IOException e)
 		{
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		
 	}
@@ -110,7 +110,7 @@ public class Log
 		if(msg instanceof String)
 			Logger.getGlobal().info((String)msg);
 		else
-			Logger.getGlobal().info(msg.toString());
+			Logger.getGlobal().info(msg::toString);
 	}
 
 	public static void info(Supplier<String> msgSupplier)
@@ -125,7 +125,7 @@ public class Log
 		if(msg instanceof String)
 			Logger.getGlobal().warning((String)msg);
 		else
-			Logger.getGlobal().warning(msg.toString());
+			Logger.getGlobal().warning(msg::toString);
 	}
 
 	public static void warn(Supplier<String> msgSupplier)
@@ -140,7 +140,7 @@ public class Log
 		if(msg instanceof String)
 			Logger.getGlobal().severe((String)msg);
 		else
-			Logger.getGlobal().severe(msg.toString());
+			Logger.getGlobal().severe(msg::toString);
 	}
 
 	public static void err(Supplier<String> msgSupplier)
@@ -165,7 +165,7 @@ public class Log
 		if(msg instanceof String)
 			Logger.getGlobal().fine((String)msg);
 		else
-			Logger.getGlobal().fine(msg.toString());
+			Logger.getGlobal().fine(msg::toString);
 	}
 	
 	public static void debug(Supplier<String> msgSupplier)
@@ -180,7 +180,7 @@ public class Log
 		if(msg instanceof String)
 			Logger.getGlobal().finest((String)msg);
 		else
-			Logger.getGlobal().finest(msg.toString());
+			Logger.getGlobal().finest(msg::toString);
 	}
 	
 	public static void trace(Supplier<String> msgSupplier)
@@ -195,7 +195,7 @@ public class Log
 		if(msg instanceof String)
 			Logger.getGlobal().config((String)msg);
 		else
-			Logger.getGlobal().config(msg.toString());
+			Logger.getGlobal().config(msg::toString);
 	}
 	
 	public static void config(Supplier<String> msgSupplier)

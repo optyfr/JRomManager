@@ -250,7 +250,7 @@ public class MainFrame extends JFrame
 				}
 				catch (Exception e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(), e);
 					iconsCache.put(res, new ImageIcon());
 				}
 			}, () -> {
@@ -260,7 +260,7 @@ public class MainFrame extends JFrame
 				}
 				catch (Exception e)
 				{
-					e.printStackTrace();
+					Log.err(e.getMessage(), e);
 					iconsCache.put(res, new ImageIcon());
 				}
 			});
