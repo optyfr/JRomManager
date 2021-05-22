@@ -35,7 +35,7 @@ public class CompressorActions
 	{
 		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
-			final CompressorFormat format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format, "TZIP"));
+			final var format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format, "TZIP"));
 			final boolean force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, false);
 
 			final var use_parallelism = true;
@@ -46,8 +46,8 @@ public class CompressorActions
 			try
 			{
 				clearResults();
-				final AtomicInteger cnt = new AtomicInteger();
-				final Compressor compressor = new Compressor(session, cnt, ws.getSession().getCachedCompressorList().size(), session.getWorker().progress);
+				final var cnt = new AtomicInteger();
+				final var compressor = new Compressor(session, cnt, ws.getSession().getCachedCompressorList().size(), session.getWorker().progress);
 				List<FileResult> values = new ArrayList<>(ws.getSession().getCachedCompressorList().values());
 				
 				new MultiThreading<Compressor.FileResult>(nThreads, fr -> {
@@ -56,9 +56,15 @@ public class CompressorActions
 					try
 					{
 						final int i = values.indexOf(fr);
-						File file = PathAbstractor.getAbsolutePath(session, fr.file.toString()).toFile();
-						Compressor.UpdResultCallBack cb = txt -> updateResult(i, fr.result = txt);
-						Compressor.UpdSrcCallBack scb = src -> updateFile(i, fr.file = PathAbstractor.getRelativePath(session, src.toPath()));
+						var file = PathAbstractor.getAbsolutePath(session, fr.file.toString()).toFile();
+						Compressor.UpdResultCallBack cb = txt -> {
+							fr.result = txt;
+							updateResult(i, fr.result);
+						};
+						Compressor.UpdSrcCallBack scb = src -> {
+							fr.file = PathAbstractor.getRelativePath(session, src.toPath());
+							updateFile(i, fr.file);
+						};
 						switch(format)
 						{
 							case SEVENZIP:
@@ -115,9 +121,9 @@ public class CompressorActions
 					}
 					catch(BreakException e)
 					{
-						session.getWorker().progress.cancel();;
+						session.getWorker().progress.cancel();
 					}
-					catch (final Throwable e)
+					catch (final Exception e)
 					{	// oups! something unexpected happened
 						Log.err(e.getMessage(), e);
 					}
@@ -131,7 +137,7 @@ public class CompressorActions
 			}
 			catch(BreakException e)
 			{
-				session.getWorker().progress.cancel();;
+				session.getWorker().progress.cancel();
 			}
 			finally
 			{
@@ -141,20 +147,19 @@ public class CompressorActions
 		}))).start();
 	}
 	
-	@SuppressWarnings("serial")
 	void updateFile(int row, Path file)
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Compressor.updateFile");
-					add("params", new JsonObject() {{
-						add("row", row);
-						add("file", file.toString());
-					}});
-				}}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "Compressor.updateFile");
+				final var params = new JsonObject();
+				params.add("row", row);
+				params.add("file", file.toString());
+				msg.add("params", params);
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)
@@ -163,20 +168,19 @@ public class CompressorActions
 		}
 	}
 
-	@SuppressWarnings("serial")
 	void updateResult(int row, String result)
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Compressor.updateResult");
-					add("params", new JsonObject() {{
-						add("row", row);
-						add("result", result);
-					}});
-				}}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "Compressor.updateResult");
+				final var params = new JsonObject();
+				params.add("row", row);
+				params.add("result", result);
+				msg.add("params",params);
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)
@@ -185,16 +189,15 @@ public class CompressorActions
 		}
 	}
 
-	@SuppressWarnings("serial")
 	void clearResults()
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Compressor.clearResults");
-				}}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "Compressor.clearResults");
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)
@@ -210,9 +213,9 @@ public class CompressorActions
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Compressor.end");
-				}}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "Compressor.end");
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)

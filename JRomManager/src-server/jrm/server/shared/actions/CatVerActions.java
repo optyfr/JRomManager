@@ -28,19 +28,18 @@ public class CatVerActions
 		loaded(ws.getSession().getCurr_profile());
 	}
 	
-	@SuppressWarnings("serial")
 	public void loaded(final Profile profile)
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "CatVer.loaded");
-					add("params", new JsonObject() {{
-						add("path", profile.catver != null ? PathAbstractor.getRelativePath(ws.getSession(), profile.catver.file.toPath()).toString() : null);
-					}});
-				}}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "CatVer.loaded");
+				final var params = new JsonObject();
+				params.add("path", profile.catver != null ? PathAbstractor.getRelativePath(ws.getSession(), profile.catver.file.toPath()).toString() : null);
+				msg.add("params", params);
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)

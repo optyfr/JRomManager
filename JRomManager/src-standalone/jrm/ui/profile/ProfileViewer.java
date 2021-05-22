@@ -316,7 +316,7 @@ public class ProfileViewer extends JDialog
 			public void actionPerformed(ActionEvent e)
 			{
 				final AnywareListModel list = (AnywareListModel) tableW.getModel();
-				final Pattern pattern = Pattern.compile("^(.*?)(\\(.*\\))+"); //$NON-NLS-1$
+				final Pattern pattern = Pattern.compile("^(.*?)(\\(.*\\))++"); //$NON-NLS-1$
 				final Pattern pattern_parenthesis = Pattern.compile("\\((.*?)\\)"); //$NON-NLS-1$
 				final Pattern pattern_split = Pattern.compile(","); //$NON-NLS-1$
 				final Pattern pattern_alpha = Pattern.compile("^[a-zA-Z]*$"); //$NON-NLS-1$
