@@ -854,7 +854,7 @@ public class ProfileViewer extends JDialog
 						}
 						catch (IOException | URISyntaxException e1)
 						{
-							e1.printStackTrace();
+							Log.err(e1.getMessage(), e1);
 						}
 					}
 				}

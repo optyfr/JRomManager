@@ -101,7 +101,7 @@ public class JRomManagerCLI
 			}
 			catch(IOException e)
 			{
-				e.printStackTrace();
+				System.err.println(e.getMessage());
 			}
 		}
 	}
@@ -725,7 +725,7 @@ public class JRomManagerCLI
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 
