@@ -16,14 +16,18 @@ public class DataSourceServlet extends jrm.server.shared.handlers.DataSourceServ
 	@Override
 	protected TempFileInputStream processResponse(WebSession sess, HttpServletRequest req, HttpServletResponse resp) throws Exception
 	{
-		int bodylen = req.getContentLength();
-		switch (req.getRequestURI())
+		if ("/datasources/admin".equals(req.getRequestURI()))
 		{
-			case "/datasources/admin":
-				return new AdminXMLResponse(new XMLRequest(sess, new BufferedInputStream(req.getInputStream()), bodylen)).processRequest();
-			default:
-				return super.processResponse(sess, req, resp);
+			try (final var in = new BufferedInputStream(req.getInputStream()))
+			{
+				try(final var response = new AdminXMLResponse(new XMLRequest(sess, in, req.getContentLength())))
+				{
+					return response.processRequest();
+				}
+			}
 		}
+		else
+			return super.processResponse(sess, req, resp);
 	}
-	
+
 }
