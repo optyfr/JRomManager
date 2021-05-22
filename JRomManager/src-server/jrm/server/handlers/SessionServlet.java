@@ -31,22 +31,20 @@ public class SessionServlet extends HttpServlet
 			resp.setContentType("text/json");
 			val ws = (WebSession)req.getSession().getAttribute("session");
 			val sessionid = req.getSession().getId();
-			var msg = new JsonObject()
-			{{
-				add("session", sessionid);
-				add("msgs", new JsonObject()
-				{{
-					List<LanguageRange> lr = LanguageRange.parse(req.getHeader("accept-language"));
-					ResourceBundle rb = ws.msgs = Messages.loadBundle(!lr.isEmpty() ? Locale.lookup(lr, Arrays.asList(Locale.getAvailableLocales())) : Locale.getDefault());
-					rb.keySet().forEach(k -> {
-						if (k != null && !k.isEmpty())
-							add(k, rb.getString(k));
-					});
-				}});
-				add("settings", ws.getUser().getSettings().asJSO());
-			}}.toString();
-			resp.setContentLength(msg.getBytes().length);
-			resp.getWriter().write(msg);
+			var jso = new JsonObject();
+			jso.add("session", sessionid);
+			final var msgs = new JsonObject();
+			List<LanguageRange> lr = LanguageRange.parse(req.getHeader("accept-language"));
+			ResourceBundle rb = ws.msgs = Messages.loadBundle(!lr.isEmpty() ? Locale.lookup(lr, Arrays.asList(Locale.getAvailableLocales())) : Locale.getDefault());
+			rb.keySet().forEach(k -> {
+				if (k != null && !k.isEmpty())
+					msgs.add(k, rb.getString(k));
+			});
+			jso.add("msgs", msgs);
+			jso.add("settings", ws.getUser().getSettings().asJSO());
+			final var jsonStr = jso.toString();
+			resp.setContentLength(jsonStr.getBytes().length);
+			resp.getWriter().write(jsonStr);
 		}
 		catch (Exception e)
 		{

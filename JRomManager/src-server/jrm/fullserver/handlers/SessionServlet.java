@@ -29,26 +29,23 @@ public class SessionServlet extends HttpServlet
 		{
 			resp.setStatus(HttpServletResponse.SC_OK);
 			resp.setContentType("text/json");
-			val ws = (WebSession)req.getSession().getAttribute("session");
+			val ws = (WebSession) req.getSession().getAttribute("session");
 			val sessionid = req.getSession().getId();
-			String msg = new JsonObject()
-			{{
-				add("session", sessionid);
-				add("authenticated", true);
-				add("admin", ws.getUser().isAdmin());
-				add("msgs", new JsonObject()
-				{{
-					List<LanguageRange> lr = LanguageRange.parse(req.getHeader("accept-language"));
-					ResourceBundle rb = ws.msgs = Messages.loadBundle(lr.size() > 0 ? Locale.lookup(lr, Arrays.asList(Locale.getAvailableLocales())) : Locale.getDefault());
-					rb.keySet().forEach(k -> {
-						if (k != null && !k.isEmpty())
-							add(k, rb.getString(k));
-					});
-				}});
-				add("settings", ws.getUser().getSettings().asJSO());
-			}}.toString();
-			resp.setContentLength(msg.getBytes().length);
-			resp.getWriter().write(msg);
+			final var jso = new JsonObject();
+			jso.add("session", sessionid);
+			jso.add("authenticated", true);
+			jso.add("admin", ws.getUser().isAdmin());
+			final var msgs = new JsonObject();
+			List<LanguageRange> lr = LanguageRange.parse(req.getHeader("accept-language"));
+			ResourceBundle rb = ws.msgs = Messages.loadBundle(!lr.isEmpty() ? Locale.lookup(lr, Arrays.asList(Locale.getAvailableLocales())) : Locale.getDefault());
+			rb.keySet().forEach(k -> {
+				if (k != null && !k.isEmpty())
+					msgs.add(k, rb.getString(k));
+			});
+			jso.add("msgs", msgs);
+			final var jsonStr = jso.toString();
+			resp.setContentLength(jsonStr.getBytes().length);
+			resp.getWriter().write(jsonStr);
 		}
 		catch (Exception e)
 		{
