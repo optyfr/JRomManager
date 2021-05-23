@@ -28,19 +28,18 @@ public class NPlayersActions
 		loaded(ws.getSession().getCurr_profile());
 	}
 	
-	@SuppressWarnings("serial")
 	public void loaded(final Profile profile)
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "NPlayers.loaded");
-					add("params", new JsonObject() {{
-						add("path", profile.nplayers != null ? PathAbstractor.getRelativePath(ws.getSession(), profile.nplayers.file.toPath()).toString() : null);
-					}});
-				}}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "NPlayers.loaded");
+				final var params = new JsonObject();
+				params.add("path", profile.nplayers != null ? PathAbstractor.getRelativePath(ws.getSession(), profile.nplayers.file.toPath()).toString() : null);
+				msg.add("params", params);
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)

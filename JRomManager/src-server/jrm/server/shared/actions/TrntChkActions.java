@@ -29,7 +29,7 @@ public class TrntChkActions
 	{
 		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
-			final TrntChkMode mode = TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode, "FILENAME"));
+			final var mode = TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode, "FILENAME"));
 			final boolean removeUnknownFiles = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, false);
 			final boolean removeWrongSizedFiles = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, false);
 			final boolean detectArchivedFolders = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, true);
@@ -68,7 +68,7 @@ public class TrntChkActions
 			}
 			catch(BreakException e)
 			{
-				
+				// user cancelled action
 			}
 			finally
 			{
@@ -80,20 +80,19 @@ public class TrntChkActions
 		}))).start();
 	}
 	
-	@SuppressWarnings("serial")
 	void updateResult(int row, String result)
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "TrntChk.updateResult");
-					add("params", new JsonObject() {{
-						add("row", row);
-						add("result", result);
-					}});
-				}}.toString());
+				final var rjso = new JsonObject();
+				rjso.add("cmd", "TrntChk.updateResult");
+				final var params = new JsonObject();
+				params.add("row", row);
+				params.add("result", result);
+				rjso.add("params", params);
+				ws.send(rjso.toString());
 			}
 		}
 		catch (IOException e)
@@ -102,16 +101,15 @@ public class TrntChkActions
 		}
 	}
 
-	@SuppressWarnings("serial")
 	void clearResults()
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "TrntChk.clearResults");
-				}}.toString());
+				final var rjso = new JsonObject();
+				rjso.add("cmd", "TrntChk.clearResults");
+				ws.send(rjso.toString());
 			}
 		}
 		catch (IOException e)
@@ -120,16 +118,15 @@ public class TrntChkActions
 		}
 	}
 
-	@SuppressWarnings("serial")
 	void end()
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "TrntChk.end");
-				}}.toString());
+				final var rjso = new JsonObject();
+				rjso.add("cmd", "TrntChk.end");
+				ws.send(rjso.toString());
 			}
 		}
 		catch (IOException e)

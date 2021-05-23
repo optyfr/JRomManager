@@ -10,6 +10,7 @@ import jrm.misc.Log;
 
 public class GlobalActions
 {
+	private static final String FF_MI_B = "%.2f MiB";
 	private final ActionsMgr ws;
 
 	public GlobalActions(ActionsMgr ws)
@@ -35,7 +36,7 @@ public class GlobalActions
 			if(ws.isOpen())
 			{
 				ws.getSession().getUser().getSettings().saveSettings();
-				final JsonObject rjso = new JsonObject();
+				final var rjso = new JsonObject();
 				rjso.add("cmd", "Global.updateProperty");
 				rjso.add("params", pjso);
 				ws.send(rjso.toString());
@@ -47,21 +48,20 @@ public class GlobalActions
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public void setMemory(JsonObject jso)
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				final Runtime rt = Runtime.getRuntime();
-				String msg = (String.format(ws.getSession().getMsgs().getString("MainFrame.MemoryUsage"), String.format("%.2f MiB", rt.totalMemory() / 1048576.0), String.format("%.2f MiB", (rt.totalMemory() - rt.freeMemory()) / 1048576.0), String.format("%.2f MiB", rt.freeMemory() / 1048576.0), String.format("%.2f MiB", rt.maxMemory() / 1048576.0))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-				ws.send(new JsonObject() {{
-					add("cmd", "Global.setMemory");
-					add("params", new JsonObject() {{
-						add("msg", msg);
-					}});
-				}}.toString());
+				final var rt = Runtime.getRuntime();
+				final var msg = (String.format(ws.getSession().getMsgs().getString("MainFrame.MemoryUsage"), String.format(FF_MI_B, rt.totalMemory() / 1048576.0), String.format(FF_MI_B, (rt.totalMemory() - rt.freeMemory()) / 1048576.0), String.format(FF_MI_B, rt.freeMemory() / 1048576.0), String.format(FF_MI_B, rt.maxMemory() / 1048576.0))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				final var rjso = new JsonObject();
+				rjso.add("cmd", "Global.setMemory");
+				final var params = new JsonObject();
+				params.add("msg", msg);
+				rjso.add("params", params);
+				ws.send(rjso.toString());
 			}
 		}
 		catch (IOException e)
@@ -76,19 +76,18 @@ public class GlobalActions
 		setMemory(jso);
 	}
 	
-	@SuppressWarnings("serial")
 	public void warn(String msg)
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Global.warn");
-					add("params", new JsonObject() {{
-						add("msg", msg);
-					}});
-				}}.toString());
+				final var rjso = new JsonObject();
+				rjso.add("cmd", "Global.warn");
+				final var params = new JsonObject();
+				params.add("msg", msg);
+				rjso.add("params", params);
+				ws.send(rjso.toString());
 			}
 		}
 		catch (IOException e)

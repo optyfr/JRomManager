@@ -6,7 +6,6 @@ import java.util.EnumSet;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonObject.Member;
-import com.eclipsesource.json.JsonValue;
 
 import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
@@ -31,8 +30,8 @@ public class ReportActions
 		{
 			try
 			{
-				FilterOptions option = FilterOptions.valueOf(m.getName());
-				JsonValue value = m.getValue();
+				final var option = FilterOptions.valueOf(m.getName());
+				final var value = m.getValue();
 				if (value.asBoolean())
 					options.add(option);
 				else
@@ -41,7 +40,7 @@ public class ReportActions
 			}
 			catch (IllegalArgumentException ex)
 			{
-
+				// is it even possible?
 			}
 		}
 		report.getHandler().filter(options.toArray(new FilterOptions[0]));
@@ -49,12 +48,9 @@ public class ReportActions
 		{
 			if (ws.isOpen())
 			{
-				ws.send(Json.object().add("cmd", lite ? "ReportLite.applyFilters" : "Report.applyFilters").add("params", new JsonObject()
-				{
-					{
-						EnumSet.allOf(FilterOptions.class).forEach(f -> add(f.toString(), options.contains(f)));
-					}
-				}).toString());
+				final var params = new JsonObject();
+				EnumSet.allOf(FilterOptions.class).forEach(f -> params.add(f.toString(), options.contains(f)));
+				ws.send(Json.object().add("cmd", lite ? "ReportLite.applyFilters" : "Report.applyFilters").add("params", params).toString());
 			}
 		}
 		catch (IOException e)

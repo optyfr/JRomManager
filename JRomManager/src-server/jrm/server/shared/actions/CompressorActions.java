@@ -33,109 +33,27 @@ public class CompressorActions
 
 	public void start(JsonObject jso)
 	{
-		(ws.getSession().setWorker(new Worker(()->{
-			WebSession session = ws.getSession();
+		(ws.getSession().setWorker(new Worker(() -> {
+			final var session = ws.getSession();
 			final var format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format, "TZIP"));
-			final boolean force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, false);
+			final var force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, false);
 
-			final var use_parallelism = true;
+			final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, true);
 			final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 
 			session.getWorker().progress = new ProgressActions(ws);
-			session.getWorker().progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(),ws.getSession().getCachedCompressorList().size()), true);
+			session.getWorker().progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), ws.getSession().getCachedCompressorList().size()), true);
 			try
 			{
 				clearResults();
 				final var cnt = new AtomicInteger();
 				final var compressor = new Compressor(session, cnt, ws.getSession().getCachedCompressorList().size(), session.getWorker().progress);
 				List<FileResult> values = new ArrayList<>(ws.getSession().getCachedCompressorList().values());
-				
-				new MultiThreading<Compressor.FileResult>(nThreads, fr -> {
-					if(session.getWorker().progress.isCancel())
-						return;
-					try
-					{
-						final int i = values.indexOf(fr);
-						var file = PathAbstractor.getAbsolutePath(session, fr.file.toString()).toFile();
-						Compressor.UpdResultCallBack cb = txt -> {
-							fr.result = txt;
-							updateResult(i, fr.result);
-						};
-						Compressor.UpdSrcCallBack scb = src -> {
-							fr.file = PathAbstractor.getRelativePath(session, src.toPath());
-							updateFile(i, fr.file);
-						};
-						switch(format)
-						{
-							case SEVENZIP:
-							{
-								switch(FilenameUtils.getExtension(file.getName()))
-								{
-									case "zip":
-										compressor.zip2SevenZip(file, cb, scb);
-										break;
-									case "7z":
-										if(force)
-											compressor.sevenZip2SevenZip(file, cb, scb);
-										else
-											cb.apply("Skipped");
-										break;
-									default:
-										compressor.sevenZip2SevenZip(file, cb, scb);
-										break;
-								}
-								break;
-							}
-							case ZIP:
-							{
-								switch(FilenameUtils.getExtension(file.getName()))
-								{
-									case "zip":
-										if(force)
-											compressor.zip2Zip(file, cb, scb);
-										else
-											cb.apply("Skipped");
-										break;
-									default:
-										compressor.sevenZip2Zip(file, false, cb, scb);
-										break;
-								}
-								break;
-							}
-							case TZIP:
-							{
-								switch(FilenameUtils.getExtension(file.getName()))
-								{
-									case "zip":
-										compressor.zip2TZip(file, force, cb);
-										break;
-									default:
-										file = compressor.sevenZip2Zip(file, true, cb, scb);
-										if(file!=null && file.exists())
-											compressor.zip2TZip(file, force, cb);
-										break;
-								}
-								break;
-							}
-						}
-					}
-					catch(BreakException e)
-					{
-						session.getWorker().progress.cancel();
-					}
-					catch (final Exception e)
-					{	// oups! something unexpected happened
-						Log.err(e.getMessage(), e);
-					}
-					finally
-					{
-						cnt.incrementAndGet();
-					}
-					return;
-				}).start(ws.getSession().getCachedCompressorList().values().stream());
-				
+
+				new MultiThreading<Compressor.FileResult>(nThreads, fr -> doCompress(session, format, force, cnt, compressor, values, fr)).start(ws.getSession().getCachedCompressorList().values().stream());
+
 			}
-			catch(BreakException e)
+			catch (BreakException e)
 			{
 				session.getWorker().progress.cancel();
 			}
@@ -146,12 +64,144 @@ public class CompressorActions
 			}
 		}))).start();
 	}
-	
+
+	/**
+	 * @param session
+	 * @param format
+	 * @param force
+	 * @param cnt
+	 * @param compressor
+	 * @param values
+	 * @param fr
+	 */
+	private void doCompress(final WebSession session, final CompressorFormat format, final boolean force, final AtomicInteger cnt, final Compressor compressor, List<FileResult> values, FileResult fr)
+	{
+		if (session.getWorker().progress.isCancel())
+			return;
+		try
+		{
+			final int i = values.indexOf(fr);
+			var file = PathAbstractor.getAbsolutePath(session, fr.file.toString()).toFile();
+			Compressor.UpdResultCallBack cb = txt -> {
+				fr.result = txt;
+				updateResult(i, fr.result);
+			};
+			Compressor.UpdSrcCallBack scb = src -> {
+				fr.file = PathAbstractor.getRelativePath(session, src.toPath());
+				updateFile(i, fr.file);
+			};
+			switch (format)
+			{
+				case SEVENZIP:
+				{
+					doCompress2SevenZip(force, compressor, file, cb, scb);
+					break;
+				}
+				case ZIP:
+				{
+					doCompress2Zip(force, compressor, file, cb, scb);
+					break;
+				}
+				case TZIP:
+				{
+					doCompress2TZip(force, compressor, file, cb, scb);
+					break;
+				}
+			}
+		}
+		catch (BreakException e)
+		{
+			session.getWorker().progress.cancel();
+		}
+		catch (final Exception e)
+		{ // oups! something unexpected happened
+			Log.err(e.getMessage(), e);
+		}
+		finally
+		{
+			cnt.incrementAndGet();
+		}
+	}
+
+	/**
+	 * @param force
+	 * @param compressor
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @throws IllegalArgumentException
+	 */
+	private void doCompress2TZip(final boolean force, final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
+	{
+		switch (FilenameUtils.getExtension(file.getName()))
+		{
+			case "zip":
+				compressor.zip2TZip(file, force, cb);
+				break;
+			default:
+				file = compressor.sevenZip2Zip(file, true, cb, scb);
+				if (file != null && file.exists())
+					compressor.zip2TZip(file, force, cb);
+				break;
+		}
+	}
+
+	/**
+	 * @param force
+	 * @param compressor
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @throws IllegalArgumentException
+	 */
+	private void doCompress2Zip(final boolean force, final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
+	{
+		switch (FilenameUtils.getExtension(file.getName()))
+		{
+			case "zip":
+				if (force)
+					compressor.zip2Zip(file, cb, scb);
+				else
+					cb.apply("Skipped");
+				break;
+			default:
+				compressor.sevenZip2Zip(file, false, cb, scb);
+				break;
+		}
+	}
+
+	/**
+	 * @param force
+	 * @param compressor
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @throws IllegalArgumentException
+	 */
+	private void doCompress2SevenZip(final boolean force, final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
+	{
+		switch (FilenameUtils.getExtension(file.getName()))
+		{
+			case "zip":
+				compressor.zip2SevenZip(file, cb, scb);
+				break;
+			case "7z":
+				if (force)
+					compressor.sevenZip2SevenZip(file, cb, scb);
+				else
+					cb.apply("Skipped");
+				break;
+			default:
+				compressor.sevenZip2SevenZip(file, cb, scb);
+				break;
+		}
+	}
+
 	void updateFile(int row, Path file)
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
 				final var msg = new JsonObject();
 				msg.add("cmd", "Compressor.updateFile");
@@ -164,7 +214,7 @@ public class CompressorActions
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
@@ -172,20 +222,20 @@ public class CompressorActions
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
 				final var msg = new JsonObject();
 				msg.add("cmd", "Compressor.updateResult");
 				final var params = new JsonObject();
 				params.add("row", row);
 				params.add("result", result);
-				msg.add("params",params);
+				msg.add("params", params);
 				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
@@ -193,7 +243,7 @@ public class CompressorActions
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
 				final var msg = new JsonObject();
 				msg.add("cmd", "Compressor.clearResults");
@@ -202,16 +252,15 @@ public class CompressorActions
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
-	@SuppressWarnings("serial")
 	void end()
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
 				final var msg = new JsonObject();
 				msg.add("cmd", "Compressor.end");
@@ -220,7 +269,7 @@ public class CompressorActions
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 

@@ -37,23 +37,7 @@ public class Dir2DatActions
 				String dstdat = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, null);
 				String format = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, "MAME");
 				JsonObject opts = jso.get("params").asObject().get("options").asObject();
-				EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
-				if (opts.getBoolean("dir2dat.scan_subfolders", true)) //$NON-NLS-1$
-					options.add(Options.RECURSE);
-				if (!opts.getBoolean("dir2dat.deep_scan", false)) //$NON-NLS-1$
-					options.add(Options.IS_DEST);
-				if (opts.getBoolean("dir2dat.add_md5", false)) //$NON-NLS-1$
-					options.add(Options.NEED_MD5);
-				if (opts.getBoolean("dir2dat.add_sha1", false)) //$NON-NLS-1$
-					options.add(Options.NEED_SHA1);
-				if (opts.getBoolean("dir2dat.junk_folders", false)) //$NON-NLS-1$
-					options.add(Options.JUNK_SUBFOLDERS);
-				if (opts.getBoolean("dir2dat.do_not_scan_archives", false)) //$NON-NLS-1$
-					options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-				if (opts.getBoolean("dir2dat.match_profile", false)) //$NON-NLS-1$
-					options.add(Options.MATCH_PROFILE);
-				if (opts.getBoolean("dir2dat.include_empty_dirs", false)) //$NON-NLS-1$
-					options.add(Options.EMPTY_DIRS);
+				EnumSet<DirScan.Options> options = getOptions(opts);
 				HashMap<String, String> headers = new HashMap<>();
 				JsonObject hdrs = jso.get("params").asObject().get("headers").asObject();
 				hdrs.forEach(m -> {
@@ -65,7 +49,7 @@ public class Dir2DatActions
 			}
 			catch (BreakException e)
 			{
-
+				// user cancelled action
 			}
 			finally
 			{
@@ -79,19 +63,41 @@ public class Dir2DatActions
 		}))).start();
 	}
 
-	@SuppressWarnings("serial")
+	/**
+	 * @param opts
+	 * @return
+	 */
+	private EnumSet<DirScan.Options> getOptions(JsonObject opts)
+	{
+		EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
+		if (opts.getBoolean("dir2dat.scan_subfolders", true)) //$NON-NLS-1$
+			options.add(Options.RECURSE);
+		if (!opts.getBoolean("dir2dat.deep_scan", false)) //$NON-NLS-1$
+			options.add(Options.IS_DEST);
+		if (opts.getBoolean("dir2dat.add_md5", false)) //$NON-NLS-1$
+			options.add(Options.NEED_MD5);
+		if (opts.getBoolean("dir2dat.add_sha1", false)) //$NON-NLS-1$
+			options.add(Options.NEED_SHA1);
+		if (opts.getBoolean("dir2dat.junk_folders", false)) //$NON-NLS-1$
+			options.add(Options.JUNK_SUBFOLDERS);
+		if (opts.getBoolean("dir2dat.do_not_scan_archives", false)) //$NON-NLS-1$
+			options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
+		if (opts.getBoolean("dir2dat.match_profile", false)) //$NON-NLS-1$
+			options.add(Options.MATCH_PROFILE);
+		if (opts.getBoolean("dir2dat.include_empty_dirs", false)) //$NON-NLS-1$
+			options.add(Options.EMPTY_DIRS);
+		return options;
+	}
+
 	void end()
 	{
 		try
 		{
 			if (ws.isOpen())
 			{
-				ws.send(new JsonObject()
-				{
-					{
-						add("cmd", "Dir2Dat.end");
-					}
-				}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "Dir2Dat.end");
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)

@@ -16,7 +16,6 @@ import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.batch.DirUpdater;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.ProfileSettings;
 import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 import jrm.server.shared.WebSession;
@@ -43,7 +42,7 @@ public class Dat2DirActions
 				if (srcdirs.length > 0)
 				{
 					SDRList sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-					if (sdrl.stream().filter((sdr) -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.src).toFile()).exists()).count() > 0)
+					if (sdrl.stream().filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.src).toFile()).exists()).count() > 0)
 						new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
 					{
@@ -74,7 +73,7 @@ public class Dat2DirActions
 			}
 			catch(BreakException e)
 			{
-				
+				// user cancelled action
 			}
 			finally
 			{
@@ -88,26 +87,25 @@ public class Dat2DirActions
 		}))).start();
 	}
 
-	@SuppressWarnings("serial")
 	public void settings(JsonObject jso)
 	{
 		JsonArray srcs = jso.get("params").asObject().get("srcs").asArray();
 		if(srcs!=null && srcs.size()>0)
 		{
-			String src = srcs.get(0).asString();
+			final var src = srcs.get(0).asString();
 			try
 			{
-				WebSession session = ws.getSession();
-				ProfileSettings settings = ws.getSession().getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session,src).toFile(), null);
+				final var session = ws.getSession();
+				final var settings = ws.getSession().getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session,src).toFile(), null);
 				if(ws.isOpen())
 				{
-					ws.send(new JsonObject() {{
-						add("cmd", "Dat2Dir.showSettings");
-						add("params", new JsonObject() {{
-							add("settings", settings.asJSO());
-							add("srcs",srcs);
-						}});
-					}}.toString());
+					final var msg = new JsonObject();
+					msg.add("cmd", "Dat2Dir.showSettings");
+					final var params = new JsonObject();
+					params.add("settings", settings.asJSO());
+					params.add("srcs",srcs);
+					msg.add("params", params);
+					ws.send(msg.toString());
 				}
 			}
 			catch (IOException e)
@@ -118,20 +116,19 @@ public class Dat2DirActions
 	}
 	
 	
-	@SuppressWarnings("serial")
 	void updateResult(int row, String result)
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Dat2Dir.updateResult");
-					add("params", new JsonObject() {{
-						add("row", row);
-						add("result", result);
-					}});
-				}}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "Dat2Dir.updateResult");
+				final var params = new JsonObject();
+				params.add("row", row);
+				params.add("result", result);
+				msg.add("params", params);
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)
@@ -140,16 +137,15 @@ public class Dat2DirActions
 		}
 	}
 
-	@SuppressWarnings("serial")
 	void clearResults()
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Dat2Dir.clearResults");
-				}}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "Dat2Dir.clearResults");
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)
@@ -158,16 +154,15 @@ public class Dat2DirActions
 		}
 	}
 
-	@SuppressWarnings("serial")
 	void end()
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Dat2Dir.end");
-				}}.toString());
+				final var msg = new JsonObject();
+				msg.add("cmd", "Dat2Dir.end");
+				ws.send(msg.toString());
 			}
 		}
 		catch (IOException e)

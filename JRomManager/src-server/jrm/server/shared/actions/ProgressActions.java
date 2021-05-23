@@ -21,7 +21,7 @@ public class ProgressActions implements ProgressHandler
 	private final List<String> errors = new ArrayList<>();
 
 	/** The thread id offset. */
-	private final Map<Long, Integer> threadId_Offset = new HashMap<>();
+	private final Map<Long, Integer> threadIdOffset = new HashMap<>();
 
 	/** The cancel. */
 	private boolean cancel = false;
@@ -30,11 +30,11 @@ public class ProgressActions implements ProgressHandler
 	
 	private Gson gson = new Gson();
 
-	final static class SetFullProgress
+	static final class SetFullProgress
 	{
-		final static class Data
+		static final class Data
 		{
-			final static class PB
+			static final class PB
 			{
 				boolean visibility = false;
 				boolean stringPainted = false;
@@ -53,15 +53,15 @@ public class ProgressActions implements ProgressHandler
 
 			Boolean multipleSubInfos = false;
 
-			String infos[] = { null };
-			String subinfos[] = { null };
+			String[] infos = { null };
+			String[] subinfos = { null };
 
 			final PB pb1 = new PB();
 			final PB pb2 = new PB();
 			final PB pb3 = new PB();
 		}
 
-		final String cmd = "Progress.setFullProgress";
+		static final String cmd = "Progress.setFullProgress";
 		final Data params;
 
 		SetFullProgress(Data data)
@@ -70,12 +70,12 @@ public class ProgressActions implements ProgressHandler
 		}
 	}
 
-	final static class SetInfos
+	static final class SetInfos
 	{
-		final String cmd = "Progress.setInfos";
+		static final String cmd = "Progress.setInfos";
 		final Data params;
 
-		final static class Data
+		static final class Data
 		{
 			/** Current thread cnt */
 			int threadCnt = 1;
@@ -96,12 +96,12 @@ public class ProgressActions implements ProgressHandler
 
 	}
 
-	final static class CanCancel
+	static final class CanCancel
 	{
-		final String cmd = "Progress.canCancel";
+		static final String cmd = "Progress.canCancel";
 		final Data params;
 
-		final static class Data
+		static final class Data
 		{
 			final boolean canCancel;
 
@@ -118,24 +118,34 @@ public class ProgressActions implements ProgressHandler
 
 	}
 
-	final static class ClearInfos
+	static final class ClearInfos
 	{
-		final String cmd = "Progress.clearInfos";
+		private ClearInfos()
+		{
+			
+		}
+
+		static final String cmd = "Progress.clearInfos";
 	}
 
-	final static class Open
+	static final class Open
 	{
-		final String cmd = "Progress";
+		private Open()
+		{
+			
+		}
+		
+		static final String cmd = "Progress";
 	}
 
-	final static class Close
+	static final class Close
 	{
-		final String cmd = "Progress.close";
+		static final String cmd = "Progress.close";
 		final Data params;
 
-		final static class Data
+		static final class Data
 		{
-			String errors[] = null;
+			String[] errors = null;
 			
 			public Data(List<String> errors)
 			{
@@ -180,20 +190,20 @@ public class ProgressActions implements ProgressHandler
 
 	private synchronized void cleanup()
 	{
-		final Thread ct = Thread.currentThread();
-		if (threadId_Offset.containsKey(ct.getId()))
+		final var ct = Thread.currentThread();
+		if (threadIdOffset.containsKey(ct.getId()))
 		{
-			final ThreadGroup tg = ct.getThreadGroup();
-			if (threadId_Offset.size() != tg.activeCount())
+			final var tg = ct.getThreadGroup();
+			if (threadIdOffset.size() != tg.activeCount())
 			{
-				final Thread[] tl = new Thread[tg.activeCount()];
+				final var tl = new Thread[tg.activeCount()];
 				final int tl_count = tg.enumerate(tl, false);
-				final var itr = threadId_Offset.entrySet().iterator();
+				final var itr = threadIdOffset.entrySet().iterator();
 				while (itr.hasNext())
 				{
 					final var e = itr.next();
-					boolean exists = false;
-					for (int i = 0; i < tl_count; i++)
+					var exists = false;
+					for (var i = 0; i < tl_count; i++)
 					{
 						if (e.getKey() == tl[i].getId())
 						{
@@ -241,11 +251,14 @@ public class ProgressActions implements ProgressHandler
 	@Override
 	public synchronized void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
-		threadId_Offset.clear();
+		threadIdOffset.clear();
 		this.data.threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
 		this.data.multipleSubInfos = multipleSubInfos;
 		this.data.infos = new String[this.data.threadCnt];
-		this.data.subinfos = new String[multipleSubInfos == null ? 0 : (multipleSubInfos ? this.data.threadCnt : 1)];
+		if(multipleSubInfos == null)
+			this.data.subinfos = new String[0];
+		else
+			this.data.subinfos = new String[multipleSubInfos.booleanValue() ? this.data.threadCnt : 1];
 		sendSetInfos();
 	}
 
@@ -267,9 +280,9 @@ public class ProgressActions implements ProgressHandler
 	@Override
 	public void clearInfos()
 	{
-		for (int i = 0; i < data.infos.length; i++)
+		for (var i = 0; i < data.infos.length; i++)
 			data.infos[i] = null;
-		for (int i = 0; i < data.subinfos.length; i++)
+		for (var i = 0; i < data.subinfos.length; i++)
 			data.subinfos[i] = null;
 		data.pb2.msg = null;
 		sendClearInfos();
@@ -289,42 +302,9 @@ public class ProgressActions implements ProgressHandler
 	}
 
 	@Override
-	public synchronized void setProgress(String msg, Integer val, Integer max, String submsg)
+	public void setProgress(String msg, Integer val, Integer max, String submsg)
 	{
-		if (!threadId_Offset.containsKey(Thread.currentThread().getId()))
-		{
-			if (threadId_Offset.size() < data.threadCnt)
-				threadId_Offset.put(Thread.currentThread().getId(), threadId_Offset.size());
-			else
-			{
-				final ThreadGroup tg = Thread.currentThread().getThreadGroup();
-				final Thread[] tl = new Thread[tg.activeCount()];
-				final int tl_count = tg.enumerate(tl, false);
-				boolean found = false;
-				for (Map.Entry<Long, Integer> e : threadId_Offset.entrySet())
-				{
-					boolean exists = false;
-					for (int i = 0; i < tl_count; i++)
-					{
-						if (e.getKey() == tl[i].getId())
-						{
-							exists = true;
-							break;
-						}
-					}
-					if (!exists)
-					{
-						threadId_Offset.remove(e.getKey());
-						threadId_Offset.put(Thread.currentThread().getId(), e.getValue());
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-					threadId_Offset.put(Thread.currentThread().getId(), 0);
-			}
-		}
-		int offset = threadId_Offset.get(Thread.currentThread().getId());
+		int offset = getOffset();
 		if (msg != null)
 			data.infos[offset] = msg;
 		var force = false;
@@ -372,6 +352,47 @@ public class ProgressActions implements ProgressHandler
 		sendSetProgress(1, force);
 	}
 
+	/**
+	 * @return
+	 */
+	private synchronized int getOffset()
+	{
+		if (!threadIdOffset.containsKey(Thread.currentThread().getId()))
+		{
+			if (threadIdOffset.size() < data.threadCnt)
+				threadIdOffset.put(Thread.currentThread().getId(), threadIdOffset.size());
+			else
+			{
+				final var tg = Thread.currentThread().getThreadGroup();
+				final var tl = new Thread[tg.activeCount()];
+				final var tl_count = tg.enumerate(tl, false);
+				var found = false;
+				for (Map.Entry<Long, Integer> e : threadIdOffset.entrySet())
+				{
+					var exists = false;
+					for (var i = 0; i < tl_count; i++)
+					{
+						if (e.getKey() == tl[i].getId())
+						{
+							exists = true;
+							break;
+						}
+					}
+					if (!exists)
+					{
+						threadIdOffset.remove(e.getKey());
+						threadIdOffset.put(Thread.currentThread().getId(), e.getValue());
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					threadIdOffset.put(Thread.currentThread().getId(), 0);
+			}
+		}
+		return threadIdOffset.get(Thread.currentThread().getId());
+	}
+
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
@@ -380,7 +401,7 @@ public class ProgressActions implements ProgressHandler
 		{
 			if (!data.pb2.visibility)
 				data.pb2.visibility = true;
-			data.pb2.stringPainted = msg != null || val > 0;
+			data.pb2.stringPainted = true/*msg != null || val > 0*/;
 			data.pb2.msg = msg;
 			data.pb2.indeterminate = val == 0 && msg == null;
 			if (max != null)
@@ -419,7 +440,7 @@ public class ProgressActions implements ProgressHandler
 		{
 			if (!data.pb3.visibility)
 				data.pb3.visibility = true;
-			data.pb3.stringPainted = msg != null || val > 0;
+			data.pb3.stringPainted = true/*msg != null || val > 0*/;
 			data.pb3.msg = msg;
 			data.pb3.indeterminate = val == 0 && msg == null;
 			if (max != null)

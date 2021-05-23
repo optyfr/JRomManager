@@ -2,6 +2,7 @@ package jrm.server.shared.actions;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -38,10 +39,10 @@ public class ProfileActions extends PathAbstractor
 		super(ws.getSession());
 		this.ws = ws;
 	}
-	
+
 	public void imprt(JsonObject jso)
 	{
-		(ws.getSession().setWorker(new Worker(()->{
+		(ws.getSession().setWorker(new Worker(() -> {
 			WebSession session = ws.getSession();
 			session.getWorker().progress = new ProgressActions(ws);
 			session.getWorker().progress.canCancel(false);
@@ -52,46 +53,19 @@ public class ProfileActions extends PathAbstractor
 				String filename = FindCmd.findMame();
 				if (filename != null)
 				{
-					final boolean sl = jsobj.getBoolean("sl", false);
-					final Import imprt = new Import(session, new File(filename), sl, session.getWorker().progress);
-					if(imprt.file != null)
-					{
-						final File parent = getAbsolutePath(Optional.ofNullable(jsobj.get("parent")).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().getSettings().getWorkPath().toString())).toFile();
-						final File file = new File(parent, imprt.file.getName());
-						FileUtils.copyFile(imprt.file, file);
-						final ProfileNFO pnfo = ProfileNFO.load(session, file);
-						pnfo.mame.set(imprt.org_file, sl);
-						if (imprt.roms_file != null)
-						{
-							FileUtils.copyFileToDirectory(imprt.roms_file, parent);
-							pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
-							if(sl)
-							{
-								if (imprt.sl_file != null)
-								{
-									FileUtils.copyFileToDirectory(imprt.sl_file, parent);
-									pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
-								}
-								else
-									new GlobalActions(ws).warn("Could not import softwares list");
-							}
-							pnfo.save(session);
-							imported(pnfo.file);
-						}
-						else
-						{
-							new GlobalActions(ws).warn("Could not import roms list");
-							file.delete();
-						}
-					}
+					final var sl = jsobj.getBoolean("sl", false);
+					final var imprt = new Import(session, new File(filename), sl, session.getWorker().progress);
+					if (imprt.file != null)
+						doImport(session, jsobj, sl, imprt);
 					else
 						new GlobalActions(ws).warn("Could not import anything from Mame");
 				}
 				else
 					new GlobalActions(ws).warn("Mame not found in system's search path");
 			}
-			catch(BreakException ex)
+			catch (BreakException ex)
 			{
+				// user cancelled action
 			}
 			catch (IOException e)
 			{
@@ -107,9 +81,48 @@ public class ProfileActions extends PathAbstractor
 		}))).start();
 	}
 
+	/**
+	 * @param session
+	 * @param jsobj
+	 * @param sl
+	 * @param imprt
+	 * @throws SecurityException
+	 * @throws IOException
+	 */
+	private void doImport(WebSession session, JsonObject jsobj, final boolean sl, final Import imprt) throws SecurityException, IOException
+	{
+		final var parent = getAbsolutePath(Optional.ofNullable(jsobj.get("parent")).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().getSettings().getWorkPath().toString())).toFile();
+		final var file = new File(parent, imprt.file.getName());
+		FileUtils.copyFile(imprt.file, file);
+		final var pnfo = ProfileNFO.load(session, file);
+		pnfo.mame.set(imprt.org_file, sl);
+		if (imprt.roms_file != null)
+		{
+			FileUtils.copyFileToDirectory(imprt.roms_file, parent);
+			pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
+			if (sl)
+			{
+				if (imprt.sl_file != null)
+				{
+					FileUtils.copyFileToDirectory(imprt.sl_file, parent);
+					pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
+				}
+				else
+					new GlobalActions(ws).warn("Could not import softwares list");
+			}
+			pnfo.save(session);
+			imported(pnfo.file);
+		}
+		else
+		{
+			new GlobalActions(ws).warn("Could not import roms list");
+			Files.delete(file.toPath());
+		}
+	}
+
 	public void load(JsonObject jso)
 	{
-		(ws.getSession().setWorker(new Worker(()->{
+		(ws.getSession().setWorker(new Worker(() -> {
 			WebSession session = ws.getSession();
 			if (session.curr_profile != null)
 				session.curr_profile.saveSettings();
@@ -128,8 +141,9 @@ public class ProfileActions extends PathAbstractor
 					new NPlayersActions(ws).loaded(session.curr_profile);
 				}
 			}
-			catch(BreakException ex)
+			catch (BreakException ex)
 			{
+				// user cancelled action
 			}
 			finally
 			{
@@ -139,13 +153,13 @@ public class ProfileActions extends PathAbstractor
 			}
 		}))).start();
 	}
-	
+
 	public void importSettings(JsonObject jso)
 	{
 		WebSession session = ws.getSession();
 		if (session.curr_profile != null)
 		{
-			JsonValue jsv = jso.get("params").asObject().get("path");
+			final JsonValue jsv = jso.get("params").asObject().get("path");
 			if (jsv != null && !jsv.isNull())
 			{
 				session.curr_profile.loadSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
@@ -157,20 +171,20 @@ public class ProfileActions extends PathAbstractor
 			}
 		}
 	}
-	
+
 	public void exportSettings(JsonObject jso)
 	{
 		WebSession session = ws.getSession();
 		if (session.curr_profile != null)
 		{
-			JsonValue jsv = jso.get("params").asObject().get("path");
+			final JsonValue jsv = jso.get("params").asObject().get("path");
 			if (jsv != null && !jsv.isNull())
 			{
 				session.curr_profile.saveSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
 			}
 		}
 	}
-	
+
 	public void scan(JsonObject jso, final boolean automate)
 	{
 		(ws.getSession().setWorker(new Worker(() -> {
@@ -182,43 +196,39 @@ public class ProfileActions extends PathAbstractor
 			}
 			catch (BreakException ex)
 			{
+				// user cancelled action
 			}
 			session.getWorker().progress.close();
 			session.getWorker().progress = null;
 			session.setLastAction(new Date());
-			ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+			final var automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 			scanned(session.curr_scan, automation.hasReport());
-			if(automate)
-			{
-				if(session.curr_scan!=null && session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
-				{
-					fix(jso);
-				}
-			}
+			if (automate && session.curr_scan != null && session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
+				fix(jso);
 		}))).start();
 	}
-	
+
 	public void fix(JsonObject jso)
 	{
-		(ws.getSession().setWorker(new Worker(()->{
-			WebSession session = ws.getSession();
+		(ws.getSession().setWorker(new Worker(() -> {
+			final var session = ws.getSession();
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
-				if(session.curr_profile.hasPropsChanged())
+				if (session.curr_profile.hasPropsChanged())
 				{
 					session.curr_scan = new Scan(session.curr_profile, session.getWorker().progress);
 					boolean needfix = session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0;
 					if (!needfix)
 						return;
 				}
-				final Fix fix = new Fix(session.curr_profile, session.curr_scan, session.getWorker().progress);
+				final var fix = new Fix(session.curr_profile, session.curr_scan, session.getWorker().progress);
 				fixed(fix);
 			}
 			finally
 			{
-				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
-				if(automation.hasScanAgain())
+				final var automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+				if (automation.hasScanAgain())
 					scan(jso, false);
 				session.getWorker().progress.close();
 				session.getWorker().progress = null;
@@ -226,10 +236,10 @@ public class ProfileActions extends PathAbstractor
 			}
 		}))).start();
 	}
-	
+
 	public void setProperty(JsonObject jso)
 	{
-		final String profile = jso.getString("profile", null);
+		final var profile = jso.getString("profile", null);
 		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().getCurr_profile().settings;
 		JsonObject pjso = jso.get("params").asObject();
 		for (Member m : pjso)
@@ -237,7 +247,7 @@ public class ProfileActions extends PathAbstractor
 			JsonValue value = m.getValue();
 			if (value.isBoolean())
 				settings.setProperty(m.getName(), value.asBoolean());
-			else if(value.isNumber())
+			else if (value.isNumber())
 				settings.setProperty(m.getName(), value.asInt());
 			else if (value.isString())
 				settings.setProperty(m.getName(), value.asString());
@@ -253,123 +263,120 @@ public class ProfileActions extends PathAbstractor
 		}
 		catch (Exception e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
-	
-	@SuppressWarnings("serial")
+
 	public void loaded(final jrm.profile.Profile profile)
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Profile.loaded");
-					add("params", new JsonObject() {{
-						add("success", profile!=null);
-						if(profile!=null)
-						{
-							add("name", profile.getName());
-							if(profile.systems!=null)
-							{
-								add("systems", new JsonArray() {{
-									profile.systems.forEach(s-> add(new JsonObject() {{
-										add("name", s.toString());
-										add("selected", s.isSelected(profile));
-										add("property", s.getPropertyName());
-										add("type", s.getType().toString());
-									}}));
-								}});
-							}
-							add("years", new JsonArray() {{
-								ArrayList<String> arrlst = new ArrayList<String>(profile.years);
-								arrlst.sort(String::compareTo); 
-								arrlst.forEach(s->add(s));
-							}});
-							if(profile.settings!=null)
-								add("settings",profile.settings.asJSO());
-						}
-					}});
-				}}.toString());
+				final var rjso = new JsonObject();
+				rjso.add("cmd", "Profile.loaded");
+				final var params = new JsonObject();
+				params.add("success", profile != null);
+				if (profile != null)
+				{
+					params.add("name", profile.getName());
+					if (profile.systems != null)
+					{
+						final var systems = new JsonArray();
+						profile.systems.forEach(s -> {
+							final var systm = new JsonObject();
+							systm.add("name", s.toString());
+							systm.add("selected", s.isSelected(profile));
+							systm.add("property", s.getPropertyName());
+							systm.add("type", s.getType().toString());
+							systems.add(systm);
+						});
+						params.add("systems", systems);
+					}
+					final var years = new JsonArray();
+					final ArrayList<String> arrlst = new ArrayList<>(profile.years);
+					arrlst.sort(String::compareTo);
+					arrlst.forEach(years::add);
+					params.add("years", years);
+					if (profile.settings != null)
+						params.add("settings", profile.settings.asJSO());
+				}
+				rjso.add("params", params);
+				ws.send(rjso.toString());
 			}
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
-	
-	@SuppressWarnings("serial")
 	void scanned(final Scan scan, final boolean hasReport)
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Profile.scanned");
-					add("params", new JsonObject() {{
-						add("success", scan!=null);
-						if(scan!=null)
-						{
-							add("actions", scan.actions.stream().mapToInt(Collection::size).sum());
-							add("report", hasReport);
-						}
-					}});
-				}}.toString());
+				final var rjso = new JsonObject();
+				rjso.add("cmd", "Profile.scanned");
+				final var params = new JsonObject();
+				params.add("success", scan != null);
+				if (scan != null)
+				{
+					params.add("actions", scan.actions.stream().mapToInt(Collection::size).sum());
+					params.add("report", hasReport);
+				}
+				rjso.add("params", params);
+				ws.send(rjso.toString());
 			}
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
-	
-	@SuppressWarnings("serial")
+
 	void fixed(final Fix fix)
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Profile.fixed");
-					add("params", new JsonObject() {{
-						add("success", fix!=null);
-						if(fix!=null)
-							add("actions", fix.getActionsRemain());
-					}});
-				}}.toString());
+				final var rjso = new JsonObject();
+				rjso.add("cmd", "Profile.fixed");
+				final var params = new JsonObject();
+				params.add("success", fix != null);
+				if (fix != null)
+					params.add("actions", fix.getActionsRemain());
+				rjso.add("params", params);
+				ws.send(rjso.toString());
 			}
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 
-	@SuppressWarnings("serial")
 	void imported(final File file)
 	{
 		try
 		{
-			if(ws.isOpen())
+			if (ws.isOpen())
 			{
-				ws.send(new JsonObject() {{
-					add("cmd", "Profile.imported");
-					add("params", new JsonObject() {{
-						add("path", file.getPath());
-						add("parent", file.getParent());
-						add("name", file.getName());
-					}});
-				}}.toString());
+				final var rjso = new JsonObject();
+				rjso.add("cmd", "Profile.imported");
+				final var params = new JsonObject();
+				params.add("path", file.getPath());
+				params.add("parent", file.getParent());
+				params.add("name", file.getName());
+				rjso.add("params", params);
+				ws.send(rjso.toString());
 			}
 		}
 		catch (IOException e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 	}
 }
