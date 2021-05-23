@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -74,7 +75,7 @@ abstract class NArchive extends NArchiveBase
 	private ProgressNarchiveCallBack cb = null;
 	
 
-	private final static HashMap<String, File> archives = new HashMap<>();
+	private static final Map<String, File> archives = new HashMap<>();
 
 	private ArchiveFormat format = ArchiveFormat.SEVEN_ZIP;
 	private String ext = "7z"; //$NON-NLS-1$

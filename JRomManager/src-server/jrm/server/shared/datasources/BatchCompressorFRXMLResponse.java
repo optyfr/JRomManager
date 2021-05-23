@@ -30,8 +30,8 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		{
 			writer.writeElement("record", 
 				new SimpleAttribute("id", sr.getKey()),
-				new SimpleAttribute("file", sr.getValue().file),
-				new SimpleAttribute("result", sr.getValue().result)
+				new SimpleAttribute("file", sr.getValue().getFile()),
+				new SimpleAttribute("result", sr.getValue().getResult())
 			);
 		}
 		writer.writeEndElement();
@@ -51,8 +51,8 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 			writer.writeStartElement("data");
 			writer.writeElement("record", 
 				new SimpleAttribute("id", id),
-				new SimpleAttribute("file", fr.file),
-				new SimpleAttribute("result", fr.result)
+				new SimpleAttribute("file", fr.getFile()),
+				new SimpleAttribute("result", fr.getResult())
 			);
 			writer.writeEndElement();
 			writer.writeEndElement();
@@ -73,16 +73,16 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 				if(operation.hasData("file") || operation.hasData("result"))
 				{
 					if(operation.hasData("file"))
-						fr.file = Paths.get(operation.getData("file"));
+						fr.setFile(Paths.get(operation.getData("file")));
 					if(operation.hasData("result"))
-						fr.result = operation.getData("result");
+						fr.setResult(operation.getData("result"));
 					writer.writeStartElement("response");
 					writer.writeElement("status", "0");
 					writer.writeStartElement("data");
 					writer.writeElement("record", 
 						new SimpleAttribute("id", id),
-						new SimpleAttribute("file", fr.file),
-						new SimpleAttribute("result", fr.result)
+						new SimpleAttribute("file", fr.getFile()),
+						new SimpleAttribute("result", fr.getResult())
 					);
 					writer.writeEndElement();
 					writer.writeEndElement();

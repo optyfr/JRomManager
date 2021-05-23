@@ -33,6 +33,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import JTrrntzip.TrrntZipStatus;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * the class for group of entities representation on the filesystem (ie : archive or folder)
@@ -51,21 +52,21 @@ public class Container implements Serializable, Comparable<Container>
 	/**
 	 * Last modified date
 	 */
-	public @Getter long modified = 0L;
+	private @Getter long modified = 0L;
 	/**
 	 * file size in bytes or 0 if folder
 	 */
-	public @Getter long size = 0L;
+	private @Getter long size = 0L;
 
 	/**
 	 * keep entries by name
 	 */
-	public final Map<String, Entry> entries_byname = new HashMap<>();
+	private final @Getter Map<String, Entry> entriesByFName = new HashMap<>();
 
 	/**
 	 * flag for scanning removal
 	 */
-	public transient boolean up2date = false;
+	private transient @Getter @Setter boolean up2date = false;
 	
 	/**
 	 * scan load status
@@ -73,21 +74,21 @@ public class Container implements Serializable, Comparable<Container>
 	 * - 1 : quick scanned (only CRC)
 	 * - 2 : deep scanned (SHA1 and MD5 for all entries)
 	 */
-	public int loaded = 0;
+	private @Getter @Setter int loaded = 0;
 
 	/**
 	 * last time the archive was torrentzip checked (only valid for zip archives)
 	 */
-	public long lastTZipCheck = 0L;
+	private @Getter @Setter long lastTZipCheck = 0L;
 	/**
 	 * last torrentzip check status (only valid for zip archives)
 	 */
-	public Set<TrrntZipStatus> lastTZipStatus = EnumSet.noneOf(TrrntZipStatus.class);
+	private @Getter @Setter Set<TrrntZipStatus> lastTZipStatus = EnumSet.noneOf(TrrntZipStatus.class);
 
 	/**
 	 * related {@link AnywareBase} set
 	 */
-	public transient AnywareBase m;
+	protected transient @Getter @Setter AnywareBase relAW;
 
 	/**
 	 * The container type
@@ -133,7 +134,7 @@ public class Container implements Serializable, Comparable<Container>
 		this.type = type;
 		this.file = file;
 		this.relfile = relfile;
-		this.m = m;
+		this.relAW = m;
 	}
 
 	/**
@@ -168,9 +169,9 @@ public class Container implements Serializable, Comparable<Container>
 	public Entry add(final Entry e)
 	{
 		Entry oldEntry;
-		if(null != (oldEntry = entries_byname.get(e.getFile())) && oldEntry.modified == e.modified && oldEntry.size == e.size)
+		if(null != (oldEntry = entriesByFName.get(e.getFile())) && oldEntry.modified == e.modified && oldEntry.size == e.size)
 			return oldEntry;
-		entries_byname.put(e.getFile(), e);
+		entriesByFName.put(e.getFile(), e);
 		e.parent = this;
 		return e;
 	}
@@ -182,7 +183,7 @@ public class Container implements Serializable, Comparable<Container>
 	 */
 	public Entry find(final Entry e)
 	{
-		return entries_byname.get(e.getFile());
+		return entriesByFName.get(e.getFile());
 	}
 
 	/**
@@ -191,7 +192,7 @@ public class Container implements Serializable, Comparable<Container>
 	 */
 	public Collection<Entry> getEntries()
 	{
-		return entries_byname.values();
+		return entriesByFName.values();
 	}
 
 	/**
@@ -200,7 +201,7 @@ public class Container implements Serializable, Comparable<Container>
 	 */
 	public Map<String, Entry> getEntriesByName()
 	{
-		return entries_byname.values().stream().collect(Collectors.toMap(Entry::getName, Function.identity(), (n, e) -> n));
+		return entriesByFName.values().stream().collect(Collectors.toMap(Entry::getName, Function.identity(), (n, e) -> n));
 	}
 
 	/**
@@ -221,6 +222,8 @@ public class Container implements Serializable, Comparable<Container>
 				if(file.getName().contains(".part") && !file.getName().endsWith(".part001.rar"))
 					return Type.UNK;
 				return Type.RAR;
+			default:
+				break;
 		}
 		if(file.getName().endsWith(".7z.001"))
 			return Type.SEVENZIP;

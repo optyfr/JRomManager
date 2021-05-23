@@ -81,14 +81,14 @@ public class CompressorActions
 		try
 		{
 			final int i = values.indexOf(fr);
-			var file = PathAbstractor.getAbsolutePath(session, fr.file.toString()).toFile();
+			var file = PathAbstractor.getAbsolutePath(session, fr.getFile().toString()).toFile();
 			Compressor.UpdResultCallBack cb = txt -> {
-				fr.result = txt;
-				updateResult(i, fr.result);
+				fr.setResult(txt);
+				updateResult(i, fr.getResult());
 			};
 			Compressor.UpdSrcCallBack scb = src -> {
-				fr.file = PathAbstractor.getRelativePath(session, src.toPath());
-				updateFile(i, fr.file);
+				fr.setFile(PathAbstractor.getRelativePath(session, src.toPath()));
+				updateFile(i, fr.getFile());
 			};
 			switch (format)
 			{

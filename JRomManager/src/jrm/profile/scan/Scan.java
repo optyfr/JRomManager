@@ -591,9 +591,9 @@ public class Scan extends PathAbstractor
 					final Container container = roms_dstscan.getContainerByName(ware.getDest().getName() + format.getExt());
 					if (container != null)
 					{
-						if (container.lastTZipCheck < container.modified)
+						if (container.getLastTZipCheck() < container.getModified())
 							tzipcontainer = container;
-						else if (!container.lastTZipStatus.contains(TrrntZipStatus.ValidTrrntzip))
+						else if (!container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip))
 							tzipcontainer = container;
 						else if (report_subject.hasFix())
 							tzipcontainer = container;
@@ -615,7 +615,7 @@ public class Scan extends PathAbstractor
 					if (tzipcontainer != null)
 					{
 						final long estimated_roms_size = roms.stream().mapToLong(Rom::getSize).sum();
-						tzipcontainer.m = ware;
+						tzipcontainer.setRelAW(ware);
 						tzip_actions.put(tzipcontainer.getFile().getAbsolutePath(), new TZipContainer(tzipcontainer, format, estimated_roms_size));
 						report.add(new ContainerTZip(tzipcontainer));
 					}
@@ -640,9 +640,9 @@ public class Scan extends PathAbstractor
 				final Container container = samples_dstscan.getContainerByName(archive.getFile().getName());
 				if (container != null)
 				{
-					if (container.lastTZipCheck < container.modified)
+					if (container.getLastTZipCheck() < container.getModified())
 						tzipcontainer = container;
-					else if (!container.lastTZipStatus.contains(TrrntZipStatus.ValidTrrntzip))
+					else if (!container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip))
 						tzipcontainer = container;
 					else if (report_subject.hasFix())
 						tzipcontainer = container;
@@ -651,7 +651,7 @@ public class Scan extends PathAbstractor
 					tzipcontainer = archive;
 				if (tzipcontainer != null)
 				{
-					tzipcontainer.m = set;
+					tzipcontainer.setRelAW(set);
 					tzip_actions.put(tzipcontainer.getFile().getAbsolutePath(), new TZipContainer(tzipcontainer, format, Long.MAX_VALUE));
 					report.add(new ContainerTZip(tzipcontainer));
 				}
@@ -812,7 +812,7 @@ public class Scan extends PathAbstractor
 						report.stats.missing_disks_cnt++;
 						for (final DirScan scan : allscans)
 						{
-							if (null != (found_entry = scan.find_byhash(disk)))
+							if (null != (found_entry = scan.findByHash(disk)))
 							{
 								report_subject.add(new EntryAdd(disk, found_entry));
 								(add_set = OpenContainer.getInstance(add_set, directory, format, 0L)).addAction(new AddEntry(disk, found_entry));
@@ -864,7 +864,7 @@ public class Scan extends PathAbstractor
 						Entry found_entry = null;
 						for (final DirScan scan : allscans)
 						{
-							if (null != (found_entry = scan.find_byhash(disk)))
+							if (null != (found_entry = scan.findByHash(disk)))
 							{
 								report_subject.add(new EntryAdd(disk, found_entry));
 								(createset = CreateContainer.getInstance(createset, directory, format, 0L)).addAction(new AddEntry(disk, found_entry));
@@ -1135,7 +1135,7 @@ public class Scan extends PathAbstractor
 						report.stats.missing_roms_cnt++;
 						for (final DirScan scan : allscans)	// now search for rom in all available dir scans
 						{
-							if (null != (found_entry = scan.find_byhash(rom)))
+							if (null != (found_entry = scan.findByHash(rom)))
 							{
 								report_subject.add(new EntryAdd(rom, found_entry));
 								(add_set = OpenContainer.getInstance(add_set, archive, format, estimated_roms_size)).addAction(new AddEntry(rom, found_entry));
@@ -1190,7 +1190,7 @@ public class Scan extends PathAbstractor
 						Entry entry_found = null;
 						for (final DirScan scan : allscans)	// search rom in all scans
 						{
-							if (null != (entry_found = scan.find_byhash(rom)))
+							if (null != (entry_found = scan.findByHash(rom)))
 							{
 								report_subject.add(new EntryAdd(rom, entry_found));
 								(createset = CreateContainer.getInstance(createset, archive, format, estimated_roms_size)).addAction(new AddEntry(rom, entry_found));
@@ -1287,7 +1287,7 @@ public class Scan extends PathAbstractor
 							final Container found_container;
 							if (null != (found_container = scan.getContainerByName(set.getName() + ext)))
 							{
-								for (final Entry entry : found_container.entries_byname.values())
+								for (final Entry entry : found_container.getEntriesByFName().values())
 								{
 									if (entry.getName().equals(sample.getNormalizedName()))
 										found_entry = entry;
@@ -1346,7 +1346,7 @@ public class Scan extends PathAbstractor
 							final Container found_container;
 							if (null != (found_container = scan.getContainerByName(set.getName() + ext)))
 							{
-								for (final Entry entry : found_container.entries_byname.values())
+								for (final Entry entry : found_container.getEntriesByFName().values())
 								{
 									if (entry.getName().equals(sample.getNormalizedName()))
 										entry_found = entry;

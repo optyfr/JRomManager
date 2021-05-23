@@ -565,7 +565,7 @@ public class JRomManagerCLI
 				{
 					try(final var stream = Files.walk(path))
 					{
-						frl = stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.extensions)).map(FileResult::new).collect(Collectors.toList());
+						frl = stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.getExtensions())).map(FileResult::new).collect(Collectors.toList());
 					}
 				}
 				else
@@ -573,10 +573,10 @@ public class JRomManagerCLI
 				final var cnt = new AtomicInteger();
 				final var compressor = new Compressor(session, cnt, frl.size(), handler);
 				frl.parallelStream().forEach(fr -> {
-					Path file = fr.file;
+					Path file = fr.getFile();
 					cnt.incrementAndGet();
-					Compressor.UpdResultCallBack cb = txt -> fr.result = txt;
-					Compressor.UpdSrcCallBack scb = src -> fr.file = src.toPath();
+					Compressor.UpdResultCallBack cb = txt -> fr.setResult(txt);
+					Compressor.UpdSrcCallBack scb = src -> fr.setFile(src.toPath());
 					compressor.compress(format, file.toFile(), force, cb, scb);
 				});
 			}

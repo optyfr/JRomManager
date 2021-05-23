@@ -180,9 +180,9 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 			switch (columnIndex)
 			{
 				case 0:
-					return getData().get(rowIndex).file;
+					return getData().get(rowIndex).getFile();
 				case 1:
-					return getData().get(rowIndex).result;
+					return getData().get(rowIndex).getResult();
 			}
 			return null;
 		}
@@ -216,10 +216,10 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 			switch (columnIndex)
 			{
 				case 0:
-					getData().get(rowIndex).file = ((File)aValue).toPath();
+					getData().get(rowIndex).setFile(((File)aValue).toPath());
 					break;
 				case 1:
-					getData().get(rowIndex).result = (String)aValue;
+					getData().get(rowIndex).setResult((String)aValue);
 					break;
 			}
 			fireTableChanged(new TableModelEvent(this, rowIndex, rowIndex, columnIndex, TableModelEvent.UPDATE));
@@ -532,7 +532,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 						if(isCancel())
 							return;
 						final var i = table.model.getData().indexOf(fr);
-						var file = fr.file.toFile();
+						var file = fr.getFile().toFile();
 						cnt.incrementAndGet();
 						Compressor.UpdResultCallBack cb = txt -> table.setValueAt(txt, i, 1);
 						Compressor.UpdSrcCallBack scb = src -> table.setValueAt(src, i, 0);

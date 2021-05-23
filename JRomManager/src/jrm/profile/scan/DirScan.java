@@ -109,44 +109,44 @@ public final class DirScan extends PathAbstractor
 	/**
 	 * Map of {@link Container}s by name {@link String}.<br>Will be serialized for disk caching...
 	 */
-	private final Map<String, Container> containers_byname;
+	private final Map<String, Container> containersByName;
 	/**
 	 * Map of {@link Entity} by CRC
 	 */
-	private final Map<String, Entry> entries_bycrc = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, Entry> entriesByCrc = Collections.synchronizedMap(new HashMap<>());
 	/**
 	 * Map of {@link Entity} by SHA1
 	 */
-	private final Map<String, Entry> entries_bysha1 = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, Entry> entriesBySha1 = Collections.synchronizedMap(new HashMap<>());
 	/**
 	 * Map of {@link Entity} by MD5
 	 */
-	private final Map<String, Entry> entries_bymd5 = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, Entry> entriesByMd5 = Collections.synchronizedMap(new HashMap<>());
 
 	/**
 	 * is sha1/md5 calculation is needed
 	 */
-	private final boolean need_sha1_or_md5;
+	private final boolean needSha1OrMd5;
 	/**
 	 * tell that md5 was described for disks in profile
 	 */
-	private final boolean md5_disks;
+	private final boolean md5Disks;
 	/**
 	 * tell that md5 was described for roms in profile
 	 */
-	private final boolean md5_roms;
+	private final boolean md5Roms;
 	/**
 	 * tell that sha1 was described for disks in profile
 	 */
-	private final boolean sha1_disks;
+	private final boolean sha1Disks;
 	/**
 	 * tell that sha1 was described for roms in profile
 	 */
-	private final boolean sha1_roms;
+	private final boolean sha1Roms;
 	/**
 	 * contains the detected suspicious CRCs from profile
 	 */
-	private Set<String> suspicious_crc = null; 
+	private Set<String> suspiciousCrc = null; 
 
 	/**
 	 * the current session
@@ -252,7 +252,7 @@ public final class DirScan extends PathAbstractor
 	 */
 	private boolean isSuspiciousCRC(String crc)
 	{
-		return suspicious_crc!=null && suspicious_crc.contains(crc);
+		return suspiciousCrc!=null && suspiciousCrc.contains(crc);
 	}
 	
 	/**
@@ -287,11 +287,11 @@ public final class DirScan extends PathAbstractor
 	 * internal constructor
 	 * @param dir the directory entry point ({@link File})
 	 * @param handler {@link ProgressHandler} to show progression on UI
-	 * @param suspicious_crc the list of suspicious crc, can be null which mean non suspicious crc checking
+	 * @param suspiciousCrc the list of suspicious crc, can be null which mean non suspicious crc checking
 	 * @param options an {@link EnumSet} of {@link Options}
 	 * @throws BreakException in case user stopped processing thru {@link ProgressHandler}
 	 */
-	private DirScan(final Session session, final File dir, final ProgressHandler handler, final Set<String> suspicious_crc, EnumSet<Options> options) throws BreakException
+	private DirScan(final Session session, final File dir, final ProgressHandler handler, final Set<String> suspiciousCrc, EnumSet<Options> options) throws BreakException
 	{
 		super(session);
 		this.session = session;
@@ -300,14 +300,14 @@ public final class DirScan extends PathAbstractor
 
 		this.dir = dir;
 		this.handler = handler;
-		this.suspicious_crc = suspicious_crc;
+		this.suspiciousCrc = suspiciousCrc;
 		this.options = options;
 		
-		need_sha1_or_md5 = options.contains(Options.NEED_SHA1_OR_MD5) || options.contains(Options.NEED_SHA1) || options.contains(Options.NEED_MD5);
-		md5_disks = options.contains(Options.MD5_DISKS) || options.contains(Options.NEED_MD5);
-		md5_roms = options.contains(Options.MD5_ROMS) || options.contains(Options.NEED_MD5);
-		sha1_disks = options.contains(Options.SHA1_DISKS) || options.contains(Options.NEED_SHA1);
-		sha1_roms = options.contains(Options.SHA1_ROMS) || options.contains(Options.NEED_SHA1);
+		needSha1OrMd5 = options.contains(Options.NEED_SHA1_OR_MD5) || options.contains(Options.NEED_SHA1) || options.contains(Options.NEED_MD5);
+		md5Disks = options.contains(Options.MD5_DISKS) || options.contains(Options.NEED_MD5);
+		md5Roms = options.contains(Options.MD5_ROMS) || options.contains(Options.NEED_MD5);
+		sha1Disks = options.contains(Options.SHA1_DISKS) || options.contains(Options.NEED_SHA1);
+		sha1Roms = options.contains(Options.SHA1_ROMS) || options.contains(Options.NEED_SHA1);
 		final boolean is_dest = options.contains(Options.IS_DEST);
 		final boolean recurse = options.contains(Options.RECURSE);
 		final boolean use_parallelism = options.contains(Options.USE_PARALLELISM);
@@ -322,9 +322,9 @@ public final class DirScan extends PathAbstractor
 		 * Loading scan cache
 		 */
 		if(!session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_nocache, false)) //$NON-NLS-1$
-			containers_byname = load(dir);
+			containersByName = load(dir);
 		else
-			containers_byname = Collections.synchronizedMap(new HashMap<>());
+			containersByName = Collections.synchronizedMap(new HashMap<>());
 
 		/*
 		 * Test if entry point is valid
@@ -340,6 +340,97 @@ public final class DirScan extends PathAbstractor
 		handler.setInfos(nThreads,null);
 		
 
+		listFiles(dir, handler, is_dest, include_empty_dirs, archives_and_chd_as_roms, nThreads, path);
+		
+		
+		/*
+		 * Initialize torrentzip if needed
+		 */
+		final TorrentZip torrentzip = (is_dest && format_tzip) ? new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions(false, true)) : null;
+		
+		/*
+		 * Now read at least archives content, add eventually calculate checksum for each entries if needed
+		 */
+		final var i = new AtomicInteger(0);
+		final var j = new AtomicInteger(0);
+		final var max = new AtomicInteger(0);
+		max.addAndGet(containers.size());
+		containers.forEach(c->max.addAndGet((int)(c.getSize()>>20)));
+		handler.clearInfos();
+		handler.setInfos(nThreads,true);
+		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), getRelativePath(dir.toPath())) , -1); //$NON-NLS-1$
+		handler.setProgress2("", j.get(), max.get()); //$NON-NLS-1$
+		new MultiThreading<Container>(nThreads, c -> {
+			if(handler.isCancel())
+				return;
+			try
+			{
+				switch(c.getType())
+				{
+					case ZIP:
+					{
+						scanZip(is_dest, format_tzip, torrentzip, c);
+						break;
+					}
+					case RAR:
+					case SEVENZIP:
+					{
+						try(final var entries = new SevenZUpdateEntries(c))
+						{
+							entries.updateEntries();
+						}
+						break;
+					}
+					case DIR:
+					{
+						scanDir(handler, is_dest, recurse, archives_and_chd_as_roms, c);
+						break;
+					}
+					case FAKE:
+					{
+						scanFake(handler, archives_and_chd_as_roms, c);
+						break;
+					}
+					default:
+						break;
+				}
+				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.getFile().getName())); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d (%d%%)", i.incrementAndGet(), containers.size(), (int)(j.addAndGet(1+(int)(c.getSize()>>20)) * 100.0 / max.get())), j.get()); //$NON-NLS-1$
+			}
+			catch(final IOException e)
+			{
+				c.setLoaded(0);
+				Log.err("IOException when scanning", e); //$NON-NLS-1$
+			}
+			catch(final BreakException e)
+			{
+				c.setLoaded(0);
+				handler.cancel();
+			}
+			catch(final Exception e)
+			{
+				c.setLoaded(0);
+				Log.err("Other Exception when listing", e); //$NON-NLS-1$
+			}
+			return;
+		}).start(containers.stream().sorted(Container.rcomparator()));
+
+		if(!handler.isCancel())
+			save(dir);
+
+	}
+
+	/**
+	 * @param dir
+	 * @param handler
+	 * @param is_dest
+	 * @param include_empty_dirs
+	 * @param archives_and_chd_as_roms
+	 * @param nThreads
+	 * @param path
+	 */
+	private void listFiles(final File dir, final ProgressHandler handler, final boolean is_dest, final boolean include_empty_dirs, final boolean archives_and_chd_as_roms, final int nThreads, final Path path)
+	{
 		/*
 		 * List files
 		 * We go up to 100 subdirs for src dir but 1 level for dest dir type, and we follow links
@@ -358,117 +449,14 @@ public final class DirScan extends PathAbstractor
 					return;
 				if(path.equals(p))
 					return;
-				Container c = null;
 				final var file = p.toFile();
 				try
 				{
 					final BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
 					if(is_dest)
-					{
-						val type = attr.isRegularFile() ? Container.getType(file) : Type.DIR;
-						val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
-						if(null == (c = containers_byname.get(fname)) /* new container */ || ((c.modified != attr.lastModifiedTime().toMillis() /* container date changed */ || (c instanceof Archive && c.size != attr.size()) /* container size changed */) && !c.up2date /* not up to date */))
-						{
-							if(attr.isRegularFile())
-							{
-								if (type != Container.Type.UNK)
-									containers.add(c = new Archive(file, getRelativePath(file), attr));
-								else
-									containers.add(c = new FakeDirectory(file, getRelativePath(file), attr));
-							}
-							else
-								containers.add(c = new Directory(file, getRelativePath(file), attr));
-							containers_byname.put(fname, c);
-							c.up2date = true;
-						}
-						else if(!c.up2date)
-						{
-							// container listed but did not change
-							c.up2date = true;
-							containers.add(c);
-						}
-					}
+						listFilesDest(file, attr);
 					else
-					{
-						/*
-						 * With src type dir, we need to find each potential container end points while walking into the entire hierarchy   
-						 */
-						if(attr.isRegularFile()) // We test only regular files even for directory containers (must contains at least 1 file)
-						{
-							val type = Container.getType(file);
-							if(type == Type.UNK || archives_and_chd_as_roms)	// maybe we did found a potential directory container with unknown type files inside)
-							{
-								if(path.equals(file.getParentFile().toPath()))	// skip if parent is the entry point
-								{
-									val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
-									if(null == (c = containers_byname.get(fname)) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
-									{
-										containers.add(c = new FakeDirectory(file, getRelativePath(file), attr));
-										containers_byname.put(fname, c);
-										c.up2date = true;
-									}
-									else if(!c.up2date)
-									{
-										containers.add(c);
-										c.up2date = true;
-									}
-								}
-								else
-								{
-									final var parent_dir = file.getParentFile();
-									final var parent_attr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
-									final var relative  = path.relativize(p.getParent());
-									if(null == (c = containers_byname.get(relative.toString())) || (c.modified != parent_attr.lastModifiedTime().toMillis() && !c.up2date))
-									{
-										containers.add(c = new Directory(parent_dir, getRelativePath(parent_dir), attr));
-										c.up2date = true;
-										containers_byname.put(relative.toString(), c);
-									}
-									else if(!c.up2date)
-									{
-										c.up2date = true;
-										containers.add(c);
-									}
-								}
-							}
-							else	// otherwise it's an archive file
-							{
-								final var relative  = path.relativize(p);
-								if(null == (c = containers_byname.get(relative.toString())) || ((c.modified != attr.lastModifiedTime().toMillis() || c.size != attr.size()) && !c.up2date))
-								{
-									containers.add(c = new Archive(file, getRelativePath(file), attr));
-									c.up2date = true;
-									containers_byname.put(relative.toString(), c);
-								}
-								else if(!c.up2date)
-								{
-									c.up2date = true;
-									containers.add(c);
-								}
-							}
-						}
-						else if(include_empty_dirs)
-						{
-							try(DirectoryStream<Path> dirstream = Files.newDirectoryStream(p))
-							{
-								if(!dirstream.iterator().hasNext())
-								{
-									final var relative  = path.relativize(p);
-									if(null == (c = containers_byname.get(relative.toString())) || (c.modified != attr.lastModifiedTime().toMillis() && !c.up2date))
-									{
-										containers.add(c = new Directory(file, getRelativePath(file), attr));
-										c.up2date = true;
-										containers_byname.put(relative.toString(), c);
-									}
-									else if(!c.up2date)
-									{
-										c.up2date = true;
-										containers.add(c);
-									}
-								}
-							}
-						}
-					}
+						listFilesSrc(include_empty_dirs, archives_and_chd_as_roms, path, p, file, attr);
 					handler.setProgress(path.relativize(p).toString(), -1); //$NON-NLS-1$
 					handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), getRelativePath(dir.toPath()), i.incrementAndGet()), 0); //$NON-NLS-1$
 				}
@@ -486,8 +474,7 @@ public final class DirScan extends PathAbstractor
 			/*
 			 * Remove files from cache that are not in up2date state, because that mean that those files were removed from FS since the previous scan
 			 */
-			if(containers_byname.entrySet().removeIf(entry -> !entry.getValue().up2date))
-				/*Log.info("Removed some scache elements")*/;
+			containersByName.entrySet().removeIf(entry -> !entry.getValue().isUp2date());
 		}
 		catch(final IOException e)
 		{
@@ -497,172 +484,259 @@ public final class DirScan extends PathAbstractor
 		{
 			Log.err("Other Exception when listing", e); //$NON-NLS-1$
 		}
-		
-		
+	}
+
+	/**
+	 * @param include_empty_dirs
+	 * @param archives_and_chd_as_roms
+	 * @param path
+	 * @param p
+	 * @param file
+	 * @param attr
+	 * @throws IOException
+	 */
+	private void listFilesSrc(final boolean include_empty_dirs, final boolean archives_and_chd_as_roms, final Path path, Path p, final File file, final BasicFileAttributes attr) throws IOException
+	{
+		Container c;
 		/*
-		 * Initialize torrentzip if needed
+		 * With src type dir, we need to find each potential container end points while walking into the entire hierarchy   
 		 */
-		final TorrentZip torrentzip = (is_dest && format_tzip) ? new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions(false, true)) : null;
-		
-		/*
-		 * Now read at least archives content, add eventually calculate checksum for each entries if needed
-		 */
-		final var i = new AtomicInteger(0);
-		final var j = new AtomicInteger(0);
-		final var max = new AtomicInteger(0);
-		max.addAndGet(containers.size());
-		containers.forEach(c->max.addAndGet((int)(c.size>>20)));
-		handler.clearInfos();
-		handler.setInfos(nThreads,true);
-		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), getRelativePath(dir.toPath())) , -1); //$NON-NLS-1$
-		handler.setProgress2("", j.get(), max.get()); //$NON-NLS-1$
-		new MultiThreading<Container>(nThreads, c -> {
-			if(handler.isCancel())
-				return;
+		if(attr.isRegularFile()) // We test only regular files even for directory containers (must contains at least 1 file)
+		{
+			val type = Container.getType(file);
+			if(type == Type.UNK || archives_and_chd_as_roms)	// maybe we did found a potential directory container with unknown type files inside)
+			{
+				if(path.equals(file.getParentFile().toPath()))	// skip if parent is the entry point
+				{
+					val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
+					if(null == (c = containersByName.get(fname)) || (c.getModified() != attr.lastModifiedTime().toMillis() && !c.isUp2date()))
+					{
+						c = new FakeDirectory(file, getRelativePath(file), attr);
+						containers.add(c);
+						containersByName.put(fname, c);
+						c.setUp2date(true);
+					}
+					else if(!c.isUp2date())
+					{
+						containers.add(c);
+						c.setUp2date(true);
+					}
+				}
+				else
+				{
+					final var parentDir = file.getParentFile();
+					final var parentAttr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
+					final var relative  = path.relativize(p.getParent());
+					if(null == (c = containersByName.get(relative.toString())) || (c.getModified() != parentAttr.lastModifiedTime().toMillis() && !c.isUp2date()))
+					{
+						c = new Directory(parentDir, getRelativePath(parentDir), attr);
+						containers.add(c);
+						c.setUp2date(true);
+						containersByName.put(relative.toString(), c);
+					}
+					else if(!c.isUp2date())
+					{
+						c.setUp2date(true);
+						containers.add(c);
+					}
+				}
+			}
+			else	// otherwise it's an archive file
+			{
+				final var relative  = path.relativize(p);
+				if(null == (c = containersByName.get(relative.toString())) || ((c.getModified() != attr.lastModifiedTime().toMillis() || c.getSize() != attr.size()) && !c.isUp2date()))
+				{
+					c = new Archive(file, getRelativePath(file), attr);
+					containers.add(c);
+					c.setUp2date(true);
+					containersByName.put(relative.toString(), c);
+				}
+				else if(!c.isUp2date())
+				{
+					c.setUp2date(true);
+					containers.add(c);
+				}
+			}
+		}
+		else if(include_empty_dirs)
+		{
+			try(DirectoryStream<Path> dirstream = Files.newDirectoryStream(p))
+			{
+				if(!dirstream.iterator().hasNext())
+				{
+					final var relative  = path.relativize(p);
+					if(null == (c = containersByName.get(relative.toString())) || (c.getModified() != attr.lastModifiedTime().toMillis() && !c.isUp2date()))
+					{
+						c = new Directory(file, getRelativePath(file), attr);
+						containers.add(c);
+						c.setUp2date(true);
+						containersByName.put(relative.toString(), c);
+					}
+					else if(!c.isUp2date())
+					{
+						c.setUp2date(true);
+						containers.add(c);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param file
+	 * @param attr
+	 */
+	private void listFilesDest(final File file, final BasicFileAttributes attr)
+	{
+		Container c;
+		val type = attr.isRegularFile() ? Container.getType(file) : Type.DIR;
+		val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
+		if(null == (c = containersByName.get(fname)) /* new container */ || ((c.getModified() != attr.lastModifiedTime().toMillis() /* container date changed */ || (c instanceof Archive && c.getSize() != attr.size()) /* container size changed */) && !c.isUp2date()))
+		{
+			if(attr.isRegularFile())
+			{
+				if (type != Container.Type.UNK)
+					c = new Archive(file, getRelativePath(file), attr);
+				else
+					c = new FakeDirectory(file, getRelativePath(file), attr);
+			}
+			else
+				c = new Directory(file, getRelativePath(file), attr);
+			containers.add(c);
+			containersByName.put(fname, c);
+			c.setUp2date(true);
+		}
+		else if(!c.isUp2date())
+		{
+			// container listed but did not change
+			c.setUp2date(true);
+			containers.add(c);
+		}
+	}
+
+	/**
+	 * @param handler
+	 * @param archives_and_chd_as_roms
+	 * @param c
+	 * @throws IOException
+	 */
+	private void scanFake(final ProgressHandler handler, final boolean archives_and_chd_as_roms, Container c) throws IOException
+	{
+		if(c.getLoaded() < 1 || (needSha1OrMd5 && c.getLoaded() < 2))
+		{
+			final var entry = new Entry(c.getFile().getName(),c.getRelFile().getName(), c.getSize(), c.getModified());
+			if(archives_and_chd_as_roms)
+				entry.type = Entry.Type.UNK;
+			handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()) , -1, null, c.getFile().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+			updateEntry(c.add(entry), c.getFile().toPath());
+			c.setLoaded(needSha1OrMd5 ? 2 : 1);
+		}
+		else
+		{
+			for(final Entry entry : c.getEntries())
+				updateEntry(entry);
+		}
+	}
+
+	/**
+	 * @param handler
+	 * @param is_dest
+	 * @param recurse
+	 * @param archives_and_chd_as_roms
+	 * @param c
+	 * @throws IOException
+	 */
+	private void scanDir(final ProgressHandler handler, final boolean is_dest, final boolean recurse, final boolean archives_and_chd_as_roms, Container c) throws IOException
+	{
+		if(c.getLoaded() < 1 || (needSha1OrMd5 && c.getLoaded() < 2))
+		{
 			try
 			{
-				switch(c.getType())
+				Files.walkFileTree(c.getFile().toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
 				{
-					case ZIP:
+					@Override
+					public FileVisitResult visitFile(final Path entryPath, final BasicFileAttributes attrs) throws IOException
 					{
-						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
+						if(attrs.isRegularFile())
 						{
-							final Map<String, Object> env = new HashMap<>();
-							env.put("useTempFile", true); //$NON-NLS-1$
-							env.put("readOnly", true); //$NON-NLS-1$
-							try(final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.getFile().toURI()), env);) //$NON-NLS-1$
-							{
-								final var root = fs.getPath("/"); //$NON-NLS-1$
-								Files.walkFileTree(root, new SimpleFileVisitor<Path>()
-								{
-									@Override
-									public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
-									{
-										update_entry(c.add(new Entry(entry_path.toString(),getRelativePath(entry_path).toString())), entry_path);
-										return FileVisitResult.CONTINUE;
-									}
-
-									@Override
-									public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-									{
-										return FileVisitResult.CONTINUE;
-									}
-								});
-								c.loaded = need_sha1_or_md5 ? 2 : 1;
-							}
-							catch (ZipError | IOException e)
-							{
-								System.err.println(c.getRelFile() + " : " + e.getMessage()); //$NON-NLS-1$
-							}
-						}
-						else
-						{
-							for(final Entry entry : c.getEntries())
-								update_entry(entry);
-						}
-						if(is_dest && format_tzip && c.lastTZipCheck < c.modified)
-						{
-							c.lastTZipStatus = torrentzip.Process(c.getFile());
-							c.lastTZipCheck = System.currentTimeMillis();
-						}
-						break;
-					}
-					case RAR:
-					case SEVENZIP:
-					{
-						try(final var entries = new SevenZUpdateEntries(c))
-						{
-							entries.updateEntries();
-						}
-						break;
-					}
-					case DIR:
-					{
-						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
-						{
-							try
-							{
-								Files.walkFileTree(c.getFile().toPath(), EnumSet.noneOf(FileVisitOption.class), (is_dest&&recurse)?Integer.MAX_VALUE:1, new SimpleFileVisitor<Path>()
-								{
-									@Override
-									public FileVisitResult visitFile(final Path entry_path, final BasicFileAttributes attrs) throws IOException
-									{
-										if(attrs.isRegularFile())
-										{
-											final var entry = new Entry(entry_path.toString(),getRelativePath(entry_path).toString(), attrs);
-											if(archives_and_chd_as_roms)
-												entry.type = Entry.Type.UNK;
-											handler.setProgress(c.getFile().getName() , -1, null, File.separator+c.getFile().toPath().relativize(entry_path).toString()); //$NON-NLS-1$ //$NON-NLS-2$
-											update_entry(c.add(entry), entry_path);
-										}
-										return FileVisitResult.CONTINUE;
-									}
-		
-									@Override
-									public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-									{
-										return FileVisitResult.CONTINUE;
-									}
-								});
-								c.loaded = need_sha1_or_md5 ? 2 : 1;
-							}
-							catch(AccessDeniedException e)
-							{
-								
-							}
-						}
-						else
-						{
-							for(final Entry entry : c.getEntries())
-								update_entry(entry);
-						}
-						break;
-					}
-					case FAKE:
-					{
-						if(c.loaded < 1 || (need_sha1_or_md5 && c.loaded < 2))
-						{
-							final var entry = new Entry(c.getFile().getName(),c.getRelFile().getName(), c.getSize(), c.getModified());
+							final var entry = new Entry(entryPath.toString(),getRelativePath(entryPath).toString(), attrs);
 							if(archives_and_chd_as_roms)
 								entry.type = Entry.Type.UNK;
-							handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()) , -1, null, c.getFile().getName()); //$NON-NLS-1$ //$NON-NLS-2$
-							update_entry(c.add(entry), c.getFile().toPath());
-							c.loaded = need_sha1_or_md5 ? 2 : 1;
+							handler.setProgress(c.getFile().getName() , -1, null, File.separator+c.getFile().toPath().relativize(entryPath).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+							updateEntry(c.add(entry), entryPath);
 						}
-						else
-						{
-							for(final Entry entry : c.getEntries())
-								update_entry(entry);
-						}
-						break;
+						return FileVisitResult.CONTINUE;
 					}
-					default:
-						break;
-				}
-				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.getFile().getName())); //$NON-NLS-1$
-				handler.setProgress2(String.format("%d/%d (%d%%)", i.incrementAndGet(), containers.size(), (int)(j.addAndGet(1+(int)(c.size>>20)) * 100.0 / max.get())), j.get()); //$NON-NLS-1$
-			}
-			catch(final IOException e)
-			{
-				c.loaded = 0;
-				Log.err("IOException when scanning", e); //$NON-NLS-1$
-			}
-			catch(final BreakException e)
-			{
-				c.loaded = 0;
-				handler.cancel();
-			}
-			catch(final Exception e)
-			{
-				c.loaded = 0;
-				Log.err("Other Exception when listing", e); //$NON-NLS-1$
-			}
-			return;
-		}).start(containers.stream().sorted(Container.rcomparator()));
 
-		if(!handler.isCancel())
-			save(dir);
+					@Override
+					public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+					{
+						return FileVisitResult.CONTINUE;
+					}
+				});
+				c.setLoaded(needSha1OrMd5 ? 2 : 1);
+			}
+			catch(AccessDeniedException e)
+			{
+				// denied
+			}
+		}
+		else
+		{
+			for(final Entry entry : c.getEntries())
+				updateEntry(entry);
+		}
+	}
 
+	/**
+	 * @param is_dest
+	 * @param format_tzip
+	 * @param torrentzip
+	 * @param c
+	 * @throws IOException
+	 */
+	private void scanZip(final boolean is_dest, final boolean format_tzip, final TorrentZip torrentzip, Container c) throws IOException
+	{
+		if(c.getLoaded() < 1 || (needSha1OrMd5 && c.getLoaded() < 2))
+		{
+			final Map<String, Object> env = new HashMap<>();
+			env.put("useTempFile", true); //$NON-NLS-1$
+			env.put("readOnly", true); //$NON-NLS-1$
+			try(final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.getFile().toURI()), env);) //$NON-NLS-1$
+			{
+				final var root = fs.getPath("/"); //$NON-NLS-1$
+				Files.walkFileTree(root, new SimpleFileVisitor<Path>()
+				{
+					@Override
+					public FileVisitResult visitFile(final Path entryPath, final BasicFileAttributes attrs) throws IOException
+					{
+						updateEntry(c.add(new Entry(entryPath.toString(),getRelativePath(entryPath).toString())), entryPath);
+						return FileVisitResult.CONTINUE;
+					}
+
+					@Override
+					public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+					{
+						return FileVisitResult.CONTINUE;
+					}
+				});
+				c.setLoaded(needSha1OrMd5 ? 2 : 1);
+			}
+			catch (ZipError | IOException e)
+			{
+				System.err.println(c.getRelFile() + " : " + e.getMessage()); //$NON-NLS-1$
+			}
+		}
+		else
+		{
+			for(final Entry entry : c.getEntries())
+				updateEntry(entry);
+		}
+		if(is_dest && format_tzip && c.getLastTZipCheck() < c.getModified())
+		{
+			c.setLastTZipStatus(torrentzip.Process(c.getFile()));
+			c.setLastTZipCheck(System.currentTimeMillis());
+		}
 	}
 
 	/**
@@ -702,9 +776,9 @@ public final class DirScan extends PathAbstractor
 		{
 			this.container = container;
 			algorithms = new ArrayList<>();
-			if(sha1_roms)
+			if(sha1Roms)
 				algorithms.add(Algo.SHA1); //$NON-NLS-1$
-			if(md5_roms)
+			if(md5Roms)
 				algorithms.add(Algo.MD5); //$NON-NLS-1$
 			digest = new MDigest[algorithms.size()];
 			for(var i = 0; i < algorithms.size(); i++)
@@ -759,12 +833,12 @@ public final class DirScan extends PathAbstractor
 		 * @throws IOException
 		 * @throws NoSuchAlgorithmException
 		 */
-		private void updateEntries() throws IOException, NoSuchAlgorithmException
+		private void updateEntries() throws IOException
 		{
 			if(SevenZip.isInitializedSuccessfully())
 			{
 				final Map<Integer, Entry> entries = new HashMap<>();
-				if(container.loaded < 1 || (need_sha1_or_md5 && container.loaded < 2))
+				if(container.getLoaded() < 1 || (needSha1OrMd5 && container.getLoaded() < 2))
 				{
 					for(final ISimpleInArchiveItem item : getNInterface().getArchiveItems())
 					{
@@ -773,7 +847,7 @@ public final class DirScan extends PathAbstractor
 						updateEntry(container.add(new Entry(item.getPath(),null)), entries, item);
 
 					}
-					container.loaded = need_sha1_or_md5 ? 2 : 1;
+					container.setLoaded(needSha1OrMd5 ? 2 : 1);
 				}
 				else
 				{
@@ -785,7 +859,7 @@ public final class DirScan extends PathAbstractor
 			else	// in that case we support only sevenzip, not rar or whatever
 			{
 				final HashMap<String, Entry> entries = new HashMap<>();
-				if(container.loaded < 1 || (need_sha1_or_md5 && container.loaded < 2))
+				if(container.getLoaded() < 1 || (needSha1OrMd5 && container.getLoaded() < 2))
 				{
 					for(final SevenZArchiveEntry archive_entry : getCArchive().getEntries())
 					{
@@ -793,7 +867,7 @@ public final class DirScan extends PathAbstractor
 							continue;
 						updateEntry(container.add(new Entry(archive_entry.getName(),null)), entries, archive_entry);
 					}
-					container.loaded = need_sha1_or_md5 ? 2 : 1;
+					container.setLoaded(needSha1OrMd5 ? 2 : 1);
 				}
 				else
 				{
@@ -818,8 +892,8 @@ public final class DirScan extends PathAbstractor
 				entry.size = item.getSize();
 				entry.crc = String.format("%08x", item.getCRC()); //$NON-NLS-1$
 			}
-			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
-			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
+			entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
+			if(entry.sha1 == null && entry.md5 == null && (needSha1OrMd5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 			{
 				if(item == null)
 				{
@@ -839,9 +913,9 @@ public final class DirScan extends PathAbstractor
 			else
 			{
 				if(entry.sha1 != null)
-					entries_bysha1.put(entry.sha1, entry);
+					entriesBySha1.put(entry.sha1, entry);
 				if(entry.md5 != null)
-					entries_bymd5.put(entry.md5, entry);
+					entriesByMd5.put(entry.md5, entry);
 			}
 		}
 
@@ -849,27 +923,27 @@ public final class DirScan extends PathAbstractor
 		 * update an entry from a {@link SevenZArchiveEntry}
 		 * @param entry the {@link Entry}
 		 * @param entries the {@link HashSet} of {@link Entry}, their hash will be computed
-		 * @param archive_entry the {@link SevenZArchiveEntry} in relation with {@link Entry}
+		 * @param archiveEntry the {@link SevenZArchiveEntry} in relation with {@link Entry}
 		 * @throws IOException
 		 */
-		private void updateEntry(final Entry entry, final Map<String,Entry> entries, final SevenZArchiveEntry archive_entry) throws IOException
+		private void updateEntry(final Entry entry, final Map<String,Entry> entries, final SevenZArchiveEntry archiveEntry)
 		{
-			if(entry.size == 0 && entry.crc == null && archive_entry != null)
+			if(entry.size == 0 && entry.crc == null && archiveEntry != null)
 			{
-				entry.size = archive_entry.getSize();
-				entry.crc = String.format("%08x", archive_entry.getCrcValue()); //$NON-NLS-1$
+				entry.size = archiveEntry.getSize();
+				entry.crc = String.format("%08x", archiveEntry.getCrcValue()); //$NON-NLS-1$
 			}
-			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
-			if(entry.sha1 == null && entry.md5 == null && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
+			entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
+			if(entry.sha1 == null && entry.md5 == null && (needSha1OrMd5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 			{
 				entries.put(entry.getFile(), entry);
 			}
 			else
 			{
 				if(entry.sha1 != null)
-					entries_bysha1.put(entry.sha1, entry);
+					entriesBySha1.put(entry.sha1, entry);
 				if(entry.md5 != null)
-					entries_bymd5.put(entry.md5, entry);
+					entriesByMd5.put(entry.md5, entry);
 			}
 			
 		}
@@ -880,7 +954,7 @@ public final class DirScan extends PathAbstractor
 		 * @throws NoSuchAlgorithmException
 		 * @throws IOException
 		 */
-		private void computeHashes(final Map<Integer, Entry> entries) throws NoSuchAlgorithmException, IOException
+		private void computeHashes(final Map<Integer, Entry> entries) throws IOException
 		{
 			if(entries.size() > 0)
 			{
@@ -891,11 +965,13 @@ public final class DirScan extends PathAbstractor
 					@Override
 					public void setTotal(final long total) throws SevenZipException
 					{
+						// unused
 					}
 
 					@Override
 					public void setCompleted(final long complete) throws SevenZipException
 					{
+						// unused
 					}
 
 					@Override
@@ -906,9 +982,15 @@ public final class DirScan extends PathAbstractor
 							for(final MDigest d : digest)
 							{
 								if(d.getAlgorithm()==Algo.SHA1) //$NON-NLS-1$
-									entries_bysha1.put(entry.sha1 = d.toString(), entry);
+								{
+									entry.sha1 = d.toString();
+									entriesBySha1.put(entry.sha1, entry);
+								}
 								if(d.getAlgorithm()==Algo.MD5) //$NON-NLS-1$
-									entries_bymd5.put(entry.md5 = d.toString(), entry);
+								{
+									entry.md5 = d.toString();
+									entriesByMd5.put(entry.md5, entry);
+								}
 								d.reset();
 							}
 						}
@@ -917,6 +999,7 @@ public final class DirScan extends PathAbstractor
 					@Override
 					public void prepareOperation(final ExtractAskMode extractAskMode) throws SevenZipException
 					{
+						// unused
 					}
 
 					@Override
@@ -962,9 +1045,15 @@ public final class DirScan extends PathAbstractor
 					for (MDigest d : digest)
 					{
 						if (d.getAlgorithm()==Algo.SHA1) //$NON-NLS-1$
-							entries_bysha1.put(entry.sha1 = d.toString(), entry);
+						{
+							entry.sha1 = d.toString();
+							entriesBySha1.put(entry.sha1, entry);
+						}
 						if (d.getAlgorithm()==Algo.MD5) //$NON-NLS-1$
-							entries_bymd5.put(entry.md5 = d.toString(), entry);
+						{
+							entry.md5 = d.toString();
+							entriesByMd5.put(entry.md5, entry);
+						}
 						d.reset();
 					}
 				}
@@ -977,63 +1066,61 @@ public final class DirScan extends PathAbstractor
 	 * @param entry the {@link Entry} to update
 	 * @throws IOException
 	 */
-	private void update_entry(final Entry entry) throws IOException
+	private void updateEntry(final Entry entry) throws IOException
 	{
-		update_entry(entry, (Path) null);
+		updateEntry(entry, (Path) null);
 	}
 
 	/**
 	 * Update an entry (zip or dir)
 	 * @param entry the {@link Entry} to update
-	 * @param entry_path the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
+	 * @param entryPath the {@link Path} corresponding to the entry (can be null, it will then be retrieved from {@link Entry#parent}
 	 * @throws IOException
 	 */
-	private void update_entry(final Entry entry, final Path entry_path) throws IOException
+	private void updateEntry(final Entry entry, final Path entryPath) throws IOException
 	{
 		if(entry.parent.getType() == Type.ZIP)
 		{
 			if(entry.size == 0 && entry.crc == null)
 			{
-				var path = entry_path;
-				if(entry_path == null)
+				var path = entryPath;
+				if(entryPath == null)
 					path = getPath(entry);
-				final Map<String, Object> entry_zip_attrs = Files.readAttributes(path, "zip:*"); //$NON-NLS-1$
-				entry.size = (Long) entry_zip_attrs.get("size"); //$NON-NLS-1$
-				entry.crc = String.format("%08x", entry_zip_attrs.get("crc")); //$NON-NLS-1$ //$NON-NLS-2$
-				if(entry_path == null)
+				final Map<String, Object> entryZipAttrs = Files.readAttributes(path, "zip:*"); //$NON-NLS-1$
+				entry.size = (Long) entryZipAttrs.get("size"); //$NON-NLS-1$
+				entry.crc = String.format("%08x", entryZipAttrs.get("crc")); //$NON-NLS-1$ //$NON-NLS-2$
+				if(entryPath == null)
 					path.getFileSystem().close();
 			}
-			entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
+			entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 		}
 		if(entry.type == Entry.Type.CHD && entry.sha1 == null && entry.md5 == null)
 		{
 
-				var path = entry_path;
-				if(entry_path == null)
+				var path = entryPath;
+				if(entryPath == null)
 					path = getPath(entry);
-				final var chd_info = new CHDInfoReader(path.toFile());
-				if(sha1_disks)
-					if(null != (entry.sha1 = chd_info.getSHA1()))
-						entries_bysha1.put(entry.sha1, entry);
-				if(md5_disks)
-					if(null != (entry.md5 = chd_info.getMD5()))
-						entries_bymd5.put(entry.md5, entry);
-				if(entry_path == null)
+				final var chdInfo = new CHDInfoReader(path.toFile());
+				if(sha1Disks && null != (entry.sha1 = chdInfo.getSHA1()))
+						entriesBySha1.put(entry.sha1, entry);
+				if(md5Disks && null != (entry.md5 = chdInfo.getMD5()))
+						entriesByMd5.put(entry.md5, entry);
+				if(entryPath == null)
 					path.getFileSystem().close();
 		}
-		else if(entry.type != Entry.Type.CHD && (need_sha1_or_md5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
+		else if(entry.type != Entry.Type.CHD && (needSha1OrMd5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
 		{
 			List<Algo> algorithms = new ArrayList<>();
 			if(entry.crc==null)
 				algorithms.add(Algo.CRC32); //$NON-NLS-1$
-			if(entry.md5 == null && (md5_roms || need_sha1_or_md5))
+			if(entry.md5 == null && (md5Roms || needSha1OrMd5))
 				algorithms.add(Algo.MD5); //$NON-NLS-1$
-			if(entry.sha1 == null && (sha1_roms || need_sha1_or_md5))
+			if(entry.sha1 == null && (sha1Roms || needSha1OrMd5))
 				algorithms.add(Algo.SHA1); //$NON-NLS-1$
 			if(!algorithms.isEmpty()) try
 			{
-				var path = entry_path;
-				if(entry_path == null)
+				var path = entryPath;
+				if(entryPath == null)
 					path = getPath(entry);
 				MDigest[] digests = computeHash(path, algorithms);
 				for(MDigest md : digests)
@@ -1051,7 +1138,7 @@ public final class DirScan extends PathAbstractor
 							break;
 					}
 				}
-				if(entry_path == null)
+				if(entryPath == null)
 					path.getFileSystem().close();
 			}
 			catch (NoSuchAlgorithmException e)
@@ -1059,36 +1146,36 @@ public final class DirScan extends PathAbstractor
 				Log.err(e.getMessage(),e);
 			}
 			if(entry.crc != null)
-				entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
+				entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 			if(entry.sha1 != null)
-				entries_bysha1.put(entry.sha1, entry);
+				entriesBySha1.put(entry.sha1, entry);
 			if(entry.md5 != null)
-				entries_bymd5.put(entry.md5, entry);
+				entriesByMd5.put(entry.md5, entry);
 		}
 		else
 		{
 			if(entry.crc != null)
-				entries_bycrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
+				entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
 			if(entry.sha1 != null)
-				entries_bysha1.put(entry.sha1, entry);
+				entriesBySha1.put(entry.sha1, entry);
 			if(entry.md5 != null)
-				entries_bymd5.put(entry.md5, entry);
+				entriesByMd5.put(entry.md5, entry);
 		}
 	}
 
-	private MDigest[] computeHash(final Path entry_path, final List<Algo> algorithm) throws NoSuchAlgorithmException
+	private MDigest[] computeHash(final Path entryPath, final List<Algo> algorithm) throws NoSuchAlgorithmException
 	{
-		return computeHash(entry_path, algorithm.toArray(new Algo[0]));
+		return computeHash(entryPath, algorithm.toArray(new Algo[0]));
 	}
 	
-	private MDigest[] computeHash(final Path entry_path, final Algo[] algorithm) throws NoSuchAlgorithmException
+	private MDigest[] computeHash(final Path entryPath, final Algo[] algorithm) throws NoSuchAlgorithmException
 	{
 		var md = new MDigest[algorithm.length];
 		for(var i = 0; i < algorithm.length; i++)
 			md[i] = MDigest.getAlgorithm(algorithm[i]);
 		try
 		{
-			MDigest.computeHash(Files.newInputStream(entry_path), md);
+			MDigest.computeHash(Files.newInputStream(entryPath), md);
 		}
 		catch(final Exception e)
 		{
@@ -1117,24 +1204,24 @@ public final class DirScan extends PathAbstractor
 	 * @param r the {@link Rom} from which to find {@link Entry} 
 	 * @return {@link Entry} or null if not found
 	 */
-	Entry find_byhash(final Rom r)
+	Entry findByHash(final Rom r)
 	{
 		Entry entry = null;
 		if(r.sha1 != null)
 		{
-			if(null != (entry = entries_bysha1.get(r.sha1)))
+			if(null != (entry = entriesBySha1.get(r.sha1)))
 				return entry;
 			if(isSuspiciousCRC(r.crc))
 				return null;
 		}
 		if(r.md5 != null)
 		{
-			if(null != (entry = entries_bymd5.get(r.md5)))
+			if(null != (entry = entriesByMd5.get(r.md5)))
 				return entry;
 			if(isSuspiciousCRC(r.crc))
 				return null;
 		}
-		return entries_bycrc.get(r.crc + "." + r.size); //$NON-NLS-1$
+		return entriesByCrc.get(r.crc + "." + r.size); //$NON-NLS-1$
 	}
 
 	/**
@@ -1142,13 +1229,12 @@ public final class DirScan extends PathAbstractor
 	 * @param d the {@link Disk} from which to find {@link Entry}
 	 * @return {@link Entry} or null if not found
 	 */
-	Entry find_byhash(final Disk d)
+	Entry findByHash(final Disk d)
 	{
 		Entry entry = null;
-		if(d.sha1 != null)
-			if(null != (entry = entries_bysha1.get(d.sha1)))
-				return entry;
-		return entries_bymd5.get(d.md5);
+		if (d.sha1 != null && null != (entry = entriesBySha1.get(d.sha1)))
+			return entry;
+		return entriesByMd5.get(d.md5);
 	}
 
 	private static String getCacheExt(Set<Options> options)
@@ -1203,7 +1289,7 @@ public final class DirScan extends PathAbstractor
 	{
 		try(final var oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(session, file, options)))))
 		{
-			oos.writeObject(containers_byname);
+			oos.writeObject(containersByName);
 		}
 		catch(final Exception e)
 		{
@@ -1243,13 +1329,13 @@ public final class DirScan extends PathAbstractor
 	}
 
 	/**
-	 * get a {@link Container} by its name from {@link #containers_byname}
+	 * get a {@link Container} by its name from {@link #containersByName}
 	 * @param name the name String of a container
 	 * @return the {@link Container} or null
 	 */
 	Container getContainerByName(String name)
 	{
-		return containers_byname.get(name);
+		return containersByName.get(name);
 	}
 	
 	/**

@@ -87,7 +87,7 @@ public class ProfilePanel extends JPanel
 	private JTable profilesList;
 
 	/** The scroll pane 1. */
-	private JScrollPane scrollPane_1;
+	private JScrollPane scrollPaneTree;
 
 	/** The profiles tree. */
 	private JTree profilesTree;
@@ -99,26 +99,26 @@ public class ProfilePanel extends JPanel
 	 */
 	public ProfilePanel(final Session session)
 	{
-		final var gbl_profilesTab = new GridBagLayout();
-		gbl_profilesTab.columnWidths = new int[] { 0, 0 };
-		gbl_profilesTab.rowHeights = new int[] { 0, 0, 0 };
-		gbl_profilesTab.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_profilesTab.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		this.setLayout(gbl_profilesTab);
+		final var gblProfilesTab = new GridBagLayout();
+		gblProfilesTab.columnWidths = new int[] { 0, 0 };
+		gblProfilesTab.rowHeights = new int[] { 0, 0, 0 };
+		gblProfilesTab.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gblProfilesTab.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+		this.setLayout(gblProfilesTab);
 
 		final var profilesPanel = new JSplitPane();
 		profilesPanel.setContinuousLayout(true);
 		profilesPanel.setResizeWeight(0.2);
 		profilesPanel.setOneTouchExpandable(true);
-		final var gbc_profilesPanel = new GridBagConstraints();
-		gbc_profilesPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_profilesPanel.fill = GridBagConstraints.BOTH;
-		gbc_profilesPanel.gridx = 0;
-		gbc_profilesPanel.gridy = 0;
-		this.add(profilesPanel, gbc_profilesPanel);
+		final var gbcProfilesPanel = new GridBagConstraints();
+		gbcProfilesPanel.insets = new Insets(0, 0, 5, 0);
+		gbcProfilesPanel.fill = GridBagConstraints.BOTH;
+		gbcProfilesPanel.gridx = 0;
+		gbcProfilesPanel.gridy = 0;
+		this.add(profilesPanel, gbcProfilesPanel);
 
-		final var scrollPane = new JScrollPane();
-		profilesPanel.setRightComponent(scrollPane);
+		final var scrollPaneList = new JScrollPane();
+		profilesPanel.setRightComponent(scrollPaneList);
 
 		profilesList = new JTable();
 		final DefaultCellEditor editor = (DefaultCellEditor) profilesList.getDefaultEditor(Object.class);
@@ -129,7 +129,7 @@ public class ProfilePanel extends JPanel
 		profilesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		profilesList.setPreferredScrollableViewportSize(new Dimension(400, 300));
 		profilesList.setFillsViewportHeight(true);
-		scrollPane.setViewportView(profilesList);
+		scrollPaneList.setViewportView(profilesList);
 		final var filemodel = new FileTableModel();
 		profilesList.setModel(filemodel);
 		for (var i = 0; i < profilesList.getColumnCount(); i++)
@@ -164,12 +164,12 @@ public class ProfilePanel extends JPanel
 			}
 		});
 
-		scrollPane_1 = new JScrollPane();
-		scrollPane_1.setMinimumSize(new Dimension(80, 22));
-		profilesPanel.setLeftComponent(scrollPane_1);
+		scrollPaneTree = new JScrollPane();
+		scrollPaneTree.setMinimumSize(new Dimension(80, 22));
+		profilesPanel.setLeftComponent(scrollPaneTree);
 
 		profilesTree = new JTree();
-		scrollPane_1.setViewportView(profilesTree);
+		scrollPaneTree.setViewportView(profilesTree);
 
 		final var profilesTreeModel = new DirTreeModel(new DirNode(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile())); //$NON-NLS-1$
 		profilesTree.setModel(profilesTreeModel);
@@ -182,8 +182,8 @@ public class ProfilePanel extends JPanel
 		profilesTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		profilesTree.addTreeSelectionListener(new DirTreeSelectionListener(session, profilesList));
 
-		final var popupMenu_1 = new JPopupMenu();
-		popupMenu_1.addPopupMenuListener(new PopupMenuListener()
+		final var popupMenuList = new JPopupMenu();
+		popupMenuList.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
 			public void popupMenuCanceled(final PopupMenuEvent e)
@@ -210,7 +210,7 @@ public class ProfilePanel extends JPanel
 					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text")); //$NON-NLS-1$
 			}
 		});
-		MainFrame.addPopup(profilesList, popupMenu_1);
+		MainFrame.addPopup(profilesList, popupMenuList);
 
 		mntmDeleteProfile = new JMenuItem(Messages.getString("MainFrame.mntmDeleteProfile.text")); //$NON-NLS-1$
 		mntmDeleteProfile.addActionListener(e -> {
@@ -223,7 +223,7 @@ public class ProfilePanel extends JPanel
 			}
 		});
 		mntmDeleteProfile.setIcon(MainFrame.getIcon("/jrm/resicons/icons/script_delete.png")); //$NON-NLS-1$
-		popupMenu_1.add(mntmDeleteProfile);
+		popupMenuList.add(mntmDeleteProfile);
 
 		mntmRenameProfile = new JMenuItem(Messages.getString("MainFrame.mntmRenameProfile.text")); //$NON-NLS-1$
 		mntmRenameProfile.addActionListener(e -> {
@@ -234,7 +234,7 @@ public class ProfilePanel extends JPanel
 			}
 		});
 		mntmRenameProfile.setIcon(MainFrame.getIcon("/jrm/resicons/icons/script_edit.png")); //$NON-NLS-1$
-		popupMenu_1.add(mntmRenameProfile);
+		popupMenuList.add(mntmRenameProfile);
 
 		mntmDropCache = new JMenuItem(Messages.getString("MainFrame.mntmDropCache.text")); //$NON-NLS-1$
 		mntmDropCache.addActionListener(e -> {
@@ -250,10 +250,10 @@ public class ProfilePanel extends JPanel
 				}
 		});
 		mntmDropCache.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bin.png")); //$NON-NLS-1$
-		popupMenu_1.add(mntmDropCache);
+		popupMenuList.add(mntmDropCache);
 
 		final var separator = new JSeparator();
-		popupMenu_1.add(separator);
+		popupMenuList.add(separator);
 
 		mntmUpdateFromMame = new JMenuItem(Messages.getString("MainFrame.mntmUpdateFromMame.text")); //$NON-NLS-1$
 		mntmUpdateFromMame.addActionListener(e -> {
@@ -311,11 +311,11 @@ public class ProfilePanel extends JPanel
 				}
 			}
 		});
-		popupMenu_1.add(mntmUpdateFromMame);
+		popupMenuList.add(mntmUpdateFromMame);
 		profilesTree.setSelectionRow(0);
 
-		final var popupMenu = new JPopupMenu();
-		popupMenu.addPopupMenuListener(new PopupMenuListener()
+		final var popupMenuTree = new JPopupMenu();
+		popupMenuTree.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
 			public void popupMenuCanceled(final PopupMenuEvent e)
@@ -336,7 +336,7 @@ public class ProfilePanel extends JPanel
 				mntmDeleteFolder.setEnabled(profilesTree.getSelectionCount() > 0 && !((DirNode) profilesTree.getLastSelectedPathComponent()).isRoot());
 			}
 		});
-		MainFrame.addPopup(profilesTree, popupMenu);
+		MainFrame.addPopup(profilesTree, popupMenuTree);
 
 		mntmCreateFolder = new JMenuItem(Messages.getString("MainFrame.mntmCreateFolder.text")); //$NON-NLS-1$
 		mntmCreateFolder.addActionListener(e -> {
@@ -352,7 +352,7 @@ public class ProfilePanel extends JPanel
 			}
 		});
 		mntmCreateFolder.setIcon(MainFrame.getIcon("/jrm/resicons/icons/folder_add.png")); //$NON-NLS-1$
-		popupMenu.add(mntmCreateFolder);
+		popupMenuTree.add(mntmCreateFolder);
 
 		mntmDeleteFolder = new JMenuItem(Messages.getString("MainFrame.mntmDeleteFolder.text")); //$NON-NLS-1$
 		mntmDeleteFolder.addActionListener(e -> {
@@ -366,14 +366,14 @@ public class ProfilePanel extends JPanel
 			}
 		});
 		mntmDeleteFolder.setIcon(MainFrame.getIcon("/jrm/resicons/icons/folder_delete.png")); //$NON-NLS-1$
-		popupMenu.add(mntmDeleteFolder);
+		popupMenuTree.add(mntmDeleteFolder);
 
 		final var profilesBtnPanel = new JPanel();
-		final var gbc_profilesBtnPanel = new GridBagConstraints();
-		gbc_profilesBtnPanel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_profilesBtnPanel.gridx = 0;
-		gbc_profilesBtnPanel.gridy = 1;
-		this.add(profilesBtnPanel, gbc_profilesBtnPanel);
+		final var gbcProfilesBtnPanel = new GridBagConstraints();
+		gbcProfilesBtnPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbcProfilesBtnPanel.gridx = 0;
+		gbcProfilesBtnPanel.gridy = 1;
+		this.add(profilesBtnPanel, gbcProfilesBtnPanel);
 
 		final var btnLoadProfile = new JButton(Messages.getString("MainFrame.btnLoadProfile.text")); //$NON-NLS-1$
 		btnLoadProfile.setIcon(MainFrame.getIcon("/jrm/resicons/icons/add.png")); //$NON-NLS-1$
@@ -441,8 +441,8 @@ public class ProfilePanel extends JPanel
 					{
 						if (!imprt.is_mame)
 						{
-							final var curr_dir = ((FileTableModel) profilesList.getModel()).curr_dir.getFile();
-							var file = new File(curr_dir, imprt.file.getName());
+							final var currDir = ((FileTableModel) profilesList.getModel()).curr_dir.getFile();
+							var file = new File(currDir, imprt.file.getName());
 							int mode = -1;
 							if (file.exists())
 							{
@@ -452,10 +452,10 @@ public class ProfilePanel extends JPanel
 								{
 									for (var i = 1;; i++)
 									{
-										final var test_file = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + '_' + i + '.' + FilenameUtils.getExtension(file.getName()));
-										if (!test_file.exists())
+										final var testFile = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + '_' + i + '.' + FilenameUtils.getExtension(file.getName()));
+										if (!testFile.exists())
 										{
-											file = test_file;
+											file = testFile;
 											break;
 										}
 									}
