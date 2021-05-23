@@ -214,9 +214,9 @@ public class Scan extends PathAbstractor
 	 */
 	public Scan(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache) throws BreakException
 	{
-		super(profile.session);
+		super(profile.getSession());
 		this.profile = profile;
-		this.report = profile.session.report;
+		this.report = profile.getSession().report;
 		profile.setPropsCheckPoint();
 		report.reset();
 		report.setProfile(profile);
@@ -232,8 +232,8 @@ public class Scan extends PathAbstractor
 		ignore_unneeded_entries = profile.getProperty(SettingsEnum.ignore_unneeded_entries, false); //$NON-NLS-1$
 		ignore_unknown_containers = profile.getProperty(SettingsEnum.ignore_unknown_containers, false); //$NON-NLS-1$
 		backup = profile.getProperty(SettingsEnum.backup, true); //$NON-NLS-1$
-		val use_parallelism = profile.getProperty(SettingsEnum.use_parallelism, profile.session.server);
-		val nThreads = use_parallelism ? profile.session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+		val use_parallelism = profile.getProperty(SettingsEnum.use_parallelism, profile.getSession().server);
+		val nThreads = use_parallelism ? profile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 
 		final String dstdir_txt = profile.getProperty(SettingsEnum.roms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dstdir_txt.isEmpty())
@@ -310,13 +310,13 @@ public class Scan extends PathAbstractor
 			}
 		}
 		/* then add extra backup dir to that list */
-		srcdirs.add(new File(profile.session.getUser().getSettings().getWorkPath().toFile(), "backup")); //$NON-NLS-1$
+		srcdirs.add(new File(profile.getSession().getUser().getSettings().getWorkPath().toFile(), "backup")); //$NON-NLS-1$
 		/* then scan all dirs from that list */
 		for (final File dir : srcdirs)
 		{
 			if(scancache != null)
 			{
-				String cachefile  = DirScan.getCacheFile(profile.session, dir, DirScan.getOptions(profile, false)).getAbsolutePath();
+				String cachefile  = DirScan.getCacheFile(profile.getSession(), dir, DirScan.getOptions(profile, false)).getAbsolutePath();
 				if(!scancache.containsKey(cachefile))
 					scancache.put(cachefile, new DirScan(profile, dir, handler, false));
 				allscans.add(scancache.get(cachefile));
@@ -334,24 +334,24 @@ public class Scan extends PathAbstractor
 		final ArrayList<Container> unneeded = new ArrayList<>();
 		final ArrayList<Container> samples_unknown = new ArrayList<>();
 		final ArrayList<Container> samples_unneeded = new ArrayList<>();
-		if (profile.machineListList.get(0).size() > 0)
+		if (profile.getMachineListList().get(0).size() > 0)
 		{
-			profile.machineListList.get(0).resetFilteredName();
-			roms_dstscan = dirscan(profile.machineListList.get(0), roms_dstdir, unknown, unneeded, handler);
+			profile.getMachineListList().get(0).resetFilteredName();
+			roms_dstscan = dirscan(profile.getMachineListList().get(0), roms_dstdir, unknown, unneeded, handler);
 			if (roms_dstdir.equals(disks_dstdir))
 				disks_dstscan = roms_dstscan;
 			else
-				disks_dstscan = dirscan(profile.machineListList.get(0), disks_dstdir, unknown, unneeded, handler);
+				disks_dstscan = dirscan(profile.getMachineListList().get(0), disks_dstdir, unknown, unneeded, handler);
 			if (samples_dstdir != null && samples_dstdir.isDirectory())
-				samples_dstscan = dirscan(profile.machineListList.get(0).samplesets, samples_dstdir, samples_unknown, samples_unneeded, handler);
+				samples_dstscan = dirscan(profile.getMachineListList().get(0).samplesets, samples_dstdir, samples_unknown, samples_unneeded, handler);
 			if (handler.isCancel())
 				throw new BreakException();
 		}
-		if (profile.machineListList.softwarelist_list.size() > 0)
+		if (profile.getMachineListList().softwarelist_list.size() > 0)
 		{
 			final AtomicInteger j = new AtomicInteger();
-			handler.setProgress2(String.format("%d/%d", j.get(), profile.machineListList.softwarelist_list.size()), j.get(), profile.machineListList.softwarelist_list.size()); //$NON-NLS-1$
-			for (final SoftwareList sl : profile.machineListList.softwarelist_list.getFilteredStream().collect(Collectors.toList()))
+			handler.setProgress2(String.format("%d/%d", j.get(), profile.getMachineListList().softwarelist_list.size()), j.get(), profile.getMachineListList().softwarelist_list.size()); //$NON-NLS-1$
+			for (final SoftwareList sl : profile.getMachineListList().softwarelist_list.getFilteredStream().collect(Collectors.toList()))
 			{
 				sl.resetFilteredName();
 				File sldir = new File(swroms_dstdir, sl.getName());
@@ -363,7 +363,7 @@ public class Scan extends PathAbstractor
 					sldir = new File(swdisks_dstdir, sl.getName());
 					swdisks_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
 				}
-				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.machineListList.softwarelist_list.size(), sl.getName()), j.get(), profile.machineListList.softwarelist_list.size()); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.getMachineListList().softwarelist_list.size(), sl.getName()), j.get(), profile.getMachineListList().softwarelist_list.size()); //$NON-NLS-1$
 				if (handler.isCancel())
 					throw new BreakException();
 			}
@@ -435,7 +435,7 @@ public class Scan extends PathAbstractor
 			/*
 			 * report suspicious CRCs
 			 */
-			profile.suspiciousCRC.forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
+			profile.getSuspiciousCRC().forEach((crc) -> report.add(new RomSuspiciousCRC(crc)));
 
 			/*
 			 * Searching for fixes
@@ -444,7 +444,7 @@ public class Scan extends PathAbstractor
 			final AtomicInteger j = new AtomicInteger();
 			handler.setProgress(null, i.get(), profile.filteredSubsize()); //$NON-NLS-1$
 			handler.setProgress2(String.format("%s %d/%d", Messages.getString("Scan.SearchingForFixes"), j.get(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
-			if (profile.machineListList.get(0).size() > 0)
+			if (profile.getMachineListList().get(0).size() > 0)
 			{
 				
 				/* Scan all samples */
@@ -456,21 +456,21 @@ public class Scan extends PathAbstractor
 					handler.setProgress(set.getName(), i.getAndIncrement());
 					if (samples_dstscan != null)
 						scanSamples(set);
-				}).start(StreamSupport.stream(profile.machineListList.get(0).samplesets.spliterator(),false));
+				}).start(StreamSupport.stream(profile.getMachineListList().get(0).samplesets.spliterator(),false));
 				/* scan all machines */ 
-				profile.machineListList.get(0).forEach(Machine::resetCollisionMode);
+				profile.getMachineListList().get(0).forEach(Machine::resetCollisionMode);
 				new MultiThreading<Machine>(nThreads, m ->
 				{
 					if (handler.isCancel())
 						return;
 					handler.setProgress(m.getFullName(), i.getAndIncrement());
 					scanWare(m);
-				}).start(profile.machineListList.get(0).getFilteredStream());
+				}).start(profile.getMachineListList().get(0).getFilteredStream());
 			}
-			if (profile.machineListList.softwarelist_list.size() > 0)
+			if (profile.getMachineListList().softwarelist_list.size() > 0)
 			{
 				/* scan all software lists */
-				profile.machineListList.softwarelist_list.getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
+				profile.getMachineListList().softwarelist_list.getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
 					// for each software list
 					handler.setProgress2(String.format("%s %d/%d (%s)", Messages.getString("Scan.SearchingForFixes"), j.get(), profile.size(), sl.getName()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
 					roms_dstscan = swroms_dstscans.get(sl.getName());
@@ -501,15 +501,16 @@ public class Scan extends PathAbstractor
 			handler.setInfos(1,null);
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			/* save report */
-			if(!profile.session.server)
-				report.write(profile.session);
+			if(!profile.getSession().server)
+				report.write(profile.getSession());
 			report.flush();
 			/* update and save stats */
-			profile.nfo.stats.scanned = new Date();
-			profile.nfo.stats.haveSets = Stream.concat(profile.machineListList.stream(), profile.machineListList.softwarelist_list.stream()).mapToLong(AnywareList::countHave).sum();
-			profile.nfo.stats.haveRoms = Stream.concat(profile.machineListList.stream(), profile.machineListList.softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum();
-			profile.nfo.stats.haveDisks = Stream.concat(profile.machineListList.stream(), profile.machineListList.softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum();
-			profile.nfo.save(profile.session);
+			final var nfo = profile.getNfo();
+			nfo.stats.scanned = new Date();
+			nfo.stats.haveSets = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().softwarelist_list.stream()).mapToLong(AnywareList::countHave).sum();
+			nfo.stats.haveRoms = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum();
+			nfo.stats.haveDisks = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum();
+			nfo.save(profile.getSession());
 			/* save again profile cache with scan entity status */
 			profile.save(); 
 		}

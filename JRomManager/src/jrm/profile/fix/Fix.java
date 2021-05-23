@@ -55,8 +55,8 @@ public class Fix
 	{
 		this.curr_scan = curr_scan;
 
-		val use_parallelism = curr_profile.getProperty(SettingsEnum.use_parallelism, curr_profile.session.server); // $NON-NLS-1$
-		val nThreads = use_parallelism ? curr_profile.session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+		val use_parallelism = curr_profile.getProperty(SettingsEnum.use_parallelism, curr_profile.getSession().server); // $NON-NLS-1$
+		val nThreads = use_parallelism ? curr_profile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 
 		final long start = System.currentTimeMillis();
 		
@@ -68,7 +68,7 @@ public class Fix
 			max.addAndGet(actions.size());
 			actions.forEach(action->max.addAndGet(action.count() + (int)(action.estimatedSize()>>20)));
 		});
-		progress.setProgress(curr_profile.session.msgs.getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
+		progress.setProgress(curr_profile.getSession().msgs.getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
 		
 		// foreach ordered action groups
 		curr_scan.actions.forEach(actions -> {
@@ -82,7 +82,7 @@ public class Fix
 						return;
 					try
 					{
-						if (!action.doAction(curr_profile.session, progress)) // do action...
+						if (!action.doAction(curr_profile.getSession(), progress)) // do action...
 							progress.cancel(); // ... and cancel all if it failed
 						else
 							done.add(action); // add to "done" list successful action
@@ -112,7 +112,7 @@ public class Fix
 		// reset progression to normal before leaving
 		progress.setInfos(1,false);
 		// set stats last fixed date to 'now'
-		curr_profile.nfo.stats.fixed = new Date();
+		curr_profile.getNfo().stats.fixed = new Date();
 		
 		// output to console timing information
 		Log.info(()->"Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$

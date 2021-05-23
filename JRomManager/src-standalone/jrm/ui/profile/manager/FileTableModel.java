@@ -182,8 +182,8 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 				oldfile.renameTo(newfile);
 			});
 			final File new_nfo_file = new File(curr_dir.getFile(), aValue.toString());
-			if(session.curr_profile != null && session.curr_profile.nfo.file.equals(pnfo.file))
-				session.curr_profile.nfo.relocate(session, new_nfo_file);
+			if(session.curr_profile != null && session.curr_profile.getNfo().file.equals(pnfo.file))
+				session.curr_profile.getNfo().relocate(session, new_nfo_file);
 			pnfo.relocate(session, new_nfo_file);
 			fireTableCellUpdated(rowIndex, rowIndex);
 		}

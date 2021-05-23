@@ -74,13 +74,13 @@ public class Export
 			switch(type)
 			{
 				case MAME:
-					profile.machineListList.export(writer, progress, true, filtered);
+					profile.getMachineListList().export(writer, progress, true, filtered);
 					break;
 				case DATAFILE:
-					profile.machineListList.export(writer, progress, false, filtered);
+					profile.getMachineListList().export(writer, progress, false, filtered);
 					break;
 				case SOFTWARELIST:
-					profile.machineListList.softwarelist_list.export(writer, progress, filtered, selection);
+					profile.getMachineListList().softwarelist_list.export(writer, progress, filtered, selection);
 					break;
 			}
 			writer.close();

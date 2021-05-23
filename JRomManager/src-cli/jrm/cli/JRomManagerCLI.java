@@ -78,7 +78,7 @@ public class JRomManagerCLI
 				do
 				{
 					if (session.curr_profile != null)
-						System.out.format("jrm [%s]> ", session.curr_profile.nfo.file.getName()); //$NON-NLS-1$
+						System.out.format("jrm [%s]> ", session.curr_profile.getNfo().file.getName()); //$NON-NLS-1$
 					else
 						System.out.print("jrm> "); //$NON-NLS-1$
 					analyze(splitLine(console.readLine()));
@@ -615,23 +615,23 @@ public class JRomManagerCLI
 
 	private int settings()
 	{
-		for (Map.Entry<Object, Object> entry : session.curr_profile.settings.getProperties().entrySet())
+		for (Map.Entry<Object, Object> entry : session.curr_profile.getSettings().getProperties().entrySet())
 			System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
 		return 0;
 	}
 
 	private int settings(final Enum<?> name)
 	{
-		if (!session.curr_profile.settings.hasProperty(name))
+		if (!session.curr_profile.getSettings().hasProperty(name))
 			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$
 		else
-			System.out.format("%s=%s%n", name, session.curr_profile.settings.getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.format("%s=%s%n", name, session.curr_profile.getSettings().getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		return 0;
 	}
 
 	private int settings(final Enum<?> name, final String value)
 	{
-		session.curr_profile.settings.setProperty(name, value);
+		session.curr_profile.getSettings().setProperty(name, value);
 		session.curr_profile.saveSettings();
 		return 0;
 	}

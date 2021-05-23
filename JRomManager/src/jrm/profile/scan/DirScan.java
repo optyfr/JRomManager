@@ -224,7 +224,7 @@ public final class DirScan extends PathAbstractor
 		{
 			if (profile.getProperty(jrm.misc.SettingsEnum.need_sha1_or_md5, false)) //$NON-NLS-1$
 				options.add(Options.NEED_SHA1_OR_MD5);
-			if (profile.getProperty(jrm.misc.SettingsEnum.use_parallelism, profile.session.server)) //$NON-NLS-1$
+			if (profile.getProperty(jrm.misc.SettingsEnum.use_parallelism, profile.getSession().server)) //$NON-NLS-1$
 				options.add(Options.USE_PARALLELISM);
 			if (profile.getProperty(jrm.misc.SettingsEnum.archives_and_chd_as_roms, false)) //$NON-NLS-1$
 				options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
@@ -233,13 +233,13 @@ public final class DirScan extends PathAbstractor
 				options.add(Options.FORMAT_TZIP);
 			else if (FormatOptions.DIR == format)
 				options.add(Options.RECURSE);
-			if (profile.md5Roms)
+			if (profile.isMd5Roms())
 				options.add(Options.MD5_ROMS);
-			if (profile.md5Disks)
+			if (profile.isMd5Disks())
 				options.add(Options.MD5_DISKS);
-			if (profile.sha1Roms)
+			if (profile.isSha1Roms())
 				options.add(Options.SHA1_ROMS);
-			if (profile.sha1Disks)
+			if (profile.isSha1Disks())
 				options.add(Options.SHA1_DISKS);
 		}
 		return options;
@@ -268,7 +268,7 @@ public final class DirScan extends PathAbstractor
 	 */
 	DirScan(final Profile profile, final File dir, final ProgressHandler handler, final boolean is_dest) throws BreakException
 	{
-		this(profile.session, dir, handler, profile.suspiciousCRC, getOptions(profile, is_dest));
+		this(profile.getSession(), dir, handler, profile.getSuspiciousCRC(), getOptions(profile, is_dest));
 	}
 	
 	/**

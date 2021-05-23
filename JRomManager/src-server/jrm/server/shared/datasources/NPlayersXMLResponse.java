@@ -21,12 +21,12 @@ public class NPlayersXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString((session.curr_profile.nplayers==null?0:request.getSession().curr_profile.nplayers.getList_nplayers().size())-1));
-		writer.writeElement("totalRows", Integer.toString(session.curr_profile.nplayers==null?0:request.getSession().curr_profile.nplayers.getList_nplayers().size()));
+		writer.writeElement("endRow", Integer.toString((session.curr_profile.getNplayers()==null?0:request.getSession().curr_profile.getNplayers().getList_nplayers().size())-1));
+		writer.writeElement("totalRows", Integer.toString(session.curr_profile.getNplayers()==null?0:request.getSession().curr_profile.getNplayers().getList_nplayers().size()));
 		writer.writeStartElement("data");
-		if(session.curr_profile.nplayers!=null)
+		if(session.curr_profile.getNplayers()!=null)
 		{
-			for(NPlayer nplayer : session.curr_profile.nplayers)
+			for(NPlayer nplayer : session.curr_profile.getNplayers())
 			{
 				writer.writeElement("record", 
 					new SimpleAttribute("ID", nplayer.getPropertyName()),

@@ -30,7 +30,7 @@ public class AnywareListListXMLResponse extends XMLResponse
 		writer.writeElement("status", "0");
 		final Set<String> lstatus = operation.hasData("status")?Stream.of(operation.getData("status").split(",")).collect(Collectors.toSet()):null;
 		final boolean reset = Boolean.parseBoolean(operation.getData("reset"));
-		final MachineListList mll = request.session.curr_profile.machineListList;
+		final MachineListList mll = request.session.curr_profile.getMachineListList();
 		if(mll!=null)
 		{
 			if(reset)

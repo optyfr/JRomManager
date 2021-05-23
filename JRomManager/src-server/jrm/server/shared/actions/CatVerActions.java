@@ -37,7 +37,7 @@ public class CatVerActions
 				final var msg = new JsonObject();
 				msg.add("cmd", "CatVer.loaded");
 				final var params = new JsonObject();
-				params.add("path", profile.catver != null ? PathAbstractor.getRelativePath(ws.getSession(), profile.catver.file.toPath()).toString() : null);
+				params.add("path", profile.getCatver() != null ? PathAbstractor.getRelativePath(ws.getSession(), profile.getCatver().file.toPath()).toString() : null);
 				msg.add("params", params);
 				ws.send(msg.toString());
 			}

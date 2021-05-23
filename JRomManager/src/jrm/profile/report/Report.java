@@ -467,10 +467,10 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		try(PrintWriter report_w = new PrintWriter(report_file))
 		{
 			report_w.println("=== Scanned Profile ===");
-			report_w.println(profile.nfo.file);
+			report_w.println(profile.getNfo().file);
 			report_w.println();
 			report_w.println("=== Used Profile Properties ===");
-			profile.settings.getProperties().store(report_w, null);
+			profile.getSettings().getProperties().store(report_w, null);
 			report_w.println();
 			report_w.println("=== Scanner Report ===");
 			subjects.forEach(subject -> {
@@ -481,9 +481,9 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 			});
 			report_w.println();
 			report_w.println("=== Statistics ===");
-			report_w.println(String.format(Messages.getString("Report.MissingSets"), stats.missing_set_cnt, profile.machinesCnt)); //$NON-NLS-1$
-			report_w.println(String.format(Messages.getString("Report.MissingRoms"), stats.missing_roms_cnt, profile.romsCnt)); //$NON-NLS-1$
-			report_w.println(String.format(Messages.getString("Report.MissingDisks"), stats.missing_disks_cnt, profile.disksCnt)); //$NON-NLS-1$
+			report_w.println(String.format(Messages.getString("Report.MissingSets"), stats.missing_set_cnt, profile.getMachinesCnt())); //$NON-NLS-1$
+			report_w.println(String.format(Messages.getString("Report.MissingRoms"), stats.missing_roms_cnt, profile.getRomsCnt())); //$NON-NLS-1$
+			report_w.println(String.format(Messages.getString("Report.MissingDisks"), stats.missing_disks_cnt, profile.getDisksCnt())); //$NON-NLS-1$
 			int total = stats.set_create + stats.set_found + stats.set_missing;
 			int ok = stats.set_create_complete + stats.set_found_fixcomplete + stats.set_found_ok;
 			report_w.println(String.format("Missing sets after Fix : %d\n", total - ok)); //$NON-NLS-1$
@@ -502,7 +502,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 
 	public File getFile()
 	{
-		return this.profile!=null?this.profile.nfo.file:this.file;
+		return this.profile!=null?this.profile.getNfo().file:this.file;
 	}
 	
 	public long getFileModified()

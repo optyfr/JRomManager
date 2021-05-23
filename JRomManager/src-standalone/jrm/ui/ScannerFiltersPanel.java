@@ -355,9 +355,9 @@ public class ScannerFiltersPanel extends JSplitPane
 		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(session.curr_profile.getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString()))); //$NON-NLS-1$
 		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(session.curr_profile.getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString()))); //$NON-NLS-1$
 		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(session.curr_profile.getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString()))); //$NON-NLS-1$
-		cbbxYearMin.setModel(new YearsModel(session.curr_profile.years));
+		cbbxYearMin.setModel(new YearsModel(session.curr_profile.getYears()));
 		cbbxYearMin.setSelectedItem(session.curr_profile.getProperty(SettingsEnum.filter_YearMin, cbbxYearMin.getModel().getElementAt(0))); //$NON-NLS-1$
-		cbbxYearMax.setModel(new YearsModel(session.curr_profile.years));
+		cbbxYearMax.setModel(new YearsModel(session.curr_profile.getYears()));
 		cbbxYearMax.setSelectedItem(session.curr_profile.getProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1))); //$NON-NLS-1$
 		
 	}

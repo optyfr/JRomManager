@@ -146,9 +146,9 @@ public abstract class Entity extends EntityBase implements Serializable
 	 */
 	public void setCollisionMode()
 	{
-		if(getParent().profile.settings.hash_collision_mode == HashCollisionOptions.SINGLECLONE)
+		if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.SINGLECLONE)
 			getParent().setCollisionMode(false);
-		else if(getParent().profile.settings.hash_collision_mode == HashCollisionOptions.ALLCLONES)
+		else if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.ALLCLONES)
 			getParent().setCollisionMode(true);
 		collision = true;
 	}
@@ -160,22 +160,22 @@ public abstract class Entity extends EntityBase implements Serializable
 	 */
 	public boolean isCollisionMode(boolean dumber)
 	{
-		if(getParent().profile.settings.hash_collision_mode == HashCollisionOptions.SINGLECLONE)
+		if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.SINGLECLONE)
 			return getParent().isCollisionMode();
-		else if(getParent().profile.settings.hash_collision_mode == HashCollisionOptions.ALLCLONES)
+		else if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.ALLCLONES)
 			return getParent().isCollisionMode();
 		else if(dumber)
 		{
-			if(getParent().profile.settings.hash_collision_mode == HashCollisionOptions.DUMBER)
+			if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.DUMBER)
 				return true;
 		}
 		else 
 		{
-			if(getParent().profile.settings.hash_collision_mode == HashCollisionOptions.HALFDUMB)
+			if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.HALFDUMB)
 				return true;
-			else if(getParent().profile.settings.hash_collision_mode == HashCollisionOptions.DUMB)
+			else if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.DUMB)
 				return true;
-			else if(getParent().profile.settings.hash_collision_mode == HashCollisionOptions.DUMBER)
+			else if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.DUMBER)
 				return true;
 		}
 		return collision;

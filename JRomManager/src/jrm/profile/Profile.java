@@ -83,6 +83,8 @@ import jrm.profile.filter.NPlayers;
 import jrm.profile.manager.ProfileNFO;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Load a Profile which consist of : - loading information about related files
@@ -98,71 +100,70 @@ import jrm.security.Session;
 @SuppressWarnings("serial")
 public class Profile implements Serializable
 {
-
 	/*
 	 * Counters
 	 */
-	public long machinesCnt = 0;
-	public long softwaresListCnt = 0;
-	public long softwaresCnt = 0;
-	public long romsCnt = 0;
-	public long swromsCnt = 0;
-	public long disksCnt = 0;
-	public long swdisksCnt = 0;
-	public long samplesCnt = 0;
+	private @Getter long machinesCnt = 0;
+	private @Getter long softwaresListCnt = 0;
+	private @Getter long softwaresCnt = 0;
+	private @Getter long romsCnt = 0;
+	private @Getter long swromsCnt = 0;
+	private @Getter long disksCnt = 0;
+	private @Getter long swdisksCnt = 0;
+	private @Getter long samplesCnt = 0;
 
 	/*
 	 * Presence flags
 	 */
-	public boolean md5Roms = false;
-	public boolean md5Disks = false;
-	public boolean sha1Roms = false;
-	public boolean sha1Disks = false;
+	private @Getter boolean md5Roms = false;
+	private @Getter boolean md5Disks = false;
+	private @Getter boolean sha1Roms = false;
+	private @Getter boolean sha1Disks = false;
 
 	/*
 	 * dat build and header informations
 	 */
-	public String build = null;
-	public final Map<String, StringBuffer> header = new HashMap<>();
+	private @Getter String build = null;
+	private final @Getter Map<String, StringBuffer> header = new HashMap<>();
 
 	/**
 	 * The main object that will contains all the games AND the related software
 	 * list
 	 */
-	public final MachineListList machineListList = new MachineListList(this);
+	private final @Getter MachineListList machineListList = new MachineListList(this);
 
 	/**
 	 * Contains all CRCs where there was ROMs with identical CRC but different
 	 * SHA1/MD5
 	 */
-	public final Set<String> suspiciousCRC = new HashSet<>();
+	private final @Getter Set<String> suspiciousCRC = new HashSet<>();
 
 	/**
 	 * Non permanent filter according scan status of anyware lists
 	 */
-	public transient Set<AnywareStatus> filterListLists = null;
+	private transient @Getter @Setter Set<AnywareStatus> filterListLists = null;
 
 	/**
 	 * Non permanent filter according scan status of anyware (machines, softwares)
 	 */
-	public transient Set<AnywareStatus> filterList = null;
+	private transient @Getter @Setter Set<AnywareStatus> filterList = null;
 
 	/**
 	 * Non permanent filter according scan status of entities (roms, disks, samples)
 	 */
-	public transient Set<EntityStatus> filterEntities = null;
+	private transient @Getter @Setter Set<EntityStatus> filterEntities = null;
 
 	/*
 	 * This is all non serialized object (not included in cache), they are
 	 * recalculated or reloaded on each Profile load (cached or not)
 	 */
-	public transient ProfileSettings settings = null;
-	public transient Systms systems = null;
-	public transient Collection<String> years = null;
-	public transient ProfileNFO nfo = null;
-	public transient CatVer catver = null;
-	public transient NPlayers nplayers = null;
-	public transient Session session = null;
+	private transient @Getter ProfileSettings settings = null;
+	private transient @Getter Systms systems = null;
+	private transient @Getter Collection<String> years = null;
+	private transient @Getter ProfileNFO nfo = null;
+	private transient @Getter @Setter CatVer catver = null;
+	private transient @Getter @Setter NPlayers nplayers = null;
+	private transient @Getter Session session = null;
 
 	/**
 	 * The Profile class is instantiated via
@@ -543,7 +544,10 @@ public class Profile implements Serializable
 						{
 							currMachine.sampleof = currMachine.getBaseName();
 							if (!machineListList.get(0).samplesets.containsName(currMachine.sampleof))
-								machineListList.get(0).samplesets.putByName(currSampleSet = new Samples(currMachine.sampleof));
+							{
+								currSampleSet = new Samples(currMachine.sampleof);
+								machineListList.get(0).samplesets.putByName(currSampleSet);
+							}
 							else
 								currSampleSet = machineListList.get(0).samplesets.getByName(currMachine.sampleof);
 						}
@@ -856,7 +860,8 @@ public class Profile implements Serializable
 			if (currSoftware != null && currPart != null)
 			{
 				// we enter a dataarea block in current part
-				currPart.dataareas.add(currDataArea = new DataArea());
+				currDataArea = new DataArea();
+				currPart.dataareas.add(currDataArea);
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					switch (attributes.getQName(i))
@@ -890,7 +895,8 @@ public class Profile implements Serializable
 			if (currSoftware != null && currPart != null)
 			{
 				// we enter a diskarea block in current part
-				currPart.diskareas.add(currDiskArea = new DiskArea());
+				currDiskArea = new DiskArea();
+				currPart.diskareas.add(currDiskArea);
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					if ("name".equals(attributes.getQName(i)))
@@ -920,7 +926,10 @@ public class Profile implements Serializable
 					case "sampleof": //$NON-NLS-1$
 						currMachine.sampleof = attributes.getValue(i).trim();
 						if (!machineListList.get(0).samplesets.containsName(currMachine.sampleof))
-							machineListList.get(0).samplesets.putByName(currSampleSet = new Samples(currMachine.sampleof));
+						{
+							currSampleSet = new Samples(currMachine.sampleof);
+							machineListList.get(0).samplesets.putByName(currSampleSet);
+						}
 						else
 							currSampleSet = machineListList.get(0).samplesets.getByName(currMachine.sampleof);
 						break;
@@ -1014,87 +1023,23 @@ public class Profile implements Serializable
 			}
 			else if (qName.equals("softwarelist") && currSoftwareList != null) //$NON-NLS-1$
 			{
-				// exiting current software list
-				machineListList.softwarelist_list.add(currSoftwareList);
-				softwaresListCnt++;
-				currSoftwareList = null;
+				endSoftwareList();
 			}
 			else if (qName.equals("software") && currSoftwareList != null && currSoftware != null) //$NON-NLS-1$
 			{
-				// exiting current software block
-				roms.clear();
-				disks.clear();
-				currSoftwareList.add(currSoftware);
-				softwaresCnt++;
-				currSoftware = null;
-				handler.setProgress(null, null, null, String.format(Messages.getString("Profile.SWLoaded"), softwaresCnt, swromsCnt, swdisksCnt)); //$NON-NLS-1$
-				if (handler.isCancel())
-					throw new BreakException();
+				endSoftware();
 			}
 			else if (qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
 			{
-				// exiting current machine block
-				roms.clear();
-				disks.clear();
-				machineListList.get(0).add(currMachine);
-				machinesCnt++;
-				currMachine = null;
-				currSampleSet = null;
-				handler.setProgress(null, null, null, String.format(Messages.getString("Profile.Loaded"), machinesCnt, romsCnt, disksCnt, samplesCnt)); //$NON-NLS-1$
-				if (handler.isCancel())
-					throw new BreakException();
+				endMachine();
 			}
 			else if (qName.equals("rom")) //$NON-NLS-1$
 			{
-				// exiting current rom block
-				if (currRom.getBaseName() != null)
-				{
-					if (!roms.contains(currRom.getBaseName()))
-					{
-						roms.add(currRom.getBaseName());
-						if (currMachine != null)
-						{
-							currMachine.roms.add(currRom);
-							romsCnt++;
-						}
-						else if (currSoftware != null)
-						{
-							currSoftware.roms.add(currRom);
-							swromsCnt++;
-						}
-					}
-					if (currRom.crc != null)
-					{
-						final var oldRom = romsByCRC.put(currRom.crc, currRom);
-						if (oldRom != null)
-						{
-							if (oldRom.sha1 != null && currRom.sha1 != null && !oldRom.equals(currRom))
-								suspiciousCRC.add(currRom.crc);
-							if (oldRom.md5 != null && currRom.md5 != null && !oldRom.equals(currRom))
-								suspiciousCRC.add(currRom.crc);
-						}
-					}
-				}
-				currRom = null;
+				endRom();
 			}
 			else if (qName.equals("disk")) //$NON-NLS-1$
 			{
-				// exiting current disk block
-				if (currDisk.getBaseName() != null && !disks.contains(currDisk.getBaseName()))
-				{
-					disks.add(currDisk.getBaseName());
-					if (currMachine != null)
-					{
-						currMachine.disks.add(currDisk);
-						disksCnt++;
-					}
-					else if (currSoftware != null)
-					{
-						currSoftware.disks.add(currDisk);
-						swdisksCnt++;
-					}
-				}
-				currDisk = null;
+				endDisk();
 			}
 			else if (qName.equals("description") && (currMachine != null || currSoftware != null || currSoftwareList != null)) //$NON-NLS-1$
 			{
@@ -1118,19 +1063,131 @@ public class Profile implements Serializable
 			}
 			else if (qName.equals("dipswitch") && inCabinetDipSW && currMachine != null) //$NON-NLS-1$
 			{
-				// exiting dipswitch block
-				if (cabTypeSet.contains(CabinetType.cocktail))
-				{
-					if (cabTypeSet.contains(CabinetType.upright))
-						currMachine.cabinetType = CabinetType.any;
-					else
-						currMachine.cabinetType = CabinetType.cocktail;
-				}
-				else
-					currMachine.cabinetType = CabinetType.upright;
-				cabTypeSet.clear();
-				inCabinetDipSW = false;
+				endDipSwitch();
 			}
+		}
+
+		/**
+		 * 
+		 */
+		private void endDipSwitch()
+		{
+			// exiting dipswitch block
+			if (cabTypeSet.contains(CabinetType.cocktail))
+			{
+				if (cabTypeSet.contains(CabinetType.upright))
+					currMachine.cabinetType = CabinetType.any;
+				else
+					currMachine.cabinetType = CabinetType.cocktail;
+			}
+			else
+				currMachine.cabinetType = CabinetType.upright;
+			cabTypeSet.clear();
+			inCabinetDipSW = false;
+		}
+
+		/**
+		 * 
+		 */
+		private void endDisk()
+		{
+			// exiting current disk block
+			if (currDisk.getBaseName() != null && !disks.contains(currDisk.getBaseName()))
+			{
+				disks.add(currDisk.getBaseName());
+				if (currMachine != null)
+				{
+					currMachine.disks.add(currDisk);
+					disksCnt++;
+				}
+				else if (currSoftware != null)
+				{
+					currSoftware.disks.add(currDisk);
+					swdisksCnt++;
+				}
+			}
+			currDisk = null;
+		}
+
+		/**
+		 * 
+		 */
+		private void endRom()
+		{
+			// exiting current rom block
+			if (currRom.getBaseName() != null)
+			{
+				if (!roms.contains(currRom.getBaseName()))
+				{
+					roms.add(currRom.getBaseName());
+					if (currMachine != null)
+					{
+						currMachine.roms.add(currRom);
+						romsCnt++;
+					}
+					else if (currSoftware != null)
+					{
+						currSoftware.roms.add(currRom);
+						swromsCnt++;
+					}
+				}
+				if (currRom.crc != null)
+				{
+					final var oldRom = romsByCRC.put(currRom.crc, currRom);
+					if (oldRom != null)
+					{
+						if (oldRom.sha1 != null && currRom.sha1 != null && !oldRom.equals(currRom))
+							suspiciousCRC.add(currRom.crc);
+						if (oldRom.md5 != null && currRom.md5 != null && !oldRom.equals(currRom))
+							suspiciousCRC.add(currRom.crc);
+					}
+				}
+			}
+			currRom = null;
+		}
+
+		/**
+		 * 
+		 */
+		private void endSoftwareList()
+		{
+			// exiting current software list
+			machineListList.softwarelist_list.add(currSoftwareList);
+			softwaresListCnt++;
+			currSoftwareList = null;
+		}
+
+		/**
+		 * @throws BreakException
+		 */
+		private void endMachine() throws BreakException
+		{
+			// exiting current machine block
+			roms.clear();
+			disks.clear();
+			machineListList.get(0).add(currMachine);
+			machinesCnt++;
+			currMachine = null;
+			currSampleSet = null;
+			handler.setProgress(null, null, null, String.format(Messages.getString("Profile.Loaded"), machinesCnt, romsCnt, disksCnt, samplesCnt)); //$NON-NLS-1$
+			if (handler.isCancel())
+				throw new BreakException();
+		}
+
+		/**
+		 * @throws BreakException
+		 */
+		private void endSoftware() throws BreakException
+		{
+			// exiting current software block
+			roms.clear();
+			disks.clear();
+			currSoftwareList.add(currSoftware);
+			softwaresCnt++;
+			currSoftware = null;
+			handler.setProgress(null, null, null, String.format(Messages.getString("Profile.SWLoaded"), softwaresCnt, swromsCnt, swdisksCnt)); //$NON-NLS-1$
+			if (handler.isCancel())
+				throw new BreakException();
 		}
 
 		@Override
@@ -1263,57 +1320,20 @@ public class Profile implements Serializable
 		final var cachefile = session.getUser().getSettings().getCacheFile(nfo.file);
 		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.getFileroms().lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, false)) // $NON-NLS-1$
 		{ // Load from cache if cachefile is not outdated and debug_nocache is disabled
-			handler.setInfos(1, null);
-			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
-			try (final var ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile), (int) cachefile.length()))))
-			{
-				profile = (Profile) ois.readObject();
-				profile.session = session;
-				session.curr_profile = profile;
-				profile.nfo = nfo;
-			}
-			catch (final Exception e)
-			{
-				// may fail to load because serialized classes did change since last cache save
-			}
+			profile = loadCache(session, nfo, handler, profile, cachefile);
 		}
 		if (profile == null) // if cache failed to load or because it is outdated
-		{
-			handler.setInfos(1, true);
-			profile = new Profile();
-			profile.session = session;
-			session.curr_profile = null;
-			profile.nfo = nfo;
-			if (nfo.isJRM())
-			{ // we use JRM file keep ROMs/SL DATs in relation
-				if (nfo.mame.getFileroms() != null)
-				{ // load ROMs dat
-					if (!nfo.mame.getFileroms().exists() || !profile.internalLoad(nfo.mame.getFileroms(), handler))
-						return null;
-					if (nfo.mame.getFilesl() != null && (!nfo.mame.getFilesl().exists() || !profile.internalLoad(nfo.mame.getFilesl(), handler)))
-					{
-						// load SL dat (note that loading software list without ROMs dat is NOT
-						// recommended)
-						return null;
-					}
-				}
-			}
-			else
-			{ // load DAT file not attached to a JRM
-				if (!nfo.file.exists() || !profile.internalLoad(nfo.file, handler))
-					return null;
-			}
-			session.curr_profile = profile;
-			// save cache
-			handler.setInfos(1, null);
-			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
-			profile.save();
-		}
+			profile = loadThenSaveToCache(session, nfo, handler);
+		if(profile==null)
+			return null;
 		// build parent-clones relations
 		handler.setProgress(Messages.getString("Profile.BuildingParentClonesRelations"), -1); //$NON-NLS-1$
 		profile.buildParentClonesRelations();
 		// update nfo stats (those to keep serialized)
-		profile.nfo.stats.version = profile.build != null ? profile.build : (profile.header.containsKey("version") ? profile.header.get("version").toString() : null); //$NON-NLS-1$ //$NON-NLS-2$
+		if(profile.build!=null)
+			profile.nfo.stats.version = profile.build;
+		else
+			profile.nfo.stats.version = profile.header.containsKey("version") ? profile.header.get("version").toString() : null; //$NON-NLS-1$ //$NON-NLS-2$
 		profile.nfo.stats.totalSets = profile.softwaresCnt + profile.machinesCnt;
 		profile.nfo.stats.totalRoms = profile.romsCnt + profile.swromsCnt;
 		profile.nfo.stats.totalDisks = profile.disksCnt + profile.swdisksCnt;
@@ -1336,6 +1356,72 @@ public class Profile implements Serializable
 		profile.filterListLists = EnumSet.allOf(AnywareStatus.class);
 
 		// return the resulting profile
+		return profile;
+	}
+
+	/**
+	 * @param session
+	 * @param nfo
+	 * @param handler
+	 * @return
+	 */
+	private static Profile loadThenSaveToCache(final Session session, final ProfileNFO nfo, final ProgressHandler handler)
+	{
+		Profile profile;
+		handler.setInfos(1, true);
+		profile = new Profile();
+		profile.session = session;
+		session.curr_profile = null;
+		profile.nfo = nfo;
+		if (nfo.isJRM())
+		{ // we use JRM file keep ROMs/SL DATs in relation
+			if (nfo.mame.getFileroms() != null)
+			{ // load ROMs dat
+				if (!nfo.mame.getFileroms().exists() || !profile.internalLoad(nfo.mame.getFileroms(), handler))
+					return null;
+				if (nfo.mame.getFilesl() != null && (!nfo.mame.getFilesl().exists() || !profile.internalLoad(nfo.mame.getFilesl(), handler)))
+				{
+					// load SL dat (note that loading software list without ROMs dat is NOT recommended)
+					return null;
+				}
+			}
+		}
+		else
+		{ // load DAT file not attached to a JRM
+			if (!nfo.file.exists() || !profile.internalLoad(nfo.file, handler))
+				return null;
+		}
+		session.curr_profile = profile;
+		// save cache
+		handler.setInfos(1, null);
+		handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
+		profile.save();
+		return profile;
+	}
+
+	/**
+	 * @param session
+	 * @param nfo
+	 * @param handler
+	 * @param profile
+	 * @param cachefile
+	 * @return
+	 */
+	private static Profile loadCache(final Session session, final ProfileNFO nfo, final ProgressHandler handler, Profile profile, final File cachefile)
+	{
+		handler.setInfos(1, null);
+		handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
+		try (final var ois = new ObjectInputStream(new BufferedInputStream(handler.getInputStream(new FileInputStream(cachefile), (int) cachefile.length()))))
+		{
+			profile = (Profile) ois.readObject();
+			profile.session = session;
+			session.curr_profile = profile;
+			profile.nfo = nfo;
+		}
+		catch (final Exception e)
+		{
+			// may fail to load because serialized classes did change since last cache save
+		}
 		return profile;
 	}
 

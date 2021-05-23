@@ -79,14 +79,14 @@ public class CatVerXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		int nodecount = countNode(request.session.curr_profile.catver);
+		int nodecount = countNode(request.session.curr_profile.getCatver());
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
 		writer.writeElement("endRow", Integer.toString(nodecount-1));
 		writer.writeElement("totalRows", Integer.toString(nodecount));
 		writer.writeStartElement("data");
-		outputNode(writer, request.session.curr_profile.catver);
+		outputNode(writer, request.session.curr_profile.getCatver());
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}

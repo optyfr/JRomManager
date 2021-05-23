@@ -98,7 +98,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	@Override
 	public void setFilterCache(final EnumSet<AnywareStatus> filter)
 	{
-		profile.filterListLists = filter;
+		profile.setFilterListLists(filter);
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	public List<MachineList> getFilteredList()
 	{
 		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> profile.filterListLists.contains(t.getStatus())).sorted().collect(Collectors.toList());
+			filtered_list = getFilteredStream().filter(t -> profile.getFilterListLists().contains(t.getStatus())).sorted().collect(Collectors.toList());
 		return filtered_list;
 	}
 
@@ -215,7 +215,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	public String getDescription(int i)
 	{
 		if(i < getList().size())
-			return profile.session.msgs.getString("MachineListList.AllMachines");
+			return profile.getSession().msgs.getString("MachineListList.AllMachines");
 		return softwarelist_list.getDescription(i - getList().size());
 	}
 

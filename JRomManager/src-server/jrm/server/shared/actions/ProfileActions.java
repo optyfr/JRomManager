@@ -134,7 +134,7 @@ public class ProfileActions extends PathAbstractor
 				session.curr_profile = jrm.profile.Profile.load(session, file.toFile(), session.getWorker().progress);
 				if (session.curr_profile != null)
 				{
-					session.curr_profile.nfo.save(session);
+					session.curr_profile.getNfo().save(session);
 					session.report.setProfile(session.curr_profile);
 					loaded(session.curr_profile);
 					new CatVerActions(ws).loaded(session.curr_profile);
@@ -201,7 +201,7 @@ public class ProfileActions extends PathAbstractor
 			session.getWorker().progress.close();
 			session.getWorker().progress = null;
 			session.setLastAction(new Date());
-			final var automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+			final var automation = ScanAutomation.valueOf(session.curr_profile.getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 			scanned(session.curr_scan, automation.hasReport());
 			if (automate && session.curr_scan != null && session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
 				fix(jso);
@@ -227,7 +227,7 @@ public class ProfileActions extends PathAbstractor
 			}
 			finally
 			{
-				final var automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+				final var automation = ScanAutomation.valueOf(session.curr_profile.getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if (automation.hasScanAgain())
 					scan(jso, false);
 				session.getWorker().progress.close();
@@ -240,7 +240,7 @@ public class ProfileActions extends PathAbstractor
 	public void setProperty(JsonObject jso)
 	{
 		final var profile = jso.getString("profile", null);
-		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().getCurr_profile().settings;
+		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().getCurr_profile().getSettings();
 		JsonObject pjso = jso.get("params").asObject();
 		for (Member m : pjso)
 		{
@@ -280,10 +280,10 @@ public class ProfileActions extends PathAbstractor
 				if (profile != null)
 				{
 					params.add("name", profile.getName());
-					if (profile.systems != null)
+					if (profile.getSystems() != null)
 					{
 						final var systems = new JsonArray();
-						profile.systems.forEach(s -> {
+						profile.getSystems().forEach(s -> {
 							final var systm = new JsonObject();
 							systm.add("name", s.toString());
 							systm.add("selected", s.isSelected(profile));
@@ -294,12 +294,12 @@ public class ProfileActions extends PathAbstractor
 						params.add("systems", systems);
 					}
 					final var years = new JsonArray();
-					final ArrayList<String> arrlst = new ArrayList<>(profile.years);
+					final ArrayList<String> arrlst = new ArrayList<>(profile.getYears());
 					arrlst.sort(String::compareTo);
 					arrlst.forEach(years::add);
 					params.add("years", years);
-					if (profile.settings != null)
-						params.add("settings", profile.settings.asJSO());
+					if (profile.getSettings() != null)
+						params.add("settings", profile.getSettings().asJSO());
 				}
 				rjso.add("params", params);
 				ws.send(rjso.toString());

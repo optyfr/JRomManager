@@ -416,7 +416,7 @@ public final class CatVer implements Iterable<jrm.profile.filter.CatVer.Category
 			for(final Category cat : listCategories)
 				cat.listSubCategories.addAll(cat.subcategories.values());
 			if(listCategories.isEmpty())
-				throw new IOException(profile.session.msgs.getString("CatVer.NoCatVerData")); //$NON-NLS-1$
+				throw new IOException(profile.getSession().msgs.getString("CatVer.NoCatVerData")); //$NON-NLS-1$
 		}
 	}
 
@@ -433,7 +433,7 @@ public final class CatVer implements Iterable<jrm.profile.filter.CatVer.Category
 
 	public Object getUserObject()
 	{
-		return String.format("%s (%d)", profile.session.msgs.getString("CatVer.AllCategories"), listCategories.stream().flatMap(c -> c.listSubCategories.stream().filter(Category.SubCategory::isSelected)).mapToInt(Category.SubCategory::size).sum()); //$NON-NLS-1$ //$NON-NLS-2$
+		return String.format("%s (%d)", profile.getSession().msgs.getString("CatVer.AllCategories"), listCategories.stream().flatMap(c -> c.listSubCategories.stream().filter(Category.SubCategory::isSelected)).mapToInt(Category.SubCategory::size).sum()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override

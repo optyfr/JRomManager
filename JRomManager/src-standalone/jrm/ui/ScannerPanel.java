@@ -272,7 +272,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
-				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if(MainFrame.report_frame != null)
 				{
 					if(automation.hasReport())
@@ -331,7 +331,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
-				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if(automation.hasScanAgain())
 					scan(session, false);
 			}
@@ -345,11 +345,11 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	 */
 	public void initProfileSettings(final Session session)
 	{
-		scannerSettingsPanel.initProfileSettings(session.curr_profile.settings);
+		scannerSettingsPanel.initProfileSettings(session.curr_profile.getSettings());
 		scannerDirPanel.initProfileSettings(session);
 		scannerFilters.initProfileSettings(session);
 		scannerAdvFilters.initProfileSettings(session);
-		scannerAutomation.initProfileSettings(session.curr_profile.settings);
+		scannerAutomation.initProfileSettings(session.curr_profile.getSettings());
 	}
 
 	/**
@@ -390,7 +390,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				if (success && session.curr_profile != null)
 				{
 					lblProfileinfo.setText(session.curr_profile.getName());
-					scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.curr_profile.systems));
+					scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.curr_profile.getSystems()));
 					initProfileSettings(session);
 					mainPane.setSelectedIndex(1);
 				}

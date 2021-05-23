@@ -70,7 +70,7 @@ public class ScannerAdvFilterPanel extends JPanel
 			session.curr_profile.setProperty(SettingsEnum.filter_nplayers_ini, txt); //$NON-NLS-1$
 			session.curr_profile.loadNPlayers(null);
 			session.curr_profile.saveSettings();
-			listNPlayers.setModel(new NPlayersModel(session.curr_profile.nplayers));
+			listNPlayers.setModel(new NPlayersModel(session.curr_profile.getNplayers()));
 		});
 		tfNPlayers.setMode(JFileDropMode.FILE);
 		tfNPlayers.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropNPlayersIniHere"), Color.gray)); //$NON-NLS-1$
@@ -86,7 +86,7 @@ public class ScannerAdvFilterPanel extends JPanel
 			session.curr_profile.setProperty(SettingsEnum.filter_catver_ini, txt); //$NON-NLS-1$
 			session.curr_profile.loadCatVer(null);
 			session.curr_profile.saveSettings();
-			treeCatVer.setModel(session.curr_profile.catver != null ? new CatVerModel(new CatVerNode(session.curr_profile.catver)) : new CatVerModel());
+			treeCatVer.setModel(session.curr_profile.getCatver() != null ? new CatVerModel(new CatVerNode(session.curr_profile.getCatver())) : new CatVerModel());
 		});
 		tfCatVer.setMode(JFileDropMode.FILE);
 		tfCatVer.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropCatVerIniHere"), Color.gray)); //$NON-NLS-1$
@@ -154,7 +154,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		JMenuItem mntmClearNPlayers = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear_1.text")); //$NON-NLS-1$
 		mntmClearNPlayers.addActionListener((e)->{
 			session.curr_profile.saveSettings();
-			session.curr_profile.nplayers=null;
+			session.curr_profile.setNplayers(null);
 			session.curr_profile.saveSettings();
 			tfNPlayers.setText(null);
 			listNPlayers.setModel(new DefaultListModel<>());
@@ -208,7 +208,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		JMenuItem mntmSelectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
 		mntmSelectMatureCat.addActionListener(e -> {
 			final List<NGTreeNode> mature_nodes = new ArrayList<>();
-			for (final Category cat : session.curr_profile.catver)
+			for (final Category cat : session.curr_profile.getCatver())
 			{
 				final CatVerModel catvermodel = (CatVerModel)treeCatVer.getModel();
 				final CategoryNode catnode = ((CatVerNode)catvermodel.getRoot()).getNode(cat);
@@ -233,7 +233,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		JMenuItem mntmUnselectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
 		mntmUnselectMatureCat.addActionListener(e -> {
 			final List<NGTreeNode> mature_nodes = new ArrayList<>();
-			for (final Category cat : session.curr_profile.catver)
+			for (final Category cat : session.curr_profile.getCatver())
 			{
 				final CatVerModel catvermodel = (CatVerModel)treeCatVer.getModel();
 				final CategoryNode catnode = ((CatVerNode)catvermodel.getRoot()).getNode(cat);
@@ -254,7 +254,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		JMenuItem mntmClearCat = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear.text")); //$NON-NLS-1$
 		mntmClearCat.addActionListener((e) -> {
 			session.curr_profile.setProperty(SettingsEnum.filter_catver_ini, null); //$NON-NLS-1$
-			session.curr_profile.catver = null;
+			session.curr_profile.setCatver(null);
 			session.curr_profile.saveSettings();
 			tfCatVer.setText(null);
 			treeCatVer.setModel(new CatVerModel());
@@ -265,9 +265,9 @@ public class ScannerAdvFilterPanel extends JPanel
 
 	public void initProfileSettings(final Session session)
 	{
-		tfNPlayers.setText(session.curr_profile.nplayers != null ? session.curr_profile.nplayers.file.getAbsolutePath() : null);
-		listNPlayers.setModel(new NPlayersModel(session.curr_profile.nplayers));
-		tfCatVer.setText(session.curr_profile.catver != null ? session.curr_profile.catver.file.getAbsolutePath() : null);
-		treeCatVer.setModel(session.curr_profile.catver != null ? new CatVerModel(new CatVerNode(session.curr_profile.catver)) : new CatVerModel());		
+		tfNPlayers.setText(session.curr_profile.getNplayers() != null ? session.curr_profile.getNplayers().file.getAbsolutePath() : null);
+		listNPlayers.setModel(new NPlayersModel(session.curr_profile.getNplayers()));
+		tfCatVer.setText(session.curr_profile.getCatver() != null ? session.curr_profile.getCatver().file.getAbsolutePath() : null);
+		treeCatVer.setModel(session.curr_profile.getCatver() != null ? new CatVerModel(new CatVerNode(session.curr_profile.getCatver())) : new CatVerModel());		
 	}
 }

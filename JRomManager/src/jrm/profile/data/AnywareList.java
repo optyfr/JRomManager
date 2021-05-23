@@ -93,12 +93,12 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 */
 	public void setFilterCache(final EnumSet<AnywareStatus> filter)
 	{
-		profile.filterList = filter;
+		profile.setFilterList(filter);
 	}
 	
 	public Set<AnywareStatus> getFilter()
 	{
-		return profile.filterList;
+		return profile.getFilterList();
 	}
 
 	/**
