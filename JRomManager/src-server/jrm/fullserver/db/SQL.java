@@ -454,7 +454,7 @@ public abstract class SQL implements SQLUtils, Closeable
 			{
 				if (!db.isClosed())
 				{
-					System.out.println("will close " + db.getMetaData().getURL());
+					Log.info("will close " + db.getMetaData().getURL());
 					db.close();
 				}
 			}

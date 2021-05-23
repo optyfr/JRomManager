@@ -205,13 +205,8 @@ abstract class NArchive extends NArchiveBase
 					}
 					super.close();
 					// System.out.println("done with "+tmpfile);
-					if(tmpfile.exists() && tmpfile.length() > 0)
-					{
-						// System.out.println("moving "+tmpfile+" to "+archive);
-						if(Files.deleteIfExists(archive.toPath()))
-							if(!tmpfile.renameTo(archive))
-								tmpfile.delete();
-					}
+					if (tmpfile.exists() && tmpfile.length() > 0 && Files.deleteIfExists(archive.toPath()) && !tmpfile.renameTo(archive))
+						tmpfile.delete();
 				}
 				else
 				{
