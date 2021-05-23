@@ -20,7 +20,7 @@ public abstract class Settings extends SettingsImpl
 	private final @Getter Properties properties = new Properties();
 
 	
-	public Settings()
+	protected Settings()
 	{
 	}
 
@@ -69,7 +69,7 @@ public abstract class Settings extends SettingsImpl
 			properties.storeToXML(os, null);
 			Log.debug("stored");
 		}
-		catch(final Throwable e)
+		catch(final Exception e)
 		{
 			Log.err(e.getMessage(),e);
 			//Log.err("IO", e); //$NON-NLS-1$
@@ -118,22 +118,21 @@ public abstract class Settings extends SettingsImpl
 	@SuppressWarnings("serial")
 	public JsonObject asJSO()
 	{
-		return new JsonObject()
-		{{
-			properties.forEach((k, v) -> {
-				try
-				{
-					JsonValue value = Json.parse((String)v);
-					if(value.isObject() || value.isArray() || value.isBoolean())
-						add((String)k, value);
-					else
-						add((String) k, (String) v);
-				}
-				catch (Exception e)
-				{
-					add((String) k, (String) v);
-				}
-			});
-		}};
+		final var jso = new JsonObject();
+		properties.forEach((k, v) -> {
+			try
+			{
+				JsonValue value = Json.parse((String)v);
+				if(value.isObject() || value.isArray() || value.isBoolean())
+					jso.add((String)k, value);
+				else
+					jso.add((String) k, (String) v);
+			}
+			catch (Exception e)
+			{
+				jso.add((String) k, (String) v);
+			}
+		});
+		return jso;
 	}
 }
