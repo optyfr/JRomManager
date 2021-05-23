@@ -26,7 +26,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	}
 
 
-	private AnywareList<? extends Anyware> get_list(Operation operation) throws Exception
+	private AnywareList<? extends Anyware> get_list(Operation operation)
 	{
 		String list = operation.getData("list");
 		final AnywareList<?> al;
@@ -48,28 +48,21 @@ public class AnywareListXMLResponse extends XMLResponse
 		final String lromof = operation.hasData("romof")?operation.getData("romof").toLowerCase():null;
 		final String lsampleof = operation.hasData("sampleof")?operation.getData("sampleof").toLowerCase():null;
 		final Boolean lselected = operation.hasData("selected")?Boolean.valueOf(operation.getData("selected")):null;
-		return (ware) -> {
-			if(lstatus!=null)
-				if(!lstatus.contains(ware.getStatus().toString()))
-					return false;
-			if(lselected!=null)
-				if(ware.isSelected()!=lselected)
-					return false;
-			if(lname!=null)
-				if(!ware.getBaseName().toLowerCase().contains(lname))
-					return false;
-			if(ldesc!=null)
-				if(!ware.description.toString().toLowerCase().contains(ldesc))
-					return false;
-			if(lcloneof!=null)
-				if(ware.getCloneof()==null || !ware.getCloneof().toString().toLowerCase().contains(lcloneof))
-					return false;
-			if(lromof!=null && ware instanceof Machine)
-				if(((Machine)ware).getRomof()==null || !((Machine)ware).getRomof().toString().toLowerCase().contains(lromof))
-					return false;
-			if(lsampleof!=null && ware instanceof Machine)
-				if(((Machine)ware).getSampleof()==null || !((Machine)ware).getSampleof().toString().toLowerCase().contains(lsampleof))
-					return false;
+		return ware -> {
+			if (lstatus != null && !lstatus.contains(ware.getStatus().toString()))
+				return false;
+			if (lselected != null && ware.isSelected() != lselected)
+				return false;
+			if (lname != null && !ware.getBaseName().toLowerCase().contains(lname))
+				return false;
+			if (ldesc != null && !ware.description.toString().toLowerCase().contains(ldesc))
+				return false;
+			if (lcloneof != null && (ware.getCloneof() == null || !ware.getCloneof().toLowerCase().contains(lcloneof)))
+				return false;
+			if (lromof != null && ware instanceof Machine && (((Machine) ware).getRomof() == null || !((Machine) ware).getRomof().toLowerCase().contains(lromof)))
+				return false;
+			if (lsampleof != null && ware instanceof Machine && (((Machine) ware).getSampleof() == null || !((Machine) ware).getSampleof().toLowerCase().contains(lsampleof)))
+				return false;
 			return true;
 		};
 	}
@@ -77,7 +70,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	private Comparator<Anyware> getSorter(Operation operation)
 	{
 		return (o1,o2)->{
-			if(operation.getSort().size()>0)
+			if(!operation.getSort().isEmpty())
 			{
 				for(Sorter s : operation.getSort())
 				{
@@ -97,6 +90,8 @@ public class AnywareListXMLResponse extends XMLResponse
 								return ret;
 							break;
 						}
+						default:
+							break;
 					}
 				}
 				return 0;
@@ -167,17 +162,13 @@ public class AnywareListXMLResponse extends XMLResponse
 	{
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
-		final boolean reset = Boolean.valueOf(operation.getData("reset"));
+		final var reset = Boolean.parseBoolean(operation.getData("reset"));
 		final AnywareList<?> al = get_list(operation);
 		if(al != null)
 		{
 			if(reset)
 				al.resetCache();
-			fetch_stream(operation, build_stream(al, operation), record -> write_record(al, record));
-/*			List<Anyware> list = build_list(al, operation);
-			fetch_array(operation, list.size(), (i, count) -> {
-				write_record(al, list.get(i));
-			});*/
+			fetch_stream(operation, build_stream(al, operation), rec -> write_record(al, rec));
 		}
 		writer.writeEndElement();
 	}
@@ -196,7 +187,7 @@ public class AnywareListXMLResponse extends XMLResponse
 				Anyware aw = al.getByName(name);
 				if(aw != null)
 				{
-					Boolean selected = Boolean.valueOf(operation.getData("selected"));
+					final var selected = Boolean.valueOf(operation.getData("selected"));
 					if(selected != null)
 						aw.setSelected(selected);
 					write_record(al, aw);
@@ -214,19 +205,16 @@ public class AnywareListXMLResponse extends XMLResponse
 			writer.writeStartElement("response");
 			writer.writeElement("status", "0");
 			final AnywareList<?> al = get_list(operation);
-			if(al != null)
+			if (al != null && operation.hasData("find"))
 			{
-				if(operation.hasData("find"))
+				List<Anyware> list = build_list(al, operation);
+				final String find = operation.getData("find");
+				for (var i = 0; i < list.size(); i++)
 				{
-					List<Anyware> list = build_list(al, operation);
-					final String find = operation.getData("find");
-					for(int i = 0; i < list.size(); i++)
+					if (list.get(i).getBaseName().equals(find))
 					{
-						if(list.get(i).getBaseName().equals(find))
-						{
-							writer.writeElement("found", Integer.toString(i));
-							break;
-						}
+						writer.writeElement("found", Integer.toString(i));
+						break;
 					}
 				}
 			}
