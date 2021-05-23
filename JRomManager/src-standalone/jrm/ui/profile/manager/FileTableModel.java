@@ -24,22 +24,24 @@ import javax.swing.table.AbstractTableModel;
 
 import jrm.locale.Messages;
 import jrm.misc.HTMLRenderer;
+import jrm.misc.Log;
 import jrm.profile.manager.Dir;
 import jrm.profile.manager.ProfileNFO;
 import jrm.security.Session;
+import lombok.Getter;
 
 /**
  * The Class FileTableModel.
  *
  * @author optyfr
  */
-// TODO: Auto-generated Javadoc
+
 @SuppressWarnings("serial")
 public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 {
 	
 	/** The curr dir. */
-	public Dir curr_dir = null;
+	private transient @Getter Dir currDir = null;
 
 	/** The columns. */
 	private final String[] columns = new String[] { Messages.getString("FileTableModel.Profile"), Messages.getString("FileTableModel.Version"), Messages.getString("FileTableModel.HaveSets"), Messages.getString("FileTableModel.HaveRoms"), Messages.getString("FileTableModel.HaveDisks"), Messages.getString("FileTableModel.Created"), Messages.getString("FileTableModel.Scanned"), Messages.getString("FileTableModel.Fixed") };  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
@@ -48,12 +50,12 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 	private final Class<?>[] columnsClass = new Class<?>[] { Object.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class };
 	
 	/** The columns widths. */
-	public int[] columnsWidths = new int[] { 100, 50, -14, -14, -9, -19, -19, -19 };
+	protected static final @Getter int[] columnsWidths = new int[] { 100, 50, -14, -14, -9, -19, -19, -19 };
 	
 	/** The rows. */
-	private List<ProfileNFO> rows;
+	private transient List<ProfileNFO> rows;
 	
-	private Session session;
+	private transient Session session;
 
 	/**
 	 * Instantiates a new file table model.
@@ -79,7 +81,7 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 	 */
 	public void populate(final Session session)
 	{
-		populate(session, curr_dir);
+		populate(session, currDir);
 	}
 
 	/**
@@ -90,7 +92,7 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 	public void populate(final Session session, final Dir dir)
 	{
 		this.session = session;
-		curr_dir = dir;
+		currDir = dir;
 		rows = ProfileNFO.list(session, dir.getFile());
 		fireTableDataChanged();
 	}
@@ -143,10 +145,10 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 
 	public Object getValueAt(ProfileNFO pnfo, final int columnIndex)
 	{
-		return getValueAt_(pnfo, columnIndex);
+		return internalGetValueAt(pnfo, columnIndex);
 	}
 	
-	public static Object getValueAt_(ProfileNFO pnfo, final int columnIndex)
+	private static Object internalGetValueAt(ProfileNFO pnfo, final int columnIndex)
 	{
 		switch(columnIndex)
 		{
@@ -166,6 +168,8 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 				return pnfo.getScanned();
 			case 7:
 				return pnfo.getFixed();
+			default:
+				break;
 		}
 		return null;
 	}
@@ -177,14 +181,15 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 		{
 			final ProfileNFO pnfo = rows.get(rowIndex);
 			Arrays.asList("", ".properties", ".cache").forEach(ext -> { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				final File oldfile = new File(curr_dir.getFile(), pnfo.name + ext);
-				final File newfile = new File(curr_dir.getFile(), aValue + ext);
-				oldfile.renameTo(newfile);
+				final var oldfile = new File(currDir.getFile(), pnfo.name + ext);
+				final var newfile = new File(currDir.getFile(), aValue + ext);
+				if(oldfile.renameTo(newfile))
+					Log.warn(()->"Can't rename "+oldfile.getName()+" to "+newfile.getName());
 			});
-			final File new_nfo_file = new File(curr_dir.getFile(), aValue.toString());
+			final var newNfoFile = new File(currDir.getFile(), aValue.toString());
 			if(session.curr_profile != null && session.curr_profile.getNfo().file.equals(pnfo.file))
-				session.curr_profile.getNfo().relocate(session, new_nfo_file);
-			pnfo.relocate(session, new_nfo_file);
+				session.curr_profile.getNfo().relocate(session, newNfoFile);
+			pnfo.relocate(session, newNfoFile);
 			fireTableCellUpdated(rowIndex, rowIndex);
 		}
 	}

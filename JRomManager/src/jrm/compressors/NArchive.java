@@ -86,7 +86,7 @@ abstract class NArchive extends NArchiveBase
 	 * @throws IOException
 	 * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
 	 */
-	public NArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException
+	protected NArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException
 	{
 		this(session, archive, false, null);
 		// System.out.println("SevenZipNArchive " + archive);
@@ -99,7 +99,7 @@ abstract class NArchive extends NArchiveBase
 	 * @throws IOException
 	 * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
 	 */
-	public NArchive(final Session session, final File archive, final ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException
+	protected NArchive(final Session session, final File archive, final ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException
 	{
 		this(session, archive, false, cb);
 		// System.out.println("SevenZipNArchive " + archive);
@@ -113,7 +113,7 @@ abstract class NArchive extends NArchiveBase
 	 * @throws IOException
 	 * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
 	 */
-	public NArchive(final Session session, final File archive, final boolean readonly, final ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException
+	protected NArchive(final Session session, final File archive, final boolean readonly, final ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException
 	{
 		this.session = session;
 		this.cb = cb;
@@ -137,7 +137,7 @@ abstract class NArchive extends NArchiveBase
 		{
 			if(format==ArchiveFormat.RAR)	// RAR and RAR multipart
 			{
-				ArchiveRAROpenVolumeCallback archiveOpenVolumeCallback = new ArchiveRAROpenVolumeCallback(this);
+				final var archiveOpenVolumeCallback = new ArchiveRAROpenVolumeCallback(this);
 				getCloseables().add(setIInArchive(SevenZip.openInArchive(format, setIInStream(archiveOpenVolumeCallback.getStream(archive.getAbsolutePath())).getIInStream(), archiveOpenVolumeCallback)).getIInArchive());
 			}
 			else if(format==ArchiveFormat.SEVEN_ZIP && archive.getName().endsWith(".7z.001"))	// SevenZip multipart
@@ -153,7 +153,10 @@ abstract class NArchive extends NArchiveBase
 		}
 		this.readonly = readonly;
 		if(null == (this.archive = NArchive.archives.get(archive.getAbsolutePath())))
-			NArchive.archives.put(archive.getAbsolutePath(), this.archive = archive);
+		{
+			this.archive = archive;
+			NArchive.archives.put(archive.getAbsolutePath(), this.archive);
+		}
 	}
 
 	/**
@@ -191,7 +194,7 @@ abstract class NArchive extends NArchiveBase
 					// System.out.println("modifying archive "+archive);
 					val tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", "." + ext).toFile(); //$NON-NLS-1$ //$NON-NLS-2$
 					tmpfile.delete();
-					try(RandomAccessFile raf = new RandomAccessFile(tmpfile, "rw")) //$NON-NLS-1$
+					try(final var raf = new RandomAccessFile(tmpfile, "rw")) //$NON-NLS-1$
 					{
 						final IOutUpdateArchive<IOutItemAllFormats> iout = getIInArchive().getConnectedOutArchive();
 						SetOptions(iout);
@@ -205,9 +208,9 @@ abstract class NArchive extends NArchiveBase
 					if(tmpfile.exists() && tmpfile.length() > 0)
 					{
 						// System.out.println("moving "+tmpfile+" to "+archive);
-						archive.delete();
-						if(!tmpfile.renameTo(archive))
-							tmpfile.delete();
+						if(Files.deleteIfExists(archive.toPath()))
+							if(!tmpfile.renameTo(archive))
+								tmpfile.delete();
 					}
 				}
 				else
@@ -261,6 +264,7 @@ abstract class NArchive extends NArchiveBase
 					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
 					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().getSettings().getProperty(SettingsEnum.zip_threads, -1)); //$NON-NLS-1$
+				break;
 			default:
 				break;
 		}
@@ -301,7 +305,7 @@ abstract class NArchive extends NArchiveBase
 			for (var i = 0; i < idx.length; i++)
 			{
 				idx[i] = i;
-				if(!(Boolean)getIInArchive().getProperty(i, PropID.IS_FOLDER))
+				if(!(boolean)getIInArchive().getProperty(i, PropID.IS_FOLDER))
 				{
 					val file = IOUtils.createTempFile("JRM", null).toFile();
 					tmpfiles.put(i, file); //$NON-NLS-1$

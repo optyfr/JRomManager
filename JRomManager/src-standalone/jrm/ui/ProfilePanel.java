@@ -136,13 +136,13 @@ public class ProfilePanel extends JPanel
 		{
 			final TableColumn column = profilesList.getColumnModel().getColumn(i);
 			column.setCellRenderer(new FileTableCellRenderer());
-			if (filemodel.columnsWidths[i] >= 0)
+			if (FileTableModel.getColumnsWidths()[i] >= 0)
 			{
-				column.setPreferredWidth(filemodel.columnsWidths[i]);
+				column.setPreferredWidth(FileTableModel.getColumnsWidths()[i]);
 			}
 			else
 			{
-				final int width = profilesList.getFontMetrics(profilesList.getFont()).stringWidth(String.format("%0" + (-filemodel.columnsWidths[i]) + "d", 0)); //$NON-NLS-1$ //$NON-NLS-2$
+				final int width = profilesList.getFontMetrics(profilesList.getFont()).stringWidth(String.format("%0" + (-FileTableModel.getColumnsWidths()[i]) + "d", 0)); //$NON-NLS-1$ //$NON-NLS-2$
 				column.setMinWidth(width);
 				column.setMaxWidth(width);
 			}
@@ -441,7 +441,7 @@ public class ProfilePanel extends JPanel
 					{
 						if (!imprt.is_mame)
 						{
-							final var currDir = ((FileTableModel) profilesList.getModel()).curr_dir.getFile();
+							final var currDir = ((FileTableModel) profilesList.getModel()).getCurrDir().getFile();
 							var file = new File(currDir, imprt.file.getName());
 							int mode = -1;
 							if (file.exists())

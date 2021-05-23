@@ -238,7 +238,14 @@ public class OpenContainer extends ContainerAction
 				}
 			}
 			if (totalSize == 0)
-				baseFolder.delete();
+				try
+				{
+					Files.deleteIfExists(baseFolder.toPath());
+				}
+				catch (IOException e)
+				{
+					Log.err(e.getMessage(), e);
+				}
 		}
 		return totalSize;
 	}
