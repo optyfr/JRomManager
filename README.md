@@ -1,3 +1,7 @@
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=optyfr_JRomManager&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=optyfr_JRomManager)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=optyfr_JRomManager&metric=security_rating)](https://sonarcloud.io/dashboard?id=optyfr_JRomManager)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=optyfr_JRomManager&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=optyfr_JRomManager)
+
 ![GitHub top language](https://img.shields.io/github/languages/top/optyfr/JRomManager)
 ![Gradle Build](https://github.com/optyfr/JRomManager/actions/workflows/gradle.yml/badge.svg)
 ![GitHub](https://img.shields.io/github/license/optyfr/JRomManager)
