@@ -505,7 +505,7 @@ public class Profile implements Serializable
 					{
 						currSlot = new Slot();
 						currSlot.name = attributes.getValue(i);
-						currMachine.slots.put(currSlot.name, currSlot);
+						currMachine.getSlots().put(currSlot.name, currSlot);
 					}
 				}
 			}
@@ -523,7 +523,7 @@ public class Profile implements Serializable
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					if ("name".equals(attributes.getQName(i)))
-						currMachine.device_ref.add(attributes.getValue(i));
+						currMachine.getDeviceRef().add(attributes.getValue(i));
 				}
 			}
 		}
@@ -542,16 +542,16 @@ public class Profile implements Serializable
 					{
 						if (currSampleSet == null)
 						{
-							currMachine.sampleof = currMachine.getBaseName();
-							if (!machineListList.get(0).samplesets.containsName(currMachine.sampleof))
+							currMachine.setSampleof(currMachine.getBaseName());
+							if (!machineListList.get(0).samplesets.containsName(currMachine.getSampleof()))
 							{
-								currSampleSet = new Samples(currMachine.sampleof);
+								currSampleSet = new Samples(currMachine.getSampleof());
 								machineListList.get(0).samplesets.putByName(currSampleSet);
 							}
 							else
-								currSampleSet = machineListList.get(0).samplesets.getByName(currMachine.sampleof);
+								currSampleSet = machineListList.get(0).samplesets.getByName(currMachine.getSampleof());
 						}
-						currMachine.samples.add(currSampleSet.add(new Sample(currSampleSet, attributes.getValue(i))));
+						currMachine.getSamples().add(currSampleSet.add(new Sample(currSampleSet, attributes.getValue(i))));
 						samplesCnt++;
 					}
 				}
@@ -643,7 +643,7 @@ public class Profile implements Serializable
 			if (currMachine != null)
 			{
 				currDevice = new Device();
-				currMachine.devices.add(currDevice);
+				currMachine.getDevices().add(currDevice);
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					switch (attributes.getQName(i))
@@ -787,22 +787,22 @@ public class Profile implements Serializable
 				switch (attributes.getQName(i))
 				{
 					case "name": //$NON-NLS-1$
-						swlist.name = attributes.getValue(i);
+						swlist.setName(attributes.getValue(i));
 						break;
 					case "status": //$NON-NLS-1$
-						swlist.status = SWStatus.valueOf(attributes.getValue(i));
+						swlist.setStatus(SWStatus.valueOf(attributes.getValue(i)));
 						break;
 					case "filter": //$NON-NLS-1$
-						swlist.filter = attributes.getValue(i);
+						swlist.setFilter(attributes.getValue(i));
 						break;
 					default:
 						break;
 				}
 			}
-			currMachine.swlists.put(swlist.name, swlist);
-			if (!machineListList.softwarelist_defs.containsKey(swlist.name))
-				machineListList.softwarelist_defs.put(swlist.name, new ArrayList<>());
-			machineListList.softwarelist_defs.get(swlist.name).add(currMachine);
+			currMachine.getSwlists().put(swlist.getName(), swlist);
+			if (!machineListList.softwarelist_defs.containsKey(swlist.getName()))
+				machineListList.softwarelist_defs.put(swlist.getName(), new ArrayList<>());
+			machineListList.softwarelist_defs.get(swlist.getName()).add(currMachine);
 		}
 
 		private void startSoftware(final Attributes attributes)
@@ -817,7 +817,7 @@ public class Profile implements Serializable
 						currSoftware.setName(attributes.getValue(i).trim());
 						break;
 					case "cloneof": //$NON-NLS-1$
-						currSoftware.cloneof = attributes.getValue(i);
+						currSoftware.setCloneof(attributes.getValue(i));
 						break;
 					case "supported": //$NON-NLS-1$
 						currSoftware.supported = Software.Supported.valueOf(attributes.getValue(i));
@@ -918,38 +918,38 @@ public class Profile implements Serializable
 						machineListList.get(0).putByName(currMachine);
 						break;
 					case "romof": //$NON-NLS-1$
-						currMachine.romof = attributes.getValue(i).trim();
+						currMachine.setRomof(attributes.getValue(i).trim());
 						break;
 					case "cloneof": //$NON-NLS-1$
-						currMachine.cloneof = attributes.getValue(i).trim();
+						currMachine.setCloneof(attributes.getValue(i).trim());
 						break;
 					case "sampleof": //$NON-NLS-1$
-						currMachine.sampleof = attributes.getValue(i).trim();
-						if (!machineListList.get(0).samplesets.containsName(currMachine.sampleof))
+						currMachine.setSampleof(attributes.getValue(i).trim());
+						if (!machineListList.get(0).samplesets.containsName(currMachine.getSampleof()))
 						{
-							currSampleSet = new Samples(currMachine.sampleof);
+							currSampleSet = new Samples(currMachine.getSampleof());
 							machineListList.get(0).samplesets.putByName(currSampleSet);
 						}
 						else
-							currSampleSet = machineListList.get(0).samplesets.getByName(currMachine.sampleof);
+							currSampleSet = machineListList.get(0).samplesets.getByName(currMachine.getSampleof());
 						break;
 					case "isbios": //$NON-NLS-1$
-						currMachine.isbios = BooleanUtils.toBoolean(attributes.getValue(i));
+						currMachine.setIsbios(BooleanUtils.toBoolean(attributes.getValue(i)));
 						break;
 					case "ismechanical": //$NON-NLS-1$
-						currMachine.ismechanical = BooleanUtils.toBoolean(attributes.getValue(i));
+						currMachine.setIsmechanical(BooleanUtils.toBoolean(attributes.getValue(i)));
 						break;
 					case "isdevice": //$NON-NLS-1$
-						currMachine.isdevice = BooleanUtils.toBoolean(attributes.getValue(i));
+						currMachine.setIsdevice(BooleanUtils.toBoolean(attributes.getValue(i)));
 						break;
 					default:
 						break;
 				}
 			}
-			if (currMachine.romof != null && currMachine.romof.equals(currMachine.getBaseName()))
-				currMachine.romof = null;
-			if (currMachine.cloneof != null && currMachine.cloneof.equals(currMachine.getBaseName()))
-				currMachine.cloneof = null;
+			if (currMachine.getRomof() != null && currMachine.getRomof().equals(currMachine.getBaseName()))
+				currMachine.setRomof(null);
+			if (currMachine.getCloneof() != null && currMachine.getCloneof().equals(currMachine.getBaseName()))
+				currMachine.setCloneof(null);
 		}
 
 		private void startDescription(Attributes attributes)
@@ -1004,9 +1004,9 @@ public class Profile implements Serializable
 					{
 						ExceptionUtils.unthrow(orientation -> {
 							if (orientation == 0 || orientation == 180)
-								currMachine.orientation = Machine.DisplayOrientation.horizontal;
+								currMachine.setOrientation(Machine.DisplayOrientation.horizontal);
 							if (orientation == 90 || orientation == 270)
-								currMachine.orientation = Machine.DisplayOrientation.vertical;
+								currMachine.setOrientation(Machine.DisplayOrientation.vertical);
 						}, Integer::parseInt, attributes.getValue(i));
 					}
 				}
@@ -1076,12 +1076,12 @@ public class Profile implements Serializable
 			if (cabTypeSet.contains(CabinetType.cocktail))
 			{
 				if (cabTypeSet.contains(CabinetType.upright))
-					currMachine.cabinetType = CabinetType.any;
+					currMachine.setCabinetType(CabinetType.any);
 				else
-					currMachine.cabinetType = CabinetType.cocktail;
+					currMachine.setCabinetType(CabinetType.cocktail);
 			}
 			else
-				currMachine.cabinetType = CabinetType.upright;
+				currMachine.setCabinetType(CabinetType.upright);
 			cabTypeSet.clear();
 			inCabinetDipSW = false;
 		}
@@ -1097,12 +1097,12 @@ public class Profile implements Serializable
 				disks.add(currDisk.getBaseName());
 				if (currMachine != null)
 				{
-					currMachine.disks.add(currDisk);
+					currMachine.getDisks().add(currDisk);
 					disksCnt++;
 				}
 				else if (currSoftware != null)
 				{
-					currSoftware.disks.add(currDisk);
+					currSoftware.getDisks().add(currDisk);
 					swdisksCnt++;
 				}
 			}
@@ -1122,12 +1122,12 @@ public class Profile implements Serializable
 					roms.add(currRom.getBaseName());
 					if (currMachine != null)
 					{
-						currMachine.roms.add(currRom);
+						currMachine.getRoms().add(currRom);
 						romsCnt++;
 					}
 					else if (currSoftware != null)
 					{
-						currSoftware.roms.add(currRom);
+						currSoftware.getRoms().add(currRom);
 						swromsCnt++;
 					}
 				}
@@ -1432,21 +1432,21 @@ public class Profile implements Serializable
 	private void buildParentClonesRelations()
 	{
 		machineListList.forEach(machineList -> machineList.forEach(machine -> {
-			if (machine.romof != null)
+			if (machine.getRomof() != null)
 			{
-				machine.setParent(machineList.getByName(machine.romof));
-				if (machine.getParent() != null && !machine.getParent().isbios)
-					machine.getParent().clones.put(machine.getName(), machine);
+				machine.setParent(machineList.getByName(machine.getRomof()));
+				if (machine.getParent() != null && !machine.getParent().isIsbios())
+					machine.getParent().getClones().put(machine.getName(), machine);
 			}
-			machine.device_ref.forEach(deviceRef -> machine.device_machines.putIfAbsent(deviceRef, machineList.getByName(deviceRef)));
-			machine.slots.values().forEach(slot -> slot.forEach(slotoption -> machine.device_machines.putIfAbsent(slotoption.devname, machineList.getByName(slotoption.devname))));
+			machine.getDeviceRef().forEach(deviceRef -> machine.getDeviceMachines().putIfAbsent(deviceRef, machineList.getByName(deviceRef)));
+			machine.getSlots().values().forEach(slot -> slot.forEach(slotoption -> machine.getDeviceMachines().putIfAbsent(slotoption.devname, machineList.getByName(slotoption.devname))));
 		}));
 		machineListList.softwarelist_list.forEach(softwareList -> softwareList.forEach(software -> {
-			if (software.cloneof != null)
+			if (software.getCloneof() != null)
 			{
-				software.setParent(softwareList.getByName(software.cloneof));
+				software.setParent(softwareList.getByName(software.getCloneof()));
 				if (software.getParent() != null)
-					software.getParent().clones.put(software.getName(), software);
+					software.getParent().getClones().put(software.getName(), software);
 			}
 		}));
 	}
@@ -1657,7 +1657,7 @@ public class Profile implements Serializable
 		systems.add(SystmDevice.DEVICE);
 		final ArrayList<Machine> machines = new ArrayList<>();
 		machineListList.get(0).forEach(m -> {
-			if (m.isbios)
+			if (m.isIsbios())
 				machines.add(m);
 		});
 		machines.sort((a, b) -> a.getName().compareTo(b.getName()));
@@ -1704,7 +1704,7 @@ public class Profile implements Serializable
 						{
 							final Machine m = machineListList.get(0).getByName(game);
 							if (m != null)
-								m.subcat = subcat;
+								m.setSubcat(subcat);
 						}
 					}
 				}
@@ -1739,7 +1739,7 @@ public class Profile implements Serializable
 					{
 						final Machine m = machineListList.get(0).getByName(game);
 						if (m != null)
-							m.nplayer = nplayer;
+							m.setNplayer(nplayer);
 					}
 				}
 			}

@@ -183,29 +183,7 @@ public class JRomManagerCLI
 					final var options = new Options().addOption("r", "recursive", false, "Recursive delete"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
 					for(String arg : cmdline.getArgList())
-					{
-						final var path = Paths.get(arg);
-						if(Files.exists(path))
-						{
-							if(Files.isDirectory(path))
-							{
-								try
-								{
-									Files.delete(path);
-								}
-								catch(DirectoryNotEmptyException e)
-								{
-									if(cmdline.hasOption('r'))	// recursively delete from bottom to top
-										try(final var stream = Files.walk(path))
-										{
-											stream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-										}
-								}
-							}
-							else
-								Files.delete(path);
-						}
-					}
+						recursiveDelete(Paths.get(arg), cmdline.hasOption('r'));
 					return 0;
 				}
 				case MD:
@@ -312,6 +290,35 @@ public class JRomManagerCLI
 			Log.err(e.getMessage(), e);
 		}
 		return -1;
+	}
+
+	/**
+	 * @param cmdline
+	 * @param path
+	 * @throws IOException
+	 */
+	private void recursiveDelete(final Path path, final boolean recurse) throws IOException
+	{
+		if(Files.exists(path))
+		{
+			if(Files.isDirectory(path))
+			{
+				try
+				{
+					Files.delete(path);
+				}
+				catch(DirectoryNotEmptyException e)
+				{
+					if(recurse)	// recursively delete from bottom to top
+						try(final var stream = Files.walk(path))
+						{
+							stream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+						}
+				}
+			}
+			else
+				Files.delete(path);
+		}
 	}
 
 	private int dirupd8r(String cmd, String... args) throws ParseException
@@ -575,7 +582,7 @@ public class JRomManagerCLI
 				frl.parallelStream().forEach(fr -> {
 					Path file = fr.getFile();
 					cnt.incrementAndGet();
-					Compressor.UpdResultCallBack cb = txt -> fr.setResult(txt);
+					Compressor.UpdResultCallBack cb = fr::setResult;
 					Compressor.UpdSrcCallBack scb = src -> fr.setFile(src.toPath());
 					compressor.compress(format, file.toFile(), force, cb, scb);
 				});

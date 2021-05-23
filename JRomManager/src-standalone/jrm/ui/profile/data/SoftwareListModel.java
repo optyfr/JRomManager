@@ -79,11 +79,11 @@ public class SoftwareListModel extends AnywareListModel
 			case 2:
 				return software.description.toString();
 			case 3:
-				return String.format("%d/%d", software.countHave(), software.roms.size() + software.disks.size()); //$NON-NLS-1$
+				return String.format("%d/%d", software.countHave(), software.getRoms().size() + software.getDisks().size()); //$NON-NLS-1$
 			case 4:
-				return software.cloneof != null ? softwareList.getByName(software.cloneof) : null;
+				return software.getCloneof() != null ? softwareList.getByName(software.getCloneof()) : null;
 			case 5:
-				return software.selected;
+				return software.isSelected();
 		}
 		return null;
 	}
@@ -94,7 +94,7 @@ public class SoftwareListModel extends AnywareListModel
 		if(columnIndex==5 && aValue instanceof Boolean)
 		{
 			final Software software = softwareList.getFilteredList().get(rowIndex);
-			software.selected = (Boolean)aValue;
+			software.setSelected((Boolean)aValue);
 		}
 	}
 

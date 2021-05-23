@@ -141,14 +141,14 @@ public class Disk extends Entity implements Serializable
 				for (final Anyware clone : parent.getParent().clones.values())
 				{
 					if (clone != parent)
-						for (final Disk d : clone.disks)
+						for (final Disk d : clone.getDisks())
 						{
 							if (disk.equals(d) && d.own_status != EntityStatus.UNKNOWN)
 								return d.own_status;
 						}
 				}
 			}
-			for (final Disk d : parent.getParent().disks)
+			for (final Disk d : parent.getParent().getDisks())
 			{
 				if (disk.equals(d))
 					return d.getStatus();

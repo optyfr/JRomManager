@@ -35,6 +35,9 @@ import jrm.profile.filter.CatVer.Category.SubCategory;
 import jrm.profile.filter.NPlayer;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represent a complete Machine (or a game set in Logiqx terminology)
@@ -46,28 +49,28 @@ public class Machine extends Anyware implements Serializable
 	/**
 	 * if defined, romof will tell that this machine will share rom with another machine named in that romof field
 	 */
-	public String romof = null;
+	protected @Getter @Setter String romof = null;
 	/**
 	 * if defined, sampleof will tell that this machine will have samples contained within a sampleset ({@link Samples}) named by that sampleof field
 	 */
-	public String sampleof = null;
+	protected @Getter @Setter String sampleof = null;
 	/**
 	 * is that machine a system bios?
 	 */
-	public boolean isbios = false;
+	protected @Getter @Setter boolean isbios = false;
 	/**
 	 * is that machine electro-mechanical (fruit machines, pinballs, etc ...)
 	 */
-	public boolean ismechanical = false;
+	protected @Getter @Setter boolean ismechanical = false;
 	/**
 	 * is that machine a device (serial interface, disk controller, etc ...)
 	 */
-	public boolean isdevice = false;
+	protected @Getter @Setter boolean isdevice = false;
 
 	/**
 	 * the manufacturer, if known
 	 */
-	public final StringBuffer manufacturer = new StringBuffer();
+	public final StringBuilder manufacturer = new StringBuilder();
 	/**
 	 * the {@link Driver} informations
 	 */
@@ -79,52 +82,52 @@ public class Machine extends Anyware implements Serializable
 	/**
 	 * The {@link DisplayOrientation} informations
 	 */
-	public DisplayOrientation orientation = DisplayOrientation.any;
+	protected @Getter @Setter DisplayOrientation orientation = DisplayOrientation.any;
 	/**
 	 * The {@link CabinetType} informations
 	 */
-	public CabinetType cabinetType = CabinetType.upright;
+	protected @Getter @Setter CabinetType cabinetType = CabinetType.upright;
 	
 	/**
 	 * the software lists that this machine is linked to (if this machine is a computer or a home console) 
 	 */
-	public final Map<String, SWList> swlists = new HashMap<>();
+	private final @Getter Map<String, SWList> swlists = new HashMap<>();
 	
 	/**
 	 * A "machine device" references list
 	 */
-	public final List<String> device_ref = new ArrayList<>();
+	private final @Getter List<String> deviceRef = new ArrayList<>();
 	/**
 	 * The mapping between each device_ref string and a {@link Machine} (with flag {@link #isdevice})
 	 */
-	public transient HashMap<String, Machine> device_machines = new HashMap<>();
+	protected transient @Getter Map<String, Machine> deviceMachines = new HashMap<>();
 	/**
 	 * an I/O device list
 	 */
-	public final List<Device> devices = new ArrayList<>();
+	private final @Getter List<Device> devices = new ArrayList<>();
 	
 	/**
 	 * a slot group of optional devices slots
 	 */
-	public final Map<String, Slot> slots = new HashMap<>();
+	private final @Getter Map<String, Slot> slots = new HashMap<>();
 
 	/**
 	 * category/subcategory as defined by catver.ini
 	 */
-	public transient SubCategory subcat = null;
+	protected transient @Getter @Setter SubCategory subcat = null;
 	/**
 	 * nplayer as defined by nplayers.ini
 	 */
-	public transient NPlayer nplayer = null;
+	protected transient @Getter @Setter NPlayer nplayer = null;
 	
 	/**
 	 * SWList link reference with support status and filter option 
 	 */
-	public class SWList implements Serializable
+	public @Data class SWList implements Serializable
 	{
-		public String name;
-		public SWStatus status;
-		public String filter;
+		private String name;
+		private SWStatus status;
+		private String filter;
 	}
 
 	/**
@@ -184,7 +187,7 @@ public class Machine extends Anyware implements Serializable
 	 */
 	private void initTransient()
 	{
-		device_machines = new HashMap<>();
+		deviceMachines = new HashMap<>();
 	}
 	
 	@Override
@@ -305,9 +308,9 @@ public class Machine extends Anyware implements Serializable
 				writer.writeElement("year", year); //$NON-NLS-1$
 			if(manufacturer!=null && manufacturer.length()>0)
 				writer.writeElement("manufacturer", manufacturer); //$NON-NLS-1$
-			for(final Rom r : roms)
+			for(final Rom r : getRoms())
 				r.export(writer, is_mame);
-			for(final Disk d : disks)
+			for(final Disk d : getDisks())
 				d.export(writer, is_mame);
 			for(final SWList swlist : swlists.values())
 			{
@@ -344,9 +347,9 @@ public class Machine extends Anyware implements Serializable
 				writer.writeElement("year", year); //$NON-NLS-1$
 			if(manufacturer!=null && manufacturer.length()>0)
 				writer.writeElement("manufacturer", manufacturer); //$NON-NLS-1$
-			for(final Rom r : roms)
+			for(final Rom r : getRoms())
 				r.export(writer, is_mame);
-			for(final Disk d : disks)
+			for(final Disk d : getDisks())
 				d.export(writer, is_mame);
 			writer.writeEndElement();
 		}
@@ -405,8 +408,8 @@ public class Machine extends Anyware implements Serializable
 	private Stream<Machine> getDevices(boolean partial)
 	{
 		if(partial)
-			return device_machines.values().stream().filter(device->device_ref.contains(device.name));
-		return device_machines.values().stream();
+			return deviceMachines.values().stream().filter(device->deviceRef.contains(device.name));
+		return deviceMachines.values().stream();
 	}
 	
 	@Override
@@ -414,7 +417,7 @@ public class Machine extends Anyware implements Serializable
 	{
 		HashSet<Machine> machines = new HashSet<>();
 		getDevices(machines, excludeBios, partial, recurse);
-		return machines.stream().flatMap(m->m.roms.stream());
+		return machines.stream().flatMap(m->m.getRoms().stream());
 	}
 	
 

@@ -149,7 +149,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 				return false;
 			if(!filterIncludeClones && t.isClone())	// exclude clones machines
 				return false;
-			if(!filterIncludeDisks && t.disks.size()>0)	// exclude softwares with disks
+			if(!filterIncludeDisks && t.getDisks().size()>0)	// exclude softwares with disks
 				return false;
 			if(!t.getSystem().isSelected(profile))	// exclude software for which their software list were not selected
 				return false;
@@ -195,7 +195,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		for(final Software s : list)
 		{
 			progress.setProgress(String.format(profile.getSession().msgs.getString("SoftwareList.Exporting_%s"), s.getFullName()), progress.getValue()+1); //$NON-NLS-1$
-			if(!filtered || s.selected)
+			if(!filtered || s.isSelected())
 				s.export(writer,null);
 		}
 		writer.writeEndElement();

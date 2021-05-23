@@ -81,13 +81,13 @@ public class MachineListModel extends AnywareListModel
 			case 3:
 				return String.format("%d/%d", machine.countHave(), machine.countAll()); //$NON-NLS-1$
 			case 4:
-				return machine.cloneof != null ? (machineList.containsName(machine.cloneof) ? machineList.getByName(machine.cloneof) : machine.cloneof) : null;
+				return machine.getCloneof() != null ? (machineList.containsName(machine.getCloneof()) ? machineList.getByName(machine.getCloneof()) : machine.getCloneof()) : null;
 			case 5:
-				return machine.romof != null && !machine.romof.equals(machine.cloneof) ? (machineList.containsName(machine.romof) ? machineList.getByName(machine.romof) : machine.romof) : null;
+				return machine.getRomof() != null && !machine.getRomof().equals(machine.getCloneof()) ? (machineList.containsName(machine.getRomof()) ? machineList.getByName(machine.getRomof()) : machine.getRomof()) : null;
 			case 6:
-				return machine.sampleof != null ? (machineList.samplesets.containsName(machine.sampleof) ? machineList.samplesets.getByName(machine.sampleof) : machine.sampleof) : null;
+				return machine.getSampleof() != null ? (machineList.samplesets.containsName(machine.getSampleof()) ? machineList.samplesets.getByName(machine.getSampleof()) : machine.getSampleof()) : null;
 			case 7:
-				return machine.selected;
+				return machine.isSelected();
 		}
 		return null;
 	}
@@ -98,7 +98,7 @@ public class MachineListModel extends AnywareListModel
 		if(columnIndex==7 && aValue instanceof Boolean)
 		{
 			final Machine machine = machineList.getFilteredList().get(rowIndex);
-			machine.selected = (Boolean)aValue;
+			machine.setSelected((Boolean)aValue);
 		}
 	}
 

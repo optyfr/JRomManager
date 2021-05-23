@@ -53,7 +53,7 @@ public class AnywareListXMLResponse extends XMLResponse
 				if(!lstatus.contains(ware.getStatus().toString()))
 					return false;
 			if(lselected!=null)
-				if(ware.selected!=lselected)
+				if(ware.isSelected()!=lselected)
 					return false;
 			if(lname!=null)
 				if(!ware.getBaseName().toLowerCase().contains(lname))
@@ -62,13 +62,13 @@ public class AnywareListXMLResponse extends XMLResponse
 				if(!ware.description.toString().toLowerCase().contains(ldesc))
 					return false;
 			if(lcloneof!=null)
-				if(ware.cloneof==null || !ware.cloneof.toString().toLowerCase().contains(lcloneof))
+				if(ware.getCloneof()==null || !ware.getCloneof().toString().toLowerCase().contains(lcloneof))
 					return false;
 			if(lromof!=null && ware instanceof Machine)
-				if(((Machine)ware).romof==null || !((Machine)ware).romof.toString().toLowerCase().contains(lromof))
+				if(((Machine)ware).getRomof()==null || !((Machine)ware).getRomof().toString().toLowerCase().contains(lromof))
 					return false;
 			if(lsampleof!=null && ware instanceof Machine)
-				if(((Machine)ware).sampleof==null || !((Machine)ware).sampleof.toString().toLowerCase().contains(lsampleof))
+				if(((Machine)ware).getSampleof()==null || !((Machine)ware).getSampleof().toString().toLowerCase().contains(lsampleof))
 					return false;
 			return true;
 		};
@@ -126,35 +126,35 @@ public class AnywareListXMLResponse extends XMLResponse
 			writer.writeAttribute("name", aw.getBaseName());
 			writer.writeAttribute("description", aw.getDescription().toString());
 			writer.writeAttribute("have",  String.format("%d/%d", aw.countHave(), aw.countAll()));
-			if(aw.cloneof!=null)
+			if(aw.getCloneof()!=null)
 			{
-				writer.writeAttribute("cloneof",  aw.cloneof);
-				writer.writeAttribute("cloneof_status",  al.getByName(aw.cloneof).getStatus().toString());
+				writer.writeAttribute("cloneof",  aw.getCloneof());
+				writer.writeAttribute("cloneof_status",  al.getByName(aw.getCloneof()).getStatus().toString());
 			}
 			if(aw instanceof Machine)
 			{
 				Machine m = (Machine)aw;
 				MachineList ml = (MachineList)al;
-				if(m.isbios)
+				if(m.isIsbios())
 					writer.writeAttribute("type", "BIOS");
-				else if(m.isdevice)
+				else if(m.isIsdevice())
 					writer.writeAttribute("type", "DEVICE");
-				else if(m.ismechanical)
+				else if(m.isIsmechanical())
 					writer.writeAttribute("type", "MECHANICAL");
 				else
 					writer.writeAttribute("type", "STANDARD");
-				if(m.romof!=null)
+				if(m.getRomof()!=null)
 				{
-					writer.writeAttribute("romof",  m.romof);
-					writer.writeAttribute("romof_status",  al.getByName(m.romof).getStatus().toString());
+					writer.writeAttribute("romof",  m.getRomof());
+					writer.writeAttribute("romof_status",  al.getByName(m.getRomof()).getStatus().toString());
 				}
-				if(m.sampleof!=null)
+				if(m.getSampleof()!=null)
 				{
-					writer.writeAttribute("sampleof",  m.sampleof);
-					writer.writeAttribute("sampleof_status", ml.samplesets.getByName(m.sampleof).getStatus().toString());
+					writer.writeAttribute("sampleof",  m.getSampleof());
+					writer.writeAttribute("sampleof_status", ml.samplesets.getByName(m.getSampleof()).getStatus().toString());
 				}
 			}
-			writer.writeAttribute("selected", Boolean.toString(aw.selected));
+			writer.writeAttribute("selected", Boolean.toString(aw.isSelected()));
 		}
 		catch (XMLStreamException e)
 		{
@@ -198,7 +198,7 @@ public class AnywareListXMLResponse extends XMLResponse
 				{
 					Boolean selected = Boolean.valueOf(operation.getData("selected"));
 					if(selected != null)
-						aw.selected = selected;
+						aw.setSelected(selected);
 					write_record(al, aw);
 				}
 			}
@@ -241,7 +241,7 @@ public class AnywareListXMLResponse extends XMLResponse
 			{
 				List<Anyware> list = build_list(al, operation);
 				for(Anyware aw : list)
-					aw.selected = false;
+					aw.setSelected(false);
 			}
 			writer.writeEndElement();
 		}
@@ -254,7 +254,7 @@ public class AnywareListXMLResponse extends XMLResponse
 			{
 				List<Anyware> list = build_list(al, operation);
 				for(Anyware aw : list)
-					aw.selected = true;
+					aw.setSelected(true);
 			}
 			writer.writeEndElement();
 		}
@@ -267,7 +267,7 @@ public class AnywareListXMLResponse extends XMLResponse
 			{
 				List<Anyware> list = build_list(al, operation);
 				for(Anyware aw : list)
-					aw.selected ^= true;
+					aw.setSelected(!aw.isSelected());
 			}
 			writer.writeEndElement();
 		}

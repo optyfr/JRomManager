@@ -169,9 +169,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			}
 			if(!filterIncludeClones && t.isClone())	// exclude clones machines
 				return false;
-			if(!filterIncludeDisks && t.disks.size() > 0)	// exclude machines with disks
+			if(!filterIncludeDisks && t.getDisks().size() > 0)	// exclude machines with disks
 				return false;
-			if(!filterIncludeSamples && t.samples.size() > 0)	// exclude machines with samples
+			if(!filterIncludeSamples && t.getSamples().size() > 0)	// exclude machines with samples
 				return false;
 			if(!t.getSystem().isSelected(profile))	// exclude machines for which their BIOS system were not selected
 				return false;
@@ -231,7 +231,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		for(final Machine m : list)
 		{
 			progress.setProgress(String.format(profile.getSession().msgs.getString("MachineList.Exporting_%s"), m.name), ++i); //$NON-NLS-1$
-			if(!filtered || m.selected)
+			if(!filtered || m.isSelected())
 				m.export(writer, is_mame);
 		}
 		writer.writeEndElement();

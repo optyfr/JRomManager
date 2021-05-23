@@ -273,7 +273,7 @@ public class Software extends Anyware implements Serializable
 	@Override
 	Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse)
 	{
-		return roms.stream();
+		return getRoms().stream();
 	}
 
 }

@@ -163,7 +163,7 @@ public class ProfileViewer extends JDialog
 		 */
 		private void add(Anyware ware)
 		{
-			ware.selected = true;
+			ware.setSelected(true);
 			this.wares.add(ware);
 		}
 		
@@ -172,7 +172,7 @@ public class ProfileViewer extends JDialog
 		 */
 		private void clear()
 		{
-			wares.forEach(w->w.selected=false);
+			wares.forEach(w -> w.setSelected(false));
 			wares.clear();
 		}
 	}
@@ -197,16 +197,16 @@ public class ProfileViewer extends JDialog
 		setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
 		setTitle(Messages.getString("ProfileViewer.this.title")); //$NON-NLS-1$
 
-		final JSplitPane splitPane = new JSplitPane();
+		final var splitPane = new JSplitPane();
 		splitPane.setResizeWeight(0.5);
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 
-		final JPanel panelWare = new JPanel();
+		final var panelWare = new JPanel();
 		splitPane.setLeftComponent(panelWare);
 		panelWare.setLayout(new BorderLayout(0, 0));
 
-		final JSplitPane splitPaneWLW = new JSplitPane();
+		final var splitPaneWLW = new JSplitPane();
 		splitPaneWLW.setOneTouchExpandable(true);
 		splitPaneWLW.setContinuousLayout(true);
 		splitPaneWLW.setResizeWeight(0.25);
@@ -222,44 +222,44 @@ public class ProfileViewer extends JDialog
 		tableEntity.setFillsViewportHeight(true);
 		tableEntity.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-		final JPanel panelW = new JPanel();
+		final var panelW = new JPanel();
 		splitPaneWLW.setRightComponent(panelW);
 		// panelWare.add(panelSL, BorderLayout.NORTH);
 		panelW.setLayout(new BorderLayout(0, 0));
 
-		final JToolBar toolBarW = new JToolBar();
+		final var toolBarW = new JToolBar();
 		panelW.add(toolBarW, BorderLayout.SOUTH);
 
-		final JToggleButton tglbtnMissingW = new JToggleButton(""); //$NON-NLS-1$
+		final var tglbtnMissingW = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnMissingW.setSelected(true);
 		tglbtnMissingW.setToolTipText(Messages.getString("ProfileViewer.tglbtnMissingW.toolTipText")); //$NON-NLS-1$
 		tglbtnMissingW.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_red.png")); //$NON-NLS-1$
 		toolBarW.add(tglbtnMissingW);
 
-		final JToggleButton tglbtnPartialW = new JToggleButton(""); //$NON-NLS-1$
+		final var tglbtnPartialW = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnPartialW.setSelected(true);
 		tglbtnPartialW.setToolTipText(Messages.getString("ProfileViewer.tglbtnPartialW.toolTipText")); //$NON-NLS-1$
 		tglbtnPartialW.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_orange.png")); //$NON-NLS-1$
 		toolBarW.add(tglbtnPartialW);
 
-		final JToggleButton tglbtnCompleteW = new JToggleButton(""); //$NON-NLS-1$
+		final var tglbtnCompleteW = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnCompleteW.setSelected(true);
 		tglbtnCompleteW.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_green.png")); //$NON-NLS-1$
 		tglbtnCompleteW.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteW.toolTipText")); //$NON-NLS-1$
 		toolBarW.add(tglbtnCompleteW);
 
-		final JPanel panel_1 = new JPanel();
+		final var panel_1 = new JPanel();
 		panel_1.setBorder(null);
 		toolBarW.add(panel_1);
-		final GridBagLayout gbl_panel_1 = new GridBagLayout();
+		final var gbl_panel_1 = new GridBagLayout();
 		gbl_panel_1.columnWidths = new int[] { 286, 166, 0 };
 		gbl_panel_1.rowHeights = new int[] { 20, 0 };
 		gbl_panel_1.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		gbl_panel_1.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 		panel_1.setLayout(gbl_panel_1);
 
-		final JLabel lblSearch = new JLabel(Messages.getString("ProfileViewer.lblSearch.text")); //$NON-NLS-1$
-		final GridBagConstraints gbc_lblSearch = new GridBagConstraints();
+		final var lblSearch = new JLabel(Messages.getString("ProfileViewer.lblSearch.text")); //$NON-NLS-1$
+		final var gbc_lblSearch = new GridBagConstraints();
 		gbc_lblSearch.insets = new Insets(0, 0, 0, 5);
 		gbc_lblSearch.anchor = GridBagConstraints.EAST;
 		gbc_lblSearch.gridx = 0;
@@ -281,7 +281,7 @@ public class ProfileViewer extends JDialog
 				}
 			}
 		});
-		final GridBagConstraints gbc_txtSearch = new GridBagConstraints();
+		final var gbc_txtSearch = new GridBagConstraints();
 		gbc_txtSearch.fill = GridBagConstraints.VERTICAL;
 		gbc_txtSearch.anchor = GridBagConstraints.WEST;
 		gbc_txtSearch.gridx = 1;
@@ -294,7 +294,7 @@ public class ProfileViewer extends JDialog
 		tglbtnPartialW.addItemListener(e -> setFilterW(tglbtnMissingW.isSelected(), tglbtnPartialW.isSelected(), tglbtnCompleteW.isSelected()));
 		tglbtnCompleteW.addItemListener(e -> setFilterW(tglbtnMissingW.isSelected(), tglbtnPartialW.isSelected(), tglbtnCompleteW.isSelected()));
 
-		final JScrollPane scrollPaneW = new JScrollPane();
+		final var scrollPaneW = new JScrollPane();
 		panelW.add(scrollPaneW);
 
 		tableW = new JTable();
@@ -307,134 +307,112 @@ public class ProfileViewer extends JDialog
 		tableW.setShowVerticalLines(false);
 		tableW.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-		JPopupMenu popupWMenu = new JPopupMenu();
+		final var popupWMenu = new JPopupMenu();
 		addPopup(tableW, popupWMenu);
 
-		JMenuItem mntmCollectKeywords = new JMenuItem(Messages.getString("ProfileViewer.mntmCollectKeywords.text")); //$NON-NLS-1$
-		mntmCollectKeywords.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				final AnywareListModel list = (AnywareListModel) tableW.getModel();
-				final Pattern pattern = Pattern.compile("^(.*?)(\\(.*\\))++"); //$NON-NLS-1$
-				final Pattern pattern_parenthesis = Pattern.compile("\\((.*?)\\)"); //$NON-NLS-1$
-				final Pattern pattern_split = Pattern.compile(","); //$NON-NLS-1$
-				final Pattern pattern_alpha = Pattern.compile("^[a-zA-Z]*$"); //$NON-NLS-1$
-				final HashSet<String> keywords = new HashSet<>();
+		final var mntmCollectKeywords = new JMenuItem(Messages.getString("ProfileViewer.mntmCollectKeywords.text")); //$NON-NLS-1$
+		mntmCollectKeywords.addActionListener(e -> {
+			final var list = (AnywareListModel) tableW.getModel();
+			final var pattern = Pattern.compile("^(.*?)(\\(.*\\))++"); //$NON-NLS-1$
+			final var pattern_parenthesis = Pattern.compile("\\((.*?)\\)"); //$NON-NLS-1$
+			final var pattern_split = Pattern.compile(","); //$NON-NLS-1$
+			final var pattern_alpha = Pattern.compile("^[a-zA-Z]*$"); //$NON-NLS-1$
+			final HashSet<String> keywords = new HashSet<>();
+			list.getList().getFilteredStream().forEach(ware -> {
+				final var matcher = pattern.matcher(ware.getDescription());
+				if (matcher.find())
+				{
+					if (matcher.groupCount() > 1 && matcher.group(2) != null)
+					{
+						final var matcher_parenthesis = pattern_parenthesis.matcher(matcher.group(2));
+						while (matcher_parenthesis.find())
+						{
+							Arrays.asList(pattern_split.split(matcher_parenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
+						}
+					}
+				}
+			});
+			new KeywordFilter(ProfileViewer.this, keywords.stream().sorted((s1, s2) -> {
+				return s1.length() == s2.length() ? s1.compareToIgnoreCase(s2) : s1.length() - s2.length();
+			}).toArray(size -> new String[size]), f -> {
+				ArrayList<String> filter = f.getFilter();
+				HashMap<String, keypref> prefmap = new HashMap<>();
 				list.getList().getFilteredStream().forEach(ware -> {
-					final Matcher matcher = pattern.matcher(ware.getDescription());
+					final var matcher = pattern.matcher(ware.getDescription());
+					keywords.clear();
 					if (matcher.find())
 					{
 						if (matcher.groupCount() > 1 && matcher.group(2) != null)
 						{
-							final Matcher matcher_parenthesis = pattern_parenthesis.matcher(matcher.group(2));
+							final var matcher_parenthesis = pattern_parenthesis.matcher(matcher.group(2));
 							while (matcher_parenthesis.find())
 							{
 								Arrays.asList(pattern_split.split(matcher_parenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
 							}
 						}
+						ware.setSelected(false);
+						for (var i = 0; i < filter.size(); i++)
+						{
+							if (keywords.contains(filter.get(i)))
+							{
+								if (prefmap.containsKey(matcher.group(1)))
+								{
+									keypref pref = prefmap.get(matcher.group(1));
+									if (i < pref.order)
+									{
+										pref.clear();
+										prefmap.put(matcher.group(1), new keypref(i, ware));
+									}
+									else if (i == pref.order)
+										pref.add(ware);
+								}
+								else
+									prefmap.put(matcher.group(1), new keypref(i, ware));
+
+								break;
+							}
+						}
+					}
+					else
+					{
+						if (!prefmap.containsKey(ware.getDescription().toString()))
+							prefmap.put(ware.getDescription().toString(), new keypref(Integer.MAX_VALUE, ware));
 					}
 				});
-				new KeywordFilter(ProfileViewer.this, keywords.stream().sorted((s1, s2) -> {
-					return s1.length() == s2.length() ? s1.compareToIgnoreCase(s2) : s1.length() - s2.length();
-				}).toArray(size -> new String[size]), f -> {
-					ArrayList<String> filter = f.getFilter();
-					HashMap<String, keypref> prefmap = new HashMap<>();
-					list.getList().getFilteredStream().forEach(ware -> {
-						final Matcher matcher = pattern.matcher(ware.getDescription());
-						keywords.clear();
-						if (matcher.find())
-						{
-							if (matcher.groupCount() > 1 && matcher.group(2) != null)
-							{
-								final Matcher matcher_parenthesis = pattern_parenthesis.matcher(matcher.group(2));
-								while (matcher_parenthesis.find())
-								{
-									Arrays.asList(pattern_split.split(matcher_parenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
-								}
-							}
-							ware.selected = false;
-							for (int i = 0; i < filter.size(); i++)
-							{
-								if (keywords.contains(filter.get(i)))
-								{
-									if (prefmap.containsKey(matcher.group(1)))
-									{
-										keypref pref = prefmap.get(matcher.group(1));
-										if (i < pref.order)
-										{
-											pref.clear();
-											prefmap.put(matcher.group(1), new keypref(i, ware));
-										}
-										else if (i == pref.order)
-											pref.add(ware);
-									}
-									else
-										prefmap.put(matcher.group(1), new keypref(i, ware));
-
-									break;
-								}
-							}
-						}
-						else
-						{
-							if (!prefmap.containsKey(ware.getDescription().toString()))
-								prefmap.put(ware.getDescription().toString(), new keypref(Integer.MAX_VALUE, ware));
-						}
-					});
-					list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
-				});
-			}
+				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+			});
 		});
 		popupWMenu.add(mntmCollectKeywords);
 
-		JMenuItem mntmSelectNone = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectNone.text")); //$NON-NLS-1$
-		mntmSelectNone.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				final AnywareListModel list = (AnywareListModel) tableW.getModel();
-				list.getList().getFilteredStream().forEach(ware -> {
-					ware.selected = false;
-				});
-				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
-			}
+		final var mntmSelectNone = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectNone.text")); //$NON-NLS-1$
+		mntmSelectNone.addActionListener(e -> {
+			final AnywareListModel list = (AnywareListModel) tableW.getModel();
+			list.getList().getFilteredStream().forEach(ware -> ware.setSelected(false));
+			list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		});
 		popupWMenu.add(mntmSelectNone);
 
-		JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectAll.text")); //$NON-NLS-1$
-		mntmSelectAll.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				final AnywareListModel list = (AnywareListModel) tableW.getModel();
-				list.getList().getFilteredStream().forEach(ware -> {
-					ware.selected = true;
-				});
-				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
-			}
+		final var mntmSelectAll = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectAll.text")); //$NON-NLS-1$
+		mntmSelectAll.addActionListener(e -> {
+			final AnywareListModel list = (AnywareListModel) tableW.getModel();
+			list.getList().getFilteredStream().forEach(ware -> ware.setSelected(true));
+			list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		});
 		popupWMenu.add(mntmSelectAll);
 
-		JMenuItem mntmSelectInvert = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectInvert.text")); //$NON-NLS-1$
-		mntmSelectInvert.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				final AnywareListModel list = (AnywareListModel) tableW.getModel();
-				list.getList().getFilteredStream().forEach(ware -> {
-					ware.selected ^= true;
-				});
-				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
-			}
+		final var mntmSelectInvert = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectInvert.text")); //$NON-NLS-1$
+		mntmSelectInvert.addActionListener(e -> {
+			final AnywareListModel list = (AnywareListModel) tableW.getModel();
+			list.getList().getFilteredStream().forEach(ware -> ware.setSelected(!ware.isSelected()));
+			list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		});
 		popupWMenu.add(mntmSelectInvert);
 
-		final JPanel panel = new JPanel();
+		final var panel = new JPanel();
 		splitPaneWLW.setLeftComponent(panel);
 		panel.setLayout(new BorderLayout(0, 0));
 
-		final JScrollPane scrollPaneWL = new JScrollPane();
+		final var scrollPaneWL = new JScrollPane();
 		panel.add(scrollPaneWL);
 
 		tableWL = new JTable();
@@ -455,53 +433,53 @@ public class ProfileViewer extends JDialog
 		tableWL.setShowVerticalLines(false);
 		tableWL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		final JPopupMenu popupMenu = new JPopupMenu();
+		final var popupMenu = new JPopupMenu();
 		ProfileViewer.addPopup(tableWL, popupMenu);
 
-		final JMenu mnExportAll = new JMenu(Messages.getString("ProfileViewer.ExportAll")); //$NON-NLS-1$
+		final var mnExportAll = new JMenu(Messages.getString("ProfileViewer.ExportAll")); //$NON-NLS-1$
 		popupMenu.add(mnExportAll);
 
-		final JMenu mnExportAllFiltered = new JMenu(Messages.getString("ProfileViewer.Filtered")); //$NON-NLS-1$
+		final var mnExportAllFiltered = new JMenu(Messages.getString("ProfileViewer.Filtered")); //$NON-NLS-1$
 		mnExportAll.add(mnExportAllFiltered);
 
-		final JMenuItem mntmFilteredAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
+		final var mntmFilteredAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsLogiqxDat);
 		mntmFilteredAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, true, null));
 
-		final JMenuItem mntmFilteredAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
+		final var mntmFilteredAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsMameDat);
 		mntmFilteredAsMameDat.addActionListener(e -> export(session, ExportType.MAME, true, null));
 
-		final JMenuItem mntmFilteredAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
+		final var mntmFilteredAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsSoftwareLists);
 		mntmFilteredAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, true, null));
 
-		final JMenuItem mntmAllAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
+		final var mntmAllAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
 		mntmAllAsLogiqxDat.setEnabled(false);
 		mnExportAll.add(mntmAllAsLogiqxDat);
 		mntmAllAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, false, null));
 
-		final JMenuItem mntmAllAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
+		final var mntmAllAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
 		mntmAllAsMameDat.setEnabled(false);
 		mnExportAll.add(mntmAllAsMameDat);
 		mntmAllAsMameDat.addActionListener(e -> export(session, ExportType.MAME, false, null));
 
-		final JMenuItem mntmAllAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
+		final var mntmAllAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
 		mntmAllAsSoftwareLists.setEnabled(false);
 		mnExportAll.add(mntmAllAsSoftwareLists);
 		mntmAllAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, false, null));
 
-		final JMenu mnExportSelected = new JMenu(Messages.getString("ProfileViewer.ExportSelected")); //$NON-NLS-1$
+		final var mnExportSelected = new JMenu(Messages.getString("ProfileViewer.ExportSelected")); //$NON-NLS-1$
 		popupMenu.add(mnExportSelected);
 
-		final JMenu mnExportSelectedFiltered = new JMenu(Messages.getString("ProfileViewer.Filtered")); //$NON-NLS-1$
+		final var mnExportSelectedFiltered = new JMenu(Messages.getString("ProfileViewer.Filtered")); //$NON-NLS-1$
 		mnExportSelected.add(mnExportSelectedFiltered);
 
-		final JMenuItem mntmSelectedFilteredAsSoftwareList = new JMenuItem(Messages.getString("ProfileViewer.AsSWListDat")); //$NON-NLS-1$
+		final var mntmSelectedFilteredAsSoftwareList = new JMenuItem(Messages.getString("ProfileViewer.AsSWListDat")); //$NON-NLS-1$
 		mnExportSelectedFiltered.add(mntmSelectedFilteredAsSoftwareList);
 		mntmSelectedFilteredAsSoftwareList.addActionListener(e -> export(session, ExportType.SOFTWARELIST, true, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
 
-		final JMenuItem mntmSelectedAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
+		final var mntmSelectedAsSoftwareLists = new JMenuItem(Messages.getString("ProfileViewer.AsSWListsDat")); //$NON-NLS-1$
 		mntmSelectedAsSoftwareLists.setEnabled(false);
 		mnExportSelected.add(mntmSelectedAsSoftwareLists);
 		mntmSelectedAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, false, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
@@ -511,11 +489,13 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void popupMenuCanceled(final PopupMenuEvent e)
 			{
+				// unused
 			}
 
 			@Override
 			public void popupMenuWillBecomeInvisible(final PopupMenuEvent e)
 			{
+				// unused
 			}
 
 			@Override
@@ -535,22 +515,22 @@ public class ProfileViewer extends JDialog
 			}
 		});
 
-		final JToolBar toolBarWL = new JToolBar();
+		final var toolBarWL = new JToolBar();
 		panel.add(toolBarWL, BorderLayout.SOUTH);
 
-		final JToggleButton tglbtnMissingWL = new JToggleButton(""); //$NON-NLS-1$
+		final var tglbtnMissingWL = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnMissingWL.setSelected(true);
 		tglbtnMissingWL.setIcon(MainFrame.getIcon("/jrm/resicons/disk_multiple_red.png")); //$NON-NLS-1$
 		tglbtnMissingWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnMissingWL.toolTipText")); //$NON-NLS-1$
 		toolBarWL.add(tglbtnMissingWL);
 
-		final JToggleButton tglbtnPartialWL = new JToggleButton(""); //$NON-NLS-1$
+		final var tglbtnPartialWL = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnPartialWL.setSelected(true);
 		tglbtnPartialWL.setIcon(MainFrame.getIcon("/jrm/resicons/disk_multiple_orange.png")); //$NON-NLS-1$
 		tglbtnPartialWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnPartialWL.toolTipText")); //$NON-NLS-1$
 		toolBarWL.add(tglbtnPartialWL);
 
-		final JToggleButton tglbtnCompleteWL = new JToggleButton(""); //$NON-NLS-1$
+		final var tglbtnCompleteWL = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnCompleteWL.setSelected(true);
 		tglbtnCompleteWL.setIcon(MainFrame.getIcon("/jrm/resicons/disk_multiple_green.png")); //$NON-NLS-1$
 		tglbtnCompleteWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteWL.toolTipText")); //$NON-NLS-1$
@@ -563,8 +543,8 @@ public class ProfileViewer extends JDialog
 		tableWL.getSelectionModel().addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting())
 			{
-				final ListSelectionModel model = (ListSelectionModel) e.getSource();
-				final TableModel tablemodel = tableWL.getModel();
+				final var model = (ListSelectionModel) e.getSource();
+				final var tablemodel = tableWL.getModel();
 				if (model != null && tablemodel != null)
 				{
 					if (!model.isSelectionEmpty())
@@ -583,7 +563,7 @@ public class ProfileViewer extends JDialog
 						});
 						if (tableW.getRowCount() > 0)
 							tableW.setRowSelectionInterval(0, 0);
-						for (int i = 0; i < tableW.getColumnModel().getColumnCount(); i++)
+						for (var i = 0; i < tableW.getColumnModel().getColumnCount(); i++)
 						{
 							final TableColumn column = tableW.getColumnModel().getColumn(i);
 							column.setCellRenderer(anywarelist.getColumnRenderer(i));
@@ -619,8 +599,8 @@ public class ProfileViewer extends JDialog
 					int row = target.getSelectedRow();
 					if (row >= 0)
 					{
-						final AnywareListModel tablemodel = (AnywareListModel) target.getModel();
-						final int column = target.columnAtPoint(e.getPoint());
+						final var tablemodel = (AnywareListModel) target.getModel();
+						final var column = target.columnAtPoint(e.getPoint());
 						final Object obj = tablemodel.getValueAt(row, column);
 						if (obj instanceof Anyware)
 						{
@@ -638,7 +618,7 @@ public class ProfileViewer extends JDialog
 							{
 								if (session.curr_profile != null)
 								{
-									final Profile profile = session.curr_profile;
+									final var profile = session.curr_profile;
 									if (profile.getNfo().mame.getStatus() == MameStatus.UPTODATE)
 									{
 										final ProfileNFOMame mame = profile.getNfo().mame;
@@ -653,16 +633,16 @@ public class ProfileViewer extends JDialog
 											if (profile.getProperty(SettingsEnum.swdisks_dest_dir_enabled, false)) //$NON-NLS-1$
 												rompaths.add(profile.getProperty(SettingsEnum.swdisks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
 											Log.debug(()->((Software) ware).sl.getBaseName() + ", " + ((Software) ware).compatibility); //$NON-NLS-1$
-											JList<Machine> machines = new JList<Machine>(profile.getMachineListList().getSortedMachines(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility).toArray(new Machine[0]));
+											JList<Machine> machines = new JList<>(profile.getMachineListList().getSortedMachines(((Software) ware).sl.getBaseName(), ((Software) ware).compatibility).toArray(new Machine[0]));
 											machines.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 											if (machines.getModel().getSize() > 0)
 												machines.setSelectedIndex(0);
 											JOptionPane.showMessageDialog(ProfileViewer.this, machines);
-											final Machine machine = machines.getSelectedValue();
+											final var machine = machines.getSelectedValue();
 											if (machine != null)
 											{
-												StringBuffer device = new StringBuffer(); //$NON-NLS-1$
-												for(Device dev : machine.devices)
+												final var device = new StringBuilder(); //$NON-NLS-1$
+												for(final var dev : machine.getDevices())
 												{
 													if(Objects.equals(((Software) ware).parts.get(0).intrface,dev.intrface))
 													{
@@ -719,13 +699,13 @@ public class ProfileViewer extends JDialog
 		tableW.getSelectionModel().addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting())
 			{
-				final ListSelectionModel model = (ListSelectionModel) e.getSource();
-				final TableModel tablemodel = tableW.getModel();
+				final var model = (ListSelectionModel) e.getSource();
+				final var tablemodel = tableW.getModel();
 				if (model != null && tablemodel != null)
 				{
 					if (!model.isSelectionEmpty())
 					{
-						final AnywareModel anyware = new AnywareModel((Anyware) tablemodel.getValueAt(model.getMinSelectionIndex(), 0));
+						final var anyware = new AnywareModel((Anyware) tablemodel.getValueAt(model.getMinSelectionIndex(), 0));
 						anyware.reset();
 						tableEntity.setModel(anyware);
 						tableEntity.setTableHeader(new JTableHeader(tableEntity.getColumnModel())
@@ -736,7 +716,7 @@ public class ProfileViewer extends JDialog
 								return columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getHeaderValue().toString();
 							}
 						});
-						for (int i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++)
+						for (var i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++)
 						{
 							final TableColumn column = tableEntity.getColumnModel().getColumn(i);
 							column.setCellRenderer(anyware.getColumnRenderer(i));
@@ -748,7 +728,7 @@ public class ProfileViewer extends JDialog
 							}
 							else if (width < 0)
 							{
-								final Component component = column.getCellRenderer().getTableCellRendererComponent(tableEntity, null, false, false, 0, i);
+								final var component = column.getCellRenderer().getTableCellRendererComponent(tableEntity, null, false, false, 0, i);
 								final int pixwidth = component.getFontMetrics(component.getFont()).stringWidth(String.format("%0" + (-width) + "d", 0)); //$NON-NLS-1$ //$NON-NLS-2$
 								column.setMinWidth(pixwidth / 2);
 								column.setPreferredWidth(pixwidth);
@@ -764,20 +744,20 @@ public class ProfileViewer extends JDialog
 			}
 		});
 
-		final JPanel panelEntity = new JPanel();
+		final var panelEntity = new JPanel();
 		splitPane.setRightComponent(panelEntity);
 		panelEntity.setLayout(new BorderLayout(0, 0));
 
-		final JToolBar toolBarEntity = new JToolBar();
+		final var toolBarEntity = new JToolBar();
 		panelEntity.add(toolBarEntity, BorderLayout.SOUTH);
 
-		final JToggleButton tglbtnBad = new JToggleButton(""); //$NON-NLS-1$
+		final var tglbtnBad = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnBad.setSelected(true);
 		tglbtnBad.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png")); //$NON-NLS-1$
 		tglbtnBad.setToolTipText(Messages.getString("ProfileViewer.tglbtnBad.toolTipText")); //$NON-NLS-1$
 		toolBarEntity.add(tglbtnBad);
 
-		final JToggleButton tglbtnOK = new JToggleButton(""); //$NON-NLS-1$
+		final var tglbtnOK = new JToggleButton(""); //$NON-NLS-1$
 		tglbtnOK.setSelected(true);
 		tglbtnOK.setToolTipText(Messages.getString("ProfileViewer.tglbtnOK.toolTipText")); //$NON-NLS-1$
 		tglbtnOK.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
@@ -786,76 +766,68 @@ public class ProfileViewer extends JDialog
 		tglbtnBad.addItemListener(e -> setFilterE(tglbtnBad.isSelected(), tglbtnOK.isSelected()));
 		tglbtnOK.addItemListener(e -> setFilterE(tglbtnBad.isSelected(), tglbtnOK.isSelected()));
 
-		final JScrollPane scrollPaneEntity = new JScrollPane();
+		final var scrollPaneEntity = new JScrollPane();
 		panelEntity.add(scrollPaneEntity, BorderLayout.CENTER);
 
 		scrollPaneEntity.setViewportView(tableEntity);
 		
-		JPopupMenu popupEntMenu = new JPopupMenu();
+		final var popupEntMenu = new JPopupMenu();
 		addPopup(tableEntity, popupEntMenu);
 		
-		JMenuItem mntmCopyCRC = new JMenuItem("Copy CRC");
-		mntmCopyCRC.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				val index  = tableEntity.getSelectedRow();
-				if(index>=0)
-				{
-					val crc = tableEntity.getModel().getValueAt(index, 3);
-					if(crc!=null)
-						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(crc.toString()),null);
-				}
+		final var mntmCopyCRC = new JMenuItem("Copy CRC");
+		mntmCopyCRC.addActionListener(e -> {
+			val index = tableEntity.getSelectedRow();
+			if (index >= 0)
+			{
+				val crc = tableEntity.getModel().getValueAt(index, 3);
+				if (crc != null)
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(crc.toString()), null);
 			}
 		});
 		popupEntMenu.add(mntmCopyCRC);
 		
-		JMenuItem mntmCopySHA1 = new JMenuItem("Copy SHA1");
-		mntmCopySHA1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				val index  = tableEntity.getSelectedRow();
-				if(index>=0)
-				{
-					val sha1 = tableEntity.getModel().getValueAt(index, 5);
-					if(sha1!=null)
-						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(sha1.toString()),null);
-				}
+		final var mntmCopySHA1 = new JMenuItem("Copy SHA1");
+		mntmCopySHA1.addActionListener(e -> {
+			val index = tableEntity.getSelectedRow();
+			if (index >= 0)
+			{
+				val sha1 = tableEntity.getModel().getValueAt(index, 5);
+				if (sha1 != null)
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(sha1.toString()), null);
 			}
 		});
 		popupEntMenu.add(mntmCopySHA1);
 		
-		JMenuItem mntmCopyName = new JMenuItem("Copy Name");
-		mntmCopyName.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				val index  = tableEntity.getSelectedRow();
-				if(index>=0)
-				{
-					val name = tableEntity.getModel().getValueAt(index, 1);
-					if(name!=null)
-						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(name.toString()),null);
-				}
+		final var mntmCopyName = new JMenuItem("Copy Name");
+		mntmCopyName.addActionListener(e -> {
+			val index = tableEntity.getSelectedRow();
+			if (index >= 0)
+			{
+				val name = tableEntity.getModel().getValueAt(index, 1);
+				if (name != null)
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(name.toString()), null);
 			}
 		});
 		popupEntMenu.add(mntmCopyName);
 		
-		JMenuItem mntmSearchWeb = new JMenuItem("Search on the Web");
-		mntmSearchWeb.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				val index  = tableEntity.getSelectedRow();
-				if(index>=0)
+		final var mntmSearchWeb = new JMenuItem("Search on the Web");
+		mntmSearchWeb.addActionListener(e -> {
+			val index = tableEntity.getSelectedRow();
+			if (index >= 0)
+			{
+				if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
 				{
-					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+					try
 					{
-						try
-						{
-							val name = tableEntity.getModel().getValueAt(index, 1).toString();
-							val crc = tableEntity.getModel().getValueAt(index, 3);
-							val sha1 = tableEntity.getModel().getValueAt(index, 5);
-							val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h.toString()).orElse("");
-							Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash));
-						}
-						catch (IOException | URISyntaxException e1)
-						{
-							Log.err(e1.getMessage(), e1);
-						}
+						val name = tableEntity.getModel().getValueAt(index, 1).toString();
+						val crc = tableEntity.getModel().getValueAt(index, 3);
+						val sha1 = tableEntity.getModel().getValueAt(index, 5);
+						val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h.toString()).orElse("");
+						Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash));
+					}
+					catch (IOException | URISyntaxException e1)
+					{
+						Log.err(e1.getMessage(), e1);
 					}
 				}
 			}
@@ -878,15 +850,13 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
 			{
-				// TODO Auto-generated method stub
-				
+				// unused
 			}
 			
 			@Override
 			public void popupMenuCanceled(PopupMenuEvent e)
 			{
-				// TODO Auto-generated method stub
-				
+				// unused
 			}
 		});
 
@@ -913,11 +883,11 @@ public class ProfileViewer extends JDialog
 	 */
 	private void export(final Session session, final ExportType type, final boolean filtered, final SoftwareList selection)
 	{
-		final FileNameExtensionFilter fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final var fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 			session.getUser().getSettings().setProperty("MainFrame.ChooseExeOrDatToExport", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
-			final File selectedfile = chooser.getSelectedFile();
-			final File file = fnef.accept(selectedfile) ? selectedfile : new File(selectedfile.getAbsolutePath() + ".xml"); //$NON-NLS-1$
+			final var selectedfile = chooser.getSelectedFile();
+			final var file = fnef.accept(selectedfile) ? selectedfile : new File(selectedfile.getAbsolutePath() + ".xml"); //$NON-NLS-1$
 			new SwingWorkerProgress<Void, Void>(ProfileViewer.this)
 			{
 				@Override
@@ -1014,13 +984,13 @@ public class ProfileViewer extends JDialog
 	 */
 	public void reset(final Profile profile)
 	{
-		final MachineListListModel model = new MachineListListModel(profile.getMachineListList());
+		final var model = new MachineListListModel(profile.getMachineListList());
 		model.reset();
 		if (tableWL.getModel() != model)
 			tableWL.setModel(model);
-		for (int i = 0; i < tableWL.getColumnModel().getColumnCount(); i++)
+		for (var i = 0; i < tableWL.getColumnModel().getColumnCount(); i++)
 		{
-			final TableColumn column = tableWL.getColumnModel().getColumn(i);
+			final var column = tableWL.getColumnModel().getColumn(i);
 			column.setCellRenderer(model.getColumnRenderer(i));
 			final int width = model.getColumnWidth(i);
 			if (width > 0)
@@ -1043,7 +1013,7 @@ public class ProfileViewer extends JDialog
 	 */
 	public void reload()
 	{
-		TableModel tablemodel = tableWL.getModel();
+		var tablemodel = tableWL.getModel();
 		if (tablemodel instanceof MachineListListModel)
 			((MachineListListModel) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((MachineListListModel) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		tablemodel = tableW.getModel();

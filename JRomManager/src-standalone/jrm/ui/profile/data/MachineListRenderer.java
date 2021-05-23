@@ -101,11 +101,11 @@ public final class MachineListRenderer
 			if(value instanceof Machine)
 			{
 				super.getTableCellRendererComponent(table, ((Machine) value).getBaseName(), isSelected, hasFocus, row, column);
-				if(((Machine) value).isbios)
+				if(((Machine) value).isIsbios())
 					setIcon(application_osx_terminal);
-				else if(((Machine) value).isdevice)
+				else if(((Machine) value).isIsdevice())
 					setIcon(computer);
-				else if(((Machine) value).ismechanical)
+				else if(((Machine) value).isIsmechanical())
 					setIcon(wrench);
 				else
 					setIcon(joystick);

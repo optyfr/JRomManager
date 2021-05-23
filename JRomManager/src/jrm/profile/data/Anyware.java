@@ -35,6 +35,8 @@ import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
+import lombok.Getter;
+import lombok.Setter;
 import one.util.streamex.StreamEx;
 
 /**
@@ -50,7 +52,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	/**
 	 * the name of the parent from which this instance is a clone, null if the instance is not a clone
 	 */
-	public String cloneof = null;
+	protected @Getter @Setter String cloneof = null;
 	/**
 	 * The description field, generally the complete name of the game
 	 */
@@ -63,25 +65,25 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	/**
 	 * The list of {@link Rom} entities related to this object
 	 */
-	public final Collection<Rom> roms = new ArrayList<>();
+	private final @Getter Collection<Rom> roms = new ArrayList<>();
 	/**
 	 * The list of {@link Disk} entities related to this object
 	 */
-	public final Collection<Disk> disks = new ArrayList<>();
+	private final @Getter Collection<Disk> disks = new ArrayList<>();
 	/**
 	 * The list of {@link Sample} entities related to this object
 	 */
-	public final Collection<Sample> samples = new ArrayList<>();
+	private final @Getter Collection<Sample> samples = new ArrayList<>();
 
 	/**
 	 * A hash table of clones if this object has clones
 	 */
-	public transient Map<String, Anyware> clones = new HashMap<>();
+	protected transient @Getter Map<String, Anyware> clones = new HashMap<>();
 
 	/**
 	 * Is that machine/software is *individually* selected for inclusion in your set ? (true by default)
 	 */
-	public boolean selected = true;
+	private @Getter @Setter boolean selected = true;
 
 	
 	/**
@@ -92,7 +94,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	/**
 	 * entities list cache (according current {@link Profile#filterEntities})
 	 */
-	private transient List<EntityBase> table_entities;
+	private transient List<EntityBase> tableEntities;
 
 	/**
 	 * The constructor, will initialize transients fields
@@ -121,7 +123,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	private void initTransient()
 	{
 		collision = false;
-		table_entities = null;
+		tableEntities = null;
 		roms.forEach(r->r.parent=this);
 		disks.forEach(d->d.parent=this);
 		samples.forEach(s->s.parent=this);
@@ -212,14 +214,14 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 			else // otherwise...
 			{
 				// concatenate my disks and all my clones disks into a stream
-				final List<Disk> disks_with_clones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).collect(Collectors.toList());
+				final List<Disk> disksWithClones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).collect(Collectors.toList());
 				// and mark for collision disks with same names but with different hash (this will change the way getName return disks names)
-				StreamEx.of(disks_with_clones).groupingBy(Disk::getName).forEach((n, l) -> {
+				StreamEx.of(disksWithClones).groupingBy(Disk::getName).forEach((n, l) -> {
 					if (l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
 						l.forEach(Disk::setCollisionMode);
 				});
 				// and finally remove real duplicate disks
-				stream = StreamEx.of(disks_with_clones).distinct(Disk::getName);
+				stream = StreamEx.of(disksWithClones).distinct(Disk::getName);
 			}
 		}
 		else // if not merging
@@ -259,9 +261,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 			else // otherwise...
 			{
 				// concatenate my roms and all my clones roms into a stream
-				final List<Rom> roms_with_clones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
+				final List<Rom> romsWithClones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
 				// and mark for collision roms with same names but with different hash (this will change the way getName return roms names)
-				StreamEx.of(roms_with_clones).groupingBy(Rom::getName).forEach((n, l) -> {
+				StreamEx.of(romsWithClones).groupingBy(Rom::getName).forEach((n, l) -> {
 					if (l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
 						l.forEach(Rom::setCollisionMode);
 				});
@@ -275,12 +277,12 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 					final LinkedHashMap<String , Rom> map = new LinkedHashMap<>();
 					roms.forEach(r -> map.put(r.hashString(), r));
 					clones.values().stream().sorted().forEach(w -> w.roms.stream().sorted().forEach(r -> map.putIfAbsent(r.hashString(), r)));
-					final List<Rom> clones_roms = new ArrayList<>(map.values());
-					clones_roms.removeAll(roms);
-					stream = Stream.concat(roms.stream(), clones_roms.stream());
+					final List<Rom> clonesRoms = new ArrayList<>(map.values());
+					clonesRoms.removeAll(roms);
+					stream = Stream.concat(roms.stream(), clonesRoms.stream());
 				}
 				else // finally remove real duplicate disks
-					stream = StreamEx.of(roms_with_clones).distinct(Rom::getName);
+					stream = StreamEx.of(romsWithClones).distinct(Rom::getName);
 			}
 		}
 		else // if not merging
@@ -400,7 +402,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public void resetCache()
 	{
-		table_entities = null;
+		tableEntities = null;
 	}
 
 	/**
@@ -418,9 +420,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public List<EntityBase> getEntities()
 	{
-		if (table_entities == null)
-			table_entities = Stream.of(roms.stream(), disks.stream(), samples.stream()).flatMap(s -> s).filter(t -> profile.getFilterEntities().contains(t.getStatus())).sorted().collect(Collectors.toList());
-		return table_entities;
+		if (tableEntities == null)
+			tableEntities = Stream.of(roms.stream(), disks.stream(), samples.stream()).flatMap(s -> s).filter(t -> profile.getFilterEntities().contains(t.getStatus())).sorted().collect(Collectors.toList());
+		return tableEntities;
 	}
 
 

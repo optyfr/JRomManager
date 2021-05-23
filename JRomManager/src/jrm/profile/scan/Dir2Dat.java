@@ -82,11 +82,11 @@ public class Dir2Dat
 						writer.writeStartElement("machine", //$NON-NLS-1$
 							new SimpleAttribute("name", name), //$NON-NLS-1$
 							new SimpleAttribute("isbios", machine!=null&&machine.isBios()?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
-							new SimpleAttribute("isdevice", machine!=null&&machine.isdevice?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
-							new SimpleAttribute("ismechanical", machine!=null&&machine.ismechanical?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
-							new SimpleAttribute("cloneof", machine!=null?machine.cloneof:null), //$NON-NLS-1$
-							new SimpleAttribute("romof", machine!=null?machine.romof:null), //$NON-NLS-1$
-							new SimpleAttribute("sampleof", machine!=null?machine.sampleof:null) //$NON-NLS-1$
+							new SimpleAttribute("isdevice", machine!=null&&machine.isIsdevice()?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+							new SimpleAttribute("ismechanical", machine!=null&&machine.isIsmechanical()?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+							new SimpleAttribute("cloneof", machine!=null?machine.getCloneof():null), //$NON-NLS-1$
+							new SimpleAttribute("romof", machine!=null?machine.getRomof():null), //$NON-NLS-1$
+							new SimpleAttribute("sampleof", machine!=null?machine.getSampleof():null) //$NON-NLS-1$
 						);
 						writer.writeElement("description", machine!=null?machine.description:name); //$NON-NLS-1$
 						writer.writeElement("year", machine!=null?machine.year:"????"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -159,9 +159,9 @@ public class Dir2Dat
 						writer.writeStartElement("game", //$NON-NLS-1$
 							new SimpleAttribute("name", name), //$NON-NLS-1$
 							new SimpleAttribute("isbios", machine!=null&&machine.isBios()?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
-							new SimpleAttribute("cloneof", machine!=null?machine.cloneof:null), //$NON-NLS-1$
-							new SimpleAttribute("romof", machine!=null?machine.romof:null), //$NON-NLS-1$
-							new SimpleAttribute("sampleof", machine!=null?machine.sampleof:null) //$NON-NLS-1$
+							new SimpleAttribute("cloneof", machine!=null?machine.getCloneof():null), //$NON-NLS-1$
+							new SimpleAttribute("romof", machine!=null?machine.getRomof():null), //$NON-NLS-1$
+							new SimpleAttribute("sampleof", machine!=null?machine.getSampleof():null) //$NON-NLS-1$
 						);
 						writer.writeElement("description", machine!=null?machine.description:name); //$NON-NLS-1$
 						writer.writeElement("year", machine!=null?machine.year:"????"); //$NON-NLS-1$ //$NON-NLS-2$
