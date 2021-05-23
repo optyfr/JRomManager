@@ -54,4 +54,10 @@ public abstract class Note implements HTMLRenderer,Serializable
 	{
 		return System.identityHashCode(this);
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
 }

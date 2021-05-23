@@ -46,6 +46,12 @@ public class SettingsGenPanel extends JPanel
 		}
 		
 		@Override
+		public int hashCode()
+		{
+			return super.hashCode();
+		}
+		
+		@Override
 		public boolean equals(Object obj)
 		{
 			if(obj == null)
@@ -60,7 +66,7 @@ public class SettingsGenPanel extends JPanel
 			ArrayList<ThreadCnt> list = new ArrayList<>();
 			list.add(new ThreadCnt(-1, "Adaptive"));
 			list.add(new ThreadCnt(0, "Max available"));
-			for(int i = 1; i <= Runtime.getRuntime().availableProcessors(); i++)
+			for(var i = 1; i <= Runtime.getRuntime().availableProcessors(); i++)
 				list.add(new ThreadCnt(i));
 			return list.toArray(ThreadCnt[]::new);
 		}
@@ -71,15 +77,15 @@ public class SettingsGenPanel extends JPanel
 	 */
 	public SettingsGenPanel(final Session session)
 	{
-		final GridBagLayout gbl_debug = new GridBagLayout();
+		final var gbl_debug = new GridBagLayout();
 		gbl_debug.columnWidths = new int[] { 50, 0, 10, 0 };
 		gbl_debug.rowHeights = new int[] { 0, 0, 0, 0 };
 		gbl_debug.columnWeights = new double[] { 1.0, 1.0, 1.0, Double.MIN_VALUE };
 		gbl_debug.rowWeights = new double[] { 1.0, 0.0, 1.0, Double.MIN_VALUE };
 		this.setLayout(gbl_debug);
 
-		JLabel lblThreading = new JLabel(Messages.getString("SettingsGenPanel.lblThreading.text")); //$NON-NLS-1$
-		final GridBagConstraints gbc_lblThreading = new GridBagConstraints();
+		final var lblThreading = new JLabel(Messages.getString("SettingsGenPanel.lblThreading.text")); //$NON-NLS-1$
+		final var gbc_lblThreading = new GridBagConstraints();
 		gbc_lblThreading.anchor = GridBagConstraints.EAST;
 		gbc_lblThreading.fill = GridBagConstraints.VERTICAL;
 		gbc_lblThreading.insets = new Insets(0, 0, 5, 5);
@@ -90,15 +96,15 @@ public class SettingsGenPanel extends JPanel
 		
 		
 		cbThreading = new JComboBox<>(new DefaultComboBoxModel<>(ThreadCnt.build()));
-		final GridBagConstraints gbc_cbThreading = new GridBagConstraints();
+		final var gbc_cbThreading = new GridBagConstraints();
 		gbc_cbThreading.insets = new Insets(0, 0, 5, 5);
 		gbc_cbThreading.fill = GridBagConstraints.HORIZONTAL;
 		gbc_cbThreading.gridx = 1;
 		gbc_cbThreading.gridy = 1;
 		this.add(cbThreading, gbc_cbThreading);
-		cbThreading.addActionListener(arg0 -> {
-			session.getUser().getSettings().setProperty(SettingsEnum.thread_count, ((ThreadCnt)cbThreading.getSelectedItem()).getCnt());
-		}); //$NON-NLS-1$
+		cbThreading.addActionListener(arg0 -> 
+			session.getUser().getSettings().setProperty(SettingsEnum.thread_count, ((ThreadCnt)cbThreading.getSelectedItem()).getCnt())
+		); //$NON-NLS-1$
 		cbThreading.setSelectedItem(new ThreadCnt(session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1)));
 	}
 

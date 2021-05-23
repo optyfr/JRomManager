@@ -20,16 +20,17 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import jrm.misc.SettingsEnum;
 import jrm.misc.ProfileSettings;
+import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
 import jrm.profile.scan.options.HashCollisionOptions;
@@ -53,11 +54,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	/**
 	 * The description field, generally the complete name of the game
 	 */
-	public final StringBuffer description = new StringBuffer();
+	public final StringBuilder description = new StringBuilder();
 	/**
 	 * The release year (may contain non numeric chars like question mark [?])
 	 */
-	public final StringBuffer year = new StringBuffer();
+	public final StringBuilder year = new StringBuilder();
 
 	/**
 	 * The list of {@link Rom} entities related to this object
@@ -75,7 +76,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	/**
 	 * A hash table of clones if this object has clones
 	 */
-	public transient HashMap<String, Anyware> clones = new HashMap<>();
+	public transient Map<String, Anyware> clones = new HashMap<>();
 
 	/**
 	 * Is that machine/software is *individually* selected for inclusion in your set ? (true by default)
@@ -96,7 +97,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public Anyware(Profile profile)
+	protected Anyware(Profile profile)
 	{
 		this.profile = profile;
 		initTransient();
@@ -354,11 +355,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public static boolean wouldMerge(final Anyware ware, final Entity e)
 	{
-		if (e.merge != null)
-			if (ware.isRomOf())
-				if (ware.getParent() != null && ware.getParent().selected)
-					return true;
-		return false;
+		return e.merge != null && ware.isRomOf() && ware.getParent() != null && ware.getParent().selected;
 	}
 
 	/**
@@ -371,15 +368,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public boolean containsInParent(final Anyware ware, final Rom r, final boolean onlyBios)
 	{
-		if (r.merge != null || profile.settings.implicit_merge)
+		if ((r.merge != null || profile.settings.implicit_merge) && ware.getParent() != null && ware.getParent().selected)
 		{
-			if (ware.getParent() != null && ware.getParent().selected)
-			{
-				if (!onlyBios || ware.getParent().isBios())
-					if (ware.getParent().roms.contains(r))
-						return true;
-				return containsInParent(ware.getParent(), r, onlyBios);
-			}
+			if ((!onlyBios || ware.getParent().isBios()) && ware.getParent().roms.contains(r))
+				return true;
+			return containsInParent(ware.getParent(), r, onlyBios);
 		}
 		return false;
 	}
@@ -393,14 +386,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public boolean containsInParent(final Anyware ware, final Disk d)
 	{
-		if (d.merge != null || profile.settings.implicit_merge)
+		if ((d.merge != null || profile.settings.implicit_merge) && ware.getParent() != null && ware.getParent().selected)
 		{
-			if (ware.getParent() != null && ware.getParent().selected)
-			{
-				if (ware.getParent().disks.contains(d))
-					return true;
-				return containsInParent(ware.getParent(), d);
-			}
+			if (ware.getParent().disks.contains(d))
+				return true;
+			return containsInParent(ware.getParent(), d);
 		}
 		return false;
 	}
@@ -417,7 +407,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 * Set a new Entity status set filter and reset list cache
 	 * @param filter the new entity status set filter to apply
 	 */
-	public void setFilterCache(final EnumSet<EntityStatus> filter)
+	public void setFilterCache(final Set<EntityStatus> filter)
 	{
 		profile.filterEntities = filter;
 	}
@@ -442,7 +432,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
-		boolean ok = false;
+		var ok = false;
 		for (final Disk disk : disks)
 		{
 			final EntityStatus estatus = disk.getStatus();
@@ -538,6 +528,12 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		return getParent(Anyware.class);
 	}
 
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{

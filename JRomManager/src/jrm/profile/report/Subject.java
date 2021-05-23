@@ -1,8 +1,6 @@
 package jrm.profile.report;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.util.AbstractList;
@@ -43,7 +41,7 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
-		final ObjectOutputStream.PutField fields = stream.putFields();
+		final var fields = stream.putFields();
 		fields.put("ware", ware); //$NON-NLS-1$
 		fields.put("notes", notes); //$NON-NLS-1$
 		stream.writeFields();
@@ -52,7 +50,7 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 	@SuppressWarnings("unchecked")
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
-		final ObjectInputStream.GetField fields = stream.readFields();
+		final var fields = stream.readFields();
 		ware = (AnywareBase) fields.get("ware", null); //$NON-NLS-1$
 		notes = (List<Note>) fields.get("notes", new ArrayList<>()); //$NON-NLS-1$
 		notes.forEach(n -> n.parent = this);
@@ -61,7 +59,7 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 	 * the public constructor with emptied {@link List}&lt;{@link Note}&gt;
 	 * @param machine The related {@link AnywareBase}
 	 */
-	public Subject(final AnywareBase machine)
+	protected Subject(final AnywareBase machine)
 	{
 		ware = machine;
 		notes = new ArrayList<>();
@@ -95,8 +93,7 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 	public boolean add(final Note note)
 	{
 		note.parent = this;
-		final boolean result = notes.add(note);
-		return result;
+		return notes.add(note);
 	}
 
 	/**
@@ -114,9 +111,6 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 	 * update Report Statistics
 	 */
 	public abstract void updateStats();
-
-	@Override
-	public abstract String getHTML();
 
 	@Override
 	public abstract String toString();
@@ -142,6 +136,12 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 	public int hashCode()
 	{
 		return System.identityHashCode(this);
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		return super.equals(o);
 	}
 
 }
