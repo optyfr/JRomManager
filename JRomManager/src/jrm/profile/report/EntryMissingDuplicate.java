@@ -84,4 +84,17 @@ public class EntryMissingDuplicate extends Note implements Serializable
 	{
 		return entity.getSha1();
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+
 }

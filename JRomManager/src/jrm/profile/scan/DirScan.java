@@ -724,7 +724,7 @@ public final class DirScan extends PathAbstractor
 			}
 			catch (ZipError | IOException e)
 			{
-				System.err.println(c.getRelFile() + " : " + e.getMessage()); //$NON-NLS-1$
+				Log.err(() -> c.getRelFile() + " : " + e.getMessage());
 			}
 		}
 		else

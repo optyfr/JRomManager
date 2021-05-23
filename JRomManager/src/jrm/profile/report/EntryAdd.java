@@ -52,7 +52,7 @@ public class EntryAdd extends Note implements Serializable
 	@Override
 	public String getDetail()
 	{
-		String msg="";
+		var msg="";
 		msg += "== Expected == \n";
 		msg += "Name : " + entity.getBaseName() + "\n";
 		if(entity instanceof Entity)
@@ -92,5 +92,17 @@ public class EntryAdd extends Note implements Serializable
 		if(entity instanceof Entity)
 			return ((Entity)entity).getSha1();
 		return null;
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
 	}
 }

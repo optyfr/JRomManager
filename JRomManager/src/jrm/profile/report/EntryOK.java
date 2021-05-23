@@ -80,4 +80,17 @@ public class EntryOK extends Note implements Serializable
 			return ((Entity)entity).getSha1();
 		return null;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+
 }

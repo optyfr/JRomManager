@@ -27,7 +27,7 @@ public class AnywareXMLResponse extends XMLResponse
 	}
 
 
-	private AnywareList<?> get_list(Operation operation) throws Exception
+	private AnywareList<?> get_list(Operation operation)
 	{
 		String list = operation.getData("list");
 		final AnywareList<?> al;
@@ -41,7 +41,7 @@ public class AnywareXMLResponse extends XMLResponse
 	}
 	
 
-	private Anyware get_ware(AnywareList<?> al, Operation operation) throws Exception
+	private Anyware get_ware(AnywareList<?> al, Operation operation)
 	{
 		String ware = operation.getData("ware");
 		final Anyware aw;
@@ -112,7 +112,7 @@ public class AnywareXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		final Set<String> lstatus = operation.hasData("status")?Stream.of(operation.getData("status").split(",")).collect(Collectors.toSet()):null;
-		final boolean reset = Boolean.valueOf(operation.getData("reset"));
+		final var reset = Boolean.parseBoolean(operation.getData("reset"));
 		final AnywareList<?> al = get_list(operation);
 		final Anyware aw = get_ware(al,operation);
 		if(aw!=null)
@@ -120,7 +120,7 @@ public class AnywareXMLResponse extends XMLResponse
 			if(reset)
 				aw.resetCache();
 			final List<EntityBase> faw = new ArrayList<>();
-			for(int i = 0; i < aw.count(); i++)
+			for(var i = 0; i < aw.count(); i++)
 			{
 				var a = aw.getObject(i);
 				if(lstatus!=null)

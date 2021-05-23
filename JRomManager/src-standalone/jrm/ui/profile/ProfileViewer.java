@@ -107,7 +107,6 @@ import jrm.ui.profile.filter.KeywordFilter;
 import jrm.ui.progress.SwingWorkerProgress;
 import lombok.val;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ProfileViewer.
  */
@@ -130,7 +129,7 @@ public class ProfileViewer extends JDialog
 	/**
 	 * The Class keypref.
 	 */
-	private class keypref
+	private class KeyPref
 	{
 		
 		/** The order. */
@@ -145,7 +144,7 @@ public class ProfileViewer extends JDialog
 		 * @param order the order
 		 * @param ware the ware
 		 */
-		private keypref(int order, Anyware ware)
+		private KeyPref(int order, Anyware ware)
 		{
 			this.order = order;
 			add(ware);
@@ -219,7 +218,6 @@ public class ProfileViewer extends JDialog
 
 		final var panelW = new JPanel();
 		splitPaneWLW.setRightComponent(panelW);
-		// panelWare.add(panelSL, BorderLayout.NORTH);
 		panelW.setLayout(new BorderLayout(0, 0));
 
 		final var toolBarW = new JToolBar();
@@ -243,23 +241,23 @@ public class ProfileViewer extends JDialog
 		tglbtnCompleteW.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteW.toolTipText")); //$NON-NLS-1$
 		toolBarW.add(tglbtnCompleteW);
 
-		final var panel_1 = new JPanel();
-		panel_1.setBorder(null);
-		toolBarW.add(panel_1);
-		final var gbl_panel_1 = new GridBagLayout();
-		gbl_panel_1.columnWidths = new int[] { 286, 166, 0 };
-		gbl_panel_1.rowHeights = new int[] { 20, 0 };
-		gbl_panel_1.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gbl_panel_1.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
-		panel_1.setLayout(gbl_panel_1);
+		final var panelSearch = new JPanel();
+		panelSearch.setBorder(null);
+		toolBarW.add(panelSearch);
+		final var gblPanelSearch = new GridBagLayout();
+		gblPanelSearch.columnWidths = new int[] { 286, 166, 0 };
+		gblPanelSearch.rowHeights = new int[] { 20, 0 };
+		gblPanelSearch.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+		gblPanelSearch.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
+		panelSearch.setLayout(gblPanelSearch);
 
 		final var lblSearch = new JLabel(Messages.getString("ProfileViewer.lblSearch.text")); //$NON-NLS-1$
-		final var gbc_lblSearch = new GridBagConstraints();
-		gbc_lblSearch.insets = new Insets(0, 0, 0, 5);
-		gbc_lblSearch.anchor = GridBagConstraints.EAST;
-		gbc_lblSearch.gridx = 0;
-		gbc_lblSearch.gridy = 0;
-		panel_1.add(lblSearch, gbc_lblSearch);
+		final var gbcLblSearch = new GridBagConstraints();
+		gbcLblSearch.insets = new Insets(0, 0, 0, 5);
+		gbcLblSearch.anchor = GridBagConstraints.EAST;
+		gbcLblSearch.gridx = 0;
+		gbcLblSearch.gridy = 0;
+		panelSearch.add(lblSearch, gbcLblSearch);
 
 		txtSearch = new JTextField();
 		txtSearch.addKeyListener(new KeyAdapter()
@@ -276,12 +274,12 @@ public class ProfileViewer extends JDialog
 				}
 			}
 		});
-		final var gbc_txtSearch = new GridBagConstraints();
-		gbc_txtSearch.fill = GridBagConstraints.VERTICAL;
-		gbc_txtSearch.anchor = GridBagConstraints.WEST;
-		gbc_txtSearch.gridx = 1;
-		gbc_txtSearch.gridy = 0;
-		panel_1.add(txtSearch, gbc_txtSearch);
+		final var gbcTxtSearch = new GridBagConstraints();
+		gbcTxtSearch.fill = GridBagConstraints.VERTICAL;
+		gbcTxtSearch.anchor = GridBagConstraints.WEST;
+		gbcTxtSearch.gridx = 1;
+		gbcTxtSearch.gridy = 0;
+		panelSearch.add(txtSearch, gbcTxtSearch);
 		txtSearch.setText(""); //$NON-NLS-1$
 		txtSearch.setColumns(20);
 
@@ -309,21 +307,18 @@ public class ProfileViewer extends JDialog
 		mntmCollectKeywords.addActionListener(e -> {
 			final var list = (AnywareListModel) tableW.getModel();
 			final var pattern = Pattern.compile("^(.*?)(\\(.*\\))++"); //$NON-NLS-1$
-			final var pattern_parenthesis = Pattern.compile("\\((.*?)\\)"); //$NON-NLS-1$
-			final var pattern_split = Pattern.compile(","); //$NON-NLS-1$
-			final var pattern_alpha = Pattern.compile("^[a-zA-Z]*$"); //$NON-NLS-1$
+			final var patternParenthesis = Pattern.compile("\\((.*?)\\)"); //$NON-NLS-1$
+			final var patternSplit = Pattern.compile(","); //$NON-NLS-1$
+			final var patternAlpha = Pattern.compile("^[a-zA-Z]*$"); //$NON-NLS-1$
 			final HashSet<String> keywords = new HashSet<>();
 			list.getList().getFilteredStream().forEach(ware -> {
 				final var matcher = pattern.matcher(ware.getDescription());
-				if (matcher.find())
+				if (matcher.find() && matcher.groupCount() > 1 && matcher.group(2) != null)
 				{
-					if (matcher.groupCount() > 1 && matcher.group(2) != null)
+					final var matcherParenthesis = patternParenthesis.matcher(matcher.group(2));
+					while (matcherParenthesis.find())
 					{
-						final var matcher_parenthesis = pattern_parenthesis.matcher(matcher.group(2));
-						while (matcher_parenthesis.find())
-						{
-							Arrays.asList(pattern_split.split(matcher_parenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
-						}
+						Arrays.asList(patternSplit.split(matcherParenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(patternAlpha.asPredicate()).forEach(keywords::add);
 					}
 				}
 			});
@@ -331,7 +326,7 @@ public class ProfileViewer extends JDialog
 				return s1.length() == s2.length() ? s1.compareToIgnoreCase(s2) : s1.length() - s2.length();
 			}).toArray(size -> new String[size]), f -> {
 				ArrayList<String> filter = f.getFilter();
-				HashMap<String, keypref> prefmap = new HashMap<>();
+				HashMap<String, KeyPref> prefmap = new HashMap<>();
 				list.getList().getFilteredStream().forEach(ware -> {
 					final var matcher = pattern.matcher(ware.getDescription());
 					keywords.clear();
@@ -339,10 +334,10 @@ public class ProfileViewer extends JDialog
 					{
 						if (matcher.groupCount() > 1 && matcher.group(2) != null)
 						{
-							final var matcher_parenthesis = pattern_parenthesis.matcher(matcher.group(2));
-							while (matcher_parenthesis.find())
+							final var matcherParenthesis = patternParenthesis.matcher(matcher.group(2));
+							while (matcherParenthesis.find())
 							{
-								Arrays.asList(pattern_split.split(matcher_parenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(pattern_alpha.asPredicate()).forEach(keywords::add);
+								Arrays.asList(patternSplit.split(matcherParenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(patternAlpha.asPredicate()).forEach(keywords::add);
 							}
 						}
 						ware.setSelected(false);
@@ -352,17 +347,17 @@ public class ProfileViewer extends JDialog
 							{
 								if (prefmap.containsKey(matcher.group(1)))
 								{
-									keypref pref = prefmap.get(matcher.group(1));
+									KeyPref pref = prefmap.get(matcher.group(1));
 									if (i < pref.order)
 									{
 										pref.clear();
-										prefmap.put(matcher.group(1), new keypref(i, ware));
+										prefmap.put(matcher.group(1), new KeyPref(i, ware));
 									}
 									else if (i == pref.order)
 										pref.add(ware);
 								}
 								else
-									prefmap.put(matcher.group(1), new keypref(i, ware));
+									prefmap.put(matcher.group(1), new KeyPref(i, ware));
 
 								break;
 							}
@@ -371,7 +366,7 @@ public class ProfileViewer extends JDialog
 					else
 					{
 						if (!prefmap.containsKey(ware.getDescription().toString()))
-							prefmap.put(ware.getDescription().toString(), new keypref(Integer.MAX_VALUE, ware));
+							prefmap.put(ware.getDescription().toString(), new KeyPref(Integer.MAX_VALUE, ware));
 					}
 				});
 				list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
@@ -501,7 +496,7 @@ public class ProfileViewer extends JDialog
 				final boolean has_selected_swlist = tableWL.getSelectedRowCount() == 1 && tableWL.getModel() instanceof AnywareListList<?> && ((MachineListListModel) tableWL.getModel()).getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
 				mntmAllAsMameDat.setEnabled(has_machines);
 				mntmAllAsLogiqxDat.setEnabled(has_machines);
-				mntmAllAsSoftwareLists.setEnabled(session.curr_profile.getMachineListList().softwarelist_list.size() > 0);
+				mntmAllAsSoftwareLists.setEnabled(!session.curr_profile.getMachineListList().softwarelist_list.isEmpty());
 				mntmFilteredAsMameDat.setEnabled(has_filtered_machines);
 				mntmFilteredAsLogiqxDat.setEnabled(has_filtered_machines);
 				mntmFilteredAsSoftwareLists.setEnabled(session.curr_profile.getMachineListList().softwarelist_list.getFilteredStream().count() > 0);
@@ -639,13 +634,10 @@ public class ProfileViewer extends JDialog
 												final var device = new StringBuilder(); //$NON-NLS-1$
 												for(final var dev : machine.getDevices())
 												{
-													if(Objects.equals(((Software) ware).parts.get(0).intrface,dev.intrface))
+													if (Objects.equals(((Software) ware).parts.get(0).intrface, dev.intrface) && dev.instance != null)
 													{
-														if(dev.instance!=null)
-														{
-															device.append("-" + dev.instance.name); //$NON-NLS-1$
-															break;
-														}
+														device.append("-" + dev.instance.name); //$NON-NLS-1$
+														break;
 													}
 												}
 												Log.debug(()->"-> " + machine.getBaseName() + " " + device + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -808,22 +800,19 @@ public class ProfileViewer extends JDialog
 		final var mntmSearchWeb = new JMenuItem("Search on the Web");
 		mntmSearchWeb.addActionListener(e -> {
 			val index = tableEntity.getSelectedRow();
-			if (index >= 0)
+			if (index >= 0 && Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
 			{
-				if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+				try
 				{
-					try
-					{
-						val name = tableEntity.getModel().getValueAt(index, 1).toString();
-						val crc = tableEntity.getModel().getValueAt(index, 3);
-						val sha1 = tableEntity.getModel().getValueAt(index, 5);
-						val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h.toString()).orElse("");
-						Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash));
-					}
-					catch (IOException | URISyntaxException e1)
-					{
-						Log.err(e1.getMessage(), e1);
-					}
+					val name = tableEntity.getModel().getValueAt(index, 1).toString();
+					val crc = tableEntity.getModel().getValueAt(index, 3);
+					val sha1 = tableEntity.getModel().getValueAt(index, 5);
+					val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h.toString()).orElse("");
+					Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash));
+				}
+				catch (IOException | URISyntaxException e1)
+				{
+					Log.err(e1.getMessage(), e1);
 				}
 			}
 		});

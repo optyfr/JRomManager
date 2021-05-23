@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -58,8 +59,8 @@ public class Import implements UnitRenderer
 	public Import(final Session session, final File file, final boolean sl, ProgressHandler progress)
 	{
 		org_file = file;
-		final File workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
-		final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
+		final var workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
+		final var xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 		xmldir.mkdir();
 
 		final String ext = FilenameUtils.getExtension(file.getName());
@@ -69,7 +70,8 @@ public class Import implements UnitRenderer
 			{
 				if((roms_file = importMame(file, false, progress)) != null)
 				{
-					this.file = ProfileNFO.saveJrm(IOUtils.createTempFile("JRM", ".jrm").toFile(), roms_file, sl_file = sl ? importMame(file, true, progress) : null); //$NON-NLS-1$ //$NON-NLS-2$
+					sl_file = sl ? importMame(file, true, progress) : null;
+					this.file = ProfileNFO.saveJrm(IOUtils.createTempFile("JRM", ".jrm").toFile(), roms_file, sl_file); //$NON-NLS-1$ //$NON-NLS-2$
 					is_mame = true;
 				}
 			}
@@ -92,18 +94,18 @@ public class Import implements UnitRenderer
 	 */
 	public File importMame(final File file, final boolean sl, ProgressHandler progress)
 	{
-		// Log.info("Get dat file from Mame...");
 		try
 		{
 			final var tmpfile = IOUtils.createTempFile("JRM", sl ? ".jrm2" : ".jrm1").toFile(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			tmpfile.deleteOnExit();
-			final Process process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$ //$NON-NLS-2$
+			final var process = new ProcessBuilder(file.getAbsolutePath(), sl ? "-listsoftware" : "-listxml").directory(file.getAbsoluteFile().getParentFile()).start(); //$NON-NLS-1$ //$NON-NLS-2$
 
-			long linecnt = 0, size = 0;
-			try(BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpfile), Charset.forName("UTF-8"))); BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));) //$NON-NLS-1$ //$NON-NLS-2$
+			var linecnt = 0;
+			var size = 0;
+			try(final var out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpfile), StandardCharsets.UTF_8)); BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				String line;
-				boolean xml = false;
+				var xml = false;
 				while(null != (line = in.readLine()))
 				{
 					// we need to skip occasional garbage before the xml start tag
@@ -112,7 +114,7 @@ public class Import implements UnitRenderer
 					if(xml)
 					{
 						out.write(line + "\n"); //$NON-NLS-1$
-						size += line.getBytes("UTF-8").length;
+						size += line.getBytes(StandardCharsets.UTF_8).length;
 						progress.setProgress(null, null, null, (sl ? "Reading Softwares list" : "Reading roms list") + " / " + (++linecnt) + " lines / " + humanReadableByteCount(size, false));
 					}
 				}

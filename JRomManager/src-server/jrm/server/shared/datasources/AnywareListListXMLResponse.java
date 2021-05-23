@@ -29,37 +29,43 @@ public class AnywareListListXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		final Set<String> lstatus = operation.hasData("status")?Stream.of(operation.getData("status").split(",")).collect(Collectors.toSet()):null;
-		final boolean reset = Boolean.parseBoolean(operation.getData("reset"));
-		final MachineListList mll = request.session.curr_profile.getMachineListList();
+		final var reset = Boolean.parseBoolean(operation.getData("reset"));
+		final var mll = request.session.curr_profile.getMachineListList();
 		if(mll!=null)
 		{
 			if(reset)
 				mll.resetCache();
 			final List<AnywareList<?>> fll = new ArrayList<>();
-			for(int i = 0; i < mll.count(); i++)
+			for(var i = 0; i < mll.count(); i++)
 			{
 				AnywareList<?> l = mll.getObject(i);
-				if(lstatus!=null)
-					if(!lstatus.contains(l.getStatus().toString()))
-						continue;
-				fll.add(l);
+				if (lstatus == null || lstatus.contains(l.getStatus().toString()))
+					fll.add(l);
 			}
-			fetch_list(operation, fll, (list, i) -> {
-				try
-				{
-					writer.writeElement("record", 
-						new SimpleAttribute("status", list.getStatus()),
-						new SimpleAttribute("name", list instanceof MachineList?"*":list.getBaseName()),
-						new SimpleAttribute("description", mll.getDescription(i)),
-						new SimpleAttribute("have", mll.getHaveTot(i))
-					);
-				}
-				catch (XMLStreamException e)
-				{
-					Log.err(e.getMessage(),e);
-				}
-			});
+			fetch_list(operation, fll, (list, i) -> writeRecord(mll, list, i));
 		}
 		writer.writeEndElement();
+	}
+
+	/**
+	 * @param mll
+	 * @param list
+	 * @param i
+	 */
+	private void writeRecord(final MachineListList mll, AnywareList<?> list, int i)
+	{
+		try
+		{
+			writer.writeElement("record", 
+				new SimpleAttribute("status", list.getStatus()),
+				new SimpleAttribute("name", list instanceof MachineList?"*":list.getBaseName()),
+				new SimpleAttribute("description", mll.getDescription(i)),
+				new SimpleAttribute("have", mll.getHaveTot(i))
+			);
+		}
+		catch (XMLStreamException e)
+		{
+			Log.err(e.getMessage(),e);
+		}
 	}
 }
