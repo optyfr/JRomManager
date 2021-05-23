@@ -27,6 +27,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -163,7 +165,14 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	 */
 	public void relocate(final Session session, final File file)
 	{
-		ProfileNFO.getFileNfo(session, this.file).delete();
+		try
+		{
+			Files.deleteIfExists(ProfileNFO.getFileNfo(session, this.file).toPath());
+		}
+		catch (IOException e)
+		{
+			Log.err(e.getMessage(), e);
+		}
 		this.file = file;
 		name = file.getName();
 		save(session);
@@ -189,7 +198,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 			}
 			catch (final Exception e)
 			{
-				// Log.err(e.getMessage(),e);
+				Log.err(e.getMessage(),e);
 			}
 		}
 		return new ProfileNFO(file);
@@ -203,12 +212,11 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 		if (isJRM())
 			try
 			{
-				long modified = file.lastModified();
-				saveJrm(file, mame.fileroms, mame.filesl);
-				if (modified != 0)
-					file.setLastModified(modified);
+				final var modified = Files.getLastModifiedTime(file.toPath());
+				saveJrm(file, mame.getFileroms(), mame.getFilesl());
+				Files.setLastModifiedTime(file.toPath(), modified);
 			}
-			catch (ParserConfigurationException | TransformerException e)
+			catch (ParserConfigurationException | TransformerException | IOException e)
 			{
 				Log.err(e.getMessage(), e);
 			}
@@ -264,10 +272,10 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 							switch (attributes.getQName(i).toLowerCase())
 							{
 								case "roms": //$NON-NLS-1$
-									mame.fileroms = new File(jrmfile.getParentFile(), attributes.getValue(i));
+									mame.setFileroms(new File(jrmfile.getParentFile(), attributes.getValue(i)));
 									break;
 								case "sl": //$NON-NLS-1$
-									mame.filesl = new File(jrmfile.getParentFile(), attributes.getValue(i));
+									mame.setFilesl(new File(jrmfile.getParentFile(), attributes.getValue(i)));
 									break;
 								default:
 									break;
@@ -336,13 +344,20 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	 */
 	public boolean delete()
 	{
-		if (file.delete())
+		try
 		{
-			mame.delete();
-			new File(file.getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
-			new File(file.getAbsolutePath() + ".nfo").delete(); //$NON-NLS-1$
-			new File(file.getAbsolutePath() + ".properties").delete(); //$NON-NLS-1$
-			return true;
+			if (Files.deleteIfExists(file.toPath()))
+			{
+				mame.delete();
+				Files.deleteIfExists(Paths.get(file.getAbsolutePath() + ".cache"));
+				Files.deleteIfExists(Paths.get(file.getAbsolutePath() + ".nfo"));
+				Files.deleteIfExists(Paths.get(file.getAbsolutePath() + ".properties"));
+				return true;
+			}
+		}
+		catch (IOException e)
+		{
+			Log.err(e.getMessage(), e);
 		}
 		return false;
 	}
@@ -393,16 +408,13 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 		if (dir != null && dir.exists())
 		{
 			final var filedir = dir;
-			if (filedir != null)
+			final File[] files = filedir.listFiles((dir1, name) -> {
+				final var f = new File(dir1, name);
+				return (f.isFile() && !Arrays.asList("cache", "properties", "nfo", "jrm1", "jrm2").contains(FilenameUtils.getExtension(name))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			});
+			if (files != null)
 			{
-				final File[] files = filedir.listFiles( (dir1, name) -> {
-					final var f = new File(dir1, name);
-					return (f.isFile() && !Arrays.asList("cache", "properties", "nfo", "jrm1", "jrm2").contains(FilenameUtils.getExtension(name))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-				});
-				if (files != null)
-				{
-					Arrays.asList(files).stream().map(f -> ProfileNFO.load(session, f)).forEach(rows::add);
-				}
+				Arrays.asList(files).stream().map(f -> ProfileNFO.load(session, f)).forEach(rows::add);
 			}
 		}
 		return rows;

@@ -1261,7 +1261,7 @@ public class Profile implements Serializable
 	{
 		Profile profile = null;
 		final var cachefile = session.getUser().getSettings().getCacheFile(nfo.file);
-		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.fileroms.lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, false)) // $NON-NLS-1$
+		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.getFileroms().lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, false)) // $NON-NLS-1$
 		{ // Load from cache if cachefile is not outdated and debug_nocache is disabled
 			handler.setInfos(1, null);
 			handler.setProgress(Messages.getString("Profile.LoadingCache"), -1); //$NON-NLS-1$
@@ -1286,11 +1286,11 @@ public class Profile implements Serializable
 			profile.nfo = nfo;
 			if (nfo.isJRM())
 			{ // we use JRM file keep ROMs/SL DATs in relation
-				if (nfo.mame.fileroms != null)
+				if (nfo.mame.getFileroms() != null)
 				{ // load ROMs dat
-					if (!nfo.mame.fileroms.exists() || !profile.internalLoad(nfo.mame.fileroms, handler))
+					if (!nfo.mame.getFileroms().exists() || !profile.internalLoad(nfo.mame.getFileroms(), handler))
 						return null;
-					if (nfo.mame.filesl != null && (!nfo.mame.filesl.exists() || !profile.internalLoad(nfo.mame.filesl, handler)))
+					if (nfo.mame.getFilesl() != null && (!nfo.mame.getFilesl().exists() || !profile.internalLoad(nfo.mame.getFilesl(), handler)))
 					{
 						// load SL dat (note that loading software list without ROMs dat is NOT
 						// recommended)

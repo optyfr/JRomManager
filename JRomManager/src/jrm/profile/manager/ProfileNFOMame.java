@@ -22,8 +22,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
+import java.nio.file.Files;
 
 import jrm.locale.Messages;
+import jrm.misc.Log;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Contains all mame related files informations
@@ -48,11 +52,11 @@ public final class ProfileNFOMame implements Serializable
 	/**
 	 * The ROMs Dat file
 	 */
-	public File fileroms = null;
+	private @Getter @Setter File fileroms = null;
 	/**
 	 * The Software List Dat file
 	 */
-	public File filesl = null;
+	private @Getter @Setter File filesl = null;
 
 	/**
 	 * fields declaration for manual serialization
@@ -77,7 +81,7 @@ public final class ProfileNFOMame implements Serializable
 	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
-		final ObjectOutputStream.PutField fields = stream.putFields();
+		final var fields = stream.putFields();
 		fields.put("file", file); //$NON-NLS-1$
 		fields.put("modified", modified); //$NON-NLS-1$
 		fields.put("sl", sl); //$NON-NLS-1$
@@ -239,9 +243,16 @@ public final class ProfileNFOMame implements Serializable
 	 */
 	public void delete()
 	{
-		if(fileroms!=null)
-			fileroms.delete();
-		if(filesl!=null)
-			filesl.delete();
+		try
+		{
+			if(fileroms!=null)
+				Files.deleteIfExists(fileroms.toPath());
+			if(filesl!=null)
+				Files.deleteIfExists(filesl.toPath());
+		}
+		catch (IOException e)
+		{
+			Log.err(e.getMessage(), e);
+		}
 	}
 }

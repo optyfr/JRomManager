@@ -20,7 +20,6 @@ import java.awt.Component;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -28,6 +27,7 @@ import jrm.locale.Messages;
 import jrm.profile.data.Machine;
 import jrm.profile.data.Samples;
 import jrm.ui.MainFrame;
+import jrm.ui.basic.CenteredTableCellRenderer;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -124,12 +124,7 @@ public final class MachineListRenderer
 			setToolTipText(getText());
 			return this;
 		};
-	}, new DefaultTableCellRenderer()
-	{
-		{
-			setHorizontalAlignment(SwingConstants.CENTER);
-		}
-	}, new DefaultTableCellRenderer()
+	}, new CenteredTableCellRenderer(), new DefaultTableCellRenderer()
 	{
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)

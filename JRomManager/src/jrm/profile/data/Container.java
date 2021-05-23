@@ -60,7 +60,7 @@ public class Container implements Serializable, Comparable<Container>
 	/**
 	 * keep entries by name
 	 */
-	public final HashMap<String, Entry> entries_byname = new HashMap<>();
+	public final Map<String, Entry> entries_byname = new HashMap<>();
 
 	/**
 	 * flag for scanning removal
@@ -118,7 +118,7 @@ public class Container implements Serializable, Comparable<Container>
 		 * Fake container
 		 */
 		FAKE
-	};
+	}
 
 	private @Getter Type type = Type.UNK;
 
@@ -167,10 +167,9 @@ public class Container implements Serializable, Comparable<Container>
 	 */
 	public Entry add(final Entry e)
 	{
-		Entry old_e;
-		if(null != (old_e = entries_byname.get(e.getFile())))
-			if(old_e.modified == e.modified && old_e.size == e.size)
-				return old_e;
+		Entry oldEntry;
+		if(null != (oldEntry = entries_byname.get(e.getFile())) && oldEntry.modified == e.modified && oldEntry.size == e.size)
+			return oldEntry;
 		entries_byname.put(e.getFile(), e);
 		e.parent = this;
 		return e;
@@ -219,9 +218,8 @@ public class Container implements Serializable, Comparable<Container>
 			case "7z": //$NON-NLS-1$
 				return Type.SEVENZIP;
 			case "rar": //$NON-NLS-1$
-				if(file.getName().contains(".part"))
-					if(!file.getName().endsWith(".part001.rar"))
-						return Type.UNK;
+				if(file.getName().contains(".part") && !file.getName().endsWith(".part001.rar"))
+					return Type.UNK;
 				return Type.RAR;
 		}
 		if(file.getName().endsWith(".7z.001"))
@@ -246,28 +244,26 @@ public class Container implements Serializable, Comparable<Container>
 		return 0;
 	}
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+	
 	public static Comparator<Container> comparator()
 	{
-		return new Comparator<Container>()
-		{
-			@Override
-			public int compare(Container o1, Container o2)
-			{
-				return o1.compareTo(o2);
-			}
-		};
+		return (o1, o2) ->  o1.compareTo(o2);
 	}
 
 	
 	public static Comparator<Container> rcomparator()
 	{
-		return new Comparator<Container>()
-		{
-			@Override
-			public int compare(Container o1, Container o2)
-			{
-				return -o1.compareTo(o2);
-			}
-		};
+		return (o1, o2) -> -o1.compareTo(o2);
 	}
 }

@@ -99,13 +99,13 @@ public class ProfileActions extends PathAbstractor
 		if (imprt.roms_file != null)
 		{
 			FileUtils.copyFileToDirectory(imprt.roms_file, parent);
-			pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
+			pnfo.mame.setFileroms(new File(parent, imprt.roms_file.getName()));
 			if (sl)
 			{
 				if (imprt.sl_file != null)
 				{
 					FileUtils.copyFileToDirectory(imprt.sl_file, parent);
-					pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
+					pnfo.mame.setFilesl(new File(parent, imprt.sl_file.getName()));
 				}
 				else
 					new GlobalActions(ws).warn("Could not import softwares list");

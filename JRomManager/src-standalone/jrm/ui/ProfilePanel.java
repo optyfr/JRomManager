@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collections;
@@ -98,25 +99,25 @@ public class ProfilePanel extends JPanel
 	 */
 	public ProfilePanel(final Session session)
 	{
-		final GridBagLayout gbl_profilesTab = new GridBagLayout();
+		final var gbl_profilesTab = new GridBagLayout();
 		gbl_profilesTab.columnWidths = new int[] { 0, 0 };
 		gbl_profilesTab.rowHeights = new int[] { 0, 0, 0 };
 		gbl_profilesTab.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
 		gbl_profilesTab.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		this.setLayout(gbl_profilesTab);
 
-		JSplitPane profilesPanel = new JSplitPane();
+		final var profilesPanel = new JSplitPane();
 		profilesPanel.setContinuousLayout(true);
 		profilesPanel.setResizeWeight(0.2);
 		profilesPanel.setOneTouchExpandable(true);
-		final GridBagConstraints gbc_profilesPanel = new GridBagConstraints();
+		final var gbc_profilesPanel = new GridBagConstraints();
 		gbc_profilesPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_profilesPanel.fill = GridBagConstraints.BOTH;
 		gbc_profilesPanel.gridx = 0;
 		gbc_profilesPanel.gridy = 0;
 		this.add(profilesPanel, gbc_profilesPanel);
 
-		JScrollPane scrollPane = new JScrollPane();
+		final var scrollPane = new JScrollPane();
 		profilesPanel.setRightComponent(scrollPane);
 
 		profilesList = new JTable();
@@ -129,9 +130,9 @@ public class ProfilePanel extends JPanel
 		profilesList.setPreferredScrollableViewportSize(new Dimension(400, 300));
 		profilesList.setFillsViewportHeight(true);
 		scrollPane.setViewportView(profilesList);
-		final FileTableModel filemodel = new FileTableModel();
+		final var filemodel = new FileTableModel();
 		profilesList.setModel(filemodel);
-		for (int i = 0; i < profilesList.getColumnCount(); i++)
+		for (var i = 0; i < profilesList.getColumnCount(); i++)
 		{
 			final TableColumn column = profilesList.getColumnModel().getColumn(i);
 			column.setCellRenderer(new FileTableCellRenderer());
@@ -160,7 +161,6 @@ public class ProfilePanel extends JPanel
 						getProfileLoader().loadProfile(session, filemodel.getNfoAt(row));
 					}
 				}
-				// super.mouseClicked(e);
 			}
 		});
 
@@ -171,28 +171,30 @@ public class ProfilePanel extends JPanel
 		profilesTree = new JTree();
 		scrollPane_1.setViewportView(profilesTree);
 
-		final DirTreeModel profilesTreeModel = new DirTreeModel(new DirNode(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile())); //$NON-NLS-1$
+		final var profilesTreeModel = new DirTreeModel(new DirNode(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile())); //$NON-NLS-1$
 		profilesTree.setModel(profilesTreeModel);
 		profilesTree.setRootVisible(true);
 		profilesTree.setShowsRootHandles(true);
 		profilesTree.setEditable(true);
-		final DirTreeCellRenderer profilesTreeRenderer = new DirTreeCellRenderer();
+		final var profilesTreeRenderer = new DirTreeCellRenderer();
 		profilesTree.setCellRenderer(profilesTreeRenderer);
 		profilesTree.setCellEditor(new DirTreeCellEditor(profilesTree, profilesTreeRenderer));
 		profilesTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		profilesTree.addTreeSelectionListener(new DirTreeSelectionListener(session, profilesList));
 
-		JPopupMenu popupMenu_1 = new JPopupMenu();
+		final var popupMenu_1 = new JPopupMenu();
 		popupMenu_1.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
 			public void popupMenuCanceled(final PopupMenuEvent e)
 			{
+				// not used
 			}
 
 			@Override
 			public void popupMenuWillBecomeInvisible(final PopupMenuEvent e)
 			{
+				// not used
 			}
 
 			@Override
@@ -216,11 +218,8 @@ public class ProfilePanel extends JPanel
 			if (row >= 0)
 			{
 				final ProfileNFO nfo = filemodel.getNfoAt(row);
-				if (session.curr_profile == null || !session.curr_profile.nfo.equals(nfo))
-				{
-					if (nfo.delete())
-						filemodel.populate(session);
-				}
+				if ((session.curr_profile == null || !session.curr_profile.nfo.equals(nfo)) && nfo.delete())
+					filemodel.populate(session);
 			}
 		});
 		mntmDeleteProfile.setIcon(MainFrame.getIcon("/jrm/resicons/icons/script_delete.png")); //$NON-NLS-1$
@@ -241,12 +240,19 @@ public class ProfilePanel extends JPanel
 		mntmDropCache.addActionListener(e -> {
 			final int row = profilesList.getSelectedRow();
 			if (row >= 0)
-				new File(filemodel.getFileAt(row).getAbsolutePath() + ".cache").delete(); //$NON-NLS-1$
+				try
+				{
+					Files.deleteIfExists(Paths.get(filemodel.getFileAt(row).getAbsolutePath() + ".cache"));
+				}
+				catch (IOException e1)
+				{
+					Log.err(e1.getMessage(), e1);
+				}
 		});
 		mntmDropCache.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bin.png")); //$NON-NLS-1$
 		popupMenu_1.add(mntmDropCache);
 
-		JSeparator separator = new JSeparator();
+		final var separator = new JSeparator();
 		popupMenu_1.add(separator);
 
 		mntmUpdateFromMame = new JMenuItem(Messages.getString("MainFrame.mntmUpdateFromMame.text")); //$NON-NLS-1$
@@ -279,12 +285,12 @@ public class ProfilePanel extends JPanel
 								{
 									Import imprt = get();
 									nfo.mame.delete();
-									nfo.mame.fileroms = new File(nfo.file.getParentFile(), imprt.roms_file.getName());
-									Files.copy(imprt.roms_file.toPath(), nfo.mame.fileroms.toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+									nfo.mame.setFileroms(new File(nfo.file.getParentFile(), imprt.roms_file.getName()));
+									Files.copy(imprt.roms_file.toPath(), nfo.mame.getFileroms().toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 									if (nfo.mame.isSL())
 									{
-										nfo.mame.filesl = new File(nfo.file.getParentFile(), imprt.sl_file.getName());
-										Files.copy(imprt.sl_file.toPath(), nfo.mame.filesl.toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+										nfo.mame.setFilesl(new File(nfo.file.getParentFile(), imprt.sl_file.getName()));
+										Files.copy(imprt.sl_file.toPath(), nfo.mame.getFilesl().toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 									}
 									nfo.mame.setUpdated();
 									nfo.stats.reset();
@@ -297,7 +303,6 @@ public class ProfilePanel extends JPanel
 								}
 							}
 						}.execute();
-						;
 					}
 				}
 				catch (final Exception e1)
@@ -309,17 +314,19 @@ public class ProfilePanel extends JPanel
 		popupMenu_1.add(mntmUpdateFromMame);
 		profilesTree.setSelectionRow(0);
 
-		JPopupMenu popupMenu = new JPopupMenu();
+		final var popupMenu = new JPopupMenu();
 		popupMenu.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
 			public void popupMenuCanceled(final PopupMenuEvent e)
 			{
+				// not used
 			}
 
 			@Override
 			public void popupMenuWillBecomeInvisible(final PopupMenuEvent e)
 			{
+				// not used
 			}
 
 			@Override
@@ -336,10 +343,10 @@ public class ProfilePanel extends JPanel
 			final DirNode selectedNode = (DirNode) profilesTree.getLastSelectedPathComponent();
 			if (selectedNode != null)
 			{
-				final DirNode newnode = new DirNode(new Dir(new File(selectedNode.getDir().getFile(), Messages.getString("MainFrame.NewFolder")))); //$NON-NLS-1$
+				final var newnode = new DirNode(new Dir(new File(selectedNode.getDir().getFile(), Messages.getString("MainFrame.NewFolder")))); //$NON-NLS-1$
 				selectedNode.add(newnode);
 				profilesTreeModel.reload(selectedNode);
-				final TreePath path = new TreePath(newnode.getPath());
+				final var path = new TreePath(newnode.getPath());
 				profilesTree.setSelectionPath(path);
 				profilesTree.startEditingAtPath(path);
 			}
@@ -354,21 +361,21 @@ public class ProfilePanel extends JPanel
 			{
 				final DirNode parent = (DirNode) selectedNode.getParent();
 				profilesTreeModel.removeNodeFromParent(selectedNode);
-				final TreePath path = new TreePath(parent.getPath());
+				final var path = new TreePath(parent.getPath());
 				profilesTree.setSelectionPath(path);
 			}
 		});
 		mntmDeleteFolder.setIcon(MainFrame.getIcon("/jrm/resicons/icons/folder_delete.png")); //$NON-NLS-1$
 		popupMenu.add(mntmDeleteFolder);
 
-		JPanel profilesBtnPanel = new JPanel();
-		final GridBagConstraints gbc_profilesBtnPanel = new GridBagConstraints();
+		final var profilesBtnPanel = new JPanel();
+		final var gbc_profilesBtnPanel = new GridBagConstraints();
 		gbc_profilesBtnPanel.fill = GridBagConstraints.HORIZONTAL;
 		gbc_profilesBtnPanel.gridx = 0;
 		gbc_profilesBtnPanel.gridy = 1;
 		this.add(profilesBtnPanel, gbc_profilesBtnPanel);
 
-		JButton btnLoadProfile = new JButton(Messages.getString("MainFrame.btnLoadProfile.text")); //$NON-NLS-1$
+		final var btnLoadProfile = new JButton(Messages.getString("MainFrame.btnLoadProfile.text")); //$NON-NLS-1$
 		btnLoadProfile.setIcon(MainFrame.getIcon("/jrm/resicons/icons/add.png")); //$NON-NLS-1$
 		btnLoadProfile.setEnabled(false);
 		btnLoadProfile.addActionListener(e -> {
@@ -376,12 +383,12 @@ public class ProfilePanel extends JPanel
 		});
 		profilesBtnPanel.add(btnLoadProfile);
 
-		JButton btnImportDat = new JButton(Messages.getString("MainFrame.btnImportDat.text")); //$NON-NLS-1$
+		final var btnImportDat = new JButton(Messages.getString("MainFrame.btnImportDat.text")); //$NON-NLS-1$
 		btnImportDat.setIcon(MainFrame.getIcon("/jrm/resicons/icons/script_go.png")); //$NON-NLS-1$
 		btnImportDat.addActionListener(e -> importDat(session, false));
 		profilesBtnPanel.add(btnImportDat);
 
-		JButton btnImportSL = new JButton(Messages.getString("MainFrame.btnImportSL.text")); //$NON-NLS-1$
+		final var btnImportSL = new JButton(Messages.getString("MainFrame.btnImportSL.text")); //$NON-NLS-1$
 		btnImportSL.addActionListener(e -> importDat(session, true));
 		btnImportSL.setIcon(MainFrame.getIcon("/jrm/resicons/icons/application_go.png")); //$NON-NLS-1$
 		profilesBtnPanel.add(btnImportSL);
@@ -434,18 +441,18 @@ public class ProfilePanel extends JPanel
 					{
 						if (!imprt.is_mame)
 						{
-							File curr_dir = ((FileTableModel) profilesList.getModel()).curr_dir.getFile();
-							File file = new File(curr_dir, imprt.file.getName());
+							final var curr_dir = ((FileTableModel) profilesList.getModel()).curr_dir.getFile();
+							var file = new File(curr_dir, imprt.file.getName());
 							int mode = -1;
 							if (file.exists())
 							{
-								String[] options = { "Overwrite", "Auto Rename", "File Chooser", "Cancel" };
+								final var options = new String[] { "Overwrite", "Auto Rename", "File Chooser", "Cancel" };
 								mode = JOptionPane.showOptionDialog(ProfilePanel.this, "File already exists, choose what to do", "File already exists", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 								if (mode == 1)
 								{
-									for (int i = 1;; i++)
+									for (var i = 1;; i++)
 									{
-										final File test_file = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + '_' + i + '.' + FilenameUtils.getExtension(file.getName()));
+										final var test_file = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + '_' + i + '.' + FilenameUtils.getExtension(file.getName()));
 										if (!test_file.exists())
 										{
 											file = test_file;
@@ -470,32 +477,32 @@ public class ProfilePanel extends JPanel
 								}
 							}
 						}
-						final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
-						final File xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
+						final var workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
+						final var xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 						new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false).show(SwingUtilities.getWindowAncestor(ProfilePanel.this), chooser1 -> {
 							try
 							{
-								final File file = chooser1.getSelectedFile();
-								final File parent = file.getParentFile();
+								final var file = chooser1.getSelectedFile();
+								final var parent = file.getParentFile();
 								FileUtils.copyFile(imprt.file, file);
 								if (imprt.is_mame)
 								{
-									final ProfileNFO pnfo = ProfileNFO.load(session, file);
+									final var pnfo = ProfileNFO.load(session, file);
 									pnfo.mame.set(imprt.org_file, sl);
 									if (imprt.roms_file != null)
 									{
 										FileUtils.copyFileToDirectory(imprt.roms_file, parent);
-										pnfo.mame.fileroms = new File(parent, imprt.roms_file.getName());
+										pnfo.mame.setFileroms(new File(parent, imprt.roms_file.getName()));
 										if (imprt.sl_file != null)
 										{
 											FileUtils.copyFileToDirectory(imprt.sl_file, parent);
-											pnfo.mame.filesl = new File(parent, imprt.sl_file.getName());
+											pnfo.mame.setFilesl(new File(parent, imprt.sl_file.getName()));
 										}
 									}
 									pnfo.save(session);
 								}
-								final DirTreeModel model = (DirTreeModel) profilesTree.getModel();
-								final DirNode root = (DirNode) model.getRoot();
+								final var model = (DirTreeModel) profilesTree.getModel();
+								final var root = (DirNode) model.getRoot();
 								DirNode theNode = root.find(parent);
 								if (theNode != null)
 								{
