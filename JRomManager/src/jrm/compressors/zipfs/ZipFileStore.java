@@ -1,24 +1,25 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
- * This code is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License version 2 only, as published by
- * the Free Software Foundation. Oracle designates this particular file as
- * subject to the "Classpath" exception as provided by Oracle in the LICENSE
- * file that accompanied this code.
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License version 2 for more
- * details (a copy is included in the LICENSE file that accompanied this code).
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
  *
- * You should have received a copy of the GNU General Public License version 2
- * along with this work; if not, write to the Free Software Foundation, Inc., 51
- * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA or
- * visit www.oracle.com if you need additional information or have any
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
 
@@ -33,118 +34,102 @@ import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
 
-/*
- *
+/**
  * @author Xueming Shen, Rajendra Gutupalli, Jaya Hangal
  */
+class ZipFileStore extends FileStore {
 
-class ZipFileStore extends FileStore
-{
+    private final ZipFileSystem zfs;
 
-	private final ZipFileSystem zfs;
+    ZipFileStore(ZipPath zpath) {
+        this.zfs = zpath.getFileSystem();
+    }
 
-	ZipFileStore(ZipPath zpath)
-	{
-		this.zfs = zpath.getFileSystem();
-	}
+    @Override
+    public String name() {
+        return zfs.toString() + "/";
+    }
 
-	@Override
-	public String name()
-	{
-		return zfs.toString() + "/"; //$NON-NLS-1$
-	}
+    @Override
+    public String type() {
+        return "zipfs";
+    }
 
-	@Override
-	public String type()
-	{
-		return "zipfs"; //$NON-NLS-1$
-	}
+    @Override
+    public boolean isReadOnly() {
+        return zfs.isReadOnly();
+    }
 
-	@Override
-	public boolean isReadOnly()
-	{
-		return zfs.isReadOnly();
-	}
+    @Override
+    public boolean supportsFileAttributeView(Class<? extends FileAttributeView> type) {
+        return (type == BasicFileAttributeView.class ||
+                type == ZipFileAttributeView.class);
+    }
 
-	@Override
-	public boolean supportsFileAttributeView(Class<? extends FileAttributeView> type)
-	{
-		return (type == BasicFileAttributeView.class || type == ZipFileAttributeView.class);
-	}
+    @Override
+    public boolean supportsFileAttributeView(String name) {
+        return name.equals("basic") || name.equals("zip");
+    }
 
-	@Override
-	public boolean supportsFileAttributeView(String name)
-	{
-		return name.equals("basic") || name.equals("zip"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
+    @Override
+    public <V extends FileStoreAttributeView> V getFileStoreAttributeView(Class<V> type) {
+        if (type == null)
+            throw new NullPointerException();
+        return (V)null;
+    }
 
-	@Override
-	public <V extends FileStoreAttributeView> V getFileStoreAttributeView(Class<V> type)
-	{
-		if (type == null)
-			throw new NullPointerException();
-		return (V) null;
-	}
+    @Override
+    public long getTotalSpace() throws IOException {
+         return new ZipFileStoreAttributes(this).totalSpace();
+    }
 
-	@Override
-	public long getTotalSpace() throws IOException
-	{
-		return new ZipFileStoreAttributes(this).totalSpace();
-	}
+    @Override
+    public long getUsableSpace() throws IOException {
+         return new ZipFileStoreAttributes(this).usableSpace();
+    }
 
-	@Override
-	public long getUsableSpace() throws IOException
-	{
-		return new ZipFileStoreAttributes(this).usableSpace();
-	}
+    @Override
+    public long getUnallocatedSpace() throws IOException {
+         return new ZipFileStoreAttributes(this).unallocatedSpace();
+    }
 
-	@Override
-	public long getUnallocatedSpace() throws IOException
-	{
-		return new ZipFileStoreAttributes(this).unallocatedSpace();
-	}
+    @Override
+    public Object getAttribute(String attribute) throws IOException {
+         if (attribute.equals("totalSpace"))
+               return getTotalSpace();
+         if (attribute.equals("usableSpace"))
+               return getUsableSpace();
+         if (attribute.equals("unallocatedSpace"))
+               return getUnallocatedSpace();
+         throw new UnsupportedOperationException("does not support the given attribute");
+    }
 
-	@Override
-	public Object getAttribute(String attribute) throws IOException
-	{
-		if (attribute.equals("totalSpace")) //$NON-NLS-1$
-			return getTotalSpace();
-		if (attribute.equals("usableSpace")) //$NON-NLS-1$
-			return getUsableSpace();
-		if (attribute.equals("unallocatedSpace")) //$NON-NLS-1$
-			return getUnallocatedSpace();
-		throw new UnsupportedOperationException("does not support the given attribute"); //$NON-NLS-1$
-	}
+    private static class ZipFileStoreAttributes {
+        final FileStore fstore;
+        final long size;
 
-	private static class ZipFileStoreAttributes
-	{
-		final FileStore fstore;
-		final long size;
+        public ZipFileStoreAttributes(ZipFileStore fileStore)
+            throws IOException
+        {
+            Path path = FileSystems.getDefault().getPath(fileStore.name());
+            this.size = Files.size(path);
+            this.fstore = Files.getFileStore(path);
+        }
 
-		public ZipFileStoreAttributes(ZipFileStore fileStore) throws IOException
-		{
-			Path path = FileSystems.getDefault().getPath(fileStore.name());
-			this.size = Files.size(path);
-			this.fstore = Files.getFileStore(path);
-		}
+        public long totalSpace() {
+            return size;
+        }
 
-		public long totalSpace()
-		{
-			return size;
-		}
+        public long usableSpace() throws IOException {
+            if (!fstore.isReadOnly())
+                return fstore.getUsableSpace();
+            return 0;
+        }
 
-		public long usableSpace() throws IOException
-		{
-			if (!fstore.isReadOnly())
-				return fstore.getUsableSpace();
-			return 0;
-		}
-
-		public long unallocatedSpace() throws IOException
-		{
-			if (!fstore.isReadOnly())
-				return fstore.getUnallocatedSpace();
-			return 0;
-		}
-	}
+        public long unallocatedSpace()  throws IOException {
+            if (!fstore.isReadOnly())
+                return fstore.getUnallocatedSpace();
+            return 0;
+        }
+    }
 }
