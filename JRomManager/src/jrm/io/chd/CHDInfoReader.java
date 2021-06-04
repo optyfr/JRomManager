@@ -18,7 +18,6 @@ package jrm.io.chd;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
@@ -32,33 +31,35 @@ public class CHDInfoReader implements CHDHeaderIntf
 {
 	CHDHeaderIntf header;
 
-	public CHDInfoReader(final File chdfile) throws FileNotFoundException, IOException
+	public CHDInfoReader(final File chdfile) throws IOException
 	{
-		try(FileInputStream is = new FileInputStream(chdfile))
+		try(final var is = new FileInputStream(chdfile))
 		{
 			// Memory maps a ByteBuffer of 1kB onto CHD file
 			final MappedByteBuffer bb = is.getChannel().map(MapMode.READ_ONLY, 0, Math.min(1024, chdfile.length()));
 			// Will read informations that are common to all CHD header versions (start tag and version)
-			final CHDHeader header = new CHDHeader(bb);
-			this.header = header;
-			if(header.isValidTag())
+			final var hdr = new CHDHeader(bb);
+			this.header = hdr;
+			if(hdr.isValidTag())
 			{
-				switch(header.getVersion())
+				switch(hdr.getVersion())
 				{
 					case 1:
-						this.header = new CHDHeaderV1(bb, header);
+						this.header = new CHDHeaderV1(bb, hdr);
 						break;
 					case 2:
-						this.header = new CHDHeaderV2(bb, header);
+						this.header = new CHDHeaderV2(bb, hdr);
 						break;
 					case 3:
-						this.header = new CHDHeaderV3(bb, header);
+						this.header = new CHDHeaderV3(bb, hdr);
 						break;
 					case 4:
-						this.header = new CHDHeaderV4(bb, header);
+						this.header = new CHDHeaderV4(bb, hdr);
 						break;
 					case 5:
-						this.header = new CHDHeaderV5(bb, header);
+						this.header = new CHDHeaderV5(bb, hdr);
+						break;
+					default:
 						break;
 				}
 			}

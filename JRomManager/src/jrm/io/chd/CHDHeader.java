@@ -1,7 +1,7 @@
 package jrm.io.chd;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.MappedByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /* Copyright (C) 2018  optyfr
 *
@@ -25,13 +25,13 @@ class CHDHeader implements CHDHeaderIntf
 	protected int len = 0;
 	protected int version = 0;
 
-	public CHDHeader(final MappedByteBuffer bb) throws UnsupportedEncodingException
+	public CHDHeader(final MappedByteBuffer bb)
 	{
 		if (bb.remaining() >= 16)
 		{
-			final byte[] tag = new byte[8];
-			bb.get(tag);
-			this.tag = new String(tag, "ASCII"); //$NON-NLS-1$
+			final var t = new byte[8];
+			bb.get(t);
+			this.tag = new String(t, StandardCharsets.US_ASCII); //$NON-NLS-1$
 			len = bb.getInt();
 			version = bb.getInt();
 		}
@@ -57,11 +57,11 @@ class CHDHeader implements CHDHeaderIntf
 		return version;
 	}
 
-	private final static char[] hexArray = "0123456789abcdef".toCharArray(); //$NON-NLS-1$
+	private static final char[] hexArray = "0123456789abcdef".toCharArray(); //$NON-NLS-1$
 	protected static String bytesToHex(final byte[] bytes)
 	{
-		final char[] hexChars = new char[bytes.length * 2];
-		for (int j = 0; j < bytes.length; j++)
+		final var hexChars = new char[bytes.length * 2];
+		for (var j = 0; j < bytes.length; j++)
 		{
 			final int v = bytes[j] & 0xFF;
 			hexChars[j * 2] = CHDHeader.hexArray[v >>> 4];

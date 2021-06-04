@@ -96,7 +96,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 	 */
 	private transient FilterPredicate filterPredicate = new FilterPredicate(new ArrayList<>());
 
-	public final static class ChildData implements Serializable
+	public static final class ChildData implements Serializable
 	{
 		private static final long serialVersionUID = 1L;
 		public String title;
@@ -173,9 +173,9 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 			return sb.toString();
 		}
 		
-		public Child clone()
+		public Child copy()
 		{
-			final Child node = new Child();
+			final var node = new Child();
 			node.uid = this.uid;
 			node.children = this.children;
 			node.parent = this.parent;

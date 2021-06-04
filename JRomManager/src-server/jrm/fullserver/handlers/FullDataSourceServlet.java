@@ -9,9 +9,10 @@ import jrm.fullserver.datasources.AdminXMLResponse;
 import jrm.server.shared.TempFileInputStream;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.datasources.XMLRequest;
+import jrm.server.shared.handlers.DataSourceServlet;
 
 @SuppressWarnings("serial")
-public class DataSourceServlet extends jrm.server.shared.handlers.DataSourceServlet
+public class FullDataSourceServlet extends DataSourceServlet
 {
 	@Override
 	protected TempFileInputStream processResponse(WebSession sess, HttpServletRequest req, HttpServletResponse resp) throws Exception

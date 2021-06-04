@@ -2,6 +2,7 @@ package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.EnumSet;
 
 import com.eclipsesource.json.JsonObject;
 
@@ -30,41 +31,38 @@ public class TrntChkActions
 		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
 			final var mode = TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode, "FILENAME"));
-			final boolean removeUnknownFiles = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, false);
-			final boolean removeWrongSizedFiles = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, false);
-			final boolean detectArchivedFolders = session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, true);
+			final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
+			if (session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, false))
+				opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
+			if (session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, false))
+				opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
+			if (session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, true))
+				opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
 
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
 				SDRList sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]"));
-				try
+				new TorrentChecker(session, session.getWorker().progress, sdrl, mode, new ResultColUpdater()
 				{
-					new TorrentChecker(session, session.getWorker().progress, sdrl, mode, new ResultColUpdater()
+					@Override
+					public void updateResult(int row, String result)
 					{
-						@Override
-						public void updateResult(int row, String result)
-						{
-							sdrl.get(row).result = result;
-							session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
-							session.getUser().getSettings().saveSettings();
-							TrntChkActions.this.updateResult(row, result);
-						}
-						
-						@Override
-						public void clearResults()
-						{
-							sdrl.forEach(sdr -> sdr.result = "");
-							session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
-							session.getUser().getSettings().saveSettings();
-							TrntChkActions.this.clearResults();
-						}
-					}, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
-				}
-				catch (IOException e)
-				{
-					Log.err(e.getMessage(),e);
-				}
+						sdrl.get(row).result = result;
+						session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
+						session.getUser().getSettings().saveSettings();
+						TrntChkActions.this.updateResult(row, result);
+					}
+					
+					@Override
+					public void clearResults()
+					{
+						sdrl.forEach(sdr -> sdr.result = "");
+						session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
+						session.getUser().getSettings().saveSettings();
+						TrntChkActions.this.clearResults();
+					}
+				}, opts);
 			}
 			catch(BreakException e)
 			{

@@ -116,7 +116,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		handler = new ReportTreeDefaultHandler(this);
 	}
 
-	public class Stats implements Serializable,Cloneable
+	public static class Stats implements Serializable
 	{
 		private static final long serialVersionUID = 1L;
 		
@@ -135,12 +135,28 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		public int set_create_partial = 0;
 		public int set_create_complete = 0;
 
-		@Override
-		public Stats clone() throws CloneNotSupportedException
+		public Stats(Stats org)
 		{
-			return (Stats)super.clone();
+			this.missing_set_cnt = org.missing_set_cnt;
+			this.missing_roms_cnt = org.missing_roms_cnt;
+			this.missing_disks_cnt = org.missing_disks_cnt;
+			this.missing_samples_cnt = org.missing_samples_cnt;
+			this.set_unneeded = org.set_unneeded;
+			this.set_missing = org.set_missing;
+			this.set_found = org.set_found;
+			this.set_found_ok = org.set_found_ok;
+			this.set_found_fixpartial = org.set_found_fixpartial;
+			this.set_found_fixcomplete = org.set_found_fixcomplete;
+			this.set_create = org.set_create;
+			this.set_create_partial = org.set_create_partial;
+			this.set_create_complete = org.set_create_complete;
 		}
 		
+		public Stats()
+		{
+			
+		}
+				
 		/**
 		 * clear stats
 		 */

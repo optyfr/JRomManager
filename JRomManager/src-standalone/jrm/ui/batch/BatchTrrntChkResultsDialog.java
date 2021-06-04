@@ -18,7 +18,7 @@ import jrm.security.Session;
 @SuppressWarnings("serial")
 public class BatchTrrntChkResultsDialog extends JDialog
 {
-	Window parent;
+	Window parentWindow;
 	
 	/**
 	 * Create the dialog.
@@ -26,7 +26,7 @@ public class BatchTrrntChkResultsDialog extends JDialog
 	public BatchTrrntChkResultsDialog(final Session session, Window parent, TrntChkReport results)
 	{
 		super(parent);
-		this.parent = parent;
+		this.parentWindow = parent;
 //		setAlwaysOnTop(true);
 //		setModal(true);
 //		setModalityType(ModalityType.MODELESS);
@@ -64,7 +64,7 @@ public class BatchTrrntChkResultsDialog extends JDialog
 	@Override
 	public void dispose()
 	{
-		parent.setEnabled(true);
+		parentWindow.setEnabled(true);
 		super.dispose();
 	}
 }

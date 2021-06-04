@@ -34,7 +34,7 @@ public class BatchDirUpdResultsView extends JScrollPane
 					
 					@Override
 					public void onButtonPress(int row, int column) {
-						new ReportLite(session, SwingUtilities.getWindowAncestor(BatchDirUpdResultsView.this),results.results.get(row).dat);
+						new ReportLite(session, SwingUtilities.getWindowAncestor(BatchDirUpdResultsView.this),results.getResults().get(row).getDat());
 					}
 				});
 			}
@@ -65,17 +65,17 @@ public class BatchDirUpdResultsView extends JScrollPane
 			{
 				if(results!=null)
 				{
-					DirUpdaterResult result = results.results.get(rowIndex);
+					DirUpdaterResult result = results.getResults().get(rowIndex);
 					switch(columnIndex)
 					{
 						case 0:
-							return result.dat.toString();
+							return result.getDat().toString();
 						case 1:
-							return result.stats.set_create_complete + result.stats.set_found_fixcomplete + result.stats.set_found_ok;
+							return result.getStats().set_create_complete + result.getStats().set_found_fixcomplete + result.getStats().set_found_ok;
 						case 2:
-							return result.stats.set_create + result.stats.set_found + result.stats.set_missing - (result.stats.set_create_complete + result.stats.set_found_fixcomplete + result.stats.set_found_ok);
+							return result.getStats().set_create + result.getStats().set_found + result.getStats().set_missing - (result.getStats().set_create_complete + result.getStats().set_found_fixcomplete + result.getStats().set_found_ok);
 						case 3:
-							return result.stats.set_create + result.stats.set_found + result.stats.set_missing;
+							return result.getStats().set_create + result.getStats().set_found + result.getStats().set_missing;
 						case 4:
 							return "Report";
 						default:
@@ -88,7 +88,7 @@ public class BatchDirUpdResultsView extends JScrollPane
 			@Override
 			public int getRowCount()
 			{
-				return results!=null?results.results.size():0;
+				return results!=null?results.getResults().size():0;
 			}
 			
 			@Override

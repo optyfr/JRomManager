@@ -26,7 +26,8 @@ import lombok.val;
  */
 public class Login extends SQL implements LoginService
 {
-	protected IdentityService _identityService = new DefaultIdentityService();
+	private static final String ADMIN = "admin";
+	protected IdentityService identityService = new DefaultIdentityService();
 
 	public Login() throws IOException, SQLException
 	{
@@ -34,7 +35,7 @@ public class Login extends SQL implements LoginService
 		db = DB.getInstance(getSettings()).connectToDB("Server.sys", false, true);
 		update("CREATE TABLE IF NOT EXISTS USERS(LOGIN VARCHAR_IGNORECASE(255) PRIMARY KEY, PASSWORD VARCHAR(255), ROLES VARCHAR(255))");
 		if (count("SELECT * FROM USERS") == 0)
-			update("INSERT INTO USERS VALUES(?, ?, ?)", "admin", CryptCredential.hash("admin"), "admin");
+			update("INSERT INTO USERS VALUES(?, ?, ?)", ADMIN, CryptCredential.hash(ADMIN), ADMIN);
 	}
 
 	@Override
@@ -43,7 +44,7 @@ public class Login extends SQL implements LoginService
 		return "Authentication";
 	}
 
-	private final static HashMap<String, UserIdentity> cache = new HashMap<>();
+	private static final HashMap<String, UserIdentity> cache = new HashMap<>();
 	private static long cachetime = System.currentTimeMillis();
 
 	@Override
@@ -72,18 +73,18 @@ public class Login extends SQL implements LoginService
 				return cache.get(username + ":" + sessionid);
 			else
 			{
-				CryptCredential credential = new CryptCredential(username, this);
+				final var credential = new CryptCredential(username, this);
 				if (credential.check(credentials))
 				{
-					UserPrincipal principal = new UserPrincipal(credential.getUser().getLogin(), credential);
-					Subject subject = new Subject();
+					final var principal = new UserPrincipal(credential.getUser().getLogin(), credential);
+					final var subject = new Subject();
 					subject.getPrincipals().add(principal);
 					subject.getPublicCredentials().add(username + ":" + sessionid);
 					String[] roles = credential.getUser().getRoles().split(";");
 					for (String role : roles)
 						subject.getPrincipals().add(new AbstractLoginService.RolePrincipal(role));
 
-					UserIdentity identity = _identityService.newUserIdentity(subject, principal, roles);
+					final var identity = identityService.newUserIdentity(subject, principal, roles);
 					if (sessionid != null)
 					{
 						cache.put(username + ":" + sessionid, identity);
@@ -109,12 +110,13 @@ public class Login extends SQL implements LoginService
 	@Override
 	public IdentityService getIdentityService()
 	{
-		return _identityService;
+		return identityService;
 	}
 
 	@Override
 	public void setIdentityService(IdentityService service)
 	{
+		// disabled
 	}
 
 	@Override

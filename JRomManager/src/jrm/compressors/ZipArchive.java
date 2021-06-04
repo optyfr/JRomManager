@@ -64,11 +64,11 @@ public class ZipArchive implements Archive
 	private boolean readonly;
 	private ProgressNarchiveCallBack cb;
 
-	private boolean is_7z;
+	private boolean is7z;
 
-	private final static HashMap<String, File> archives = new HashMap<>();
+	private static final HashMap<String, File> archives = new HashMap<>();
 
-	private ZipNArchive native_zip = null;
+	private ZipNArchive nativeZip = null;
 
 	public ZipArchive(final Session session, final File archive) throws IOException
 	{
@@ -87,7 +87,7 @@ public class ZipArchive implements Archive
 		this.archive = archive;
 		try
 		{
-			native_zip = new ZipNArchive(session, archive, readonly, cb);
+			nativeZip = new ZipNArchive(session, archive, readonly, cb);
 		}
 		catch(final SevenZipNativeInitializationException e)
 		{
@@ -96,16 +96,19 @@ public class ZipArchive implements Archive
 			if(!new File(cmd).exists() && !new File(cmd + ".exe").exists()) //$NON-NLS-1$
 				throw new IOException(cmd + " does not exists"); //$NON-NLS-1$
 			if(null == (this.archive = ZipArchive.archives.get(archive.getAbsolutePath())))
-				ZipArchive.archives.put(archive.getAbsolutePath(), this.archive = archive);
-			is_7z = cmd.endsWith("7z") || cmd.endsWith("7z.exe"); //$NON-NLS-1$ //$NON-NLS-2$
+			{
+				this.archive = archive;
+				ZipArchive.archives.put(archive.getAbsolutePath(), archive);
+			}
+			is7z = cmd.endsWith("7z") || cmd.endsWith("7z.exe"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
 	@Override
 	public void close() throws IOException
 	{
-		if(native_zip != null)
-			native_zip.close();
+		if(nativeZip != null)
+			nativeZip.close();
 		else if(tempDir != null)
 		{
 			if(readonly)
@@ -115,27 +118,27 @@ public class ZipArchive implements Archive
 			else
 			{
 				int err = -1;
-				final List<String> cmd_add = new ArrayList<>();
+				final List<String> cmdAdd = new ArrayList<>();
 				final Path tmpfile = IOUtils.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 				Files.delete(tmpfile);
-				if(is_7z)
+				if(is7z)
 				{
-					Collections.addAll(cmd_add, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					Collections.addAll(cmd_add, "-mx=" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
-					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
+					Collections.addAll(cmdAdd, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Collections.addAll(cmdAdd, "-mx=" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
 				else
 				{
-					Collections.addAll(cmd_add, cmd, "-r"); //$NON-NLS-1$
-					Collections.addAll(cmd_add, "-" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
-					Collections.addAll(cmd_add, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
+					Collections.addAll(cmdAdd, cmd, "-r"); //$NON-NLS-1$
+					Collections.addAll(cmdAdd, "-" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+					Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				}
-				final Process process = new ProcessBuilder(cmd_add).directory(tempDir).redirectErrorStream(true).start();
+				final var process = new ProcessBuilder(cmdAdd).directory(tempDir).redirectErrorStream(true).start();
 				try
 				{
 					err = process.waitFor();
 				}
-				catch(final InterruptedException e)
+				catch(InterruptedException e)
 				{
 					Log.err(e.getMessage(),e);
 				}
@@ -160,8 +163,8 @@ public class ZipArchive implements Archive
 	@Override
 	public File getTempDir() throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.getTempDir();
+		if(nativeZip != null)
+			return nativeZip.getTempDir();
 		if(tempDir == null)
 		{
 			tempDir = IOUtils.createTempDirectory("JRM").toFile(); //$NON-NLS-1$
@@ -206,8 +209,8 @@ public class ZipArchive implements Archive
 					Files.copy(srcfs.getPath(entry), baseDir.toPath().resolve(entry));
 				else
 				{
-					final Path sourcePath = srcfs.getPath("/"); //$NON-NLS-1$
-					final Path targetPath = baseDir.toPath();
+					final var sourcePath = srcfs.getPath("/"); //$NON-NLS-1$
+					final var targetPath = baseDir.toPath();
 					if(cb != null)
 						try(final var stream = Files.walk(sourcePath))
 						{
@@ -267,7 +270,7 @@ public class ZipArchive implements Archive
 		
 		private void setFileSystem(FileSystem fs)
 		{
-			this.fs = fs;;
+			this.fs = fs;
 		}
 
 		public FileSystem getFileSystem()
@@ -278,7 +281,7 @@ public class ZipArchive implements Archive
 	
 	public int extract_custom(CustomVisitor sfv)
 	{
-		try(FileSystem srcfs = FileSystems.newFileSystem(archive.toPath(), (ClassLoader)null);)
+		try(final var srcfs = FileSystems.newFileSystem(archive.toPath(), (ClassLoader)null);)
 		{
 			sfv.setFileSystem(srcfs);
 			sfv.setSourcePath(srcfs.getPath("/"));
@@ -302,7 +305,7 @@ public class ZipArchive implements Archive
 				{
 					sfv.postVisitDirectory(dir, exc);
 					return FileVisitResult.CONTINUE;
-				};
+				}
 
 				@Override
 				public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
@@ -324,7 +327,7 @@ public class ZipArchive implements Archive
 	
 	public int compress_custom(CustomVisitor sfv, Map<String, Object> env)
 	{
-		try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + archive.toURI()), env);) //$NON-NLS-1$
+		try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + archive.toURI()), env);) //$NON-NLS-1$
 		{
 			sfv.setFileSystem(fs);
 			if(cb != null)
@@ -347,7 +350,7 @@ public class ZipArchive implements Archive
 				{
 					sfv.postVisitDirectory(dir, exc);
 					return FileVisitResult.CONTINUE;
-				};
+				}
 
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
@@ -369,19 +372,19 @@ public class ZipArchive implements Archive
 	@Override
 	public int extract() throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.extract();
+		if(nativeZip != null)
+			return nativeZip.extract();
 		return extract(getTempDir(), null);
 	}
 	
 	@Override
 	public File extract(final String entry) throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.extract(entry);
+		if(nativeZip != null)
+			return nativeZip.extract(entry);
 		if(readonly)
 			extract(getTempDir(), entry);
-		final File result = new File(getTempDir(), entry);
+		final var result = new File(getTempDir(), entry);
 		if(result.exists())
 			return result;
 		return null;
@@ -390,8 +393,8 @@ public class ZipArchive implements Archive
 	@Override
 	public InputStream extract_stdout(final String entry) throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.extract_stdout(entry);
+		if(nativeZip != null)
+			return nativeZip.extract_stdout(entry);
 		if(readonly)
 			extract(getTempDir(), entry);
 		return new FileInputStream(new File(getTempDir(), entry));
@@ -400,16 +403,16 @@ public class ZipArchive implements Archive
 	@Override
 	public int add(final String entry) throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.add(entry);
+		if(nativeZip != null)
+			return nativeZip.add(entry);
 		return add(getTempDir(), entry);
 	}
 
 	@Override
 	public int add(final File baseDir, final String entry) throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.add(baseDir, entry);
+		if(nativeZip != null)
+			return nativeZip.add(baseDir, entry);
 		if(readonly)
 			return -1;
 		if(baseDir.isFile())
@@ -422,8 +425,8 @@ public class ZipArchive implements Archive
 	@Override
 	public int add_stdin(final InputStream src, final String entry) throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.add_stdin(src, entry);
+		if(nativeZip != null)
+			return nativeZip.add_stdin(src, entry);
 		if(readonly)
 			return -1;
 		FileUtils.copyInputStreamToFile(src, new File(getTempDir(), entry));
@@ -433,8 +436,8 @@ public class ZipArchive implements Archive
 	@Override
 	public int delete(final String entry) throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.delete(entry);
+		if(nativeZip != null)
+			return nativeZip.delete(entry);
 		if(readonly)
 			return -1;
 		FileUtils.deleteQuietly(new File(getTempDir(), entry));
@@ -444,8 +447,8 @@ public class ZipArchive implements Archive
 	@Override
 	public int rename(final String entry, final String newname) throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.rename(entry, newname);
+		if(nativeZip != null)
+			return nativeZip.rename(entry, newname);
 		if(readonly)
 			return -1;
 		FileUtils.moveFile(new File(getTempDir(), entry), new File(getTempDir(), newname));
@@ -455,8 +458,8 @@ public class ZipArchive implements Archive
 	@Override
 	public int duplicate(final String entry, final String newname) throws IOException
 	{
-		if(native_zip != null)
-			return native_zip.duplicate(entry, newname);
+		if(nativeZip != null)
+			return nativeZip.duplicate(entry, newname);
 		if(readonly)
 			return -1;
 		FileUtils.copyFile(new File(getTempDir(), entry), new File(getTempDir(), newname));

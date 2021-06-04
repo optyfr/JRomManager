@@ -22,20 +22,20 @@ public class BatchDat2DirResultXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString((results!=null?results.results.size():0)-1));
-		writer.writeElement("totalRows", Integer.toString(results!=null?results.results.size():0));
+		writer.writeElement("endRow", Integer.toString((results!=null?results.getResults().size():0)-1));
+		writer.writeElement("totalRows", Integer.toString(results!=null?results.getResults().size():0));
 		writer.writeStartElement("data");
 		if(results!=null)
 		{
-			for(DirUpdaterResult result : results.results)
+			for(DirUpdaterResult result : results.getResults())
 			{
 				writer.writeElement("record", 
-					new SimpleAttribute("src", pathAbstractor.getRelativePath((result.dat))),
-					new SimpleAttribute("have", result.stats.set_found_ok),
-					new SimpleAttribute("create", result.stats.set_create_complete),
-					new SimpleAttribute("fix", result.stats.set_found_fixcomplete),
-					new SimpleAttribute("miss", result.stats.set_create + result.stats.set_found + result.stats.set_missing - (result.stats.set_create_complete + result.stats.set_found_fixcomplete + result.stats.set_found_ok)),
-					new SimpleAttribute("total", result.stats.set_create + result.stats.set_found + result.stats.set_missing)
+					new SimpleAttribute("src", pathAbstractor.getRelativePath((result.getDat()))),
+					new SimpleAttribute("have", result.getStats().set_found_ok),
+					new SimpleAttribute("create", result.getStats().set_create_complete),
+					new SimpleAttribute("fix", result.getStats().set_found_fixcomplete),
+					new SimpleAttribute("miss", result.getStats().set_create + result.getStats().set_found + result.getStats().set_missing - (result.getStats().set_create_complete + result.getStats().set_found_fixcomplete + result.getStats().set_found_ok)),
+					new SimpleAttribute("total", result.getStats().set_create + result.getStats().set_found + result.getStats().set_missing)
 				);
 			}
 		}

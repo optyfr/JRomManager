@@ -38,7 +38,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import jrm.fullserver.handlers.DataSourceServlet;
+import jrm.fullserver.handlers.FullDataSourceServlet;
 import jrm.fullserver.handlers.SessionServlet;
 import jrm.fullserver.security.BasicAuthenticator;
 import jrm.fullserver.security.Login;
@@ -84,7 +84,7 @@ public class FullServer
 		gzipHandler.setMinGzipSize(2048);
 		context.setGzipHandler(gzipHandler);
 
-		context.addServlet(new ServletHolder("datasources", DataSourceServlet.class), "/datasources/*");
+		context.addServlet(new ServletHolder("datasources", FullDataSourceServlet.class), "/datasources/*");
 		context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
 		context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
 		context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");

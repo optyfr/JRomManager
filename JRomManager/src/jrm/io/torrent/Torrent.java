@@ -37,12 +37,7 @@ public class Torrent
     private String createdBy;
     private Date creationDate;
     private List<String> announceList;
-    private String info_hash;
-
-    public Torrent()
-    {
-
-    }
+    private String infoHash;
 
     ////////////////////////////////////////////////////////////////////////////
     //// GETTERS AND SETTERS ///////////////////////////////////////////////////
@@ -168,13 +163,13 @@ public class Torrent
         this.announceList = announceList;
     }
 
-    public String getInfo_hash()
+    public String getInfoHash()
     {
-        return info_hash;
+        return infoHash;
     }
 
-    public void setInfo_hash(String info_hash)
+    public void setInfoHash(String infoHash)
     {
-        this.info_hash = info_hash;
+        this.infoHash = infoHash;
     }
 }

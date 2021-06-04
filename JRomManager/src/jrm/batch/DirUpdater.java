@@ -24,6 +24,7 @@ import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
+import jrm.profile.report.Report;
 import jrm.profile.scan.DirScan;
 import jrm.profile.scan.Scan;
 import jrm.security.PathAbstractor;
@@ -47,20 +48,20 @@ public class DirUpdater
 	public DirUpdater(final Session session, final List<SrcDstResult> sdrl, final ProgressHandler progress, final List<File> srcdirs, final ResultColUpdater result, final boolean dryrun)
 	{
 		final Map<String, DirScan> scancache = new HashMap<>();
-		sdrl.stream().filter(sdr->sdr.selected).forEach(sdr->{
-			result.updateResult(sdrl.indexOf(sdr), ""); //$NON-NLS-1$
-		});
+		sdrl.stream().filter(sdr->sdr.selected).forEach(sdr->
+			result.updateResult(sdrl.indexOf(sdr), "") //$NON-NLS-1$
+		);
 		sdrl.stream().filter(sdr->sdr.selected).takeWhile(p->!progress.isCancel()).forEach(sdr->{
 			final var row = sdrl.indexOf(sdr);
 			result.updateResult(row, "In progress..."); //$NON-NLS-1$
-			final File dat = PathAbstractor.getAbsolutePath(session, sdr.src).toFile();
-			final File dst = PathAbstractor.getAbsolutePath(session, sdr.dst).toFile();
-			DirUpdaterResults dur = new DirUpdaterResults();
-			dur.dat = dat;
+			final var dat = PathAbstractor.getAbsolutePath(session, sdr.src).toFile();
+			final var dst = PathAbstractor.getAbsolutePath(session, sdr.dst).toFile();
+			final var dur = new DirUpdaterResults();
+			dur.setDat(dat);
 			try
 			{
-				File[] datlist = { dat };
-				File[] dstlist = { dst };
+				var datlist = new File[] { dat };
+				var dstlist = new File[] { dst };
 				if (dat.isDirectory())
 				{
 					datlist = dat.listFiles((sdir, sfilename) -> Sets.newHashSet("xml", "dat").contains(FilenameUtils.getExtension(sfilename).toLowerCase())); //$NON-NLS-1$ //$NON-NLS-2$
@@ -71,8 +72,9 @@ public class DirUpdater
 					for (File d : dstlist)
 						d.mkdir();
 				}
-				long total = 0, ok = 0;
-				for (int j = 0; j < datlist.length; j++)
+				long total = 0;
+				long ok = 0;
+				for (var j = 0; j < datlist.length; j++)
 				{
 					if(dat.isDirectory())
 						progress.setProgress3(String.format("%s/%s (%d/%d)", dat.getName(), FilenameUtils.getBaseName(datlist[j].getName()), j , datlist.length), j, datlist.length);
@@ -83,8 +85,8 @@ public class DirUpdater
 						session.curr_profile.setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
 					else
 						session.curr_profile.setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getAbsolutePath()); //$NON-NLS-1$
-					session.curr_profile.setProperty(SettingsEnum.src_dir, String.join("|", srcdirs.stream().map(f -> f.getAbsolutePath()).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
-					Scan scan = new Scan(session.curr_profile, progress, scancache);
+					session.curr_profile.setProperty(SettingsEnum.src_dir, String.join("|", srcdirs.stream().map(File::getAbsolutePath).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
+					final var scan = new Scan(session.curr_profile, progress, scancache);
 					if (!dryrun && !scan.actions.isEmpty())
 					{
 						new Fix(session.curr_profile, scan, progress);
@@ -92,7 +94,7 @@ public class DirUpdater
 					}
 					total += session.report.stats.set_create + session.report.stats.set_found + session.report.stats.set_missing;
 					ok += session.report.stats.set_create_complete + session.report.stats.set_found_fixcomplete + session.report.stats.set_found_ok;
-					dur.add(datlist[j],session.report.stats.clone());
+					dur.add(datlist[j],new Report.Stats(session.report.stats));
 					session.report.save(session);
 					result.updateResult(row, String.format(session.msgs.getString("DirUpdater.Result"), ok * 100.0 / total, total - ok, total)); //$NON-NLS-1$
 				}
@@ -103,7 +105,7 @@ public class DirUpdater
 			{
 				throw e;
 			}
-			catch (final Throwable e)
+			catch (final Exception e)
 			{
 				Log.err(e.getMessage(),e);
 			}

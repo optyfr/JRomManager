@@ -23,14 +23,14 @@ import jrm.security.Session;
 @SuppressWarnings("serial")
 public class ReportLite extends JDialog
 {
-	private Window parent;
+	private Window parentWindow;
 	/**
 	 * Create the dialog.
 	 */
 	public ReportLite(final Session session, Window parent, File reportFile)
 	{
 		super(parent);
-		this.parent = parent;
+		this.parentWindow = parent;
 		//	setModal(true);
 		//	setModalityType(ModalityType.APPLICATION_MODAL);
 		parent.setEnabled(false);
@@ -99,7 +99,7 @@ public class ReportLite extends JDialog
 	@Override
 	public void dispose()
 	{
-		parent.setEnabled(true);
+		parentWindow.setEnabled(true);
 		super.dispose();
 	}
 

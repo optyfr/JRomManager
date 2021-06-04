@@ -18,7 +18,7 @@ import jrm.security.Session;
 @SuppressWarnings("serial")
 public class BatchDirUpd8rResultsDialog extends JDialog
 {
-	Window parent;
+	Window parentWindow;
 	
 	/**
 	 * Create the dialog.
@@ -26,7 +26,7 @@ public class BatchDirUpd8rResultsDialog extends JDialog
 	public BatchDirUpd8rResultsDialog(final Session session, Window parent, DirUpdaterResults results)
 	{
 		super(parent);
-		this.parent = parent;
+		this.parentWindow = parent;
 //		setAlwaysOnTop(true);
 //		setModal(true);
 //		setModalityType(ModalityType.MODELESS);
@@ -64,7 +64,7 @@ public class BatchDirUpd8rResultsDialog extends JDialog
 	@Override
 	public void dispose()
 	{
-		parent.setEnabled(true);
+		parentWindow.setEnabled(true);
 		super.dispose();
 	}
 }

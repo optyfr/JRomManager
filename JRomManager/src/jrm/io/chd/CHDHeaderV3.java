@@ -16,27 +16,27 @@
  */
 package jrm.io.chd;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.MappedByteBuffer;
 
 class CHDHeaderV3 extends CHDHeader implements CHDHeaderIntf
 {
-	private final String md5,sha1;
+	private final String md5;
+	private final String sha1;
 
-	public CHDHeaderV3(final MappedByteBuffer bb, final CHDHeader header) throws UnsupportedEncodingException
+	public CHDHeaderV3(final MappedByteBuffer bb, final CHDHeader header)
 	{
 		super();
 		tag = header.tag;
 		len = header.len;
 		version = header.version;
 		bb.position(44);
-		final byte[] md5 = new byte[16];
-		bb.get(md5);
-		this.md5 = CHDHeader.bytesToHex(md5);
+		final var hash1 = new byte[16];
+		bb.get(hash1);
+		this.md5 = CHDHeader.bytesToHex(hash1);
 		bb.position(80);
-		final byte[] sha1 = new byte[20];
-		bb.get(sha1);
-		this.sha1 = CHDHeader.bytesToHex(sha1);
+		final var hash2 = new byte[20];
+		bb.get(hash2);
+		this.sha1 = CHDHeader.bytesToHex(hash2);
 	}
 
 	@Override

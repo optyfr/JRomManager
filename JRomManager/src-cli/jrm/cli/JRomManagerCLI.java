@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -527,10 +528,11 @@ public class JRomManagerCLI
 						.addOption("a", "detectarchives", false, "Detect archived folders"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				CommandLine cmdline = new DefaultParser().parse(options, args);
 				TrntChkMode mode = cmdline.hasOption('m')?TrntChkMode.valueOf(cmdline.getOptionValue('m')):TrntChkMode.FILESIZE;
-				boolean removeunknown = cmdline.hasOption('u');
-				boolean removewrongsized = cmdline.hasOption('w');
-				boolean detectarchives = cmdline.hasOption('d');
-				new TorrentChecker(session, handler, sdrl, mode, resulthandler, removeunknown, removewrongsized, detectarchives);
+				final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
+				if(cmdline.hasOption('u')) opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
+				if(cmdline.hasOption('w')) opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
+				if(cmdline.hasOption('d')) opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
+				new TorrentChecker(session, handler, sdrl, mode, resulthandler, opts);
 				break;
 			}
 			case HELP:

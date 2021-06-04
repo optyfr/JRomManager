@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -326,16 +327,20 @@ public class BatchTrrntChkPanel extends JPanel
 		final List<SrcDstResult> sdrl = ((SDRTableModel) tableTrntChk.getModel()).getData();
 		final TrntChkMode mode = (TrntChkMode) cbbxTrntChk.getSelectedItem();
 		final ResultColUpdater updater = tableTrntChk;
-		final boolean detectArchivedFolders = chckbxDetectArchivedFolder.isSelected();
-		final boolean removeUnknownFiles = cbRemoveUnknownFiles.isSelected();
-		final boolean removeWrongSizedFiles = cbRemoveWrongSizedFiles.isSelected();
+		final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
+		if (cbRemoveUnknownFiles.isSelected())
+			opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
+		if (cbRemoveWrongSizedFiles.isSelected())
+			opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
+		if (chckbxDetectArchivedFolder.isSelected())
+			opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
 
 		new SwingWorkerProgress<TorrentChecker, Void>(SwingUtilities.getWindowAncestor(this))
 		{
 			@Override
 			protected TorrentChecker doInBackground() throws Exception
 			{
-				return new TorrentChecker(session, this, sdrl, mode, updater, removeUnknownFiles, removeWrongSizedFiles, detectArchivedFolders);
+				return new TorrentChecker(session, this, sdrl, mode, updater, opts);
 			}
 
 			@Override
