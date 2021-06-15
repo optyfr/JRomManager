@@ -19,6 +19,7 @@ package jrm.misc;
 import org.apache.commons.text.StringEscapeUtils;
 
 import lombok.Setter;
+import lombok.experimental.UtilityClass;
 
 /**
  * An interface with default methods to wrap various HTML tags around {@link String} or {@link StringBuffer}
@@ -36,7 +37,7 @@ public interface HTMLRenderer
 		return toString();
 	}
 
-	static class Options
+	static @UtilityClass class Options
 	{
 		private static @Setter boolean isPlain = false;
 		private static @Setter boolean isHTML5 = true;
@@ -186,8 +187,8 @@ public interface HTMLRenderer
 			return msg + " " + progress(100, i, max);
 		return String.format("<html>" //$NON-NLS-1$
 				+ "<table cellpadding=2 cellspacing=0><tr>" //$NON-NLS-1$
-				+ "	<td valign='middle'>%s</td>" //$NON-NLS-1$
-				+ "	<td style='font-size:95%%;white-space:nowrap'>%s</td>" //$NON-NLS-1$
+				+ "\t<td valign='middle'>%s</td>" //$NON-NLS-1$
+				+ "\t<td style='font-size:95%%;white-space:nowrap'>%s</td>" //$NON-NLS-1$
 				+ "</table>" //$NON-NLS-1$
 			, progress(100, i, max), StringEscapeUtils.escapeHtml4(msg));
 	}

@@ -1,27 +1,28 @@
 package jrm.misc;
 
 import java.io.File;
-import java.io.IOException;
 
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.security.Session;
+import lombok.Getter;
+import lombok.Setter;
 
 public class ProfileSettings extends Settings
 {
 	/**
 	 * The merge mode used while filtering roms/disks
 	 */
-	public transient MergeOptions merge_mode;
+	private @Getter @Setter MergeOptions mergeMode;
 	/**
 	 * Must we strictly conform to merge tag (explicit), or search merge-able ROMs by ourselves (implicit)
 	 */
-	public transient Boolean implicit_merge;
+	private @Getter @Setter Boolean implicitMerge;
 	/**
 	 * What hash collision mode is used?
 	 */
-	public transient HashCollisionOptions hash_collision_mode;
+	private @Getter @Setter HashCollisionOptions hashCollisionMode;
 	
 
 	public ProfileSettings()
@@ -29,9 +30,9 @@ public class ProfileSettings extends Settings
 		super();
 	}
 
-	public static void DIR(Session session, File src) throws IOException
+	public static void DIR(Session session, File src)
 	{
-		ProfileSettings settings = new ProfileSettings();
+		final var settings = new ProfileSettings();
 		settings.setProperty(SettingsEnum.need_sha1_or_md5, false); //$NON-NLS-1$
 		settings.setProperty(SettingsEnum.use_parallelism, true); //$NON-NLS-1$
 		settings.setProperty(SettingsEnum.create_mode, true); //$NON-NLS-1$
@@ -51,9 +52,9 @@ public class ProfileSettings extends Settings
 		session.getUser().getSettings().saveProfileSettings(src, settings);
 	}
 	
-	public static void TZIP(Session session, File src) throws IOException
+	public static void TZIP(Session session, File src)
 	{
-		ProfileSettings settings = new ProfileSettings();
+		final var settings = new ProfileSettings();
 		settings.setProperty(SettingsEnum.need_sha1_or_md5, false); //$NON-NLS-1$
 		settings.setProperty(SettingsEnum.use_parallelism, true); //$NON-NLS-1$
 		settings.setProperty(SettingsEnum.create_mode, true); //$NON-NLS-1$
@@ -77,11 +78,10 @@ public class ProfileSettings extends Settings
 	protected void propagate(Enum<?> property, String value)
 	{
 		if(SettingsEnum.merge_mode==property)
-			merge_mode = value!=null?MergeOptions.valueOf(value):null;
+			setMergeMode(value!=null?MergeOptions.valueOf(value):null);
 		else if(SettingsEnum.implicit_merge==property)
-			implicit_merge = value!=null?Boolean.parseBoolean(value):null;
+			setImplicitMerge(value!=null?Boolean.parseBoolean(value):null);
 		else if(SettingsEnum.hash_collision_mode==property)
-			hash_collision_mode = value!=null?HashCollisionOptions.valueOf(value):null;
+			setHashCollisionMode(value!=null?HashCollisionOptions.valueOf(value):null);
 	}
-
 }

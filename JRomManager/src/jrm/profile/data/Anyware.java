@@ -170,14 +170,14 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * get the destination object according the {@link ProfileSettings#merge_mode} and {@link #isClone()}
+	 * get the destination object according the {@link ProfileSettings#mergeMode} and {@link #isClone()}
 	 * - if we are merging ({@link MergeOptions#isMerge()}), then return a parent that is not a clone by returning the call from {@link #getParent()}.{@link #getDest()}
 	 * - otherwise return {@code this}
 	 * @return the {@link Anyware} destination object (can be this instance or a parent)
 	 */
 	public Anyware getDest()
 	{
-		if (profile.getSettings()!=null && profile.getSettings().merge_mode.isMerge() && isClone())
+		if (profile.getSettings()!=null && profile.getSettings().getMergeMode().isMerge() && isClone())
 			return getParent().getDest();
 		return this;
 	}
@@ -207,7 +207,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		Stream<Disk> stream;
 		if (!selected) // skip if not selected 
 			stream = Stream.empty();
-		else if (profile.getSettings().merge_mode.isMerge()) // if merging
+		else if (profile.getSettings().getMergeMode().isMerge()) // if merging
 		{
 			if (isClone() && getParent().selected)	// skip if I'm a clone and my parent is selected for inclusion
 				stream = Stream.empty();
@@ -233,9 +233,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		return stream.filter(d -> {
 			if (d.status == Status.nodump)	// exclude nodump disks
 				return false;
-			if (profile.getSettings().merge_mode == MergeOptions.SPLIT && containsInParent(this, d))	// exclude if splitting and the disk is in parent
+			if (profile.getSettings().getMergeMode() == MergeOptions.SPLIT && containsInParent(this, d))	// exclude if splitting and the disk is in parent
 				return false;
-			if (profile.getSettings().merge_mode == MergeOptions.NOMERGE && containsInParent(this, d))	// explicitely include if nomerge and the disk is in parent
+			if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && containsInParent(this, d))	// explicitely include if nomerge and the disk is in parent
 				return true;
 			return isBios() || !containsInParent(this, d);	// otherwise include if I'm bios or the disk is not in parent
 		}).collect(Collectors.toList());
@@ -254,7 +254,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		Stream<Rom> stream;
 		if (!selected) // skip if not selected 
 			stream = Stream.empty();
-		else if (profile.getSettings().merge_mode.isMerge()) // if merging
+		else if (profile.getSettings().getMergeMode().isMerge()) // if merging
 		{
 			if (isClone() && getParent().selected)	// skip if I'm a clone and my parent is selected for inclusion
 				stream = Stream.empty();
@@ -267,7 +267,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 					if (l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
 						l.forEach(Rom::setCollisionMode);
 				});
-				if (HashCollisionOptions.HALFDUMB == profile.getSettings().hash_collision_mode)	// HALFDUMB extra stuffs for PD
+				if (HashCollisionOptions.HALFDUMB == profile.getSettings().getHashCollisionMode())	// HALFDUMB extra stuffs for PD
 				{
 					/*
 					 *  This will filter roms with same hash between clones (the encountered first clone collisioning rom is kept),
@@ -287,7 +287,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		}
 		else // if not merging
 		{
-			if(profile.getSettings().merge_mode.equals(MergeOptions.SUPERFULLNOMERGE))	// also include devices
+			if(profile.getSettings().getMergeMode().equals(MergeOptions.SUPERFULLNOMERGE))	// also include devices
 			{
 				if(profile.getProperty(SettingsEnum.exclude_games, false)) //$NON-NLS-1$
 				{
@@ -309,21 +309,21 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 				return false;
 			if (r.name.isEmpty())	// exclude empty name roms
 				return false;
-			if (profile.getSettings().merge_mode == MergeOptions.SUPERFULLNOMERGE)	// Unconditionally include roms in SUPERFULLNOMERGE mode
+			if (profile.getSettings().getMergeMode() == MergeOptions.SUPERFULLNOMERGE)	// Unconditionally include roms in SUPERFULLNOMERGE mode
 				return true;
-			if (profile.getSettings().merge_mode == MergeOptions.FULLNOMERGE)	// Unconditionally include roms in FULLNOMERGE mode
+			if (profile.getSettings().getMergeMode() == MergeOptions.FULLNOMERGE)	// Unconditionally include roms in FULLNOMERGE mode
 				return true;
-			if (profile.getSettings().merge_mode == MergeOptions.FULLMERGE)	// Unconditionally include roms in FULLMERGE mode
+			if (profile.getSettings().getMergeMode() == MergeOptions.FULLMERGE)	// Unconditionally include roms in FULLMERGE mode
 				return true;
-			if (profile.getSettings().merge_mode == MergeOptions.SPLIT && containsInParent(this, r, false))	// exclude if splitting and the rom is in parent
+			if (profile.getSettings().getMergeMode() == MergeOptions.SPLIT && containsInParent(this, r, false))	// exclude if splitting and the rom is in parent
 				return false;
-			if (profile.getSettings().merge_mode == MergeOptions.NOMERGE && containsInParent(this, r, true))	// exclude if not merging and the rom is in BIOS
+			if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && containsInParent(this, r, true))	// exclude if not merging and the rom is in BIOS
 				return false;
-			if (profile.getSettings().merge_mode == MergeOptions.NOMERGE && Anyware.wouldMerge(this, r))	// include if not merging and the rom would be merged in parent (when selected)
+			if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && Anyware.wouldMerge(this, r))	// include if not merging and the rom would be merged in parent (when selected)
 				return true;
-			if (profile.getSettings().merge_mode == MergeOptions.MERGE && containsInParent(this, r, true))	// exclude if merging and the rom is in BIOS
+			if (profile.getSettings().getMergeMode() == MergeOptions.MERGE && containsInParent(this, r, true))	// exclude if merging and the rom is in BIOS
 				return false;
-			if (profile.getSettings().merge_mode == MergeOptions.MERGE && Anyware.wouldMerge(this, r))	// include if merging and the rom would be merged in parent (when selected)
+			if (profile.getSettings().getMergeMode() == MergeOptions.MERGE && Anyware.wouldMerge(this, r))	// include if merging and the rom would be merged in parent (when selected)
 				return true;
 			return isBios() || !containsInParent(this, r, false);	// otherwise include if I'm bios or if the rom is not in parent
 		}).collect(Collectors.toList());
@@ -370,7 +370,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public boolean containsInParent(final Anyware ware, final Rom r, final boolean onlyBios)
 	{
-		if ((r.merge != null || profile.getSettings().implicit_merge) && ware.getParent() != null && ware.getParent().selected)
+		if ((r.merge != null || profile.getSettings().getImplicitMerge()) && ware.getParent() != null && ware.getParent().selected)
 		{
 			if ((!onlyBios || ware.getParent().isBios()) && ware.getParent().roms.contains(r))
 				return true;
@@ -388,7 +388,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public boolean containsInParent(final Anyware ware, final Disk d)
 	{
-		if ((d.merge != null || profile.getSettings().implicit_merge) && ware.getParent() != null && ware.getParent().selected)
+		if ((d.merge != null || profile.getSettings().getImplicitMerge()) && ware.getParent() != null && ware.getParent().selected)
 		{
 			if (ware.getParent().disks.contains(d))
 				return true;

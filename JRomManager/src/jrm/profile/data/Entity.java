@@ -142,13 +142,13 @@ public abstract class Entity extends EntityBase implements Serializable
 
 	/**
 	 * Enable collision mode
-	 * Depending on the {@link ProfileSettings#hash_collision_mode}, this may affect only parent, or all parent clones
+	 * Depending on the {@link ProfileSettings#hashCollisionMode}, this may affect only parent, or all parent clones
 	 */
 	public void setCollisionMode()
 	{
-		if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.SINGLECLONE)
+		if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.SINGLECLONE)
 			getParent().setCollisionMode(false);
-		else if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.ALLCLONES)
+		else if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.ALLCLONES)
 			getParent().setCollisionMode(true);
 		collision = true;
 	}
@@ -160,22 +160,22 @@ public abstract class Entity extends EntityBase implements Serializable
 	 */
 	public boolean isCollisionMode(boolean dumber)
 	{
-		if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.SINGLECLONE)
+		if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.SINGLECLONE)
 			return getParent().isCollisionMode();
-		else if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.ALLCLONES)
+		else if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.ALLCLONES)
 			return getParent().isCollisionMode();
 		else if(dumber)
 		{
-			if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.DUMBER)
+			if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMBER)
 				return true;
 		}
 		else 
 		{
-			if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.HALFDUMB)
+			if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.HALFDUMB)
 				return true;
-			else if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.DUMB)
+			else if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMB)
 				return true;
-			else if(getParent().profile.getSettings().hash_collision_mode == HashCollisionOptions.DUMBER)
+			else if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMBER)
 				return true;
 		}
 		return collision;

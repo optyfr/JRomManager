@@ -18,7 +18,7 @@ package jrm.misc;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.List;
 
 /**
  * Merge overlapping intervals
@@ -33,7 +33,7 @@ public final class Ideone
 	/**
 	 * Interval with a {@link #start} and an {@link #end}
 	 */
-	public final static class Interval
+	public static final class Interval
 	{
 		private final int start;
 		private final int end;
@@ -75,7 +75,7 @@ public final class Ideone
 	 * Merge all added intervals into a list of non overlapped intervals
 	 * @return an {@link ArrayList} of non overlapped intervals
 	 */
-	public ArrayList<Interval> merge()
+	public List<Interval> merge()
 	{
 		return merge(list);
 	}
@@ -85,29 +85,22 @@ public final class Ideone
 	 * @param intervals to merge
 	 * @return an {@link ArrayList} of non overlapped intervals
 	 */
-	public static ArrayList<Interval> merge(final ArrayList<Interval> intervals)
+	public static List<Interval> merge(final List<Interval> intervals)
 	{
 		if (intervals.size() <= 1)
 			return intervals;
 
-		Collections.sort(intervals, new Comparator<Interval>()
-		{
-			@Override
-			public int compare(final Interval i1, final Interval i2)
-			{
-				return i1.getStart() - i2.getStart();
-			}
-		});
+		Collections.sort(intervals, (i1, i2) -> i1.getStart() - i2.getStart());
 
-		final Interval first = intervals.get(0);
+		final var first = intervals.get(0);
 		int start = first.getStart();
 		int end = first.getEnd();
 
 		final ArrayList<Interval> result = new ArrayList<>();
 
-		for (int i = 1; i < intervals.size(); i++)
+		for (var i = 1; i < intervals.size(); i++)
 		{
-			final Interval current = intervals.get(i);
+			final var current = intervals.get(i);
 			if (current.getStart() <= end)
 			{
 				end = Math.max(current.getEnd(), end);

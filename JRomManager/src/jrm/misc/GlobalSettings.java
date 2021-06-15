@@ -58,9 +58,10 @@ public class GlobalSettings extends Settings implements SystemSettings
 	 * - if multiuser mode is enabled, it will be $HOME/.jrommanager (or %HOMEPATH%\.jrommanager for Windows)
 	 * @return the current working path
 	 */
+	@Override
 	public Path getBasePath()
 	{
-		if (cachedBasePath != null)
+		if (cachedBasePath == null)
 			return cachedBasePath;
 		if(user.getSession().server)
 		{
@@ -77,7 +78,8 @@ public class GlobalSettings extends Settings implements SystemSettings
 					Log.err(e.getMessage(),e);
 				}
 			}
-			return cachedBasePath=work;
+			cachedBasePath = work;
+			return cachedBasePath;
 		}
 		else if (user.getSession().multiuser)
 		{
@@ -93,9 +95,11 @@ public class GlobalSettings extends Settings implements SystemSettings
 					Log.err(e.getMessage(),e);
 				}
 			}
-			return cachedBasePath=work;
+			cachedBasePath = work;
+			return cachedBasePath;
 		}
-		return cachedBasePath=Paths.get(".").toAbsolutePath().normalize(); //$NON-NLS-1$
+		cachedBasePath = Paths.get(".").toAbsolutePath().normalize(); //$NON-NLS-1$
+		return cachedBasePath;
 	}
 	
 	private Path cachedWorkPath = null;
@@ -106,16 +110,20 @@ public class GlobalSettings extends Settings implements SystemSettings
 	 * if server AND multiuser mode are enabled, then there will be a subdir "users/$login" added
 	 * @return the current working path
 	 */
+	@Override
 	public Path getWorkPath()
 	{
 		if(cachedWorkPath!=null)
 			return cachedWorkPath;
-		Path base = getBasePath();
+		final var base = getBasePath();
 		if(user.getSession().server && user.getSession().multiuser)
 		{
 			if(user.getName().equals("server"))
-				return cachedWorkPath=base;
-			Path work = base.resolve("users").resolve(user.getName());
+			{
+				cachedWorkPath=base;
+				return cachedWorkPath;
+			}
+			final var work = base.resolve("users").resolve(user.getName());
 			if(!Files.exists(work))
 			{
 				try
@@ -127,18 +135,20 @@ public class GlobalSettings extends Settings implements SystemSettings
 					Log.err(e.getMessage(),e);
 				}
 			}
-			return cachedWorkPath=work;
+			cachedWorkPath=work;
+			return cachedWorkPath;
 		}
-		return cachedWorkPath=base;
+		cachedWorkPath=base;
+		return cachedWorkPath;
 	}
 	
 	public File getWorkFile(final File parent, final String name, final String ext)
 	{
 		if(!parent.getAbsoluteFile().toPath().startsWith(getWorkPath().toAbsolutePath()))
 		{
-			final CRC32 crc = new CRC32();
+			final var crc = new CRC32();
 			crc.update(new File(parent, name).getAbsolutePath().getBytes());
-			final File work = getWorkPath().resolve("work").toFile(); //$NON-NLS-1$
+			final var work = getWorkPath().resolve("work").toFile(); //$NON-NLS-1$
 			work.mkdirs();
 			return new File(work, String.format("%08x", crc.getValue()) + ext); //$NON-NLS-1$
 			
@@ -150,7 +160,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 
 	public String getLogPath()
 	{
-		Path path = getWorkPath().resolve("logs");
+		final var path = getWorkPath().resolve("logs");
 		if (!Files.exists(path))
 		{
 			try
@@ -205,9 +215,9 @@ public class GlobalSettings extends Settings implements SystemSettings
 	 */
 	private File getSettingsFile()
 	{
-		final File workdir = getWorkPath().toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
-		final File cachedir = new File(workdir, "settings"); //$NON-NLS-1$
-		final File settingsfile = new File(cachedir, user.getName()+".properties"); //$NON-NLS-1$
+		final var workdir = getWorkPath().toAbsolutePath().normalize().toFile(); //$NON-NLS-1$
+		final var cachedir = new File(workdir, "settings"); //$NON-NLS-1$
+		final var settingsfile = new File(cachedir, user.getName()+".properties"); //$NON-NLS-1$
 		settingsfile.getParentFile().mkdirs();
 		return settingsfile;
 
@@ -257,7 +267,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 	 * @return the saved {@link Properties}
 	 * @throws IOException
 	 */
-	public ProfileSettings saveProfileSettings(final File file, ProfileSettings settings) throws IOException
+	public ProfileSettings saveProfileSettings(final File file, ProfileSettings settings)
 	{
 		if (settings == null)
 			settings = new ProfileSettings();
@@ -272,22 +282,21 @@ public class GlobalSettings extends Settings implements SystemSettings
 	 * @return the loaded {@link Properties}
 	 * @throws IOException
 	 */
-	public ProfileSettings loadProfileSettings(File file, ProfileSettings settings) throws IOException
+	public ProfileSettings loadProfileSettings(File file, ProfileSettings settings)
 	{
 		if (settings == null)
 			settings = new ProfileSettings();
 		if (getProfileSettingsFile(file).exists())
 			settings.loadSettings(getProfileSettingsFile(file));
-		settings.merge_mode = MergeOptions.valueOf(settings.getProperty("merge_mode", MergeOptions.SPLIT.toString()));
-		settings.hash_collision_mode = HashCollisionOptions.valueOf(settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString()));
-		settings.implicit_merge = settings.getProperty("implicit_merge", false);
+		settings.setMergeMode(MergeOptions.valueOf(settings.getProperty("merge_mode", MergeOptions.SPLIT.toString())));
+		settings.setHashCollisionMode(HashCollisionOptions.valueOf(settings.getProperty("hash_collision_mode", HashCollisionOptions.SINGLEFILE.toString())));
+		settings.setImplicitMerge(settings.getProperty("implicit_merge", false));
 		return settings;
 	}
 
 	@Override
 	protected void propagate(Enum<?> property, String value)
 	{
-		// TODO Auto-generated method stub
-		
+		// unused
 	}
 }

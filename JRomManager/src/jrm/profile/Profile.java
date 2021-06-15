@@ -1464,15 +1464,8 @@ public class Profile implements Serializable
 	 */
 	public void saveSettings(File file)
 	{
-		try
-		{
-			settings = session.getUser().getSettings().saveProfileSettings(file, settings);
-			nfo.save(session);
-		}
-		catch (final IOException e)
-		{
-			Log.err("IO", e); //$NON-NLS-1$
-		}
+		settings = session.getUser().getSettings().saveProfileSettings(file, settings);
+		nfo.save(session);
 	}
 
 	/**
@@ -1488,14 +1481,7 @@ public class Profile implements Serializable
 	 */
 	public void loadSettings(File file)
 	{
-		try
-		{
-			settings = session.getUser().getSettings().loadProfileSettings(file, settings);
-		}
-		catch (final IOException e)
-		{
-			Log.err("IO", e); //$NON-NLS-1$
-		}
+		settings = session.getUser().getSettings().loadProfileSettings(file, settings);
 	}
 
 	/**

@@ -115,7 +115,6 @@ public abstract class Settings extends SettingsImpl
 	
 	protected abstract void propagate(final Enum<?> property, final String value);
 	
-	@SuppressWarnings("serial")
 	public JsonObject asJSO()
 	{
 		final var jso = new JsonObject();

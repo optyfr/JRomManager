@@ -11,7 +11,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -397,14 +396,7 @@ public class BatchDirUpd8rPanel extends JPanel
 			{
 				for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
 				{
-					try
-					{
-						ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, sdr.src).toFile());
-					}
-					catch (IOException e1)
-					{
-						Log.err(e1.getMessage(),e1);
-					}
+					ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, sdr.src).toFile());
 				}
 			}
 		});
@@ -418,14 +410,7 @@ public class BatchDirUpd8rPanel extends JPanel
 			{
 				for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
 				{
-					try
-					{
-						ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.src).toFile());
-					}
-					catch (IOException e1)
-					{
-						Log.err(e1.getMessage(),e1);
-					}
+					ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.src).toFile());
 				}
 			}
 		});
@@ -440,21 +425,14 @@ public class BatchDirUpd8rPanel extends JPanel
 				{
 					BatchDirUpd8rSettingsDialog dialog = new BatchDirUpd8rSettingsDialog(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this));
 					SrcDstResult entry = list.get(0);
-					try
+					dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.src).toFile(), null));
+					dialog.setVisible(true);
+					if(dialog.success)
 					{
-						dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.src).toFile(), null));
-						dialog.setVisible(true);
-						if(dialog.success)
+						for(SrcDstResult sdr : list)
 						{
-							for(SrcDstResult sdr : list)
-							{
-								session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.src).toFile(), dialog.settingsPanel.settings);
-							}
+							session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.src).toFile(), dialog.settingsPanel.settings);
 						}
-					}
-					catch (IOException e1)
-					{
-						Log.err(e1.getMessage(),e1);
 					}
 				}
 			}

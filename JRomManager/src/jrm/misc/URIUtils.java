@@ -9,13 +9,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-public class URIUtils
+import lombok.experimental.UtilityClass;
+
+public @UtilityClass class URIUtils
 {
-	private URIUtils()
-	{
-		
-	}
-	
 	public static boolean URIExists(String path)
 	{
 		try
@@ -46,7 +43,7 @@ public class URIUtils
 	{
 		try
 		{
-			URI uri = URI.create(path);
+			var uri = URI.create(path);
 			if(uri.getScheme().startsWith("jrt") && !uri.getPath().startsWith("modules"))
 				uri = new URI("jrt:/modules/" + uri.getPath());
 			return Path.of(uri);

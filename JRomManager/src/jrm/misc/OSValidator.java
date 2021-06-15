@@ -16,30 +16,32 @@
  */
 package jrm.misc;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * Utility class to determine the current OS
  */
-public class OSValidator
+public @UtilityClass class OSValidator
 {
-	private static String OS = System.getProperty("os.name").toLowerCase(); //$NON-NLS-1$
+	private static String os = System.getProperty("os.name").toLowerCase(); //$NON-NLS-1$
 
 	public static boolean isWindows()
 	{
-		return (OSValidator.OS.indexOf("win") >= 0); //$NON-NLS-1$
+		return (OSValidator.os.indexOf("win") >= 0); //$NON-NLS-1$
 	}
 
 	public static boolean isMac()
 	{
-		return (OSValidator.OS.indexOf("mac") >= 0); //$NON-NLS-1$
+		return (OSValidator.os.indexOf("mac") >= 0); //$NON-NLS-1$
 	}
 
 	public static boolean isUnix()
 	{
-		return (OSValidator.OS.indexOf("nix") >= 0 || OSValidator.OS.indexOf("nux") >= 0 || OSValidator.OS.indexOf("aix") > 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return (OSValidator.os.indexOf("nix") >= 0 || OSValidator.os.indexOf("nux") >= 0 || OSValidator.os.indexOf("aix") >= 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public static boolean isSolaris()
 	{
-		return (OSValidator.OS.indexOf("sunos") >= 0); //$NON-NLS-1$
+		return (OSValidator.os.indexOf("sunos") >= 0); //$NON-NLS-1$
 	}
 }

@@ -357,23 +357,16 @@ public class JRomManagerCLI
 					final var index = Integer.parseInt(args[0]);
 					if(index < list.size())
 					{
-						try
+						switch (args[1])
 						{
-							switch (args[1])
-							{
-								case "TZIP": //$NON-NLS-1$
-									ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile());
-									break;
-								case "DIR": //$NON-NLS-1$
-									ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile());
-									break;
-								default:
-									break;
-							}
-						}
-						catch (IOException e)
-						{
-							Log.err(e.getMessage(), e);
+							case "TZIP": //$NON-NLS-1$
+								ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile());
+								break;
+							case "DIR": //$NON-NLS-1$
+								ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile());
+								break;
+							default:
+								break;
 						}
 					}
 					return 0;
@@ -391,24 +384,17 @@ public class JRomManagerCLI
 						final var index = Integer.parseInt(args[0]);
 						if (index < list.size())
 						{
-							try
+							ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), null);
+							if (args.length == 3)
 							{
-								ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), null);
-								if (args.length == 3)
-								{
-									settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
-									session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), settings);
-								}
-								else if (args.length == 2)
-									System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$
-								else
-									for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
-										System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
+								settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
+								session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), settings);
 							}
-							catch (IOException e)
-							{
-								Log.err(e.getMessage(), e);
-							}
+							else if (args.length == 2)
+								System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$
+							else
+								for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
+									System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
 						}
 					}
 					return 0;

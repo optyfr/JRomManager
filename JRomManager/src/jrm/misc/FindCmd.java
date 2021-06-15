@@ -21,12 +21,14 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * Wrapper to which or where.exe system commands (depends of the OS)
  * @author optyfr
  *
  */
-public class FindCmd
+public @UtilityClass class FindCmd
 {
 	
 	/**
@@ -45,17 +47,20 @@ public class FindCmd
 			pb = new ProcessBuilder("which", cmd); //$NON-NLS-1$
 		try
 		{
-		/*	for(val entry : pb.environment().entrySet())
-				System.err.println(entry.getKey()+"="+entry.getValue());*/
 			pb.redirectError();
-			final Process process = pb.start();
+			final var process = pb.start();
 			final String output = IOUtils.toString(process.getInputStream(), (Charset) null).trim();
 			if (process.waitFor() == 0)
 				return output;
 		}
-		catch (IOException | InterruptedException exp)
+		catch (IOException exp)
 		{
 			Log.err(exp.getMessage(),exp);
+		}
+		catch (InterruptedException exp)
+		{
+			Log.err(exp.getMessage(),exp);
+			Thread.currentThread().interrupt();
 		}
 		return def;
 

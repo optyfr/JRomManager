@@ -13,7 +13,7 @@ public class Tree<T>
 
 	public Tree(T rootData)
 	{
-		root = new Node<T>(rootData);
+		root = new Node<>(rootData);
 	}
 
 	public static class Node<T> implements Iterable<Node<T>>
@@ -30,7 +30,7 @@ public class Tree<T>
 
 		public Node<T> addChild(T child)
 		{
-			Node<T> childNode = new Node<>(child);
+			final var childNode = new Node<>(child);
 			childNode.parent = this;
 			this.children.add(childNode);
 			return childNode;

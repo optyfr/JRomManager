@@ -262,19 +262,9 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 					long flen = (node.data.length = tfile.getFileLength());
 					while (flen >= toGo)
 					{
-						if (in != null)
-						{
-							long toRead = toGo;
-							do
-							{
-								int len = in.read(buffer, 0, (int) (toRead < buffer.length ? toRead : buffer.length));
-								md.update(buffer, 0, len);
-								toRead -= len;
-							}
-							while (toRead > 0);
-						}
+						hashStream(md, buffer, in, toGo);
 						flen -= toGo;
-						toGo = (int) piece_length;
+						toGo = piece_length;
 						progress.setProgress2(String.format(session.msgs.getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), current.get(), processing.get()); //$NON-NLS-1$
 						if (valid.get())
 						{
@@ -312,17 +302,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 							}
 						}
 					}
-					if (in != null)
-					{
-						long toRead = flen;
-						do
-						{
-							int len = in.read(buffer, 0, (int) (toRead < buffer.length ? toRead : buffer.length));
-							md.update(buffer, 0, len);
-							toRead -= len;
-						}
-						while (toRead > 0);
-					}
+					hashStream(md, buffer, in, flen);
 					toGo -= flen;
 				}
 				if (progress.isCancel())
@@ -364,6 +344,27 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 			result = ex.getMessage();
 		}
 		return result;
+	}
+
+	/**
+	 * @param md
+	 * @param buffer
+	 * @param in
+	 * @param toRead
+	 * @throws IOException
+	 */
+	private void hashStream(final MessageDigest md, final byte[] buffer, BufferedInputStream in, long toRead) throws IOException
+	{
+		if (in != null)
+		{
+			do
+			{
+				int len = in.read(buffer, 0, (int) (toRead < buffer.length ? toRead : buffer.length));
+				md.update(buffer, 0, len);
+				toRead -= len;
+			}
+			while (toRead > 0);
+		}
 	}
 
 	/**
