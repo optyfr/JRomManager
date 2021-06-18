@@ -27,6 +27,8 @@ import javax.xml.stream.XMLStreamException;
 import jrm.misc.SettingsEnum;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Rom entity definition
@@ -39,31 +41,31 @@ public class Rom extends Entity implements Serializable
 	/**
 	 * the bios name otherwise null
 	 */
-	public String bios = null;
+	protected @Getter @Setter String bios = null;
 	/**
 	 * the in memory offset (kept for export)
 	 */
-	public Long offset = null;
+	protected @Getter @Setter Long offset = null;
 	/**
 	 * the in memory load flag (kept for export)
 	 */
-	public LoadFlag loadflag = null;
+	protected @Getter @Setter LoadFlag loadflag = null;
 	/**
 	 * the value to fill according load flag (only software rom, kept for export)
 	 */
-	public String value = null;
+	protected @Getter @Setter String value = null;
 	/**
 	 * is this rom is optional?
 	 */
-	public boolean optional = false;
+	protected @Getter @Setter boolean optional = false;
 	/**
 	 * the memory region (kept for export)
 	 */
-	public String region = null;
+	protected @Getter @Setter String region = null;
 	/**
 	 * the dump date (kept for export)
 	 */
-	public String date = null;
+	protected @Getter @Setter String date = null;
 
 	/**
 	 * Possibles Load Flags definitions
@@ -194,8 +196,8 @@ public class Rom extends Entity implements Serializable
 	private EntityStatus findRomStatus(final Anyware parent, final Rom rom)
 	{
 		for (final Rom r : parent.getRoms())
-			if (rom != r && rom.equals(r) && r.own_status != EntityStatus.UNKNOWN)
-				return r.own_status;
+			if (rom != r && rom.equals(r) && r.ownStatus != EntityStatus.UNKNOWN)
+				return r.ownStatus;
 		if (parent.parent != null) // find same rom in parent clone (if any and recursively)
 		{
 			if (getParent().profile.getSettings().getMergeMode().isMerge())
@@ -203,8 +205,8 @@ public class Rom extends Entity implements Serializable
 				for (final Anyware clone : parent.getParent().clones.values())
 					if (clone != parent)
 						for (final Rom r : clone.getRoms())
-							if (rom.equals(r) && r.own_status != EntityStatus.UNKNOWN)
-								return r.own_status;
+							if (rom.equals(r) && r.ownStatus != EntityStatus.UNKNOWN)
+								return r.ownStatus;
 			}
 			for (final Rom r : parent.getParent().getRoms())
 			{
@@ -224,15 +226,15 @@ public class Rom extends Entity implements Serializable
 	{
 		if (name.isEmpty())
 			return EntityStatus.OK;
-		if (status == Status.nodump)
+		if (dumpStatus == Status.nodump)
 			return EntityStatus.OK;
-		if (own_status == EntityStatus.UNKNOWN)
+		if (ownStatus == EntityStatus.UNKNOWN)
 		{
 			final EntityStatus status = findRomStatus(getParent(), this);
 			if (status != null)
 				return status;
 		}
-		return own_status;
+		return ownStatus;
 	}
 
 	/**
@@ -252,7 +254,7 @@ public class Rom extends Entity implements Serializable
 					new SimpleAttribute("crc", crc), //$NON-NLS-1$
 					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
 					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("value", value), //$NON-NLS-1$
 					new SimpleAttribute("loadflag", loadflag), //$NON-NLS-1$
 					new SimpleAttribute("offset", offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
@@ -267,7 +269,7 @@ public class Rom extends Entity implements Serializable
 					new SimpleAttribute("crc", crc), //$NON-NLS-1$
 					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
 					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("optional", optional ? "yes" : null), //$NON-NLS-1$ //$NON-NLS-2$
 					new SimpleAttribute("region", region), //$NON-NLS-1$
 					new SimpleAttribute("offset", offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
@@ -282,7 +284,7 @@ public class Rom extends Entity implements Serializable
 					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
 					new SimpleAttribute("md5", md5), //$NON-NLS-1$
 					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("date", date) //$NON-NLS-1$
 			);
 		}

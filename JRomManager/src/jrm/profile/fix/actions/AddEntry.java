@@ -65,14 +65,14 @@ public class AddEntry extends EntryAction
 		final Path dstpath = dstfs.getPath(entity.getName());
 		handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
-		if(entry.parent.getType() == Type.DIR)
+		if(entry.getParent().getType() == Type.DIR)
 		{
 			try
 			{
 				Path parent_dstpath = dstpath.getParent(); 
 				if(parent_dstpath != null)
 					Files.createDirectories(parent_dstpath);
-				srcpath = entry.parent.getFile().toPath().resolve(entry.getFile());
+				srcpath = entry.getParent().getFile().toPath().resolve(entry.getFile());
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
@@ -81,14 +81,14 @@ public class AddEntry extends EntryAction
 				Log.err("add from " + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
-		else if(entry.parent.getType() == Type.FAKE)
+		else if(entry.getParent().getType() == Type.FAKE)
 		{
 			try
 			{
 				Path parent_dstpath = dstpath.getParent(); 
 				if(parent_dstpath != null)
 					Files.createDirectories(parent_dstpath);
-				srcpath = entry.parent.getFile().getParentFile().toPath().resolve(entry.getFile());
+				srcpath = entry.getParent().getFile().getParentFile().toPath().resolve(entry.getFile());
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
@@ -97,9 +97,9 @@ public class AddEntry extends EntryAction
 				Log.err("add from " + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
-		else if(entry.parent.getType() == Type.ZIP)
+		else if(entry.getParent().getType() == Type.ZIP)
 		{
-			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.getFile().toPath(), Collections.singletonMap("readOnly", true));)
+			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.getParent().getFile().toPath(), Collections.singletonMap("readOnly", true));)
 			{
 				Path parent_dstpath = dstpath.getParent(); 
 				if(parent_dstpath != null)
@@ -110,12 +110,12 @@ public class AddEntry extends EntryAction
 			}
 			catch (IOException e)
 			{
-				Log.err("add from " + entry.parent.getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				Log.err("add from " + entry.getParent().getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
 		else
 		{
-			try(Archive srcarchive = new SevenZipArchive(session, entry.parent.getFile()))
+			try(Archive srcarchive = new SevenZipArchive(session, entry.getParent().getFile()))
 			{
 				final File srcfile;
 				if((srcfile=srcarchive.extract(entry.getFile())) != null)
@@ -130,7 +130,7 @@ public class AddEntry extends EntryAction
 			}
 			catch (IOException e)
 			{
-				Log.err("add from " + entry.parent.getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				Log.err("add from " + entry.getParent().getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
 		return false;
@@ -142,11 +142,11 @@ public class AddEntry extends EntryAction
 		final Path dstpath = target.resolve(entity.getName());
 		handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
-		if(entry.parent.getType() == Type.DIR)
+		if(entry.getParent().getType() == Type.DIR)
 		{
 			try
 			{
-				srcpath = entry.parent.getFile().toPath().resolve(entry.getFile());
+				srcpath = entry.getParent().getFile().toPath().resolve(entry.getFile());
 				Path parent = dstpath.getParent(); 
 				if(parent != null)
 					Files.createDirectories(parent);
@@ -158,11 +158,11 @@ public class AddEntry extends EntryAction
 				Log.err("add from " + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
-		else if(entry.parent.getType() == Type.FAKE)
+		else if(entry.getParent().getType() == Type.FAKE)
 		{
 			try
 			{
-				srcpath = entry.parent.getFile().getParentFile().toPath().resolve(entry.getFile());
+				srcpath = entry.getParent().getFile().getParentFile().toPath().resolve(entry.getFile());
 				Path parent = dstpath.getParent(); 
 				if(parent != null)
 					Files.createDirectories(parent);
@@ -174,9 +174,9 @@ public class AddEntry extends EntryAction
 				Log.err("add from " + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
-		else if(entry.parent.getType() == Type.ZIP)
+		else if(entry.getParent().getType() == Type.ZIP)
 		{
-			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.getFile().toPath(), Collections.singletonMap("readOnly", true));)
+			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.getParent().getFile().toPath(), Collections.singletonMap("readOnly", true));)
 			{
 				srcpath = srcfs.getPath(entry.getFile());
 				Path parent = dstpath.getParent(); 
@@ -187,14 +187,14 @@ public class AddEntry extends EntryAction
 			}
 			catch(final Exception e)
 			{
-				Log.err("add from " + entry.parent.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				Log.err("add from " + entry.getParent().getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 
 		}
 		else
 		{
 
-			try(Archive srcarchive = new SevenZipArchive(session, entry.parent.getFile()))
+			try(Archive srcarchive = new SevenZipArchive(session, entry.getParent().getFile()))
 			{
 				final File srcfile;
 				if((srcfile=srcarchive.extract(entry.getFile())) != null)
@@ -209,7 +209,7 @@ public class AddEntry extends EntryAction
 			}
 			catch(final IOException e)
 			{
-				Log.err("add from " + entry.parent.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				Log.err("add from " + entry.getParent().getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
 		return false;
@@ -219,11 +219,11 @@ public class AddEntry extends EntryAction
 	public boolean doAction(final Session session, final Archive dstarchive, final ProgressHandler handler, int i, int max)
 	{
 		handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
-		if(entry.parent.getType() == Type.DIR)
+		if(entry.getParent().getType() == Type.DIR)
 		{
 			try
 			{
-				Path srcpath = entry.parent.getFile().toPath().resolve(entry.getFile());
+				Path srcpath = entry.getParent().getFile().toPath().resolve(entry.getFile());
 				return dstarchive.add(srcpath.toFile(), entity.getName()) == 0;
 			}
 			catch (IOException e)
@@ -231,11 +231,11 @@ public class AddEntry extends EntryAction
 				Log.err("add from " + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed",e);
 			}
 		}
-		else if(entry.parent.getType() == Type.FAKE)
+		else if(entry.getParent().getType() == Type.FAKE)
 		{
 			try
 			{
-				Path srcpath = entry.parent.getFile().getParentFile().toPath().resolve(entry.getFile());
+				Path srcpath = entry.getParent().getFile().getParentFile().toPath().resolve(entry.getFile());
 				return dstarchive.add(srcpath.toFile(), entity.getName()) == 0;
 			}
 			catch (IOException e)
@@ -243,9 +243,9 @@ public class AddEntry extends EntryAction
 				Log.err("add from " + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed",e);
 			}
 		}
-		else if(entry.parent.getType() == Type.ZIP)
+		else if(entry.getParent().getType() == Type.ZIP)
 		{
-			try(final var srcfs = new ZipFileSystemProvider().newFileSystem(entry.parent.getFile().toPath(), Collections.singletonMap("readOnly", true));)
+			try(final var srcfs = new ZipFileSystemProvider().newFileSystem(entry.getParent().getFile().toPath(), Collections.singletonMap("readOnly", true));)
 			{
 				try(final var in = Files.newInputStream(srcfs.getPath(entry.getFile())))
 				{
@@ -254,12 +254,12 @@ public class AddEntry extends EntryAction
 			}
 			catch(final Exception e)
 			{
-				Log.err("add from " + entry.parent.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				Log.err("add from " + entry.getParent().getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed", e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 		}
 		else
 		{
-			try(Archive srcarchive = new SevenZipArchive(session, entry.parent.getFile()))
+			try(Archive srcarchive = new SevenZipArchive(session, entry.getParent().getFile()))
 			{
 				final File file;
 				if ((file = srcarchive.extract(entry.getFile())) != null)
@@ -268,7 +268,7 @@ public class AddEntry extends EntryAction
 			}
 			catch(final IOException e)
 			{
-				Log.err("add from " + entry.parent.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed",e);
+				Log.err("add from " + entry.getParent().getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + entity.getName() + " failed",e);
 			}
 		}
 

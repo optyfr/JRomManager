@@ -17,11 +17,8 @@
 package jrm.profile.data;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 
 import jrm.misc.Log;
 
@@ -35,7 +32,7 @@ public abstract class EntityBase extends NameBase implements Serializable
 	/**
 	 * The scan status, defaulting to {@link EntityStatus#UNKNOWN}
 	 */
-	protected EntityStatus own_status = EntityStatus.UNKNOWN;
+	protected EntityStatus ownStatus = EntityStatus.UNKNOWN;
 	/**
 	 * The parent {@link AnywareBase}
 	 */
@@ -45,15 +42,15 @@ public abstract class EntityBase extends NameBase implements Serializable
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
-		final ObjectOutputStream.PutField fields = stream.putFields();
-		fields.put("own_status", own_status);
+		final var fields = stream.putFields();
+		fields.put("own_status", ownStatus);
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
-		final ObjectInputStream.GetField fields = stream.readFields();
-		own_status = (EntityStatus)fields.get("own_status", EntityStatus.UNKNOWN);
+		final var fields = stream.readFields();
+		ownStatus = (EntityStatus)fields.get("own_status", EntityStatus.UNKNOWN);
 	}
 
 	/**
@@ -77,7 +74,7 @@ public abstract class EntityBase extends NameBase implements Serializable
 	 */
 	public void setStatus(EntityStatus status)
 	{
-		this.own_status = status;
+		this.ownStatus = status;
 	}
 
 	/**
@@ -107,7 +104,7 @@ public abstract class EntityBase extends NameBase implements Serializable
 	{
 		try
 		{
-			Field field  = this.getClass().getField(name);
+			final var field  = this.getClass().getField(name);
 			field.setAccessible(true);
 			return field.get(this);
 		}

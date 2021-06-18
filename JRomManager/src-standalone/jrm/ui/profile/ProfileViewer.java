@@ -496,10 +496,10 @@ public class ProfileViewer extends JDialog
 				final boolean has_selected_swlist = tableWL.getSelectedRowCount() == 1 && tableWL.getModel() instanceof AnywareListList<?> && ((MachineListListModel) tableWL.getModel()).getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
 				mntmAllAsMameDat.setEnabled(has_machines);
 				mntmAllAsLogiqxDat.setEnabled(has_machines);
-				mntmAllAsSoftwareLists.setEnabled(!session.curr_profile.getMachineListList().softwarelist_list.isEmpty());
+				mntmAllAsSoftwareLists.setEnabled(!session.curr_profile.getMachineListList().getSoftwareListList().isEmpty());
 				mntmFilteredAsMameDat.setEnabled(has_filtered_machines);
 				mntmFilteredAsLogiqxDat.setEnabled(has_filtered_machines);
-				mntmFilteredAsSoftwareLists.setEnabled(session.curr_profile.getMachineListList().softwarelist_list.getFilteredStream().count() > 0);
+				mntmFilteredAsSoftwareLists.setEnabled(session.curr_profile.getMachineListList().getSoftwareListList().getFilteredStream().count() > 0);
 				mntmSelectedAsSoftwareLists.setEnabled(has_selected_swlist);
 				mntmSelectedFilteredAsSoftwareList.setEnabled(has_selected_swlist);
 			}
@@ -634,9 +634,9 @@ public class ProfileViewer extends JDialog
 												final var device = new StringBuilder(); //$NON-NLS-1$
 												for(final var dev : machine.getDevices())
 												{
-													if (Objects.equals(((Software) ware).parts.get(0).intrface, dev.intrface) && dev.instance != null)
+													if (Objects.equals(((Software) ware).parts.get(0).intrface, dev.getIntrface()) && dev.getInstance() != null)
 													{
-														device.append("-" + dev.instance.name); //$NON-NLS-1$
+														device.append("-" + dev.getInstance().getName()); //$NON-NLS-1$
 														break;
 													}
 												}

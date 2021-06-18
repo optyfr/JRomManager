@@ -231,7 +231,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		 * Stream filtering
 		 */
 		return stream.filter(d -> {
-			if (d.status == Status.nodump)	// exclude nodump disks
+			if (d.dumpStatus == Status.nodump)	// exclude nodump disks
 				return false;
 			if (profile.getSettings().getMergeMode() == MergeOptions.SPLIT && containsInParent(this, d))	// exclude if splitting and the disk is in parent
 				return false;
@@ -303,7 +303,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 				stream = roms.stream();
 		}
 		return stream.filter(r -> {
-			if (r.status == Status.nodump)	// exclude nodump roms
+			if (r.dumpStatus == Status.nodump)	// exclude nodump roms
 				return false;
 			if (r.crc == null || "00000000".equals(r.crc))	// exclude nocrc roms
 				return false;

@@ -39,23 +39,23 @@ public class EntryWrongHash extends Note implements Serializable
 	@Override
 	public String toString()
 	{
-		if(entry.md5 == null && entry.sha1 == null)
-			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.ware.getFullName(), entry.getRelFile(), "CRC", entry.crc, entity.crc); //$NON-NLS-1$ //$NON-NLS-2$
-		else if(entry.sha1 == null)
-			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.ware.getFullName(), entry.getRelFile(), "MD5", entry.md5, entity.md5); //$NON-NLS-1$ //$NON-NLS-2$
+		if(entry.getMd5() == null && entry.getSha1() == null)
+			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.ware.getFullName(), entry.getRelFile(), "CRC", entry.getCrc(), entity.getCrc()); //$NON-NLS-1$ //$NON-NLS-2$
+		else if(entry.getSha1() == null)
+			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.ware.getFullName(), entry.getRelFile(), "MD5", entry.getMd5(), entity.getMd5()); //$NON-NLS-1$ //$NON-NLS-2$
 		else
-			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.ware.getFullName(), entry.getRelFile(), "SHA-1", entry.sha1, entity.sha1); //$NON-NLS-1$ //$NON-NLS-2$
+			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.ware.getFullName(), entry.getRelFile(), "SHA-1", entry.getSha1(), entity.getSha1()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
 	public String getHTML()
 	{
-		if(entry.md5 == null && entry.sha1 == null)
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "CRC", entry.crc, entity.crc)); //$NON-NLS-1$ //$NON-NLS-2$
-		else if(entry.sha1 == null)
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "MD5", entry.md5, entity.md5)); //$NON-NLS-1$ //$NON-NLS-2$
+		if(entry.getMd5() == null && entry.getSha1() == null)
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "CRC", entry.getCrc(), entity.getCrc())); //$NON-NLS-1$ //$NON-NLS-2$
+		else if(entry.getSha1() == null)
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "MD5", entry.getMd5(), entity.getMd5())); //$NON-NLS-1$ //$NON-NLS-2$
 		else
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "SHA-1", entry.sha1, entity.sha1)); //$NON-NLS-1$ //$NON-NLS-2$
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "SHA-1", entry.getSha1(), entity.getSha1())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -70,10 +70,10 @@ public class EntryWrongHash extends Note implements Serializable
 		if (entity.getSha1() != null)	msg += "SHA1 : " + entity.getSha1() + "\n";
 		msg += "== Current == \n";
 		msg += "Name : " + entry.getName() + "\n";
-		if (entry.size >= 0)	msg += "Size : " + entry.size + "\n";
-		if (entry.crc != null)	msg += "CRC : " + entry.crc + "\n";
-		if (entry.md5 != null)	msg += "MD5 : " + entry.md5 + "\n";
-		if (entry.sha1 != null)	msg += "SHA1 : " + entry.sha1 + "\n";
+		if (entry.getSize() >= 0)	msg += "Size : " + entry.getSize() + "\n";
+		if (entry.getCrc() != null)	msg += "CRC : " + entry.getCrc() + "\n";
+		if (entry.getMd5() != null)	msg += "MD5 : " + entry.getMd5() + "\n";
+		if (entry.getSha1() != null)	msg += "SHA1 : " + entry.getSha1() + "\n";
 		return msg;
 	}
 

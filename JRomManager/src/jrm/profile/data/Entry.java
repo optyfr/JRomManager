@@ -17,12 +17,14 @@
 package jrm.profile.data;
 
 import java.io.Serializable;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Entry is a container item (ie: a directory file or an archive entry)
@@ -42,31 +44,31 @@ public class Entry implements Serializable
 	/**
 	 * the entry size
 	 */
-	public long size = 0;
+	protected @Getter @Setter long size = 0;
 	/**
 	 * the modified date (unix time)
 	 */
-	public long modified = 0;
+	protected @Getter @Setter long modified = 0;
 	/**
 	 * the crc value as a lower case hex string
 	 */
-	public String crc = null;
+	protected @Getter @Setter String crc = null;
 	/**
 	 * the sha1 value as a lower case hex string
 	 */
-	public String sha1 = null;
+	protected @Getter @Setter String sha1 = null;
 	/**
 	 * the md5 value as a lower case hex string
 	 */
-	public String md5 = null;
+	protected @Getter @Setter String md5 = null;
 	/**
 	 * the parent {@link Container}
 	 */
-	public Container parent = null;
+	protected @Getter Container parent = null;
 	/**
 	 * The entry type
 	 */
-	public Type type = Type.UNK;
+	protected @Getter @Setter Type type = Type.UNK;
 
 	/**
 	 * Entry type definition
@@ -143,7 +145,7 @@ public class Entry implements Serializable
 		return file;
 	}
 	
-	private String cached_name = null;
+	private String cachedName = null;
 	
 	/**
 	 * get the relativized (against its parent) and normalized name (according parent or file type)
@@ -151,24 +153,26 @@ public class Entry implements Serializable
 	 */
 	public String getName()
 	{
-		if(cached_name==null)
+		if(cachedName==null)
 		{
-			final Path path = Paths.get(file);
+			final var path = Paths.get(file);
 			if(parent.getType() == Container.Type.DIR)
 			{
-				//	System.out.println(parent.file.toPath().relativize(path).toString().replace('\\', '/'));
-				return cached_name=parent.getFile().toPath().relativize(path).toString().replace('\\', '/');
+				cachedName = parent.getFile().toPath().relativize(path).toString().replace('\\', '/');
+				return cachedName;
 			}
 			if(type == Type.CHD)
 			{
-				Path fileName = path.getFileName();
+				final var fileName = path.getFileName();
 				if(fileName==null)
 					return null;
-				return cached_name=fileName.toString();
+				cachedName=fileName.toString();
+				return cachedName;
 			}
-			return cached_name=path.subpath(0, path.getNameCount()).toString().replace('\\', '/');
+			cachedName=path.subpath(0, path.getNameCount()).toString().replace('\\', '/');
+			return cachedName;
 		}
-		return cached_name;
+		return cachedName;
 	}
 
 	/**

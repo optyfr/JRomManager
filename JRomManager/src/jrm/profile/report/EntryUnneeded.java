@@ -32,13 +32,13 @@ public class EntryUnneeded extends Note implements Serializable
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("EntryUnneeded.Unneeded"), parent.ware.getFullName(), entry.getRelFile(), entry.sha1==null?(entry.md5==null?entry.crc:entry.md5):entry.sha1); //$NON-NLS-1$
+		return String.format(Messages.getString("EntryUnneeded.Unneeded"), parent.ware.getFullName(), entry.getRelFile(), entry.getSha1()==null?(entry.getMd5()==null?entry.getCrc():entry.getMd5()):entry.getSha1()); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getHTML()
 	{
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryUnneeded.Unneeded")), toBold(parent.ware.getFullName()), toBold(entry.getRelFile()), entry.sha1==null?(entry.md5==null?entry.crc:entry.md5):entry.sha1)); //$NON-NLS-1$
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryUnneeded.Unneeded")), toBold(parent.ware.getFullName()), toBold(entry.getRelFile()), entry.getSha1()==null?(entry.getMd5()==null?entry.getCrc():entry.getMd5()):entry.getSha1())); //$NON-NLS-1$
 	}
 
 	@Override
@@ -47,10 +47,10 @@ public class EntryUnneeded extends Note implements Serializable
 		String msg="";
 		msg += "== Current == \n";
 		msg += "Name : " + entry.getName() + "\n";
-		if (entry.size >= 0)	msg += "Size : " + entry.size + "\n";
-		if (entry.crc != null)	msg += "CRC : " + entry.crc + "\n";
-		if (entry.md5 != null)	msg += "MD5 : " + entry.md5 + "\n";
-		if (entry.sha1 != null)	msg += "SHA1 : " + entry.sha1 + "\n";
+		if (entry.getSize() >= 0)	msg += "Size : " + entry.getSize() + "\n";
+		if (entry.getCrc() != null)	msg += "CRC : " + entry.getCrc() + "\n";
+		if (entry.getMd5() != null)	msg += "MD5 : " + entry.getMd5() + "\n";
+		if (entry.getSha1() != null)	msg += "SHA1 : " + entry.getSha1() + "\n";
 		return msg;
 	}
 
@@ -63,13 +63,13 @@ public class EntryUnneeded extends Note implements Serializable
 	@Override
 	public String getCrc()
 	{
-		return entry.crc;
+		return entry.getCrc();
 	}
 
 	@Override
 	public String getSha1()
 	{
-		return entry.sha1;
+		return entry.getSha1();
 	}
 	
 	@Override

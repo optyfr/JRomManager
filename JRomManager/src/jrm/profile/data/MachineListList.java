@@ -20,10 +20,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,6 +35,7 @@ import jrm.aui.progress.ProgressHandler;
 import jrm.profile.Profile;
 import jrm.profile.manager.Export;
 import jrm.xml.EnhancedXMLStreamWriter;
+import lombok.Getter;
 
 /**
  * Singleton List of machines lists
@@ -44,20 +45,22 @@ import jrm.xml.EnhancedXMLStreamWriter;
 @SuppressWarnings("serial")
 public final class MachineListList extends AnywareListList<MachineList> implements Serializable
 {
+	private static final String UTF_8 = "UTF-8";
+
 	/**
 	 * The {@link List} of {@link MachineList}, in fact the is only one item
 	 */
-	private final List<MachineList> ml_list;
+	private final List<MachineList> mlList;
 
 	/**
 	 * The attached list of software lists ({@link SoftwareListList}), if any
 	 */
-	public final SoftwareListList softwarelist_list;
+	private final @Getter SoftwareListList softwareListList;
 
 	/**
 	 * A mapping between a software list name and list of machines declared to be at least compatible with that software list 
 	 */
-	public final Map<String, List<Machine>> softwarelist_defs = new HashMap<>();
+	private final @Getter Map<String, List<Machine>> softwareListDefs = new HashMap<>();
 
 	/**
 	 * The constructor, will initialize transients fields
@@ -65,8 +68,8 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	public MachineListList(Profile profile)
 	{
 		super(profile);
-		softwarelist_list = new SoftwareListList(profile);
-		ml_list = Collections.singletonList(new MachineList(profile));
+		softwareListList = new SoftwareListList(profile);
+		mlList = Collections.singletonList(new MachineList(profile));
 		initTransient();
 	}
 
@@ -83,20 +86,14 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	}
 
 	@Override
-	protected void initTransient()
-	{
-		super.initTransient();
-	}
-
-	@Override
 	public void resetCache()
 	{
-		this.filtered_list = null;
-		softwarelist_list.resetCache();
+		this.filteredList = null;
+		softwareListList.resetCache();
 	}
 
 	@Override
-	public void setFilterCache(final EnumSet<AnywareStatus> filter)
+	public void setFilterCache(final Set<AnywareStatus> filter)
 	{
 		profile.setFilterListLists(filter);
 	}
@@ -104,7 +101,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	@Override
 	public List<MachineList> getList()
 	{
-		return ml_list;
+		return mlList;
 	}
 
 	@Override
@@ -116,9 +113,9 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	@Override
 	public List<MachineList> getFilteredList()
 	{
-		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> profile.getFilterListLists().contains(t.getStatus())).sorted().collect(Collectors.toList());
-		return filtered_list;
+		if(filteredList == null)
+			filteredList = getFilteredStream().filter(t -> profile.getFilterListLists().contains(t.getStatus())).sorted().collect(Collectors.toList());
+		return filteredList;
 	}
 
 	/**
@@ -129,8 +126,8 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	 */
 	public List<Machine> getSortedMachines(final String softwarelist, final String compatibility)
 	{
-		if(softwarelist_defs.containsKey(softwarelist))
-			return softwarelist_defs.get(softwarelist).stream().filter(m -> m.isCompatible(softwarelist, compatibility) > 0).sorted((o1, o2) -> {
+		if(softwareListDefs.containsKey(softwarelist))
+			return softwareListDefs.get(softwarelist).stream().filter(m -> m.isCompatible(softwarelist, compatibility) > 0).sorted((o1, o2) -> {
 				int c1 = o1.isCompatible(softwarelist, compatibility);
 				int c2 = o2.isCompatible(softwarelist, compatibility);
 				if(o1.driver.getStatus() == Driver.StatusType.good)
@@ -159,7 +156,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	 */
 	public Machine findMachine(final String softwarelist, final String compatibility)
 	{
-		if(softwarelist_defs.containsKey(softwarelist))
+		if(softwareListDefs.containsKey(softwarelist))
 		{
 			final var list = getSortedMachines(softwarelist, compatibility);
 			if(list!=null)
@@ -182,14 +179,14 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 		final List<MachineList> lists = getFilteredStream().collect(Collectors.toList());
 		if(lists.size() > 0)
 		{
-			writer.writeStartDocument("UTF-8","1.0"); //$NON-NLS-1$ //$NON-NLS-2$
+			writer.writeStartDocument(UTF_8,"1.0"); //$NON-NLS-1$ //$NON-NLS-2$
 			if(is_mame)
 			{
-				writer.writeDTD("<!DOCTYPE mame [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/mame.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				writer.writeDTD("<!DOCTYPE mame [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/mame.dtd"), Charset.forName(UTF_8)) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
 			else
 			{
-				writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName(UTF_8)) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
 			for(final MachineList list : lists)
 				list.export(writer, progress, is_mame, filtered);
@@ -200,15 +197,15 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	@Override
 	public int count()
 	{
-		return getList().size() + softwarelist_list.count();
+		return getList().size() + softwareListList.count();
 	}
 
 	@Override
-	public AnywareList<?> getObject(int i)
+	public AnywareList<? extends Anyware> getObject(int i)
 	{
 		if(i < getList().size())
 			return getList().get(i);
-		return softwarelist_list.getFilteredList().get(i - getList().size());
+		return softwareListList.getFilteredList().get(i - getList().size());
 	}
 
 	@Override
@@ -216,7 +213,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	{
 		if(i < getList().size())
 			return profile.getSession().msgs.getString("MachineListList.AllMachines");
-		return softwarelist_list.getDescription(i - getList().size());
+		return softwareListList.getDescription(i - getList().size());
 	}
 
 	@Override
@@ -224,6 +221,6 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	{
 		if(i < getList().size())
 			return String.format("%d/%d", getList().get(i).countHave(), getList().get(i).countAll()); //$NON-NLS-1$
-		return softwarelist_list.getHaveTot(i - getList().size());
+		return softwareListList.getHaveTot(i - getList().size());
 	}
 }

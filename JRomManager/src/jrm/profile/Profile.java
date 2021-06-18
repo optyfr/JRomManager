@@ -358,30 +358,30 @@ public class Profile implements Serializable
 							break;
 						}
 						case "sha1": //$NON-NLS-1$
-							currDisk.sha1 = attributes.getValue(i).toLowerCase();
+							currDisk.setSha1(attributes.getValue(i).toLowerCase());
 							sha1Disks = true;
 							break;
 						case "md5": //$NON-NLS-1$
-							currDisk.md5 = attributes.getValue(i).toLowerCase();
+							currDisk.setMd5(attributes.getValue(i).toLowerCase());
 							md5Disks = true;
 							break;
 						case "merge": //$NON-NLS-1$
-							currDisk.merge = attributes.getValue(i).trim();
+							currDisk.setMerge(attributes.getValue(i).trim());
 							break;
 						case "index": //$NON-NLS-1$
-							currDisk.index = Integer.decode(attributes.getValue(i));
+							currDisk.setIndex(Integer.decode(attributes.getValue(i)));
 							break;
 						case "optional": //$NON-NLS-1$
-							currDisk.optional = BooleanUtils.toBoolean(attributes.getValue(i));
+							currDisk.setOptional(BooleanUtils.toBoolean(attributes.getValue(i)));
 							break;
 						case "writeable": //$NON-NLS-1$
-							currDisk.writeable = BooleanUtils.toBoolean(attributes.getValue(i));
+							currDisk.setWriteable(BooleanUtils.toBoolean(attributes.getValue(i)));
 							break;
 						case "region": //$NON-NLS-1$
-							currDisk.region = attributes.getValue(i);
+							currDisk.setRegion(attributes.getValue(i));
 							break;
 						case "status": //$NON-NLS-1$
-							currDisk.status = Entity.Status.valueOf(attributes.getValue(i));
+							currDisk.setDumpStatus(Entity.Status.valueOf(attributes.getValue(i)));
 							break;
 						default:
 							break;
@@ -410,48 +410,48 @@ public class Profile implements Serializable
 							currRom.setName(attributes.getValue(i).trim());
 							break;
 						case "size": //$NON-NLS-1$
-							currRom.size = Long.decode(attributes.getValue(i));
+							currRom.setSize(Long.decode(attributes.getValue(i)));
 							break;
 						case "offset": //$NON-NLS-1$
 							if (attributes.getValue(i).toLowerCase().startsWith("0x"))
-								currRom.offset = Long.decode(attributes.getValue(i));
+								currRom.setOffset(Long.decode(attributes.getValue(i)));
 							else
-								currRom.offset = Long.decode("0x" + attributes.getValue(i)); //$NON-NLS-1$
+								currRom.setOffset(Long.decode("0x" + attributes.getValue(i))); //$NON-NLS-1$
 							break;
 						case "value": //$NON-NLS-1$
-							currRom.value = attributes.getValue(i);
+							currRom.setValue(attributes.getValue(i));
 							break;
 						case "crc": //$NON-NLS-1$
-							currRom.crc = attributes.getValue(i).toLowerCase();
+							currRom.setCrc(attributes.getValue(i).toLowerCase());
 							break;
 						case "sha1": //$NON-NLS-1$
-							currRom.sha1 = attributes.getValue(i).toLowerCase();
+							currRom.setSha1(attributes.getValue(i).toLowerCase());
 							sha1Roms = true;
 							break;
 						case "md5": //$NON-NLS-1$
-							currRom.md5 = attributes.getValue(i).toLowerCase();
+							currRom.setMd5(attributes.getValue(i).toLowerCase());
 							md5Roms = true;
 							break;
 						case "merge": //$NON-NLS-1$
-							currRom.merge = attributes.getValue(i).trim();
+							currRom.setMerge(attributes.getValue(i).trim());
 							break;
 						case "bios": //$NON-NLS-1$
-							currRom.bios = attributes.getValue(i);
+							currRom.setBios(attributes.getValue(i));
 							break;
 						case "region": //$NON-NLS-1$
-							currRom.region = attributes.getValue(i);
+							currRom.setRegion(attributes.getValue(i));
 							break;
 						case "date": //$NON-NLS-1$
-							currRom.date = attributes.getValue(i);
+							currRom.setDate(attributes.getValue(i));
 							break;
 						case "optional": //$NON-NLS-1$
-							currRom.optional = BooleanUtils.toBoolean(attributes.getValue(i));
+							currRom.setOptional(BooleanUtils.toBoolean(attributes.getValue(i)));
 							break;
 						case "status": //$NON-NLS-1$
-							currRom.status = Entity.Status.valueOf(attributes.getValue(i));
+							currRom.setDumpStatus(Entity.Status.valueOf(attributes.getValue(i)));
 							break;
 						case "loadflag": //$NON-NLS-1$
-							currRom.loadflag = LoadFlag.getEnum(attributes.getValue(i));
+							currRom.setLoadflag(LoadFlag.getEnum(attributes.getValue(i)));
 							break;
 						default:
 							break;
@@ -479,10 +479,10 @@ public class Profile implements Serializable
 							currSlot.add(slotoption);
 							break;
 						case "devname": //$NON-NLS-1$
-							slotoption.devname = attributes.getValue(i);
+							slotoption.setDevName(attributes.getValue(i));
 							break;
 						case "default": //$NON-NLS-1$
-							slotoption.def = BooleanUtils.toBoolean(attributes.getValue(i));
+							slotoption.setDef(BooleanUtils.toBoolean(attributes.getValue(i)));
 							break;
 						default:
 							break;
@@ -504,8 +504,8 @@ public class Profile implements Serializable
 					if ("name".equals(attributes.getQName(i)))
 					{
 						currSlot = new Slot();
-						currSlot.name = attributes.getValue(i);
-						currMachine.getSlots().put(currSlot.name, currSlot);
+						currSlot.setName(attributes.getValue(i));
+						currMachine.getSlots().put(currSlot.getName(), currSlot);
 					}
 				}
 			}
@@ -606,11 +606,11 @@ public class Profile implements Serializable
 			if (currMachine != null && currDevice != null)
 			{
 				final var ext = currDevice.new Extension();
-				currDevice.extensions.add(ext);
+				currDevice.getExtensions().add(ext);
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					if (attributes.getQName(i).equals("name"))
-						ext.name = attributes.getValue(i).trim();
+						ext.setName(attributes.getValue(i).trim());
 				}
 			}
 		}
@@ -623,13 +623,13 @@ public class Profile implements Serializable
 			// This is the instance info block for current device
 			if (currMachine != null && currDevice != null)
 			{
-				currDevice.instance = currDevice.new Instance();
+				currDevice.setInstance(currDevice.new Instance());
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					if ("name".equals(attributes.getQName(i)))
-						currDevice.instance.name = attributes.getValue(i).trim();
+						currDevice.getInstance().setName(attributes.getValue(i).trim());
 					else if ("briefname".equals(attributes.getQName(i)))
-						currDevice.instance.briefname = attributes.getValue(i).trim();
+						currDevice.getInstance().setBriefname(attributes.getValue(i).trim());
 				}
 			}
 		}
@@ -649,19 +649,19 @@ public class Profile implements Serializable
 					switch (attributes.getQName(i))
 					{
 						case "type": //$NON-NLS-1$
-							currDevice.type = attributes.getValue(i).trim();
+							currDevice.setType(attributes.getValue(i).trim());
 							break;
 						case "tag": //$NON-NLS-1$
-							currDevice.tag = attributes.getValue(i).trim();
+							currDevice.setTag(attributes.getValue(i).trim());
 							break;
 						case "interface": //$NON-NLS-1$
-							currDevice.intrface = attributes.getValue(i).trim();
+							currDevice.setIntrface(attributes.getValue(i).trim());
 							break;
 						case "fixed_image": //$NON-NLS-1$
-							currDevice.fixed_image = attributes.getValue(i).trim();
+							currDevice.setFixedImage(attributes.getValue(i).trim());
 							break;
 						case "mandatory": //$NON-NLS-1$
-							currDevice.mandatory = attributes.getValue(i).trim();
+							currDevice.setMandatory(attributes.getValue(i).trim());
 							break;
 						default:
 							break;
@@ -766,7 +766,7 @@ public class Profile implements Serializable
 					{
 						case "name": //$NON-NLS-1$
 							currSoftwareList.setName(attributes.getValue(i).trim());
-							machineListList.softwarelist_list.putByName(currSoftwareList);
+							machineListList.getSoftwareListList().putByName(currSoftwareList);
 							break;
 						case "description": //$NON-NLS-1$
 							currSoftwareList.description.append(attributes.getValue(i).trim());
@@ -800,9 +800,9 @@ public class Profile implements Serializable
 				}
 			}
 			currMachine.getSwlists().put(swlist.getName(), swlist);
-			if (!machineListList.softwarelist_defs.containsKey(swlist.getName()))
-				machineListList.softwarelist_defs.put(swlist.getName(), new ArrayList<>());
-			machineListList.softwarelist_defs.get(swlist.getName()).add(currMachine);
+			if (!machineListList.getSoftwareListDefs().containsKey(swlist.getName()))
+				machineListList.getSoftwareListDefs().put(swlist.getName(), new ArrayList<>());
+			machineListList.getSoftwareListDefs().get(swlist.getName()).add(currMachine);
 		}
 
 		private void startSoftware(final Attributes attributes)
@@ -1131,15 +1131,15 @@ public class Profile implements Serializable
 						swromsCnt++;
 					}
 				}
-				if (currRom.crc != null)
+				if (currRom.getCrc() != null)
 				{
-					final var oldRom = romsByCRC.put(currRom.crc, currRom);
+					final var oldRom = romsByCRC.put(currRom.getCrc(), currRom);
 					if (oldRom != null)
 					{
-						if (oldRom.sha1 != null && currRom.sha1 != null && !oldRom.equals(currRom))
-							suspiciousCRC.add(currRom.crc);
-						if (oldRom.md5 != null && currRom.md5 != null && !oldRom.equals(currRom))
-							suspiciousCRC.add(currRom.crc);
+						if (oldRom.getSha1() != null && currRom.getSha1() != null && !oldRom.equals(currRom))
+							suspiciousCRC.add(currRom.getCrc());
+						if (oldRom.getMd5() != null && currRom.getMd5() != null && !oldRom.equals(currRom))
+							suspiciousCRC.add(currRom.getCrc());
 					}
 				}
 			}
@@ -1152,7 +1152,7 @@ public class Profile implements Serializable
 		private void endSoftwareList()
 		{
 			// exiting current software list
-			machineListList.softwarelist_list.add(currSoftwareList);
+			machineListList.getSoftwareListList().add(currSoftwareList);
 			softwaresListCnt++;
 			currSoftwareList = null;
 		}
@@ -1439,9 +1439,9 @@ public class Profile implements Serializable
 					machine.getParent().getClones().put(machine.getName(), machine);
 			}
 			machine.getDeviceRef().forEach(deviceRef -> machine.getDeviceMachines().putIfAbsent(deviceRef, machineList.getByName(deviceRef)));
-			machine.getSlots().values().forEach(slot -> slot.forEach(slotoption -> machine.getDeviceMachines().putIfAbsent(slotoption.devname, machineList.getByName(slotoption.devname))));
+			machine.getSlots().values().forEach(slot -> slot.forEach(slotoption -> machine.getDeviceMachines().putIfAbsent(slotoption.getDevName(), machineList.getByName(slotoption.getDevName()))));
 		}));
-		machineListList.softwarelist_list.forEach(softwareList -> softwareList.forEach(software -> {
+		machineListList.getSoftwareListList().forEach(softwareList -> softwareList.forEach(software -> {
 			if (software.getCloneof() != null)
 			{
 				software.setParent(softwareList.getByName(software.getCloneof()));
@@ -1625,7 +1625,7 @@ public class Profile implements Serializable
 		var strcnt = ""; //$NON-NLS-1$
 		if (!machineListList.get(0).isEmpty())
 			strcnt += machinesCnt + " Machines"; //$NON-NLS-1$
-		if (!machineListList.softwarelist_list.isEmpty())
+		if (!machineListList.getSoftwareListList().isEmpty())
 			strcnt += (strcnt.isEmpty() ? "" : ", ") + softwaresListCnt + " Software Lists, " + softwaresCnt + " Softwares"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		name += "(" + strcnt + ")</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
 		return name;
@@ -1649,7 +1649,7 @@ public class Profile implements Serializable
 		machines.sort((a, b) -> a.getName().compareTo(b.getName()));
 		machines.forEach(systems::add);
 		final ArrayList<SoftwareList> softwarelists = new ArrayList<>();
-		machineListList.softwarelist_list.forEach(softwarelists::add);
+		machineListList.getSoftwareListList().forEach(softwarelists::add);
 		softwarelists.sort((a, b) -> a.getName().compareTo(b.getName()));
 		softwarelists.forEach(systems::add);
 	}
@@ -1662,7 +1662,7 @@ public class Profile implements Serializable
 		final var y = new HashSet<String>();
 		y.add(""); //$NON-NLS-1$
 		machineListList.get(0).forEach(m -> y.add(m.year.toString()));
-		machineListList.softwarelist_list.forEach(sl -> sl.forEach(s -> y.add(s.year.toString())));
+		machineListList.getSoftwareListList().forEach(sl -> sl.forEach(s -> y.add(s.year.toString())));
 		y.add("????"); //$NON-NLS-1$
 		this.years = y;
 	}
@@ -1745,7 +1745,7 @@ public class Profile implements Serializable
 	 */
 	public int size()
 	{
-		return machineListList.size() + machineListList.softwarelist_list.size();
+		return machineListList.size() + machineListList.getSoftwareListList().size();
 	}
 
 	/**
@@ -1756,7 +1756,7 @@ public class Profile implements Serializable
 	 */
 	public int filteredSubsize()
 	{
-		return (int) machineListList.get(0).getFilteredStream().count() + machineListList.get(0).samplesets.size() + (int) machineListList.softwarelist_list.getFilteredStream().mapToLong(sl -> sl.getFilteredStream().count()).sum();
+		return (int) machineListList.get(0).getFilteredStream().count() + machineListList.get(0).samplesets.size() + (int) machineListList.getSoftwareListList().getFilteredStream().mapToLong(sl -> sl.getFilteredStream().count()).sum();
 	}
 
 	/**
@@ -1766,6 +1766,6 @@ public class Profile implements Serializable
 	 */
 	public int subsize()
 	{
-		return machineListList.get(0).size() + machineListList.get(0).samplesets.size() + machineListList.softwarelist_list.stream().mapToInt(SoftwareList::size).sum();
+		return machineListList.get(0).size() + machineListList.get(0).samplesets.size() + machineListList.getSoftwareListList().stream().mapToInt(SoftwareList::size).sum();
 	}
 }

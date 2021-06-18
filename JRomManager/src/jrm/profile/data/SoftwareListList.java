@@ -21,10 +21,10 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -88,12 +88,13 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	@Override
 	public void resetCache()
 	{
-		this.filtered_list = null;
+		this.filteredList = null;
 	}
 
 	@Override
-	public void setFilterCache(final EnumSet<AnywareStatus> filter)
+	public void setFilterCache(final Set<AnywareStatus> filter)
 	{
+		// not used
 	}
 
 	@Override
@@ -115,9 +116,9 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	@Override
 	public List<SoftwareList> getFilteredList()
 	{
-		if(filtered_list == null)
-			filtered_list = getFilteredStream().filter(t -> profile.getFilterListLists().contains(t.getStatus())).sorted().collect(Collectors.toList());
-		return filtered_list;
+		if(filteredList == null)
+			filteredList = getFilteredStream().filter(t -> profile.getFilterListLists().contains(t.getStatus())).sorted().collect(Collectors.toList());
+		return filteredList;
 	}
 
 	/**

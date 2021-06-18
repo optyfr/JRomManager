@@ -31,19 +31,19 @@ public final class Input implements Serializable
 	/**
 	 * Number of supported players
 	 */
-	public int players = 0;
+	protected int players = 0;
 	/**
 	 * Number of coin slots
 	 */
-	public int coins = 0;
+	protected int coins = 0;
 	/**
 	 * does it have service mode
 	 */
-	public boolean service = false;
+	protected boolean service = false;
 	/**
 	 * does it support tilt
 	 */
-	public boolean tilt = false;
+	protected boolean tilt = false;
 
 	Input()
 	{

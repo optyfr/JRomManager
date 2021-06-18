@@ -19,6 +19,9 @@ package jrm.profile.data;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+
+import lombok.Getter;
 
 /**
  * Set of unique {@link Samples} sets
@@ -31,40 +34,41 @@ public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samp
 	/**
 	 * {@link HashMap} of {@link Samples} set with {@link Samples#name} as key
 	 */
-	protected final HashMap<String, Samples> samplesets = new HashMap<>();
+	private final @Getter Map<String, Samples> sampleSets = new HashMap<>();
 
 	@Override
 	public boolean containsName(String name)
 	{
-		return samplesets.containsKey(name);
+		return sampleSets.containsKey(name);
 	}
 
 	@Override
 	public Samples getByName(String name)
 	{
-		return samplesets.get(name);
+		return sampleSets.get(name);
 	}
 
 	@Override
 	public Samples putByName(Samples t)
 	{
-		return samplesets.put(t.name, t);
+		return sampleSets.put(t.name, t);
 	}
 
 	@Override
 	public Iterator<Samples> iterator()
 	{
-		return samplesets.values().iterator();
+		return sampleSets.values().iterator();
 	}
 
 	public int size()
 	{
-		return samplesets.size();
+		return sampleSets.size();
 	}
 
 	@Override
 	public void resetFilteredName()
 	{
+		// unused
 	}
 
 	@Override

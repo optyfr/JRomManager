@@ -19,6 +19,9 @@ package jrm.profile.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * a Slot of {@link SlotOption}s with {@link Device}s
  * @author optyfr
@@ -30,5 +33,5 @@ public class Slot extends ArrayList<SlotOption> implements Serializable
 	/**
 	 * the name of the Slot
 	 */
-	public String name;
+	private @Setter @Getter String name;
 }

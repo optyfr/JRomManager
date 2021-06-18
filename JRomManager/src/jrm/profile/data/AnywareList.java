@@ -47,7 +47,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public AnywareList(Profile profile)
+	protected AnywareList(Profile profile)
 	{
 		this.profile = profile;
 		initTransient();
@@ -91,7 +91,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	 * resets {@link T} list cache and fire a TableChanged event to listeners
 	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
 	 */
-	public void setFilterCache(final EnumSet<AnywareStatus> filter)
+	public void setFilterCache(final Set<AnywareStatus> filter)
 	{
 		profile.setFilterList(filter);
 	}

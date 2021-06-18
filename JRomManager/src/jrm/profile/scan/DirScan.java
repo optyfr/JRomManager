@@ -626,7 +626,7 @@ public final class DirScan extends PathAbstractor
 		{
 			final var entry = new Entry(c.getFile().getName(),c.getRelFile().getName(), c.getSize(), c.getModified());
 			if(archives_and_chd_as_roms)
-				entry.type = Entry.Type.UNK;
+				entry.setType(Entry.Type.UNK);
 			handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()) , -1, null, c.getFile().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 			updateEntry(c.add(entry), c.getFile().toPath());
 			c.setLoaded(needSha1OrMd5 ? 2 : 1);
@@ -661,7 +661,7 @@ public final class DirScan extends PathAbstractor
 						{
 							final var entry = new Entry(entryPath.toString(),getRelativePath(entryPath).toString(), attrs);
 							if(archives_and_chd_as_roms)
-								entry.type = Entry.Type.UNK;
+								entry.setType(Entry.Type.UNK);
 							handler.setProgress(c.getFile().getName() , -1, null, File.separator+c.getFile().toPath().relativize(entryPath).toString()); //$NON-NLS-1$ //$NON-NLS-2$
 							updateEntry(c.add(entry), entryPath);
 						}
@@ -887,13 +887,13 @@ public final class DirScan extends PathAbstractor
 		 */
 		private void updateEntry(final Entry entry, final Map<Integer, Entry> entries, ISimpleInArchiveItem item) throws IOException
 		{
-			if(entry.size == 0 && entry.crc == null && item != null)
+			if(entry.getSize() == 0 && entry.getCrc() == null && item != null)
 			{
-				entry.size = item.getSize();
-				entry.crc = String.format("%08x", item.getCRC()); //$NON-NLS-1$
+				entry.setSize(item.getSize());
+				entry.setCrc(String.format("%08x", item.getCRC())); //$NON-NLS-1$
 			}
-			entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
-			if(entry.sha1 == null && entry.md5 == null && (needSha1OrMd5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
+			entriesByCrc.put(entry.getCrc() + "." + entry.getSize(), entry); //$NON-NLS-1$
+			if(entry.getSha1() == null && entry.getMd5() == null && (needSha1OrMd5 || entry.getCrc() == null || isSuspiciousCRC(entry.getCrc())))
 			{
 				if(item == null)
 				{
@@ -912,10 +912,10 @@ public final class DirScan extends PathAbstractor
 			}
 			else
 			{
-				if(entry.sha1 != null)
-					entriesBySha1.put(entry.sha1, entry);
-				if(entry.md5 != null)
-					entriesByMd5.put(entry.md5, entry);
+				if(entry.getSha1() != null)
+					entriesBySha1.put(entry.getSha1(), entry);
+				if(entry.getMd5() != null)
+					entriesByMd5.put(entry.getMd5(), entry);
 			}
 		}
 
@@ -928,22 +928,22 @@ public final class DirScan extends PathAbstractor
 		 */
 		private void updateEntry(final Entry entry, final Map<String,Entry> entries, final SevenZArchiveEntry archiveEntry)
 		{
-			if(entry.size == 0 && entry.crc == null && archiveEntry != null)
+			if(entry.getSize() == 0 && entry.getCrc() == null && archiveEntry != null)
 			{
-				entry.size = archiveEntry.getSize();
-				entry.crc = String.format("%08x", archiveEntry.getCrcValue()); //$NON-NLS-1$
+				entry.setSize(archiveEntry.getSize());
+				entry.setCrc(String.format("%08x", archiveEntry.getCrcValue())); //$NON-NLS-1$
 			}
-			entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
-			if(entry.sha1 == null && entry.md5 == null && (needSha1OrMd5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
+			entriesByCrc.put(entry.getCrc() + "." + entry.getSize(), entry); //$NON-NLS-1$
+			if(entry.getSha1() == null && entry.getMd5() == null && (needSha1OrMd5 || entry.getCrc() == null || isSuspiciousCRC(entry.getCrc())))
 			{
 				entries.put(entry.getFile(), entry);
 			}
 			else
 			{
-				if(entry.sha1 != null)
-					entriesBySha1.put(entry.sha1, entry);
-				if(entry.md5 != null)
-					entriesByMd5.put(entry.md5, entry);
+				if(entry.getSha1() != null)
+					entriesBySha1.put(entry.getSha1(), entry);
+				if(entry.getMd5() != null)
+					entriesByMd5.put(entry.getMd5(), entry);
 			}
 			
 		}
@@ -983,13 +983,13 @@ public final class DirScan extends PathAbstractor
 							{
 								if(d.getAlgorithm()==Algo.SHA1) //$NON-NLS-1$
 								{
-									entry.sha1 = d.toString();
-									entriesBySha1.put(entry.sha1, entry);
+									entry.setSha1(d.toString());
+									entriesBySha1.put(entry.getSha1(), entry);
 								}
 								if(d.getAlgorithm()==Algo.MD5) //$NON-NLS-1$
 								{
-									entry.md5 = d.toString();
-									entriesByMd5.put(entry.md5, entry);
+									entry.setMd5(d.toString());
+									entriesByMd5.put(entry.getMd5(), entry);
 								}
 								d.reset();
 							}
@@ -1046,13 +1046,13 @@ public final class DirScan extends PathAbstractor
 					{
 						if (d.getAlgorithm()==Algo.SHA1) //$NON-NLS-1$
 						{
-							entry.sha1 = d.toString();
-							entriesBySha1.put(entry.sha1, entry);
+							entry.setSha1(d.toString());
+							entriesBySha1.put(entry.getSha1(), entry);
 						}
 						if (d.getAlgorithm()==Algo.MD5) //$NON-NLS-1$
 						{
-							entry.md5 = d.toString();
-							entriesByMd5.put(entry.md5, entry);
+							entry.setMd5(d.toString());
+							entriesByMd5.put(entry.getMd5(), entry);
 						}
 						d.reset();
 					}
@@ -1079,43 +1079,51 @@ public final class DirScan extends PathAbstractor
 	 */
 	private void updateEntry(final Entry entry, final Path entryPath) throws IOException
 	{
-		if(entry.parent.getType() == Type.ZIP)
+		if(entry.getParent().getType() == Type.ZIP)
 		{
-			if(entry.size == 0 && entry.crc == null)
+			if(entry.getSize() == 0 && entry.getCrc() == null)
 			{
 				var path = entryPath;
 				if(entryPath == null)
 					path = getPath(entry);
 				final Map<String, Object> entryZipAttrs = Files.readAttributes(path, "zip:*"); //$NON-NLS-1$
-				entry.size = (Long) entryZipAttrs.get("size"); //$NON-NLS-1$
-				entry.crc = String.format("%08x", entryZipAttrs.get("crc")); //$NON-NLS-1$ //$NON-NLS-2$
+				entry.setSize((Long) entryZipAttrs.get("size")); //$NON-NLS-1$
+				entry.setCrc(String.format("%08x", entryZipAttrs.get("crc"))); //$NON-NLS-1$ //$NON-NLS-2$
 				if(entryPath == null)
 					path.getFileSystem().close();
 			}
-			entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
+			entriesByCrc.put(entry.getCrc() + "." + entry.getSize(), entry); //$NON-NLS-1$
 		}
-		if(entry.type == Entry.Type.CHD && entry.sha1 == null && entry.md5 == null)
+		if(entry.getType() == Entry.Type.CHD && entry.getSha1() == null && entry.getMd5() == null)
 		{
 
 				var path = entryPath;
 				if(entryPath == null)
 					path = getPath(entry);
 				final var chdInfo = new CHDInfoReader(path.toFile());
-				if(sha1Disks && null != (entry.sha1 = chdInfo.getSHA1()))
-						entriesBySha1.put(entry.sha1, entry);
-				if(md5Disks && null != (entry.md5 = chdInfo.getMD5()))
-						entriesByMd5.put(entry.md5, entry);
+				if(sha1Disks)
+				{
+					entry.setSha1(chdInfo.getSHA1());
+					if(null != entry.getSha1())
+						entriesBySha1.put(entry.getSha1(), entry);
+				}
+				if(md5Disks)
+				{
+					entry.setMd5(chdInfo.getMD5());
+					if(null != entry.getMd5())
+						entriesByMd5.put(entry.getMd5(), entry);
+				}
 				if(entryPath == null)
 					path.getFileSystem().close();
 		}
-		else if(entry.type != Entry.Type.CHD && (needSha1OrMd5 || entry.crc == null || isSuspiciousCRC(entry.crc)))
+		else if(entry.getType() != Entry.Type.CHD && (needSha1OrMd5 || entry.getCrc() == null || isSuspiciousCRC(entry.getCrc())))
 		{
 			List<Algo> algorithms = new ArrayList<>();
-			if(entry.crc==null)
+			if(entry.getCrc()==null)
 				algorithms.add(Algo.CRC32); //$NON-NLS-1$
-			if(entry.md5 == null && (md5Roms || needSha1OrMd5))
+			if(entry.getMd5() == null && (md5Roms || needSha1OrMd5))
 				algorithms.add(Algo.MD5); //$NON-NLS-1$
-			if(entry.sha1 == null && (sha1Roms || needSha1OrMd5))
+			if(entry.getSha1() == null && (sha1Roms || needSha1OrMd5))
 				algorithms.add(Algo.SHA1); //$NON-NLS-1$
 			if(!algorithms.isEmpty()) try
 			{
@@ -1128,13 +1136,13 @@ public final class DirScan extends PathAbstractor
 					switch (md.getAlgorithm())
 					{
 						case CRC32: //$NON-NLS-1$
-							entry.crc = md.toString();
+							entry.setCrc(md.toString());
 							break;
 						case MD5: //$NON-NLS-1$
-							entry.md5 = md.toString();
+							entry.setMd5(md.toString());
 							break;
 						case SHA1: //$NON-NLS-1$
-							entry.sha1 = md.toString();
+							entry.setSha1(md.toString());
 							break;
 					}
 				}
@@ -1145,21 +1153,21 @@ public final class DirScan extends PathAbstractor
 			{
 				Log.err(e.getMessage(),e);
 			}
-			if(entry.crc != null)
-				entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
-			if(entry.sha1 != null)
-				entriesBySha1.put(entry.sha1, entry);
-			if(entry.md5 != null)
-				entriesByMd5.put(entry.md5, entry);
+			if(entry.getCrc() != null)
+				entriesByCrc.put(entry.getCrc() + "." + entry.getSize(), entry); //$NON-NLS-1$
+			if(entry.getSha1() != null)
+				entriesBySha1.put(entry.getSha1(), entry);
+			if(entry.getMd5() != null)
+				entriesByMd5.put(entry.getMd5(), entry);
 		}
 		else
 		{
-			if(entry.crc != null)
-				entriesByCrc.put(entry.crc + "." + entry.size, entry); //$NON-NLS-1$
-			if(entry.sha1 != null)
-				entriesBySha1.put(entry.sha1, entry);
-			if(entry.md5 != null)
-				entriesByMd5.put(entry.md5, entry);
+			if(entry.getCrc() != null)
+				entriesByCrc.put(entry.getCrc() + "." + entry.getSize(), entry); //$NON-NLS-1$
+			if(entry.getSha1() != null)
+				entriesBySha1.put(entry.getSha1(), entry);
+			if(entry.getMd5() != null)
+				entriesByMd5.put(entry.getMd5(), entry);
 		}
 	}
 
@@ -1193,7 +1201,7 @@ public final class DirScan extends PathAbstractor
 	 */
 	private Path getPath(final Entry entry) throws IOException
 	{
-		try(final var srcfs = FileSystems.newFileSystem(entry.parent.getFile().toPath(), (ClassLoader)null))
+		try(final var srcfs = FileSystems.newFileSystem(entry.getParent().getFile().toPath(), (ClassLoader)null))
 		{
 			return srcfs.getPath(entry.getFile());
 		}
@@ -1207,21 +1215,21 @@ public final class DirScan extends PathAbstractor
 	Entry findByHash(final Rom r)
 	{
 		Entry entry = null;
-		if(r.sha1 != null)
+		if(r.getSha1() != null)
 		{
-			if(null != (entry = entriesBySha1.get(r.sha1)))
+			if(null != (entry = entriesBySha1.get(r.getSha1())))
 				return entry;
-			if(isSuspiciousCRC(r.crc))
+			if(isSuspiciousCRC(r.getCrc()))
 				return null;
 		}
-		if(r.md5 != null)
+		if(r.getMd5() != null)
 		{
-			if(null != (entry = entriesByMd5.get(r.md5)))
+			if(null != (entry = entriesByMd5.get(r.getMd5())))
 				return entry;
-			if(isSuspiciousCRC(r.crc))
+			if(isSuspiciousCRC(r.getCrc()))
 				return null;
 		}
-		return entriesByCrc.get(r.crc + "." + r.size); //$NON-NLS-1$
+		return entriesByCrc.get(r.getCrc() + "." + r.getSize()); //$NON-NLS-1$
 	}
 
 	/**
@@ -1232,9 +1240,9 @@ public final class DirScan extends PathAbstractor
 	Entry findByHash(final Disk d)
 	{
 		Entry entry = null;
-		if (d.sha1 != null && null != (entry = entriesBySha1.get(d.sha1)))
+		if (d.getSha1() != null && null != (entry = entriesBySha1.get(d.getSha1())))
 			return entry;
-		return entriesByMd5.get(d.md5);
+		return entriesByMd5.get(d.getMd5());
 	}
 
 	private static String getCacheExt(Set<Options> options)

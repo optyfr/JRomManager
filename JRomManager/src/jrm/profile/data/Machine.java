@@ -277,8 +277,7 @@ public class Machine extends Anyware implements Serializable
 	 */
 	public int isCompatible(final String softwarelist, final String compatibility)
 	{
-		if(compatibility != null)
-			if(new HashSet<>(Arrays.asList(StringUtils.split(compatibility,','))).contains(swlists.get(softwarelist).filter)) //$NON-NLS-1$
+		if(compatibility != null && new HashSet<>(Arrays.asList(StringUtils.split(compatibility,','))).contains(swlists.get(softwarelist).filter)) //$NON-NLS-1$
 				return swlists.get(softwarelist).status == SWStatus.original ? 20 : 10;
 		return swlists.get(softwarelist).status == SWStatus.original ? 2 : 1;
 	}

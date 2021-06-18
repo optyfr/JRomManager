@@ -17,14 +17,13 @@
 package jrm.profile.data;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
 
 import jrm.misc.ProfileSettings;
 import jrm.profile.scan.options.HashCollisionOptions;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * the common class for {@link Rom} and {@link Disk}
@@ -38,27 +37,27 @@ public abstract class Entity extends EntityBase implements Serializable
 	/**
 	 * the date size in bytes, 0 by default (always 0 for disks)
 	 */
-	public @Getter long size = 0;
+	protected @Getter @Setter long size = 0;
 	/**
 	 * the crc value as a lowercase hex {@link String}, null if none defined (disks case)
 	 */
-	public @Getter String crc = null;
+	protected @Getter @Setter String crc = null;
 	/**
 	 * the sha1 value as a lowercase hex {@link String}, null if none defined
 	 */
-	public @Getter String sha1 = null;
+	protected @Getter @Setter String sha1 = null;
 	/**
 	 * the md5 value as a lowercase hex {@link String}, null if none defined
 	 */
-	public @Getter String md5 = null;
+	protected @Getter @Setter String md5 = null;
 	/**
 	 * the merge name of this Entity, null if no explicit merge defined
 	 */
-	public String merge = null;
+	protected @Getter @Setter String merge = null;
 	/**
 	 * the dump status, default to good when not defined
 	 */
-	public Status status = Status.good;
+	protected @Getter @Setter Status dumpStatus = Status.good;
 
 	/**
 	 * the dump status definition
@@ -104,25 +103,25 @@ public abstract class Entity extends EntityBase implements Serializable
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
-		final ObjectOutputStream.PutField fields = stream.putFields();
+		final var fields = stream.putFields();
 		fields.put("size", size);
 		fields.put("crc", crc);
 		fields.put("sha1", sha1);
 		fields.put("md5", md5);
 		fields.put("merge", merge);
-		fields.put("status", status);
+		fields.put("status", dumpStatus);
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
-		final ObjectInputStream.GetField fields = stream.readFields();
+		final var fields = stream.readFields();
 		size = fields.get("size", 0L);
 		crc = (String)fields.get("crc", null);
 		sha1 = (String)fields.get("sha1", null);
 		md5 = (String)fields.get("md5", null);
 		merge = (String)fields.get("merge", null);
-		status = (Status)fields.get("status", Status.good);
+		dumpStatus = (Status)fields.get("status", Status.good);
 	}
 
 	
@@ -182,12 +181,12 @@ public abstract class Entity extends EntityBase implements Serializable
 	}
 
 	/**
-	 * reset {@link #collision} mode and {@link EntityBase#own_status}
+	 * reset {@link #collision} mode and {@link EntityBase#ownStatus}
 	 */
 	void resetCollisionMode()
 	{
 		collision = false;
-		own_status = EntityStatus.UNKNOWN;
+		ownStatus = EntityStatus.UNKNOWN;
 	}
 
 	@Override

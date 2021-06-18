@@ -18,7 +18,7 @@ public class MachineListListModel extends AnywareListListModel
 	public MachineListListModel(MachineListList machineListList)
 	{
 		this.machineListList = machineListList;
-		sllmodel = new SoftwareListListModel(machineListList.softwarelist_list);
+		sllmodel = new SoftwareListListModel(machineListList.getSoftwareListList());
 	}
 
 	@Override

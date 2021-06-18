@@ -28,6 +28,8 @@ import javax.xml.stream.XMLStreamException;
 import jrm.misc.SettingsEnum;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Describe a disk entity 
@@ -39,19 +41,19 @@ public class Disk extends Entity implements Serializable
 	/**
 	 * is the disk writable? default to false
 	 */
-	public boolean writeable = false;
+	protected @Getter @Setter boolean writeable = false;
 	/**
 	 * what's the disk index? default to null
 	 */
-	public Integer index = null;
+	protected @Getter @Setter Integer index = null;
 	/**
 	 * Is the disk optional? default to false
 	 */
-	public boolean optional = false;
+	protected @Getter @Setter boolean optional = false;
 	/**
 	 * What's the disk region?
 	 */
-	public String region = null;
+	protected @Getter @Setter String region = null;
 
 	/**
 	 * Constructor 
@@ -143,8 +145,8 @@ public class Disk extends Entity implements Serializable
 					if (clone != parent)
 						for (final Disk d : clone.getDisks())
 						{
-							if (disk.equals(d) && d.own_status != EntityStatus.UNKNOWN)
-								return d.own_status;
+							if (disk.equals(d) && d.ownStatus != EntityStatus.UNKNOWN)
+								return d.ownStatus;
 						}
 				}
 			}
@@ -164,15 +166,15 @@ public class Disk extends Entity implements Serializable
 	@Override
 	public EntityStatus getStatus()
 	{
-		if (status == Status.nodump)
+		if (dumpStatus == Status.nodump)
 			return EntityStatus.OK;
-		if (own_status == EntityStatus.UNKNOWN)
+		if (ownStatus == EntityStatus.UNKNOWN)
 		{
 			final EntityStatus status = findDiskStatus(getParent(), this);
 			if (status != null)
 				return status;
 		}
-		return own_status;
+		return ownStatus;
 	}
 
 	/**
@@ -182,14 +184,14 @@ public class Disk extends Entity implements Serializable
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException
 	{
 		if (parent instanceof Software)
 		{
 			writer.writeElement("disk", //$NON-NLS-1$
 					new SimpleAttribute("name", name), //$NON-NLS-1$
 					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
-					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("writeable", writeable ? "yes" : null) //$NON-NLS-1$ //$NON-NLS-2$
 			);
 		}
@@ -199,7 +201,7 @@ public class Disk extends Entity implements Serializable
 					new SimpleAttribute("name", name), //$NON-NLS-1$
 					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
 					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", status.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("optional", optional), //$NON-NLS-1$
 					new SimpleAttribute("region", region), //$NON-NLS-1$
 					new SimpleAttribute("writable", writeable ? "yes" : null), //$NON-NLS-1$ //$NON-NLS-2$
@@ -213,7 +215,7 @@ public class Disk extends Entity implements Serializable
 					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
 					new SimpleAttribute("md5", md5), //$NON-NLS-1$
 					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", status.getXML(is_mame)) //$NON-NLS-1$
+					new SimpleAttribute("status", dumpStatus.getXML(is_mame)) //$NON-NLS-1$
 			);
 		}
 	}

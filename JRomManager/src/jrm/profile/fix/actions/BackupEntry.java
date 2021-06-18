@@ -50,8 +50,8 @@ public class BackupEntry extends EntryAction
 	@Override
 	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
-		Path dstpath_crc = dstfs.getPath(entry.crc+'_'+entry.size);
-		Path dstpath = dstfs.getPath(entry.sha1!=null?entry.sha1:(entry.md5!=null?entry.md5:(entry.crc+'_'+entry.size)));
+		Path dstpath_crc = dstfs.getPath(entry.getCrc()+'_'+entry.getSize());
+		Path dstpath = dstfs.getPath(entry.getSha1()!=null?entry.getSha1():(entry.getMd5()!=null?entry.getMd5():(entry.getCrc()+'_'+entry.getSize())));
 		handler.setProgress(null, null, null, progress(i, max, String.format("Backup of %s", entry.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
 		try
@@ -63,30 +63,30 @@ public class BackupEntry extends EntryAction
 				Files.delete(dstpath_crc);
 			if (Files.exists(dstpath))
 				return true;
-			if(entry.parent.getType() == Type.DIR)
+			if(entry.getParent().getType() == Type.DIR)
 			{
-				srcpath = entry.parent.getFile().toPath().resolve(entry.getFile());
+				srcpath = entry.getParent().getFile().toPath().resolve(entry.getFile());
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
-			else if(entry.parent.getType() == Type.FAKE)
+			else if(entry.getParent().getType() == Type.FAKE)
 			{
-				srcpath = entry.parent.getFile().getParentFile().toPath().resolve(entry.getFile());
+				srcpath = entry.getParent().getFile().getParentFile().toPath().resolve(entry.getFile());
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
-			else if(entry.parent.getType() == Type.ZIP)
+			else if(entry.getParent().getType() == Type.ZIP)
 			{
-				try(FileSystem srcfs = FileSystems.newFileSystem(entry.parent.getFile().toPath(), (ClassLoader)null);)
+				try(FileSystem srcfs = FileSystems.newFileSystem(entry.getParent().getFile().toPath(), (ClassLoader)null);)
 				{
 					srcpath = srcfs.getPath(entry.getFile());
 					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 					return true;
 				}
 			}
-			else if(entry.parent.getType() == Type.SEVENZIP)
+			else if(entry.getParent().getType() == Type.SEVENZIP)
 			{
-				try(Archive srcarchive = new SevenZipArchive(session, entry.parent.getFile()))
+				try(Archive srcarchive = new SevenZipArchive(session, entry.getParent().getFile()))
 				{
 					if(srcarchive.extract(entry.getFile()) != null)
 					{
@@ -100,7 +100,7 @@ public class BackupEntry extends EntryAction
 		catch(final Throwable e)
 		{
 			Log.err(e.getMessage(),e);
-			System.err.println("add from " + entry.parent.getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			System.err.println("add from " + entry.getParent().getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}

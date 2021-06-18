@@ -40,13 +40,13 @@ public class EntryAdd extends Note implements Serializable
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("EntryAddAdd"), parent.ware.getFullName(), entity.getNormalizedName(), entry.parent.getRelFile().getName(), entry.getRelFile()); //$NON-NLS-1$
+		return String.format(Messages.getString("EntryAddAdd"), parent.ware.getFullName(), entity.getNormalizedName(), entry.getParent().getRelFile().getName(), entry.getRelFile()); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getHTML()
 	{
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()), toItalic(entry.parent.getRelFile().getName()), toBold(entry.getRelFile()))); //$NON-NLS-1$
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()), toItalic(entry.getParent().getRelFile().getName()), toBold(entry.getRelFile()))); //$NON-NLS-1$
 	}
 
 	@Override
@@ -65,10 +65,10 @@ public class EntryAdd extends Note implements Serializable
 		}
 		msg += "== Current == \n";
 		msg += "Name : " + entry.getName() + "\n";
-		if (entry.size >= 0)	msg += "Size : " + entry.size + "\n";
-		if (entry.crc != null)	msg += "CRC : " + entry.crc + "\n";
-		if (entry.md5 != null)	msg += "MD5 : " + entry.md5 + "\n";
-		if (entry.sha1 != null)	msg += "SHA1 : " + entry.sha1 + "\n";
+		if (entry.getSize() >= 0)	msg += "Size : " + entry.getSize() + "\n";
+		if (entry.getCrc() != null)	msg += "CRC : " + entry.getCrc() + "\n";
+		if (entry.getMd5() != null)	msg += "MD5 : " + entry.getMd5() + "\n";
+		if (entry.getSha1() != null)	msg += "SHA1 : " + entry.getSha1() + "\n";
 		return msg;
 	}
 

@@ -49,11 +49,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	/**
 	 * The {@link ArrayList} of {@link Machine}
 	 */
-	private final ArrayList<Machine> m_list = new ArrayList<>();
+	private final ArrayList<Machine> mList = new ArrayList<>();
 	/**
 	 * The by name {@link HashMap} of {@link Machine}
 	 */
-	private final HashMap<String, Machine> m_byname = new HashMap<>();
+	private final HashMap<String, Machine> mByName = new HashMap<>();
 	/**
 	 * The associated Samples set as a {@link SamplesList}
 	 */
@@ -78,20 +78,15 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
-		initTransient();
-	}
-
-	@Override
-	protected void initTransient()
-	{
 		super.initTransient();
 	}
+
 
 
 	@Override
 	public List<Machine> getList()
 	{
-		return m_list;
+		return mList;
 	}
 
 	@Override
@@ -104,8 +99,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		final boolean filterIncludeDisks = profile.getProperty(SettingsEnum.filter_InclDisks, true); //$NON-NLS-1$
 		final boolean filterIncludeSamples = profile.getProperty(SettingsEnum.filter_InclSamples, true); //$NON-NLS-1$
 		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty(SettingsEnum.filter_DriverStatus, Driver.StatusType.preliminary.toString())); //$NON-NLS-1$
-		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString())); //$NON-NLS-1$
-		final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString())); //$NON-NLS-1$
+		final var filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString())); //$NON-NLS-1$
+		final var filterCabinetType = CabinetType.valueOf(profile.getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString())); //$NON-NLS-1$
 		final String filterYearMin = profile.getProperty(SettingsEnum.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
 		final String filterYearMax = profile.getProperty(SettingsEnum.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
 		final boolean excludeGames = profile.getProperty(SettingsEnum.exclude_games, false); //$NON-NLS-1$
@@ -115,21 +110,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		{	// special case where we want to keep computers & consoles machines but not arcade games machines (let's call it mess mode)
 			HashSet<Machine> machines = new HashSet<>();
 			getList().stream().filter(t -> t.isSoftMachine()).forEach(m -> m.getDevices(machines, false, false, true));
-			final HashSet<Machine> all_devices = new HashSet<>();
-			getList().stream().filter(t -> !t.isdevice).forEach(m -> m.getDevices(all_devices,false, false, true));
-			all_devices.removeAll(all_devices.stream().filter(t->!t.isdevice).collect(Collectors.toSet()));
-			return Stream.concat(machines.stream().filter(t -> !t.isSoftMachine()), getList().stream().filter(t -> t.isdevice && !all_devices.contains(t)));
+			final HashSet<Machine> allDevices = new HashSet<>();
+			getList().stream().filter(t -> !t.isdevice).forEach(m -> m.getDevices(allDevices,false, false, true));
+			allDevices.removeAll(allDevices.stream().filter(t->!t.isdevice).collect(Collectors.toSet()));
+			return Stream.concat(machines.stream().filter(t -> !t.isSoftMachine()), getList().stream().filter(t -> t.isdevice && !allDevices.contains(t)));
 		}
-		
-/*		if(excludeGames && excludeMachines)
-		{
-			HashSet<Machine> machines = new HashSet<>();
-			getList().stream().filter(t -> t.isSoftMachine()).forEach(m -> m.getMachineDevices(machines));
-			final HashSet<Machine> all_devices = new HashSet<>();
-			getList().stream().filter(t -> !t.isdevice).forEach(m -> m.getMachineDevices(all_devices));
-			all_devices.removeAll(all_devices.stream().filter(t->!t.isdevice).collect(Collectors.toSet()));
-			return Stream.concat(machines.stream().filter(t -> !t.isSoftMachine()), getList().stream().filter(t -> t.isdevice && !all_devices.contains(t)));
-		}*/
 		
 		return getList().stream().filter(t -> {
 			if(excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine())	// exclude pure games (pure means not bios nor devices)
@@ -190,9 +175,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	public List<Machine> getFilteredList()
 	{
 		if(filteredList == null)
-			filteredList = getFilteredStream().filter(machine -> {
-				return profile.getFilterList().contains(machine.getStatus());
-			}).sorted().collect(Collectors.toList());
+			filteredList = getFilteredStream().filter(machine -> profile.getFilterList().contains(machine.getStatus())).sorted().collect(Collectors.toList());
 		return filteredList;
 	}
 
@@ -205,9 +188,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	@Override
 	public long countHave()
 	{
-		return getFilteredStream().filter(t -> {
-			return t.getStatus() == AnywareStatus.COMPLETE;
-		}).count();
+		return getFilteredStream().filter(t -> t.getStatus() == AnywareStatus.COMPLETE).count();
 	}
 
 	/**
@@ -226,7 +207,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		else
 			writer.writeStartElement("datafile"); //$NON-NLS-1$
 		final List<Machine> list = filtered ? getFilteredStream().collect(Collectors.toList()) : getList();
-		int i = 0;
+		var i = 0;
 		progress.setProgress(profile.getSession().msgs.getString("MachineList.Exporting"), i, list.size()); //$NON-NLS-1$
 		for(final Machine m : list)
 		{
@@ -240,19 +221,19 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	@Override
 	public boolean containsName(final String name)
 	{
-		return m_byname.containsKey(name);
+		return mByName.containsKey(name);
 	}
 
 	@Override
 	public Machine getByName(String name)
 	{
-		return m_byname.get(name);
+		return mByName.get(name);
 	}
 
 	@Override
 	public Machine putByName(Machine t)
 	{
-		return m_byname.put(t.getName(), t);
+		return mByName.put(t.getName(), t);
 	}
 
 	@Override
@@ -264,28 +245,28 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	/**
 	 * named map filtered cache
 	 */
-	private transient Map<String, Machine> m_filtered_byname = null;
+	private transient Map<String, Machine> mFilteredByName = null;
 
 	@Override
 	public void resetFilteredName()
 	{
-		m_filtered_byname = getFilteredStream().collect(Collectors.toMap(Machine::getBaseName, Function.identity()));
+		mFilteredByName = getFilteredStream().collect(Collectors.toMap(Machine::getBaseName, Function.identity()));
 	}
 
 	@Override
 	public boolean containsFilteredName(String name)
 	{
-		if(m_filtered_byname==null)
+		if(mFilteredByName==null)
 			resetFilteredName();
-		return m_filtered_byname.containsKey(name);
+		return mFilteredByName.containsKey(name);
 	}
 
 	@Override
 	public Machine getFilteredByName(String name)
 	{
-		if(m_filtered_byname==null)
+		if(mFilteredByName==null)
 			resetFilteredName();
-		return m_filtered_byname.get(name);
+		return mFilteredByName.get(name);
 	}
 
 }

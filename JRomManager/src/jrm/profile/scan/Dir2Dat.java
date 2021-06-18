@@ -93,7 +93,7 @@ public class Dir2Dat
 						writer.writeElement("manufacturer", machine!=null?machine.manufacturer:""); //$NON-NLS-1$ //$NON-NLS-2$
 						for(Entry e : c.getEntries())
 						{
-							if(e.type==Type.CHD)
+							if(e.getType()==Type.CHD)
 							{
 								String ename = normalize(FilenameUtils.removeExtension(e.getName()));
 								if(options.contains(Options.JUNK_SUBFOLDERS))
@@ -105,8 +105,8 @@ public class Dir2Dat
 								}
 								writer.writeElement("disk", //$NON-NLS-1$
 									new SimpleAttribute("name", ename), //$NON-NLS-1$
-									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
-									new SimpleAttribute("sha1", e.sha1) //$NON-NLS-1$
+									new SimpleAttribute("md5", e.getMd5()), //$NON-NLS-1$
+									new SimpleAttribute("sha1", e.getSha1()) //$NON-NLS-1$
 								);
 							}
 							else
@@ -121,10 +121,10 @@ public class Dir2Dat
 								}
 								writer.writeElement("rom", //$NON-NLS-1$
 									new SimpleAttribute("name", ename), //$NON-NLS-1$
-									new SimpleAttribute("size", e.size), //$NON-NLS-1$
-									new SimpleAttribute("crc", e.crc), //$NON-NLS-1$
-									new SimpleAttribute("md5", options.contains(Options.NEED_MD5)?e.md5:null), //$NON-NLS-1$
-									new SimpleAttribute("sha1", options.contains(Options.NEED_SHA1)?e.sha1:null) //$NON-NLS-1$
+									new SimpleAttribute("size", e.getSize()), //$NON-NLS-1$
+									new SimpleAttribute("crc", e.getCrc()), //$NON-NLS-1$
+									new SimpleAttribute("md5", options.contains(Options.NEED_MD5)?e.getMd5():null), //$NON-NLS-1$
+									new SimpleAttribute("sha1", options.contains(Options.NEED_SHA1)?e.getSha1():null) //$NON-NLS-1$
 								);
 							}
 						}
@@ -168,7 +168,7 @@ public class Dir2Dat
 						writer.writeElement("manufacturer", machine!=null?machine.manufacturer:""); //$NON-NLS-1$ //$NON-NLS-2$
 						for(Entry e : c.getEntries())
 						{
-							if(e.type==Type.CHD)
+							if(e.getType()==Type.CHD)
 							{
 								String ename = normalize(FilenameUtils.removeExtension(e.getName()));
 								if(options.contains(Options.JUNK_SUBFOLDERS))
@@ -180,8 +180,8 @@ public class Dir2Dat
 								}
 								writer.writeElement("disk", //$NON-NLS-1$
 									new SimpleAttribute("name", ename), //$NON-NLS-1$
-									new SimpleAttribute("md5", e.md5), //$NON-NLS-1$
-									new SimpleAttribute("sha1", e.sha1) //$NON-NLS-1$
+									new SimpleAttribute("md5", e.getMd5()), //$NON-NLS-1$
+									new SimpleAttribute("sha1", e.getSha1()) //$NON-NLS-1$
 								);
 							}
 							else
@@ -196,12 +196,12 @@ public class Dir2Dat
 								}
 								writer.writeElement("rom", //$NON-NLS-1$
 									new SimpleAttribute("name", ename), //$NON-NLS-1$
-									new SimpleAttribute("size", e.size), //$NON-NLS-1$
-									new SimpleAttribute("crc", e.crc), //$NON-NLS-1$
-									new SimpleAttribute("md5", options.contains(Options.NEED_MD5)?e.md5:null), //$NON-NLS-1$
-									new SimpleAttribute("sha1", options.contains(Options.NEED_SHA1)?e.sha1:null), //$NON-NLS-1$
+									new SimpleAttribute("size", e.getSize()), //$NON-NLS-1$
+									new SimpleAttribute("crc", e.getCrc()), //$NON-NLS-1$
+									new SimpleAttribute("md5", options.contains(Options.NEED_MD5)?e.getMd5():null), //$NON-NLS-1$
+									new SimpleAttribute("sha1", options.contains(Options.NEED_SHA1)?e.getSha1():null), //$NON-NLS-1$
 									new SimpleAttribute("offset", 0), //$NON-NLS-1$
-									new SimpleAttribute("date", e.modified) //$NON-NLS-1$
+									new SimpleAttribute("date", e.getModified()) //$NON-NLS-1$
 								);
 							}
 						}
@@ -227,7 +227,7 @@ public class Dir2Dat
 							String slname = parent.toString();
 							if(session.curr_profile!= null)
 							{
-								SoftwareList sl = session.curr_profile.getMachineListList().softwarelist_list.getByName(slname);
+								SoftwareList sl = session.curr_profile.getMachineListList().getSoftwareListList().getByName(slname);
 								if(sl != null && sl.containsName(swname))
 									software = sl.getByName(swname);
 								if(software != null && options.contains(Options.MATCH_PROFILE))
@@ -276,7 +276,7 @@ public class Dir2Dat
 								int ii = 0;
 								for(Entry entry : ee.getValue().c.getEntries())
 								{
-									if(entry.type==Type.CHD)
+									if(entry.getType()==Type.CHD)
 									{
 										String ename = normalize(FilenameUtils.removeExtension(entry.getName()));
 										if(options.contains(Options.JUNK_SUBFOLDERS))
@@ -295,7 +295,7 @@ public class Dir2Dat
 											);
 												writer.writeElement("disk", //$NON-NLS-1$
 														new SimpleAttribute("name", ename), //$NON-NLS-1$
-														new SimpleAttribute("sha1", entry.sha1) //$NON-NLS-1$
+														new SimpleAttribute("sha1", entry.getSha1()) //$NON-NLS-1$
 													);
 											writer.writeEndElement();
 										writer.writeEndElement();
@@ -316,13 +316,13 @@ public class Dir2Dat
 										);
 											writer.writeStartElement("dataarea", //$NON-NLS-1$
 												new SimpleAttribute("name", "flop"), //$NON-NLS-1$ //$NON-NLS-2$
-												new SimpleAttribute("size", entry.size) //$NON-NLS-1$
+												new SimpleAttribute("size", entry.getSize()) //$NON-NLS-1$
 											);
 												writer.writeElement("rom", //$NON-NLS-1$
 													new SimpleAttribute("name", ename), //$NON-NLS-1$
-													new SimpleAttribute("size", entry.size), //$NON-NLS-1$
-													new SimpleAttribute("crc", entry.crc), //$NON-NLS-1$
-													new SimpleAttribute("sha1", options.contains(Options.NEED_SHA1)?entry.sha1:null) //$NON-NLS-1$
+													new SimpleAttribute("size", entry.getSize()), //$NON-NLS-1$
+													new SimpleAttribute("crc", entry.getCrc()), //$NON-NLS-1$
+													new SimpleAttribute("sha1", options.contains(Options.NEED_SHA1)?entry.getSha1():null) //$NON-NLS-1$
 												);
 											writer.writeEndElement();
 										writer.writeEndElement();

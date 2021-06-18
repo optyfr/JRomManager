@@ -20,6 +20,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * A {@link Machine}'s device
  * @author optyfr
@@ -31,33 +34,33 @@ public final class Device implements Serializable
 	/**
 	 * type of device
 	 */
-	public String type;
+	protected @Getter @Setter String type;
 	/**
 	 * tag name used for device
 	 */
-	public String tag = null;
+	protected @Getter @Setter String tag = null;
 	/**
 	 * the interface name associated
 	 */
-	public String intrface = null;
+	protected @Getter @Setter String intrface = null;
 	/**
 	 * is this device available as media switch? commonly "1" or null
 	 */
-	public String fixed_image = null;
+	protected @Getter @Setter String fixedImage = null;
 	/**
 	 * is this device mandatory? commonly "1" or null
 	 */
-	public String mandatory = null;
+	protected @Getter @Setter String mandatory = null;
 	
 	/**
 	 * The {@link Instance} associated with this {@link Device}
 	 */
-	public Instance instance = null;
+	protected @Getter @Setter Instance instance = null;
 	
 	/**
 	 * The {@link List} of file {@link Extension}s supported for this {@link Device}
 	 */
-	public List<Extension> extensions = new ArrayList<>();
+	private @Getter @Setter List<Extension> extensions = new ArrayList<>();
 	
 	/**
 	 * The Instance associated with this {@link Device} 
@@ -67,11 +70,11 @@ public final class Device implements Serializable
 		/**
 		 * the instance name
 		 */
-		public String name;
+		protected @Getter @Setter String name;
 		/**
 		 * the instance brief name
 		 */
-		public String briefname = null;
+		protected @Getter @Setter String briefname = null;
 	}
 	
 	/**
@@ -82,6 +85,6 @@ public final class Device implements Serializable
 		/**
 		 * The extension name
 		 */
-		public String name;
+		protected @Getter @Setter String name;
 	}
 }

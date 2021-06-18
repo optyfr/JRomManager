@@ -80,7 +80,7 @@ public class Export
 					profile.getMachineListList().export(writer, progress, false, filtered);
 					break;
 				case SOFTWARELIST:
-					profile.getMachineListList().softwarelist_list.export(writer, progress, filtered, selection);
+					profile.getMachineListList().getSoftwareListList().export(writer, progress, filtered, selection);
 					break;
 			}
 			writer.close();

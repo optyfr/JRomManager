@@ -60,10 +60,10 @@ public class EntryMissingDuplicate extends Note implements Serializable
 		if (entity.getSha1() != null)	msg += "SHA1 : " + entity.getSha1() + "\n";
 		msg += "== Current == \n";
 		msg += "Name : " + entry.getName() + "\n";
-		if (entry.size >= 0)	msg += "Size : " + entry.size + "\n";
-		if (entry.crc != null)	msg += "CRC : " + entry.crc + "\n";
-		if (entry.md5 != null)	msg += "MD5 : " + entry.md5 + "\n";
-		if (entry.sha1 != null)	msg += "SHA1 : " + entry.sha1 + "\n";
+		if (entry.getSize() >= 0)	msg += "Size : " + entry.getSize() + "\n";
+		if (entry.getCrc() != null)	msg += "CRC : " + entry.getCrc() + "\n";
+		if (entry.getMd5() != null)	msg += "MD5 : " + entry.getMd5() + "\n";
+		if (entry.getSha1() != null)	msg += "SHA1 : " + entry.getSha1() + "\n";
 		return msg;
 	}
 

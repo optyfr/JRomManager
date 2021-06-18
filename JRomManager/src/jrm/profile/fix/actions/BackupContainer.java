@@ -75,7 +75,7 @@ public class BackupContainer extends ContainerAction
 	 */
 	public static synchronized FileSystem getFS(final Session session, Container container, EntryAction action) throws IOException
 	{
-		String crc2 = action.entry.crc.substring(0, 2);
+		String crc2 = action.entry.getCrc().substring(0, 2);
 		if (!filesystems.containsKey(crc2))
 		{
 			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$

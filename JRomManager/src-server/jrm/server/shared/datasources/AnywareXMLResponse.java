@@ -36,7 +36,7 @@ public class AnywareXMLResponse extends XMLResponse
 		else if(list.equals("*"))
 			al = request.session.curr_profile.getMachineListList().get(0);
 		else
-			al = request.session.curr_profile.getMachineListList().softwarelist_list.getByName(list);
+			al = request.session.curr_profile.getMachineListList().getSoftwareListList().getByName(list);
 		return al;
 	}
 	
@@ -73,10 +73,10 @@ public class AnywareXMLResponse extends XMLResponse
 					writer.writeAttribute("md5", r.getMd5());
 				if(r.getSha1()!=null)
 					writer.writeAttribute("sha1", r.getSha1());
-				if(r.merge!=null)
-					writer.writeAttribute("merge", r.merge);
-				if(r.status!=null)
-					writer.writeAttribute("dumpstatus", r.status.toString());
+				if(r.getMerge()!=null)
+					writer.writeAttribute("merge", r.getMerge());
+				if(r.getDumpStatus()!=null)
+					writer.writeAttribute("dumpstatus", r.getDumpStatus().toString());
 			}
 			else if (e instanceof Disk)
 			{
@@ -90,10 +90,10 @@ public class AnywareXMLResponse extends XMLResponse
 					writer.writeAttribute("md5", d.getMd5());
 				if(d.getSha1()!=null)
 					writer.writeAttribute("sha1", d.getSha1());
-				if(d.merge!=null)
-					writer.writeAttribute("merge", d.merge);
-				if(d.status!=null)
-					writer.writeAttribute("dumpstatus", d.status.toString());
+				if(d.getMerge()!=null)
+					writer.writeAttribute("merge", d.getMerge());
+				if(d.getDumpStatus()!=null)
+					writer.writeAttribute("dumpstatus", d.getDumpStatus().toString());
 			}
 			else if (e instanceof Sample)
 			{

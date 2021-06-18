@@ -63,7 +63,7 @@ public class EntryMissing extends Note implements Serializable
 		if(entity instanceof Entity)
 		{
 			Entity e = (Entity)entity;
-			String hash = e.sha1==null?(e.md5==null?e.crc:e.md5):e.sha1;
+			String hash = e.getSha1()==null?(e.getMd5()==null?e.getCrc():e.getMd5()):e.getSha1();
 			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissing.Missing")), toBlue(parent.ware.getFullName()), toBold(entity.getName())) + " ("+hash+")"); //$NON-NLS-1$
 		}
 		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissing.Missing")), toBlue(parent.ware.getFullName()), toBold(entity.getName()))); //$NON-NLS-1$

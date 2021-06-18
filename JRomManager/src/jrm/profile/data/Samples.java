@@ -19,8 +19,10 @@ package jrm.profile.data;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import jrm.profile.Profile;
+import lombok.Getter;
 
 /**
  * Samples is a set of unique {@link Samples}
@@ -33,7 +35,7 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 	/**
 	 * the {@link HashMap} of {@link Sample} with {@link NameBase#name} as key
 	 */
-	public HashMap<String, Sample> samples = new HashMap<>();
+	private @Getter Map<String, Sample> samplesMap = new HashMap<>();
 
 	/**
 	 * The constructor
@@ -51,12 +53,12 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 	 */
 	public Sample add(Sample sample)
 	{
-		if (!samples.containsKey(sample.name))
+		if (!samplesMap.containsKey(sample.name))
 		{
-			samples.put(sample.name, sample);
+			samplesMap.put(sample.name, sample);
 			return sample;
 		}
-		return samples.get(sample.name);
+		return samplesMap.get(sample.name);
 	}
 
 	@Override
@@ -92,7 +94,7 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 	@Override
 	public Iterator<Sample> iterator()
 	{
-		return samples.values().iterator();
+		return samplesMap.values().iterator();
 	}
 
 	@Override

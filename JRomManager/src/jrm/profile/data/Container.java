@@ -267,6 +267,6 @@ public class Container implements Serializable, Comparable<Container>
 	
 	public static Comparator<Container> rcomparator()
 	{
-		return (o1, o2) -> -o1.compareTo(o2);
+		return (o1, o2) -> o2.compareTo(o1);
 	}
 }

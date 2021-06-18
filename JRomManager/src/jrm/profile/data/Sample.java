@@ -48,7 +48,7 @@ public final class Sample extends EntityBase implements Serializable
 	@Override
 	public EntityStatus getStatus()
 	{
-		return own_status;
+		return ownStatus;
 	}
 
 	@Override

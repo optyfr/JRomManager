@@ -23,10 +23,13 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import jrm.profile.Profile;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *  A list of {@link Anyware} objects lists
@@ -37,17 +40,17 @@ import jrm.profile.Profile;
 @SuppressWarnings("serial")
 public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> implements Serializable, List<T>
 {
-	public Profile profile;
+	protected @Getter @Setter Profile profile;
 
 	/**
 	 * {@link T} list cache (according current {@link Profile#filterListLists})
 	 */
-	protected transient List<T> filtered_list;
+	protected transient List<T> filteredList;
 
 	/**
 	 * The constructor, will initialize transients fields
 	 */
-	public AnywareListList(Profile profile)
+	protected AnywareListList(Profile profile)
 	{
 		this.profile = profile;
 		initTransient();
@@ -70,7 +73,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	 */
 	protected void initTransient()
 	{
-		filtered_list = null;
+		filteredList = null;
 	}
 
 	/**
@@ -81,7 +84,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	 * resets {@link T} list cache and fire a TableChanged event to listeners
 	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
 	 */
-	public abstract void setFilterCache(final EnumSet<AnywareStatus> filter);
+	public abstract void setFilterCache(final Set<AnywareStatus> filter);
 
 	/**
 	 * get a cached and filtered stream
@@ -248,7 +251,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	
 	public abstract int count();
 	
-	public abstract AnywareList<?> getObject(int i);
+	public abstract AnywareList<? extends Anyware> getObject(int i);
 
 	public abstract String getDescription(int i);
 

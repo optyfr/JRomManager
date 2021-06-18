@@ -347,11 +347,11 @@ public class Scan extends PathAbstractor
 			if (handler.isCancel())
 				throw new BreakException();
 		}
-		if (profile.getMachineListList().softwarelist_list.size() > 0)
+		if (profile.getMachineListList().getSoftwareListList().size() > 0)
 		{
 			final AtomicInteger j = new AtomicInteger();
-			handler.setProgress2(String.format("%d/%d", j.get(), profile.getMachineListList().softwarelist_list.size()), j.get(), profile.getMachineListList().softwarelist_list.size()); //$NON-NLS-1$
-			for (final SoftwareList sl : profile.getMachineListList().softwarelist_list.getFilteredStream().collect(Collectors.toList()))
+			handler.setProgress2(String.format("%d/%d", j.get(), profile.getMachineListList().getSoftwareListList().size()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
+			for (final SoftwareList sl : profile.getMachineListList().getSoftwareListList().getFilteredStream().collect(Collectors.toList()))
 			{
 				sl.resetFilteredName();
 				File sldir = new File(swroms_dstdir, sl.getName());
@@ -363,7 +363,7 @@ public class Scan extends PathAbstractor
 					sldir = new File(swdisks_dstdir, sl.getName());
 					swdisks_dstscans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
 				}
-				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.getMachineListList().softwarelist_list.size(), sl.getName()), j.get(), profile.getMachineListList().softwarelist_list.size()); //$NON-NLS-1$
+				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.getMachineListList().getSoftwareListList().size(), sl.getName()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
 				if (handler.isCancel())
 					throw new BreakException();
 			}
@@ -467,10 +467,10 @@ public class Scan extends PathAbstractor
 					scanWare(m);
 				}).start(profile.getMachineListList().get(0).getFilteredStream());
 			}
-			if (profile.getMachineListList().softwarelist_list.size() > 0)
+			if (profile.getMachineListList().getSoftwareListList().size() > 0)
 			{
 				/* scan all software lists */
-				profile.getMachineListList().softwarelist_list.getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
+				profile.getMachineListList().getSoftwareListList().getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
 					// for each software list
 					handler.setProgress2(String.format("%s %d/%d (%s)", Messages.getString("Scan.SearchingForFixes"), j.get(), profile.size(), sl.getName()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
 					roms_dstscan = swroms_dstscans.get(sl.getName());
@@ -492,7 +492,7 @@ public class Scan extends PathAbstractor
 		{
 			throw e;
 		}
-		catch (final Throwable e)
+		catch (final Exception e)
 		{
 			Log.err("Other Exception when listing", e); //$NON-NLS-1$
 		}
@@ -507,9 +507,9 @@ public class Scan extends PathAbstractor
 			/* update and save stats */
 			final var nfo = profile.getNfo();
 			nfo.stats.scanned = new Date();
-			nfo.stats.haveSets = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().softwarelist_list.stream()).mapToLong(AnywareList::countHave).sum();
-			nfo.stats.haveRoms = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum();
-			nfo.stats.haveDisks = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().softwarelist_list.stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum();
+			nfo.stats.haveSets = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).mapToLong(AnywareList::countHave).sum();
+			nfo.stats.haveRoms = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum();
+			nfo.stats.haveDisks = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum();
 			nfo.save(profile.getSession());
 			/* save again profile cache with scan entity status */
 			profile.save(); 
@@ -634,7 +634,7 @@ public class Scan extends PathAbstractor
 	{
 		if (format == FormatOptions.TZIP)
 		{
-			if (!report_subject.isMissing() && !report_subject.isUnneeded() && set.samples.size()>0)
+			if (!report_subject.isMissing() && !report_subject.isUnneeded() && set.getSamplesMap().size()>0)
 			{
 				Container tzipcontainer = null;
 				final Container container = samples_dstscan.getContainerByName(archive.getFile().getName());
@@ -927,18 +927,18 @@ public class Scan extends PathAbstractor
 				final Map<String, Entry> entries_byname = container.getEntriesByName();
 				final Map<String, List<Entry>> entries_bysha1 = new HashMap<>();
 				container.getEntries().forEach(e -> {
-					if (e.sha1 != null)
-						entries_bysha1.computeIfAbsent(e.sha1, k -> new ArrayList<>()).add(e);
+					if (e.getSha1() != null)
+						entries_bysha1.computeIfAbsent(e.getSha1(), k -> new ArrayList<>()).add(e);
 				});
 				final Map<String, List<Entry>> entries_bymd5 = new HashMap<>();
 				container.getEntries().forEach(e -> {
-					if (e.md5 != null)
-						entries_bymd5.computeIfAbsent(e.md5, k -> new ArrayList<>()).add(e);
+					if (e.getMd5() != null)
+						entries_bymd5.computeIfAbsent(e.getMd5(), k -> new ArrayList<>()).add(e);
 				});
 				final Map<String, List<Entry>> entries_bycrc = new HashMap<>();
 				container.getEntries().forEach(e -> {
-					if (e.crc != null)
-						entries_bycrc.computeIfAbsent(e.crc + '.' + e.size, k -> new ArrayList<>()).add(e);
+					if (e.getCrc() != null)
+						entries_bycrc.computeIfAbsent(e.getCrc() + '.' + e.getSize(), k -> new ArrayList<>()).add(e);
 				});
 
 				final Set<Entry> marked_for_rename = new HashSet<>();
@@ -950,12 +950,12 @@ public class Scan extends PathAbstractor
 					Entry wrong_hash = null;
 					
 					List<Entry> entries = null;
-					if(rom.sha1!=null)
-						entries = entries_bysha1.get(rom.sha1);
-					if(entries == null && rom.md5!=null)
-						entries = entries_bymd5.get(rom.md5);
-					if(entries == null && rom.crc!=null)
-						entries = entries_bycrc.get(rom.crc+'.'+rom.size);
+					if(rom.getSha1()!=null)
+						entries = entries_bysha1.get(rom.getSha1());
+					if(entries == null && rom.getMd5()!=null)
+						entries = entries_bymd5.get(rom.getMd5());
+					if(entries == null && rom.getCrc()!=null)
+						entries = entries_bycrc.get(rom.getCrc()+'.'+rom.getSize());
 					if(entries != null) 
 					{
 						for (final Entry candidate_entry : entries)

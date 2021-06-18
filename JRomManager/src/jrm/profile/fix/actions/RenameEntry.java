@@ -48,7 +48,7 @@ public class RenameEntry extends EntryAction
 	public RenameEntry(final Entry entry)
 	{
 		super(entry);
-		newname = UUID.randomUUID() + "_" + entry.size + ".tmp"; //$NON-NLS-1$ //$NON-NLS-2$
+		newname = UUID.randomUUID() + "_" + entry.getSize() + ".tmp"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**

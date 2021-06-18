@@ -17,8 +17,6 @@
 package jrm.profile.data;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
 
@@ -38,14 +36,14 @@ abstract class NameBase implements Serializable, Comparable<NameBase>
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
-		final ObjectOutputStream.PutField fields = stream.putFields();
+		final var fields = stream.putFields();
 		fields.put("name", name);
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
-		final ObjectInputStream.GetField fields = stream.readFields();
+		final var fields = stream.readFields();
 		name = (String) fields.get("name","");
 	}
 
@@ -82,6 +80,20 @@ abstract class NameBase implements Serializable, Comparable<NameBase>
 	public final int compareTo(final NameBase o)
 	{
 		return name.compareTo(o.name);
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof NameBase)
+			return name.equals(((NameBase)obj).name);
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return name.hashCode();
 	}
 	
 	@Override
