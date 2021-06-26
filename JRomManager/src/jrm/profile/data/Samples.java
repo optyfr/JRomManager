@@ -101,7 +101,7 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
-		boolean ok = false;
+		var ok = false;
 		for(final Sample sample : this)
 		{
 			final EntityStatus estatus = sample.getStatus();
@@ -124,5 +124,17 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 	public Profile getProfile()
 	{
 		return null;
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
 	}
 }

@@ -195,4 +195,16 @@ public abstract class Entity extends EntityBase implements Serializable
 		return getParent(Anyware.class);
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+	
 }

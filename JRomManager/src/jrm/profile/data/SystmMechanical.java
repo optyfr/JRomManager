@@ -28,7 +28,7 @@ public class SystmMechanical implements Systm, Serializable
 	/**
 	 * the static MECHANICAL object
 	 */
-	public final static SystmMechanical MECHANICAL = new SystmMechanical();
+	public static final SystmMechanical MECHANICAL = new SystmMechanical();
 
 	@Override
 	public Type getType()

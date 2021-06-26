@@ -100,5 +100,17 @@ public abstract class AnywareBase extends NameBase implements Serializable
 	public abstract AnywareStatus getStatus();
 
 	public abstract Profile getProfile();
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
 
 }

@@ -28,7 +28,7 @@ public class SystmStandard implements Systm, Serializable
 	/**
 	 * the static STANDARD object
 	 */
-	public final static SystmStandard STANDARD = new SystmStandard();
+	public static final SystmStandard STANDARD = new SystmStandard();
 
 	@Override
 	public Type getType()

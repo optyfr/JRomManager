@@ -55,7 +55,7 @@ public class Driver implements Serializable
 		good,
 		imperfect,
 		preliminary
-	};
+	}
 
 	/**
 	 * Enumerate the save state types of a machine driver
@@ -64,7 +64,7 @@ public class Driver implements Serializable
 	{
 		supported,
 		unsupported
-	};
+	}
 
 	/**
 	 * Constructor is only authorized in package

@@ -31,6 +31,8 @@ import jrm.profile.data.Software.Part.DataArea;
 import jrm.profile.data.Software.Part.DiskArea;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * This define a MESS software
@@ -47,24 +49,24 @@ public class Software extends Anyware implements Serializable
 	/**
 	 * The publisher name
 	 */
-	public final StringBuffer publisher = new StringBuffer();
+	private final @Getter StringBuilder publisher = new StringBuilder();
 	/**
 	 * Is this software supported, default to yes
 	 */
-	public Supported supported = Supported.yes;
+	private @Getter @Setter Supported supported = Supported.yes;
 	/**
 	 * The software compatibility string (a list of machine dependents tags separated with commas)
 	 */
-	public String compatibility = null;
+	private @Getter @Setter String compatibility = null;
 	/**
 	 * The {@link Part}s list associated with the software
 	 */
-	public final List<Part> parts = new ArrayList<>();
+	private final @Getter List<Part> parts = new ArrayList<>();
 
 	/**
 	 * The software list from which came this software
 	 */
-	public SoftwareList sl = null;
+	private @Getter @Setter SoftwareList sl = null;
 
 	/**
 	 * The Supported values definition
@@ -79,7 +81,7 @@ public class Software extends Anyware implements Serializable
 		{
 			return this==yes?null:this;
 		}
-	};
+	}
 
 	/**
 	 * Part of Data/Disk areas
@@ -109,23 +111,23 @@ public class Software extends Anyware implements Serializable
 			/**
 			 * name of this data area
 			 */
-			public String name;
+			private @Setter String name;
 			/**
 			 * total rom size in this data area
 			 */
-			public int size;
+			private @Setter  int size;
 			/**
 			 * number of bits for ??? (not documented and not used by mame)
 			 */
-			public int databits = 8;
+			private @Setter  int databits = 8;
 			/**
 			 * byte ordering
 			 */
-			public Endianness endianness = Endianness.little;
+			private @Setter  Endianness endianness = Endianness.little;
 			/**
 			 * list of roms
 			 */
-			public List<Rom> roms = new ArrayList<>();
+			private @Getter List<Rom> roms = new ArrayList<>();
 		}
 
 		/**
@@ -136,29 +138,29 @@ public class Software extends Anyware implements Serializable
 			/**
 			 * name of this disk area
 			 */
-			public String name;
+			private @Setter String name;
 			/**
 			 * list of disks
 			 */
-			public List<Disk> disks = new ArrayList<>();
+			private @Getter List<Disk> disks = new ArrayList<>();
 		}
 
 		/**
 		 * name of the part
 		 */
-		public String name;
+		private @Setter String name;
 		/**
 		 * the interface used to load this part 
 		 */
-		public String intrface;
+		private @Getter @Setter String intrface;
 		/**
 		 * The {@link List} of {@link DataArea}s
 		 */
-		public List<DataArea> dataareas = new ArrayList<>();
+		private @Getter List<DataArea> dataareas = new ArrayList<>();
 		/**
 		 * The {@link List} of {@link DiskArea}s
 		 */
-		public List<DiskArea> diskareas = new ArrayList<>();
+		private @Getter List<DiskArea> diskareas = new ArrayList<>();
 	}
 
 	@Override
@@ -276,4 +278,16 @@ public class Software extends Anyware implements Serializable
 		return getRoms().stream();
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+	
 }

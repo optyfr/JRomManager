@@ -34,6 +34,7 @@ import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
 import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
+import lombok.Getter;
 
 /**
  * a {@link Software} list 
@@ -47,16 +48,16 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	/**
 	 * description of the software list
 	 */
-	public final StringBuffer description = new StringBuffer();
+	private final @Getter StringBuilder description = new StringBuilder();
 
 	/**
 	 * The {@link ArrayList} of {@link Software}
 	 */
-	private final List<Software> s_list = new ArrayList<>();
+	private final List<Software> swList = new ArrayList<>();
 	/**
 	 * The by name {@link HashMap} of {@link Software}
 	 */
-	private final Map<String, Software> s_byname = new HashMap<>();
+	private final Map<String, Software> swByName = new HashMap<>();
 
 	/**
 	 * The constructor, will initialize transients fields
@@ -88,15 +89,15 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	@Override
 	public boolean add(final Software software)
 	{
-		software.sl = this;
-		s_byname.put(software.name, software);
-		return s_list.add(software);
+		software.setSl(this);
+		swByName.put(software.name, software);
+		return swList.add(software);
 	}
 
 	@Override
 	public List<Software> getList()
 	{
-		return s_list;
+		return swList;
 	}
 
 	@Override
@@ -131,7 +132,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		 */
 		final boolean filterIncludeClones = profile.getProperty(SettingsEnum.filter_InclClones, true); //$NON-NLS-1$
 		final boolean filterIncludeDisks = profile.getProperty(SettingsEnum.filter_InclDisks, true); //$NON-NLS-1$
-		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString())); //$NON-NLS-1$
+		final var filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString())); //$NON-NLS-1$
 		final String filterYearMin = profile.getProperty(SettingsEnum.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
 		final String filterYearMax = profile.getProperty(SettingsEnum.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
 		
@@ -143,9 +144,9 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 				if(filterYearMax.compareTo(t.year.toString())<0)
 					return false;
 			}
-			if(filterMinSoftwareSupportedLevel==Supported.partial && t.supported==Supported.no)	// exclude support=no software if min software support is partial
+			if(filterMinSoftwareSupportedLevel==Supported.partial && t.getSupported()==Supported.no)	// exclude support=no software if min software support is partial
 				return false;
-			if(filterMinSoftwareSupportedLevel==Supported.yes && t.supported!=Supported.yes) // exclude support!=yes if min software support is yes
+			if(filterMinSoftwareSupportedLevel==Supported.yes && t.getSupported()!=Supported.yes) // exclude support!=yes if min software support is yes
 				return false;
 			if(!filterIncludeClones && t.isClone())	// exclude clones machines
 				return false;
@@ -204,46 +205,58 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	@Override
 	public boolean containsName(final String name)
 	{
-		return s_byname.containsKey(name);
+		return swByName.containsKey(name);
 	}
 
 	@Override
 	public Software getByName(String name)
 	{
-		return s_byname.get(name);
+		return swByName.get(name);
 	}
 
 	@Override
 	public Software putByName(Software t)
 	{
-		return s_byname.put(t.name, t);
+		return swByName.put(t.name, t);
 	}
 	
 	/**
 	 * named map filtered cache
 	 */
-	private transient Map<String, Software> s_filtered_byname = null;
+	private transient Map<String, Software> swFilteredByName = null;
 
 	@Override
 	public void resetFilteredName()
 	{
-		s_filtered_byname = getFilteredStream().collect(Collectors.toMap(Software::getBaseName, Function.identity()));
+		swFilteredByName = getFilteredStream().collect(Collectors.toMap(Software::getBaseName, Function.identity()));
 	}
 
 	@Override
 	public boolean containsFilteredName(String name)
 	{
-		if(s_filtered_byname==null)
+		if(swFilteredByName==null)
 			resetFilteredName();
-		return s_filtered_byname.containsKey(name);
+		return swFilteredByName.containsKey(name);
 	}
 
 	@Override
 	public Software getFilteredByName(String name)
 	{
-		if(s_filtered_byname==null)
+		if(swFilteredByName==null)
 			resetFilteredName();
-		return s_filtered_byname.get(name);
+		return swFilteredByName.get(name);
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+	
 }

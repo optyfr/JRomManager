@@ -34,4 +34,16 @@ public class Slot extends ArrayList<SlotOption> implements Serializable
 	 * the name of the Slot
 	 */
 	private @Setter @Getter String name;
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		return super.equals(o);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
 }

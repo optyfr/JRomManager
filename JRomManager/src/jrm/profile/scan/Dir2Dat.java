@@ -233,13 +233,13 @@ public class Dir2Dat
 								if(software != null && options.contains(Options.MATCH_PROFILE))
 								{
 									swname = software.getBaseName();
-									slname = software.sl.getBaseName();
+									slname = software.getSl().getBaseName();
 								}
 							}
 							if(!slcounter.containsKey(slname))
 							{
 								slcounter.put(slname, new HashMap<>());
-								slmap.put(slname, new SL(slname,software!=null?software.sl:null));
+								slmap.put(slname, new SL(slname,software!=null?software.getSl():null));
 							}
 							Map<String, AtomicInteger> swcounter = slcounter.get(slname);
 							if(!swcounter.containsKey(swname))
@@ -263,7 +263,7 @@ public class Dir2Dat
 							new SimpleAttribute("name", e.getValue().name) //$NON-NLS-1$
 						);
 						if(e.getValue().sl!=null)
-							writer.writeElement("description", e.getValue().sl.description); //$NON-NLS-1$
+							writer.writeElement("description", e.getValue().sl.getDescription()); //$NON-NLS-1$
 						for(Map.Entry<String, SL.SW> ee : e.getValue().sw.entrySet())
 						{
 							if(ee.getValue().sw!=null)

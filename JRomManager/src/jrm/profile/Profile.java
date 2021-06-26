@@ -344,7 +344,7 @@ public class Profile implements Serializable
 			{
 				currDisk = new Disk(currMachine != null ? currMachine : currSoftware);
 				if (currSoftware != null && currDiskArea != null)
-					currDiskArea.disks.add(currDisk);
+					currDiskArea.getDisks().add(currDisk);
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					switch (attributes.getQName(i))
@@ -401,7 +401,7 @@ public class Profile implements Serializable
 			{
 				currRom = new Rom(currMachine != null ? currMachine : currSoftware);
 				if (currSoftware != null && currDataArea != null)
-					currDataArea.roms.add(currRom);
+					currDataArea.getRoms().add(currRom);
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					switch (attributes.getQName(i))
@@ -769,7 +769,7 @@ public class Profile implements Serializable
 							machineListList.getSoftwareListList().putByName(currSoftwareList);
 							break;
 						case "description": //$NON-NLS-1$
-							currSoftwareList.description.append(attributes.getValue(i).trim());
+							currSoftwareList.getDescription().append(attributes.getValue(i).trim());
 							break;
 						default:
 							break;
@@ -820,7 +820,7 @@ public class Profile implements Serializable
 						currSoftware.setCloneof(attributes.getValue(i));
 						break;
 					case "supported": //$NON-NLS-1$
-						currSoftware.supported = Software.Supported.valueOf(attributes.getValue(i));
+						currSoftware.setSupported(Software.Supported.valueOf(attributes.getValue(i)));
 						break;
 					default:
 						break;
@@ -834,7 +834,7 @@ public class Profile implements Serializable
 			{
 				// extract interesting features from current software
 				if (attributes.getValue("name").equalsIgnoreCase("compatibility")) //$NON-NLS-1$ //$NON-NLS-2$
-					currSoftware.compatibility = attributes.getValue("value"); //$NON-NLS-1$
+					currSoftware.setCompatibility(attributes.getValue("value")); //$NON-NLS-1$
 			}
 		}
 
@@ -844,13 +844,13 @@ public class Profile implements Serializable
 			{
 				currPart = new Part();
 				// we enter a part in current current software
-				currSoftware.parts.add(currPart);
+				currSoftware.getParts().add(currPart);
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					if ("name".equals(attributes.getQName(i)))
-						currPart.name = attributes.getValue(i).trim();
+						currPart.setName(attributes.getValue(i).trim());
 					else if ("interface".equals(attributes.getQName(i)))
-						currPart.intrface = attributes.getValue(i).trim();
+						currPart.setIntrface(attributes.getValue(i).trim());
 				}
 			}
 		}
@@ -861,27 +861,27 @@ public class Profile implements Serializable
 			{
 				// we enter a dataarea block in current part
 				currDataArea = new DataArea();
-				currPart.dataareas.add(currDataArea);
+				currPart.getDataareas().add(currDataArea);
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					switch (attributes.getQName(i))
 					{
 						case "name": //$NON-NLS-1$
-							currDataArea.name = attributes.getValue(i).trim();
+							currDataArea.setName(attributes.getValue(i).trim());
 							break;
 						case "size": //$NON-NLS-1$
 						{
 							final var value = attributes.getValue(i).trim();
-							ExceptionUtils.unthrowF(size -> currDataArea.size = size, Integer::decode, value, t -> ExceptionUtils.test(t, "0x" + value, 0));
+							ExceptionUtils.unthrowF(currDataArea::setSize, Integer::decode, value, t -> ExceptionUtils.test(t, "0x" + value, 0));
 							break;
 						}
 						case "width": //$NON-NLS-1$
 						case "databits": //$NON-NLS-1$
-							currDataArea.databits = Integer.valueOf(attributes.getValue(i));
+							currDataArea.setDatabits(Integer.valueOf(attributes.getValue(i)));
 							break;
 						case "endianness": //$NON-NLS-1$
 						case "endian": //$NON-NLS-1$
-							currDataArea.endianness = Endianness.valueOf(attributes.getValue(i));
+							currDataArea.setEndianness(Endianness.valueOf(attributes.getValue(i)));
 							break;
 						default:
 							break;
@@ -896,11 +896,11 @@ public class Profile implements Serializable
 			{
 				// we enter a diskarea block in current part
 				currDiskArea = new DiskArea();
-				currPart.diskareas.add(currDiskArea);
+				currPart.getDiskareas().add(currDiskArea);
 				for (var i = 0; i < attributes.getLength(); i++)
 				{
 					if ("name".equals(attributes.getQName(i)))
-						currDiskArea.name = attributes.getValue(i).trim();
+						currDiskArea.setName(attributes.getValue(i).trim());
 				}
 			}
 		}
@@ -1202,7 +1202,7 @@ public class Profile implements Serializable
 				else if (currSoftware != null)
 					currSoftware.description.append(ch, start, length);
 				else if (currSoftwareList != null)
-					currSoftwareList.description.append(ch, start, length);
+					currSoftwareList.getDescription().append(ch, start, length);
 			}
 			else if (inYear)
 			{
@@ -1221,7 +1221,7 @@ public class Profile implements Serializable
 			else if (inPublisher && currSoftware != null)
 			{
 				// we are in publisher block, so fill up publisher data for current software
-				currSoftware.publisher.append(ch, start, length);
+				currSoftware.getPublisher().append(ch, start, length);
 			}
 			else if (inHeader)
 			{

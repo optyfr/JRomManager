@@ -83,7 +83,7 @@ public class Entry implements Serializable
 		 * mame's CHD disk
 		 */
 		CHD
-	};
+	}
 
 	/**
 	 * construct based of a file string
@@ -98,6 +98,8 @@ public class Entry implements Serializable
 		{
 			case "chd": //$NON-NLS-1$
 				type = Type.CHD;
+				break;
+			default:
 				break;
 		}
 	}

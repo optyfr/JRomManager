@@ -118,4 +118,16 @@ public abstract class EntityBase extends NameBase implements Serializable
 		}
 		return null;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
 }

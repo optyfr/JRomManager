@@ -309,4 +309,16 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	{
 		return find(getFilteredStream().filter(s -> s.getName().toLowerCase().startsWith(search.toLowerCase())).findFirst().orElse(null));
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
 }

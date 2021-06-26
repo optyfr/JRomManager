@@ -28,7 +28,7 @@ public class SystmDevice implements Systm, Serializable
 	/**
 	 * the static DEVICE object
 	 */
-	public final static SystmDevice DEVICE = new SystmDevice();
+	public static final SystmDevice DEVICE = new SystmDevice();
 
 	@Override
 	public Type getType()

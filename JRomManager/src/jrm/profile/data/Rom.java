@@ -244,7 +244,7 @@ public class Rom extends Entity implements Serializable
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException
 	{
 		if (parent instanceof Software)
 		{

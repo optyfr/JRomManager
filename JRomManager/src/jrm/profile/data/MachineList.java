@@ -109,7 +109,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		if(excludeGames && !excludeMachines)
 		{	// special case where we want to keep computers & consoles machines but not arcade games machines (let's call it mess mode)
 			HashSet<Machine> machines = new HashSet<>();
-			getList().stream().filter(t -> t.isSoftMachine()).forEach(m -> m.getDevices(machines, false, false, true));
+			getList().stream().filter(Machine::isSoftMachine).forEach(m -> m.getDevices(machines, false, false, true));
 			final HashSet<Machine> allDevices = new HashSet<>();
 			getList().stream().filter(t -> !t.isdevice).forEach(m -> m.getDevices(allDevices,false, false, true));
 			allDevices.removeAll(allDevices.stream().filter(t->!t.isdevice).collect(Collectors.toSet()));
@@ -267,6 +267,18 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		if(mFilteredByName==null)
 			resetFilteredName();
 		return mFilteredByName.get(name);
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
 	}
 
 }
