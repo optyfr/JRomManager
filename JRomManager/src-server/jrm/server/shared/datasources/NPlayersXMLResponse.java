@@ -21,8 +21,8 @@ public class NPlayersXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString((session.curr_profile.getNplayers()==null?0:request.getSession().curr_profile.getNplayers().getList_nplayers().size())-1));
-		writer.writeElement("totalRows", Integer.toString(session.curr_profile.getNplayers()==null?0:request.getSession().curr_profile.getNplayers().getList_nplayers().size()));
+		writer.writeElement("endRow", Integer.toString((session.curr_profile.getNplayers()==null?0:request.getSession().curr_profile.getNplayers().getListNPlayers().size())-1));
+		writer.writeElement("totalRows", Integer.toString(session.curr_profile.getNplayers()==null?0:request.getSession().curr_profile.getNplayers().getListNPlayers().size()));
 		writer.writeStartElement("data");
 		if(session.curr_profile.getNplayers()!=null)
 		{

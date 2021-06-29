@@ -54,18 +54,18 @@ public class DuplicateEntry extends EntryAction
 	@Override
 	public boolean doAction(final Session session, final FileSystem fs, final ProgressHandler handler, int i, int max)
 	{
-		final Path dstpath = fs.getPath(newname);
+		final var dstpath = fs.getPath(newname);
 		try
 		{
 			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DuplicateEntry.Duplicating"), entry.getRelFile(), newname))); //$NON-NLS-1$
-			final Path srcpath = fs.getPath(entry.getFile());
-			Path parent2 = dstpath.getParent();
+			final var srcpath = fs.getPath(entry.getFile());
+			final var parent2 = dstpath.getParent();
 			if(parent2 != null)
 				Files.createDirectories(parent2);
 			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		}
-		catch(final Throwable e)
+		catch(final Exception e)
 		{
 			Log.err(e.getMessage(),e);
 			System.err.println("duplicate " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -83,15 +83,15 @@ public class DuplicateEntry extends EntryAction
 			if(dstpath!=null)
 			{
 				handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DuplicateEntry.Duplicating"), entry.getRelFile(), newname))); //$NON-NLS-1$
-				final Path srcpath = target.resolve(entry.getFile());
-				Path parent2 = dstpath.getParent();
+				final var srcpath = target.resolve(entry.getFile());
+				final var parent2 = dstpath.getParent();
 				if(parent2 != null)
 					Files.createDirectories(parent2);
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES);
 				return true;
 			}
 		}
-		catch(final Throwable e)
+		catch(final Exception e)
 		{
 			System.err.println("duplicate " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
@@ -106,7 +106,7 @@ public class DuplicateEntry extends EntryAction
 			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DuplicateEntry.Duplicating"), entry.getRelFile(), newname))); //$NON-NLS-1$
 			return archive.duplicate(entry.getFile(), newname) == 0;
 		}
-		catch(final Throwable e)
+		catch(final Exception e)
 		{
 			System.err.println("duplicate " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}

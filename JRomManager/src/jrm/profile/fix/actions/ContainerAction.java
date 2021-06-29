@@ -31,8 +31,10 @@ import jrm.security.Session;
  * @author optyfr
  *
  */
-abstract public class ContainerAction implements HTMLRenderer, Comparable<ContainerAction>
+public abstract class ContainerAction implements HTMLRenderer, Comparable<ContainerAction>
 {
+	private static final int COUNT = 0;
+	private static final long ESTIMATED_SIZE = 0L;
 	/**
 	 * the container on which applying actions
 	 */
@@ -44,14 +46,14 @@ abstract public class ContainerAction implements HTMLRenderer, Comparable<Contai
 	/**
 	 * the {@link ArrayList} of {@link EntryAction}s
 	 */
-	public final ArrayList<EntryAction> entry_actions = new ArrayList<>();
+	public final List<EntryAction> entryActions = new ArrayList<>();
 
 	/**
 	 * Constructor
 	 * @param container the container used for action
 	 * @param format the desired format for container
 	 */
-	public ContainerAction(final Container container, final FormatOptions format)
+	protected ContainerAction(final Container container, final FormatOptions format)
 	{
 		this.container = container;
 		this.format = format;
@@ -63,7 +65,7 @@ abstract public class ContainerAction implements HTMLRenderer, Comparable<Contai
 	 */
 	public void addAction(final EntryAction entryAction)
 	{
-		entry_actions.add(entryAction);
+		entryActions.add(entryAction);
 		entryAction.parent = this;
 	}
 
@@ -74,7 +76,7 @@ abstract public class ContainerAction implements HTMLRenderer, Comparable<Contai
 	 */
 	public static void addToList(final List<ContainerAction> list, final ContainerAction action)
 	{
-		if(action != null && action.entry_actions.size() > 0)
+		if(action != null && !action.entryActions.isEmpty())
 			list.add(action);
 	}
 
@@ -87,12 +89,12 @@ abstract public class ContainerAction implements HTMLRenderer, Comparable<Contai
 	
 	public long estimatedSize()
 	{
-		return 0L;
+		return ESTIMATED_SIZE;
 	}
 	
 	public int count()
 	{
-		return 0;
+		return COUNT;
 	}
 	
 	@Override
@@ -109,28 +111,25 @@ abstract public class ContainerAction implements HTMLRenderer, Comparable<Contai
 		return 0;
 	}
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
+	
 	public static Comparator<ContainerAction> comparator()
 	{
-		return new Comparator<ContainerAction>()
-		{
-			@Override
-			public int compare(ContainerAction o1, ContainerAction o2)
-			{
-				return o1.compareTo(o2);
-			}
-		};
+		return (o1, o2) -> o1.compareTo(o2);
 	}
-
 	
 	public static Comparator<ContainerAction> rcomparator()
 	{
-		return new Comparator<ContainerAction>()
-		{
-			@Override
-			public int compare(ContainerAction o1, ContainerAction o2)
-			{
-				return -o1.compareTo(o2);
-			}
-		};
+		return (o1, o2) -> o2.compareTo(o1);
 	}
 }

@@ -64,7 +64,7 @@ public class BackupContainer extends ContainerAction
 	/**
 	 * a maintained list of opened Zip {@link FileSystem}s
 	 */
-	private final static Map<String, FileSystem> filesystems = new HashMap<String, FileSystem>();
+	private static final Map<String, FileSystem> filesystems = new HashMap<>();
 
 	/**
 	 * get a {@link FileSystem} to backup {@link EntryAction} file from {@link Container}
@@ -75,14 +75,14 @@ public class BackupContainer extends ContainerAction
 	 */
 	public static synchronized FileSystem getFS(final Session session, Container container, EntryAction action) throws IOException
 	{
-		String crc2 = action.entry.getCrc().substring(0, 2);
+		final var crc2 = action.entry.getCrc().substring(0, 2);
 		if (!filesystems.containsKey(crc2))
 		{
-			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
-			final File backupdir = new File(workdir, "backup"); //$NON-NLS-1$
-			final CRC32 crc = new CRC32();
+			final var workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
+			final var backupdir = new File(workdir, "backup"); //$NON-NLS-1$
+			final var crc = new CRC32();
 			crc.update(container.getFile().getAbsoluteFile().getParent().getBytes());
-			final File backupfile = new File(new File(backupdir, String.format("%08x", crc.getValue())), crc2 + ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
+			final var backupfile = new File(new File(backupdir, String.format("%08x", crc.getValue())), crc2 + ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 			backupfile.getParentFile().mkdirs();
 			final Map<String, Object> env = new HashMap<>();
 			if (!backupfile.exists())
@@ -121,17 +121,17 @@ public class BackupContainer extends ContainerAction
 	{
 		try
 		{
-			int i = 0;
-			if (entry_actions.size() == 0)
+			var i = 0;
+			if (entryActions.isEmpty())
 				for (Entry entry : container.getEntries())
 					addAction(new BackupEntry(entry));
-			for (final EntryAction action : entry_actions)
+			for (final EntryAction action : entryActions)
 			{
 				i++;
 				final FileSystem fs = getFS(session, container, action);
 				synchronized (fs)
 				{
-					if (!action.doAction(session, fs, handler, i, entry_actions.size()))
+					if (!action.doAction(session, fs, handler, i, entryActions.size()))
 					{
 						System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
@@ -140,7 +140,7 @@ public class BackupContainer extends ContainerAction
 			}
 			return true;
 		}
-		catch (final Throwable e)
+		catch (final Exception e)
 		{
 			Log.err(e.getMessage(),e);
 		}

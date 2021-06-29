@@ -50,37 +50,43 @@ public class BackupEntry extends EntryAction
 	@Override
 	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
-		Path dstpath_crc = dstfs.getPath(entry.getCrc()+'_'+entry.getSize());
-		Path dstpath = dstfs.getPath(entry.getSha1()!=null?entry.getSha1():(entry.getMd5()!=null?entry.getMd5():(entry.getCrc()+'_'+entry.getSize())));
+		final var dstPathCrc = dstfs.getPath(entry.getCrc()+'_'+entry.getSize());
+		final Path dstPath;
+		if(entry.getSha1()!=null)
+			dstPath = dstfs.getPath(entry.getSha1());
+		else if(entry.getMd5()!=null)
+			dstPath = dstfs.getPath(entry.getMd5());
+		else
+			dstPath = dstfs.getPath(entry.getCrc()+'_'+entry.getSize());
 		handler.setProgress(null, null, null, progress(i, max, String.format("Backup of %s", entry.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
 		try
 		{
-			Path parent2 = dstpath.getParent();
+			final var parent2 = dstPath.getParent();
 			if(parent2 != null)
 				Files.createDirectories(parent2);
-			if(!dstpath.equals(dstpath_crc) && Files.exists(dstpath_crc))
-				Files.delete(dstpath_crc);
-			if (Files.exists(dstpath))
+			if(!dstPath.equals(dstPathCrc) && Files.exists(dstPathCrc))
+				Files.delete(dstPathCrc);
+			if (Files.exists(dstPath))
 				return true;
 			if(entry.getParent().getType() == Type.DIR)
 			{
 				srcpath = entry.getParent().getFile().toPath().resolve(entry.getFile());
-				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(srcpath, dstPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
 			else if(entry.getParent().getType() == Type.FAKE)
 			{
 				srcpath = entry.getParent().getFile().getParentFile().toPath().resolve(entry.getFile());
-				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(srcpath, dstPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
 			}
 			else if(entry.getParent().getType() == Type.ZIP)
 			{
-				try(FileSystem srcfs = FileSystems.newFileSystem(entry.getParent().getFile().toPath(), (ClassLoader)null);)
+				try(final var srcfs = FileSystems.newFileSystem(entry.getParent().getFile().toPath(), (ClassLoader)null);)
 				{
 					srcpath = srcfs.getPath(entry.getFile());
-					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+					Files.copy(srcpath, dstPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 					return true;
 				}
 			}
@@ -91,16 +97,16 @@ public class BackupEntry extends EntryAction
 					if(srcarchive.extract(entry.getFile()) != null)
 					{
 						srcpath = new File(srcarchive.getTempDir(), entry.getFile()).toPath();
-						Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+						Files.copy(srcpath, dstPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 						return true;
 					}
 				}
 			}
 		}
-		catch(final Throwable e)
+		catch(final Exception e)
 		{
 			Log.err(e.getMessage(),e);
-			System.err.println("add from " + entry.getParent().getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstpath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			System.err.println("add from " + entry.getParent().getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstPath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}

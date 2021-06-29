@@ -19,11 +19,12 @@ public final class NPlayer implements List<String>, PropertyStub
 	/**
 	 * the name of the nplayer mode
 	 */
-	final public String name;
+	public final String name;
+	
 	/**
 	 * The {@link List} of compatible games identified by code names
 	 */
-	final private List<String> games = new ArrayList<>();
+	private final List<String> games = new ArrayList<>();
 
 	/**
 	 * The NPlayer constructor

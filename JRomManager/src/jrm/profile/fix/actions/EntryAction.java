@@ -30,8 +30,9 @@ import jrm.security.Session;
  * @author optyfr
  *
  */
-abstract public class EntryAction implements HTMLRenderer
+public abstract class EntryAction implements HTMLRenderer
 {
+	private static final long ESTIMATED_SIZE = 0L;
 	/**
 	 * the entry on which we should apply an action
 	 */
@@ -45,7 +46,7 @@ abstract public class EntryAction implements HTMLRenderer
 	 * constructor
 	 * @param entry the {@link Entry} on which to apply action
 	 */
-	public EntryAction(final Entry entry)
+	protected EntryAction(final Entry entry)
 	{
 		this.entry = entry;
 	}
@@ -84,7 +85,7 @@ abstract public class EntryAction implements HTMLRenderer
 	
 	public long estimatedSize()
 	{
-		return 0L;
+		return ESTIMATED_SIZE;
 	}
 
 }

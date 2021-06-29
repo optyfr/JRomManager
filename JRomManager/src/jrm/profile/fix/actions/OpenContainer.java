@@ -114,10 +114,10 @@ public class OpenContainer extends ContainerAction
 	{
 		final Path target = container.getType() == Container.Type.DIR ? container.getFile().toPath() : container.getFile().getParentFile().toPath();
 		var i = 0;
-		for (final EntryAction action : entry_actions)
+		for (final EntryAction action : entryActions)
 		{
 			i++;
-			if (!action.doAction(session, target, handler, i, entry_actions.size()))
+			if (!action.doAction(session, target, handler, i, entryActions.size()))
 			{
 				System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				return false;
@@ -138,10 +138,10 @@ public class OpenContainer extends ContainerAction
 		try (Archive archive = new SevenZipArchive(session, container.getFile()))
 		{
 			var i = 0;
-			for (final EntryAction action : entry_actions)
+			for (final EntryAction action : entryActions)
 			{
 				i++;
-				if (!action.doAction(session, archive, handler, i, entry_actions.size()))
+				if (!action.doAction(session, archive, handler, i, entryActions.size()))
 				{
 					System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					return false;
@@ -166,10 +166,10 @@ public class OpenContainer extends ContainerAction
 		try (Archive archive = new ZipArchive(session, container.getFile()))
 		{
 			var i = 0;
-			for (final EntryAction action : entry_actions)
+			for (final EntryAction action : entryActions)
 			{
 				i++;
-				if (!action.doAction(session, archive, handler, i, entry_actions.size()))
+				if (!action.doAction(session, archive, handler, i, entryActions.size()))
 				{
 					System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					return false;
@@ -197,10 +197,10 @@ public class OpenContainer extends ContainerAction
 		try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.getFile().toURI()), env);) //$NON-NLS-1$
 		{
 			var i = 0;
-			for (final EntryAction action : entry_actions)
+			for (final EntryAction action : entryActions)
 			{
 				i++;
-				if (!action.doAction(session, fs, handler, i, entry_actions.size()))
+				if (!action.doAction(session, fs, handler, i, entryActions.size()))
 				{
 					System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					return false;
@@ -281,7 +281,7 @@ public class OpenContainer extends ContainerAction
 	public String toString()
 	{
 		StringBuilder str = new StringBuilder(Messages.getString("OpenContainer.Open")).append(container); //$NON-NLS-1$
-		for (final EntryAction action : entry_actions)
+		for (final EntryAction action : entryActions)
 			str.append("\n\t").append(action); //$NON-NLS-1$
 		return str.toString();
 	}
@@ -290,7 +290,7 @@ public class OpenContainer extends ContainerAction
 	public long estimatedSize()
 	{
 		long size = 0;
-		for (final EntryAction action : entry_actions)
+		for (final EntryAction action : entryActions)
 			size += action.estimatedSize();
 		return size;
 	}
@@ -298,6 +298,18 @@ public class OpenContainer extends ContainerAction
 	@Override
 	public int count()
 	{
-		return entry_actions.size();
+		return entryActions.size();
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
 	}
 }

@@ -40,11 +40,11 @@ public final class NPlayers implements Iterable<NPlayer>
 	/**
 	 * The {@link List} of {@link NPlayer} modes
 	 */
-	private final @Getter List<NPlayer> list_nplayers = new ArrayList<>();
+	private final @Getter List<NPlayer> listNPlayers = new ArrayList<>();
 	/**
 	 * The location of the nplayers.ini {@link File}
 	 */
-	final public File file;
+	public final File file;
 
 	/**
 	 * The main constructor will read provided nplayers.ini and initialize list of nplayer/games
@@ -53,36 +53,30 @@ public final class NPlayers implements Iterable<NPlayer>
 	 */
 	private NPlayers(final File file) throws IOException
 	{
-		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
+		try(final var reader = new BufferedReader(new FileReader(file));)
 		{
 			final Map<String, NPlayer> nplayers = new TreeMap<>();
 			this.file = file;
 			String line;
-			boolean in_section = false;
+			var inSection = false;
 			while(null != (line = reader.readLine()))
 			{
 				if(line.equalsIgnoreCase("[NPlayers]")) //$NON-NLS-1$
-					in_section = true;
-				else if(line.startsWith("[") && in_section) //$NON-NLS-1$
+					inSection = true;
+				else if(line.startsWith("[") && inSection) //$NON-NLS-1$
 					break;
-				else if(in_section)
+				else if(inSection)
 				{
 					final String[] kv = StringUtils.split(line, '=');
 					if(kv.length == 2)
 					{
-						final String k = kv[0].trim();
-						final String v = kv[1].trim();
-						NPlayer nplayer;
-						if(!nplayers.containsKey(v))
-							nplayers.put(v, nplayer = new NPlayer(v));
-						else
-							nplayer = nplayers.get(v);
-						nplayer.add(k);
+						final var nplayer = nplayers.computeIfAbsent(kv[1].trim(), NPlayer::new);
+						nplayer.add(kv[0].trim());
 					}
 				}
 			}
-			list_nplayers.addAll(nplayers.values());
-			if(list_nplayers.isEmpty())
+			listNPlayers.addAll(nplayers.values());
+			if(listNPlayers.isEmpty())
 				throw new IOException(Messages.getString("NPlayers.NoNPlayersData")); //$NON-NLS-1$
 		}
 	}
@@ -101,7 +95,7 @@ public final class NPlayers implements Iterable<NPlayer>
 	@Override
 	public Iterator<NPlayer> iterator()
 	{
-		return list_nplayers.iterator();
+		return listNPlayers.iterator();
 	}
 
 }

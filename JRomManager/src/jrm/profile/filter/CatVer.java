@@ -374,40 +374,29 @@ public final class CatVer implements Iterable<jrm.profile.filter.CatVer.Category
 	private CatVer(final Profile profile, final File file) throws IOException
 	{
 		this.profile = profile;
-		try(BufferedReader reader = new BufferedReader(new FileReader(file));)
+		try(final var reader = new BufferedReader(new FileReader(file));)
 		{
 			final Map<String, Category> categories = new TreeMap<>();
 			this.file = file;
 			String line;
-			boolean in_section = false;
+			var inSection = false;
 			while(null != (line = reader.readLine()))
 			{
 				if(line.equalsIgnoreCase("[Category]")) //$NON-NLS-1$
-					in_section = true;
-				else if(line.startsWith("[") && in_section) //$NON-NLS-1$
+					inSection = true;
+				else if(line.startsWith("[") && inSection) //$NON-NLS-1$
 					break;
-				else if(in_section)
+				else if(inSection)
 				{
 					final String[] kv = StringUtils.split(line, '=');
 					if(kv.length == 2)
 					{
-						final String k = kv[0].trim();
 						final String[] v = StringUtils.split(kv[1], '/');
 						if(v.length == 2)
 						{
-							final String c = v[0].trim();
-							final String sc = v[1].trim();
-							Category cat;
-							if(!categories.containsKey(c))
-								categories.put(c, cat = new Category(c));
-							else
-								cat = categories.get(c);
-							Category.SubCategory subcat;
-							if(!cat.containsKey(sc))
-								cat.put(sc, subcat = cat.new SubCategory(sc));
-							else
-								subcat = cat.get(sc);
-							subcat.add(k);
+							final var cat = categories.computeIfAbsent(v[0].trim(), Category::new);
+							final var subcat = cat.computeIfAbsent(v[1].trim(), s -> cat.new SubCategory(s));
+							subcat.add(kv[0].trim());
 						}
 					}
 				}

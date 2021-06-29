@@ -62,16 +62,16 @@ public class AddEntry extends EntryAction
 	@Override
 	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
-		final Path dstpath = dstfs.getPath(entity.getName());
+		final var dstpath = dstfs.getPath(entity.getName());
 		handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
 		if(entry.getParent().getType() == Type.DIR)
 		{
 			try
 			{
-				Path parent_dstpath = dstpath.getParent(); 
-				if(parent_dstpath != null)
-					Files.createDirectories(parent_dstpath);
+				var parentDstPath = dstpath.getParent(); 
+				if(parentDstPath != null)
+					Files.createDirectories(parentDstPath);
 				srcpath = entry.getParent().getFile().toPath().resolve(entry.getFile());
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
@@ -85,9 +85,9 @@ public class AddEntry extends EntryAction
 		{
 			try
 			{
-				Path parent_dstpath = dstpath.getParent(); 
-				if(parent_dstpath != null)
-					Files.createDirectories(parent_dstpath);
+				final var parentDstPath = dstpath.getParent(); 
+				if(parentDstPath != null)
+					Files.createDirectories(parentDstPath);
 				srcpath = entry.getParent().getFile().getParentFile().toPath().resolve(entry.getFile());
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
@@ -99,11 +99,11 @@ public class AddEntry extends EntryAction
 		}
 		else if(entry.getParent().getType() == Type.ZIP)
 		{
-			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.getParent().getFile().toPath(), Collections.singletonMap("readOnly", true));)
+			try(final var srcfs = new ZipFileSystemProvider().newFileSystem(entry.getParent().getFile().toPath(), Collections.singletonMap("readOnly", true));)
 			{
-				Path parent_dstpath = dstpath.getParent(); 
-				if(parent_dstpath != null)
-					Files.createDirectories(parent_dstpath);
+				final var parentDstPath = dstpath.getParent(); 
+				if(parentDstPath != null)
+					Files.createDirectories(parentDstPath);
 				srcpath = srcfs.getPath(entry.getFile());
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 				return true;
@@ -120,9 +120,9 @@ public class AddEntry extends EntryAction
 				final File srcfile;
 				if((srcfile=srcarchive.extract(entry.getFile())) != null)
 				{
-					Path parent_dstpath = dstpath.getParent(); 
-					if(parent_dstpath != null)
-						Files.createDirectories(parent_dstpath);
+					final var parentDstPath = dstpath.getParent(); 
+					if(parentDstPath != null)
+						Files.createDirectories(parentDstPath);
 					srcpath = srcfile.toPath();
 					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 					return true;
@@ -139,7 +139,7 @@ public class AddEntry extends EntryAction
 	@Override
 	public boolean doAction(final Session session, final Path target, final ProgressHandler handler, int i, int max)
 	{
-		final Path dstpath = target.resolve(entity.getName());
+		final var dstpath = target.resolve(entity.getName());
 		handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
 		if(entry.getParent().getType() == Type.DIR)
@@ -147,7 +147,7 @@ public class AddEntry extends EntryAction
 			try
 			{
 				srcpath = entry.getParent().getFile().toPath().resolve(entry.getFile());
-				Path parent = dstpath.getParent(); 
+				final var parent = dstpath.getParent(); 
 				if(parent != null)
 					Files.createDirectories(parent);
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
@@ -163,7 +163,7 @@ public class AddEntry extends EntryAction
 			try
 			{
 				srcpath = entry.getParent().getFile().getParentFile().toPath().resolve(entry.getFile());
-				Path parent = dstpath.getParent(); 
+				final var parent = dstpath.getParent(); 
 				if(parent != null)
 					Files.createDirectories(parent);
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
@@ -176,10 +176,10 @@ public class AddEntry extends EntryAction
 		}
 		else if(entry.getParent().getType() == Type.ZIP)
 		{
-			try(FileSystem srcfs = new ZipFileSystemProvider().newFileSystem(entry.getParent().getFile().toPath(), Collections.singletonMap("readOnly", true));)
+			try(final var srcfs = new ZipFileSystemProvider().newFileSystem(entry.getParent().getFile().toPath(), Collections.singletonMap("readOnly", true));)
 			{
 				srcpath = srcfs.getPath(entry.getFile());
-				Path parent = dstpath.getParent(); 
+				final var parent = dstpath.getParent(); 
 				if(parent != null)
 					Files.createDirectories(parent);
 				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
@@ -200,7 +200,7 @@ public class AddEntry extends EntryAction
 				if((srcfile=srcarchive.extract(entry.getFile())) != null)
 				{
 					srcpath = srcfile.toPath();
-					Path parent = dstpath.getParent();
+					final var parent = dstpath.getParent();
 					if(parent != null)
 						Files.createDirectories(parent);
 					Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);

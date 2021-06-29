@@ -53,7 +53,7 @@ public class DeleteEntry extends EntryAction
 			Files.deleteIfExists(path);
 			return true;
 		}
-		catch(final Throwable e)
+		catch(final Exception e)
 		{
 			System.err.println("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
@@ -71,7 +71,7 @@ public class DeleteEntry extends EntryAction
 			Files.deleteIfExists(path);
 			return true;
 		}
-		catch(final Throwable e)
+		catch(final Exception e)
 		{
 			System.err.println("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
@@ -86,7 +86,7 @@ public class DeleteEntry extends EntryAction
 			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
 			return archive.delete(entry.getFile()) == 0;
 		}
-		catch(final Throwable e)
+		catch(final Exception e)
 		{
 			System.err.println("delete " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}

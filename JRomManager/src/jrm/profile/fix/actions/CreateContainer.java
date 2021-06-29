@@ -17,7 +17,6 @@
 package jrm.profile.fix.actions;
 
 import java.net.URI;
-import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,13 +88,13 @@ public class CreateContainer extends ContainerAction
 				env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
 				env.put("compressionLevel", format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 				container.getFile().getParentFile().mkdirs();
-				try (FileSystem fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.getFile().toURI()), env);) //$NON-NLS-1$
+				try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.getFile().toURI()), env);) //$NON-NLS-1$
 				{
-					int i = 0;
-					for (final EntryAction action : entry_actions)
+					var i = 0;
+					for (final EntryAction action : entryActions)
 					{
 						i++;
-						if (!action.doAction(session, fs, handler, i, entry_actions.size() ))
+						if (!action.doAction(session, fs, handler, i, entryActions.size() ))
 						{
 							System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							return false;
@@ -103,7 +102,7 @@ public class CreateContainer extends ContainerAction
 					}
 					return true;
 				}
-				catch (final Throwable e)
+				catch (final Exception e)
 				{
 					Log.err(e.getMessage(),e);
 				}
@@ -113,11 +112,11 @@ public class CreateContainer extends ContainerAction
 				container.getFile().getParentFile().mkdirs();
 				try (Archive archive = new ZipArchive(session, container.getFile()))
 				{
-					int i = 0;
-					for (final EntryAction action : entry_actions)
+					var i = 0;
+					for (final EntryAction action : entryActions)
 					{
 						i++;
-						if (!action.doAction(session, archive, handler, i, entry_actions.size()))
+						if (!action.doAction(session, archive, handler, i, entryActions.size()))
 						{
 							System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							return false;
@@ -125,7 +124,7 @@ public class CreateContainer extends ContainerAction
 					}
 					return true;
 				}
-				catch (final Throwable e)
+				catch (final Exception e)
 				{
 					Log.err(e.getMessage(),e);
 				}
@@ -136,11 +135,11 @@ public class CreateContainer extends ContainerAction
 			container.getFile().getParentFile().mkdirs();
 			try (Archive archive = new SevenZipArchive(session, container.getFile()))
 			{
-				int i = 0;
-				for (final EntryAction action : entry_actions)
+				var i = 0;
+				for (final EntryAction action : entryActions)
 				{
 					i++;
-					if (!action.doAction(session, archive, handler, i, entry_actions.size()))
+					if (!action.doAction(session, archive, handler, i, entryActions.size()))
 					{
 						System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
@@ -148,7 +147,7 @@ public class CreateContainer extends ContainerAction
 				}
 				return true;
 			}
-			catch (final Throwable e)
+			catch (final Exception e)
 			{
 				Log.err(e.getMessage(),e);
 			}
@@ -165,11 +164,11 @@ public class CreateContainer extends ContainerAction
 				}
 				else
 					target = container.getFile().getParentFile().toPath();
-				int i = 0;
-				for (final EntryAction action : entry_actions)
+				var i = 0;
+				for (final EntryAction action : entryActions)
 				{
 					i++;
-					if (!action.doAction(session, target, handler, i, entry_actions.size()))
+					if (!action.doAction(session, target, handler, i, entryActions.size()))
 					{
 						System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
@@ -177,7 +176,7 @@ public class CreateContainer extends ContainerAction
 				}
 				return true;
 			}
-			catch (final Throwable e)
+			catch (final Exception e)
 			{
 				Log.err(e.getMessage(),e);
 			}
@@ -188,10 +187,10 @@ public class CreateContainer extends ContainerAction
 	@Override
 	public String toString()
 	{
-		String str = Messages.getString("CreateContainer.Create") + container; //$NON-NLS-1$
-		for (final EntryAction action : entry_actions)
-			str += "\n\t" + action; //$NON-NLS-1$
-		return str;
+		final var str = new StringBuilder(Messages.getString("CreateContainer.Create")).append(container); //$NON-NLS-1$
+		for (final EntryAction action : entryActions)
+			str.append("\n\t").append(action); //$NON-NLS-1$
+		return str.toString();
 	}
 
 	@Override
@@ -203,6 +202,18 @@ public class CreateContainer extends ContainerAction
 	@Override
 	public int count()
 	{
-		return entry_actions.size();
+		return entryActions.size();
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
 	}
 }

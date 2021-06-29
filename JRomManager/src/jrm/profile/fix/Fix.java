@@ -43,46 +43,47 @@ public class Fix
 	/**
 	 * Retain the scan result from which this class will apply fixes from defined actions
 	 */
-	private final Scan curr_scan;
+	private final Scan currScan;
 
 	/**
 	 * The Fix constructor
-	 * @param curr_profile the current {@link Profile} from which we will get some options and return stats 
-	 * @param curr_scan the current {@link Scan} containing actions to do
+	 * @param currProfile the current {@link Profile} from which we will get some options and return stats 
+	 * @param currScan the current {@link Scan} containing actions to do
 	 * @param progress the {@link ProgressHandler} in which we will show fixing progression
 	 */
-	public Fix(final Profile curr_profile, final Scan curr_scan, final ProgressHandler progress)
+	public Fix(final Profile currProfile, final Scan currScan, final ProgressHandler progress)
 	{
-		this.curr_scan = curr_scan;
+		this.currScan = currScan;
 
-		val use_parallelism = curr_profile.getProperty(SettingsEnum.use_parallelism, curr_profile.getSession().server); // $NON-NLS-1$
-		val nThreads = use_parallelism ? curr_profile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+		val useParallelism = currProfile.getProperty(SettingsEnum.use_parallelism, currProfile.getSession().server); // $NON-NLS-1$
+		val nThreads = useParallelism ? currProfile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 
 		final long start = System.currentTimeMillis();
 		
 		/*
 		 * Initialize global progression
 		 */
-		final AtomicInteger i = new AtomicInteger(0), max = new AtomicInteger(0);
-		curr_scan.actions.forEach(actions -> {
+		final var i = new AtomicInteger(0);
+		final var max = new AtomicInteger(0);
+		currScan.actions.forEach(actions -> {
 			max.addAndGet(actions.size());
 			actions.forEach(action->max.addAndGet(action.count() + (int)(action.estimatedSize()>>20)));
 		});
-		progress.setProgress(curr_profile.getSession().msgs.getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
+		progress.setProgress(currProfile.getSession().msgs.getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
 		
 		// foreach ordered action groups
-		curr_scan.actions.forEach(actions -> {
-			if(actions.size() > 0)
+		currScan.actions.forEach(actions -> {
+			if(!actions.isEmpty())
 			{
 				final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
 				// resets progression parallelism (needed since thread IDs may change between to parallel streaming)
-				progress.setInfos(nThreads, use_parallelism);
+				progress.setInfos(nThreads, useParallelism);
 				new MultiThreading<ContainerAction>(nThreads, action -> {
 					if (progress.isCancel())
 						return;
 					try
 					{
-						if (!action.doAction(curr_profile.getSession(), progress)) // do action...
+						if (!action.doAction(currProfile.getSession(), progress)) // do action...
 							progress.cancel(); // ... and cancel all if it failed
 						else
 							done.add(action); // add to "done" list successful action
@@ -92,7 +93,7 @@ public class Fix
 					{	// special catch case from BreakException thrown from underlying streams
 						progress.cancel();
 					}
-					catch (final Throwable e)
+					catch (final Exception e)
 					{	// oups! something unexpected happened
 						progress.setProgress("");
 						Log.err(e.getMessage(), e);
@@ -100,7 +101,7 @@ public class Fix
 					return;
 				}).start(actions.stream().sorted(ContainerAction.rcomparator()));
 				// close all open FS from backup (if the last actions was backup)
-				if (done.size() > 0 && done.get(0) instanceof BackupContainer)
+				if (!done.isEmpty() && done.get(0) instanceof BackupContainer)
 					BackupContainer.closeAllFS();
 				// remove all done actions
 				actions.removeAll(done);
@@ -112,7 +113,7 @@ public class Fix
 		// reset progression to normal before leaving
 		progress.setInfos(1,false);
 		// set stats last fixed date to 'now'
-		curr_profile.getNfo().stats.fixed = new Date();
+		currProfile.getNfo().stats.fixed = new Date();
 		
 		// output to console timing information
 		Log.info(()->"Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
@@ -125,9 +126,9 @@ public class Fix
 	 */
 	public int getActionsRemain()
 	{
-		final AtomicInteger actions_remain = new AtomicInteger(0);
-		curr_scan.actions.forEach(actions -> actions_remain.addAndGet(actions.size()));
-		return actions_remain.get();
+		final var actionsRemain = new AtomicInteger(0);
+		currScan.actions.forEach(actions -> actionsRemain.addAndGet(actions.size()));
+		return actionsRemain.get();
 	}
 
 }
