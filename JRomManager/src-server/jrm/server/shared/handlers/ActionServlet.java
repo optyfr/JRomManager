@@ -123,7 +123,7 @@ public class ActionServlet extends HttpServlet
 			try
 			{
 				val msgs = new ArrayList<String>();
-				var msg = sess.lprMsg.poll(20, TimeUnit.SECONDS);
+				var msg = sess.getLprMsg().poll(20, TimeUnit.SECONDS);
 				if (msg == null && WebSession.isTerminate())
 					resp.setStatus(HttpServletResponse.SC_GONE);
 				else
@@ -131,7 +131,7 @@ public class ActionServlet extends HttpServlet
 					msgs.add(msg);
 					while (msgs.size() <= 100)
 					{
-						if (null == (msg = sess.lprMsg.poll()))
+						if (null == (msg = sess.getLprMsg().poll()))
 							break;
 						msgs.add(msg);
 					}

@@ -1,6 +1,7 @@
 package jrm.server.shared;
 
 import java.io.Closeable;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.Map;
@@ -16,25 +17,27 @@ import jrm.security.Session;
 import lombok.Getter;
 import lombok.Setter;
 
-public class WebSession extends Session implements Closeable
+public class WebSession extends Session implements Closeable, Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private static Map<String, WebSession> allSessions = new ConcurrentHashMap<>();
 	private static @Getter boolean terminate = false;
-	public BlockingDeque<String> lprMsg = new LinkedBlockingDeque<>();
+	private @Getter BlockingDeque<String> lprMsg = new LinkedBlockingDeque<>();
 
-	private @Getter Worker worker = null;
+	private transient @Getter Worker worker = null;
 	
 	public Worker setWorker(Worker worker)
 	{
 		return this.worker = worker;
 	}
-
+	
 	private @Getter @Setter Date lastAction = new Date();
 
-	public Report tmp_report = null;
-	public TrntChkReport tmp_tc_report = null;
-	private TreeMap<Integer, Path> cachedProfileList = null;
-	private @Getter TreeMap<String, FileResult> cachedCompressorList = new TreeMap<>();
+	public transient Report tmp_report = null;
+	public transient TrntChkReport tmp_tc_report = null;
+	private transient TreeMap<Integer, Path> cachedProfileList = null;
+	private transient @Getter TreeMap<String, FileResult> cachedCompressorList = new TreeMap<>();
 
 	public WebSession(String sessionId)
 	{

@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.security.Security;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Scanner;
 
 import org.apache.commons.cli.CommandLine;
@@ -53,23 +54,61 @@ import jrm.server.shared.handlers.UploadServlet;
 
 public class FullServer
 {
+	private static final String CACHE_CONTROL = "cacheControl";
+	private static final String PRECOMPRESSED = "precompressed";
+	private static final String ACCEPT_RANGES = "acceptRanges";
+	private static final String DIR_ALLOWED = "dirAllowed";
+	private static final String TRUE = "true";
+	private static final String FALSE = "false";
+	
 	private Path clientPath;
-	private static boolean debug = false;
+	private final boolean debug;
 
 	private static final String KEY_STORE = "jrt:/jrm.merged.module/certs/";
-	
-	private static String KEY_STORE_PATH = KEY_STORE + "localhost.pfx";
-	private static String KEY_STORE_PW_PATH = KEY_STORE + "localhost.pw";
+	private static final String KEY_STORE_PATH_DEFAULT = KEY_STORE + "localhost.pfx";
+	private static final String KEY_STORE_PW_PATH_DEFAULT = KEY_STORE + "localhost.pw";
+	private static final String BIND_DEFAULT = "0.0.0.0";
+	private static final int HTTP_PORT_DEFAULT = 8080;
+	private static final int HTTPS_PORT_DEFAULT = 8443;
+	private static final int PROTOCOLS_DEFAULT = 0xff;
+	private static final int CONNLIMIT_DEFAULT = 50;
 
-	private static int PROTOCOLS = 0xff; // bit 1 = HTTP, bit 2 = HTTPS, bit 3 = HTTP2 (with bit 2)
-	private static int HTTP_PORT = 8080;
-	private static int HTTPS_PORT = 8443;
-	private static String BIND = "0.0.0.0";
-	private static int CONNLIMIT = 50;
+	private final String keyStorePath;
+	private final String keyStorePWPath;
+	private final int protocols; // bit 1 = HTTP, bit 2 = HTTPS, bit 3 = HTTP2 (with bit 2)
+	private final int httpPort;
+	private final int httpsPort;
+	private final String bind;
+	private final int connlimit;
 
-	public FullServer(Path clientPath) throws Exception
+	public FullServer(CommandLine cmd) throws Exception
 	{
-		this.clientPath = clientPath;
+		clientPath = Optional.ofNullable(cmd.getOptionValue('c')).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
+		bind = cmd.hasOption('b') ? cmd.getOptionValue('b') : BIND_DEFAULT;
+		httpPort = cmd.hasOption('p') ? Integer.parseInt(cmd.getOptionValue('p')) : HTTP_PORT_DEFAULT;
+		httpsPort = cmd.hasOption('s') ? Integer.parseInt(cmd.getOptionValue('s')) : HTTPS_PORT_DEFAULT;
+		if (cmd.hasOption('C') && Files.exists(Paths.get(cmd.getOptionValue('C'))))
+		{
+			keyStorePath = cmd.getOptionValue('C');
+			if (Files.exists(Paths.get(keyStorePath + ".pw")))
+				keyStorePWPath = keyStorePath + ".pw";
+			else
+				keyStorePWPath = null;
+		}
+		else
+		{
+			keyStorePath = KEY_STORE_PATH_DEFAULT;
+			keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
+		}
+		if (cmd.hasOption('w'))
+			System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
+		debug = cmd.hasOption('d');
+		protocols = PROTOCOLS_DEFAULT;
+		connlimit = CONNLIMIT_DEFAULT;
+		
+		Locale.setDefault(Locale.US);
+		System.setProperty("file.encoding", "UTF-8");
+		Log.init(getLogPath() + "/Server.%g.log", false, 1024 * 1024, 5);
 
 		final var jettyserver = new Server();
 
@@ -92,29 +131,29 @@ public class FullServer
 		context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
 
 		final var holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
-		holderStaticNoCache.setInitParameter("dirAllowed", "false");
-		holderStaticNoCache.setInitParameter("acceptRanges", "true");
-		holderStaticNoCache.setInitParameter("precompressed", "false");
-		holderStaticNoCache.setInitParameter("cacheControl", "no-store");
+		holderStaticNoCache.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStaticNoCache.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStaticNoCache.setInitParameter(PRECOMPRESSED, FALSE);
+		holderStaticNoCache.setInitParameter(CACHE_CONTROL, "no-store");
 		context.addServlet(holderStaticNoCache, "*.nocache.js");
 
 		final var holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
-		holderStaticCache.setInitParameter("dirAllowed", "false");
-		holderStaticCache.setInitParameter("acceptRanges", "true");
-		holderStaticCache.setInitParameter("precompressed", "true");
+		holderStaticCache.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStaticCache.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStaticCache.setInitParameter(PRECOMPRESSED, TRUE);
 		context.addServlet(holderStaticCache, "*.cache.js");
 
 		final var holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
-		holderStaticJS.setInitParameter("dirAllowed", "false");
-		holderStaticJS.setInitParameter("acceptRanges", "true");
-		holderStaticJS.setInitParameter("precompressed", "true");
-		holderStaticJS.setInitParameter("cacheControl", "public, max-age=0, must-revalidate");
+		holderStaticJS.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStaticJS.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStaticJS.setInitParameter(PRECOMPRESSED, TRUE);
+		holderStaticJS.setInitParameter(CACHE_CONTROL, "public, max-age=0, must-revalidate");
 		context.addServlet(holderStaticJS, "*.js");
 
 		final var holderStatic = new ServletHolder("static", DefaultServlet.class);
-		holderStatic.setInitParameter("dirAllowed", "false");
-		holderStatic.setInitParameter("acceptRanges", "true");
-		holderStatic.setInitParameter("precompressed", "true");
+		holderStatic.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStatic.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStatic.setInitParameter(PRECOMPRESSED, TRUE);
 		context.addServlet(holderStatic, "/");
 
 		context.getSessionHandler().setMaxInactiveInterval(300);
@@ -145,32 +184,32 @@ public class FullServer
 		config.addCustomizer(new SecureRequestCustomizer());
 		config.addCustomizer(new ForwardedRequestCustomizer());
 
-		if ((PROTOCOLS & 0x1) != 0)
+		if ((protocols & 0x1) != 0)
 		{
 			// Create the HTTP connection
 			final var httpConnectionFactory = new HttpConnectionFactory(config);
 			final var httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
-			httpConnector.setPort(HTTP_PORT);
-			httpConnector.setHost(BIND);
+			httpConnector.setPort(httpPort);
+			httpConnector.setHost(bind);
 			httpConnector.setName("HTTP");
 			jettyserver.addConnector(httpConnector);
 		}
 
-		if ((PROTOCOLS & 0x2) == 0x2 && URIUtils.URIExists(KEY_STORE_PATH))
+		if ((protocols & 0x2) == 0x2 && URIUtils.URIExists(keyStorePath))
 		{
 			// Create the HTTPS end point
 			final var httpConfig = new HttpConfiguration();
 			httpConfig.setSecureScheme("https");
-			httpConfig.setSecurePort(HTTPS_PORT);
+			httpConfig.setSecurePort(httpsPort);
 
 			// SSL Context Factory for HTTPS and HTTP/2
 			var sslContextFactory = new SslContextFactory.Server();
 			sslContextFactory.setKeyStoreType("PKCS12");
-			sslContextFactory.setKeyStorePath(KEY_STORE_PATH);
+			sslContextFactory.setKeyStorePath(keyStorePath);
 			sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 			sslContextFactory.setUseCipherSuitesOrder(true);
 
-			String keyStorePassword = (KEY_STORE_PW_PATH != null && URIUtils.URIExists(KEY_STORE_PW_PATH)) ? URIUtils.readString(KEY_STORE_PW_PATH).trim() : "";
+			String keyStorePassword = (keyStorePWPath != null && URIUtils.URIExists(keyStorePWPath)) ? URIUtils.readString(keyStorePWPath).trim() : "";
 			sslContextFactory.setKeyStorePassword(keyStorePassword);
 			sslContextFactory.setKeyManagerPassword(keyStorePassword);
 
@@ -181,7 +220,7 @@ public class FullServer
 			final var httpsConfig = new HttpConfiguration(httpConfig);
 			httpsConfig.addCustomizer(new SecureRequestCustomizer());
 
-			if ((PROTOCOLS & 0x4) == 0x4)
+			if ((protocols & 0x4) == 0x4)
 			{
 
 				// HTTP/2 Connection Factory
@@ -196,8 +235,8 @@ public class FullServer
 
 				// HTTP/2 Connector
 				final var http2Connector = new ServerConnector(jettyserver, ssl, alpn, h2, new HttpConnectionFactory(httpsConfig));
-				http2Connector.setPort(HTTPS_PORT);
-				http2Connector.setHost(BIND);
+				http2Connector.setPort(httpsPort);
+				http2Connector.setHost(bind);
 				http2Connector.setName("HTTP2");
 				jettyserver.addConnector(http2Connector);
 			}
@@ -205,14 +244,14 @@ public class FullServer
 			{
 				// HTTPS Connector
 				final var httpsConnector = new ServerConnector(jettyserver, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
-				httpsConnector.setPort(HTTPS_PORT);
-				httpsConnector.setHost(BIND);
+				httpsConnector.setPort(httpsPort);
+				httpsConnector.setHost(bind);
 				httpsConnector.setName("HTTPS");
 				jettyserver.addConnector(httpsConnector);
 			}
 		}
 
-		jettyserver.addBean(new ConnectionLimit(CONNLIMIT, jettyserver)); // limit simultaneous connections
+		jettyserver.addBean(new ConnectionLimit(connlimit, jettyserver)); // limit simultaneous connections
 
 		jettyserver.start();
 		Log.config("Start server");
@@ -256,42 +295,15 @@ public class FullServer
 		options.addOption(new Option("c", "client", true, "Client Path"));
 		options.addOption(new Option("w", "workpath", true, "Working Path"));
 		options.addOption(new Option("d", "debug", false, "Debug"));
-		options.addOption(new Option("C", "cert", true, "cert file, default is " + KEY_STORE_PATH));
-		options.addOption(new Option("s", "https", true, "https port, default is " + HTTPS_PORT));
-		options.addOption(new Option("p", "http", true, "http port, default is " + HTTP_PORT));
-		options.addOption(new Option("b", "bind", true, "bind to address or host, default is " + BIND));
+		options.addOption(new Option("C", "cert", true, "cert file, default is " + KEY_STORE_PATH_DEFAULT));
+		options.addOption(new Option("s", "https", true, "https port, default is " + HTTPS_PORT_DEFAULT));
+		options.addOption(new Option("p", "http", true, "http port, default is " + HTTP_PORT_DEFAULT));
+		options.addOption(new Option("b", "bind", true, "bind to address or host, default is " + BIND_DEFAULT));
 
-		Path clientPath = null;
 		try
 		{
 			CommandLine cmd = new DefaultParser().parse(options, args);
-			String cpath;
-			if (null == (cpath = cmd.getOptionValue('c')))
-				clientPath = URIUtils.getPath("jrt:/jrm.merged.module/webclient/");
-			else
-				clientPath = Paths.get(cpath);
-			if (cmd.hasOption('b'))
-				BIND = cmd.getOptionValue('b');
-			if (cmd.hasOption('p'))
-				HTTP_PORT = Integer.parseInt(cmd.getOptionValue('p'));
-			if (cmd.hasOption('s'))
-				HTTPS_PORT = Integer.parseInt(cmd.getOptionValue('s'));
-			if (cmd.hasOption('C') && Files.exists(Paths.get(cmd.getOptionValue('C'))))
-			{
-				KEY_STORE_PATH = cmd.getOptionValue('C');
-				if (Files.exists(Paths.get(KEY_STORE_PATH + ".pw")))
-					KEY_STORE_PW_PATH = KEY_STORE_PATH + ".pw";
-				else
-					KEY_STORE_PW_PATH = null;
-			}
-			if (cmd.hasOption('w'))
-				System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
-			if (cmd.hasOption('d'))
-				debug = true;
-			Locale.setDefault(Locale.US);
-			System.setProperty("file.encoding", "UTF-8");
-			Log.init(getLogPath() + "/Server.%g.log", false, 1024 * 1024, 5);
-			new FullServer(clientPath);
+			new FullServer(cmd);
 		}
 		catch (ParseException e)
 		{

@@ -45,14 +45,14 @@ public class LongPollingReqMgr implements ActionsMgr
 	@Override
 	public void send(String msg) throws IOException
 	{
-		session.lprMsg.add(msg);
+		session.getLprMsg().add(msg);
 	}
 
 	@Override
 	public void sendOptional(String msg) throws IOException
 	{
-		if(session.lprMsg.isEmpty())
-			session.lprMsg.add(msg);
+		if(session.getLprMsg().isEmpty())
+			session.getLprMsg().add(msg);
 	}
 
 	@Override

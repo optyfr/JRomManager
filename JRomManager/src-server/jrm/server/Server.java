@@ -37,13 +37,19 @@ import lombok.val;
 
 public class Server
 {
+	private static final String PRECOMPRESSED = "precompressed";
+	private static final String ACCEPT_RANGES = "acceptRanges";
+	private static final String DIR_ALLOWED = "dirAllowed";
+	private static final String TRUE = "true";
+	private static final String FALSE = "false";
+	
 	private Path clientPath;
 	private static boolean debug = false;
 	private static int HTTP_PORT = 8080;
 	private static String BIND = "0.0.0.0";
 	private static int CONNLIMIT = 50;
 
-	final static Map<String, WebSession> sessions = new HashMap<>();
+	static final Map<String, WebSession> sessions = new HashMap<>();
 	
 		
 	public Server(Path clientPath) throws Exception
@@ -52,11 +58,11 @@ public class Server
 
 		val jettyserver = new org.eclipse.jetty.server.Server();
 
-		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setBaseResource(Resource.newResource(this.clientPath));
 		context.setContextPath("/");
 
-		GzipHandler gzipHandler = new GzipHandler();
+		final var gzipHandler = new GzipHandler();
 		gzipHandler.setIncludedMethods("POST", "GET");
 		gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
 		gzipHandler.setInflateBufferSize(2048);
@@ -70,30 +76,30 @@ public class Server
 		context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
 		context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
 
-		ServletHolder holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
-		holderStaticNoCache.setInitParameter("dirAllowed", "false");
-		holderStaticNoCache.setInitParameter("acceptRanges", "true");
-		holderStaticNoCache.setInitParameter("precompressed", "false");
+		final var holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
+		holderStaticNoCache.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStaticNoCache.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStaticNoCache.setInitParameter(PRECOMPRESSED, FALSE);
 		holderStaticNoCache.setInitParameter("cacheControl", "no-store");
 		context.addServlet(holderStaticNoCache, "*.nocache.js");
 
-		ServletHolder holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
-		holderStaticCache.setInitParameter("dirAllowed", "false");
-		holderStaticCache.setInitParameter("acceptRanges", "true");
-		holderStaticCache.setInitParameter("precompressed", "true");
+		final var holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
+		holderStaticCache.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStaticCache.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStaticCache.setInitParameter(PRECOMPRESSED, TRUE);
 		context.addServlet(holderStaticCache, "*.cache.js");
 
-		ServletHolder holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
-		holderStaticJS.setInitParameter("dirAllowed", "false");
-		holderStaticJS.setInitParameter("acceptRanges", "true");
-		holderStaticJS.setInitParameter("precompressed", "true");
+		final var holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
+		holderStaticJS.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStaticJS.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStaticJS.setInitParameter(PRECOMPRESSED, TRUE);
 		holderStaticJS.setInitParameter("cacheControl", "public, max-age=0, must-revalidate");
 		context.addServlet(holderStaticJS, "*.js");
 
-		ServletHolder holderStatic = new ServletHolder("static", DefaultServlet.class);
-		holderStatic.setInitParameter("dirAllowed", "false");
-		holderStatic.setInitParameter("acceptRanges", "true");
-		holderStatic.setInitParameter("precompressed", "true");
+		final var holderStatic = new ServletHolder("static", DefaultServlet.class);
+		holderStatic.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStatic.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStatic.setInitParameter(PRECOMPRESSED, TRUE);
 		context.addServlet(holderStatic, "/");
 
 		context.getSessionHandler().setMaxInactiveInterval(300);
@@ -104,8 +110,8 @@ public class Server
 		jettyserver.setStopAtShutdown(true);
 
 		// Create the HTTP connection
-		HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory();
-		ServerConnector httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
+		final var httpConnectionFactory = new HttpConnectionFactory();
+		final var httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
 		httpConnector.setPort(HTTP_PORT);
 		httpConnector.setHost(BIND);
 		httpConnector.setName("HTTP");
@@ -119,16 +125,14 @@ public class Server
 			Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort()+ " binded to " +((ServerConnector) connector).getHost());
 		Log.config("clientPath: " + clientPath);
 		Log.config("workPath: " + getWorkPath());
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			Log.info("Server stopped.");
-		}));
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.info("Server stopped.")));
 		if (debug)
 		{
-			try (Scanner sc = new Scanner(System.in))
+			try (final var sc = new Scanner(System.in))
 			{
 				// wait until receive stop command from keyboard
 				System.out.println("Enter 'stop' to halt: ");
-				while (!sc.nextLine().toLowerCase().equals("stop"))
+				while (!sc.nextLine().equalsIgnoreCase("stop"))
 					Thread.sleep(1000);
 				if (!jettyserver.isStopped())
 				{
@@ -149,7 +153,7 @@ public class Server
 	 */
 	public static void main(String[] args)
 	{
-		Options options = new Options();
+		final var options = new Options();
 		options.addOption(new Option("c", "client", true, "Client Path"));
 		options.addOption(new Option("w", "workpath", true, "Working Path"));
 		options.addOption(new Option("d", "debug", false, "Debug"));
@@ -203,7 +207,7 @@ public class Server
 	
 	private static String getLogPath() throws IOException
 	{
-		Path path = getWorkPath().resolve("logs");
+		final var path = getWorkPath().resolve("logs");
 		Files.createDirectories(path);
 		return path.toString();
 	}

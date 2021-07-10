@@ -20,7 +20,6 @@ public class ReportActions
 		this.ws = ws;
 	}
 
-	@SuppressWarnings("serial")
 	public void setFilter(JsonObject jso, boolean lite)
 	{
 		final JsonObject pjso = jso.get("params").asObject();

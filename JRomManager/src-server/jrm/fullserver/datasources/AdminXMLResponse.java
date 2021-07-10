@@ -17,6 +17,13 @@ import lombok.val;
 
 public class AdminXMLResponse extends XMLResponse
 {
+	private static final String CAN_T_DO_THAT = "Can't do that!";
+	private static final String ROLES = "Roles";
+	private static final String PASSWORD = "Password";
+	private static final String LOGIN = "Login";
+	private static final String RESPONSE = "response";
+	private static final String STATUS = "status";
+
 	public AdminXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
@@ -27,11 +34,11 @@ public class AdminXMLResponse extends XMLResponse
 	{
 		if(request.getSession().getUser().isAdmin())
 		{
-			try (Login login = new Login())
+			try (final var login = new Login())
 			{
 				val rows = login.queryHandler("SELECT * FROM USERS", new BeanListHandler<UserCredential>(UserCredential.class));
-				writer.writeStartElement("response");
-				writer.writeElement("status", "0");
+				writer.writeStartElement(RESPONSE);
+				writer.writeElement(STATUS, "0");
 				writer.writeElement("startRow", "0");
 				writer.writeElement("endRow", Integer.toString(rows.size()));
 				writer.writeElement("totalRows", Integer.toString(rows.size()));
@@ -47,15 +54,15 @@ public class AdminXMLResponse extends XMLResponse
 			}
 		}
 		else
-			failure("Can't do that!");
+			failure(CAN_T_DO_THAT);
 	}
 
 	private void writeRecord(UserCredential user) throws XMLStreamException
 	{
 		writer.writeStartElement("record");
-		writer.writeAttribute("Login", user.getLogin());
-		writer.writeAttribute("Password", user.getPassword());
-		writer.writeAttribute("Roles", user.getRoles());
+		writer.writeAttribute(LOGIN, user.getLogin());
+		writer.writeAttribute(PASSWORD, user.getPassword());
+		writer.writeAttribute(ROLES, user.getRoles());
 		writer.writeEndElement();
 	}
 
@@ -64,16 +71,16 @@ public class AdminXMLResponse extends XMLResponse
 	{
 		if(request.getSession().getUser().isAdmin())
 		{
-			if(operation.hasData("Login") && operation.hasData("Password"))
+			if(operation.hasData(LOGIN) && operation.hasData(PASSWORD))
 			{
-				try (Login login = new Login())
+				try (final var login = new Login())
 				{
-					login.update("INSERT INTO USERS VALUES(?, ?, ?)", operation.getData("Login"), CryptCredential.hash(operation.getData("Password")), Optional.ofNullable(operation.getData("Roles")).orElse("admin"));
-					val user = login.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<UserCredential>(UserCredential.class), operation.getData("Login"));
+					login.update("INSERT INTO USERS VALUES(?, ?, ?)", operation.getData(LOGIN), CryptCredential.hash(operation.getData(PASSWORD)), Optional.ofNullable(operation.getData(ROLES)).orElse("admin"));
+					val user = login.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<UserCredential>(UserCredential.class), operation.getData(LOGIN));
 					if(user != null)
 					{
-						writer.writeStartElement("response");
-						writer.writeElement("status", "0");
+						writer.writeStartElement(RESPONSE);
+						writer.writeElement(STATUS, "0");
 						writer.writeStartElement("data");
 						writeRecord(user);
 						writer.writeEndElement();
@@ -91,7 +98,7 @@ public class AdminXMLResponse extends XMLResponse
 				failure();
 		}
 		else
-			failure("Can't do that!");
+			failure(CAN_T_DO_THAT);
 	}
 
 	@Override
@@ -99,16 +106,16 @@ public class AdminXMLResponse extends XMLResponse
 	{
 		if(request.getSession().getUser().isAdmin())
 		{
-			if(operation.hasData("Login") && operation.hasData("Password"))
+			if(operation.hasData(LOGIN) && operation.hasData(PASSWORD))
 			{
-				try (Login login = new Login())
+				try (final var login = new Login())
 				{
-					login.update("UPDATE USERS SET PASSWORD=?, ROLES=? WHERE LOGIN=?", CryptCredential.hash(operation.getData("Password")), Optional.ofNullable(operation.getData("Roles")).orElse("admin"), operation.getData("Login"));
-					val user = login.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<UserCredential>(UserCredential.class), operation.getData("Login"));
+					login.update("UPDATE USERS SET PASSWORD=?, ROLES=? WHERE LOGIN=?", CryptCredential.hash(operation.getData(PASSWORD)), Optional.ofNullable(operation.getData(ROLES)).orElse("admin"), operation.getData(LOGIN));
+					val user = login.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<UserCredential>(UserCredential.class), operation.getData(LOGIN));
 					if(user != null)
 					{
-						writer.writeStartElement("response");
-						writer.writeElement("status", "0");
+						writer.writeStartElement(RESPONSE);
+						writer.writeElement(STATUS, "0");
 						writer.writeStartElement("data");
 						writeRecord(user);
 						writer.writeEndElement();
@@ -126,7 +133,7 @@ public class AdminXMLResponse extends XMLResponse
 				failure();
 		}
 		else
-			failure("Can't do that!");
+			failure(CAN_T_DO_THAT);
 	}
 
 	@Override
@@ -134,17 +141,17 @@ public class AdminXMLResponse extends XMLResponse
 	{
 		if(request.getSession().getUser().isAdmin())
 		{
-			if(operation.hasData("Login"))
+			if(operation.hasData(LOGIN))
 			{
-				try (Login login = new Login())
+				try (final var login = new Login())
 				{
-					if(0 != login.update("DELETE FROM USERS WHERE LOGIN=?", operation.getData("Login")))
+					if(0 != login.update("DELETE FROM USERS WHERE LOGIN=?", operation.getData(LOGIN)))
 					{
-						writer.writeStartElement("response");
-						writer.writeElement("status", "0");
+						writer.writeStartElement(RESPONSE);
+						writer.writeElement(STATUS, "0");
 						writer.writeStartElement("data");
 						writer.writeStartElement("record");
-						writer.writeAttribute("Login", operation.getData("Login"));
+						writer.writeAttribute(LOGIN, operation.getData(LOGIN));
 						writer.writeEndElement();
 						writer.writeEndElement();
 						writer.writeEndElement();
@@ -161,6 +168,6 @@ public class AdminXMLResponse extends XMLResponse
 				failure();
 		}
 		else
-			failure("Can't do that!");
+			failure(CAN_T_DO_THAT);
 	}
 }

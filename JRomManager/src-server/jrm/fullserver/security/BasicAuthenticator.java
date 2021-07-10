@@ -4,6 +4,7 @@ package jrm.fullserver.security;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +17,6 @@ import org.eclipse.jetty.security.authentication.DeferredAuthentication;
 import org.eclipse.jetty.security.authentication.LoginAuthenticator;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.server.Authentication.User;
-import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.util.security.Constraint;
 
 /**
@@ -53,7 +53,7 @@ public class BasicAuthenticator extends LoginAuthenticator
 				int space = credentials.indexOf(' ');
 				if(space > 0)
 				{
-					String method = credentials.substring(0, space);
+					final var method = credentials.substring(0, space);
 					if("basic".equalsIgnoreCase(method))
 					{
 						credentials = credentials.substring(space + 1);
@@ -61,10 +61,10 @@ public class BasicAuthenticator extends LoginAuthenticator
 						int i = credentials.indexOf(':');
 						if(i > 0)
 						{
-							String username = credentials.substring(0, i);
-							String password = credentials.substring(i + 1);
+							final var username = credentials.substring(0, i);
+							final var password = credentials.substring(i + 1);
 
-							UserIdentity user = login(username, password, request);
+							final var user = login(username, password, request);
 							if(user != null)
 							{
 								return new UserAuthentication(getAuthMethod(), user);
@@ -74,7 +74,8 @@ public class BasicAuthenticator extends LoginAuthenticator
 				}
 			}
 
-			if(DeferredAuthentication.isDeferred(response)) return Authentication.UNAUTHENTICATED;
+			if (DeferredAuthentication.isDeferred(response))
+				return Authentication.UNAUTHENTICATED;
 
 			response.setHeader(HttpHeader.WWW_AUTHENTICATE.asString(), "basic realm=\"" + _loginService.getName() + "\", charset=\"UTF-8\"");
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
