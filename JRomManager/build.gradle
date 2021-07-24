@@ -1,14 +1,13 @@
 plugins {
 	id 'java' 
+	id 'jacoco'
 	id "org.sonarqube"
 	id "de.undercouch.download" version "4.1.1"
 	id "nebula.ospackage" version "8.5.6"
 	id "de.inetsoftware.setupbuilder" version "4.8.7"
-	id "io.freefair.lombok" version "5.3.3.3"
-//	id 'io.franzbecker.gradle-lombok' version '1.14'
-//	id "edu.sc.seis.macAppBundle" version "2.3.0"
-	id "org.beryx.jlink" version "2.24.0"
 	id "org.javamodularity.moduleplugin" version "1.8.7"
+	id "io.freefair.lombok" version "5.3.3.3"
+	id "org.beryx.jlink" version "2.24.0"
 }
 
 
@@ -20,21 +19,6 @@ eclipse {
 	classpath {
 		downloadJavadoc = true
 		downloadSources = true
-/*		file {
-			whenMerged { classpath ->
-				classpath.entries.removeAll { entry ->
-					if ( entry.kind == 'src' ) {
-//						entry.includes = []
-//						entry.excludes = []
-						entry.getEntryAttributes().clear()
-					}
-					if ( entry.hasProperty('output') ) {
-						entry.output = null // use the default
-					}
-					false
-				}
-			}
-		}*/
 	}
 }
 
@@ -42,7 +26,6 @@ eclipse {
 lombok {
 	version = '1.18.20'
 	config['lombok.extern.findbugs.addSuppressFBWarnings'] = 'false'
-//	sha256 = ""
 }
 
 ext.props = new Properties()
@@ -56,8 +39,14 @@ repositories {
 }
 
 configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
+
+boolean isConGradle(entry) {
+	entry.kind == 'con' && entry.path == 'org.eclipse.buildship.core.gradleclasspathcontainer'
+}
+
+
 
 task WebClientJar(type: Jar, dependsOn: [':WebClient:build']) {
 	archiveBaseName = 'jrm-webui'
@@ -96,10 +85,19 @@ subprojects {
 		}
 	}
 
+	jacocoTestReport {
+		reports {
+			xml.enabled true
+		}
+		dependsOn test
+	}
+	
 	sonarqube {
 		properties {
 			property "sonar.projectBaseDir", ".."
 			property "sonar.sourceEncoding", "utf-8"
+			property "sonar.log.level", "INFO"
+			property "sonar.verbose", "true"
 		}
 	}
 
@@ -108,22 +106,26 @@ subprojects {
 			downloadJavadoc = true
 			downloadSources = true
 			file {
-				whenMerged { classpath ->
-					classpath.entries.removeAll { entry ->
-						if ( entry.kind == 'src' ) {
-//							entry.includes = []
-//							entry.excludes = []
-							entry.getEntryAttributes().clear()
-						}
-						if ( entry.hasProperty('output') ) {
-							entry.output = null // use the default
-						}
-						false
+				whenMerged {
+					//Define a module as being either a library or a project dependency.
+					//Test sources are excluded because eclipse wants them on the classpath for some reason (1)
+					entries.findAll {  (it instanceof org.gradle.plugins.ide.eclipse.model.Library || it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency) && !it.entryAttributes.get('gradle_used_by_scope').equals('test') }.each {
+						it.entryAttributes['module'] = 'true'
+					}
+					
+					//Test-scoped stuff should set the appropriate flag
+					entries.findAll { (it.properties.kind.equals('src') || it.properties.kind.equals('lib')) && it.entryAttributes.get('gradle_used_by_scope').equals('test') }.each {
+						it.entryAttributes['test'] = 'true'
+					}
+					
+					entries.findAll { isConGradle(it) }.each {
+					  it.entryAttributes['module'] = 'true'
 					}
 				}
 			}
 		}
 	}
+
 	java {
 		modularity.inferModulePath.set(true)
 	}
