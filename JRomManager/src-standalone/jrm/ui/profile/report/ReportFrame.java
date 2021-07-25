@@ -75,7 +75,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 			@Override
 			public void windowOpened(WindowEvent e)
 			{
-				session.report.getHandler().filter(session.report.getHandler().getFilterOptions().toArray(new FilterOptions[0]));
+				session.getReport().getHandler().filter(session.getReport().getHandler().getFilterOptions().toArray(new FilterOptions[0]));
 			}
 		});
 		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
@@ -89,14 +89,14 @@ public class ReportFrame extends JDialog implements StatusHandler
 		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
-		view = new ReportView(session.report);
+		view = new ReportView(session.getReport());
 		final GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 0;
 		getContentPane().add(view, gbc_scrollPane);
 
-		session.report.setStatusHandler(this);
+		session.getReport().setStatusHandler(this);
 
 		
 		final GridBagConstraints gbc_lblStatus = new GridBagConstraints();

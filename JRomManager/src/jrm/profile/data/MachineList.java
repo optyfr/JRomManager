@@ -208,10 +208,10 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			writer.writeStartElement("datafile"); //$NON-NLS-1$
 		final List<Machine> list = filtered ? getFilteredStream().collect(Collectors.toList()) : getList();
 		var i = 0;
-		progress.setProgress(profile.getSession().msgs.getString("MachineList.Exporting"), i, list.size()); //$NON-NLS-1$
+		progress.setProgress(profile.getSession().getMsgs().getString("MachineList.Exporting"), i, list.size()); //$NON-NLS-1$
 		for(final Machine m : list)
 		{
-			progress.setProgress(String.format(profile.getSession().msgs.getString("MachineList.Exporting_%s"), m.name), ++i); //$NON-NLS-1$
+			progress.setProgress(String.format(profile.getSession().getMsgs().getString("MachineList.Exporting_%s"), m.name), ++i); //$NON-NLS-1$
 			if(!filtered || m.isSelected())
 				m.export(writer, is_mame);
 		}

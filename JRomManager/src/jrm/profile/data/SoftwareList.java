@@ -195,7 +195,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		final List<Software> list = filtered?getFilteredStream().collect(Collectors.toList()):getList();
 		for(final Software s : list)
 		{
-			progress.setProgress(String.format(profile.getSession().msgs.getString("SoftwareList.Exporting_%s"), s.getFullName()), progress.getValue()+1); //$NON-NLS-1$
+			progress.setProgress(String.format(profile.getSession().getMsgs().getString("SoftwareList.Exporting_%s"), s.getFullName()), progress.getValue()+1); //$NON-NLS-1$
 			if(!filtered || s.isSelected())
 				s.export(writer,null);
 		}

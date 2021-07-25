@@ -22,10 +22,10 @@ public class NPlayersActions
 	public void load(JsonObject jso)
 	{
 		JsonValue jsv = jso.get("params").asObject().get("path");
-		ws.getSession().getCurr_profile().setProperty(SettingsEnum.filter_nplayers_ini, jsv!=null&&!jsv.isNull()?jsv.asString():null); //$NON-NLS-1$
-		ws.getSession().getCurr_profile().loadNPlayers(null);
-		ws.getSession().getCurr_profile().saveSettings();
-		loaded(ws.getSession().getCurr_profile());
+		ws.getSession().getCurrProfile().setProperty(SettingsEnum.filter_nplayers_ini, jsv!=null&&!jsv.isNull()?jsv.asString():null); //$NON-NLS-1$
+		ws.getSession().getCurrProfile().loadNPlayers(null);
+		ws.getSession().getCurrProfile().saveSettings();
+		loaded(ws.getSession().getCurrProfile());
 	}
 	
 	public void loaded(final Profile profile)

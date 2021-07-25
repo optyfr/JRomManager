@@ -63,7 +63,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 	{
 		if (cachedBasePath == null)
 			return cachedBasePath;
-		if(user.getSession().server)
+		if(user.getSession().isServer())
 		{
 			final String prop = System.getProperty("jrommanager.dir");
 			final Path work = (prop != null ? Paths.get(prop) : Paths.get(System.getProperty("user.dir"))).toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -81,7 +81,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 			cachedBasePath = work;
 			return cachedBasePath;
 		}
-		else if (user.getSession().multiuser)
+		else if (user.getSession().isMultiuser())
 		{
 			final Path work = Paths.get(System.getProperty("user.home"), ".jrommanager").toAbsolutePath().normalize(); //$NON-NLS-1$ //$NON-NLS-2$
 			if (!Files.exists(work))
@@ -116,7 +116,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 		if(cachedWorkPath!=null)
 			return cachedWorkPath;
 		final var base = getBasePath();
-		if(user.getSession().server && user.getSession().multiuser)
+		if(user.getSession().isServer() && user.getSession().isMultiuser())
 		{
 			if(user.getName().equals("server"))
 			{
@@ -185,7 +185,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 	{
 		if(local)
 		{
-			if(user.getSession().multiuser)
+			if(user.getSession().isMultiuser())
 			{
 				try
 				{

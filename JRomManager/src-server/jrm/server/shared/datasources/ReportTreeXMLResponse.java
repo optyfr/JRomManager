@@ -22,14 +22,14 @@ public class ReportTreeXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 
-		var report = request.session.report;
+		var report = request.session.getReport();
 		if (operation.hasData("src"))
 		{
 			final var srcfile = pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();
 			final var reportfile = Report.getReportFile(request.session, srcfile);
-			if (request.session.tmp_report == null || !(request.session.tmp_report.getReportFile(request.session).equals(reportfile) && request.session.tmp_report.getFileModified() == reportfile.lastModified()))
-				request.session.tmp_report = Report.load(request.session, srcfile);
-			report = request.session.tmp_report;
+			if (request.session.getTmpReport() == null || !(request.session.getTmpReport().getReportFile(request.session).equals(reportfile) && request.session.getTmpReport().getFileModified() == reportfile.lastModified()))
+				request.session.setTmpReport(Report.load(request.session, srcfile));
+			report = request.session.getTmpReport();
 		}
 
 		final var parentID = Integer.parseInt(operation.getData("ParentID"));
@@ -120,14 +120,14 @@ public class ReportTreeXMLResponse extends XMLResponse
 	{
 		if ("detail".equals(operation.getOperationId().toString()))
 		{
-			var report = request.session.report;
+			var report = request.session.getReport();
 			if (operation.hasData("src"))
 			{
 				final var srcfile = pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();
 				final var reportfile = Report.getReportFile(request.session, srcfile);
-				if (request.session.tmp_report == null || !(request.session.tmp_report.getReportFile(request.session).equals(reportfile) && request.session.tmp_report.getFileModified() == reportfile.lastModified()))
-					request.session.tmp_report = Report.load(request.session, srcfile);
-				report = request.session.tmp_report;
+				if (request.session.getTmpReport() == null || !(request.session.getTmpReport().getReportFile(request.session).equals(reportfile) && request.session.getTmpReport().getFileModified() == reportfile.lastModified()))
+					request.session.setTmpReport(Report.load(request.session, srcfile));
+				report = request.session.getTmpReport();
 			}
 			final var parentID = Integer.parseInt(operation.getData("ParentID"));
 			final var subject = report.getHandler().getFilteredReport().findSubject(parentID);

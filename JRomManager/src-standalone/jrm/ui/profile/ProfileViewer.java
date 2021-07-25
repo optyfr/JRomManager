@@ -491,15 +491,15 @@ public class ProfileViewer extends JDialog
 			@Override
 			public void popupMenuWillBecomeVisible(final PopupMenuEvent e)
 			{
-				final boolean has_machines = session.curr_profile.getMachineListList().getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
-				final boolean has_filtered_machines = session.curr_profile.getMachineListList().getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
+				final boolean has_machines = session.getCurrProfile().getMachineListList().getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
+				final boolean has_filtered_machines = session.getCurrProfile().getMachineListList().getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
 				final boolean has_selected_swlist = tableWL.getSelectedRowCount() == 1 && tableWL.getModel() instanceof AnywareListList<?> && ((MachineListListModel) tableWL.getModel()).getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
 				mntmAllAsMameDat.setEnabled(has_machines);
 				mntmAllAsLogiqxDat.setEnabled(has_machines);
-				mntmAllAsSoftwareLists.setEnabled(!session.curr_profile.getMachineListList().getSoftwareListList().isEmpty());
+				mntmAllAsSoftwareLists.setEnabled(!session.getCurrProfile().getMachineListList().getSoftwareListList().isEmpty());
 				mntmFilteredAsMameDat.setEnabled(has_filtered_machines);
 				mntmFilteredAsLogiqxDat.setEnabled(has_filtered_machines);
-				mntmFilteredAsSoftwareLists.setEnabled(session.curr_profile.getMachineListList().getSoftwareListList().getFilteredStream().count() > 0);
+				mntmFilteredAsSoftwareLists.setEnabled(session.getCurrProfile().getMachineListList().getSoftwareListList().getFilteredStream().count() > 0);
 				mntmSelectedAsSoftwareLists.setEnabled(has_selected_swlist);
 				mntmSelectedFilteredAsSoftwareList.setEnabled(has_selected_swlist);
 			}
@@ -606,9 +606,9 @@ public class ProfileViewer extends JDialog
 							}
 							else if (ware.getStatus() == AnywareStatus.COMPLETE)
 							{
-								if (session.curr_profile != null)
+								if (session.getCurrProfile() != null)
 								{
-									final var profile = session.curr_profile;
+									final var profile = session.getCurrProfile();
 									if (profile.getNfo().mame.getStatus() == MameStatus.UPTODATE)
 									{
 										final ProfileNFOMame mame = profile.getNfo().mame;
@@ -877,7 +877,7 @@ public class ProfileViewer extends JDialog
 				@Override
 				protected Void doInBackground() throws Exception
 				{
-					new Export(session.curr_profile, file, type, filtered, selection, this);
+					new Export(session.getCurrProfile(), file, type, filtered, selection, this);
 					return null;
 				}
 				

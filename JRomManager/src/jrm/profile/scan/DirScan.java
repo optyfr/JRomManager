@@ -224,7 +224,7 @@ public final class DirScan extends PathAbstractor
 		{
 			if (profile.getProperty(jrm.misc.SettingsEnum.need_sha1_or_md5, false)) //$NON-NLS-1$
 				options.add(Options.NEED_SHA1_OR_MD5);
-			if (profile.getProperty(jrm.misc.SettingsEnum.use_parallelism, profile.getSession().server)) //$NON-NLS-1$
+			if (profile.getProperty(jrm.misc.SettingsEnum.use_parallelism, profile.getSession().isServer())) //$NON-NLS-1$
 				options.add(Options.USE_PARALLELISM);
 			if (profile.getProperty(jrm.misc.SettingsEnum.archives_and_chd_as_roms, false)) //$NON-NLS-1$
 				options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);

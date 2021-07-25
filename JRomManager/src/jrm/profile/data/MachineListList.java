@@ -212,7 +212,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	public String getDescription(int i)
 	{
 		if(i < getList().size())
-			return profile.getSession().msgs.getString("MachineListList.AllMachines");
+			return profile.getSession().getMsgs().getString("MachineListList.AllMachines");
 		return softwareListList.getDescription(i - getList().size());
 	}
 

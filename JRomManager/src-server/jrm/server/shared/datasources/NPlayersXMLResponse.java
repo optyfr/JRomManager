@@ -21,18 +21,18 @@ public class NPlayersXMLResponse extends XMLResponse
 		writer.writeStartElement("response");
 		writer.writeElement("status", "0");
 		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString((session.curr_profile.getNplayers()==null?0:request.getSession().curr_profile.getNplayers().getListNPlayers().size())-1));
-		writer.writeElement("totalRows", Integer.toString(session.curr_profile.getNplayers()==null?0:request.getSession().curr_profile.getNplayers().getListNPlayers().size()));
+		writer.writeElement("endRow", Integer.toString((session.getCurrProfile().getNplayers()==null?0:request.getSession().getCurrProfile().getNplayers().getListNPlayers().size())-1));
+		writer.writeElement("totalRows", Integer.toString(session.getCurrProfile().getNplayers()==null?0:request.getSession().getCurrProfile().getNplayers().getListNPlayers().size()));
 		writer.writeStartElement("data");
-		if(session.curr_profile.getNplayers()!=null)
+		if(session.getCurrProfile().getNplayers()!=null)
 		{
-			for(NPlayer nplayer : session.curr_profile.getNplayers())
+			for(NPlayer nplayer : session.getCurrProfile().getNplayers())
 			{
 				writer.writeElement("record", 
 					new SimpleAttribute("ID", nplayer.getPropertyName()),
 					new SimpleAttribute("Name", nplayer.name),
 					new SimpleAttribute("Cnt", nplayer.size()),
-					new SimpleAttribute("isSelected", nplayer.isSelected(session.curr_profile))
+					new SimpleAttribute("isSelected", nplayer.isSelected(session.getCurrProfile()))
 				);
 			}
 		}

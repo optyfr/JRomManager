@@ -78,8 +78,8 @@ public class Dat2DirActions
 			finally
 			{
 				Dat2DirActions.this.end();
-				session.curr_profile = null;
-				session.curr_scan = null;
+				session.setCurrProfile(null);
+				session.setCurrScan(null);
 				session.getWorker().progress.close();
 				session.getWorker().progress = null;
 				session.setLastAction(new Date());

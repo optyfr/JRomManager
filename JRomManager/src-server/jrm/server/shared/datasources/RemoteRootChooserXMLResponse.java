@@ -24,7 +24,7 @@ public class RemoteRootChooserXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws Exception
 	{
 		Map<String,Path> paths = new LinkedHashMap<>();
-		if(request.session.server && request.session.multiuser)
+		if(request.session.isServer() && request.session.isMultiuser())
 		{
 			switch(operation.getData("context"))
 			{

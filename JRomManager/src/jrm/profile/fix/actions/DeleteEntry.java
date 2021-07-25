@@ -48,7 +48,7 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
 			path = dstfs.getPath(entry.getFile());
 			Files.deleteIfExists(path);
 			return true;
@@ -66,7 +66,7 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
 			path = target.resolve(entry.getFile());
 			Files.deleteIfExists(path);
 			return true;
@@ -83,7 +83,7 @@ public class DeleteEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
 			return archive.delete(entry.getFile()) == 0;
 		}
 		catch(final Exception e)

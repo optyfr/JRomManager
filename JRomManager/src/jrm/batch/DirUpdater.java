@@ -80,23 +80,23 @@ public class DirUpdater
 						progress.setProgress3(String.format("%s/%s (%d/%d)", dat.getName(), FilenameUtils.getBaseName(datlist[j].getName()), j , datlist.length), j, datlist.length);
 					else
 						progress.setProgress3(String.format("%s (%d/%d)", FilenameUtils.getBaseName(datlist[j].getName()), j , datlist.length), j, datlist.length);
-					session.report.setProfile(Profile.load(session, datlist[j], progress));
-					if(session.curr_profile.getSoftwaresListCnt()>0 && dat.isDirectory())
-						session.curr_profile.setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
+					session.getReport().setProfile(Profile.load(session, datlist[j], progress));
+					if(session.getCurrProfile().getSoftwaresListCnt()>0 && dat.isDirectory())
+						session.getCurrProfile().setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
 					else
-						session.curr_profile.setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getAbsolutePath()); //$NON-NLS-1$
-					session.curr_profile.setProperty(SettingsEnum.src_dir, String.join("|", srcdirs.stream().map(File::getAbsolutePath).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
-					final var scan = new Scan(session.curr_profile, progress, scancache);
+						session.getCurrProfile().setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getAbsolutePath()); //$NON-NLS-1$
+					session.getCurrProfile().setProperty(SettingsEnum.src_dir, String.join("|", srcdirs.stream().map(File::getAbsolutePath).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
+					final var scan = new Scan(session.getCurrProfile(), progress, scancache);
 					if (!dryrun && !scan.actions.isEmpty())
 					{
-						new Fix(session.curr_profile, scan, progress);
-						new Scan(session.curr_profile, progress, scancache);
+						new Fix(session.getCurrProfile(), scan, progress);
+						new Scan(session.getCurrProfile(), progress, scancache);
 					}
-					total += session.report.stats.set_create + session.report.stats.set_found + session.report.stats.set_missing;
-					ok += session.report.stats.set_create_complete + session.report.stats.set_found_fixcomplete + session.report.stats.set_found_ok;
-					dur.add(datlist[j],new Report.Stats(session.report.stats));
-					session.report.save(session);
-					result.updateResult(row, String.format(session.msgs.getString("DirUpdater.Result"), ok * 100.0 / total, total - ok, total)); //$NON-NLS-1$
+					total += session.getReport().stats.set_create + session.getReport().stats.set_found + session.getReport().stats.set_missing;
+					ok += session.getReport().stats.set_create_complete + session.getReport().stats.set_found_fixcomplete + session.getReport().stats.set_found_ok;
+					dur.add(datlist[j],new Report.Stats(session.getReport().stats));
+					session.getReport().save(session);
+					result.updateResult(row, String.format(session.getMsgs().getString("DirUpdater.Result"), ok * 100.0 / total, total - ok, total)); //$NON-NLS-1$
 				}
 				progress.setProgress3(null, null);
 				dur.save(session);

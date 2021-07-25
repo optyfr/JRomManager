@@ -129,10 +129,10 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 				report.save(report.getReportFile(session));
 			}
 			else
-				result = src.exists() ? session.msgs.getString("TorrentChecker.DstMustExist") : session.msgs.getString("TorrentChecker.SrcMustExist"); //$NON-NLS-1$ //$NON-NLS-2$
+				result = src.exists() ? session.getMsgs().getString("TorrentChecker.DstMustExist") : session.getMsgs().getString("TorrentChecker.SrcMustExist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		else
-			result = sdr.src == null ? session.msgs.getString("TorrentChecker.SrcNotDefined") : session.msgs.getString("TorrentChecker.DstNotDefined"); //$NON-NLS-1$ //$NON-NLS-2$
+			result = sdr.src == null ? session.getMsgs().getString("TorrentChecker.SrcNotDefined") : session.getMsgs().getString("TorrentChecker.DstNotDefined"); //$NON-NLS-1$ //$NON-NLS-2$
 		return result;
 	}
 
@@ -202,14 +202,14 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 		if (ok == total)
 		{
 			if (removedFiles > 0)
-				result = toHTML(toBold(toBlue(session.msgs.getString(TORRENT_CHECKER_RESULT_COMPLETE))));
+				result = toHTML(toBold(toBlue(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE))));
 			else
-				result = toHTML(toBold(toGreen(session.msgs.getString(TORRENT_CHECKER_RESULT_COMPLETE))));
+				result = toHTML(toBold(toGreen(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE))));
 		}
 		else if (mode == TrntChkMode.FILENAME)
-			result = String.format(session.msgs.getString("TorrentChecker.ResultFileName"), ok * 100.0 / total, missingFiles, removedFiles); //$NON-NLS-1$
+			result = String.format(session.getMsgs().getString("TorrentChecker.ResultFileName"), ok * 100.0 / total, missingFiles, removedFiles); //$NON-NLS-1$
 		else
-			result = String.format(session.msgs.getString("TorrentChecker.ResultFileSize"), ok * 100.0 / total, humanReadableByteCount(missingBytes, false), wrongSizedFiles, removedFiles); //$NON-NLS-1$
+			result = String.format(session.getMsgs().getString("TorrentChecker.ResultFileSize"), ok * 100.0 / total, humanReadableByteCount(missingBytes, false), wrongSizedFiles, removedFiles); //$NON-NLS-1$
 		return result;
 	}
 
@@ -240,7 +240,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 			var pieceValid = 0;
 			processing.addAndGet(pieces.size());
 			progress.setProgress(src.getAbsolutePath(), -1, null, ""); //$NON-NLS-1$
-			progress.setProgress2(String.format(session.msgs.getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), -1, processing.get()); //$NON-NLS-1$
+			progress.setProgress2(String.format(session.getMsgs().getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), -1, processing.get()); //$NON-NLS-1$
 			pieceCnt++;
 			Child block = report.add(String.format("Piece %d", pieceCnt));
 			block.data.length = piece_length;
@@ -265,7 +265,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 						hashStream(md, buffer, in, toGo);
 						flen -= toGo;
 						toGo = piece_length;
-						progress.setProgress2(String.format(session.msgs.getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), current.get(), processing.get()); //$NON-NLS-1$
+						progress.setProgress2(String.format(session.getMsgs().getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), current.get(), processing.get()); //$NON-NLS-1$
 						if (valid.get())
 						{
 							if (Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(pieceCnt - 1)))
@@ -308,7 +308,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 				if (progress.isCancel())
 					break;
 			}
-			progress.setProgress2(String.format(session.msgs.getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), current.get(), processing.get()); //$NON-NLS-1$
+			progress.setProgress2(String.format(session.getMsgs().getString("TorrentChecker.PieceProgression"), current.get(), processing.get()), current.get(), processing.get()); //$NON-NLS-1$
 			if (valid.get())
 			{
 				if (Hex.encodeHexString(md.digest()).equalsIgnoreCase(pieces.get(pieceCnt - 1)))
@@ -332,12 +332,12 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 			if (pieceValid == pieceCnt)
 			{
 				if (removedFiles > 0)
-					result = toHTML(toBold(toBlue(session.msgs.getString(TORRENT_CHECKER_RESULT_COMPLETE))));
+					result = toHTML(toBold(toBlue(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE))));
 				else
-					result = toHTML(toBold(toGreen(session.msgs.getString(TORRENT_CHECKER_RESULT_COMPLETE))));
+					result = toHTML(toBold(toGreen(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE))));
 			}
 			else
-				result = String.format(session.msgs.getString("TorrentChecker.ResultSHA1"), pieceValid * 100.0 / pieceCnt, humanReadableByteCount(missingBytes, false), wrongSizedFiles.get(), removedFiles); //$NON-NLS-1$
+				result = String.format(session.getMsgs().getString("TorrentChecker.ResultSHA1"), pieceValid * 100.0 / pieceCnt, humanReadableByteCount(missingBytes, false), wrongSizedFiles.get(), removedFiles); //$NON-NLS-1$
 		}
 		catch (Exception ex)
 		{

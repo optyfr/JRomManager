@@ -78,8 +78,8 @@ public class JRomManagerCLI
 			{
 				do
 				{
-					if (session.curr_profile != null)
-						System.out.format("jrm [%s]> ", session.curr_profile.getNfo().file.getName()); //$NON-NLS-1$
+					if (session.getCurrProfile() != null)
+						System.out.format("jrm [%s]> ", session.getCurrProfile().getNfo().file.getName()); //$NON-NLS-1$
 					else
 						System.out.print("jrm> "); //$NON-NLS-1$
 					analyze(splitLine(console.readLine()));
@@ -217,7 +217,7 @@ public class JRomManagerCLI
 						return load(args[1]);
 					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case SETTINGS:
-					if (session.curr_profile == null)
+					if (session.getCurrProfile() == null)
 						return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
 					if (args.length == 1)
 						return settings();
@@ -227,27 +227,27 @@ public class JRomManagerCLI
 						return settings(jrm.misc.SettingsEnum.from(args[1]), args[2]);
 					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
 				case SCAN:
-					if (session.curr_profile == null)
+					if (session.getCurrProfile() == null)
 						return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
-					session.curr_scan = new Scan(session.curr_profile, handler);
-					return session.curr_scan.actions.stream().mapToInt(Collection::size).sum();
+					session.setCurrScan(new Scan(session.getCurrProfile(), handler));
+					return session.getCurrScan().actions.stream().mapToInt(Collection::size).sum();
 				case SCANRESULT:
-					if (session.curr_scan == null)
+					if (session.getCurrScan() == null)
 						return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
-					if (session.curr_profile.hasPropsChanged())
+					if (session.getCurrProfile().hasPropsChanged())
 						return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
-					if (session.report == null)
+					if (session.getReport() == null)
 						return error(CLIMessages.getString("CLI_ERR_NoReport")); //$NON-NLS-1$
-					System.out.println(session.report.stats.getStatus());
+					System.out.println(session.getReport().stats.getStatus());
 					return 0;
 				case FIX:
-					if (session.curr_scan == null)
+					if (session.getCurrScan() == null)
 						return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
-					if (session.curr_profile.hasPropsChanged())
+					if (session.getCurrProfile().hasPropsChanged())
 						return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
-					if (session.curr_scan.actions.stream().mapToInt(Collection::size).sum() == 0)
+					if (session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() == 0)
 						return error(CLIMessages.getString("CLI_ERR_NothingToFix")); //$NON-NLS-1$
-					final var fix = new Fix(session.curr_profile, session.curr_scan, handler);
+					final var fix = new Fix(session.getCurrProfile(), session.getCurrScan(), handler);
 					System.out.format(CLIMessages.getString("CLI_MSG_ActionRemaining"), fix.getActionsRemain()); //$NON-NLS-1$
 					return fix.getActionsRemain();
 				case DIRUPD8R:
@@ -610,24 +610,24 @@ public class JRomManagerCLI
 
 	private int settings()
 	{
-		for (Map.Entry<Object, Object> entry : session.curr_profile.getSettings().getProperties().entrySet())
+		for (Map.Entry<Object, Object> entry : session.getCurrProfile().getSettings().getProperties().entrySet())
 			System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
 		return 0;
 	}
 
 	private int settings(final Enum<?> name)
 	{
-		if (!session.curr_profile.getSettings().hasProperty(name))
+		if (!session.getCurrProfile().getSettings().hasProperty(name))
 			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$
 		else
-			System.out.format("%s=%s%n", name, session.curr_profile.getSettings().getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.format("%s=%s%n", name, session.getCurrProfile().getSettings().getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		return 0;
 	}
 
 	private int settings(final Enum<?> name, final String value)
 	{
-		session.curr_profile.getSettings().setProperty(name, value);
-		session.curr_profile.saveSettings();
+		session.getCurrProfile().getSettings().setProperty(name, value);
+		session.getCurrProfile().saveSettings();
 		return 0;
 	}
 
@@ -653,7 +653,7 @@ public class JRomManagerCLI
 	{
 		Path candidate = cwdir.resolve(profile);
 		if (Files.isRegularFile(candidate))
-			session.curr_profile = Profile.load(session, candidate.toFile(), handler);
+			session.setCurrProfile(Profile.load(session, candidate.toFile(), handler));
 		else
 			System.out.format(CLIMessages.getString("CLI_ERR_ProfileNotExist"), profile); //$NON-NLS-1$
 		return 0;

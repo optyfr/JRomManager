@@ -216,7 +216,7 @@ public class Scan extends PathAbstractor
 	{
 		super(profile.getSession());
 		this.profile = profile;
-		this.report = profile.getSession().report;
+		this.report = profile.getSession().getReport();
 		profile.setPropsCheckPoint();
 		report.reset();
 		report.setProfile(profile);
@@ -232,7 +232,7 @@ public class Scan extends PathAbstractor
 		ignore_unneeded_entries = profile.getProperty(SettingsEnum.ignore_unneeded_entries, false); //$NON-NLS-1$
 		ignore_unknown_containers = profile.getProperty(SettingsEnum.ignore_unknown_containers, false); //$NON-NLS-1$
 		backup = profile.getProperty(SettingsEnum.backup, true); //$NON-NLS-1$
-		val use_parallelism = profile.getProperty(SettingsEnum.use_parallelism, profile.getSession().server);
+		val use_parallelism = profile.getProperty(SettingsEnum.use_parallelism, profile.getSession().isServer());
 		val nThreads = use_parallelism ? profile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 
 		final String dstdir_txt = profile.getProperty(SettingsEnum.roms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -501,7 +501,7 @@ public class Scan extends PathAbstractor
 			handler.setInfos(1,null);
 			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 			/* save report */
-			if(!profile.getSession().server)
+			if(!profile.getSession().isServer())
 				report.write(profile.getSession());
 			report.flush();
 			/* update and save stats */

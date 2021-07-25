@@ -105,7 +105,7 @@ public class ProfilesListXMLResponse extends XMLResponse
 			dir = pathAbstractor.getAbsolutePath(operation.getData("Parent"));
 		val dst = dir.resolve(operation.getData("File"));
 		ProfileNFO nfo = ProfileNFO.load(request.getSession(), dst.toFile());
-		if (request.session.curr_profile == null || !request.getSession().curr_profile.getNfo().equals(nfo))
+		if (request.session.getCurrProfile() == null || !request.getSession().getCurrProfile().getNfo().equals(nfo))
 		{
 			if (nfo.delete())
 			{

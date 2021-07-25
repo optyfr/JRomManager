@@ -26,9 +26,9 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 		{
 			final var srcfile =  pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();
 			final var reportfile = TrntChkReport.getReportFile(request.getSession(), srcfile);
-			if (request.session.tmp_tc_report == null || !(request.session.tmp_tc_report.getReportFile(request.getSession()).equals(reportfile) && request.getSession().tmp_tc_report.getFileModified() == reportfile.lastModified()))
-				request.session.tmp_tc_report = TrntChkReport.load(request.getSession(), srcfile);
-			report = request.session.tmp_tc_report;
+			if (request.session.getTmpTCReport() == null || !(request.session.getTmpTCReport().getReportFile(request.getSession()).equals(reportfile) && request.getSession().getTmpTCReport().getFileModified() == reportfile.lastModified()))
+				request.session.setTmpTCReport(TrntChkReport.load(request.getSession(), srcfile));
+			report = request.session.getTmpTCReport();
 		}
 		if (report != null)
 		{

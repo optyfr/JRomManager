@@ -86,7 +86,7 @@ public class ScannerFiltersPanel extends JSplitPane
 			public Component getListCellRendererComponent(final JList<? extends Systm> list, final Systm value, final int index, final boolean isSelected, final boolean cellHasFocus)
 			{
 				final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				checkbox.setSelected(value.isSelected(session.curr_profile));
+				checkbox.setSelected(value.isSelected(session.getCurrProfile()));
 				return checkbox;
 			}
 		});
@@ -96,9 +96,9 @@ public class ScannerFiltersPanel extends JSplitPane
 				if (e.getFirstIndex() != -1)
 				{
 					for (int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
-						checkBoxListSystems.getModel().getElementAt(index).setSelected(session.curr_profile,checkBoxListSystems.isSelectedIndex(index));
+						checkBoxListSystems.getModel().getElementAt(index).setSelected(session.getCurrProfile(),checkBoxListSystems.isSelectedIndex(index));
 					if (MainFrame.profile_viewer != null)
-						MainFrame.profile_viewer.reset(session.curr_profile);
+						MainFrame.profile_viewer.reset(session.getCurrProfile());
 				}
 			}
 		});
@@ -199,9 +199,9 @@ public class ScannerFiltersPanel extends JSplitPane
 		cbbxFilterCabinetType.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
-				session.curr_profile.setProperty(SettingsEnum.filter_CabinetType, e.getItem().toString()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(SettingsEnum.filter_CabinetType, e.getItem().toString()); //$NON-NLS-1$
 				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reset(session.curr_profile);
+					MainFrame.profile_viewer.reset(session.getCurrProfile());
 			}
 		});
 		cbbxFilterCabinetType.setModel(new DefaultComboBoxModel<>(CabinetType.values()));
@@ -226,9 +226,9 @@ public class ScannerFiltersPanel extends JSplitPane
 		cbbxFilterDisplayOrientation.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
-				session.curr_profile.setProperty(SettingsEnum.filter_DisplayOrientation, e.getItem().toString()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(SettingsEnum.filter_DisplayOrientation, e.getItem().toString()); //$NON-NLS-1$
 				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reset(session.curr_profile);
+					MainFrame.profile_viewer.reset(session.getCurrProfile());
 			}
 		});
 		cbbxFilterDisplayOrientation.setModel(new DefaultComboBoxModel<>(DisplayOrientation.values()));
@@ -272,9 +272,9 @@ public class ScannerFiltersPanel extends JSplitPane
 		cbbxSWMinSupportedLvl.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
-				session.curr_profile.setProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, e.getItem().toString()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, e.getItem().toString()); //$NON-NLS-1$
 				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reset(session.curr_profile);
+					MainFrame.profile_viewer.reset(session.getCurrProfile());
 			}
 		});
 		cbbxSWMinSupportedLvl.setModel(new DefaultComboBoxModel<>(Supported.values()));
@@ -284,9 +284,9 @@ public class ScannerFiltersPanel extends JSplitPane
 		cbbxYearMin.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
-				session.curr_profile.setProperty(SettingsEnum.filter_YearMin, e.getItem().toString()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(SettingsEnum.filter_YearMin, e.getItem().toString()); //$NON-NLS-1$
 				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reset(session.curr_profile);
+					MainFrame.profile_viewer.reset(session.getCurrProfile());
 			}
 		});
 		final GridBagConstraints gbc_cbbxYearMin = new GridBagConstraints();
@@ -308,9 +308,9 @@ public class ScannerFiltersPanel extends JSplitPane
 		cbbxYearMax.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
-				session.curr_profile.setProperty(SettingsEnum.filter_YearMax, e.getItem().toString()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(SettingsEnum.filter_YearMax, e.getItem().toString()); //$NON-NLS-1$
 				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reset(session.curr_profile);
+					MainFrame.profile_viewer.reset(session.getCurrProfile());
 			}
 		});
 		final GridBagConstraints gbc_cbbxYearMax = new GridBagConstraints();
@@ -322,25 +322,25 @@ public class ScannerFiltersPanel extends JSplitPane
 		cbbxDriverStatus.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 			{
-				session.curr_profile.setProperty(SettingsEnum.filter_DriverStatus, e.getItem().toString()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(SettingsEnum.filter_DriverStatus, e.getItem().toString()); //$NON-NLS-1$
 				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reset(session.curr_profile);
+					MainFrame.profile_viewer.reset(session.getCurrProfile());
 			}
 		});
 		chckbxIncludeDisks.addItemListener(e -> {
-			session.curr_profile.setProperty(SettingsEnum.filter_InclDisks, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(SettingsEnum.filter_InclDisks, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			if (MainFrame.profile_viewer != null)
-				MainFrame.profile_viewer.reset(session.curr_profile);
+				MainFrame.profile_viewer.reset(session.getCurrProfile());
 		});
 		chckbxIncludeClones.addItemListener(e -> {
-			session.curr_profile.setProperty(SettingsEnum.filter_InclClones, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(SettingsEnum.filter_InclClones, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			if (MainFrame.profile_viewer != null)
-				MainFrame.profile_viewer.reset(session.curr_profile);
+				MainFrame.profile_viewer.reset(session.getCurrProfile());
 		});
 		chckbxIncludeSamples.addItemListener(e -> {
-			session.curr_profile.setProperty(SettingsEnum.filter_InclSamples, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(SettingsEnum.filter_InclSamples, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 			if (MainFrame.profile_viewer != null)
-				MainFrame.profile_viewer.reset(session.curr_profile);
+				MainFrame.profile_viewer.reset(session.getCurrProfile());
 		});
 
 
@@ -348,17 +348,17 @@ public class ScannerFiltersPanel extends JSplitPane
 
 	public void initProfileSettings(final Session session)
 	{
-		chckbxIncludeClones.setSelected(session.curr_profile.getProperty(SettingsEnum.filter_InclClones, true)); //$NON-NLS-1$
-		chckbxIncludeDisks.setSelected(session.curr_profile.getProperty(SettingsEnum.filter_InclDisks, true)); //$NON-NLS-1$
-		chckbxIncludeSamples.setSelected(session.curr_profile.getProperty(SettingsEnum.filter_InclSamples, true)); //$NON-NLS-1$
-		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(session.curr_profile.getProperty(SettingsEnum.filter_DriverStatus, Driver.StatusType.preliminary.toString()))); //$NON-NLS-1$
-		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(session.curr_profile.getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString()))); //$NON-NLS-1$
-		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(session.curr_profile.getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString()))); //$NON-NLS-1$
-		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(session.curr_profile.getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString()))); //$NON-NLS-1$
-		cbbxYearMin.setModel(new YearsModel(session.curr_profile.getYears()));
-		cbbxYearMin.setSelectedItem(session.curr_profile.getProperty(SettingsEnum.filter_YearMin, cbbxYearMin.getModel().getElementAt(0))); //$NON-NLS-1$
-		cbbxYearMax.setModel(new YearsModel(session.curr_profile.getYears()));
-		cbbxYearMax.setSelectedItem(session.curr_profile.getProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1))); //$NON-NLS-1$
+		chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclClones, true)); //$NON-NLS-1$
+		chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclDisks, true)); //$NON-NLS-1$
+		chckbxIncludeSamples.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclSamples, true)); //$NON-NLS-1$
+		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_DriverStatus, Driver.StatusType.preliminary.toString()))); //$NON-NLS-1$
+		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString()))); //$NON-NLS-1$
+		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString()))); //$NON-NLS-1$
+		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString()))); //$NON-NLS-1$
+		cbbxYearMin.setModel(new YearsModel(session.getCurrProfile().getYears()));
+		cbbxYearMin.setSelectedItem(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMin, cbbxYearMin.getModel().getElementAt(0))); //$NON-NLS-1$
+		cbbxYearMax.setModel(new YearsModel(session.getCurrProfile().getYears()));
+		cbbxYearMax.setSelectedItem(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1))); //$NON-NLS-1$
 		
 	}
 	

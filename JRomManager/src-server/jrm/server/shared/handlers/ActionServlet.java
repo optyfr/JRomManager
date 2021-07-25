@@ -100,11 +100,11 @@ public class ActionServlet extends HttpServlet
 	private void doInit(WebSession sess)
 	{
 		final var cmd = new LongPollingReqMgr(sess);
-		if (sess.curr_profile != null)
+		if (sess.getCurrProfile() != null)
 		{
-			new ProfileActions(cmd).loaded(sess.curr_profile);
-			new CatVerActions(cmd).loaded(sess.curr_profile);
-			new NPlayersActions(cmd).loaded(sess.curr_profile);
+			new ProfileActions(cmd).loaded(sess.getCurrProfile());
+			new CatVerActions(cmd).loaded(sess.getCurrProfile());
+			new NPlayersActions(cmd).loaded(sess.getCurrProfile());
 		}
 		if (sess.getWorker() != null && sess.getWorker().isAlive() && sess.getWorker().progress != null)
 			sess.getWorker().progress.reload(cmd);

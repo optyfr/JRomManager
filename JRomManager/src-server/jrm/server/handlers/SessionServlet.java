@@ -36,7 +36,8 @@ public class SessionServlet extends HttpServlet
 			jso.add("session", sessionid);
 			final var msgs = new JsonObject();
 			List<LanguageRange> lr = LanguageRange.parse(req.getHeader("accept-language"));
-			ResourceBundle rb = ws.msgs = Messages.loadBundle(!lr.isEmpty() ? Locale.lookup(lr, Arrays.asList(Locale.getAvailableLocales())) : Locale.getDefault());
+			ws.setMsgs(Messages.loadBundle(!lr.isEmpty() ? Locale.lookup(lr, Arrays.asList(Locale.getAvailableLocales())) : Locale.getDefault()));
+			ResourceBundle rb = ws.getMsgs();
 			rb.keySet().forEach(k -> {
 				if (k != null && !k.isEmpty())
 					msgs.add(k, rb.getString(k));

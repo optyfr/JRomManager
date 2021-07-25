@@ -187,8 +187,8 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 					Log.warn(()->"Can't rename "+oldfile.getName()+" to "+newfile.getName());
 			});
 			final var newNfoFile = new File(currDir.getFile(), aValue.toString());
-			if(session.curr_profile != null && session.curr_profile.getNfo().file.equals(pnfo.file))
-				session.curr_profile.getNfo().relocate(session, newNfoFile);
+			if(session.getCurrProfile() != null && session.getCurrProfile().getNfo().file.equals(pnfo.file))
+				session.getCurrProfile().getNfo().relocate(session, newNfoFile);
 			pnfo.relocate(session, newNfoFile);
 			fireTableCellUpdated(rowIndex, rowIndex);
 		}

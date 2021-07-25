@@ -46,7 +46,7 @@ public class ProfileActions extends PathAbstractor
 			WebSession session = ws.getSession();
 			session.getWorker().progress = new ProgressActions(ws);
 			session.getWorker().progress.canCancel(false);
-			session.getWorker().progress.setProgress(session.msgs.getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+			session.getWorker().progress.setProgress(session.getMsgs().getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
 			try
 			{
 				JsonObject jsobj = jso.get("params").asObject();
@@ -124,21 +124,21 @@ public class ProfileActions extends PathAbstractor
 	{
 		(ws.getSession().setWorker(new Worker(() -> {
 			WebSession session = ws.getSession();
-			if (session.curr_profile != null)
-				session.curr_profile.saveSettings();
+			if (session.getCurrProfile() != null)
+				session.getCurrProfile().saveSettings();
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
 				JsonObject jsobj = jso.get("params").asObject();
 				val file = getAbsolutePath(jsobj.getString("parent", null)).resolve(jsobj.getString("file", null));
-				session.curr_profile = jrm.profile.Profile.load(session, file.toFile(), session.getWorker().progress);
-				if (session.curr_profile != null)
+				session.setCurrProfile(jrm.profile.Profile.load(session, file.toFile(), session.getWorker().progress));
+				if (session.getCurrProfile() != null)
 				{
-					session.curr_profile.getNfo().save(session);
-					session.report.setProfile(session.curr_profile);
-					loaded(session.curr_profile);
-					new CatVerActions(ws).loaded(session.curr_profile);
-					new NPlayersActions(ws).loaded(session.curr_profile);
+					session.getCurrProfile().getNfo().save(session);
+					session.getReport().setProfile(session.getCurrProfile());
+					loaded(session.getCurrProfile());
+					new CatVerActions(ws).loaded(session.getCurrProfile());
+					new NPlayersActions(ws).loaded(session.getCurrProfile());
 				}
 			}
 			catch (BreakException ex)
@@ -157,17 +157,17 @@ public class ProfileActions extends PathAbstractor
 	public void importSettings(JsonObject jso)
 	{
 		WebSession session = ws.getSession();
-		if (session.curr_profile != null)
+		if (session.getCurrProfile() != null)
 		{
 			final JsonValue jsv = jso.get("params").asObject().get("path");
 			if (jsv != null && !jsv.isNull())
 			{
-				session.curr_profile.loadSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
-				session.curr_profile.loadCatVer(null);
-				session.curr_profile.loadNPlayers(null);
-				loaded(session.curr_profile);
-				new CatVerActions(ws).loaded(session.curr_profile);
-				new NPlayersActions(ws).loaded(session.curr_profile);
+				session.getCurrProfile().loadSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
+				session.getCurrProfile().loadCatVer(null);
+				session.getCurrProfile().loadNPlayers(null);
+				loaded(session.getCurrProfile());
+				new CatVerActions(ws).loaded(session.getCurrProfile());
+				new NPlayersActions(ws).loaded(session.getCurrProfile());
 			}
 		}
 	}
@@ -175,12 +175,12 @@ public class ProfileActions extends PathAbstractor
 	public void exportSettings(JsonObject jso)
 	{
 		WebSession session = ws.getSession();
-		if (session.curr_profile != null)
+		if (session.getCurrProfile() != null)
 		{
 			final JsonValue jsv = jso.get("params").asObject().get("path");
 			if (jsv != null && !jsv.isNull())
 			{
-				session.curr_profile.saveSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
+				session.getCurrProfile().saveSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
 			}
 		}
 	}
@@ -192,7 +192,7 @@ public class ProfileActions extends PathAbstractor
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
-				session.curr_scan = new Scan(session.curr_profile, session.getWorker().progress);
+				session.setCurrScan(new Scan(session.getCurrProfile(), session.getWorker().progress));
 			}
 			catch (BreakException ex)
 			{
@@ -201,9 +201,9 @@ public class ProfileActions extends PathAbstractor
 			session.getWorker().progress.close();
 			session.getWorker().progress = null;
 			session.setLastAction(new Date());
-			final var automation = ScanAutomation.valueOf(session.curr_profile.getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
-			scanned(session.curr_scan, automation.hasReport());
-			if (automate && session.curr_scan != null && session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
+			final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+			scanned(session.getCurrScan(), automation.hasReport());
+			if (automate && session.getCurrScan() != null && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
 				fix(jso);
 		}))).start();
 	}
@@ -215,19 +215,19 @@ public class ProfileActions extends PathAbstractor
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
-				if (session.curr_profile.hasPropsChanged())
+				if (session.getCurrProfile().hasPropsChanged())
 				{
-					session.curr_scan = new Scan(session.curr_profile, session.getWorker().progress);
-					boolean needfix = session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0;
+					session.setCurrScan(new Scan(session.getCurrProfile(), session.getWorker().progress));
+					boolean needfix = session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
 					if (!needfix)
 						return;
 				}
-				final var fix = new Fix(session.curr_profile, session.curr_scan, session.getWorker().progress);
+				final var fix = new Fix(session.getCurrProfile(), session.getCurrScan(), session.getWorker().progress);
 				fixed(fix);
 			}
 			finally
 			{
-				final var automation = ScanAutomation.valueOf(session.curr_profile.getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+				final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if (automation.hasScanAgain())
 					scan(jso, false);
 				session.getWorker().progress.close();
@@ -240,7 +240,7 @@ public class ProfileActions extends PathAbstractor
 	public void setProperty(JsonObject jso)
 	{
 		final var profile = jso.getString("profile", null);
-		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().getCurr_profile().getSettings();
+		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().getCurrProfile().getSettings();
 		JsonObject pjso = jso.get("params").asObject();
 		for (Member m : pjso)
 		{
@@ -259,7 +259,7 @@ public class ProfileActions extends PathAbstractor
 			if (profile != null)
 				ws.getSession().getUser().getSettings().saveProfileSettings(getAbsolutePath(profile).toFile(), settings);
 			else
-				ws.getSession().getCurr_profile().saveSettings();
+				ws.getSession().getCurrProfile().saveSettings();
 		}
 		catch (Exception e)
 		{

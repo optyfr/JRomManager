@@ -1371,7 +1371,7 @@ public class Profile implements Serializable
 		handler.setInfos(1, true);
 		profile = new Profile();
 		profile.session = session;
-		session.curr_profile = null;
+		session.setCurrProfile(null);
 		profile.nfo = nfo;
 		if (nfo.isJRM())
 		{ // we use JRM file keep ROMs/SL DATs in relation
@@ -1391,7 +1391,7 @@ public class Profile implements Serializable
 			if (!nfo.file.exists() || !profile.internalLoad(nfo.file, handler))
 				return null;
 		}
-		session.curr_profile = profile;
+		session.setCurrProfile(profile);
 		// save cache
 		handler.setInfos(1, null);
 		handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
@@ -1415,7 +1415,7 @@ public class Profile implements Serializable
 		{
 			profile = (Profile) ois.readObject();
 			profile.session = session;
-			session.curr_profile = profile;
+			session.setCurrProfile(profile);
 			profile.nfo = nfo;
 		}
 		catch (final Exception e)

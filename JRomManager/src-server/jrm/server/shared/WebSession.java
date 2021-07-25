@@ -29,13 +29,14 @@ public class WebSession extends Session implements Closeable, Serializable
 	
 	public Worker setWorker(Worker worker)
 	{
-		return this.worker = worker;
+		this.worker = worker;
+		return this.worker;
 	}
 	
 	private @Getter @Setter Date lastAction = new Date();
 
-	public transient Report tmp_report = null;
-	public transient TrntChkReport tmp_tc_report = null;
+	private transient @Getter @Setter Report tmpReport = null;
+	private transient @Getter @Setter TrntChkReport tmpTCReport = null;
 	private transient TreeMap<Integer, Path> cachedProfileList = null;
 	private transient @Getter TreeMap<String, FileResult> cachedCompressorList = new TreeMap<>();
 

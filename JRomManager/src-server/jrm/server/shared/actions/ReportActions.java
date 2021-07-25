@@ -23,7 +23,7 @@ public class ReportActions
 	public void setFilter(JsonObject jso, boolean lite)
 	{
 		final JsonObject pjso = jso.get("params").asObject();
-		final Report report = lite ? ws.getSession().tmp_report : ws.getSession().report;
+		final Report report = lite ? ws.getSession().getTmpReport() : ws.getSession().getReport();
 		EnumSet<FilterOptions> options = report.getHandler().getFilterOptions().clone();
 		for (Member m : pjso)
 		{

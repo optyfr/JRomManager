@@ -63,7 +63,7 @@ public class AddEntry extends EntryAction
 	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
 		final var dstpath = dstfs.getPath(entity.getName());
-		handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
+		handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
 		if(entry.getParent().getType() == Type.DIR)
 		{
@@ -140,7 +140,7 @@ public class AddEntry extends EntryAction
 	public boolean doAction(final Session session, final Path target, final ProgressHandler handler, int i, int max)
 	{
 		final var dstpath = target.resolve(entity.getName());
-		handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
+		handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		Path srcpath = null;
 		if(entry.getParent().getType() == Type.DIR)
 		{
@@ -218,7 +218,7 @@ public class AddEntry extends EntryAction
 	@Override
 	public boolean doAction(final Session session, final Archive dstarchive, final ProgressHandler handler, int i, int max)
 	{
-		handler.setProgress(null, null, null, progress(i, max, String.format(session.msgs.getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
+		handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString("AddEntry.Adding"), entity.getName()))); //$NON-NLS-1$
 		if(entry.getParent().getType() == Type.DIR)
 		{
 			try

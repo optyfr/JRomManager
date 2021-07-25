@@ -486,9 +486,9 @@ public class BatchDirUpd8rPanel extends JPanel
 					protected void done()
 					{
 						close();
-						session.curr_profile = null;
-						session.curr_scan = null;
-						session.report.setProfile(session.curr_profile);
+						session.setCurrProfile(null);
+						session.setCurrScan(null);
+						session.getReport().setProfile(session.getCurrProfile());
 						if (MainFrame.profile_viewer != null)
 						{
 							MainFrame.profile_viewer.dispose();

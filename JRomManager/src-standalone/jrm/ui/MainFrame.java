@@ -102,8 +102,8 @@ public class MainFrame extends JFrame
 		}
 		build();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			if (session.curr_profile != null)
-				session.curr_profile.saveSettings();
+			if (session.getCurrProfile() != null)
+				session.getCurrProfile().saveSettings();
 			session.getUser().getSettings().saveSettings();
 		}));
 	}

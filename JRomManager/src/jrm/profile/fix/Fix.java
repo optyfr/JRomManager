@@ -55,7 +55,7 @@ public class Fix
 	{
 		this.currScan = currScan;
 
-		val useParallelism = currProfile.getProperty(SettingsEnum.use_parallelism, currProfile.getSession().server); // $NON-NLS-1$
+		val useParallelism = currProfile.getProperty(SettingsEnum.use_parallelism, currProfile.getSession().isServer()); // $NON-NLS-1$
 		val nThreads = useParallelism ? currProfile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 
 		final long start = System.currentTimeMillis();
@@ -69,7 +69,7 @@ public class Fix
 			max.addAndGet(actions.size());
 			actions.forEach(action->max.addAndGet(action.count() + (int)(action.estimatedSize()>>20)));
 		});
-		progress.setProgress(currProfile.getSession().msgs.getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
+		progress.setProgress(currProfile.getSession().getMsgs().getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
 		
 		// foreach ordered action groups
 		currScan.actions.forEach(actions -> {

@@ -95,7 +95,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		JButton btnInfo = new JButton(Messages.getString("MainFrame.btnInfo.text")); //$NON-NLS-1$
 		btnInfo.addActionListener(e -> {
 			if (MainFrame.profile_viewer == null)
-				MainFrame.profile_viewer = new ProfileViewer(session, SwingUtilities.getWindowAncestor(this), session.curr_profile);
+				MainFrame.profile_viewer = new ProfileViewer(session, SwingUtilities.getWindowAncestor(this), session.getCurrProfile());
 			MainFrame.profile_viewer.setVisible(true);
 		});
 		btnInfo.setIcon(MainFrame.getIcon("/jrm/resicons/icons/information.png")); //$NON-NLS-1$
@@ -141,9 +141,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				{
 					Files.createDirectories(presets);
 					new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Import Settings", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
-						session.getCurr_profile().loadSettings(chooser.getSelectedFile());
-						session.getCurr_profile().loadCatVer(null);
-						session.getCurr_profile().loadNPlayers(null);
+						session.getCurrProfile().loadSettings(chooser.getSelectedFile());
+						session.getCurrProfile().loadCatVer(null);
+						session.getCurrProfile().loadNPlayers(null);
 						initProfileSettings(session);
 						return null;
 					});
@@ -168,7 +168,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				{
 					Files.createDirectories(presets);
 					new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Export Settings", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
-						session.getCurr_profile().saveSettings(chooser.getSelectedFile());
+						session.getCurrProfile().saveSettings(chooser.getSelectedFile());
 						return null;
 					});
 				}
@@ -260,19 +260,19 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				session.curr_scan = new Scan(session.curr_profile, this);
+				session.setCurrScan(new Scan(session.getCurrProfile(), this));
 				return null;
 			}
 
 			@Override
 			protected void done()
 			{
-				btnFix.setEnabled(session.curr_scan!=null && session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0);
+				btnFix.setEnabled(session.getCurrScan()!=null && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0);
 				close();
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
-				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+				ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if(MainFrame.report_frame != null)
 				{
 					if(automation.hasReport())
@@ -302,13 +302,13 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				if (session.curr_profile.hasPropsChanged())
+				if (session.getCurrProfile().hasPropsChanged())
 				{
 					switch (JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), Messages.getString("MainFrame.WarnSettingsChanged"), Messages.getString("MainFrame.RescanBeforeFix"), JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						case JOptionPane.YES_OPTION:
-							session.curr_scan = new Scan(session.curr_profile, this);
-							if (!(toFix = session.curr_scan.actions.stream().mapToInt(Collection::size).sum() > 0))
+							session.setCurrScan(new Scan(session.getCurrProfile(), this));
+							if (!(toFix = session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0))
 								return null;
 							break;
 						case JOptionPane.NO_OPTION:
@@ -318,7 +318,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 							return null;
 					}
 				}
-				final Fix fix = new Fix(session.curr_profile, session.curr_scan, this);
+				final Fix fix = new Fix(session.getCurrProfile(), session.getCurrScan(), this);
 				toFix = fix.getActionsRemain() > 0;
 				return null;
 			}
@@ -331,7 +331,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				/* update entries in profile viewer */ 
 				if (MainFrame.profile_viewer != null)
 					MainFrame.profile_viewer.reload();
-				ScanAutomation automation = ScanAutomation.valueOf(session.curr_profile.getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+				ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if(automation.hasScanAgain())
 					scan(session, false);
 			}
@@ -345,11 +345,11 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	 */
 	public void initProfileSettings(final Session session)
 	{
-		scannerSettingsPanel.initProfileSettings(session.curr_profile.getSettings());
+		scannerSettingsPanel.initProfileSettings(session.getCurrProfile().getSettings());
 		scannerDirPanel.initProfileSettings(session);
 		scannerFilters.initProfileSettings(session);
 		scannerAdvFilters.initProfileSettings(session);
-		scannerAutomation.initProfileSettings(session.curr_profile.getSettings());
+		scannerAutomation.initProfileSettings(session.getCurrProfile().getSettings());
 	}
 
 	/**
@@ -361,8 +361,8 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	@Override
 	public void loadProfile(final Session session, final ProfileNFO profile)
 	{
-		if (session.curr_profile != null)
-			session.curr_profile.saveSettings();
+		if (session.getCurrProfile() != null)
+			session.getCurrProfile().saveSettings();
 		
 		if (MainFrame.profile_viewer != null)
 			MainFrame.profile_viewer.clear();
@@ -381,16 +381,16 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected void done()
 			{
-				session.report.setProfile(session.curr_profile);
+				session.getReport().setProfile(session.getCurrProfile());
 				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reset(session.curr_profile);
+					MainFrame.profile_viewer.reset(session.getCurrProfile());
 				mainPane.setEnabledAt(1, success);
 				btnScan.setEnabled(success);
 				btnFix.setEnabled(false);
-				if (success && session.curr_profile != null)
+				if (success && session.getCurrProfile() != null)
 				{
-					lblProfileinfo.setText(session.curr_profile.getName());
-					scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.curr_profile.getSystems()));
+					lblProfileinfo.setText(session.getCurrProfile().getName());
+					scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.getCurrProfile().getSystems()));
 					initProfileSettings(session);
 					mainPane.setSelectedIndex(1);
 				}

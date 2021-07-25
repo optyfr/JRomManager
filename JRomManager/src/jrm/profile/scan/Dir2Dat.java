@@ -69,8 +69,8 @@ public class Dir2Dat
 					{
 						String name = FilenameUtils.removeExtension(c.getFile().getName());
 						Machine machine = null;
-						if(session.curr_profile != null &&  options.contains(Options.MATCH_PROFILE))
-							machine = session.curr_profile.getMachineListList().get(0).getByName(name);
+						if(session.getCurrProfile() != null &&  options.contains(Options.MATCH_PROFILE))
+							machine = session.getCurrProfile().getMachineListList().get(0).getByName(name);
 						if(machine != null)
 							name = machine.getBaseName();
 						if(!counter.containsKey(name))
@@ -146,8 +146,8 @@ public class Dir2Dat
 					{
 						String name = FilenameUtils.removeExtension(c.getFile().getName());
 						Machine machine = null;
-						if(session.curr_profile != null &&  options.contains(Options.MATCH_PROFILE))
-							machine = session.curr_profile.getMachineListList().get(0).getByName(name);
+						if(session.getCurrProfile() != null &&  options.contains(Options.MATCH_PROFILE))
+							machine = session.getCurrProfile().getMachineListList().get(0).getByName(name);
 						if(machine != null)
 							name = machine.getBaseName();
 						if(!counter.containsKey(name))
@@ -225,9 +225,9 @@ public class Dir2Dat
 						{
 							String swname = FilenameUtils.removeExtension(filename.toString());
 							String slname = parent.toString();
-							if(session.curr_profile!= null)
+							if(session.getCurrProfile()!= null)
 							{
-								SoftwareList sl = session.curr_profile.getMachineListList().getSoftwareListList().getByName(slname);
+								SoftwareList sl = session.getCurrProfile().getMachineListList().getSoftwareListList().getByName(slname);
 								if(sl != null && sl.containsName(swname))
 									software = sl.getByName(swname);
 								if(software != null && options.contains(Options.MATCH_PROFILE))

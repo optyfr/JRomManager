@@ -218,7 +218,7 @@ public class ProfilePanel extends JPanel
 			if (row >= 0)
 			{
 				final ProfileNFO nfo = filemodel.getNfoAt(row);
-				if ((session.curr_profile == null || !session.curr_profile.getNfo().equals(nfo)) && nfo.delete())
+				if ((session.getCurrProfile() == null || !session.getCurrProfile().getNfo().equals(nfo)) && nfo.delete())
 					filemodel.populate(session);
 			}
 		});
