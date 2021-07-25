@@ -83,25 +83,18 @@ public class FullServer
 
 	public FullServer(CommandLine cmd) throws IOException, SQLException, InterruptedException, JettyException
 	{
-		clientPath = Optional.ofNullable(cmd.getOptionValue('c')).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
-		bind = cmd.hasOption('b') ? cmd.getOptionValue('b') : BIND_DEFAULT;
-		httpPort = cmd.hasOption('p') ? Integer.parseInt(cmd.getOptionValue('p')) : HTTP_PORT_DEFAULT;
-		httpsPort = cmd.hasOption('s') ? Integer.parseInt(cmd.getOptionValue('s')) : HTTPS_PORT_DEFAULT;
-		if (cmd.hasOption('C') && Files.exists(Paths.get(cmd.getOptionValue('C'))))
-		{
-			keyStorePath = cmd.getOptionValue('C');
-			if (Files.exists(Paths.get(keyStorePath + ".pw")))
-				keyStorePWPath = keyStorePath + ".pw";
-			else
-				keyStorePWPath = null;
-		}
-		else
-		{
-			keyStorePath = KEY_STORE_PATH_DEFAULT;
+		clientPath = getOption(cmd, 'c').map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
+		bind = getOption(cmd, 'b').orElse(BIND_DEFAULT);
+		httpPort = getOption(cmd, 'p').map(Integer::parseInt).orElse(HTTP_PORT_DEFAULT);
+		httpsPort = getOption(cmd, 's').map(Integer::parseInt).orElse(HTTPS_PORT_DEFAULT);
+		keyStorePath = getOption(cmd, 'C').filter(p->Files.exists(Paths.get(p))).orElse(KEY_STORE_PATH_DEFAULT);
+		if (Files.exists(Paths.get(keyStorePath + ".pw")))
+			keyStorePWPath = keyStorePath + ".pw";
+		else if(keyStorePath.equals(KEY_STORE_PATH_DEFAULT) && Files.exists(Paths.get(KEY_STORE_PW_PATH_DEFAULT)))
 			keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
-		}
-		if (cmd.hasOption('w'))
-			System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
+		else
+			keyStorePWPath = null;
+		getOption(cmd, 'w').map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
 		debug = cmd.hasOption('d');
 		protocols = PROTOCOLS_DEFAULT;
 		connlimit = CONNLIMIT_DEFAULT;
@@ -143,7 +136,7 @@ public class FullServer
 		config.addCustomizer(new SecureRequestCustomizer());
 		config.addCustomizer(new ForwardedRequestCustomizer());
 
-		if ((protocols & 0x1) != 0)
+		if ((protocols & 0x1) == 0x1)
 		{
 			// Create the HTTP connection
 			jettyserver.addConnector(httpConnector(jettyserver, config));
@@ -179,6 +172,13 @@ public class FullServer
 		}
 	}
 
+	private Optional<String> getOption(CommandLine cmd, char c)
+	{
+		if(cmd.hasOption(c))
+			return Optional.ofNullable(cmd.getOptionValue(c));
+		return Optional.empty();
+	}
+	
 	/**
 	 * @param jettyserver
 	 * @return
