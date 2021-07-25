@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import lombok.Getter;
 import lombok.NonNull;
 
 /**
@@ -61,6 +62,7 @@ public class Log
 	}
 
 	public static final Formatter formatter = new Formatter();
+	private static @Getter boolean init = false;
 	
 	private Log()
 	{
@@ -83,12 +85,12 @@ public class Log
 				Logger.getGlobal().addHandler(consolehandler);
 				Logger.getGlobal().setLevel(Level.FINE);
 			}
+			init = true;
 		}
 		catch (SecurityException | IOException e)
 		{
-			System.err.println(e.getMessage());
+			System.console().format("%s%n", e.getMessage());
 		}
-		
 	}
 	
 	public static void setLevel(Level level)

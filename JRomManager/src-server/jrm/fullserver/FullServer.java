@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Security;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
@@ -15,7 +16,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.conscrypt.OpenSSLProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
@@ -81,7 +81,7 @@ public class FullServer
 	private final String bind;
 	private final int connlimit;
 
-	public FullServer(CommandLine cmd) throws Exception
+	public FullServer(CommandLine cmd) throws IOException, SQLException, InterruptedException, JettyException
 	{
 		clientPath = Optional.ofNullable(cmd.getOptionValue('c')).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
 		bind = cmd.hasOption('b') ? cmd.getOptionValue('b') : BIND_DEFAULT;
@@ -116,12 +116,7 @@ public class FullServer
 		context.setBaseResource(Resource.newResource(this.clientPath));
 		context.setContextPath("/");
 
-		final var gzipHandler = new GzipHandler();
-		gzipHandler.setIncludedMethods("POST", "GET");
-		gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
-		gzipHandler.setInflateBufferSize(2048);
-		gzipHandler.setMinGzipSize(2048);
-		context.setGzipHandler(gzipHandler);
+		context.setGzipHandler(gzipHandler());
 
 		context.addServlet(new ServletHolder("datasources", FullDataSourceServlet.class), "/datasources/*");
 		context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
@@ -129,50 +124,14 @@ public class FullServer
 		context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
 		context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
 		context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
+		context.addServlet(holderStaticNoCache(), "*.nocache.js");
+		context.addServlet(holderStaticCache(), "*.cache.js");
+		context.addServlet(holderStaticJS(), "*.js");
+		context.addServlet(holderStatic(), "/");
 
-		final var holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
-		holderStaticNoCache.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticNoCache.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticNoCache.setInitParameter(PRECOMPRESSED, FALSE);
-		holderStaticNoCache.setInitParameter(CACHE_CONTROL, "no-store");
-		context.addServlet(holderStaticNoCache, "*.nocache.js");
-
-		final var holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
-		holderStaticCache.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticCache.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticCache.setInitParameter(PRECOMPRESSED, TRUE);
-		context.addServlet(holderStaticCache, "*.cache.js");
-
-		final var holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
-		holderStaticJS.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticJS.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticJS.setInitParameter(PRECOMPRESSED, TRUE);
-		holderStaticJS.setInitParameter(CACHE_CONTROL, "public, max-age=0, must-revalidate");
-		context.addServlet(holderStaticJS, "*.js");
-
-		final var holderStatic = new ServletHolder("static", DefaultServlet.class);
-		holderStatic.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStatic.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStatic.setInitParameter(PRECOMPRESSED, TRUE);
-		context.addServlet(holderStatic, "/");
+		setSecurity(context);
 
 		context.getSessionHandler().setMaxInactiveInterval(300);
-
-		// Authentification server by login & password
-		final var security = new ConstraintSecurityHandler();
-		security.setAuthenticator(new BasicAuthenticator());
-		security.setLoginService(new Login());
-
-		final var constraint = new Constraint();
-		constraint.setName("auth");
-		constraint.setAuthenticate(true);
-		constraint.setRoles(new String[] { "admin", "user" });
-		final var constraintMapping = new ConstraintMapping();
-		constraintMapping.setConstraint(constraint);
-		constraintMapping.setPathSpec("/*");
-		security.setConstraintMappings(Collections.singletonList(constraintMapping));
-		context.setSecurityHandler(security);
-
 		context.getSessionHandler().addEventListener(new SessionListener());
 
 		jettyserver.setHandler(context);
@@ -187,79 +146,229 @@ public class FullServer
 		if ((protocols & 0x1) != 0)
 		{
 			// Create the HTTP connection
-			final var httpConnectionFactory = new HttpConnectionFactory(config);
-			final var httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
-			httpConnector.setPort(httpPort);
-			httpConnector.setHost(bind);
-			httpConnector.setName("HTTP");
-			jettyserver.addConnector(httpConnector);
+			jettyserver.addConnector(httpConnector(jettyserver, config));
 		}
 
 		if ((protocols & 0x2) == 0x2 && URIUtils.URIExists(keyStorePath))
 		{
-			// Create the HTTPS end point
-			final var httpConfig = new HttpConfiguration();
-			httpConfig.setSecureScheme("https");
-			httpConfig.setSecurePort(httpsPort);
-
-			// SSL Context Factory for HTTPS and HTTP/2
-			var sslContextFactory = new SslContextFactory.Server();
-			sslContextFactory.setKeyStoreType("PKCS12");
-			sslContextFactory.setKeyStorePath(keyStorePath);
-			sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-			sslContextFactory.setUseCipherSuitesOrder(true);
-
-			String keyStorePassword = (keyStorePWPath != null && URIUtils.URIExists(keyStorePWPath)) ? URIUtils.readString(keyStorePWPath).trim() : "";
-			sslContextFactory.setKeyStorePassword(keyStorePassword);
-			sslContextFactory.setKeyManagerPassword(keyStorePassword);
-
-			// Reload certificate every day at midnight (used for certificate renewal)
-			SSLReload.getInstance(sslContextFactory).start();
-
-			// HTTPS Configuration
-			final var httpsConfig = new HttpConfiguration(httpConfig);
-			httpsConfig.addCustomizer(new SecureRequestCustomizer());
-
 			if ((protocols & 0x4) == 0x4)
-			{
-
-				// HTTP/2 Connection Factory
-				final var h2 = new HTTP2ServerConnectionFactory(httpsConfig);
-
-				Security.insertProviderAt(new OpenSSLProvider(), 1); // Temporary fix for conflicting SSL providers
-				final var alpn = new ALPNServerConnectionFactory();
-				alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
-
-				// SSL Connection Factory
-				final var ssl = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
-
-				// HTTP/2 Connector
-				final var http2Connector = new ServerConnector(jettyserver, ssl, alpn, h2, new HttpConnectionFactory(httpsConfig));
-				http2Connector.setPort(httpsPort);
-				http2Connector.setHost(bind);
-				http2Connector.setName("HTTP2");
-				jettyserver.addConnector(http2Connector);
-			}
+				jettyserver.addConnector(http2Connector(jettyserver));
 			else
-			{
-				// HTTPS Connector
-				final var httpsConnector = new ServerConnector(jettyserver, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
-				httpsConnector.setPort(httpsPort);
-				httpsConnector.setHost(bind);
-				httpsConnector.setName("HTTPS");
-				jettyserver.addConnector(httpsConnector);
-			}
+				jettyserver.addConnector(httpsConnector(jettyserver));
 		}
 
 		jettyserver.addBean(new ConnectionLimit(connlimit, jettyserver)); // limit simultaneous connections
 
-		jettyserver.start();
-		Log.config("Start server");
-		for (final var connector : jettyserver.getConnectors())
-			Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to " + ((ServerConnector) connector).getHost());
-		Log.config("clientPath: " + clientPath);
-		Log.config("workPath: " + getWorkPath());
-		waitStop(jettyserver);
+		try
+		{
+			jettyserver.start();
+			Log.config("Start server");
+			for (final var connector : jettyserver.getConnectors())
+				Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to " + ((ServerConnector) connector).getHost());
+			Log.config("clientPath: " + clientPath);
+			Log.config("workPath: " + getWorkPath());
+			waitStop(jettyserver);
+		}
+		catch (InterruptedException|JettyException e)
+		{
+			throw e;
+		}
+		catch (Exception e)
+		{
+			throw new JettyException(e.getMessage());
+		}
+	}
+
+	/**
+	 * @param jettyserver
+	 * @return
+	 * @throws IOException
+	 */
+	private ServerConnector httpsConnector(final Server jettyserver) throws IOException
+	{
+		// SSL Context Factory for HTTPS and HTTP/2
+		final var sslContextFactory = sslContext();
+
+		// Reload certificate every day at midnight (used for certificate renewal)
+		SSLReload.getInstance(sslContextFactory).start();
+
+		// Create the HTTPS end point
+		final var httpsConfig = httpsConfig();
+
+		// SSL Connection Factory
+		final SslConnectionFactory ssl = new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString());
+
+		// HTTPS Connector
+		final var httpsConnector = new ServerConnector(jettyserver, ssl, new HttpConnectionFactory(httpsConfig));
+		httpsConnector.setPort(httpsPort);
+		httpsConnector.setHost(bind);
+		httpsConnector.setName("HTTPS");
+		return httpsConnector;
+	}
+
+	/**
+	 * @param jettyserver
+	 * @return
+	 * @throws IOException
+	 */
+	private ServerConnector http2Connector(final Server jettyserver) throws IOException
+	{
+		// SSL Context Factory for HTTPS and HTTP/2
+		final var sslContextFactory = sslContext();
+
+		// Reload certificate every day at midnight (used for certificate renewal)
+		SSLReload.getInstance(sslContextFactory).start();
+
+		// Create the HTTPS end point
+		final var httpsConfig = httpsConfig();
+
+		// HTTP/2 Connection Factory
+		final var h2 = new HTTP2ServerConnectionFactory(httpsConfig);
+
+		Security.insertProviderAt(new OpenSSLProvider(), 1); // Temporary fix for conflicting SSL providers
+		final var alpn = new ALPNServerConnectionFactory();
+		alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
+
+		// SSL Connection Factory
+		final var ssl = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
+
+		// HTTP/2 Connector
+		final var http2Connector = new ServerConnector(jettyserver, ssl, alpn, h2, new HttpConnectionFactory(httpsConfig));
+		http2Connector.setPort(httpsPort);
+		http2Connector.setHost(bind);
+		http2Connector.setName("HTTP2");
+		return http2Connector;
+	}
+
+	/**
+	 * @return
+	 */
+	private HttpConfiguration httpsConfig()
+	{
+		final var httpsConfig = new HttpConfiguration();
+		httpsConfig.setSecureScheme("https");
+		httpsConfig.setSecurePort(httpsPort);
+		httpsConfig.addCustomizer(new SecureRequestCustomizer());
+		return httpsConfig;
+	}
+
+	/**
+	 * @return
+	 * @throws IOException
+	 */
+	private org.eclipse.jetty.util.ssl.SslContextFactory.Server sslContext() throws IOException
+	{
+		var sslContextFactory = new SslContextFactory.Server();
+		sslContextFactory.setKeyStoreType("PKCS12");
+		sslContextFactory.setKeyStorePath(keyStorePath);
+		sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
+		sslContextFactory.setUseCipherSuitesOrder(true);
+
+		String keyStorePassword = (keyStorePWPath != null && URIUtils.URIExists(keyStorePWPath)) ? URIUtils.readString(keyStorePWPath).trim() : "";
+		sslContextFactory.setKeyStorePassword(keyStorePassword);
+		sslContextFactory.setKeyManagerPassword(keyStorePassword);
+		return sslContextFactory;
+	}
+
+	/**
+	 * @param jettyserver
+	 * @param config
+	 * @return
+	 */
+	private ServerConnector httpConnector(final Server jettyserver, final HttpConfiguration config)
+	{
+		final var httpConnectionFactory = new HttpConnectionFactory(config);
+		final var httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
+		httpConnector.setPort(httpPort);
+		httpConnector.setHost(bind);
+		httpConnector.setName("HTTP");
+		return httpConnector;
+	}
+
+	/**
+	 * @return
+	 */
+	private GzipHandler gzipHandler()
+	{
+		final var gzipHandler = new GzipHandler();
+		gzipHandler.setIncludedMethods("POST", "GET");
+		gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
+		gzipHandler.setInflateBufferSize(2048);
+		gzipHandler.setMinGzipSize(2048);
+		return gzipHandler;
+	}
+
+	/**
+	 * @param context
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	private void setSecurity(final ServletContextHandler context) throws IOException, SQLException
+	{
+		// Authentification server by login & password
+		final var security = new ConstraintSecurityHandler();
+		security.setAuthenticator(new BasicAuthenticator());
+		security.setLoginService(new Login());
+
+		final var constraint = new Constraint();
+		constraint.setName("auth");
+		constraint.setAuthenticate(true);
+		constraint.setRoles(new String[] { "admin", "user" });
+		final var constraintMapping = new ConstraintMapping();
+		constraintMapping.setConstraint(constraint);
+		constraintMapping.setPathSpec("/*");
+		security.setConstraintMappings(Collections.singletonList(constraintMapping));
+		context.setSecurityHandler(security);
+	}
+
+	/**
+	 * @return
+	 */
+	private ServletHolder holderStatic()
+	{
+		final var holderStatic = new ServletHolder("static", DefaultServlet.class);
+		holderStatic.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStatic.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStatic.setInitParameter(PRECOMPRESSED, TRUE);
+		return holderStatic;
+	}
+
+	/**
+	 * @return
+	 */
+	private ServletHolder holderStaticJS()
+	{
+		final var holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
+		holderStaticJS.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStaticJS.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStaticJS.setInitParameter(PRECOMPRESSED, TRUE);
+		holderStaticJS.setInitParameter(CACHE_CONTROL, "public, max-age=0, must-revalidate");
+		return holderStaticJS;
+	}
+
+	/**
+	 * @return
+	 */
+	private ServletHolder holderStaticCache()
+	{
+		final var holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
+		holderStaticCache.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStaticCache.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStaticCache.setInitParameter(PRECOMPRESSED, TRUE);
+		return holderStaticCache;
+	}
+
+	/**
+	 * @return
+	 */
+	private ServletHolder holderStaticNoCache()
+	{
+		final var holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
+		holderStaticNoCache.setInitParameter(DIR_ALLOWED, FALSE);
+		holderStaticNoCache.setInitParameter(ACCEPT_RANGES, TRUE);
+		holderStaticNoCache.setInitParameter(PRECOMPRESSED, FALSE);
+		holderStaticNoCache.setInitParameter(CACHE_CONTROL, "no-store");
+		return holderStaticNoCache;
 	}
 
 	/**
@@ -267,28 +376,54 @@ public class FullServer
 	 * @throws InterruptedException
 	 * @throws Exception
 	 */
-	private void waitStop(final Server jettyserver) throws Exception
+	private void waitStop(final Server jettyserver) throws InterruptedException, JettyException
 	{
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.info("Server stopped.")));
-		if (debug)
+		try
 		{
-			try (final var sc = new Scanner(System.in))
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.info("Server stopped.")));
+			if (debug)
 			{
-				// wait until receive stop command from keyboard
-				System.out.println("Enter 'stop' to halt: ");
-				while (!sc.nextLine().equalsIgnoreCase("stop"))
-					Thread.sleep(1000);
-				if (!jettyserver.isStopped())
+				try (final var sc = new Scanner(System.in))
 				{
-					WebSession.closeAll();
-					jettyserver.stop();
+					// wait until receive stop command from keyboard
+					System.console().format("Enter 'stop' to halt: %n");
+					while (!sc.nextLine().equalsIgnoreCase("stop"))
+						Thread.sleep(1000);
+					if (!jettyserver.isStopped())
+					{
+						WebSession.closeAll();
+						jettyserver.stop();
+					}
 				}
 			}
+			else
+				jettyserver.join();
 		}
-		else
-			jettyserver.join();
+		catch (InterruptedException e)
+		{
+			throw e;
+		}
+		catch (Exception e)
+		{
+			throw new JettyException(e.getMessage());
+		}
 	}
 
+	@SuppressWarnings("serial")
+	private class JettyException extends Exception
+	{
+		@SuppressWarnings("unused")
+		public JettyException()
+		{
+			super();
+		}
+		
+		public JettyException(String message)
+		{
+			super(message);
+		}
+	}
+	
 	public static void main(String[] args)
 	{
 		final var options = new Options();
@@ -305,15 +440,17 @@ public class FullServer
 			CommandLine cmd = new DefaultParser().parse(options, args);
 			new FullServer(cmd);
 		}
-		catch (ParseException e)
+		catch (InterruptedException e)
 		{
 			Log.err(e.getMessage(), e);
-			new HelpFormatter().printHelp("Server", options);
 			System.exit(1);
+			Thread.currentThread().interrupt();
 		}
 		catch (Exception e)
 		{
 			Log.err(e.getMessage(), e);
+			new HelpFormatter().printHelp("Server", options);
+			System.exit(1);
 		}
 	}
 
