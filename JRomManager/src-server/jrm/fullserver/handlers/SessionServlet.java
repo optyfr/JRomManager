@@ -45,6 +45,7 @@ public class SessionServlet extends HttpServlet
 					msgs.add(k, rb.getString(k));
 			});
 			jso.add("msgs", msgs);
+			jso.add("settings", ws.getUser().getSettings().asJSO());
 			final var jsonStr = jso.toString();
 			resp.setContentLength(jsonStr.getBytes().length);
 			resp.getWriter().write(jsonStr);

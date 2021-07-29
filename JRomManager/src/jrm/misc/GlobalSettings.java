@@ -61,7 +61,7 @@ public class GlobalSettings extends Settings implements SystemSettings
 	@Override
 	public Path getBasePath()
 	{
-		if (cachedBasePath == null)
+		if (cachedBasePath != null)
 			return cachedBasePath;
 		if(user.getSession().isServer())
 		{

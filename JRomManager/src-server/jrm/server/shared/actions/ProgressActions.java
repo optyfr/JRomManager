@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressInputStream;
@@ -28,7 +29,7 @@ public class ProgressActions implements ProgressHandler
 
 	private boolean canCancel = true;
 	
-	private Gson gson = new Gson();
+	private Gson gson;
 
 	static final class SetFullProgress
 	{
@@ -164,6 +165,7 @@ public class ProgressActions implements ProgressHandler
 	public ProgressActions(ActionsMgr ws)
 	{
 		this.ws = ws;
+		this.gson = new GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT).create();
 		sendOpen();
 	}
 

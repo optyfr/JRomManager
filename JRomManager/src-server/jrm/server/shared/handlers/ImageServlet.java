@@ -69,7 +69,7 @@ public class ImageServlet extends HttpServlet
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Empty result");
 				return;
 			}
-			if(ifModifiedSince(req, urlconn))
+			if(!ifModifiedSince(req, urlconn))
 			{
 				resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 				return;

@@ -168,7 +168,7 @@ public class FullServer
 		}
 		catch (Exception e)
 		{
-			throw new JettyException(e.getMessage());
+			throw new JettyException(e.getMessage(),e);
 		}
 	}
 
@@ -386,7 +386,7 @@ public class FullServer
 				try (final var sc = new Scanner(System.in))
 				{
 					// wait until receive stop command from keyboard
-					System.console().format("Enter 'stop' to halt: %n");
+					System.out.println("Enter 'stop' to halt: ");	//NOSONAR
 					while (!sc.nextLine().equalsIgnoreCase("stop"))
 						Thread.sleep(1000);
 					if (!jettyserver.isStopped())
@@ -405,7 +405,7 @@ public class FullServer
 		}
 		catch (Exception e)
 		{
-			throw new JettyException(e.getMessage());
+			throw new JettyException(e.getMessage(),e);
 		}
 	}
 
@@ -418,9 +418,9 @@ public class FullServer
 			super();
 		}
 		
-		public JettyException(String message)
+		public JettyException(String message, Throwable cause)
 		{
-			super(message);
+			super(message, cause);
 		}
 	}
 	
@@ -449,6 +449,7 @@ public class FullServer
 		catch (Exception e)
 		{
 			Log.err(e.getMessage(), e);
+			e.printStackTrace();
 			new HelpFormatter().printHelp("Server", options);
 			System.exit(1);
 		}

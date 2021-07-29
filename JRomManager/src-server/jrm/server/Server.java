@@ -125,7 +125,7 @@ public class Server
 				try (final var sc = new Scanner(System.in))
 				{
 					// wait until receive stop command from keyboard
-					System.console().printf("Enter 'stop' to halt: %n");
+					System.out.println("Enter 'stop' to halt: ");	//NOSONAR
 					while (!sc.nextLine().equalsIgnoreCase("stop"))
 						Thread.sleep(1000);
 					if (!jettyserver.isStopped())
