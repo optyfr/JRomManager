@@ -6,12 +6,13 @@ import java.util.Map;
 
 import com.eclipsesource.json.Json;
 
+import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.actions.ActionsMgr;
 
 public class LongPollingReqMgr implements ActionsMgr
 {
-	private final static Map<String, LongPollingReqMgr> cmds = new HashMap<>();
+	private static final Map<String, LongPollingReqMgr> cmds = new HashMap<>();
 
 	private WebSession session;
 
@@ -22,7 +23,7 @@ public class LongPollingReqMgr implements ActionsMgr
 	
 	public void process(String msg)
 	{
-		System.err.println(msg);
+		Log.debug(msg);
 		processActions(this, Json.parse(msg).asObject());
 	}
 

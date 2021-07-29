@@ -18,6 +18,7 @@ import org.eclipse.jetty.server.UserIdentity;
 import jrm.fullserver.ServerSettings;
 import jrm.fullserver.db.DB;
 import jrm.fullserver.db.SQL;
+import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 import lombok.val;
 
@@ -100,7 +101,7 @@ public class Login extends SQL implements LoginService
 	@Override
 	public boolean validate(UserIdentity user)
 	{
-		System.out.println("validate");
+		Log.debug("validate");
 		for (val credential : user.getSubject().getPublicCredentials())
 			if (cache.containsKey(credential))
 				return true;

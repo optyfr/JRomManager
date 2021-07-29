@@ -18,6 +18,8 @@ import jrm.xml.SimpleAttribute;
 public class AnywareListListXMLResponse extends XMLResponse
 {
 
+	private static final String STATUS = "status";
+
 	public AnywareListListXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
@@ -27,8 +29,8 @@ public class AnywareListListXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws Exception
 	{
 		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
-		final Set<String> lstatus = operation.hasData("status")?Stream.of(operation.getData("status").split(",")).collect(Collectors.toSet()):null;
+		writer.writeElement(STATUS, "0");
+		final Set<String> lstatus = operation.hasData(STATUS)?Stream.of(operation.getData(STATUS).split(",")).collect(Collectors.toSet()):null;
 		final var reset = Boolean.parseBoolean(operation.getData("reset"));
 		final var mll = request.session.getCurrProfile().getMachineListList();
 		if(mll!=null)
@@ -57,7 +59,7 @@ public class AnywareListListXMLResponse extends XMLResponse
 		try
 		{
 			writer.writeElement("record", 
-				new SimpleAttribute("status", list.getStatus()),
+				new SimpleAttribute(STATUS, list.getStatus()),
 				new SimpleAttribute("name", list instanceof MachineList?"*":list.getBaseName()),
 				new SimpleAttribute("description", mll.getDescription(i)),
 				new SimpleAttribute("have", mll.getHaveTot(i))

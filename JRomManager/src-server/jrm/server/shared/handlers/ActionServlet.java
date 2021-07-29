@@ -25,7 +25,7 @@ public class ActionServlet extends HttpServlet
 	private static final String APPLICATION_JSON = "application/json";
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException
 	{
 		try
 		{
@@ -85,7 +85,7 @@ public class ActionServlet extends HttpServlet
 					break;
 			}
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
@@ -116,7 +116,7 @@ public class ActionServlet extends HttpServlet
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	private void doLPR(HttpServletResponse resp, WebSession sess) throws IOException
+	private void doLPR(HttpServletResponse resp, WebSession sess)
 	{
 		if (!WebSession.isTerminate())
 		{
@@ -143,6 +143,10 @@ public class ActionServlet extends HttpServlet
 			{
 				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				Thread.currentThread().interrupt();
+			}
+			catch (IOException e)
+			{
+				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 		}
 		else

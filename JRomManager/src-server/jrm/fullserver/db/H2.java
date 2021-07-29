@@ -55,7 +55,6 @@ class H2 extends DB
 			url.append(";LOG=0;LOCK_MODE=0;UNDO_LOG=0");
 		url.append(";MODE=MYSQL");
 		Log.debug("Opening " + url);
-		System.out.println("Opening " + url);
 		return DriverManager.getConnection(url.toString(), "sa", System.getProperty("DB_PW", ""));
 	}
 

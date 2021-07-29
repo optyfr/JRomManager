@@ -20,13 +20,22 @@ import jrm.server.shared.datasources.XMLRequest.Operation.Sorter;
 public class AnywareListXMLResponse extends XMLResponse
 {
 
+	private static final String RESPONSE = "response";
+	private static final String NAME = "name";
+	private static final String SELECTED = "selected";
+	private static final String SAMPLEOF = "sampleof";
+	private static final String ROMOF = "romof";
+	private static final String CLONEOF = "cloneof";
+	private static final String DESCRIPTION = "description";
+	private static final String STATUS = "status";
+
 	public AnywareListXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
 	}
 
 
-	private AnywareList<? extends Anyware> get_list(Operation operation)
+	private AnywareList<? extends Anyware> getList(Operation operation)
 	{
 		String list = operation.getData("list");
 		final AnywareList<?> al;
@@ -41,13 +50,13 @@ public class AnywareListXMLResponse extends XMLResponse
 	
 	private Predicate<Anyware> getFilter(Operation operation)
 	{
-		final Set<String> lstatus = operation.hasData("status")?Stream.of(operation.getData("status").split(",")).collect(Collectors.toSet()):null;
-		final String lname = operation.hasData("name")?operation.getData("name").toLowerCase():null;
-		final String ldesc = operation.hasData("description")?operation.getData("description").toLowerCase():null;
-		final String lcloneof = operation.hasData("cloneof")?operation.getData("cloneof").toLowerCase():null;
-		final String lromof = operation.hasData("romof")?operation.getData("romof").toLowerCase():null;
-		final String lsampleof = operation.hasData("sampleof")?operation.getData("sampleof").toLowerCase():null;
-		final Boolean lselected = operation.hasData("selected")?Boolean.valueOf(operation.getData("selected")):null;
+		final Set<String> lstatus = operation.hasData(STATUS)?Stream.of(operation.getData(STATUS).split(",")).collect(Collectors.toSet()):null;
+		final String lname = operation.hasData(NAME)?operation.getData(NAME).toLowerCase():null;
+		final String ldesc = operation.hasData(DESCRIPTION)?operation.getData(DESCRIPTION).toLowerCase():null;
+		final String lcloneof = operation.hasData(CLONEOF)?operation.getData(CLONEOF).toLowerCase():null;
+		final String lromof = operation.hasData(ROMOF)?operation.getData(ROMOF).toLowerCase():null;
+		final String lsampleof = operation.hasData(SAMPLEOF)?operation.getData(SAMPLEOF).toLowerCase():null;
+		final Boolean lselected = operation.hasData(SELECTED)?Boolean.valueOf(operation.getData(SELECTED)):null;
 		return ware -> {
 			if (lstatus != null && !lstatus.contains(ware.getStatus().toString()))
 				return false;
@@ -76,14 +85,14 @@ public class AnywareListXMLResponse extends XMLResponse
 				{
 					switch(s.getName())
 					{
-						case "name":
+						case NAME:
 						{
 							int ret = (s.isDesc() ? o2 : o1).getBaseName().compareToIgnoreCase((s.isDesc() ? o1 : o2).getBaseName());
 							if (ret != 0)
 								return ret;
 							break;
 						}
-						case "description":
+						case DESCRIPTION:
 						{
 							int ret = (s.isDesc() ? o2 : o1).description.toString().compareToIgnoreCase((s.isDesc() ? o1 : o2).description.toString());
 							if (ret != 0)
@@ -101,29 +110,29 @@ public class AnywareListXMLResponse extends XMLResponse
 		};
 	}
 	
-	private Stream<? extends Anyware> build_stream(AnywareList<? extends Anyware> al, Operation operation)
+	private Stream<? extends Anyware> buildStream(AnywareList<? extends Anyware> al, Operation operation)
 	{
 		return al.getFilteredList().stream().filter(getFilter(operation)).sorted(getSorter(operation));
 	}
 	
-	private List<Anyware> build_list(AnywareList<?> al, Operation operation)
+	private List<Anyware> buildList(AnywareList<?> al, Operation operation)
 	{
 		return al.getFilteredList().stream().filter(getFilter(operation)).sorted(getSorter(operation)).collect(Collectors.toList());
 	}
 
-	private void write_record(final AnywareList<?> al, final Anyware aw)
+	private void writeRecord(final AnywareList<?> al, final Anyware aw)
 	{
 		try
 		{
 			writer.writeEmptyElement("record");
 			writer.writeAttribute("list", al instanceof MachineList?"*":al.getBaseName());
-			writer.writeAttribute("status", aw.getStatus().toString());
-			writer.writeAttribute("name", aw.getBaseName());
-			writer.writeAttribute("description", aw.getDescription().toString());
+			writer.writeAttribute(STATUS, aw.getStatus().toString());
+			writer.writeAttribute(NAME, aw.getBaseName());
+			writer.writeAttribute(DESCRIPTION, aw.getDescription().toString());
 			writer.writeAttribute("have",  String.format("%d/%d", aw.countHave(), aw.countAll()));
 			if(aw.getCloneof()!=null)
 			{
-				writer.writeAttribute("cloneof",  aw.getCloneof());
+				writer.writeAttribute(CLONEOF,  aw.getCloneof());
 				writer.writeAttribute("cloneof_status",  al.getByName(aw.getCloneof()).getStatus().toString());
 			}
 			if(aw instanceof Machine)
@@ -140,16 +149,16 @@ public class AnywareListXMLResponse extends XMLResponse
 					writer.writeAttribute("type", "STANDARD");
 				if(m.getRomof()!=null)
 				{
-					writer.writeAttribute("romof",  m.getRomof());
+					writer.writeAttribute(ROMOF,  m.getRomof());
 					writer.writeAttribute("romof_status",  al.getByName(m.getRomof()).getStatus().toString());
 				}
 				if(m.getSampleof()!=null)
 				{
-					writer.writeAttribute("sampleof",  m.getSampleof());
+					writer.writeAttribute(SAMPLEOF,  m.getSampleof());
 					writer.writeAttribute("sampleof_status", ml.samplesets.getByName(m.getSampleof()).getStatus().toString());
 				}
 			}
-			writer.writeAttribute("selected", Boolean.toString(aw.isSelected()));
+			writer.writeAttribute(SELECTED, Boolean.toString(aw.isSelected()));
 		}
 		catch (XMLStreamException e)
 		{
@@ -160,15 +169,15 @@ public class AnywareListXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
 		final var reset = Boolean.parseBoolean(operation.getData("reset"));
-		final AnywareList<?> al = get_list(operation);
+		final AnywareList<?> al = getList(operation);
 		if(al != null)
 		{
 			if(reset)
 				al.resetCache();
-			fetch_stream(operation, build_stream(al, operation), rec -> write_record(al, rec));
+			fetch_stream(operation, buildStream(al, operation), rec -> writeRecord(al, rec));
 		}
 		writer.writeEndElement();
 	}
@@ -176,21 +185,21 @@ public class AnywareListXMLResponse extends XMLResponse
 	@Override
 	protected void update(Operation operation) throws Exception
 	{
-		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
-		final AnywareList<?> al = get_list(operation);
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		final AnywareList<?> al = getList(operation);
 		if(al != null)
 		{
-			String name = operation.getData("name");
+			String name = operation.getData(NAME);
 			if(name != null)
 			{
 				Anyware aw = al.getByName(name);
 				if(aw != null)
 				{
-					final var selected = Boolean.valueOf(operation.getData("selected"));
+					final var selected = Boolean.valueOf(operation.getData(SELECTED));
 					if(selected != null)
 						aw.setSelected(selected);
-					write_record(al, aw);
+					writeRecord(al, aw);
 				}
 			}
 		}
@@ -202,12 +211,12 @@ public class AnywareListXMLResponse extends XMLResponse
 	{
 		if(operation.getOperationId().toString().equals("find"))
 		{
-			writer.writeStartElement("response");
-			writer.writeElement("status", "0");
-			final AnywareList<?> al = get_list(operation);
+			writer.writeStartElement(RESPONSE);
+			writer.writeElement(STATUS, "0");
+			final AnywareList<?> al = getList(operation);
 			if (al != null && operation.hasData("find"))
 			{
-				List<Anyware> list = build_list(al, operation);
+				List<Anyware> list = buildList(al, operation);
 				final String find = operation.getData("find");
 				for (var i = 0; i < list.size(); i++)
 				{
@@ -222,12 +231,12 @@ public class AnywareListXMLResponse extends XMLResponse
 		}
 		else if(operation.getOperationId().toString().equals("selectNone"))
 		{
-			writer.writeStartElement("response");
-			writer.writeElement("status", "0");
-			final AnywareList<?> al = get_list(operation);
+			writer.writeStartElement(RESPONSE);
+			writer.writeElement(STATUS, "0");
+			final AnywareList<?> al = getList(operation);
 			if(al != null)
 			{
-				List<Anyware> list = build_list(al, operation);
+				List<Anyware> list = buildList(al, operation);
 				for(Anyware aw : list)
 					aw.setSelected(false);
 			}
@@ -235,12 +244,12 @@ public class AnywareListXMLResponse extends XMLResponse
 		}
 		else if(operation.getOperationId().toString().equals("selectAll"))
 		{
-			writer.writeStartElement("response");
-			writer.writeElement("status", "0");
-			final AnywareList<?> al = get_list(operation);
+			writer.writeStartElement(RESPONSE);
+			writer.writeElement(STATUS, "0");
+			final AnywareList<?> al = getList(operation);
 			if(al != null)
 			{
-				List<Anyware> list = build_list(al, operation);
+				List<Anyware> list = buildList(al, operation);
 				for(Anyware aw : list)
 					aw.setSelected(true);
 			}
@@ -248,12 +257,12 @@ public class AnywareListXMLResponse extends XMLResponse
 		}
 		else if(operation.getOperationId().toString().equals("selectInvert"))
 		{
-			writer.writeStartElement("response");
-			writer.writeElement("status", "0");
-			final AnywareList<?> al = get_list(operation);
+			writer.writeStartElement(RESPONSE);
+			writer.writeElement(STATUS, "0");
+			final AnywareList<?> al = getList(operation);
 			if(al != null)
 			{
-				List<Anyware> list = build_list(al, operation);
+				List<Anyware> list = buildList(al, operation);
 				for(Anyware aw : list)
 					aw.setSelected(!aw.isSelected());
 			}

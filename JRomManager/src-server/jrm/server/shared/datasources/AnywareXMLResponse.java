@@ -21,13 +21,15 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 public class AnywareXMLResponse extends XMLResponse
 {
 
+	private static final String STATUS = "status";
+
 	public AnywareXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
 	}
 
 
-	private AnywareList<?> get_list(Operation operation)
+	private AnywareList<?> getList(Operation operation)
 	{
 		String list = operation.getData("list");
 		final AnywareList<?> al;
@@ -41,7 +43,7 @@ public class AnywareXMLResponse extends XMLResponse
 	}
 	
 
-	private Anyware get_ware(AnywareList<?> al, Operation operation)
+	private Anyware getWare(AnywareList<?> al, Operation operation)
 	{
 		String ware = operation.getData("ware");
 		final Anyware aw;
@@ -52,7 +54,7 @@ public class AnywareXMLResponse extends XMLResponse
 		return aw;
 	}
 	
-	private void write_record(final AnywareList<?> al, final Anyware aw, final EntityBase e)
+	private void writeRecord(final AnywareList<?> al, final Anyware aw, final EntityBase e)
 	{
 		try
 		{
@@ -60,7 +62,7 @@ public class AnywareXMLResponse extends XMLResponse
 			writer.writeAttribute("list", al instanceof MachineList?"*":al.getBaseName());
 			writer.writeAttribute("ware", aw.getBaseName());
 			writer.writeAttribute("name", e.getBaseName());
-			writer.writeAttribute("status", e.getStatus().toString());
+			writer.writeAttribute(STATUS, e.getStatus().toString());
 			if (e instanceof Rom)
 			{
 				Rom r = (Rom)e;
@@ -110,11 +112,11 @@ public class AnywareXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws Exception
 	{
 		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
-		final Set<String> lstatus = operation.hasData("status")?Stream.of(operation.getData("status").split(",")).collect(Collectors.toSet()):null;
+		writer.writeElement(STATUS, "0");
+		final Set<String> lstatus = operation.hasData(STATUS)?Stream.of(operation.getData(STATUS).split(",")).collect(Collectors.toSet()):null;
 		final var reset = Boolean.parseBoolean(operation.getData("reset"));
-		final AnywareList<?> al = get_list(operation);
-		final Anyware aw = get_ware(al,operation);
+		final AnywareList<?> al = getList(operation);
+		final Anyware aw = getWare(al,operation);
 		if(aw!=null)
 		{
 			if(reset)
@@ -123,12 +125,11 @@ public class AnywareXMLResponse extends XMLResponse
 			for(var i = 0; i < aw.count(); i++)
 			{
 				var a = aw.getObject(i);
-				if(lstatus!=null)
-					if(!lstatus.contains(a.getStatus().toString()))
-						continue;
+				if (lstatus != null && !lstatus.contains(a.getStatus().toString()))
+					continue;
 				faw.add(a);
 			}
-			fetch_list(operation, faw, (a, i) -> write_record(al, aw, a));
+			fetch_list(operation, faw, (a, i) -> writeRecord(al, aw, a));
 		}
 		writer.writeEndElement();
 	}

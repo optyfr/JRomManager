@@ -11,6 +11,11 @@ import jrm.xml.SimpleAttribute;
 public class BatchCompressorFRXMLResponse extends XMLResponse
 {
 
+	private static final String RESULT = "result";
+	private static final String RECORD = "record";
+	private static final String STATUS = "status";
+	private static final String RESPONSE = "response";
+
 	public BatchCompressorFRXMLResponse(XMLRequest request) throws Exception
 	{
 		super(request);
@@ -20,18 +25,18 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws Exception
 	{
-		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
 		writer.writeElement("startRow", "0");
 		writer.writeElement("endRow", Integer.toString(request.getSession().getCachedCompressorList().size() - 1));
 		writer.writeElement("totalRows", Integer.toString(request.getSession().getCachedCompressorList().size()));
 		writer.writeStartElement("data");
 		for(Entry<String, FileResult> sr : request.getSession().getCachedCompressorList().entrySet())
 		{
-			writer.writeElement("record", 
+			writer.writeElement(RECORD, 
 				new SimpleAttribute("id", sr.getKey()),
 				new SimpleAttribute("file", sr.getValue().getFile()),
-				new SimpleAttribute("result", sr.getValue().getResult())
+				new SimpleAttribute(RESULT, sr.getValue().getResult())
 			);
 		}
 		writer.writeEndElement();
@@ -46,13 +51,13 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 			String id = UUID.randomUUID().toString();
 			FileResult fr = new FileResult(Paths.get(operation.getData("file")));
 			request.getSession().getCachedCompressorList().put(id, fr);
-			writer.writeStartElement("response");
-			writer.writeElement("status", "0");
+			writer.writeStartElement(RESPONSE);
+			writer.writeElement(STATUS, "0");
 			writer.writeStartElement("data");
-			writer.writeElement("record", 
+			writer.writeElement(RECORD, 
 				new SimpleAttribute("id", id),
 				new SimpleAttribute("file", fr.getFile()),
-				new SimpleAttribute("result", fr.getResult())
+				new SimpleAttribute(RESULT, fr.getResult())
 			);
 			writer.writeEndElement();
 			writer.writeEndElement();
@@ -70,19 +75,19 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 			final FileResult fr = request.getSession().getCachedCompressorList().get(id);
 			if(fr!=null)
 			{
-				if(operation.hasData("file") || operation.hasData("result"))
+				if(operation.hasData("file") || operation.hasData(RESULT))
 				{
 					if(operation.hasData("file"))
 						fr.setFile(Paths.get(operation.getData("file")));
-					if(operation.hasData("result"))
-						fr.setResult(operation.getData("result"));
-					writer.writeStartElement("response");
-					writer.writeElement("status", "0");
+					if(operation.hasData(RESULT))
+						fr.setResult(operation.getData(RESULT));
+					writer.writeStartElement(RESPONSE);
+					writer.writeElement(STATUS, "0");
 					writer.writeStartElement("data");
-					writer.writeElement("record", 
+					writer.writeElement(RECORD, 
 						new SimpleAttribute("id", id),
 						new SimpleAttribute("file", fr.getFile()),
-						new SimpleAttribute("result", fr.getResult())
+						new SimpleAttribute(RESULT, fr.getResult())
 					);
 					writer.writeEndElement();
 					writer.writeEndElement();
@@ -105,10 +110,10 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 			final String id = operation.getData("id");
 			if(request.getSession().getCachedCompressorList().remove(id)!=null)
 			{
-				writer.writeStartElement("response");
-				writer.writeElement("status", "0");
+				writer.writeStartElement(RESPONSE);
+				writer.writeElement(STATUS, "0");
 				writer.writeStartElement("data");
-				writer.writeElement("record", new SimpleAttribute("id", id));
+				writer.writeElement(RECORD, new SimpleAttribute("id", id));
 				writer.writeEndElement();
 				writer.writeEndElement();
 				
@@ -123,12 +128,10 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	@Override
 	protected void custom(Operation operation) throws Exception
 	{
-		switch(operation.getOperationId().toString())
+		if("clear".equals(operation.getOperationId().toString()))
 		{
-			case "clear":
-				request.getSession().getCachedCompressorList().clear();
-				success();
-				break;
+			request.getSession().getCachedCompressorList().clear();
+			success();
 		}
 		
 	}

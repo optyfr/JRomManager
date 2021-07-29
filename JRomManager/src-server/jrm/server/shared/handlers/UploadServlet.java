@@ -177,7 +177,7 @@ public class UploadServlet extends HttpServlet
 					doUpload(req, result, filename, filepath);
 					if (result.status != 3)
 					{
-						System.err.println(result.status + " : " + result.extstatus);
+						Log.debug(() -> result.status + " : " + result.extstatus);
 						Files.delete(filepath);
 					}
 				}
