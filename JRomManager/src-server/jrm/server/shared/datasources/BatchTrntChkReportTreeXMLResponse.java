@@ -1,5 +1,6 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,13 +14,16 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 
 public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 {
-	public BatchTrntChkReportTreeXMLResponse(XMLRequest request) throws Exception
+	private static final String PARENT_ID = "ParentID";
+	private static final String STATUS = "status";
+
+	public BatchTrntChkReportTreeXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
 
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException
 	{
 		TrntChkReport report = null;
 		if (operation.hasData("src"))
@@ -33,10 +37,10 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 		if (report != null)
 		{
 			writer.writeStartElement("response");
-			writer.writeElement("status", "0");
+			writer.writeElement(STATUS, "0");
 			Boolean showok = Optional.ofNullable(operation.getData("showOK")).map(Boolean::valueOf).orElse(true);
 			writer.writeElement("showOK", showok.toString());
-			var parentID = Long.valueOf(operation.getData("ParentID"));
+			var parentID = Long.valueOf(operation.getData(PARENT_ID));
 			if (parentID == 0)
 				fetchRoot(operation, report, showok);
 			else
@@ -67,11 +71,11 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 				{
 					writer.writeStartElement("record");
 					writer.writeAttribute("ID", Long.toString(n.uid));
-					writer.writeAttribute("ParentID", parentID.toString());
+					writer.writeAttribute(PARENT_ID, parentID.toString());
 					writer.writeAttribute("title", n.data.title);
 					if (n.data.length != null)
 						writer.writeAttribute("length", n.data.length.toString());
-					writer.writeAttribute("status", n.data.status.toString());
+					writer.writeAttribute(STATUS, n.data.status.toString());
 					writer.writeAttribute("isFolder", Boolean.toString(n.children != null && !n.children.isEmpty()));
 					writer.writeEndElement();
 				}
@@ -105,11 +109,11 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 				Child n = nodes.get(i);
 				writer.writeStartElement("record");
 				writer.writeAttribute("ID", Long.toString(n.uid));
-				writer.writeAttribute("ParentID", "0");
+				writer.writeAttribute(PARENT_ID, "0");
 				writer.writeAttribute("title", n.data.title);
 				if (n.data.length != null)
 					writer.writeAttribute("length", n.data.length.toString());
-				writer.writeAttribute("status", n.data.status.toString());
+				writer.writeAttribute(STATUS, n.data.status.toString());
 				writer.writeAttribute("isFolder", Boolean.toString(n.children != null && !n.children.isEmpty()));
 				writer.writeEndElement();
 			}

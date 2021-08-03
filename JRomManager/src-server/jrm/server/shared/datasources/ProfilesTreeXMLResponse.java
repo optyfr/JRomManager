@@ -1,5 +1,6 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,7 +20,14 @@ import lombok.val;
 public class ProfilesTreeXMLResponse extends XMLResponse
 {
 
-	public ProfilesTreeXMLResponse(XMLRequest request) throws Exception
+	private static final String STATUS = "status";
+	private static final String RESPONSE = "response";
+	private static final String PARENT_ID = "ParentID";
+	private static final String IS_FOLDER = "isFolder";
+	private static final String TITLE = "title";
+	private static final String RECORD = "record";
+
+	public ProfilesTreeXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
@@ -43,13 +51,13 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 		if (id.get() > 0)
 		{
 			request.getSession().putProfileList(id.get(), node.getData().getFile().toPath());
-			writer.writeStartElement("record");
+			writer.writeStartElement(RECORD);
 			writer.writeAttribute("ID", id.toString());
 			writer.writeAttribute("Path", pathAbstractor.getRelativePath(node.getData().getFile().toPath()).toString());
-			writer.writeAttribute("title", node.getData().getFile().getName());
-			writer.writeAttribute("isFolder", "true");
+			writer.writeAttribute(TITLE, node.getData().getFile().getName());
+			writer.writeAttribute(IS_FOLDER, "true");
 			if(parentID!=null)
-				writer.writeAttribute("ParentID", parentID);
+				writer.writeAttribute(PARENT_ID, parentID);
 			writer.writeEndElement();
 		}
 		else
@@ -60,14 +68,14 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	}
 
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException, IOException
 	{
 		val rootpath = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
 		Files.createDirectories(rootpath);
 		val root = new DirTree(rootpath.toFile());
 		int nodecount = countNode(root.getRoot());
-		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
 		writer.writeElement("startRow", "0");
 		writer.writeElement("endRow", Integer.toString(nodecount-1));
 		writer.writeElement("totalRows", Integer.toString(nodecount));
@@ -78,63 +86,62 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void add(Operation operation) throws Exception
+	protected void add(Operation operation) throws XMLStreamException, IOException
 	{
-	//	DirNode root = new DirNode(request.session.getUser().settings.getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile());
 		var key = request.getSession().getLastProfileListKey()+1;
 		var basepath = operation.getData("Path");
 		if(basepath==null || basepath.isEmpty())
 			basepath = request.getSession().getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toString();
-		var path = Files.createDirectory(Paths.get(basepath, operation.getData("title")));
+		var path = Files.createDirectory(Paths.get(basepath, operation.getData(TITLE)));
 		request.getSession().putProfileList(key, path);
-		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
 		writer.writeStartElement("data");
-		writer.writeStartElement("record");
+		writer.writeStartElement(RECORD);
 		writer.writeAttribute("ID", Integer.toString(key));
 		writer.writeAttribute("Path", pathAbstractor.getRelativePath(path).toString());
-		writer.writeAttribute("title", operation.getData("title"));
-		writer.writeAttribute("isFolder", "true");
-		writer.writeAttribute("ParentID", operation.getData("ParentID"));
+		writer.writeAttribute(TITLE, operation.getData(TITLE));
+		writer.writeAttribute(IS_FOLDER, "true");
+		writer.writeAttribute(PARENT_ID, operation.getData(PARENT_ID));
 		writer.writeEndElement();
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}
 	
 	@Override
-	protected void update(Operation operation) throws Exception
+	protected void update(Operation operation) throws XMLStreamException, IOException
 	{
 		var id = Integer.valueOf(operation.getData("ID"));
 		var path = request.getSession().getProfileList(id);
 		Log.debug(path);
-		var title = operation.getData("title");
+		var title = operation.getData(TITLE);
 		path = Files.move(path, path.getParent().resolve(title));
 		request.getSession().putProfileList(id, path);
-		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
 		writer.writeStartElement("data");
-		writer.writeStartElement("record");
+		writer.writeStartElement(RECORD);
 		writer.writeAttribute("ID", id.toString());
 		writer.writeAttribute("Path", pathAbstractor.getRelativePath(path).toString());
-		writer.writeAttribute("title", title);
-		writer.writeAttribute("isFolder", "true");
-		writer.writeAttribute("ParentID", operation.getOldValues().get("ParentID"));
+		writer.writeAttribute(TITLE, title);
+		writer.writeAttribute(IS_FOLDER, "true");
+		writer.writeAttribute(PARENT_ID, operation.getOldValues().get(PARENT_ID));
 		writer.writeEndElement();
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}
 	
 	@Override
-	protected void remove(Operation operation) throws Exception
+	protected void remove(Operation operation) throws XMLStreamException, IOException
 	{
 		var id = Integer.valueOf(operation.getData("ID"));
 		var path = request.getSession().getProfileList(id);
 		FileUtils.deleteDirectory(path.toFile());
 		request.getSession().removeProfileList(id);
-		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
 		writer.writeStartElement("data");
-		writer.writeStartElement("record");
+		writer.writeStartElement(RECORD);
 		writer.writeAttribute("ID", id.toString());
 		writer.writeEndElement();
 		writer.writeEndElement();

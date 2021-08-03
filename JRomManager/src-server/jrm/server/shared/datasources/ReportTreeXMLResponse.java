@@ -1,5 +1,7 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
+
 import javax.xml.stream.XMLStreamException;
 
 import jrm.profile.report.Note;
@@ -11,16 +13,20 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 public class ReportTreeXMLResponse extends XMLResponse
 {
 
-	public ReportTreeXMLResponse(XMLRequest request) throws Exception
+	private static final String RECORD = "record";
+	private static final String PARENT_ID = "ParentID";
+	private static final String STATUS = "status";
+
+	public ReportTreeXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
 
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException, IOException
 	{
 		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
+		writer.writeElement(STATUS, "0");
 
 		var report = request.session.getReport();
 		if (operation.hasData("src"))
@@ -32,7 +38,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 			report = request.session.getTmpReport();
 		}
 
-		final var parentID = Integer.parseInt(operation.getData("ParentID"));
+		final var parentID = Integer.parseInt(operation.getData(PARENT_ID));
 		if (parentID == 0)
 		{
 			fetchRoot(operation, report);
@@ -61,9 +67,9 @@ public class ReportTreeXMLResponse extends XMLResponse
 			writer.writeStartElement("data");
 			for (Note n : subject)
 			{
-				writer.writeStartElement("record");
+				writer.writeStartElement(RECORD);
 				writer.writeAttribute("ID", Integer.toString(n.getId()));
-				writer.writeAttribute("ParentID", Integer.toString(parentID));
+				writer.writeAttribute(PARENT_ID, Integer.toString(parentID));
 				writer.writeAttribute("title", n.getHTML());
 				writer.writeAttribute("class", n.getClass().getSimpleName());
 				writer.writeAttribute("isFolder", Boolean.toString(false));
@@ -97,14 +103,14 @@ public class ReportTreeXMLResponse extends XMLResponse
 			for (int i = start; i <= end; i++)
 			{
 				Subject s = report.getHandler().getFilteredReport().get(i);
-				writer.writeStartElement("record");
+				writer.writeStartElement(RECORD);
 				writer.writeAttribute("ID", Integer.toString(s.getId()));
-				writer.writeAttribute("ParentID", Integer.toString(0));
+				writer.writeAttribute(PARENT_ID, Integer.toString(0));
 				writer.writeAttribute("title", s.getHTML());
 				writer.writeAttribute("class", s.getClass().getSimpleName());
 				if (s instanceof SubjectSet)
 				{
-					writer.writeAttribute("status", ((SubjectSet) s).getStatus().toString());
+					writer.writeAttribute(STATUS, ((SubjectSet) s).getStatus().toString());
 					writer.writeAttribute("hasNotes", Boolean.toString(((SubjectSet) s).hasNotes()));
 					writer.writeAttribute("isFixable", Boolean.toString(((SubjectSet) s).isFixable()));
 				}
@@ -116,7 +122,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 	}
 
 	@Override
-	protected void custom(Operation operation) throws Exception
+	protected void custom(Operation operation) throws XMLStreamException, IOException
 	{
 		if ("detail".equals(operation.getOperationId().toString()))
 		{
@@ -129,18 +135,18 @@ public class ReportTreeXMLResponse extends XMLResponse
 					request.session.setTmpReport(Report.load(request.session, srcfile));
 				report = request.session.getTmpReport();
 			}
-			final var parentID = Integer.parseInt(operation.getData("ParentID"));
+			final var parentID = Integer.parseInt(operation.getData(PARENT_ID));
 			final var subject = report.getHandler().getFilteredReport().findSubject(parentID);
 			writer.writeStartElement("response");
-			writer.writeElement("status", "0");
+			writer.writeElement(STATUS, "0");
 			writer.writeStartElement("data");
 			for (Note n : subject)
 			{
 				if (n.getId() == Integer.valueOf(operation.getData("ID")))
 				{
-					writer.writeStartElement("record");
+					writer.writeStartElement(RECORD);
 					writer.writeAttribute("ID", Integer.toString(n.getId()));
-					writer.writeAttribute("ParentID", Integer.toString(parentID));
+					writer.writeAttribute(PARENT_ID, Integer.toString(parentID));
 					writer.writeAttribute("Name", n.getName());
 					writer.writeAttribute("CRC", n.getCrc());
 					writer.writeAttribute("SHA1", n.getSha1());

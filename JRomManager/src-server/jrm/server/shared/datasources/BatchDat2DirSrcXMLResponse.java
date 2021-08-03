@@ -1,8 +1,11 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,50 +16,50 @@ import jrm.xml.SimpleAttribute;
 public class BatchDat2DirSrcXMLResponse extends XMLResponse
 {
 
-	public BatchDat2DirSrcXMLResponse(XMLRequest request) throws Exception
+	private static final String RECORD = "record";
+	private static final String STATUS = "status";
+	private static final String RESPONSE = "response";
+
+	public BatchDat2DirSrcXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
 
 
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException
 	{
-		String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
-		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
+		final String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
 		writer.writeElement("startRow", "0");
 		writer.writeElement("endRow", Integer.toString(srcdirs.length-1));
 		writer.writeElement("totalRows", Integer.toString(srcdirs.length));
 		writer.writeStartElement("data");
-		for(String srcdir : srcdirs)
-		{
-			writer.writeElement("record", 
-				new SimpleAttribute("name", srcdir)
-			);
-		}
+		for(final var srcdir : srcdirs)
+			writer.writeElement(RECORD, new SimpleAttribute("name", srcdir));
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}
 	
 	@Override
-	protected void add(Operation operation) throws Exception
+	protected void add(Operation operation) throws XMLStreamException
 	{
 		if(operation.hasData("name"))
 		{
-			String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
-			List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
+			final String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
+			final List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
 			final List<String> names = operation.getDatas("name").stream().filter(n->!lsrcdirs.contains(n)).collect(Collectors.toList());
-			if(names.size()>0)
+			if(!names.isEmpty())
 			{
 				lsrcdirs.addAll(names);
 				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, lsrcdirs.stream().collect(Collectors.joining("|")));
 				request.getSession().getUser().getSettings().saveSettings();
-				writer.writeStartElement("response");
-				writer.writeElement("status", "0");
+				writer.writeStartElement(RESPONSE);
+				writer.writeElement(STATUS, "0");
 				writer.writeStartElement("data");
-				for(final String name : names)
-					writer.writeElement("record", new SimpleAttribute("name", name));
+				for(final var name : names)
+					writer.writeElement(RECORD, new SimpleAttribute("name", name));
 				writer.writeEndElement();
 				writer.writeEndElement();
 			}
@@ -68,23 +71,23 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void remove(Operation operation) throws Exception
+	protected void remove(Operation operation) throws XMLStreamException
 	{
 		if(operation.hasData("name"))
 		{
 			final String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
 			final List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
 			final List<String> names = operation.getDatas("name").stream().filter(lsrcdirs::contains).collect(Collectors.toList());
-			if(names.size()>0)
+			if(!names.isEmpty())
 			{
 				lsrcdirs.removeAll(names);
 				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, lsrcdirs.stream().collect(Collectors.joining("|")));
 				request.getSession().getUser().getSettings().saveSettings();
-				writer.writeStartElement("response");
-				writer.writeElement("status", "0");
+				writer.writeStartElement(RESPONSE);
+				writer.writeElement(STATUS, "0");
 				writer.writeStartElement("data");
-				for(final String name : names)
-					writer.writeElement("record", new SimpleAttribute("name", name));
+				for(final var name : names)
+					writer.writeElement(RECORD, new SimpleAttribute("name", name));
 				writer.writeEndElement();
 				writer.writeEndElement();
 			}

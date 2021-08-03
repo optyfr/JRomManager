@@ -1,5 +1,6 @@
 package jrm.fullserver.datasources;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import javax.xml.stream.XMLStreamException;
@@ -24,7 +25,7 @@ public class AdminXMLResponse extends XMLResponse
 	private static final String RESPONSE = "response";
 	private static final String STATUS = "status";
 
-	public AdminXMLResponse(XMLRequest request) throws Exception
+	public AdminXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}

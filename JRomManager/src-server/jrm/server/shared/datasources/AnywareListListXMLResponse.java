@@ -26,7 +26,7 @@ public class AnywareListListXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException
 	{
 		writer.writeStartElement("response");
 		writer.writeElement(STATUS, "0");
@@ -44,7 +44,7 @@ public class AnywareListListXMLResponse extends XMLResponse
 				if (lstatus == null || lstatus.contains(l.getStatus().toString()))
 					fll.add(l);
 			}
-			fetch_list(operation, fll, (list, i) -> writeRecord(mll, list, i));
+			fetchList(operation, fll, (list, i) -> writeRecord(mll, list, i));
 		}
 		writer.writeEndElement();
 	}

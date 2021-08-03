@@ -24,13 +24,18 @@ import jrm.xml.EnhancedXMLStreamWriter;
 
 public abstract class XMLResponse implements Closeable
 {
+	private static final String TOTAL_ROWS = "totalRows";
+	private static final String END_ROW = "endRow";
+	private static final String START_ROW = "startRow";
+	private static final String STATUS = "status";
+	private static final String RESPONSE = "response";
 	protected XMLRequest request;
 	private final Path tmpfile;
 	private final OutputStream out;
 	protected final EnhancedXMLStreamWriter writer;
 	protected PathAbstractor pathAbstractor;
 
-	protected XMLResponse(XMLRequest request) throws Exception
+	protected XMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		this.request = request;
 		pathAbstractor = new PathAbstractor(request.getSession());
@@ -40,7 +45,7 @@ public abstract class XMLResponse implements Closeable
 		writer.writeStartDocument("utf-8", "1.0");
 	}
 
-	private void processOperation(Operation operation) throws Exception
+	private void processOperation(Operation operation) throws XMLStreamException, IOException
 	{
 		switch (operation.getOperationType().toString())
 		{
@@ -65,7 +70,7 @@ public abstract class XMLResponse implements Closeable
 		}
 	}
 
-	public TempFileInputStream processRequest() throws Exception
+	public TempFileInputStream processRequest() throws XMLStreamException, IOException
 	{
 		if (request.getTransaction() != null)
 		{
@@ -81,27 +86,27 @@ public abstract class XMLResponse implements Closeable
 		return new TempFileInputStream(tmpfile.toFile());
 	}
 
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException, IOException
 	{
 		failure("fetch operation not implemented");
 	}
 
-	protected void add(Operation operation) throws Exception
+	protected void add(Operation operation) throws XMLStreamException, IOException
 	{
 		failure("add operation not implemented");
 	}
 
-	protected void update(Operation operation) throws Exception
+	protected void update(Operation operation) throws XMLStreamException, IOException
 	{
 		failure("update operation not implemented");
 	}
 
-	protected void remove(Operation operation) throws Exception
+	protected void remove(Operation operation) throws XMLStreamException, IOException
 	{
 		failure("delete operation not implemented");
 	}
 
-	protected void custom(Operation operation) throws Exception
+	protected void custom(Operation operation) throws XMLStreamException, IOException
 	{
 		failure("custom operation not implemented");
 	}
@@ -126,23 +131,23 @@ public abstract class XMLResponse implements Closeable
 
 	protected void error(int status) throws XMLStreamException
 	{
-		writer.writeStartElement("response");
-		writer.writeElement("status", Integer.toString(status));
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, Integer.toString(status));
 		writer.writeEndElement();
 	}
 
 	protected void error(int status, String data) throws XMLStreamException
 	{
-		writer.writeStartElement("response");
-		writer.writeElement("status", Integer.toString(status));
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, Integer.toString(status));
 		writer.writeElement("data", data);
 		writer.writeEndElement();
 	}
 
 	protected void error(int status, Map<String, List<String>> data) throws XMLStreamException
 	{
-		writer.writeStartElement("response");
-		writer.writeElement("status", Integer.toString(status));
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, Integer.toString(status));
 		if (data != null)
 		{
 			writer.writeStartElement("errors");
@@ -158,7 +163,7 @@ public abstract class XMLResponse implements Closeable
 		writer.writeEndElement();
 	}
 
-	protected void no_error() throws XMLStreamException
+	protected void noError() throws XMLStreamException
 	{
 		error(0);
 	}
@@ -168,7 +173,7 @@ public abstract class XMLResponse implements Closeable
 		error(0);
 	}
 
-	protected void other_error(String msg) throws XMLStreamException
+	protected void otherError(String msg) throws XMLStreamException
 	{
 		error(-1, msg);
 	}
@@ -183,28 +188,29 @@ public abstract class XMLResponse implements Closeable
 		error(-1);
 	}
 
-	protected void login_incorrect() throws XMLStreamException
+	protected void loginIncorrect() throws XMLStreamException
 	{
 		error(-5);
 	}
 
-	protected void login_required() throws XMLStreamException
+	protected void loginRequired() throws XMLStreamException
 	{
 		error(-7);
 	}
 
 	@FunctionalInterface
-	protected interface fetchArrayCallback
+	protected interface FetchArrayCallback
 	{
 		public void apply(int idx, int count);
 	}
 
-	protected void fetch_array(Operation operation, int count, fetchArrayCallback cb) throws Exception
+	protected void fetchArray(Operation operation, int count, FetchArrayCallback cb) throws XMLStreamException
 	{
-		int start, end;
-		writer.writeElement("startRow", Integer.toString(start = Math.min(count - 1, operation.getStartRow())));
-		writer.writeElement("endRow", Integer.toString(end = Math.min(count - 1, operation.getEndRow())));
-		writer.writeElement("totalRows", Integer.toString(count));
+		final int start = Math.min(count - 1, operation.getStartRow());
+		final int end = Math.min(count - 1, operation.getEndRow());
+		writer.writeElement(START_ROW, Integer.toString(start));
+		writer.writeElement(END_ROW, Integer.toString(end));
+		writer.writeElement(TOTAL_ROWS, Integer.toString(count));
 		writer.writeStartElement("data");
 		if (count > 0)
 			for (int i = start; i <= end; i++)
@@ -213,19 +219,19 @@ public abstract class XMLResponse implements Closeable
 	}
 
 	@FunctionalInterface
-	protected interface fetchListCallback<T>
+	protected interface FetchListCallback<T>
 	{
 		public void apply(T obj, int idx);
 	}
 
-	protected <T> void fetch_list(Operation operation, List<T> list, fetchListCallback<T> cb) throws Exception
+	protected <T> void fetchList(Operation operation, List<T> list, FetchListCallback<T> cb) throws XMLStreamException
 	{
-		final int start;
-		final int end;
 		final int count = list.size();
-		writer.writeElement("startRow", Integer.toString(start = Math.min(count - 1, operation.getStartRow())));
-		writer.writeElement("endRow", Integer.toString(end = Math.min(count - 1, operation.getEndRow())));
-		writer.writeElement("totalRows", Integer.toString(count));
+		final int start = Math.min(count - 1, operation.getStartRow());
+		final int end = Math.min(count - 1, operation.getEndRow());
+		writer.writeElement(START_ROW, Integer.toString(start));
+		writer.writeElement(END_ROW, Integer.toString(end));
+		writer.writeElement(TOTAL_ROWS, Integer.toString(count));
 		writer.writeStartElement("data");
 		if (count > 0)
 			for (int idx = start; idx <= end; idx++)
@@ -234,12 +240,12 @@ public abstract class XMLResponse implements Closeable
 	}
 
 	@FunctionalInterface
-	protected interface fetchStreamCallback<T>
+	protected interface FetchStreamCallback<T>
 	{
 		public void apply(T t);
 	}
 
-	protected <T> void fetch_stream(Operation operation, Stream<T> stream, fetchStreamCallback<T> cb) throws Exception
+	protected <T> void fetchStream(Operation operation, Stream<T> stream, FetchStreamCallback<T> cb) throws XMLStreamException
 	{
 		final int start = operation.getStartRow();
 		final int end = operation.getEndRow();
@@ -248,9 +254,9 @@ public abstract class XMLResponse implements Closeable
 		writer.writeStartElement("data");
 		stream.filter(o -> range.contains(++count[0])).forEachOrdered(cb::apply);
 		writer.writeEndElement();
-		writer.writeElement("startRow", Integer.toString(Math.min(count[0] - 1, start)));
-		writer.writeElement("endRow", Integer.toString(Math.min(count[0] - 1, end)));
-		writer.writeElement("totalRows", Integer.toString(count[0]));
+		writer.writeElement(START_ROW, Integer.toString(Math.min(count[0] - 1, start)));
+		writer.writeElement(END_ROW, Integer.toString(Math.min(count[0] - 1, end)));
+		writer.writeElement(TOTAL_ROWS, Integer.toString(count[0]));
 	}
 
 }

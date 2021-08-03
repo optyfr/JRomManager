@@ -37,7 +37,7 @@ public final class EnhancedXMLStreamWriter implements XMLStreamWriter
 	 *
 	 * @author optyfr
 	 */
-	private static enum Seen
+	private enum Seen
 	{
 		
 		/** The nothing. */

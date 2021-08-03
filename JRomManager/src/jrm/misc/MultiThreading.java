@@ -131,7 +131,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 								.sum() / 1_000_000.0 /* ns to ms */) / elapsed;
 						// Compute usage ratio (number between 0.0 and 1.0)
 						double usage = load / getPoolSize();
-						System.out.format("cpu load is %.03f so usage ratio is %.03f with %d active threads%n", load, usage, getPoolSize());
+						Log.info(String.format("cpu load is %.03f so usage ratio is %.03f with %d active threads%n", load, usage, getPoolSize()));
 						if (getMaximumPoolSize() == getPoolSize())	// make sure that used threads is not different than current maximum (as a result of a former thread reduction not yet taken into account or because we are near the end)
 						{
 							final var threshold = 1.0 / getMaximumPoolSize();
@@ -140,7 +140,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 								final var newThreadCnt = Math.max(1, (int)Math.ceil(load));	// down to the rounded up used thread (equiv. to the load)
 								if (newThreadCnt < getMaximumPoolSize())
 								{
-									System.out.format("setting down to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize());
+									Log.info(() -> String.format("setting down to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
 									setCorePoolSize(newThreadCnt);	// core pool must be lowered first or we will get illegalArgumentException
 									setMaximumPoolSize(newThreadCnt);
 								}
@@ -150,20 +150,20 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 								final var newThreadCnt = Math.min(nStartThreads, getMaximumPoolSize() + 1);	// add 1 thread
 								if (newThreadCnt > getMaximumPoolSize())
 								{
-									System.out.format("setting up to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize());
+									Log.info(String.format("setting up to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
 									setMaximumPoolSize(newThreadCnt);
 									setCorePoolSize(newThreadCnt);	// core pool must be augmented last or we will get illegalArgumentException
 								}
 							}
 						}
 						else
-							System.out.format("pools size of %d <> max pool size of %d...%n", getPoolSize(), getMaximumPoolSize());
+							Log.info(String.format("pools size of %d <> max pool size of %d...%n", getPoolSize(), getMaximumPoolSize()));
 					}
 					else
 					{
 						// Compute usage ratio (number between 0.0 and 1.0)
 						double usage = load / getPoolSize();
-						System.out.format("sys load avg is %.03f so usage ratio is %.03f with %d active threads%n", load, usage, getPoolSize());
+						Log.info(String.format("sys load avg is %.03f so usage ratio is %.03f with %d active threads%n", load, usage, getPoolSize()));
 						if (getMaximumPoolSize() == getPoolSize())	// make sure that used threads is not different than current maximum (as a result of a former thread reduction not yet taken into account or because we are near the end)
 						{
 							if(load > getMaximumPoolSize() + 1)
@@ -171,7 +171,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 								final var newThreadCnt = Math.max(1, getMaximumPoolSize() - 1);	// sub 1 thread
 								if (newThreadCnt < getMaximumPoolSize())
 								{
-									System.out.format("setting down to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize());
+									Log.info(String.format("setting down to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
 									setCorePoolSize(newThreadCnt);	// core pool must be lowered first or we will get illegalArgumentException
 									setMaximumPoolSize(newThreadCnt);
 								}
@@ -181,14 +181,14 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 								final var newThreadCnt = Math.min(nStartThreads, getMaximumPoolSize() + 1);	// add 1 thread
 								if (newThreadCnt > getMaximumPoolSize())
 								{
-									System.out.format("setting up to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize());
+									Log.info(String.format("setting up to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
 									setMaximumPoolSize(newThreadCnt);
 									setCorePoolSize(newThreadCnt);	// core pool must be augmented last or we will get illegalArgumentException
 								}
 							}
 						}
 						else
-							System.out.format("pools size of %d <> max pool size of %d...%n", getPoolSize(), getMaximumPoolSize());
+							Log.info(String.format("pools size of %d <> max pool size of %d...%n", getPoolSize(), getMaximumPoolSize()));
 					}
 					time = System.currentTimeMillis();
 					startCPUTimeByThread.entrySet().removeIf(e->!e.getKey().isAlive());	// cleanup dead thread from list

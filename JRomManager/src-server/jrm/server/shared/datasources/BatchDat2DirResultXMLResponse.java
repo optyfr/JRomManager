@@ -1,5 +1,9 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
+
+import javax.xml.stream.XMLStreamException;
+
 import jrm.batch.DirUpdaterResults;
 import jrm.batch.DirUpdaterResults.DirUpdaterResult;
 import jrm.server.shared.datasources.XMLRequest.Operation;
@@ -8,14 +12,14 @@ import jrm.xml.SimpleAttribute;
 public class BatchDat2DirResultXMLResponse extends XMLResponse
 {
 
-	public BatchDat2DirResultXMLResponse(XMLRequest request) throws Exception
+	public BatchDat2DirResultXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
 
 
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException
 	{
 		final String src = operation.getData("src");
 		final DirUpdaterResults results = src!=null?DirUpdaterResults.load(request.getSession(), pathAbstractor.getAbsolutePath(src).toFile()):null;

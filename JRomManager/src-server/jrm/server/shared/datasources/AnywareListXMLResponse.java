@@ -1,5 +1,6 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +30,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	private static final String DESCRIPTION = "description";
 	private static final String STATUS = "status";
 
-	public AnywareListXMLResponse(XMLRequest request) throws Exception
+	public AnywareListXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
@@ -167,7 +168,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException
 	{
 		writer.writeStartElement(RESPONSE);
 		writer.writeElement(STATUS, "0");
@@ -177,13 +178,13 @@ public class AnywareListXMLResponse extends XMLResponse
 		{
 			if(reset)
 				al.resetCache();
-			fetch_stream(operation, buildStream(al, operation), rec -> writeRecord(al, rec));
+			fetchStream(operation, buildStream(al, operation), rec -> writeRecord(al, rec));
 		}
 		writer.writeEndElement();
 	}
 	
 	@Override
-	protected void update(Operation operation) throws Exception
+	protected void update(Operation operation) throws XMLStreamException
 	{
 		writer.writeStartElement(RESPONSE);
 		writer.writeElement(STATUS, "0");
@@ -207,7 +208,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void custom(Operation operation) throws Exception
+	protected void custom(Operation operation) throws XMLStreamException
 	{
 		if(operation.getOperationId().toString().equals("find"))
 		{

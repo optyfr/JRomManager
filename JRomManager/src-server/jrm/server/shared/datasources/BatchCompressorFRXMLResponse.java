@@ -1,8 +1,11 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map.Entry;
 import java.util.UUID;
+
+import javax.xml.stream.XMLStreamException;
 
 import jrm.batch.Compressor.FileResult;
 import jrm.server.shared.datasources.XMLRequest.Operation;
@@ -16,14 +19,14 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	private static final String STATUS = "status";
 	private static final String RESPONSE = "response";
 
-	public BatchCompressorFRXMLResponse(XMLRequest request) throws Exception
+	public BatchCompressorFRXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
 
 
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException
 	{
 		writer.writeStartElement(RESPONSE);
 		writer.writeElement(STATUS, "0");
@@ -44,7 +47,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void add(Operation operation) throws Exception
+	protected void add(Operation operation) throws XMLStreamException
 	{
 		if(operation.hasData("file"))
 		{
@@ -67,7 +70,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void update(Operation operation) throws Exception
+	protected void update(Operation operation) throws XMLStreamException
 	{
 		if(operation.hasData("id"))
 		{
@@ -103,7 +106,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void remove(Operation operation) throws Exception
+	protected void remove(Operation operation) throws XMLStreamException
 	{
 		if(operation.hasData("id"))
 		{
@@ -126,7 +129,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void custom(Operation operation) throws Exception
+	protected void custom(Operation operation) throws XMLStreamException
 	{
 		if("clear".equals(operation.getOperationId().toString()))
 		{

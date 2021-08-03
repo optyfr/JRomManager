@@ -1,5 +1,6 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +24,7 @@ public class AnywareXMLResponse extends XMLResponse
 
 	private static final String STATUS = "status";
 
-	public AnywareXMLResponse(XMLRequest request) throws Exception
+	public AnywareXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
@@ -109,7 +110,7 @@ public class AnywareXMLResponse extends XMLResponse
 	}
 	
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException
 	{
 		writer.writeStartElement("response");
 		writer.writeElement(STATUS, "0");
@@ -129,7 +130,7 @@ public class AnywareXMLResponse extends XMLResponse
 					continue;
 				faw.add(a);
 			}
-			fetch_list(operation, faw, (a, i) -> writeRecord(al, aw, a));
+			fetchList(operation, faw, (a, i) -> writeRecord(al, aw, a));
 		}
 		writer.writeEndElement();
 	}

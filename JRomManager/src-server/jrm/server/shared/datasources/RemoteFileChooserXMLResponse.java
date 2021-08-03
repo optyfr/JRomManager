@@ -32,6 +32,16 @@ import lombok.val;
 
 public class RemoteFileChooserXMLResponse extends XMLResponse
 {
+	private static final String PARENT = "parent";
+	private static final String PATHS = "paths";
+	private static final String REL_PATH = "RelPath";
+	private static final String INITIAL_PATH = "initialPath";
+	private static final String IS_DIR = "isDir";
+	private static final String MODIFIED = "Modified";
+	private static final String RECORD = "record";
+	private static final String STATUS = "status";
+	private static final String RESPONSE = "response";
+	private static final String CONTEXT = "context";
 	Path root;
 	Options options = null;
 
@@ -149,18 +159,18 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		}
 	}
 
-	public RemoteFileChooserXMLResponse(XMLRequest request) throws Exception
+	public RemoteFileChooserXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
 
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException, IOException
 	{
-		if (operation.hasData("context"))
-			options = new Options(operation.getData("context"));
-		writer.writeStartElement("response");
-		writer.writeElement("status", "0");
+		if (operation.hasData(CONTEXT))
+			options = new Options(operation.getData(CONTEXT));
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
 		writer.writeElement("startRow", "0");
 		Path parent = writeParent(getParent(operation));
 		PathMatcher matcher = options.pathmatcher != null ? parent.getFileSystem().getPathMatcher(options.pathmatcher) : null;
@@ -176,27 +186,27 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			writer.writeStartElement("data");
 			if (!parent.equals(root) && parent.getParent() != null)
 			{
-				writer.writeStartElement("record");
+				writer.writeStartElement(RECORD);
 				writer.write("Name", "..");
 				writer.write("Path", pathAbstractor.getRelativePath(parent).getParent());
 				writer.write("Size", -1);
-				writer.write("Modified", Files.getLastModifiedTime(parent.getParent()));
-				writer.write("isDir", true);
+				writer.write(MODIFIED, Files.getLastModifiedTime(parent.getParent()));
+				writer.write(IS_DIR, true);
 				writer.writeEndElement();
 				cnt++;
 			}
-			val initialPath = operation.hasData("initialPath") ? CaseInsensitiveFileFinder.findFileIgnoreCase(pathAbstractor.getAbsolutePath(operation.getData("initialPath"))) : Optional.empty();
+			val initialPath = operation.hasData(INITIAL_PATH) ? CaseInsensitiveFileFinder.findFileIgnoreCase(pathAbstractor.getAbsolutePath(operation.getData(INITIAL_PATH))) : Optional.empty();
 			for (Path entry : stream)
 			{
 				BasicFileAttributeView view = Files.getFileAttributeView(entry, BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
 				BasicFileAttributes attr = view.readAttributes();
-				writer.writeStartElement("record");
+				writer.writeStartElement(RECORD);
 				writer.write("Name", entry.getFileName());
 				writer.write("Path", pathAbstractor.getRelativePath(entry));
-				writer.write("RelPath", pathAbstractor.getRelativePath(entry));
+				writer.write(REL_PATH, pathAbstractor.getRelativePath(entry));
 				writer.write("Size", !attr.isRegularFile() ? -1 : attr.size());
-				writer.write("Modified", attr.lastModifiedTime());
-				writer.write("isDir", attr.isDirectory());
+				writer.write(MODIFIED, attr.lastModifiedTime());
+				writer.write(IS_DIR, attr.isDirectory());
 				if (initialPath.isPresent() && entry.equals(initialPath.get()))
 					writer.write("isSelected", true);
 				writer.writeEndElement();
@@ -210,10 +220,10 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	}
 
 	@Override
-	protected void add(Operation operation) throws Exception
+	protected void add(Operation operation) throws XMLStreamException
 	{
-		if (operation.hasData("context"))
-			options = new Options(operation.getData("context"));
+		if (operation.hasData(CONTEXT))
+			options = new Options(operation.getData(CONTEXT));
 		Path parent = getParent(operation);
 		String name = operation.getData("Name");
 		Path entry = parent.resolve(name);
@@ -222,17 +232,17 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			try
 			{
 				Files.createDirectory(entry);
-				writer.writeStartElement("response");
-				writer.writeElement("status", "0");
+				writer.writeStartElement(RESPONSE);
+				writer.writeElement(STATUS, "0");
 				writeParent(parent);
 				writer.writeStartElement("data");
-				writer.writeStartElement("record");
+				writer.writeStartElement(RECORD);
 				writer.writeAttribute("Name", entry.getFileName().toString());
 				writer.writeAttribute("Path", pathAbstractor.getRelativePath(entry).toString());
-				writer.writeAttribute("RelPath", pathAbstractor.getRelativePath(entry).toString());
+				writer.writeAttribute(REL_PATH, pathAbstractor.getRelativePath(entry).toString());
 				writer.writeAttribute("Size", "-1");
-				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
-				writer.writeAttribute("isDir", Boolean.TRUE.toString());
+				writer.writeAttribute(MODIFIED, Files.getLastModifiedTime(entry).toString());
+				writer.writeAttribute(IS_DIR, Boolean.TRUE.toString());
 				writer.writeEndElement();
 				writer.writeEndElement();
 				writer.writeEndElement();
@@ -247,10 +257,10 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	}
 
 	@Override
-	protected void update(Operation operation) throws Exception
+	protected void update(Operation operation) throws XMLStreamException
 	{
-		if (operation.hasData("context"))
-			options = new Options(operation.getData("context"));
+		if (operation.hasData(CONTEXT))
+			options = new Options(operation.getData(CONTEXT));
 		Path parent = getParent(operation);
 		String name = operation.getData("Name");
 		String oldname = operation.oldValues.get("Name");
@@ -261,17 +271,17 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			try
 			{
 				Files.move(oldentry, entry);
-				writer.writeStartElement("response");
-				writer.writeElement("status", "0");
+				writer.writeStartElement(RESPONSE);
+				writer.writeElement(STATUS, "0");
 				writeParent(parent);
 				writer.writeStartElement("data");
-				writer.writeStartElement("record");
+				writer.writeStartElement(RECORD);
 				writer.writeAttribute("Name", entry.getFileName().toString());
 				writer.writeAttribute("Path", pathAbstractor.getRelativePath(entry).toString());
-				writer.writeAttribute("RelPath", pathAbstractor.getRelativePath(entry).toString());
+				writer.writeAttribute(REL_PATH, pathAbstractor.getRelativePath(entry).toString());
 				writer.writeAttribute("Size", "-1");
-				writer.writeAttribute("Modified", Files.getLastModifiedTime(entry).toString());
-				writer.writeAttribute("isDir", Boolean.TRUE.toString());
+				writer.writeAttribute(MODIFIED, Files.getLastModifiedTime(entry).toString());
+				writer.writeAttribute(IS_DIR, Boolean.TRUE.toString());
 				writer.writeEndElement();
 				writer.writeEndElement();
 				writer.writeEndElement();
@@ -286,10 +296,10 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	}
 
 	@Override
-	protected void remove(Operation operation) throws Exception
+	protected void remove(Operation operation) throws XMLStreamException
 	{
-		if (operation.hasData("context"))
-			options = new Options(operation.getData("context"));
+		if (operation.hasData(CONTEXT))
+			options = new Options(operation.getData(CONTEXT));
 		Path parent = getParent(operation);
 		String name = operation.getData("Name");
 		Path entry = parent.resolve(name);
@@ -297,17 +307,15 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		{
 			try
 			{
-				// Files.delete(entry);
 				try (final var stream = Files.walk(entry))
 				{
-					stream.map(Path::toFile).sorted(Comparator.reverseOrder()).forEach(File::delete); // recursive dir
-																										// delete
+					stream.map(Path::toFile).sorted(Comparator.reverseOrder()).forEach(File::delete); // recursive dir delete
 				}
-				writer.writeStartElement("response");
-				writer.writeElement("status", "0");
+				writer.writeStartElement(RESPONSE);
+				writer.writeElement(STATUS, "0");
 				writeParent(parent);
 				writer.writeStartElement("data");
-				writer.writeStartElement("record");
+				writer.writeStartElement(RECORD);
 				writer.writeAttribute("Name", entry.getFileName().toString());
 				writer.writeEndElement();
 				writer.writeEndElement();
@@ -324,24 +332,24 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 	}
 
 	@Override
-	protected void custom(Operation operation) throws Exception
+	protected void custom(Operation operation) throws XMLStreamException, IOException
 	{
 
 		if (operation.getOperationId().toString().equals("expand"))
 		{
-			if (operation.hasData("paths"))
+			if (operation.hasData(PATHS))
 			{
 				var dir = request.getSession().getUser().getSettings().getWorkPath();
-				if (operation.hasData("parent"))
-					dir = new File(operation.getData("parent")).toPath();
-				writer.writeStartElement("response");
-				writer.writeElement("status", "0");
-				writer.writeElement("parent", dir.toString());
+				if (operation.hasData(PARENT))
+					dir = new File(operation.getData(PARENT)).toPath();
+				writer.writeStartElement(RESPONSE);
+				writer.writeElement(STATUS, "0");
+				writer.writeElement(PARENT, dir.toString());
 				writer.writeStartElement("data");
 				var cnt = new AtomicInteger();
-				if ("addArc".equals(operation.getData("context")))
+				if ("addArc".equals(operation.getData(CONTEXT)))
 				{
-					for (String path : operation.getDatas("paths"))
+					for (String path : operation.getDatas(PATHS))
 					{
 						var entry = pathAbstractor.getAbsolutePath(path);
 						Files.walkFileTree(entry, new SimpleFileVisitor<Path>()
@@ -355,7 +363,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 								{
 									try
 									{
-										writer.writeEmptyElement("record");
+										writer.writeEmptyElement(RECORD);
 										writer.writeAttribute("Name", file.getFileName().toString());
 										writer.writeAttribute("Path", pathAbstractor.getRelativePath(file).toString());
 										cnt.incrementAndGet();
@@ -372,10 +380,10 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				}
 				else
 				{
-					for (String path : operation.getDatas("paths"))
+					for (String path : operation.getDatas(PATHS))
 					{
 						var entry = Paths.get(path);
-						writer.writeEmptyElement("record");
+						writer.writeEmptyElement(RECORD);
 						writer.writeAttribute("Name", entry.getFileName().toString());
 						writer.writeAttribute("Path", pathAbstractor.getRelativePath(entry).toString());
 						cnt.incrementAndGet();
@@ -428,11 +436,11 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		root = parent;
 		if (operation.hasData("root"))
 			root = parent = pathAbstractor.getAbsolutePath(operation.getData("root"));
-		if (operation.hasData("parent"))
-			parent = pathAbstractor.getAbsolutePath(operation.getData("parent"));
-		else if (operation.hasData("initialPath"))
+		if (operation.hasData(PARENT))
+			parent = pathAbstractor.getAbsolutePath(operation.getData(PARENT));
+		else if (operation.hasData(INITIAL_PATH))
 		{
-			parent = pathAbstractor.getAbsolutePath(operation.getData("initialPath"));
+			parent = pathAbstractor.getAbsolutePath(operation.getData(INITIAL_PATH));
 			if (!Files.isDirectory(parent))
 				parent = parent.getParent();
 		}
@@ -441,7 +449,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 
 	private Path writeParent(Path parent) throws XMLStreamException
 	{
-		writer.writeElement("parent", pathAbstractor.getRelativePath(parent).toString());
+		writer.writeElement(PARENT, pathAbstractor.getRelativePath(parent).toString());
 		writer.writeElement("relparent", pathAbstractor.getRelativePath(parent).toString());
 		writer.writeElement("root", pathAbstractor.getRelativePath(root).toString());
 		writer.writeElement("parentRelative", Paths.get(getRootName()).resolve(root.relativize(parent)).toString());

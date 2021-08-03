@@ -129,14 +129,13 @@ public interface ActionsMgr extends SessionStub
 						break;
 					}
 					default:
-						System.err.println("Unknown command : " + jso.getString("cmd", "unknown"));
+						Log.err(() -> "Unknown command : " + jso.getString("cmd", "unknown"));
 						break;
 				}
 			}
 		}
 		catch (Exception e)
 		{
-			System.err.println(jso.toString());
 			Log.err(e.getMessage(), e);
 		}
 	}

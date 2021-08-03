@@ -1,5 +1,9 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
+
+import javax.xml.stream.XMLStreamException;
+
 import jrm.profile.filter.NPlayer;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
@@ -8,14 +12,14 @@ import lombok.val;
 public class NPlayersXMLResponse extends XMLResponse
 {
 
-	public NPlayersXMLResponse(XMLRequest request) throws Exception
+	public NPlayersXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}
 
 
 	@Override
-	protected void fetch(Operation operation) throws Exception
+	protected void fetch(Operation operation) throws XMLStreamException
 	{
 		val session = request.session;
 		writer.writeStartElement("response");
