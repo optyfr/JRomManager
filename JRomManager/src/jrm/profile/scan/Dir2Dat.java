@@ -4,12 +4,12 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.stream.FactoryConfigurationError;
@@ -37,32 +37,36 @@ import jrm.xml.SimpleAttribute;
 
 public class Dir2Dat
 {
+	private static final String DIR2_DAT_SAVING = "Dir2Dat.Saving";
+	private static final String CDROM = "cdrom";
+	private static final String DESCRIPTION = "description";
+	private static final String UTF_8 = "UTF-8";
 	private Session session;
 	
-	public Dir2Dat(final Session session, File srcdir, File dstdat, final ProgressHandler progress, EnumSet<Options> options, ExportType type, HashMap<String, String> headers)
+	public Dir2Dat(final Session session, File srcdir, File dstdat, final ProgressHandler progress, Set<Options> options, ExportType type, Map<String, String> headers)
 	{
 		this.session = session;
-		DirScan srcdir_scan  = new DirScan(session, srcdir, progress, options);
-		write(dstdat, srcdir_scan, progress, options, type, headers);
+		DirScan srcDirScan  = new DirScan(session, srcdir, progress, options);
+		write(dstdat, srcDirScan, progress, options, type, headers);
 	}
 
-	private void write(final File dstdat, final DirScan scan, final ProgressHandler progress, EnumSet<Options> options, final ExportType type, HashMap<String, String> headers)
+	private void write(final File dstdat, final DirScan scan, final ProgressHandler progress, Set<Options> options, final ExportType type, Map<String, String> headers)
 	{
 		progress.clearInfos();
 		progress.setInfos(1, false);
 		AtomicInteger i = new AtomicInteger();
 		scan.getContainersIterable().forEach(c->i.incrementAndGet());
-		progress.setProgress(Messages.getString("Dir2Dat.Saving"), 0, i.get()); //$NON-NLS-1$
+		progress.setProgress(Messages.getString(DIR2_DAT_SAVING), 0, i.get()); //$NON-NLS-1$
 		i.set(0);
 		try(BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(dstdat)))
 		{
-			final EnhancedXMLStreamWriter writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(fos, "UTF-8")); //$NON-NLS-1$
-			writer.writeStartDocument("UTF-8","1.0"); //$NON-NLS-1$ //$NON-NLS-2$
+			final EnhancedXMLStreamWriter writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(fos, UTF_8)); //$NON-NLS-1$
+			writer.writeStartDocument(UTF_8,"1.0"); //$NON-NLS-1$ //$NON-NLS-2$
 			switch(type)
 			{
 				case MAME:
 				{
-					writer.writeDTD("<!DOCTYPE mame [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/mame.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					writer.writeDTD("<!DOCTYPE mame [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/mame.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					writer.writeStartElement("mame"); //$NON-NLS-1$
 					Map<String,AtomicInteger> counter = new HashMap<>();
 					for(Container c : scan.getContainersIterable())
@@ -78,7 +82,7 @@ public class Dir2Dat
 						AtomicInteger val = counter.get(name);
 						if(val.incrementAndGet() > 1)
 							name = name + "_" + val.get(); //$NON-NLS-1$
-						progress.setProgress(Messages.getString("Dir2Dat.Saving"), i.incrementAndGet()); //$NON-NLS-1$
+						progress.setProgress(Messages.getString(DIR2_DAT_SAVING), i.incrementAndGet()); //$NON-NLS-1$
 						writer.writeStartElement("machine", //$NON-NLS-1$
 							new SimpleAttribute("name", name), //$NON-NLS-1$
 							new SimpleAttribute("isbios", machine!=null&&machine.isBios()?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
@@ -88,7 +92,7 @@ public class Dir2Dat
 							new SimpleAttribute("romof", machine!=null?machine.getRomof():null), //$NON-NLS-1$
 							new SimpleAttribute("sampleof", machine!=null?machine.getSampleof():null) //$NON-NLS-1$
 						);
-						writer.writeElement("description", machine!=null?machine.description:name); //$NON-NLS-1$
+						writer.writeElement(DESCRIPTION, machine!=null?machine.description:name); //$NON-NLS-1$
 						writer.writeElement("year", machine!=null?machine.year:"????"); //$NON-NLS-1$ //$NON-NLS-2$
 						writer.writeElement("manufacturer", machine!=null?machine.manufacturer:""); //$NON-NLS-1$ //$NON-NLS-2$
 						for(Entry e : c.getEntries())
@@ -135,7 +139,7 @@ public class Dir2Dat
 				}
 				case DATAFILE:
 				{
-					writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					writer.writeStartElement("datafile"); //$NON-NLS-1$
 					writer.writeStartElement("header"); //$NON-NLS-1$
 					for(Map.Entry<String, String> entry:headers.entrySet())
@@ -155,7 +159,7 @@ public class Dir2Dat
 						AtomicInteger val = counter.get(name);
 						if(val.incrementAndGet() > 1)
 							name = name + "_" + val.get(); //$NON-NLS-1$
-						progress.setProgress(Messages.getString("Dir2Dat.Saving"), i.incrementAndGet()); //$NON-NLS-1$
+						progress.setProgress(Messages.getString(DIR2_DAT_SAVING), i.incrementAndGet()); //$NON-NLS-1$
 						writer.writeStartElement("game", //$NON-NLS-1$
 							new SimpleAttribute("name", name), //$NON-NLS-1$
 							new SimpleAttribute("isbios", machine!=null&&machine.isBios()?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
@@ -163,7 +167,7 @@ public class Dir2Dat
 							new SimpleAttribute("romof", machine!=null?machine.getRomof():null), //$NON-NLS-1$
 							new SimpleAttribute("sampleof", machine!=null?machine.getSampleof():null) //$NON-NLS-1$
 						);
-						writer.writeElement("description", machine!=null?machine.description:name); //$NON-NLS-1$
+						writer.writeElement(DESCRIPTION, machine!=null?machine.description:name); //$NON-NLS-1$
 						writer.writeElement("year", machine!=null?machine.year:"????"); //$NON-NLS-1$ //$NON-NLS-2$
 						writer.writeElement("manufacturer", machine!=null?machine.manufacturer:""); //$NON-NLS-1$ //$NON-NLS-2$
 						for(Entry e : c.getEntries())
@@ -216,7 +220,7 @@ public class Dir2Dat
 					Map<String,SL> slmap = new HashMap<>();
 					for(Container c : scan.getContainersIterable())
 					{
-						progress.setProgress(Messages.getString("Dir2Dat.Saving"), i.incrementAndGet()); //$NON-NLS-1$
+						progress.setProgress(Messages.getString(DIR2_DAT_SAVING), i.incrementAndGet()); //$NON-NLS-1$
 						Software software = null;
 						Path relativized = scan.getDir().toPath().relativize(c.getFile().toPath());
 						Path filename = relativized.getFileName();
@@ -252,18 +256,18 @@ public class Dir2Dat
 					}
 					if(slmap.size()>1)
 					{
-						writer.writeDTD("<!DOCTYPE softwarelists [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelists.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+						writer.writeDTD("<!DOCTYPE softwarelists [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelists.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 						writer.writeStartElement("softwarelists"); //$NON-NLS-1$
 					}
 					for(Map.Entry<String,SL> e : slmap.entrySet())
 					{
 						if(slmap.size()==1)
-							writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), Charset.forName("UTF-8")) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+							writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 						writer.writeStartElement("softwarelist", //$NON-NLS-1$
 							new SimpleAttribute("name", e.getValue().name) //$NON-NLS-1$
 						);
 						if(e.getValue().sl!=null)
-							writer.writeElement("description", e.getValue().sl.getDescription()); //$NON-NLS-1$
+							writer.writeElement(DESCRIPTION, e.getValue().sl.getDescription()); //$NON-NLS-1$
 						for(Map.Entry<String, SL.SW> ee : e.getValue().sw.entrySet())
 						{
 							if(ee.getValue().sw!=null)
@@ -287,11 +291,11 @@ public class Dir2Dat
 												ename = fileName.toString();
 										}
 										writer.writeStartElement("part", //$NON-NLS-1$
-											new SimpleAttribute("name", "cdrom"+ ++ii), //$NON-NLS-1$ //$NON-NLS-2$
-											new SimpleAttribute("interface", "cdrom") //$NON-NLS-1$ //$NON-NLS-2$
+												new SimpleAttribute("name", CDROM + (++ii)), //$NON-NLS-1$ //$NON-NLS-2$
+												new SimpleAttribute("interface", CDROM) //$NON-NLS-1$ //$NON-NLS-2$
 										);
 											writer.writeStartElement("diskarea", //$NON-NLS-1$
-												new SimpleAttribute("name", "cdrom") //$NON-NLS-1$ //$NON-NLS-2$
+												new SimpleAttribute("name", CDROM) //$NON-NLS-1$ //$NON-NLS-2$
 											);
 												writer.writeElement("disk", //$NON-NLS-1$
 														new SimpleAttribute("name", ename), //$NON-NLS-1$

@@ -164,7 +164,7 @@ public final class DirScan extends PathAbstractor
 	/**
 	 * other options
 	 */
-	private EnumSet<Options> options;
+	private Set<Options> options;
 
 	/**
 	 * Initialization for SevenzipJBinding
@@ -278,7 +278,7 @@ public final class DirScan extends PathAbstractor
 	 * @param options an {@link EnumSet} of {@link Options}
 	 * @throws BreakException in case user stopped processing thru {@link ProgressHandler}
 	 */
-	DirScan(final Session session, final File dir, final ProgressHandler handler, EnumSet<Options> options) throws BreakException
+	DirScan(final Session session, final File dir, final ProgressHandler handler, Set<Options> options) throws BreakException
 	{
 		this(session, dir, handler, null, options);
 	}
@@ -291,7 +291,7 @@ public final class DirScan extends PathAbstractor
 	 * @param options an {@link EnumSet} of {@link Options}
 	 * @throws BreakException in case user stopped processing thru {@link ProgressHandler}
 	 */
-	private DirScan(final Session session, final File dir, final ProgressHandler handler, final Set<String> suspiciousCrc, EnumSet<Options> options) throws BreakException
+	private DirScan(final Session session, final File dir, final ProgressHandler handler, final Set<String> suspiciousCrc, Set<Options> options) throws BreakException
 	{
 		super(session);
 		this.session = session;
@@ -1035,7 +1035,7 @@ public final class DirScan extends PathAbstractor
 					final var buffer = new byte[8192];
 					while (size > 0)
 					{
-						int read = getCArchive().read(buffer, 0, (int) Math.min((long) buffer.length, size));
+						int read = getCArchive().read(buffer, 0, (int) Math.min(buffer.length, size));
 						if(read == -1)
 							break;
 						for (MDigest d : digest)
