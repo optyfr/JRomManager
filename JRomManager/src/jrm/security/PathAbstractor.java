@@ -6,10 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import jrm.misc.Log;
 import lombok.val;
 
 public class PathAbstractor
 {
+	private static final String SHARED = "%shared";
+	private static final String WORK = "%work";
+	private static final String PRESETS = "%presets";
+	private static final String FORGED_PATH = "Forged path";
 	private Session session;
 
 	public PathAbstractor(Session session)
@@ -24,9 +29,9 @@ public class PathAbstractor
 	
 	public static boolean isWriteable(Session session, String strpath)
 	{
-		if (strpath.startsWith("%work"))
+		if (strpath.startsWith(WORK))
 			return true;
-		if (strpath.startsWith("%shared"))
+		if (strpath.startsWith(SHARED))
 			return session.getUser().isAdmin();
 		return session.getUser().isAdmin();
 	}
@@ -47,22 +52,23 @@ public class PathAbstractor
 		{
 			val pdir = session.getUser().getSettings().getWorkPath().resolve("presets");
 			if (path.startsWith(pdir))
-				return Paths.get("%presets", pdir.relativize(path).toString());
+				return Paths.get(PRESETS, pdir.relativize(path).toString());
 			else
 			{
 				val wdir = session.getUser().getSettings().getWorkPath();
 				if (path.startsWith(wdir))
-					return Paths.get("%work", wdir.relativize(path).toString());
+					return Paths.get(WORK, wdir.relativize(path).toString());
 				else
 				{
 					val sdir = session.getUser().getSettings().getBasePath().resolve("users").resolve("shared");
 					if (path.startsWith(sdir))
-						return Paths.get("%shared", sdir.relativize(path).toString());
+						return Paths.get(SHARED, sdir.relativize(path).toString());
 				}
 			}
 		}
 		catch (Exception e)
 		{
+			Log.err(e.getMessage(), e);
 		}
 		return path;
 	}
@@ -75,7 +81,7 @@ public class PathAbstractor
 	public static Path getAbsolutePath(Session session, final String strpath) throws SecurityException
 	{
 		final Path path;
-		if (strpath.startsWith("%presets"))
+		if (strpath.startsWith(PRESETS))
 		{
 			val basepath = session.getUser().getSettings().getWorkPath().resolve("presets");
 			try
@@ -84,24 +90,25 @@ public class PathAbstractor
 			}
 			catch (IOException e)
 			{
+				Log.err(e.getMessage(), e);
 			}
-			path = Paths.get(strpath.replace("%presets", basepath.toString())).toAbsolutePath().normalize();
+			path = Paths.get(strpath.replace(PRESETS, basepath.toString())).toAbsolutePath().normalize();
 			if (!path.startsWith(basepath))
-				throw new SecurityException("Forged path");
+				throw new SecurityException(FORGED_PATH);
 		}
-		else if (strpath.startsWith("%work"))
+		else if (strpath.startsWith(WORK))
 		{
 			val basepath = session.getUser().getSettings().getWorkPath();
-			path = Paths.get(strpath.replace("%work", basepath.toString())).toAbsolutePath().normalize();
+			path = Paths.get(strpath.replace(WORK, basepath.toString())).toAbsolutePath().normalize();
 			if (!path.startsWith(basepath))
-				throw new SecurityException("Forged path");
+				throw new SecurityException(FORGED_PATH);
 		}
-		else if (strpath.startsWith("%shared"))
+		else if (strpath.startsWith(SHARED))
 		{
 			val basepath = session.getUser().getSettings().getBasePath().resolve("users").resolve("shared");
-			path = Paths.get(strpath.replace("%shared", basepath.toString())).toAbsolutePath().normalize();
+			path = Paths.get(strpath.replace(SHARED, basepath.toString())).toAbsolutePath().normalize();
 			if (!path.startsWith(basepath))
-				throw new SecurityException("Forged path");
+				throw new SecurityException(FORGED_PATH);
 		}
 		else
 			path = Paths.get(strpath);

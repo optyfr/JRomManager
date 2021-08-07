@@ -22,7 +22,7 @@ public class User
 		this.session = session;
 		this.session.user = this;
 		this.name = name;
-		this.roles = roles!=null?Stream.of(roles).map(s->s.toLowerCase()).collect(Collectors.toSet()):Collections.emptySet();
+		this.roles = roles!=null?Stream.of(roles).map(String::toLowerCase).collect(Collectors.toSet()):Collections.emptySet();
 		this.settings = new GlobalSettings(this);
 	}
 	
