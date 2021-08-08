@@ -219,7 +219,7 @@ public class Software extends Anyware implements Serializable
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unlikely-arg-type")
-	public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries) throws XMLStreamException
 	{
 		writer.writeStartElement("software", //$NON-NLS-1$
 				new SimpleAttribute("name", name), //$NON-NLS-1$
@@ -246,7 +246,7 @@ public class Software extends Anyware implements Serializable
 						new SimpleAttribute("endianness", dataarea.endianness.getXML()) //$NON-NLS-1$
 						);
 				for(final Rom r : dataarea.roms)
-					if(entries==null || entries.contains(r))
+					if(entries==null || entries.contains(r))	//NOSONAR
 						r.export(writer,true);
 				writer.writeEndElement();
 			}
@@ -256,7 +256,7 @@ public class Software extends Anyware implements Serializable
 						new SimpleAttribute("name", diskarea.name) //$NON-NLS-1$
 						);
 				for(final Disk d : diskarea.disks)
-					if(entries==null || entries.contains(d))
+					if(entries==null || entries.contains(d))	//NOSONAR
 						d.export(writer,true);
 				writer.writeEndElement();
 			}

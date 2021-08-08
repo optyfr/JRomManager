@@ -37,6 +37,7 @@ import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.misc.UnitRenderer;
 import jrm.security.Session;
+import lombok.Getter;
 
 /**
  * Import from Mame (and variants)
@@ -45,10 +46,11 @@ import jrm.security.Session;
  */
 public class Import implements UnitRenderer
 {
-	public final File org_file;
-	public File file;
-	public File roms_file, sl_file;
-	public boolean is_mame = false;
+	private final @Getter File orgFile;
+	private @Getter File file;
+	private @Getter File romsFile;
+	private @Getter File slFile;
+	private @Getter boolean isMame = false;
 
 	/**
 	 * Will import from a file, it will be autodetected if it's mame or just a dat file, optionally also import software lists in case of a mame import
@@ -57,7 +59,7 @@ public class Import implements UnitRenderer
 	 */
 	public Import(final Session session, final File file, final boolean sl, ProgressHandler progress)
 	{
-		org_file = file;
+		orgFile = file;
 		final var workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
 		final var xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
 		xmldir.mkdir();
@@ -67,11 +69,11 @@ public class Import implements UnitRenderer
 		{
 			try
 			{
-				if((roms_file = importMame(file, false, progress)) != null)
+				if((romsFile = importMame(file, false, progress)) != null)
 				{
-					sl_file = sl ? importMame(file, true, progress) : null;
-					this.file = ProfileNFO.saveJrm(IOUtils.createTempFile("JRM", ".jrm").toFile(), roms_file, sl_file); //$NON-NLS-1$ //$NON-NLS-2$
-					is_mame = true;
+					slFile = sl ? importMame(file, true, progress) : null;
+					this.file = ProfileNFO.saveJrm(IOUtils.createTempFile("JRM", ".jrm").toFile(), romsFile, slFile); //$NON-NLS-1$ //$NON-NLS-2$
+					isMame = true;
 				}
 			}
 			catch(DOMException | ParserConfigurationException | TransformerException | IOException e)
@@ -128,6 +130,7 @@ public class Import implements UnitRenderer
 		catch(final InterruptedException e)
 		{
 			Log.err("Caught Interrupted Exception", e); //$NON-NLS-1$
+			Thread.currentThread().interrupt();
 		}
 		return null;
 	}

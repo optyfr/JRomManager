@@ -609,9 +609,9 @@ public class ProfileViewer extends JDialog
 								if (session.getCurrProfile() != null)
 								{
 									final var profile = session.getCurrProfile();
-									if (profile.getNfo().mame.getStatus() == MameStatus.UPTODATE)
+									if (profile.getNfo().getMame().getStatus() == MameStatus.UPTODATE)
 									{
-										final ProfileNFOMame mame = profile.getNfo().mame;
+										final ProfileNFOMame mame = profile.getNfo().getMame();
 										String[] args = null;
 										if (ware instanceof Software)
 										{
@@ -658,15 +658,20 @@ public class ProfileViewer extends JDialog
 											{
 												pb.start().waitFor();
 											}
-											catch (InterruptedException | IOException e1)
+											catch (IOException e1)
 											{
 												JOptionPane.showMessageDialog(ProfileViewer.this, e1.getMessage(), Messages.getString("ProfileViewer.Exception"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+											}
+											catch (InterruptedException e1)
+											{
+												JOptionPane.showMessageDialog(ProfileViewer.this, e1.getMessage(), Messages.getString("ProfileViewer.Exception"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+												Thread.currentThread().interrupt();
 											}
 										}
 									}
 									else
 									{
-										JOptionPane.showMessageDialog(ProfileViewer.this, String.format(Messages.getString("ProfileViewer.MameNotAvailableOrObsolete"), profile.getNfo().mame.getStatus()), Messages.getString("ProfileViewer.Error"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
+										JOptionPane.showMessageDialog(ProfileViewer.this, String.format(Messages.getString("ProfileViewer.MameNotAvailableOrObsolete"), profile.getNfo().getMame().getStatus()), Messages.getString("ProfileViewer.Error"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 									}
 								}
 								else

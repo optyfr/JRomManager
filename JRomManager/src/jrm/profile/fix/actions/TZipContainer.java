@@ -69,13 +69,13 @@ public class TZipContainer extends ContainerAction
 				{
 					final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).Process(container.getFile());
 					if (!status.contains(TrrntZipStatus.ValidTrrntzip))
-						System.out.format("%-64s => %s%n", container.getRelFile(), status.toString()); //$NON-NLS-1$
+						Log.info(()->String.format("%-64s => %s%n", container.getRelFile(), status.toString())); //$NON-NLS-1$
 				}
 				return true;
 			}
-			catch (/* InterruptedException | */ final IOException e)
+			catch (final IOException e)
 			{
-				System.err.println(container.getRelFile());
+				Log.err(container.getRelFile());
 				Log.err(e.getMessage(), e);
 			}
 		}

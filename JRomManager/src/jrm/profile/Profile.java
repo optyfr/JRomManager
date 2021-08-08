@@ -1281,7 +1281,7 @@ public class Profile implements Serializable
 	 */
 	public void save()
 	{
-		try (final var oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(session.getUser().getSettings().getCacheFile(nfo.file)))))
+		try (final var oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(session.getUser().getSettings().getCacheFile(nfo.getFile())))))
 		{
 			oos.writeObject(this);
 		}
@@ -1317,8 +1317,8 @@ public class Profile implements Serializable
 	public static Profile load(final Session session, final ProfileNFO nfo, final ProgressHandler handler)
 	{
 		Profile profile = null;
-		final var cachefile = session.getUser().getSettings().getCacheFile(nfo.file);
-		if (cachefile.lastModified() >= nfo.file.lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.mame.getFileroms().lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, false)) // $NON-NLS-1$
+		final var cachefile = session.getUser().getSettings().getCacheFile(nfo.getFile());
+		if (cachefile.lastModified() >= nfo.getFile().lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.getMame().getFileroms().lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, false)) // $NON-NLS-1$
 		{ // Load from cache if cachefile is not outdated and debug_nocache is disabled
 			profile = loadCache(session, nfo, handler, profile, cachefile);
 		}
@@ -1331,12 +1331,12 @@ public class Profile implements Serializable
 		profile.buildParentClonesRelations();
 		// update nfo stats (those to keep serialized)
 		if(profile.build!=null)
-			profile.nfo.stats.setVersion(profile.build);
+			profile.nfo.getStats().setVersion(profile.build);
 		else
-			profile.nfo.stats.setVersion(profile.header.containsKey("version") ? profile.header.get("version").toString() : null); //$NON-NLS-1$ //$NON-NLS-2$
-		profile.nfo.stats.setTotalSets(profile.softwaresCnt + profile.machinesCnt);
-		profile.nfo.stats.setTotalRoms(profile.romsCnt + profile.swromsCnt);
-		profile.nfo.stats.setTotalDisks(profile.disksCnt + profile.swdisksCnt);
+			profile.nfo.getStats().setVersion(profile.header.containsKey("version") ? profile.header.get("version").toString() : null); //$NON-NLS-1$ //$NON-NLS-2$
+		profile.nfo.getStats().setTotalSets(profile.softwaresCnt + profile.machinesCnt);
+		profile.nfo.getStats().setTotalRoms(profile.romsCnt + profile.swromsCnt);
+		profile.nfo.getStats().setTotalDisks(profile.disksCnt + profile.swdisksCnt);
 		// Load profile settings
 		handler.setProgress("Loading settings...", -1); //$NON-NLS-1$
 		profile.loadSettings();
@@ -1375,11 +1375,11 @@ public class Profile implements Serializable
 		profile.nfo = nfo;
 		if (nfo.isJRM())
 		{ // we use JRM file keep ROMs/SL DATs in relation
-			if (nfo.mame.getFileroms() != null)
+			if (nfo.getMame().getFileroms() != null)
 			{ // load ROMs dat
-				if (!nfo.mame.getFileroms().exists() || !profile.internalLoad(nfo.mame.getFileroms(), handler))
+				if (!nfo.getMame().getFileroms().exists() || !profile.internalLoad(nfo.getMame().getFileroms(), handler))
 					return null;
-				if (nfo.mame.getFilesl() != null && (!nfo.mame.getFilesl().exists() || !profile.internalLoad(nfo.mame.getFilesl(), handler)))
+				if (nfo.getMame().getFilesl() != null && (!nfo.getMame().getFilesl().exists() || !profile.internalLoad(nfo.getMame().getFilesl(), handler)))
 				{
 					// load SL dat (note that loading software list without ROMs dat is NOT recommended)
 					return null;
@@ -1388,7 +1388,7 @@ public class Profile implements Serializable
 		}
 		else
 		{ // load DAT file not attached to a JRM
-			if (!nfo.file.exists() || !profile.internalLoad(nfo.file, handler))
+			if (!nfo.getFile().exists() || !profile.internalLoad(nfo.getFile(), handler))
 				return null;
 		}
 		session.setCurrProfile(profile);
@@ -1456,7 +1456,7 @@ public class Profile implements Serializable
 	 */
 	public void saveSettings()
 	{
-		saveSettings(nfo.file);
+		saveSettings(nfo.getFile());
 	}
 
 	/**
@@ -1473,7 +1473,7 @@ public class Profile implements Serializable
 	 */
 	public void loadSettings()
 	{
-		loadSettings(nfo.file);
+		loadSettings(nfo.getFile());
 	}
 
 	/**
@@ -1607,7 +1607,7 @@ public class Profile implements Serializable
 	 */
 	public String getName()
 	{
-		String name = "<html><body>[<span style='color:blue'>" + session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.file.toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		String name = "<html><body>[<span style='color:blue'>" + session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.getFile().toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 																																																				// //$NON-NLS-4$
 		if (build != null)
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$

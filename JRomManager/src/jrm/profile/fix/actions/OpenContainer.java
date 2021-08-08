@@ -23,7 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -119,7 +122,7 @@ public class OpenContainer extends ContainerAction
 			i++;
 			if (!action.doAction(session, target, handler, i, entryActions.size()))
 			{
-				System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				return false;
 			}
 		}
@@ -143,7 +146,7 @@ public class OpenContainer extends ContainerAction
 				i++;
 				if (!action.doAction(session, archive, handler, i, entryActions.size()))
 				{
-					System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					return false;
 				}
 			}
@@ -171,7 +174,7 @@ public class OpenContainer extends ContainerAction
 				i++;
 				if (!action.doAction(session, archive, handler, i, entryActions.size()))
 				{
-					System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					return false;
 				}
 			}
@@ -202,7 +205,7 @@ public class OpenContainer extends ContainerAction
 				i++;
 				if (!action.doAction(session, fs, handler, i, entryActions.size()))
 				{
-					System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					return false;
 				}
 			}
@@ -223,21 +226,18 @@ public class OpenContainer extends ContainerAction
 	 */
 	public long deleteEmptyFolders(final File baseFolder)
 	{
-		long totalSize = 0;
+		final var totalSize = new AtomicLong();
 		if(baseFolder!=null)
 		{
-			File[] folders = baseFolder.listFiles();
-			if(folders!=null)
-			{
-				for (final File folder : folders)
-				{
+			Optional.ofNullable(baseFolder.listFiles()).ifPresent(folders -> 
+				Stream.of(folders).forEach(folder -> {
 					if (folder.isDirectory())
-						totalSize += deleteEmptyFolders(folder);
+						totalSize.addAndGet(deleteEmptyFolders(folder));
 					else
-						totalSize += folder.length();
-				}
-			}
-			if (totalSize == 0)
+						totalSize.addAndGet(folder.length());
+				})
+			);
+			if (totalSize.get() == 0)
 				try
 				{
 					Files.deleteIfExists(baseFolder.toPath());
@@ -247,7 +247,7 @@ public class OpenContainer extends ContainerAction
 					Log.err(e.getMessage(), e);
 				}
 		}
-		return totalSize;
+		return totalSize.get();
 	}
 
 	/**

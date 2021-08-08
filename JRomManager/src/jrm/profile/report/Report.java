@@ -560,7 +560,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		try(PrintWriter reportWriter = new PrintWriter(reportFile))
 		{
 			reportWriter.println("=== Scanned Profile ===");
-			reportWriter.println(profile.getNfo().file);
+			reportWriter.println(profile.getNfo().getFile());
 			reportWriter.println();
 			reportWriter.println("=== Used Profile Properties ===");
 			profile.getSettings().getProperties().store(reportWriter, null);
@@ -589,7 +589,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 
 	public File getFile()
 	{
-		return this.profile!=null?this.profile.getNfo().file:this.file;
+		return this.profile!=null?this.profile.getNfo().getFile():this.file;
 	}
 	
 	public long getFileModified()

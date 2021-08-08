@@ -504,10 +504,10 @@ public class Scan extends PathAbstractor
 			report.flush();
 			/* update and save stats */
 			final var nfo = profile.getNfo();
-			nfo.stats.setScanned(new Date());
-			nfo.stats.setHaveSets(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).mapToLong(AnywareList::countHave).sum());
-			nfo.stats.setHaveRoms(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum());
-			nfo.stats.setHaveDisks(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum());
+			nfo.getStats().setScanned(new Date());
+			nfo.getStats().setHaveSets(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).mapToLong(AnywareList::countHave).sum());
+			nfo.getStats().setHaveRoms(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum());
+			nfo.getStats().setHaveDisks(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum());
 			nfo.save(profile.getSession());
 			/* save again profile cache with scan entity status */
 			profile.save(); 

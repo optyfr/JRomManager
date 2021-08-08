@@ -54,6 +54,8 @@ import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.security.Session;
 
+import lombok.Getter;
+
 /**
  * The Profile NFO file managing class with tolerant manual (de)serialization
  * 
@@ -61,16 +63,15 @@ import jrm.security.Session;
  */
 public final class ProfileNFO implements Serializable, HTMLRenderer
 {
+	private static final String MAME_STR = "mame";
+	private static final String STATS_STR = "stats";
+	private static final String NAME_STR = "name";
+	private static final String FILE_STR = "file";
 	private static final String U = "?";
-
 	private static final String U_OF_U = "?/?";
-
 	private static final String N_OF_T = "%s/%d";
-
 	private static final String JROMMANAGER_STR = "JRomManager";
-
 	private static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
-
 	private static final String UNKNOWN_DATE = "????-??-?? ??:??:??";
 
 	private static final long serialVersionUID = 3L;
@@ -78,19 +79,19 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	/**
 	 * The Profile {@link File} (can be a jrm, a dat, or an xml file)
 	 */
-	public File file = null;
+	private @Getter File file = null;
 	/**
 	 * The name to show in GUI (equals to file name by default)
 	 */
-	public String name = null;
+	private @Getter String name = null;
 	/**
 	 * The {@link ProfileNFOStats} stats sub class
 	 */
-	public ProfileNFOStats stats = new ProfileNFOStats();
+	private @Getter ProfileNFOStats stats = new ProfileNFOStats();
 	/**
 	 * The {@link ProfileNFOMame} mame sub class
 	 */
-	public ProfileNFOMame mame = new ProfileNFOMame();
+	private @Getter ProfileNFOMame mame = new ProfileNFOMame();
 
 	/**
 	 * fields declaration for manual serialization
@@ -105,10 +106,10 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	 *                  ProfileNFOMame the mame infos relates to the profile
 	 */
 	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR 
-		new ObjectStreamField("file", File.class),
-		new ObjectStreamField("name", String.class),
-		new ObjectStreamField("stats", ProfileNFOStats.class),
-		new ObjectStreamField("mame", ProfileNFOMame.class)
+		new ObjectStreamField(FILE_STR, File.class),
+		new ObjectStreamField(NAME_STR, String.class),
+		new ObjectStreamField(STATS_STR, ProfileNFOStats.class),
+		new ObjectStreamField(MAME_STR, ProfileNFOMame.class)
 	};
 
 	/**
@@ -124,10 +125,10 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final var fields = stream.putFields();
-		fields.put("file", file); //$NON-NLS-1$
-		fields.put("name", name); //$NON-NLS-1$
-		fields.put("stats", stats); //$NON-NLS-1$
-		fields.put("mame", mame); //$NON-NLS-1$
+		fields.put(FILE_STR, file); //$NON-NLS-1$
+		fields.put(NAME_STR, name); //$NON-NLS-1$
+		fields.put(STATS_STR, stats); //$NON-NLS-1$
+		fields.put(MAME_STR, mame); //$NON-NLS-1$
 		stream.writeFields();
 	}
 
@@ -142,10 +143,10 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
-		file = (File) fields.get("file", null); //$NON-NLS-1$
-		name = (String) fields.get("name", null); //$NON-NLS-1$
-		stats = (ProfileNFOStats) fields.get("stats", new ProfileNFOStats()); //$NON-NLS-1$
-		mame = (ProfileNFOMame) fields.get("mame", new ProfileNFOMame()); //$NON-NLS-1$
+		file = (File) fields.get(FILE_STR, null); //$NON-NLS-1$
+		name = (String) fields.get(NAME_STR, null); //$NON-NLS-1$
+		stats = (ProfileNFOStats) fields.get(STATS_STR, new ProfileNFOStats()); //$NON-NLS-1$
+		mame = (ProfileNFOMame) fields.get(MAME_STR, new ProfileNFOMame()); //$NON-NLS-1$
 	}
 
 	/**
@@ -378,11 +379,6 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 			Log.err(e.getMessage(), e);
 		}
 		return false;
-	}
-
-	public String getName()
-	{
-		return name;
 	}
 
 	public String getVersion()

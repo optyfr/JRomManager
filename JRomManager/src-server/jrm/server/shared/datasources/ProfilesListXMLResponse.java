@@ -54,8 +54,8 @@ public class ProfilesListXMLResponse extends XMLResponse
 	{
 		writer.writeEmptyElement("record");
 		writer.writeAttribute("Name", nfo.getName());
-		writer.writeAttribute(PARENT, pathAbstractor.getRelativePath(nfo.file.getParentFile().toPath()).toString());
-		writer.writeAttribute("File", nfo.file.getName());
+		writer.writeAttribute(PARENT, pathAbstractor.getRelativePath(nfo.getFile().getParentFile().toPath()).toString());
+		writer.writeAttribute("File", nfo.getFile().getName());
 		writer.writeAttribute("version", nfo.getVersion());
 		writer.writeAttribute("haveSets", nfo.getHaveSets());
 		writer.writeAttribute("haveRoms", nfo.getHaveRoms());
@@ -117,8 +117,8 @@ public class ProfilesListXMLResponse extends XMLResponse
 				writer.writeElement(STATUS, "0");
 				writer.writeStartElement("data");
 				writer.writeEmptyElement("record");
-				writer.writeAttribute(PARENT, pathAbstractor.getRelativePath(nfo.file.getParentFile().toPath()).toString());
-				writer.writeAttribute("File", nfo.file.getName());
+				writer.writeAttribute(PARENT, pathAbstractor.getRelativePath(nfo.getFile().getParentFile().toPath()).toString());
+				writer.writeAttribute("File", nfo.getFile().getName());
 				writer.writeEndElement();
 				writer.writeEndElement();
 			}

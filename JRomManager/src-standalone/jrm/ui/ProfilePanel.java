@@ -203,9 +203,9 @@ public class ProfilePanel extends JPanel
 				mntmDeleteProfile.setEnabled(profilesList.getSelectedRowCount() > 0);
 				mntmRenameProfile.setEnabled(profilesList.getSelectedRowCount() > 0);
 				mntmDropCache.setEnabled(profilesList.getSelectedRowCount() > 0);
-				mntmUpdateFromMame.setEnabled(profilesList.getSelectedRowCount() > 0 && EnumSet.of(MameStatus.NEEDUPDATE, MameStatus.NOTFOUND).contains(filemodel.getNfoAt(profilesList.getSelectedRow()).mame.getStatus()));
+				mntmUpdateFromMame.setEnabled(profilesList.getSelectedRowCount() > 0 && EnumSet.of(MameStatus.NEEDUPDATE, MameStatus.NOTFOUND).contains(filemodel.getNfoAt(profilesList.getSelectedRow()).getMame().getStatus()));
 				if (profilesList.getSelectedRowCount() > 0)
-					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text") + " (" + filemodel.getNfoAt(profilesList.getSelectedRow()).mame.getStatus().getMsg() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text") + " (" + filemodel.getNfoAt(profilesList.getSelectedRow()).getMame().getStatus().getMsg() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				else
 					mntmUpdateFromMame.setText(Messages.getString("MainFrame.mntmUpdateFromMame.text")); //$NON-NLS-1$
 			}
@@ -263,9 +263,9 @@ public class ProfilePanel extends JPanel
 				try
 				{
 					final ProfileNFO nfo = filemodel.getNfoAt(row);
-					if (nfo.mame.getStatus() == MameStatus.NEEDUPDATE || (nfo.mame.getStatus() == MameStatus.NOTFOUND && new JRMFileChooser<MameStatus>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, nfo.mame.getFile(), null, Messages.getString("MainFrame.ChooseMameNewLocation"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$
+					if (nfo.getMame().getStatus() == MameStatus.NEEDUPDATE || (nfo.getMame().getStatus() == MameStatus.NOTFOUND && new JRMFileChooser<MameStatus>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, null, nfo.getMame().getFile(), null, Messages.getString("MainFrame.ChooseMameNewLocation"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$
 						if (chooser.getSelectedFile().exists())
-							return nfo.mame.relocate(chooser.getSelectedFile());
+							return nfo.getMame().relocate(chooser.getSelectedFile());
 						return MameStatus.NOTFOUND;
 					}) == MameStatus.NEEDUPDATE))
 					{
@@ -275,7 +275,7 @@ public class ProfilePanel extends JPanel
 							@Override
 							protected Import doInBackground() throws Exception
 							{
-								return new Import(session, nfo.mame.getFile(), nfo.mame.isSL(), this);
+								return new Import(session, nfo.getMame().getFile(), nfo.getMame().isSL(), this);
 							}
 
 							@Override
@@ -284,16 +284,16 @@ public class ProfilePanel extends JPanel
 								try
 								{
 									Import imprt = get();
-									nfo.mame.delete();
-									nfo.mame.setFileroms(new File(nfo.file.getParentFile(), imprt.roms_file.getName()));
-									Files.copy(imprt.roms_file.toPath(), nfo.mame.getFileroms().toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-									if (nfo.mame.isSL())
+									nfo.getMame().delete();
+									nfo.getMame().setFileroms(new File(nfo.getFile().getParentFile(), imprt.getRomsFile().getName()));
+									Files.copy(imprt.getRomsFile().toPath(), nfo.getMame().getFileroms().toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+									if (nfo.getMame().isSL())
 									{
-										nfo.mame.setFilesl(new File(nfo.file.getParentFile(), imprt.sl_file.getName()));
-										Files.copy(imprt.sl_file.toPath(), nfo.mame.getFilesl().toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+										nfo.getMame().setFilesl(new File(nfo.getFile().getParentFile(), imprt.getSlFile().getName()));
+										Files.copy(imprt.getSlFile().toPath(), nfo.getMame().getFilesl().toPath(), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
 									}
-									nfo.mame.setUpdated();
-									nfo.stats.reset();
+									nfo.getMame().setUpdated();
+									nfo.getStats().reset();
 									nfo.save(session);
 									close();
 								}
@@ -416,8 +416,7 @@ public class ProfilePanel extends JPanel
 			{
 				return Messages.getString("MainFrame.MameExecutable"); //$NON-NLS-1$
 			}
-		}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		);
+		}, new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml"));
 		new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToImport", (String) null)).map(File::new).orElse(null), null, filters, Messages.getString("MainFrame.ChooseExeOrDatToImport"), true).show(SwingUtilities.getWindowAncestor(this), chooser -> {
 			new SwingWorkerProgress<Void, Import>(SwingUtilities.getWindowAncestor(this))
 			{
@@ -439,10 +438,10 @@ public class ProfilePanel extends JPanel
 				{
 					for (val imprt : imprts)
 					{
-						if (!imprt.is_mame)
+						if (!imprt.isMame())
 						{
 							final var currDir = ((FileTableModel) profilesList.getModel()).getCurrDir().getFile();
-							var file = new File(currDir, imprt.file.getName());
+							var file = new File(currDir, imprt.getFile().getName());
 							int mode = -1;
 							if (file.exists())
 							{
@@ -467,7 +466,7 @@ public class ProfilePanel extends JPanel
 							{
 								try
 								{
-									FileUtils.copyFile(imprt.file, file);
+									FileUtils.copyFile(imprt.getFile(), file);
 									((FileTableModel) profilesList.getModel()).populate(session);
 									continue;
 								}
@@ -479,24 +478,24 @@ public class ProfilePanel extends JPanel
 						}
 						final var workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
 						final var xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$
-						new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.file.getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false).show(SwingUtilities.getWindowAncestor(ProfilePanel.this), chooser1 -> {
+						new JRMFileChooser<Void>(new OneRootFileSystemView(xmldir)).setup(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, null, new File(xmldir, imprt.getFile().getName()), Collections.singletonList(new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml", "jrm")), Messages.getString("MainFrame.ChooseFileName"), false).show(SwingUtilities.getWindowAncestor(ProfilePanel.this), chooser1 -> {
 							try
 							{
 								final var file = chooser1.getSelectedFile();
 								final var parent = file.getParentFile();
-								FileUtils.copyFile(imprt.file, file);
-								if (imprt.is_mame)
+								FileUtils.copyFile(imprt.getFile(), file);
+								if (imprt.isMame())
 								{
 									final var pnfo = ProfileNFO.load(session, file);
-									pnfo.mame.set(imprt.org_file, sl);
-									if (imprt.roms_file != null)
+									pnfo.getMame().set(imprt.getOrgFile(), sl);
+									if (imprt.getRomsFile() != null)
 									{
-										FileUtils.copyFileToDirectory(imprt.roms_file, parent);
-										pnfo.mame.setFileroms(new File(parent, imprt.roms_file.getName()));
-										if (imprt.sl_file != null)
+										FileUtils.copyFileToDirectory(imprt.getRomsFile(), parent);
+										pnfo.getMame().setFileroms(new File(parent, imprt.getRomsFile().getName()));
+										if (imprt.getSlFile() != null)
 										{
-											FileUtils.copyFileToDirectory(imprt.sl_file, parent);
-											pnfo.mame.setFilesl(new File(parent, imprt.sl_file.getName()));
+											FileUtils.copyFileToDirectory(imprt.getSlFile(), parent);
+											pnfo.getMame().setFilesl(new File(parent, imprt.getSlFile().getName()));
 										}
 									}
 									pnfo.save(session);
@@ -514,10 +513,10 @@ public class ProfilePanel extends JPanel
 										profilesTree.setSelectionPath(new TreePath(model.getPathToRoot(theNode)));
 									}
 									else
-										System.err.println(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
+										Log.err(Messages.getString("MainFrame.FinalNodeNotFound")); //$NON-NLS-1$
 								}
 								else
-									System.err.println(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
+									Log.err(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
 							}
 							catch (final IOException e)
 							{

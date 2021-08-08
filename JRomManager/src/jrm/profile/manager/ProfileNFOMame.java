@@ -35,7 +35,17 @@ import lombok.Setter;
  */
 public final class ProfileNFOMame implements Serializable
 {
-	private static final long serialVersionUID = 1L;
+	private static final String FILESL_STR = "filesl";
+
+	private static final String FILEROMS_STR = "fileroms";
+
+	private static final String SL_STR = "sl";
+
+	private static final String MODIFIED_STR = "modified";
+
+	private static final String FILE_STR = "file";
+
+	private static final long serialVersionUID = 2L;
 
 	/**
 	 * The mame executable file
@@ -67,11 +77,11 @@ public final class ProfileNFOMame implements Serializable
 	 * @serialField filesl File dat file for software lists
 	 */
 	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
-			new ObjectStreamField("file", File.class), //$NON-NLS-1$
-			new ObjectStreamField("modified", Long.class), //$NON-NLS-1$
-			new ObjectStreamField("sl", Boolean.TYPE), //$NON-NLS-1$
-			new ObjectStreamField("fileroms", File.class), //$NON-NLS-1$
-			new ObjectStreamField("filesl", File.class), //$NON-NLS-1$
+			new ObjectStreamField(FILE_STR, File.class), //$NON-NLS-1$
+			new ObjectStreamField(MODIFIED_STR, Long.class), //$NON-NLS-1$
+			new ObjectStreamField(SL_STR, Boolean.TYPE), //$NON-NLS-1$
+			new ObjectStreamField(FILEROMS_STR, File.class), //$NON-NLS-1$
+			new ObjectStreamField(FILESL_STR, File.class), //$NON-NLS-1$
 	};
 
 	/**
@@ -82,11 +92,11 @@ public final class ProfileNFOMame implements Serializable
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final var fields = stream.putFields();
-		fields.put("file", file); //$NON-NLS-1$
-		fields.put("modified", modified); //$NON-NLS-1$
-		fields.put("sl", sl); //$NON-NLS-1$
-		fields.put("fileroms", fileroms); //$NON-NLS-1$
-		fields.put("filesl", filesl); //$NON-NLS-1$
+		fields.put(FILE_STR, file); //$NON-NLS-1$
+		fields.put(MODIFIED_STR, modified); //$NON-NLS-1$
+		fields.put(SL_STR, sl); //$NON-NLS-1$
+		fields.put(FILEROMS_STR, fileroms); //$NON-NLS-1$
+		fields.put(FILESL_STR, filesl); //$NON-NLS-1$
 		stream.writeFields();
 	}
 
@@ -99,11 +109,11 @@ public final class ProfileNFOMame implements Serializable
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
-		file = (File) fields.get("file", null); //$NON-NLS-1$
-		modified = (Long) fields.get("modified", null); //$NON-NLS-1$
-		sl = fields.get("sl", false); //$NON-NLS-1$
-		fileroms = (File)fields.get("fileroms", null); //$NON-NLS-1$
-		filesl = (File)fields.get("filesl", null); //$NON-NLS-1$
+		file = (File) fields.get(FILE_STR, null); //$NON-NLS-1$
+		modified = (Long) fields.get(MODIFIED_STR, null); //$NON-NLS-1$
+		sl = fields.get(SL_STR, false); //$NON-NLS-1$
+		fileroms = (File)fields.get(FILEROMS_STR, null); //$NON-NLS-1$
+		filesl = (File)fields.get(FILESL_STR, null); //$NON-NLS-1$
 	}
 
 	/**

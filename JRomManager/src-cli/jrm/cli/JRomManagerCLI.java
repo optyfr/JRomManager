@@ -79,7 +79,7 @@ public class JRomManagerCLI
 				do
 				{
 					if (session.getCurrProfile() != null)
-						System.out.format("jrm [%s]> ", session.getCurrProfile().getNfo().file.getName()); //$NON-NLS-1$
+						System.out.format("jrm [%s]> ", session.getCurrProfile().getNfo().getFile().getName()); //$NON-NLS-1$
 					else
 						System.out.print("jrm> "); //$NON-NLS-1$
 					analyze(splitLine(console.readLine()));

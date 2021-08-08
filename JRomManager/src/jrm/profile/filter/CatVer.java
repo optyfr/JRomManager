@@ -395,7 +395,7 @@ public final class CatVer implements Iterable<jrm.profile.filter.CatVer.Category
 						if(v.length == 2)
 						{
 							final var cat = categories.computeIfAbsent(v[0].trim(), Category::new);
-							final var subcat = cat.computeIfAbsent(v[1].trim(), s -> cat.new SubCategory(s));
+							final var subcat = cat.computeIfAbsent(v[1].trim(), s -> cat.new SubCategory(s));	//NOSONAR
 							subcat.add(kv[0].trim());
 						}
 					}

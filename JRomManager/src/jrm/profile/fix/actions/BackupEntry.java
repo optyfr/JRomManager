@@ -106,7 +106,7 @@ public class BackupEntry extends EntryAction
 		catch(final Exception e)
 		{
 			Log.err(e.getMessage(),e);
-			System.err.println("add from " + entry.getParent().getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstPath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			Log.err("add from " + entry.getParent().getRelFile() + "@" + srcpath + " to " + parent.container.getFile().getName() + "@" + dstPath + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 		return false;
 	}

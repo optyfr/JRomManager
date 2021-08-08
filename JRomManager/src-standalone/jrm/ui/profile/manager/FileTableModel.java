@@ -111,7 +111,7 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 	 */
 	public File getFileAt(final int row)
 	{
-		return getNfoAt(row).file;
+		return getNfoAt(row).getFile();
 	}
 
 	/**
@@ -181,13 +181,13 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 		{
 			final ProfileNFO pnfo = rows.get(rowIndex);
 			Arrays.asList("", ".properties", ".cache").forEach(ext -> { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				final var oldfile = new File(currDir.getFile(), pnfo.name + ext);
+				final var oldfile = new File(currDir.getFile(), pnfo.getName() + ext);
 				final var newfile = new File(currDir.getFile(), aValue + ext);
 				if(oldfile.renameTo(newfile))
 					Log.warn(()->"Can't rename "+oldfile.getName()+" to "+newfile.getName());
 			});
 			final var newNfoFile = new File(currDir.getFile(), aValue.toString());
-			if(session.getCurrProfile() != null && session.getCurrProfile().getNfo().file.equals(pnfo.file))
+			if(session.getCurrProfile() != null && session.getCurrProfile().getNfo().getFile().equals(pnfo.getFile()))
 				session.getCurrProfile().getNfo().relocate(session, newNfoFile);
 			pnfo.relocate(session, newNfoFile);
 			fireTableCellUpdated(rowIndex, rowIndex);

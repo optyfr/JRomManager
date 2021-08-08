@@ -55,7 +55,7 @@ public class ProfileActions extends PathAbstractor
 				{
 					final var sl = jsobj.getBoolean("sl", false);
 					final var imprt = new Import(session, new File(filename), sl, session.getWorker().progress);
-					if (imprt.file != null)
+					if (imprt.getFile() != null)
 						doImport(session, jsobj, sl, imprt);
 					else
 						new GlobalActions(ws).warn("Could not import anything from Mame");
@@ -92,26 +92,26 @@ public class ProfileActions extends PathAbstractor
 	private void doImport(WebSession session, JsonObject jsobj, final boolean sl, final Import imprt) throws SecurityException, IOException
 	{
 		final var parent = getAbsolutePath(Optional.ofNullable(jsobj.get("parent")).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().getSettings().getWorkPath().toString())).toFile();
-		final var file = new File(parent, imprt.file.getName());
-		FileUtils.copyFile(imprt.file, file);
+		final var file = new File(parent, imprt.getFile().getName());
+		FileUtils.copyFile(imprt.getFile(), file);
 		final var pnfo = ProfileNFO.load(session, file);
-		pnfo.mame.set(imprt.org_file, sl);
-		if (imprt.roms_file != null)
+		pnfo.getMame().set(imprt.getOrgFile(), sl);
+		if (imprt.getRomsFile() != null)
 		{
-			FileUtils.copyFileToDirectory(imprt.roms_file, parent);
-			pnfo.mame.setFileroms(new File(parent, imprt.roms_file.getName()));
+			FileUtils.copyFileToDirectory(imprt.getRomsFile(), parent);
+			pnfo.getMame().setFileroms(new File(parent, imprt.getRomsFile().getName()));
 			if (sl)
 			{
-				if (imprt.sl_file != null)
+				if (imprt.getSlFile() != null)
 				{
-					FileUtils.copyFileToDirectory(imprt.sl_file, parent);
-					pnfo.mame.setFilesl(new File(parent, imprt.sl_file.getName()));
+					FileUtils.copyFileToDirectory(imprt.getSlFile(), parent);
+					pnfo.getMame().setFilesl(new File(parent, imprt.getSlFile().getName()));
 				}
 				else
 					new GlobalActions(ws).warn("Could not import softwares list");
 			}
 			pnfo.save(session);
-			imported(pnfo.file);
+			imported(pnfo.getFile());
 		}
 		else
 		{

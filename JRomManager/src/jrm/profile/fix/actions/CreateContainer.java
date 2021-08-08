@@ -96,7 +96,7 @@ public class CreateContainer extends ContainerAction
 						i++;
 						if (!action.doAction(session, fs, handler, i, entryActions.size() ))
 						{
-							System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							return false;
 						}
 					}
@@ -118,7 +118,7 @@ public class CreateContainer extends ContainerAction
 						i++;
 						if (!action.doAction(session, archive, handler, i, entryActions.size()))
 						{
-							System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							return false;
 						}
 					}
@@ -141,7 +141,7 @@ public class CreateContainer extends ContainerAction
 					i++;
 					if (!action.doAction(session, archive, handler, i, entryActions.size()))
 					{
-						System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
 					}
 				}
@@ -170,7 +170,7 @@ public class CreateContainer extends ContainerAction
 					i++;
 					if (!action.doAction(session, target, handler, i, entryActions.size()))
 					{
-						System.err.println("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;
 					}
 				}

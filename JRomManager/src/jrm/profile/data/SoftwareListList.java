@@ -47,6 +47,8 @@ import jrm.xml.EnhancedXMLStreamWriter;
 @SuppressWarnings("serial")
 public final class SoftwareListList extends AnywareListList<SoftwareList> implements Serializable, ByName<SoftwareList>
 {
+	private static final String N_OF_T = "%d/%d";
+
 	/**
 	 * The {@link List} of {@link SoftwareList}
 	 */
@@ -149,11 +151,11 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 			else
 				writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			progress.setProgress("Exporting", 0, lists.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
-			progress.setProgress2(String.format("%d/%d", 0, lists.size()), 0, lists.size()); //$NON-NLS-1$
+			progress.setProgress2(String.format(N_OF_T, 0, lists.size()), 0, lists.size()); //$NON-NLS-1$
 			for(final SoftwareList list : lists)
 			{
 				list.export(writer, filtered, progress);
-				progress.setProgress2(String.format("%d/%d", progress.getValue2()+1, lists.size()), progress.getValue2()+1); //$NON-NLS-1$
+				progress.setProgress2(String.format(N_OF_T, progress.getValue2()+1, lists.size()), progress.getValue2()+1); //$NON-NLS-1$
 			}
 			writer.writeEndDocument();
 		}
@@ -225,6 +227,6 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	@Override
 	public String getHaveTot(int i)
 	{
-		return String.format("%d/%d", getFilteredList().get(i).countHave(), getFilteredList().get(i).countAll()); //$NON-NLS-1$
+		return String.format(N_OF_T, getFilteredList().get(i).countHave(), getFilteredList().get(i).countAll()); //$NON-NLS-1$
 	}
 }

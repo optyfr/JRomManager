@@ -1,6 +1,9 @@
 package jrm.profile.manager;
 
 import java.io.File;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import jrm.misc.Tree;
 
 public class DirTree extends Tree<Dir>
@@ -18,19 +21,16 @@ public class DirTree extends Tree<Dir>
 
 	private void buildDirTree(Node<Dir> node)
 	{
-		if (node.getData() != null)
-		{
-			File dirfile = node.getData().getFile();
-			if (dirfile != null && dirfile.isDirectory())
-			{
-				File[] listFiles = dirfile.listFiles();
-				if (listFiles != null)
-				{
-					for (final File file : listFiles)
-						if (file != null && file.isDirectory())
-							buildDirTree(node.addChild(new Dir(file)));
-				}
-			}
-		}
+		Optional.ofNullable(node.getData()).ifPresent(data -> 
+			Optional.ofNullable(data.getFile()).filter(File::isDirectory).ifPresent(dirfile -> 
+				Optional.ofNullable(dirfile.listFiles()).ifPresent(listFiles -> 
+					Stream.of(listFiles).forEach(file -> 
+						Optional.ofNullable(file).filter(File::isDirectory).ifPresent(f -> 
+							buildDirTree(node.addChild(new Dir(f)))
+						)
+					)
+				)
+			)
+		);
 	}
 }

@@ -24,6 +24,7 @@ import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
@@ -78,7 +79,7 @@ public class DeleteContainer extends ContainerAction
 			}
 			catch(final IOException e)
 			{
-				System.err.println("failed to delete " + container.getRelFile() + " ("+e.getMessage()+")"); //$NON-NLS-1$
+				Log.err("failed to delete " + container.getRelFile() + " ("+e.getMessage()+")"); //$NON-NLS-1$
 				if(container.getFile().exists())
 					FileUtils.deleteQuietly(container.getFile());
 				return true;
@@ -95,7 +96,7 @@ public class DeleteContainer extends ContainerAction
 				}
 				catch(final IOException e)
 				{
-					System.err.println("failed to delete " + container.getRelFile()); //$NON-NLS-1$
+					Log.err("failed to delete " + container.getRelFile()); //$NON-NLS-1$
 					return false;
 				}
 			}

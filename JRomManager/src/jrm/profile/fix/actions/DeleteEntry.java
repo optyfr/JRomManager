@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
 import jrm.locale.Messages;
+import jrm.misc.Log;
 import jrm.profile.data.Entry;
 import jrm.security.Session;
 
@@ -55,7 +56,7 @@ public class DeleteEntry extends EntryAction
 		}
 		catch(final Exception e)
 		{
-			System.err.println("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Log.err("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}
@@ -73,7 +74,7 @@ public class DeleteEntry extends EntryAction
 		}
 		catch(final Exception e)
 		{
-			System.err.println("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Log.err("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}
@@ -88,7 +89,7 @@ public class DeleteEntry extends EntryAction
 		}
 		catch(final Exception e)
 		{
-			System.err.println("delete " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Log.err("delete " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}
