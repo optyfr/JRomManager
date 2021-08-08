@@ -92,9 +92,9 @@ public class DirUpdater
 						new Fix(session.getCurrProfile(), scan, progress);
 						new Scan(session.getCurrProfile(), progress, scancache);
 					}
-					total += session.getReport().stats.set_create + session.getReport().stats.set_found + session.getReport().stats.set_missing;
-					ok += session.getReport().stats.set_create_complete + session.getReport().stats.set_found_fixcomplete + session.getReport().stats.set_found_ok;
-					dur.add(datlist[j],new Report.Stats(session.getReport().stats));
+					total += session.getReport().getStats().getSetCreate() + session.getReport().getStats().getSetFound() + session.getReport().getStats().getSetMissing();
+					ok += session.getReport().getStats().getSetCreateComplete() + session.getReport().getStats().getSetFoundFixComplete() + session.getReport().getStats().getSetFoundOk();
+					dur.add(datlist[j],new Report.Stats(session.getReport().getStats()));
 					session.getReport().save(session);
 					result.updateResult(row, String.format(session.getMsgs().getString("DirUpdater.Result"), ok * 100.0 / total, total - ok, total)); //$NON-NLS-1$
 				}

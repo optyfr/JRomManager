@@ -20,6 +20,7 @@ import jrm.profile.data.AnywareBase;
  */
 public class SubjectSet extends Subject implements Serializable
 {
+	private static final String STATUS_STR = "status";
 	private static final long serialVersionUID = 1L;
 	/**
 	 * The current {@link Status}
@@ -58,19 +59,21 @@ public class SubjectSet extends Subject implements Serializable
 		MISSING;
 	}
 
-	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("status", Status.class)};
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
+		new ObjectStreamField(STATUS_STR, Status.class)
+	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
-		fields.put("status", status);
+		fields.put(STATUS_STR, status);
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
-		status = (Status)fields.get("status", Status.UNKNOWN);
+		status = (Status)fields.get(STATUS_STR, Status.UNKNOWN);
 	}
 
 	
@@ -109,11 +112,7 @@ public class SubjectSet extends Subject implements Serializable
 	 */
 	public List<Note> filter(final List<FilterOptions> filterOptions)
 	{
-		return notes.stream().filter(n->{
-			if(!filterOptions.contains(FilterOptions.SHOWOK) && n instanceof EntryOK)
-				return false;
-			return true;
-		}).collect(Collectors.toList());
+		return notes.stream().filter(n -> !(!filterOptions.contains(FilterOptions.SHOWOK) && n instanceof EntryOK)).collect(Collectors.toList());
 	}
 
 	/**
@@ -290,34 +289,45 @@ public class SubjectSet extends Subject implements Serializable
 		switch(status)
 		{
 			case MISSING:
-				parent.stats.set_missing++;
+				parent.getStats().incSetMissing();
 				break;
 			case UNNEEDED:
-				parent.stats.set_unneeded++;
+				parent.getStats().incSetUnneeded();
 				break;
 			case FOUND:
-				parent.stats.set_found++;
+				parent.getStats().incSetFound();
 				if(hasNotes())
 				{
 					if(isFixable())
-						parent.stats.set_found_fixcomplete++;
+						parent.getStats().incSetFoundFixComplete();
 					else
-						parent.stats.set_found_fixpartial++;
+						parent.getStats().incSetFoundFixPartial();
 				}
 				else
-					parent.stats.set_found_ok++;
+					parent.getStats().incSetFoundOk();
 				break;
 			case CREATE:
 			case CREATEFULL:
-				parent.stats.set_create++;
+				parent.getStats().incSetCreate();
 				if(isFixable())
-					parent.stats.set_create_complete++;
+					parent.getStats().incSetCreateComplete();
 				else
-					parent.stats.set_create_partial++;
+					parent.getStats().incSetCreatePartial();
 				break;
 			default:
 				break;
 		}
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		return super.equals(o);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
 }

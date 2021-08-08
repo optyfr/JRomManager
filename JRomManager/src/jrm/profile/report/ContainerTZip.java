@@ -17,6 +17,8 @@ import jrm.profile.data.Container;
  */
 public class ContainerTZip extends Subject implements Serializable
 {
+	private static final String CONTAINER_STR = "container";
+
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -24,19 +26,21 @@ public class ContainerTZip extends Subject implements Serializable
 	 */
 	Container container;
 
-	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("container", Container.class)};
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
+		new ObjectStreamField(CONTAINER_STR, Container.class)
+	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
-		fields.put("container", container);
+		fields.put(CONTAINER_STR, container);
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
-		container = (Container)fields.get("container", null);
+		container = (Container)fields.get(CONTAINER_STR, null);
 	}
 
 
@@ -71,6 +75,19 @@ public class ContainerTZip extends Subject implements Serializable
 	@Override
 	public void updateStats()
 	{
+		// do nothing
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		return super.equals(o);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
 	}
 
 }

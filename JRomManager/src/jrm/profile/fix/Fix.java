@@ -113,7 +113,7 @@ public class Fix
 		// reset progression to normal before leaving
 		progress.setInfos(1,false);
 		// set stats last fixed date to 'now'
-		currProfile.getNfo().stats.fixed = new Date();
+		currProfile.getNfo().stats.setFixed(new Date());
 		
 		// output to console timing information
 		Log.info(()->"Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$

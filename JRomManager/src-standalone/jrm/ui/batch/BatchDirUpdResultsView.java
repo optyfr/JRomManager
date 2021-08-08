@@ -71,11 +71,11 @@ public class BatchDirUpdResultsView extends JScrollPane
 						case 0:
 							return result.getDat().toString();
 						case 1:
-							return result.getStats().set_create_complete + result.getStats().set_found_fixcomplete + result.getStats().set_found_ok;
+							return result.getStats().getSetCreateComplete() + result.getStats().getSetFoundFixComplete() + result.getStats().getSetFoundOk();
 						case 2:
-							return result.getStats().set_create + result.getStats().set_found + result.getStats().set_missing - (result.getStats().set_create_complete + result.getStats().set_found_fixcomplete + result.getStats().set_found_ok);
+							return result.getStats().getSetCreate() + result.getStats().getSetFound() + result.getStats().getSetMissing() - (result.getStats().getSetCreateComplete() + result.getStats().getSetFoundFixComplete() + result.getStats().getSetFoundOk());
 						case 3:
-							return result.getStats().set_create + result.getStats().set_found + result.getStats().set_missing;
+							return result.getStats().getSetCreate() + result.getStats().getSetFound() + result.getStats().getSetMissing();
 						case 4:
 							return "Report";
 						default:

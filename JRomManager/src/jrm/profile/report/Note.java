@@ -9,7 +9,7 @@ import jrm.misc.HTMLRenderer;
  * @author optyfr
  *
  */
-public abstract class Note implements HTMLRenderer,Serializable
+public abstract class Note implements HTMLRenderer, Serializable
 {
 	private static final long serialVersionUID = 2L;
 	/**
@@ -18,21 +18,7 @@ public abstract class Note implements HTMLRenderer,Serializable
 	transient Subject parent;
 	
 	transient int id = -1;
-/*
-	private static final ObjectStreamField[] serialPersistentFields = {};
 
-	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
-	{
-//		final ObjectOutputStream.PutField fields = stream.putFields();
-//		stream.writeFields();
-	}
-
-	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
-	{
-//		final ObjectInputStream.GetField fields = stream.readFields();
-//		parent = null;
-	}
-*/
 	@Override
 	public abstract String toString();
 	

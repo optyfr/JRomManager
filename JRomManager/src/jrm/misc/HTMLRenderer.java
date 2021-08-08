@@ -16,6 +16,8 @@
  */
 package jrm.misc;
 
+import java.util.Optional;
+
 import org.apache.commons.text.StringEscapeUtils;
 
 import lombok.Setter;
@@ -66,6 +68,11 @@ public interface HTMLRenderer
 		return "<html>"+str+"</html>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	public default String toStr(Object any)
+	{
+		return Optional.ofNullable(any).map(Object::toString).orElse("");
+	}
+	
 	/**
 	 * Wrap {@code <nobr>} and {@code </nobr>} tags around a string
 	 * @param str the string to wrap

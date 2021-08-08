@@ -25,7 +25,9 @@ public class RomSuspiciousCRC extends Subject implements Serializable
 	 */
 	String crc;
 
-	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("crc", String.class)};
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
+		new ObjectStreamField("crc", String.class)
+	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
@@ -71,6 +73,18 @@ public class RomSuspiciousCRC extends Subject implements Serializable
 	@Override
 	public void updateStats()
 	{
-
+		// do nothing
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		return super.equals(o);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
 	}
 }

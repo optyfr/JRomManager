@@ -95,7 +95,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 		end = Math.min(nodecount - 1, operation.getEndRow());
 		writer.writeElement("endRow", Integer.toString(end));
 		writer.writeElement("totalRows", Integer.toString(nodecount));
-		writer.writeElement("infos", report.stats.getStatus());
+		writer.writeElement("infos", report.getStats().getStatus());
 
 		if (nodecount > 0)
 		{

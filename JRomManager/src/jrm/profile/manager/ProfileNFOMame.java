@@ -66,7 +66,7 @@ public final class ProfileNFOMame implements Serializable
 	 * @serialField fileroms File dat file for roms
 	 * @serialField filesl File dat file for software lists
 	 */
-	private static final ObjectStreamField[] serialPersistentFields = {
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
 			new ObjectStreamField("file", File.class), //$NON-NLS-1$
 			new ObjectStreamField("modified", Long.class), //$NON-NLS-1$
 			new ObjectStreamField("sl", Boolean.TYPE), //$NON-NLS-1$

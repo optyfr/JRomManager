@@ -51,6 +51,18 @@ public class ContainerUnknown extends Subject implements Serializable
 	@Override
 	public void updateStats()
 	{
+		// do nothing
 	}
-
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		return super.equals(o);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
 }

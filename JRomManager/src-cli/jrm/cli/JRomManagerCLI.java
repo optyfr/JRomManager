@@ -238,7 +238,7 @@ public class JRomManagerCLI
 						return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
 					if (session.getReport() == null)
 						return error(CLIMessages.getString("CLI_ERR_NoReport")); //$NON-NLS-1$
-					System.out.println(session.getReport().stats.getStatus());
+					System.out.println(session.getReport().getStats().getStatus());
 					return 0;
 				case FIX:
 					if (session.getCurrScan() == null)

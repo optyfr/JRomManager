@@ -1331,12 +1331,12 @@ public class Profile implements Serializable
 		profile.buildParentClonesRelations();
 		// update nfo stats (those to keep serialized)
 		if(profile.build!=null)
-			profile.nfo.stats.version = profile.build;
+			profile.nfo.stats.setVersion(profile.build);
 		else
-			profile.nfo.stats.version = profile.header.containsKey("version") ? profile.header.get("version").toString() : null; //$NON-NLS-1$ //$NON-NLS-2$
-		profile.nfo.stats.totalSets = profile.softwaresCnt + profile.machinesCnt;
-		profile.nfo.stats.totalRoms = profile.romsCnt + profile.swromsCnt;
-		profile.nfo.stats.totalDisks = profile.disksCnt + profile.swdisksCnt;
+			profile.nfo.stats.setVersion(profile.header.containsKey("version") ? profile.header.get("version").toString() : null); //$NON-NLS-1$ //$NON-NLS-2$
+		profile.nfo.stats.setTotalSets(profile.softwaresCnt + profile.machinesCnt);
+		profile.nfo.stats.setTotalRoms(profile.romsCnt + profile.swromsCnt);
+		profile.nfo.stats.setTotalDisks(profile.disksCnt + profile.swdisksCnt);
 		// Load profile settings
 		handler.setProgress("Loading settings...", -1); //$NON-NLS-1$
 		profile.loadSettings();

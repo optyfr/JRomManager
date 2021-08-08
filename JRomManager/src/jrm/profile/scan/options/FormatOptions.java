@@ -17,6 +17,7 @@
 package jrm.profile.scan.options;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.locale.Messages;
@@ -90,7 +91,7 @@ public @RequiredArgsConstructor enum FormatOptions
 		 * get all extensions except the current one (and {@link #DIR})
 		 * @return an {@link EnumSet} of {@link Ext}
 		 */
-		public EnumSet<Ext> allExcept()
+		public Set<Ext> allExcept()
 		{
 			return EnumSet.complementOf(EnumSet.of(this, DIR));
 		}
@@ -118,7 +119,7 @@ public @RequiredArgsConstructor enum FormatOptions
 	 * get all formats except current one (and {@link #DIR})
 	 * @return an {@link EnumSet} of {@link FormatOptions}
 	 */
-	public EnumSet<FormatOptions> allExcept()
+	public Set<FormatOptions> allExcept()
 	{
 		return EnumSet.complementOf(EnumSet.of(this, DIR));
 	}

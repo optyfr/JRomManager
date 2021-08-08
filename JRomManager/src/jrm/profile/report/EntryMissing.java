@@ -20,6 +20,10 @@ import jrm.profile.data.Entry;
  */
 public class EntryMissing extends Note implements Serializable
 {
+	private static final String ENTRY_MISSING_MISSING = "EntryMissing.Missing";
+
+	private static final String ENTITY_STR = "entity";
+
 	private static final long serialVersionUID = 2L;
 
 	/**
@@ -27,19 +31,21 @@ public class EntryMissing extends Note implements Serializable
 	 */
 	EntityBase entity;
 
-	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("entity", EntityBase.class)};
-
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
+		new ObjectStreamField(ENTITY_STR, EntityBase.class)
+	};
+	
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
-		fields.put("entity", entity);
+		fields.put(ENTITY_STR, entity);
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
-		entity = (EntityBase)fields.get("entity", null);
+		entity = (EntityBase)fields.get(ENTITY_STR, null);
 	}
 
 	/**
@@ -54,7 +60,7 @@ public class EntryMissing extends Note implements Serializable
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("EntryMissing.Missing"), parent.ware.getFullName(), entity.getName()); //$NON-NLS-1$
+		return String.format(Messages.getString(ENTRY_MISSING_MISSING), parent.ware.getFullName(), entity.getName()); //$NON-NLS-1$
 	}
 
 	@Override
@@ -63,10 +69,16 @@ public class EntryMissing extends Note implements Serializable
 		if(entity instanceof Entity)
 		{
 			Entity e = (Entity)entity;
-			String hash = e.getSha1()==null?(e.getMd5()==null?e.getCrc():e.getMd5()):e.getSha1();
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissing.Missing")), toBlue(parent.ware.getFullName()), toBold(entity.getName())) + " ("+hash+")"); //$NON-NLS-1$
+			final String hash;
+			if (e.getSha1() != null)
+				hash = e.getSha1();
+			else if (e.getMd5() != null)
+				hash = e.getMd5();
+			else
+				hash = e.getCrc();
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName())) + " ("+hash+")"); //$NON-NLS-1$
 		}
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryMissing.Missing")), toBlue(parent.ware.getFullName()), toBold(entity.getName()))); //$NON-NLS-1$
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName()))); //$NON-NLS-1$
 	}
 
 	@Override

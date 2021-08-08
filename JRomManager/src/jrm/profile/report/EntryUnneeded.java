@@ -32,13 +32,27 @@ public class EntryUnneeded extends Note implements Serializable
 	@Override
 	public String toString()
 	{
-		return String.format(Messages.getString("EntryUnneeded.Unneeded"), parent.ware.getFullName(), entry.getRelFile(), entry.getSha1()==null?(entry.getMd5()==null?entry.getCrc():entry.getMd5()):entry.getSha1()); //$NON-NLS-1$
+		final String hash;
+		if (entry.getSha1() != null)
+			hash = entry.getSha1();
+		else if (entry.getMd5() != null)
+			hash = entry.getMd5();
+		else
+			hash = entry.getCrc();
+		return String.format(Messages.getString("EntryUnneeded.Unneeded"), parent.ware.getFullName(), entry.getRelFile(), hash); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getHTML()
 	{
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryUnneeded.Unneeded")), toBold(parent.ware.getFullName()), toBold(entry.getRelFile()), entry.getSha1()==null?(entry.getMd5()==null?entry.getCrc():entry.getMd5()):entry.getSha1())); //$NON-NLS-1$
+		final String hash;
+		if (entry.getSha1() != null)
+			hash = entry.getSha1();
+		else if (entry.getMd5() != null)
+			hash = entry.getMd5();
+		else
+			hash = entry.getCrc();
+		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryUnneeded.Unneeded")), toBold(parent.ware.getFullName()), toBold(entry.getRelFile()), hash)); //$NON-NLS-1$
 	}
 
 	@Override

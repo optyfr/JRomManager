@@ -504,10 +504,10 @@ public class Scan extends PathAbstractor
 			report.flush();
 			/* update and save stats */
 			final var nfo = profile.getNfo();
-			nfo.stats.scanned = new Date();
-			nfo.stats.haveSets = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).mapToLong(AnywareList::countHave).sum();
-			nfo.stats.haveRoms = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum();
-			nfo.stats.haveDisks = Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum();
+			nfo.stats.setScanned(new Date());
+			nfo.stats.setHaveSets(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).mapToLong(AnywareList::countHave).sum());
+			nfo.stats.setHaveRoms(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum());
+			nfo.stats.setHaveDisks(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum());
 			nfo.save(profile.getSession());
 			/* save again profile cache with scan entity status */
 			profile.save(); 
@@ -806,7 +806,7 @@ public class Scan extends PathAbstractor
 					}
 					if (foundEntry == null)
 					{
-						report.stats.missing_disks_cnt++;
+						report.getStats().incMissingDisksCnt();
 						for (final DirScan scan : allScans)
 						{
 							if (null != (foundEntry = scan.findByHash(disk)))
@@ -858,7 +858,7 @@ public class Scan extends PathAbstractor
 				CreateContainer createSet = null;
 				for (final Disk disk : disks)
 				{
-					report.stats.missing_disks_cnt++;
+					report.getStats().incMissingDisksCnt();
 					Entry foundEntry = null;
 					for (final DirScan scan : allScans)
 					{
@@ -1133,7 +1133,7 @@ public class Scan extends PathAbstractor
 */
 					if (foundEntry == null)	// did not find rom in container
 					{
-						report.stats.missing_roms_cnt++;
+						report.getStats().incMissingRomsCnt();
 						for (final DirScan scan : allScans)	// now search for rom in all available dir scans
 						{
 							if (null != (foundEntry = scan.findByHash(rom)))
@@ -1189,7 +1189,7 @@ public class Scan extends PathAbstractor
 				CreateContainer createSet = null;
 				for (final Rom rom : roms)
 				{
-					report.stats.missing_roms_cnt++;
+					report.getStats().incMissingRomsCnt();
 					Entry entryFound = null;
 					for (final DirScan scan : allScans)	// search rom in all scans
 					{
@@ -1244,7 +1244,7 @@ public class Scan extends PathAbstractor
 		if (createMode && reportSubject.getStatus() == Status.UNKNOWN)
 			reportSubject.setMissing();
 		if (missingSet)
-			report.stats.missing_set_cnt++;
+			report.getStats().incMissingSetCnt();
 		if (reportSubject.getStatus() != Status.UNKNOWN)
 			report.add(reportSubject);
 		prepTZip(reportSubject, archive, set);
@@ -1286,7 +1286,7 @@ public class Scan extends PathAbstractor
 				}
 				if (foundEntry == null)
 				{
-					report.stats.missing_samples_cnt++;
+					report.getStats().incMissingSamplesCnt();
 					for (final DirScan scan : allScans)
 					{
 						for (final FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
@@ -1346,7 +1346,7 @@ public class Scan extends PathAbstractor
 				CreateContainer createSet = null;
 				for (final Sample sample : set)
 				{
-					report.stats.missing_samples_cnt++;
+					report.getStats().incMissingSamplesCnt();
 					Entry entryFound = null;
 					for (final DirScan scan : allScans)
 					{
@@ -1446,7 +1446,7 @@ public class Scan extends PathAbstractor
 			removeOtherFormats(ware);
 		}
 		if (missingSet)
-			report.stats.missing_set_cnt++;
+			report.getStats().incMissingSetCnt();
 		if (reportSubject.getStatus() != Status.UNKNOWN)
 			report.add(reportSubject);
 	}

@@ -35,11 +35,11 @@ public class BatchDat2DirResultXMLResponse extends XMLResponse
 			{
 				writer.writeElement("record", 
 					new SimpleAttribute("src", pathAbstractor.getRelativePath((result.getDat()))),
-					new SimpleAttribute("have", result.getStats().set_found_ok),
-					new SimpleAttribute("create", result.getStats().set_create_complete),
-					new SimpleAttribute("fix", result.getStats().set_found_fixcomplete),
-					new SimpleAttribute("miss", result.getStats().set_create + result.getStats().set_found + result.getStats().set_missing - (result.getStats().set_create_complete + result.getStats().set_found_fixcomplete + result.getStats().set_found_ok)),
-					new SimpleAttribute("total", result.getStats().set_create + result.getStats().set_found + result.getStats().set_missing)
+					new SimpleAttribute("have", result.getStats().getSetFoundOk()),
+					new SimpleAttribute("create", result.getStats().getSetCreateComplete()),
+					new SimpleAttribute("fix", result.getStats().getSetFoundFixComplete()),
+					new SimpleAttribute("miss", result.getStats().getSetCreate() + result.getStats().getSetFound() + result.getStats().getSetMissing() - (result.getStats().getSetCreateComplete() + result.getStats().getSetFoundFixComplete() + result.getStats().getSetFoundOk())),
+					new SimpleAttribute("total", result.getStats().getSetCreate() + result.getStats().getSetFound() + result.getStats().getSetMissing())
 				);
 			}
 		}

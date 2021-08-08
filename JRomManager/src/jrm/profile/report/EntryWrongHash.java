@@ -16,6 +16,7 @@ import jrm.profile.data.Entry;
 @SuppressWarnings("serial")
 public class EntryWrongHash extends Note implements Serializable
 {
+	private static final String ENTRY_WRONG_HASH_WRONG = "EntryWrongHash.Wrong";
 	/**
 	 * related {@link Entity} 
 	 */
@@ -40,22 +41,22 @@ public class EntryWrongHash extends Note implements Serializable
 	public String toString()
 	{
 		if(entry.getMd5() == null && entry.getSha1() == null)
-			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.ware.getFullName(), entry.getRelFile(), "CRC", entry.getCrc(), entity.getCrc()); //$NON-NLS-1$ //$NON-NLS-2$
+			return String.format(Messages.getString(ENTRY_WRONG_HASH_WRONG), parent.ware.getFullName(), entry.getRelFile(), "CRC", entry.getCrc(), entity.getCrc()); //$NON-NLS-1$ //$NON-NLS-2$
 		else if(entry.getSha1() == null)
-			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.ware.getFullName(), entry.getRelFile(), "MD5", entry.getMd5(), entity.getMd5()); //$NON-NLS-1$ //$NON-NLS-2$
+			return String.format(Messages.getString(ENTRY_WRONG_HASH_WRONG), parent.ware.getFullName(), entry.getRelFile(), "MD5", entry.getMd5(), entity.getMd5()); //$NON-NLS-1$ //$NON-NLS-2$
 		else
-			return String.format(Messages.getString("EntryWrongHash.Wrong"), parent.ware.getFullName(), entry.getRelFile(), "SHA-1", entry.getSha1(), entity.getSha1()); //$NON-NLS-1$ //$NON-NLS-2$
+			return String.format(Messages.getString(ENTRY_WRONG_HASH_WRONG), parent.ware.getFullName(), entry.getRelFile(), "SHA-1", entry.getSha1(), entity.getSha1()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
 	public String getHTML()
 	{
 		if(entry.getMd5() == null && entry.getSha1() == null)
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "CRC", entry.getCrc(), entity.getCrc())); //$NON-NLS-1$ //$NON-NLS-2$
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "CRC", entry.getCrc(), entity.getCrc())); //$NON-NLS-1$ //$NON-NLS-2$
 		else if(entry.getSha1() == null)
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "MD5", entry.getMd5(), entity.getMd5())); //$NON-NLS-1$ //$NON-NLS-2$
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "MD5", entry.getMd5(), entity.getMd5())); //$NON-NLS-1$ //$NON-NLS-2$
 		else
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongHash.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "SHA-1", entry.getSha1(), entity.getSha1())); //$NON-NLS-1$ //$NON-NLS-2$
+			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "SHA-1", entry.getSha1(), entity.getSha1())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override

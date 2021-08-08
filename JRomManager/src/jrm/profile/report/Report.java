@@ -20,7 +20,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -53,6 +52,7 @@ import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.security.Session;
 import lombok.Getter;
+import lombok.Setter;
 import one.util.streamex.IntStreamEx;
 
 /**
@@ -62,13 +62,15 @@ import one.util.streamex.IntStreamEx;
  */
 public class Report extends AbstractList<Subject> implements HTMLRenderer, Serializable
 {
+	private static final String STATS_STR = "stats";
+	private static final String SUBJECTS_STR = "subjects";
 	private static final long serialVersionUID = 2L;
 	/**
 	 * the related {@link Profile}
 	 */
 	private transient Profile profile = null;
 	private transient File file = null;
-	private transient long file_modified = 0L;
+	private transient long fileModified = 0L;
 	/**
 	 * the {@link List} of {@link Subject} nodes
 	 */
@@ -77,17 +79,17 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	/**
 	 * a {@link Map} of {@link Subject} by fullname {@link String}
 	 */
-	private transient Map<String, Subject> subject_hash;
+	private transient Map<String, Subject> subjectHash;
 
 
 	private transient int id;
-	private transient AtomicInteger id_cnt;
+	private transient AtomicInteger idCnt;
 	private transient Map<Integer,Object> all;
 	
 	/**
 	 * The {@link Stats} object
 	 */
-	public Stats stats;
+	private @Getter Stats stats;
 
 	/**
 	 * the linked UI tree model
@@ -95,13 +97,16 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	private transient ReportTreeHandler handler = null;
 
 	
-	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("subjects", List.class), new ObjectStreamField("stats", Stats.class)}; //$NON-NLS-1$ //$NON-NLS-2$
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
+		new ObjectStreamField(SUBJECTS_STR, List.class),
+		new ObjectStreamField(STATS_STR, Stats.class)
+	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
-		fields.put("subjects", subjects); //$NON-NLS-1$
-		fields.put("stats", stats); //$NON-NLS-1$
+		fields.put(SUBJECTS_STR, subjects); //$NON-NLS-1$
+		fields.put(STATS_STR, stats); //$NON-NLS-1$
 		stream.writeFields();
 	}
 
@@ -109,54 +114,121 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
-		subjects = (List<Subject>) fields.get("subjects", Collections.synchronizedList(new ArrayList<>())); //$NON-NLS-1$
-		stats = (Stats) fields.get("stats", new Stats()); //$NON-NLS-1$
-		subject_hash = subjects.stream().peek(s->s.parent=this).collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
+		subjects = (List<Subject>) fields.get(SUBJECTS_STR, Collections.synchronizedList(new ArrayList<>())); //$NON-NLS-1$
+		stats = (Stats) fields.get(STATS_STR, new Stats()); //$NON-NLS-1$
+		subjectHash = subjects.stream()
+				.peek(s -> s.parent = this)	//NOSONAR
+				.collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		filterPredicate = new FilterPredicate(new ArrayList<>());
 		handler = new ReportTreeDefaultHandler(this);
 	}
 
 	public static class Stats implements Serializable
 	{
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 2L;
 		
-		public int missing_set_cnt = 0;
-		public int missing_roms_cnt = 0;
-		public int missing_disks_cnt = 0;
-		public int missing_samples_cnt = 0;
+		private @Getter @Setter int missingSetCnt = 0;
+		private @Getter @Setter int missingRomsCnt = 0;
+		private @Getter @Setter int missingDisksCnt = 0;
+		private @Getter @Setter int missingSamplesCnt = 0;
 
-		public int set_unneeded = 0;
-		public int set_missing = 0;
-		public int set_found = 0;
-		public int set_found_ok = 0;
-		public int set_found_fixpartial = 0;
-		public int set_found_fixcomplete = 0;
-		public int set_create = 0;
-		public int set_create_partial = 0;
-		public int set_create_complete = 0;
+		private @Getter @Setter int setUnneeded = 0;
+		private @Getter @Setter int setMissing = 0;
+		private @Getter @Setter int setFound = 0;
+		private @Getter @Setter int setFoundOk = 0;
+		private @Getter @Setter int setFoundFixPartial = 0;
+		private @Getter @Setter int setFoundFixComplete = 0;
+		private @Getter @Setter int setCreate = 0;
+		private @Getter @Setter int setCreatePartial = 0;
+		private @Getter @Setter int setCreateComplete = 0;
 
 		public Stats(Stats org)
 		{
-			this.missing_set_cnt = org.missing_set_cnt;
-			this.missing_roms_cnt = org.missing_roms_cnt;
-			this.missing_disks_cnt = org.missing_disks_cnt;
-			this.missing_samples_cnt = org.missing_samples_cnt;
-			this.set_unneeded = org.set_unneeded;
-			this.set_missing = org.set_missing;
-			this.set_found = org.set_found;
-			this.set_found_ok = org.set_found_ok;
-			this.set_found_fixpartial = org.set_found_fixpartial;
-			this.set_found_fixcomplete = org.set_found_fixcomplete;
-			this.set_create = org.set_create;
-			this.set_create_partial = org.set_create_partial;
-			this.set_create_complete = org.set_create_complete;
+			this.missingSetCnt = org.missingSetCnt;
+			this.missingRomsCnt = org.missingRomsCnt;
+			this.missingDisksCnt = org.missingDisksCnt;
+			this.missingSamplesCnt = org.missingSamplesCnt;
+			this.setUnneeded = org.setUnneeded;
+			this.setMissing = org.setMissing;
+			this.setFound = org.setFound;
+			this.setFoundOk = org.setFoundOk;
+			this.setFoundFixPartial = org.setFoundFixPartial;
+			this.setFoundFixComplete = org.setFoundFixComplete;
+			this.setCreate = org.setCreate;
+			this.setCreatePartial = org.setCreatePartial;
+			this.setCreateComplete = org.setCreateComplete;
 		}
 		
 		public Stats()
 		{
 			
 		}
-				
+
+		public void incMissingSetCnt()
+		{
+			++missingSetCnt;
+		}
+		
+		public void incMissingRomsCnt()
+		{
+			++missingRomsCnt;
+		}
+		
+		public void incMissingDisksCnt()
+		{
+			++missingDisksCnt;
+		}
+		
+		public void incMissingSamplesCnt()
+		{
+			++missingSamplesCnt;
+		}
+		
+		public void incSetUnneeded()
+		{
+			++setUnneeded;
+		}
+		
+		public void incSetMissing()
+		{
+			++setMissing;
+		}
+		
+		public void incSetFound()
+		{
+			++setFound;
+		}
+		
+		public void incSetFoundOk()
+		{
+			++setFoundOk;
+		}
+		
+		public void incSetFoundFixPartial()
+		{
+			++setFoundFixPartial;
+		}
+		
+		public void incSetFoundFixComplete()
+		{
+			++setFoundFixComplete;
+		}
+		
+		public void incSetCreate()
+		{
+			++setCreate;
+		}
+		
+		public void incSetCreatePartial()
+		{
+			++setCreatePartial;
+		}
+		
+		public void incSetCreateComplete()
+		{
+			++setCreateComplete;
+		}
+		
 		/**
 		 * clear stats
 		 */
@@ -165,56 +237,56 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 			/**
 			 * number of missing sets
 			 */
-			missing_set_cnt = 0;
+			missingSetCnt = 0;
 			/**
 			 * number of missing roms
 			 */
-			missing_roms_cnt = 0;
+			missingRomsCnt = 0;
 			/**
 			 * number of missing disks
 			 */
-			missing_disks_cnt = 0;
+			missingDisksCnt = 0;
 			/**
 			 * number of missing samples
 			 */
-			missing_samples_cnt = 0;
+			missingSamplesCnt = 0;
 
 			/**
 			 * number of unneeded set
 			 */
-			set_unneeded = 0;
+			setUnneeded = 0;
 			/**
 			 * number of missing set
 			 */
-			set_missing = 0;
+			setMissing = 0;
 			/**
 			 * number of set found
 			 */
-			set_found = 0;
+			setFound = 0;
 			/**
 			 * number of set found ok
 			 */
-			set_found_ok = 0;
+			setFoundOk = 0;
 			/**
 			 * number of set found with partial fix
 			 */
-			set_found_fixpartial = 0;
+			setFoundFixPartial = 0;
 			/**
 			 * number of set found with complete fix
 			 */
-			set_found_fixcomplete = 0;
+			setFoundFixComplete = 0;
 			/**
 			 * number of set that will be created
 			 */
-			set_create = 0;
+			setCreate = 0;
 			/**
 			 * number of set that will be created partially
 			 */
-			set_create_partial = 0;
+			setCreatePartial = 0;
 			/**
 			 * number of set that will be fully created
 			 */
-			set_create_complete = 0;
+			setCreateComplete = 0;
 		}
 
 		/**
@@ -223,7 +295,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		 */
 		public String getStatus()
 		{
-			return String.format(Messages.getString("Report.Status"), set_found, set_found_ok, set_found_fixpartial, set_found_fixcomplete, set_create, set_create_partial, set_create_complete, set_missing, set_unneeded, set_found + set_create, set_found + set_create + set_missing); //$NON-NLS-1$
+			return String.format(Messages.getString("Report.Status"), setFound, setFoundOk, setFoundFixPartial, setFoundFixComplete, setCreate, setCreatePartial, setCreateComplete, setMissing, setUnneeded, setFound + setCreate, setFound + setCreate + setMissing); //$NON-NLS-1$
 		}
 	}
 
@@ -233,7 +305,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	public Report()
 	{
 		subjects = Collections.synchronizedList(new ArrayList<>());
-		subject_hash = Collections.synchronizedMap(new HashMap<>());
+		subjectHash = Collections.synchronizedMap(new HashMap<>());
 		stats = new Stats();
 		handler = new ReportTreeDefaultHandler(this);
 	}
@@ -264,7 +336,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		{
 			if(!filterOptions.contains(FilterOptions.SHOWOK) && t instanceof SubjectSet && ((SubjectSet) t).isOK())
 				return false;
-			if(filterOptions.contains(FilterOptions.HIDEMISSING) && t instanceof SubjectSet && ((SubjectSet) t).isMissing())
+			if(filterOptions.contains(FilterOptions.HIDEMISSING) && t instanceof SubjectSet && ((SubjectSet) t).isMissing())	//NOSONAR
 				return false;
 			return true;
 		}
@@ -284,23 +356,27 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	private Report(final Report report, final List<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
-		id_cnt = new AtomicInteger();
+		idCnt = new AtomicInteger();
 		all = new HashMap<>();
-		id = id_cnt.getAndIncrement();
+		id = idCnt.getAndIncrement();
 		all.put(id, this);
 		handler = report.handler;
 		profile = report.profile;
 		subjects = report.filter(filterOptions);
 		for(Subject s : subjects)
 		{
-			all.put(s.id = id_cnt.getAndIncrement(), s);
+			s.id = idCnt.getAndIncrement();
+			all.put(s.id, s);
 			for(Note n : s)
-				all.put(n.id = id_cnt.getAndIncrement(), n);
+			{
+				n.id = idCnt.getAndIncrement();
+				all.put(n.id, n);
+			}
 		}
-		subject_hash = subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
+		subjectHash = subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		stats = report.stats;
 		file = report.file;
-		file_modified = report.file_modified;
+		fileModified = report.fileModified;
 	}
 
 	/**
@@ -339,9 +415,9 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	 */
 	public void reset()
 	{
-		subject_hash.clear();
+		subjectHash.clear();
 		subjects.clear();
-		insert_object_cache.clear();
+		insertObjectCache.clear();
 		stats.clear();
 		if(handler != null)
 			handler.filter(filterPredicate.filterOptions);
@@ -386,7 +462,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		Object obj = all.get(id);
 		if(obj instanceof Subject)
 			return (Subject) obj;
-		return null;
+		return null;	//NOSONAR
 	}
 
 	/**
@@ -396,7 +472,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	 */
 	public Subject findSubject(final Anyware ware)
 	{
-		return ware != null ? subject_hash.get(ware.getFullName()) : null;
+		return ware != null ? subjectHash.get(ware.getFullName()) : null;
 	}
 
 	/**
@@ -409,18 +485,18 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	{
 		if(ware != null)
 		{
-			if(subject_hash.containsKey(ware.getFullName()))
-				return subject_hash.get(ware.getFullName());
+			if(subjectHash.containsKey(ware.getFullName()))
+				return subjectHash.get(ware.getFullName());
 			add(def);
 			return def;
 		}
-		return null;
+		return null;	//NOSONAR
 	}
 
 	/**
 	 * cache made to trigger ui notification events as few as possible
 	 */
-	private transient final Map<Integer, Subject> insert_object_cache = Collections.synchronizedMap(new LinkedHashMap<>(250));
+	private final transient Map<Integer, Subject> insertObjectCache = Collections.synchronizedMap(new LinkedHashMap<>(250));
 
 	/**
 	 * add a {@link Subject} to the Report
@@ -433,12 +509,13 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		subject.parent = this;	// initialize subject.parent
 		if(all!=null)
 		{
-			all.put(subject.id = id_cnt.getAndIncrement(),subject);
+			subject.id = idCnt.getAndIncrement();
+			all.put(subject.id,subject);
 			for(Note n : subject)
-				n.id = id_cnt.getAndIncrement();
+				n.id = idCnt.getAndIncrement();
 		}
 		if(subject.ware != null)	// add to subject_hash if there is a subject.ware
-			subject_hash.put(subject.ware.getFullName(), subject);
+			subjectHash.put(subject.ware.getFullName(), subject);
 		final boolean result = subjects.add(subject); // add to subjects list and keep result
 		final Report clone = handler.getFilteredReport();	// get model Report clone (filtered one)
 		if(this != clone)	// if this report is not already the clone itself then update clone
@@ -446,10 +523,10 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 			subject.updateStats();
 			if(filterPredicate.test(subject))	// manually test predicate
 			{
-				final Subject cloned_subject = subject.clone(filterPredicate.filterOptions);	// clone the subject according filterPredicate
-				clone.add(cloned_subject);	// then call this method on clone object
-				insert_object_cache.put(clone.subjects.size() - 1, cloned_subject);	// insert cloned subject into insert event cache
-				if(insert_object_cache.size() >= 250)	// and call flush only if the event cache is at least 250 objects
+				final Subject clonedSubject = subject.clone(filterPredicate.filterOptions);	// clone the subject according filterPredicate
+				clone.add(clonedSubject);	// then call this method on clone object
+				insertObjectCache.put(clone.subjects.size() - 1, clonedSubject);	// insert cloned subject into insert event cache
+				if(insertObjectCache.size() >= 250)	// and call flush only if the event cache is at least 250 objects
 					flush();
 			}
 		}
@@ -463,11 +540,11 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	{
 		if(statusHandler != null)
 			statusHandler.setStatus(stats.getStatus());
-		if(insert_object_cache.size() > 0)
+		if(insertObjectCache.size() > 0)
 		{
 			if(handler.hasListeners())
-				handler.notifyInsertion(IntStreamEx.of(insert_object_cache.keySet()).toArray(), insert_object_cache.values().toArray());
-			insert_object_cache.clear();
+				handler.notifyInsertion(IntStreamEx.of(insertObjectCache.keySet()).toArray(), insertObjectCache.values().toArray());
+			insertObjectCache.clear();
 		}
 	}
 
@@ -479,34 +556,28 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		final File workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
 		final File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
 		reportdir.mkdirs();
-		final File report_file = new File(reportdir, "report-"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".log"); //$NON-NLS-1$
-		try(PrintWriter report_w = new PrintWriter(report_file))
+		final File reportFile = new File(reportdir, "report-"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".log"); //$NON-NLS-1$
+		try(PrintWriter reportWriter = new PrintWriter(reportFile))
 		{
-			report_w.println("=== Scanned Profile ===");
-			report_w.println(profile.getNfo().file);
-			report_w.println();
-			report_w.println("=== Used Profile Properties ===");
-			profile.getSettings().getProperties().store(report_w, null);
-			report_w.println();
-			report_w.println("=== Scanner Report ===");
+			reportWriter.println("=== Scanned Profile ===");
+			reportWriter.println(profile.getNfo().file);
+			reportWriter.println();
+			reportWriter.println("=== Used Profile Properties ===");
+			profile.getSettings().getProperties().store(reportWriter, null);
+			reportWriter.println();
+			reportWriter.println("=== Scanner Report ===");
 			subjects.forEach(subject -> {
-				report_w.println(subject);
-				subject.notes.forEach(note -> {
-					report_w.println("\t" + note); //$NON-NLS-1$
-				});
+				reportWriter.println(subject);
+				subject.notes.forEach(note -> reportWriter.println("\t" + note));	//$NON-NLS-1$
 			});
-			report_w.println();
-			report_w.println("=== Statistics ===");
-			report_w.println(String.format(Messages.getString("Report.MissingSets"), stats.missing_set_cnt, profile.getMachinesCnt())); //$NON-NLS-1$
-			report_w.println(String.format(Messages.getString("Report.MissingRoms"), stats.missing_roms_cnt, profile.getRomsCnt())); //$NON-NLS-1$
-			report_w.println(String.format(Messages.getString("Report.MissingDisks"), stats.missing_disks_cnt, profile.getDisksCnt())); //$NON-NLS-1$
-			int total = stats.set_create + stats.set_found + stats.set_missing;
-			int ok = stats.set_create_complete + stats.set_found_fixcomplete + stats.set_found_ok;
-			report_w.println(String.format("Missing sets after Fix : %d\n", total - ok)); //$NON-NLS-1$
-		}
-		catch(final FileNotFoundException e)
-		{
-			Log.err(e.getMessage(),e);
+			reportWriter.println();
+			reportWriter.println("=== Statistics ===");
+			reportWriter.println(String.format(Messages.getString("Report.MissingSets"), stats.missingSetCnt, profile.getMachinesCnt())); //$NON-NLS-1$
+			reportWriter.println(String.format(Messages.getString("Report.MissingRoms"), stats.missingRomsCnt, profile.getRomsCnt())); //$NON-NLS-1$
+			reportWriter.println(String.format(Messages.getString("Report.MissingDisks"), stats.missingDisksCnt, profile.getDisksCnt())); //$NON-NLS-1$
+			int total = stats.setCreate + stats.setFound + stats.setMissing;
+			int ok = stats.setCreateComplete + stats.setFoundFixComplete + stats.setFoundOk;
+			reportWriter.println(String.format("Missing sets after Fix : %d%n", total - ok)); //$NON-NLS-1$
 		}
 		catch(final IOException e)
 		{
@@ -523,7 +594,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	
 	public long getFileModified()
 	{
-		return file_modified;
+		return fileModified;
 	}
 	
 	public File getReportFile(final Session session)
@@ -551,8 +622,9 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		{
 			oos.writeObject(Report.this);
 		}
-		catch (final Throwable e)
+		catch (final Exception e)
 		{
+			// do nothing
 		}
 	}
 	
@@ -562,15 +634,15 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		{
 			Report report = (Report)ois.readObject();
 			report.file = file;
-			report.file_modified = getReportFile(session, file).lastModified();
+			report.fileModified = getReportFile(session, file).lastModified();
 			report.handler = new ReportTreeDefaultHandler(report);
 			return report;
 		}
-		catch (final Throwable e)
+		catch (final Exception e)
 		{
 			// may fail to load because serialized classes did change since last cache save 
 		}
-		return null;
+		return null;	//NOSONAR
 	}
 
 	public int getId()
@@ -594,6 +666,18 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	public String toString()
 	{
 		return "Report";
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		return super.equals(o);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
 	}
 	
 }

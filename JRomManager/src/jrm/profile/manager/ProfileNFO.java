@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -60,7 +61,19 @@ import jrm.security.Session;
  */
 public final class ProfileNFO implements Serializable, HTMLRenderer
 {
-	private static final long serialVersionUID = 2L;
+	private static final String U = "?";
+
+	private static final String U_OF_U = "?/?";
+
+	private static final String N_OF_T = "%s/%d";
+
+	private static final String JROMMANAGER_STR = "JRomManager";
+
+	private static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+
+	private static final String UNKNOWN_DATE = "????-??-?? ??:??:??";
+
+	private static final long serialVersionUID = 3L;
 
 	/**
 	 * The Profile {@link File} (can be a jrm, a dat, or an xml file)
@@ -91,7 +104,12 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	 * @serialField mame
 	 *                  ProfileNFOMame the mame infos relates to the profile
 	 */
-	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("file", File.class), new ObjectStreamField("name", String.class), new ObjectStreamField("stats", ProfileNFOStats.class), new ObjectStreamField("mame", ProfileNFOMame.class), }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR 
+		new ObjectStreamField("file", File.class),
+		new ObjectStreamField("name", String.class),
+		new ObjectStreamField("stats", ProfileNFOStats.class),
+		new ObjectStreamField("mame", ProfileNFOMame.class)
+	};
 
 	/**
 	 * Manually write serialization
@@ -140,7 +158,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	{
 		this.file = file;
 		name = file.getName();
-		stats.created = new Date();
+		stats.setCreated(new Date());
 		if (isJRM())
 			loadJrm(file);
 	}
@@ -256,16 +274,16 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); // compliant
 			parser.parse(jrmfile, new DefaultHandler()
 			{
-				private boolean in_jrm = false;
+				private boolean inJrm = false;
 
 				@Override
 				public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException
 				{
-					if (qName.equalsIgnoreCase("JRomManager")) //$NON-NLS-1$
+					if (qName.equalsIgnoreCase(JROMMANAGER_STR)) //$NON-NLS-1$
 					{
-						in_jrm = true;
+						inJrm = true;
 					}
-					else if (qName.equalsIgnoreCase("Profile") && in_jrm) //$NON-NLS-1$
+					else if (qName.equalsIgnoreCase("Profile") && inJrm) //$NON-NLS-1$
 					{
 						for (var i = 0; i < attributes.getLength(); i++)
 						{
@@ -287,9 +305,9 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 				@Override
 				public void endElement(final String uri, final String localName, final String qName) throws SAXException
 				{
-					if (qName.equalsIgnoreCase("JRomManager")) //$NON-NLS-1$
+					if (qName.equalsIgnoreCase(JROMMANAGER_STR)) //$NON-NLS-1$
 					{
-						in_jrm = false;
+						inJrm = false;
 					}
 				}
 			});
@@ -320,7 +338,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 		final var docFactory = DocumentBuilderFactory.newInstance();
 		final var docBuilder = docFactory.newDocumentBuilder();
 		final var doc = docBuilder.newDocument();
-		final var rootElement = doc.createElement("JRomManager"); //$NON-NLS-1$
+		final var rootElement = doc.createElement(JROMMANAGER_STR); //$NON-NLS-1$
 		doc.appendChild(rootElement);
 		final var profile = doc.createElement("Profile"); //$NON-NLS-1$
 		profile.setAttribute("roms", romsFile.getName()); //$NON-NLS-1$
@@ -369,37 +387,94 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 
 	public String getVersion()
 	{
-		return toHTML(stats.version == null ? toGray("???") : toNoBR(stats.version)); //$NON-NLS-1$
+		return toHTML(Optional.ofNullable(stats.getVersion()).map(this::toNoBR).orElse(toGray("???"))); //$NON-NLS-1$
 	}
 
 	public String getHaveSets()
 	{
-		return toHTML(stats.haveSets == null ? (stats.totalSets == null ? toGray("?/?") : String.format("%s/%d", toGray("?"), stats.totalSets)) : String.format("%s/%d", stats.haveSets == 0 && stats.totalSets > 0 ? toRed("0") : (stats.haveSets.equals(stats.totalSets) ? toGreen(stats.haveSets + "") : toOrange(stats.haveSets + "")), stats.totalSets)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+		final String have;
+		if(stats.getHaveSets() == null)
+		{
+			if((stats.getTotalSets() == null))
+				have = toGray(U_OF_U);
+			else
+				have = String.format(N_OF_T, toGray(U), stats.getTotalSets());
+		}
+		else
+		{
+			final String n;
+			if(stats.getHaveSets() == 0 && stats.getTotalSets() > 0)
+				n = toRed("0");
+			else if(stats.getHaveSets().equals(stats.getTotalSets()))
+				n = toGreen(toStr(stats.getHaveSets()));
+			else
+				n = toOrange(toStr(stats.getHaveSets())); 
+			have = String.format(N_OF_T, n, stats.getTotalSets());
+		}
+		return toHTML(have);
 	}
 
 	public String getHaveRoms()
 	{
-		return toHTML(stats.haveRoms == null ? (stats.totalRoms == null ? toGray("?/?") : String.format("%s/%d", toGray("?"), stats.totalRoms)) : String.format("%s/%d", stats.haveRoms == 0 && stats.totalRoms > 0 ? toRed("0") : (stats.haveRoms.equals(stats.totalRoms) ? toGreen(stats.haveRoms + "") : toOrange(stats.haveRoms + "")), stats.totalRoms)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+		final String have;
+		if(stats.getHaveRoms() == null)
+		{
+			if(stats.getTotalRoms() == null)
+				have = toGray(U_OF_U);
+			else
+				have = String.format(N_OF_T, toGray(U), stats.getTotalRoms());
+		}
+		else
+		{
+			final String n;
+			if(stats.getHaveRoms() == 0 && stats.getTotalRoms() > 0)
+				n = toRed("0");
+			else if(stats.getHaveRoms().equals(stats.getTotalRoms()))
+				n = toGreen(toStr(stats.getHaveRoms()));
+			else
+				n = toOrange(toStr(stats.getHaveRoms())); 
+			have = String.format(N_OF_T, n, stats.getTotalRoms());
+		}
+		return toHTML(have);
 	}
 
 	public String getHaveDisks()
 	{
-		return toHTML(stats.haveDisks == null ? (stats.totalDisks == null ? toGray("?/?") : String.format("%s/%d", toGray("?"), stats.totalDisks)) : String.format("%s/%d", stats.haveDisks == 0 && stats.totalDisks > 0 ? toRed("0") : (stats.haveDisks.equals(stats.totalDisks) ? toGreen(stats.haveDisks + "") : toOrange(stats.haveDisks + "")), stats.totalDisks)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+		final String have;
+		if(stats.getHaveDisks() == null)
+		{
+			if(stats.getTotalDisks() == null)
+				have = toGray(U_OF_U);
+			else
+				have = String.format(N_OF_T, toGray(U), stats.getTotalDisks());
+		}
+		else
+		{
+			final String n;
+			if(stats.getHaveDisks() == 0 && stats.getTotalDisks() > 0)
+				n = toRed("0");
+			else if(stats.getHaveDisks().equals(stats.getTotalDisks()))
+				n = toGreen(toStr(stats.getHaveDisks()));
+			else
+				n = toOrange(toStr(stats.getHaveDisks()));
+			have = String.format(N_OF_T, n, stats.getTotalDisks());
+		}
+		return toHTML(have);
 	}
 
 	public String getCreated()
 	{
-		return toHTML(stats.created == null ? toGray("????-??-?? ??:??:??") : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(stats.created)); //$NON-NLS-1$ //$NON-NLS-2$
+		return toHTML(stats.getCreated() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getCreated())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String getScanned()
 	{
-		return toHTML(stats.scanned == null ? toGray("????-??-?? ??:??:??") : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(stats.scanned)); //$NON-NLS-1$ //$NON-NLS-2$
+		return toHTML(stats.getScanned() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getScanned())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String getFixed()
 	{
-		return toHTML(stats.fixed == null ? toGray("????-??-?? ??:??:??") : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(stats.fixed)); //$NON-NLS-1$ //$NON-NLS-2$
+		return toHTML(stats.getFixed() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getFixed())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public static List<ProfileNFO> list(Session session, File dir)

@@ -18,6 +18,9 @@ import lombok.Getter;
  */
 public abstract class Subject extends AbstractList<Note> implements HTMLRenderer, Serializable
 {
+	private static final String WARE_STR = "ware";
+	private static final String NOTES_STR = "notes";
+
 	private static final long serialVersionUID = 2L;
 
 	/**
@@ -37,13 +40,16 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 	
 	protected transient int id = -1;
 
-	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("ware", AnywareBase.class), new ObjectStreamField("notes", List.class)}; //$NON-NLS-1$ //$NON-NLS-2$
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
+		new ObjectStreamField(WARE_STR, AnywareBase.class),
+		new ObjectStreamField(NOTES_STR, List.class)
+	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final var fields = stream.putFields();
-		fields.put("ware", ware); //$NON-NLS-1$
-		fields.put("notes", notes); //$NON-NLS-1$
+		fields.put(WARE_STR, ware); //$NON-NLS-1$
+		fields.put(NOTES_STR, notes); //$NON-NLS-1$
 		stream.writeFields();
 	}
 
@@ -51,8 +57,8 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final var fields = stream.readFields();
-		ware = (AnywareBase) fields.get("ware", null); //$NON-NLS-1$
-		notes = (List<Note>) fields.get("notes", new ArrayList<>()); //$NON-NLS-1$
+		ware = (AnywareBase) fields.get(WARE_STR, null); //$NON-NLS-1$
+		notes = (List<Note>) fields.get(NOTES_STR, new ArrayList<>()); //$NON-NLS-1$
 		notes.forEach(n -> n.parent = this);
 	}
 	/**
