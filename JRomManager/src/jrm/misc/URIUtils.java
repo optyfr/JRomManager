@@ -13,7 +13,7 @@ import lombok.experimental.UtilityClass;
 
 public @UtilityClass class URIUtils
 {
-	public static boolean URIExists(String path)
+	public static boolean URIExists(String path)	//NOSONAR
 	{
 		try
 		{
@@ -26,7 +26,7 @@ public @UtilityClass class URIUtils
 		}
 	}
 
-	public static boolean URIExists(URI uri)
+	public static boolean URIExists(URI uri)	//NOSONAR
 	{
 		try
 		{

@@ -34,6 +34,7 @@ import jrm.io.torrent.bencoding.types.BDictionary;
 import jrm.io.torrent.bencoding.types.BInt;
 import jrm.io.torrent.bencoding.types.BList;
 import jrm.io.torrent.bencoding.types.IBencodable;
+import jrm.misc.Log;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -57,7 +58,7 @@ public @UtilityClass class TorrentParser
 		}
 		catch (ParseException e)
 		{
-			System.err.println("Error parsing torrent!"); //$NON-NLS-1$
+			Log.err("Error parsing torrent!"); //$NON-NLS-1$
 		}
 		return null;
 	}

@@ -38,6 +38,12 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class Disk extends Entity implements Serializable
 {
+	private static final String MERGE_STR = "merge";
+	private static final String WRITEABLE_STR = "writeable";
+	private static final String STATUS_STR = "status";
+	private static final String SHA1_STR = "sha1";
+	private static final String NAME_STR = "name";
+	private static final String DISK_STR = "disk";
 	/**
 	 * is the disk writable? default to false
 	 */
@@ -188,20 +194,20 @@ public class Disk extends Entity implements Serializable
 	{
 		if (parent instanceof Software)
 		{
-			writer.writeElement("disk", //$NON-NLS-1$
-					new SimpleAttribute("name", name), //$NON-NLS-1$
-					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
-					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
-					new SimpleAttribute("writeable", writeable ? "yes" : null) //$NON-NLS-1$ //$NON-NLS-2$
+			writer.writeElement(DISK_STR, //$NON-NLS-1$
+					new SimpleAttribute(NAME_STR, name), //$NON-NLS-1$
+					new SimpleAttribute(SHA1_STR, sha1), //$NON-NLS-1$
+					new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute(WRITEABLE_STR, writeable ? "yes" : null) //$NON-NLS-1$ //$NON-NLS-2$
 			);
 		}
 		else if (is_mame)
 		{
-			writer.writeElement("disk", //$NON-NLS-1$
-					new SimpleAttribute("name", name), //$NON-NLS-1$
-					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
-					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
+			writer.writeElement(DISK_STR, //$NON-NLS-1$
+					new SimpleAttribute(NAME_STR, name), //$NON-NLS-1$
+					new SimpleAttribute(SHA1_STR, sha1), //$NON-NLS-1$
+					new SimpleAttribute(MERGE_STR, merge), //$NON-NLS-1$
+					new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("optional", optional), //$NON-NLS-1$
 					new SimpleAttribute("region", region), //$NON-NLS-1$
 					new SimpleAttribute("writable", writeable ? "yes" : null), //$NON-NLS-1$ //$NON-NLS-2$
@@ -210,12 +216,12 @@ public class Disk extends Entity implements Serializable
 		}
 		else
 		{
-			writer.writeElement("disk", //$NON-NLS-1$
-					new SimpleAttribute("name", name), //$NON-NLS-1$
-					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
+			writer.writeElement(DISK_STR, //$NON-NLS-1$
+					new SimpleAttribute(NAME_STR, name), //$NON-NLS-1$
+					new SimpleAttribute(SHA1_STR, sha1), //$NON-NLS-1$
 					new SimpleAttribute("md5", md5), //$NON-NLS-1$
-					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", dumpStatus.getXML(is_mame)) //$NON-NLS-1$
+					new SimpleAttribute(MERGE_STR, merge), //$NON-NLS-1$
+					new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)) //$NON-NLS-1$
 			);
 		}
 	}

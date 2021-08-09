@@ -28,22 +28,6 @@ import jrm.profile.Profile;
 public abstract class AnywareBase extends NameBase implements Serializable
 {
 	private static final long serialVersionUID = 1L;
-
-	/*
-	private static final ObjectStreamField[] serialPersistentFields = {};
-
-	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
-	{
-//		final ObjectOutputStream.PutField fields = stream.putFields();
-//		stream.writeFields();
-	}
-
-	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
-	{
-//		final ObjectInputStream.GetField fields = stream.readFields();
-//		parent = null;
-	}
-*/
 	
 	/**
 	 * {@link AnywareBase} can have parent of the same type

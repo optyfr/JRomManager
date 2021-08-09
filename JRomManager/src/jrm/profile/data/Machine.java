@@ -135,8 +135,8 @@ public class Machine extends Anyware implements Serializable
 	 */
 	public enum SWStatus
 	{
-		original,
-		compatible
+		original,	//NOSONAR
+		compatible	//NOSONAR
 	}
 
 	/**
@@ -144,9 +144,9 @@ public class Machine extends Anyware implements Serializable
 	 */
 	public enum DisplayOrientation
 	{
-		any,
-		horizontal,
-		vertical;
+		any,	//NOSONAR
+		horizontal,	//NOSONAR
+		vertical	//NOSONAR
 	}
 
 	/**
@@ -154,9 +154,9 @@ public class Machine extends Anyware implements Serializable
 	 */
 	public enum CabinetType
 	{
-		any,
-		upright,
-		cocktail;
+		any,	//NOSONAR
+		upright,	//NOSONAR
+		cocktail	//NOSONAR
 	}
 
 	public Machine(Profile profile)

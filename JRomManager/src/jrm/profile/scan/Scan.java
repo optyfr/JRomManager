@@ -546,8 +546,6 @@ public class Scan extends PathAbstractor
 		{
 			if (c.getType() == Type.UNK)
 				unknown.add(c);
-/*			else if(c.getType() == Type.FAKE && format == FormatOptions.DIR)
-				unknown.add(c);*/
 			else if(c.getType() == Type.DIR && format == FormatOptions.FAKE)
 				unknown.add(c);
 			else if (!byname.containsFilteredName(getBaseName(c.getFile())))
@@ -747,30 +745,51 @@ public class Scan extends PathAbstractor
 					final var entriesByName = container.getEntriesByName();
 					for (final var candidateEntry : container.getEntries())
 					{
-						if (candidateEntry.equals(disk))
+						if (candidateEntry.equals(disk))	//NOSONAR
 						{
-							if (!disk.getNormalizedName().equals(candidateEntry.getName())) // but this entry name does not match the rom name
+							final String efile = candidateEntry.getName();
+							Log.debug(()->"The disk " + efile + " match hash from disk " + disk.getNormalizedName());
+							if (!disk.getNormalizedName().equals(candidateEntry.getName())) // but this entry name does not match the disk name
 							{
-								final Disk anotherDisk;
-								if (null != (anotherDisk = disksByName.get(candidateEntry.getName())) && candidateEntry.equals(anotherDisk))
+								Log.debug(()->"\tbut this disk name does not match the disk name");
+								final Disk anotherDisk = disksByName.get(candidateEntry.getName());
+								if (null != anotherDisk && candidateEntry.equals(anotherDisk))	//NOSONAR
 								{
+									Log.debug(()->"\t\t\tand the entry " + efile + " is ANOTHER disk");
 									if (entriesByName.containsKey(disk.getNormalizedName()))
 									{
-										// report_w.println("["+m.name+"] "+d.getName()+" == "+e.file);
+										Log.debug(()->"\t\t\t\tand disk " + disk.getNormalizedName() + " is in the entriesByName");
 									}
 									else
 									{
+										Log.debug(()->"\\t\\t\\t\\twe must duplicate disk " + disk.getNormalizedName() + " to ");
 										// we must duplicate
 										reportSubject.add(new EntryMissingDuplicate(disk, candidateEntry));
 										duplicateSet = OpenContainer.getInstance(duplicateSet, directory, format, 0L);
 										duplicateSet.addAction(new DuplicateEntry(disk.getName(), candidateEntry));
 										foundEntry = candidateEntry;
+										break;
 									}
 								}
 								else
 								{
+									if (anotherDisk == null)
+									{
+										Log.debug(() -> {
+											final var str = new StringBuilder("\t" + efile + " in disksByName not found");
+											disksByName.forEach((k, v) -> str.append("\tdisksByName: " + k));
+											return str.toString();
+										});
+									}
+									else
+										Log.debug(() -> "\t" + efile + " in disksByName found but does not match hash");
 									if (!entriesByName.containsKey(disk.getNormalizedName())) // and disk name is not in the entries
 									{
+										Log.debug(() -> {
+											final var str = new StringBuilder("\t\tand disk " + disk.getNormalizedName() + " is NOT in the entriesByName");
+											entriesByName.forEach((k, v) -> str.append("\t\tentriesByName: " + k));
+											return str.toString();
+										});
 										if(!markedForRename.contains(candidateEntry))
 										{
 											reportSubject.add(new EntryWrongName(disk, candidateEntry));
@@ -800,7 +819,6 @@ public class Scan extends PathAbstractor
 						else if (disk.getNormalizedName().equals(candidateEntry.getName()))
 						{
 							reportSubject.add(new EntryWrongHash(disk, candidateEntry));
-							// found = e;
 							break;
 						}
 					}
@@ -824,7 +842,6 @@ public class Scan extends PathAbstractor
 					{
 						disk.setStatus(EntityStatus.OK);
 						reportSubject.add(new EntryOK(disk));
-						// report_w.println("["+m.name+"] "+d.getName()+" ("+found.file+") OK ");
 						disksFound.add(foundEntry);
 					}
 				}
@@ -962,14 +979,13 @@ public class Scan extends PathAbstractor
 							if (!rom.getNormalizedName().equals(efile)) // but this entry name does not match the rom name
 							{
 								Log.debug(()->"\tbut this entry name does not match the rom name");
-								final Rom anotherRom;
-								if (null != (anotherRom = romsByName.get(efile)) && candidate_entry.equals(anotherRom))
+								final Rom anotherRom = romsByName.get(efile);
+								if (null != anotherRom && candidate_entry.equals(anotherRom))	//NOSONAR
 								{
 									Log.debug(()->"\t\t\tand the entry " + efile + " is ANOTHER rom");
 									if (entriesByName.containsKey(rom.getNormalizedName())) // and rom name is in the entries
 									{
-										Log.debug(()->"\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entries_byname");
-										// report_w.println("[" + m.name + "] " + r.getName() + " == " + e.file);
+										Log.debug(()->"\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
 									}
 									else
 									{
@@ -986,21 +1002,20 @@ public class Scan extends PathAbstractor
 								{
 									if (anotherRom == null)
 									{
-										Log.debug(()->
-										{
-											final var str = new StringBuilder("\t" + efile + " in roms_byname not found");
-											romsByName.forEach((k, v) -> str.append("\troms_byname: " + k));
+										Log.debug(() -> {
+											final var str = new StringBuilder("\t" + efile + " in romsByName not found");
+											romsByName.forEach((k, v) -> str.append("\tromsByName: " + k));
 											return str.toString();
 										});
 									}
-									else Log.debug(()->"\t" + efile + " in roms_byname found but does not match hash");
+									else
+										Log.debug(() -> "\t" + efile + " in romsByName found but does not match hash");
 
 									if (!entriesByName.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
 									{
-										Log.debug(()->
-										{
-											final var str = new StringBuilder("\t\tand rom " + rom.getNormalizedName() + " is NOT in the entries_byname");
-											entriesByName.forEach((k, v) -> str.append("\t\tentries_byname: " + k));
+										Log.debug(() -> {
+											final var str = new StringBuilder("\t\tand rom " + rom.getNormalizedName() + " is NOT in the entriesByName");
+											entriesByName.forEach((k, v) -> str.append("\t\tentriesByName: " + k));
 											return str.toString();
 										});
 
@@ -1019,13 +1034,10 @@ public class Scan extends PathAbstractor
 											duplicateSet = OpenContainer.getInstance(duplicateSet, archive, format, estimatedRomsSize);
 											duplicateSet.addAction(new DuplicateEntry(rom.getName(), candidate_entry));
 										}
-										//(backup_set = BackupContainer.getInstance(backup_set, archive)).addAction(new BackupEntry(candidate_entry));
-										//(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
-										// (delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(candidate_entry));
 										foundEntry = candidate_entry;
 										break;
 									}
-									else Log.debug(()->"\t\tand rom " + rom.getNormalizedName() + " is in the entries_byname");
+									else Log.debug(()->"\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
 								}
 							}
 							else
@@ -1043,94 +1055,10 @@ public class Scan extends PathAbstractor
 						{
 							final String efile = candidateEntry.getName();
 							Log.debug(()->"\tOups! we got wrong hash in "+efile+" for "+rom.getNormalizedName());
-							//report_subject.add(new EntryWrongHash(rom, candidate_entry));
 							wrongHash = candidateEntry;
 						}
 					}
 					
-					
-/*					for (final Entry candidate_entry : container.getEntries())	// compare each rom with container entries
-					{
-						final String efile = candidate_entry.getName();
-						if (candidate_entry.equals(rom)) // The entry 'candidate_entry' match hash from 'rom'
-						{
-							Log.debug(()->"The entry "+efile+" match hash from rom "+rom.getNormalizedName());
-							if (!rom.getNormalizedName().equals(efile)) // but this entry name does not match the rom name
-							{
-								Log.debug(()->"\tbut this entry name does not match the rom name");
-								final Rom another_rom;
-								if (null != (another_rom = roms_byname.get(efile)) && candidate_entry.equals(another_rom))
-								{
-									Log.debug(()->"\t\t\tand the entry "+efile+" is ANOTHER the rom");
-									if (entries_byname.containsKey(rom.getNormalizedName())) // and rom name is in the entries
-									{
-										Log.debug(()->"\t\t\t\tand rom "+rom.getNormalizedName()+" is in the entries_byname");
-										// report_w.println("[" + m.name + "] " + r.getName() + " == " + e.file);
-									}
-									else
-									{
-										Log.debug(()->"\\t\\t\\t\\twe must duplicate rom "+rom.getNormalizedName()+" to ");
-										// we must duplicate
-										report_subject.add(new EntryMissingDuplicate(rom, candidate_entry));
-										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
-										found_entry = candidate_entry;
-										break;
-									}
-								}
-								else
-								{
-									if(another_rom==null)
-									{
-										Log.debug(()->{
-											StringBuffer str = new StringBuffer("\t"+efile+" in roms_byname not found");
-											roms_byname.forEach((k,v)->str.append("\troms_byname: "+k));
-											return str.toString();
-										}
-									}
-									else
-										Log.debug(()->"\t"+efile+" in roms_byname found but does not match hash");
-									
-									if (!entries_byname.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
-									{
-										Log.debug(()->{
-											StringBuffer str = new StringBuffer("\t\tand rom "+rom.getNormalizedName()+" is NOT in the entries_byname");
-											entries_byname.forEach((k,v)->str.append("\t\tentries_byname: "+k));
-											return str;
-										}
-										
-										report_subject.add(new EntryWrongName(rom, candidate_entry));
-										// (rename_before_set = OpenContainer.getInstance(rename_before_set, archive, format)).addAction(new RenameEntry(e));
-										// (rename_after_set = OpenContainer.getInstance(rename_after_set, archive, format)).addAction(new RenameEntry(r.getName(), e));
-										(backup_set = BackupContainer.getInstance(backup_set, archive)).addAction(new BackupEntry(candidate_entry));
-										(duplicate_set = OpenContainer.getInstance(duplicate_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
-									//	(delete_set = OpenContainer.getInstance(delete_set, archive, format, roms.stream().mapToLong(Rom::getSize).sum())).addAction(new DeleteEntry(candidate_entry));
-										found_entry = candidate_entry;
-										break;
-									}
-									else
-										Log.debug(()->"\t\tand rom "+rom.getNormalizedName()+" is in the entries_byname");
-								}
-							}
-							else
-							{
-								Log.debug(()->"\tThe entry "+efile+" match hash and name for rom "+rom.getNormalizedName());
-								found_entry = candidate_entry;
-								break;
-							}
-						}
-						else if (rom.getNormalizedName().equals(efile))	// oups! we got a wrong rom hash
-						{
-							Log.debug(()->"\tOups! we got wrong hash in "+efile+" for "+rom.getNormalizedName());
-							//report_subject.add(new EntryWrongHash(rom, candidate_entry));
-							wrong_hash = candidate_entry;
-							break;
-						}
-						else
-						{
-//							Log.debug(()->"\tnot found");
-						}
-					}
-*/
 					if (foundEntry == null)	// did not find rom in container
 					{
 						report.getStats().incMissingRomsCnt();
@@ -1141,7 +1069,6 @@ public class Scan extends PathAbstractor
 								reportSubject.add(new EntryAdd(rom, foundEntry));
 								addSet = OpenContainer.getInstance(addSet, archive, format, estimatedRomsSize);
 								addSet.addAction(new AddEntry(rom, foundEntry));
-								// roms_found.add(found);
 								break;
 							}
 						}
@@ -1150,7 +1077,6 @@ public class Scan extends PathAbstractor
 					}
 					else
 					{
-						// report_w.println("[" + m.name + "] " + r.getName() + " (" + found.file + ") OK ");
 						rom.setStatus(EntityStatus.OK);
 						reportSubject.add(new EntryOK(rom));
 						romsFound.add(foundEntry);
@@ -1278,7 +1204,7 @@ public class Scan extends PathAbstractor
 				Entry foundEntry = null;
 				for (final Entry candidate_entry : container.getEntries())
 				{
-					if (candidate_entry.equals(sample))
+					if (candidate_entry.equals(sample))	//NOSONAR
 					{
 						foundEntry = candidate_entry;
 						break;
@@ -1313,7 +1239,6 @@ public class Scan extends PathAbstractor
 				{
 					sample.setStatus(EntityStatus.OK);
 					reportSubject.add(new EntryOK(sample));
-					// report_w.println("["+m.name+"] "+d.getName()+" ("+found.file+") OK ");
 					samplesFound.add(foundEntry);
 				}
 			}

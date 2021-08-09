@@ -141,6 +141,7 @@ public class ZipArchive implements Archive
 				catch(InterruptedException e)
 				{
 					Log.err(e.getMessage(),e);
+					Thread.currentThread().interrupt();
 				}
 				FileUtils.deleteDirectory(tempDir);
 				if(err != 0)
@@ -391,10 +392,10 @@ public class ZipArchive implements Archive
 	}
 
 	@Override
-	public InputStream extract_stdout(final String entry) throws IOException
+	public InputStream extractStdOut(final String entry) throws IOException
 	{
 		if(nativeZip != null)
-			return nativeZip.extract_stdout(entry);
+			return nativeZip.extractStdOut(entry);
 		if(readonly)
 			extract(getTempDir(), entry);
 		return new FileInputStream(new File(getTempDir(), entry));
@@ -423,10 +424,10 @@ public class ZipArchive implements Archive
 	}
 
 	@Override
-	public int add_stdin(final InputStream src, final String entry) throws IOException
+	public int addStdIn(final InputStream src, final String entry) throws IOException
 	{
 		if(nativeZip != null)
-			return nativeZip.add_stdin(src, entry);
+			return nativeZip.addStdIn(src, entry);
 		if(readonly)
 			return -1;
 		FileUtils.copyInputStreamToFile(src, new File(getTempDir(), entry));

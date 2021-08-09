@@ -89,7 +89,6 @@ abstract class NArchive extends NArchiveBase
 	protected NArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException
 	{
 		this(session, archive, false, null);
-		// System.out.println("SevenZipNArchive " + archive);
 	}
 
 	/**
@@ -102,7 +101,6 @@ abstract class NArchive extends NArchiveBase
 	protected NArchive(final Session session, final File archive, final ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException
 	{
 		this(session, archive, false, cb);
-		// System.out.println("SevenZipNArchive " + archive);
 	}
 
 	/**
@@ -200,17 +198,14 @@ abstract class NArchive extends NArchiveBase
 						SetOptions(iout);
 	
 						final int itemsCount = getIInArchive().getNumberOfItems() - getToDelete().size() + getToAdd().size() + getToCopy().size();
-						// System.err.println(itemsCount);
 						iout.updateItems(new RandomAccessFileOutStream(raf), itemsCount, callback);
 					}
 					super.close();
-					// System.out.println("done with "+tmpfile);
 					if (tmpfile.exists() && tmpfile.length() > 0 && Files.deleteIfExists(archive.toPath()) && !tmpfile.renameTo(archive))
 						tmpfile.delete();
 				}
 				else
 				{
-					// System.out.println("creating archive "+archive);
 					try(val iout = SevenZip.openOutArchive(format); RandomAccessFile raf = new RandomAccessFile(archive, "rw")) //$NON-NLS-1$
 					{
 						SetOptions(iout);
@@ -342,7 +337,6 @@ abstract class NArchive extends NArchiveBase
 	@Override
 	public File extract(final String entry) throws IOException
 	{
-		// System.out.println("extract "+entry+" to "+new File(getTempDir(), entry));
 		extract(getTempDir(), entry);
 		val result = new File(getTempDir(), entry);
 		if(result.exists())
@@ -351,9 +345,8 @@ abstract class NArchive extends NArchiveBase
 	}
 
 	@Override
-	public InputStream extract_stdout(final String entry) throws IOException
+	public InputStream extractStdOut(final String entry) throws IOException
 	{
-		// System.out.println("extract "+entry+" to "+new File(getTempDir(), entry)+" then send to stdout");
 		extract(getTempDir(), entry);
 		return new FileInputStream(new File(getTempDir(), entry));
 	}
@@ -363,7 +356,6 @@ abstract class NArchive extends NArchiveBase
 	{
 		if(readonly)
 			return -1;
-		// System.out.println("add "+new File(baseDir, entry)+" to "+new File(getTempDir(), entry));
 		if(baseDir.isFile())
 			FileUtils.copyFile(baseDir, new File(getTempDir(), entry));
 		else if(!baseDir.equals(getTempDir()))
@@ -373,11 +365,10 @@ abstract class NArchive extends NArchiveBase
 	}
 
 	@Override
-	public int add_stdin(final InputStream src, final String entry) throws IOException
+	public int addStdIn(final InputStream src, final String entry) throws IOException
 	{
 		if(readonly)
 			return -1;
-		// System.out.println("add stdin to "+new File(getTempDir(), entry));
 		FileUtils.copyInputStreamToFile(src, new File(getTempDir(), entry));
 		getToAdd().add(entry);
 		return 0;
@@ -388,7 +379,6 @@ abstract class NArchive extends NArchiveBase
 	{
 		if(readonly)
 			return -1;
-		// System.out.println("delete "+normalize(entry));
 		getToDelete().add(normalize(entry));
 		return 0;
 	}
@@ -398,7 +388,6 @@ abstract class NArchive extends NArchiveBase
 	{
 		if(readonly)
 			return -1;
-		// System.out.println("rename "+normalize(entry)+" to "+normalize(newname));
 		getToRename().put(normalize(entry), normalize(newname));
 		return 0;
 	}
@@ -408,7 +397,6 @@ abstract class NArchive extends NArchiveBase
 	{
 		if(readonly)
 			return -1;
-		// System.out.println("duplicate "+normalize(entry)+" to "+normalize(newname));
 		getToCopy().put(normalize(newname), normalize(entry));
 		return 0;
 	}

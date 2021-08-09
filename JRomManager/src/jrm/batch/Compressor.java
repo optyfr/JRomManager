@@ -130,7 +130,7 @@ public class Compressor implements HTMLRenderer
 							@Override
 							public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
 							{
-								newarchive.add_stdin(Files.newInputStream(file), basedir.relativize(file).toString());
+								newarchive.addStdIn(Files.newInputStream(file), basedir.relativize(file).toString());
 								return FileVisitResult.CONTINUE;
 							}
 							
@@ -341,7 +341,7 @@ public class Compressor implements HTMLRenderer
 						@Override
 						public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
 						{
-							archive.add_stdin(Files.newInputStream(file), getSourcePath().relativize(file).toString());
+							archive.addStdIn(Files.newInputStream(file), getSourcePath().relativize(file).toString());
 							return FileVisitResult.CONTINUE;
 						}
 					});

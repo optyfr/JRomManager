@@ -249,7 +249,7 @@ public class AddEntry extends EntryAction
 			{
 				try(final var in = Files.newInputStream(srcfs.getPath(entry.getFile())))
 				{
-					return dstarchive.add_stdin(in, entity.getName()) == 0;
+					return dstarchive.addStdIn(in, entity.getName()) == 0;
 				}
 			}
 			catch(final Exception e)

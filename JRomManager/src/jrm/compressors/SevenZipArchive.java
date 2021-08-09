@@ -119,6 +119,7 @@ public class SevenZipArchive implements Archive
 				catch(InterruptedException e)
 				{
 					Log.err(e.getMessage(),e);
+					Thread.currentThread().interrupt();
 				}
 				FileUtils.deleteDirectory(tempDir);
 				if(err != 0)
@@ -174,6 +175,7 @@ public class SevenZipArchive implements Archive
 			catch(InterruptedException e)
 			{
 				Log.err(e.getMessage(),e);
+				Thread.currentThread().interrupt();
 			}
 		}
 		return -1;
@@ -201,10 +203,10 @@ public class SevenZipArchive implements Archive
 	}
 
 	@Override
-	public InputStream extract_stdout(final String entry) throws IOException
+	public InputStream extractStdOut(final String entry) throws IOException
 	{
 		if(native7Zip != null)
-			return native7Zip.extract_stdout(entry);
+			return native7Zip.extractStdOut(entry);
 		if(readonly)
 			extract(getTempDir(), entry);
 		return new FileInputStream(new File(getTempDir(), entry));
@@ -233,10 +235,10 @@ public class SevenZipArchive implements Archive
 	}
 
 	@Override
-	public int add_stdin(final InputStream src, final String entry) throws IOException
+	public int addStdIn(final InputStream src, final String entry) throws IOException
 	{
 		if(native7Zip != null)
-			return native7Zip.add_stdin(src, entry);
+			return native7Zip.addStdIn(src, entry);
 		if(readonly)
 			return -1;
 		FileUtils.copyInputStreamToFile(src, new File(getTempDir(), entry));

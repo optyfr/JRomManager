@@ -32,7 +32,9 @@ abstract class NameBase implements Serializable, Comparable<NameBase>
 	 */
 	protected String name = ""; // required //$NON-NLS-1$
 
-	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("name", String.class)};
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
+		new ObjectStreamField("name", String.class)
+	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{

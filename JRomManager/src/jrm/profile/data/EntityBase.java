@@ -28,6 +28,7 @@ import jrm.misc.Log;
  */
 public abstract class EntityBase extends NameBase implements Serializable
 {
+	private static final String OWN_STATUS = "own_status";
 	private static final long serialVersionUID = 1L;
 	/**
 	 * The scan status, defaulting to {@link EntityStatus#UNKNOWN}
@@ -38,19 +39,21 @@ public abstract class EntityBase extends NameBase implements Serializable
 	 */
 	protected transient AnywareBase parent;
 
-	private static final ObjectStreamField[] serialPersistentFields = {new ObjectStreamField("own_status", EntityStatus.class)};
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
+		new ObjectStreamField(OWN_STATUS, EntityStatus.class)
+	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final var fields = stream.putFields();
-		fields.put("own_status", ownStatus);
+		fields.put(OWN_STATUS, ownStatus);
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final var fields = stream.readFields();
-		ownStatus = (EntityStatus)fields.get("own_status", EntityStatus.UNKNOWN);
+		ownStatus = (EntityStatus)fields.get(OWN_STATUS, EntityStatus.UNKNOWN);
 	}
 
 	/**
@@ -105,7 +108,7 @@ public abstract class EntityBase extends NameBase implements Serializable
 		try
 		{
 			final var field  = this.getClass().getField(name);
-			field.setAccessible(true);
+			field.setAccessible(true);	//NOSONAR
 			return field.get(this);
 		}
 		catch(NoSuchFieldException e)

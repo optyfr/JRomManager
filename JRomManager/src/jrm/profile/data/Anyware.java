@@ -289,9 +289,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		{
 			if(profile.getSettings().getMergeMode().equals(MergeOptions.SUPERFULLNOMERGE))	// also include devices
 			{
-				if(profile.getProperty(SettingsEnum.exclude_games, false)) //$NON-NLS-1$
+				if(profile.getProperty(SettingsEnum.exclude_games, false))
 				{
-					if(profile.getProperty(SettingsEnum.exclude_machines, false)) //$NON-NLS-1$
+					if(profile.getProperty(SettingsEnum.exclude_machines, false))
 						stream = streamWithDevices(true, false, true);	// bios-devices
 					else
 						stream = streamWithDevices(true, false, true);	// machine-bios-devices

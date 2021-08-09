@@ -94,14 +94,8 @@ public class Entry implements Serializable
 		this.file = file;
 		this.relfile = relfile;
 		final String ext = FilenameUtils.getExtension(file);
-		switch(ext.toLowerCase())
-		{
-			case "chd": //$NON-NLS-1$
-				type = Type.CHD;
-				break;
-			default:
-				break;
-		}
+		if("chd".equalsIgnoreCase(ext))
+			type = Type.CHD;
 	}
 
 	/**

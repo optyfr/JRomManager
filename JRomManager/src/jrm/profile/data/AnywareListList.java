@@ -251,7 +251,7 @@ public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> 
 	
 	public abstract int count();
 	
-	public abstract AnywareList<? extends Anyware> getObject(int i);
+	public abstract AnywareList<? extends Anyware> getObject(int i);	//NOSONAR
 
 	public abstract String getDescription(int i);
 

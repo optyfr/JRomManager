@@ -56,7 +56,7 @@ public interface Archive extends Closeable, AutoCloseable
 	 * @return the resulting {@link InputStream}
 	 * @throws IOException
 	 */
-	public InputStream extract_stdout(String entry) throws IOException;
+	public InputStream extractStdOut(String entry) throws IOException;
 
 	/**
 	 * Add an entry to the archive,
@@ -86,7 +86,7 @@ public interface Archive extends Closeable, AutoCloseable
 	 * @return 0 for success, anything else for error, -1 is reserved for read only archives
 	 * @throws IOException
 	 */
-	public int add_stdin(InputStream src, String entry) throws IOException;
+	public int addStdIn(InputStream src, String entry) throws IOException;
 	
 	/**
 	 * Delete an entry from archive

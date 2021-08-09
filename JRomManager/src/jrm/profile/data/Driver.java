@@ -52,9 +52,9 @@ public class Driver implements Serializable
 	 */
 	public enum StatusType
 	{
-		good,
-		imperfect,
-		preliminary
+		good,	//NOSONAR
+		imperfect,	//NOSONAR
+		preliminary	//NOSONAR
 	}
 
 	/**
@@ -62,8 +62,8 @@ public class Driver implements Serializable
 	 */
 	public enum SaveStateType
 	{
-		supported,
-		unsupported
+		supported,	//NOSONAR
+		unsupported	//NOSONAR
 	}
 
 	/**

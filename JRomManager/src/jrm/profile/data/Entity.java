@@ -32,6 +32,18 @@ import lombok.Setter;
  */
 public abstract class Entity extends EntityBase implements Serializable
 {
+	private static final String STATUS_STR = "status";
+
+	private static final String MERGE_STR = "merge";
+
+	private static final String MD5_STR = "md5";
+
+	private static final String SHA1_STR = "sha1";
+
+	private static final String CRC_STR = "crc";
+
+	private static final String SIZE_STR = "size";
+
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -67,19 +79,19 @@ public abstract class Entity extends EntityBase implements Serializable
 		/**
 		 * bad dump
 		 */
-		baddump,
+		baddump,	//NOSONAR
 		/**
 		 * no dump known
 		 */
-		nodump,
+		nodump,	//NOSONAR
 		/**
 		 * dump is good
 		 */
-		good,
+		good,	//NOSONAR
 		/**
 		 * dump is good and has been verified (only logiqx)
 		 */
-		verified;
+		verified;	//NOSONAR
 
 		/**
 		 * status mapping according export format needed
@@ -92,36 +104,36 @@ public abstract class Entity extends EntityBase implements Serializable
 		}
 	}
 
-	private static final ObjectStreamField[] serialPersistentFields = {
-		new ObjectStreamField("size", long.class),
-		new ObjectStreamField("crc", String.class),
-		new ObjectStreamField("sha1", String.class),
-		new ObjectStreamField("md5", String.class),
-		new ObjectStreamField("merge", String.class),
-		new ObjectStreamField("status", Status.class)
+	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
+		new ObjectStreamField(SIZE_STR, long.class),
+		new ObjectStreamField(CRC_STR, String.class),
+		new ObjectStreamField(SHA1_STR, String.class),
+		new ObjectStreamField(MD5_STR, String.class),
+		new ObjectStreamField(MERGE_STR, String.class),
+		new ObjectStreamField(STATUS_STR, Status.class)
 	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final var fields = stream.putFields();
-		fields.put("size", size);
-		fields.put("crc", crc);
-		fields.put("sha1", sha1);
-		fields.put("md5", md5);
-		fields.put("merge", merge);
-		fields.put("status", dumpStatus);
+		fields.put(SIZE_STR, size);
+		fields.put(CRC_STR, crc);
+		fields.put(SHA1_STR, sha1);
+		fields.put(MD5_STR, md5);
+		fields.put(MERGE_STR, merge);
+		fields.put(STATUS_STR, dumpStatus);
 		stream.writeFields();
 	}
 
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final var fields = stream.readFields();
-		size = fields.get("size", 0L);
-		crc = (String)fields.get("crc", null);
-		sha1 = (String)fields.get("sha1", null);
-		md5 = (String)fields.get("md5", null);
-		merge = (String)fields.get("merge", null);
-		dumpStatus = (Status)fields.get("status", Status.good);
+		size = fields.get(SIZE_STR, 0L);
+		crc = (String)fields.get(CRC_STR, null);
+		sha1 = (String)fields.get(SHA1_STR, null);
+		md5 = (String)fields.get(MD5_STR, null);
+		merge = (String)fields.get(MERGE_STR, null);
+		dumpStatus = (Status)fields.get(STATUS_STR, Status.good);
 	}
 
 	
