@@ -1,6 +1,6 @@
 package jrm.ui.profile.data;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -77,13 +77,15 @@ public class SoftwareListListModel extends AnywareListListModel
 				return softwareListList.getDescription(rowIndex);
 			case 2:
 				return softwareListList.getHaveTot(rowIndex);
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
 	{
+		// do nothing
 	}
 
 	@Override
@@ -98,7 +100,7 @@ public class SoftwareListListModel extends AnywareListListModel
 		fireTableChanged(new TableModelEvent(this));
 	}
 
-	public void setFilter(final EnumSet<AnywareStatus> filter)
+	public void setFilter(final Set<AnywareStatus> filter)
 	{
 		softwareListList.setFilterCache(filter);
 		reset();

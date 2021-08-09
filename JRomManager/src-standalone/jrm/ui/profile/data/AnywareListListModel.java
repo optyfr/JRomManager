@@ -1,11 +1,10 @@
 package jrm.ui.profile.data;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableCellRenderer;
 
 import jrm.profile.data.AnywareStatus;
 import jrm.ui.basic.EnhTableModel;
@@ -15,23 +14,7 @@ public abstract class AnywareListListModel implements EnhTableModel
 	/**
 	 * Event Listener list for firing events to Swing controls (Table)
 	 */
-	private static transient EventListenerList listenerList = new EventListenerList();
-
-	/**
-	 * get the declared renderer for a given column
-	 * @param columnIndex the requested column index
-	 * @return a {@link TableCellRenderer} associated with the given columnindex 
-	 */
-	@Override
-	public abstract TableCellRenderer getColumnRenderer(int columnIndex);
-
-	/**
-	 * get the declared width for a given column
-	 * @param columnIndex the requested column index
-	 * @return a width in pixel (if negative then it's a fixed column width)
-	 */
-	@Override
-	public abstract int getColumnWidth(int columnIndex);
+	private static EventListenerList listenerList = new EventListenerList();
 
 	@Override
 	public void addTableModelListener(TableModelListener l)
@@ -59,5 +42,5 @@ public abstract class AnywareListListModel implements EnhTableModel
 
 	public abstract void reset();
 
-	public abstract void setFilter(final EnumSet<AnywareStatus> filter);
+	public abstract void setFilter(final Set<AnywareStatus> filter);
 }

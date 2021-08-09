@@ -1,6 +1,6 @@
 package jrm.ui.profile.data;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableCellRenderer;
@@ -84,8 +84,9 @@ public class SoftwareListModel extends AnywareListModel
 				return software.getCloneof() != null ? softwareList.getByName(software.getCloneof()) : null;
 			case 5:
 				return software.isSelected();
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
@@ -118,7 +119,7 @@ public class SoftwareListModel extends AnywareListModel
 	}
 
 	@Override
-	public void setFilter(EnumSet<AnywareStatus> filter)
+	public void setFilter(Set<AnywareStatus> filter)
 	{
 		softwareList.setFilterCache(filter);
 		reset();

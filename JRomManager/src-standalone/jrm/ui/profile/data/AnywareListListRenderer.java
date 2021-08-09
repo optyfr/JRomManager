@@ -39,21 +39,21 @@ public final class AnywareListListRenderer
 {
 
 	/** The Constant columns. */
-	public final static String[] columns = new String[] { Messages.getString("SoftwareListListRenderer.Name"), Messages.getString("SoftwareListListRenderer.Description"), Messages.getString("SoftwareListListRenderer.Have") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	protected static final String[] columns = new String[] { Messages.getString("SoftwareListListRenderer.Name"), Messages.getString("SoftwareListListRenderer.Description"), Messages.getString("SoftwareListListRenderer.Have") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 	/** The Constant columnsTypes. */
-	public final static Class<?>[] columnsTypes = new Class<?>[] { Object.class, String.class, String.class };
+	protected static final Class<?>[] columnsTypes = new Class<?>[] { Object.class, String.class, String.class };
 
 	/** The Constant columnsWidths. */
-	public final static int[] columnsWidths = new int[] { 70, 150, -80 };
+	protected static final int[] columnsWidths = new int[] { 70, 150, -80 };
 
 	/** The Constant columnsRenderers. */
-	public final static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
+	protected static final TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
-		ImageIcon disk_multiple_green = MainFrame.getIcon("/jrm/resicons/disk_multiple_green.png"); //$NON-NLS-1$
-		ImageIcon disk_multiple_orange = MainFrame.getIcon("/jrm/resicons/disk_multiple_orange.png"); //$NON-NLS-1$
-		ImageIcon disk_multiple_red = MainFrame.getIcon("/jrm/resicons/disk_multiple_red.png"); //$NON-NLS-1$
-		ImageIcon disk_multiple_gray = MainFrame.getIcon("/jrm/resicons/disk_multiple_gray.png"); //$NON-NLS-1$
+		final ImageIcon diskMultipleGreen = MainFrame.getIcon("/jrm/resicons/disk_multiple_green.png"); //$NON-NLS-1$
+		final ImageIcon diskMultipleOrange = MainFrame.getIcon("/jrm/resicons/disk_multiple_orange.png"); //$NON-NLS-1$
+		final ImageIcon diskMultipleRed = MainFrame.getIcon("/jrm/resicons/disk_multiple_red.png"); //$NON-NLS-1$
+		final ImageIcon diskMultipleGray = MainFrame.getIcon("/jrm/resicons/disk_multiple_gray.png"); //$NON-NLS-1$
 
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
@@ -64,17 +64,17 @@ public final class AnywareListListRenderer
 				switch (((SoftwareList) value).getStatus())
 				{
 					case COMPLETE:
-						setIcon(disk_multiple_green);
+						setIcon(diskMultipleGreen);
 						break;
 					case MISSING:
-						setIcon(disk_multiple_red);
+						setIcon(diskMultipleRed);
 						break;
 					case PARTIAL:
-						setIcon(disk_multiple_orange);
+						setIcon(diskMultipleOrange);
 						break;
 					case UNKNOWN:
 					default:
-						setIcon(disk_multiple_gray);
+						setIcon(diskMultipleGray);
 						break;
 
 				}
@@ -86,17 +86,17 @@ public final class AnywareListListRenderer
 				switch (((MachineList) value).getStatus())
 				{
 					case COMPLETE:
-						setIcon(disk_multiple_green);
+						setIcon(diskMultipleGreen);
 						break;
 					case MISSING:
-						setIcon(disk_multiple_red);
+						setIcon(diskMultipleRed);
 						break;
 					case PARTIAL:
-						setIcon(disk_multiple_orange);
+						setIcon(diskMultipleOrange);
 						break;
 					case UNKNOWN:
 					default:
-						setIcon(disk_multiple_gray);
+						setIcon(diskMultipleGray);
 						break;
 
 				}

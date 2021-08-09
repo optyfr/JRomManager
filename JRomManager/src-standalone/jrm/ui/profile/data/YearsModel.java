@@ -11,7 +11,7 @@ import javax.swing.ComboBoxModel;
 public final class YearsModel extends AbstractListModel<String> implements ComboBoxModel<String>,Serializable
 {
 
-	Object selectedObject = null;
+	transient Object selectedObject = null;
 
 	/**
 	 * The internal list of years

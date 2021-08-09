@@ -38,28 +38,28 @@ public final class MachineListRenderer
 {
 	
 	/** The Constant folder_closed_green. */
-	private final static ImageIcon folder_closed_green = MainFrame.getIcon("/jrm/resicons/folder_closed_green.png"); //$NON-NLS-1$
+	private static final ImageIcon folder_closed_green = MainFrame.getIcon("/jrm/resicons/folder_closed_green.png"); //$NON-NLS-1$
 	
 	/** The Constant folder_closed_orange. */
-	private final static ImageIcon folder_closed_orange = MainFrame.getIcon("/jrm/resicons/folder_closed_orange.png"); //$NON-NLS-1$
+	private static final ImageIcon folder_closed_orange = MainFrame.getIcon("/jrm/resicons/folder_closed_orange.png"); //$NON-NLS-1$
 	
 	/** The Constant folder_closed_red. */
-	private final static ImageIcon folder_closed_red = MainFrame.getIcon("/jrm/resicons/folder_closed_red.png"); //$NON-NLS-1$
+	private static final ImageIcon folder_closed_red = MainFrame.getIcon("/jrm/resicons/folder_closed_red.png"); //$NON-NLS-1$
 	
 	/** The Constant folder_closed_gray. */
-	private final static ImageIcon folder_closed_gray = MainFrame.getIcon("/jrm/resicons/folder_closed_gray.png"); //$NON-NLS-1$
+	private static final ImageIcon folder_closed_gray = MainFrame.getIcon("/jrm/resicons/folder_closed_gray.png"); //$NON-NLS-1$
 
 	/** The columns. */
-	public static String[] columns = new String[] { Messages.getString("MachineListRenderer.Status"), Messages.getString("MachineListRenderer.Name"), Messages.getString("MachineListRenderer.Description"), Messages.getString("MachineListRenderer.Have"), Messages.getString("MachineListRenderer.CloneOf"), Messages.getString("MachineListRenderer.RomOf"), Messages.getString("MachineListRenderer.SampleOf"), Messages.getString("MachineListRenderer.Selected") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+	protected static final String[] columns = new String[] { Messages.getString("MachineListRenderer.Status"), Messages.getString("MachineListRenderer.Name"), Messages.getString("MachineListRenderer.Description"), Messages.getString("MachineListRenderer.Have"), Messages.getString("MachineListRenderer.CloneOf"), Messages.getString("MachineListRenderer.RomOf"), Messages.getString("MachineListRenderer.SampleOf"), Messages.getString("MachineListRenderer.Selected") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 	
 	/** The columns types. */
-	public final static Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Object.class, String.class, Boolean.class };
+	protected static final Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Object.class, String.class, Boolean.class };
 	
 	/** The columns widths. */
-	public final static int[] columnsWidths = new int[] { -20, 40, 200, -45, 40, 40, 40, -20 };
+	protected static final int[] columnsWidths = new int[] { -20, 40, 200, -45, 40, 40, 40, -20 };
 	
 	/** The columns renderers. */
-	public static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
+	protected static final TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
 	{
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
@@ -90,10 +90,10 @@ public final class MachineListRenderer
 		}
 	}, new DefaultTableCellRenderer()
 	{
-		ImageIcon application_osx_terminal = MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"); //$NON-NLS-1$
-		ImageIcon computer = MainFrame.getIcon("/jrm/resicons/icons/computer.png"); //$NON-NLS-1$
-		ImageIcon wrench = MainFrame.getIcon("/jrm/resicons/icons/wrench.png"); //$NON-NLS-1$
-		ImageIcon joystick = MainFrame.getIcon("/jrm/resicons/icons/joystick.png"); //$NON-NLS-1$
+		final ImageIcon applicationOSXTerminal = MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"); //$NON-NLS-1$
+		final ImageIcon computer = MainFrame.getIcon("/jrm/resicons/icons/computer.png"); //$NON-NLS-1$
+		final ImageIcon wrench = MainFrame.getIcon("/jrm/resicons/icons/wrench.png"); //$NON-NLS-1$
+		final ImageIcon joystick = MainFrame.getIcon("/jrm/resicons/icons/joystick.png"); //$NON-NLS-1$
 
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
@@ -102,7 +102,7 @@ public final class MachineListRenderer
 			{
 				super.getTableCellRendererComponent(table, ((Machine) value).getBaseName(), isSelected, hasFocus, row, column);
 				if(((Machine) value).isIsbios())
-					setIcon(application_osx_terminal);
+					setIcon(applicationOSXTerminal);
 				else if(((Machine) value).isIsdevice())
 					setIcon(computer);
 				else if(((Machine) value).isIsmechanical())
@@ -123,7 +123,7 @@ public final class MachineListRenderer
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			setToolTipText(getText());
 			return this;
-		};
+		}
 	}, new CenteredTableCellRenderer(), new DefaultTableCellRenderer()
 	{
 		@Override

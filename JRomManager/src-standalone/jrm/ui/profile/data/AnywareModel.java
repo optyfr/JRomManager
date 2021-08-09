@@ -1,6 +1,6 @@
 package jrm.ui.profile.data;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
@@ -19,7 +19,7 @@ public class AnywareModel implements EnhTableModel
 	/**
 	 * Event Listener list for firing events to Swing controls (Table)
 	 */
-	private static transient EventListenerList listenerList = new EventListenerList();
+	private static EventListenerList listenerList = new EventListenerList();
 
 	public AnywareModel(Anyware anyware)
 	{
@@ -77,13 +77,15 @@ public class AnywareModel implements EnhTableModel
 				return anyware.getEntities().get(rowIndex).getProperty("merge"); //$NON-NLS-1$
 			case 7:
 				return anyware.getEntities().get(rowIndex).getProperty("status"); //$NON-NLS-1$
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
 	{
+		// do nothing
 	}
 
 	@Override
@@ -152,7 +154,7 @@ public class AnywareModel implements EnhTableModel
 	 * Set a new Entity status set filter and reset list cache
 	 * @param filter the new entity status set filter to apply
 	 */
-	public void setFilter(final EnumSet<EntityStatus> filter)
+	public void setFilter(final Set<EntityStatus> filter)
 	{
 		anyware.setFilterCache(filter);
 		reset();

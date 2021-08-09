@@ -1,6 +1,6 @@
 package jrm.ui.profile.data;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableCellRenderer;
@@ -88,8 +88,9 @@ public class MachineListModel extends AnywareListModel
 				return machine.getSampleof() != null ? (machineList.samplesets.containsName(machine.getSampleof()) ? machineList.samplesets.getByName(machine.getSampleof()) : machine.getSampleof()) : null;
 			case 7:
 				return machine.isSelected();
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
@@ -121,7 +122,7 @@ public class MachineListModel extends AnywareListModel
 	}
 
 	@Override
-	public void setFilter(EnumSet<AnywareStatus> filter)
+	public void setFilter(Set<AnywareStatus> filter)
 	{
 		machineList.setFilterCache(filter);
 		reset();

@@ -939,21 +939,11 @@ public class Scan extends PathAbstractor
 				OpenContainer duplicateSet = null;
 
 				final var entriesByName = container.getEntriesByName();
+				
 				final var entriesBySha1 = new HashMap<String, List<Entry>>();
-				container.getEntries().forEach(e -> {
-					if (e.getSha1() != null)
-						entriesBySha1.computeIfAbsent(e.getSha1(), k -> new ArrayList<>()).add(e);
-				});
 				final var entriesByMd5 = new HashMap<String, List<Entry>>();
-				container.getEntries().forEach(e -> {
-					if (e.getMd5() != null)
-						entriesByMd5.computeIfAbsent(e.getMd5(), k -> new ArrayList<>()).add(e);
-				});
-				final Map<String, List<Entry>> entriesByCrc = new HashMap<>();
-				container.getEntries().forEach(e -> {
-					if (e.getCrc() != null)
-						entriesByCrc.computeIfAbsent(e.getCrc() + '.' + e.getSize(), k -> new ArrayList<>()).add(e);
-				});
+				final var entriesByCrc = new HashMap<String, List<Entry>>();
+				initHashesFromContainerEntries(container, entriesBySha1, entriesByMd5, entriesByCrc);
 
 				final Set<Entry> markedForRename = new HashSet<>();
 				
@@ -963,13 +953,7 @@ public class Scan extends PathAbstractor
 					Entry foundEntry = null;
 					Entry wrongHash = null;
 					
-					List<Entry> entries = null;
-					if(rom.getSha1()!=null)
-						entries = entriesBySha1.get(rom.getSha1());
-					if(entries == null && rom.getMd5()!=null)
-						entries = entriesByMd5.get(rom.getMd5());
-					if(entries == null && rom.getCrc()!=null)
-						entries = entriesByCrc.get(rom.getCrc()+'.'+rom.getSize());
+					final var entries = findEntriesByHash(entriesBySha1, entriesByMd5, entriesByCrc, rom);
 					if(entries != null) 
 					{
 						for (final var candidate_entry : entries)
@@ -1144,6 +1128,47 @@ public class Scan extends PathAbstractor
 			}
 		}
 		return missingSet;
+	}
+
+	/**
+	 * @param container
+	 * @param entriesBySha1
+	 * @param entriesByMd5
+	 * @param entriesByCrc
+	 */
+	private void initHashesFromContainerEntries(final Container container, final HashMap<String, List<Entry>> entriesBySha1, final HashMap<String, List<Entry>> entriesByMd5, final HashMap<String, List<Entry>> entriesByCrc)
+	{
+		container.getEntries().forEach(e -> {
+			if (e.getSha1() != null)
+				entriesBySha1.computeIfAbsent(e.getSha1(), k -> new ArrayList<>()).add(e);
+			if (e.getMd5() != null)
+				entriesByMd5.computeIfAbsent(e.getMd5(), k -> new ArrayList<>()).add(e);
+			if (e.getCrc() != null)
+				entriesByCrc.computeIfAbsent(e.getCrc() + '.' + e.getSize(), k -> new ArrayList<>()).add(e);
+		});
+	}
+
+	/**
+	 * @param entriesBySha1
+	 * @param entriesByMd5
+	 * @param entriesByCrc
+	 * @param rom
+	 * @return
+	 */
+	private List<Entry> findEntriesByHash(final HashMap<String, List<Entry>> entriesBySha1, final HashMap<String, List<Entry>> entriesByMd5, final HashMap<String, List<Entry>> entriesByCrc, final Rom rom)
+	{
+		List<Entry> entries = null;
+		if (rom.getSha1() != null)
+		{
+			entries = entriesBySha1.get(rom.getSha1());
+			if (entries == null && rom.getMd5() != null)
+			{
+				entries = entriesByMd5.get(rom.getMd5());
+				if (entries == null && rom.getCrc() != null)
+					entries = entriesByCrc.get(rom.getCrc() + '.' + rom.getSize());
+			}
+		}
+		return entries;
 	}
 
 	/**
