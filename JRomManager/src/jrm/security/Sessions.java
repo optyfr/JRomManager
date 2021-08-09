@@ -3,30 +3,34 @@ package jrm.security;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Sessions
-{
-	public static boolean single_mode = false;
-	public static Session single_session = null;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.UtilityClass;
 
-	private final static Map<String, Session> sessions = new HashMap<>();
+public final @UtilityClass class Sessions
+{
+	private static @Getter @Setter boolean singleMode = false;
+	private static @Getter @Setter Session singleSession = null;
+
+	private static final Map<String, Session> sessionsMap = new HashMap<>();
 
 	public static Session getSession(boolean multiuser, boolean noupdate)
 	{
-		assert single_mode == true;
-		if (single_session == null)
-			single_session = new Session(multiuser, noupdate);
-		return single_session;
+		assert singleMode;
+		if (singleSession == null)
+			singleSession = new Session(multiuser, noupdate);
+		return singleSession;
 	}
 
 	public static Session getSession(String session)
 	{
-		assert single_mode == false;
-		return sessions.get(session);
+		assert !singleMode;
+		return sessionsMap.get(session);
 	}
 
 	public static void setSession(String session)
 	{
-		assert single_mode == false;
-		sessions.putIfAbsent(session, new Session(session));
+		assert !singleMode;
+		sessionsMap.putIfAbsent(session, new Session(session));
 	}
 }

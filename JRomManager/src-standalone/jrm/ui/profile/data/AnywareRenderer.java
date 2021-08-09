@@ -43,172 +43,191 @@ public final class AnywareRenderer
 {
 	
 	/** The Constant columns. */
-	public final static String[] columns = new String[] { Messages.getString("AnywareRenderer.Status"), Messages.getString("AnywareRenderer.Name"), Messages.getString("AnywareRenderer.Size"), Messages.getString("AnywareRenderer.CRC"), Messages.getString("AnywareRenderer.MD5"), Messages.getString("AnywareRenderer.SHA-1"), Messages.getString("AnywareRenderer.Merge"), Messages.getString("AnywareRenderer.DumpStatus") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+	protected static final String[] columns = new String[] { Messages.getString("AnywareRenderer.Status"), Messages.getString("AnywareRenderer.Name"), Messages.getString("AnywareRenderer.Size"), Messages.getString("AnywareRenderer.CRC"), Messages.getString("AnywareRenderer.MD5"), Messages.getString("AnywareRenderer.SHA-1"), Messages.getString("AnywareRenderer.Merge"), Messages.getString("AnywareRenderer.DumpStatus") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 	
 	/** The Constant columnsTypes. */
-	public final static Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, Long.class, String.class, String.class, String.class, String.class, Object.class };
+	protected static final Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, Long.class, String.class, String.class, String.class, String.class, Object.class };
 	
 	/** The Constant columnsWidths. */
-	public final static int[] columnsWidths = new int[] { -3, 256, -12, -10, -34, -42, 100, -3 };
+	protected static final int[] columnsWidths = new int[] { -3, 256, -12, -10, -34, -42, 100, -3 };
 	
 	/** The Constant columnsRenderers. */
-	public final static TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
-	{
-		ImageIcon bullet_green = MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"); //$NON-NLS-1$
-		ImageIcon bullet_red = MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png"); //$NON-NLS-1$
-		ImageIcon bullet_black = MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png"); //$NON-NLS-1$
-
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+	protected static final TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { 
+		new DefaultTableCellRenderer()
 		{
-			setBackground(AnywareRenderer.getBackground(row, column));
-			super.getTableCellRendererComponent(table,"", isSelected, hasFocus, row, column);
-			if (value != null)
+			ImageIcon bulletGreen = MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"); //$NON-NLS-1$
+			ImageIcon bulletRed = MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png"); //$NON-NLS-1$
+			ImageIcon bulletBlack = MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png"); //$NON-NLS-1$
+	
+			@Override
+			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 			{
-				switch (((EntityBase) value).getStatus())
+				setBackground(AnywareRenderer.getBackground(row, column));
+				super.getTableCellRendererComponent(table,"", isSelected, hasFocus, row, column);
+				if (value != null)
 				{
-					case OK:
-						setIcon(bullet_green);
-						break;
-					case KO:
-						setIcon(bullet_red);
-						break;
-					case UNKNOWN:
-					default:
-						setIcon(bullet_black);
-						break;
+					switch (((EntityBase) value).getStatus())
+					{
+						case OK:
+							setIcon(bulletGreen);
+							break;
+						case KO:
+							setIcon(bulletRed);
+							break;
+						case UNKNOWN:
+						default:
+							setIcon(bulletBlack);
+							break;
+					}
 				}
+				return this;
 			}
-			return this;
-		}
-	}, new DefaultTableCellRenderer()
-	{
-		ImageIcon rom_small = MainFrame.getIcon("/jrm/resicons/rom_small.png"); //$NON-NLS-1$
-		ImageIcon drive = MainFrame.getIcon("/jrm/resicons/icons/drive.png"); //$NON-NLS-1$
-		ImageIcon sound = MainFrame.getIcon("/jrm/resicons/icons/sound.png"); //$NON-NLS-1$
-
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+		}, 
+		new DefaultTableCellRenderer()
 		{
-			setBackground(AnywareRenderer.getBackground(row, column));
-			super.getTableCellRendererComponent(table, (value != null) ? (value instanceof EntityBase ? ((EntityBase) value).getBaseName() : value.toString()) : null, isSelected, hasFocus, row, column);
-			if (value instanceof Rom)
-				setIcon(rom_small);
-			else if (value instanceof Disk)
-				setIcon(drive);
-			else if (value instanceof Sample)
-				setIcon(sound);
-			setToolTipText(getText());
-			return this;
-		}
-	}, new DefaultTableCellRenderer()
-	{
-		{// anonymous constructor
-			setHorizontalAlignment(SwingConstants.TRAILING);
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-		{
-			setBackground(AnywareRenderer.getBackground(row, column));
-			return super.getTableCellRendererComponent(table, value != null ? (value instanceof Long ? ((Long) value > 0 ? value.toString() : null) : value.toString()) : null, isSelected, hasFocus, row, column);
-		}
-	}, new DefaultTableCellRenderer()
-	{
-		{
-			setHorizontalAlignment(SwingConstants.TRAILING);
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-		{
-			setBackground(AnywareRenderer.getBackground(row, column));
-			super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
-			setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-			return this;
-		}
-	}, new DefaultTableCellRenderer()
-	{
-		{
-			setHorizontalAlignment(SwingConstants.TRAILING);
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-		{
-			setBackground(AnywareRenderer.getBackground(row, column));
-			super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
-			setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-			return this;
-		}
-	}, new DefaultTableCellRenderer()
-	{
-		{
-			setHorizontalAlignment(SwingConstants.TRAILING);
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-		{
-			setBackground(AnywareRenderer.getBackground(row, column));
-			super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
-			setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-			return this;
-		}
-	}, new DefaultTableCellRenderer()
-	{
-		{
-			setHorizontalAlignment(SwingConstants.LEADING);
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-		{
-			setBackground(AnywareRenderer.getBackground(row, column));
-			super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
-			setToolTipText(getText());
-			return this;
-		}
-	}, new DefaultTableCellRenderer()
-	{
-		ImageIcon verified = MainFrame.getIcon("/jrm/resicons/icons/star.png"); //$NON-NLS-1$
-		ImageIcon good = MainFrame.getIcon("/jrm/resicons/icons/tick.png"); //$NON-NLS-1$
-		ImageIcon baddump = MainFrame.getIcon("/jrm/resicons/icons/delete.png"); //$NON-NLS-1$
-		ImageIcon nodump = MainFrame.getIcon("/jrm/resicons/icons/error.png"); //$NON-NLS-1$
-		{
-			setHorizontalAlignment(SwingConstants.CENTER);
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-		{
-			setBackground(AnywareRenderer.getBackground(row, column));
-			super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
-			if (value instanceof Entity.Status)
+			ImageIcon romSmall = MainFrame.getIcon("/jrm/resicons/rom_small.png"); //$NON-NLS-1$
+			ImageIcon drive = MainFrame.getIcon("/jrm/resicons/icons/drive.png"); //$NON-NLS-1$
+			ImageIcon sound = MainFrame.getIcon("/jrm/resicons/icons/sound.png"); //$NON-NLS-1$
+	
+			@Override
+			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 			{
-				switch ((Entity.Status) value)
+				setBackground(AnywareRenderer.getBackground(row, column));
+				final String val;
+				if(value != null)
 				{
-					case verified:
-						setIcon(verified);
-						break;
-					case good:
-						setIcon(good);
-						break;
-					case baddump:
-						setIcon(baddump);
-						break;
-					case nodump:
-						setIcon(nodump);
-						break;
+					if(value instanceof EntityBase)
+						val = ((EntityBase) value).getBaseName();
+					else
+						val = value.toString();
 				}
+				else
+					val = null;
+				super.getTableCellRendererComponent(table, val, isSelected, hasFocus, row, column);
+				if (value instanceof Rom)
+					setIcon(romSmall);
+				else if (value instanceof Disk)
+					setIcon(drive);
+				else if (value instanceof Sample)
+					setIcon(sound);
+				setToolTipText(getText());
+				return this;
 			}
-			else
-				setIcon(null);
-			setToolTipText(value != null ? value.toString() : null);
-			return this;
+		},
+		new AlignedTableCellRenderer(SwingConstants.TRAILING)
+		{
+			@Override
+			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+			{
+				setBackground(AnywareRenderer.getBackground(row, column));
+				final String val;
+				if(value != null)
+				{
+					if(value instanceof Long)
+					{
+						if((Long) value > 0)
+							val = value.toString(); 
+						else
+							val = null;
+					}
+					else
+						val = value.toString();
+				}
+				else
+					val = null;
+				return super.getTableCellRendererComponent(table, val, isSelected, hasFocus, row, column);
+			}
+		},
+		new AlignedTableCellRenderer(SwingConstants.TRAILING)
+		{
+			@Override
+			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+			{
+				setBackground(AnywareRenderer.getBackground(row, column));
+				super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
+				setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
+				return this;
+			}
+		},
+		new AlignedTableCellRenderer(SwingConstants.TRAILING)
+		{
+			@Override
+			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+			{
+				setBackground(AnywareRenderer.getBackground(row, column));
+				super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
+				setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
+				return this;
+			}
+		},
+		new AlignedTableCellRenderer(SwingConstants.TRAILING)
+		{
+			@Override
+			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+			{
+				setBackground(AnywareRenderer.getBackground(row, column));
+				super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
+				setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
+				return this;
+			}
+		},
+		new AlignedTableCellRenderer(SwingConstants.LEADING)
+		{
+			@Override
+			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+			{
+				setBackground(AnywareRenderer.getBackground(row, column));
+				super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
+				setToolTipText(getText());
+				return this;
+			}
+		},
+		new AlignedTableCellRenderer(SwingConstants.CENTER)
+		{
+			ImageIcon verified = MainFrame.getIcon("/jrm/resicons/icons/star.png"); //$NON-NLS-1$
+			ImageIcon good = MainFrame.getIcon("/jrm/resicons/icons/tick.png"); //$NON-NLS-1$
+			ImageIcon baddump = MainFrame.getIcon("/jrm/resicons/icons/delete.png"); //$NON-NLS-1$
+			ImageIcon nodump = MainFrame.getIcon("/jrm/resicons/icons/error.png"); //$NON-NLS-1$
+			
+			@Override
+			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+			{
+				setBackground(AnywareRenderer.getBackground(row, column));
+				super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
+				if (value instanceof Entity.Status)
+				{
+					switch ((Entity.Status) value)
+					{
+						case verified:
+							setIcon(verified);
+							break;
+						case good:
+							setIcon(good);
+							break;
+						case baddump:
+							setIcon(baddump);
+							break;
+						case nodump:
+							setIcon(nodump);
+							break;
+					}
+				}
+				else
+					setIcon(null);
+				setToolTipText(value != null ? value.toString() : null);
+				return this;
+			}
 		}
-	} };
+	};
 
+	private abstract static class AlignedTableCellRenderer extends DefaultTableCellRenderer
+	{
+		public AlignedTableCellRenderer(int align)
+		{
+			setHorizontalAlignment(align);
+		}
+	}
+	
 	/**
 	 * Gets the background.
 	 *

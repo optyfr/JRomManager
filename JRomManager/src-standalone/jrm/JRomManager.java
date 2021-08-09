@@ -50,7 +50,7 @@ public final class JRomManager
 	public static void main(final String[] args)
 	{
 		System.setProperty("file.encoding", "UTF-8");
-		Sessions.single_mode = true;
+		Sessions.setSingleMode(true);
 		HTMLRenderer.Options.setHTML5(false);
 		var multiuser = false;
 		var noupdate = false;
