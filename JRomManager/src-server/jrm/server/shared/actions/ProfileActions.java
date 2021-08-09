@@ -24,6 +24,7 @@ import jrm.profile.fix.Fix;
 import jrm.profile.manager.Import;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
+import jrm.profile.scan.ScanException;
 import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.PathAbstractor;
 import jrm.server.shared.WebSession;
@@ -198,6 +199,10 @@ public class ProfileActions extends PathAbstractor
 			{
 				// user cancelled action
 			}
+			catch(ScanException ex)
+			{
+				session.getWorker().progress.addError(ex.getMessage());
+			}
 			session.getWorker().progress.close();
 			session.getWorker().progress = null;
 			session.setLastAction(new Date());
@@ -224,6 +229,10 @@ public class ProfileActions extends PathAbstractor
 				}
 				final var fix = new Fix(session.getCurrProfile(), session.getCurrScan(), session.getWorker().progress);
 				fixed(fix);
+			}
+			catch(ScanException ex)
+			{
+				session.getWorker().progress.addError(ex.getMessage());
 			}
 			finally
 			{

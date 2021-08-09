@@ -51,6 +51,7 @@ import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
+import jrm.profile.scan.ScanException;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.security.Sessions;
@@ -79,9 +80,9 @@ public class JRomManagerCLI
 				do
 				{
 					if (session.getCurrProfile() != null)
-						System.out.format("jrm [%s]> ", session.getCurrProfile().getNfo().getFile().getName()); //$NON-NLS-1$
+						System.out.format("jrm [%s]> ", session.getCurrProfile().getNfo().getFile().getName()); //$NON-NLS-1$	//NOSONAR
 					else
-						System.out.print("jrm> "); //$NON-NLS-1$
+						System.out.print("jrm> "); //$NON-NLS-1$	//NOSONAR
 					analyze(splitLine(console.readLine()));
 				}
 				while (true); // we break out with <control><C>
@@ -155,13 +156,13 @@ public class JRomManagerCLI
 				case SET:
 					if(args.length == 1)
 					{
-						System.getProperties().forEach((k,v)->System.out.println(k+"="+v)); //$NON-NLS-1$
-						System.getenv().forEach((k,v)->System.out.println(k+"="+v)); //$NON-NLS-1$
+						System.getProperties().forEach((k,v)->System.out.println(k+"="+v)); //$NON-NLS-1$	//NOSONAR
+						System.getenv().forEach((k,v)->System.out.println(k+"="+v)); //$NON-NLS-1$	//NOSONAR
 						return 0;
 					}
 					if (args.length == 2)
 					{
-						getEnv(args[1]).ifPresent(System.out::println);
+						getEnv(args[1]).ifPresent(System.out::println);	//NOSONAR
 						return 0;
 					}
 					if(args.length == 3)
@@ -238,7 +239,7 @@ public class JRomManagerCLI
 						return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
 					if (session.getReport() == null)
 						return error(CLIMessages.getString("CLI_ERR_NoReport")); //$NON-NLS-1$
-					System.out.println(session.getReport().getStats().getStatus());
+					System.out.println(session.getReport().getStats().getStatus());	//NOSONAR
 					return 0;
 				case FIX:
 					if (session.getCurrScan() == null)
@@ -248,7 +249,7 @@ public class JRomManagerCLI
 					if (session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() == 0)
 						return error(CLIMessages.getString("CLI_ERR_NothingToFix")); //$NON-NLS-1$
 					final var fix = new Fix(session.getCurrProfile(), session.getCurrScan(), handler);
-					System.out.format(CLIMessages.getString("CLI_MSG_ActionRemaining"), fix.getActionsRemain()); //$NON-NLS-1$
+					System.out.format(CLIMessages.getString("CLI_MSG_ActionRemaining"), fix.getActionsRemain()); //$NON-NLS-1$	//NOSONAR
 					return fix.getActionsRemain();
 				case DIRUPD8R:
 					if (args.length == 1)
@@ -267,9 +268,9 @@ public class JRomManagerCLI
 					{
 						if (cmd != CMD.EMPTY && cmd != CMD.UNKNOWN)
 						{
-							System.out.append(cmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$
-							System.out.append(": ").append(CLIMessages.getString("CLI_HELP_" + cmd.name())); //$NON-NLS-1$ //$NON-NLS-2$
-							System.out.append("\n"); //$NON-NLS-1$
+							System.out.append(cmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$ 	//NOSONAR
+							System.out.append(": ").append(CLIMessages.getString("CLI_HELP_" + cmd.name())); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
+							System.out.append("\n"); //$NON-NLS-1$ 	//NOSONAR
 						}
 					}
 					return 0;
@@ -285,9 +286,9 @@ public class JRomManagerCLI
 		{
 			Log.err(e.getMessage(), e);
 		}
-		catch (ParseException e)
+		catch (ScanException|ParseException e)
 		{
-			System.out.println(e.getMessage());
+			System.out.println(e.getMessage());	//NOSONAR
 			Log.err(e.getMessage(), e);
 		}
 		return -1;
@@ -328,13 +329,13 @@ public class JRomManagerCLI
 		{
 			case LSSRC:
 			{
-				System.out.append("srcdirs = [\n").append(Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(s -> "\t" + Json.value(s).toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				System.out.append("srcdirs = [\n").append(Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(s -> "\t" + Json.value(s).toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$	//NOSONAR
 				
 				break;
 			}
 			case LSSDR:
 			{
-				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$	//NOSONAR
 				break;
 			}
 			case CLEARSRC:
@@ -347,8 +348,8 @@ public class JRomManagerCLI
 			{
 				if(args.length==0)
 				{
-					System.out.println("TZIP"); //$NON-NLS-1$
-					System.out.println("DIR"); //$NON-NLS-1$
+					System.out.println("TZIP"); //$NON-NLS-1$	//NOSONAR
+					System.out.println("DIR"); //$NON-NLS-1$	//NOSONAR
 					return 0;
 				}
 				else if(args.length==2)
@@ -391,10 +392,10 @@ public class JRomManagerCLI
 								session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), settings);
 							}
 							else if (args.length == 2)
-								System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$
+								System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
 							else
 								for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
-									System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
+									System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$	//NOSONAR
 						}
 					}
 					return 0;
@@ -440,7 +441,7 @@ public class JRomManagerCLI
 				CommandLine cmdline = new DefaultParser().parse(options, args);
 				new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, cmdline.hasOption('d'));
 				for (var i = 0; i < results.length; i++)
-					System.out.println(i + " = " + results[i]); //$NON-NLS-1$
+					System.out.println(i + " = " + results[i]); //$NON-NLS-1$	//NOSONAR
 				break;
 			}
 			case HELP:
@@ -449,9 +450,9 @@ public class JRomManagerCLI
 				{
 					if (ducmd != CMD_DIRUPD8R.EMPTY && ducmd != CMD_DIRUPD8R.UNKNOWN)
 					{
-						System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$
-						System.out.append(": ").append(CLIMessages.getString("CLI_HELP_DIRUPD8R_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$
-						System.out.append("\n"); //$NON-NLS-1$
+						System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$	//NOSONAR
+						System.out.append(": ").append(CLIMessages.getString("CLI_HELP_DIRUPD8R_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
+						System.out.append("\n"); //$NON-NLS-1$	//NOSONAR
 					}
 				}
 				break;
@@ -470,7 +471,7 @@ public class JRomManagerCLI
 		{
 			case LSSDR:
 			{
-				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$	//NOSONAR
 				break;
 			}
 			case CLEARSDR:
@@ -527,9 +528,9 @@ public class JRomManagerCLI
 				{
 					if (ducmd != CMD_TRNTCHK.EMPTY && ducmd != CMD_TRNTCHK.UNKNOWN)
 					{
-						System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$
-						System.out.append(": ").append(CLIMessages.getString("CLI_HELP_TRNTCHK_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$
-						System.out.append("\n"); //$NON-NLS-1$
+						System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$	//NOSONAR
+						System.out.append(": ").append(CLIMessages.getString("CLI_HELP_TRNTCHK_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
+						System.out.append("\n"); //$NON-NLS-1$	//NOSONAR
 					}
 				}
 				break;
@@ -588,16 +589,16 @@ public class JRomManagerCLI
 	private int prefs()
 	{
 		for (Map.Entry<Object, Object> entry : session.getUser().getSettings().getProperties().entrySet())
-			System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
+			System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$	//NOSONAR
 		return 0;
 	}
 
 	private int prefs(final Enum<?> name)
 	{
 		if (!session.getUser().getSettings().hasProperty(name))
-			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$
+			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$	//NOSONAR
 		else
-			System.out.format("%s=%s%n", name, session.getUser().getSettings().getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.format("%s=%s%n", name, session.getUser().getSettings().getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
 		return 0;
 	}
 
@@ -611,16 +612,16 @@ public class JRomManagerCLI
 	private int settings()
 	{
 		for (Map.Entry<Object, Object> entry : session.getCurrProfile().getSettings().getProperties().entrySet())
-			System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$
+			System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$	//NOSONAR
 		return 0;
 	}
 
 	private int settings(final Enum<?> name)
 	{
 		if (!session.getCurrProfile().getSettings().hasProperty(name))
-			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$
+			System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$	//NOSONAR
 		else
-			System.out.format("%s=%s%n", name, session.getCurrProfile().getSettings().getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.format("%s=%s%n", name, session.getCurrProfile().getSettings().getProperty(name, "")); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
 		return 0;
 	}
 
@@ -639,13 +640,13 @@ public class JRomManagerCLI
 
 	private int error(String msg)
 	{
-		System.out.println(msg);
+		System.out.println(msg);	//NOSONAR
 		return -1;
 	}
 
 	private int error(Supplier<String> supplier)
 	{
-		System.out.println(supplier.get());
+		System.out.println(supplier.get());	//NOSONAR
 		return -1;
 	}
 
@@ -655,7 +656,7 @@ public class JRomManagerCLI
 		if (Files.isRegularFile(candidate))
 			session.setCurrProfile(Profile.load(session, candidate.toFile(), handler));
 		else
-			System.out.format(CLIMessages.getString("CLI_ERR_ProfileNotExist"), profile); //$NON-NLS-1$
+			System.out.format(CLIMessages.getString("CLI_ERR_ProfileNotExist"), profile); //$NON-NLS-1$	//NOSONAR
 		return 0;
 	}
 
@@ -671,24 +672,24 @@ public class JRomManagerCLI
 			if (rootdir.startsWith(candidate) && !rootdir.equals(candidate))
 			{
 				cwdir = rootdir;
-				System.out.format(CLIMessages.getString("CLI_ERR_CantGoUpDir"), dir); //$NON-NLS-1$
+				System.out.format(CLIMessages.getString("CLI_ERR_CantGoUpDir"), dir); //$NON-NLS-1$	//NOSONAR
 			}
 			else if (Files.isDirectory(candidate))
 			{
 				if (candidate.startsWith(rootdir))
 					cwdir = candidate;
 				else
-					System.out.format(CLIMessages.getString("CLI_ERR_CantChangeDir"), dir); //$NON-NLS-1$
+					System.out.format(CLIMessages.getString("CLI_ERR_CantChangeDir"), dir); //$NON-NLS-1$	//NOSONAR
 			}
 			else
-				System.out.format(CLIMessages.getString("CLI_ERR_UnknownDir"), dir); //$NON-NLS-1$
+				System.out.format(CLIMessages.getString("CLI_ERR_UnknownDir"), dir); //$NON-NLS-1$	//NOSONAR
 		}
 		return 0;
 	}
 
 	private int pwd()
 	{
-		System.out.println("~/" + rootdir.relativize(cwdir)); //$NON-NLS-1$
+		System.out.println("~/" + rootdir.relativize(cwdir)); //$NON-NLS-1$	//NOSONAR
 		return 0;
 	}
 
@@ -699,7 +700,7 @@ public class JRomManagerCLI
 			stream.filter(p -> Files.isDirectory(p) && !p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p -> System.out.format("<DIR>\t%s%n", p)); //$NON-NLS-1$
 		}
 		for (val row : ProfileNFO.list(session, cwdir.toFile()))
-			System.out.format("<DAT>\t%s\n", row.getName()); //$NON-NLS-1$
+			System.out.format("<DAT>\t%s\n", row.getName()); //$NON-NLS-1$	//NOSONAR
 		return 0;
 	}
 

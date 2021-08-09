@@ -1,22 +1,24 @@
-/* Copyright (C) 2018  optyfr
+/*
+ * Copyright (C) 2018 optyfr
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.scan;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -88,10 +91,10 @@ import jrm.profile.report.SubjectSet.Status;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.MergeOptions;
 import jrm.security.PathAbstractor;
-import lombok.val;
 
 /**
  * The scan class
+ * 
  * @author optyfr
  */
 public class Scan extends PathAbstractor
@@ -110,7 +113,7 @@ public class Scan extends PathAbstractor
 	 * The current profile
 	 */
 	private final Profile profile;
-	
+
 	/*
 	 * All options variables
 	 */
@@ -122,7 +125,9 @@ public class Scan extends PathAbstractor
 	private final boolean ignoreUnneededEntries;
 	private final boolean ignoreUnknownContainers;
 	private final boolean backup;
-	
+	private final boolean useParallelism;
+	private final int nThreads;
+
 	/*
 	 * All Dir Scans variables
 	 */
@@ -150,7 +155,7 @@ public class Scan extends PathAbstractor
 	 * Contains all src and dst scans
 	 */
 	private final List<DirScan> allScans = new ArrayList<>();
-	
+
 	/**
 	 * backup actions, always made first on entries that will be removed
 	 */
@@ -160,7 +165,9 @@ public class Scan extends PathAbstractor
 	 */
 	private final List<jrm.profile.fix.actions.ContainerAction> createActions = new ArrayList<>();
 	/**
-	 * rename before actions, all entries that will be delete are renamed first, to avoid collision from add and because they can be used for another add elsewhere during fix
+	 * rename before actions, all entries that will be delete are renamed first, to
+	 * avoid collision from add and because they can be used for another add
+	 * elsewhere during fix
 	 */
 	private final List<jrm.profile.fix.actions.ContainerAction> renameBeforeActions = new ArrayList<>();
 	/**
@@ -172,7 +179,8 @@ public class Scan extends PathAbstractor
 	 */
 	private final List<jrm.profile.fix.actions.ContainerAction> deleteActions = new ArrayList<>();
 	/**
-	 * rename after actions, for entries that need to replace another entry that have to be delete first
+	 * rename after actions, for entries that need to replace another entry that
+	 * have to be delete first
 	 */
 	private final List<jrm.profile.fix.actions.ContainerAction> renameAfterActions = new ArrayList<>();
 	/**
@@ -180,40 +188,52 @@ public class Scan extends PathAbstractor
 	 */
 	private final List<jrm.profile.fix.actions.ContainerAction> duplicateActions = new ArrayList<>();
 	/**
-	 * torrentzip actions, always the last actions when there is no more to do on zip archive
+	 * torrentzip actions, always the last actions when there is no more to do on
+	 * zip archive
 	 */
 	private final Map<String, jrm.profile.fix.actions.ContainerAction> tzipActions = new HashMap<>();
 
 	/**
 	 * get a negated {@link Predicate} from a provided {@link Predicate}
-	 * @param predicate the {@link Predicate} to negate
-	 * @param <T> the type of the input to the predicate
+	 * 
+	 * @param predicate
+	 *            the {@link Predicate} to negate
+	 * @param <T>
+	 *            the type of the input to the predicate
 	 * @return the negated {@link Predicate}
 	 */
 	private static <T> Predicate<T> not(final Predicate<T> predicate)
 	{
 		return predicate.negate();
 	}
-	
+
 	/**
 	 * The constructor
-	 * @param profile the current {@link Profile}
-	 * @param handler the {@link ProgressHandler} to show progression on UI
+	 * 
+	 * @param profile
+	 *            the current {@link Profile}
+	 * @param handler
+	 *            the {@link ProgressHandler} to show progression on UI
 	 * @throws BreakException
 	 */
-	public Scan(final Profile profile, final ProgressHandler handler) throws BreakException
+	public Scan(final Profile profile, final ProgressHandler handler) throws BreakException, ScanException
 	{
 		this(profile, handler, null);
 	}
-	
+
 	/**
 	 * The constructor
-	 * @param profile the current {@link Profile}
-	 * @param handler the {@link ProgressHandler} to show progression on UI
-	 * @param scancache a cache for src {@link DirScan}
+	 * 
+	 * @param profile
+	 *            the current {@link Profile}
+	 * @param handler
+	 *            the {@link ProgressHandler} to show progression on UI
+	 * @param scancache
+	 *            a cache for src {@link DirScan}
 	 * @throws BreakException
+	 * @throws ScanException 
 	 */
-	public Scan(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache) throws BreakException
+	public Scan(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache) throws BreakException, ScanException
 	{
 		super(profile.getSession());
 		this.profile = profile;
@@ -221,87 +241,106 @@ public class Scan extends PathAbstractor
 		profile.setPropsCheckPoint();
 		report.reset();
 		report.setProfile(profile);
-		
+
 		/*
 		 * Store locally various profile settings
 		 */
-		format = FormatOptions.valueOf(profile.getProperty(SettingsEnum.format, FormatOptions.ZIP.toString())); //$NON-NLS-1$
-		mergeMode = MergeOptions.valueOf(profile.getProperty(SettingsEnum.merge_mode, MergeOptions.SPLIT.toString())); //$NON-NLS-1$
-		createMode = profile.getProperty(SettingsEnum.create_mode, true); //$NON-NLS-1$
-		createFullMode = profile.getProperty(SettingsEnum.createfull_mode, false); //$NON-NLS-1$
-		ignoreUnneededContainers = profile.getProperty(SettingsEnum.ignore_unneeded_containers, false); //$NON-NLS-1$
-		ignoreUnneededEntries = profile.getProperty(SettingsEnum.ignore_unneeded_entries, false); //$NON-NLS-1$
-		ignoreUnknownContainers = profile.getProperty(SettingsEnum.ignore_unknown_containers, false); //$NON-NLS-1$
-		backup = profile.getProperty(SettingsEnum.backup, true); //$NON-NLS-1$
-		val useParallelism = profile.getProperty(SettingsEnum.use_parallelism, profile.getSession().isServer());
-		val nThreads = useParallelism ? profile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+		format = FormatOptions.valueOf(profile.getProperty(SettingsEnum.format, FormatOptions.ZIP.toString())); // $NON-NLS-1$
+		mergeMode = MergeOptions.valueOf(profile.getProperty(SettingsEnum.merge_mode, MergeOptions.SPLIT.toString())); // $NON-NLS-1$
+		createMode = profile.getProperty(SettingsEnum.create_mode, true); // $NON-NLS-1$
+		createFullMode = profile.getProperty(SettingsEnum.createfull_mode, false); // $NON-NLS-1$
+		ignoreUnneededContainers = profile.getProperty(SettingsEnum.ignore_unneeded_containers, false); // $NON-NLS-1$
+		ignoreUnneededEntries = profile.getProperty(SettingsEnum.ignore_unneeded_entries, false); // $NON-NLS-1$
+		ignoreUnknownContainers = profile.getProperty(SettingsEnum.ignore_unknown_containers, false); // $NON-NLS-1$
+		backup = profile.getProperty(SettingsEnum.backup, true); // $NON-NLS-1$
+		useParallelism = profile.getProperty(SettingsEnum.use_parallelism, profile.getSession().isServer());
+		nThreads = useParallelism ? profile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 
-		final String dstDirTxt = profile.getProperty(SettingsEnum.roms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
-		if (dstDirTxt.isEmpty())
+		final File romsDstDir = initRomsDstDir(profile);
+		final File disksDstDir = initDisksDstDir(profile, romsDstDir);
+		final File swromsDstDir = initSwRomsDstDir(profile, romsDstDir);
+		final File swdisksDstDir = initSwDisksDstDir(profile, swromsDstDir);
+		final File samplesDstDir = initSamplesDstDir(profile);
+		final var srcdirs = initSrcDirs(profile);
+
+		scanSrcDirs(profile, handler, scancache, srcdirs);
+
+		try
 		{
-			Log.err("dst dir is empty");
-			return; //TODO be more informative on failure
+			/*
+			 * scan all dst dirs according machines and softwares in profile, and
+			 * determinate what is unknown and what is unneeded
+			 */
+			final ArrayList<Container> unknown = new ArrayList<>();
+			final ArrayList<Container> unneeded = new ArrayList<>();
+			final ArrayList<Container> samplesUnknown = new ArrayList<>();
+			final ArrayList<Container> samplesUnneeded = new ArrayList<>();
+			scanDstDirs(profile, handler, romsDstDir, disksDstDir, samplesDstDir, unknown, unneeded, samplesUnknown, samplesUnneeded);
+			scanSWDstDirs(profile, handler, romsDstDir, swromsDstDir, swdisksDstDir, unknown, unneeded);
+
+			/* reset progress style */
+			handler.setInfos(nThreads, null);
+
+			processAndReportUnknownActions(romsDstDir, disksDstDir, swromsDstDir, swdisksDstDir, samplesDstDir, unknown);
+			processAndReportUnneededActions(unneeded);
+			reportSuspiciousCrc(profile);
+			searchFixes(profile, handler, nThreads);
 		}
-		final File romsDstDir = getAbsolutePath(dstDirTxt).toFile();
-		if (!romsDstDir.isDirectory())
+		catch (final BreakException e)
 		{
-			Log.err("dst dir is not a directory");
-			return; //TODO be more informative on failure
+			throw e;
 		}
-		
-		/*
-		 * use disks dest dir if enabled otherwise it will be the same than roms dest dir
-		 */
-		final File disksDstDir;
-		if (profile.getProperty(SettingsEnum.disks_dest_dir_enabled, false)) //$NON-NLS-1$
+		catch (final Exception e)
 		{
-			final String disksDstDirTxt = profile.getProperty(SettingsEnum.disks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
-			if (disksDstDirTxt.isEmpty())
-				return; //TODO be more informative on failure
-			disksDstDir = getAbsolutePath(disksDstDirTxt).toFile();
+			Log.err("Other Exception when listing", e); //$NON-NLS-1$
 		}
-		else
-			disksDstDir = new File(romsDstDir.getAbsolutePath());
-		
-		/*
-		 * use sw roms dest dir if enabled otherwise it will be the same than roms dest dir
-		 */
-		final File swromsDstDir;
-		if (profile.getProperty(SettingsEnum.swroms_dest_dir_enabled, false)) //$NON-NLS-1$
+		finally
 		{
-			final String swromsDstDirTxt = profile.getProperty(SettingsEnum.swroms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
-			if (swromsDstDirTxt.isEmpty())
-				return; //TODO be more informative on failure
-			swromsDstDir = getAbsolutePath(swromsDstDirTxt).toFile();
+			handler.setInfos(1, null);
+			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
+			/* save report */
+			if (!profile.getSession().isServer())
+				report.write(profile.getSession());
+			report.flush();
+			/* update and save stats */
+			final var nfo = profile.getNfo();
+			nfo.getStats().setScanned(new Date());
+			nfo.getStats().setHaveSets(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).mapToLong(AnywareList::countHave).sum());
+			nfo.getStats().setHaveRoms(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum());
+			nfo.getStats().setHaveDisks(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum());
+			nfo.save(profile.getSession());
+			/* save again profile cache with scan entity status */
+			profile.save();
 		}
-		else
-			swromsDstDir = new File(romsDstDir.getAbsolutePath());
-		
-		/*
-		 * use sw disks dest dir if enabled otherwise it will be the same than disks dest dir (which in turn can be the same than roms dest dir)
-		 */
-		final File swdisksDstDir;
-		if (profile.getProperty(SettingsEnum.swdisks_dest_dir_enabled, false)) //$NON-NLS-1$
-		{
-			final String swdisksDstDirTxt = profile.getProperty(SettingsEnum.swdisks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
-			if (swdisksDstDirTxt.isEmpty())
-				return; //TODO be more informative on failure
-			swdisksDstDir = getAbsolutePath(swdisksDstDirTxt).toFile();
-		}
-		else
-			swdisksDstDir = new File(swromsDstDir.getAbsolutePath());
 
 		/*
-		 * use samples dest dir if enabled and valid, otherwise it's null and not used
+		 * add all actions lists, to the main actions list
 		 */
-		final String samplesDstDirTxt = profile.getProperty(SettingsEnum.samples_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final File samplesDstDir = profile.getProperty(SettingsEnum.samples_dest_dir_enabled, false) && samplesDstDirTxt.length() > 0 ? getAbsolutePath(samplesDstDirTxt).toFile() : null; //$NON-NLS-1$
+		if (backup)
+			actions.add(backupActions);
+		actions.add(createActions);
+		actions.add(renameBeforeActions);
+		actions.add(duplicateActions);
+		actions.add(addActions);
+		actions.add(deleteActions);
+		actions.add(renameAfterActions);
+		actions.add(new ArrayList<>(tzipActions.values()));
 
+	}
+
+	/**
+	 * @param profile
+	 * @return
+	 * @throws SecurityException
+	 */
+	private ArrayList<File> initSrcDirs(final Profile profile) throws SecurityException
+	{
 		/*
 		 * explode all src dir string into an ArrayList<File>
 		 */
 		final var srcdirs = new ArrayList<File>();
-		for (final var s : StringUtils.split(profile.getProperty(SettingsEnum.src_dir, ""),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		for (final var s : StringUtils.split(profile.getProperty(SettingsEnum.src_dir, ""), '|')) //$NON-NLS-1$ //$NON-NLS-2$
+																									// //$NON-NLS-3$
 		{
 			if (!s.isEmpty())
 			{
@@ -312,29 +351,156 @@ public class Scan extends PathAbstractor
 		}
 		/* then add extra backup dir to that list */
 		srcdirs.add(new File(profile.getSession().getUser().getSettings().getWorkPath().toFile(), "backup")); //$NON-NLS-1$
+		return srcdirs;
+	}
+
+	/**
+	 * @param profile
+	 * @return
+	 * @throws SecurityException
+	 */
+	private File initSamplesDstDir(final Profile profile) throws ScanException
+	{
+		/*
+		 * use samples dest dir if enabled and valid, otherwise it's null and not used
+		 */
+		if(profile.getProperty(SettingsEnum.samples_dest_dir_enabled, false))
+		{
+			final String samplesDstDirTxt = profile.getProperty(SettingsEnum.samples_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			if(!samplesDstDirTxt.isEmpty())
+				throw new ScanException("Samples dst dir is empty");
+			return getAbsolutePath(samplesDstDirTxt).toFile();
+		}
+		return null;
+	}
+
+	/**
+	 * @param profile
+	 * @param swromsDstDir
+	 * @return
+	 * @throws SecurityException
+	 */
+	private File initSwDisksDstDir(final Profile profile, final File swromsDstDir) throws ScanException
+	{
+		/*
+		 * use sw disks dest dir if enabled otherwise it will be the same than disks
+		 * dest dir (which in turn can be the same than roms dest dir)
+		 */
+		final File swdisksDstDir;
+		if (profile.getProperty(SettingsEnum.swdisks_dest_dir_enabled, false)) // $NON-NLS-1$
+		{
+			final String swdisksDstDirTxt = profile.getProperty(SettingsEnum.swdisks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			if (swdisksDstDirTxt.isEmpty())
+				throw new ScanException("Software Disks dst dir is empty");
+			swdisksDstDir = getAbsolutePath(swdisksDstDirTxt).toFile();
+		}
+		else
+			swdisksDstDir = new File(swromsDstDir.getAbsolutePath());
+		return swdisksDstDir;
+	}
+
+	/**
+	 * @param profile
+	 * @param romsDstDir
+	 * @return
+	 * @throws SecurityException
+	 */
+	private File initSwRomsDstDir(final Profile profile, final File romsDstDir) throws ScanException
+	{
+		/*
+		 * use sw roms dest dir if enabled otherwise it will be the same than roms dest
+		 * dir
+		 */
+		final File swromsDstDir;
+		if (profile.getProperty(SettingsEnum.swroms_dest_dir_enabled, false)) // $NON-NLS-1$
+		{
+			final String swromsDstDirTxt = profile.getProperty(SettingsEnum.swroms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			if (swromsDstDirTxt.isEmpty())
+				throw new ScanException("Software roms dst dir is empty");
+			swromsDstDir = getAbsolutePath(swromsDstDirTxt).toFile();
+		}
+		else
+			swromsDstDir = new File(romsDstDir.getAbsolutePath());
+		return swromsDstDir;
+	}
+
+	/**
+	 * use disks dest dir if enabled otherwise it will be the same than roms dest dir
+	 * @param profile
+	 * @param romsDstDir
+	 * @return
+	 * @throws SecurityException
+	 * @throws ScanException 
+	 */
+	private File initDisksDstDir(final Profile profile, final File romsDstDir) throws ScanException
+	{
+		final File disksDstDir;
+		if (profile.getProperty(SettingsEnum.disks_dest_dir_enabled, false)) // $NON-NLS-1$
+		{
+			final String disksDstDirTxt = profile.getProperty(SettingsEnum.disks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			if (disksDstDirTxt.isEmpty())
+				throw new ScanException("Disks dst dir is empty");
+			disksDstDir = getAbsolutePath(disksDstDirTxt).toFile();
+		}
+		else
+			disksDstDir = new File(romsDstDir.getAbsolutePath());
+		return disksDstDir;
+	}
+
+	/**
+	 * @param profile
+	 * @return
+	 * @throws SecurityException
+	 */
+	private File initRomsDstDir(final Profile profile) throws ScanException
+	{
+		final String dstDirTxt = profile.getProperty(SettingsEnum.roms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+		if (dstDirTxt.isEmpty())
+			throw new ScanException("dst dir is empty");
+		final File romsDstDir = getAbsolutePath(dstDirTxt).toFile();
+		if (!romsDstDir.isDirectory())
+			throw new ScanException("dst dir is not a directory");
+		return romsDstDir;
+	}
+
+	/**
+	 * @param profile
+	 * @param handler
+	 * @param scancache
+	 * @param srcdirs
+	 * @throws BreakException
+	 */
+	private void scanSrcDirs(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache, final ArrayList<File> srcdirs) throws BreakException
+	{
 		/* then scan all dirs from that list */
 		for (final var dir : srcdirs)
 		{
-			if(scancache != null)
+			if (scancache != null)
 			{
-				final var cachefile  = DirScan.getCacheFile(profile.getSession(), dir, DirScan.getOptions(profile, false)).getAbsolutePath();
-				if(!scancache.containsKey(cachefile))
-					scancache.put(cachefile, new DirScan(profile, dir, handler, false));
-				allScans.add(scancache.get(cachefile));
+				final var cachefile = DirScan.getCacheFile(profile.getSession(), dir, DirScan.getOptions(profile, false)).getAbsolutePath();
+				allScans.add(scancache.computeIfAbsent(cachefile, k -> new DirScan(profile, dir, handler, false)));
 			}
 			else
 				allScans.add(new DirScan(profile, dir, handler, false));
 			if (handler.isCancel())
 				throw new BreakException();
 		}
-		
-		/*
-		 * scan all dst dirs according machines and softwares in profile, and determinate what is unknown and what is unneeded
-		 */
-		final ArrayList<Container> unknown = new ArrayList<>();
-		final ArrayList<Container> unneeded = new ArrayList<>();
-		final ArrayList<Container> samplesUnknown = new ArrayList<>();
-		final ArrayList<Container> samplesUnneeded = new ArrayList<>();
+	}
+
+	/**
+	 * @param profile
+	 * @param handler
+	 * @param romsDstDir
+	 * @param disksDstDir
+	 * @param samplesDstDir
+	 * @param unknown
+	 * @param unneeded
+	 * @param samplesUnknown
+	 * @param samplesUnneeded
+	 * @throws BreakException
+	 */
+	private void scanDstDirs(final Profile profile, final ProgressHandler handler, final File romsDstDir, final File disksDstDir, final File samplesDstDir, final ArrayList<Container> unknown, final ArrayList<Container> unneeded, final ArrayList<Container> samplesUnknown, final ArrayList<Container> samplesUnneeded) throws BreakException
+	{
 		if (!profile.getMachineListList().get(0).isEmpty())
 		{
 			profile.getMachineListList().get(0).resetFilteredName();
@@ -348,193 +514,212 @@ public class Scan extends PathAbstractor
 			if (handler.isCancel())
 				throw new BreakException();
 		}
-		if (!profile.getMachineListList().getSoftwareListList().isEmpty())
+	}
+
+	/**
+	 * @param profile
+	 * @param handler
+	 * @param romsDstDir
+	 * @param swromsDstDir
+	 * @param swdisksDstDir
+	 * @param unknown
+	 * @param unneeded
+	 * @throws BreakException
+	 * @throws IOException 
+	 */
+	private void scanSWDstDirs(final Profile profile, final ProgressHandler handler, final File romsDstDir, final File swromsDstDir, final File swdisksDstDir, final ArrayList<Container> unknown, final ArrayList<Container> unneeded) throws BreakException
+	{
+		if (profile.getMachineListList().getSoftwareListList().isEmpty())
+			return;
+		final AtomicInteger j = new AtomicInteger();
+		handler.setProgress2(String.format("%d/%d", j.get(), profile.getMachineListList().getSoftwareListList().size()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
+		for (final SoftwareList sl : profile.getMachineListList().getSoftwareListList().getFilteredStream().collect(Collectors.toList()))
 		{
-			final AtomicInteger j = new AtomicInteger();
-			handler.setProgress2(String.format("%d/%d", j.get(), profile.getMachineListList().getSoftwareListList().size()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
-			for (final SoftwareList sl : profile.getMachineListList().getSoftwareListList().getFilteredStream().collect(Collectors.toList()))
+			sl.resetFilteredName();
+			File sldir = new File(swromsDstDir, sl.getName());
+			swromsDstScans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
+			if (swromsDstDir.equals(swdisksDstDir))
+				swdisksDstScans = swromsDstScans;
+			else
 			{
-				sl.resetFilteredName();
-				File sldir = new File(swromsDstDir, sl.getName());
-				swromsDstScans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
-				if (swromsDstDir.equals(swdisksDstDir))
-					swdisksDstScans = swromsDstScans;
-				else
-				{
-					sldir = new File(swdisksDstDir, sl.getName());
-					swdisksDstScans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
-				}
-				handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.getMachineListList().getSoftwareListList().size(), sl.getName()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
-				if (handler.isCancel())
-					throw new BreakException();
+				sldir = new File(swdisksDstDir, sl.getName());
+				swdisksDstScans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
 			}
-			handler.setProgress2(null, null);
-			if (swromsDstDir.isDirectory() && !swromsDstDir.equals(romsDstDir))
-			{
-				File[] files  = swromsDstDir.listFiles();
-				if(files!=null) for (final File f : files)
+			handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.getMachineListList().getSoftwareListList().size(), sl.getName()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
+			if (handler.isCancel())
+				throw new BreakException();
+		}
+		handler.setProgress2(null, null);
+		searchUnknownDirs(handler, romsDstDir, swromsDstDir, swdisksDstDir, unknown);
+	}
+
+	/**
+	 * @param handler
+	 * @param romsDstDir
+	 * @param swromsDstDir
+	 * @param swdisksDstDir
+	 * @param unknown
+	 * @throws BreakException
+	 * @throws IOException 
+	 */
+	private void searchUnknownDirs(final ProgressHandler handler, final File romsDstDir, final File swromsDstDir, final File swdisksDstDir, final ArrayList<Container> unknown) throws BreakException
+	{
+		if (!swromsDstDir.equals(romsDstDir) && swromsDstDir.isDirectory())
+		{
+			Optional.ofNullable(swromsDstDir.listFiles()).ifPresent(files -> {
+				for (final File f : files)
 				{
 					if (!swromsDstScans.containsKey(f.getName()))
 						unknown.add(f.isDirectory() ? new Directory(f, getRelativePath(f), (Machine) null) : new Archive(f, getRelativePath(f), (Machine) null));
 					if (handler.isCancel())
 						throw new BreakException();
 				}
-			}
-			if (!swromsDstDir.equals(swdisksDstDir) && swdisksDstDir.isDirectory())
-			{
-				File[] files  = swdisksDstDir.listFiles();
-				if(files!=null) for (final File f : files)
+			});
+		}
+		if (!swromsDstDir.equals(swdisksDstDir) && swdisksDstDir.isDirectory())
+		{
+			Optional.ofNullable(swdisksDstDir.listFiles()).ifPresent(files -> {
+				for (final File f : files)
 				{
 					if (!swdisksDstScans.containsKey(f.getName()))
 						unknown.add(f.isDirectory() ? new Directory(f, getRelativePath(f), (Machine) null) : new Archive(f, getRelativePath(f), (Machine) null));
 					if (handler.isCancel())
 						throw new BreakException();
 				}
-			}
+			});
 		}
-
-		/* reset progress style */
-		handler.setInfos(nThreads,null);
-
-		
-		try
-		{
-			/*
-			 * process and report unknown actions if requested
-			 */
-			if (!ignoreUnknownContainers)
-			{
-				unknown.stream().filter(c -> {
-					if(samplesDstDir!=null && c.getRelFile().equals(samplesDstDir))
-						return false;
-					if(disksDstDir!=romsDstDir && c.getRelFile().equals(disksDstDir))
-						return false;
-					if(swromsDstDir!=romsDstDir && c.getRelFile().equals(swromsDstDir))
-						return false;
-					if(swdisksDstDir!=swromsDstDir && c.getRelFile().equals(swdisksDstDir))
-						return false;
-					return true;
-				}).forEach(c -> {
-					report.add(new ContainerUnknown(c));
-					deleteActions.add(new DeleteContainer(c, format));
-				});
-			}
-			/*
-			 * process and report unneeded actions if requested
-			 */
-			if(!ignoreUnneededContainers)
-			{
-				unneeded.forEach(c->{
-					report.add(new ContainerUnneeded(c));
-					backupActions.add(new BackupContainer(c));
-					deleteActions.add(new DeleteContainer(c, format));
-				});
-			}
-			/*
-			 * report suspicious CRCs
-			 */
-			profile.getSuspiciousCRC().forEach(crc -> report.add(new RomSuspiciousCRC(crc)));
-
-			/*
-			 * Searching for fixes
-			 */
-			final AtomicInteger i = new AtomicInteger();
-			final AtomicInteger j = new AtomicInteger();
-			handler.setProgress(null, i.get(), profile.filteredSubsize()); //$NON-NLS-1$
-			handler.setProgress2(String.format("%s %d/%d", Messages.getString(MSG_SCAN_SEARCHING_FOR_FIXES), j.get(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
-			if (!profile.getMachineListList().get(0).isEmpty())
-			{
-				
-				/* Scan all samples */
-				handler.setProgress2(String.format("%s %d/%d", Messages.getString(MSG_SCAN_SEARCHING_FOR_FIXES), j.get(), profile.size()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
-				new MultiThreading<Samples>(nThreads, set ->
-				{
-					if (handler.isCancel())
-						return;
-					handler.setProgress(set.getName(), i.getAndIncrement());
-					if (samplesDstScan != null)
-						scanSamples(set);
-				}).start(StreamSupport.stream(profile.getMachineListList().get(0).samplesets.spliterator(),false));
-				/* scan all machines */ 
-				profile.getMachineListList().get(0).forEach(Machine::resetCollisionMode);
-				new MultiThreading<Machine>(nThreads, m ->
-				{
-					if (handler.isCancel())
-						return;
-					handler.setProgress(m.getFullName(), i.getAndIncrement());
-					scanWare(m);
-				}).start(profile.getMachineListList().get(0).getFilteredStream());
-			}
-			if (!profile.getMachineListList().getSoftwareListList().isEmpty())
-			{
-				/* scan all software lists */
-				profile.getMachineListList().getSoftwareListList().getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
-					// for each software list
-					handler.setProgress2(String.format("%s %d/%d (%s)", Messages.getString(MSG_SCAN_SEARCHING_FOR_FIXES), j.get(), profile.size(), sl.getName()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
-					romsDstScan = swromsDstScans.get(sl.getName());
-					disksDstScan = swdisksDstScans.get(sl.getName());
-					sl.forEach(Software::resetCollisionMode);
-					new MultiThreading<Software>(nThreads, s ->
-					{
-						if (handler.isCancel())
-							return;
-						handler.setProgress(s.getFullName(), i.getAndIncrement());
-						scanWare(s);
-					}).start(sl.getFilteredStream());
-				});
-			}
-			handler.setProgress(null, i.get());
-			handler.setProgress2(null, j.get());
-		}
-		catch (final BreakException e)
-		{
-			throw e;
-		}
-		catch (final Exception e)
-		{
-			Log.err("Other Exception when listing", e); //$NON-NLS-1$
-		}
-		finally
-		{
-			handler.setInfos(1,null);
-			handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
-			/* save report */
-			if(!profile.getSession().isServer())
-				report.write(profile.getSession());
-			report.flush();
-			/* update and save stats */
-			final var nfo = profile.getNfo();
-			nfo.getStats().setScanned(new Date());
-			nfo.getStats().setHaveSets(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).mapToLong(AnywareList::countHave).sum());
-			nfo.getStats().setHaveRoms(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveRoms).sum());
-			nfo.getStats().setHaveDisks(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum());
-			nfo.save(profile.getSession());
-			/* save again profile cache with scan entity status */
-			profile.save(); 
-		}
-
-		/*
-		 * add all actions lists, to the main actions list
-		 */
-		if(backup)
-			actions.add(backupActions);
-		actions.add(createActions);
-		actions.add(renameBeforeActions);
-		actions.add(duplicateActions);
-		actions.add(addActions);
-		actions.add(deleteActions);
-		actions.add(renameAfterActions);
-		actions.add(new ArrayList<>(tzipActions.values()));
-
 	}
 
 	/**
-	 * scan dir, and determinate what is unknown and what is unneeded according {@link ByName} (Software or Machine)
-	 * @param byname the {@link ByName} (Software or Machine)
-	 * @param dstdir the dir {@link File} to scan with {@link DirScan}
-	 * @param unknown the {@link List} that will receive unknown {@link Container}s
-	 * @param unneeded the {@link List} that will receive unneeded {@link Container}s
-	 * @param handler the {@link ProgressHandler} to show progression on UI
+	 * @param profile
+	 */
+	private void reportSuspiciousCrc(final Profile profile)
+	{
+		/*
+		 * report suspicious CRCs
+		 */
+		profile.getSuspiciousCRC().forEach(crc -> report.add(new RomSuspiciousCRC(crc)));
+	}
+
+	/**
+	 * @param unneeded
+	 */
+	private void processAndReportUnneededActions(final ArrayList<Container> unneeded)
+	{
+		/*
+		 * process and report unneeded actions if requested
+		 */
+		if (!ignoreUnneededContainers)
+		{
+			unneeded.forEach(c -> {
+				report.add(new ContainerUnneeded(c));
+				backupActions.add(new BackupContainer(c));
+				deleteActions.add(new DeleteContainer(c, format));
+			});
+		}
+	}
+
+	/**
+	 * @param romsDstDir
+	 * @param disksDstDir
+	 * @param swromsDstDir
+	 * @param swdisksDstDir
+	 * @param samplesDstDir
+	 * @param unknown
+	 */
+	private void processAndReportUnknownActions(final File romsDstDir, final File disksDstDir, final File swromsDstDir, final File swdisksDstDir, final File samplesDstDir, final ArrayList<Container> unknown)
+	{
+		/*
+		 * process and report unknown actions if requested
+		 */
+		if (!ignoreUnknownContainers)
+		{
+			unknown.stream().filter(c -> {
+				if (samplesDstDir != null && c.getRelFile().equals(samplesDstDir))
+					return false;
+				else if (disksDstDir != romsDstDir && c.getRelFile().equals(disksDstDir))
+					return false;
+				else if (swromsDstDir != romsDstDir && c.getRelFile().equals(swromsDstDir))
+					return false;
+				else
+					return !(swdisksDstDir != swromsDstDir && c.getRelFile().equals(swdisksDstDir));
+			}).forEach(c -> {
+				report.add(new ContainerUnknown(c));
+				deleteActions.add(new DeleteContainer(c, format));
+			});
+		}
+	}
+
+	/**
+	 * @param profile
+	 * @param handler
+	 * @param nThreads
+	 */
+	private void searchFixes(final Profile profile, final ProgressHandler handler, final int nThreads)
+	{
+		/*
+		 * Searching for fixes
+		 */
+		final AtomicInteger i = new AtomicInteger();
+		final AtomicInteger j = new AtomicInteger();
+		handler.setProgress(null, i.get(), profile.filteredSubsize()); // $NON-NLS-1$
+		handler.setProgress2(String.format("%s %d/%d", Messages.getString(MSG_SCAN_SEARCHING_FOR_FIXES), j.get(), profile.size()), j.get(), profile.size()); //$NON-NLS-1$
+		if (!profile.getMachineListList().get(0).isEmpty())
+		{
+
+			/* Scan all samples */
+			handler.setProgress2(String.format("%s %d/%d", Messages.getString(MSG_SCAN_SEARCHING_FOR_FIXES), j.get(), profile.size()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
+			new MultiThreading<Samples>(nThreads, set -> {
+				if (handler.isCancel())
+					return;
+				handler.setProgress(set.getName(), i.getAndIncrement());
+				if (samplesDstScan != null)
+					scanSamples(set);
+			}).start(StreamSupport.stream(profile.getMachineListList().get(0).samplesets.spliterator(), false));
+			/* scan all machines */
+			profile.getMachineListList().get(0).forEach(Machine::resetCollisionMode);
+			new MultiThreading<Machine>(nThreads, m -> {
+				if (handler.isCancel())
+					return;
+				handler.setProgress(m.getFullName(), i.getAndIncrement());
+				scanWare(m);
+			}).start(profile.getMachineListList().get(0).getFilteredStream());
+		}
+		if (!profile.getMachineListList().getSoftwareListList().isEmpty())
+		{
+			/* scan all software lists */
+			profile.getMachineListList().getSoftwareListList().getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
+				// for each software list
+				handler.setProgress2(String.format("%s %d/%d (%s)", Messages.getString(MSG_SCAN_SEARCHING_FOR_FIXES), j.get(), profile.size(), sl.getName()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
+				romsDstScan = swromsDstScans.get(sl.getName());
+				disksDstScan = swdisksDstScans.get(sl.getName());
+				sl.forEach(Software::resetCollisionMode);
+				new MultiThreading<Software>(nThreads, s -> {
+					if (handler.isCancel())
+						return;
+					handler.setProgress(s.getFullName(), i.getAndIncrement());
+					scanWare(s);
+				}).start(sl.getFilteredStream());
+			});
+		}
+		handler.setProgress(null, i.get());
+		handler.setProgress2(null, j.get());
+	}
+
+	/**
+	 * scan dir, and determinate what is unknown and what is unneeded according
+	 * {@link ByName} (Software or Machine)
+	 * 
+	 * @param byname
+	 *            the {@link ByName} (Software or Machine)
+	 * @param dstdir
+	 *            the dir {@link File} to scan with {@link DirScan}
+	 * @param unknown
+	 *            the {@link List} that will receive unknown {@link Container}s
+	 * @param unneeded
+	 *            the {@link List} that will receive unneeded {@link Container}s
+	 * @param handler
+	 *            the {@link ProgressHandler} to show progression on UI
 	 * @return a {@link DirScan} object
 	 */
 	private DirScan dirscan(final ByName<?> byname, final File dstdir, final List<Container> unknown, final List<Container> unneeded, final ProgressHandler handler)
@@ -546,11 +731,11 @@ public class Scan extends PathAbstractor
 		{
 			if (c.getType() == Type.UNK)
 				unknown.add(c);
-			else if(c.getType() == Type.DIR && format == FormatOptions.FAKE)
+			else if (c.getType() == Type.DIR && format == FormatOptions.FAKE)
 				unknown.add(c);
 			else if (!byname.containsFilteredName(getBaseName(c.getFile())))
 			{
-				if(byname.containsName(getBaseName(c.getFile())))
+				if (byname.containsName(getBaseName(c.getFile())))
 					unneeded.add(c);
 				else
 					unknown.add(c);
@@ -567,13 +752,19 @@ public class Scan extends PathAbstractor
 			name = name.substring(0, last);
 		return name;
 	}
-	
+
 	/**
 	 * Determinate if a container need to be torrentzipped
-	 * @param reportSubject a SubjectSet containing the report about this archive
-	 * @param archive the {@link Container} to eventually torrentzip
-	 * @param ware the {@link Anyware} corresponding to the machine or Software of the archive
-	 * @param roms the filtered {@link Rom} {@link List}
+	 * 
+	 * @param reportSubject
+	 *            a SubjectSet containing the report about this archive
+	 * @param archive
+	 *            the {@link Container} to eventually torrentzip
+	 * @param ware
+	 *            the {@link Anyware} corresponding to the machine or Software of
+	 *            the archive
+	 * @param roms
+	 *            the filtered {@link Rom} {@link List}
 	 */
 	private void prepTZip(final SubjectSet reportSubject, final Container archive, final Anyware ware, final List<Rom> roms)
 	{
@@ -583,13 +774,8 @@ public class Scan extends PathAbstractor
 			final Container container = romsDstScan.getContainerByName(ware.getDest().getName() + format.getExt());
 			if (container != null)
 			{
-				if (container.getLastTZipCheck() < container.getModified())
+				if (container.getLastTZipCheck() < container.getModified() || !container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip) || reportSubject.hasFix())
 					tzipcontainer = container;
-				else if (!container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip))
-					tzipcontainer = container;
-				else if (reportSubject.hasFix())
-					tzipcontainer = container;
-
 			}
 			else if (createMode)
 			{
@@ -616,9 +802,14 @@ public class Scan extends PathAbstractor
 
 	/**
 	 * Determinate if a samples container need to be torrentzipped
-	 * @param reportSubject report_subject a SubjectSet containing the report about this archive
-	 * @param archive the {@link Container} to eventually torrentzip
-	 * @param set the set of samples
+	 * 
+	 * @param reportSubject
+	 *            report_subject a SubjectSet containing the report about this
+	 *            archive
+	 * @param archive
+	 *            the {@link Container} to eventually torrentzip
+	 * @param set
+	 *            the set of samples
 	 */
 	private void prepTZip(final SubjectSet reportSubject, final Container archive, final Samples set)
 	{
@@ -628,11 +819,7 @@ public class Scan extends PathAbstractor
 			final Container container = samplesDstScan.getContainerByName(archive.getFile().getName());
 			if (container != null)
 			{
-				if (container.getLastTZipCheck() < container.getModified())
-					tzipcontainer = container;
-				else if (!container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip))
-					tzipcontainer = container;
-				else if (reportSubject.hasFix())
+				if (container.getLastTZipCheck() < container.getModified() || !container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip) || reportSubject.hasFix())
 					tzipcontainer = container;
 			}
 			else if (createMode && reportSubject.hasFix())
@@ -646,10 +833,12 @@ public class Scan extends PathAbstractor
 		}
 	}
 
-
 	/**
 	 * Remove archive formats of a set that are not the current format target
-	 * @param ware the {@link Anyware}, a machine or software from which to remove unneeded format archives
+	 * 
+	 * @param ware
+	 *            the {@link Anyware}, a machine or software from which to remove
+	 *            unneeded format archives
 	 */
 	private void removeOtherFormats(final Anyware ware)
 	{
@@ -665,10 +854,16 @@ public class Scan extends PathAbstractor
 	}
 
 	/**
-	 * Remove unneeded clones archives (case we switched from split or non-merged to merged mode)
-	 * @param ware the {@link Anyware}, a machine or software from which to verify if it's a clone and remove its archive
-	 * @param disks the filtered {@link Disk} {@link List}
-	 * @param roms the filtered {@link Rom} {@link List}
+	 * Remove unneeded clones archives (case we switched from split or non-merged to
+	 * merged mode)
+	 * 
+	 * @param ware
+	 *            the {@link Anyware}, a machine or software from which to verify if
+	 *            it's a clone and remove its archive
+	 * @param disks
+	 *            the filtered {@link Disk} {@link List}
+	 * @param roms
+	 *            the filtered {@link Rom} {@link List}
 	 */
 	private void removeUnneededClone(final Anyware ware, final List<Disk> disks, final List<Rom> roms)
 	{
@@ -687,33 +882,34 @@ public class Scan extends PathAbstractor
 			}
 			else if (disks.isEmpty())
 			{
-				final Container c = disksDstScan.getContainerByName(ware.getName());
-				if (c != null)
-				{
+				Optional.ofNullable(disksDstScan.getContainerByName(ware.getName())).ifPresent(c -> {
 					report.add(new ContainerUnneeded(c));
 					backupActions.add(new BackupContainer(c));
 					deleteActions.add(new DeleteContainer(c, format));
-				}
+				});
 			}
 			if (format != FormatOptions.DIR && roms.isEmpty())
 			{
-				final Container c = romsDstScan.getContainerByName(ware.getName() + format.getExt());
-				if (c != null)
-				{
+				Optional.ofNullable(romsDstScan.getContainerByName(ware.getName() + format.getExt())).ifPresent(c -> {
 					report.add(new ContainerUnneeded(c));
 					backupActions.add(new BackupContainer(c));
 					deleteActions.add(new DeleteContainer(c, format));
-				}
+				});
 			}
 		}
 	}
 
 	/**
 	 * Scan disks
-	 * @param ware the current {@link Anyware} we are processing
-	 * @param disks the filtered {@link Disk} {@link List}
-	 * @param directory the {@link Directory} in which the disks will reside
-	 * @param reportSubject the {@link SubjectSet} report related to this {@link Anyware}
+	 * 
+	 * @param ware
+	 *            the current {@link Anyware} we are processing
+	 * @param disks
+	 *            the filtered {@link Disk} {@link List}
+	 * @param directory
+	 *            the {@link Directory} in which the disks will reside
+	 * @param reportSubject
+	 *            the {@link SubjectSet} report related to this {@link Anyware}
 	 * @return true if set is currently missing
 	 */
 	@SuppressWarnings("unlikely-arg-type")
@@ -735,9 +931,9 @@ public class Scan extends PathAbstractor
 				OpenContainer renameBeforeSet = null;
 				OpenContainer renameAfterSet = null;
 				OpenContainer duplicateSet = null;
-				
+
 				final var markedForRename = new HashSet<Entry>();
-				
+
 				for (final Disk disk : disks)
 				{
 					disk.setStatus(EntityStatus.KO);
@@ -745,24 +941,25 @@ public class Scan extends PathAbstractor
 					final var entriesByName = container.getEntriesByName();
 					for (final var candidateEntry : container.getEntries())
 					{
-						if (candidateEntry.equals(disk))	//NOSONAR
+						if (candidateEntry.equals(disk)) // NOSONAR
 						{
 							final String efile = candidateEntry.getName();
-							Log.debug(()->"The disk " + efile + " match hash from disk " + disk.getNormalizedName());
-							if (!disk.getNormalizedName().equals(candidateEntry.getName())) // but this entry name does not match the disk name
+							Log.debug(() -> "The disk " + efile + " match hash from disk " + disk.getNormalizedName());
+							if (!disk.getNormalizedName().equals(candidateEntry.getName())) // but this entry name does
+																							// not match the disk name
 							{
-								Log.debug(()->"\tbut this disk name does not match the disk name");
+								Log.debug(() -> "\tbut this disk name does not match the disk name");
 								final Disk anotherDisk = disksByName.get(candidateEntry.getName());
-								if (null != anotherDisk && candidateEntry.equals(anotherDisk))	//NOSONAR
+								if (null != anotherDisk && candidateEntry.equals(anotherDisk)) // NOSONAR
 								{
-									Log.debug(()->"\t\t\tand the entry " + efile + " is ANOTHER disk");
+									Log.debug(() -> "\t\t\tand the entry " + efile + " is ANOTHER disk");
 									if (entriesByName.containsKey(disk.getNormalizedName()))
 									{
-										Log.debug(()->"\t\t\t\tand disk " + disk.getNormalizedName() + " is in the entriesByName");
+										Log.debug(() -> "\t\t\t\tand disk " + disk.getNormalizedName() + " is in the entriesByName");
 									}
 									else
 									{
-										Log.debug(()->"\\t\\t\\t\\twe must duplicate disk " + disk.getNormalizedName() + " to ");
+										Log.debug(() -> "\\t\\t\\t\\twe must duplicate disk " + disk.getNormalizedName() + " to ");
 										// we must duplicate
 										reportSubject.add(new EntryMissingDuplicate(disk, candidateEntry));
 										duplicateSet = OpenContainer.getInstance(duplicateSet, directory, format, 0L);
@@ -783,14 +980,15 @@ public class Scan extends PathAbstractor
 									}
 									else
 										Log.debug(() -> "\t" + efile + " in disksByName found but does not match hash");
-									if (!entriesByName.containsKey(disk.getNormalizedName())) // and disk name is not in the entries
+									if (!entriesByName.containsKey(disk.getNormalizedName())) // and disk name is not in
+																								// the entries
 									{
 										Log.debug(() -> {
 											final var str = new StringBuilder("\t\tand disk " + disk.getNormalizedName() + " is NOT in the entriesByName");
 											entriesByName.forEach((k, v) -> str.append("\t\tentriesByName: " + k));
 											return str.toString();
 										});
-										if(!markedForRename.contains(candidateEntry))
+										if (!markedForRename.contains(candidateEntry))
 										{
 											reportSubject.add(new EntryWrongName(disk, candidateEntry));
 											renameBeforeSet = OpenContainer.getInstance(renameBeforeSet, directory, format, 0L);
@@ -908,10 +1106,15 @@ public class Scan extends PathAbstractor
 
 	/**
 	 * Scan roms
-	 * @param ware the current {@link Anyware} we are processing
-	 * @param roms the filtered {@link Rom} {@link List}
-	 * @param archive the {@link Container} in which the roms will reside
-	 * @param reportSubject the {@link SubjectSet} report related to this {@link Anyware}
+	 * 
+	 * @param ware
+	 *            the current {@link Anyware} we are processing
+	 * @param roms
+	 *            the filtered {@link Rom} {@link List}
+	 * @param archive
+	 *            the {@link Container} in which the roms will reside
+	 * @param reportSubject
+	 *            the {@link SubjectSet} report related to this {@link Anyware}
 	 * @return true if set is currently missing
 	 */
 	@SuppressWarnings("unlikely-arg-type")
@@ -920,9 +1123,9 @@ public class Scan extends PathAbstractor
 		boolean missingSet = true;
 		final Container container;
 		final long estimatedRomsSize = roms.stream().mapToLong(Rom::getSize).sum();
-		
+
 		if (null != (container = romsDstScan.getContainerByName(ware.getDest().getNormalizedName() + format.getExt())))
-		{	// found container
+		{ // found container
 			missingSet = false;
 			if (!roms.isEmpty())
 			{
@@ -930,7 +1133,7 @@ public class Scan extends PathAbstractor
 
 				final var romsFound = new ArrayList<Entry>();
 				final var romsByName = Rom.getRomsByName(roms);
-				
+
 				BackupContainer backupSet = null;
 				OpenContainer addSet = null;
 				OpenContainer deleteSet = null;
@@ -939,41 +1142,43 @@ public class Scan extends PathAbstractor
 				OpenContainer duplicateSet = null;
 
 				final var entriesByName = container.getEntriesByName();
-				
+
 				final var entriesBySha1 = new HashMap<String, List<Entry>>();
 				final var entriesByMd5 = new HashMap<String, List<Entry>>();
 				final var entriesByCrc = new HashMap<String, List<Entry>>();
 				initHashesFromContainerEntries(container, entriesBySha1, entriesByMd5, entriesByCrc);
 
 				final Set<Entry> markedForRename = new HashSet<>();
-				
-				for (final Rom rom : roms)	// check roms
+
+				for (final Rom rom : roms) // check roms
 				{
 					rom.setStatus(EntityStatus.KO);
 					Entry foundEntry = null;
 					Entry wrongHash = null;
-					
+
 					final var entries = findEntriesByHash(entriesBySha1, entriesByMd5, entriesByCrc, rom);
-					if(entries != null) 
+					if (entries != null)
 					{
 						for (final var candidate_entry : entries)
 						{
 							final String efile = candidate_entry.getName();
-							Log.debug(()->"The entry " + efile + " match hash from rom " + rom.getNormalizedName());
-							if (!rom.getNormalizedName().equals(efile)) // but this entry name does not match the rom name
+							Log.debug(() -> "The entry " + efile + " match hash from rom " + rom.getNormalizedName());
+							if (!rom.getNormalizedName().equals(efile)) // but this entry name does not match the rom
+																		// name
 							{
-								Log.debug(()->"\tbut this entry name does not match the rom name");
+								Log.debug(() -> "\tbut this entry name does not match the rom name");
 								final Rom anotherRom = romsByName.get(efile);
-								if (null != anotherRom && candidate_entry.equals(anotherRom))	//NOSONAR
+								if (null != anotherRom && candidate_entry.equals(anotherRom)) // NOSONAR
 								{
-									Log.debug(()->"\t\t\tand the entry " + efile + " is ANOTHER rom");
-									if (entriesByName.containsKey(rom.getNormalizedName())) // and rom name is in the entries
+									Log.debug(() -> "\t\t\tand the entry " + efile + " is ANOTHER rom");
+									if (entriesByName.containsKey(rom.getNormalizedName())) // and rom name is in the
+																							// entries
 									{
-										Log.debug(()->"\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
+										Log.debug(() -> "\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
 									}
 									else
 									{
-										Log.debug(()->"\\t\\t\\t\\twe must duplicate rom " + rom.getNormalizedName() + " to ");
+										Log.debug(() -> "\\t\\t\\t\\twe must duplicate rom " + rom.getNormalizedName() + " to ");
 										// we must duplicate
 										reportSubject.add(new EntryMissingDuplicate(rom, candidate_entry));
 										duplicateSet = OpenContainer.getInstance(duplicateSet, archive, format, estimatedRomsSize);
@@ -995,7 +1200,8 @@ public class Scan extends PathAbstractor
 									else
 										Log.debug(() -> "\t" + efile + " in romsByName found but does not match hash");
 
-									if (!entriesByName.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
+									if (!entriesByName.containsKey(rom.getNormalizedName())) // and rom name is not in
+																								// the entries
 									{
 										Log.debug(() -> {
 											final var str = new StringBuilder("\t\tand rom " + rom.getNormalizedName() + " is NOT in the entriesByName");
@@ -1003,7 +1209,7 @@ public class Scan extends PathAbstractor
 											return str.toString();
 										});
 
-										if(!markedForRename.contains(candidate_entry))
+										if (!markedForRename.contains(candidate_entry))
 										{
 											reportSubject.add(new EntryWrongName(rom, candidate_entry));
 											renameBeforeSet = OpenContainer.getInstance(renameBeforeSet, archive, format, estimatedRomsSize);
@@ -1021,32 +1227,33 @@ public class Scan extends PathAbstractor
 										foundEntry = candidate_entry;
 										break;
 									}
-									else Log.debug(()->"\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
+									else
+										Log.debug(() -> "\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
 								}
 							}
 							else
 							{
-								Log.debug(()->"\tThe entry " + efile + " match hash and name for rom " + rom.getNormalizedName());
+								Log.debug(() -> "\tThe entry " + efile + " match hash and name for rom " + rom.getNormalizedName());
 								foundEntry = candidate_entry;
 								break;
 							}
 						}
 					}
-					if(foundEntry == null)
+					if (foundEntry == null)
 					{
 						final Entry candidateEntry;
-						if((candidateEntry = entriesByName.get(rom.getNormalizedName()))!=null)
+						if ((candidateEntry = entriesByName.get(rom.getNormalizedName())) != null)
 						{
 							final String efile = candidateEntry.getName();
-							Log.debug(()->"\tOups! we got wrong hash in "+efile+" for "+rom.getNormalizedName());
+							Log.debug(() -> "\tOups! we got wrong hash in " + efile + " for " + rom.getNormalizedName());
 							wrongHash = candidateEntry;
 						}
 					}
-					
-					if (foundEntry == null)	// did not find rom in container
+
+					if (foundEntry == null) // did not find rom in container
 					{
 						report.getStats().incMissingRomsCnt();
-						for (final DirScan scan : allScans)	// now search for rom in all available dir scans
+						for (final DirScan scan : allScans) // now search for rom in all available dir scans
 						{
 							if (null != (foundEntry = scan.findByHash(rom)))
 							{
@@ -1056,8 +1263,8 @@ public class Scan extends PathAbstractor
 								break;
 							}
 						}
-						if (foundEntry == null)	// we did not found this rom anywhere
-							reportSubject.add(wrongHash!=null?new EntryWrongHash(rom, wrongHash):new EntryMissing(rom));
+						if (foundEntry == null) // we did not found this rom anywhere
+							reportSubject.add(wrongHash != null ? new EntryWrongHash(rom, wrongHash) : new EntryMissing(rom));
 					}
 					else
 					{
@@ -1067,7 +1274,7 @@ public class Scan extends PathAbstractor
 					}
 				}
 				if (!ignoreUnneededEntries)
-				{	// remove unneeded entries
+				{ // remove unneeded entries
 					final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(romsFound)::contains)).collect(Collectors.toList());
 					for (final Entry unneeded_entry : unneeded)
 					{
@@ -1088,7 +1295,7 @@ public class Scan extends PathAbstractor
 				ContainerAction.addToList(renameAfterActions, renameAfterSet);
 			}
 		}
-		else	// container is missing
+		else // container is missing
 		{
 			for (final Rom rom : roms)
 				rom.setStatus(EntityStatus.KO);
@@ -1101,7 +1308,7 @@ public class Scan extends PathAbstractor
 				{
 					report.getStats().incMissingRomsCnt();
 					Entry entryFound = null;
-					for (final DirScan scan : allScans)	// search rom in all scans
+					for (final DirScan scan : allScans) // search rom in all scans
 					{
 						if (null != (entryFound = scan.findByHash(rom)))
 						{
@@ -1112,7 +1319,7 @@ public class Scan extends PathAbstractor
 							break;
 						}
 					}
-					if (entryFound == null)	// We did not find all roms to create a full set
+					if (entryFound == null) // We did not find all roms to create a full set
 					{
 						reportSubject.add(new EntryMissing(rom));
 						partialSet = true;
@@ -1173,7 +1380,9 @@ public class Scan extends PathAbstractor
 
 	/**
 	 * Scan samples
-	 * @param set the {@link Samples} set to scan
+	 * 
+	 * @param set
+	 *            the {@link Samples} set to scan
 	 */
 	private void scanSamples(final Samples set)
 	{
@@ -1190,7 +1399,7 @@ public class Scan extends PathAbstractor
 			archive = new Archive(f, getRelativePath(f), set);
 		}
 		final SubjectSet reportSubject = new SubjectSet(set);
-		if(!scanSamples(set, archive, reportSubject))
+		if (!scanSamples(set, archive, reportSubject))
 			missingSet = false;
 		if (createMode && reportSubject.getStatus() == Status.UNKNOWN)
 			reportSubject.setMissing();
@@ -1203,9 +1412,13 @@ public class Scan extends PathAbstractor
 
 	/**
 	 * Scan samples
-	 * @param set the Samples set to scan
-	 * @param archive the {@link Container} in which the samples will reside
-	 * @param reportSubject the {@link SubjectSet} report related to this {@link Anyware}
+	 * 
+	 * @param set
+	 *            the Samples set to scan
+	 * @param archive
+	 *            the {@link Container} in which the samples will reside
+	 * @param reportSubject
+	 *            the {@link SubjectSet} report related to this {@link Anyware}
 	 * @return true if set is currently missing
 	 */
 	@SuppressWarnings("unlikely-arg-type")
@@ -1229,7 +1442,7 @@ public class Scan extends PathAbstractor
 				Entry foundEntry = null;
 				for (final Entry candidate_entry : container.getEntries())
 				{
-					if (candidate_entry.equals(sample))	//NOSONAR
+					if (candidate_entry.equals(sample)) // NOSONAR
 					{
 						foundEntry = candidate_entry;
 						break;
@@ -1345,7 +1558,9 @@ public class Scan extends PathAbstractor
 
 	/**
 	 * Scan a Machine or a Software
-	 * @param ware the {@link Anyware} to scan
+	 * 
+	 * @param ware
+	 *            the {@link Anyware} to scan
 	 */
 	private void scanWare(final Anyware ware)
 	{
