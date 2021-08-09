@@ -65,7 +65,7 @@ public class Export
 	 * @param selection if {@link ExportType#SOFTWARELIST} type, will export only the selected {@link SoftwareList}, null to export all software lists in a single file
 	 * @param progress optional {@link ProgressHandler} to show export progression
 	 */
-	public Export(final Profile profile, final File file, final ExportType type, final boolean filtered, final SoftwareList selection, final ProgressHandler progress)
+	public static void export(final Profile profile, final File file, final ExportType type, final boolean filtered, final SoftwareList selection, final ProgressHandler progress)
 	{
 		EnhancedXMLStreamWriter writer = null;
 		try(FileOutputStream fos = new FileOutputStream(file))
