@@ -22,6 +22,7 @@ import java.net.URI;
 import java.nio.file.FileSystem;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.CRC32;
 
 import jrm.aui.progress.ProgressHandler;
@@ -59,6 +60,19 @@ public class BackupContainer extends ContainerAction
 		if (action == null)
 			action = new BackupContainer(container);
 		return action;
+	}
+
+	/**
+	 * shortcut static method to get an instance of {@link BackupContainer}
+	 * @param action the potentially already existing {@link BackupContainer} 
+	 * @param container the container to backup
+	 * @return a new {@link BackupContainer}, or the already existing {@code container} parameter
+	 */
+	public static BackupContainer getInstance(AtomicReference<BackupContainer> action, final Container container)
+	{
+		if (action.get() == null)
+			action.set(new BackupContainer(container));
+		return action.get();
 	}
 
 	/**

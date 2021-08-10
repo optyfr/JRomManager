@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,6 +80,22 @@ public class OpenContainer extends ContainerAction
 		if (action == null)
 			action = new OpenContainer(container, format, dataSize);
 		return action;
+	}
+
+	
+	/**
+	 * shortcut static method to get an instance of {@link OpenContainer}
+	 * @param action the potentially {@link AtomicReference} to already existing {@link OpenContainer} 
+	 * @param container the container to open
+	 * @param format the desired format
+	 * @param dataSize the uncompressed data size supposed to be added
+	 * @return a {@link OpenContainer}
+	 */
+	public static OpenContainer getInstance(final AtomicReference<OpenContainer> action, final Container container, final FormatOptions format, final long dataSize)
+	{
+		if (action.get()==null)
+			action.set(new OpenContainer(container, format, dataSize));
+		return action.get();
 	}
 
 	

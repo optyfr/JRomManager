@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -114,6 +115,11 @@ public class Scan extends PathAbstractor
 	 */
 	private final Profile profile;
 
+	/**
+	 * The current progress handler
+	 */
+	private final ProgressHandler handler;
+	
 	/*
 	 * All options variables
 	 */
@@ -237,6 +243,7 @@ public class Scan extends PathAbstractor
 	{
 		super(profile.getSession());
 		this.profile = profile;
+		this.handler = handler;
 		this.report = profile.getSession().getReport();
 		profile.setPropsCheckPoint();
 		report.reset();
@@ -275,16 +282,16 @@ public class Scan extends PathAbstractor
 			final ArrayList<Container> unneeded = new ArrayList<>();
 			final ArrayList<Container> samplesUnknown = new ArrayList<>();
 			final ArrayList<Container> samplesUnneeded = new ArrayList<>();
-			scanDstDirs(profile, handler, romsDstDir, disksDstDir, samplesDstDir, unknown, unneeded, samplesUnknown, samplesUnneeded);
-			scanSWDstDirs(profile, handler, romsDstDir, swromsDstDir, swdisksDstDir, unknown, unneeded);
+			scanDstDirs(romsDstDir, disksDstDir, samplesDstDir, unknown, unneeded, samplesUnknown, samplesUnneeded);
+			scanSWDstDirs(romsDstDir, swromsDstDir, swdisksDstDir, unknown, unneeded);
 
 			/* reset progress style */
 			handler.setInfos(nThreads, null);
 
 			processAndReportUnknownActions(romsDstDir, disksDstDir, swromsDstDir, swdisksDstDir, samplesDstDir, unknown);
 			processAndReportUnneededActions(unneeded);
-			reportSuspiciousCrc(profile);
-			searchFixes(profile, handler, nThreads);
+			reportSuspiciousCrc();
+			searchFixes();
 		}
 		catch (final BreakException e)
 		{
@@ -499,7 +506,7 @@ public class Scan extends PathAbstractor
 	 * @param samplesUnneeded
 	 * @throws BreakException
 	 */
-	private void scanDstDirs(final Profile profile, final ProgressHandler handler, final File romsDstDir, final File disksDstDir, final File samplesDstDir, final ArrayList<Container> unknown, final ArrayList<Container> unneeded, final ArrayList<Container> samplesUnknown, final ArrayList<Container> samplesUnneeded) throws BreakException
+	private void scanDstDirs(final File romsDstDir, final File disksDstDir, final File samplesDstDir, final ArrayList<Container> unknown, final ArrayList<Container> unneeded, final ArrayList<Container> samplesUnknown, final ArrayList<Container> samplesUnneeded) throws BreakException
 	{
 		if (!profile.getMachineListList().get(0).isEmpty())
 		{
@@ -527,7 +534,7 @@ public class Scan extends PathAbstractor
 	 * @throws BreakException
 	 * @throws IOException 
 	 */
-	private void scanSWDstDirs(final Profile profile, final ProgressHandler handler, final File romsDstDir, final File swromsDstDir, final File swdisksDstDir, final ArrayList<Container> unknown, final ArrayList<Container> unneeded) throws BreakException
+	private void scanSWDstDirs(final File romsDstDir, final File swromsDstDir, final File swdisksDstDir, final ArrayList<Container> unknown, final ArrayList<Container> unneeded) throws BreakException
 	{
 		if (profile.getMachineListList().getSoftwareListList().isEmpty())
 			return;
@@ -550,7 +557,7 @@ public class Scan extends PathAbstractor
 				throw new BreakException();
 		}
 		handler.setProgress2(null, null);
-		searchUnknownDirs(handler, romsDstDir, swromsDstDir, swdisksDstDir, unknown);
+		searchUnknownDirs(romsDstDir, swromsDstDir, swdisksDstDir, unknown);
 	}
 
 	/**
@@ -562,38 +569,34 @@ public class Scan extends PathAbstractor
 	 * @throws BreakException
 	 * @throws IOException 
 	 */
-	private void searchUnknownDirs(final ProgressHandler handler, final File romsDstDir, final File swromsDstDir, final File swdisksDstDir, final ArrayList<Container> unknown) throws BreakException
+	private void searchUnknownDirs(final File romsDstDir, final File swromsDstDir, final File swdisksDstDir, final ArrayList<Container> unknown) throws BreakException
 	{
 		if (!swromsDstDir.equals(romsDstDir) && swromsDstDir.isDirectory())
-		{
-			Optional.ofNullable(swromsDstDir.listFiles()).ifPresent(files -> {
-				for (final File f : files)
-				{
-					if (!swromsDstScans.containsKey(f.getName()))
-						unknown.add(f.isDirectory() ? new Directory(f, getRelativePath(f), (Machine) null) : new Archive(f, getRelativePath(f), (Machine) null));
-					if (handler.isCancel())
-						throw new BreakException();
-				}
-			});
-		}
+			Optional.ofNullable(swromsDstDir.listFiles()).ifPresent(files -> deduceUnknownFilesFromScan(swromsDstScans, unknown, files));
 		if (!swromsDstDir.equals(swdisksDstDir) && swdisksDstDir.isDirectory())
+			Optional.ofNullable(swdisksDstDir.listFiles()).ifPresent(files -> deduceUnknownFilesFromScan(swdisksDstScans, unknown, files));
+	}
+
+	/**
+	 * @param unknown
+	 * @param files
+	 * @throws BreakException
+	 */
+	private void deduceUnknownFilesFromScan(final Map<String,DirScan> scanMap, final ArrayList<Container> unknown, final File[] files) throws BreakException
+	{
+		for (final File f : files)
 		{
-			Optional.ofNullable(swdisksDstDir.listFiles()).ifPresent(files -> {
-				for (final File f : files)
-				{
-					if (!swdisksDstScans.containsKey(f.getName()))
-						unknown.add(f.isDirectory() ? new Directory(f, getRelativePath(f), (Machine) null) : new Archive(f, getRelativePath(f), (Machine) null));
-					if (handler.isCancel())
-						throw new BreakException();
-				}
-			});
+			if (!scanMap.containsKey(f.getName()))
+				unknown.add(f.isDirectory() ? new Directory(f, getRelativePath(f), (Machine) null) : new Archive(f, getRelativePath(f), (Machine) null));
+			if (handler.isCancel())
+				throw new BreakException();
 		}
 	}
 
 	/**
 	 * @param profile
 	 */
-	private void reportSuspiciousCrc(final Profile profile)
+	private void reportSuspiciousCrc()
 	{
 		/*
 		 * report suspicious CRCs
@@ -655,7 +658,7 @@ public class Scan extends PathAbstractor
 	 * @param handler
 	 * @param nThreads
 	 */
-	private void searchFixes(final Profile profile, final ProgressHandler handler, final int nThreads)
+	private void searchFixes()
 	{
 		/*
 		 * Searching for fixes
@@ -768,36 +771,31 @@ public class Scan extends PathAbstractor
 	 */
 	private void prepTZip(final SubjectSet reportSubject, final Container archive, final Anyware ware, final List<Rom> roms)
 	{
-		if (format == FormatOptions.TZIP && (!mergeMode.isMerge() || !ware.isClone()) && (!reportSubject.isMissing() && !reportSubject.isUnneeded() && !roms.isEmpty()))
+		if (format != FormatOptions.TZIP || (mergeMode.isMerge() && ware.isClone()) || reportSubject.isMissing() || reportSubject.isUnneeded() || roms.isEmpty())
+			return;
+		Optional<Container> tzipcontainer = Optional.empty();
+		final Container container = romsDstScan.getContainerByName(ware.getDest().getName() + format.getExt());
+		if (container != null)
 		{
-			Container tzipcontainer = null;
-			final Container container = romsDstScan.getContainerByName(ware.getDest().getName() + format.getExt());
-			if (container != null)
-			{
-				if (container.getLastTZipCheck() < container.getModified() || !container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip) || reportSubject.hasFix())
-					tzipcontainer = container;
-			}
-			else if (createMode)
-			{
-				if (createFullMode)
-				{
-					if (reportSubject.isFixable())
-						tzipcontainer = archive;
-				}
-				else
-				{
-					if (reportSubject.hasFix())
-						tzipcontainer = archive;
-				}
-			}
-			if (tzipcontainer != null)
-			{
-				final long estimated_roms_size = roms.stream().mapToLong(Rom::getSize).sum();
-				tzipcontainer.setRelAW(ware);
-				tzipActions.put(tzipcontainer.getFile().getAbsolutePath(), new TZipContainer(tzipcontainer, format, estimated_roms_size));
-				report.add(new ContainerTZip(tzipcontainer));
-			}
+			if (container.getLastTZipCheck() < container.getModified() || !container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip) || reportSubject.hasFix())
+				tzipcontainer = Optional.of(container);
 		}
+		else if (createMode)
+		{
+			if (createFullMode)
+			{
+				if (reportSubject.isFixable())
+					tzipcontainer = Optional.of(archive);
+			}
+			else if (reportSubject.hasFix())
+				tzipcontainer = Optional.of(archive);
+		}
+		tzipcontainer.ifPresent(c -> {
+			final long estimated_roms_size = roms.stream().mapToLong(Rom::getSize).sum();
+			c.setRelAW(ware);
+			tzipActions.put(c.getFile().getAbsolutePath(), new TZipContainer(c, format, estimated_roms_size));
+			report.add(new ContainerTZip(c));
+		});
 	}
 
 	/**
@@ -939,6 +937,7 @@ public class Scan extends PathAbstractor
 					disk.setStatus(EntityStatus.KO);
 					Entry foundEntry = null;
 					final var entriesByName = container.getEntriesByName();
+					boolean done = false;
 					for (final var candidateEntry : container.getEntries())
 					{
 						if (candidateEntry.equals(disk)) // NOSONAR
@@ -965,7 +964,7 @@ public class Scan extends PathAbstractor
 										duplicateSet = OpenContainer.getInstance(duplicateSet, directory, format, 0L);
 										duplicateSet.addAction(new DuplicateEntry(disk.getName(), candidateEntry));
 										foundEntry = candidateEntry;
-										break;
+										done = true;
 									}
 								}
 								else
@@ -1004,21 +1003,23 @@ public class Scan extends PathAbstractor
 											duplicateSet.addAction(new DuplicateEntry(disk.getName(), candidateEntry));
 										}
 										foundEntry = candidateEntry;
-										break;
+										done = true;
 									}
 								}
 							}
 							else
 							{
 								foundEntry = candidateEntry;
-								break;
+								done = true;
 							}
 						}
 						else if (disk.getNormalizedName().equals(candidateEntry.getName()))
 						{
 							reportSubject.add(new EntryWrongHash(disk, candidateEntry));
-							break;
+							done = true;
 						}
+						if (done)
+							break;
 					}
 					if (foundEntry == null)
 					{
@@ -1117,243 +1118,297 @@ public class Scan extends PathAbstractor
 	 *            the {@link SubjectSet} report related to this {@link Anyware}
 	 * @return true if set is currently missing
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	private boolean scanRoms(final Anyware ware, final List<Rom> roms, final Container archive, final SubjectSet reportSubject)
 	{
-		boolean missingSet = true;
 		final Container container;
 		final long estimatedRomsSize = roms.stream().mapToLong(Rom::getSize).sum();
 
-		if (null != (container = romsDstScan.getContainerByName(ware.getDest().getNormalizedName() + format.getExt())))
-		{ // found container
-			missingSet = false;
-			if (!roms.isEmpty())
-			{
-				reportSubject.setFound();
-
-				final var romsFound = new ArrayList<Entry>();
-				final var romsByName = Rom.getRomsByName(roms);
-
-				BackupContainer backupSet = null;
-				OpenContainer addSet = null;
-				OpenContainer deleteSet = null;
-				OpenContainer renameBeforeSet = null;
-				OpenContainer renameAfterSet = null;
-				OpenContainer duplicateSet = null;
-
-				final var entriesByName = container.getEntriesByName();
-
-				final var entriesBySha1 = new HashMap<String, List<Entry>>();
-				final var entriesByMd5 = new HashMap<String, List<Entry>>();
-				final var entriesByCrc = new HashMap<String, List<Entry>>();
-				initHashesFromContainerEntries(container, entriesBySha1, entriesByMd5, entriesByCrc);
-
-				final Set<Entry> markedForRename = new HashSet<>();
-
-				for (final Rom rom : roms) // check roms
-				{
-					rom.setStatus(EntityStatus.KO);
-					Entry foundEntry = null;
-					Entry wrongHash = null;
-
-					final var entries = findEntriesByHash(entriesBySha1, entriesByMd5, entriesByCrc, rom);
-					if (entries != null)
-					{
-						for (final var candidate_entry : entries)
-						{
-							final String efile = candidate_entry.getName();
-							Log.debug(() -> "The entry " + efile + " match hash from rom " + rom.getNormalizedName());
-							if (!rom.getNormalizedName().equals(efile)) // but this entry name does not match the rom
-																		// name
-							{
-								Log.debug(() -> "\tbut this entry name does not match the rom name");
-								final Rom anotherRom = romsByName.get(efile);
-								if (null != anotherRom && candidate_entry.equals(anotherRom)) // NOSONAR
-								{
-									Log.debug(() -> "\t\t\tand the entry " + efile + " is ANOTHER rom");
-									if (entriesByName.containsKey(rom.getNormalizedName())) // and rom name is in the
-																							// entries
-									{
-										Log.debug(() -> "\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
-									}
-									else
-									{
-										Log.debug(() -> "\\t\\t\\t\\twe must duplicate rom " + rom.getNormalizedName() + " to ");
-										// we must duplicate
-										reportSubject.add(new EntryMissingDuplicate(rom, candidate_entry));
-										duplicateSet = OpenContainer.getInstance(duplicateSet, archive, format, estimatedRomsSize);
-										duplicateSet.addAction(new DuplicateEntry(rom.getName(), candidate_entry));
-										foundEntry = candidate_entry;
-										break;
-									}
-								}
-								else
-								{
-									if (anotherRom == null)
-									{
-										Log.debug(() -> {
-											final var str = new StringBuilder("\t" + efile + " in romsByName not found");
-											romsByName.forEach((k, v) -> str.append("\tromsByName: " + k));
-											return str.toString();
-										});
-									}
-									else
-										Log.debug(() -> "\t" + efile + " in romsByName found but does not match hash");
-
-									if (!entriesByName.containsKey(rom.getNormalizedName())) // and rom name is not in
-																								// the entries
-									{
-										Log.debug(() -> {
-											final var str = new StringBuilder("\t\tand rom " + rom.getNormalizedName() + " is NOT in the entriesByName");
-											entriesByName.forEach((k, v) -> str.append("\t\tentriesByName: " + k));
-											return str.toString();
-										});
-
-										if (!markedForRename.contains(candidate_entry))
-										{
-											reportSubject.add(new EntryWrongName(rom, candidate_entry));
-											renameBeforeSet = OpenContainer.getInstance(renameBeforeSet, archive, format, estimatedRomsSize);
-											renameBeforeSet.addAction(new RenameEntry(candidate_entry));
-											renameAfterSet = OpenContainer.getInstance(renameAfterSet, archive, format, estimatedRomsSize);
-											renameAfterSet.addAction(new RenameEntry(rom.getName(), candidate_entry));
-											markedForRename.add(candidate_entry);
-										}
-										else
-										{
-											reportSubject.add(new EntryAdd(rom, candidate_entry));
-											duplicateSet = OpenContainer.getInstance(duplicateSet, archive, format, estimatedRomsSize);
-											duplicateSet.addAction(new DuplicateEntry(rom.getName(), candidate_entry));
-										}
-										foundEntry = candidate_entry;
-										break;
-									}
-									else
-										Log.debug(() -> "\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
-								}
-							}
-							else
-							{
-								Log.debug(() -> "\tThe entry " + efile + " match hash and name for rom " + rom.getNormalizedName());
-								foundEntry = candidate_entry;
-								break;
-							}
-						}
-					}
-					if (foundEntry == null)
-					{
-						final Entry candidateEntry;
-						if ((candidateEntry = entriesByName.get(rom.getNormalizedName())) != null)
-						{
-							final String efile = candidateEntry.getName();
-							Log.debug(() -> "\tOups! we got wrong hash in " + efile + " for " + rom.getNormalizedName());
-							wrongHash = candidateEntry;
-						}
-					}
-
-					if (foundEntry == null) // did not find rom in container
-					{
-						report.getStats().incMissingRomsCnt();
-						for (final DirScan scan : allScans) // now search for rom in all available dir scans
-						{
-							if (null != (foundEntry = scan.findByHash(rom)))
-							{
-								reportSubject.add(new EntryAdd(rom, foundEntry));
-								addSet = OpenContainer.getInstance(addSet, archive, format, estimatedRomsSize);
-								addSet.addAction(new AddEntry(rom, foundEntry));
-								break;
-							}
-						}
-						if (foundEntry == null) // we did not found this rom anywhere
-							reportSubject.add(wrongHash != null ? new EntryWrongHash(rom, wrongHash) : new EntryMissing(rom));
-					}
-					else
-					{
-						rom.setStatus(EntityStatus.OK);
-						reportSubject.add(new EntryOK(rom));
-						romsFound.add(foundEntry);
-					}
-				}
-				if (!ignoreUnneededEntries)
-				{ // remove unneeded entries
-					final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(romsFound)::contains)).collect(Collectors.toList());
-					for (final Entry unneeded_entry : unneeded)
-					{
-						reportSubject.add(new EntryUnneeded(unneeded_entry));
-						backupSet = BackupContainer.getInstance(backupSet, archive);
-						backupSet.addAction(new BackupEntry(unneeded_entry));
-						renameBeforeSet = OpenContainer.getInstance(renameBeforeSet, archive, format, estimatedRomsSize);
-						renameBeforeSet.addAction(new RenameEntry(unneeded_entry));
-						deleteSet = OpenContainer.getInstance(deleteSet, archive, format, estimatedRomsSize);
-						deleteSet.addAction(new DeleteEntry(unneeded_entry));
-					}
-				}
-				ContainerAction.addToList(backupActions, backupSet);
-				ContainerAction.addToList(renameBeforeActions, renameBeforeSet);
-				ContainerAction.addToList(duplicateActions, duplicateSet);
-				ContainerAction.addToList(addActions, addSet);
-				ContainerAction.addToList(deleteActions, deleteSet);
-				ContainerAction.addToList(renameAfterActions, renameAfterSet);
-			}
+		container = romsDstScan.getContainerByName(ware.getDest().getNormalizedName() + format.getExt());
+		if (null != container)
+		{
+			scanRomsForFoundContainer(roms, archive, reportSubject, container, estimatedRomsSize);
+			return false;
 		}
 		else // container is missing
 		{
-			for (final Rom rom : roms)
-				rom.setStatus(EntityStatus.KO);
-			if (createMode && !roms.isEmpty())
-			{
-				int romsFound = 0;
-				boolean partialSet = false;
-				CreateContainer createSet = null;
-				for (final Rom rom : roms)
-				{
-					report.getStats().incMissingRomsCnt();
-					Entry entryFound = null;
-					for (final DirScan scan : allScans) // search rom in all scans
-					{
-						if (null != (entryFound = scan.findByHash(rom)))
-						{
-							reportSubject.add(new EntryAdd(rom, entryFound));
-							createSet = CreateContainer.getInstance(createSet, archive, format, estimatedRomsSize);
-							createSet.addAction(new AddEntry(rom, entryFound));
-							romsFound++;
-							break;
-						}
-					}
-					if (entryFound == null) // We did not find all roms to create a full set
-					{
-						reportSubject.add(new EntryMissing(rom));
-						partialSet = true;
-					}
-				}
-				if (romsFound > 0 && (!createFullMode || !partialSet))
-				{
-					reportSubject.setCreateFull();
-					if (partialSet)
-						reportSubject.setCreate();
-					ContainerAction.addToList(createActions, createSet);
-				}
-			}
+			scanRomsForMissingContainer(roms, archive, reportSubject, estimatedRomsSize);
+			return true;
 		}
-		return missingSet;
+	}
+	
+	private class ScanData
+	{
+		final AtomicReference<BackupContainer> backupSet = new AtomicReference<>();
+		final AtomicReference<OpenContainer> addSet = new AtomicReference<>();
+		final AtomicReference<OpenContainer> deleteSet = new AtomicReference<>();
+		final AtomicReference<OpenContainer> renameBeforeSet = new AtomicReference<>();
+		final AtomicReference<OpenContainer> renameAfterSet = new AtomicReference<>();
+		final AtomicReference<OpenContainer> duplicateSet = new AtomicReference<>();
+		
+		final List<Entry> found = new ArrayList<>();
+		final Map<String,Rom> romsByName;
+		final Map<String,Entry> entriesByName;
+		final Set<Entry> markedForRename = new HashSet<>();
+
+		final HashMap<String, List<Entry>> entriesBySha1 = new HashMap<>();
+		final HashMap<String, List<Entry>> entriesByMd5 = new HashMap<>();
+		final HashMap<String, List<Entry>> entriesByCrc = new HashMap<>();
+
+		public ScanData(final List<Rom> roms, final Container container)
+		{
+			romsByName  = Rom.getRomsByName(roms);
+			entriesByName = container.getEntriesByName();
+			initHashesFromContainerEntries(container, entriesBySha1, entriesByMd5, entriesByCrc);
+		}
+
+		/**
+		 * @param container
+		 * @param entriesBySha1
+		 * @param entriesByMd5
+		 * @param entriesByCrc
+		 */
+		private void initHashesFromContainerEntries(final Container container, final HashMap<String, List<Entry>> entriesBySha1, final HashMap<String, List<Entry>> entriesByMd5, final HashMap<String, List<Entry>> entriesByCrc)
+		{
+			container.getEntries().forEach(e -> {
+				if (e.getSha1() != null)
+					entriesBySha1.computeIfAbsent(e.getSha1(), k -> new ArrayList<>()).add(e);
+				if (e.getMd5() != null)
+					entriesByMd5.computeIfAbsent(e.getMd5(), k -> new ArrayList<>()).add(e);
+				if (e.getCrc() != null)
+					entriesByCrc.computeIfAbsent(e.getCrc() + '.' + e.getSize(), k -> new ArrayList<>()).add(e);
+			});
+		}
 	}
 
 	/**
+	 * @param roms
+	 * @param archive
+	 * @param reportSubject
 	 * @param container
-	 * @param entriesBySha1
-	 * @param entriesByMd5
-	 * @param entriesByCrc
+	 * @param estimatedRomsSize
 	 */
-	private void initHashesFromContainerEntries(final Container container, final HashMap<String, List<Entry>> entriesBySha1, final HashMap<String, List<Entry>> entriesByMd5, final HashMap<String, List<Entry>> entriesByCrc)
+	private void scanRomsForFoundContainer(final List<Rom> roms, final Container archive, final SubjectSet reportSubject, final Container container, final long estimatedRomsSize)
 	{
-		container.getEntries().forEach(e -> {
-			if (e.getSha1() != null)
-				entriesBySha1.computeIfAbsent(e.getSha1(), k -> new ArrayList<>()).add(e);
-			if (e.getMd5() != null)
-				entriesByMd5.computeIfAbsent(e.getMd5(), k -> new ArrayList<>()).add(e);
-			if (e.getCrc() != null)
-				entriesByCrc.computeIfAbsent(e.getCrc() + '.' + e.getSize(), k -> new ArrayList<>()).add(e);
-		});
+		// found container
+		if(roms.isEmpty())
+			return;
+		reportSubject.setFound();
+
+		final var scanData = new ScanData(roms, container);
+
+		for (final Rom rom : roms) // check roms
+		{
+			rom.setStatus(EntityStatus.KO);
+
+			Entry foundEntry = Optional.ofNullable(findEntriesByHash(scanData, rom))
+					.map(entries -> scanRomsEntries(archive, reportSubject, estimatedRomsSize, scanData, rom, entries))
+					.orElse(null);
+
+			final Entry wrongHash = foundEntry == null ? checkWrongHash(scanData, rom) : null;
+
+			if (foundEntry == null) // did not find rom in container
+			{
+				report.getStats().incMissingRomsCnt();
+				
+				foundEntry = searchRomInAllScans(rom);
+				if (foundEntry != null) // we did not found this rom anywhere
+				{
+					reportSubject.add(new EntryAdd(rom, foundEntry));
+					OpenContainer.getInstance(scanData.addSet, archive, format, estimatedRomsSize).addAction(new AddEntry(rom, foundEntry));
+				}
+				else
+					reportSubject.add(wrongHash != null ? new EntryWrongHash(rom, wrongHash) : new EntryMissing(rom));
+			}
+			else
+			{
+				rom.setStatus(EntityStatus.OK);
+				reportSubject.add(new EntryOK(rom));
+				scanData.found.add(foundEntry);
+			}
+		}
+		
+		removeUnneededEntries(archive, reportSubject, container, estimatedRomsSize, scanData);
+		
+		ContainerAction.addToList(backupActions, scanData.backupSet.get());
+		ContainerAction.addToList(renameBeforeActions, scanData.renameBeforeSet.get());
+		ContainerAction.addToList(duplicateActions, scanData.duplicateSet.get());
+		ContainerAction.addToList(addActions, scanData.addSet.get());
+		ContainerAction.addToList(deleteActions, scanData.deleteSet.get());
+		ContainerAction.addToList(renameAfterActions, scanData.renameAfterSet.get());
 	}
+
+	/**
+	 * @param scanData
+	 * @param rom
+	 * @param wrongHash
+	 * @return
+	 */
+	private Entry checkWrongHash(final ScanData scanData, final Rom rom)
+	{
+		final var candidateEntry = scanData.entriesByName.get(rom.getNormalizedName());
+		if (candidateEntry != null)
+		{
+			Log.debug(() -> "\tOups! we got wrong hash in " + candidateEntry.getName() + " for " + rom.getNormalizedName());
+			return candidateEntry;
+		}
+		return null;
+	}
+
+	/**
+	 * @param archive
+	 * @param reportSubject
+	 * @param container
+	 * @param estimatedRomsSize
+	 * @param scanData
+	 */
+	private void removeUnneededEntries(final Container archive, final SubjectSet reportSubject, final Container container, final long estimatedRomsSize, final ScanData scanData)
+	{
+		if (!ignoreUnneededEntries)
+		{
+			// remove unneeded entries
+			final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(scanData.found)::contains)).collect(Collectors.toList());
+			for (final Entry unneeded_entry : unneeded)
+			{
+				reportSubject.add(new EntryUnneeded(unneeded_entry));
+				BackupContainer.getInstance(scanData.backupSet, archive).addAction(new BackupEntry(unneeded_entry));
+				OpenContainer.getInstance(scanData.renameBeforeSet, archive, format, estimatedRomsSize).addAction(new RenameEntry(unneeded_entry));
+				OpenContainer.getInstance(scanData.deleteSet, archive, format, estimatedRomsSize).addAction(new DeleteEntry(unneeded_entry));
+			}
+		}
+	}
+
+	/**
+	 * @param archive
+	 * @param reportSubject
+	 * @param estimatedRomsSize
+	 * @param scanData
+	 * @param rom
+	 * @param foundEntry
+	 * @param entries
+	 * @return
+	 */
+	private Entry scanRomsEntries(final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanData scanData, final Rom rom, final List<Entry> entries)
+	{
+		for (final var candidate_entry : entries)
+		{
+			Log.debug(() -> "The entry " + candidate_entry.getName() + " match hash from rom " + rom.getNormalizedName());
+			if (!rom.getNormalizedName().equals(candidate_entry.getName())) // but this entry name does not match the rom name
+			{
+				Log.debug(() -> "\tbut this entry name does not match the rom name");
+				final Rom anotherRom = scanData.romsByName.get(candidate_entry.getName());
+				if (null != anotherRom && candidate_entry.equals(anotherRom)) // NOSONAR
+				{
+					Log.debug(() -> "\t\t\tand the entry " + candidate_entry.getName() + " is ANOTHER rom");
+					if (scanData.entriesByName.containsKey(rom.getNormalizedName())) // and rom name is in the entries
+					{
+						Log.debug(() -> "\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
+					}
+					else
+					{
+						Log.debug(() -> "\\t\\t\\t\\twe must duplicate rom " + rom.getNormalizedName() + " to ");
+						// we must duplicate
+						reportSubject.add(new EntryMissingDuplicate(rom, candidate_entry));
+						OpenContainer.getInstance(scanData.duplicateSet, archive, format, estimatedRomsSize).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
+						return candidate_entry;
+					}
+				}
+				else
+				{
+					if (anotherRom == null)
+						Log.debug(() -> "\t" + candidate_entry.getName() + " in romsByName not found (" + scanData.romsByName.keySet().stream().collect(Collectors.joining(", ")) + ")");
+					else
+						Log.debug(() -> "\t" + candidate_entry.getName() + " in romsByName found but does not match hash");
+
+					if (!scanData.entriesByName.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
+					{
+						Log.debug(() -> "\t\tand rom " + rom.getNormalizedName() + " is NOT in the entriesByName (" + scanData.entriesByName.keySet().stream().collect(Collectors.joining(", ")) + ")");
+
+						if (!scanData.markedForRename.contains(candidate_entry))
+						{
+							reportSubject.add(new EntryWrongName(rom, candidate_entry));
+							OpenContainer.getInstance(scanData.renameBeforeSet, archive, format, estimatedRomsSize).addAction(new RenameEntry(candidate_entry));
+							OpenContainer.getInstance(scanData.renameAfterSet, archive, format, estimatedRomsSize).addAction(new RenameEntry(rom.getName(), candidate_entry));
+							scanData.markedForRename.add(candidate_entry);
+						}
+						else
+						{
+							reportSubject.add(new EntryAdd(rom, candidate_entry));
+							OpenContainer.getInstance(scanData.duplicateSet, archive, format, estimatedRomsSize).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
+						}
+						return candidate_entry;
+					}
+					else
+						Log.debug(() -> "\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
+				}
+			}
+			else
+			{
+				Log.debug(() -> "\tThe entry " + candidate_entry.getName() + " match hash and name for rom " + rom.getNormalizedName());
+				return candidate_entry;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param roms
+	 * @param archive
+	 * @param reportSubject
+	 * @param missingSet
+	 * @param estimatedRomsSize
+	 * @return
+	 */
+	private void scanRomsForMissingContainer(final List<Rom> roms, final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize)
+	{
+		for (final Rom rom : roms)
+			rom.setStatus(EntityStatus.KO);
+		if (!createMode || roms.isEmpty())
+			return;
+		int romsFound = 0;
+		boolean partialSet = false;
+		CreateContainer createSet = null;
+		for (final Rom rom : roms)
+		{
+			report.getStats().incMissingRomsCnt();
+			Entry entryFound = searchRomInAllScans(rom);
+			if (null != entryFound)
+			{
+				reportSubject.add(new EntryAdd(rom, entryFound));
+				createSet = CreateContainer.getInstance(createSet, archive, format, estimatedRomsSize);
+				createSet.addAction(new AddEntry(rom, entryFound));
+				romsFound++;
+			}
+			else // We did not find all roms to create a full set
+			{
+				reportSubject.add(new EntryMissing(rom));
+				partialSet = true;
+			}
+		}
+		if (romsFound > 0 && (!createFullMode || !partialSet))
+		{
+			reportSubject.setCreateFull();
+			if (partialSet)
+				reportSubject.setCreate();
+			ContainerAction.addToList(createActions, createSet);
+		}
+	}
+
+	/**
+	 * @param rom
+	 * @param foundEntry
+	 * @return
+	 */
+	private Entry searchRomInAllScans(final Rom rom)
+	{
+		for (final DirScan scan : allScans) // now search for rom in all available dir scans
+		{
+			final var foundEntry = scan.findByHash(rom);
+			if (null != foundEntry)
+				return foundEntry;
+		}
+		return null;
+	}
+
 
 	/**
 	 * @param entriesBySha1
@@ -1362,17 +1417,17 @@ public class Scan extends PathAbstractor
 	 * @param rom
 	 * @return
 	 */
-	private List<Entry> findEntriesByHash(final HashMap<String, List<Entry>> entriesBySha1, final HashMap<String, List<Entry>> entriesByMd5, final HashMap<String, List<Entry>> entriesByCrc, final Rom rom)
+	private List<Entry> findEntriesByHash(final ScanData scanData, final Rom rom)
 	{
 		List<Entry> entries = null;
 		if (rom.getSha1() != null)
 		{
-			entries = entriesBySha1.get(rom.getSha1());
+			entries = scanData.entriesBySha1.get(rom.getSha1());
 			if (entries == null && rom.getMd5() != null)
 			{
-				entries = entriesByMd5.get(rom.getMd5());
+				entries = scanData.entriesByMd5.get(rom.getMd5());
 				if (entries == null && rom.getCrc() != null)
-					entries = entriesByCrc.get(rom.getCrc() + '.' + rom.getSize());
+					entries = scanData.entriesByCrc.get(rom.getCrc() + '.' + rom.getSize());
 			}
 		}
 		return entries;
@@ -1564,29 +1619,14 @@ public class Scan extends PathAbstractor
 	 */
 	private void scanWare(final Anyware ware)
 	{
-		final SubjectSet reportSubject = new SubjectSet(ware);
+		var missingSet = true;
 
-		boolean missingSet = true;
+		final var reportSubject = new SubjectSet(ware);
 		final var dd = new File(disksDstScan.getDir(), ware.getDest().getName());
-		final Directory directory = new Directory(dd, getRelativePath(dd), ware);
-		final Container archive;
-		if (format == FormatOptions.DIR)
-		{
-			final var d = new File(romsDstScan.getDir(), ware.getDest().getName());
-			archive = new Directory(d, getRelativePath(d), ware);
-		}
-		else if (format == FormatOptions.FAKE)
-		{
-			final var fd = new File(romsDstScan.getDir(), ware.getDest().getName());
-			archive = new FakeDirectory(fd, getRelativePath(fd), ware);
-		}
-		else
-		{
-			final var af = new File(romsDstScan.getDir(), ware.getDest().getName() + format.getExt());
-			archive = new Archive(af, getRelativePath(af), ware);
-		}
-		final List<Rom> roms = ware.filterRoms();
-		final List<Disk> disks = ware.filterDisks();
+		final var directory = new Directory(dd, getRelativePath(dd), ware);
+		final var archive = getArchive(ware);
+		final var roms = ware.filterRoms();
+		final var disks = ware.filterDisks();
 		if (!scanRoms(ware, roms, archive, reportSubject))
 			missingSet = false;
 		prepTZip(reportSubject, archive, ware, roms);
@@ -1614,6 +1654,31 @@ public class Scan extends PathAbstractor
 			report.getStats().incMissingSetCnt();
 		if (reportSubject.getStatus() != Status.UNKNOWN)
 			report.add(reportSubject);
+	}
+
+	/**
+	 * @param ware
+	 * @return
+	 */
+	private Container getArchive(final Anyware ware)
+	{
+		final Container archive;
+		if (format == FormatOptions.DIR)
+		{
+			final var d = new File(romsDstScan.getDir(), ware.getDest().getName());
+			archive = new Directory(d, getRelativePath(d), ware);
+		}
+		else if (format == FormatOptions.FAKE)
+		{
+			final var fd = new File(romsDstScan.getDir(), ware.getDest().getName());
+			archive = new FakeDirectory(fd, getRelativePath(fd), ware);
+		}
+		else
+		{
+			final var af = new File(romsDstScan.getDir(), ware.getDest().getName() + format.getExt());
+			archive = new Archive(af, getRelativePath(af), ware);
+		}
+		return archive;
 	}
 
 }
