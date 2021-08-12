@@ -910,199 +910,214 @@ public class Scan extends PathAbstractor
 	 *            the {@link SubjectSet} report related to this {@link Anyware}
 	 * @return true if set is currently missing
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	private boolean scanDisks(final Anyware ware, final List<Disk> disks, final Directory directory, final SubjectSet reportSubject)
 	{
-		boolean missingSet = true;
-		final Container container;
-		if (null != (container = disksDstScan.getContainerByName(ware.getDest().getNormalizedName())))
+		final Container container = disksDstScan.getContainerByName(ware.getDest().getNormalizedName());
+		if (null != container)
 		{
-			missingSet = false;
-			if (!disks.isEmpty())
-			{
-				reportSubject.setFound();
-
-				final var disksFound = new ArrayList<Entry>();
-				final var disksByName = Disk.getDisksByName(disks);
-				OpenContainer addSet = null;
-				OpenContainer deleteSet = null;
-				OpenContainer renameBeforeSet = null;
-				OpenContainer renameAfterSet = null;
-				OpenContainer duplicateSet = null;
-
-				final var markedForRename = new HashSet<Entry>();
-
-				for (final Disk disk : disks)
-				{
-					disk.setStatus(EntityStatus.KO);
-					Entry foundEntry = null;
-					final var entriesByName = container.getEntriesByName();
-					boolean done = false;
-					for (final var candidateEntry : container.getEntries())
-					{
-						if (candidateEntry.equals(disk)) // NOSONAR
-						{
-							final String efile = candidateEntry.getName();
-							Log.debug(() -> "The disk " + efile + " match hash from disk " + disk.getNormalizedName());
-							if (!disk.getNormalizedName().equals(candidateEntry.getName())) // but this entry name does
-																							// not match the disk name
-							{
-								Log.debug(() -> "\tbut this disk name does not match the disk name");
-								final Disk anotherDisk = disksByName.get(candidateEntry.getName());
-								if (null != anotherDisk && candidateEntry.equals(anotherDisk)) // NOSONAR
-								{
-									Log.debug(() -> "\t\t\tand the entry " + efile + " is ANOTHER disk");
-									if (entriesByName.containsKey(disk.getNormalizedName()))
-									{
-										Log.debug(() -> "\t\t\t\tand disk " + disk.getNormalizedName() + " is in the entriesByName");
-									}
-									else
-									{
-										Log.debug(() -> "\\t\\t\\t\\twe must duplicate disk " + disk.getNormalizedName() + " to ");
-										// we must duplicate
-										reportSubject.add(new EntryMissingDuplicate(disk, candidateEntry));
-										duplicateSet = OpenContainer.getInstance(duplicateSet, directory, format, 0L);
-										duplicateSet.addAction(new DuplicateEntry(disk.getName(), candidateEntry));
-										foundEntry = candidateEntry;
-										done = true;
-									}
-								}
-								else
-								{
-									if (anotherDisk == null)
-									{
-										Log.debug(() -> {
-											final var str = new StringBuilder("\t" + efile + " in disksByName not found");
-											disksByName.forEach((k, v) -> str.append("\tdisksByName: " + k));
-											return str.toString();
-										});
-									}
-									else
-										Log.debug(() -> "\t" + efile + " in disksByName found but does not match hash");
-									if (!entriesByName.containsKey(disk.getNormalizedName())) // and disk name is not in
-																								// the entries
-									{
-										Log.debug(() -> {
-											final var str = new StringBuilder("\t\tand disk " + disk.getNormalizedName() + " is NOT in the entriesByName");
-											entriesByName.forEach((k, v) -> str.append("\t\tentriesByName: " + k));
-											return str.toString();
-										});
-										if (!markedForRename.contains(candidateEntry))
-										{
-											reportSubject.add(new EntryWrongName(disk, candidateEntry));
-											renameBeforeSet = OpenContainer.getInstance(renameBeforeSet, directory, format, 0L);
-											renameBeforeSet.addAction(new RenameEntry(candidateEntry));
-											renameAfterSet = OpenContainer.getInstance(renameAfterSet, directory, format, 0L);
-											renameAfterSet.addAction(new RenameEntry(disk.getName(), candidateEntry));
-											markedForRename.add(candidateEntry);
-										}
-										else
-										{
-											reportSubject.add(new EntryAdd(disk, candidateEntry));
-											duplicateSet = OpenContainer.getInstance(duplicateSet, directory, format, 0L);
-											duplicateSet.addAction(new DuplicateEntry(disk.getName(), candidateEntry));
-										}
-										foundEntry = candidateEntry;
-										done = true;
-									}
-								}
-							}
-							else
-							{
-								foundEntry = candidateEntry;
-								done = true;
-							}
-						}
-						else if (disk.getNormalizedName().equals(candidateEntry.getName()))
-						{
-							reportSubject.add(new EntryWrongHash(disk, candidateEntry));
-							done = true;
-						}
-						if (done)
-							break;
-					}
-					if (foundEntry == null)
-					{
-						report.getStats().incMissingDisksCnt();
-						for (final DirScan scan : allScans)
-						{
-							if (null != (foundEntry = scan.findByHash(disk)))
-							{
-								reportSubject.add(new EntryAdd(disk, foundEntry));
-								addSet = OpenContainer.getInstance(addSet, directory, format, 0L);
-								addSet.addAction(new AddEntry(disk, foundEntry));
-								break;
-							}
-						}
-						if (foundEntry == null)
-							reportSubject.add(new EntryMissing(disk));
-					}
-					else
-					{
-						disk.setStatus(EntityStatus.OK);
-						reportSubject.add(new EntryOK(disk));
-						disksFound.add(foundEntry);
-					}
-				}
-				if (!ignoreUnneededEntries)
-				{
-					final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(disksFound)::contains)).collect(Collectors.toList());
-					for (final Entry unneeded_entry : unneeded)
-					{
-						reportSubject.add(new EntryUnneeded(unneeded_entry));
-						renameBeforeSet = OpenContainer.getInstance(renameBeforeSet, directory, format, 0L);
-						renameBeforeSet.addAction(new RenameEntry(unneeded_entry));
-						deleteSet = OpenContainer.getInstance(deleteSet, directory, format, 0L);
-						deleteSet.addAction(new DeleteEntry(unneeded_entry));
-					}
-				}
-				ContainerAction.addToList(renameBeforeActions, renameBeforeSet);
-				ContainerAction.addToList(duplicateActions, duplicateSet);
-				ContainerAction.addToList(addActions, addSet);
-				ContainerAction.addToList(deleteActions, deleteSet);
-				ContainerAction.addToList(renameAfterActions, renameAfterSet);
-			}
+			scanDisksForFoundContainer(disks, directory, reportSubject, container);
+			return false;
 		}
 		else
 		{
-			for (final Disk disk : disks)
-				disk.setStatus(EntityStatus.KO);
-			if (createMode && !disks.isEmpty())
+			scanDisksForMissingContainer(disks, directory, reportSubject);
+			return true;
+		}
+	}
+
+	/**
+	 * @param disks
+	 * @param directory
+	 * @param reportSubject
+	 */
+	private void scanDisksForMissingContainer(final List<Disk> disks, final Directory directory, final SubjectSet reportSubject)
+	{
+		for (final Disk disk : disks)
+			disk.setStatus(EntityStatus.KO);
+		if (!createMode || disks.isEmpty())
+			return;
+		int disksFound = 0;
+		boolean partialSet = false;
+		final var createSet = new AtomicReference<CreateContainer>();
+		for (final Disk disk : disks)
+		{
+			report.getStats().incMissingDisksCnt();
+			Entry foundEntry = searchDiskInAllScans(disk);
+			if (foundEntry != null)
 			{
-				int disksFound = 0;
-				boolean partialSet = false;
-				CreateContainer createSet = null;
-				for (final Disk disk : disks)
-				{
-					report.getStats().incMissingDisksCnt();
-					Entry foundEntry = null;
-					for (final DirScan scan : allScans)
-					{
-						if (null != (foundEntry = scan.findByHash(disk)))
-						{
-							reportSubject.add(new EntryAdd(disk, foundEntry));
-							createSet = CreateContainer.getInstance(createSet, directory, format, 0L);
-							createSet.addAction(new AddEntry(disk, foundEntry));
-							disksFound++;
-							break;
-						}
-					}
-					if (foundEntry == null)
-					{
-						reportSubject.add(new EntryMissing(disk));
-						partialSet = true;
-					}
-				}
-				if (disksFound > 0 && (!createFullMode || !partialSet))
-				{
-					reportSubject.setCreateFull();
-					if (partialSet)
-						reportSubject.setCreate();
-					ContainerAction.addToList(createActions, createSet);
-				}
+				reportSubject.add(new EntryAdd(disk, foundEntry));
+				CreateContainer.getInstance(createSet, directory, format, 0L).addAction(new AddEntry(disk, foundEntry));
+				disksFound++;
+			}
+			else
+			{
+				reportSubject.add(new EntryMissing(disk));
+				partialSet = true;
 			}
 		}
-		return missingSet;
+		if (disksFound > 0 && (!createFullMode || !partialSet))
+		{
+			reportSubject.setCreateFull();
+			if (partialSet)
+				reportSubject.setCreate();
+			ContainerAction.addToList(createActions, createSet.get());
+		}
+	}
+
+	/**
+	 * @param disk
+	 * @return
+	 */
+	private Entry searchDiskInAllScans(final Disk disk)
+	{
+		for (final DirScan scan : allScans)
+		{
+			final Entry foundEntry = scan.findByHash(disk);
+			if (null != foundEntry)
+				return foundEntry;
+		}
+		return null;
+	}
+
+	/**
+	 * @param disks
+	 * @param directory
+	 * @param reportSubject
+	 * @param container
+	 */
+	private void scanDisksForFoundContainer(final List<Disk> disks, final Directory directory, final SubjectSet reportSubject, final Container container)
+	{
+		if (disks.isEmpty())
+			return;
+		reportSubject.setFound();
+
+		final var data = new ScanDisksData(disks, container);
+
+		for (final Disk disk : disks)
+		{
+			disk.setStatus(EntityStatus.KO);
+			Entry foundEntry = scanDisksEntries(directory, reportSubject, container, data, disk);
+			if (foundEntry == null)	// did not find disk in container
+			{
+				report.getStats().incMissingDisksCnt();
+				foundEntry = searchDiskInAllScans(disk);
+				if (null != foundEntry)	// found an entry
+				{
+					reportSubject.add(new EntryAdd(disk, foundEntry));
+					OpenContainer.getInstance(data.addSet, directory, format, 0L).addAction(new AddEntry(disk, foundEntry));
+				}
+				else	
+					reportSubject.add(new EntryMissing(disk));
+			}
+			else
+			{
+				disk.setStatus(EntityStatus.OK);
+				reportSubject.add(new EntryOK(disk));
+				data.found.add(foundEntry);
+			}
+		}
+		removeUnneededEntries(directory, reportSubject, container, data);
+		ContainerAction.addToList(renameBeforeActions, data.renameBeforeSet.get());
+		ContainerAction.addToList(duplicateActions, data.duplicateSet.get());
+		ContainerAction.addToList(addActions, data.addSet.get());
+		ContainerAction.addToList(deleteActions, data.deleteSet.get());
+		ContainerAction.addToList(renameAfterActions, data.renameAfterSet.get());
+	}
+
+	/**
+	 * @param directory
+	 * @param reportSubject
+	 * @param container
+	 * @param data
+	 */
+	private void removeUnneededEntries(final Directory directory, final SubjectSet reportSubject, final Container container, final ScanDisksData data)
+	{
+		if (!ignoreUnneededEntries)
+		{
+			final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(data.found)::contains)).collect(Collectors.toList());
+			for (final Entry unneeded_entry : unneeded)
+			{
+				reportSubject.add(new EntryUnneeded(unneeded_entry));
+				OpenContainer.getInstance(data.renameBeforeSet, directory, format, 0L).addAction(new RenameEntry(unneeded_entry));
+				OpenContainer.getInstance(data.deleteSet, directory, format, 0L).addAction(new DeleteEntry(unneeded_entry));
+			}
+		}
+	}
+
+	/**
+	 * @param directory
+	 * @param reportSubject
+	 * @param container
+	 * @param data
+	 * @param disk
+	 * @return
+	 */
+	@SuppressWarnings("unlikely-arg-type")
+	private Entry scanDisksEntries(final Directory directory, final SubjectSet reportSubject, final Container container, final ScanDisksData data, final Disk disk)
+	{
+		for (final var candidateEntry : container.getEntries())
+		{
+			if (candidateEntry.equals(disk)) // NOSONAR
+			{
+				Log.debug(() -> "The disk " + candidateEntry.getName() + " match hash from disk " + disk.getNormalizedName());
+				if (!disk.getNormalizedName().equals(candidateEntry.getName())) // but this entry name does
+																				// not match the disk name
+				{
+					Log.debug(() -> "\tbut this disk name does not match the disk name");
+					final Disk anotherDisk = data.disksByName.get(candidateEntry.getName());
+					if (null != anotherDisk && candidateEntry.equals(anotherDisk)) // NOSONAR
+					{
+						Log.debug(() -> "\t\t\tand the entry " + candidateEntry.getName() + " is ANOTHER disk");
+						if (data.entriesByName.containsKey(disk.getNormalizedName()))
+						{
+							Log.debug(() -> "\t\t\t\tand disk " + disk.getNormalizedName() + " is in the entriesByName");
+						}
+						else
+						{
+							Log.debug(() -> "\\t\\t\\t\\twe must duplicate disk " + disk.getNormalizedName() + " to ");
+							// we must duplicate
+							reportSubject.add(new EntryMissingDuplicate(disk, candidateEntry));
+							OpenContainer.getInstance(data.duplicateSet, directory, format, 0L).addAction(new DuplicateEntry(disk.getName(), candidateEntry));
+							return candidateEntry;
+						}
+					}
+					else
+					{
+						if (anotherDisk == null)
+							Log.debug(() -> "\t" + candidateEntry.getName() + " in disksByName not found (" + data.disksByName.keySet().stream().collect(Collectors.joining(", "))+")");
+						else
+							Log.debug(() -> "\t" + candidateEntry.getName() + " in disksByName found but does not match hash");
+						if (!data.entriesByName.containsKey(disk.getNormalizedName())) // and disk name is not in the entries
+						{
+							Log.debug(() -> "\t\tand disk " + disk.getNormalizedName() + " is NOT in the entriesByName (" + data.entriesByName.keySet().stream().collect(Collectors.joining(", ")) + ")");
+							if (!data.markedForRename.contains(candidateEntry))
+							{
+								reportSubject.add(new EntryWrongName(disk, candidateEntry));
+								OpenContainer.getInstance(data.renameBeforeSet, directory, format, 0L).addAction(new RenameEntry(candidateEntry));
+								OpenContainer.getInstance(data.renameAfterSet, directory, format, 0L).addAction(new RenameEntry(disk.getName(), candidateEntry));
+								data.markedForRename.add(candidateEntry);
+							}
+							else
+							{
+								reportSubject.add(new EntryAdd(disk, candidateEntry));
+								OpenContainer.getInstance(data.duplicateSet, directory, format, 0L).addAction(new DuplicateEntry(disk.getName(), candidateEntry));
+							}
+							return candidateEntry;
+						}
+					}
+				}
+				else
+				{
+					return candidateEntry;
+				}
+			}
+			else if (disk.getNormalizedName().equals(candidateEntry.getName()))
+			{
+				reportSubject.add(new EntryWrongHash(disk, candidateEntry));
+				return null;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -1120,10 +1135,9 @@ public class Scan extends PathAbstractor
 	 */
 	private boolean scanRoms(final Anyware ware, final List<Rom> roms, final Container archive, final SubjectSet reportSubject)
 	{
-		final Container container;
 		final long estimatedRomsSize = roms.stream().mapToLong(Rom::getSize).sum();
 
-		container = romsDstScan.getContainerByName(ware.getDest().getNormalizedName() + format.getExt());
+		final Container container = romsDstScan.getContainerByName(ware.getDest().getNormalizedName() + format.getExt());
 		if (null != container)
 		{
 			scanRomsForFoundContainer(roms, archive, reportSubject, container, estimatedRomsSize);
@@ -1136,28 +1150,38 @@ public class Scan extends PathAbstractor
 		}
 	}
 	
-	private class ScanData
+	private abstract class ScanData
 	{
-		final AtomicReference<BackupContainer> backupSet = new AtomicReference<>();
-		final AtomicReference<OpenContainer> addSet = new AtomicReference<>();
-		final AtomicReference<OpenContainer> deleteSet = new AtomicReference<>();
-		final AtomicReference<OpenContainer> renameBeforeSet = new AtomicReference<>();
-		final AtomicReference<OpenContainer> renameAfterSet = new AtomicReference<>();
-		final AtomicReference<OpenContainer> duplicateSet = new AtomicReference<>();
+		protected final AtomicReference<OpenContainer> addSet = new AtomicReference<>();
+		protected final AtomicReference<OpenContainer> deleteSet = new AtomicReference<>();
+		protected final AtomicReference<OpenContainer> renameBeforeSet = new AtomicReference<>();
+		protected final AtomicReference<OpenContainer> renameAfterSet = new AtomicReference<>();
+		protected final AtomicReference<OpenContainer> duplicateSet = new AtomicReference<>();
 		
-		final List<Entry> found = new ArrayList<>();
-		final Map<String,Rom> romsByName;
-		final Map<String,Entry> entriesByName;
-		final Set<Entry> markedForRename = new HashSet<>();
+		protected final List<Entry> found = new ArrayList<>();
+		protected final Map<String,Entry> entriesByName;
+		protected final Set<Entry> markedForRename = new HashSet<>();
 
-		final HashMap<String, List<Entry>> entriesBySha1 = new HashMap<>();
-		final HashMap<String, List<Entry>> entriesByMd5 = new HashMap<>();
-		final HashMap<String, List<Entry>> entriesByCrc = new HashMap<>();
-
-		public ScanData(final List<Rom> roms, final Container container)
+		public ScanData(final Container container)
 		{
-			romsByName  = Rom.getRomsByName(roms);
 			entriesByName = container.getEntriesByName();
+		}
+	}
+	
+	private final class ScanRomsData extends ScanData
+	{
+		protected final AtomicReference<BackupContainer> backupSet = new AtomicReference<>();
+
+		protected final Map<String,Rom> romsByName;
+
+		protected final HashMap<String, List<Entry>> entriesBySha1 = new HashMap<>();
+		protected final HashMap<String, List<Entry>> entriesByMd5 = new HashMap<>();
+		protected final HashMap<String, List<Entry>> entriesByCrc = new HashMap<>();
+
+		public ScanRomsData(final List<Rom> roms, final Container container)
+		{
+			super(container);
+			romsByName  = Rom.getRomsByName(roms);
 			initHashesFromContainerEntries(container, entriesBySha1, entriesByMd5, entriesByCrc);
 		}
 
@@ -1179,7 +1203,28 @@ public class Scan extends PathAbstractor
 			});
 		}
 	}
+	
+	private final class ScanDisksData extends ScanData
+	{
+		final Map<String, Disk> disksByName;
 
+		public ScanDisksData(final List<Disk> disks, final Container container)
+		{
+			super(container);
+			disksByName = Disk.getDisksByName(disks);
+		}
+	}
+
+	private final class ScanSamplesData extends ScanData
+	{
+
+		public ScanSamplesData(Container container)
+		{
+			super(container);
+		}
+		
+	}
+	
 	/**
 	 * @param roms
 	 * @param archive
@@ -1194,7 +1239,7 @@ public class Scan extends PathAbstractor
 			return;
 		reportSubject.setFound();
 
-		final var scanData = new ScanData(roms, container);
+		final var scanData = new ScanRomsData(roms, container);
 
 		for (final Rom rom : roms) // check roms
 		{
@@ -1211,12 +1256,12 @@ public class Scan extends PathAbstractor
 				report.getStats().incMissingRomsCnt();
 				
 				foundEntry = searchRomInAllScans(rom);
-				if (foundEntry != null) // we did not found this rom anywhere
+				if (foundEntry != null)	// found an entry
 				{
 					reportSubject.add(new EntryAdd(rom, foundEntry));
 					OpenContainer.getInstance(scanData.addSet, archive, format, estimatedRomsSize).addAction(new AddEntry(rom, foundEntry));
 				}
-				else
+				else // we did not found this rom anywhere
 					reportSubject.add(wrongHash != null ? new EntryWrongHash(rom, wrongHash) : new EntryMissing(rom));
 			}
 			else
@@ -1243,7 +1288,7 @@ public class Scan extends PathAbstractor
 	 * @param wrongHash
 	 * @return
 	 */
-	private Entry checkWrongHash(final ScanData scanData, final Rom rom)
+	private Entry checkWrongHash(final ScanRomsData scanData, final Rom rom)
 	{
 		final var candidateEntry = scanData.entriesByName.get(rom.getNormalizedName());
 		if (candidateEntry != null)
@@ -1261,7 +1306,7 @@ public class Scan extends PathAbstractor
 	 * @param estimatedRomsSize
 	 * @param scanData
 	 */
-	private void removeUnneededEntries(final Container archive, final SubjectSet reportSubject, final Container container, final long estimatedRomsSize, final ScanData scanData)
+	private void removeUnneededEntries(final Container archive, final SubjectSet reportSubject, final Container container, final long estimatedRomsSize, final ScanRomsData scanData)
 	{
 		if (!ignoreUnneededEntries)
 		{
@@ -1287,7 +1332,8 @@ public class Scan extends PathAbstractor
 	 * @param entries
 	 * @return
 	 */
-	private Entry scanRomsEntries(final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanData scanData, final Rom rom, final List<Entry> entries)
+	@SuppressWarnings("unlikely-arg-type")
+	private Entry scanRomsEntries(final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanRomsData scanData, final Rom rom, final List<Entry> entries)
 	{
 		for (final var candidate_entry : entries)
 		{
@@ -1366,16 +1412,15 @@ public class Scan extends PathAbstractor
 			return;
 		int romsFound = 0;
 		boolean partialSet = false;
-		CreateContainer createSet = null;
+		final var createSet = new AtomicReference<CreateContainer>();
 		for (final Rom rom : roms)
 		{
 			report.getStats().incMissingRomsCnt();
-			Entry entryFound = searchRomInAllScans(rom);
+			final Entry entryFound = searchRomInAllScans(rom);
 			if (null != entryFound)
 			{
 				reportSubject.add(new EntryAdd(rom, entryFound));
-				createSet = CreateContainer.getInstance(createSet, archive, format, estimatedRomsSize);
-				createSet.addAction(new AddEntry(rom, entryFound));
+				CreateContainer.getInstance(createSet, archive, format, estimatedRomsSize).addAction(new AddEntry(rom, entryFound));
 				romsFound++;
 			}
 			else // We did not find all roms to create a full set
@@ -1389,7 +1434,7 @@ public class Scan extends PathAbstractor
 			reportSubject.setCreateFull();
 			if (partialSet)
 				reportSubject.setCreate();
-			ContainerAction.addToList(createActions, createSet);
+			ContainerAction.addToList(createActions, createSet.get());
 		}
 	}
 
@@ -1417,7 +1462,7 @@ public class Scan extends PathAbstractor
 	 * @param rom
 	 * @return
 	 */
-	private List<Entry> findEntriesByHash(final ScanData scanData, final Rom rom)
+	private List<Entry> findEntriesByHash(final ScanRomsData scanData, final Rom rom)
 	{
 		List<Entry> entries = null;
 		if (rom.getSha1() != null)
@@ -1476,139 +1521,162 @@ public class Scan extends PathAbstractor
 	 *            the {@link SubjectSet} report related to this {@link Anyware}
 	 * @return true if set is currently missing
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	private boolean scanSamples(final Samples set, final Container archive, final SubjectSet reportSubject)
 	{
-		boolean missingSet = true;
-		final Container container;
-		if (null != (container = samplesDstScan.getContainerByName(archive.getFile().getName())))
+		final Container container = samplesDstScan.getContainerByName(archive.getFile().getName());
+		if (null != container)
 		{
-			missingSet = false;
-			reportSubject.setFound();
-			final ArrayList<Entry> samplesFound = new ArrayList<>();
-			final OpenContainer addSet = null;
-			OpenContainer deleteSet = null;
-			OpenContainer renameBeforeSet = null;
-			final OpenContainer renameAfterSet = null;
-			final OpenContainer duplicateSet = null;
-			for (final Sample sample : set)
-			{
-				sample.setStatus(EntityStatus.KO);
-				Entry foundEntry = null;
-				for (final Entry candidate_entry : container.getEntries())
-				{
-					if (candidate_entry.equals(sample)) // NOSONAR
-					{
-						foundEntry = candidate_entry;
-						break;
-					}
-				}
-				if (foundEntry == null)
-				{
-					report.getStats().incMissingSamplesCnt();
-					for (final DirScan scan : allScans)
-					{
-						for (final FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
-						{
-							final Container foundContainer;
-							if (null != (foundContainer = scan.getContainerByName(set.getName() + ext)))
-							{
-								for (final Entry entry : foundContainer.getEntriesByFName().values())
-								{
-									if (entry.getName().equals(sample.getNormalizedName()))
-										foundEntry = entry;
-									if (null != foundEntry)
-										break;
-								}
-							}
-							if (null != foundEntry)
-								break;
-						}
-					}
-					if (foundEntry == null)
-						reportSubject.add(new EntryMissing(sample));
-				}
-				else
-				{
-					sample.setStatus(EntityStatus.OK);
-					reportSubject.add(new EntryOK(sample));
-					samplesFound.add(foundEntry);
-				}
-			}
-			if (!ignoreUnneededEntries)
-			{
-				final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(samplesFound)::contains)).collect(Collectors.toList());
-				for (final Entry unneededEntry : unneeded)
-				{
-					reportSubject.add(new EntryUnneeded(unneededEntry));
-					renameBeforeSet = OpenContainer.getInstance(renameBeforeSet, archive, format, Long.MAX_VALUE);
-					renameBeforeSet.addAction(new RenameEntry(unneededEntry));
-					deleteSet = OpenContainer.getInstance(deleteSet, archive, format, Long.MAX_VALUE);
-					deleteSet.addAction(new DeleteEntry(unneededEntry));
-				}
-			}
-			ContainerAction.addToList(renameBeforeActions, renameBeforeSet);
-			ContainerAction.addToList(duplicateActions, duplicateSet);
-			ContainerAction.addToList(addActions, addSet);
-			ContainerAction.addToList(deleteActions, deleteSet);
-			ContainerAction.addToList(renameAfterActions, renameAfterSet);
+			scanSamplesForFoundContainer(set, archive, reportSubject, container);
+			return false;
 		}
 		else
 		{
-			for (final Sample sample : set)
-				sample.setStatus(EntityStatus.KO);
-			if (createMode)
+			scanSamplesForMissingContainer(set, archive, reportSubject);
+			return true;
+		}
+	}
+
+	/**
+	 * @param set
+	 * @param archive
+	 * @param reportSubject
+	 * @param container
+	 */
+	private void scanSamplesForFoundContainer(final Samples set, final Container archive, final SubjectSet reportSubject, final Container container)
+	{
+		reportSubject.setFound();
+		
+		final var data = new ScanSamplesData(container);
+		
+		for (final Sample sample : set)
+		{
+			sample.setStatus(EntityStatus.KO);
+			Entry foundEntry = scanSamplesEntries(container, sample);
+			if (foundEntry == null)
 			{
-				int samplesFound = 0;
-				boolean partialSet = false;
-				CreateContainer createSet = null;
-				for (final Sample sample : set)
+				report.getStats().incMissingSamplesCnt();
+				foundEntry = searchSampleInAllScans(set, sample);
+				if (foundEntry != null)	// found an entry
 				{
-					report.getStats().incMissingSamplesCnt();
-					Entry entryFound = null;
-					for (final DirScan scan : allScans)
-					{
-						for (final FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
-						{
-							final Container foundContainer;
-							if (null != (foundContainer = scan.getContainerByName(set.getName() + ext)))
-							{
-								for (final Entry entry : foundContainer.getEntriesByFName().values())
-								{
-									if (entry.getName().equals(sample.getNormalizedName()))
-										entryFound = entry;
-									if (null != entryFound)
-										break;
-								}
-							}
-							if (null != entryFound)
-								break;
-						}
-						if (null != entryFound)
-						{
-							reportSubject.add(new EntryAdd(sample, entryFound));
-							createSet = CreateContainer.getInstance(createSet, archive, format, Long.MAX_VALUE);
-							createSet.addAction(new AddEntry(sample, entryFound));
-							samplesFound++;
-							break;
-						}
-					}
-					if (entryFound == null)
-					{
-						reportSubject.add(new EntryMissing(sample));
-						partialSet = true;
-					}
+					reportSubject.add(new EntryAdd(sample, foundEntry));
+					OpenContainer.getInstance(data.addSet, archive, format, Long.MAX_VALUE).addAction(new AddEntry(sample, foundEntry));
 				}
-				if (samplesFound > 0 && (!createFullMode || !partialSet))
+				else // we did not found this sample anywhere
+					reportSubject.add(new EntryMissing(sample));
+			}
+			else
+			{
+				sample.setStatus(EntityStatus.OK);
+				reportSubject.add(new EntryOK(sample));
+				data.found.add(foundEntry);
+			}
+		}
+		removeUnneededEntries(archive, reportSubject, container, data);
+		
+		ContainerAction.addToList(renameBeforeActions, data.renameBeforeSet.get());
+		ContainerAction.addToList(duplicateActions, data.duplicateSet.get());
+		ContainerAction.addToList(addActions, data.addSet.get());
+		ContainerAction.addToList(deleteActions, data.deleteSet.get());
+		ContainerAction.addToList(renameAfterActions, data.renameAfterSet.get());
+	}
+
+	/**
+	 * @param archive
+	 * @param reportSubject
+	 * @param container
+	 * @param data
+	 */
+	private void removeUnneededEntries(final Container archive, final SubjectSet reportSubject, final Container container, final ScanSamplesData data)
+	{
+		if (!ignoreUnneededEntries)
+		{
+			final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(data.found)::contains)).collect(Collectors.toList());
+			for (final Entry unneededEntry : unneeded)
+			{
+				reportSubject.add(new EntryUnneeded(unneededEntry));
+				OpenContainer.getInstance(data.renameBeforeSet, archive, format, Long.MAX_VALUE).addAction(new RenameEntry(unneededEntry));
+				OpenContainer.getInstance(data.deleteSet, archive, format, Long.MAX_VALUE).addAction(new DeleteEntry(unneededEntry));
+			}
+		}
+	}
+
+	/**
+	 * @param container
+	 * @param sample
+	 * @return
+	 */
+	private Entry scanSamplesEntries(final Container container, final Sample sample)
+	{
+		for (final Entry candidate_entry : container.getEntries())
+		{
+			if (candidate_entry.equals(sample)) // NOSONAR
+				return candidate_entry;
+		}
+		return null;
+	}
+
+	/**
+	 * @param set
+	 * @param archive
+	 * @param reportSubject
+	 */
+	private void scanSamplesForMissingContainer(final Samples set, final Container archive, final SubjectSet reportSubject)
+	{
+		for (final Sample sample : set)
+			sample.setStatus(EntityStatus.KO);
+		if (!createMode)
+			return;
+		int samplesFound = 0;
+		boolean partialSet = false;
+		final var createSet = new AtomicReference<CreateContainer>();
+		for (final Sample sample : set)
+		{
+			report.getStats().incMissingSamplesCnt();
+			Entry entryFound = searchSampleInAllScans(set, sample);
+			if (null != entryFound)
+			{
+				reportSubject.add(new EntryAdd(sample, entryFound));
+				CreateContainer.getInstance(createSet, archive, format, Long.MAX_VALUE).addAction(new AddEntry(sample, entryFound));
+				samplesFound++;
+			}
+			else
+			{
+				reportSubject.add(new EntryMissing(sample));
+				partialSet = true;
+			}
+		}
+		if (samplesFound > 0 && (!createFullMode || !partialSet))
+		{
+			reportSubject.setCreateFull();
+			if (partialSet)
+				reportSubject.setCreate();
+			ContainerAction.addToList(createActions, createSet.get());
+		}
+	}
+
+	/**
+	 * @param set
+	 * @param sample
+	 * @return
+	 */
+	private Entry searchSampleInAllScans(final Samples set, final Sample sample)
+	{
+		for (final DirScan scan : allScans)
+		{
+			for (final FormatOptions.Ext ext : EnumSet.allOf(FormatOptions.Ext.class))
+			{
+				final Container foundContainer = scan.getContainerByName(set.getName() + ext);
+				if (null != foundContainer)
 				{
-					reportSubject.setCreateFull();
-					if (partialSet)
-						reportSubject.setCreate();
-					ContainerAction.addToList(createActions, createSet);
+					for (final Entry entry : foundContainer.getEntriesByFName().values())
+					{
+						if (entry.getName().equals(sample.getNormalizedName()))
+							return entry;
+					}
 				}
 			}
 		}
-		return missingSet;
+		return null;
 	}
 
 	/**
@@ -1652,8 +1720,7 @@ public class Scan extends PathAbstractor
 		}
 		if (missingSet)
 			report.getStats().incMissingSetCnt();
-		if (reportSubject.getStatus() != Status.UNKNOWN)
-			report.add(reportSubject);
+		Optional.of(reportSubject).filter(s -> s.getStatus() != Status.UNKNOWN).ifPresent(report::add);
 	}
 
 	/**
