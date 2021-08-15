@@ -99,6 +99,7 @@ subprojects {
 			property "sonar.log.level", "INFO"
 			property "sonar.verbose", "true"
 			property "sonar.exclusions", "**/compressors/zipfs/*.java"
+			property "sonar.scm.provider", "github"
 		}
 	}
 
