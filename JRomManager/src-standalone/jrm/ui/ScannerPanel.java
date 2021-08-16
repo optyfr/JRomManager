@@ -94,9 +94,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 
 		JButton btnInfo = new JButton(Messages.getString("MainFrame.btnInfo.text")); //$NON-NLS-1$
 		btnInfo.addActionListener(e -> {
-			if (MainFrame.profile_viewer == null)
-				MainFrame.profile_viewer = new ProfileViewer(session, SwingUtilities.getWindowAncestor(this), session.getCurrProfile());
-			MainFrame.profile_viewer.setVisible(true);
+			if (MainFrame.getProfileViewer() == null)
+				MainFrame.setProfileViewer(new ProfileViewer(session, SwingUtilities.getWindowAncestor(this), session.getCurrProfile()));
+			MainFrame.getProfileViewer().setVisible(true);
 		});
 		btnInfo.setIcon(MainFrame.getIcon("/jrm/resicons/icons/information.png")); //$NON-NLS-1$
 		scannerBtnPanel.add(btnInfo);
@@ -114,7 +114,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 
 		JButton btnReport = new JButton(Messages.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
 		btnReport.setIcon(MainFrame.getIcon("/jrm/resicons/icons/report.png")); //$NON-NLS-1$
-		btnReport.addActionListener(e -> EventQueue.invokeLater(() -> MainFrame.report_frame.setVisible(true)));
+		btnReport.addActionListener(e -> EventQueue.invokeLater(() -> MainFrame.getReportFrame().setVisible(true)));
 		scannerBtnPanel.add(btnReport);
 
 		btnFix = new JButton(Messages.getString("MainFrame.btnFix.text")); //$NON-NLS-1$
@@ -270,14 +270,14 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				btnFix.setEnabled(session.getCurrScan()!=null && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0);
 				close();
 				/* update entries in profile viewer */ 
-				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reload();
+				if (MainFrame.getProfileViewer() != null)
+					MainFrame.getProfileViewer().reload();
 				ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
-				if(MainFrame.report_frame != null)
+				if(MainFrame.getReportFrame() != null)
 				{
 					if(automation.hasReport())
-						MainFrame.report_frame.setVisible(true);
-					MainFrame.report_frame.setNeedUpdate(true);
+						MainFrame.getReportFrame().setVisible(true);
+					MainFrame.getReportFrame().setNeedUpdate(true);
 				}
 				if(automate)
 				{
@@ -329,8 +329,8 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 				btnFix.setEnabled(toFix);
 				close();
 				/* update entries in profile viewer */ 
-				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reload();
+				if (MainFrame.getProfileViewer() != null)
+					MainFrame.getProfileViewer().reload();
 				ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 				if(automation.hasScanAgain())
 					scan(session, false);
@@ -364,8 +364,8 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		if (session.getCurrProfile() != null)
 			session.getCurrProfile().saveSettings();
 		
-		if (MainFrame.profile_viewer != null)
-			MainFrame.profile_viewer.clear();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().clear();
 
 		new SwingWorkerProgress<Void, Void>(SwingUtilities.getWindowAncestor(this))
 		{
@@ -382,8 +382,8 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			protected void done()
 			{
 				session.getReport().setProfile(session.getCurrProfile());
-				if (MainFrame.profile_viewer != null)
-					MainFrame.profile_viewer.reset(session.getCurrProfile());
+				if (MainFrame.getProfileViewer() != null)
+					MainFrame.getProfileViewer().reset(session.getCurrProfile());
 				mainPane.setEnabledAt(1, success);
 				btnScan.setEnabled(success);
 				btnFix.setEnabled(false);

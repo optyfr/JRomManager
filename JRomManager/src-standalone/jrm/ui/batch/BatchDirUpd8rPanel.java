@@ -70,7 +70,7 @@ public class BatchDirUpd8rPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public BatchDirUpd8rPanel(final Session session)
+	public BatchDirUpd8rPanel(@SuppressWarnings("exports") final Session session)
 	{
 		final GridBagLayout gblPanelBatchToolsDat2Dir = new GridBagLayout();
 		gblPanelBatchToolsDat2Dir.columnWidths = new int[] { 0, 0, 0, 0 };
@@ -105,18 +105,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		MainFrame.addPopup(listBatchToolsDat2DirSrc, popupMenuSrc);
 
 		JMenuItem mnDat2DirAddSrcDir = new JMenuItem(Messages.getString("MainFrame.AddSrcDir"));
-		mnDat2DirAddSrcDir.addActionListener(e -> {
-			List<File> list = listBatchToolsDat2DirSrc.getSelectedValuesList();
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, !list.isEmpty() ? list.get(0).getParentFile() : null, // currdir
-					null, // selected
-					null, // filters
-					"Choose source directories", true).show(SwingUtilities.windowForComponent(BatchDirUpd8rPanel.this), chooser -> {
-						File[] files = chooser.getSelectedFiles();
-						if (files.length > 0)
-							listBatchToolsDat2DirSrc.add(files);
-						return null;
-					});
-		});
+		mnDat2DirAddSrcDir.addActionListener(e -> addSrcDir());
 		popupMenuSrc.add(mnDat2DirAddSrcDir);
 
 		JMenuItem mnDat2DirDelSrcDir = new JMenuItem(Messages.getString("MainFrame.DelSrcDir")); //$NON-NLS-1$
@@ -128,195 +117,25 @@ public class BatchDirUpd8rPanel extends JPanel
 
 		BatchTableModel model = new BatchTableModel();
 		tableBatchToolsDat2Dir = new JSDRDropTable(model, files -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(files))); // $NON-NLS-1$
-		model.setButtonHandler((row, column) -> {
-			final SrcDstResult sdr = model.getData().get(row);
-			new SwingWorkerProgress<DirUpdaterResults, Void>(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this))
-			{
-
-				@Override
-				protected DirUpdaterResults doInBackground() throws Exception
-				{
-					setProgress("Loading...");
-					return DirUpdaterResults.load(session, new File(sdr.src), this);
-				}
-
-				@Override
-				protected void done()
-				{
-					close();
-					try
-					{
-						new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this), get());
-					}
-					catch (InterruptedException e)
-					{
-						Log.err(e.getMessage(), e);
-						Thread.currentThread().interrupt();
-					}
-					catch (ExecutionException e)
-					{
-						Log.err(e.getMessage(), e);
-					}
-				}
-			}.execute();
-		});
+		model.setButtonHandler((row, column) -> showResult(session, model, row));
 		if (session != null)
 			tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]")));
 		tableBatchToolsDat2Dir.setCellSelectionEnabled(false);
 		tableBatchToolsDat2Dir.setRowSelectionAllowed(true);
-		tableBatchToolsDat2Dir.getSDRModel().setSrcFilter(file -> {
-			final List<String> exts = Arrays.asList("xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$
-			if (file.isFile())
-				return exts.contains(FilenameUtils.getExtension(file.getName()));
-			else if (file.isDirectory())
-				return file.listFiles(f -> f.isFile() && exts.contains(FilenameUtils.getExtension(f.getName()))).length > 0;
-			return false;
-		});
+		tableBatchToolsDat2Dir.getSDRModel().setSrcFilter(this::srcFilter);
 		tableBatchToolsDat2Dir.getSDRModel().setDstFilter(File::isDirectory);
 		tableBatchToolsDat2Dir.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		tableBatchToolsDat2Dir.setFillsViewportHeight(true);
 		((BatchTableModel) tableBatchToolsDat2Dir.getModel()).applyColumnsWidths(tableBatchToolsDat2Dir);
 		scrollPaneRight.setViewportView(tableBatchToolsDat2Dir);
 
-		tableBatchToolsDat2Dir.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mouseClicked(final MouseEvent e)
-			{
-				if (e.getClickCount() == 2)
-				{
-					final JTable target = (JTable) e.getSource();
-					int row = target.getSelectedRow();
-					if (row >= 0)
-					{
-						final SDRTableModel tablemodel = tableBatchToolsDat2Dir.getSDRModel();
-						final SrcDstResult sdr = tablemodel.getData().get(row);
-						new SwingWorkerProgress<DirUpdaterResults, Void>(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this))
-						{
-
-							@Override
-							protected DirUpdaterResults doInBackground() throws Exception
-							{
-								setProgress("Loading...");
-								return DirUpdaterResults.load(session, new File(sdr.src), this);
-							}
-
-							@Override
-							protected void done()
-							{
-								close();
-								try
-								{
-									new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this), get());
-								}
-								catch (InterruptedException e)
-								{
-									Log.err(e.getMessage(), e);
-									Thread.currentThread().interrupt();
-								}
-								catch (ExecutionException e)
-								{
-									Log.err(e.getMessage(), e);
-								}
-							}
-						}.execute();
-					}
-				}
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-					popupPoint = e.getPoint();
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-					popupPoint = e.getPoint();
-			}
-		});
+		tableBatchToolsDat2Dir.addMouseListener(new Dir2DatMouseAdapter(session));
 
 		JPopupMenu popupMenu = new JPopupMenu();
 		MainFrame.addPopup(tableBatchToolsDat2Dir, popupMenu);
 
 		JMenuItem mnDat2DirAddDat = new JMenuItem(Messages.getString("MainFrame.AddDat"));
-		mnDat2DirAddDat.addActionListener(e -> {
-			final int col = tableBatchToolsDat2Dir.columnAtPoint(popupPoint);
-			final int row = tableBatchToolsDat2Dir.rowAtPoint(popupPoint);
-			List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
-			final File currdir;
-			final int type = col == 0 ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG;
-			final int mode = col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY;
-			if (!list.isEmpty())
-				currdir = Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(f -> new File(f).getParentFile()).orElse(null);
-			else
-				currdir = null;
-			final List<FileFilter> filters = Collections.singletonList(new FileFilter()
-			{
-				@Override
-				public boolean accept(File f)
-				{
-					java.io.FileFilter filter = null;
-					if (col == 1)
-						filter = tableBatchToolsDat2Dir.getSDRModel().getDstFilter();
-					else if (col == 0)
-						filter = file -> {
-							final List<String> exts = Arrays.asList("xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$
-							if (file.isFile())
-								return exts.contains(FilenameUtils.getExtension(file.getName()));
-							return true;
-						};
-					if (filter != null)
-						return filter.accept(f);
-					return true;
-				}
-
-				@Override
-				public String getDescription()
-				{
-					return col == 0 ? "Dat/XML files or directories of Dat/XML files" : "Destination directories";
-				}
-			});
-			final var title = col == 0 ? "Choose XML/DAT files or the parent directory in case of software lists" : "Choose destination directories";
-			final var fchooser = new JRMFileChooser<Void>(type, mode, currdir, null /* selected */, filters, title, true);
-			fchooser.show(SwingUtilities.windowForComponent(BatchDirUpd8rPanel.this), chooser -> {
-				File[] files = chooser.getSelectedFiles();
-				SDRTableModel sdrmodel = tableBatchToolsDat2Dir.getSDRModel();
-				if (files.length > 0)
-				{
-					int startSize = sdrmodel.getData().size();
-					final var filter = col == 0 ? sdrmodel.getSrcFilter() : sdrmodel.getDstFilter();
-					for (int i = 0; i < files.length; i++)
-					{
-						final File file = files[i];
-						if (filter.accept(file))
-						{
-							final SrcDstResult line;
-							if (row == -1 || row + i >= sdrmodel.getData().size())
-							{
-								line = new SrcDstResult();
-								sdrmodel.getData().add(line);
-							}
-							else
-								line = sdrmodel.getData().get(row + i);
-							if (col == 1)
-								line.dst = file.getPath();
-							else
-								line.src = file.getPath();
-						}
-					}
-					if (row != -1)
-						sdrmodel.fireTableChanged(new TableModelEvent(sdrmodel, row, startSize - 1, col));
-					if (startSize != sdrmodel.getData().size())
-						sdrmodel.fireTableChanged(new TableModelEvent(sdrmodel, startSize, sdrmodel.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
-					tableBatchToolsDat2Dir.call();
-				}
-				return null;
-			});
-		});
+		mnDat2DirAddDat.addActionListener(e -> addDat());
 		popupMenu.add(mnDat2DirAddDat);
 
 		popupMenu.addPopupMenuListener(new PopupMenuListener()
@@ -366,27 +185,10 @@ public class BatchDirUpd8rPanel extends JPanel
 		mnDat2DirD2D.add(mntmDat2DirD2DDir);
 
 		JMenuItem mntmCustom = new JMenuItem(Messages.getString("BatchToolsDirUpd8rPanel.mntmCustom.text")); //$NON-NLS-1$
-		mntmCustom.addActionListener(e -> {
-			List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
-			if (!list.isEmpty())
-			{
-				BatchDirUpd8rSettingsDialog dialog = new BatchDirUpd8rSettingsDialog(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this));
-				SrcDstResult entry = list.get(0);
-				dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.src).toFile(), null));
-				dialog.setVisible(true);
-				if (dialog.success)
-				{
-					for (SrcDstResult sdr : list)
-					{
-						session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.src).toFile(), dialog.settingsPanel.settings);
-					}
-				}
-			}
-		});
+		mntmCustom.addActionListener(e -> customPreset(session));
 		mnDat2DirPresets.add(mntmCustom);
 		if (session != null)
 			for (final String s : StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""), '|')) //$NON-NLS-1$ //$NON-NLS-2$
-																																			// //$NON-NLS-3$
 				if (!s.isEmpty())
 					listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
 
@@ -410,6 +212,173 @@ public class BatchDirUpd8rPanel extends JPanel
 		gbcBtnBatchToolsDir2DatStart.gridy = 1;
 		this.add(btnBatchToolsDir2DatStart, gbcBtnBatchToolsDir2DatStart);
 
+	}
+
+	/**
+	 * @param session
+	 * @throws SecurityException
+	 */
+	private void customPreset(final Session session) throws SecurityException
+	{
+		List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
+		if (!list.isEmpty())
+		{
+			BatchDirUpd8rSettingsDialog dialog = new BatchDirUpd8rSettingsDialog(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this));
+			SrcDstResult entry = list.get(0);
+			dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.src).toFile(), null));
+			dialog.setVisible(true);
+			if (dialog.success)
+			{
+				for (SrcDstResult sdr : list)
+				{
+					session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.src).toFile(), dialog.settingsPanel.settings);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void addDat()
+	{
+		final int col = tableBatchToolsDat2Dir.columnAtPoint(popupPoint);
+		final int row = tableBatchToolsDat2Dir.rowAtPoint(popupPoint);
+		List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
+		final File currdir;
+		final int type = col == 0 ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG;
+		final int mode = col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY;
+		if (!list.isEmpty())
+			currdir = Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(f -> new File(f).getParentFile()).orElse(null);
+		else
+			currdir = null;
+		final List<FileFilter> filters = Collections.singletonList(new Dir2DatFileFilter(col));
+		final var title = col == 0 ? "Choose XML/DAT files or the parent directory in case of software lists" : "Choose destination directories";
+		final var fchooser = new JRMFileChooser<Void>(type, mode, currdir, null /* selected */, filters, title, true);
+		fchooser.show(SwingUtilities.windowForComponent(BatchDirUpd8rPanel.this), chooser -> chosen(col, row, chooser));
+	}
+
+	/**
+	 * @param col
+	 * @param row
+	 * @param chooser
+	 * @return
+	 */
+	private Void chosen(final int col, final int row, JRMFileChooser<Void> chooser)
+	{
+		final File[] files = chooser.getSelectedFiles();
+		if (files.length <= 0)
+			return null;
+		final SDRTableModel sdrmodel = tableBatchToolsDat2Dir.getSDRModel();
+		final int startSize = sdrmodel.getData().size();
+		final var filter = col == 0 ? sdrmodel.getSrcFilter() : sdrmodel.getDstFilter();
+		for (int i = 0; i < files.length; i++)
+		{
+			final File file = files[i];
+			if (filter.accept(file))
+			{
+				final SrcDstResult line;
+				if (row == -1 || row + i >= sdrmodel.getData().size())
+				{
+					line = new SrcDstResult();
+					sdrmodel.getData().add(line);
+				}
+				else
+					line = sdrmodel.getData().get(row + i);
+				if (col == 1)
+					line.dst = file.getPath();
+				else
+					line.src = file.getPath();
+			}
+		}
+		chosenTablechanged(col, row, sdrmodel, startSize);
+		tableBatchToolsDat2Dir.call();
+		return null;
+	}
+
+	/**
+	 * @param col
+	 * @param row
+	 * @param sdrmodel
+	 * @param startSize
+	 */
+	private void chosenTablechanged(final int col, final int row, final SDRTableModel sdrmodel, final int startSize)
+	{
+		if (row != -1)
+			sdrmodel.fireTableChanged(new TableModelEvent(sdrmodel, row, startSize - 1, col));
+		if (startSize != sdrmodel.getData().size())
+			sdrmodel.fireTableChanged(new TableModelEvent(sdrmodel, startSize, sdrmodel.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+	}
+
+	/**
+	 * @param file
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	private boolean srcFilter(File file) throws IllegalArgumentException
+	{
+		final List<String> exts = Arrays.asList("xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (file.isFile())
+			return exts.contains(FilenameUtils.getExtension(file.getName()));
+		else if (file.isDirectory())
+			return file.listFiles(f -> f.isFile() && exts.contains(FilenameUtils.getExtension(f.getName()))).length > 0;
+		return false;
+	}
+
+	/**
+	 * @param session
+	 * @param model
+	 * @param row
+	 */
+	private void showResult(final Session session, SDRTableModel model, int row)
+	{
+		final SrcDstResult sdr = model.getData().get(row);
+		new SwingWorkerProgress<DirUpdaterResults, Void>(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this))
+		{
+
+			@Override
+			protected DirUpdaterResults doInBackground() throws Exception
+			{
+				setProgress("Loading...");
+				return DirUpdaterResults.load(session, new File(sdr.src), this);
+			}
+
+			@Override
+			protected void done()
+			{
+				close();
+				try
+				{
+					new BatchDirUpd8rResultsDialog(session, SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this), get());
+				}
+				catch (InterruptedException e)
+				{
+					Log.err(e.getMessage(), e);
+					Thread.currentThread().interrupt();
+				}
+				catch (ExecutionException e)
+				{
+					Log.err(e.getMessage(), e);
+				}
+			}
+		}.execute();
+	}
+
+	/**
+	 * 
+	 */
+	private void addSrcDir()
+	{
+		List<File> list = listBatchToolsDat2DirSrc.getSelectedValuesList();
+		new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, !list.isEmpty() ? list.get(0).getParentFile() : null, // currdir
+				null, // selected
+				null, // filters
+				"Choose source directories", true).show(SwingUtilities.windowForComponent(BatchDirUpd8rPanel.this), chooser -> {
+					File[] files = chooser.getSelectedFiles();
+					if (files.length > 0)
+						listBatchToolsDat2DirSrc.add(files);
+					return null;
+				});
 	}
 
 	private void dat2dir(final Session session, boolean dryrun)
@@ -436,13 +405,13 @@ public class BatchDirUpd8rPanel extends JPanel
 						session.setCurrProfile(null);
 						session.setCurrScan(null);
 						session.getReport().setProfile(session.getCurrProfile());
-						if (MainFrame.profile_viewer != null)
+						if (MainFrame.getProfileViewer() != null)
 						{
-							MainFrame.profile_viewer.dispose();
-							MainFrame.profile_viewer = null;
+							MainFrame.getProfileViewer().dispose();
+							MainFrame.setProfileViewer(null);
 						}
-						if (MainFrame.report_frame != null)
-							MainFrame.report_frame.setVisible(false);
+						if (MainFrame.getReportFrame() != null)
+							MainFrame.getReportFrame().setVisible(false);
 						JRomManager.getMainFrame().getMainPane().setEnabledAt(1, false);
 					}
 				}.execute();
@@ -450,6 +419,78 @@ public class BatchDirUpd8rPanel extends JPanel
 		}
 		else
 			JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), Messages.getString("MainFrame.AtLeastOneSrcDir")); //$NON-NLS-1$
+	}
+
+	private final class Dir2DatMouseAdapter extends MouseAdapter
+	{
+		private final Session session;
+
+		private Dir2DatMouseAdapter(Session session)
+		{
+			this.session = session;
+		}
+
+		@Override
+		public void mouseClicked(final MouseEvent e)
+		{
+			if (e.getClickCount() == 2)
+			{
+				final JTable target = (JTable) e.getSource();
+				int row = target.getSelectedRow();
+				if (row >= 0)
+				{
+					showResult(session, tableBatchToolsDat2Dir.getSDRModel(), row);
+				}
+			}
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e)
+		{
+			if (e.isPopupTrigger())
+				popupPoint = e.getPoint();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e)
+		{
+			if (e.isPopupTrigger())
+				popupPoint = e.getPoint();
+		}
+	}
+
+	private final class Dir2DatFileFilter extends FileFilter
+	{
+		private final int col;
+
+		private Dir2DatFileFilter(int col)
+		{
+			this.col = col;
+		}
+
+		@Override
+		public boolean accept(File f)
+		{
+			java.io.FileFilter filter = null;
+			if (col == 1)
+				filter = tableBatchToolsDat2Dir.getSDRModel().getDstFilter();
+			else if (col == 0)
+				filter = file -> {
+					final List<String> exts = Arrays.asList("xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$
+					if (file.isFile())
+						return exts.contains(FilenameUtils.getExtension(file.getName()));
+					return true;
+				};
+			if (filter != null)
+				return filter.accept(f);
+			return true;
+		}
+
+		@Override
+		public String getDescription()
+		{
+			return col == 0 ? "Dat/XML files or directories of Dat/XML files" : "Destination directories";
+		}
 	}
 
 }

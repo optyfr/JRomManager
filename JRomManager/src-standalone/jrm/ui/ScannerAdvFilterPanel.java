@@ -125,8 +125,8 @@ public class ScannerAdvFilterPanel extends JPanel
 				{
 					for (int index = e.getFirstIndex(); index <= e.getLastIndex() && index < listNPlayers.getModel().getSize(); index++)
 						listNPlayers.getModel().getElementAt(index).setSelected(session.getCurrProfile(), listNPlayers.isSelectedIndex(index));
-					if (MainFrame.profile_viewer != null)
-						MainFrame.profile_viewer.reset(session.getCurrProfile());
+					if (MainFrame.getProfileViewer() != null)
+						MainFrame.getProfileViewer().reset(session.getCurrProfile());
 				}
 			}
 		});
@@ -172,8 +172,8 @@ public class ScannerAdvFilterPanel extends JPanel
 		treeCatVer = new JCheckBoxTree(new CatVerModel());
 		treeCatVer.addCheckChangeEventListener(event -> {
 			session.getCurrProfile().saveSettings();
-			if (MainFrame.profile_viewer != null)
-				MainFrame.profile_viewer.reset(session.getCurrProfile());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
 		treeCatVer.setEnabled(false);
 		scrollPaneCatVer.setViewportView(treeCatVer);

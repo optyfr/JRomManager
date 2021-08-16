@@ -47,7 +47,7 @@ import jrm.ui.batch.BatchPanel;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.report.ReportFrame;
 import lombok.Getter;
-import lombok.val;
+import lombok.Setter;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -58,10 +58,10 @@ public class MainFrame extends JFrame
 {
 
 	/** The profile viewer. */
-	public static ProfileViewer profile_viewer = null;
+	private static @Getter @Setter ProfileViewer profileViewer = null;
 
 	/** The report frame. */
-	public static ReportFrame report_frame = null;
+	private static @Getter @Setter ReportFrame reportFrame = null;
 
 	/** The main pane. */
 	private @Getter JTabbedPane mainPane;
@@ -140,7 +140,7 @@ public class MainFrame extends JFrame
 		mainPane = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(mainPane);
 
-		MainFrame.report_frame = new ReportFrame(session, MainFrame.this);
+		MainFrame.reportFrame = new ReportFrame(session, MainFrame.this);
 
 		buildProfileTab();
 
@@ -244,7 +244,7 @@ public class MainFrame extends JFrame
 		if (!iconsCache.containsKey(res))
 		{
 			iconsModule.ifPresentOrElse(module -> {
-				try (val in = module.getResourceAsStream(res))
+				try (final var in = module.getResourceAsStream(res))
 				{
 					iconsCache.put(res, in != null ? new ImageIcon(in.readAllBytes()) : new ImageIcon());
 				}
@@ -254,7 +254,7 @@ public class MainFrame extends JFrame
 					iconsCache.put(res, new ImageIcon());
 				}
 			}, () -> {
-				try (val in = MainFrame.class.getResourceAsStream(res))
+				try (final var in = MainFrame.class.getResourceAsStream(res))
 				{
 					iconsCache.put(res, in != null ? new ImageIcon(in.readAllBytes()) : new ImageIcon());
 				}
