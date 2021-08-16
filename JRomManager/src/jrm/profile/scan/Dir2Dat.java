@@ -124,17 +124,17 @@ public class Dir2Dat
 						slname = software.getSl().getBaseName();
 					}
 				}
-				if(!slcounter.containsKey(slname))
+				if (!slcounter.containsKey(slname))
 				{
 					slcounter.put(slname, new HashMap<>());
-					slmap.put(slname, new SL(slname,software!=null?software.getSl():null));
+					slmap.put(slname, new SL(slname, software != null ? software.getSl() : null));
 				}
 				Map<String, AtomicInteger> swcounter = slcounter.get(slname);
 				swcounter.computeIfAbsent(swname, k -> new AtomicInteger());
 				AtomicInteger val = swcounter.get(swname);
-				if(val.incrementAndGet() > 1)
+				if (val.incrementAndGet() > 1)
 					swname = swname + "_" + val.get(); //$NON-NLS-1$
-				slmap.get(slname).sw.put(swname,new SL.SW(swname, software, c));
+				slmap.get(slname).sw.put(swname, new SL.SW(swname, software, c));
 			}
 		}
 		if(slmap.size()>1)

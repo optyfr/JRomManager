@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.util.EnumSet;
@@ -39,9 +37,11 @@ import jrm.ui.progress.SwingWorkerProgress;
 @SuppressWarnings("serial")
 public class Dir2DatPanel extends JPanel
 {
+	private static final String MAIN_FRAME_CHOOSE_DAT_DST = "MainFrame.ChooseDatDst";
+	private static final String MAIN_FRAME_CHOOSE_DAT_SRC = "MainFrame.ChooseDatSrc";
 	private JFileDropTextField tfDir2DatSrc;
 	private JFileDropTextField tfDir2DatDst;
-	private final ButtonGroup Dir2DatFormatGroup = new ButtonGroup();
+	private final ButtonGroup btngrpDir2DatFormat = new ButtonGroup();
 	private JTextField tfDir2DatName;
 	private JTextField tfDir2DatDescription;
 	private JTextField tfDir2DatVersion;
@@ -58,450 +58,443 @@ public class Dir2DatPanel extends JPanel
 	 */
 	public Dir2DatPanel(final Session session)
 	{
-		GridBagLayout gbl_dir2datTab = new GridBagLayout();
-		gbl_dir2datTab.columnWidths = new int[] { 0, 0, 0 };
-		gbl_dir2datTab.rowHeights = new int[] { 0, 0, 0 };
-		gbl_dir2datTab.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gbl_dir2datTab.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		this.setLayout(gbl_dir2datTab);
+		GridBagLayout gblDir2DatTab = new GridBagLayout();
+		gblDir2DatTab.columnWidths = new int[] { 0, 0, 0 };
+		gblDir2DatTab.rowHeights = new int[] { 0, 0, 0 };
+		gblDir2DatTab.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+		gblDir2DatTab.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+		this.setLayout(gblDir2DatTab);
 
 		JPanel panelDir2DatOptions = new JPanel();
 		panelDir2DatOptions.setBorder(new TitledBorder(null, Messages.getString("MainFrame.Options"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
-		GridBagConstraints gbc_panelDir2DatOptions = new GridBagConstraints();
-		gbc_panelDir2DatOptions.insets = new Insets(0, 5, 5, 5);
-		gbc_panelDir2DatOptions.fill = GridBagConstraints.BOTH;
-		gbc_panelDir2DatOptions.gridx = 0;
-		gbc_panelDir2DatOptions.gridy = 0;
-		this.add(panelDir2DatOptions, gbc_panelDir2DatOptions);
-		GridBagLayout gbl_panelDir2DatOptions = new GridBagLayout();
-		gbl_panelDir2DatOptions.columnWidths = new int[] { 0, 0, 0, 0 };
-		gbl_panelDir2DatOptions.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gbl_panelDir2DatOptions.columnWeights = new double[] { 1.0, 0.0, 1.0, Double.MIN_VALUE };
-		gbl_panelDir2DatOptions.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		panelDir2DatOptions.setLayout(gbl_panelDir2DatOptions);
+		GridBagConstraints gbcPanelDir2DatOptions = new GridBagConstraints();
+		gbcPanelDir2DatOptions.insets = new Insets(0, 5, 5, 5);
+		gbcPanelDir2DatOptions.fill = GridBagConstraints.BOTH;
+		gbcPanelDir2DatOptions.gridx = 0;
+		gbcPanelDir2DatOptions.gridy = 0;
+		this.add(panelDir2DatOptions, gbcPanelDir2DatOptions);
+		GridBagLayout gblPanelDir2DatOptions = new GridBagLayout();
+		gblPanelDir2DatOptions.columnWidths = new int[] { 0, 0, 0, 0 };
+		gblPanelDir2DatOptions.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gblPanelDir2DatOptions.columnWeights = new double[] { 1.0, 0.0, 1.0, Double.MIN_VALUE };
+		gblPanelDir2DatOptions.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		panelDir2DatOptions.setLayout(gblPanelDir2DatOptions);
 
 		JCheckBox cbDir2DatScanSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxScanSubfolders.text")); //$NON-NLS-1$
 		cbDir2DatScanSubfolders.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, true)); //$NON-NLS-1$
 		cbDir2DatScanSubfolders.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
-		GridBagConstraints gbc_cbDir2DatScanSubfolders = new GridBagConstraints();
-		gbc_cbDir2DatScanSubfolders.anchor = GridBagConstraints.WEST;
-		gbc_cbDir2DatScanSubfolders.insets = new Insets(0, 0, 5, 5);
-		gbc_cbDir2DatScanSubfolders.gridx = 1;
-		gbc_cbDir2DatScanSubfolders.gridy = 1;
-		panelDir2DatOptions.add(cbDir2DatScanSubfolders, gbc_cbDir2DatScanSubfolders);
+		GridBagConstraints gbcCBDir2DatScanSubfolders = new GridBagConstraints();
+		gbcCBDir2DatScanSubfolders.anchor = GridBagConstraints.WEST;
+		gbcCBDir2DatScanSubfolders.insets = new Insets(0, 0, 5, 5);
+		gbcCBDir2DatScanSubfolders.gridx = 1;
+		gbcCBDir2DatScanSubfolders.gridy = 1;
+		panelDir2DatOptions.add(cbDir2DatScanSubfolders, gbcCBDir2DatScanSubfolders);
 
 		JCheckBox cbDir2DatDeepScan = new JCheckBox(Messages.getString("MainFrame.chckbxDeepScanFor.text")); //$NON-NLS-1$
 		cbDir2DatDeepScan.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, false)); //$NON-NLS-1$
 		cbDir2DatDeepScan.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
-		GridBagConstraints gbc_cbDir2DatDeepScan = new GridBagConstraints();
-		gbc_cbDir2DatDeepScan.anchor = GridBagConstraints.WEST;
-		gbc_cbDir2DatDeepScan.insets = new Insets(0, 0, 5, 5);
-		gbc_cbDir2DatDeepScan.gridx = 1;
-		gbc_cbDir2DatDeepScan.gridy = 2;
-		panelDir2DatOptions.add(cbDir2DatDeepScan, gbc_cbDir2DatDeepScan);
+		GridBagConstraints gbcCBDir2DatDeepScan = new GridBagConstraints();
+		gbcCBDir2DatDeepScan.anchor = GridBagConstraints.WEST;
+		gbcCBDir2DatDeepScan.insets = new Insets(0, 0, 5, 5);
+		gbcCBDir2DatDeepScan.gridx = 1;
+		gbcCBDir2DatDeepScan.gridy = 2;
+		panelDir2DatOptions.add(cbDir2DatDeepScan, gbcCBDir2DatDeepScan);
 
 		JCheckBox cbDir2DatAddMd5 = new JCheckBox(Messages.getString("MainFrame.chckbxAddMd.text")); //$NON-NLS-1$
 		cbDir2DatAddMd5.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, false)); //$NON-NLS-1$
 		cbDir2DatAddMd5.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
-		GridBagConstraints gbc_cbDir2DatAddMd5 = new GridBagConstraints();
-		gbc_cbDir2DatAddMd5.anchor = GridBagConstraints.WEST;
-		gbc_cbDir2DatAddMd5.insets = new Insets(0, 0, 5, 5);
-		gbc_cbDir2DatAddMd5.gridx = 1;
-		gbc_cbDir2DatAddMd5.gridy = 3;
-		panelDir2DatOptions.add(cbDir2DatAddMd5, gbc_cbDir2DatAddMd5);
+		GridBagConstraints gbcCBDir2DatAddMd5 = new GridBagConstraints();
+		gbcCBDir2DatAddMd5.anchor = GridBagConstraints.WEST;
+		gbcCBDir2DatAddMd5.insets = new Insets(0, 0, 5, 5);
+		gbcCBDir2DatAddMd5.gridx = 1;
+		gbcCBDir2DatAddMd5.gridy = 3;
+		panelDir2DatOptions.add(cbDir2DatAddMd5, gbcCBDir2DatAddMd5);
 
 		JCheckBox cbDir2DatAddSha1 = new JCheckBox(Messages.getString("MainFrame.chckbxAddShamd.text")); //$NON-NLS-1$
 		cbDir2DatAddSha1.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, false)); //$NON-NLS-1$
 		cbDir2DatAddSha1.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
-		GridBagConstraints gbc_cbDir2DatAddSha1 = new GridBagConstraints();
-		gbc_cbDir2DatAddSha1.anchor = GridBagConstraints.WEST;
-		gbc_cbDir2DatAddSha1.insets = new Insets(0, 0, 5, 5);
-		gbc_cbDir2DatAddSha1.gridx = 1;
-		gbc_cbDir2DatAddSha1.gridy = 4;
-		panelDir2DatOptions.add(cbDir2DatAddSha1, gbc_cbDir2DatAddSha1);
+		GridBagConstraints gbcCBDir2DatAddSha1 = new GridBagConstraints();
+		gbcCBDir2DatAddSha1.anchor = GridBagConstraints.WEST;
+		gbcCBDir2DatAddSha1.insets = new Insets(0, 0, 5, 5);
+		gbcCBDir2DatAddSha1.gridx = 1;
+		gbcCBDir2DatAddSha1.gridy = 4;
+		panelDir2DatOptions.add(cbDir2DatAddSha1, gbcCBDir2DatAddSha1);
 
 		JCheckBox cbDir2DatJunkSubfolders = new JCheckBox(Messages.getString("MainFrame.chckbxJunkSubfolders.text")); //$NON-NLS-1$
 		cbDir2DatJunkSubfolders.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, false)); //$NON-NLS-1$
 		cbDir2DatJunkSubfolders.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
-		GridBagConstraints gbc_cbDir2DatJunkSubfolders = new GridBagConstraints();
-		gbc_cbDir2DatJunkSubfolders.anchor = GridBagConstraints.WEST;
-		gbc_cbDir2DatJunkSubfolders.insets = new Insets(0, 0, 5, 5);
-		gbc_cbDir2DatJunkSubfolders.gridx = 1;
-		gbc_cbDir2DatJunkSubfolders.gridy = 5;
-		panelDir2DatOptions.add(cbDir2DatJunkSubfolders, gbc_cbDir2DatJunkSubfolders);
+		GridBagConstraints gbcCBDir2DatJunkSubfolders = new GridBagConstraints();
+		gbcCBDir2DatJunkSubfolders.anchor = GridBagConstraints.WEST;
+		gbcCBDir2DatJunkSubfolders.insets = new Insets(0, 0, 5, 5);
+		gbcCBDir2DatJunkSubfolders.gridx = 1;
+		gbcCBDir2DatJunkSubfolders.gridy = 5;
+		panelDir2DatOptions.add(cbDir2DatJunkSubfolders, gbcCBDir2DatJunkSubfolders);
 
 		JCheckBox cbDir2DatDoNotScan = new JCheckBox(Messages.getString("MainFrame.chckbxDoNotScan.text")); //$NON-NLS-1$
 		cbDir2DatDoNotScan.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, false)); //$NON-NLS-1$
 		cbDir2DatDoNotScan.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
-		GridBagConstraints gbc_cbDir2DatDoNotScan = new GridBagConstraints();
-		gbc_cbDir2DatDoNotScan.anchor = GridBagConstraints.WEST;
-		gbc_cbDir2DatDoNotScan.insets = new Insets(0, 0, 5, 5);
-		gbc_cbDir2DatDoNotScan.gridx = 1;
-		gbc_cbDir2DatDoNotScan.gridy = 6;
-		panelDir2DatOptions.add(cbDir2DatDoNotScan, gbc_cbDir2DatDoNotScan);
+		GridBagConstraints gbcCBDir2DatDoNotScan = new GridBagConstraints();
+		gbcCBDir2DatDoNotScan.anchor = GridBagConstraints.WEST;
+		gbcCBDir2DatDoNotScan.insets = new Insets(0, 0, 5, 5);
+		gbcCBDir2DatDoNotScan.gridx = 1;
+		gbcCBDir2DatDoNotScan.gridy = 6;
+		panelDir2DatOptions.add(cbDir2DatDoNotScan, gbcCBDir2DatDoNotScan);
 
 		JCheckBox cbDir2DatMatchCurrentProfile = new JCheckBox(Messages.getString("MainFrame.chckbxMatchCurrentProfile.text")); //$NON-NLS-1$
 		cbDir2DatMatchCurrentProfile.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, false)); //$NON-NLS-1$
 		cbDir2DatMatchCurrentProfile.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
-		GridBagConstraints gbc_cbDir2DatMatchCurrentProfile = new GridBagConstraints();
-		gbc_cbDir2DatMatchCurrentProfile.anchor = GridBagConstraints.WEST;
-		gbc_cbDir2DatMatchCurrentProfile.insets = new Insets(0, 0, 5, 5);
-		gbc_cbDir2DatMatchCurrentProfile.gridx = 1;
-		gbc_cbDir2DatMatchCurrentProfile.gridy = 7;
-		panelDir2DatOptions.add(cbDir2DatMatchCurrentProfile, gbc_cbDir2DatMatchCurrentProfile);
+		GridBagConstraints gbcCBDir2DatMatchCurrentProfile = new GridBagConstraints();
+		gbcCBDir2DatMatchCurrentProfile.anchor = GridBagConstraints.WEST;
+		gbcCBDir2DatMatchCurrentProfile.insets = new Insets(0, 0, 5, 5);
+		gbcCBDir2DatMatchCurrentProfile.gridx = 1;
+		gbcCBDir2DatMatchCurrentProfile.gridy = 7;
+		panelDir2DatOptions.add(cbDir2DatMatchCurrentProfile, gbcCBDir2DatMatchCurrentProfile);
 
 		JCheckBox cbDir2DatIncludeEmptyDirs = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeEmptyDirs.text")); //$NON-NLS-1$
 		cbDir2DatIncludeEmptyDirs.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, false)); //$NON-NLS-1$
 		cbDir2DatIncludeEmptyDirs.addItemListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, e.getStateChange() == ItemEvent.SELECTED)); //$NON-NLS-1$
-		GridBagConstraints gbc_cbDir2DatIncludeEmptyDirs = new GridBagConstraints();
-		gbc_cbDir2DatIncludeEmptyDirs.anchor = GridBagConstraints.WEST;
-		gbc_cbDir2DatIncludeEmptyDirs.insets = new Insets(0, 0, 5, 5);
-		gbc_cbDir2DatIncludeEmptyDirs.gridx = 1;
-		gbc_cbDir2DatIncludeEmptyDirs.gridy = 8;
-		panelDir2DatOptions.add(cbDir2DatIncludeEmptyDirs, gbc_cbDir2DatIncludeEmptyDirs);
+		GridBagConstraints gbcCBDir2DatIncludeEmptyDirs = new GridBagConstraints();
+		gbcCBDir2DatIncludeEmptyDirs.anchor = GridBagConstraints.WEST;
+		gbcCBDir2DatIncludeEmptyDirs.insets = new Insets(0, 0, 5, 5);
+		gbcCBDir2DatIncludeEmptyDirs.gridx = 1;
+		gbcCBDir2DatIncludeEmptyDirs.gridy = 8;
+		panelDir2DatOptions.add(cbDir2DatIncludeEmptyDirs, gbcCBDir2DatIncludeEmptyDirs);
 
 		JPanel panelDir2DatHeaders = new JPanel();
 		panelDir2DatHeaders.setBorder(new TitledBorder(null, Messages.getString("MainFrame.Headers"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
-		GridBagConstraints gbc_panelDir2DatHeaders = new GridBagConstraints();
-		gbc_panelDir2DatHeaders.insets = new Insets(0, 0, 5, 5);
-		gbc_panelDir2DatHeaders.fill = GridBagConstraints.BOTH;
-		gbc_panelDir2DatHeaders.gridx = 1;
-		gbc_panelDir2DatHeaders.gridy = 0;
-		this.add(panelDir2DatHeaders, gbc_panelDir2DatHeaders);
-		GridBagLayout gbl_panelDir2DatHeaders = new GridBagLayout();
-		gbl_panelDir2DatHeaders.columnWidths = new int[] { 0, 0, 0 };
-		gbl_panelDir2DatHeaders.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gbl_panelDir2DatHeaders.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
-		gbl_panelDir2DatHeaders.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		panelDir2DatHeaders.setLayout(gbl_panelDir2DatHeaders);
+		GridBagConstraints gbcPanelDir2DatHeaders = new GridBagConstraints();
+		gbcPanelDir2DatHeaders.insets = new Insets(0, 0, 5, 5);
+		gbcPanelDir2DatHeaders.fill = GridBagConstraints.BOTH;
+		gbcPanelDir2DatHeaders.gridx = 1;
+		gbcPanelDir2DatHeaders.gridy = 0;
+		this.add(panelDir2DatHeaders, gbcPanelDir2DatHeaders);
+		GridBagLayout gblPanelDir2DatHeaders = new GridBagLayout();
+		gblPanelDir2DatHeaders.columnWidths = new int[] { 0, 0, 0 };
+		gblPanelDir2DatHeaders.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gblPanelDir2DatHeaders.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
+		gblPanelDir2DatHeaders.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		panelDir2DatHeaders.setLayout(gblPanelDir2DatHeaders);
 
 		JLabel lblDir2DatName = new JLabel(Messages.getString("MainFrame.lblName.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatName = new GridBagConstraints();
-		gbc_lblDir2DatName.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatName.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatName.gridx = 0;
-		gbc_lblDir2DatName.gridy = 1;
-		panelDir2DatHeaders.add(lblDir2DatName, gbc_lblDir2DatName);
+		GridBagConstraints gbcLblDir2DatName = new GridBagConstraints();
+		gbcLblDir2DatName.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatName.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatName.gridx = 0;
+		gbcLblDir2DatName.gridy = 1;
+		panelDir2DatHeaders.add(lblDir2DatName, gbcLblDir2DatName);
 
 		tfDir2DatName = new JTextField();
 		tfDir2DatName.setText(""); //$NON-NLS-1$
-		GridBagConstraints gbc_tfDir2DatName = new GridBagConstraints();
-		gbc_tfDir2DatName.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatName.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatName.gridx = 1;
-		gbc_tfDir2DatName.gridy = 1;
-		panelDir2DatHeaders.add(tfDir2DatName, gbc_tfDir2DatName);
+		GridBagConstraints gbcTFDir2DatName = new GridBagConstraints();
+		gbcTFDir2DatName.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatName.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatName.gridx = 1;
+		gbcTFDir2DatName.gridy = 1;
+		panelDir2DatHeaders.add(tfDir2DatName, gbcTFDir2DatName);
 		tfDir2DatName.setColumns(20);
 
 		JLabel lblDir2DatDescription = new JLabel(Messages.getString("MainFrame.lblDescription.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatDescription = new GridBagConstraints();
-		gbc_lblDir2DatDescription.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatDescription.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatDescription.gridx = 0;
-		gbc_lblDir2DatDescription.gridy = 2;
-		panelDir2DatHeaders.add(lblDir2DatDescription, gbc_lblDir2DatDescription);
+		GridBagConstraints gbcLblDir2DatDescription = new GridBagConstraints();
+		gbcLblDir2DatDescription.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatDescription.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatDescription.gridx = 0;
+		gbcLblDir2DatDescription.gridy = 2;
+		panelDir2DatHeaders.add(lblDir2DatDescription, gbcLblDir2DatDescription);
 
 		tfDir2DatDescription = new JTextField();
 		tfDir2DatDescription.setText(""); //$NON-NLS-1$
 		tfDir2DatDescription.setColumns(20);
-		GridBagConstraints gbc_tfDir2DatDescription = new GridBagConstraints();
-		gbc_tfDir2DatDescription.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatDescription.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatDescription.gridx = 1;
-		gbc_tfDir2DatDescription.gridy = 2;
-		panelDir2DatHeaders.add(tfDir2DatDescription, gbc_tfDir2DatDescription);
+		GridBagConstraints gbcTFDir2DatDescription = new GridBagConstraints();
+		gbcTFDir2DatDescription.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatDescription.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatDescription.gridx = 1;
+		gbcTFDir2DatDescription.gridy = 2;
+		panelDir2DatHeaders.add(tfDir2DatDescription, gbcTFDir2DatDescription);
 
 		JLabel lblDir2DatVersion = new JLabel(Messages.getString("MainFrame.lblVersion.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatVersion = new GridBagConstraints();
-		gbc_lblDir2DatVersion.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatVersion.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatVersion.gridx = 0;
-		gbc_lblDir2DatVersion.gridy = 3;
-		panelDir2DatHeaders.add(lblDir2DatVersion, gbc_lblDir2DatVersion);
+		GridBagConstraints gbcLblDir2DatVersion = new GridBagConstraints();
+		gbcLblDir2DatVersion.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatVersion.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatVersion.gridx = 0;
+		gbcLblDir2DatVersion.gridy = 3;
+		panelDir2DatHeaders.add(lblDir2DatVersion, gbcLblDir2DatVersion);
 
 		tfDir2DatVersion = new JTextField();
 		tfDir2DatVersion.setText(""); //$NON-NLS-1$
 		tfDir2DatVersion.setColumns(20);
-		GridBagConstraints gbc_tfDir2DatVersion = new GridBagConstraints();
-		gbc_tfDir2DatVersion.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatVersion.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatVersion.gridx = 1;
-		gbc_tfDir2DatVersion.gridy = 3;
-		panelDir2DatHeaders.add(tfDir2DatVersion, gbc_tfDir2DatVersion);
+		GridBagConstraints gbcTFDir2DatVersion = new GridBagConstraints();
+		gbcTFDir2DatVersion.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatVersion.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatVersion.gridx = 1;
+		gbcTFDir2DatVersion.gridy = 3;
+		panelDir2DatHeaders.add(tfDir2DatVersion, gbcTFDir2DatVersion);
 
 		JLabel lblDir2DatAuthor = new JLabel(Messages.getString("MainFrame.lblAuthor.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatAuthor = new GridBagConstraints();
-		gbc_lblDir2DatAuthor.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatAuthor.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatAuthor.gridx = 0;
-		gbc_lblDir2DatAuthor.gridy = 4;
-		panelDir2DatHeaders.add(lblDir2DatAuthor, gbc_lblDir2DatAuthor);
+		GridBagConstraints gbcLblDir2DatAuthor = new GridBagConstraints();
+		gbcLblDir2DatAuthor.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatAuthor.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatAuthor.gridx = 0;
+		gbcLblDir2DatAuthor.gridy = 4;
+		panelDir2DatHeaders.add(lblDir2DatAuthor, gbcLblDir2DatAuthor);
 
 		tfDir2DatAuthor = new JTextField();
 		tfDir2DatAuthor.setText(""); //$NON-NLS-1$
 		tfDir2DatAuthor.setColumns(20);
-		GridBagConstraints gbc_tfDir2DatAuthor = new GridBagConstraints();
-		gbc_tfDir2DatAuthor.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatAuthor.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatAuthor.gridx = 1;
-		gbc_tfDir2DatAuthor.gridy = 4;
-		panelDir2DatHeaders.add(tfDir2DatAuthor, gbc_tfDir2DatAuthor);
+		GridBagConstraints gbcTFDir2DatAuthor = new GridBagConstraints();
+		gbcTFDir2DatAuthor.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatAuthor.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatAuthor.gridx = 1;
+		gbcTFDir2DatAuthor.gridy = 4;
+		panelDir2DatHeaders.add(tfDir2DatAuthor, gbcTFDir2DatAuthor);
 
 		JLabel lblDir2DatComment = new JLabel(Messages.getString("MainFrame.lblComment.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatComment = new GridBagConstraints();
-		gbc_lblDir2DatComment.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatComment.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatComment.gridx = 0;
-		gbc_lblDir2DatComment.gridy = 5;
-		panelDir2DatHeaders.add(lblDir2DatComment, gbc_lblDir2DatComment);
+		GridBagConstraints gbcLblDir2DatComment = new GridBagConstraints();
+		gbcLblDir2DatComment.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatComment.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatComment.gridx = 0;
+		gbcLblDir2DatComment.gridy = 5;
+		panelDir2DatHeaders.add(lblDir2DatComment, gbcLblDir2DatComment);
 
 		tfDir2DatComment = new JTextField();
 		tfDir2DatComment.setText(""); //$NON-NLS-1$
 		tfDir2DatComment.setColumns(20);
-		GridBagConstraints gbc_tfDir2DatComment = new GridBagConstraints();
-		gbc_tfDir2DatComment.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatComment.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatComment.gridx = 1;
-		gbc_tfDir2DatComment.gridy = 5;
-		panelDir2DatHeaders.add(tfDir2DatComment, gbc_tfDir2DatComment);
+		GridBagConstraints gbcTFDir2DatComment = new GridBagConstraints();
+		gbcTFDir2DatComment.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatComment.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatComment.gridx = 1;
+		gbcTFDir2DatComment.gridy = 5;
+		panelDir2DatHeaders.add(tfDir2DatComment, gbcTFDir2DatComment);
 
 		JLabel lblDir2DatCategory = new JLabel(Messages.getString("MainFrame.lblCategory.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatCategory = new GridBagConstraints();
-		gbc_lblDir2DatCategory.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatCategory.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatCategory.gridx = 0;
-		gbc_lblDir2DatCategory.gridy = 6;
-		panelDir2DatHeaders.add(lblDir2DatCategory, gbc_lblDir2DatCategory);
+		GridBagConstraints gbcLblDir2DatCategory = new GridBagConstraints();
+		gbcLblDir2DatCategory.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatCategory.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatCategory.gridx = 0;
+		gbcLblDir2DatCategory.gridy = 6;
+		panelDir2DatHeaders.add(lblDir2DatCategory, gbcLblDir2DatCategory);
 
 		tfDir2DatCategory = new JTextField();
 		tfDir2DatCategory.setText(""); //$NON-NLS-1$
 		tfDir2DatCategory.setColumns(20);
-		GridBagConstraints gbc_tfDir2DatCategory = new GridBagConstraints();
-		gbc_tfDir2DatCategory.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatCategory.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatCategory.gridx = 1;
-		gbc_tfDir2DatCategory.gridy = 6;
-		panelDir2DatHeaders.add(tfDir2DatCategory, gbc_tfDir2DatCategory);
+		GridBagConstraints gbcTFDir2DatCategory = new GridBagConstraints();
+		gbcTFDir2DatCategory.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatCategory.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatCategory.gridx = 1;
+		gbcTFDir2DatCategory.gridy = 6;
+		panelDir2DatHeaders.add(tfDir2DatCategory, gbcTFDir2DatCategory);
 
 		JLabel lblDir2DatDate = new JLabel(Messages.getString("MainFrame.lblDate.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatDate = new GridBagConstraints();
-		gbc_lblDir2DatDate.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatDate.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatDate.gridx = 0;
-		gbc_lblDir2DatDate.gridy = 7;
-		panelDir2DatHeaders.add(lblDir2DatDate, gbc_lblDir2DatDate);
+		GridBagConstraints gbcLblDir2DatDate = new GridBagConstraints();
+		gbcLblDir2DatDate.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatDate.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatDate.gridx = 0;
+		gbcLblDir2DatDate.gridy = 7;
+		panelDir2DatHeaders.add(lblDir2DatDate, gbcLblDir2DatDate);
 
 		tfDir2DatDate = new JTextField();
 		tfDir2DatDate.setText(""); //$NON-NLS-1$
 		tfDir2DatDate.setColumns(20);
-		GridBagConstraints gbc_tfDir2DatDate = new GridBagConstraints();
-		gbc_tfDir2DatDate.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatDate.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatDate.gridx = 1;
-		gbc_tfDir2DatDate.gridy = 7;
-		panelDir2DatHeaders.add(tfDir2DatDate, gbc_tfDir2DatDate);
+		GridBagConstraints gbcTFDir2DatDate = new GridBagConstraints();
+		gbcTFDir2DatDate.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatDate.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatDate.gridx = 1;
+		gbcTFDir2DatDate.gridy = 7;
+		panelDir2DatHeaders.add(tfDir2DatDate, gbcTFDir2DatDate);
 
 		JLabel lblDir2DatEmail = new JLabel(Messages.getString("MainFrame.lblEmail.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatEmail = new GridBagConstraints();
-		gbc_lblDir2DatEmail.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatEmail.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatEmail.gridx = 0;
-		gbc_lblDir2DatEmail.gridy = 8;
-		panelDir2DatHeaders.add(lblDir2DatEmail, gbc_lblDir2DatEmail);
+		GridBagConstraints gbcLblDir2DatEmail = new GridBagConstraints();
+		gbcLblDir2DatEmail.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatEmail.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatEmail.gridx = 0;
+		gbcLblDir2DatEmail.gridy = 8;
+		panelDir2DatHeaders.add(lblDir2DatEmail, gbcLblDir2DatEmail);
 
 		tfDir2DatEMail = new JTextField();
 		tfDir2DatEMail.setText(""); //$NON-NLS-1$
 		tfDir2DatEMail.setColumns(20);
-		GridBagConstraints gbc_tfDir2DatEMail = new GridBagConstraints();
-		gbc_tfDir2DatEMail.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatEMail.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatEMail.gridx = 1;
-		gbc_tfDir2DatEMail.gridy = 8;
-		panelDir2DatHeaders.add(tfDir2DatEMail, gbc_tfDir2DatEMail);
+		GridBagConstraints gbcTFDir2DatEMail = new GridBagConstraints();
+		gbcTFDir2DatEMail.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatEMail.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatEMail.gridx = 1;
+		gbcTFDir2DatEMail.gridy = 8;
+		panelDir2DatHeaders.add(tfDir2DatEMail, gbcTFDir2DatEMail);
 
 		JLabel lblDir2DatHomepage = new JLabel(Messages.getString("MainFrame.lblHomepage.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatHomepage = new GridBagConstraints();
-		gbc_lblDir2DatHomepage.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatHomepage.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatHomepage.gridx = 0;
-		gbc_lblDir2DatHomepage.gridy = 9;
-		panelDir2DatHeaders.add(lblDir2DatHomepage, gbc_lblDir2DatHomepage);
+		GridBagConstraints gbcLblDir2DatHomepage = new GridBagConstraints();
+		gbcLblDir2DatHomepage.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatHomepage.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatHomepage.gridx = 0;
+		gbcLblDir2DatHomepage.gridy = 9;
+		panelDir2DatHeaders.add(lblDir2DatHomepage, gbcLblDir2DatHomepage);
 
 		tfDir2DatHomepage = new JTextField();
 		tfDir2DatHomepage.setText(""); //$NON-NLS-1$
 		tfDir2DatHomepage.setColumns(20);
-		GridBagConstraints gbc_tfDir2DatHomepage = new GridBagConstraints();
-		gbc_tfDir2DatHomepage.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatHomepage.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatHomepage.gridx = 1;
-		gbc_tfDir2DatHomepage.gridy = 9;
-		panelDir2DatHeaders.add(tfDir2DatHomepage, gbc_tfDir2DatHomepage);
+		GridBagConstraints gbcTFDir2DatHomepage = new GridBagConstraints();
+		gbcTFDir2DatHomepage.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatHomepage.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatHomepage.gridx = 1;
+		gbcTFDir2DatHomepage.gridy = 9;
+		panelDir2DatHeaders.add(tfDir2DatHomepage, gbcTFDir2DatHomepage);
 
 		JLabel lblDir2DatUrl = new JLabel(Messages.getString("MainFrame.lblUrl.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatUrl = new GridBagConstraints();
-		gbc_lblDir2DatUrl.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDir2DatUrl.anchor = GridBagConstraints.EAST;
-		gbc_lblDir2DatUrl.gridx = 0;
-		gbc_lblDir2DatUrl.gridy = 10;
-		panelDir2DatHeaders.add(lblDir2DatUrl, gbc_lblDir2DatUrl);
+		GridBagConstraints gbcLblDir2DatUrl = new GridBagConstraints();
+		gbcLblDir2DatUrl.insets = new Insets(0, 0, 5, 5);
+		gbcLblDir2DatUrl.anchor = GridBagConstraints.EAST;
+		gbcLblDir2DatUrl.gridx = 0;
+		gbcLblDir2DatUrl.gridy = 10;
+		panelDir2DatHeaders.add(lblDir2DatUrl, gbcLblDir2DatUrl);
 
 		tfDir2DatURL = new JTextField();
 		tfDir2DatURL.setText(""); //$NON-NLS-1$
 		tfDir2DatURL.setColumns(20);
-		GridBagConstraints gbc_tfDir2DatURL = new GridBagConstraints();
-		gbc_tfDir2DatURL.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatURL.fill = GridBagConstraints.HORIZONTAL;
-		gbc_tfDir2DatURL.gridx = 1;
-		gbc_tfDir2DatURL.gridy = 10;
-		panelDir2DatHeaders.add(tfDir2DatURL, gbc_tfDir2DatURL);
+		GridBagConstraints gbcTFDir2DatURL = new GridBagConstraints();
+		gbcTFDir2DatURL.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatURL.fill = GridBagConstraints.HORIZONTAL;
+		gbcTFDir2DatURL.gridx = 1;
+		gbcTFDir2DatURL.gridy = 10;
+		panelDir2DatHeaders.add(tfDir2DatURL, gbcTFDir2DatURL);
 
 		JPanel panelDir2DatIO = new JPanel();
 		panelDir2DatIO.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), Messages.getString("MainFrame.IO"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$ //$NON-NLS-2$
-		GridBagConstraints gbc_panelDir2DatIO = new GridBagConstraints();
-		gbc_panelDir2DatIO.insets = new Insets(0, 5, 5, 5);
-		gbc_panelDir2DatIO.gridwidth = 2;
-		gbc_panelDir2DatIO.fill = GridBagConstraints.BOTH;
-		gbc_panelDir2DatIO.gridx = 0;
-		gbc_panelDir2DatIO.gridy = 1;
-		this.add(panelDir2DatIO, gbc_panelDir2DatIO);
-		GridBagLayout gbl_panelDir2DatIO = new GridBagLayout();
-		gbl_panelDir2DatIO.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0 };
-		gbl_panelDir2DatIO.rowHeights = new int[] { 0, 0, 0, 0 };
-		gbl_panelDir2DatIO.columnWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
-		gbl_panelDir2DatIO.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		panelDir2DatIO.setLayout(gbl_panelDir2DatIO);
+		GridBagConstraints gbcPanelDir2DatIO = new GridBagConstraints();
+		gbcPanelDir2DatIO.insets = new Insets(0, 5, 5, 5);
+		gbcPanelDir2DatIO.gridwidth = 2;
+		gbcPanelDir2DatIO.fill = GridBagConstraints.BOTH;
+		gbcPanelDir2DatIO.gridx = 0;
+		gbcPanelDir2DatIO.gridy = 1;
+		this.add(panelDir2DatIO, gbcPanelDir2DatIO);
+		GridBagLayout gblPanelDir2DatIO = new GridBagLayout();
+		gblPanelDir2DatIO.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0 };
+		gblPanelDir2DatIO.rowHeights = new int[] { 0, 0, 0, 0 };
+		gblPanelDir2DatIO.columnWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
+		gblPanelDir2DatIO.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panelDir2DatIO.setLayout(gblPanelDir2DatIO);
 
 		JLabel lblDir2DatSrc = new JLabel(Messages.getString("MainFrame.lblSrcDir_1.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatSrc = new GridBagConstraints();
-		gbc_lblDir2DatSrc.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblDir2DatSrc.insets = new Insets(0, 5, 5, 5);
-		gbc_lblDir2DatSrc.gridx = 0;
-		gbc_lblDir2DatSrc.gridy = 0;
-		panelDir2DatIO.add(lblDir2DatSrc, gbc_lblDir2DatSrc);
+		GridBagConstraints gbcLblDir2DatSrc = new GridBagConstraints();
+		gbcLblDir2DatSrc.fill = GridBagConstraints.HORIZONTAL;
+		gbcLblDir2DatSrc.insets = new Insets(0, 5, 5, 5);
+		gbcLblDir2DatSrc.gridx = 0;
+		gbcLblDir2DatSrc.gridy = 0;
+		panelDir2DatIO.add(lblDir2DatSrc, gbcLblDir2DatSrc);
 
 		tfDir2DatSrc = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, txt)); //$NON-NLS-1$
 		tfDir2DatSrc.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		tfDir2DatSrc.setMode(JFileDropMode.DIRECTORY);
 		tfDir2DatSrc.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tfDir2DatSrc.setColumns(10);
-		GridBagConstraints gbc_tfDir2DatSrc = new GridBagConstraints();
-		gbc_tfDir2DatSrc.gridwidth = 3;
-		gbc_tfDir2DatSrc.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatSrc.fill = GridBagConstraints.BOTH;
-		gbc_tfDir2DatSrc.gridx = 1;
-		gbc_tfDir2DatSrc.gridy = 0;
-		panelDir2DatIO.add(tfDir2DatSrc, gbc_tfDir2DatSrc);
+		GridBagConstraints gbcTFDir2DatSrc = new GridBagConstraints();
+		gbcTFDir2DatSrc.gridwidth = 3;
+		gbcTFDir2DatSrc.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatSrc.fill = GridBagConstraints.BOTH;
+		gbcTFDir2DatSrc.gridx = 1;
+		gbcTFDir2DatSrc.gridy = 0;
+		panelDir2DatIO.add(tfDir2DatSrc, gbcTFDir2DatSrc);
 
 		JButton btnDir2DatSrc = new JButton(""); //$NON-NLS-1$
 		btnDir2DatSrc.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 		btnDir2DatSrc.addActionListener(e -> {
 			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getUser().getSettings().getProperty("MainFrame.ChooseDatSrc", workdir.getAbsolutePath())), new File(tfDir2DatSrc.getText()), null, Messages.getString("MainFrame.ChooseDatSrc"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
-				session.getUser().getSettings().setProperty("MainFrame.ChooseDatSrc", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getUser().getSettings().getProperty(MAIN_FRAME_CHOOSE_DAT_SRC, workdir.getAbsolutePath())), new File(tfDir2DatSrc.getText()), null, Messages.getString(MAIN_FRAME_CHOOSE_DAT_SRC), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
+				session.getUser().getSettings().setProperty(MAIN_FRAME_CHOOSE_DAT_SRC, chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfDir2DatSrc.setText(chooser.getSelectedFile().getAbsolutePath());
 				session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, tfDir2DatSrc.getText()); //$NON-NLS-1$
 				return null;
 			});
 		});
-		GridBagConstraints gbc_btnDir2DatSrc = new GridBagConstraints();
-		gbc_btnDir2DatSrc.insets = new Insets(0, 0, 5, 5);
-		gbc_btnDir2DatSrc.gridx = 4;
-		gbc_btnDir2DatSrc.gridy = 0;
-		panelDir2DatIO.add(btnDir2DatSrc, gbc_btnDir2DatSrc);
+		GridBagConstraints gbcBtnDir2DatSrc = new GridBagConstraints();
+		gbcBtnDir2DatSrc.insets = new Insets(0, 0, 5, 5);
+		gbcBtnDir2DatSrc.gridx = 4;
+		gbcBtnDir2DatSrc.gridy = 0;
+		panelDir2DatIO.add(btnDir2DatSrc, gbcBtnDir2DatSrc);
 
 		JButton btnDir2DatGenerate = new JButton(Messages.getString("MainFrame.btnGenerate.text")); //$NON-NLS-1$
-		btnDir2DatGenerate.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				dir2dat(session);
-			}
-		});
-		GridBagConstraints gbc_btnDir2DatGenerate = new GridBagConstraints();
-		gbc_btnDir2DatGenerate.fill = GridBagConstraints.BOTH;
-		gbc_btnDir2DatGenerate.gridheight = 3;
-		gbc_btnDir2DatGenerate.gridx = 5;
-		gbc_btnDir2DatGenerate.gridy = 0;
-		panelDir2DatIO.add(btnDir2DatGenerate, gbc_btnDir2DatGenerate);
+		btnDir2DatGenerate.addActionListener(e->dir2dat(session));
+		GridBagConstraints gbcBtnDir2DatGenerate = new GridBagConstraints();
+		gbcBtnDir2DatGenerate.fill = GridBagConstraints.BOTH;
+		gbcBtnDir2DatGenerate.gridheight = 3;
+		gbcBtnDir2DatGenerate.gridx = 5;
+		gbcBtnDir2DatGenerate.gridy = 0;
+		panelDir2DatIO.add(btnDir2DatGenerate, gbcBtnDir2DatGenerate);
 
 		JLabel lblDir2DatDst = new JLabel(Messages.getString("MainFrame.lblDstDat.text")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblDir2DatDst = new GridBagConstraints();
-		gbc_lblDir2DatDst.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblDir2DatDst.insets = new Insets(0, 5, 5, 5);
-		gbc_lblDir2DatDst.gridx = 0;
-		gbc_lblDir2DatDst.gridy = 1;
-		panelDir2DatIO.add(lblDir2DatDst, gbc_lblDir2DatDst);
+		GridBagConstraints gbcLblDir2DatDst = new GridBagConstraints();
+		gbcLblDir2DatDst.fill = GridBagConstraints.HORIZONTAL;
+		gbcLblDir2DatDst.insets = new Insets(0, 5, 5, 5);
+		gbcLblDir2DatDst.gridx = 0;
+		gbcLblDir2DatDst.gridy = 1;
+		panelDir2DatIO.add(lblDir2DatDst, gbcLblDir2DatDst);
 
 		tfDir2DatDst = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt)); //$NON-NLS-1$
 		tfDir2DatDst.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		tfDir2DatDst.setMode(JFileDropMode.FILE);
 		tfDir2DatDst.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropFileHint"), Color.gray)); //$NON-NLS-1$
 		tfDir2DatDst.setColumns(10);
-		GridBagConstraints gbc_tfDir2DatDst = new GridBagConstraints();
-		gbc_tfDir2DatDst.gridwidth = 3;
-		gbc_tfDir2DatDst.insets = new Insets(0, 0, 5, 0);
-		gbc_tfDir2DatDst.fill = GridBagConstraints.BOTH;
-		gbc_tfDir2DatDst.gridx = 1;
-		gbc_tfDir2DatDst.gridy = 1;
-		panelDir2DatIO.add(tfDir2DatDst, gbc_tfDir2DatDst);
+		GridBagConstraints gbcTFDir2DatDst = new GridBagConstraints();
+		gbcTFDir2DatDst.gridwidth = 3;
+		gbcTFDir2DatDst.insets = new Insets(0, 0, 5, 0);
+		gbcTFDir2DatDst.fill = GridBagConstraints.BOTH;
+		gbcTFDir2DatDst.gridx = 1;
+		gbcTFDir2DatDst.gridy = 1;
+		panelDir2DatIO.add(tfDir2DatDst, gbcTFDir2DatDst);
 
 		JButton btnDir2DatDst = new JButton(""); //$NON-NLS-1$
 		btnDir2DatDst.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 		btnDir2DatDst.addActionListener(e -> {
 			final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
-			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, new File(session.getUser().getSettings().getProperty("MainFrame.ChooseDatDst", workdir.getAbsolutePath())), new File(tfDir2DatDst.getText()), null, Messages.getString("MainFrame.ChooseDatDst"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
-				session.getUser().getSettings().setProperty("MainFrame.ChooseDatDst", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
+			new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, new File(session.getUser().getSettings().getProperty(MAIN_FRAME_CHOOSE_DAT_DST, workdir.getAbsolutePath())), new File(tfDir2DatDst.getText()), null, Messages.getString(MAIN_FRAME_CHOOSE_DAT_DST), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
+				session.getUser().getSettings().setProperty(MAIN_FRAME_CHOOSE_DAT_DST, chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfDir2DatDst.setText(chooser.getSelectedFile().getAbsolutePath());
 				session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, tfDir2DatDst.getText()); //$NON-NLS-1$
 				return null;
 			});
 		});
-		GridBagConstraints gbc_btnDir2DatDst = new GridBagConstraints();
-		gbc_btnDir2DatDst.insets = new Insets(0, 0, 5, 5);
-		gbc_btnDir2DatDst.gridx = 4;
-		gbc_btnDir2DatDst.gridy = 1;
-		panelDir2DatIO.add(btnDir2DatDst, gbc_btnDir2DatDst);
+		GridBagConstraints gbcBtnDir2DatDst = new GridBagConstraints();
+		gbcBtnDir2DatDst.insets = new Insets(0, 0, 5, 5);
+		gbcBtnDir2DatDst.gridx = 4;
+		gbcBtnDir2DatDst.gridy = 1;
+		panelDir2DatIO.add(btnDir2DatDst, gbcBtnDir2DatDst);
 
 		JLabel lblDir2DatFormat = new JLabel(Messages.getString("MainFrame.lblFormat.text")); //$NON-NLS-1$
 		lblDir2DatFormat.setHorizontalAlignment(SwingConstants.TRAILING);
-		GridBagConstraints gbc_lblDir2DatFormat = new GridBagConstraints();
-		gbc_lblDir2DatFormat.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblDir2DatFormat.insets = new Insets(0, 0, 0, 5);
-		gbc_lblDir2DatFormat.gridx = 0;
-		gbc_lblDir2DatFormat.gridy = 2;
-		panelDir2DatIO.add(lblDir2DatFormat, gbc_lblDir2DatFormat);
+		GridBagConstraints gbcLblDir2DatFormat = new GridBagConstraints();
+		gbcLblDir2DatFormat.fill = GridBagConstraints.HORIZONTAL;
+		gbcLblDir2DatFormat.insets = new Insets(0, 0, 0, 5);
+		gbcLblDir2DatFormat.gridx = 0;
+		gbcLblDir2DatFormat.gridy = 2;
+		panelDir2DatIO.add(lblDir2DatFormat, gbcLblDir2DatFormat);
 
 		JRadioButton rdbtnDir2DatMame = new JRadioButton(Messages.getString("MainFrame.rdbtnMame.text")); //$NON-NLS-1$
 		rdbtnDir2DatMame.setSelected(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())) == ExportType.MAME); //$NON-NLS-1$
 		rdbtnDir2DatMame.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())); //$NON-NLS-1$
-		Dir2DatFormatGroup.add(rdbtnDir2DatMame);
-		GridBagConstraints gbc_rdbtnDir2DatMame = new GridBagConstraints();
-		gbc_rdbtnDir2DatMame.insets = new Insets(0, 0, 0, 5);
-		gbc_rdbtnDir2DatMame.gridx = 1;
-		gbc_rdbtnDir2DatMame.gridy = 2;
-		panelDir2DatIO.add(rdbtnDir2DatMame, gbc_rdbtnDir2DatMame);
+		btngrpDir2DatFormat.add(rdbtnDir2DatMame);
+		GridBagConstraints gbcRdBtnDir2DatMame = new GridBagConstraints();
+		gbcRdBtnDir2DatMame.insets = new Insets(0, 0, 0, 5);
+		gbcRdBtnDir2DatMame.gridx = 1;
+		gbcRdBtnDir2DatMame.gridy = 2;
+		panelDir2DatIO.add(rdbtnDir2DatMame, gbcRdBtnDir2DatMame);
 
 		JRadioButton rdbtnDir2DatLogiqxDat = new JRadioButton(Messages.getString("MainFrame.rdbtnLogiqxDat.text")); //$NON-NLS-1$
 		rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())) == ExportType.DATAFILE); //$NON-NLS-1$
 		rdbtnDir2DatLogiqxDat.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.DATAFILE.toString())); //$NON-NLS-1$
-		Dir2DatFormatGroup.add(rdbtnDir2DatLogiqxDat);
-		GridBagConstraints gbc_rdbtnDir2DatLogiqxDat = new GridBagConstraints();
-		gbc_rdbtnDir2DatLogiqxDat.insets = new Insets(0, 0, 0, 5);
-		gbc_rdbtnDir2DatLogiqxDat.gridx = 2;
-		gbc_rdbtnDir2DatLogiqxDat.gridy = 2;
-		panelDir2DatIO.add(rdbtnDir2DatLogiqxDat, gbc_rdbtnDir2DatLogiqxDat);
+		btngrpDir2DatFormat.add(rdbtnDir2DatLogiqxDat);
+		GridBagConstraints gbcRdBtnDir2DatLogiqxDat = new GridBagConstraints();
+		gbcRdBtnDir2DatLogiqxDat.insets = new Insets(0, 0, 0, 5);
+		gbcRdBtnDir2DatLogiqxDat.gridx = 2;
+		gbcRdBtnDir2DatLogiqxDat.gridy = 2;
+		panelDir2DatIO.add(rdbtnDir2DatLogiqxDat, gbcRdBtnDir2DatLogiqxDat);
 
 		JRadioButton rdbtnDir2DatSwList = new JRadioButton(Messages.getString("MainFrame.rdbtnSwList.text")); //$NON-NLS-1$
 		rdbtnDir2DatSwList.setSelected(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())) == ExportType.SOFTWARELIST); //$NON-NLS-1$
 		rdbtnDir2DatSwList.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.SOFTWARELIST.toString())); //$NON-NLS-1$
-		Dir2DatFormatGroup.add(rdbtnDir2DatSwList);
-		GridBagConstraints gbc_rdbtnDir2DatSwList = new GridBagConstraints();
-		gbc_rdbtnDir2DatSwList.gridwidth = 2;
-		gbc_rdbtnDir2DatSwList.insets = new Insets(0, 0, 0, 5);
-		gbc_rdbtnDir2DatSwList.gridx = 3;
-		gbc_rdbtnDir2DatSwList.gridy = 2;
-		panelDir2DatIO.add(rdbtnDir2DatSwList, gbc_rdbtnDir2DatSwList);
+		btngrpDir2DatFormat.add(rdbtnDir2DatSwList);
+		GridBagConstraints gbcRdBtnDir2DatSwList = new GridBagConstraints();
+		gbcRdBtnDir2DatSwList.gridwidth = 2;
+		gbcRdBtnDir2DatSwList.insets = new Insets(0, 0, 0, 5);
+		gbcRdBtnDir2DatSwList.gridx = 3;
+		gbcRdBtnDir2DatSwList.gridy = 2;
+		panelDir2DatIO.add(rdbtnDir2DatSwList, gbcRdBtnDir2DatSwList);
 	}
 
 	/**
@@ -524,35 +517,9 @@ public class Dir2DatPanel extends JPanel
 						final File dstdat = new File(dst);
 						if (dstdat.getParentFile().isDirectory() && (dstdat.exists() || dstdat.createNewFile()))
 						{
-							EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
-							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, true)) //$NON-NLS-1$
-								options.add(Options.RECURSE);
-							if (!session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, false)) //$NON-NLS-1$
-								options.add(Options.IS_DEST);
-							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, false)) //$NON-NLS-1$
-								options.add(Options.NEED_MD5);
-							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, false)) //$NON-NLS-1$
-								options.add(Options.NEED_SHA1);
-							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, false)) //$NON-NLS-1$
-								options.add(Options.JUNK_SUBFOLDERS);
-							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, false)) //$NON-NLS-1$
-								options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, false)) //$NON-NLS-1$
-								options.add(Options.MATCH_PROFILE);
-							if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, false)) //$NON-NLS-1$
-								options.add(Options.EMPTY_DIRS);
-							final ExportType type = ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())); //$NON-NLS-1$
-							HashMap<String, String> headers = new HashMap<>();
-							headers.put("name", tfDir2DatName.getText()); //$NON-NLS-1$
-							headers.put("description", tfDir2DatDescription.getText()); //$NON-NLS-1$
-							headers.put("version", tfDir2DatVersion.getText()); //$NON-NLS-1$
-							headers.put("author", tfDir2DatAuthor.getText()); //$NON-NLS-1$
-							headers.put("comment", tfDir2DatComment.getText()); //$NON-NLS-1$
-							headers.put("category", tfDir2DatCategory.getText()); //$NON-NLS-1$
-							headers.put("date", tfDir2DatDate.getText()); //$NON-NLS-1$
-							headers.put("email", tfDir2DatEMail.getText()); //$NON-NLS-1$
-							headers.put("homepage", tfDir2DatHomepage.getText()); //$NON-NLS-1$
-							headers.put("url", tfDir2DatURL.getText()); //$NON-NLS-1$
+							final var options = initOptions(session);
+							final var type = ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())); //$NON-NLS-1$
+							final var headers = initHeaders();
 							new Dir2Dat(session, srcdir, dstdat, this, options, type, headers);
 						}
 					}
@@ -560,14 +527,58 @@ public class Dir2DatPanel extends JPanel
 				return null;
 			}
 
+
 			@Override
 			protected void done()
 			{
 				close();
 			}
-
-		}.execute();;
-		
+			
+		}.execute();
 	}
 
+	/**
+	 * @param session
+	 * @return
+	 */
+	private EnumSet<DirScan.Options> initOptions(final Session session)
+	{
+		EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
+		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, true)) //$NON-NLS-1$
+			options.add(Options.RECURSE);
+		if (!session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, false)) //$NON-NLS-1$
+			options.add(Options.IS_DEST);
+		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, false)) //$NON-NLS-1$
+			options.add(Options.NEED_MD5);
+		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, false)) //$NON-NLS-1$
+			options.add(Options.NEED_SHA1);
+		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, false)) //$NON-NLS-1$
+			options.add(Options.JUNK_SUBFOLDERS);
+		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, false)) //$NON-NLS-1$
+			options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
+		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, false)) //$NON-NLS-1$
+			options.add(Options.MATCH_PROFILE);
+		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, false)) //$NON-NLS-1$
+			options.add(Options.EMPTY_DIRS);
+		return options;
+	}
+
+	/**
+	 * @return
+	 */
+	private HashMap<String, String> initHeaders()
+	{
+		HashMap<String, String> headers = new HashMap<>();
+		headers.put("name", tfDir2DatName.getText()); //$NON-NLS-1$
+		headers.put("description", tfDir2DatDescription.getText()); //$NON-NLS-1$
+		headers.put("version", tfDir2DatVersion.getText()); //$NON-NLS-1$
+		headers.put("author", tfDir2DatAuthor.getText()); //$NON-NLS-1$
+		headers.put("comment", tfDir2DatComment.getText()); //$NON-NLS-1$
+		headers.put("category", tfDir2DatCategory.getText()); //$NON-NLS-1$
+		headers.put("date", tfDir2DatDate.getText()); //$NON-NLS-1$
+		headers.put("email", tfDir2DatEMail.getText()); //$NON-NLS-1$
+		headers.put("homepage", tfDir2DatHomepage.getText()); //$NON-NLS-1$
+		headers.put("url", tfDir2DatURL.getText()); //$NON-NLS-1$
+		return headers;
+	}
 }
