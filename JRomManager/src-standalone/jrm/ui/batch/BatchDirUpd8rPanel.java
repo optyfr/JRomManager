@@ -227,11 +227,11 @@ public class BatchDirUpd8rPanel extends JPanel
 			SrcDstResult entry = list.get(0);
 			dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.src).toFile(), null));
 			dialog.setVisible(true);
-			if (dialog.success)
+			if (dialog.isSuccess())
 			{
 				for (SrcDstResult sdr : list)
 				{
-					session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.src).toFile(), dialog.settingsPanel.settings);
+					session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.src).toFile(), dialog.settingsPanel.getSettings());
 				}
 			}
 		}

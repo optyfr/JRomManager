@@ -25,6 +25,8 @@ import jrm.security.Session;
 @SuppressWarnings("serial")
 public class SettingsDbgPanel extends JPanel
 {
+	private static final String XX_MIB = "%.2f MiB";
+
 	/** The cb log level. */
 	private JComboBox<Level> cbLogLevel;
 
@@ -32,39 +34,39 @@ public class SettingsDbgPanel extends JPanel
 	private JLabel lblMemoryUsage;
 
 	/** The scheduler. */
-	final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	final transient ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	final Level[] levels = new Level[] {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.CONFIG,Level.FINE,Level.FINER,Level.FINEST,Level.ALL};
 
 	/**
 	 * Create the panel.
 	 */
-	public SettingsDbgPanel(final Session session)
+	public SettingsDbgPanel(@SuppressWarnings("exports") final Session session)
 	{
-		final GridBagLayout gbl_debug = new GridBagLayout();
-		gbl_debug.columnWidths = new int[] { 50, 0, 0, 10, 0 };
-		gbl_debug.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
-		gbl_debug.columnWeights = new double[] { 1.0, 1.0, 0.0, 1.0, Double.MIN_VALUE };
-		gbl_debug.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		this.setLayout(gbl_debug);
+		final GridBagLayout gblDebug = new GridBagLayout();
+		gblDebug.columnWidths = new int[] { 50, 0, 0, 10, 0 };
+		gblDebug.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
+		gblDebug.columnWeights = new double[] { 1.0, 1.0, 0.0, 1.0, Double.MIN_VALUE };
+		gblDebug.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		this.setLayout(gblDebug);
 
 		JLabel lblLogLevel = new JLabel(Messages.getString("MainFrame.lblLogLevel.text")); //$NON-NLS-1$
-		final GridBagConstraints gbc_lblLogLevel = new GridBagConstraints();
-		gbc_lblLogLevel.anchor = GridBagConstraints.EAST;
-		gbc_lblLogLevel.fill = GridBagConstraints.VERTICAL;
-		gbc_lblLogLevel.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLogLevel.gridx = 0;
-		gbc_lblLogLevel.gridy = 1;
-		this.add(lblLogLevel, gbc_lblLogLevel);
+		final GridBagConstraints gbcLblLogLevel = new GridBagConstraints();
+		gbcLblLogLevel.anchor = GridBagConstraints.EAST;
+		gbcLblLogLevel.fill = GridBagConstraints.VERTICAL;
+		gbcLblLogLevel.insets = new Insets(0, 0, 5, 5);
+		gbcLblLogLevel.gridx = 0;
+		gbcLblLogLevel.gridy = 1;
+		this.add(lblLogLevel, gbcLblLogLevel);
 
 		cbLogLevel = new JComboBox<>(new DefaultComboBoxModel<>(levels));
-		final GridBagConstraints gbc_cbLogLevel = new GridBagConstraints();
-		gbc_cbLogLevel.gridwidth = 2;
-		gbc_cbLogLevel.insets = new Insets(0, 0, 5, 5);
-		gbc_cbLogLevel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_cbLogLevel.gridx = 1;
-		gbc_cbLogLevel.gridy = 1;
-		this.add(cbLogLevel, gbc_cbLogLevel);
+		final GridBagConstraints gbcCbLogLevel = new GridBagConstraints();
+		gbcCbLogLevel.gridwidth = 2;
+		gbcCbLogLevel.insets = new Insets(0, 0, 5, 5);
+		gbcCbLogLevel.fill = GridBagConstraints.HORIZONTAL;
+		gbcCbLogLevel.gridx = 1;
+		gbcCbLogLevel.gridy = 1;
+		this.add(cbLogLevel, gbcCbLogLevel);
 		cbLogLevel.addActionListener(arg0 -> {
 			session.getUser().getSettings().setProperty(SettingsEnum.debug_level, cbLogLevel.getSelectedItem().toString());
 			Log.setLevel(Level.parse(cbLogLevel.getSelectedItem().toString()));
@@ -73,35 +75,35 @@ public class SettingsDbgPanel extends JPanel
 
 		JLabel lblMemory = new JLabel(Messages.getString("MainFrame.lblMemory.text")); //$NON-NLS-1$
 		lblMemory.setHorizontalAlignment(SwingConstants.TRAILING);
-		final GridBagConstraints gbc_lblMemory = new GridBagConstraints();
-		gbc_lblMemory.anchor = GridBagConstraints.EAST;
-		gbc_lblMemory.insets = new Insets(0, 0, 5, 5);
-		gbc_lblMemory.gridx = 0;
-		gbc_lblMemory.gridy = 2;
-		this.add(lblMemory, gbc_lblMemory);
+		final GridBagConstraints gbcLblMemory = new GridBagConstraints();
+		gbcLblMemory.anchor = GridBagConstraints.EAST;
+		gbcLblMemory.insets = new Insets(0, 0, 5, 5);
+		gbcLblMemory.gridx = 0;
+		gbcLblMemory.gridy = 2;
+		this.add(lblMemory, gbcLblMemory);
 
 		lblMemoryUsage = new JLabel(" "); //$NON-NLS-1$
 		lblMemoryUsage.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		final GridBagConstraints gbc_lblMemoryUsage = new GridBagConstraints();
-		gbc_lblMemoryUsage.fill = GridBagConstraints.BOTH;
-		gbc_lblMemoryUsage.insets = new Insets(0, 0, 5, 5);
-		gbc_lblMemoryUsage.gridx = 1;
-		gbc_lblMemoryUsage.gridy = 2;
-		this.add(lblMemoryUsage, gbc_lblMemoryUsage);
+		final GridBagConstraints gbcLblMemoryUsage = new GridBagConstraints();
+		gbcLblMemoryUsage.fill = GridBagConstraints.BOTH;
+		gbcLblMemoryUsage.insets = new Insets(0, 0, 5, 5);
+		gbcLblMemoryUsage.gridx = 1;
+		gbcLblMemoryUsage.gridy = 2;
+		this.add(lblMemoryUsage, gbcLblMemoryUsage);
 
 		JButton btnGc = new JButton(Messages.getString("MainFrame.btnGc.text")); //$NON-NLS-1$
 		btnGc.addActionListener(e -> {
-			System.gc();
+			System.gc();	//NOSONAR
 			updateMemory();
 		});
-		final GridBagConstraints gbc_btnGc = new GridBagConstraints();
-		gbc_btnGc.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnGc.insets = new Insets(0, 0, 5, 5);
-		gbc_btnGc.gridx = 2;
-		gbc_btnGc.gridy = 2;
-		this.add(btnGc, gbc_btnGc);
+		final GridBagConstraints gbcBtnGc = new GridBagConstraints();
+		gbcBtnGc.fill = GridBagConstraints.HORIZONTAL;
+		gbcBtnGc.insets = new Insets(0, 0, 5, 5);
+		gbcBtnGc.gridx = 2;
+		gbcBtnGc.gridy = 2;
+		this.add(btnGc, gbcBtnGc);
 
-		scheduler.scheduleAtFixedRate(() -> updateMemory(), 0, 20, TimeUnit.SECONDS);
+		scheduler.scheduleAtFixedRate(this::updateMemory, 0, 20, TimeUnit.SECONDS);
 	}
 
 
@@ -111,7 +113,7 @@ public class SettingsDbgPanel extends JPanel
 	void updateMemory()
 	{
 		final Runtime rt = Runtime.getRuntime();
-		lblMemoryUsage.setText(String.format(Messages.getString("MainFrame.MemoryUsage"), String.format("%.2f MiB", rt.totalMemory() / 1048576.0), String.format("%.2f MiB", (rt.totalMemory() - rt.freeMemory()) / 1048576.0), String.format("%.2f MiB", rt.freeMemory() / 1048576.0), String.format("%.2f MiB", rt.maxMemory() / 1048576.0))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		lblMemoryUsage.setText(String.format(Messages.getString("MainFrame.MemoryUsage"), String.format(XX_MIB, rt.totalMemory() / 1048576.0), String.format(XX_MIB, (rt.totalMemory() - rt.freeMemory()) / 1048576.0), String.format(XX_MIB, rt.freeMemory() / 1048576.0), String.format(XX_MIB, rt.maxMemory() / 1048576.0))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 	}
 
 }

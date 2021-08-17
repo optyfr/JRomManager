@@ -56,7 +56,7 @@ public class Dir2DatPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public Dir2DatPanel(final Session session)
+	public Dir2DatPanel(@SuppressWarnings("exports") final Session session)
 	{
 		GridBagLayout gblDir2DatTab = new GridBagLayout();
 		gblDir2DatTab.columnWidths = new int[] { 0, 0, 0 };

@@ -75,7 +75,7 @@ public class SettingsGenPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public SettingsGenPanel(final Session session)
+	public SettingsGenPanel(@SuppressWarnings("exports") final Session session)
 	{
 		final var gblDebug = new GridBagLayout();
 		gblDebug.columnWidths = new int[] { 50, 0, 10, 0 };

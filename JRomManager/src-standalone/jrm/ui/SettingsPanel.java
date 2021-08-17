@@ -20,7 +20,7 @@ public class SettingsPanel extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public SettingsPanel(final Session session)
+	public SettingsPanel(@SuppressWarnings("exports") final Session session)
 	{
 		this.setLayout(new BorderLayout(0, 0));
 

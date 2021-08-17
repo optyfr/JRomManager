@@ -27,6 +27,7 @@ import java.awt.SystemColor;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Optional;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -51,6 +52,14 @@ import jrm.ui.MainFrame;
 public class Progress extends JDialog
 {
 	
+	private static final String S_OF_S = "%s / %s";
+
+	private static final String HH_MM_SS_FMT = "HH:mm:ss";
+
+	private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
+
+	private static final String HH_MM_SS_NONE = "--:--:--";
+
 	/** The panel. */
 	private JPanel panel;
 	
@@ -93,7 +102,7 @@ public class Progress extends JDialog
 	 *
 	 * @param owner the owner
 	 */
-	public Progress(final Window owner)
+	public Progress(@SuppressWarnings("exports") final Window owner)
 	{
 		super(owner, Messages.getString("Progress.Title"), ModalityType.MODELESS); //$NON-NLS-1$
 		setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
@@ -132,13 +141,13 @@ public class Progress extends JDialog
 		getContentPane().setLayout(gridBagLayout);
 
 		panel = new JPanel();
-		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.insets = new Insets(5, 5, 5, 5);
-		gbc_panel.gridwidth = 2;
-		gbc_panel.fill = GridBagConstraints.BOTH;
-		gbc_panel.gridx = 0;
-		gbc_panel.gridy = 0;
-		getContentPane().add(panel, gbc_panel);
+		GridBagConstraints gbcPanel = new GridBagConstraints();
+		gbcPanel.insets = new Insets(5, 5, 5, 5);
+		gbcPanel.gridwidth = 2;
+		gbcPanel.fill = GridBagConstraints.BOTH;
+		gbcPanel.gridx = 0;
+		gbcPanel.gridy = 0;
+		getContentPane().add(panel, gbcPanel);
 		panel.setLayout(new GridLayout(0, 1, 5, 5));
 
 		setInfos(1,false);
@@ -147,75 +156,75 @@ public class Progress extends JDialog
 		progressBar.setMaximumSize(new Dimension(32767, 20));
 		progressBar.setMinimumSize(new Dimension(300, 20));
 		progressBar.setPreferredSize(new Dimension(450, 20));
-		final GridBagConstraints gbc_progressBar = new GridBagConstraints();
-		gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
-		gbc_progressBar.anchor = GridBagConstraints.SOUTH;
-		gbc_progressBar.insets = new Insets(0, 5, 5, 5);
-		gbc_progressBar.gridx = 0;
-		gbc_progressBar.gridy = 1;
-		getContentPane().add(progressBar, gbc_progressBar);
+		final GridBagConstraints gbcProgressBar = new GridBagConstraints();
+		gbcProgressBar.fill = GridBagConstraints.HORIZONTAL;
+		gbcProgressBar.anchor = GridBagConstraints.SOUTH;
+		gbcProgressBar.insets = new Insets(0, 5, 5, 5);
+		gbcProgressBar.gridx = 0;
+		gbcProgressBar.gridy = 1;
+		getContentPane().add(progressBar, gbcProgressBar);
 
-		lblTimeleft = new JLabel("--:--:--"); //$NON-NLS-1$
-		final GridBagConstraints gbc_lblTimeleft = new GridBagConstraints();
-		gbc_lblTimeleft.fill = GridBagConstraints.NONE;
-		gbc_lblTimeleft.anchor = GridBagConstraints.SOUTH;
-		gbc_lblTimeleft.insets = new Insets(0, 0, 5, 5);
-		gbc_lblTimeleft.gridx = 1;
-		gbc_lblTimeleft.gridy = 1;
-		getContentPane().add(lblTimeleft, gbc_lblTimeleft);
+		lblTimeleft = new JLabel(HH_MM_SS_NONE); //$NON-NLS-1$
+		final GridBagConstraints gbcLblTimeleft = new GridBagConstraints();
+		gbcLblTimeleft.fill = GridBagConstraints.NONE;
+		gbcLblTimeleft.anchor = GridBagConstraints.SOUTH;
+		gbcLblTimeleft.insets = new Insets(0, 0, 5, 5);
+		gbcLblTimeleft.gridx = 1;
+		gbcLblTimeleft.gridy = 1;
+		getContentPane().add(lblTimeleft, gbcLblTimeleft);
 
 		progressBar2 = new JProgressBar();
 		progressBar2.setMaximumSize(new Dimension(32767, 20));
 		progressBar2.setVisible(false);
 		progressBar2.setPreferredSize(new Dimension(450, 20));
 		progressBar2.setMinimumSize(new Dimension(300, 20));
-		final GridBagConstraints gbc_progressBar2 = new GridBagConstraints();
-		gbc_progressBar2.fill = GridBagConstraints.HORIZONTAL;
-		gbc_progressBar2.insets = new Insets(0, 5, 5, 5);
-		gbc_progressBar2.gridx = 0;
-		gbc_progressBar2.gridy = 2;
-		getContentPane().add(progressBar2, gbc_progressBar2);
+		final GridBagConstraints gbcProgressBar2 = new GridBagConstraints();
+		gbcProgressBar2.fill = GridBagConstraints.HORIZONTAL;
+		gbcProgressBar2.insets = new Insets(0, 5, 5, 5);
+		gbcProgressBar2.gridx = 0;
+		gbcProgressBar2.gridy = 2;
+		getContentPane().add(progressBar2, gbcProgressBar2);
 
-		lblTimeLeft2 = new JLabel("--:--:--"); //$NON-NLS-1$
+		lblTimeLeft2 = new JLabel(HH_MM_SS_NONE); //$NON-NLS-1$
 		lblTimeLeft2.setVisible(false);
-		final GridBagConstraints gbc_lblTimeLeft2 = new GridBagConstraints();
-		gbc_lblTimeLeft2.fill = GridBagConstraints.NONE;
-		gbc_lblTimeLeft2.insets = new Insets(0, 0, 5, 5);
-		gbc_lblTimeLeft2.gridx = 1;
-		gbc_lblTimeLeft2.gridy = 2;
-		getContentPane().add(lblTimeLeft2, gbc_lblTimeLeft2);
+		final GridBagConstraints gbcLblTimeLeft2 = new GridBagConstraints();
+		gbcLblTimeLeft2.fill = GridBagConstraints.NONE;
+		gbcLblTimeLeft2.insets = new Insets(0, 0, 5, 5);
+		gbcLblTimeLeft2.gridx = 1;
+		gbcLblTimeLeft2.gridy = 2;
+		getContentPane().add(lblTimeLeft2, gbcLblTimeLeft2);
 
 		progressBar3 = new JProgressBar();
 		progressBar3.setMaximumSize(new Dimension(32767, 20));
 		progressBar3.setVisible(false);
 		progressBar3.setPreferredSize(new Dimension(450, 20));
 		progressBar3.setMinimumSize(new Dimension(300, 20));
-		final GridBagConstraints gbc_progressBar3 = new GridBagConstraints();
-		gbc_progressBar3.fill = GridBagConstraints.HORIZONTAL;
-		gbc_progressBar3.insets = new Insets(0, 5, 0, 5);
-		gbc_progressBar3.gridx = 0;
-		gbc_progressBar3.gridy = 3;
-		getContentPane().add(progressBar3, gbc_progressBar3);
+		final GridBagConstraints gbcProgressBar3 = new GridBagConstraints();
+		gbcProgressBar3.fill = GridBagConstraints.HORIZONTAL;
+		gbcProgressBar3.insets = new Insets(0, 5, 0, 5);
+		gbcProgressBar3.gridx = 0;
+		gbcProgressBar3.gridy = 3;
+		getContentPane().add(progressBar3, gbcProgressBar3);
 
-		lblTimeLeft3 = new JLabel("--:--:--"); //$NON-NLS-1$
+		lblTimeLeft3 = new JLabel(HH_MM_SS_NONE); //$NON-NLS-1$
 		lblTimeLeft3.setVisible(false);
-		final GridBagConstraints gbc_lblTimeLeft3 = new GridBagConstraints();
-		gbc_lblTimeLeft3.fill = GridBagConstraints.NONE;
-		gbc_lblTimeLeft3.insets = new Insets(0, 0, 0, 5);
-		gbc_lblTimeLeft3.gridx = 1;
-		gbc_lblTimeLeft3.gridy = 3;
-		getContentPane().add(lblTimeLeft3, gbc_lblTimeLeft3);
+		final GridBagConstraints gbcLblTimeLeft3 = new GridBagConstraints();
+		gbcLblTimeLeft3.fill = GridBagConstraints.NONE;
+		gbcLblTimeLeft3.insets = new Insets(0, 0, 0, 5);
+		gbcLblTimeLeft3.gridx = 1;
+		gbcLblTimeLeft3.gridy = 3;
+		getContentPane().add(lblTimeLeft3, gbcLblTimeLeft3);
 
 		btnCancel = new JButton(Messages.getString("Progress.btnCancel.text")); //$NON-NLS-1$
 		btnCancel.setIcon(MainFrame.getIcon("/jrm/resicons/icons/stop.png")); //$NON-NLS-1$
 		btnCancel.addActionListener(e -> cancel());
-		final GridBagConstraints gbc_btnCancel = new GridBagConstraints();
-		gbc_btnCancel.insets = new Insets(5, 5, 5, 5);
-		gbc_btnCancel.gridwidth = 2;
-		gbc_btnCancel.anchor = GridBagConstraints.SOUTH;
-		gbc_btnCancel.gridx = 0;
-		gbc_btnCancel.gridy = 4;
-		getContentPane().add(btnCancel, gbc_btnCancel);
+		final GridBagConstraints gbcBtnCancel = new GridBagConstraints();
+		gbcBtnCancel.insets = new Insets(5, 5, 5, 5);
+		gbcBtnCancel.gridwidth = 2;
+		gbcBtnCancel.anchor = GridBagConstraints.SOUTH;
+		gbcBtnCancel.gridx = 0;
+		gbcBtnCancel.gridy = 4;
+		getContentPane().add(btnCancel, gbcBtnCancel);
 
 		pack();
 		setLocationRelativeTo(owner);
@@ -223,47 +232,50 @@ public class Progress extends JDialog
 
 	public void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
-		if(lblInfo==null || lblInfo.length!=threadCnt || lblSubInfo==null || lblSubInfo.length!=(multipleSubInfos==null?0:(multipleSubInfos?threadCnt:1)))
-		{
-			panel.removeAll();
-			
-			lblInfo = new JLabel[threadCnt];
-			lblSubInfo = new JLabel[multipleSubInfos==null?0:(multipleSubInfos?threadCnt:1)];
-			
-			final Color normal = SystemColor.control;
-			final Color light = SystemColor.controlLtHighlight;
-			final Color lighter = SystemColor.controlHighlight;
-			
-			for(int i = 0; i < threadCnt; i++)
-			{
-				panel.add(lblInfo[i] = new JLabel());
-				lblInfo[i].setOpaque(true);
-				lblInfo[i].setBackground((i%2)!=0?normal:light);
-				lblInfo[i].setPreferredSize(new Dimension(0, 20));
-				lblInfo[i].setMinimumSize(new Dimension(0, 20));
-				lblInfo[i].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		final var lblSubInfoCnt = Optional.ofNullable(multipleSubInfos).map(multSubNfo -> multSubNfo.booleanValue() ? threadCnt : 1).orElse(0);
 		
-				if(multipleSubInfos!=null && multipleSubInfos)
-				{
-					panel.add(lblSubInfo[i] = new JLabel());
-					lblSubInfo[i].setOpaque(true);
-					lblSubInfo[i].setBackground((i%2)!=0?normal:light);
-					lblSubInfo[i].setPreferredSize(new Dimension(0, 20));
-					lblSubInfo[i].setMinimumSize(new Dimension(0, 20));
-					lblSubInfo[i].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-				}
-			}
-			if(multipleSubInfos!=null && !multipleSubInfos)
+		if (lblInfo != null && lblInfo.length == threadCnt && lblSubInfo != null && lblSubInfo.length == lblSubInfoCnt)
+			return;
+		
+		panel.removeAll();
+		
+		lblInfo = new JLabel[threadCnt];
+		lblSubInfo = new JLabel[lblSubInfoCnt];
+		
+		final Color normal = SystemColor.control;
+		final Color light = SystemColor.controlLtHighlight;
+		final Color lighter = SystemColor.controlHighlight;
+		
+		for(int i = 0; i < threadCnt; i++)
+		{
+			lblInfo[i] = buildLabel((i%2)!=0?normal:light);
+			panel.add(lblInfo[i]);
+	
+			if(Boolean.TRUE.equals(multipleSubInfos))
 			{
-				panel.add(lblSubInfo[0] = new JLabel());
-				lblSubInfo[0].setBackground(lighter);
-				lblSubInfo[0].setPreferredSize(new Dimension(0, 20));
-				lblSubInfo[0].setMinimumSize(new Dimension(0, 20));
-				lblSubInfo[0].setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+				lblSubInfo[i] = buildLabel((i%2)!=0?normal:light);
+				panel.add(lblSubInfo[i]);
 			}
-			
-			packHeight();
 		}
+		if(Boolean.FALSE.equals(multipleSubInfos))
+		{
+			lblSubInfo[0] = buildLabel(lighter);
+			panel.add(lblSubInfo[0]);
+		}
+		
+		packHeight();
+	}
+	
+	@SuppressWarnings("exports")
+	public JLabel buildLabel(Color color)
+	{
+		final var label = new JLabel();
+		label.setOpaque(true);
+		label.setBackground(color);
+		label.setPreferredSize(new Dimension(0, 20));
+		label.setMinimumSize(new Dimension(0, 20));
+		label.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		return label;
 	}
 	
 	public void clearInfos()
@@ -276,6 +288,7 @@ public class Progress extends JDialog
 	
 	/** The start time. */
 	private long startTime = System.currentTimeMillis();
+	private static final Integer MOINS_UN = Integer.valueOf(-1);
 	
 	public synchronized void setProgress(final int offset, final String msg, final Integer val, final Integer max, final String submsg)
 	{
@@ -304,22 +317,27 @@ public class Progress extends JDialog
 				progressBar.setValue(val);
 			if (val == 0)
 				startTime = System.currentTimeMillis();
-			if (val > 0)
-			{
-				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime) * (progressBar.getMaximum() - val) / val, "HH:mm:ss"); //$NON-NLS-1$
-				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime) * progressBar.getMaximum() / val, "HH:mm:ss"); //$NON-NLS-1$
-				lblTimeleft.setText(String.format("%s / %s", left, total)); //$NON-NLS-1$
-			}
-			else
-				lblTimeleft.setText("--:--:-- / --:--:--"); //$NON-NLS-1$
+			showTimeLeft(startTime, val, progressBar, lblTimeleft);
 		}
-		if (submsg != null || (val != null && val == -1))
+		if (submsg != null || MOINS_UN.equals(val))
 		{
 			if (lblSubInfo.length == 1)
 				lblSubInfo[0].setText(submsg);
 			else if (lblSubInfo.length > 1)
 				lblSubInfo[offset].setText(submsg);
 		}
+	}
+	
+	private void showTimeLeft(long start, int val, JProgressBar pb, JLabel lab)
+	{
+		if (val > 0)
+		{
+			final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - start) * (pb.getMaximum() - val) / val, HH_MM_SS_FMT); //$NON-NLS-1$
+			final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - start) * pb.getMaximum() / val, HH_MM_SS_FMT); //$NON-NLS-1$
+			lab.setText(String.format(S_OF_S, left, total)); //$NON-NLS-1$
+		}
+		else
+			lab.setText(HH_MM_SS_OF_HH_MM_SS_NONE); //$NON-NLS-1$
 	}
 
 	/** The start time 2. */
@@ -335,7 +353,7 @@ public class Progress extends JDialog
 				lblTimeLeft2.setVisible(true);
 				packHeight();
 			}
-			progressBar2.setStringPainted(msg != null || val > 0);
+			progressBar2.setStringPainted(val > 0);
 			progressBar2.setString(msg);
 			progressBar2.setIndeterminate(val==0);
 			if (max != null)
@@ -344,14 +362,7 @@ public class Progress extends JDialog
 				progressBar2.setValue(val);
 			if (val == 0)
 				startTime2 = System.currentTimeMillis();
-			if (val > 0)
-			{
-				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime2) * (progressBar2.getMaximum() - val) / val, "HH:mm:ss"); //$NON-NLS-1$
-				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime2) * progressBar2.getMaximum() / val, "HH:mm:ss"); //$NON-NLS-1$
-				lblTimeLeft2.setText(String.format("%s / %s", left, total)); //$NON-NLS-1$
-			}
-			else
-				lblTimeLeft2.setText("--:--:-- / --:--:--"); //$NON-NLS-1$
+			showTimeLeft(startTime2, val, progressBar2, lblTimeLeft2);
 		}
 		else if (progressBar2.isVisible())
 		{
@@ -375,7 +386,7 @@ public class Progress extends JDialog
 				lblTimeLeft3.setVisible(true);
 				packHeight();
 			}
-			progressBar3.setStringPainted(msg != null || val > 0);
+			progressBar3.setStringPainted(val > 0);
 			progressBar3.setString(msg);
 			progressBar3.setIndeterminate(val==0);
 			if (max != null)
@@ -384,14 +395,7 @@ public class Progress extends JDialog
 				progressBar3.setValue(val);
 			if (val == 0)
 				startTime3 = System.currentTimeMillis();
-			if (val > 0)
-			{
-				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime3) * (progressBar3.getMaximum() - val) / val, "HH:mm:ss"); //$NON-NLS-1$
-				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - startTime3) * progressBar3.getMaximum() / val, "HH:mm:ss"); //$NON-NLS-1$
-				lblTimeLeft3.setText(String.format("%s / %s", left, total)); //$NON-NLS-1$
-			}
-			else
-				lblTimeLeft3.setText("--:--:-- / --:--:--"); //$NON-NLS-1$
+			showTimeLeft(startTime3, val, progressBar3, lblTimeLeft3);
 		}
 		else if (progressBar3.isVisible())
 		{

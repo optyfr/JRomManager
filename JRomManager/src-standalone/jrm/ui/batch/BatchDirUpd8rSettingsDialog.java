@@ -11,19 +11,20 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import jrm.ui.ScannerSettingsPanel;
+import lombok.Getter;
 
 @SuppressWarnings("serial")
 public class BatchDirUpd8rSettingsDialog extends JDialog
 {
 
 	final ScannerSettingsPanel settingsPanel = new ScannerSettingsPanel();
-	
-	public boolean success = false;
 
+	private @Getter boolean success = false;
 
 	/**
 	 * Create the dialog.
 	 */
+	@SuppressWarnings("exports")
 	public BatchDirUpd8rSettingsDialog(Window parent)
 	{
 		super(parent);
@@ -34,29 +35,23 @@ public class BatchDirUpd8rSettingsDialog extends JDialog
 		getContentPane().setLayout(new BorderLayout());
 		settingsPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(settingsPanel, BorderLayout.CENTER);
-		{
-			JPanel buttonPane = new JPanel();
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			getContentPane().add(buttonPane, BorderLayout.SOUTH);
-			{
-				JButton okButton = new JButton("OK");
-				okButton.setActionCommand("OK");
-				okButton.addActionListener(e->actionPerformed(e));
-				buttonPane.add(okButton);
-				getRootPane().setDefaultButton(okButton);
-			}
-			{
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.setActionCommand("Cancel");
-				cancelButton.addActionListener(e->actionPerformed(e));
-				buttonPane.add(cancelButton);
-			}
-		}
+		JPanel buttonPane = new JPanel();
+		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		getContentPane().add(buttonPane, BorderLayout.SOUTH);
+		JButton okButton = new JButton("OK");
+		okButton.setActionCommand("OK");
+		okButton.addActionListener(this::actionPerformed);
+		buttonPane.add(okButton);
+		getRootPane().setDefaultButton(okButton);
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.setActionCommand("Cancel");
+		cancelButton.addActionListener(this::actionPerformed);
+		buttonPane.add(cancelButton);
 		pack();
 		setLocationRelativeTo(parent);
 	}
-	
-	public void actionPerformed(ActionEvent e)
+
+	public void actionPerformed(@SuppressWarnings("exports") ActionEvent e)
 	{
 		success = e.getActionCommand().equals("OK");
 		dispose();

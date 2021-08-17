@@ -5,8 +5,6 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,22 +73,22 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	/**
 	 * Create the panel.
 	 */
-	public ScannerPanel(final Session session)
+	public ScannerPanel(@SuppressWarnings("exports") final Session session)
 	{
-		final GridBagLayout gbl_scannerTab = new GridBagLayout();
-		gbl_scannerTab.columnWidths = new int[] { 104, 0 };
-		gbl_scannerTab.rowHeights = new int[] { 0, 0, 24, 0 };
-		gbl_scannerTab.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_scannerTab.rowWeights = new double[] { 0.0, 1.0, 0.0, Double.MIN_VALUE };
-		this.setLayout(gbl_scannerTab);
+		final GridBagLayout gblScannerTab = new GridBagLayout();
+		gblScannerTab.columnWidths = new int[] { 104, 0 };
+		gblScannerTab.rowHeights = new int[] { 0, 0, 24, 0 };
+		gblScannerTab.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gblScannerTab.rowWeights = new double[] { 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		this.setLayout(gblScannerTab);
 
 		JPanel scannerBtnPanel = new JPanel();
-		final GridBagConstraints gbc_scannerBtnPanel = new GridBagConstraints();
-		gbc_scannerBtnPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_scannerBtnPanel.fill = GridBagConstraints.BOTH;
-		gbc_scannerBtnPanel.gridx = 0;
-		gbc_scannerBtnPanel.gridy = 0;
-		this.add(scannerBtnPanel, gbc_scannerBtnPanel);
+		final GridBagConstraints gbcScannerBtnPanel = new GridBagConstraints();
+		gbcScannerBtnPanel.insets = new Insets(0, 0, 5, 0);
+		gbcScannerBtnPanel.fill = GridBagConstraints.BOTH;
+		gbcScannerBtnPanel.gridx = 0;
+		gbcScannerBtnPanel.gridy = 0;
+		this.add(scannerBtnPanel, gbcScannerBtnPanel);
 
 		JButton btnInfo = new JButton(Messages.getString("MainFrame.btnInfo.text")); //$NON-NLS-1$
 		btnInfo.addActionListener(e -> {
@@ -131,62 +129,55 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		
 		btnLoadPreset = new JButton("Import Settings");
 		btnLoadPreset.setIcon(MainFrame.getIcon("/jrm/resicons/icons/table_refresh.png")); //$NON-NLS-1$
-		btnLoadPreset.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
+		btnLoadPreset.addActionListener(e -> {
+			final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
+			final Path presets = session.getUser().getSettings().getWorkPath().resolve("presets");
+			try
 			{
-				final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
-				final Path presets = session.getUser().getSettings().getWorkPath().resolve("presets");
-				try
-				{
-					Files.createDirectories(presets);
-					new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Import Settings", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
-						session.getCurrProfile().loadSettings(chooser.getSelectedFile());
-						session.getCurrProfile().loadCatVer(null);
-						session.getCurrProfile().loadNPlayers(null);
-						initProfileSettings(session);
-						return null;
-					});
-				}
-				catch (IOException e1)
-				{
-					Log.err(e1.getMessage(), e1);
-				}
+				Files.createDirectories(presets);
+				new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Import Settings", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
+					session.getCurrProfile().loadSettings(chooser.getSelectedFile());
+					session.getCurrProfile().loadCatVer(null);
+					session.getCurrProfile().loadNPlayers(null);
+					initProfileSettings(session);
+					return null;
+				});
+			}
+			catch (IOException e1)
+			{
+				Log.err(e1.getMessage(), e1);
 			}
 		});
 		scannerBtnPanel.add(btnLoadPreset);
 		
 		btnSavePreset = new JButton("Export Settings");
 		btnSavePreset.setIcon(MainFrame.getIcon("/jrm/resicons/icons/table_save.png")); //$NON-NLS-1$
-		btnSavePreset.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
+		btnSavePreset.addActionListener(e -> {
+			final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
+			final Path presets = session.getUser().getSettings().getWorkPath().resolve("presets");
+			try
 			{
-				final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
-				final Path presets = session.getUser().getSettings().getWorkPath().resolve("presets");
-				try
-				{
-					Files.createDirectories(presets);
-					new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Export Settings", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
-						session.getCurrProfile().saveSettings(chooser.getSelectedFile());
-						return null;
-					});
-				}
-				catch (IOException e1)
-				{
-					Log.err(e1.getMessage(), e1);
-				}
+				Files.createDirectories(presets);
+				new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, presets.toFile(), null, filters, "Export Settings", true).show(SwingUtilities.getWindowAncestor(ScannerPanel.this), chooser -> {
+					session.getCurrProfile().saveSettings(chooser.getSelectedFile());
+					return null;
+				});
 			}
+			catch (IOException e1)
+			{
+				Log.err(e1.getMessage(), e1);
+			}
+
 		});
 		scannerBtnPanel.add(btnSavePreset);
 		btnScan.addActionListener(e -> scan(session, true));
 
 		scannerTabbedPane = new JTabbedPane(SwingConstants.TOP);
-		final GridBagConstraints gbc_scannerTabbedPane = new GridBagConstraints();
-		gbc_scannerTabbedPane.fill = GridBagConstraints.BOTH;
-		gbc_scannerTabbedPane.gridx = 0;
-		gbc_scannerTabbedPane.gridy = 1;
-		this.add(scannerTabbedPane, gbc_scannerTabbedPane);
+		final GridBagConstraints gbcScannerTabbedPane = new GridBagConstraints();
+		gbcScannerTabbedPane.fill = GridBagConstraints.BOTH;
+		gbcScannerTabbedPane.gridx = 0;
+		gbcScannerTabbedPane.gridy = 1;
+		this.add(scannerTabbedPane, gbcScannerTabbedPane);
 
 		buildScannerDirTab(session);
 		buildScannerSettingsTab(session);
@@ -196,12 +187,12 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 
 		lblProfileinfo = new JLabel(""); //$NON-NLS-1$
 		lblProfileinfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		final GridBagConstraints gbc_lblProfileinfo = new GridBagConstraints();
-		gbc_lblProfileinfo.insets = new Insets(0, 2, 0, 2);
-		gbc_lblProfileinfo.fill = GridBagConstraints.BOTH;
-		gbc_lblProfileinfo.gridx = 0;
-		gbc_lblProfileinfo.gridy = 2;
-		this.add(lblProfileinfo, gbc_lblProfileinfo);
+		final GridBagConstraints gbcLblProfileinfo = new GridBagConstraints();
+		gbcLblProfileinfo.insets = new Insets(0, 2, 0, 2);
+		gbcLblProfileinfo.fill = GridBagConstraints.BOTH;
+		gbcLblProfileinfo.gridx = 0;
+		gbcLblProfileinfo.gridy = 2;
+		this.add(lblProfileinfo, gbcLblProfileinfo);
 
 
 	}
@@ -212,7 +203,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerDirectories.title"), MainFrame.getIcon("/jrm/resicons/icons/folder.png"), scannerDirPanel, null); //$NON-NLS-1$
 	}
 
-	private void buildScannerSettingsTab(final Session session)
+	private void buildScannerSettingsTab(final Session session)	//NOSONAR
 	{
 		scannerSettingsPanel = new ScannerSettingsPanel();
 		scannerTabbedPane.addTab(Messages.getString("MainFrame.scannerSettingsPanel.title"), MainFrame.getIcon("/jrm/resicons/icons/cog.png"), scannerSettingsPanel, null); //$NON-NLS-1$
@@ -233,7 +224,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 
 	}
 
-	private void buildScannerAutomationTab(final Session session)
+	private void buildScannerAutomationTab(final Session session)	//NOSONAR
 	{
 		scannerAutomation = new ScannerAutomationPanel();
 		scannerTabbedPane.addTab(Messages.getString("MainFrame.Automation"), MainFrame.getIcon("/jrm/resicons/icons/link.png"), scannerAutomation, null); //$NON-NLS-1$
@@ -279,12 +270,9 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 						MainFrame.getReportFrame().setVisible(true);
 					MainFrame.getReportFrame().setNeedUpdate(true);
 				}
-				if(automate)
+				if (automate && btnFix.isEnabled() && automation.hasFix())
 				{
-					if(btnFix.isEnabled() && automation.hasFix())
-					{
-						fix(session);
-					}
+					fix(session);
 				}
 			}
 		}.execute();
@@ -308,7 +296,8 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 					{
 						case JOptionPane.YES_OPTION:
 							session.setCurrScan(new Scan(session.getCurrProfile(), this));
-							if (!(toFix = session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0))
+							toFix = session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
+							if (!toFix)
 								return null;
 							break;
 						case JOptionPane.NO_OPTION:
@@ -343,7 +332,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	/**
 	 * Inits the scan settings.
 	 */
-	public void initProfileSettings(final Session session)
+	public void initProfileSettings(@SuppressWarnings("exports") final Session session)
 	{
 		scannerSettingsPanel.initProfileSettings(session.getCurrProfile().getSettings());
 		scannerDirPanel.initProfileSettings(session);
@@ -359,7 +348,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 	 *            the profile
 	 */
 	@Override
-	public void loadProfile(final Session session, final ProfileNFO profile)
+	public void loadProfile(@SuppressWarnings("exports") final Session session, @SuppressWarnings("exports") final ProfileNFO profile)
 	{
 		if (session.getCurrProfile() != null)
 			session.getCurrProfile().saveSettings();

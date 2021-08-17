@@ -247,7 +247,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		@FunctionalInterface
 		public interface AddCallBack
 		{
-			public void call(List<FileResult> files);
+			public void call(@SuppressWarnings("exports") List<FileResult> files);
 		}
 		
 		public BatchCompressorTable(BatchCompressorTableModel model, AddCallBack callback)
@@ -324,22 +324,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 					final List<File> files = ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor)).stream().filter(filter::accept).collect(Collectors.toList());
 					if (!files.isEmpty())
 					{
-						int startSize = model.getData().size();
-						for (File f : files)
-						{
-							if (f.isDirectory())
-							{
-								try (final var stream = Files.walk(f.toPath()))
-								{
-									stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p -> model.getData().add(new FileResult(p)));
-								}
-							}
-							else
-								model.getData().add(new FileResult(f.toPath()));
-						}
-						if (startSize != model.getData().size())
-							model.fireTableChanged(new TableModelEvent(model, startSize, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
-						callback.call(model.getData());
+						addFiles(files, extensions);
 						dtde.getDropTargetContext().dropComplete(true);
 					}
 					else
@@ -357,6 +342,31 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 				Log.err(e.getMessage(),e);
 				dtde.rejectDrop();
 			}
+		}
+
+		/**
+		 * @param files
+		 * @param extensions
+		 * @throws IOException
+		 */
+		private void addFiles(final List<File> files, final String[] extensions) throws IOException
+		{
+			int startSize = model.getData().size();
+			for (File f : files)
+			{
+				if (f.isDirectory())
+				{
+					try (final var stream = Files.walk(f.toPath()))
+					{
+						stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p -> model.getData().add(new FileResult(p)));
+					}
+				}
+				else
+					model.getData().add(new FileResult(f.toPath()));
+			}
+			if (startSize != model.getData().size())
+				model.fireTableChanged(new TableModelEvent(model, startSize, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+			callback.call(model.getData());
 		}
 		
 		/**
@@ -386,6 +396,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		}
 	}
 	
+	@SuppressWarnings("exports")
 	public BatchCompressorPanel(Session session)
 	{
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -404,8 +415,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		gbcScrollPane.gridy = 0;
 		add(scrollPane, gbcScrollPane);
 		
-		table = new BatchCompressorTable(new BatchCompressorTableModel(), files -> {
-		});
+		table = new BatchCompressorTable(new BatchCompressorTableModel(), files -> {});
 		scrollPane.setViewportView(table);
 		
 		popupMenu = new JPopupMenu();
@@ -414,44 +424,9 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		mntmAddArchive = new JMenuItem(Messages.getString("BatchCompressorPanel.mntmAddArchive.text")); //$NON-NLS-1$
 		mntmAddArchive.addActionListener(e -> {
 			final String[] extensions = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
-			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_AND_DIRECTORIES, null, null, Collections.singletonList(new javax.swing.filechooser.FileFilter()
-			{
-				@Override
-				public String getDescription()
-				{
-					return "Archive files";
-				}
-
-				@Override
-				public boolean accept(File f)
-				{
-					return f.isDirectory() || FilenameUtils.isExtension(f.getName(), extensions);
-				}
-			}), Messages.getString("BatchCompressorPanel.mntmAddArchive.text"), true).showOpen(SwingUtilities.windowForComponent(BatchCompressorPanel.this), chooser -> {
+			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_AND_DIRECTORIES, null, null, Collections.singletonList(getFileFilter(extensions)), Messages.getString("BatchCompressorPanel.mntmAddArchive.text"), true).showOpen(SwingUtilities.windowForComponent(BatchCompressorPanel.this), chooser -> {
 				File[] files = chooser.getSelectedFiles();
-				BatchCompressorTableModel model = (BatchCompressorTableModel) table.getModel();
-				if (files.length > 0)
-				{
-					int startSize = model.getData().size();
-					for (File f : files)
-					{
-						if (f.isDirectory())
-						{
-							try (final var stream = Files.walk(f.toPath()))
-							{
-								stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p -> model.getData().add(new FileResult(p)));
-							}
-							catch (IOException ex)
-							{
-								Log.err(ex.getMessage(), ex);
-							}
-						}
-						else
-							model.getData().add(new FileResult(f.toPath()));
-					}
-					if (startSize != model.getData().size())
-						model.fireTableChanged(new TableModelEvent(model, startSize, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
-				}
+				addArchiveChooser(extensions, files);
 				return null;
 			});
 		});
@@ -486,84 +461,7 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		
 		JButton btnStart = new JButton(Messages.getString("BatchCompressorPanel.Start")); //$NON-NLS-1$
 		btnStart.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_go.png"));
-		btnStart.addActionListener(e -> new SwingWorkerProgress<Void, Void>(SwingUtilities.getWindowAncestor(this))
-		{
-			@Override
-			protected Void doInBackground() throws Exception
-			{
-				setInfos(Runtime.getRuntime().availableProcessors(), true);
-				for (int i = 0; i < table.getRowCount(); i++)
-					table.setValueAt("", i, 1);
-				final var cnt = new AtomicInteger();
-				final var compressor = new Compressor(session, cnt, table.getRowCount(), this);
-				final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, true);
-				final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
-				new MultiThreading<FileResult>(nThreads, fr -> {
-					if (isCancel())
-						return;
-					final var i = table.model.getData().indexOf(fr);
-					var file = fr.getFile().toFile();
-					cnt.incrementAndGet();
-					Compressor.UpdResultCallBack cb = txt -> table.setValueAt(txt, i, 1);
-					Compressor.UpdSrcCallBack scb = src -> table.setValueAt(src, i, 0);
-					switch ((CompressorFormat) comboBox.getSelectedItem())
-					{
-						case SEVENZIP:
-						{
-							switch (FilenameUtils.getExtension(file.getName()))
-							{
-								case "zip":
-									compressor.zip2SevenZip(file, cb, scb);
-									break;
-								case "7z":
-									if (chckbxForce.isSelected())
-										compressor.sevenZip2SevenZip(file, cb, scb);
-									else
-										cb.apply("Skipped");
-									break;
-								default:
-									compressor.sevenZip2SevenZip(file, cb, scb);
-									break;
-							}
-							break;
-						}
-						case ZIP:
-						{
-							if("zip".equals(FilenameUtils.getExtension(file.getName())))
-							{
-								if (chckbxForce.isSelected())
-									compressor.zip2Zip(file, cb, scb);
-								else
-									cb.apply("Skipped");
-							}
-							else
-								compressor.sevenZip2Zip(file, false, cb, scb);
-							break;
-						}
-						case TZIP:
-						{
-							if("zip".equals(FilenameUtils.getExtension(file.getName())))
-								compressor.zip2TZip(file, chckbxForce.isSelected(), cb);
-							else
-							{
-								file = compressor.sevenZip2Zip(file, true, cb, scb);
-								if (file != null && file.exists())
-									compressor.zip2TZip(file, chckbxForce.isSelected(), cb);
-							}
-							break;
-						}
-					}
-				}).start(table.model.getData().stream());
-				return null;
-			}
-
-			@Override
-			protected void done()
-			{
-				close();
-			}
-
-		}.execute());
+		btnStart.addActionListener(e -> start(session));
 		
 		btnClear = new JButton(Messages.getString("BatchCompressorPanel.btnClear.text")); //$NON-NLS-1$
 		btnClear.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bin.png"));
@@ -578,8 +476,200 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		gbcBtnStart.gridy = 1;
 		add(btnStart, gbcBtnStart);
 	}
+
+
+	/**
+	 * @param session
+	 */
+	private void start(Session session)
+	{
+		new SwingWorkerProgress<Void, Void>(SwingUtilities.getWindowAncestor(this))
+		{
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				setInfos(Runtime.getRuntime().availableProcessors(), true);
+				for (int i = 0; i < table.getRowCount(); i++)
+					table.setValueAt("", i, 1);
+				final var cnt = new AtomicInteger();
+				final var compressor = new Compressor(session, cnt, table.getRowCount(), this);
+				final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, true);
+				final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+				new MultiThreading<FileResult>(nThreads, fr -> {
+					if (isCancel())
+						return;
+					compress(cnt, compressor, fr);
+				}).start(table.model.getData().stream());
+				return null;
+			}
+
+			@Override
+			protected void done()
+			{
+				close();
+			}
+
+		}.execute();
+	}
+
+
+	/**
+	 * @param extensions
+	 * @param files
+	 */
+	private void addArchiveChooser(final String[] extensions, File[] files)
+	{
+		BatchCompressorTableModel model = (BatchCompressorTableModel) table.getModel();
+		if (files.length > 0)
+		{
+			int startSize = model.getData().size();
+			for (File f : files)
+			{
+				if (f.isDirectory())
+				{
+					try (final var stream = Files.walk(f.toPath()))
+					{
+						stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), extensions)).forEachOrdered(p -> model.getData().add(new FileResult(p)));
+					}
+					catch (IOException ex)
+					{
+						Log.err(ex.getMessage(), ex);
+					}
+				}
+				else
+					model.getData().add(new FileResult(f.toPath()));
+			}
+			if (startSize != model.getData().size())
+				model.fireTableChanged(new TableModelEvent(model, startSize, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+		}
+	}
+
+
+	/**
+	 * @param extensions
+	 * @return
+	 */
+	private javax.swing.filechooser.FileFilter getFileFilter(final String[] extensions)
+	{
+		return new javax.swing.filechooser.FileFilter()
+		{
+			@Override
+			public String getDescription()
+			{
+				return "Archive files";
+			}
+
+			@Override
+			public boolean accept(File f)
+			{
+				return f.isDirectory() || FilenameUtils.isExtension(f.getName(), extensions);
+			}
+		};
+	}
 	
 	
+	/**
+	 * @param cnt
+	 * @param compressor
+	 * @param fr
+	 * @throws IllegalArgumentException
+	 */
+	private void compress(final AtomicInteger cnt, final Compressor compressor, FileResult fr) throws IllegalArgumentException
+	{
+		final var i = table.model.getData().indexOf(fr);
+		var file = fr.getFile().toFile();
+		cnt.incrementAndGet();
+		Compressor.UpdResultCallBack cb = txt -> table.setValueAt(txt, i, 1);
+		Compressor.UpdSrcCallBack scb = src -> table.setValueAt(src, i, 0);
+		switch ((CompressorFormat) comboBox.getSelectedItem())
+		{
+			case SEVENZIP:
+			{
+				toSevenZip(compressor, file, cb, scb);
+				break;
+			}
+			case ZIP:
+			{
+				toZip(compressor, file, cb, scb);
+				break;
+			}
+			case TZIP:
+			{
+				toTZip(compressor, file, cb, scb);
+				break;
+			}
+		}
+	}
+
+
+	/**
+	 * @param compressor
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @throws IllegalArgumentException
+	 */
+	private void toSevenZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
+	{
+		switch (FilenameUtils.getExtension(file.getName()))
+		{
+			case "zip":
+				compressor.zip2SevenZip(file, cb, scb);
+				break;
+			case "7z":
+				if (chckbxForce.isSelected())
+					compressor.sevenZip2SevenZip(file, cb, scb);
+				else
+					cb.apply("Skipped");
+				break;
+			default:
+				compressor.sevenZip2SevenZip(file, cb, scb);
+				break;
+		}
+	}
+
+
+	/**
+	 * @param compressor
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @throws IllegalArgumentException
+	 */
+	private void toZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
+	{
+		if("zip".equals(FilenameUtils.getExtension(file.getName())))
+		{
+			if (chckbxForce.isSelected())
+				compressor.zip2Zip(file, cb, scb);
+			else
+				cb.apply("Skipped");
+		}
+		else
+			compressor.sevenZip2Zip(file, false, cb, scb);
+	}
+
+
+	/**
+	 * @param compressor
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @throws IllegalArgumentException
+	 */
+	private void toTZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
+	{
+		if("zip".equals(FilenameUtils.getExtension(file.getName())))
+			compressor.zip2TZip(file, chckbxForce.isSelected(), cb);
+		else
+		{
+			file = compressor.sevenZip2Zip(file, true, cb, scb);
+			if (file != null && file.exists())
+				compressor.zip2TZip(file, chckbxForce.isSelected(), cb);
+		}
+	}
+
+
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
 			@Override

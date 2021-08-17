@@ -20,6 +20,10 @@ import jrm.profile.scan.options.ScanAutomation;
 @SuppressWarnings("serial")
 public final class ScannerAutomationPanel extends JPanel
 {
+	@SuppressWarnings("exports")
+	public transient ProfileSettings settings; 
+	private JComboBox<ScanAutomation> comboBox;
+	
 
 	public ScannerAutomationPanel()
 	{
@@ -31,15 +35,15 @@ public final class ScannerAutomationPanel extends JPanel
 		setLayout(gridBagLayout);
 		
 		JLabel lblOnScanAction = new JLabel(Messages.getString("ScannerAutomationPanel.OnScanAction")); //$NON-NLS-1$
-		GridBagConstraints gbc_lblOnScanAction = new GridBagConstraints();
-		gbc_lblOnScanAction.insets = new Insets(0, 0, 5, 5);
-		gbc_lblOnScanAction.anchor = GridBagConstraints.EAST;
-		gbc_lblOnScanAction.gridx = 1;
-		gbc_lblOnScanAction.gridy = 1;
-		add(lblOnScanAction, gbc_lblOnScanAction);
+		GridBagConstraints gbcLblOnScanAction = new GridBagConstraints();
+		gbcLblOnScanAction.insets = new Insets(0, 0, 5, 5);
+		gbcLblOnScanAction.anchor = GridBagConstraints.EAST;
+		gbcLblOnScanAction.gridx = 1;
+		gbcLblOnScanAction.gridy = 1;
+		add(lblOnScanAction, gbcLblOnScanAction);
 		
-		comboBox = new JComboBox<ScanAutomation>();
-		comboBox.setModel(new DefaultComboBoxModel<ScanAutomation>(ScanAutomation.values()));
+		comboBox = new JComboBox<>();
+		comboBox.setModel(new DefaultComboBoxModel<>(ScanAutomation.values()));
 		comboBox.setRenderer(new DefaultListCellRenderer()
 		{
 			@Override
@@ -50,18 +54,15 @@ public final class ScannerAutomationPanel extends JPanel
 			}
 		});
 		comboBox.addActionListener(e -> settings.setProperty(SettingsEnum.automation_scan, comboBox.getSelectedItem().toString())); //$NON-NLS-1$
-		GridBagConstraints gbc_comboBox = new GridBagConstraints();
-		gbc_comboBox.insets = new Insets(0, 0, 5, 5);
-		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBox.gridx = 2;
-		gbc_comboBox.gridy = 1;
-		add(comboBox, gbc_comboBox);
+		GridBagConstraints gbcComboBox = new GridBagConstraints();
+		gbcComboBox.insets = new Insets(0, 0, 5, 5);
+		gbcComboBox.fill = GridBagConstraints.HORIZONTAL;
+		gbcComboBox.gridx = 2;
+		gbcComboBox.gridy = 1;
+		add(comboBox, gbcComboBox);
 	}
 	
-	public ProfileSettings settings; 
-	private JComboBox<ScanAutomation> comboBox;
-	
-	public void initProfileSettings(final ProfileSettings settings)
+	public void initProfileSettings(@SuppressWarnings("exports") final ProfileSettings settings)
 	{
 		this.settings = settings;
 		comboBox.setSelectedItem(ScanAutomation.valueOf(settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()))); //$NON-NLS-1$

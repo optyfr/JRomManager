@@ -35,6 +35,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -49,7 +50,6 @@ import jrm.ui.profile.report.ReportFrame;
 import lombok.Getter;
 import lombok.Setter;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MainFrame.
  */
@@ -66,16 +66,14 @@ public class MainFrame extends JFrame
 	/** The main pane. */
 	private @Getter JTabbedPane mainPane;
 
-	private SettingsPanel settingsPanel;
-
 	private ProfilePanel profilesPanel;
 
-	private Session session;
+	private transient Session session;
 
 	/**
 	 * Instantiates a new main frame.
 	 */
-	public MainFrame(Session session)
+	public MainFrame(@SuppressWarnings("exports") Session session)
 	{
 		super();
 		this.session = session;
@@ -134,13 +132,13 @@ public class MainFrame extends JFrame
 		setIconImage(getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
 		setTitle(Messages.getString("MainFrame.Title") + " " + getVersion()); //$NON-NLS-1$ $NON-NLS-2$
 		setBounds(50, 50, 1007, 601);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
 		mainPane = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(mainPane);
 
-		MainFrame.reportFrame = new ReportFrame(session, MainFrame.this);
+		MainFrame.setReportFrame(new ReportFrame(session, MainFrame.this));
 
 		buildProfileTab();
 
@@ -195,7 +193,7 @@ public class MainFrame extends JFrame
 
 	private void buildSettingsTab()
 	{
-		settingsPanel = new SettingsPanel(session);
+		final SettingsPanel settingsPanel = new SettingsPanel(session);
 		mainPane.addTab(Messages.getString("MainFrame.Settings"), MainFrame.getIcon("/jrm/resicons/icons/cog.png"), settingsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -207,7 +205,7 @@ public class MainFrame extends JFrame
 	 * @param popup
 	 *            the popup menu to add
 	 */
-	public static void addPopup(final Component component, final JPopupMenu popup)
+	public static void addPopup(@SuppressWarnings("exports") final Component component, @SuppressWarnings("exports") final JPopupMenu popup)
 	{
 		component.addMouseListener(new MouseAdapter()
 		{
@@ -239,6 +237,7 @@ public class MainFrame extends JFrame
 	private static HashMap<String, ImageIcon> iconsCache = new HashMap<>();
 	private static Optional<Module> iconsModule = ModuleLayer.boot().findModule("res.icons"); 
 
+	@SuppressWarnings("exports")
 	public static ImageIcon getIcon(String res)
 	{
 		if (!iconsCache.containsKey(res))
