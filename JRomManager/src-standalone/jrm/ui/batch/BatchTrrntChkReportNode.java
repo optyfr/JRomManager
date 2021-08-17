@@ -17,21 +17,27 @@ public class BatchTrrntChkReportNode implements TreeNode
 	
 	private Map<Long,ChildNode> nodeCache = new HashMap<>();
 
+	@SuppressWarnings("exports")
 	public BatchTrrntChkReportNode(final TrntChkReport report)
 	{
 		this.report = report;
 	}
 
+	@SuppressWarnings("exports")
 	public ChildNode getNode(Child child)
 	{
 		if(child==null)
 			return null;
 		ChildNode node;
 		if(null==(node=nodeCache.get(child.uid)))
-			nodeCache.put(child.uid, node = new ChildNode(child));
+		{
+			node = new ChildNode(child);
+			nodeCache.put(child.uid, node);
+		}
 		return node;
 	}
 	
+	@SuppressWarnings("exports")
 	@Override
 	public TreeNode getChildAt(int childIndex)
 	{
@@ -44,12 +50,14 @@ public class BatchTrrntChkReportNode implements TreeNode
 		return report.getNodes().size();
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public TreeNode getParent()
 	{
 		return null;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public int getIndex(TreeNode node)
 	{
@@ -65,7 +73,7 @@ public class BatchTrrntChkReportNode implements TreeNode
 	@Override
 	public boolean isLeaf()
 	{
-		return report.getNodes().size()==0;
+		return report.getNodes().isEmpty();
 	}
 
 	@Override
@@ -89,13 +97,15 @@ public class BatchTrrntChkReportNode implements TreeNode
 	
 	public class ChildNode implements TreeNode
 	{
-		final private @Getter Child child;
+		private final @Getter Child child;
 		
+		@SuppressWarnings("exports")
 		public ChildNode(final Child child)
 		{
 			this.child = child;
 		}
 		
+		@SuppressWarnings("exports")
 		@Override
 		public TreeNode getChildAt(int childIndex)
 		{
@@ -108,12 +118,14 @@ public class BatchTrrntChkReportNode implements TreeNode
 			return child.children==null?0:child.children.size();
 		}
 
+		@SuppressWarnings("exports")
 		@Override
 		public TreeNode getParent()
 		{
 			return BatchTrrntChkReportNode.this;
 		}
 
+		@SuppressWarnings("exports")
 		@Override
 		public int getIndex(TreeNode node)
 		{
@@ -129,7 +141,7 @@ public class BatchTrrntChkReportNode implements TreeNode
 		@Override
 		public boolean isLeaf()
 		{
-			return child.children==null||child.children.size()==0;
+			return child.children==null||child.children.isEmpty();
 		}
 
 		@Override

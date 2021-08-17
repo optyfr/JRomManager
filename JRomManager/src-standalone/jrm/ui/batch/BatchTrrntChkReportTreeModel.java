@@ -18,25 +18,27 @@ import jrm.ui.profile.report.ReportNode;
 public class BatchTrrntChkReportTreeModel extends DefaultTreeModel implements TrntChkReportTreeHandler
 {
 	/** The org root. */
-	private final TrntChkReport org_root;
+	private final TrntChkReport orgRoot;
 	
 	/** The filter options. */
 	private List<FilterOptions> filterOptions = new ArrayList<>();
 
+	@SuppressWarnings("exports")
 	public BatchTrrntChkReportTreeModel(final TrntChkReport root)
 	{
 		super(new BatchTrrntChkReportNode(root));
-		org_root = root;
+		orgRoot = root;
 		root.setHandler(this);
 		initClone();
 	}
 
+	@SuppressWarnings("exports")
 	public BatchTrrntChkReportTreeModel(final TrntChkReportTreeHandler handler)
 	{
 		super(new BatchTrrntChkReportNode(handler.getFilteredReport()));
 		getFilteredReport().setHandler(this);
-		org_root = handler.getOriginalReport();
-		org_root.setHandler(this);
+		orgRoot = handler.getOriginalReport();
+		orgRoot.setHandler(this);
 	}
 
 	/**
@@ -44,7 +46,7 @@ public class BatchTrrntChkReportTreeModel extends DefaultTreeModel implements Tr
 	 */
 	public void initClone()
 	{
-		setRoot(new BatchTrrntChkReportNode(org_root.clone(filterOptions)));
+		setRoot(new BatchTrrntChkReportNode(orgRoot.clone(filterOptions)));
 	}
 
 	/**
@@ -52,6 +54,8 @@ public class BatchTrrntChkReportTreeModel extends DefaultTreeModel implements Tr
 	 *
 	 * @param filterOptions the filter options
 	 */
+	@SuppressWarnings("exports")
+	@Override
 	public void filter(final FilterOptions... filterOptions)
 	{
 		filter(Arrays.asList(filterOptions));
@@ -62,10 +66,11 @@ public class BatchTrrntChkReportTreeModel extends DefaultTreeModel implements Tr
 	 *
 	 * @param filterOptions the filter options
 	 */
+	@SuppressWarnings("exports")
 	public void filter(final List<FilterOptions> filterOptions)
 	{
 		this.filterOptions = filterOptions;
-		setRoot(new BatchTrrntChkReportNode(org_root.clone(filterOptions)));
+		setRoot(new BatchTrrntChkReportNode(orgRoot.clone(filterOptions)));
 	}
 
 	/**
@@ -73,23 +78,26 @@ public class BatchTrrntChkReportTreeModel extends DefaultTreeModel implements Tr
 	 *
 	 * @return the filter options
 	 */
+	@SuppressWarnings("exports")
 	public EnumSet<FilterOptions> getFilterOptions()
 	{
-		if(filterOptions.size()==0)
+		if(filterOptions.isEmpty())
 			return EnumSet.noneOf(FilterOptions.class);
 		return EnumSet.copyOf(filterOptions);
 	}
 	
+	@SuppressWarnings("exports")
 	@Override
 	public TrntChkReport getFilteredReport()
 	{
 		return ((BatchTrrntChkReportNode)getRoot()).getReport();
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public TrntChkReport getOriginalReport()
 	{
-		return org_root;
+		return orgRoot;
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 
 import jrm.locale.Messages;
 import jrm.security.Session;
@@ -19,7 +20,7 @@ public class BatchPanel extends JPanel
 	{
 		this.setLayout(new BorderLayout(0, 0));
 
-		JTabbedPane batchToolsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		JTabbedPane batchToolsTabbedPane = new JTabbedPane(SwingConstants.TOP);
 		this.add(batchToolsTabbedPane);
 
 		BatchDirUpd8rPanel panelBatchToolsDat2Dir = new BatchDirUpd8rPanel(session);

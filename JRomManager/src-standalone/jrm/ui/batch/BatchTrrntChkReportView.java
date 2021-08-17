@@ -21,6 +21,7 @@ import jrm.ui.MainFrame;
 @SuppressWarnings("serial")
 public class BatchTrrntChkReportView extends JScrollPane
 {
+	@SuppressWarnings("exports")
 	public BatchTrrntChkReportView(Session session, TrntChkReport report)
 	{
 		final JTree tree = new JTree();

@@ -18,66 +18,69 @@ import jrm.ui.basic.SDRTableModel;
 
 public class BatchTableModel extends SDRTableModel
 {
-	
+
 	private final String[] headers;
-	private final String[] headers_tt;
-	private final Class<?>[] types = {File.class, File.class, String.class, String.class, Boolean.class};
-	private final int[] widths = {0, 0, 0, -70, -22};
+	private final String[] headersTT;
+	private final Class<?>[] types = { File.class, File.class, String.class, String.class, Boolean.class };
+	private final int[] widths = { 0, 0, 0, -70, -22 };
 
 	public BatchTableModel()
 	{
-		this.headers = new String[] {Messages.getString("BatchTableModel.SrcDats"), Messages.getString("BatchTableModel.DstDirs"), Messages.getString("BatchTableModel.Result"), "Details", "Selected"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		this.headers_tt = this.headers;
+		this.headers = new String[] { Messages.getString("BatchTableModel.SrcDats"), Messages.getString("BatchTableModel.DstDirs"), Messages.getString("BatchTableModel.Result"), "Details", "Selected" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		this.headersTT = this.headers;
 	}
-	
+
 	public BatchTableModel(String[] headers)
 	{
 		this.headers = headers;
-		this.headers_tt = headers;
+		this.headersTT = headers;
 	}
 
 	public void setButtonHandler(JTableButton.TableButtonPressedHandler buttonHandler)
 	{
 		buttons.addHandler(buttonHandler);
 	}
-	
+
 	private JTableButton buttons = new JTableButton();
-	
-    @SuppressWarnings("serial")
-	private	final TableCellRenderer[] cellRenderers = {new DefaultTableCellRenderer() {
+
+	@SuppressWarnings("serial")
+	private final TableCellRenderer[] cellRenderers = { new DefaultTableCellRenderer()
+	{
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
-			if(row == getCurrentRow() && column == getCurrentCol())
+			if (row == getCurrentRow() && column == getCurrentCol())
 				setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
 			else
 				setBackground(Color.white);
-			if(value instanceof File)
+			if (value instanceof File)
 			{
 				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				setText(trimmedStringCalculator(((File)value).getPath(), table,this, table.getColumnModel().getColumn(column).getWidth()-10));
+				setText(trimmedStringCalculator(((File) value).getPath(), table, this, table.getColumnModel().getColumn(column).getWidth() - 10));
 				return this;
 			}
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			
+
 		}
-	}, new DefaultTableCellRenderer() {
+	}, new DefaultTableCellRenderer()
+	{
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
-			if(row == getCurrentRow() && column == getCurrentCol())
+			if (row == getCurrentRow() && column == getCurrentCol())
 				setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
 			else
 				setBackground(Color.white);
-			if(value instanceof File)
+			if (value instanceof File)
 			{
 				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				setText(trimmedStringCalculator(((File)value).getPath(), table ,this, table.getColumnModel().getColumn(column).getWidth()-10));
+				setText(trimmedStringCalculator(((File) value).getPath(), table, this, table.getColumnModel().getColumn(column).getWidth() - 10));
 				return this;
 			}
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
-	}, new DefaultTableCellRenderer() {
+	}, new DefaultTableCellRenderer()
+	{
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
@@ -85,24 +88,24 @@ public class BatchTableModel extends SDRTableModel
 			setHorizontalAlignment(TRAILING);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
-	},buttons, null};
+	}, buttons, null };
 
-    private final TableCellEditor[] cellEditors = {null,null,null,buttons,null};
-    
+	private final TableCellEditor[] cellEditors = { null, null, null, buttons, null };
+
 	private static String trimmedStringCalculator(String inputText, JTable table, JLabel component, int width)
 	{
-			String ellipses = "..."; //$NON-NLS-1$
-			String textToBeDisplayed = ""; //$NON-NLS-1$
-			FontMetrics fm = table.getFontMetrics(component.getFont());
-			for (int i = inputText.length() - 1; i >= 0; i--)
-				if (fm.stringWidth(ellipses + textToBeDisplayed) <= width)
-					textToBeDisplayed = inputText.charAt(i) + textToBeDisplayed;
-			if (!textToBeDisplayed.equals(inputText))
-				return ellipses.concat(textToBeDisplayed);
+		String ellipses = "..."; //$NON-NLS-1$
+		final var textToBeDisplayed = new StringBuilder(); // $NON-NLS-1$
+		FontMetrics fm = table.getFontMetrics(component.getFont());
+		for (int i = inputText.length() - 1; i >= 0; i--)
+			if (fm.stringWidth(ellipses + textToBeDisplayed) <= width)
+				textToBeDisplayed.insert(0, inputText.charAt(i));
+		if (0 != CharSequence.compare(textToBeDisplayed, inputText))
+			return ellipses + textToBeDisplayed;
 		return inputText;
 	}
-    
-    @Override
+
+	@Override
 	public int getRowCount()
 	{
 		return getData().size();
@@ -129,13 +132,13 @@ public class BatchTableModel extends SDRTableModel
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex)
 	{
-		return columnIndex>=3;
+		return columnIndex >= 3;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		switch(columnIndex)
+		switch (columnIndex)
 		{
 			case 0:
 				return getData().get(rowIndex).src;
@@ -147,14 +150,15 @@ public class BatchTableModel extends SDRTableModel
 				return "Detail";
 			case 4:
 				return getData().get(rowIndex).selected;
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
 	{
-		switch(columnIndex)
+		switch (columnIndex)
 		{
 			case 0:
 				getData().get(rowIndex).src = ((File) aValue).getPath();
@@ -169,6 +173,8 @@ public class BatchTableModel extends SDRTableModel
 				return;
 			case 4:
 				getData().get(rowIndex).selected = (Boolean) aValue;
+				break;
+			default:
 				break;
 		}
 		fireTableChanged(new TableModelEvent(this, rowIndex, rowIndex, columnIndex, TableModelEvent.UPDATE));
@@ -201,9 +207,7 @@ public class BatchTableModel extends SDRTableModel
 	@Override
 	public String getColumnTT(int columnIndex)
 	{
-		return headers_tt[columnIndex];
+		return headersTT[columnIndex];
 	}
-	
-	
-	
+
 }
