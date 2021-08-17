@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
@@ -15,9 +16,13 @@ import com.google.gson.GsonBuilder;
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressInputStream;
 import jrm.misc.Log;
+import jrm.server.shared.actions.ProgressActions.SetFullProgress.Data.PB;
 
 public class ProgressActions implements ProgressHandler
 {
+	private static final String HH_MM_SS = "HH:mm:ss";
+	private static final String S_OF_S = "%s / %s";
+	private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
 	private ActionsMgr ws;
 	private final List<String> errors = new ArrayList<>();
 
@@ -46,7 +51,7 @@ public class ProgressActions implements ProgressHandler
 				String msg = null;
 				String timeleft;
 
-				transient long startTime = 0;
+				transient long startTime = 0;	//NOSONAR
 			}
 
 			/** Current thread cnt */
@@ -62,7 +67,7 @@ public class ProgressActions implements ProgressHandler
 			final PB pb3 = new PB();
 		}
 
-		static final String cmd = "Progress.setFullProgress";
+		static final String cmd = "Progress.setFullProgress";	//NOSONAR
 		final Data params;
 
 		SetFullProgress(Data data)
@@ -73,7 +78,7 @@ public class ProgressActions implements ProgressHandler
 
 	static final class SetInfos
 	{
-		static final String cmd = "Progress.setInfos";
+		static final String cmd = "Progress.setInfos";	//NOSONAR
 		final Data params;
 
 		static final class Data
@@ -99,7 +104,7 @@ public class ProgressActions implements ProgressHandler
 
 	static final class CanCancel
 	{
-		static final String cmd = "Progress.canCancel";
+		static final String cmd = "Progress.canCancel";	//NOSONAR
 		final Data params;
 
 		static final class Data
@@ -126,7 +131,7 @@ public class ProgressActions implements ProgressHandler
 			
 		}
 
-		static final String cmd = "Progress.clearInfos";
+		static final String cmd = "Progress.clearInfos";	//NOSONAR
 	}
 
 	static final class Open
@@ -136,12 +141,12 @@ public class ProgressActions implements ProgressHandler
 			
 		}
 		
-		static final String cmd = "Progress";
+		static final String cmd = "Progress";	//NOSONAR
 	}
 
 	static final class Close
 	{
-		static final String cmd = "Progress.close";
+		static final String cmd = "Progress.close";	//NOSONAR
 		final Data params;
 
 		static final class Data
@@ -174,7 +179,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(gson.toJson(new Open()));
+				ws.send(gson.toJson(new Open()));	//NOSONAR
 		}
 		catch (IOException e)
 		{
@@ -193,34 +198,32 @@ public class ProgressActions implements ProgressHandler
 	private synchronized void cleanup()
 	{
 		final var ct = Thread.currentThread();
-		if (threadIdOffset.containsKey(ct.getId()))
+		if (!threadIdOffset.containsKey(ct.getId()))
+			return;
+		final var tg = ct.getThreadGroup();	//NOSONAR
+		if (threadIdOffset.size() == tg.activeCount())
+			return;
+		final var tl = new Thread[tg.activeCount()];
+		final int tl_count = tg.enumerate(tl, false);
+		final var itr = threadIdOffset.entrySet().iterator();
+		while (itr.hasNext())
 		{
-			final var tg = ct.getThreadGroup();
-			if (threadIdOffset.size() != tg.activeCount())
+			final var e = itr.next();
+			var exists = false;
+			for (var i = 0; i < tl_count; i++)
 			{
-				final var tl = new Thread[tg.activeCount()];
-				final int tl_count = tg.enumerate(tl, false);
-				final var itr = threadIdOffset.entrySet().iterator();
-				while (itr.hasNext())
+				if (e.getKey() == tl[i].getId())
 				{
-					final var e = itr.next();
-					var exists = false;
-					for (var i = 0; i < tl_count; i++)
-					{
-						if (e.getKey() == tl[i].getId())
-						{
-							exists = true;
-							break;
-						}
-					}
-					if (!exists)
-					{
-						data.infos[e.getValue()] = "";
-						if (data.infos.length == data.subinfos.length)
-							data.subinfos[e.getValue()] = "";
-						itr.remove();
-					}
+					exists = true;
+					break;
 				}
+			}
+			if (!exists)
+			{
+				data.infos[e.getValue()] = "";
+				if (data.infos.length == data.subinfos.length)
+					data.subinfos[e.getValue()] = "";
+				itr.remove();
 			}
 		}
 	}
@@ -295,7 +298,7 @@ public class ProgressActions implements ProgressHandler
 		try
 		{
 			if (ws.isOpen())
-				ws.send(gson.toJson(new ClearInfos()));
+				ws.send(gson.toJson(new ClearInfos()));	//NOSONAR
 		}
 		catch (IOException e)
 		{
@@ -334,15 +337,7 @@ public class ProgressActions implements ProgressHandler
 				force = (int) data.pb1.perc != (int) perc;
 				data.pb1.perc = perc;
 			}
-			if (val > 0)
-			{
-				data.pb1.msg = String.format("%.02f%%", data.pb1.perc);
-				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb1.startTime) * (data.pb1.max - val) / val, "HH:mm:ss"); //$NON-NLS-1$
-				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb1.startTime) * data.pb1.max / val, "HH:mm:ss"); //$NON-NLS-1$
-				data.pb1.timeleft = String.format("%s / %s", left, total); //$NON-NLS-1$
-			}
-			else
-				data.pb1.timeleft = "--:--:-- / --:--:--"; //$NON-NLS-1$
+			showDuration(data.pb1, val);
 		}
 		if (submsg != null || (val != null && val == -1))
 		{
@@ -365,34 +360,56 @@ public class ProgressActions implements ProgressHandler
 				threadIdOffset.put(Thread.currentThread().getId(), threadIdOffset.size());
 			else
 			{
-				final var tg = Thread.currentThread().getThreadGroup();
+				final var tg = Thread.currentThread().getThreadGroup();	//NOSONAR
 				final var tl = new Thread[tg.activeCount()];
 				final var tl_count = tg.enumerate(tl, false);
-				var found = false;
-				for (Map.Entry<Long, Integer> e : threadIdOffset.entrySet())
-				{
-					var exists = false;
-					for (var i = 0; i < tl_count; i++)
-					{
-						if (e.getKey() == tl[i].getId())
-						{
-							exists = true;
-							break;
-						}
-					}
-					if (!exists)
-					{
-						threadIdOffset.remove(e.getKey());
-						threadIdOffset.put(Thread.currentThread().getId(), e.getValue());
-						found = true;
-						break;
-					}
-				}
+				var found = isOffsetFound(tl, tl_count);
 				if (!found)
 					threadIdOffset.put(Thread.currentThread().getId(), 0);
 			}
 		}
 		return threadIdOffset.get(Thread.currentThread().getId());
+	}
+
+	/**
+	 * @param tl
+	 * @param tl_count
+	 * @return
+	 */
+	private boolean isOffsetFound(final Thread[] tl, final int tl_count)
+	{
+		var found = false;
+		for (final var entry : threadIdOffset.entrySet())
+		{
+			if (!isOffsetExist(entry, tl, tl_count))
+			{
+				threadIdOffset.remove(entry.getKey());
+				threadIdOffset.put(Thread.currentThread().getId(), entry.getValue());
+				found = true;
+				break;
+			}
+		}
+		return found;
+	}
+
+	/**
+	 * @param entry
+	 * @param tl
+	 * @param tl_count
+	 * @return
+	 */
+	private boolean isOffsetExist(final Entry<Long, Integer> entry, final Thread[] tl, final int tl_count)
+	{
+		var exists = false;
+		for (var i = 0; i < tl_count; i++)
+		{
+			if (entry.getKey() == tl[i].getId())
+			{
+				exists = true;
+				break;
+			}
+		}
+		return exists;
 	}
 
 	@Override
@@ -418,16 +435,7 @@ public class ProgressActions implements ProgressHandler
 				force = (int) data.pb2.perc != (int) perc;
 				data.pb2.perc = perc;
 			}
-			if (val > 0)
-			{
-				if (data.pb2.msg == null)
-					data.pb2.msg = String.format("%.02f", data.pb2.perc);
-				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb2.startTime) * (data.pb2.max - val) / val, "HH:mm:ss"); //$NON-NLS-1$
-				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb2.startTime) * data.pb2.max / val, "HH:mm:ss"); //$NON-NLS-1$
-				data.pb2.timeleft = String.format("%s / %s", left, total); //$NON-NLS-1$
-			}
-			else
-				data.pb2.timeleft = "--:--:-- / --:--:--"; //$NON-NLS-1$
+			showDuration(data.pb2, val);
 		}
 		else if (data.pb2.visibility)
 			data.pb2.visibility = false;
@@ -457,20 +465,28 @@ public class ProgressActions implements ProgressHandler
 				force = (int) data.pb3.perc != (int) perc;
 				data.pb3.perc = perc;
 			}
-			if (val > 0)
-			{
-				if (data.pb3.msg == null)
-					data.pb3.msg = String.format("%.02f", data.pb3.perc);
-				final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb3.startTime) * (data.pb3.max - val) / val, "HH:mm:ss"); //$NON-NLS-1$
-				final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - data.pb3.startTime) * data.pb3.max / val, "HH:mm:ss"); //$NON-NLS-1$
-				data.pb3.timeleft = String.format("%s / %s", left, total); //$NON-NLS-1$
-			}
-			else
-				data.pb3.timeleft = "--:--:-- / --:--:--"; //$NON-NLS-1$
+			showDuration(data.pb3, val);
 		}
 		else if (data.pb3.visibility)
 			data.pb3.visibility = false;
 		sendSetProgress(3, force);
+	}
+
+	/**
+	 * @param val
+	 */
+	private void showDuration(PB pb, int val)
+	{
+		if (val > 0)
+		{
+			if (pb.msg == null)
+				pb.msg = String.format("%.02f", pb.perc);
+			final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - pb.startTime) * (pb.max - val) / val, HH_MM_SS); //$NON-NLS-1$
+			final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - pb.startTime) * pb.max / val, HH_MM_SS); //$NON-NLS-1$
+			pb.timeleft = String.format(S_OF_S, left, total); //$NON-NLS-1$
+		}
+		else
+			pb.timeleft = HH_MM_SS_OF_HH_MM_SS_NONE; //$NON-NLS-1$
 	}
 
 	@Override

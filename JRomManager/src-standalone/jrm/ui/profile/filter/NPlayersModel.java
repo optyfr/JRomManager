@@ -8,8 +8,9 @@ import jrm.profile.filter.NPlayers;
 @SuppressWarnings("serial")
 public class NPlayersModel extends AbstractListModel<NPlayer>
 {
-	private final NPlayers nplayers;
+	private final transient NPlayers nplayers;
 	
+	@SuppressWarnings("exports")
 	public NPlayersModel(final NPlayers nplayers)
 	{
 		this.nplayers = nplayers;
@@ -23,12 +24,13 @@ public class NPlayersModel extends AbstractListModel<NPlayer>
 		return 0;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public NPlayer getElementAt(int index)
 	{
 		if(nplayers!=null)
 			return nplayers.getListNPlayers().get(index);
-		return null;
+		return null;	//NOSONAR
 	}
 
 }

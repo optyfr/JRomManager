@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 
 import jrm.aui.basic.ResultColUpdater;
@@ -37,10 +36,10 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	/**
 	 * The model from {@link JTable#getModel()} to avoid cast to {@link SDRTableModel} each time
 	 */
-	private SDRTableModel model;
+	private transient SDRTableModel model;
 	
 	/** The add call back. */
-	private final AddDelCallBack addCallBack;
+	private final transient AddDelCallBack addCallBack;
 	
 	/**
 	 * The Interface AddDelCallBack.
@@ -48,7 +47,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	@FunctionalInterface
 	public interface AddDelCallBack
 	{
-		public void call(SDRList files);
+		public void call(@SuppressWarnings("exports") SDRList files);
 	}
 
 	public JSDRDropTable(SDRTableModel model, AddDelCallBack callback)
@@ -63,16 +62,9 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 			getColumnModel().getColumn(i).setCellEditor(model.getCellEditors()[i]);
 		color = getBackground();
 		new DropTarget(this, this);
-		this.model.addTableModelListener(new TableModelListener()
-		{
-			@Override
-			public void tableChanged(TableModelEvent e)
-			{
-				if(e.getColumn()>=0 && model.getColumnClass(e.getColumn()).equals(Boolean.class) && e.getType()==TableModelEvent.UPDATE)
-				{
-					addCallBack.call(model.getData());
-				}
-			}
+		this.model.addTableModelListener(e -> {
+			if (e.getColumn() >= 0 && model.getColumnClass(e.getColumn()).equals(Boolean.class) && e.getType() == TableModelEvent.UPDATE)
+				addCallBack.call(model.getData());
 		});
 	}
 	
@@ -91,22 +83,23 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	}
 	
 	@Override
-	public void dragEnter(DropTargetDragEvent dtde)
+	public void dragEnter(@SuppressWarnings("exports") DropTargetDragEvent dtde)
 	{
+		// do nothing
 	}
 
 	@Override
-	public void dragOver(DropTargetDragEvent dtde)
+	public void dragOver(@SuppressWarnings("exports") DropTargetDragEvent dtde)
 	{
 		final Transferable transferable = dtde.getTransferable();
 		if (isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 		{
             Point point = dtde.getLocation();
-            int old_row = model.getCurrentRow();
-            int old_col = model.getCurrentCol();
+            int oldRow = model.getCurrentRow();
+            int oldCol = model.getCurrentCol();
             int row = model.setCurrentRow(rowAtPoint(point));
             int col = model.setCurrentCol(columnAtPoint(point));
-            if(old_col != col || old_row != row)
+            if(oldCol != col || oldRow != row)
             {
 	            if(row==-1)
 	            {
@@ -118,8 +111,8 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	            {
 	            	setBackground(Color.white); //$NON-NLS-1$
 	            	model.fireTableChanged(new TableModelEvent(model, row, row, col));
-	            	if(old_row != -1)
-	            		model.fireTableChanged(new TableModelEvent(model, old_row, old_row, old_col));
+	            	if(oldRow != -1)
+	            		model.fireTableChanged(new TableModelEvent(model, oldRow, oldRow, oldCol));
 	            }
             }
 			dtde.acceptDrag(DnDConstants.ACTION_COPY);
@@ -134,12 +127,13 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	}
 
 	@Override
-	public void dropActionChanged(DropTargetDragEvent dtde)
+	public void dropActionChanged(@SuppressWarnings("exports") DropTargetDragEvent dtde)
 	{
+		// do nothing
 	}
 
 	@Override
-	public void dragExit(DropTargetEvent dte)
+	public void dragExit(@SuppressWarnings("exports") DropTargetEvent dte)
 	{
 		model.setCurrentRow(-1);
 		setBackground(color);
@@ -147,7 +141,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	}
 
 	@Override
-	public void drop(DropTargetDropEvent dtde)
+	public void drop(@SuppressWarnings("exports") DropTargetDropEvent dtde)
 	{
 		model.setCurrentRow(-1);
 		setBackground(color);
@@ -156,53 +150,34 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 		{
 			final Transferable transferable = dtde.getTransferable();
 
-			if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+			if (!transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 			{
-				dtde.acceptDrop(DnDConstants.ACTION_COPY);
-				
-	            Point point = dtde.getLocation();
-	            int row = rowAtPoint(point);
-	            int col = columnAtPoint(point);
+				dtde.rejectDrop();
+				return;
+			}
 
-	            @SuppressWarnings("unchecked")
-				final List<File> files = ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor)).stream().filter(f -> {
-					FileFilter filter = null;
-					if(col==1)
-						filter = model.getDstFilter();
-					else if(col==0)
-						filter = model.getSrcFilter();
-					if(filter!=null)
-						return filter.accept(f);
-					return true;
-				}).collect(Collectors.toList());
-				if (files.size() > 0)
-				{
-		            int start_size = model.getData().size();
-	            	for(int i = 0; i < files.size(); i++)
-	            	{
-	            		File file = files.get(i);
-	            		SrcDstResult line;
-	            		if(row == -1 || row + i >= model.getData().size())
-			            	model.getData().add(line = new SrcDstResult());
-	            		else
-	            			line = model.getData().get(row + i);
-		            	if(col==1)
-		            		line.dst = file.getPath();
-		            	else
-		            		line.src = file.getPath();
-	            	}
-	            	if(row != -1)
-	            		model.fireTableChanged(new TableModelEvent(model, row, start_size-1, col));
-	            	if(start_size != model.getData().size())
-	            		model.fireTableChanged(new TableModelEvent(model, start_size, model.getData().size()-1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
-	            	addCallBack.call(model.getData());
-					dtde.getDropTargetContext().dropComplete(true);
-				}
-				else
-					dtde.getDropTargetContext().dropComplete(false);
+			dtde.acceptDrop(DnDConstants.ACTION_COPY);
+
+			Point point = dtde.getLocation();
+			int row = rowAtPoint(point);
+			int col = columnAtPoint(point);
+
+			@SuppressWarnings("unchecked")
+			final List<File> files = ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor)).stream().filter(f -> dropFilter(col, f)).collect(Collectors.toList());
+			if (!files.isEmpty())
+			{
+				final var startSize = model.getData().size();
+				for (int i = 0; i < files.size(); i++)
+					addFile(files.get(i), row, col, i);
+				if (row != -1)
+					model.fireTableChanged(new TableModelEvent(model, row, startSize - 1, col));
+				if (startSize != model.getData().size())
+					model.fireTableChanged(new TableModelEvent(model, startSize, model.getData().size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
+				addCallBack.call(model.getData());
+				dtde.getDropTargetContext().dropComplete(true);
 			}
 			else
-				dtde.rejectDrop();
+				dtde.getDropTargetContext().dropComplete(false);
 		}
 		catch (final UnsupportedFlavorException e)
 		{
@@ -210,9 +185,48 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 		}
 		catch (final Exception e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 			dtde.rejectDrop();
 		}
+	}
+
+	/**
+	 * @param file
+	 * @param row
+	 * @param col
+	 * @param i
+	 */
+	private void addFile(File file, int row, int col, int i)
+	{
+		SrcDstResult line;
+		if (row == -1 || row + i >= model.getData().size())
+		{
+			line = new SrcDstResult();
+			model.getData().add(line);
+		}
+		else
+			line = model.getData().get(row + i);
+		if (col == 1)
+			line.dst = file.getPath();
+		else
+			line.src = file.getPath();
+	}
+
+	/**
+	 * @param col
+	 * @param f
+	 * @return
+	 */
+	private boolean dropFilter(int col, File f)
+	{
+		FileFilter filter = null;
+		if(col==1)
+			filter = model.getDstFilter();
+		else if(col==0)
+			filter = model.getSrcFilter();
+		if(filter!=null)
+			return filter.accept(f);
+		return true;
 	}
 	
 	public SDRTableModel getSDRModel()
@@ -236,7 +250,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	 *
 	 * @param sdrl the data to delete
 	 */
-	public void del(final List<SrcDstResult> sdrl)
+	public void del(@SuppressWarnings("exports") final List<SrcDstResult> sdrl)
 	{
 		for (final SrcDstResult sdr : sdrl)
 			model.getData().remove(sdr);
@@ -248,6 +262,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	 * get selected values as a {@link List} of {@link SrcDstResult}
 	 * @return the {@link List} of {@link SrcDstResult} corresponding to selected values
 	 */
+	@SuppressWarnings("exports")
 	public List<SrcDstResult> getSelectedValuesList()
 	{
 		int[] rows = getSelectedRows();
