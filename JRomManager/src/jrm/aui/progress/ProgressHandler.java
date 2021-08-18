@@ -18,7 +18,6 @@ package jrm.aui.progress;
 
 import java.io.InputStream;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface ProgressHandler.
  *

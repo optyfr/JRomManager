@@ -28,7 +28,8 @@ public final class ProgressInputStream extends FilterInputStream
 	{
 		super(in);
 		this.progress = progress;
-		progress.setProgress(null, (value = 0), len);
+		value = 0;
+		progress.setProgress(null, value, len);
 	}
 
 	@Override
@@ -45,7 +46,10 @@ public final class ProgressInputStream extends FilterInputStream
 	{
 		final int ret = super.read(b);
 		if (ret != -1)
-			progress.setProgress(null, (value += ret));
+		{
+			value += ret;
+			progress.setProgress(null, value);
+		}
 		return ret;
 	}
 
@@ -54,7 +58,10 @@ public final class ProgressInputStream extends FilterInputStream
 	{
 		final int ret = super.read(b, off, len);
 		if (ret != -1)
-			progress.setProgress(null, (value += ret));
+		{
+			value += ret;
+			progress.setProgress(null, value);
+		}
 		return ret;
 	}
 
@@ -63,14 +70,10 @@ public final class ProgressInputStream extends FilterInputStream
 	{
 		final long ret = super.skip(n);
 		if (ret != -1)
-			progress.setProgress(null, (value += ret));
+		{
+			value += ret;
+			progress.setProgress(null, value);
+		}
 		return ret;
-	}
-	
-	@Override
-	public void close() throws IOException
-	{
-		// TODO Auto-generated method stub
-		super.close();
 	}
 }

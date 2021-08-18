@@ -25,7 +25,7 @@ public final class ProgressTZipCallBack implements LogCallback, HTMLRenderer
 	}
 	
 	@Override
-	public void StatusCallBack(int percent)
+	public void statusCallBack(int percent)
 	{
 		if(!isPlain())
 			ph.setProgress(null, null, null, String.format("<html>"
@@ -41,8 +41,9 @@ public final class ProgressTZipCallBack implements LogCallback, HTMLRenderer
 	}
 
 	@Override
-	public void StatusLogCallBack(String log)
+	public void statusLogCallBack(String log)
 	{
+		// do nothing
 	}
 	
 }

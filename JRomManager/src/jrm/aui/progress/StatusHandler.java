@@ -16,7 +16,6 @@
  */
 package jrm.aui.progress;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface StatusHandler.
  *
