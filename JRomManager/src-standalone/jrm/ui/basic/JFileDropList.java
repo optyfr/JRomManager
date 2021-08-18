@@ -35,7 +35,8 @@ import java.util.stream.Collectors;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
-// TODO: Auto-generated Javadoc
+import jrm.misc.Log;
+
 /**
  * The Class JFileDropList.
  */
@@ -47,13 +48,13 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 	private final Color color;
 	
 	/** The add call back. */
-	private final AddDelCallBack addCallBack;
+	private final transient AddDelCallBack addCallBack;
 	
 	/** The mode. */
 	private JFileDropMode mode = JFileDropMode.FILE;
 	
 	/** The filter */
-	private FilenameFilter filter = null;
+	private transient FilenameFilter filter = null;
 
 	/**
 	 * The Interface AddDelCallBack.
@@ -77,7 +78,7 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 	 */
 	public JFileDropList(final AddDelCallBack addCallBack)
 	{
-		super(new DefaultListModel<File>());
+		super(new DefaultListModel<>());
 		color = getBackground();
 		this.addCallBack = addCallBack;
 		new DropTarget(this, this);
@@ -98,6 +99,7 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 		this.filter = filter;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void dragEnter(final DropTargetDragEvent dtde)
 	{
@@ -114,22 +116,28 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 		}
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void dragOver(final DropTargetDragEvent dtde)
 	{
+		// do nothing
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void dropActionChanged(final DropTargetDragEvent dtde)
 	{
+		// do nothing
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void dragExit(final DropTargetEvent dte)
 	{
 		setBackground(color);
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void drop(final DropTargetDropEvent dtde)
 	{
@@ -151,7 +159,7 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 						return filter.accept(f.getParentFile(), f.getName());
 					return true;
 				}).collect(Collectors.toList());
-				if (files.size() > 0)
+				if (!files.isEmpty())
 				{
 					add(files);
 					dtde.getDropTargetContext().dropComplete(true);
@@ -164,10 +172,12 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 		}
 		catch (final UnsupportedFlavorException e)
 		{
+			Log.warn(e.getMessage());
 			dtde.rejectDrop();
 		}
 		catch (final Exception e)
 		{
+			Log.err(e.getMessage(), e);
 			dtde.rejectDrop();
 		}
 	}

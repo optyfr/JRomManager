@@ -1,11 +1,10 @@
 package jrm.ui.basic;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
@@ -46,13 +45,13 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
 		void onButtonPress(int row, int column);
 	}
 
-	private List<TableButtonPressedHandler> handlers;
-	private Hashtable<Integer, JButton> buttons;
+	private transient List<TableButtonPressedHandler> handlers;
+	private Map<Integer, JButton> buttons;
 
 	public JTableButton()
 	{
-		handlers = new ArrayList<TableButtonPressedHandler>();
-		buttons = new Hashtable<Integer, JButton>();
+		handlers = new ArrayList<>();
+		buttons = new HashMap<>();
 	}
 
 	/**
@@ -112,6 +111,7 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
 		}
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus, final int row, final int column)
 	{
@@ -123,23 +123,14 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
 		else
 		{
 			button = new JButton();
-			if (value != null && value instanceof String)
+			if (value instanceof String)
 			{
 				button.setText((String) value);
 			}
-			button.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent e)
-				{
-					if (handlers != null)
-					{
-						for (TableButtonPressedHandler handler : handlers)
-						{
-							handler.onButtonPress(row, column);
-						}
-					}
-				}
+			button.addActionListener(e -> {
+				if (handlers != null)
+					for (TableButtonPressedHandler handler : handlers)
+						handler.onButtonPress(row, column);
 			});
 			buttons.put(row, button);
 		}
@@ -147,6 +138,7 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
 		return button;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean selected, int row, int column)
 	{
@@ -158,11 +150,8 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
 		else
 		{
 			button = new JButton();
-			if (value != null && value instanceof String)
-			{
+			if (value instanceof String)
 				button.setText((String) value);
-			}
-
 			buttons.put(row, button);
 		}
 

@@ -23,7 +23,6 @@ import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicTableUI;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class JListHintUI.
  */
@@ -42,12 +41,14 @@ public class JTableHintUI extends BasicTableUI
 	 * @param hint the hint
 	 * @param hintColor the hint color
 	 */
+	@SuppressWarnings("exports")
 	public JTableHintUI(final String hint, final Color hintColor)
 	{
 		this.hint = hint;
 		this.hintColor = hintColor;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void paint(final Graphics g, final JComponent c)
 	{

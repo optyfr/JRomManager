@@ -31,17 +31,12 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class JCheckBoxTree.
  */
 @SuppressWarnings("serial")
 public class JCheckBoxTree extends JTree
 {
-	
-//	/** The listener list. */
-//	protected EventListenerList listenerList = new EventListenerList();
-
 	/**
 	 * The Class CheckChangeEvent.
 	 */
@@ -111,6 +106,7 @@ public class JCheckBoxTree extends JTree
 	}
 
 	// Override
+	@SuppressWarnings("exports")
 	@Override
 	public void setModel(final TreeModel newModel)
 	{
@@ -124,6 +120,7 @@ public class JCheckBoxTree extends JTree
 	 * @param path the path
 	 * @return true, if is selected partially
 	 */
+	@SuppressWarnings("exports")
 	public boolean isSelectedPartially(final TreePath path)
 	{
 		final NGTreeNode cn = (NGTreeNode) path.getLastPathComponent();
@@ -174,6 +171,7 @@ public class JCheckBoxTree extends JTree
 	 *
 	 * @param model the model
 	 */
+	@SuppressWarnings("exports")
 	public JCheckBoxTree(final TreeModel model)
 	{
 		super(model);
@@ -185,21 +183,25 @@ public class JCheckBoxTree extends JTree
 			@Override
 			public void setSelectionPath(final TreePath path)
 			{
+				// do nothing
 			}
 
 			@Override
 			public void addSelectionPath(final TreePath path)
 			{
+				// do nothing
 			}
 
 			@Override
 			public void removeSelectionPath(final TreePath path)
 			{
+				// do nothing
 			}
 
 			@Override
 			public void setSelectionPaths(final TreePath[] pPaths)
 			{
+				// do nothing
 			}
 		};
 		addMouseListener(new MouseAdapter()

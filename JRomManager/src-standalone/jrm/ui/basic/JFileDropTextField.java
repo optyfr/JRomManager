@@ -37,7 +37,8 @@ import java.util.stream.Collectors;
 import javax.swing.JTextField;
 import javax.swing.text.Document;
 
-// TODO: Auto-generated Javadoc
+import jrm.misc.Log;
+
 /**
  * The Class JFileDropTextField.
  */
@@ -49,13 +50,13 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 	private final Color color;
 	
 	/** The callback. */
-	private final SetCallBack callback;
+	private final transient SetCallBack callback;
 	
 	/** The mode. */
 	private JFileDropMode mode = JFileDropMode.FILE;
 	
 	/** The filter */
-	private FilenameFilter filter = null;
+	private transient FilenameFilter filter = null;
 
 	/**
 	 * The Interface SetCallBack.
@@ -128,6 +129,7 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 	 * @param columns the columns
 	 * @param callback the callback
 	 */
+	@SuppressWarnings("exports")
 	public JFileDropTextField(final Document doc, final String text, final int columns, final SetCallBack callback)
 	{
 		super(doc, text, columns);
@@ -152,11 +154,14 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 		this.filter = filter;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void focusGained(final FocusEvent e)
 	{
+		// do nothing
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void focusLost(final FocusEvent e)
 	{
@@ -164,6 +169,7 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 			callback.call(JFileDropTextField.this.getText());
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void dragEnter(final DropTargetDragEvent dtde)
 	{
@@ -180,22 +186,28 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 		}
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void dragOver(final DropTargetDragEvent dtde)
 	{
+		// do nothing
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void dropActionChanged(final DropTargetDragEvent dtde)
 	{
+		// do nothing
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void dragExit(final DropTargetEvent dte)
 	{
 		JFileDropTextField.this.setBackground(color);
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void drop(final DropTargetDropEvent dtde)
 	{
@@ -231,10 +243,12 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 		}
 		catch (final UnsupportedFlavorException e)
 		{
+			Log.warn(e.getMessage());
 			dtde.rejectDrop();
 		}
 		catch (final Exception e)
 		{
+			Log.err(e.getMessage(), e);
 			dtde.rejectDrop();
 		}
 	}

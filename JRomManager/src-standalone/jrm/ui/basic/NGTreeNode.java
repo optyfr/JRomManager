@@ -18,7 +18,6 @@ package jrm.ui.basic;
 
 import javax.swing.tree.TreeNode;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface NGTreeNode.
  */
@@ -30,6 +29,7 @@ public interface NGTreeNode extends TreeNode
 	 *
 	 * @return the path
 	 */
+	@SuppressWarnings("exports")
 	public TreeNode[] getPath();
 	
 	/**

@@ -29,7 +29,6 @@ import jrm.profile.data.Samples;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.CenteredTableCellRenderer;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MachineListRenderer.
  */

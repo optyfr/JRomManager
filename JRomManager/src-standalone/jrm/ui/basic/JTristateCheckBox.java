@@ -23,7 +23,6 @@ import javax.swing.JCheckBox;
 
 import jrm.ui.MainFrame;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class JTristateCheckBox.
  */
@@ -51,14 +50,21 @@ public class JTristateCheckBox extends JCheckBox
 		super();
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void paint(final Graphics g)
 	{
+		final Icon icon;
 		if(isSelected())
 		{
 			halfState = false;
+			icon = JTristateCheckBox.selected;
 		}
-		setIcon(halfState ? JTristateCheckBox.halfselected : isSelected() ? JTristateCheckBox.selected : JTristateCheckBox.unselected);
+		else if(halfState)
+			icon = JTristateCheckBox.halfselected;
+		else
+			icon = JTristateCheckBox.unselected;
+		setIcon(icon);
 		super.paint(g);
 	}
 

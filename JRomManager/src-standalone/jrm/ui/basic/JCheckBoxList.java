@@ -34,7 +34,6 @@ import javax.swing.event.ListSelectionListener;
 
 import jrm.misc.Ideone;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class JCheckBoxList.
  *
@@ -45,7 +44,7 @@ public class JCheckBoxList<E> extends JList<E>
 {
 	
 	/** The no focus border. */
-	protected final static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
+	protected static final Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
 
 	/**
 	 * Instantiates a new j check box list.
@@ -149,7 +148,7 @@ public class JCheckBoxList<E> extends JList<E>
 	}
 
 	/** The checkboxes. */
-	JTristateCheckBox checkboxes[] = null;
+	JTristateCheckBox[] checkboxes = null;
 
 	/**
 	 * The Class CellRenderer.
@@ -157,6 +156,7 @@ public class JCheckBoxList<E> extends JList<E>
 	public class CellRenderer implements ListCellRenderer<E>
 	{
 
+		@SuppressWarnings("exports")
 		@Override
 		public Component getListCellRendererComponent(final JList<? extends E> list, final E value, final int index, final boolean isSelected, final boolean cellHasFocus)
 		{

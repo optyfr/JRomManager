@@ -16,25 +16,25 @@ public abstract class SDRTableModel implements EnhTableModel
     private FileFilter dstFilter = null;
 
 
-	private int current_row;
-	private int current_col;
+	private int currentRow;
+	private int currentCol;
 	
 	/**
 	 * @return the current_row
 	 */
 	public int getCurrentRow()
 	{
-		return current_row;
+		return currentRow;
 	}
 
 	/**
-	 * @param current_row the current_row to set
+	 * @param currentRow the current_row to set
 	 * @return the current row
 	 */
-	public int setCurrentRow(int current_row)
+	public int setCurrentRow(int currentRow)
 	{
-		this.current_row = current_row;
-		return current_row;
+		this.currentRow = currentRow;
+		return currentRow;
 	}
 
 	/**
@@ -42,22 +42,23 @@ public abstract class SDRTableModel implements EnhTableModel
 	 */
 	public int getCurrentCol()
 	{
-		return current_col;
+		return currentCol;
 	}
 
 	/**
-	 * @param current_col the current_col to set
+	 * @param currentCol the current_col to set
 	 * @return the current col
 	 */
-	public int setCurrentCol(int current_col)
+	public int setCurrentCol(int currentCol)
 	{
-		this.current_col = current_col;
-		return current_col;
+		this.currentCol = currentCol;
+		return currentCol;
 	}
 
 	/**
 	 * @return the data
 	 */
+	@SuppressWarnings("exports")
 	public SDRList getData()
 	{
 		return data;
@@ -66,19 +67,22 @@ public abstract class SDRTableModel implements EnhTableModel
 	/**
 	 * @param data initialize data
 	 */
+	@SuppressWarnings("exports")
 	public void setData(SDRList data)
 	{
-		current_row = -1;
+		currentRow = -1;
 		this.data = data;
 		fireTableChanged(new TableModelEvent(this));
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void addTableModelListener(final TableModelListener l)
 	{
 		listenerList.add(TableModelListener.class, l);
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void removeTableModelListener(final TableModelListener l)
 	{
@@ -89,6 +93,7 @@ public abstract class SDRTableModel implements EnhTableModel
 	 * Sends TableChanged event to listeners
 	 * @param e the {@link TableModelEvent} to send
 	 */
+	@SuppressWarnings("exports")
 	public void fireTableChanged(final TableModelEvent e)
 	{
 		final Object[] listeners = listenerList.getListenerList();

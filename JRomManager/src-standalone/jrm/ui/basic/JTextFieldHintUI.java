@@ -25,7 +25,6 @@ import java.awt.event.FocusListener;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 import javax.swing.text.JTextComponent;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class JTextFieldHintUI.
  */
@@ -44,6 +43,7 @@ public class JTextFieldHintUI extends BasicTextFieldUI implements FocusListener
 	 * @param hint the hint
 	 * @param hintColor the hint color
 	 */
+	@SuppressWarnings("exports")
 	public JTextFieldHintUI(final String hint, final Color hintColor)
 	{
 		this.hint = hint;
@@ -78,12 +78,14 @@ public class JTextFieldHintUI extends BasicTextFieldUI implements FocusListener
 		}
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void focusGained(final FocusEvent e)
 	{
 		repaint();
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void focusLost(final FocusEvent e)
 	{

@@ -20,6 +20,7 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -29,7 +30,6 @@ import javax.swing.filechooser.FileSystemView;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class JRMFileChooser.
  *
@@ -82,7 +82,7 @@ public class JRMFileChooser<V> extends JFileChooser
 		public File getDefaultDirectory()
 		{
 			return root;
-		};
+		}
 
 		@Override
 		public File getHomeDirectory()
@@ -156,6 +156,7 @@ public class JRMFileChooser<V> extends JFileChooser
 	 * @param title the title
 	 * @param multi the multi
 	 */
+	@SuppressWarnings("exports")
 	public JRMFileChooser(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title, final boolean multi)
 	{
 		super();
@@ -174,14 +175,12 @@ public class JRMFileChooser<V> extends JFileChooser
 	 * @param multi the multi
 	 * @return the JRM file chooser
 	 */
+	@SuppressWarnings("exports")
 	public JRMFileChooser<V> setup(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title, final boolean multi)
 	{
-		if(type != null)
-			setDialogType(type);
-		if(mode != null)
-			setFileSelectionMode(mode);
-		if(selected != null)
-			setSelectedFile(selected);
+		Optional.ofNullable(type).ifPresent(this::setDialogType);
+		Optional.ofNullable(mode).ifPresent(this::setFileSelectionMode);
+		Optional.ofNullable(selected).ifPresent(this::setSelectedFile);
 		if(currdir != null && currdir.exists())
 		{
 			if(currdir.isFile())
@@ -203,8 +202,7 @@ public class JRMFileChooser<V> extends JFileChooser
 					setAcceptAllFileFilterUsed(false);
 				}
 		}
-		if(title != null)
-			setDialogTitle(title);
+		Optional.ofNullable(title).ifPresent(this::setDialogTitle);
 		if(multi)
 			setMultiSelectionEnabled(multi);
 		return this;
@@ -215,6 +213,7 @@ public class JRMFileChooser<V> extends JFileChooser
 	 *
 	 * @param fsv the fsv
 	 */
+	@SuppressWarnings("exports")
 	public JRMFileChooser(final FileSystemView fsv)
 	{
 		super(fsv);
@@ -227,6 +226,7 @@ public class JRMFileChooser<V> extends JFileChooser
 	 * @param callback the callback
 	 * @return the v
 	 */
+	@SuppressWarnings("exports")
 	public V show(final Component parent, final CallBack<V> callback)
 	{
 		if(showOpenDialog(parent) == JFileChooser.APPROVE_OPTION)
@@ -241,6 +241,7 @@ public class JRMFileChooser<V> extends JFileChooser
 	 * @param callback the callback
 	 * @return the v
 	 */
+	@SuppressWarnings("exports")
 	public V showOpen(final Component parent, final CallBack<V> callback)
 	{
 		setDialogType(JFileChooser.OPEN_DIALOG);
@@ -254,6 +255,7 @@ public class JRMFileChooser<V> extends JFileChooser
 	 * @param callback the callback
 	 * @return the v
 	 */
+	@SuppressWarnings("exports")
 	public V showSave(final Component parent, final CallBack<V> callback)
 	{
 		setDialogType(JFileChooser.SAVE_DIALOG);

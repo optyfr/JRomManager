@@ -18,7 +18,6 @@ package jrm.ui.basic;
 
 import javax.swing.tree.TreeNode;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class AbstractNGTreeNode.
  */
@@ -40,6 +39,7 @@ public abstract class AbstractNGTreeNode implements NGTreeNode
 	 *
 	 * @return an array of TreeNode objects giving the path, where the first element in the path is the root and the last element is this node.
 	 */
+	@SuppressWarnings("exports")
 	@Override
 	public TreeNode[] getPath()
 	{
@@ -65,7 +65,7 @@ public abstract class AbstractNGTreeNode implements NGTreeNode
 		if(aNode == null)
 		{
 			if(depth == 0)
-				return null;
+				return new TreeNode[0];
 			else
 				retNodes = new TreeNode[depth];
 		}

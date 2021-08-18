@@ -16,7 +16,6 @@
  */
 package jrm.ui.basic;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Enum JFileDropMode.
  */
