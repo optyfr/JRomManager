@@ -100,6 +100,8 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class Profile implements Serializable
 {
+	private static final String DESCRIPTION = "description";
+	private static final String VERSION = "version";
 	/*
 	 * Counters
 	 */
@@ -176,6 +178,7 @@ public class Profile implements Serializable
 
 	private class ProfileHandler extends DefaultHandler
 	{
+		private static final String STATUS = "status";
 		/*
 		 * The following variables are loading state variable
 		 */
@@ -246,7 +249,7 @@ public class Profile implements Serializable
 					case "game":
 						startMachine(attributes);
 						break;
-					case "description":
+					case DESCRIPTION:
 						startDescription(attributes);
 						break;
 					case "year":
@@ -306,33 +309,48 @@ public class Profile implements Serializable
 			}
 			catch (Exception e)
 			{
-				final var msg = new StringBuilder("Error");
-				if (currMachine != null)
-					msg.append(" for machine ").append(currMachine.getName());
-				else if (currSoftwareList != null)
-				{
-					msg.append(" for software list ").append(currSoftwareList.getName());
-					if (currSoftware != null)
-						msg.append(", software ").append(currSoftware.getName());
-				}
-				if (currRom != null)
-					msg.append(", rom ").append(currRom.getName());
-				if (currDisk != null)
-					msg.append(", disk ").append(currDisk.getName());
-				msg.append(", xmltag=" + qName);
-				msg.append(", xmlattributes={");
-				for (var i = 0; i < attributes.getLength(); i++)
-				{
-					if (i > 0)
-						msg.append(", ");
-					msg.append(attributes.getQName(i) + "=" + attributes.getValue(i));
-				}
-				msg.append("}");
-				msg.append("\nOriginal exception=").append(e.getClass().getSimpleName() + " " + e.getMessage());
-				throw new RuntimeException(msg.toString());
+				throw new ProfileHandlerException(getDebugMsg(attributes, qName, e), e);
 			}
 		}
 
+		private class ProfileHandlerException extends RuntimeException
+		{
+			public ProfileHandlerException(String message, Exception e)
+			{
+				super(message, e);
+			}
+			
+		}
+
+		private String getDebugMsg(Attributes attributes, String qName, Exception e)
+		{
+			final var msg = new StringBuilder("Error");
+			if (currMachine != null)
+				msg.append(" for machine ").append(currMachine.getName());
+			else if (currSoftwareList != null)
+			{
+				msg.append(" for software list ").append(currSoftwareList.getName());
+				if (currSoftware != null)
+					msg.append(", software ").append(currSoftware.getName());
+			}
+			if (currRom != null)
+				msg.append(", rom ").append(currRom.getName());
+			if (currDisk != null)
+				msg.append(", disk ").append(currDisk.getName());
+			msg.append(", xmltag=" + qName);
+			msg.append(", xmlattributes={");
+			for (var i = 0; i < attributes.getLength(); i++)
+			{
+				if (i > 0)
+					msg.append(", ");
+				msg.append(attributes.getQName(i) + "=" + attributes.getValue(i));
+			}
+			msg.append("}");
+			msg.append("\nOriginal exception=").append(e.getClass().getSimpleName() + " " + e.getMessage());
+			return msg.toString();
+		}
+
+		
 		/**
 		 * @param attributes
 		 * @throws NumberFormatException
@@ -340,52 +358,51 @@ public class Profile implements Serializable
 		private void startDisk(final Attributes attributes) throws NumberFormatException
 		{
 			// we enter a disk block for current machine or current software
-			if (currMachine != null || currSoftware != null)
+			if (currMachine == null && currSoftware == null)
+				return;
+			currDisk = new Disk(currMachine != null ? currMachine : currSoftware);
+			if (currSoftware != null && currDiskArea != null)
+				currDiskArea.getDisks().add(currDisk);
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				currDisk = new Disk(currMachine != null ? currMachine : currSoftware);
-				if (currSoftware != null && currDiskArea != null)
-					currDiskArea.getDisks().add(currDisk);
-				for (var i = 0; i < attributes.getLength(); i++)
+				switch (attributes.getQName(i))
 				{
-					switch (attributes.getQName(i))
+					case "name": //$NON-NLS-1$
 					{
-						case "name": //$NON-NLS-1$
-						{
-							String name = attributes.getValue(i).trim();
-							if (name.endsWith(".chd"))
-								name = name.substring(0, name.length() - 4);
-							currDisk.setName(name);
-							break;
-						}
-						case "sha1": //$NON-NLS-1$
-							currDisk.setSha1(attributes.getValue(i).toLowerCase());
-							sha1Disks = true;
-							break;
-						case "md5": //$NON-NLS-1$
-							currDisk.setMd5(attributes.getValue(i).toLowerCase());
-							md5Disks = true;
-							break;
-						case "merge": //$NON-NLS-1$
-							currDisk.setMerge(attributes.getValue(i).trim());
-							break;
-						case "index": //$NON-NLS-1$
-							currDisk.setIndex(Integer.decode(attributes.getValue(i)));
-							break;
-						case "optional": //$NON-NLS-1$
-							currDisk.setOptional(BooleanUtils.toBoolean(attributes.getValue(i)));
-							break;
-						case "writeable": //$NON-NLS-1$
-							currDisk.setWriteable(BooleanUtils.toBoolean(attributes.getValue(i)));
-							break;
-						case "region": //$NON-NLS-1$
-							currDisk.setRegion(attributes.getValue(i));
-							break;
-						case "status": //$NON-NLS-1$
-							currDisk.setDumpStatus(Entity.Status.valueOf(attributes.getValue(i)));
-							break;
-						default:
-							break;
+						String name = attributes.getValue(i).trim();
+						if (name.endsWith(".chd"))
+							name = name.substring(0, name.length() - 4);
+						currDisk.setName(name);
+						break;
 					}
+					case "sha1": //$NON-NLS-1$
+						currDisk.setSha1(attributes.getValue(i).toLowerCase());
+						sha1Disks = true;
+						break;
+					case "md5": //$NON-NLS-1$
+						currDisk.setMd5(attributes.getValue(i).toLowerCase());
+						md5Disks = true;
+						break;
+					case "merge": //$NON-NLS-1$
+						currDisk.setMerge(attributes.getValue(i).trim());
+						break;
+					case "index": //$NON-NLS-1$
+						currDisk.setIndex(Integer.decode(attributes.getValue(i)));
+						break;
+					case "optional": //$NON-NLS-1$
+						currDisk.setOptional(BooleanUtils.toBoolean(attributes.getValue(i)));
+						break;
+					case "writeable": //$NON-NLS-1$
+						currDisk.setWriteable(BooleanUtils.toBoolean(attributes.getValue(i)));
+						break;
+					case "region": //$NON-NLS-1$
+						currDisk.setRegion(attributes.getValue(i));
+						break;
+					case STATUS: //$NON-NLS-1$
+						currDisk.setDumpStatus(Entity.Status.valueOf(attributes.getValue(i)));
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -397,65 +414,64 @@ public class Profile implements Serializable
 		private void startRom(final Attributes attributes) throws NumberFormatException
 		{
 			// we enter a rom block for current machine or current software
-			if (currMachine != null || currSoftware != null)
+			if (currMachine == null && currSoftware == null)
+				return;
+			currRom = new Rom(currMachine != null ? currMachine : currSoftware);
+			if (currSoftware != null && currDataArea != null)
+				currDataArea.getRoms().add(currRom);
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				currRom = new Rom(currMachine != null ? currMachine : currSoftware);
-				if (currSoftware != null && currDataArea != null)
-					currDataArea.getRoms().add(currRom);
-				for (var i = 0; i < attributes.getLength(); i++)
+				switch (attributes.getQName(i))
 				{
-					switch (attributes.getQName(i))
-					{
-						case "name": //$NON-NLS-1$
-							currRom.setName(attributes.getValue(i).trim());
-							break;
-						case "size": //$NON-NLS-1$
-							currRom.setSize(Long.decode(attributes.getValue(i)));
-							break;
-						case "offset": //$NON-NLS-1$
-							if (attributes.getValue(i).toLowerCase().startsWith("0x"))
-								currRom.setOffset(Long.decode(attributes.getValue(i)));
-							else
-								currRom.setOffset(Long.decode("0x" + attributes.getValue(i))); //$NON-NLS-1$
-							break;
-						case "value": //$NON-NLS-1$
-							currRom.setValue(attributes.getValue(i));
-							break;
-						case "crc": //$NON-NLS-1$
-							currRom.setCrc(attributes.getValue(i).toLowerCase());
-							break;
-						case "sha1": //$NON-NLS-1$
-							currRom.setSha1(attributes.getValue(i).toLowerCase());
-							sha1Roms = true;
-							break;
-						case "md5": //$NON-NLS-1$
-							currRom.setMd5(attributes.getValue(i).toLowerCase());
-							md5Roms = true;
-							break;
-						case "merge": //$NON-NLS-1$
-							currRom.setMerge(attributes.getValue(i).trim());
-							break;
-						case "bios": //$NON-NLS-1$
-							currRom.setBios(attributes.getValue(i));
-							break;
-						case "region": //$NON-NLS-1$
-							currRom.setRegion(attributes.getValue(i));
-							break;
-						case "date": //$NON-NLS-1$
-							currRom.setDate(attributes.getValue(i));
-							break;
-						case "optional": //$NON-NLS-1$
-							currRom.setOptional(BooleanUtils.toBoolean(attributes.getValue(i)));
-							break;
-						case "status": //$NON-NLS-1$
-							currRom.setDumpStatus(Entity.Status.valueOf(attributes.getValue(i)));
-							break;
-						case "loadflag": //$NON-NLS-1$
-							currRom.setLoadflag(LoadFlag.getEnum(attributes.getValue(i)));
-							break;
-						default:
-							break;
-					}
+					case "name": //$NON-NLS-1$
+						currRom.setName(attributes.getValue(i).trim());
+						break;
+					case "size": //$NON-NLS-1$
+						currRom.setSize(Long.decode(attributes.getValue(i)));
+						break;
+					case "offset": //$NON-NLS-1$
+						if (attributes.getValue(i).toLowerCase().startsWith("0x"))
+							currRom.setOffset(Long.decode(attributes.getValue(i)));
+						else
+							currRom.setOffset(Long.decode("0x" + attributes.getValue(i))); //$NON-NLS-1$
+						break;
+					case "value": //$NON-NLS-1$
+						currRom.setValue(attributes.getValue(i));
+						break;
+					case "crc": //$NON-NLS-1$
+						currRom.setCrc(attributes.getValue(i).toLowerCase());
+						break;
+					case "sha1": //$NON-NLS-1$
+						currRom.setSha1(attributes.getValue(i).toLowerCase());
+						sha1Roms = true;
+						break;
+					case "md5": //$NON-NLS-1$
+						currRom.setMd5(attributes.getValue(i).toLowerCase());
+						md5Roms = true;
+						break;
+					case "merge": //$NON-NLS-1$
+						currRom.setMerge(attributes.getValue(i).trim());
+						break;
+					case "bios": //$NON-NLS-1$
+						currRom.setBios(attributes.getValue(i));
+						break;
+					case "region": //$NON-NLS-1$
+						currRom.setRegion(attributes.getValue(i));
+						break;
+					case "date": //$NON-NLS-1$
+						currRom.setDate(attributes.getValue(i));
+						break;
+					case "optional": //$NON-NLS-1$
+						currRom.setOptional(BooleanUtils.toBoolean(attributes.getValue(i)));
+						break;
+					case STATUS: // $NON-NLS-1$
+						currRom.setDumpStatus(Entity.Status.valueOf(attributes.getValue(i)));
+						break;
+					case "loadflag": //$NON-NLS-1$
+						currRom.setLoadflag(LoadFlag.getEnum(attributes.getValue(i)));
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -467,26 +483,25 @@ public class Profile implements Serializable
 		{
 			// get slot options for current slot in current machine, there can be many per
 			// slot
-			if (currMachine != null && currSlot != null)
+			if (currMachine == null || currSlot == null)
+				return;
+			final var slotoption = new SlotOption();
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				final var slotoption = new SlotOption();
-				for (var i = 0; i < attributes.getLength(); i++)
+				switch (attributes.getQName(i))
 				{
-					switch (attributes.getQName(i))
-					{
-						case "name": //$NON-NLS-1$
-							slotoption.setName(attributes.getValue(i));
-							currSlot.add(slotoption);
-							break;
-						case "devname": //$NON-NLS-1$
-							slotoption.setDevName(attributes.getValue(i));
-							break;
-						case "default": //$NON-NLS-1$
-							slotoption.setDef(BooleanUtils.toBoolean(attributes.getValue(i)));
-							break;
-						default:
-							break;
-					}
+					case "name": //$NON-NLS-1$
+						slotoption.setName(attributes.getValue(i));
+						currSlot.add(slotoption);
+						break;
+					case "devname": //$NON-NLS-1$
+						slotoption.setDevName(attributes.getValue(i));
+						break;
+					case "default": //$NON-NLS-1$
+						slotoption.setDef(BooleanUtils.toBoolean(attributes.getValue(i)));
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -497,16 +512,15 @@ public class Profile implements Serializable
 		private void startSlot(final Attributes attributes)
 		{
 			// get slots for current machine, there can be many
-			if (currMachine != null)
+			if (currMachine == null)
+				return;
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				for (var i = 0; i < attributes.getLength(); i++)
+				if ("name".equals(attributes.getQName(i)))
 				{
-					if ("name".equals(attributes.getQName(i)))
-					{
-						currSlot = new Slot();
-						currSlot.setName(attributes.getValue(i));
-						currMachine.getSlots().put(currSlot.getName(), currSlot);
-					}
+					currSlot = new Slot();
+					currSlot.setName(attributes.getValue(i));
+					currMachine.getSlots().put(currSlot.getName(), currSlot);
 				}
 			}
 		}
@@ -518,13 +532,12 @@ public class Profile implements Serializable
 		{
 			// get device references for current machine, there can be many, even with the
 			// same name
-			if (currMachine != null)
+			if (currMachine == null)
+				return;
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				for (var i = 0; i < attributes.getLength(); i++)
-				{
-					if ("name".equals(attributes.getQName(i)))
-						currMachine.getDeviceRef().add(attributes.getValue(i));
-				}
+				if ("name".equals(attributes.getQName(i)))
+					currMachine.getDeviceRef().add(attributes.getValue(i));
 			}
 		}
 
@@ -534,26 +547,25 @@ public class Profile implements Serializable
 		private void startSample(final Attributes attributes)
 		{
 			// get sample names from current machine
-			if (currMachine != null)
+			if (currMachine == null)
+				return;
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				for (var i = 0; i < attributes.getLength(); i++)
+				if (attributes.getQName(i).equals("name"))
 				{
-					if (attributes.getQName(i).equals("name"))
+					if (currSampleSet == null)
 					{
-						if (currSampleSet == null)
+						currMachine.setSampleof(currMachine.getBaseName());
+						if (!machineListList.get(0).samplesets.containsName(currMachine.getSampleof()))
 						{
-							currMachine.setSampleof(currMachine.getBaseName());
-							if (!machineListList.get(0).samplesets.containsName(currMachine.getSampleof()))
-							{
-								currSampleSet = new Samples(currMachine.getSampleof());
-								machineListList.get(0).samplesets.putByName(currSampleSet);
-							}
-							else
-								currSampleSet = machineListList.get(0).samplesets.getByName(currMachine.getSampleof());
+							currSampleSet = new Samples(currMachine.getSampleof());
+							machineListList.get(0).samplesets.putByName(currSampleSet);
 						}
-						currMachine.getSamples().add(currSampleSet.add(new Sample(currSampleSet, attributes.getValue(i))));
-						samplesCnt++;
+						else
+							currSampleSet = machineListList.get(0).samplesets.getByName(currMachine.getSampleof());
 					}
+					currMachine.getSamples().add(currSampleSet.add(new Sample(currSampleSet, attributes.getValue(i))));
+					samplesCnt++;
 				}
 			}
 		}
@@ -564,19 +576,17 @@ public class Profile implements Serializable
 		private void startDipValue(final Attributes attributes)
 		{
 			// store dipvalue of interesting dipswitch for current machine
-			if (currMachine != null && inCabinetDipSW)
+			if (currMachine == null || !inCabinetDipSW)
+				return;
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				for (var i = 0; i < attributes.getLength(); i++)
+				if (attributes.getQName(i).equals("name"))
 				{
-					if (attributes.getQName(i).equals("name"))
-					{
-						if ("cocktail".equalsIgnoreCase(attributes.getValue(i))) //$NON-NLS-1$
-							cabTypeSet.add(CabinetType.cocktail);
-						else if ("upright".equalsIgnoreCase(attributes.getValue(i))) //$NON-NLS-1$
-							cabTypeSet.add(CabinetType.upright);
-					}
+					if ("cocktail".equalsIgnoreCase(attributes.getValue(i))) //$NON-NLS-1$
+						cabTypeSet.add(CabinetType.cocktail);
+					else if ("upright".equalsIgnoreCase(attributes.getValue(i))) //$NON-NLS-1$
+						cabTypeSet.add(CabinetType.upright);
 				}
-
 			}
 		}
 
@@ -586,13 +596,12 @@ public class Profile implements Serializable
 		private void startDipSwitch(final Attributes attributes)
 		{
 			// extract interesting dipswitch value for current machine
-			if (currMachine != null)
+			if (currMachine == null)
+				return;
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				for (var i = 0; i < attributes.getLength(); i++)
-				{
-					if ("name".equals(attributes.getQName(i)) && "cabinet".equalsIgnoreCase(attributes.getValue(i))) //$NON-NLS-1$
-						inCabinetDipSW = true;
-				}
+				if ("name".equals(attributes.getQName(i)) && "cabinet".equalsIgnoreCase(attributes.getValue(i))) //$NON-NLS-1$
+					inCabinetDipSW = true;
 			}
 		}
 
@@ -601,17 +610,15 @@ public class Profile implements Serializable
 		 */
 		private void startExtension(final Attributes attributes)
 		{
-			// This is an extension block for current device, there can be many for each
-			// device
-			if (currMachine != null && currDevice != null)
+			// This is an extension block for current device, there can be many for each device
+			if (currMachine == null || currDevice == null)
+				return;
+			final var ext = currDevice.new Extension();
+			currDevice.getExtensions().add(ext);
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				final var ext = currDevice.new Extension();
-				currDevice.getExtensions().add(ext);
-				for (var i = 0; i < attributes.getLength(); i++)
-				{
-					if (attributes.getQName(i).equals("name"))
-						ext.setName(attributes.getValue(i).trim());
-				}
+				if (attributes.getQName(i).equals("name"))
+					ext.setName(attributes.getValue(i).trim());
 			}
 		}
 
@@ -621,16 +628,15 @@ public class Profile implements Serializable
 		private void startInstance(final Attributes attributes)
 		{
 			// This is the instance info block for current device
-			if (currMachine != null && currDevice != null)
+			if (currMachine == null || currDevice == null)
+				return;
+			currDevice.setInstance(currDevice.new Instance());
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				currDevice.setInstance(currDevice.new Instance());
-				for (var i = 0; i < attributes.getLength(); i++)
-				{
-					if ("name".equals(attributes.getQName(i)))
-						currDevice.getInstance().setName(attributes.getValue(i).trim());
-					else if ("briefname".equals(attributes.getQName(i)))
-						currDevice.getInstance().setBriefname(attributes.getValue(i).trim());
-				}
+				if ("name".equals(attributes.getQName(i)))
+					currDevice.getInstance().setName(attributes.getValue(i).trim());
+				else if ("briefname".equals(attributes.getQName(i)))
+					currDevice.getInstance().setBriefname(attributes.getValue(i).trim());
 			}
 		}
 
@@ -640,32 +646,31 @@ public class Profile implements Serializable
 		private void startDevice(final Attributes attributes)
 		{
 			// This is a device block for current machine, there can be many
-			if (currMachine != null)
+			if (currMachine == null)
+				return;
+			currDevice = new Device();
+			currMachine.getDevices().add(currDevice);
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				currDevice = new Device();
-				currMachine.getDevices().add(currDevice);
-				for (var i = 0; i < attributes.getLength(); i++)
+				switch (attributes.getQName(i))
 				{
-					switch (attributes.getQName(i))
-					{
-						case "type": //$NON-NLS-1$
-							currDevice.setType(attributes.getValue(i).trim());
-							break;
-						case "tag": //$NON-NLS-1$
-							currDevice.setTag(attributes.getValue(i).trim());
-							break;
-						case "interface": //$NON-NLS-1$
-							currDevice.setIntrface(attributes.getValue(i).trim());
-							break;
-						case "fixed_image": //$NON-NLS-1$
-							currDevice.setFixedImage(attributes.getValue(i).trim());
-							break;
-						case "mandatory": //$NON-NLS-1$
-							currDevice.setMandatory(attributes.getValue(i).trim());
-							break;
-						default:
-							break;
-					}
+					case "type": //$NON-NLS-1$
+						currDevice.setType(attributes.getValue(i).trim());
+						break;
+					case "tag": //$NON-NLS-1$
+						currDevice.setTag(attributes.getValue(i).trim());
+						break;
+					case "interface": //$NON-NLS-1$
+						currDevice.setIntrface(attributes.getValue(i).trim());
+						break;
+					case "fixed_image": //$NON-NLS-1$
+						currDevice.setFixedImage(attributes.getValue(i).trim());
+						break;
+					case "mandatory": //$NON-NLS-1$
+						currDevice.setMandatory(attributes.getValue(i).trim());
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -676,27 +681,26 @@ public class Profile implements Serializable
 		private void startInput(final Attributes attributes)
 		{
 			// This is the input info block of current machine
-			if (currMachine != null)
+			if (currMachine == null)
+				return;
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				for (var i = 0; i < attributes.getLength(); i++)
+				switch (attributes.getQName(i))
 				{
-					switch (attributes.getQName(i))
-					{
-						case "players": //$NON-NLS-1$
-							currMachine.input.setPlayers(attributes.getValue(i));
-							break;
-						case "coins": //$NON-NLS-1$
-							currMachine.input.setCoins(attributes.getValue(i));
-							break;
-						case "service": //$NON-NLS-1$
-							currMachine.input.setService(attributes.getValue(i));
-							break;
-						case "tilt": //$NON-NLS-1$
-							currMachine.input.setTilt(attributes.getValue(i));
-							break;
-						default:
-							break;
-					}
+					case "players": //$NON-NLS-1$
+						currMachine.input.setPlayers(attributes.getValue(i));
+						break;
+					case "coins": //$NON-NLS-1$
+						currMachine.input.setCoins(attributes.getValue(i));
+						break;
+					case "service": //$NON-NLS-1$
+						currMachine.input.setService(attributes.getValue(i));
+						break;
+					case "tilt": //$NON-NLS-1$
+						currMachine.input.setTilt(attributes.getValue(i));
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -706,11 +710,10 @@ public class Profile implements Serializable
 		 */
 		private void startPublisher()
 		{
-			if (currSoftware != null)
-			{
-				// we enter in publisher block for current software
-				inPublisher = true;
-			}
+			if (currSoftware == null)
+				return;
+			// we enter in publisher block for current software
+			inPublisher = true;
 		}
 
 		/**
@@ -718,11 +721,10 @@ public class Profile implements Serializable
 		 */
 		private void startManufacturer()
 		{
-			if (currMachine != null)
-			{
-				// we enter in manufacturer block for current machine
-				inManufacturer = true;
-			}
+			if (currMachine == null)
+				return;
+			// we enter in manufacturer block for current machine
+			inManufacturer = true;
 		}
 
 		/**
@@ -730,11 +732,10 @@ public class Profile implements Serializable
 		 */
 		private void startYear()
 		{
-			if ((currMachine != null || currSoftware != null))
-			{
-				// we enter in year block either for current machine, or current software
-				inYear = true;
-			}
+			if (currMachine == null && currSoftware == null)
+				return;
+			// we enter in year block either for current machine, or current software
+			inYear = true;
 		}
 
 		private void startDatfile(final Attributes attributes)
@@ -747,7 +748,7 @@ public class Profile implements Serializable
 			}
 		}
 
-		private void startHeader(final Attributes attributes)
+		private void startHeader(final Attributes attributes)	//NOSONAR
 		{
 			// entering the header bloc
 			inHeader = true;
@@ -768,7 +769,7 @@ public class Profile implements Serializable
 							currSoftwareList.setName(attributes.getValue(i).trim());
 							machineListList.getSoftwareListList().putByName(currSoftwareList);
 							break;
-						case "description": //$NON-NLS-1$
+						case DESCRIPTION: //$NON-NLS-1$
 							currSoftwareList.getDescription().append(attributes.getValue(i).trim());
 							break;
 						default:
@@ -789,7 +790,7 @@ public class Profile implements Serializable
 					case "name": //$NON-NLS-1$
 						swlist.setName(attributes.getValue(i));
 						break;
-					case "status": //$NON-NLS-1$
+					case STATUS: //$NON-NLS-1$
 						swlist.setStatus(SWStatus.valueOf(attributes.getValue(i)));
 						break;
 					case "filter": //$NON-NLS-1$
@@ -830,78 +831,74 @@ public class Profile implements Serializable
 
 		private void startSoftwareFeature(Attributes attributes)
 		{
-			if (currSoftware != null)
-			{
-				// extract interesting features from current software
-				if (attributes.getValue("name").equalsIgnoreCase("compatibility")) //$NON-NLS-1$ //$NON-NLS-2$
-					currSoftware.setCompatibility(attributes.getValue("value")); //$NON-NLS-1$
-			}
+			if (currSoftware == null)
+				return;
+			// extract interesting features from current software
+			if (attributes.getValue("name").equalsIgnoreCase("compatibility")) //$NON-NLS-1$ //$NON-NLS-2$
+				currSoftware.setCompatibility(attributes.getValue("value")); //$NON-NLS-1$
 		}
 
 		private void startSoftwarePart(Attributes attributes)
 		{
-			if (currSoftware != null)
+			if (currSoftware == null)
+				return;
+			currPart = new Part();
+			// we enter a part in current current software
+			currSoftware.getParts().add(currPart);
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				currPart = new Part();
-				// we enter a part in current current software
-				currSoftware.getParts().add(currPart);
-				for (var i = 0; i < attributes.getLength(); i++)
-				{
-					if ("name".equals(attributes.getQName(i)))
-						currPart.setName(attributes.getValue(i).trim());
-					else if ("interface".equals(attributes.getQName(i)))
-						currPart.setIntrface(attributes.getValue(i).trim());
-				}
+				if ("name".equals(attributes.getQName(i)))
+					currPart.setName(attributes.getValue(i).trim());
+				else if ("interface".equals(attributes.getQName(i)))
+					currPart.setIntrface(attributes.getValue(i).trim());
 			}
 		}
 
 		private void startSoftwarePartDataarea(Attributes attributes)
 		{
-			if (currSoftware != null && currPart != null)
+			if (currSoftware == null || currPart == null)
+				return;
+			// we enter a dataarea block in current part
+			currDataArea = new DataArea();
+			currPart.getDataareas().add(currDataArea);
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				// we enter a dataarea block in current part
-				currDataArea = new DataArea();
-				currPart.getDataareas().add(currDataArea);
-				for (var i = 0; i < attributes.getLength(); i++)
+				switch (attributes.getQName(i))
 				{
-					switch (attributes.getQName(i))
+					case "name": //$NON-NLS-1$
+						currDataArea.setName(attributes.getValue(i).trim());
+						break;
+					case "size": //$NON-NLS-1$
 					{
-						case "name": //$NON-NLS-1$
-							currDataArea.setName(attributes.getValue(i).trim());
-							break;
-						case "size": //$NON-NLS-1$
-						{
-							final var value = attributes.getValue(i).trim();
-							ExceptionUtils.unthrowF(currDataArea::setSize, Integer::decode, value, t -> ExceptionUtils.test(t, "0x" + value, 0));
-							break;
-						}
-						case "width": //$NON-NLS-1$
-						case "databits": //$NON-NLS-1$
-							currDataArea.setDatabits(Integer.valueOf(attributes.getValue(i)));
-							break;
-						case "endianness": //$NON-NLS-1$
-						case "endian": //$NON-NLS-1$
-							currDataArea.setEndianness(Endianness.valueOf(attributes.getValue(i)));
-							break;
-						default:
-							break;
+						final var value = attributes.getValue(i).trim();
+						ExceptionUtils.unthrowF(currDataArea::setSize, Integer::decode, value, t -> ExceptionUtils.test(t, "0x" + value, 0));
+						break;
 					}
+					case "width": //$NON-NLS-1$
+					case "databits": //$NON-NLS-1$
+						currDataArea.setDatabits(Integer.valueOf(attributes.getValue(i)));
+						break;
+					case "endianness": //$NON-NLS-1$
+					case "endian": //$NON-NLS-1$
+						currDataArea.setEndianness(Endianness.valueOf(attributes.getValue(i)));
+						break;
+					default:
+						break;
 				}
 			}
 		}
 
 		private void startSoftwarePartDiskarea(Attributes attributes)
 		{
-			if (currSoftware != null && currPart != null)
+			if (currSoftware == null || currPart == null)
+				return;
+			// we enter a diskarea block in current part
+			currDiskArea = new DiskArea();
+			currPart.getDiskareas().add(currDiskArea);
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				// we enter a diskarea block in current part
-				currDiskArea = new DiskArea();
-				currPart.getDiskareas().add(currDiskArea);
-				for (var i = 0; i < attributes.getLength(); i++)
-				{
-					if ("name".equals(attributes.getQName(i)))
-						currDiskArea.setName(attributes.getValue(i).trim());
-				}
+				if ("name".equals(attributes.getQName(i)))
+					currDiskArea.setName(attributes.getValue(i).trim());
 			}
 		}
 
@@ -952,40 +949,38 @@ public class Profile implements Serializable
 				currMachine.setCloneof(null);
 		}
 
-		private void startDescription(Attributes attributes)
+		private void startDescription(Attributes attributes)	//NOSONAR
 		{
-			if (currMachine != null || currSoftware != null || currSoftwareList != null)
-			{
-				// we enter a description either for current machine, current software, or
-				// current software list
-				inDescription = true;
-			}
+			if (currMachine == null && currSoftware == null && currSoftwareList == null)
+				return;
+			// we enter a description either for current machine, current software, or
+			// current software list
+			inDescription = true;
 		}
 		
 		private void startDriver(Attributes attributes)
 		{
 			// This is the driver info block of current machine
-			if (currMachine != null)
+			if (currMachine == null)
+				return;
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				for (var i = 0; i < attributes.getLength(); i++)
+				switch (attributes.getQName(i))
 				{
-					switch (attributes.getQName(i))
-					{
-						case "status": //$NON-NLS-1$
-							currMachine.driver.setStatus(attributes.getValue(i));
-							break;
-						case "emulation": //$NON-NLS-1$
-							currMachine.driver.setEmulation(attributes.getValue(i));
-							break;
-						case "cocktail": //$NON-NLS-1$
-							currMachine.driver.setCocktail(attributes.getValue(i));
-							break;
-						case "savestate": //$NON-NLS-1$
-							currMachine.driver.setSaveState(attributes.getValue(i));
-							break;
-						default:
-							break;
-					}
+					case STATUS: //$NON-NLS-1$
+						currMachine.driver.setStatus(attributes.getValue(i));
+						break;
+					case "emulation": //$NON-NLS-1$
+						currMachine.driver.setEmulation(attributes.getValue(i));
+						break;
+					case "cocktail": //$NON-NLS-1$
+						currMachine.driver.setCocktail(attributes.getValue(i));
+						break;
+					case "savestate": //$NON-NLS-1$
+						currMachine.driver.setSaveState(attributes.getValue(i));
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -996,19 +991,18 @@ public class Profile implements Serializable
 		private void startDisplay(final Attributes attributes)
 		{
 			// This is the display info block of current machine
-			if (currMachine != null)
+			if (currMachine == null)
+				return;
+			for (var i = 0; i < attributes.getLength(); i++)
 			{
-				for (var i = 0; i < attributes.getLength(); i++)
+				if (attributes.getQName(i).equals("rotate"))
 				{
-					if (attributes.getQName(i).equals("rotate"))
-					{
-						ExceptionUtils.unthrow(orientation -> {
-							if (orientation == 0 || orientation == 180)
-								currMachine.setOrientation(Machine.DisplayOrientation.horizontal);
-							if (orientation == 90 || orientation == 270)
-								currMachine.setOrientation(Machine.DisplayOrientation.vertical);
-						}, Integer::parseInt, attributes.getValue(i));
-					}
+					ExceptionUtils.unthrow(orientation -> {
+						if (orientation == 0 || orientation == 180)
+							currMachine.setOrientation(Machine.DisplayOrientation.horizontal);
+						if (orientation == 90 || orientation == 270)
+							currMachine.setOrientation(Machine.DisplayOrientation.vertical);
+					}, Integer::parseInt, attributes.getValue(i));
 				}
 			}
 		}
@@ -1021,11 +1015,11 @@ public class Profile implements Serializable
 				// exiting the header block
 				inHeader = false;
 			}
-			else if (qName.equals("softwarelist") && currSoftwareList != null) //$NON-NLS-1$
+			else if (qName.equals("softwarelist")) //$NON-NLS-1$
 			{
 				endSoftwareList();
 			}
-			else if (qName.equals("software") && currSoftwareList != null && currSoftware != null) //$NON-NLS-1$
+			else if (qName.equals("software")) //$NON-NLS-1$
 			{
 				endSoftware();
 			}
@@ -1041,27 +1035,23 @@ public class Profile implements Serializable
 			{
 				endDisk();
 			}
-			else if (qName.equals("description") && (currMachine != null || currSoftware != null || currSoftwareList != null)) //$NON-NLS-1$
+			else if (qName.equals(DESCRIPTION)) //$NON-NLS-1$
 			{
-				// exiting description block
-				inDescription = false;
+				endDescription();
 			}
-			else if (qName.equals("year") && (currMachine != null || currSoftware != null)) //$NON-NLS-1$
+			else if (qName.equals("year")) //$NON-NLS-1$
 			{
-				// exiting year block
-				inYear = false;
+				endYear();
 			}
-			else if (qName.equals("manufacturer") && (currMachine != null)) //$NON-NLS-1$
+			else if (qName.equals("manufacturer")) //$NON-NLS-1$
 			{
-				// exiting manufacturer block
-				inManufacturer = false;
+				endManufacturer();
 			}
-			else if (qName.equals("publisher") && (currSoftware != null)) //$NON-NLS-1$
+			else if (qName.equals("publisher")) //$NON-NLS-1$
 			{
-				// exiting publisher block
-				inPublisher = false;
+				endPublisher();
 			}
-			else if (qName.equals("dipswitch") && inCabinetDipSW && currMachine != null) //$NON-NLS-1$
+			else if (qName.equals("dipswitch")) //$NON-NLS-1$
 			{
 				endDipSwitch();
 			}
@@ -1070,8 +1060,54 @@ public class Profile implements Serializable
 		/**
 		 * 
 		 */
+		private void endPublisher()
+		{
+			if(currSoftware == null)
+				return;
+			// exiting publisher block
+			inPublisher = false;
+		}
+
+		/**
+		 * 
+		 */
+		private void endManufacturer()
+		{
+			if(currMachine == null)
+				return;
+			// exiting manufacturer block
+			inManufacturer = false;
+		}
+
+		/**
+		 * 
+		 */
+		private void endYear()
+		{
+			if(currMachine == null && currSoftware == null)
+				return;
+			// exiting year block
+			inYear = false;
+		}
+
+		/**
+		 * 
+		 */
+		private void endDescription()
+		{
+			if(currMachine == null && currSoftware == null && currSoftwareList == null)
+				return;
+			// exiting description block
+			inDescription = false;
+		}
+
+		/**
+		 * 
+		 */
 		private void endDipSwitch()
 		{
+			if(!inCabinetDipSW || currMachine == null)
+				return;
 			// exiting dipswitch block
 			if (cabTypeSet.contains(CabinetType.cocktail))
 			{
@@ -1131,17 +1167,7 @@ public class Profile implements Serializable
 						swromsCnt++;
 					}
 				}
-				if (currRom.getCrc() != null)
-				{
-					final var oldRom = romsByCRC.put(currRom.getCrc(), currRom);
-					if (oldRom != null)
-					{
-						if (oldRom.getSha1() != null && currRom.getSha1() != null && !oldRom.equals(currRom))
-							suspiciousCRC.add(currRom.getCrc());
-						if (oldRom.getMd5() != null && currRom.getMd5() != null && !oldRom.equals(currRom))
-							suspiciousCRC.add(currRom.getCrc());
-					}
-				}
+				endRomCheckSuspiciousCRC();
 			}
 			currRom = null;
 		}
@@ -1149,8 +1175,28 @@ public class Profile implements Serializable
 		/**
 		 * 
 		 */
+		private void endRomCheckSuspiciousCRC()
+		{
+			if (currRom.getCrc() != null)
+			{
+				final var oldRom = romsByCRC.put(currRom.getCrc(), currRom);
+				if (oldRom != null)
+				{
+					if (oldRom.getSha1() != null && currRom.getSha1() != null && !oldRom.equals(currRom))
+						suspiciousCRC.add(currRom.getCrc());
+					if (oldRom.getMd5() != null && currRom.getMd5() != null && !oldRom.equals(currRom))
+						suspiciousCRC.add(currRom.getCrc());
+				}
+			}
+		}
+
+		/**
+		 * 
+		 */
 		private void endSoftwareList()
 		{
+			if(currSoftwareList == null)
+				return;
 			// exiting current software list
 			machineListList.getSoftwareListList().add(currSoftwareList);
 			softwaresListCnt++;
@@ -1179,6 +1225,8 @@ public class Profile implements Serializable
 		 */
 		private void endSoftware() throws BreakException
 		{
+			if(currSoftwareList == null || currSoftware == null)
+				return;
 			// exiting current software block
 			roms.clear();
 			disks.clear();
@@ -1333,7 +1381,7 @@ public class Profile implements Serializable
 		if(profile.build!=null)
 			profile.nfo.getStats().setVersion(profile.build);
 		else
-			profile.nfo.getStats().setVersion(profile.header.containsKey("version") ? profile.header.get("version").toString() : null); //$NON-NLS-1$ //$NON-NLS-2$
+			profile.nfo.getStats().setVersion(profile.header.containsKey(VERSION) ? profile.header.get(VERSION).toString() : null); //$NON-NLS-1$ //$NON-NLS-2$
 		profile.nfo.getStats().setTotalSets(profile.softwaresCnt + profile.machinesCnt);
 		profile.nfo.getStats().setTotalRoms(profile.romsCnt + profile.swromsCnt);
 		profile.nfo.getStats().setTotalDisks(profile.disksCnt + profile.swdisksCnt);
@@ -1373,30 +1421,38 @@ public class Profile implements Serializable
 		profile.session = session;
 		session.setCurrProfile(null);
 		profile.nfo = nfo;
-		if (nfo.isJRM())
-		{ // we use JRM file keep ROMs/SL DATs in relation
-			if (nfo.getMame().getFileroms() != null)
-			{ // load ROMs dat
-				if (!nfo.getMame().getFileroms().exists() || !profile.internalLoad(nfo.getMame().getFileroms(), handler))
-					return null;
-				if (nfo.getMame().getFilesl() != null && (!nfo.getMame().getFilesl().exists() || !profile.internalLoad(nfo.getMame().getFilesl(), handler)))
-				{
-					// load SL dat (note that loading software list without ROMs dat is NOT recommended)
-					return null;
-				}
-			}
-		}
-		else
-		{ // load DAT file not attached to a JRM
-			if (!nfo.getFile().exists() || !profile.internalLoad(nfo.getFile(), handler))
-				return null;
-		}
+		if(!load(nfo, profile, handler))
+			return null;
 		session.setCurrProfile(profile);
 		// save cache
 		handler.setInfos(1, null);
 		handler.setProgress(Messages.getString("Profile.SavingCache"), -1); //$NON-NLS-1$
 		profile.save();
 		return profile;
+	}
+
+	/**
+	 * @param nfo
+	 * @param profile
+	 * @param handler
+	 */
+	private static boolean load(final ProfileNFO nfo, Profile profile, final ProgressHandler handler)
+	{
+		if (!nfo.isJRM()) // load DAT file not attached to a JRM
+			return (nfo.getFile().exists() && profile.internalLoad(nfo.getFile(), handler));
+		
+		// we use JRM file keep ROMs/SL DATs in relation
+		if (nfo.getMame().getFileroms() != null)
+		{ // load ROMs dat
+			if (!nfo.getMame().getFileroms().exists() || !profile.internalLoad(nfo.getMame().getFileroms(), handler))
+				return false;
+			if (nfo.getMame().getFilesl() != null && (!nfo.getMame().getFilesl().exists() || !profile.internalLoad(nfo.getMame().getFilesl(), handler)))
+			{
+				// load SL dat (note that loading software list without ROMs dat is NOT recommended)
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -1613,13 +1669,13 @@ public class Profile implements Serializable
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if (header.size() > 0)
 		{
-			if (header.containsKey("description")) //$NON-NLS-1$
-				name += "<b>" + header.get("description") + "</b>"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+			if (header.containsKey(DESCRIPTION)) //$NON-NLS-1$
+				name += "<b>" + header.get(DESCRIPTION) + "</b>"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			else if (header.containsKey("name")) //$NON-NLS-1$
 			{
 				name += "<b>" + header.get("name") + "</b>"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-				if (header.containsKey("version")) //$NON-NLS-1$
-					name += " (" + header.get("version") + ")"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+				if (header.containsKey(VERSION)) //$NON-NLS-1$
+					name += " (" + header.get(VERSION) + ")"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
 		var strcnt = ""; //$NON-NLS-1$
@@ -1679,24 +1735,24 @@ public class Profile implements Serializable
 			final var file = PathAbstractor.getAbsolutePath(session, getProperty(SettingsEnum.filter_catver_ini, null)).toFile();
 			if (file.exists())
 			{
-				if (handler != null)
-					handler.setProgress("Loading catver.ini ...", -1); //$NON-NLS-1$
-				catver = CatVer.read(this, file); // $NON-NLS-1$
-				for (final Category cat : catver)
+				catver=null;
+				return;
+			}
+			if (handler != null)
+				handler.setProgress("Loading catver.ini ...", -1); //$NON-NLS-1$
+			catver = CatVer.read(this, file); // $NON-NLS-1$
+			for (final Category cat : catver)
+			{
+				for (final SubCategory subcat : cat)
 				{
-					for (final SubCategory subcat : cat)
+					for (final String game : subcat)
 					{
-						for (final String game : subcat)
-						{
-							final Machine m = machineListList.get(0).getByName(game);
-							if (m != null)
-								m.setSubcat(subcat);
-						}
+						final Machine m = machineListList.get(0).getByName(game);
+						if (m != null)
+							m.setSubcat(subcat);
 					}
 				}
 			}
-			else
-				catver = null;
 		}
 		catch (final Exception e)
 		{

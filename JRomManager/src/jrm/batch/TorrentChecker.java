@@ -249,7 +249,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 		
 		public CheckBlocksData(Torrent torrent) throws NoSuchAlgorithmException
 		{
-			md = MessageDigest.getInstance("SHA-1"); //$NON-NLS-1$
+			md = MessageDigest.getInstance("SHA-1");	//NOSONAR
 			pieceLength = torrent.getPieceLength();
 			pieces = torrent.getPieces();
 		}
