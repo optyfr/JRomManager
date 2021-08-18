@@ -56,10 +56,10 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 				return this;
 			}
 			Child node = ((ChildNode) value).getChild();
-			String title = node.data.title;
-			if (node.data.length != null)
-				title += " (" + node.data.length + ")";
-			title += " [" + node.data.status + "]";
+			String title = node.getData().getTitle();
+			if (node.getData().getLength() != null)
+				title += " (" + node.getData().getLength() + ")";
+			title += " [" + node.getData().getStatus() + "]";
 			super.getTreeCellRendererComponent(tree, title, sel, expanded, leaf, row, hasFocus);
 			if (!leaf)
 			{
@@ -68,7 +68,7 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 					icon += "_open"; //$NON-NLS-1$
 				else
 					icon += "_closed"; //$NON-NLS-1$
-				switch (node.data.status)
+				switch (node.getData().getStatus())
 				{
 					case OK:
 						icon += "_green";
@@ -97,7 +97,7 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 			else
 			{
 				String icon = "/jrm/resicons/icons/bullet"; //$NON-NLS-1$
-				switch (node.data.status)
+				switch (node.getData().getStatus())
 				{
 					case OK:
 						icon += "_green";

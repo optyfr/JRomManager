@@ -207,7 +207,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 		progress.setProgress2(current + "/" + processing, current.get(), processing.get()); //$NON-NLS-1$
 		if (Files.exists(file))
 		{
-			if (mode == TrntChkMode.FILENAME || Files.size(file) == (node.data.length = tfile.getFileLength()))
+			if (mode == TrntChkMode.FILENAME || Files.size(file) == (node.getData().setLength(tfile.getFileLength()).getLength()))
 			{
 				data.ok++;
 				node.setStatus(Status.OK);
@@ -217,7 +217,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 				if (options.contains(Options.REMOVEWRONGSIZEDFILES))
 					Files.delete(file);
 				data.wrongSizedFiles++;
-				data.missingBytes += (node.data.length = tfile.getFileLength());
+				data.missingBytes += (node.getData().setLength(tfile.getFileLength()).getLength());
 				node.setStatus(Status.SIZE);
 			}
 		}
@@ -226,7 +226,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 			if (mode == TrntChkMode.FILENAME)
 				data.missingFiles++;
 			else
-				data.missingBytes += (node.data.length = tfile.getFileLength());
+				data.missingBytes += (node.getData().setLength(tfile.getFileLength()).getLength());
 			node.setStatus(Status.MISSING);
 		}
 	}
@@ -280,7 +280,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 			progress.setProgress2(String.format(session.getMsgs().getString(TORRENT_CHECKER_PIECE_PROGRESSION), current.get(), processing.get()), -1, processing.get()); //$NON-NLS-1$
 			data.pieceCnt++;
 			data.block = report.add(String.format("Piece %d", data.pieceCnt));
-			data.block.data.length = data.pieceLength;
+			data.block.getData().setLength(data.pieceLength);
 			for (TorrentFile tfile : tfiles)
 			{
 				checkBlocksFile(data, src, dst, tfile, report, progress);
@@ -303,7 +303,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 				data.missingBytes += data.pieceLength - data.toGo;
 				data.block.setStatus(Status.SKIPPED);
 			}
-			data.block.data.length = (data.pieceLength - data.toGo);
+			data.block.getData().setLength(data.pieceLength - data.toGo);
 			Log.info(String.format("piece counted %d, given %d, valid %d, completion=%.02f%%%n", data.pieceCnt, data.pieces.size(), data.pieceValid, data.pieceValid * 100.0 / data.pieceCnt)); //$NON-NLS-1$
 			Log.info(String.format("piece len : %d%n", data.pieceLength)); //$NON-NLS-1$
 			Log.info(String.format("last piece len : %d%n", data.pieceLength - data.toGo)); //$NON-NLS-1$
@@ -345,7 +345,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 		try (BufferedInputStream in = getFileStram(options, data.wrongSizedFiles, data.node, data.valid, tfile, file))
 		{
 			progress.setProgress(toHTML(toPurple(src.getAbsolutePath())), -1, null, file.toString());
-			long flen = (data.node.data.length = tfile.getFileLength());
+			long flen = (data.node.getData().setLength(tfile.getFileLength()).getLength());
 			while (flen >= data.toGo)
 			{
 				hashStream(data.md, data.buffer, in, data.toGo);
@@ -370,7 +370,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 				data.md.reset();
 				data.pieceCnt++;
 				data.block = report.add(String.format("Piece %d", data.pieceCnt));
-				data.block.data.length = data.pieceLength;
+				data.block.getData().setLength(data.pieceLength);
 				data.node = data.block.add(data.node);
 				current.incrementAndGet();
 				data.valid.set(true);
@@ -433,7 +433,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 			valid.set(false);
 			node.setStatus(Status.MISSING);
 		}
-		else if (Files.size(file) != (node.data.length = tfile.getFileLength()))
+		else if (Files.size(file) != (node.getData().setLength(tfile.getFileLength())).getLength())
 		{
 			if (options.contains(Options.REMOVEWRONGSIZEDFILES))
 				Files.delete(file);
@@ -464,11 +464,11 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 		if (count > 0)
 		{
 			final Child lostfound = report.add("Unknown files");
-			lostfound.data.length = 0L;
+			lostfound.getData().setLength(0L);
 			for (final Path p : filesToRemove)
 			{
 				final Child entry = lostfound.add(Paths.get(".").resolve(dst.relativize(p)).toString());
-				lostfound.data.length += (entry.data.length = Files.size(p));
+				lostfound.getData().setLength(lostfound.getData().getLength() + (entry.getData().setLength(Files.size(p)).getLength()));
 			}
 			if (remove)
 			{

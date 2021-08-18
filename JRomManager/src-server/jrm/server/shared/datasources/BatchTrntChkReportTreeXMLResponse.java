@@ -61,22 +61,22 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 		Child parent = report.getAll().get(parentID);
 		if (parent != null)
 		{
-			int nodecount = parent.children != null ? parent.children.size() : 0;
+			int nodecount = parent.getChildren() != null ? parent.getChildren().size() : 0;
 			writer.writeElement("startRow", "0");
 			writer.writeElement("endRow", Integer.toString(nodecount - 1));
 			writer.writeElement("totalRows", Integer.toString(nodecount));
 			writer.writeStartElement("data");
-			if (parent.children != null)
-				for (Child n : parent.children)
+			if (parent.getChildren() != null)
+				for (Child n : parent.getChildren())
 				{
 					writer.writeStartElement("record");
-					writer.writeAttribute("ID", Long.toString(n.uid));
+					writer.writeAttribute("ID", Long.toString(n.getUid()));
 					writer.writeAttribute(PARENT_ID, parentID.toString());
-					writer.writeAttribute("title", n.data.title);
-					if (n.data.length != null)
-						writer.writeAttribute("length", n.data.length.toString());
-					writer.writeAttribute(STATUS, n.data.status.toString());
-					writer.writeAttribute("isFolder", Boolean.toString(n.children != null && !n.children.isEmpty()));
+					writer.writeAttribute("title", n.getData().getTitle());
+					if (n.getData().getLength() != null)
+						writer.writeAttribute("length", n.getData().getLength().toString());
+					writer.writeAttribute(STATUS, n.getData().getStatus().toString());
+					writer.writeAttribute("isFolder", Boolean.toString(n.getChildren() != null && !n.getChildren().isEmpty()));
 					writer.writeEndElement();
 				}
 			writer.writeEndElement();
@@ -91,7 +91,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 	 */
 	private void fetchRoot(Operation operation, TrntChkReport report, Boolean showok) throws XMLStreamException
 	{
-		List<Child> nodes = report.getNodes().stream().filter(n -> showok || n.data.status != Status.OK).collect(Collectors.toList());
+		List<Child> nodes = report.getNodes().stream().filter(n -> showok || n.getData().getStatus() != Status.OK).collect(Collectors.toList());
 		int start;
 		int end;
 		var nodecount = nodes.size();
@@ -108,13 +108,13 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 			{
 				Child n = nodes.get(i);
 				writer.writeStartElement("record");
-				writer.writeAttribute("ID", Long.toString(n.uid));
+				writer.writeAttribute("ID", Long.toString(n.getUid()));
 				writer.writeAttribute(PARENT_ID, "0");
-				writer.writeAttribute("title", n.data.title);
-				if (n.data.length != null)
-					writer.writeAttribute("length", n.data.length.toString());
-				writer.writeAttribute(STATUS, n.data.status.toString());
-				writer.writeAttribute("isFolder", Boolean.toString(n.children != null && !n.children.isEmpty()));
+				writer.writeAttribute("title", n.getData().getTitle());
+				if (n.getData().getLength() != null)
+					writer.writeAttribute("length", n.getData().getLength().toString());
+				writer.writeAttribute(STATUS, n.getData().getStatus().toString());
+				writer.writeAttribute("isFolder", Boolean.toString(n.getChildren() != null && !n.getChildren().isEmpty()));
 				writer.writeEndElement();
 			}
 			writer.writeEndElement();

@@ -25,15 +25,16 @@ import jrm.profile.report.Subject;
 import jrm.security.Session;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 public final class TrntChkReport implements Serializable, HTMLRenderer
 {
 	private static final long serialVersionUID = 4L;
 	
 	
-	private transient AtomicLong uid_cnt = new AtomicLong(); 
+	private transient AtomicLong uidCnt = new AtomicLong(); 
 	private transient File file = null;
-	private transient long file_modified = 0L;
+	private transient long fileModified = 0L;
 	
 	private @Getter List<Child> nodes = new ArrayList<>();
 	private @Getter Map<Long,Child> all = new HashMap<>();
@@ -41,7 +42,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 	/**
 	 * the linked UI tree model
 	 */
-	private @Setter @Getter transient TrntChkReportTreeHandler handler = null;
+	private transient @Setter @Getter TrntChkReportTreeHandler handler = null;
 
 	public TrntChkReport(final File src)
 	{
@@ -84,7 +85,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 		{
 			if(!filterOptions.contains(FilterOptions.SHOWOK) && t.data.status==Status.OK)
 				return false;
-			if(filterOptions.contains(FilterOptions.HIDEMISSING) && t.data.status==Status.MISSING)
+			if(filterOptions.contains(FilterOptions.HIDEMISSING) && t.data.status==Status.MISSING)	//NOSONAR
 				return false;
 			return true;
 		}
@@ -98,25 +99,25 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 
 	public static final class ChildData implements Serializable
 	{
-		private static final long serialVersionUID = 1L;
-		public String title;
-		public Long length = null;
-		public Status status = Status.UNKNOWN;
+		private static final long serialVersionUID = 2L;
+		private @Getter String title;
+		private @Getter @Setter @Accessors(chain=true) Long length = null;
+		private @Getter Status status = Status.UNKNOWN;
 	}
 	
 	public final class Child implements Serializable, HTMLRenderer
 	{
-		private static final long serialVersionUID = 2L;
+		private static final long serialVersionUID = 3L;
 
-		public List<Child> children;
+		private @Getter List<Child> children;
 
-		public long uid;
-		public Child parent = null;
-		public ChildData data = null;
+		private @Getter long uid;
+		private @Getter Child parent = null;
+		private @Getter ChildData data = null;
 
 		public Child()
 		{
-			uid = uid_cnt.incrementAndGet();
+			uid = uidCnt.incrementAndGet();
 			all.put(uid, this);
 			this.parent = null;
 			this.data = new ChildData();
@@ -124,7 +125,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 
 		public Child(Child parent)
 		{
-			uid = uid_cnt.incrementAndGet();
+			uid = uidCnt.incrementAndGet();
 			all.put(uid, this);
 			this.parent = parent;
 			this.data = new ChildData();
@@ -166,7 +167,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 		public String toString()
 		{
 			final StringBuilder sb = new StringBuilder();
-			sb.append(String.format("%s%-50s %12d %s\n", parent==null?"":"|_ ", data.title, data.length, data.status));
+			sb.append(String.format("%s%-50s %12d %s%n", parent==null?"":"|_ ", data.title, data.length, data.status));
 			if (children != null)
 				for (Child child : children)
 					sb.append(child);
@@ -208,7 +209,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 	
 	public long getFileModified()
 	{
-		return file_modified;
+		return fileModified;
 	}
 	
 	public File getReportFile(final Session session)
@@ -231,8 +232,9 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 		{
 			oos.writeObject(TrntChkReport.this);
 		}
-		catch (final Throwable e)
+		catch (final Exception e)
 		{
+			Log.warn(e.getMessage());
 		}
 	}
 	
@@ -242,12 +244,12 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 		{
 			final TrntChkReport report = (TrntChkReport)ois.readObject();
 			report.file = file;
-			report.file_modified = getReportFile(session, file).lastModified();
+			report.fileModified = getReportFile(session, file).lastModified();
 			return report;
 		}
-		catch (final Throwable e)
+		catch (final Exception e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.warn(e.getMessage());
 			// may fail to load because serialized classes did change since last cache save 
 		}
 		return null;
@@ -257,8 +259,8 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 	private TrntChkReport(TrntChkReport report, List<FilterOptions> filterOptions)
 	{
 		filterPredicate = report.filterPredicate;
-		file_modified = report.file_modified;
-		uid_cnt = new AtomicLong();
+		fileModified = report.fileModified;
+		uidCnt = new AtomicLong();
 		handler = report.handler;
 		nodes = report.filter(filterOptions);
 		all = report.all;

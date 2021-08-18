@@ -29,10 +29,10 @@ public class BatchTrrntChkReportNode implements TreeNode
 		if(child==null)
 			return null;
 		ChildNode node;
-		if(null==(node=nodeCache.get(child.uid)))
+		if(null==(node=nodeCache.get(child.getUid())))
 		{
 			node = new ChildNode(child);
-			nodeCache.put(child.uid, node);
+			nodeCache.put(child.getUid(), node);
 		}
 		return node;
 	}
@@ -109,13 +109,13 @@ public class BatchTrrntChkReportNode implements TreeNode
 		@Override
 		public TreeNode getChildAt(int childIndex)
 		{
-			return getNode(child.children==null?null:child.children.get(childIndex));
+			return getNode(child.getChildren()==null?null:child.getChildren().get(childIndex));
 		}
 
 		@Override
 		public int getChildCount()
 		{
-			return child.children==null?0:child.children.size();
+			return child.getChildren()==null?0:child.getChildren().size();
 		}
 
 		@SuppressWarnings("exports")
@@ -129,7 +129,7 @@ public class BatchTrrntChkReportNode implements TreeNode
 		@Override
 		public int getIndex(TreeNode node)
 		{
-			return child.children==null?-1:child.children.indexOf(((ChildNode)node).child);
+			return child.getChildren()==null?-1:child.getChildren().indexOf(((ChildNode)node).child);
 		}
 
 		@Override
@@ -141,15 +141,15 @@ public class BatchTrrntChkReportNode implements TreeNode
 		@Override
 		public boolean isLeaf()
 		{
-			return child.children==null||child.children.isEmpty();
+			return child.getChildren()==null||child.getChildren().isEmpty();
 		}
 
 		@Override
 		public Enumeration<ChildNode> children()
 		{
-			return child.children==null?null:new Enumeration<ChildNode>()
+			return child.getChildren()==null?null:new Enumeration<ChildNode>()
 			{
-				private final Iterator<Child> i = child.children.iterator();
+				private final Iterator<Child> i = child.getChildren().iterator();
 
 				public boolean hasMoreElements()
 				{
