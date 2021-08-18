@@ -50,6 +50,7 @@ import jrm.security.Session;
  */
 public class OpenContainer extends ContainerAction
 {
+	private static final String ACTION_TO_S_AT_S_FAILED = "action to %s@%s failed";
 	/**
 	 * the uncompressed datasize of all entries to add (for temp file threshold purpose)
 	 */
@@ -139,7 +140,7 @@ public class OpenContainer extends ContainerAction
 			i++;
 			if (!action.doAction(session, target, handler, i, entryActions.size()))
 			{
-				Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
 				return false;
 			}
 		}
@@ -163,7 +164,7 @@ public class OpenContainer extends ContainerAction
 				i++;
 				if (!action.doAction(session, archive, handler, i, entryActions.size()))
 				{
-					Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
 					return false;
 				}
 			}
@@ -191,7 +192,7 @@ public class OpenContainer extends ContainerAction
 				i++;
 				if (!action.doAction(session, archive, handler, i, entryActions.size()))
 				{
-					Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
 					return false;
 				}
 			}
@@ -222,7 +223,7 @@ public class OpenContainer extends ContainerAction
 				i++;
 				if (!action.doAction(session, fs, handler, i, entryActions.size()))
 				{
-					Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
 					return false;
 				}
 			}

@@ -44,6 +44,7 @@ import jrm.security.Session;
  */
 public class CreateContainer extends ContainerAction
 {
+	private static final String ACTION_TO_S_AT_S_FAILED = "action to %s@%s failed";
 	/**
 	 * the uncompressed datasize of all entries to add (for temp file threshold purpose)
 	 */
@@ -99,103 +100,148 @@ public class CreateContainer extends ContainerAction
 		{
 			if (format == FormatOptions.ZIP || format == FormatOptions.TZIP)
 			{
-				final Map<String, Object> env = new HashMap<>();
-				env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("compressionLevel", format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
-				container.getFile().getParentFile().mkdirs();
-				try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.getFile().toURI()), env);) //$NON-NLS-1$
-				{
-					var i = 0;
-					for (final EntryAction action : entryActions)
-					{
-						i++;
-						if (!action.doAction(session, fs, handler, i, entryActions.size() ))
-						{
-							Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							return false;
-						}
-					}
-					return true;
-				}
-				catch (final Exception e)
-				{
-					Log.err(e.getMessage(),e);
-				}
+				return createZip(session, handler);
 			}
 			else if (format == FormatOptions.ZIPE)
 			{
-				container.getFile().getParentFile().mkdirs();
-				try (Archive archive = new ZipArchive(session, container.getFile()))
-				{
-					var i = 0;
-					for (final EntryAction action : entryActions)
-					{
-						i++;
-						if (!action.doAction(session, archive, handler, i, entryActions.size()))
-						{
-							Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							return false;
-						}
-					}
-					return true;
-				}
-				catch (final Exception e)
-				{
-					Log.err(e.getMessage(),e);
-				}
+				return createZipE(session, handler);
 			}
+			return false;
 		}
 		else if (container.getType() == Container.Type.SEVENZIP)
 		{
-			container.getFile().getParentFile().mkdirs();
-			try (Archive archive = new SevenZipArchive(session, container.getFile()))
-			{
-				var i = 0;
-				for (final EntryAction action : entryActions)
-				{
-					i++;
-					if (!action.doAction(session, archive, handler, i, entryActions.size()))
-					{
-						Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						return false;
-					}
-				}
-				return true;
-			}
-			catch (final Exception e)
-			{
-				Log.err(e.getMessage(),e);
-			}
+			return createSevenZip(session, handler);
 		}
 		else if (container.getType() == Container.Type.DIR || container.getType() == Container.Type.FAKE)
 		{
-			try
+			return createDirOrFake(session, handler);
+		}
+		return false;
+	}
+
+	/**
+	 * @param session
+	 * @param handler
+	 * @return
+	 */
+	private boolean createDirOrFake(final Session session, final ProgressHandler handler)
+	{
+		try
+		{
+			final Path target;
+			if (container.getType() == Container.Type.DIR)
 			{
-				final Path target;
-				if (container.getType() == Container.Type.DIR)
-				{
-					target = container.getFile().toPath();
-					IOUtils.createDirectories(target);
-				}
-				else
-					target = container.getFile().getParentFile().toPath();
-				var i = 0;
-				for (final EntryAction action : entryActions)
-				{
-					i++;
-					if (!action.doAction(session, target, handler, i, entryActions.size()))
-					{
-						Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						return false;
-					}
-				}
-				return true;
+				target = container.getFile().toPath();
+				IOUtils.createDirectories(target);
 			}
-			catch (final Exception e)
+			else
+				target = container.getFile().getParentFile().toPath();
+			var i = 0;
+			for (final EntryAction action : entryActions)
 			{
-				Log.err(e.getMessage(),e);
+				i++;
+				if (!action.doAction(session, target, handler, i, entryActions.size()))
+				{
+					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
+					return false;
+				}
 			}
+			return true;
+		}
+		catch (final Exception e)
+		{
+			Log.err(e.getMessage(),e);
+		}
+		return false;
+	}
+
+	/**
+	 * @param session
+	 * @param handler
+	 * @return
+	 */
+	private boolean createSevenZip(final Session session, final ProgressHandler handler)
+	{
+		container.getFile().getParentFile().mkdirs();
+		try (Archive archive = new SevenZipArchive(session, container.getFile()))
+		{
+			var i = 0;
+			for (final EntryAction action : entryActions)
+			{
+				i++;
+				if (!action.doAction(session, archive, handler, i, entryActions.size()))
+				{
+					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
+					return false;
+				}
+			}
+			return true;
+		}
+		catch (final Exception e)
+		{
+			Log.err(e.getMessage(),e);
+		}
+		return false;
+	}
+
+	/**
+	 * @param session
+	 * @param handler
+	 * @return
+	 */
+	private boolean createZipE(final Session session, final ProgressHandler handler)
+	{
+		container.getFile().getParentFile().mkdirs();
+		try (Archive archive = new ZipArchive(session, container.getFile()))
+		{
+			var i = 0;
+			for (final EntryAction action : entryActions)
+			{
+				i++;
+				if (!action.doAction(session, archive, handler, i, entryActions.size()))
+				{
+					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
+					return false;
+				}
+			}
+			return true;
+		}
+		catch (final Exception e)
+		{
+			Log.err(e.getMessage(),e);
+		}
+		return false;
+	}
+
+	/**
+	 * @param session
+	 * @param handler
+	 * @return
+	 */
+	private boolean createZip(final Session session, final ProgressHandler handler)
+	{
+		final Map<String, Object> env = new HashMap<>();
+		env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+		env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
+		env.put("compressionLevel", format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+		container.getFile().getParentFile().mkdirs();
+		try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.getFile().toURI()), env);) //$NON-NLS-1$
+		{
+			var i = 0;
+			for (final EntryAction action : entryActions)
+			{
+				i++;
+				if (!action.doAction(session, fs, handler, i, entryActions.size() ))
+				{
+					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
+					return false;
+				}
+			}
+			return true;
+		}
+		catch (final Exception e)
+		{
+			Log.err(e.getMessage(),e);
 		}
 		return false;
 	}

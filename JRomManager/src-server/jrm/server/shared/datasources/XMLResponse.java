@@ -86,27 +86,27 @@ public abstract class XMLResponse implements Closeable
 		return new TempFileInputStream(tmpfile.toFile());
 	}
 
-	protected void fetch(Operation operation) throws XMLStreamException, IOException
+	protected void fetch(Operation operation) throws XMLStreamException, IOException	//NOSONAR
 	{
 		failure("fetch operation not implemented");
 	}
 
-	protected void add(Operation operation) throws XMLStreamException, IOException
+	protected void add(Operation operation) throws XMLStreamException, IOException	//NOSONAR
 	{
 		failure("add operation not implemented");
 	}
 
-	protected void update(Operation operation) throws XMLStreamException, IOException
+	protected void update(Operation operation) throws XMLStreamException, IOException	//NOSONAR
 	{
 		failure("update operation not implemented");
 	}
 
-	protected void remove(Operation operation) throws XMLStreamException, IOException
+	protected void remove(Operation operation) throws XMLStreamException, IOException	//NOSONAR
 	{
 		failure("delete operation not implemented");
 	}
 
-	protected void custom(Operation operation) throws XMLStreamException, IOException
+	protected void custom(Operation operation) throws XMLStreamException, IOException	//NOSONAR
 	{
 		failure("custom operation not implemented");
 	}
