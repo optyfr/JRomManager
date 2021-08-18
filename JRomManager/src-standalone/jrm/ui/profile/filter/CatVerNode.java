@@ -15,21 +15,20 @@ import jrm.ui.basic.AbstractNGTreeNode;
 public class CatVerNode extends AbstractNGTreeNode
 {
 
-	final private CatVer catver;
+	private final CatVer catver;
 	
-	final private Map<String,CategoryNode> categoryNodeCache = new HashMap<>();
+	private final Map<String,CategoryNode> categoryNodeCache = new HashMap<>();
 	
+	@SuppressWarnings("exports")
 	public CatVerNode(final CatVer catver)
 	{
 		this.catver = catver;
 	}
 
+	@SuppressWarnings("exports")
 	public CategoryNode getNode(Category cat)
 	{
-		CategoryNode node;
-		if(null==(node=categoryNodeCache.get(cat.getPropertyName())))
-			categoryNodeCache.put(cat.getPropertyName(), node=new CategoryNode(cat));
-		return node;
+		return categoryNodeCache.computeIfAbsent(cat.getPropertyName(), pptname -> new CategoryNode(cat));
 	}
 	
 	@Override
@@ -62,12 +61,14 @@ public class CatVerNode extends AbstractNGTreeNode
 		return catver.getListCategories().size();
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public TreeNode getParent()
 	{
 		return null;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public int getIndex(TreeNode node)
 	{
@@ -83,7 +84,7 @@ public class CatVerNode extends AbstractNGTreeNode
 	@Override
 	public boolean isLeaf()
 	{
-		return catver.getListCategories().size()==0;
+		return catver.getListCategories().isEmpty();
 	}
 
 	@Override
@@ -109,20 +110,20 @@ public class CatVerNode extends AbstractNGTreeNode
 	
 	public final class CategoryNode extends AbstractNGTreeNode
 	{
-		final private Category category;
+		private final Category category;
 		
-		final private Map<String,SubCategoryNode> subcategoryNodeCache = new HashMap<>();
+		private final Map<String,SubCategoryNode> subcategoryNodeCache = new HashMap<>();
+		
+		@SuppressWarnings("exports")
 		public CategoryNode(final Category category)
 		{
 			this.category = category;
 		}
 
+		@SuppressWarnings("exports")
 		public SubCategoryNode getNode(SubCategory subcat)
 		{
-			SubCategoryNode node;
-			if(null==(node=subcategoryNodeCache.get(subcat.getPropertyName())))
-				subcategoryNodeCache.put(subcat.getPropertyName(), node=new SubCategoryNode(subcat));
-			return node;
+			return subcategoryNodeCache.computeIfAbsent(subcat.getPropertyName(), pptname -> new SubCategoryNode(subcat));
 		}
 
 		@Override
@@ -162,6 +163,7 @@ public class CatVerNode extends AbstractNGTreeNode
 			return CatVerNode.this;
 		}
 
+		@SuppressWarnings("exports")
 		@Override
 		public int getIndex(TreeNode node)
 		{
@@ -177,7 +179,7 @@ public class CatVerNode extends AbstractNGTreeNode
 		@Override
 		public boolean isLeaf()
 		{
-			return category.getListSubCategories().size()==0;
+			return category.getListSubCategories().isEmpty();
 		}
 
 		@Override
@@ -203,8 +205,9 @@ public class CatVerNode extends AbstractNGTreeNode
 		
 		public final class SubCategoryNode extends AbstractNGTreeNode
 		{
-			final private SubCategory subcategory;
+			private final SubCategory subcategory;
 			
+			@SuppressWarnings("exports")
 			public SubCategoryNode(final SubCategory subcategory)
 			{
 				this.subcategory = subcategory;
@@ -228,6 +231,7 @@ public class CatVerNode extends AbstractNGTreeNode
 				subcategory.setSelected(selected);
 			}
 
+			@SuppressWarnings("exports")
 			@Override
 			public TreeNode getChildAt(int childIndex)
 			{
@@ -246,6 +250,7 @@ public class CatVerNode extends AbstractNGTreeNode
 				return CategoryNode.this;
 			}
 
+			@SuppressWarnings("exports")
 			@Override
 			public int getIndex(TreeNode node)
 			{
@@ -264,6 +269,7 @@ public class CatVerNode extends AbstractNGTreeNode
 				return true;
 			}
 
+			@SuppressWarnings("exports")
 			@Override
 			public Enumeration<? extends TreeNode> children()
 			{

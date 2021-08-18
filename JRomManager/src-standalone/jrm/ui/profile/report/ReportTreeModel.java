@@ -29,7 +29,6 @@ import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ReportTreeModel.
  *
@@ -40,7 +39,7 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 {
 	
 	/** The org root. */
-	private Report org_root;
+	private Report orgRoot;
 	
 	/** The filter options. */
 	private List<FilterOptions> filterOptions = new ArrayList<>();
@@ -50,20 +49,21 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	 *
 	 * @param root the root
 	 */
-	private ReportTreeModel(final Report root)
+	private ReportTreeModel(final Report root)	//NOSONAR
 	{
 		super(new ReportNode(root));
-		org_root = root;
+		orgRoot = root;
 		root.setHandler(this);
 		initClone();
 	}
 
+	@SuppressWarnings("exports")
 	public ReportTreeModel(final ReportTreeHandler handler)
 	{
 		super(new ReportNode(handler.getFilteredReport()));
 		getFilteredReport().setHandler(this);
-		org_root = handler.getOriginalReport();
-		org_root.setHandler(this);
+		orgRoot = handler.getOriginalReport();
+		orgRoot.setHandler(this);
 	}
 	
 	
@@ -72,7 +72,7 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	 */
 	public void initClone()
 	{
-		setRoot(new ReportNode(org_root.clone(filterOptions)));
+		setRoot(new ReportNode(orgRoot.clone(filterOptions)));
 	}
 
 	/**
@@ -80,6 +80,8 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	 *
 	 * @param filterOptions the filter options
 	 */
+	@SuppressWarnings("exports")
+	@Override
 	public void filter(final FilterOptions... filterOptions)
 	{
 		filter(Arrays.asList(filterOptions));
@@ -90,10 +92,11 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	 *
 	 * @param filterOptions the filter options
 	 */
+	@SuppressWarnings("exports")
 	public void filter(final List<FilterOptions> filterOptions)
 	{
 		this.filterOptions = filterOptions;
-		setRoot(new ReportNode(org_root.clone(filterOptions)));
+		setRoot(new ReportNode(orgRoot.clone(filterOptions)));
 	}
 
 	/**
@@ -101,23 +104,26 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	 *
 	 * @return the filter options
 	 */
+	@SuppressWarnings("exports")
 	public EnumSet<FilterOptions> getFilterOptions()
 	{
-		if(filterOptions.size()==0)
+		if(filterOptions.isEmpty())
 			return EnumSet.noneOf(FilterOptions.class);
 		return EnumSet.copyOf(filterOptions);
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public Report getFilteredReport()
 	{
 		return ((ReportNode)getRoot()).getReport();
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public Report getOriginalReport()
 	{
-		return org_root;
+		return orgRoot;
 	}
 
 	@Override

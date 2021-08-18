@@ -23,6 +23,8 @@ module jrmstandalone
 	
 	requires static lombok;
 	
+	requires java.activation;
+	
 	requires jrmcore;
 	requires res.icons;
 }

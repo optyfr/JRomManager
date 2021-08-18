@@ -41,7 +41,6 @@ import jrm.ui.MainFrame;
 import jrm.ui.profile.report.ReportNode.SubjectNode;
 import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ReportTreeCellRenderer.
  *
@@ -59,6 +58,7 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 		super();
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public Component getTreeCellRendererComponent(final JTree tree, Object value, final boolean sel, final boolean expanded, final boolean leaf, final int row, final boolean hasFocus)
 	{
@@ -76,90 +76,84 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 				super.getTreeCellRendererComponent(tree, ((Note)value).getHTML(), sel, expanded, leaf, row, hasFocus);
 			else
 				super.getTreeCellRendererComponent(tree, ((HTMLRenderer)value).getHTML(), sel, expanded, leaf, row, hasFocus);
-			if(value instanceof RomSuspiciousCRC)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/information.png")); //$NON-NLS-1$
-			else if(value instanceof ContainerUnknown)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
-			else if(value instanceof ContainerUnneeded)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
-			else if(value instanceof ContainerTZip)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/compress.png")); //$NON-NLS-1$
-			else if(value instanceof EntryOK)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
-			else if(value instanceof EntryAdd)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_blue.png")); //$NON-NLS-1$
-			else if(value instanceof EntryMissingDuplicate)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_purple.png")); //$NON-NLS-1$
-			else if(value instanceof EntryMissing)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png")); //$NON-NLS-1$
-			else if(value instanceof EntryUnneeded)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png")); //$NON-NLS-1$
-			else if(value instanceof EntryWrongHash)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_orange.png")); //$NON-NLS-1$
-			else if(value instanceof EntryWrongName)
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png")); //$NON-NLS-1$
-			else if(!leaf)
-			{
-				String icon = "/jrm/resicons/folder"; //$NON-NLS-1$
-				if(expanded)
-					icon += "_open"; //$NON-NLS-1$
-				else
-					icon += "_closed"; //$NON-NLS-1$
-				if(value instanceof SubjectSet)
-				{
-					switch(((SubjectSet) value).getStatus())
-					{
-						case FOUND:
-							if(((SubjectSet) value).hasNotes())
-							{
-								if(((SubjectSet) value).isFixable())
-									icon += "_purple"; //$NON-NLS-1$
-								else
-									icon += "_orange"; //$NON-NLS-1$
-							}
-							else
-								icon += "_green"; //$NON-NLS-1$
-							break;
-						case CREATE:
-						case CREATEFULL:
-							if(((SubjectSet) value).isFixable())
-								icon += "_blue"; //$NON-NLS-1$
-							else
-								icon += "_orange"; //$NON-NLS-1$
-							break;
-						case MISSING:
-							icon += "_red"; //$NON-NLS-1$
-							break;
-						case UNNEEDED:
-							icon += "_gray"; //$NON-NLS-1$
-							break;
-						default:
-							break;
-					}
-				}
-				icon += ".png"; //$NON-NLS-1$
-				setIcon(MainFrame.getIcon(icon));
-			}
-			else
-			{
-				if(value instanceof SubjectSet)
-				{
-					switch(((SubjectSet) value).getStatus())
-					{
-						case FOUND:
-							setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
-							break;
-						default:
-							break;
-					}
-				}
-	
-			}
+			setIcon(value, expanded, leaf);
 		}
-		catch(Throwable e)
+		catch(Exception e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 		return this;
+	}
+
+	/**
+	 * @param value
+	 * @param expanded
+	 * @param leaf
+	 */
+	private void setIcon(Object value, final boolean expanded, final boolean leaf)
+	{
+		if(value instanceof RomSuspiciousCRC)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/information.png")); //$NON-NLS-1$
+		else if(value instanceof ContainerUnknown)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
+		else if(value instanceof ContainerUnneeded)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
+		else if(value instanceof ContainerTZip)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/compress.png")); //$NON-NLS-1$
+		else if(value instanceof EntryOK)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
+		else if(value instanceof EntryAdd)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_blue.png")); //$NON-NLS-1$
+		else if(value instanceof EntryMissingDuplicate)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_purple.png")); //$NON-NLS-1$
+		else if(value instanceof EntryMissing)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png")); //$NON-NLS-1$
+		else if(value instanceof EntryUnneeded)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png")); //$NON-NLS-1$
+		else if(value instanceof EntryWrongHash)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_orange.png")); //$NON-NLS-1$
+		else if(value instanceof EntryWrongName)
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png")); //$NON-NLS-1$
+		else if(!leaf)
+			setIcon(MainFrame.getIcon(getFolderIcon(value, expanded)));
+		else if (value instanceof SubjectSet && SubjectSet.Status.FOUND.equals(((SubjectSet) value).getStatus()))
+			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
+	}
+
+	/**
+	 * @param value
+	 * @param expanded
+	 * @return
+	 */
+	private String getFolderIcon(Object value, final boolean expanded)
+	{
+		String icon = "/jrm/resicons/folder"; //$NON-NLS-1$
+		icon += expanded ? "_open" : "_closed";
+		if(value instanceof SubjectSet)
+		{
+			switch(((SubjectSet) value).getStatus())
+			{
+				case FOUND:
+					if (((SubjectSet) value).hasNotes())
+						icon += ((SubjectSet) value).isFixable() ? "_purple" : "_orange";
+					else
+						icon += "_green"; //$NON-NLS-1$
+					break;
+				case CREATE:
+				case CREATEFULL:
+					icon += ((SubjectSet) value).isFixable() ? "_blue" : "_orange";
+					break;
+				case MISSING:
+					icon += "_red"; //$NON-NLS-1$
+					break;
+				case UNNEEDED:
+					icon += "_gray"; //$NON-NLS-1$
+					break;
+				default:
+					break;
+			}
+		}
+		icon += ".png"; //$NON-NLS-1$
+		return icon;
 	}
 }

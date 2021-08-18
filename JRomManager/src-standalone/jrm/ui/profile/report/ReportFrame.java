@@ -40,9 +40,7 @@ import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
-import lombok.Setter;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ReportFrame.
  *
@@ -63,6 +61,7 @@ public class ReportFrame extends JDialog implements StatusHandler
 	 * @param owner the owner
 	 * @throws HeadlessException the headless exception
 	 */
+	@SuppressWarnings("exports")
 	public ReportFrame(final Session session, final Window owner) throws HeadlessException
 	{
 		super(); //$NON-NLS-1$
@@ -90,23 +89,23 @@ public class ReportFrame extends JDialog implements StatusHandler
 		getContentPane().setLayout(gridBagLayout);
 
 		view = new ReportView(session.getReport());
-		final GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane.gridx = 0;
-		gbc_scrollPane.gridy = 0;
-		getContentPane().add(view, gbc_scrollPane);
+		final GridBagConstraints gbcScrollPane = new GridBagConstraints();
+		gbcScrollPane.fill = GridBagConstraints.BOTH;
+		gbcScrollPane.gridx = 0;
+		gbcScrollPane.gridy = 0;
+		getContentPane().add(view, gbcScrollPane);
 
 		session.getReport().setStatusHandler(this);
 
 		
-		final GridBagConstraints gbc_lblStatus = new GridBagConstraints();
-		gbc_lblStatus.ipadx = 2;
-		gbc_lblStatus.insets = new Insets(2, 2, 2, 2);
-		gbc_lblStatus.fill = GridBagConstraints.BOTH;
-		gbc_lblStatus.gridx = 0;
-		gbc_lblStatus.gridy = 1;
+		final GridBagConstraints gbcLblStatus = new GridBagConstraints();
+		gbcLblStatus.ipadx = 2;
+		gbcLblStatus.insets = new Insets(2, 2, 2, 2);
+		gbcLblStatus.fill = GridBagConstraints.BOTH;
+		gbcLblStatus.gridx = 0;
+		gbcLblStatus.gridy = 1;
 		lblStatus.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		getContentPane().add(lblStatus, gbc_lblStatus);
+		getContentPane().add(lblStatus, gbcLblStatus);
 
 		pack();
 

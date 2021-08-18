@@ -19,7 +19,7 @@ public class NPlayersModel extends AbstractListModel<NPlayer>
 	@Override
 	public int getSize()
 	{
-		if(nplayers!=null)
+		if (nplayers != null)
 			return nplayers.getListNPlayers().size();
 		return 0;
 	}
@@ -28,7 +28,7 @@ public class NPlayersModel extends AbstractListModel<NPlayer>
 	@Override
 	public NPlayer getElementAt(int index)
 	{
-		if(nplayers!=null)
+		if (nplayers != null)
 			return nplayers.getListNPlayers().get(index);
 		return null;	//NOSONAR
 	}

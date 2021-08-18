@@ -25,7 +25,6 @@ import jrm.locale.Messages;
 import jrm.ui.basic.AbstractNGTreeNode;
 import jrm.ui.basic.NGTreeNode;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class CatVerModel.
  */
@@ -114,6 +113,7 @@ public class CatVerModel extends DefaultTreeModel
 			@Override
 			public void setSelected(final boolean selected)
 			{
+				// not selectable
 			}
 		});
 	}

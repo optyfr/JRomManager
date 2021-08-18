@@ -891,7 +891,7 @@ public class ProfileViewer extends JDialog
 		 */
 		private void filterCallBack(KeywordFilter f)
 		{
-			ArrayList<String> filter = f.getFilter();
+			final var filter = f.getFilter();
 			HashMap<String, KeyPref> prefmap = new HashMap<>();
 			list.getList().getFilteredStream().forEach(ware -> {
 				final var matcher = pattern.matcher(ware.getDescription());

@@ -14,21 +14,20 @@ import lombok.Getter;
 
 public class ReportNode implements TreeNode
 {
-	final private @Getter Report report;
+	private final @Getter Report report;
 	
-	final private Map<Integer,SubjectNode> subjectNodeCache = new HashMap<>();
+	private final Map<Integer,SubjectNode> subjectNodeCache = new HashMap<>();
 
+	@SuppressWarnings("exports")
 	public ReportNode(final Report report)
 	{
 		this.report = report;
 	}
 
+	@SuppressWarnings("exports")
 	public SubjectNode getNode(Subject subject)
 	{
-		SubjectNode node;
-		if(null==(node=subjectNodeCache.get(subject.getId())))
-			subjectNodeCache.put(subject.getId(), node=new SubjectNode(subject));
-		return node;
+		return subjectNodeCache.computeIfAbsent(subject.getId(), id -> new SubjectNode(subject));
 	}
 
 	@Override
@@ -43,12 +42,14 @@ public class ReportNode implements TreeNode
 		return report.getSubjects().size();
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public TreeNode getParent()
 	{
 		return null;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public int getIndex(TreeNode node)
 	{
@@ -64,7 +65,7 @@ public class ReportNode implements TreeNode
 	@Override
 	public boolean isLeaf()
 	{
-		return report.getSubjects().size()==0;
+		return report.getSubjects().isEmpty();
 	}
 
 	@Override
@@ -90,21 +91,20 @@ public class ReportNode implements TreeNode
 
 	public final class SubjectNode implements TreeNode
 	{
-		final private @Getter Subject subject;
+		private final @Getter Subject subject;
 
-		final private Map<Integer,NoteNode> noteNodeCache = new HashMap<>();
+		private final Map<Integer,NoteNode> noteNodeCache = new HashMap<>();
 		
+		@SuppressWarnings("exports")
 		public SubjectNode(Subject subject)
 		{
 			this.subject = subject;
 		}
 		
+		@SuppressWarnings("exports")
 		public NoteNode getNode(Note note)
 		{
-			NoteNode node;
-			if(null==(node=noteNodeCache.get(note.getId())))
-				noteNodeCache.put(note.getId(), node=new NoteNode(note));
-			return node;
+			return noteNodeCache.computeIfAbsent(note.getId(), id -> new NoteNode(note));
 		}
 		
 		@Override
@@ -119,12 +119,14 @@ public class ReportNode implements TreeNode
 			return subject.getNotes().size();
 		}
 
+		@SuppressWarnings("exports")
 		@Override
 		public TreeNode getParent()
 		{
 			return ReportNode.this;
 		}
 
+		@SuppressWarnings("exports")
 		@Override
 		public int getIndex(TreeNode node)
 		{
@@ -140,7 +142,7 @@ public class ReportNode implements TreeNode
 		@Override
 		public boolean isLeaf()
 		{
-			return subject.getNotes().size()==0;
+			return subject.getNotes().isEmpty();
 		}
 
 		@Override
@@ -167,13 +169,15 @@ public class ReportNode implements TreeNode
 		
 		public final class NoteNode implements TreeNode
 		{
-			final private @Getter Note note;
+			private final @Getter Note note;
 			
+			@SuppressWarnings("exports")
 			public NoteNode(final Note note)
 			{
 				this.note = note;
 			}
 
+			@SuppressWarnings("exports")
 			@Override
 			public TreeNode getChildAt(int childIndex)
 			{
@@ -192,6 +196,7 @@ public class ReportNode implements TreeNode
 				return SubjectNode.this;
 			}
 
+			@SuppressWarnings("exports")
 			@Override
 			public int getIndex(TreeNode node)
 			{
@@ -210,6 +215,7 @@ public class ReportNode implements TreeNode
 				return true;
 			}
 
+			@SuppressWarnings("exports")
 			@Override
 			public Enumeration<? extends TreeNode> children()
 			{

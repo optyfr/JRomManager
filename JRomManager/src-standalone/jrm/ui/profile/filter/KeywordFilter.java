@@ -25,11 +25,9 @@ import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.activation.ActivationDataFlavor;
 import javax.activation.DataHandler;
@@ -50,7 +48,6 @@ import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.ui.MainFrame;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class KeywordFilter.
  */
@@ -59,13 +56,13 @@ public class KeywordFilter extends JDialog
 {
 	
 	/** The KW src. */
-	private JList<String> KWSrc;
+	private JList<String> keywordSrc;
 	
 	/** The KW dst. */
-	private JList<String> KWDst;
+	private JList<String> keywordDst;
 	
 	/** The dstmodel. */
-	private DefaultListModel<String> dstmodel = new DefaultListModel<String>();
+	private DefaultListModel<String> dstmodel = new DefaultListModel<>();
 
 	/**
 	 * Instantiates a new keyword filter.
@@ -74,6 +71,7 @@ public class KeywordFilter extends JDialog
 	 * @param src the src
 	 * @param callback the callback
 	 */
+	@SuppressWarnings("exports")
 	public KeywordFilter(Window owner, String[] src, CallBack callback)
 	{
 		super(owner, Messages.getString("KeywordFilter.Title"), ModalityType.APPLICATION_MODAL); //$NON-NLS-1$
@@ -81,73 +79,71 @@ public class KeywordFilter extends JDialog
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);
-		GridBagLayout gbl_panel = new GridBagLayout();
-		gbl_panel.columnWidths = new int[] { 217, 217, 0 };
-		gbl_panel.rowHeights = new int[] { 23, 0 };
-		gbl_panel.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gbl_panel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
-		panel.setLayout(gbl_panel);
+		GridBagLayout gblPanel = new GridBagLayout();
+		gblPanel.columnWidths = new int[] { 217, 217, 0 };
+		gblPanel.rowHeights = new int[] { 23, 0 };
+		gblPanel.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+		gblPanel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+		panel.setLayout(gblPanel);
 
 		JButton btnCancel = new JButton(Messages.getString("KeywordFilter.Cancel")); //$NON-NLS-1$
-		btnCancel.addActionListener((e) -> dispose());
+		btnCancel.addActionListener(e -> dispose());
 		btnCancel.setHorizontalAlignment(SwingConstants.LEADING);
-		GridBagConstraints gbc_btnCancel = new GridBagConstraints();
-		gbc_btnCancel.anchor = GridBagConstraints.WEST;
-		gbc_btnCancel.fill = GridBagConstraints.VERTICAL;
-		gbc_btnCancel.insets = new Insets(5, 5, 5, 5);
-		gbc_btnCancel.gridx = 0;
-		gbc_btnCancel.gridy = 0;
-		panel.add(btnCancel, gbc_btnCancel);
+		GridBagConstraints gbcBtnCancel = new GridBagConstraints();
+		gbcBtnCancel.anchor = GridBagConstraints.WEST;
+		gbcBtnCancel.fill = GridBagConstraints.VERTICAL;
+		gbcBtnCancel.insets = new Insets(5, 5, 5, 5);
+		gbcBtnCancel.gridx = 0;
+		gbcBtnCancel.gridy = 0;
+		panel.add(btnCancel, gbcBtnCancel);
 
 		JButton btnFilter = new JButton(Messages.getString("KeywordFilter.Filter")); //$NON-NLS-1$
-		btnFilter.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				callback.call(KeywordFilter.this);
-				dispose();
-			}
+		btnFilter.addActionListener(e -> {
+			callback.call(KeywordFilter.this);
+			dispose();
 		});
 		btnFilter.setHorizontalAlignment(SwingConstants.TRAILING);
-		GridBagConstraints gbc_btnFilter = new GridBagConstraints();
-		gbc_btnFilter.insets = new Insets(5, 5, 5, 5);
-		gbc_btnFilter.anchor = GridBagConstraints.EAST;
-		gbc_btnFilter.fill = GridBagConstraints.VERTICAL;
-		gbc_btnFilter.gridx = 1;
-		gbc_btnFilter.gridy = 0;
-		panel.add(btnFilter, gbc_btnFilter);
+		GridBagConstraints gbcBtnFilter = new GridBagConstraints();
+		gbcBtnFilter.insets = new Insets(5, 5, 5, 5);
+		gbcBtnFilter.anchor = GridBagConstraints.EAST;
+		gbcBtnFilter.fill = GridBagConstraints.VERTICAL;
+		gbcBtnFilter.gridx = 1;
+		gbcBtnFilter.gridy = 0;
+		panel.add(btnFilter, gbcBtnFilter);
 
-		JSplitPane KWSplitPane = new JSplitPane();
-		KWSplitPane.setResizeWeight(0.5);
-		KWSplitPane.setOneTouchExpandable(true);
-		KWSplitPane.setContinuousLayout(true);
-		getContentPane().add(KWSplitPane, BorderLayout.CENTER);
+		JSplitPane keywordSplitPane = new JSplitPane();
+		keywordSplitPane.setResizeWeight(0.5);
+		keywordSplitPane.setOneTouchExpandable(true);
+		keywordSplitPane.setContinuousLayout(true);
+		getContentPane().add(keywordSplitPane, BorderLayout.CENTER);
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBorder(new TitledBorder(null, Messages.getString("KeywordFilter.Available"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
-		KWSplitPane.setLeftComponent(scrollPane);
+		keywordSplitPane.setLeftComponent(scrollPane);
 
-		KWSrc = new JList<String>();
-		KWSrc.setVisibleRowCount(16);
-		scrollPane.setViewportView(KWSrc);
-		KWSrc.setDragEnabled(true);
-		KWSrc.setDropMode(DropMode.INSERT);
-		StringMoveHandler.createFor(KWSrc);
-		DefaultListModel<String> model = new DefaultListModel<String>();
+		keywordSrc = new JList<>();
+		keywordSrc.setVisibleRowCount(16);
+		scrollPane.setViewportView(keywordSrc);
+		keywordSrc.setDragEnabled(true);
+		keywordSrc.setDropMode(DropMode.INSERT);
+		StringMoveHandler.createFor(keywordSrc);
+		DefaultListModel<String> model = new DefaultListModel<>();
 		for(String s : src)
 			model.addElement(s);
-		KWSrc.setModel(model);
+		keywordSrc.setModel(model);
 
-		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBorder(new TitledBorder(null, Messages.getString("KeywordFilter.Used"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
-		KWSplitPane.setRightComponent(scrollPane_1);
+		JScrollPane scrollPane1 = new JScrollPane();
+		scrollPane1.setBorder(new TitledBorder(null, Messages.getString("KeywordFilter.Used"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
+		keywordSplitPane.setRightComponent(scrollPane1);
 
-		KWDst = new JList<String>();
-		KWDst.setVisibleRowCount(16);
-		scrollPane_1.setViewportView(KWDst);
+		keywordDst = new JList<>();
+		keywordDst.setVisibleRowCount(16);
+		scrollPane1.setViewportView(keywordDst);
 
-		KWDst.setDragEnabled(true);
-		KWDst.setDropMode(DropMode.INSERT);
-		StringMoveHandler.createFor(KWDst);
-		KWDst.setModel(dstmodel);
+		keywordDst.setDragEnabled(true);
+		keywordDst.setDropMode(DropMode.INSERT);
+		StringMoveHandler.createFor(keywordDst);
+		keywordDst.setModel(dstmodel);
 		
 		pack();
 		setLocationRelativeTo(owner);
@@ -159,7 +155,7 @@ public class KeywordFilter extends JDialog
 	 *
 	 * @return the filter
 	 */
-	public ArrayList<String> getFilter()
+	public List<String> getFilter()
 	{
 		return Collections.list(dstmodel.elements());
 	}
@@ -250,14 +246,14 @@ public class KeywordFilter extends JDialog
 			DefaultListModel<String> listModel = (DefaultListModel<String>) list.getModel();
 			for (int i = 0; i < importedData.length; i++)
 			{
-				Object elem = importedData[i];
+				final Object elem = importedData[i];
 				if (elem instanceof String)
 				{
 					listModel.add(dropIndex + i, (String) elem);
 				}
 				else
 				{
-					System.err.println("Imported data contained something else than strings: " + elem); //$NON-NLS-1$
+					Log.err(() -> "Imported data contained something else than strings: " + elem); //$NON-NLS-1$
 				}
 			}
 		}
@@ -308,7 +304,7 @@ public class KeywordFilter extends JDialog
 				boolean removedSuccessfully = listModel.removeElement(elemToRemove);
 				if (!removedSuccessfully)
 				{
-					System.err.println("Source model did not contain exported data"); //$NON-NLS-1$
+					Log.err("Source model did not contain exported data"); //$NON-NLS-1$
 				}
 			}
 		}
