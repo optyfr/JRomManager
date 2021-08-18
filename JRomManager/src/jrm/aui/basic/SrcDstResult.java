@@ -9,14 +9,15 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 import lombok.Getter;
+import lombok.Setter;
 
 public class SrcDstResult
 {
-	public String id = null;
-	public String src = null;
-	public String dst = null;
-	public String result = ""; //$NON-NLS-1$
-	public boolean selected = true;
+	private @Getter String id = null;
+	private @Getter @Setter String src = null;
+	private @Getter @Setter String dst = null;
+	private @Getter @Setter String result = ""; //$NON-NLS-1$
+	private @Getter @Setter boolean selected = true;
 
 	@SuppressWarnings("serial")
 	public static class SDRList extends ArrayList<SrcDstResult>
@@ -26,6 +27,18 @@ public class SrcDstResult
 		public SDRList()
 		{
 			super();
+		}
+		
+		@Override
+		public boolean equals(Object o)
+		{
+			return super.equals(o);
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return super.hashCode();
 		}
 	}
 	
@@ -46,33 +59,36 @@ public class SrcDstResult
 		this.dst = dst;
 	}
 
+	@SuppressWarnings("exports")
 	public SrcDstResult(JsonObject jso)
 	{
 		fromJSONObject(jso);
 	}
 	
+	@SuppressWarnings("exports")
 	public JsonObject toJSONObject()
 	{
 		JsonObject jso = Json.object();
 		jso.add("id", id != null ? id : UUID.randomUUID().toString()); //$NON-NLS-1$
-		jso.add("src", src != null ? src.toString() : null); //$NON-NLS-1$
-		jso.add("dst", dst != null ? dst.toString() : null); //$NON-NLS-1$
+		jso.add("src", src != null ? src : null); //$NON-NLS-1$
+		jso.add("dst", dst != null ? dst : null); //$NON-NLS-1$
 		jso.add("result", result); //$NON-NLS-1$
 		jso.add("selected", selected); //$NON-NLS-1$
 		return jso;
 	}
 	
+	@SuppressWarnings("exports")
 	public void fromJSONObject(JsonObject jso)
 	{
-		JsonValue id = jso.get("id"); //$NON-NLS-1$
-		if (id != null && id != Json.NULL)
-			this.id = id.asString();
-		JsonValue src = jso.get("src"); //$NON-NLS-1$
-		if (src != Json.NULL)
-			this.src = src.asString();
-		JsonValue dst = jso.get("dst"); //$NON-NLS-1$
-		if (dst != Json.NULL)
-			this.dst = dst.asString();
+		JsonValue lId = jso.get("id"); //$NON-NLS-1$
+		if (lId != null && lId != Json.NULL)
+			this.id = lId.asString();
+		JsonValue lSrc = jso.get("src"); //$NON-NLS-1$
+		if (lSrc != Json.NULL)
+			this.src = lSrc.asString();
+		JsonValue lDst = jso.get("dst"); //$NON-NLS-1$
+		if (lDst != Json.NULL)
+			this.dst = lDst.asString();
 		this.result = jso.get("result").asString(); //$NON-NLS-1$
 		this.selected = jso.getBoolean("selected", true); //$NON-NLS-1$
 	}

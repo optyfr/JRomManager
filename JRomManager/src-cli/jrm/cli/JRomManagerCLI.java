@@ -361,10 +361,10 @@ public class JRomManagerCLI
 						switch (args[1])
 						{
 							case "TZIP": //$NON-NLS-1$
-								ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile());
+								ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
 								break;
 							case "DIR": //$NON-NLS-1$
-								ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile());
+								ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
 								break;
 							default:
 								break;
@@ -385,11 +385,11 @@ public class JRomManagerCLI
 						final var index = Integer.parseInt(args[0]);
 						if (index < list.size())
 						{
-							ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), null);
+							ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), null);
 							if (args.length == 3)
 							{
 								settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
-								session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).src).toFile(), settings);
+								session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), settings);
 							}
 							else if (args.length == 2)
 								System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR

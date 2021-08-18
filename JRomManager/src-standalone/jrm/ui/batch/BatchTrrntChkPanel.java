@@ -87,7 +87,7 @@ public class BatchTrrntChkPanel extends JPanel
 
 		BatchTableModel model = new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Details", "Selected" });
 		tableTrntChk = new JSDRDropTable(model, files -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(files)));
-		model.setButtonHandler((row, column) -> new BatchTrrntChkResultsDialog(session, SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this), TrntChkReport.load(session, PathAbstractor.getAbsolutePath(session, model.getData().get(row).src).toFile())));
+		model.setButtonHandler((row, column) -> new BatchTrrntChkResultsDialog(session, SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this), TrntChkReport.load(session, PathAbstractor.getAbsolutePath(session, model.getData().get(row).getSrc()).toFile())));
 		tableTrntChk.addMouseListener(getTableTrntChkMouseListener());
 		((BatchTableModel) tableTrntChk.getModel()).applyColumnsWidths(tableTrntChk);
 		final SDRList sdrl2 = new SDRList();
@@ -99,13 +99,13 @@ public class BatchTrrntChkPanel extends JPanel
 				final JsonObject jso = arrv.asObject();
 				final JsonValue src = jso.get("src"); //$NON-NLS-1$
 				if (src != Json.NULL)
-					sdr.src = src.asString();
+					sdr.setSrc(src.asString());
 				final JsonValue dst = jso.get("dst"); //$NON-NLS-1$
 				if (dst != Json.NULL)
-					sdr.dst = dst.asString();
+					sdr.setDst(dst.asString());
 				final JsonValue result = jso.get("result"); //$NON-NLS-1$
-				sdr.result = result.asString();
-				sdr.selected = jso.getBoolean("selected", true); //$NON-NLS-1$
+				sdr.setResult(result.asString());
+				sdr.setSelected(jso.getBoolean("selected", true)); //$NON-NLS-1$
 				sdrl2.add(sdr);
 			}
 		}
@@ -233,7 +233,7 @@ public class BatchTrrntChkPanel extends JPanel
 		final var mode = col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY;
 		final File currdir;
 		if (!list.isEmpty())
-			currdir = Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(File::new).map(File::getParentFile).orElse(null);
+			currdir = Optional.ofNullable(col == 0 ? list.get(0).getSrc() : list.get(0).getDst()).map(File::new).map(File::getParentFile).orElse(null);
 		else
 			currdir = null;
 		new JRMFileChooser<Void>(type, mode, currdir, null /* selected */, Collections.singletonList(getAddTorrentFileFilter(col)), col == 0 ? "Choose torrent files" : "Choose destination directories", true).show(SwingUtilities.windowForComponent(BatchTrrntChkPanel.this), chooser -> {
@@ -269,9 +269,9 @@ public class BatchTrrntChkPanel extends JPanel
 			else
 				line = model.getData().get(row + i);
 			if (col == 1)
-				line.dst = file.getPath();
+				line.setDst(file.getPath());
 			else
-				line.src = file.getPath();
+				line.setSrc(file.getPath());
 		}
 		if (row != -1)
 			model.fireTableChanged(new TableModelEvent(model, row, startSize - 1, col));

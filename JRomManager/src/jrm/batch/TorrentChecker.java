@@ -77,9 +77,9 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 		this.session = session;
 		this.options = options;
 		this.mode = mode;
-		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), (int) sdrl.stream().filter(sdr -> sdr.selected).count()), true);
+		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), (int) sdrl.stream().filter(SrcDstResult::isSelected).count()), true);
 		progress.setProgress2("", 0, 1); //$NON-NLS-1$
-		sdrl.stream().filter(sdr -> sdr.selected).forEach(sdr -> updater.updateResult(sdrl.indexOf(sdr), ""));
+		sdrl.stream().filter(SrcDstResult::isSelected).forEach(sdr -> updater.updateResult(sdrl.indexOf(sdr), ""));
 		final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, true);
 		final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
 		new MultiThreading<SrcDstResult>(nThreads, sdr -> {
@@ -97,7 +97,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 			{
 				Log.err(e.getMessage(), e);
 			}
-		}).start(sdrl.stream().filter(sdr -> sdr.selected));
+		}).start(sdrl.stream().filter(SrcDstResult::isSelected));
 	}
 
 	/**
@@ -110,11 +110,11 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 	 */
 	private String check(final ProgressHandler progress, final SrcDstResult sdr) throws IOException, TorrentException
 	{
-		if (sdr.src == null || sdr.dst == null)
-			return sdr.src == null ? session.getMsgs().getString("TorrentChecker.SrcNotDefined") : session.getMsgs().getString("TorrentChecker.DstNotDefined"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (sdr.getSrc() == null || sdr.getDst() == null)
+			return sdr.getSrc() == null ? session.getMsgs().getString("TorrentChecker.SrcNotDefined") : session.getMsgs().getString("TorrentChecker.DstNotDefined"); //$NON-NLS-1$ //$NON-NLS-2$
 		var result = ""; //$NON-NLS-1$
-		final var src = PathAbstractor.getAbsolutePath(session, sdr.src).toFile();
-		final var dst = PathAbstractor.getAbsolutePath(session, sdr.dst).toFile();
+		final var src = PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile();
+		final var dst = PathAbstractor.getAbsolutePath(session, sdr.getDst()).toFile();
 		if (!src.exists() || !dst.exists())
 			return src.exists() ? session.getMsgs().getString("TorrentChecker.DstMustExist") : session.getMsgs().getString("TorrentChecker.SrcMustExist"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -449,7 +449,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 	private int removeUnknownFiles(final TrntChkReport report, final Set<Path> paths, final SrcDstResult sdr, final boolean remove) throws IOException
 	{
 		final var filesToRemove = new ArrayList<Path>();
-		final var dst = PathAbstractor.getAbsolutePath(session, sdr.dst);
+		final var dst = PathAbstractor.getAbsolutePath(session, sdr.getDst());
 		Files.walkFileTree(dst, new SimpleFileVisitor<Path>()
 		{
 			@Override
@@ -491,7 +491,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 	{
 		final var components = new HashSet<String>();
 		final var archives = new HashSet<Path>();
-		final var dst = PathAbstractor.getAbsolutePath(session, sdr.dst);
+		final var dst = PathAbstractor.getAbsolutePath(session, sdr.getDst());
 		for (var j = 0; j < tfiles.size(); j++)
 		{
 			final TorrentFile tfile = tfiles.get(j);

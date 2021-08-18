@@ -141,15 +141,15 @@ public class BatchTableModel extends SDRTableModel
 		switch (columnIndex)
 		{
 			case 0:
-				return getData().get(rowIndex).src;
+				return getData().get(rowIndex).getSrc();
 			case 1:
-				return getData().get(rowIndex).dst;
+				return getData().get(rowIndex).getDst();
 			case 2:
-				return getData().get(rowIndex).result;
+				return getData().get(rowIndex).getResult();
 			case 3:
 				return "Detail";
 			case 4:
-				return getData().get(rowIndex).selected;
+				return getData().get(rowIndex).isSelected();
 			default:
 				return null;
 		}
@@ -161,18 +161,18 @@ public class BatchTableModel extends SDRTableModel
 		switch (columnIndex)
 		{
 			case 0:
-				getData().get(rowIndex).src = ((File) aValue).getPath();
+				getData().get(rowIndex).setSrc(((File) aValue).getPath());
 				break;
 			case 1:
-				getData().get(rowIndex).dst = ((File) aValue).getPath();
+				getData().get(rowIndex).setDst(((File) aValue).getPath());
 				break;
 			case 2:
-				getData().get(rowIndex).result = (String) aValue;
+				getData().get(rowIndex).setResult((String) aValue);
 				break;
 			case 3:
 				return;
 			case 4:
-				getData().get(rowIndex).selected = (Boolean) aValue;
+				getData().get(rowIndex).setSelected((Boolean) aValue);
 				break;
 			default:
 				break;

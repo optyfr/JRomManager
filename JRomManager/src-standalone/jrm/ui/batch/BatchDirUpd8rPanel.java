@@ -173,14 +173,14 @@ public class BatchDirUpd8rPanel extends JPanel
 		JMenuItem mntmDat2DirD2DTzip = new JMenuItem(Messages.getString("MainFrame.TZIP")); //$NON-NLS-1$
 		mntmDat2DirD2DTzip.addActionListener(e -> {
 			for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
-				ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, sdr.src).toFile());
+				ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
 		});
 		mnDat2DirD2D.add(mntmDat2DirD2DTzip);
 
 		JMenuItem mntmDat2DirD2DDir = new JMenuItem(Messages.getString("MainFrame.DIR")); //$NON-NLS-1$
 		mntmDat2DirD2DDir.addActionListener(e -> {
 			for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
-				ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.src).toFile());
+				ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
 		});
 		mnDat2DirD2D.add(mntmDat2DirD2DDir);
 
@@ -225,13 +225,13 @@ public class BatchDirUpd8rPanel extends JPanel
 		{
 			BatchDirUpd8rSettingsDialog dialog = new BatchDirUpd8rSettingsDialog(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this));
 			SrcDstResult entry = list.get(0);
-			dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.src).toFile(), null));
+			dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.getSrc()).toFile(), null));
 			dialog.setVisible(true);
 			if (dialog.isSuccess())
 			{
 				for (SrcDstResult sdr : list)
 				{
-					session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.src).toFile(), dialog.settingsPanel.getSettings());
+					session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile(), dialog.settingsPanel.getSettings());
 				}
 			}
 		}
@@ -249,7 +249,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		final int type = col == 0 ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG;
 		final int mode = col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY;
 		if (!list.isEmpty())
-			currdir = Optional.ofNullable(col == 0 ? list.get(0).src : list.get(0).dst).map(f -> new File(f).getParentFile()).orElse(null);
+			currdir = Optional.ofNullable(col == 0 ? list.get(0).getSrc() : list.get(0).getDst()).map(f -> new File(f).getParentFile()).orElse(null);
 		else
 			currdir = null;
 		final List<FileFilter> filters = Collections.singletonList(new Dir2DatFileFilter(col));
@@ -286,9 +286,9 @@ public class BatchDirUpd8rPanel extends JPanel
 				else
 					line = sdrmodel.getData().get(row + i);
 				if (col == 1)
-					line.dst = file.getPath();
+					line.setDst(file.getPath());
 				else
-					line.src = file.getPath();
+					line.setSrc(file.getPath());
 			}
 		}
 		chosenTablechanged(col, row, sdrmodel, startSize);
@@ -340,7 +340,7 @@ public class BatchDirUpd8rPanel extends JPanel
 			protected DirUpdaterResults doInBackground() throws Exception
 			{
 				setProgress("Loading...");
-				return DirUpdaterResults.load(session, new File(sdr.src), this);
+				return DirUpdaterResults.load(session, new File(sdr.getSrc()), this);
 			}
 
 			@Override
@@ -386,7 +386,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		if (listBatchToolsDat2DirSrc.getModel().getSize() > 0)
 		{
 			final List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
-			if (sdrl.stream().filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.src).toFile()).exists()).count() > 0)
+			if (sdrl.stream().filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile()).exists()).count() > 0)
 				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 			else
 			{

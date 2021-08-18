@@ -48,14 +48,14 @@ public class DirUpdater
 	public DirUpdater(final Session session, final List<SrcDstResult> sdrl, final ProgressHandler progress, final List<File> srcdirs, final ResultColUpdater result, final boolean dryrun)
 	{
 		final Map<String, DirScan> scancache = new HashMap<>();
-		sdrl.stream().filter(sdr->sdr.selected).forEach(sdr->
+		sdrl.stream().filter(SrcDstResult::isSelected).forEach(sdr->
 			result.updateResult(sdrl.indexOf(sdr), "") //$NON-NLS-1$
 		);
-		sdrl.stream().filter(sdr->sdr.selected).takeWhile(p->!progress.isCancel()).forEach(sdr->{
+		sdrl.stream().filter(SrcDstResult::isSelected).takeWhile(p->!progress.isCancel()).forEach(sdr->{
 			final var row = sdrl.indexOf(sdr);
 			result.updateResult(row, "In progress..."); //$NON-NLS-1$
-			final var dat = PathAbstractor.getAbsolutePath(session, sdr.src).toFile();
-			final var dst = PathAbstractor.getAbsolutePath(session, sdr.dst).toFile();
+			final var dat = PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile();
+			final var dst = PathAbstractor.getAbsolutePath(session, sdr.getDst()).toFile();
 			final var dur = new DirUpdaterResults();
 			dur.setDat(dat);
 			try

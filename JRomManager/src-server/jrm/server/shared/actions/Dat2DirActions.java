@@ -23,6 +23,7 @@ import jrm.server.shared.Worker;
 
 public class Dat2DirActions
 {
+	private static final String PARAMS = "params";
 	private final ActionsMgr ws;
 
 	public Dat2DirActions(ActionsMgr ws)
@@ -30,6 +31,7 @@ public class Dat2DirActions
 		this.ws = ws;
 	}
 
+	@SuppressWarnings("exports")
 	public void start(JsonObject jso)
 	{
 		(ws.getSession().setWorker(new Worker(()->{
@@ -42,7 +44,7 @@ public class Dat2DirActions
 				if (srcdirs.length > 0)
 				{
 					SDRList sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-					if (sdrl.stream().filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.src).toFile()).exists()).count() > 0)
+					if (sdrl.stream().filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile()).exists()).count() > 0)
 						new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
 					{
@@ -51,7 +53,7 @@ public class Dat2DirActions
 							@Override
 							public void updateResult(int row, String result)
 							{
-								sdrl.get(row).result = result;
+								sdrl.get(row).setResult(result);
 								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
 								session.getUser().getSettings().saveSettings();
 								Dat2DirActions.this.updateResult(row, result);
@@ -60,7 +62,7 @@ public class Dat2DirActions
 							@Override
 							public void clearResults()
 							{
-								sdrl.forEach(sdr -> sdr.result = "");
+								sdrl.forEach(sdr -> sdr.setResult(""));
 								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
 								session.getUser().getSettings().saveSettings();
 								Dat2DirActions.this.clearResults();
@@ -87,9 +89,10 @@ public class Dat2DirActions
 		}))).start();
 	}
 
+	@SuppressWarnings("exports")
 	public void settings(JsonObject jso)
 	{
-		JsonArray srcs = jso.get("params").asObject().get("srcs").asArray();
+		JsonArray srcs = jso.get(PARAMS).asObject().get("srcs").asArray();
 		if(srcs!=null && srcs.size()>0)
 		{
 			final var src = srcs.get(0).asString();
@@ -104,7 +107,7 @@ public class Dat2DirActions
 					final var params = new JsonObject();
 					params.add("settings", settings.asJSO());
 					params.add("srcs",srcs);
-					msg.add("params", params);
+					msg.add(PARAMS, params);
 					ws.send(msg.toString());
 				}
 			}
@@ -127,7 +130,7 @@ public class Dat2DirActions
 				final var params = new JsonObject();
 				params.add("row", row);
 				params.add("result", result);
-				msg.add("params", params);
+				msg.add(PARAMS, params);
 				ws.send(msg.toString());
 			}
 		}

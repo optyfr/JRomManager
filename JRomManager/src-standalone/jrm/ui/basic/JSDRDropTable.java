@@ -207,9 +207,9 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 		else
 			line = model.getData().get(row + i);
 		if (col == 1)
-			line.dst = file.getPath();
+			line.setDst(file.getPath());
 		else
-			line.src = file.getPath();
+			line.setSrc(file.getPath());
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	@Override
 	public void updateResult(int row, String result)
 	{
-		model.getData().get(row).result = result;
+		model.getData().get(row).setResult(result);
 		model.fireTableChanged(new TableModelEvent(model, row, row, 2));
 		addCallBack.call(model.getData());
 	}
@@ -275,7 +275,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	@Override
 	public void clearResults()
 	{
-		model.getData().forEach(r->r.result="");
+		model.getData().forEach(r->r.setResult(""));
 		model.fireTableChanged(new TableModelEvent(model, 0, model.getRowCount()-1, 2));
 		addCallBack.call(model.getData());
 	}

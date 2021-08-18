@@ -26,6 +26,7 @@ public class TrntChkActions
 		this.ws = ws;
 	}
 
+	@SuppressWarnings("exports")
 	public void start(JsonObject jso)
 	{
 		(ws.getSession().setWorker(new Worker(()->{
@@ -48,7 +49,7 @@ public class TrntChkActions
 					@Override
 					public void updateResult(int row, String result)
 					{
-						sdrl.get(row).result = result;
+						sdrl.get(row).setResult(result);
 						session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
 						session.getUser().getSettings().saveSettings();
 						TrntChkActions.this.updateResult(row, result);
@@ -57,7 +58,7 @@ public class TrntChkActions
 					@Override
 					public void clearResults()
 					{
-						sdrl.forEach(sdr -> sdr.result = "");
+						sdrl.forEach(sdr -> sdr.setResult(""));
 						session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
 						session.getUser().getSettings().saveSettings();
 						TrntChkActions.this.clearResults();

@@ -56,11 +56,11 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 	private void writeRecord(SrcDstResult sdr) throws XMLStreamException
 	{
 		writer.writeElement(RECORD, 
-			new SimpleAttribute("id", sdr.id),
-			new SimpleAttribute("src", sdr.src),
-			new SimpleAttribute("dst", sdr.dst!=null?sdr.dst:""),
-			new SimpleAttribute(RESULT, sdr.result),
-			new SimpleAttribute(SELECTED, sdr.selected)
+			new SimpleAttribute("id", sdr.getId()),
+			new SimpleAttribute("src", sdr.getSrc()),
+			new SimpleAttribute("dst", Optional.ofNullable(sdr.getDst()).orElse("")),
+			new SimpleAttribute(RESULT, sdr.getResult()),
+			new SimpleAttribute(SELECTED, sdr.isSelected())
 		);
 	}
 	
@@ -76,7 +76,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 				request.getSession().getUser().getSettings().saveSettings();
 			}
 			final var sdr = new SrcDstResult(operation.getData("src"));
-			Optional<SrcDstResult> candidate = sdrl.stream().filter(s->s.src.equals(operation.getData("src"))).findAny();
+			Optional<SrcDstResult> candidate = sdrl.stream().filter(s->s.getSrc().equals(operation.getData("src"))).findAny();
 			if(!candidate.isPresent())
 			{
 				sdrl.add(sdr);
@@ -107,18 +107,18 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 				request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,SrcDstResult.toJSON(sdrl));
 				request.getSession().getUser().getSettings().saveSettings();
 			}
-			final Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.id.equals(operation.getData("id"))).findFirst();
+			final Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
 			if(candidate.isPresent())
 			{
 				if(operation.hasData("src") || operation.hasData("dst") || operation.hasData(SELECTED))
 				{
 					final var sdr = candidate.get();
 					if(operation.hasData("src"))
-						sdr.src = operation.getData("src");
+						sdr.setSrc(operation.getData("src"));
 					if(operation.hasData("dst"))
-						sdr.dst = operation.getData("dst");
+						sdr.setDst(operation.getData("dst"));
 					if(operation.hasData(SELECTED))
-						sdr.selected = Boolean.parseBoolean(operation.getData(SELECTED));
+						sdr.setSelected(Boolean.parseBoolean(operation.getData(SELECTED)));
 					request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,SrcDstResult.toJSON(sdrl));
 					request.getSession().getUser().getSettings().saveSettings();
 					writer.writeStartElement(RESPONSE);
@@ -149,7 +149,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 				request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,SrcDstResult.toJSON(sdrl));
 				request.getSession().getUser().getSettings().saveSettings();
 			}
-			final Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.id.equals(operation.getData("id"))).findFirst();
+			final Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
 			if(candidate.isPresent())
 			{
 				sdrl.remove(candidate.get());
@@ -158,7 +158,7 @@ public class BatchTrntChkSDRXMLResponse extends XMLResponse
 				writer.writeStartElement(RESPONSE);
 				writer.writeElement(STATUS, "0");
 				writer.writeStartElement("data");
-				writer.writeElement(RECORD, new SimpleAttribute("id", candidate.get().id));
+				writer.writeElement(RECORD, new SimpleAttribute("id", candidate.get().getId()));
 				writer.writeEndElement();
 				writer.writeEndElement();
 				
