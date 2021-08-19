@@ -55,6 +55,7 @@ import jrm.profile.data.Container;
 import jrm.profile.data.Container.Type;
 import jrm.profile.data.Directory;
 import jrm.profile.data.Disk;
+import jrm.profile.data.Entity;
 import jrm.profile.data.EntityStatus;
 import jrm.profile.data.Entry;
 import jrm.profile.data.FakeDirectory;
@@ -1060,51 +1061,10 @@ public class Scan extends PathAbstractor
 			if (candidateEntry.equals(disk)) // NOSONAR
 			{
 				Log.debug(() -> "The disk " + candidateEntry.getName() + " match hash from disk " + disk.getNormalizedName());
-				if (!disk.getNormalizedName().equals(candidateEntry.getName())) // but this entry name does
-																				// not match the disk name
+				if (!disk.getNormalizedName().equals(candidateEntry.getName())) // but this entry name does not match the disk name
 				{
-					Log.debug(() -> "\tbut this disk name does not match the disk name");
-					final Disk anotherDisk = data.disksByName.get(candidateEntry.getName());
-					if (null != anotherDisk && candidateEntry.equals(anotherDisk)) // NOSONAR
-					{
-						Log.debug(() -> "\t\t\tand the entry " + candidateEntry.getName() + " is ANOTHER disk");
-						if (data.entriesByName.containsKey(disk.getNormalizedName()))
-						{
-							Log.debug(() -> "\t\t\t\tand disk " + disk.getNormalizedName() + " is in the entriesByName");
-						}
-						else
-						{
-							Log.debug(() -> "\\t\\t\\t\\twe must duplicate disk " + disk.getNormalizedName() + " to ");
-							// we must duplicate
-							reportSubject.add(new EntryMissingDuplicate(disk, candidateEntry));
-							OpenContainer.getInstance(data.duplicateSet, directory, format, 0L).addAction(new DuplicateEntry(disk.getName(), candidateEntry));
-							return candidateEntry;
-						}
-					}
-					else
-					{
-						if (anotherDisk == null)
-							Log.debug(() -> "\t" + candidateEntry.getName() + " in disksByName not found (" + data.disksByName.keySet().stream().collect(Collectors.joining(", "))+")");
-						else
-							Log.debug(() -> "\t" + candidateEntry.getName() + " in disksByName found but does not match hash");
-						if (!data.entriesByName.containsKey(disk.getNormalizedName())) // and disk name is not in the entries
-						{
-							Log.debug(() -> "\t\tand disk " + disk.getNormalizedName() + " is NOT in the entriesByName (" + data.entriesByName.keySet().stream().collect(Collectors.joining(", ")) + ")");
-							if (!data.markedForRename.contains(candidateEntry))
-							{
-								reportSubject.add(new EntryWrongName(disk, candidateEntry));
-								OpenContainer.getInstance(data.renameBeforeSet, directory, format, 0L).addAction(new RenameEntry(candidateEntry));
-								OpenContainer.getInstance(data.renameAfterSet, directory, format, 0L).addAction(new RenameEntry(disk.getName(), candidateEntry));
-								data.markedForRename.add(candidateEntry);
-							}
-							else
-							{
-								reportSubject.add(new EntryAdd(disk, candidateEntry));
-								OpenContainer.getInstance(data.duplicateSet, directory, format, 0L).addAction(new DuplicateEntry(disk.getName(), candidateEntry));
-							}
-							return candidateEntry;
-						}
-					}
+					if(scanDisksEntriesNameMismatch(directory, reportSubject, data, disk, candidateEntry))
+						return candidateEntry;
 				}
 				else
 				{
@@ -1118,6 +1078,66 @@ public class Scan extends PathAbstractor
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @param directory
+	 * @param reportSubject
+	 * @param data
+	 * @param disk
+	 * @param candidateEntry
+	 */
+	@SuppressWarnings("unlikely-arg-type")
+	private boolean scanDisksEntriesNameMismatch(final Directory directory, final SubjectSet reportSubject, final ScanDisksData data, final Disk disk, final Entry candidateEntry)
+	{
+		Log.debug(() -> "\tbut this disk name does not match the disk name");
+		final Disk anotherDisk = data.disksByName.get(candidateEntry.getName());
+		if (null != anotherDisk && candidateEntry.equals(anotherDisk)) // NOSONAR
+		{
+			if(scanDisksEntriesNameRetrieved(directory, reportSubject, data, disk, candidateEntry))
+				return true;
+		}
+		else
+		{
+			if (anotherDisk == null)
+				Log.debug(() -> "\t" + candidateEntry.getName() + " in disksByName not found (" + data.disksByName.keySet().stream().collect(Collectors.joining(", "))+")");
+			else
+				Log.debug(() -> "\t" + candidateEntry.getName() + " in disksByName found but does not match hash");
+			if (!data.entriesByName.containsKey(disk.getNormalizedName())) // and disk name is not in the entries
+			{
+				Log.debug(() -> "\t\tand disk " + disk.getNormalizedName() + " is NOT in the entriesByName (" + data.entriesByName.keySet().stream().collect(Collectors.joining(", ")) + ")");
+				if (!data.markedForRename.contains(candidateEntry))
+					scanRename(directory, reportSubject, 0L, data, disk, candidateEntry);
+				else
+					scanDuplicate(directory, reportSubject, 0L, data, disk, candidateEntry);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param directory
+	 * @param reportSubject
+	 * @param data
+	 * @param disk
+	 * @param candidateEntry
+	 */
+	private boolean scanDisksEntriesNameRetrieved(final Directory directory, final SubjectSet reportSubject, final ScanDisksData data, final Disk disk, final Entry candidateEntry)
+	{
+		Log.debug(() -> "\t\t\tand the entry " + candidateEntry.getName() + " is ANOTHER disk");
+		if (data.entriesByName.containsKey(disk.getNormalizedName()))
+		{
+			Log.debug(() -> String.format("\t\t\t\tand disk %s is in the entriesByName", disk.getNormalizedName()));
+		}
+		else
+		{
+			Log.debug(() -> "\\t\\t\\t\\twe must duplicate disk " + disk.getNormalizedName() + " to ");
+			// we must duplicate
+			scanDuplicate(directory, reportSubject, 0L, data, disk, candidateEntry);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -1332,7 +1352,6 @@ public class Scan extends PathAbstractor
 	 * @param entries
 	 * @return
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	private Entry scanRomsEntries(final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanRomsData scanData, final Rom rom, final List<Entry> entries)
 	{
 		for (final var candidate_entry : entries)
@@ -1340,52 +1359,8 @@ public class Scan extends PathAbstractor
 			Log.debug(() -> "The entry " + candidate_entry.getName() + " match hash from rom " + rom.getNormalizedName());
 			if (!rom.getNormalizedName().equals(candidate_entry.getName())) // but this entry name does not match the rom name
 			{
-				Log.debug(() -> "\tbut this entry name does not match the rom name");
-				final Rom anotherRom = scanData.romsByName.get(candidate_entry.getName());
-				if (null != anotherRom && candidate_entry.equals(anotherRom)) // NOSONAR
-				{
-					Log.debug(() -> "\t\t\tand the entry " + candidate_entry.getName() + " is ANOTHER rom");
-					if (scanData.entriesByName.containsKey(rom.getNormalizedName())) // and rom name is in the entries
-					{
-						Log.debug(() -> "\t\t\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
-					}
-					else
-					{
-						Log.debug(() -> "\\t\\t\\t\\twe must duplicate rom " + rom.getNormalizedName() + " to ");
-						// we must duplicate
-						reportSubject.add(new EntryMissingDuplicate(rom, candidate_entry));
-						OpenContainer.getInstance(scanData.duplicateSet, archive, format, estimatedRomsSize).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
-						return candidate_entry;
-					}
-				}
-				else
-				{
-					if (anotherRom == null)
-						Log.debug(() -> "\t" + candidate_entry.getName() + " in romsByName not found (" + scanData.romsByName.keySet().stream().collect(Collectors.joining(", ")) + ")");
-					else
-						Log.debug(() -> "\t" + candidate_entry.getName() + " in romsByName found but does not match hash");
-
-					if (!scanData.entriesByName.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
-					{
-						Log.debug(() -> "\t\tand rom " + rom.getNormalizedName() + " is NOT in the entriesByName (" + scanData.entriesByName.keySet().stream().collect(Collectors.joining(", ")) + ")");
-
-						if (!scanData.markedForRename.contains(candidate_entry))
-						{
-							reportSubject.add(new EntryWrongName(rom, candidate_entry));
-							OpenContainer.getInstance(scanData.renameBeforeSet, archive, format, estimatedRomsSize).addAction(new RenameEntry(candidate_entry));
-							OpenContainer.getInstance(scanData.renameAfterSet, archive, format, estimatedRomsSize).addAction(new RenameEntry(rom.getName(), candidate_entry));
-							scanData.markedForRename.add(candidate_entry);
-						}
-						else
-						{
-							reportSubject.add(new EntryAdd(rom, candidate_entry));
-							OpenContainer.getInstance(scanData.duplicateSet, archive, format, estimatedRomsSize).addAction(new DuplicateEntry(rom.getName(), candidate_entry));
-						}
-						return candidate_entry;
-					}
-					else
-						Log.debug(() -> "\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
-				}
+				if(scanRomsEntriesNameMismatch(archive, reportSubject, estimatedRomsSize, scanData, rom, candidate_entry))
+					return candidate_entry;
 			}
 			else
 			{
@@ -1394,6 +1369,100 @@ public class Scan extends PathAbstractor
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @param archive
+	 * @param reportSubject
+	 * @param estimatedRomsSize
+	 * @param scanData
+	 * @param rom
+	 * @param candidateEntry
+	 */
+	@SuppressWarnings("unlikely-arg-type")
+	private boolean scanRomsEntriesNameMismatch(final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanRomsData scanData, final Rom rom, final Entry candidateEntry)
+	{
+		Log.debug(() -> "\tbut this entry name does not match the rom name");
+		final Rom anotherRom = scanData.romsByName.get(candidateEntry.getName());
+		if (null != anotherRom && candidateEntry.equals(anotherRom)) // NOSONAR
+		{
+			if(scanRomsEntriesNameRetrieved(archive, reportSubject, estimatedRomsSize, scanData, rom, candidateEntry))
+				return true;
+		}
+		else
+		{
+			if (anotherRom == null)
+				Log.debug(() -> "\t" + candidateEntry.getName() + " in romsByName not found (" + scanData.romsByName.keySet().stream().collect(Collectors.joining(", ")) + ")");
+			else
+				Log.debug(() -> "\t" + candidateEntry.getName() + " in romsByName found but does not match hash");
+
+			if (!scanData.entriesByName.containsKey(rom.getNormalizedName())) // and rom name is not in the entries
+			{
+				Log.debug(() -> "\t\tand rom " + rom.getNormalizedName() + " is NOT in the entriesByName (" + scanData.entriesByName.keySet().stream().collect(Collectors.joining(", ")) + ")");
+
+				if (!scanData.markedForRename.contains(candidateEntry))
+					scanRename(archive, reportSubject, estimatedRomsSize, scanData, rom, candidateEntry);
+				else
+					scanDuplicate(archive, reportSubject, estimatedRomsSize, scanData, rom, candidateEntry);
+				return true;
+			}
+			else
+				Log.debug(() -> "\t\tand rom " + rom.getNormalizedName() + " is in the entriesByName");
+		}
+		return false;
+	}
+
+	/**
+	 * @param archive
+	 * @param reportSubject
+	 * @param estimatedRomsSize
+	 * @param scanData
+	 * @param rom
+	 * @param candidateEntry
+	 */
+	private boolean scanRomsEntriesNameRetrieved(final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanRomsData scanData, final Rom rom, final Entry candidateEntry)
+	{
+		Log.debug(() -> "\t\t\tand the entry " + candidateEntry.getName() + " is ANOTHER rom");
+		if (scanData.entriesByName.containsKey(rom.getNormalizedName())) // and rom name is in the entries
+			Log.debug(() -> String.format("\t\t\t\tand rom %s is in the entriesByName", rom.getNormalizedName()));
+		else
+		{
+			Log.debug(() -> "\\t\\t\\t\\twe must duplicate rom " + rom.getNormalizedName() + " to ");
+			// we must duplicate
+			scanDuplicate(archive, reportSubject, estimatedRomsSize, scanData, rom, candidateEntry);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param container
+	 * @param reportSubject
+	 * @param estimatedRomsSize
+	 * @param scanData
+	 * @param entity
+	 * @param entry
+	 */
+	private void scanDuplicate(final Container container, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanData scanData, final Entity entity, final Entry entry)
+	{
+		reportSubject.add(new EntryMissingDuplicate(entity, entry));
+		OpenContainer.getInstance(scanData.duplicateSet, container, format, estimatedRomsSize).addAction(new DuplicateEntry(entity.getName(), entry));
+	}
+
+	/**
+	 * @param container
+	 * @param reportSubject
+	 * @param estimatedRomsSize
+	 * @param data
+	 * @param entity
+	 * @param entry
+	 */
+	private void scanRename(final Container container, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanData data, final Entity entity, final Entry entry)
+	{
+		reportSubject.add(new EntryWrongName(entity, entry));
+		OpenContainer.getInstance(data.renameBeforeSet, container, format, estimatedRomsSize).addAction(new RenameEntry(entry));
+		OpenContainer.getInstance(data.renameAfterSet, container, format, estimatedRomsSize).addAction(new RenameEntry(entity.getName(), entry));
+		data.markedForRename.add(entry);
 	}
 
 	/**
@@ -1605,6 +1674,7 @@ public class Scan extends PathAbstractor
 	 * @param sample
 	 * @return
 	 */
+	@SuppressWarnings("unlikely-arg-type")
 	private Entry scanSamplesEntries(final Container container, final Sample sample)
 	{
 		for (final Entry candidate_entry : container.getEntries())
