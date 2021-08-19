@@ -40,13 +40,7 @@ public class AdminXMLResponse extends XMLResponse
 				val rows = login.queryHandler("SELECT * FROM USERS", new BeanListHandler<UserCredential>(UserCredential.class));
 				writer.writeStartElement(RESPONSE);
 				writer.writeElement(STATUS, "0");
-				writer.writeElement("startRow", "0");
-				writer.writeElement("endRow", Integer.toString(rows.size()));
-				writer.writeElement("totalRows", Integer.toString(rows.size()));
-				writer.writeStartElement("data");
-				for(val row : rows)
-					writeRecord(row);
-				writer.writeEndElement();
+				fetchList(operation, rows, (row, idx) -> writeRecord(row));
 				writer.writeEndElement();
 			}
 			catch(Exception e)
@@ -79,14 +73,7 @@ public class AdminXMLResponse extends XMLResponse
 					login.update("INSERT INTO USERS VALUES(?, ?, ?)", operation.getData(LOGIN), CryptCredential.hash(operation.getData(PASSWORD)), Optional.ofNullable(operation.getData(ROLES)).orElse("admin"));
 					val user = login.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<UserCredential>(UserCredential.class), operation.getData(LOGIN));
 					if(user != null)
-					{
-						writer.writeStartElement(RESPONSE);
-						writer.writeElement(STATUS, "0");
-						writer.writeStartElement("data");
-						writeRecord(user);
-						writer.writeEndElement();
-						writer.writeEndElement();
-					}
+						writeSingle(user);
 					else
 						failure();
 				}
@@ -102,6 +89,20 @@ public class AdminXMLResponse extends XMLResponse
 			failure(CAN_T_DO_THAT);
 	}
 
+	/**
+	 * @param user
+	 * @throws XMLStreamException
+	 */
+	private void writeSingle(final jrm.fullserver.security.UserCredential user) throws XMLStreamException
+	{
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		writer.writeStartElement("data");
+		writeRecord(user);
+		writer.writeEndElement();
+		writer.writeEndElement();
+	}
+
 	@Override
 	public void update(Operation operation) throws XMLStreamException
 	{
@@ -114,14 +115,7 @@ public class AdminXMLResponse extends XMLResponse
 					login.update("UPDATE USERS SET PASSWORD=?, ROLES=? WHERE LOGIN=?", CryptCredential.hash(operation.getData(PASSWORD)), Optional.ofNullable(operation.getData(ROLES)).orElse("admin"), operation.getData(LOGIN));
 					val user = login.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<UserCredential>(UserCredential.class), operation.getData(LOGIN));
 					if(user != null)
-					{
-						writer.writeStartElement(RESPONSE);
-						writer.writeElement(STATUS, "0");
-						writer.writeStartElement("data");
-						writeRecord(user);
-						writer.writeEndElement();
-						writer.writeEndElement();
-					}
+						writeSingle(user);
 					else
 						failure();
 				}

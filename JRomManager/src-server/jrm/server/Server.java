@@ -1,14 +1,12 @@
 package jrm.server;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Scanner;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -20,7 +18,6 @@ import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
@@ -36,14 +33,8 @@ import jrm.server.shared.handlers.ImageServlet;
 import jrm.server.shared.handlers.UploadServlet;
 import lombok.val;
 
-public class Server
+public class Server extends AbstractServer
 {
-	private static final String PRECOMPRESSED = "precompressed";
-	private static final String ACCEPT_RANGES = "acceptRanges";
-	private static final String DIR_ALLOWED = "dirAllowed";
-	private static final String TRUE = "true";
-	private static final String FALSE = "false";
-	
 	private Path clientPath;
 	private boolean debug = false;
 	private static final int HTTP_PORT_DEFAULT = 8080;
@@ -55,8 +46,10 @@ public class Server
 	static final Map<String, WebSession> sessions = new HashMap<>();
 	
 		
+	@SuppressWarnings("exports")
 	public Server(CommandLine cmd) throws IOException, JettyException, InterruptedException
 	{
+		super(cmd.hasOption('d'));
 		this.clientPath = Optional.ofNullable(cmd.getOptionValue('c')).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
 		if (cmd.hasOption('b'))
 			bind = cmd.getOptionValue('b');
@@ -64,8 +57,6 @@ public class Server
 			httpPort = Integer.parseInt(cmd.getOptionValue('p'));
 		if (cmd.hasOption('w'))
 			System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
-		if (cmd.hasOption('d'))
-			debug = true;
 		Locale.setDefault(Locale.US);
 		System.setProperty("file.encoding", "UTF-8");
 		Log.init(getLogPath() + "/Server.%g.log", debug, 1024 * 1024, 5);
@@ -119,24 +110,7 @@ public class Server
 				Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort()+ " binded to " +((ServerConnector) connector).getHost());
 			Log.config("clientPath: " + clientPath);
 			Log.config("workPath: " + getWorkPath());
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.info("Server stopped.")));
-			if (debug)
-			{
-				try (final var sc = new Scanner(System.in))
-				{
-					// wait until receive stop command from keyboard
-					System.out.println("Enter 'stop' to halt: ");	//NOSONAR
-					while (!sc.nextLine().equalsIgnoreCase("stop"))
-						Thread.sleep(1000);
-					if (!jettyserver.isStopped())
-					{
-						WebSession.closeAll();
-						jettyserver.stop();
-					}
-				}
-			}
-			else
-				jettyserver.join();
+			waitStop(jettyserver);
 		}
 		catch (InterruptedException e)
 		{
@@ -146,74 +120,8 @@ public class Server
 		{
 			throw new JettyException(e.getMessage());
 		}
-
 	}
 	
-	@SuppressWarnings("serial")
-	private class JettyException extends Exception
-	{
-		@SuppressWarnings("unused")
-		public JettyException()
-		{
-			super();
-		}
-		
-		public JettyException(String message)
-		{
-			super(message);
-		}
-	}
-
-	/**
-	 * @return
-	 */
-	private ServletHolder holderStatic()
-	{
-		final var holderStatic = new ServletHolder("static", DefaultServlet.class);
-		holderStatic.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStatic.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStatic.setInitParameter(PRECOMPRESSED, TRUE);
-		return holderStatic;
-	}
-
-	/**
-	 * @return
-	 */
-	private ServletHolder holderStaticJS()
-	{
-		final var holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
-		holderStaticJS.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticJS.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticJS.setInitParameter(PRECOMPRESSED, TRUE);
-		holderStaticJS.setInitParameter("cacheControl", "public, max-age=0, must-revalidate");
-		return holderStaticJS;
-	}
-
-	/**
-	 * @return
-	 */
-	private ServletHolder holderStaticCache()
-	{
-		final var holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
-		holderStaticCache.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticCache.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticCache.setInitParameter(PRECOMPRESSED, TRUE);
-		return holderStaticCache;
-	}
-
-	/**
-	 * @return
-	 */
-	private ServletHolder holderStaticNoCache()
-	{
-		final var holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
-		holderStaticNoCache.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticNoCache.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticNoCache.setInitParameter(PRECOMPRESSED, FALSE);
-		holderStaticNoCache.setInitParameter("cacheControl", "no-store");
-		return holderStaticNoCache;
-	}
-
 	/**
 	 * Main entry point
 	 * 
@@ -245,20 +153,5 @@ public class Server
 			new HelpFormatter().printHelp("Server", options);
 			System.exit(1);
 		}
-	}
-	
-	private static Path getWorkPath()
-	{
-		String base = System.getProperty("jrommanager.dir");
-		if (base == null)
-			base = System.getProperty("user.dir");
-		return Paths.get(base);
-	}
-	
-	private static String getLogPath() throws IOException
-	{
-		final var path = getWorkPath().resolve("logs");
-		Files.createDirectories(path);
-		return path.toString();
 	}
 }

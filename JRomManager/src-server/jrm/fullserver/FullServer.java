@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Scanner;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -32,7 +31,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
@@ -46,23 +44,15 @@ import jrm.fullserver.security.Login;
 import jrm.fullserver.security.SSLReload;
 import jrm.misc.Log;
 import jrm.misc.URIUtils;
-import jrm.server.shared.WebSession;
+import jrm.server.AbstractServer;
 import jrm.server.shared.handlers.ActionServlet;
 import jrm.server.shared.handlers.DownloadServlet;
 import jrm.server.shared.handlers.ImageServlet;
 import jrm.server.shared.handlers.UploadServlet;
 
-public class FullServer
+public class FullServer extends AbstractServer
 {
-	private static final String CACHE_CONTROL = "cacheControl";
-	private static final String PRECOMPRESSED = "precompressed";
-	private static final String ACCEPT_RANGES = "acceptRanges";
-	private static final String DIR_ALLOWED = "dirAllowed";
-	private static final String TRUE = "true";
-	private static final String FALSE = "false";
-	
 	private Path clientPath;
-	private final boolean debug;
 
 	private static final String KEY_STORE = "jrt:/jrm.merged.module/certs/";
 	private static final String KEY_STORE_PATH_DEFAULT = KEY_STORE + "localhost.pfx";
@@ -83,6 +73,7 @@ public class FullServer
 
 	public FullServer(CommandLine cmd) throws IOException, SQLException, InterruptedException, JettyException
 	{
+		super(cmd.hasOption('d'));
 		clientPath = getOption(cmd, 'c').map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
 		bind = getOption(cmd, 'b').orElse(BIND_DEFAULT);
 		httpPort = getOption(cmd, 'p').map(Integer::parseInt).orElse(HTTP_PORT_DEFAULT);
@@ -95,7 +86,6 @@ public class FullServer
 		else
 			keyStorePWPath = null;
 		getOption(cmd, 'w').map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
-		debug = cmd.hasOption('d');
 		protocols = PROTOCOLS_DEFAULT;
 		connlimit = CONNLIMIT_DEFAULT;
 		
@@ -321,109 +311,8 @@ public class FullServer
 		context.setSecurityHandler(security);
 	}
 
-	/**
-	 * @return
-	 */
-	private ServletHolder holderStatic()
-	{
-		final var holderStatic = new ServletHolder("static", DefaultServlet.class);
-		holderStatic.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStatic.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStatic.setInitParameter(PRECOMPRESSED, TRUE);
-		return holderStatic;
-	}
 
-	/**
-	 * @return
-	 */
-	private ServletHolder holderStaticJS()
-	{
-		final var holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
-		holderStaticJS.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticJS.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticJS.setInitParameter(PRECOMPRESSED, TRUE);
-		holderStaticJS.setInitParameter(CACHE_CONTROL, "public, max-age=0, must-revalidate");
-		return holderStaticJS;
-	}
 
-	/**
-	 * @return
-	 */
-	private ServletHolder holderStaticCache()
-	{
-		final var holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
-		holderStaticCache.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticCache.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticCache.setInitParameter(PRECOMPRESSED, TRUE);
-		return holderStaticCache;
-	}
-
-	/**
-	 * @return
-	 */
-	private ServletHolder holderStaticNoCache()
-	{
-		final var holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
-		holderStaticNoCache.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticNoCache.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticNoCache.setInitParameter(PRECOMPRESSED, FALSE);
-		holderStaticNoCache.setInitParameter(CACHE_CONTROL, "no-store");
-		return holderStaticNoCache;
-	}
-
-	/**
-	 * @param jettyserver
-	 * @throws InterruptedException
-	 * @throws Exception
-	 */
-	private void waitStop(final Server jettyserver) throws InterruptedException, JettyException
-	{
-		try
-		{
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.info("Server stopped.")));
-			if (debug)
-			{
-				try (final var sc = new Scanner(System.in))
-				{
-					// wait until receive stop command from keyboard
-					System.out.println("Enter 'stop' to halt: ");	//NOSONAR
-					while (!sc.nextLine().equalsIgnoreCase("stop"))
-						Thread.sleep(1000);
-					if (!jettyserver.isStopped())
-					{
-						WebSession.closeAll();
-						jettyserver.stop();
-					}
-				}
-			}
-			else
-				jettyserver.join();
-		}
-		catch (InterruptedException e)
-		{
-			throw e;
-		}
-		catch (Exception e)
-		{
-			throw new JettyException(e.getMessage(),e);
-		}
-	}
-
-	@SuppressWarnings("serial")
-	private class JettyException extends Exception
-	{
-		@SuppressWarnings("unused")
-		public JettyException()
-		{
-			super();
-		}
-		
-		public JettyException(String message, Throwable cause)
-		{
-			super(message, cause);
-		}
-	}
-	
 	public static void main(String[] args)
 	{
 		final var options = new Options();
@@ -455,19 +344,5 @@ public class FullServer
 		}
 	}
 
-	private static Path getWorkPath()
-	{
-		String base = System.getProperty("jrommanager.dir");
-		if (base == null)
-			base = System.getProperty("user.dir");
-		return Paths.get(base);
-	}
-
-	private static String getLogPath() throws IOException
-	{
-		final var path = getWorkPath().resolve("logs");
-		Files.createDirectories(path);
-		return path.toString();
-	}
 
 }

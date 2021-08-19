@@ -47,6 +47,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -907,26 +908,7 @@ public class ProfileViewer extends JDialog
 						}
 					}
 					ware.setSelected(false);
-					for (var i = 0; i < filter.size(); i++)
-					{
-						if (keywordSet.contains(filter.get(i)))
-						{
-							final var pos = i;
-							prefmap.compute(matcher.group(1), (key, pref) -> {
-								if (pref == null)
-									return new KeyPref(pos, ware);
-								else if (pos < pref.order)
-								{
-									pref.clear();
-									return new KeyPref(pos, ware);
-								}
-								else if (pos == pref.order)
-									pref.add(ware);
-								return pref;
-							});
-							break;
-						}
-					}
+					selectFromKeywords(filter, prefmap, ware, matcher);
 				}
 				else
 				{
@@ -934,7 +916,37 @@ public class ProfileViewer extends JDialog
 				}
 			});
 			list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
-		}		
+		}
+
+		/**
+		 * @param filter
+		 * @param prefmap
+		 * @param ware
+		 * @param matcher
+		 */
+		private void selectFromKeywords(final List<String> filter, HashMap<String, KeyPref> prefmap, Anyware ware, final Matcher matcher)
+		{
+			for (var i = 0; i < filter.size(); i++)
+			{
+				if (keywordSet.contains(filter.get(i)))
+				{
+					final var pos = i;
+					prefmap.compute(matcher.group(1), (key, pref) -> {
+						if (pref == null)
+							return new KeyPref(pos, ware);
+						else if (pos < pref.order)
+						{
+							pref.clear();
+							return new KeyPref(pos, ware);
+						}
+						else if (pos == pref.order)
+							pref.add(ware);
+						return pref;
+					});
+					break;
+				}
+			}
+		}
 		
 	}
 	
@@ -1047,6 +1059,7 @@ public class ProfileViewer extends JDialog
 	 *
 	 * @param profile the profile
 	 */
+	@SuppressWarnings("exports")
 	public void reset(final Profile profile)
 	{
 		final var model = new MachineListListModel(profile.getMachineListList());

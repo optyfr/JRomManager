@@ -337,65 +337,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 
 		if (operation.getOperationId().toString().equals("expand"))
 		{
-			if (operation.hasData(PATHS))
-			{
-				var dir = request.getSession().getUser().getSettings().getWorkPath();
-				if (operation.hasData(PARENT))
-					dir = new File(operation.getData(PARENT)).toPath();
-				writer.writeStartElement(RESPONSE);
-				writer.writeElement(STATUS, "0");
-				writer.writeElement(PARENT, dir.toString());
-				writer.writeStartElement("data");
-				var cnt = new AtomicInteger();
-				if ("addArc".equals(operation.getData(CONTEXT)))
-				{
-					for (String path : operation.getDatas(PATHS))
-					{
-						var entry = pathAbstractor.getAbsolutePath(path);
-						Files.walkFileTree(entry, new SimpleFileVisitor<Path>()
-						{
-							String[] exts = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
-
-							@Override
-							public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
-							{
-								if (FilenameUtils.isExtension(file.getFileName().toString(), exts))
-								{
-									try
-									{
-										writer.writeEmptyElement(RECORD);
-										writer.writeAttribute("Name", file.getFileName().toString());
-										writer.writeAttribute("Path", pathAbstractor.getRelativePath(file).toString());
-										cnt.incrementAndGet();
-									}
-									catch (XMLStreamException e)
-									{
-										// ignore silently
-									}
-								}
-								return FileVisitResult.CONTINUE;
-							}
-						});
-					}
-				}
-				else
-				{
-					for (String path : operation.getDatas(PATHS))
-					{
-						var entry = Paths.get(path);
-						writer.writeEmptyElement(RECORD);
-						writer.writeAttribute("Name", entry.getFileName().toString());
-						writer.writeAttribute("Path", pathAbstractor.getRelativePath(entry).toString());
-						cnt.incrementAndGet();
-					}
-				}
-				writer.writeEndElement();
-				writer.writeElement("endRow", Long.toString(cnt.get() - 1L));
-				writer.writeElement("totalRows", Long.toString(cnt.get()));
-				writer.writeEndElement();
-			}
-			else
-				failure("paths missing");
+			customExpand(operation);
 		}
 		else if (operation.operationId.toString().equals("extract_subfolder"))
 		{
@@ -423,6 +365,86 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		}
 		else
 			super.custom(operation);
+	}
+
+	/**
+	 * @param operation
+	 * @throws XMLStreamException
+	 * @throws SecurityException
+	 * @throws IOException
+	 */
+	private void customExpand(Operation operation) throws XMLStreamException, SecurityException, IOException
+	{
+		if (operation.hasData(PATHS))
+		{
+			var dir = request.getSession().getUser().getSettings().getWorkPath();
+			if (operation.hasData(PARENT))
+				dir = new File(operation.getData(PARENT)).toPath();
+			writer.writeStartElement(RESPONSE);
+			writer.writeElement(STATUS, "0");
+			writer.writeElement(PARENT, dir.toString());
+			writer.writeStartElement("data");
+			var cnt = new AtomicInteger();
+			if ("addArc".equals(operation.getData(CONTEXT)))
+			{
+				customExpandAddArc(operation, cnt);
+			}
+			else
+			{
+				for (String path : operation.getDatas(PATHS))
+				{
+					var entry = Paths.get(path);
+					writer.writeEmptyElement(RECORD);
+					writer.writeAttribute("Name", entry.getFileName().toString());
+					writer.writeAttribute("Path", pathAbstractor.getRelativePath(entry).toString());
+					cnt.incrementAndGet();
+				}
+			}
+			writer.writeEndElement();
+			writer.writeElement("endRow", Long.toString(cnt.get() - 1L));
+			writer.writeElement("totalRows", Long.toString(cnt.get()));
+			writer.writeEndElement();
+		}
+		else
+			failure("paths missing");
+	}
+
+	/**
+	 * @param operation
+	 * @param cnt
+	 * @throws SecurityException
+	 * @throws IOException
+	 */
+	private void customExpandAddArc(Operation operation, AtomicInteger cnt) throws SecurityException, IOException
+	{
+		for (String path : operation.getDatas(PATHS))
+		{
+			var entry = pathAbstractor.getAbsolutePath(path);
+			Files.walkFileTree(entry, new SimpleFileVisitor<Path>()
+			{
+				String[] exts = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
+
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+				{
+					if (FilenameUtils.isExtension(file.getFileName().toString(), exts))
+					{
+						try
+						{
+							writer.writeEmptyElement(RECORD);
+							writer.writeAttribute("Name", file.getFileName().toString());
+							writer.writeAttribute("Path", pathAbstractor.getRelativePath(file).toString());
+							cnt.incrementAndGet();
+						}
+						catch (XMLStreamException e)
+						{
+							// ignore silently
+						}
+					}
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		}
 	}
 
 	private String getRootName()
