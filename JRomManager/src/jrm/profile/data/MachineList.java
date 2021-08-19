@@ -89,86 +89,169 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		return mList;
 	}
 
-	@Override
-	public Stream<Machine> getFilteredStream()
+	private class FilterOptions
 	{
-		/*
-		 * get all needed profile options
-		 */
+		final boolean excludeGames = profile.getProperty(SettingsEnum.exclude_games, false); //$NON-NLS-1$
+		final boolean excludeMachines = profile.getProperty(SettingsEnum.exclude_machines, false); //$NON-NLS-1$
 		final boolean filterIncludeClones = profile.getProperty(SettingsEnum.filter_InclClones, true); //$NON-NLS-1$
 		final boolean filterIncludeDisks = profile.getProperty(SettingsEnum.filter_InclDisks, true); //$NON-NLS-1$
 		final boolean filterIncludeSamples = profile.getProperty(SettingsEnum.filter_InclSamples, true); //$NON-NLS-1$
 		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty(SettingsEnum.filter_DriverStatus, Driver.StatusType.preliminary.toString())); //$NON-NLS-1$
-		final var filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString())); //$NON-NLS-1$
-		final var filterCabinetType = CabinetType.valueOf(profile.getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString())); //$NON-NLS-1$
+		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString())); //$NON-NLS-1$
+		final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString())); //$NON-NLS-1$
 		final String filterYearMin = profile.getProperty(SettingsEnum.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
 		final String filterYearMax = profile.getProperty(SettingsEnum.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
-		final boolean excludeGames = profile.getProperty(SettingsEnum.exclude_games, false); //$NON-NLS-1$
-		final boolean excludeMachines = profile.getProperty(SettingsEnum.exclude_machines, false); //$NON-NLS-1$
+	}
+	
+	@Override
+	public Stream<Machine> getFilteredStream()
+	{
+		final var options = new FilterOptions();
 
-		if(excludeGames && !excludeMachines)
-		{	// special case where we want to keep computers & consoles machines but not arcade games machines (let's call it mess mode)
-			HashSet<Machine> machines = new HashSet<>();
-			getList().stream().filter(Machine::isSoftMachine).forEach(m -> m.getDevices(machines, false, false, true));
-			final HashSet<Machine> allDevices = new HashSet<>();
-			getList().stream().filter(t -> !t.isdevice).forEach(m -> m.getDevices(allDevices,false, false, true));
-			allDevices.removeAll(allDevices.stream().filter(t->!t.isdevice).collect(Collectors.toSet()));
-			return Stream.concat(machines.stream().filter(t -> !t.isSoftMachine()), getList().stream().filter(t -> t.isdevice && !allDevices.contains(t)));
-		}
+		if(options.excludeGames && !options.excludeMachines)
+			return getMessFilteredStream();
+
+		/*
+		 * get all needed profile options
+		 */
 		
 		return getList().stream().filter(t -> {
-			if(excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine())	// exclude pure games (pure means not bios nor devices)
+			if(options.excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine())	// exclude pure games (pure means not bios nor devices)
 				return false;
-			if(excludeMachines && !t.isdevice && !t.isbios && t.isSoftMachine())	// exclude computer/console
+			if(options.excludeMachines && !t.isdevice && !t.isbios && t.isSoftMachine())	// exclude computer/console
 				return false;
 			/*
 			 * Apply simple filters
 			 */
-			if(!t.isdevice)	// exception on devices
-			{
-				if(filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary)	// exclude preliminary when min driver status is imperfect
-					return false;
-				if(filterMinDriverStatus == StatusType.good && t.driver.getStatus() != StatusType.good)	// exclude non good status when min driver status is good
-					return false;
-				if(!t.ismechanical)	// exception on mechanical
-				{
-					if(filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical)	// exclude "vertical only" when display filter is "horizontal only"
-						return false;
-					if(filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal)	// exclude "horizontal only" when display filter is "vertical only"
-						return false;
-					if(!t.isbios)	// exception on bios
-					{
-						if(filterCabinetType == CabinetType.upright && t.cabinetType == CabinetType.cocktail)	// exclude "cocktail only" if cabinet filter is "upright only"
-							return false;
-						if(filterCabinetType == CabinetType.cocktail && t.cabinetType == CabinetType.upright)	// exclude "upright only" if cabinet filter is "cocktail only"
-							return false;
-					}
-				}
-			}
-			if(t.year.length() > 0)
-			{	// exclude machines outside defined year range
-				if(filterYearMin.compareTo(t.year.toString()) > 0)
-					return false;
-				if(filterYearMax.compareTo(t.year.toString()) < 0)
-					return false;
-			}
-			if(!filterIncludeClones && t.isClone())	// exclude clones machines
-				return false;
-			if(!filterIncludeDisks && t.getDisks().size() > 0)	// exclude machines with disks
-				return false;
-			if(!filterIncludeSamples && t.getSamples().size() > 0)	// exclude machines with samples
-				return false;
-			if(!t.getSystem().isSelected(profile))	// exclude machines for which their BIOS system were not selected
+			if(!getSimpleFilters(options, t))
 				return false;
 			/*
-			 * apply advanced filters
+			 * Apply advanced filters
 			 */
-			if(t.subcat != null && !t.subcat.isSelected())	// exclude if subcat is not selected
+			if(!getAdvancedFilters(t))	//NOSONAR
 				return false;
-			if(t.nplayer != null && !t.nplayer.isSelected(profile)) // exclude if nplayer is not selected
-				return false;
+			
 			return true;	// otherwise include
 		});
+	}
+
+	/**
+	 * @param t
+	 */
+	private boolean getAdvancedFilters(Machine t)
+	{
+		if(t.subcat != null && !t.subcat.isSelected())	// exclude if subcat is not selected
+			return false;
+		if(t.nplayer != null && !t.nplayer.isSelected(profile))	//NOSONAR // exclude if nplayer is not selected
+			return false;
+		return true;
+	}
+
+	/**
+	 * @param options
+	 * @param t
+	 */
+	private boolean getSimpleFilters(final FilterOptions options, Machine t)
+	{
+		if(!getNonDeviceFilter(options, t))
+			return false;
+		if(!getYearFilter(options, t))
+			return false;
+		if(!options.filterIncludeClones && t.isClone())	// exclude clones machines
+			return false;
+		if(!options.filterIncludeDisks && t.getDisks().size() > 0)	// exclude machines with disks
+			return false;
+		if(!options.filterIncludeSamples && t.getSamples().size() > 0)	// exclude machines with samples
+			return false;
+		if(!t.getSystem().isSelected(profile))	//NOSONAR	// exclude machines for which their BIOS system were not selected
+			return false;
+		return true;
+	}
+
+	/**
+	 * @param filterYearMin
+	 * @param filterYearMax
+	 * @param t
+	 */
+	private boolean getYearFilter(final FilterOptions options, Machine t)
+	{
+		if(t.year.length() > 0)
+		{	// exclude machines outside defined year range
+			if(options.filterYearMin.compareTo(t.year.toString()) > 0)
+				return false;
+			if(options.filterYearMax.compareTo(t.year.toString()) < 0)
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @return
+	 */
+	private Stream<Machine> getMessFilteredStream()
+	{
+		// special case where we want to keep computers & consoles machines but not arcade games machines (let's call it mess mode)
+		HashSet<Machine> machines = new HashSet<>();
+		getList().stream().filter(Machine::isSoftMachine).forEach(m -> m.getDevices(machines, false, false, true));
+		final HashSet<Machine> allDevices = new HashSet<>();
+		getList().stream().filter(t -> !t.isdevice).forEach(m -> m.getDevices(allDevices,false, false, true));
+		allDevices.removeAll(allDevices.stream().filter(t->!t.isdevice).collect(Collectors.toSet()));
+		return Stream.concat(machines.stream().filter(t -> !t.isSoftMachine()), getList().stream().filter(t -> t.isdevice && !allDevices.contains(t)));
+	}
+
+	/**
+	 * @param filterMinDriverStatus
+	 * @param filterDisplayOrientation
+	 * @param filterCabinetType
+	 * @param t
+	 */
+	private boolean getNonDeviceFilter(final FilterOptions options, Machine t)
+	{
+		if(!t.isdevice)	// exception on devices
+		{
+			if(options.filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary)	// exclude preliminary when min driver status is imperfect
+				return false;
+			if(options.filterMinDriverStatus == StatusType.good && t.driver.getStatus() != StatusType.good)	// exclude non good status when min driver status is good
+				return false;
+			if(!getNonMechanicalFilter(options, t))
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @param filterDisplayOrientation
+	 * @param filterCabinetType
+	 * @param t
+	 */
+	private boolean getNonMechanicalFilter(final FilterOptions options, Machine t)
+	{
+		if(!t.ismechanical)	// exception on mechanical
+		{
+			if(options.filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical)	// exclude "vertical only" when display filter is "horizontal only"
+				return false;
+			if(options.filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal)	// exclude "horizontal only" when display filter is "vertical only"
+				return false;
+			if(!getNonBiosFilter(options, t))
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @param filterCabinetType
+	 * @param t
+	 */
+	private boolean getNonBiosFilter(final FilterOptions options, Machine t)
+	{
+		if(!t.isbios)	// exception on bios
+		{
+			if(options.filterCabinetType == CabinetType.upright && t.cabinetType == CabinetType.cocktail)	// exclude "cocktail only" if cabinet filter is "upright only"
+				return false;
+			if(options.filterCabinetType == CabinetType.cocktail && t.cabinetType == CabinetType.upright)	// exclude "upright only" if cabinet filter is "cocktail only"
+				return false;
+		}
+		return true;
 	}
 
 	@Override

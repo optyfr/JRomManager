@@ -73,9 +73,9 @@ public class Software extends Anyware implements Serializable
 	 */
 	public enum Supported implements Serializable
 	{
-		no,
-		partial,
-		yes;	// default value
+		no,	//NOSONAR
+		partial,	//NOSONAR
+		yes;	//NOSONAR	// default value
 
 		public Supported getXML()
 		{
@@ -98,8 +98,8 @@ public class Software extends Anyware implements Serializable
 			 */
 			public enum Endianness implements Serializable
 			{
-				big,
-				little;	// default value
+				big,	//NOSONAR
+				little;	//NOSONAR	// default value
 
 				public Endianness getXML()
 				{
@@ -218,7 +218,6 @@ public class Software extends Anyware implements Serializable
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries) throws XMLStreamException
 	{
 		writer.writeStartElement("software", //$NON-NLS-1$
@@ -227,9 +226,9 @@ public class Software extends Anyware implements Serializable
 				new SimpleAttribute("supported", supported.getXML()) //$NON-NLS-1$
 				);
 		writer.writeElement("description", description); //$NON-NLS-1$
-		if(year!=null && year.length()>0)
+		if (year.length() > 0)
 			writer.writeElement("year", year); //$NON-NLS-1$
-		if(publisher!=null && publisher.length()>0)
+		if (publisher.length() > 0)
 			writer.writeElement("publisher", publisher); //$NON-NLS-1$
 		for(final Part part : parts)
 		{
@@ -237,33 +236,57 @@ public class Software extends Anyware implements Serializable
 					new SimpleAttribute("name", part.name), //$NON-NLS-1$
 					new SimpleAttribute("interface", part.intrface) //$NON-NLS-1$
 					);
-			for(final DataArea dataarea : part.dataareas)
-			{
-				writer.writeStartElement("dataarea", //$NON-NLS-1$
-						new SimpleAttribute("name", dataarea.name), //$NON-NLS-1$
-						new SimpleAttribute("size", dataarea.size), //$NON-NLS-1$
-						new SimpleAttribute("width", dataarea.databits), //$NON-NLS-1$
-						new SimpleAttribute("endianness", dataarea.endianness.getXML()) //$NON-NLS-1$
-						);
-				for(final Rom r : dataarea.roms)
-					if(entries==null || entries.contains(r))	//NOSONAR
-						r.export(writer,true);
-				writer.writeEndElement();
-			}
-			for(final DiskArea diskarea : part.diskareas)
-			{
-				writer.writeStartElement("diskarea", //$NON-NLS-1$
-						new SimpleAttribute("name", diskarea.name) //$NON-NLS-1$
-						);
-				for(final Disk d : diskarea.disks)
-					if(entries==null || entries.contains(d))	//NOSONAR
-						d.export(writer,true);
-				writer.writeEndElement();
-			}
+			exportRoms(writer, entries, part);
+			exportDisks(writer, entries, part);
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
 
+	}
+
+	/**
+	 * @param writer
+	 * @param entries
+	 * @param part
+	 * @throws XMLStreamException
+	 */
+	@SuppressWarnings("unlikely-arg-type")
+	private void exportRoms(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part) throws XMLStreamException
+	{
+		for(final DataArea dataarea : part.dataareas)
+		{
+			writer.writeStartElement("dataarea", //$NON-NLS-1$
+					new SimpleAttribute("name", dataarea.name), //$NON-NLS-1$
+					new SimpleAttribute("size", dataarea.size), //$NON-NLS-1$
+					new SimpleAttribute("width", dataarea.databits), //$NON-NLS-1$
+					new SimpleAttribute("endianness", dataarea.endianness.getXML()) //$NON-NLS-1$
+					);
+			for(final Rom r : dataarea.roms)
+				if(entries==null || entries.contains(r))	//NOSONAR
+					r.export(writer,true);
+			writer.writeEndElement();
+		}
+	}
+
+	/**
+	 * @param writer
+	 * @param entries
+	 * @param part
+	 * @throws XMLStreamException
+	 */
+	@SuppressWarnings("unlikely-arg-type")
+	private void exportDisks(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part) throws XMLStreamException
+	{
+		for(final DiskArea diskarea : part.diskareas)
+		{
+			writer.writeStartElement("diskarea", //$NON-NLS-1$
+					new SimpleAttribute("name", diskarea.name) //$NON-NLS-1$
+					);
+			for(final Disk d : diskarea.disks)
+				if(entries==null || entries.contains(d))	//NOSONAR
+					d.export(writer,true);
+			writer.writeEndElement();
+		}
 	}
 
 	@Override

@@ -16,8 +16,8 @@ import lombok.Getter;
 @SuppressWarnings("serial") public class CryptCredential extends Credential
 {
 	private String username;
-	private SQL sql;
-	private @Getter UserCredential user;
+	private transient SQL sql;
+	private transient @Getter UserCredential user;
 	
 	public CryptCredential(String username, SQL sql)
 	{

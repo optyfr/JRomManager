@@ -81,12 +81,6 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	}
 
 	@Override
-	protected void initTransient()
-	{
-		super.initTransient();
-	}
-
-	@Override
 	public boolean add(final Software software)
 	{
 		software.setSl(this);
@@ -124,38 +118,52 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		return name;
 	}
 
-	@Override
-	public Stream<Software> getFilteredStream()
+	private class FilterOptions
 	{
 		/*
 		 * get all needed profile options
 		 */
 		final boolean filterIncludeClones = profile.getProperty(SettingsEnum.filter_InclClones, true); //$NON-NLS-1$
 		final boolean filterIncludeDisks = profile.getProperty(SettingsEnum.filter_InclDisks, true); //$NON-NLS-1$
-		final var filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString())); //$NON-NLS-1$
+		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString())); //$NON-NLS-1$
 		final String filterYearMin = profile.getProperty(SettingsEnum.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
 		final String filterYearMax = profile.getProperty(SettingsEnum.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	@Override
+	public Stream<Software> getFilteredStream()
+	{
+		final var options = new FilterOptions();
 		
 		return getList().stream().filter(t -> {
-			if(t.year.length()>0)
-			{	// exclude machines outside defined year range
-				if(filterYearMin.compareTo(t.year.toString())>0)
-					return false;
-				if(filterYearMax.compareTo(t.year.toString())<0)
-					return false;
-			}
-			if(filterMinSoftwareSupportedLevel==Supported.partial && t.getSupported()==Supported.no)	// exclude support=no software if min software support is partial
+			if(!getYearFilter(options, t))
 				return false;
-			if(filterMinSoftwareSupportedLevel==Supported.yes && t.getSupported()!=Supported.yes) // exclude support!=yes if min software support is yes
+			if(options.filterMinSoftwareSupportedLevel==Supported.partial && t.getSupported()==Supported.no)	// exclude support=no software if min software support is partial
 				return false;
-			if(!filterIncludeClones && t.isClone())	// exclude clones machines
+			if(options.filterMinSoftwareSupportedLevel==Supported.yes && t.getSupported()!=Supported.yes) // exclude support!=yes if min software support is yes
 				return false;
-			if(!filterIncludeDisks && t.getDisks().size()>0)	// exclude softwares with disks
+			if(!options.filterIncludeClones && t.isClone())	// exclude clones machines
 				return false;
-			if(!t.getSystem().isSelected(profile))	// exclude software for which their software list were not selected
+			if(!options.filterIncludeDisks && t.getDisks().size()>0)	// exclude softwares with disks
 				return false;
-			return true;	// otherwise include
+			return t.getSystem().isSelected(profile);	// exclude software for which their software list were not selected
 		});
+	}
+
+	/**
+	 * @param options
+	 * @param t
+	 */
+	private boolean getYearFilter(final FilterOptions options, Software t)
+	{
+		if(t.year.length()>0)
+		{	// exclude machines outside defined year range
+			if(options.filterYearMin.compareTo(t.year.toString())>0)
+				return false;
+			if(options.filterYearMax.compareTo(t.year.toString())<0)
+				return false;
+		}
+		return true;
 	}
 
 	@Override

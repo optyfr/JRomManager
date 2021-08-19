@@ -115,93 +115,109 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 	protected void afterExecute(final Runnable r, final Throwable t)
 	{
 		super.afterExecute(r, t);
-		if (adaptive)
+		if (!adaptive)
+			return;
+		final var elapsed = System.currentTimeMillis() - time;
+		if (elapsed <= interval)
+			return;
+		adaptive(elapsed);
+	}
+
+	/**
+	 * @param elapsed
+	 */
+	private synchronized void adaptive(final long elapsed)
+	{
+		double load = osmxb.getSystemLoadAverage();
+		if (load < 0)	// sys load is not computable
+			adaptiveNoLoad(elapsed);
+		else
+			adaptiveLoad(load);
+		time = System.currentTimeMillis();
+		startCPUTimeByThread.entrySet().removeIf(e->!e.getKey().isAlive());	// cleanup dead thread from list
+		startCPUTimeByThread.entrySet().stream().forEach(e -> e.setValue(tmxb.getThreadCpuTime(e.getKey().getId())));	// reset startCPUTime
+	}
+
+	/**
+	 * @param load
+	 */
+	private void adaptiveLoad(double load)
+	{
+		// Compute usage ratio (number between 0.0 and 1.0)
+		double usage = load / getPoolSize();
+		Log.info(String.format("sys load avg is %.03f so usage ratio is %.03f with %d active threads%n", load, usage, getPoolSize()));
+		if (getMaximumPoolSize() == getPoolSize())	// make sure that used threads is not different than current maximum (as a result of a former thread reduction not yet taken into account or because we are near the end)
 		{
-			final var elapsed = System.currentTimeMillis() - time;
-			if (elapsed > interval)
+			if(load > getMaximumPoolSize() + 1)
 			{
-				synchronized (this)
+				final var newThreadCnt = Math.max(1, getMaximumPoolSize() - 1);	// sub 1 thread
+				if (newThreadCnt < getMaximumPoolSize())
 				{
-					double load = osmxb.getSystemLoadAverage();
-					if (load < 0)	// sys load is not computable
-					{
-						// Compute cumulated CPUTime of all alive threads (number between 0.0 and n with n the count of active threads)
-						load = (startCPUTimeByThread.entrySet().stream().filter(e->e.getKey().isAlive())
-								.mapToLong(e -> tmxb.getThreadCpuTime(e.getKey().getId()) - e.getValue())
-								.sum() / 1_000_000.0 /* ns to ms */) / elapsed;
-						// Compute usage ratio (number between 0.0 and 1.0)
-						double usage = load / getPoolSize();
-						Log.info(String.format("cpu load is %.03f so usage ratio is %.03f with %d active threads%n", load, usage, getPoolSize()));
-						if (getMaximumPoolSize() == getPoolSize())	// make sure that used threads is not different than current maximum (as a result of a former thread reduction not yet taken into account or because we are near the end)
-						{
-							final var threshold = 1.0 / getMaximumPoolSize();
-							if (usage < 1.0 - threshold) // there was at least 1 unused thread during the last sample 
-							{
-								final var newThreadCnt = Math.max(1, (int)Math.ceil(load));	// down to the rounded up used thread (equiv. to the load)
-								if (newThreadCnt < getMaximumPoolSize())
-								{
-									Log.info(() -> String.format("setting down to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
-									setCorePoolSize(newThreadCnt);	// core pool must be lowered first or we will get illegalArgumentException
-									setMaximumPoolSize(newThreadCnt);
-								}
-							}
-							else if(usage > 1.0 - 0.5 * threshold)	// there was less than half of a thread unused
-							{
-								final var newThreadCnt = Math.min(nStartThreads, getMaximumPoolSize() + 1);	// add 1 thread
-								if (newThreadCnt > getMaximumPoolSize())
-								{
-									Log.info(String.format("setting up to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
-									setMaximumPoolSize(newThreadCnt);
-									setCorePoolSize(newThreadCnt);	// core pool must be augmented last or we will get illegalArgumentException
-								}
-							}
-						}
-						else
-							Log.info(String.format("pools size of %d <> max pool size of %d...%n", getPoolSize(), getMaximumPoolSize()));
-					}
-					else
-					{
-						// Compute usage ratio (number between 0.0 and 1.0)
-						double usage = load / getPoolSize();
-						Log.info(String.format("sys load avg is %.03f so usage ratio is %.03f with %d active threads%n", load, usage, getPoolSize()));
-						if (getMaximumPoolSize() == getPoolSize())	// make sure that used threads is not different than current maximum (as a result of a former thread reduction not yet taken into account or because we are near the end)
-						{
-							if(load > getMaximumPoolSize() + 1)
-							{
-								final var newThreadCnt = Math.max(1, getMaximumPoolSize() - 1);	// sub 1 thread
-								if (newThreadCnt < getMaximumPoolSize())
-								{
-									Log.info(String.format("setting down to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
-									setCorePoolSize(newThreadCnt);	// core pool must be lowered first or we will get illegalArgumentException
-									setMaximumPoolSize(newThreadCnt);
-								}
-							}
-							else if(load < getMaximumPoolSize() - 1)
-							{
-								final var newThreadCnt = Math.min(nStartThreads, getMaximumPoolSize() + 1);	// add 1 thread
-								if (newThreadCnt > getMaximumPoolSize())
-								{
-									Log.info(String.format("setting up to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
-									setMaximumPoolSize(newThreadCnt);
-									setCorePoolSize(newThreadCnt);	// core pool must be augmented last or we will get illegalArgumentException
-								}
-							}
-						}
-						else
-							Log.info(String.format("pools size of %d <> max pool size of %d...%n", getPoolSize(), getMaximumPoolSize()));
-					}
-					time = System.currentTimeMillis();
-					startCPUTimeByThread.entrySet().removeIf(e->!e.getKey().isAlive());	// cleanup dead thread from list
-					startCPUTimeByThread.entrySet().stream().forEach(e -> e.setValue(tmxb.getThreadCpuTime(e.getKey().getId())));	// reset startCPUTime
+					Log.info(String.format("setting down to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
+					setCorePoolSize(newThreadCnt);	// core pool must be lowered first or we will get illegalArgumentException
+					setMaximumPoolSize(newThreadCnt);
+				}
+			}
+			else if(load < getMaximumPoolSize() - 1)
+			{
+				final var newThreadCnt = Math.min(nStartThreads, getMaximumPoolSize() + 1);	// add 1 thread
+				if (newThreadCnt > getMaximumPoolSize())
+				{
+					Log.info(String.format("setting up to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
+					setMaximumPoolSize(newThreadCnt);
+					setCorePoolSize(newThreadCnt);	// core pool must be augmented last or we will get illegalArgumentException
 				}
 			}
 		}
+		else
+			Log.info(String.format("pools size of %d <> max pool size of %d...%n", getPoolSize(), getMaximumPoolSize()));
+	}
+
+	/**
+	 * @param elapsed
+	 */
+	private void adaptiveNoLoad(final long elapsed)
+	{
+		double load;
+		// Compute cumulated CPUTime of all alive threads (number between 0.0 and n with n the count of active threads)
+		load = (startCPUTimeByThread.entrySet().stream().filter(e->e.getKey().isAlive())
+				.mapToLong(e -> tmxb.getThreadCpuTime(e.getKey().getId()) - e.getValue())
+				.sum() / 1_000_000.0 /* ns to ms */) / elapsed;
+		// Compute usage ratio (number between 0.0 and 1.0)
+		double usage = load / getPoolSize();
+		Log.info(String.format("cpu load is %.03f so usage ratio is %.03f with %d active threads%n", load, usage, getPoolSize()));
+		if (getMaximumPoolSize() == getPoolSize())	// make sure that used threads is not different than current maximum (as a result of a former thread reduction not yet taken into account or because we are near the end)
+		{
+			final var threshold = 1.0 / getMaximumPoolSize();
+			if (usage < 1.0 - threshold) // there was at least 1 unused thread during the last sample 
+			{
+				final var newThreadCnt = Math.max(1, (int)Math.ceil(load));	// down to the rounded up used thread (equiv. to the load)
+				if (newThreadCnt < getMaximumPoolSize())
+				{
+					Log.info(() -> String.format("setting down to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
+					setCorePoolSize(newThreadCnt);	// core pool must be lowered first or we will get illegalArgumentException
+					setMaximumPoolSize(newThreadCnt);
+				}
+			}
+			else if(usage > 1.0 - 0.5 * threshold)	// there was less than half of a thread unused
+			{
+				final var newThreadCnt = Math.min(nStartThreads, getMaximumPoolSize() + 1);	// add 1 thread
+				if (newThreadCnt > getMaximumPoolSize())
+				{
+					Log.info(String.format("setting up to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
+					setMaximumPoolSize(newThreadCnt);
+					setCorePoolSize(newThreadCnt);	// core pool must be augmented last or we will get illegalArgumentException
+				}
+			}
+		}
+		else
+			Log.info(String.format("pools size of %d <> max pool size of %d...%n", getPoolSize(), getMaximumPoolSize()));
 	}
 
 	@FunctionalInterface
 	public interface CalledWith<T>
 	{
-		public void call(final T t) throws Exception;
+		public void call(final T t) throws Exception;	//NOSONAR
 	}
 	
 	@RequiredArgsConstructor

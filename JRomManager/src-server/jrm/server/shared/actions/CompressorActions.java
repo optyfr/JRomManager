@@ -31,7 +31,8 @@ public class CompressorActions
 		this.ws = ws;
 	}
 
-	public void start(JsonObject jso)
+	@SuppressWarnings("exports")
+	public void start(JsonObject jso)	//NOSONAR
 	{
 		(ws.getSession().setWorker(new Worker(() -> {
 			final var session = ws.getSession();
@@ -133,16 +134,13 @@ public class CompressorActions
 	 */
 	private void doCompress2TZip(final boolean force, final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
 	{
-		switch (FilenameUtils.getExtension(file.getName()))
+		if("zip".equals(FilenameUtils.getExtension(file.getName())))
+			compressor.zip2TZip(file, force, cb);
+		else
 		{
-			case "zip":
+			file = compressor.sevenZip2Zip(file, true, cb, scb);
+			if (file != null && file.exists())
 				compressor.zip2TZip(file, force, cb);
-				break;
-			default:
-				file = compressor.sevenZip2Zip(file, true, cb, scb);
-				if (file != null && file.exists())
-					compressor.zip2TZip(file, force, cb);
-				break;
 		}
 	}
 
@@ -156,18 +154,15 @@ public class CompressorActions
 	 */
 	private void doCompress2Zip(final boolean force, final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
 	{
-		switch (FilenameUtils.getExtension(file.getName()))
+		if("zip".equals(FilenameUtils.getExtension(file.getName())))
 		{
-			case "zip":
-				if (force)
-					compressor.zip2Zip(file, cb, scb);
-				else
-					cb.apply("Skipped");
-				break;
-			default:
-				compressor.sevenZip2Zip(file, false, cb, scb);
-				break;
+			if (force)
+				compressor.zip2Zip(file, cb, scb);
+			else
+				cb.apply("Skipped");
 		}
+		else
+			compressor.sevenZip2Zip(file, false, cb, scb);
 	}
 
 	/**

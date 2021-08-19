@@ -24,19 +24,17 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import jrm.profile.manager.Dir;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DirNode.
  *
  * @author optyfr
  */
-// TODO: Auto-generated Javadoc
 @SuppressWarnings("serial")
 public class DirNode extends DefaultMutableTreeNode
 {
 
 	/** The dir. */
-	private Dir dir;
+	private transient Dir dir;
 
 	/**
 	 * Instantiates a new dir node.
@@ -56,6 +54,7 @@ public class DirNode extends DefaultMutableTreeNode
 	 * @param dir
 	 *            the dir
 	 */
+	@SuppressWarnings("exports")
 	public DirNode(final Dir dir)
 	{
 		super(dir);
@@ -72,24 +71,23 @@ public class DirNode extends DefaultMutableTreeNode
 	 */
 	private void buildDirTree(final Dir dir, final DefaultMutableTreeNode node)
 	{
-		if (dir != null)
+		if (dir == null)
+			return;
+		File dirfile = dir.getFile();
+		if (dirfile != null && dirfile.isDirectory())
 		{
-			File dirfile = dir.getFile();
-			if (dirfile != null && dirfile.isDirectory())
+			File[] listFiles = dirfile.listFiles();
+			if (listFiles != null)
 			{
-				File[] listFiles = dirfile.listFiles();
-				if (listFiles != null)
+				for (final File file : listFiles)
 				{
-					for (final File file : listFiles)
+					if (file != null && file.isDirectory())
 					{
-						if (file != null && file.isDirectory())
-						{
-							final DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
-							node.add(newdir);
-							buildDirTree(new Dir(file), newdir);
-						}
-
+						final DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
+						node.add(newdir);
+						buildDirTree(new Dir(file), newdir);
 					}
+
 				}
 			}
 		}
