@@ -209,16 +209,7 @@ public class ProgressActions implements ProgressHandler
 		while (itr.hasNext())
 		{
 			final var e = itr.next();
-			var exists = false;
-			for (var i = 0; i < tl_count; i++)
-			{
-				if (e.getKey() == tl[i].getId())
-				{
-					exists = true;
-					break;
-				}
-			}
-			if (!exists)
+			if (!isOffsetExist(e, tl, tl_count))
 			{
 				data.infos[e.getValue()] = "";
 				if (data.infos.length == data.subinfos.length)
@@ -363,8 +354,7 @@ public class ProgressActions implements ProgressHandler
 				final var tg = Thread.currentThread().getThreadGroup();	//NOSONAR
 				final var tl = new Thread[tg.activeCount()];
 				final var tl_count = tg.enumerate(tl, false);
-				var found = isOffsetFound(tl, tl_count);
-				if (!found)
+				if (!isOffsetFound(tl, tl_count))
 					threadIdOffset.put(Thread.currentThread().getId(), 0);
 			}
 		}

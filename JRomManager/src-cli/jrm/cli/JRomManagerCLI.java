@@ -2,6 +2,7 @@ package jrm.cli;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,6 +45,7 @@ import jrm.batch.CompressorFormat;
 import jrm.batch.DirUpdater;
 import jrm.batch.TorrentChecker;
 import jrm.io.torrent.options.TrntChkMode;
+import jrm.misc.BreakException;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
@@ -59,12 +61,15 @@ import lombok.val;
 
 public class JRomManagerCLI
 {
+	private static final String CLI_ERR_UNKNOWN_COMMAND = "CLI_ERR_UnknownCommand";
+	private static final String CLI_ERR_WRONG_ARGS = "CLI_ERR_WrongArgs";
 	Session session;
 	Path cwdir = null;
 	Path rootdir = null;
 
 	Progress handler = null;
 
+	@SuppressWarnings("exports")
 	public JRomManagerCLI(CommandLine cmd) throws IOException
 	{
 		session = Sessions.getSession(true, false);
@@ -75,36 +80,53 @@ public class JRomManagerCLI
 
 		if (cmd.hasOption('i'))
 		{
-			try (final var console = new BufferedReader(new InputStreamReader(System.in));)
-			{
-				do
-				{
-					if (session.getCurrProfile() != null)
-						System.out.format("jrm [%s]> ", session.getCurrProfile().getNfo().getFile().getName()); //$NON-NLS-1$	//NOSONAR
-					else
-						System.out.print("jrm> "); //$NON-NLS-1$	//NOSONAR
-					analyze(splitLine(console.readLine()));
-				}
-				while (true); // we break out with <control><C>
-			}
+			interactive();
 		}
 		else
 		{
-			Reader reader = cmd.hasOption('f')?new FileReader(cmd.getOptionValue('f')):new InputStreamReader(System.in);
-			try (final var in = new BufferedReader(reader);)
+			stream(cmd);
+		}
+	}
+
+	/**
+	 * @param cmd
+	 * @throws FileNotFoundException
+	 */
+	private void stream(CommandLine cmd) throws FileNotFoundException
+	{
+		Reader reader = cmd.hasOption('f')?new FileReader(cmd.getOptionValue('f')):new InputStreamReader(System.in);
+		try (final var in = new BufferedReader(reader);)
+		{
+			String line;
+			while (null != (line = in.readLine()))
 			{
-				String line;
-				while (null != (line = in.readLine()))
-				{
-					if(line.startsWith("#")) //$NON-NLS-1$
-						continue;
-					analyze(splitLine(line));
-				}
+				if(line.startsWith("#")) //$NON-NLS-1$
+					continue;
+				analyze(splitLine(line));
 			}
-			catch(IOException e)
+		}
+		catch(IOException e)
+		{
+			Log.err(e.getMessage());
+		}
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	private void interactive() throws IOException
+	{
+		try (final var console = new BufferedReader(new InputStreamReader(System.in));)
+		{
+			do
 			{
-				System.err.println(e.getMessage());
+				if (session.getCurrProfile() != null)
+					System.out.format("jrm [%s]> ", session.getCurrProfile().getNfo().getFile().getName()); //$NON-NLS-1$	//NOSONAR
+				else
+					System.out.print("jrm> "); //$NON-NLS-1$	//NOSONAR
+				analyze(splitLine(console.readLine()));
 			}
+			while (true); // we break out with <control><C>
 		}
 	}
 
@@ -154,103 +176,25 @@ public class JRomManagerCLI
 					handler.quiet(false);
 					return 0;
 				case SET:
-					if(args.length == 1)
-					{
-						System.getProperties().forEach((k,v)->System.out.println(k+"="+v)); //$NON-NLS-1$	//NOSONAR
-						System.getenv().forEach((k,v)->System.out.println(k+"="+v)); //$NON-NLS-1$	//NOSONAR
-						return 0;
-					}
-					if (args.length == 2)
-					{
-						getEnv(args[1]).ifPresent(System.out::println);	//NOSONAR
-						return 0;
-					}
-					if(args.length == 3)
-					{
-						if(args[2].isEmpty())
-							System.clearProperty(args[1]);
-						else
-							System.setProperty(args[1], args[2]);
-						return 0;
-					}
-					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+					return set(args);
 				case CD:
-					if (args.length == 1)
-						return pwd();
-					if (args.length == 2)
-						return cd(args[1]);
-					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+					return cd(args);
 				case RM:
-				{
-					final var options = new Options().addOption("r", "recursive", false, "Recursive delete"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
-					for(String arg : cmdline.getArgList())
-						recursiveDelete(Paths.get(arg), cmdline.hasOption('r'));
-					return 0;
-				}
+					return rm(args);
 				case MD:
-				{
-					final var options = new Options().addOption("p", "parents", false, "create parents up to this directory"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
-					for(String arg : cmdline.getArgList())
-					{
-						final var path = Paths.get(arg);
-						if(!Files.exists(path))
-						{
-							if(cmdline.hasOption('p'))
-								Files.createDirectories(path);
-							else
-								Files.createDirectory(path);
-						}
-					}
-					break;
-				}
+					return md(args);
 				case PREFS:
-					if (args.length == 1)
-						return prefs();
-					if (args.length == 2)
-						return prefs(jrm.misc.SettingsEnum.from(args[1]));
-					if (args.length == 3)
-						return prefs(jrm.misc.SettingsEnum.from(args[1]), args[2]);
-					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+					return prefs(args);
 				case LOAD:
-					if (args.length == 2)
-						return load(args[1]);
-					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+					return load(args);
 				case SETTINGS:
-					if (session.getCurrProfile() == null)
-						return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
-					if (args.length == 1)
-						return settings();
-					if (args.length == 2)
-						return settings(jrm.misc.SettingsEnum.from(args[1]));
-					if (args.length == 3)
-						return settings(jrm.misc.SettingsEnum.from(args[1]), args[2]);
-					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+					return settings(args);
 				case SCAN:
-					if (session.getCurrProfile() == null)
-						return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
-					session.setCurrScan(new Scan(session.getCurrProfile(), handler));
-					return session.getCurrScan().actions.stream().mapToInt(Collection::size).sum();
+					return scan();
 				case SCANRESULT:
-					if (session.getCurrScan() == null)
-						return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
-					if (session.getCurrProfile().hasPropsChanged())
-						return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
-					if (session.getReport() == null)
-						return error(CLIMessages.getString("CLI_ERR_NoReport")); //$NON-NLS-1$
-					System.out.println(session.getReport().getStats().getStatus());	//NOSONAR
-					return 0;
+					return scanResult();
 				case FIX:
-					if (session.getCurrScan() == null)
-						return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
-					if (session.getCurrProfile().hasPropsChanged())
-						return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
-					if (session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() == 0)
-						return error(CLIMessages.getString("CLI_ERR_NothingToFix")); //$NON-NLS-1$
-					final var fix = new Fix(session.getCurrProfile(), session.getCurrScan(), handler);
-					System.out.format(CLIMessages.getString("CLI_MSG_ActionRemaining"), fix.getActionsRemain()); //$NON-NLS-1$	//NOSONAR
-					return fix.getActionsRemain();
+					return fix();
 				case DIRUPD8R:
 					if (args.length == 1)
 						return error(CLIMessages.getString("CLI_ERR_DIRUPD8R_SubCmdMissing")); //$NON-NLS-1$
@@ -261,25 +205,16 @@ public class JRomManagerCLI
 					return trntchk(args[1], Arrays.copyOfRange(args, 2, args.length));
 				case COMPRESSOR:
 					if (args.length < 3)
-						return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
+						return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
 					return compressor(Arrays.copyOfRange(args, 1, args.length));
 				case HELP:
-					for (val cmd : CMD.values())
-					{
-						if (cmd != CMD.EMPTY && cmd != CMD.UNKNOWN)
-						{
-							System.out.append(cmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$ 	//NOSONAR
-							System.out.append(": ").append(CLIMessages.getString("CLI_HELP_" + cmd.name())); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
-							System.out.append("\n"); //$NON-NLS-1$ 	//NOSONAR
-						}
-					}
-					return 0;
+					return help();
 				case EXIT:
 					return exit(0);
 				case EMPTY:
 					return 0;
 				case UNKNOWN:
-					return error(() -> CLIMessages.getString("CLI_ERR_UnknownCommand") + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					return error(() -> CLIMessages.getString(CLI_ERR_UNKNOWN_COMMAND) + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
 		catch (IOException e)
@@ -292,6 +227,190 @@ public class JRomManagerCLI
 			Log.err(e.getMessage(), e);
 		}
 		return -1;
+	}
+
+	/**
+	 * @return
+	 */
+	private int help()
+	{
+		for (val cmd : CMD.values())
+		{
+			if (cmd != CMD.EMPTY && cmd != CMD.UNKNOWN)
+			{
+				System.out.append(cmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$ 	//NOSONAR
+				System.out.append(": ").append(CLIMessages.getString("CLI_HELP_" + cmd.name())); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
+				System.out.append("\n"); //$NON-NLS-1$ 	//NOSONAR
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 */
+	private int cd(String... args)
+	{
+		if (args.length == 1)
+			return pwd();
+		if (args.length == 2)
+			return cd(args[1]);
+		return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 */
+	private int prefs(String... args)
+	{
+		if (args.length == 1)
+			return prefs();
+		if (args.length == 2)
+			return prefs(jrm.misc.SettingsEnum.from(args[1]));
+		if (args.length == 3)
+			return prefs(jrm.misc.SettingsEnum.from(args[1]), args[2]);
+		return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 */
+	private int load(String... args)
+	{
+		if (args.length == 2)
+			return load(args[1]);
+		return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 */
+	private int settings(String... args)
+	{
+		if (session.getCurrProfile() == null)
+			return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
+		if (args.length == 1)
+			return settings();
+		if (args.length == 2)
+			return settings(jrm.misc.SettingsEnum.from(args[1]));
+		if (args.length == 3)
+			return settings(jrm.misc.SettingsEnum.from(args[1]), args[2]);
+		return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	private int rm(String... args) throws ParseException, IOException
+	{
+		final var options = new Options().addOption("r", "recursive", false, "Recursive delete"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
+		for(String arg : cmdline.getArgList())
+			recursiveDelete(Paths.get(arg), cmdline.hasOption('r'));
+		return 0;
+	}
+
+	/**
+	 * @return
+	 */
+	private int fix()
+	{
+		if (session.getCurrScan() == null)
+			return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
+		if (session.getCurrProfile().hasPropsChanged())
+			return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
+		if (session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() == 0)
+			return error(CLIMessages.getString("CLI_ERR_NothingToFix")); //$NON-NLS-1$
+		final var fix = new Fix(session.getCurrProfile(), session.getCurrScan(), handler);
+		System.out.format(CLIMessages.getString("CLI_MSG_ActionRemaining"), fix.getActionsRemain()); //$NON-NLS-1$	//NOSONAR
+		return fix.getActionsRemain();
+	}
+
+	/**
+	 * @return
+	 */
+	private int scanResult()
+	{
+		if (session.getCurrScan() == null)
+			return error(CLIMessages.getString("CLI_ERR_ShouldScanFirst")); //$NON-NLS-1$
+		if (session.getCurrProfile().hasPropsChanged())
+			return error(CLIMessages.getString("CLI_ERR_PropsChanged")); //$NON-NLS-1$
+		if (session.getReport() == null)
+			return error(CLIMessages.getString("CLI_ERR_NoReport")); //$NON-NLS-1$
+		System.out.println(session.getReport().getStats().getStatus());	//NOSONAR
+		return 0;
+	}
+
+	/**
+	 * @return
+	 * @throws BreakException
+	 * @throws ScanException
+	 */
+	private int scan() throws BreakException, ScanException
+	{
+		if (session.getCurrProfile() == null)
+			return error(CLIMessages.getString("CLI_ERR_NoProfileLoaded")); //$NON-NLS-1$
+		session.setCurrScan(new Scan(session.getCurrProfile(), handler));
+		return session.getCurrScan().actions.stream().mapToInt(Collection::size).sum();
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	private int md(String... args) throws ParseException, IOException
+	{
+		final var options = new Options().addOption("p", "parents", false, "create parents up to this directory"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
+		for(String arg : cmdline.getArgList())
+		{
+			final var path = Paths.get(arg);
+			if(!Files.exists(path))
+			{
+				if(cmdline.hasOption('p'))
+					Files.createDirectories(path);
+				else
+					Files.createDirectory(path);
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 */
+	private int set(String... args)
+	{
+		if (args.length == 1)
+		{
+			System.getProperties().forEach((k, v) -> System.out.println(k + "=" + v)); //$NON-NLS-1$ //NOSONAR
+			System.getenv().forEach((k, v) -> System.out.println(k + "=" + v)); //$NON-NLS-1$ //NOSONAR
+			return 0;
+		}
+		if (args.length == 2)
+		{
+			getEnv(args[1]).ifPresent(System.out::println); // NOSONAR
+			return 0;
+		}
+		if (args.length == 3)
+		{
+			if (args[2].isEmpty())
+				System.clearProperty(args[1]);
+			else
+				System.setProperty(args[1], args[2]);
+			return 0;
+		}
+		return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); // $NON-NLS-1$
 	}
 
 	/**
@@ -328,16 +447,11 @@ public class JRomManagerCLI
 		switch (CMD_DIRUPD8R.of(cmd))
 		{
 			case LSSRC:
-			{
 				System.out.append("srcdirs = [\n").append(Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(s -> "\t" + Json.value(s).toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$	//NOSONAR
-				
-				break;
-			}
+				return 0;
 			case LSSDR:
-			{
 				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$	//NOSONAR
-				break;
-			}
+				return 0;
 			case CLEARSRC:
 				prefs(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
@@ -345,64 +459,9 @@ public class JRomManagerCLI
 				prefs(jrm.misc.SettingsEnum.dat2dir_sdr, "[]"); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			case PRESETS:
-			{
-				if(args.length==0)
-				{
-					System.out.println("TZIP"); //$NON-NLS-1$	//NOSONAR
-					System.out.println("DIR"); //$NON-NLS-1$	//NOSONAR
-					return 0;
-				}
-				else if(args.length==2)
-				{
-					val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-					final var index = Integer.parseInt(args[0]);
-					if(index < list.size())
-					{
-						switch (args[1])
-						{
-							case "TZIP": //$NON-NLS-1$
-								ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
-								break;
-							case "DIR": //$NON-NLS-1$
-								ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
-								break;
-							default:
-								break;
-						}
-					}
-					return 0;
-				}
-				else
-					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
-			}
+				return dirupd8rPresets(args);
 			case SETTINGS:
-			{
-				if (args.length > 0)
-				{
-					val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-					if (args.length > 0)
-					{
-						final var index = Integer.parseInt(args[0]);
-						if (index < list.size())
-						{
-							ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), null);
-							if (args.length == 3)
-							{
-								settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
-								session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), settings);
-							}
-							else if (args.length == 2)
-								System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
-							else
-								for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
-									System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$	//NOSONAR
-						}
-					}
-					return 0;
-				}
-				else
-					return error(CLIMessages.getString("CLI_ERR_WrongArgs")); //$NON-NLS-1$
-			}
+				return dirupd8rSettings(args);
 			case ADDSRC:
 			{
 				val list = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -418,51 +477,135 @@ public class JRomManagerCLI
 				break;
 			}
 			case START:
-			{
-				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-				List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(File::new).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
-				final var results = new String[sdrl.size()];
-				final var resulthandler = new ResultColUpdater()
-				{
-					@Override
-					public void updateResult(int row, String result)
-					{
-						results[row] = result;
-					}
-
-					@Override
-					public void clearResults()
-					{
-						for (var i = 0; i < results.length; i++)
-							results[i] = ""; //$NON-NLS-1$
-					}
-				};
-				final var options = new Options().addOption("d", "dryrun", false, "Dry run"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				CommandLine cmdline = new DefaultParser().parse(options, args);
-				new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, cmdline.hasOption('d'));
-				for (var i = 0; i < results.length; i++)
-					System.out.println(i + " = " + results[i]); //$NON-NLS-1$	//NOSONAR
-				break;
-			}
+				return dirupd8rStart(args);
 			case HELP:
-			{
-				for (val ducmd : CMD_DIRUPD8R.values())
-				{
-					if (ducmd != CMD_DIRUPD8R.EMPTY && ducmd != CMD_DIRUPD8R.UNKNOWN)
-					{
-						System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$	//NOSONAR
-						System.out.append(": ").append(CLIMessages.getString("CLI_HELP_DIRUPD8R_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
-						System.out.append("\n"); //$NON-NLS-1$	//NOSONAR
-					}
-				}
-				break;
-			}
+				return dirupd8rHelp();
 			case EMPTY:
 				break;
 			case UNKNOWN:
-				return error(() -> CLIMessages.getString("CLI_ERR_UnknownCommand") + cmd + " " + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				return error(() -> CLIMessages.getString(CLI_ERR_UNKNOWN_COMMAND) + cmd + " " + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
 		return 0;
+	}
+
+	/**
+	 * @return
+	 */
+	private int dirupd8rHelp()
+	{
+		for (val ducmd : CMD_DIRUPD8R.values())
+		{
+			if (ducmd != CMD_DIRUPD8R.EMPTY && ducmd != CMD_DIRUPD8R.UNKNOWN)
+			{
+				System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$	//NOSONAR
+				System.out.append(": ").append(CLIMessages.getString("CLI_HELP_DIRUPD8R_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
+				System.out.append("\n"); //$NON-NLS-1$	//NOSONAR
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 * @throws ParseException
+	 */
+	private int dirupd8rStart(String... args) throws ParseException
+	{
+		List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+		List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(File::new).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
+		final var results = new String[sdrl.size()];
+		final var resulthandler = new ResultColUpdater()
+		{
+			@Override
+			public void updateResult(int row, String result)
+			{
+				results[row] = result;
+			}
+
+			@Override
+			public void clearResults()
+			{
+				for (var i = 0; i < results.length; i++)
+					results[i] = ""; //$NON-NLS-1$
+			}
+		};
+		final var options = new Options().addOption("d", "dryrun", false, "Dry run"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		CommandLine cmdline = new DefaultParser().parse(options, args);
+		new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, cmdline.hasOption('d'));
+		for (var i = 0; i < results.length; i++)
+			System.out.println(i + " = " + results[i]); //$NON-NLS-1$	//NOSONAR
+		return 0;
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 * @throws NumberFormatException
+	 * @throws SecurityException
+	 */
+	private int dirupd8rSettings(String... args) throws NumberFormatException, SecurityException
+	{
+		if (args.length > 0)
+		{
+			val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+			final var index = Integer.parseInt(args[0]);
+			if (index < list.size())
+			{
+				ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), null);
+				if (args.length == 3)
+				{
+					settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
+					session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), settings);
+				}
+				else if (args.length == 2)
+					System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]), "")); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
+				else
+					for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
+						System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$	//NOSONAR
+			}
+			return 0;
+		}
+		else
+			return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 * @throws NumberFormatException
+	 * @throws SecurityException
+	 */
+	private int dirupd8rPresets(String... args) throws NumberFormatException, SecurityException
+	{
+		if(args.length==0)
+		{
+			System.out.println("TZIP"); //$NON-NLS-1$	//NOSONAR
+			System.out.println("DIR"); //$NON-NLS-1$	//NOSONAR
+			return 0;
+		}
+		else if(args.length==2)
+		{
+			val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+			final var index = Integer.parseInt(args[0]);
+			if(index < list.size())
+			{
+				switch (args[1])
+				{
+					case "TZIP": //$NON-NLS-1$
+						ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
+						break;
+					case "DIR": //$NON-NLS-1$
+						ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
+						break;
+					default:
+						break;
+				}
+			}
+			return 0;
+		}
+		else
+			return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
 	}
 
 	private int trntchk(String cmd, String... args) throws IOException, ParseException
@@ -470,15 +613,12 @@ public class JRomManagerCLI
 		switch (CMD_TRNTCHK.of(cmd))
 		{
 			case LSSDR:
-			{
 				System.out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")).stream().map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$	//NOSONAR
 				break;
-			}
 			case CLEARSDR:
 				prefs(jrm.misc.SettingsEnum.trntchk_sdr, "[]"); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			case ADDSDR:
-			{
 				if(args.length==2)
 				{
 					val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -486,60 +626,73 @@ public class JRomManagerCLI
 					prefs(jrm.misc.SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(list)); //$NON-NLS-1$
 				}
 				else
-					return error(CLIMessages.getString("CLI_ERR_WrongArgs"));
+					return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS));
 				break;
-			}
 			case START:
-			{
-				List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
-				final var results = new String[sdrl.size()];
-				ResultColUpdater resulthandler = new ResultColUpdater()
-				{
-					@Override
-					public void updateResult(int row, String result)
-					{
-						results[row] = result;
-					}
-
-					@Override
-					public void clearResults()
-					{
-						for (var i = 0; i < results.length; i++)
-							results[i] = ""; //$NON-NLS-1$
-					}
-				};
-				final var options = new Options()
-						.addOption("m", "checkmode", true, "Check mode") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						.addOption("u", "removeunknown", false, "Remove unknown files") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						.addOption("w", "removewrongsized", false, "Remove wrong sized files") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						.addOption("a", "detectarchives", false, "Detect archived folders"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				CommandLine cmdline = new DefaultParser().parse(options, args);
-				TrntChkMode mode = cmdline.hasOption('m')?TrntChkMode.valueOf(cmdline.getOptionValue('m')):TrntChkMode.FILESIZE;
-				final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
-				if(cmdline.hasOption('u')) opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
-				if(cmdline.hasOption('w')) opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
-				if(cmdline.hasOption('d')) opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
-				new TorrentChecker(session, handler, sdrl, mode, resulthandler, opts);
-				break;
-			}
+				return trntchkStart(args);
 			case HELP:
-			{
-				for (val ducmd : CMD_TRNTCHK.values())
-				{
-					if (ducmd != CMD_TRNTCHK.EMPTY && ducmd != CMD_TRNTCHK.UNKNOWN)
-					{
-						System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$	//NOSONAR
-						System.out.append(": ").append(CLIMessages.getString("CLI_HELP_TRNTCHK_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
-						System.out.append("\n"); //$NON-NLS-1$	//NOSONAR
-					}
-				}
-				break;
-			}
+				return trntchkHelp();
 			case EMPTY:
 				break;
 			case UNKNOWN:
-				return error(() -> CLIMessages.getString("CLI_ERR_UnknownCommand") + cmd + " " + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				return error(() -> CLIMessages.getString(CLI_ERR_UNKNOWN_COMMAND) + cmd + " " + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
+		return 0;
+	}
+
+	/**
+	 * @return
+	 */
+	private int trntchkHelp()
+	{
+		for (val ducmd : CMD_TRNTCHK.values())
+		{
+			if (ducmd != CMD_TRNTCHK.EMPTY && ducmd != CMD_TRNTCHK.UNKNOWN)
+			{
+				System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$	//NOSONAR
+				System.out.append(": ").append(CLIMessages.getString("CLI_HELP_TRNTCHK_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$	//NOSONAR
+				System.out.append("\n"); //$NON-NLS-1$	//NOSONAR
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * @param args
+	 * @return
+	 * @throws ParseException
+	 */
+	private int trntchkStart(String... args) throws ParseException
+	{
+		List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
+		final var results = new String[sdrl.size()];
+		ResultColUpdater resulthandler = new ResultColUpdater()
+		{
+			@Override
+			public void updateResult(int row, String result)
+			{
+				results[row] = result;
+			}
+
+			@Override
+			public void clearResults()
+			{
+				for (var i = 0; i < results.length; i++)
+					results[i] = ""; //$NON-NLS-1$
+			}
+		};
+		final var options = new Options()
+				.addOption("m", "checkmode", true, "Check mode") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				.addOption("u", "removeunknown", false, "Remove unknown files") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				.addOption("w", "removewrongsized", false, "Remove wrong sized files") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				.addOption("a", "detectarchives", false, "Detect archived folders"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		CommandLine cmdline = new DefaultParser().parse(options, args);
+		TrntChkMode mode = cmdline.hasOption('m')?TrntChkMode.valueOf(cmdline.getOptionValue('m')):TrntChkMode.FILESIZE;
+		final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
+		if(cmdline.hasOption('u')) opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
+		if(cmdline.hasOption('w')) opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
+		if(cmdline.hasOption('d')) opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
+		new TorrentChecker(session, handler, sdrl, mode, resulthandler, opts);
 		return 0;
 	}
 
@@ -697,7 +850,7 @@ public class JRomManagerCLI
 	{
 		try(final var stream = Files.walk(cwdir, 1))
 		{
-			stream.filter(p -> Files.isDirectory(p) && !p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p -> System.out.format("<DIR>\t%s%n", p)); //$NON-NLS-1$
+			stream.filter(p -> Files.isDirectory(p) && !p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize).forEachOrdered(p -> System.out.format("<DIR>\t%s%n", p)); //NOSONAR //$NON-NLS-1$
 		}
 		for (val row : ProfileNFO.list(session, cwdir.toFile()))
 			System.out.format("<DAT>\t%s\n", row.getName()); //$NON-NLS-1$	//NOSONAR
@@ -721,7 +874,7 @@ public class JRomManagerCLI
 		}
 		catch (IOException e)
 		{
-			System.err.println(e.getMessage());
+			Log.err(e.getMessage());
 		}
 	}
 

@@ -101,41 +101,41 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("id"))
 		{
-			final SDRList sdrl = SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-			if (sdrl.isNeedSave())
-			{
-				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
-				request.getSession().getUser().getSettings().saveSettings();
-			}
-			Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
-			if(candidate.isPresent())
-			{
-				if(operation.hasData("src") || operation.hasData("dst") || operation.hasData(SELECTED))
-				{
-					final var sdr = candidate.get();
-					if(operation.hasData("src"))
-						sdr.setSrc(operation.getData("src"));
-					if(operation.hasData("dst"))
-						sdr.setDst(operation.getData("dst"));
-					if(operation.hasData(SELECTED))
-						sdr.setSelected(Boolean.parseBoolean(operation.getData(SELECTED)));
-					request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
-					request.getSession().getUser().getSettings().saveSettings();
-					writer.writeStartElement(RESPONSE);
-					writer.writeElement(STATUS, "0");
-					writer.writeStartElement("data");
-					writeRecord(sdr);
-					writer.writeEndElement();
-					writer.writeEndElement();
-				}
-				else
-					failure("field to update is missing in request");
-			}
-			else
-				failure("not in list");
+			failure(SRC_IS_MISSING_IN_REQUEST);
+			return;
+		}
+		final SDRList sdrl = SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
+		if (sdrl.isNeedSave())
+		{
+			request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
+			request.getSession().getUser().getSettings().saveSettings();
+		}
+		Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
+		if(!candidate.isPresent())
+		{
+			failure("not in list");
+			return;
+		}
+		if(operation.hasData("src") || operation.hasData("dst") || operation.hasData(SELECTED))
+		{
+			final var sdr = candidate.get();
+			if(operation.hasData("src"))
+				sdr.setSrc(operation.getData("src"));
+			if(operation.hasData("dst"))
+				sdr.setDst(operation.getData("dst"));
+			if(operation.hasData(SELECTED))
+				sdr.setSelected(Boolean.parseBoolean(operation.getData(SELECTED)));
+			request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
+			request.getSession().getUser().getSettings().saveSettings();
+			writer.writeStartElement(RESPONSE);
+			writer.writeElement(STATUS, "0");
+			writer.writeStartElement("data");
+			writeRecord(sdr);
+			writer.writeEndElement();
+			writer.writeEndElement();
 		}
 		else
-			failure(SRC_IS_MISSING_IN_REQUEST);
+			failure("field to update is missing in request");
 	}
 	
 	@Override

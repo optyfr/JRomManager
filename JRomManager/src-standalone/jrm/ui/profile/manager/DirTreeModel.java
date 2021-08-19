@@ -25,6 +25,7 @@ import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.commons.io.FileUtils;
 
+import jrm.misc.Log;
 import jrm.profile.manager.Dir;
 
 /**
@@ -32,7 +33,6 @@ import jrm.profile.manager.Dir;
  *
  * @author optyfr
  */
-// TODO: Auto-generated Javadoc
 @SuppressWarnings("serial")
 public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
 {
@@ -48,6 +48,7 @@ public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
 		addTreeModelListener(this);
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void treeNodesChanged(final TreeModelEvent e)
 	{
@@ -55,26 +56,30 @@ public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
 		try
 		{
 			final int index = e.getChildIndices()[0];
-			final DirNode child_node = (DirNode) node.getChildAt(index);
-			if(child_node.getUserObject() instanceof String)
+			final DirNode childNode = (DirNode) node.getChildAt(index);
+			if(childNode.getUserObject() instanceof String)
 			{
-				final File newdir = new File(node.getDir().getFile(), child_node.getUserObject().toString());
-				final File olddir = child_node.getDir().getFile();
+				final File newdir = new File(node.getDir().getFile(), childNode.getUserObject().toString());
+				final File olddir = childNode.getDir().getFile();
 				if(olddir.renameTo(newdir))
-					child_node.setDir(new Dir(newdir));
-				child_node.setUserObject(child_node.getDir());
+					childNode.setDir(new Dir(newdir));
+				childNode.setUserObject(childNode.getDir());
 			}
 		}
 		catch(final NullPointerException exc)
 		{
+			Log.err(exc.getMessage(), exc);
 		}
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void treeNodesInserted(final TreeModelEvent e)
 	{
+		// do nothing
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void treeNodesRemoved(final TreeModelEvent e)
 	{
@@ -87,11 +92,14 @@ public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
 		}
 		catch(NullPointerException | IOException exc)
 		{
+			Log.err(exc.getMessage(), exc);
 		}
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void treeStructureChanged(final TreeModelEvent e)
 	{
+		// do nothing
 	}
 }
