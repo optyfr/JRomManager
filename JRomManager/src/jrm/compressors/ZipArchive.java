@@ -108,57 +108,58 @@ public class ZipArchive implements Archive
 	public void close() throws IOException
 	{
 		if(nativeZip != null)
-			nativeZip.close();
-		else if(tempDir != null)
 		{
-			if(readonly)
-			{
-				FileUtils.deleteDirectory(tempDir);
-			}
-			else
-			{
-				int err = -1;
-				final List<String> cmdAdd = new ArrayList<>();
-				final Path tmpfile = IOUtils.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
-				Files.delete(tmpfile);
-				if(is7z)
-				{
-					Collections.addAll(cmdAdd, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					Collections.addAll(cmdAdd, "-mx=" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
-					Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
-				}
-				else
-				{
-					Collections.addAll(cmdAdd, cmd, "-r"); //$NON-NLS-1$
-					Collections.addAll(cmdAdd, "-" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
-					Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
-				}
-				final var process = new ProcessBuilder(cmdAdd).directory(tempDir).redirectErrorStream(true).start();
-				try
-				{
-					err = process.waitFor();
-				}
-				catch(InterruptedException e)
-				{
-					Log.err(e.getMessage(),e);
-					Thread.currentThread().interrupt();
-				}
-				FileUtils.deleteDirectory(tempDir);
-				if(err != 0)
-				{
-					Files.deleteIfExists(tmpfile);
-					throw new IOException("Process returned " + err); //$NON-NLS-1$
-				}
-				else
-				{
-					synchronized(archive)
-					{
-						Files.move(tmpfile, archive.toPath(), StandardCopyOption.REPLACE_EXISTING);
-					}
-				}
-			}
-			tempDir = null;
+			nativeZip.close();
+			return;
 		}
+		if(tempDir == null)
+			return;
+		if(readonly)
+		{
+			FileUtils.deleteDirectory(tempDir);
+			tempDir = null;
+			return;
+		}
+		int err = -1;
+		final List<String> cmdAdd = new ArrayList<>();
+		final Path tmpfile = IOUtils.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
+		Files.delete(tmpfile);
+		if(is7z)
+		{
+			Collections.addAll(cmdAdd, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Collections.addAll(cmdAdd, "-mx=" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+			Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
+		}
+		else
+		{
+			Collections.addAll(cmdAdd, cmd, "-r"); //$NON-NLS-1$
+			Collections.addAll(cmdAdd, "-" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+			Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
+		}
+		final var process = new ProcessBuilder(cmdAdd).directory(tempDir).redirectErrorStream(true).start();
+		try
+		{
+			err = process.waitFor();
+		}
+		catch(InterruptedException e)
+		{
+			Log.err(e.getMessage(),e);
+			Thread.currentThread().interrupt();
+		}
+		FileUtils.deleteDirectory(tempDir);
+		if(err != 0)
+		{
+			Files.deleteIfExists(tmpfile);
+			throw new IOException("Process returned " + err); //$NON-NLS-1$
+		}
+		else
+		{
+			synchronized(archive)
+			{
+				Files.move(tmpfile, archive.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			}
+		}
+		tempDir = null;
 	}
 
 	@Override
@@ -171,7 +172,7 @@ public class ZipArchive implements Archive
 			tempDir = IOUtils.createTempDirectory("JRM").toFile(); //$NON-NLS-1$
 			if(archive.exists() && !readonly)
 			{
-				if(extract(tempDir, null) == 0)
+				if(extract(tempDir, null) == 0)	//NOSONAR
 					return tempDir;
 				FileUtils.deleteDirectory(tempDir);
 				tempDir = null;
@@ -182,65 +183,41 @@ public class ZipArchive implements Archive
 
 	private int extract(final File baseDir, final String entry) throws IOException
 	{
-/*		final List<String> cmd = new ArrayList<>();
-		if(is_7z)
+		try (final var srcfs = FileSystems.newFileSystem(archive.toPath(), (ClassLoader) null);)
 		{
-			Collections.addAll(cmd, session.getUser().settings.getProperty("7z_cmd", FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			if(entry != null && !entry.isEmpty())
-				cmd.add(entry);
-			final ProcessBuilder pb = new ProcessBuilder(cmd).directory(baseDir);
-			synchronized(archive)
+			if (entry != null && !entry.isEmpty())
+				Files.copy(srcfs.getPath(entry), baseDir.toPath().resolve(entry));
+			else
 			{
-				final Process process = pb.start();
-				try
-				{
-					return process.waitFor();
-				}
-				catch(final InterruptedException e)
-				{
-					Log.err(e.getMessage(),e);
-				}
-			}
-		}
-		else*/
-		{
-			try(final var srcfs = FileSystems.newFileSystem(archive.toPath(), (ClassLoader)null);)
-			{
-				if(entry != null && !entry.isEmpty())
-					Files.copy(srcfs.getPath(entry), baseDir.toPath().resolve(entry));
-				else
-				{
-					final var sourcePath = srcfs.getPath("/"); //$NON-NLS-1$
-					final var targetPath = baseDir.toPath();
-					if(cb != null)
-						try(final var stream = Files.walk(sourcePath))
-						{
-							cb.setTotal(stream.filter(Files::isRegularFile).count());
-						}
-					Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
+				final var sourcePath = srcfs.getPath("/"); //$NON-NLS-1$
+				final var targetPath = baseDir.toPath();
+				if (cb != null)
+					try (final var stream = Files.walk(sourcePath))
 					{
-						long cnt = 0;
+						cb.setTotal(stream.filter(Files::isRegularFile).count());
+					}
+				Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
+				{
+					long cnt = 0;
 
-						@Override
-						public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-						{
-							Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
-							return FileVisitResult.CONTINUE;
-						}
+					@Override
+					public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+					{
+						Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
+						return FileVisitResult.CONTINUE;
+					}
 
-						@Override
-						public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
-						{
-							Files.copy(file, targetPath.resolve(sourcePath.relativize(file)));
-							if(cb != null)
-								cb.setCompleted(++cnt);
-							return FileVisitResult.CONTINUE;
-						}
-					});
-					return 0;
-				}
+					@Override
+					public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
+					{
+						Files.copy(file, targetPath.resolve(sourcePath.relativize(file)));
+						if (cb != null)
+							cb.setCompleted(++cnt);
+						return FileVisitResult.CONTINUE;
+					}
+				});
+				return 0;
 			}
-
 		}
 		return -1;
 	}
@@ -280,7 +257,7 @@ public class ZipArchive implements Archive
 		}
 }
 	
-	public int extract_custom(CustomVisitor sfv)
+	public int extractCustom(CustomVisitor sfv)
 	{
 		try(final var srcfs = FileSystems.newFileSystem(archive.toPath(), (ClassLoader)null);)
 		{
@@ -326,7 +303,7 @@ public class ZipArchive implements Archive
 		return -1;
 	}
 	
-	public int compress_custom(CustomVisitor sfv, Map<String, Object> env)
+	public int compressCustom(CustomVisitor sfv, Map<String, Object> env)
 	{
 		try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + archive.toURI()), env);) //$NON-NLS-1$
 		{

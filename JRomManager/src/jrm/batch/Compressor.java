@@ -254,7 +254,7 @@ public class Compressor implements HTMLRenderer
 				progress.setProgress(toHTML("creating " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
 				try(final var dstarchive = new ZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
 				{
-					dstarchive.compress_custom(new CustomVisitor(basedir.toPath()) {
+					dstarchive.compressCustom(new CustomVisitor(basedir.toPath()) {
 						@Override
 						public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
 						{
@@ -310,7 +310,7 @@ public class Compressor implements HTMLRenderer
 				progress.setProgress(toHTML(CRUNCHING + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
 				try (final var newarchive = new ZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
 				{
-					newarchive.compress_custom(new CustomVisitor(basedir) {
+					newarchive.compressCustom(new CustomVisitor(basedir) {
 						@Override
 						public FileVisitResult visitFile(final Path file, final BasicFileAttributes attr) throws IOException
 						{
@@ -401,7 +401,7 @@ public class Compressor implements HTMLRenderer
 			progress.setProgress(toHTML(EXTRACTING + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 			try(final var srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress));)
 			{
-				srcarchive.extract_custom(new CustomVisitor() {
+				srcarchive.extractCustom(new CustomVisitor() {
 					@Override
 					public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
 					{

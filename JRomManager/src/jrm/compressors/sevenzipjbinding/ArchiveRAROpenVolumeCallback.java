@@ -21,30 +21,29 @@ public class ArchiveRAROpenVolumeCallback implements IArchiveOpenVolumeCallback,
 		this.closeables = closeables;
 	}
 
-	private Map<String, RandomAccessFile> openedRandomAccessFileList = new HashMap<String, RandomAccessFile>();
+	private Map<String, RandomAccessFile> openedRandomAccessFileList = new HashMap<>();
 	private String name;
 
+	@SuppressWarnings("exports")
 	public Object getProperty(PropID propID) throws SevenZipException
 	{
-		switch (propID)
-		{
-			case NAME:
-				return name;
-			default:
-				return null;
-		}
+		if(PropID.NAME.equals(propID))
+			return name;
+		return null;
 	}
 
+	@SuppressWarnings("exports")
 	public IInStream getStream(String filename) throws SevenZipException
 	{
 		try
 		{
-			RandomAccessFile randomAccessFile = openedRandomAccessFileList.get(filename);
+			var randomAccessFile = openedRandomAccessFileList.get(filename);
 			if (randomAccessFile != null)
 				randomAccessFile.seek(0);
 			else
 			{
-				closeables.addCloseables(randomAccessFile = new RandomAccessFile(filename, "r"));
+				randomAccessFile = new RandomAccessFile(filename, "r");
+				closeables.addCloseables(randomAccessFile);
 				openedRandomAccessFileList.put(filename, randomAccessFile);
 			}
 			name = filename;
@@ -56,15 +55,26 @@ public class ArchiveRAROpenVolumeCallback implements IArchiveOpenVolumeCallback,
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException(e);
+			throw new RARException(e);
 		}
 	}
 
+	@SuppressWarnings("serial")
+	private class RARException extends RuntimeException
+	{
+		public RARException(Throwable e)
+		{
+			super(e);
+		}
+	}
+	
 	public void setCompleted(Long files, Long bytes) throws SevenZipException
 	{
+		// do nothing
 	}
 
 	public void setTotal(Long files, Long bytes) throws SevenZipException
 	{
+		// do nothing
 	}
 }

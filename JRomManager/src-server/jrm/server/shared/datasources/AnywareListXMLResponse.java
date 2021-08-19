@@ -51,64 +51,146 @@ public class AnywareListXMLResponse extends XMLResponse
 	
 	private Predicate<Anyware> getFilter(Operation operation)
 	{
-		final Set<String> lstatus = operation.hasData(STATUS)?Stream.of(operation.getData(STATUS).split(",")).collect(Collectors.toSet()):null;
-		final String lname = operation.hasData(NAME)?operation.getData(NAME).toLowerCase():null;
-		final String ldesc = operation.hasData(DESCRIPTION)?operation.getData(DESCRIPTION).toLowerCase():null;
-		final String lcloneof = operation.hasData(CLONEOF)?operation.getData(CLONEOF).toLowerCase():null;
-		final String lromof = operation.hasData(ROMOF)?operation.getData(ROMOF).toLowerCase():null;
-		final String lsampleof = operation.hasData(SAMPLEOF)?operation.getData(SAMPLEOF).toLowerCase():null;
-		final Boolean lselected = operation.hasData(SELECTED)?Boolean.valueOf(operation.getData(SELECTED)):null;
-		return ware -> {
-			if (lstatus != null && !lstatus.contains(ware.getStatus().toString()))
-				return false;
-			if (lselected != null && ware.isSelected() != lselected)
-				return false;
-			if (lname != null && !ware.getBaseName().toLowerCase().contains(lname))
-				return false;
-			if (ldesc != null && !ware.description.toString().toLowerCase().contains(ldesc))
-				return false;
-			if (lcloneof != null && (ware.getCloneof() == null || !ware.getCloneof().toLowerCase().contains(lcloneof)))
-				return false;
-			if (lromof != null && ware instanceof Machine && (((Machine) ware).getRomof() == null || !((Machine) ware).getRomof().toLowerCase().contains(lromof)))
-				return false;
-			if (lsampleof != null && ware instanceof Machine && (((Machine) ware).getSampleof() == null || !((Machine) ware).getSampleof().toLowerCase().contains(lsampleof)))
-				return false;
-			return true;
-		};
+		final Set<String> lstatus = operation.hasData(STATUS) ? Stream.of(operation.getData(STATUS).split(",")).collect(Collectors.toSet()) : null;
+		final String lname = operation.hasData(NAME) ? operation.getData(NAME).toLowerCase() : null;
+		final String ldesc = operation.hasData(DESCRIPTION) ? operation.getData(DESCRIPTION).toLowerCase() : null;
+		final String lcloneof = operation.hasData(CLONEOF) ? operation.getData(CLONEOF).toLowerCase() : null;
+		final String lromof = operation.hasData(ROMOF) ? operation.getData(ROMOF).toLowerCase() : null;
+		final String lsampleof = operation.hasData(SAMPLEOF) ? operation.getData(SAMPLEOF).toLowerCase() : null;
+		final Boolean lselected = operation.hasData(SELECTED) ? Boolean.valueOf(operation.getData(SELECTED)) : null;
+		return ware -> !filterStatus(lstatus, ware) && !filterSelected(lselected, ware) && !filterName(lname, ware) && !filteDesc(ldesc, ware) && !filterCloneOf(lcloneof, ware) && !filterRomOf(lromof, ware) && !filterSampleOf(lsampleof, ware);
+	}
+
+
+	/**
+	 * @param lsampleof
+	 * @param ware
+	 * @return
+	 */
+	private boolean filterSampleOf(final String lsampleof, Anyware ware)
+	{
+		return lsampleof != null && ware instanceof Machine && (((Machine) ware).getSampleof() == null || !((Machine) ware).getSampleof().toLowerCase().contains(lsampleof));
+	}
+
+
+	/**
+	 * @param lromof
+	 * @param ware
+	 * @return
+	 */
+	private boolean filterRomOf(final String lromof, Anyware ware)
+	{
+		return lromof != null && ware instanceof Machine && (((Machine) ware).getRomof() == null || !((Machine) ware).getRomof().toLowerCase().contains(lromof));
+	}
+
+
+	/**
+	 * @param lcloneof
+	 * @param ware
+	 * @return
+	 */
+	private boolean filterCloneOf(final String lcloneof, Anyware ware)
+	{
+		return lcloneof != null && (ware.getCloneof() == null || !ware.getCloneof().toLowerCase().contains(lcloneof));
+	}
+
+
+	/**
+	 * @param ldesc
+	 * @param ware
+	 * @return
+	 */
+	private boolean filteDesc(final String ldesc, Anyware ware)
+	{
+		return ldesc != null && !ware.description.toString().toLowerCase().contains(ldesc);
+	}
+
+
+	/**
+	 * @param lname
+	 * @param ware
+	 * @return
+	 */
+	private boolean filterName(final String lname, Anyware ware)
+	{
+		return lname != null && !ware.getBaseName().toLowerCase().contains(lname);
+	}
+
+
+	/**
+	 * @param lselected
+	 * @param ware
+	 * @return
+	 */
+	private boolean filterSelected(final Boolean lselected, Anyware ware)
+	{
+		return lselected != null && ware.isSelected() != lselected;
+	}
+
+
+	/**
+	 * @param lstatus
+	 * @param ware
+	 * @return
+	 */
+	private boolean filterStatus(final Set<String> lstatus, Anyware ware)
+	{
+		return lstatus != null && !lstatus.contains(ware.getStatus().toString());
 	}
 	
 	private Comparator<Anyware> getSorter(Operation operation)
 	{
-		return (o1,o2)->{
-			if(!operation.getSort().isEmpty())
-			{
-				for(Sorter s : operation.getSort())
-				{
-					switch(s.getName())
-					{
-						case NAME:
-						{
-							int ret = (s.isDesc() ? o2 : o1).getBaseName().compareToIgnoreCase((s.isDesc() ? o1 : o2).getBaseName());
-							if (ret != 0)
-								return ret;
-							break;
-						}
-						case DESCRIPTION:
-						{
-							int ret = (s.isDesc() ? o2 : o1).description.toString().compareToIgnoreCase((s.isDesc() ? o1 : o2).description.toString());
-							if (ret != 0)
-								return ret;
-							break;
-						}
-						default:
-							break;
-					}
-				}
-				return 0;
-			}
-			else
+		return (o1, o2) -> {
+			if (operation.getSort().isEmpty())
 				return o1.getBaseName().compareToIgnoreCase(o2.getBaseName());
+			for (Sorter s : operation.getSort())
+			{
+				switch (s.getName())
+				{
+					case NAME:
+					{
+						final int ret = sortByName(o1, o2, s);
+						if (ret != 0)
+							return ret;
+						break;
+					}
+					case DESCRIPTION:
+					{
+						final int ret = sortByDesc(o1, o2, s);
+						if (ret != 0)
+							return ret;
+						break;
+					}
+					default:
+						break;
+				}
+			}
+			return 0;
 		};
+	}
+
+
+	/**
+	 * @param o1
+	 * @param o2
+	 * @param s
+	 * @return
+	 */
+	private int sortByDesc(Anyware o1, Anyware o2, Sorter s)
+	{
+		return (s.isDesc() ? o2 : o1).description.toString().compareToIgnoreCase((s.isDesc() ? o1 : o2).description.toString());
+	}
+
+
+	/**
+	 * @param o1
+	 * @param o2
+	 * @param s
+	 * @return
+	 */
+	private int sortByName(Anyware o1, Anyware o2, Sorter s)
+	{
+		return (s.isDesc() ? o2 : o1).getBaseName().compareToIgnoreCase((s.isDesc() ? o1 : o2).getBaseName());
 	}
 	
 	private Stream<? extends Anyware> buildStream(AnywareList<? extends Anyware> al, Operation operation)
@@ -212,64 +294,104 @@ public class AnywareListXMLResponse extends XMLResponse
 	{
 		if(operation.getOperationId().toString().equals("find"))
 		{
-			writer.writeStartElement(RESPONSE);
-			writer.writeElement(STATUS, "0");
-			final AnywareList<?> al = getList(operation);
-			if (al != null && operation.hasData("find"))
-			{
-				List<Anyware> list = buildList(al, operation);
-				final String find = operation.getData("find");
-				for (var i = 0; i < list.size(); i++)
-				{
-					if (list.get(i).getBaseName().equals(find))
-					{
-						writer.writeElement("found", Integer.toString(i));
-						break;
-					}
-				}
-			}
-			writer.writeEndElement();
+			find(operation);
 		}
 		else if(operation.getOperationId().toString().equals("selectNone"))
 		{
-			writer.writeStartElement(RESPONSE);
-			writer.writeElement(STATUS, "0");
-			final AnywareList<?> al = getList(operation);
-			if(al != null)
-			{
-				List<Anyware> list = buildList(al, operation);
-				for(Anyware aw : list)
-					aw.setSelected(false);
-			}
-			writer.writeEndElement();
+			selectNone(operation);
 		}
 		else if(operation.getOperationId().toString().equals("selectAll"))
 		{
-			writer.writeStartElement(RESPONSE);
-			writer.writeElement(STATUS, "0");
-			final AnywareList<?> al = getList(operation);
-			if(al != null)
-			{
-				List<Anyware> list = buildList(al, operation);
-				for(Anyware aw : list)
-					aw.setSelected(true);
-			}
-			writer.writeEndElement();
+			selectAll(operation);
 		}
 		else if(operation.getOperationId().toString().equals("selectInvert"))
 		{
-			writer.writeStartElement(RESPONSE);
-			writer.writeElement(STATUS, "0");
-			final AnywareList<?> al = getList(operation);
-			if(al != null)
-			{
-				List<Anyware> list = buildList(al, operation);
-				for(Anyware aw : list)
-					aw.setSelected(!aw.isSelected());
-			}
-			writer.writeEndElement();
+			selectInvert(operation);
 		}
 		else
 			failure("custom operation with id "+operation.getOperationId()+" not implemented");
+	}
+
+
+	/**
+	 * @param operation
+	 * @throws XMLStreamException
+	 */
+	private void selectInvert(Operation operation) throws XMLStreamException
+	{
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		final AnywareList<?> al = getList(operation);
+		if(al != null)
+		{
+			List<Anyware> list = buildList(al, operation);
+			for(Anyware aw : list)
+				aw.setSelected(!aw.isSelected());
+		}
+		writer.writeEndElement();
+	}
+
+
+	/**
+	 * @param operation
+	 * @throws XMLStreamException
+	 */
+	private void selectAll(Operation operation) throws XMLStreamException
+	{
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		final AnywareList<?> al = getList(operation);
+		if(al != null)
+		{
+			List<Anyware> list = buildList(al, operation);
+			for(Anyware aw : list)
+				aw.setSelected(true);
+		}
+		writer.writeEndElement();
+	}
+
+
+	/**
+	 * @param operation
+	 * @throws XMLStreamException
+	 */
+	private void selectNone(Operation operation) throws XMLStreamException
+	{
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		final AnywareList<?> al = getList(operation);
+		if(al != null)
+		{
+			List<Anyware> list = buildList(al, operation);
+			for(Anyware aw : list)
+				aw.setSelected(false);
+		}
+		writer.writeEndElement();
+	}
+
+
+	/**
+	 * @param operation
+	 * @throws XMLStreamException
+	 */
+	private void find(Operation operation) throws XMLStreamException
+	{
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		final AnywareList<?> al = getList(operation);
+		if (al != null && operation.hasData("find"))
+		{
+			List<Anyware> list = buildList(al, operation);
+			final String find = operation.getData("find");
+			for (var i = 0; i < list.size(); i++)
+			{
+				if (list.get(i).getBaseName().equals(find))
+				{
+					writer.writeElement("found", Integer.toString(i));
+					break;
+				}
+			}
+		}
+		writer.writeEndElement();
 	}
 }

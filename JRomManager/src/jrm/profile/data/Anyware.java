@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -201,6 +202,27 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public List<Disk> filterDisks()
 	{
+		Stream<Disk> stream = getFilterDisksStream();
+		
+		/*
+		 * Stream filtering
+		 */
+		return stream.filter(d -> {
+			if (d.dumpStatus == Status.nodump)	// exclude nodump disks
+				return false;
+			if (profile.getSettings().getMergeMode() == MergeOptions.SPLIT && containsInParent(this, d))	// exclude if splitting and the disk is in parent
+				return false;
+			if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && containsInParent(this, d))	// explicitely include if nomerge and the disk is in parent
+				return true;
+			return isBios() || !containsInParent(this, d);	// otherwise include if I'm bios or the disk is not in parent
+		}).collect(Collectors.toList());
+	}
+
+	/**
+	 * @return
+	 */
+	private Stream<Disk> getFilterDisksStream()
+	{
 		/*/
 		 * Stream initialization
 		 */
@@ -226,19 +248,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		}
 		else // if not merging
 			stream = disks.stream();	// simply initialize stream to current object disks list
-		
-		/*
-		 * Stream filtering
-		 */
-		return stream.filter(d -> {
-			if (d.dumpStatus == Status.nodump)	// exclude nodump disks
-				return false;
-			if (profile.getSettings().getMergeMode() == MergeOptions.SPLIT && containsInParent(this, d))	// exclude if splitting and the disk is in parent
-				return false;
-			if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && containsInParent(this, d))	// explicitely include if nomerge and the disk is in parent
-				return true;
-			return isBios() || !containsInParent(this, d);	// otherwise include if I'm bios or the disk is not in parent
-		}).collect(Collectors.toList());
+		return stream;
 	}
 
 	/**
@@ -248,6 +258,37 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public List<Rom> filterRoms()
 	{
+		return getFilterRomsStream().filter(this::getRomsFilter).collect(Collectors.toList());
+	}
+
+	/**
+	 * @param r
+	 * @return
+	 */
+	private boolean getRomsFilter(Rom r)
+	{
+		if (r.dumpStatus == Status.nodump || r.crc == null || "00000000".equals(r.crc) || r.name.isEmpty())
+			return false; // exclude nodump, nocrc, empty name
+		if (profile.getSettings().getMergeMode() == MergeOptions.SUPERFULLNOMERGE || profile.getSettings().getMergeMode() == MergeOptions.FULLNOMERGE || profile.getSettings().getMergeMode() == MergeOptions.FULLMERGE)
+			return true;	// Unconditionally include roms in SUPERFULLNOMERGE, FULLNOMERGE, FULLMERGE modes
+		if (profile.getSettings().getMergeMode() == MergeOptions.SPLIT && containsInParent(this, r, false))
+			return false;	// exclude if splitting and the rom is in parent
+		if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && containsInParent(this, r, true))
+			return false;	// exclude if not merging and the rom is in BIOS
+		if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && Anyware.wouldMerge(this, r))
+			return true;	// include if not merging and the rom would be merged in parent (when selected)
+		if (profile.getSettings().getMergeMode() == MergeOptions.MERGE && containsInParent(this, r, true))
+			return false;	// exclude if merging and the rom is in BIOS
+		if (profile.getSettings().getMergeMode() == MergeOptions.MERGE && Anyware.wouldMerge(this, r))
+			return true;	// include if merging and the rom would be merged in parent (when selected)
+		return isBios() || !containsInParent(this, r, false);	// otherwise include if I'm bios or if the rom is not in parent
+	}
+
+	/**
+	 * @return
+	 */
+	private Stream<Rom> getFilterRomsStream()
+	{
 		/*
 		 * Stream initialization
 		 */
@@ -256,34 +297,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 			stream = Stream.empty();
 		else if (profile.getSettings().getMergeMode().isMerge()) // if merging
 		{
-			if (isClone() && getParent().selected)	// skip if I'm a clone and my parent is selected for inclusion
-				stream = Stream.empty();
-			else // otherwise...
-			{
-				// concatenate my roms and all my clones roms into a stream
-				final List<Rom> romsWithClones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
-				// and mark for collision roms with same names but with different hash (this will change the way getName return roms names)
-				StreamEx.of(romsWithClones).groupingBy(Rom::getName).forEach((n, l) -> {
-					if (l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
-						l.forEach(Rom::setCollisionMode);
-				});
-				if (HashCollisionOptions.HALFDUMB == profile.getSettings().getHashCollisionMode())	// HALFDUMB extra stuffs for PD
-				{
-					/*
-					 *  This will filter roms with same hash between clones (the encountered first clone collisioning rom is kept),
-					 *  and also remove parent roms from clone (implicit merge or not)
-					 *  note that roms dat declaration order is important, as well that clone name alphabetical order
-					 */
-					final LinkedHashMap<String , Rom> map = new LinkedHashMap<>();
-					roms.forEach(r -> map.put(r.hashString(), r));
-					clones.values().stream().sorted().forEach(w -> w.roms.stream().sorted().forEach(r -> map.putIfAbsent(r.hashString(), r)));
-					final List<Rom> clonesRoms = new ArrayList<>(map.values());
-					clonesRoms.removeAll(roms);
-					stream = Stream.concat(roms.stream(), clonesRoms.stream());
-				}
-				else // finally remove real duplicate disks
-					stream = StreamEx.of(romsWithClones).distinct(Rom::getName);
-			}
+			stream = getFilterRomsMergingStream();
 		}
 		else // if not merging
 		{
@@ -291,7 +305,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 			{
 				if(profile.getProperty(SettingsEnum.exclude_games, false))
 				{
-					if(profile.getProperty(SettingsEnum.exclude_machines, false))
+					if(profile.getProperty(SettingsEnum.exclude_machines, false))	//NOSONAR
 						stream = streamWithDevices(true, false, true);	// bios-devices
 					else
 						stream = streamWithDevices(true, false, true);	// machine-bios-devices
@@ -302,31 +316,44 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 			else	// simply initialize stream to current object disks list
 				stream = roms.stream();
 		}
-		return stream.filter(r -> {
-			if (r.dumpStatus == Status.nodump)	// exclude nodump roms
-				return false;
-			if (r.crc == null || "00000000".equals(r.crc))	// exclude nocrc roms
-				return false;
-			if (r.name.isEmpty())	// exclude empty name roms
-				return false;
-			if (profile.getSettings().getMergeMode() == MergeOptions.SUPERFULLNOMERGE)	// Unconditionally include roms in SUPERFULLNOMERGE mode
-				return true;
-			if (profile.getSettings().getMergeMode() == MergeOptions.FULLNOMERGE)	// Unconditionally include roms in FULLNOMERGE mode
-				return true;
-			if (profile.getSettings().getMergeMode() == MergeOptions.FULLMERGE)	// Unconditionally include roms in FULLMERGE mode
-				return true;
-			if (profile.getSettings().getMergeMode() == MergeOptions.SPLIT && containsInParent(this, r, false))	// exclude if splitting and the rom is in parent
-				return false;
-			if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && containsInParent(this, r, true))	// exclude if not merging and the rom is in BIOS
-				return false;
-			if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && Anyware.wouldMerge(this, r))	// include if not merging and the rom would be merged in parent (when selected)
-				return true;
-			if (profile.getSettings().getMergeMode() == MergeOptions.MERGE && containsInParent(this, r, true))	// exclude if merging and the rom is in BIOS
-				return false;
-			if (profile.getSettings().getMergeMode() == MergeOptions.MERGE && Anyware.wouldMerge(this, r))	// include if merging and the rom would be merged in parent (when selected)
-				return true;
-			return isBios() || !containsInParent(this, r, false);	// otherwise include if I'm bios or if the rom is not in parent
-		}).collect(Collectors.toList());
+		return stream;
+	}
+
+	/**
+	 * @return
+	 */
+	private Stream<Rom> getFilterRomsMergingStream()
+	{
+		Stream<Rom> stream;
+		if (isClone() && getParent().selected)	// skip if I'm a clone and my parent is selected for inclusion
+			stream = Stream.empty();
+		else // otherwise...
+		{
+			// concatenate my roms and all my clones roms into a stream
+			final List<Rom> romsWithClones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).collect(Collectors.toList());
+			// and mark for collision roms with same names but with different hash (this will change the way getName return roms names)
+			StreamEx.of(romsWithClones).groupingBy(Rom::getName).forEach((n, l) -> {
+				if (l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
+					l.forEach(Rom::setCollisionMode);
+			});
+			if (HashCollisionOptions.HALFDUMB == profile.getSettings().getHashCollisionMode())	// HALFDUMB extra stuffs for PD
+			{
+				/*
+				 *  This will filter roms with same hash between clones (the encountered first clone collisioning rom is kept),
+				 *  and also remove parent roms from clone (implicit merge or not)
+				 *  note that roms dat declaration order is important, as well that clone name alphabetical order
+				 */
+				final LinkedHashMap<String , Rom> map = new LinkedHashMap<>();
+				roms.forEach(r -> map.put(r.hashString(), r));
+				clones.values().stream().sorted().forEach(w -> w.roms.stream().sorted().forEach(r -> map.putIfAbsent(r.hashString(), r)));
+				final List<Rom> clonesRoms = new ArrayList<>(map.values());
+				clonesRoms.removeAll(roms);
+				stream = Stream.concat(roms.stream(), clonesRoms.stream());
+			}
+			else // finally remove real duplicate disks
+				stream = StreamEx.of(romsWithClones).distinct(Rom::getName);
+		}
+		return stream;
 	}
 
 	/**
@@ -434,48 +461,81 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	public AnywareStatus getStatus()
 	{
 		AnywareStatus status = AnywareStatus.COMPLETE;
-		var ok = false;
-		for (final Disk disk : disks)
-		{
-			final EntityStatus estatus = disk.getStatus();
-			if (estatus == EntityStatus.KO)
-				status = AnywareStatus.PARTIAL;
-			else if (estatus == EntityStatus.OK)
-				ok = true;
-			else if (estatus == EntityStatus.UNKNOWN)
-			{
-				status = AnywareStatus.UNKNOWN;
-				break;
-			}
-		}
-		for (final Rom rom : roms)
-		{
-			final EntityStatus estatus = rom.getStatus();
-			if (estatus == EntityStatus.KO)
-				status = AnywareStatus.PARTIAL;
-			else if (estatus == EntityStatus.OK)
-				ok = true;
-			else if (estatus == EntityStatus.UNKNOWN)
-			{
-				status = AnywareStatus.UNKNOWN;
-				break;
-			}
-		}
+		final var ok = new AtomicBoolean();
+		status = getDisksStatus(status, ok);
+		status = getRomsStatus(status, ok);
+		status = getSamplesStatus(status, ok);
+		if (status == AnywareStatus.PARTIAL && !ok.get())
+			status = AnywareStatus.MISSING;
+		return status;
+	}
+
+	/**
+	 * @param status
+	 * @param ok
+	 * @return
+	 */
+	private AnywareStatus getSamplesStatus(AnywareStatus status, final AtomicBoolean ok)
+	{
 		for (final Sample sample : samples)
 		{
 			final EntityStatus estatus = sample.getStatus();
 			if (estatus == EntityStatus.KO)
 				status = AnywareStatus.PARTIAL;
 			else if (estatus == EntityStatus.OK)
-				ok = true;
+				ok.set(true);
 			else if (estatus == EntityStatus.UNKNOWN)
 			{
 				status = AnywareStatus.UNKNOWN;
 				break;
 			}
 		}
-		if (status == AnywareStatus.PARTIAL && !ok)
-			status = AnywareStatus.MISSING;
+		return status;
+	}
+
+	/**
+	 * @param status
+	 * @param ok
+	 * @return
+	 */
+	private AnywareStatus getRomsStatus(AnywareStatus status, final AtomicBoolean ok)
+	{
+		for (final Rom rom : roms)
+		{
+			final EntityStatus estatus = rom.getStatus();
+			if (estatus == EntityStatus.KO)
+				status = AnywareStatus.PARTIAL;
+			else if (estatus == EntityStatus.OK)
+				ok.set(true);
+			else if (estatus == EntityStatus.UNKNOWN)
+			{
+				status = AnywareStatus.UNKNOWN;
+				break;
+			}
+		}
+		return status;
+	}
+
+	/**
+	 * @param status
+	 * @param ok
+	 * @return
+	 */
+	private AnywareStatus getDisksStatus(AnywareStatus status, final AtomicBoolean ok)
+	{
+		for (final Disk disk : disks)
+		{
+			final EntityStatus estatus = disk.getStatus();
+			if (estatus == EntityStatus.KO)
+				status = AnywareStatus.PARTIAL;
+			else if (estatus == EntityStatus.OK)
+				ok.set(true);
+			else if (estatus == EntityStatus.UNKNOWN)
+			{
+				status = AnywareStatus.UNKNOWN;
+				break;
+			}
+		}
 		return status;
 	}
 
