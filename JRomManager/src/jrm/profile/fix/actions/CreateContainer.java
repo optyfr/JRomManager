@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.aui.progress.ProgressHandler;
-import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
@@ -44,7 +43,6 @@ import jrm.security.Session;
  */
 public class CreateContainer extends ContainerAction
 {
-	private static final String ACTION_TO_S_AT_S_FAILED = "action to %s@%s failed";
 	/**
 	 * the uncompressed datasize of all entries to add (for temp file threshold purpose)
 	 */
@@ -136,17 +134,7 @@ public class CreateContainer extends ContainerAction
 			}
 			else
 				target = container.getFile().getParentFile().toPath();
-			var i = 0;
-			for (final EntryAction action : entryActions)
-			{
-				i++;
-				if (!action.doAction(session, target, handler, i, entryActions.size()))
-				{
-					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
-					return false;
-				}
-			}
-			return true;
+			return pathAction(session, handler, target);
 		}
 		catch (final Exception e)
 		{
@@ -163,19 +151,9 @@ public class CreateContainer extends ContainerAction
 	private boolean createSevenZip(final Session session, final ProgressHandler handler)
 	{
 		container.getFile().getParentFile().mkdirs();
-		try (Archive archive = new SevenZipArchive(session, container.getFile()))
+		try
 		{
-			var i = 0;
-			for (final EntryAction action : entryActions)
-			{
-				i++;
-				if (!action.doAction(session, archive, handler, i, entryActions.size()))
-				{
-					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
-					return false;
-				}
-			}
-			return true;
+			return archiveAction(session, handler, new SevenZipArchive(session, container.getFile()));
 		}
 		catch (final Exception e)
 		{
@@ -183,6 +161,7 @@ public class CreateContainer extends ContainerAction
 		}
 		return false;
 	}
+
 
 	/**
 	 * @param session
@@ -192,19 +171,9 @@ public class CreateContainer extends ContainerAction
 	private boolean createZipE(final Session session, final ProgressHandler handler)
 	{
 		container.getFile().getParentFile().mkdirs();
-		try (Archive archive = new ZipArchive(session, container.getFile()))
+		try
 		{
-			var i = 0;
-			for (final EntryAction action : entryActions)
-			{
-				i++;
-				if (!action.doAction(session, archive, handler, i, entryActions.size()))
-				{
-					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
-					return false;
-				}
-			}
-			return true;
+			return archiveAction(session, handler, new ZipArchive(session, container.getFile()));
 		}
 		catch (final Exception e)
 		{
@@ -227,17 +196,7 @@ public class CreateContainer extends ContainerAction
 		container.getFile().getParentFile().mkdirs();
 		try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.getFile().toURI()), env);) //$NON-NLS-1$
 		{
-			var i = 0;
-			for (final EntryAction action : entryActions)
-			{
-				i++;
-				if (!action.doAction(session, fs, handler, i, entryActions.size() ))
-				{
-					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
-					return false;
-				}
-			}
-			return true;
+			return fsAction(session, handler, fs);
 		}
 		catch (final Exception e)
 		{

@@ -16,12 +16,17 @@
  */
 package jrm.profile.fix.actions;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 import jrm.aui.progress.ProgressHandler;
+import jrm.compressors.Archive;
 import jrm.misc.HTMLRenderer;
+import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
@@ -33,6 +38,7 @@ import jrm.security.Session;
  */
 public abstract class ContainerAction implements HTMLRenderer, Comparable<ContainerAction>
 {
+	private static final String ACTION_TO_S_AT_S_FAILED = "action to %s@%s failed";
 	private static final int COUNT = 0;
 	private static final long ESTIMATED_SIZE = 0L;
 	/**
@@ -132,4 +138,71 @@ public abstract class ContainerAction implements HTMLRenderer, Comparable<Contai
 	{
 		return (o1, o2) -> o2.compareTo(o1);
 	}
+	
+	/**
+	 * @param session
+	 * @param handler
+	 * @param archive
+	 * @return
+	 */
+	protected boolean archiveAction(final Session session, final ProgressHandler handler, Archive archive) throws IOException
+	{
+		try(archive)
+		{
+			var i = 0;
+			for (final EntryAction action : entryActions)
+			{
+				i++;
+				if (!action.doAction(session, archive, handler, i, entryActions.size()))
+				{
+					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	
+	/**
+	 * @param session
+	 * @param handler
+	 * @param fs
+	 * @return
+	 */
+	protected boolean fsAction(final Session session, final ProgressHandler handler, final FileSystem fs)
+	{
+		var i = 0;
+		for (final EntryAction action : entryActions)
+		{
+			i++;
+			if (!action.doAction(session, fs, handler, i, entryActions.size() ))
+			{
+				Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @param session
+	 * @param handler
+	 * @param target
+	 * @return
+	 */
+	protected boolean pathAction(final Session session, final ProgressHandler handler, final Path target)
+	{
+		var i = 0;
+		for (final EntryAction action : entryActions)
+		{
+			i++;
+			if (!action.doAction(session, target, handler, i, entryActions.size()))
+			{
+				Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
+				return false;
+			}
+		}
+		return true;
+	}
+
 }

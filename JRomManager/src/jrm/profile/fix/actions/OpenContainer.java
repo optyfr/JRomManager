@@ -32,7 +32,6 @@ import java.util.stream.Stream;
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.aui.progress.ProgressHandler;
-import jrm.compressors.Archive;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
@@ -50,7 +49,6 @@ import jrm.security.Session;
  */
 public class OpenContainer extends ContainerAction
 {
-	private static final String ACTION_TO_S_AT_S_FAILED = "action to %s@%s failed";
 	/**
 	 * the uncompressed datasize of all entries to add (for temp file threshold purpose)
 	 */
@@ -134,16 +132,8 @@ public class OpenContainer extends ContainerAction
 	private boolean doActionDir(final Session session, final ProgressHandler handler)
 	{
 		final Path target = container.getType() == Container.Type.DIR ? container.getFile().toPath() : container.getFile().getParentFile().toPath();
-		var i = 0;
-		for (final EntryAction action : entryActions)
-		{
-			i++;
-			if (!action.doAction(session, target, handler, i, entryActions.size()))
-			{
-				Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
-				return false;
-			}
-		}
+		if (!pathAction(session, handler, target))
+			return false;
 		if (container.getType() == Container.Type.DIR)
 			deleteEmptyFolders(container.getFile());
 		return true;
@@ -156,19 +146,9 @@ public class OpenContainer extends ContainerAction
 	 */
 	private boolean doAction7z(final Session session, final ProgressHandler handler)
 	{
-		try (Archive archive = new SevenZipArchive(session, container.getFile()))
+		try
 		{
-			var i = 0;
-			for (final EntryAction action : entryActions)
-			{
-				i++;
-				if (!action.doAction(session, archive, handler, i, entryActions.size()))
-				{
-					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
-					return false;
-				}
-			}
-			return true;
+			return archiveAction(session, handler, new SevenZipArchive(session, container.getFile()));
 		}
 		catch (final Exception e)
 		{
@@ -184,19 +164,9 @@ public class OpenContainer extends ContainerAction
 	 */
 	private boolean doActionZipE(final Session session, final ProgressHandler handler)
 	{
-		try (Archive archive = new ZipArchive(session, container.getFile()))
+		try
 		{
-			var i = 0;
-			for (final EntryAction action : entryActions)
-			{
-				i++;
-				if (!action.doAction(session, archive, handler, i, entryActions.size()))
-				{
-					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
-					return false;
-				}
-			}
-			return true;
+			return archiveAction(session, handler, new ZipArchive(session, container.getFile()));
 		}
 		catch (final Exception e)
 		{
@@ -217,16 +187,8 @@ public class OpenContainer extends ContainerAction
 		env.put("compressionLevel", format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 		try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.getFile().toURI()), env);) //$NON-NLS-1$
 		{
-			var i = 0;
-			for (final EntryAction action : entryActions)
-			{
-				i++;
-				if (!action.doAction(session, fs, handler, i, entryActions.size()))
-				{
-					Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
-					return false;
-				}
-			}
+			if(!fsAction(session, handler, fs))
+				return false;
 			deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
 			return true;
 		}

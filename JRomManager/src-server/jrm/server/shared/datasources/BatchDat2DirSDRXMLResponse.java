@@ -9,18 +9,9 @@ import jrm.aui.basic.SrcDstResult;
 import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.misc.SettingsEnum;
 import jrm.server.shared.datasources.XMLRequest.Operation;
-import jrm.xml.SimpleAttribute;
 
-public class BatchDat2DirSDRXMLResponse extends XMLResponse
+public class BatchDat2DirSDRXMLResponse extends SDRXMLResponse
 {
-
-	private static final String SRC_IS_MISSING_IN_REQUEST = "Src is missing in request";
-	private static final String SELECTED = "selected";
-	private static final String RESULT = "result";
-	private static final String RECORD = "record";
-	private static final String STATUS = "status";
-	private static final String RESPONSE = "response";
-
 	public BatchDat2DirSDRXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
@@ -31,38 +22,11 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 	protected void fetch(Operation operation) throws XMLStreamException
 	{
 		SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-		if (sdrl.isNeedSave())
-		{
-			request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
-			request.getSession().getUser().getSettings().saveSettings();
-		}
-		writer.writeStartElement(RESPONSE);
-		writer.writeElement(STATUS, "0");
-		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString(sdrl.size()-1));
-		writer.writeElement("totalRows", Integer.toString(sdrl.size()));
-		writer.writeStartElement("data");
-		for(int i = 0; i < sdrl.size(); i++)
-			writeRecord(sdrl.get(i));
-		writer.writeEndElement();
-		writer.writeEndElement();
+		needSave(sdrl, SettingsEnum.dat2dir_sdr);
+		writeResponse(operation, sdrl);
 	}
 
 
-	/**
-	 * @param sdr
-	 * @throws XMLStreamException
-	 */
-	private void writeRecord(final jrm.aui.basic.SrcDstResult sdr) throws XMLStreamException
-	{
-		writer.writeElement(RECORD, 
-			new SimpleAttribute("id", sdr.getId()),
-			new SimpleAttribute("src", sdr.getSrc()),
-			new SimpleAttribute("dst", Optional.ofNullable(sdr.getDst()).orElse("")),
-			new SimpleAttribute(RESULT, sdr.getResult()),
-			new SimpleAttribute(SELECTED, sdr.isSelected())
-		);
-	}
 	
 	@Override
 	protected void add(Operation operation) throws XMLStreamException
@@ -70,11 +34,7 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 		if(operation.hasData("src"))
 		{
 			final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-			if (sdrl.isNeedSave())
-			{
-				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
-				request.getSession().getUser().getSettings().saveSettings();
-			}
+			needSave(sdrl, SettingsEnum.dat2dir_sdr);
 			final SrcDstResult sdr = new SrcDstResult(operation.getData("src"));
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(s->s.getSrc().equals(operation.getData("src"))).findAny();
 			if(!candidate.isPresent())
@@ -82,12 +42,7 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 				sdrl.add(sdr);
 				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
 				request.getSession().getUser().getSettings().saveSettings();
-				writer.writeStartElement(RESPONSE);
-				writer.writeElement(STATUS, "0");
-				writer.writeStartElement("data");
-				writeRecord(sdr);
-				writer.writeEndElement();
-				writer.writeEndElement();
+				writeResponseSingle(sdr);
 			}
 			else
 				failure("Entry already exists");
@@ -105,11 +60,7 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 			return;
 		}
 		final SDRList sdrl = SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-		if (sdrl.isNeedSave())
-		{
-			request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
-			request.getSession().getUser().getSettings().saveSettings();
-		}
+		needSave(sdrl, SettingsEnum.dat2dir_sdr);
 		Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
 		if(!candidate.isPresent())
 		{
@@ -127,12 +78,7 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 				sdr.setSelected(Boolean.parseBoolean(operation.getData(SELECTED)));
 			request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
 			request.getSession().getUser().getSettings().saveSettings();
-			writer.writeStartElement(RESPONSE);
-			writer.writeElement(STATUS, "0");
-			writer.writeStartElement("data");
-			writeRecord(sdr);
-			writer.writeEndElement();
-			writer.writeEndElement();
+			writeResponseSingle(sdr);
 		}
 		else
 			failure("field to update is missing in request");
@@ -144,23 +90,15 @@ public class BatchDat2DirSDRXMLResponse extends XMLResponse
 		if(operation.hasData("id"))
 		{
 			final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
-			if (sdrl.isNeedSave())
-			{
-				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
-				request.getSession().getUser().getSettings().saveSettings();
-			}
+			needSave(sdrl, SettingsEnum.dat2dir_sdr);
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
 			if(candidate.isPresent())
 			{
-				sdrl.remove(candidate.get());
+				final var sdr = candidate.get();
+				sdrl.remove(sdr);
 				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr,SrcDstResult.toJSON(sdrl));
 				request.getSession().getUser().getSettings().saveSettings();
-				writer.writeStartElement(RESPONSE);
-				writer.writeElement(STATUS, "0");
-				writer.writeStartElement("data");
-				writer.writeElement(RECORD, new SimpleAttribute("id", candidate.get().getId()));
-				writer.writeEndElement();
-				writer.writeEndElement();
+				writeResponseKey(sdr);
 				
 			}
 			else
