@@ -34,7 +34,6 @@ import jrm.profile.data.Rom;
 import jrm.profile.data.Sample;
 import jrm.ui.MainFrame;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class AnywareRenderer.
  */
@@ -138,39 +137,9 @@ public final class AnywareRenderer
 				return super.getTableCellRendererComponent(table, val, isSelected, hasFocus, row, column);
 			}
 		},
-		new AlignedTableCellRenderer(SwingConstants.TRAILING)
-		{
-			@Override
-			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-			{
-				setBackground(AnywareRenderer.getBackground(row, column));
-				super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
-				setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-				return this;
-			}
-		},
-		new AlignedTableCellRenderer(SwingConstants.TRAILING)
-		{
-			@Override
-			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-			{
-				setBackground(AnywareRenderer.getBackground(row, column));
-				super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
-				setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-				return this;
-			}
-		},
-		new AlignedTableCellRenderer(SwingConstants.TRAILING)
-		{
-			@Override
-			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-			{
-				setBackground(AnywareRenderer.getBackground(row, column));
-				super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
-				setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
-				return this;
-			}
-		},
+		new CodeTableCellRenderer(),
+		new CodeTableCellRenderer(),
+		new CodeTableCellRenderer(),
 		new AlignedTableCellRenderer(SwingConstants.LEADING)
 		{
 			@Override
@@ -225,6 +194,23 @@ public final class AnywareRenderer
 		public AlignedTableCellRenderer(int align)
 		{
 			setHorizontalAlignment(align);
+		}
+	}
+	
+	private static class CodeTableCellRenderer extends AlignedTableCellRenderer
+	{
+		public CodeTableCellRenderer()
+		{
+			super(SwingConstants.TRAILING);
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
+		{
+			setBackground(AnywareRenderer.getBackground(row, column));
+			super.getTableCellRendererComponent(table, value != null ? value.toString() : null, isSelected, hasFocus, row, column);
+			setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
+			return this;
 		}
 	}
 	
