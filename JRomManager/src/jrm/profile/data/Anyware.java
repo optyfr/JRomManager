@@ -121,7 +121,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	/**
 	 * The method called to initialize transient and static fields
 	 */
-	private void initTransient()
+	protected void initTransient()
 	{
 		collision = false;
 		tableEntities = null;
