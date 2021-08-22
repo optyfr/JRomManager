@@ -58,14 +58,7 @@ public class EntryUnneeded extends Note implements Serializable
 	@Override
 	public String getDetail()
 	{
-		String msg="";
-		msg += "== Current == \n";
-		msg += "Name : " + entry.getName() + "\n";
-		if (entry.getSize() >= 0)	msg += "Size : " + entry.getSize() + "\n";
-		if (entry.getCrc() != null)	msg += "CRC : " + entry.getCrc() + "\n";
-		if (entry.getMd5() != null)	msg += "MD5 : " + entry.getMd5() + "\n";
-		if (entry.getSha1() != null)	msg += "SHA1 : " + entry.getSha1() + "\n";
-		return msg;
+		return getCurrentEntry(entry);
 	}
 
 	@Override

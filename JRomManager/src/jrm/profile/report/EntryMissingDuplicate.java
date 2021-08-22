@@ -51,20 +51,7 @@ public class EntryMissingDuplicate extends Note implements Serializable
 	@Override
 	public String getDetail()
 	{
-		String msg="";
-		msg += "== Expected == \n";
-		msg += "Name : " + entity.getBaseName() + "\n";
-		if (entity.getSize() >= 0)		msg += "Size : " + entity.getSize() + "\n";
-		if (entity.getCrc() != null)	msg += "CRC : " + entity.getCrc() + "\n";
-		if (entity.getMd5() != null)	msg += "MD5 : " + entity.getMd5() + "\n";
-		if (entity.getSha1() != null)	msg += "SHA1 : " + entity.getSha1() + "\n";
-		msg += "== Current == \n";
-		msg += "Name : " + entry.getName() + "\n";
-		if (entry.getSize() >= 0)	msg += "Size : " + entry.getSize() + "\n";
-		if (entry.getCrc() != null)	msg += "CRC : " + entry.getCrc() + "\n";
-		if (entry.getMd5() != null)	msg += "MD5 : " + entry.getMd5() + "\n";
-		if (entry.getSha1() != null)	msg += "SHA1 : " + entry.getSha1() + "\n";
-		return msg;
+		return getExpectedEntity(entity) + getCurrentEntry(entry);
 	}
 
 	@Override

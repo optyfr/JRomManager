@@ -52,24 +52,7 @@ public class EntryAdd extends Note implements Serializable
 	@Override
 	public String getDetail()
 	{
-		var msg="";
-		msg += "== Expected == \n";
-		msg += "Name : " + entity.getBaseName() + "\n";
-		if(entity instanceof Entity)
-		{
-			Entity e = (Entity)entity;
-			if (e.getSize() >= 0)		msg += "Size : " + e.getSize() + "\n";
-			if (e.getCrc() != null)	msg += "CRC : " + e.getCrc() + "\n";
-			if (e.getMd5() != null)	msg += "MD5 : " + e.getMd5() + "\n";
-			if (e.getSha1() != null)	msg += "SHA1 : " + e.getSha1() + "\n";
-		}
-		msg += "== Current == \n";
-		msg += "Name : " + entry.getName() + "\n";
-		if (entry.getSize() >= 0)	msg += "Size : " + entry.getSize() + "\n";
-		if (entry.getCrc() != null)	msg += "CRC : " + entry.getCrc() + "\n";
-		if (entry.getMd5() != null)	msg += "MD5 : " + entry.getMd5() + "\n";
-		if (entry.getSha1() != null)	msg += "SHA1 : " + entry.getSha1() + "\n";
-		return msg;
+		return getExpectedEntity(entity) + getCurrentEntry(entry);
 	}
 
 	@Override
