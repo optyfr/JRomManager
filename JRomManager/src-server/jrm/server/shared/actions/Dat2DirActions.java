@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import jrm.aui.basic.ResultColUpdater;
 import jrm.aui.basic.SrcDstResult;
@@ -20,11 +22,15 @@ import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
+import jrm.server.shared.actions.ActionsMgr.SingleCmd;
+import jrm.server.shared.actions.ActionsMgr.UpdateResult;
+import lombok.RequiredArgsConstructor;
 
 public class Dat2DirActions
 {
 	private static final String PARAMS = "params";
 	private final ActionsMgr ws;
+	private final Gson gson = new GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT).create();
 
 	public Dat2DirActions(ActionsMgr ws)
 	{
@@ -125,13 +131,7 @@ public class Dat2DirActions
 		{
 			if(ws.isOpen())
 			{
-				final var msg = new JsonObject();
-				msg.add("cmd", "Dat2Dir.updateResult");
-				final var params = new JsonObject();
-				params.add("row", row);
-				params.add("result", result);
-				msg.add(PARAMS, params);
-				ws.send(msg.toString());
+				ws.send(gson.toJson(new UpdateResult("Dat2Dir.updateResult", new UpdateResult.Params(row, result))));
 			}
 		}
 		catch (IOException e)
@@ -139,16 +139,14 @@ public class Dat2DirActions
 			Log.err(e.getMessage(),e);
 		}
 	}
-
+	
 	void clearResults()
 	{
 		try
 		{
 			if(ws.isOpen())
 			{
-				final var msg = new JsonObject();
-				msg.add("cmd", "Dat2Dir.clearResults");
-				ws.send(msg.toString());
+				ws.send(gson.toJson(new SingleCmd("Dat2Dir.clearResults")));
 			}
 		}
 		catch (IOException e)
@@ -163,9 +161,7 @@ public class Dat2DirActions
 		{
 			if(ws.isOpen())
 			{
-				final var msg = new JsonObject();
-				msg.add("cmd", "Dat2Dir.end");
-				ws.send(msg.toString());
+				ws.send(gson.toJson(new SingleCmd("Dat2Dir.end")));
 			}
 		}
 		catch (IOException e)

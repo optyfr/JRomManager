@@ -29,11 +29,20 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	@Override
 	protected void fetch(Operation operation) throws XMLStreamException
 	{
-		final String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
+		final String[] srcdirs = getSrcDirs();
 		writer.writeStartElement(RESPONSE);
 		writer.writeElement(STATUS, "0");
 		fetchArray(operation, srcdirs.length, (i, count) -> writeRecord(srcdirs[i]));
 		writer.writeEndElement();
+	}
+
+
+	/**
+	 * @return
+	 */
+	private String[] getSrcDirs()
+	{
+		return StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
 	}
 	
 	@Override
@@ -41,24 +50,43 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("name"))
 		{
-			final String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
-			final List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
+			final List<String> lsrcdirs = Stream.of(getSrcDirs()).collect(Collectors.toList());
 			final List<String> names = operation.getDatas("name").stream().filter(n->!lsrcdirs.contains(n)).collect(Collectors.toList());
 			if(!names.isEmpty())
 			{
 				lsrcdirs.addAll(names);
-				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, lsrcdirs.stream().collect(Collectors.joining("|")));
-				request.getSession().getUser().getSettings().saveSettings();
-				writer.writeStartElement(RESPONSE);
-				writer.writeElement(STATUS, "0");
-				fetchList(operation, names, (name, idx) -> writeRecord(name));
-				writer.writeEndElement();
+				save(lsrcdirs);
+				writeResponse(operation, names);
 			}
 			else
 				failure("Entry already exists");
 		}
 		else
 			failure("name is missing in request");
+	}
+
+
+	/**
+	 * @param operation
+	 * @param names
+	 * @throws XMLStreamException
+	 */
+	private void writeResponse(Operation operation, final List<String> names) throws XMLStreamException
+	{
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		fetchList(operation, names, (name, idx) -> writeRecord(name));
+		writer.writeEndElement();
+	}
+
+
+	/**
+	 * @param lsrcdirs
+	 */
+	private void save(final List<String> lsrcdirs)
+	{
+		request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, lsrcdirs.stream().collect(Collectors.joining("|")));
+		request.getSession().getUser().getSettings().saveSettings();
 	}
 
 
@@ -76,18 +104,13 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	{
 		if(operation.hasData("name"))
 		{
-			final String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
-			final List<String> lsrcdirs = Stream.of(srcdirs).collect(Collectors.toList());
+			final List<String> lsrcdirs = Stream.of(getSrcDirs()).collect(Collectors.toList());
 			final List<String> names = operation.getDatas("name").stream().filter(lsrcdirs::contains).collect(Collectors.toList());
 			if(!names.isEmpty())
 			{
 				lsrcdirs.removeAll(names);
-				request.getSession().getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, lsrcdirs.stream().collect(Collectors.joining("|")));
-				request.getSession().getUser().getSettings().saveSettings();
-				writer.writeStartElement(RESPONSE);
-				writer.writeElement(STATUS, "0");
-				fetchList(operation, names, (name, idx) -> writeRecord(name));
-				writer.writeEndElement();
+				save(lsrcdirs);
+				writeResponse(operation, names);
 			}
 			else
 				failure("Entry does not exist");

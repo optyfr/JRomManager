@@ -8,6 +8,7 @@ import com.eclipsesource.json.JsonObject;
 import jrm.misc.Log;
 import jrm.server.shared.SessionStub;
 import jrm.server.shared.WebSession;
+import lombok.RequiredArgsConstructor;
 
 public interface ActionsMgr extends SessionStub
 {
@@ -140,5 +141,26 @@ public interface ActionsMgr extends SessionStub
 			Log.err(e.getMessage(), e);
 		}
 	}
+
+	@RequiredArgsConstructor
+	static class UpdateResult
+	{
+		final String cmd;
+		final Params params;
+		
+		@RequiredArgsConstructor
+		static class Params
+		{
+			final int row;
+			final String result;
+		}
+	}
+
+	@RequiredArgsConstructor
+	static class SingleCmd
+	{
+		final String cmd;
+	}
+
 
 }
