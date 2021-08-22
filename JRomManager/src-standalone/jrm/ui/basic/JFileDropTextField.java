@@ -26,13 +26,11 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.swing.JTextField;
 import javax.swing.text.Document;
@@ -43,7 +41,7 @@ import jrm.misc.Log;
  * The Class JFileDropTextField.
  */
 @SuppressWarnings("serial")
-public class JFileDropTextField extends JTextField implements FocusListener, DropTargetListener
+public class JFileDropTextField extends JTextField implements FocusListener, JFileDrop
 {
 	
 	/** The color. */
@@ -188,20 +186,6 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 
 	@SuppressWarnings("exports")
 	@Override
-	public void dragOver(final DropTargetDragEvent dtde)
-	{
-		// do nothing
-	}
-
-	@SuppressWarnings("exports")
-	@Override
-	public void dropActionChanged(final DropTargetDragEvent dtde)
-	{
-		// do nothing
-	}
-
-	@SuppressWarnings("exports")
-	@Override
 	public void dragExit(final DropTargetEvent dte)
 	{
 		JFileDropTextField.this.setBackground(color);
@@ -219,16 +203,7 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 			if (JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 			{
 				dtde.acceptDrop(DnDConstants.ACTION_COPY);
-				@SuppressWarnings("unchecked")
-				final List<File> files = ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor)).stream().filter(f -> {
-					if (mode == JFileDropMode.DIRECTORY && !f.isDirectory())
-						return false;
-					else if (mode == JFileDropMode.FILE && !f.isFile())
-						return false;
-					else if(filter != null)
-						return filter.accept(f.getParentFile(), f.getName());
-					return true;
-				}).collect(Collectors.toList());
+				final List<File> files = getTransferData(transferable);
 				if (files.size() == 1)
 				{
 					JFileDropTextField.this.setText(files.get(0).getAbsolutePath());
@@ -252,5 +227,18 @@ public class JFileDropTextField extends JTextField implements FocusListener, Dro
 			dtde.rejectDrop();
 		}
 	}
+
+	@Override
+	public JFileDropMode getMode()
+	{
+		return mode;
+	}
+
+	@Override
+	public FilenameFilter getFilter()
+	{
+		return filter;
+	}
+
 
 }

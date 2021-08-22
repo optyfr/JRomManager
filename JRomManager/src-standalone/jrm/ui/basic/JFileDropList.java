@@ -25,12 +25,10 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -41,7 +39,7 @@ import jrm.misc.Log;
  * The Class JFileDropList.
  */
 @SuppressWarnings("serial")
-public class JFileDropList extends JList<File> implements DropTargetListener
+public class JFileDropList extends JList<File> implements JFileDrop
 {
 	
 	/** The color. */
@@ -118,20 +116,6 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 
 	@SuppressWarnings("exports")
 	@Override
-	public void dragOver(final DropTargetDragEvent dtde)
-	{
-		// do nothing
-	}
-
-	@SuppressWarnings("exports")
-	@Override
-	public void dropActionChanged(final DropTargetDragEvent dtde)
-	{
-		// do nothing
-	}
-
-	@SuppressWarnings("exports")
-	@Override
 	public void dragExit(final DropTargetEvent dte)
 	{
 		setBackground(color);
@@ -149,16 +133,7 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 			if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
 			{
 				dtde.acceptDrop(DnDConstants.ACTION_COPY);
-				@SuppressWarnings("unchecked")
-				final List<File> files = ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor)).stream().filter(f -> {
-					if (mode == JFileDropMode.DIRECTORY && !f.isDirectory())
-						return false;
-					else if (mode == JFileDropMode.FILE && !f.isFile())
-						return false;
-					else if(filter != null)
-						return filter.accept(f.getParentFile(), f.getName());
-					return true;
-				}).collect(Collectors.toList());
+				final List<File> files = getTransferData(transferable);
 				if (!files.isEmpty())
 				{
 					add(files);
@@ -234,5 +209,17 @@ public class JFileDropList extends JList<File> implements DropTargetListener
 	public DefaultListModel<File> getModel()
 	{
 		return (DefaultListModel<File>) super.getModel();
+	}
+
+	@Override
+	public JFileDropMode getMode()
+	{
+		return mode;
+	}
+
+	@Override
+	public FilenameFilter getFilter()
+	{
+		return filter;
 	}
 }
