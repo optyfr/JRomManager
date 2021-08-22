@@ -66,44 +66,67 @@ public class DeleteContainer extends ContainerAction
 	public boolean doAction(final Session session, final ProgressHandler handler)
 	{
 		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(session.getMsgs().getString("DeleteContainer.Deleting")), toBlue(container.getFile().getName()))))); //$NON-NLS-1$
-		if(container.getType() == Container.Type.ZIP)
-			return container.getFile().delete();
-		else if(container.getType() == Container.Type.SEVENZIP)
-			return container.getFile().delete();
-		else if(container.getType() == Container.Type.DIR)
+		if(container.getType() == Container.Type.ZIP || container.getType() == Container.Type.SEVENZIP || container.getType() == Container.Type.UNK)
 		{
 			try
 			{
-				FileUtils.deleteDirectory(container.getFile());
-				return true;
+				return Files.deleteIfExists(container.getFile().toPath());
 			}
-			catch(final IOException e)
+			catch (IOException e1)
 			{
-				Log.err("failed to delete " + container.getRelFile() + " ("+e.getMessage()+")"); //$NON-NLS-1$
-				if(container.getFile().exists())
-					FileUtils.deleteQuietly(container.getFile());
-				return true;
+				Log.err(() -> String.format("failed to delete %s", container.getFile()));
+				return false;
 			}
+		}
+		else if(container.getType() == Container.Type.DIR)
+		{
+			return doActionDir();
 		}
 		else if(container.getType() == Container.Type.FAKE)
 		{
-			for(val entry : container.getEntries())
+			return doActionFake();
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 */
+	private boolean doActionFake()
+	{
+		for(val entry : container.getEntries())
+		{
+			try
 			{
-				try
-				{
-					Files.deleteIfExists(container.getFile().getParentFile().toPath().resolve(entry.getFile())); 
-					return true;
-				}
-				catch(final IOException e)
-				{
-					Log.err("failed to delete " + container.getRelFile()); //$NON-NLS-1$
+				if(!Files.deleteIfExists(container.getFile().getParentFile().toPath().resolve(entry.getFile())))
 					return false;
-				}
+			}
+			catch(final IOException e)
+			{
+				Log.err("failed to delete " + container.getRelFile()); //$NON-NLS-1$
+				return false;
 			}
 		}
-		else if(container.getType() == Container.Type.UNK)
-			return container.getFile().delete();
-		return false;
+		return true;
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean doActionDir()
+	{
+		try
+		{
+			FileUtils.deleteDirectory(container.getFile());
+			return true;
+		}
+		catch(final IOException e)
+		{
+			Log.err("failed to delete " + container.getRelFile() + " ("+e.getMessage()+")"); //$NON-NLS-1$
+			if(container.getFile().exists())
+				return FileUtils.deleteQuietly(container.getFile());
+			return false;
+		}
 	}
 
 	@Override

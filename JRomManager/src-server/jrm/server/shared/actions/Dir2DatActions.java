@@ -26,6 +26,7 @@ public class Dir2DatActions
 		this.ws = ws;
 	}
 
+	@SuppressWarnings("exports")
 	public void start(JsonObject jso)
 	{
 		(ws.getSession().setWorker(new Worker(() -> {

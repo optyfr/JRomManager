@@ -10,6 +10,7 @@ import jrm.misc.Log;
 
 public class GlobalActions
 {
+	private static final String PARAMS = "params";
 	private static final String FF_MI_B = "%.2f MiB";
 	private final ActionsMgr ws;
 
@@ -18,9 +19,10 @@ public class GlobalActions
 		this.ws = ws;
 	}
 
+	@SuppressWarnings("exports")
 	public void setProperty(JsonObject jso)
 	{
-		JsonObject pjso = jso.get("params").asObject();
+		JsonObject pjso = jso.get(PARAMS).asObject();
 		for(Member m : pjso)
 		{
 			JsonValue value = m.getValue();
@@ -38,7 +40,7 @@ public class GlobalActions
 				ws.getSession().getUser().getSettings().saveSettings();
 				final var rjso = new JsonObject();
 				rjso.add("cmd", "Global.updateProperty");
-				rjso.add("params", pjso);
+				rjso.add(PARAMS, pjso);
 				ws.send(rjso.toString());
 			}
 		}
@@ -48,6 +50,7 @@ public class GlobalActions
 		}
 	}
 	
+	@SuppressWarnings("exports")
 	public void setMemory(JsonObject jso)
 	{
 		try
@@ -60,7 +63,7 @@ public class GlobalActions
 				rjso.add("cmd", "Global.setMemory");
 				final var params = new JsonObject();
 				params.add("msg", msg);
-				rjso.add("params", params);
+				rjso.add(PARAMS, params);
 				ws.send(rjso.toString());
 			}
 		}
@@ -70,9 +73,10 @@ public class GlobalActions
 		}
 	}
 
+	@SuppressWarnings("exports")
 	public void gc(JsonObject jso)
 	{
-		System.gc();
+		System.gc();	//NOSONAR
 		setMemory(jso);
 	}
 	
@@ -86,7 +90,7 @@ public class GlobalActions
 				rjso.add("cmd", "Global.warn");
 				final var params = new JsonObject();
 				params.add("msg", msg);
-				rjso.add("params", params);
+				rjso.add(PARAMS, params);
 				ws.send(rjso.toString());
 			}
 		}

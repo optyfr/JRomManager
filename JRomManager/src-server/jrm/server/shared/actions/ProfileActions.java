@@ -33,6 +33,9 @@ import lombok.val;
 
 public class ProfileActions extends PathAbstractor
 {
+	private static final String SUCCESS = "success";
+	private static final String PARENT = "parent";
+	private static final String PARAMS = "params";
 	private final ActionsMgr ws;
 
 	public ProfileActions(ActionsMgr ws)
@@ -41,6 +44,7 @@ public class ProfileActions extends PathAbstractor
 		this.ws = ws;
 	}
 
+	@SuppressWarnings("exports")
 	public void imprt(JsonObject jso)
 	{
 		(ws.getSession().setWorker(new Worker(() -> {
@@ -50,7 +54,7 @@ public class ProfileActions extends PathAbstractor
 			session.getWorker().progress.setProgress(session.getMsgs().getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
 			try
 			{
-				JsonObject jsobj = jso.get("params").asObject();
+				JsonObject jsobj = jso.get(PARAMS).asObject();
 				String filename = FindCmd.findMame();
 				if (filename != null)
 				{
@@ -92,7 +96,7 @@ public class ProfileActions extends PathAbstractor
 	 */
 	private void doImport(WebSession session, JsonObject jsobj, final boolean sl, final Import imprt) throws SecurityException, IOException
 	{
-		final var parent = getAbsolutePath(Optional.ofNullable(jsobj.get("parent")).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().getSettings().getWorkPath().toString())).toFile();
+		final var parent = getAbsolutePath(Optional.ofNullable(jsobj.get(PARENT)).filter(JsonValue::isString).map(JsonValue::asString).orElse(session.getUser().getSettings().getWorkPath().toString())).toFile();
 		final var file = new File(parent, imprt.getFile().getName());
 		FileUtils.copyFile(imprt.getFile(), file);
 		final var pnfo = ProfileNFO.load(session, file);
@@ -121,6 +125,7 @@ public class ProfileActions extends PathAbstractor
 		}
 	}
 
+	@SuppressWarnings("exports")
 	public void load(JsonObject jso)
 	{
 		(ws.getSession().setWorker(new Worker(() -> {
@@ -130,8 +135,8 @@ public class ProfileActions extends PathAbstractor
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
-				JsonObject jsobj = jso.get("params").asObject();
-				val file = getAbsolutePath(jsobj.getString("parent", null)).resolve(jsobj.getString("file", null));
+				JsonObject jsobj = jso.get(PARAMS).asObject();
+				val file = getAbsolutePath(jsobj.getString(PARENT, null)).resolve(jsobj.getString("file", null));
 				session.setCurrProfile(jrm.profile.Profile.load(session, file.toFile(), session.getWorker().progress));
 				if (session.getCurrProfile() != null)
 				{
@@ -155,12 +160,13 @@ public class ProfileActions extends PathAbstractor
 		}))).start();
 	}
 
+	@SuppressWarnings("exports")
 	public void importSettings(JsonObject jso)
 	{
 		WebSession session = ws.getSession();
 		if (session.getCurrProfile() != null)
 		{
-			final JsonValue jsv = jso.get("params").asObject().get("path");
+			final JsonValue jsv = jso.get(PARAMS).asObject().get("path");
 			if (jsv != null && !jsv.isNull())
 			{
 				session.getCurrProfile().loadSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
@@ -173,12 +179,13 @@ public class ProfileActions extends PathAbstractor
 		}
 	}
 
+	@SuppressWarnings("exports")
 	public void exportSettings(JsonObject jso)
 	{
 		WebSession session = ws.getSession();
 		if (session.getCurrProfile() != null)
 		{
-			final JsonValue jsv = jso.get("params").asObject().get("path");
+			final JsonValue jsv = jso.get(PARAMS).asObject().get("path");
 			if (jsv != null && !jsv.isNull())
 			{
 				session.getCurrProfile().saveSettings(PathAbstractor.getAbsolutePath(session, jsv.asString()).toFile());
@@ -186,6 +193,7 @@ public class ProfileActions extends PathAbstractor
 		}
 	}
 
+	@SuppressWarnings("exports")
 	public void scan(JsonObject jso, final boolean automate)
 	{
 		(ws.getSession().setWorker(new Worker(() -> {
@@ -213,6 +221,7 @@ public class ProfileActions extends PathAbstractor
 		}))).start();
 	}
 
+	@SuppressWarnings("exports")
 	public void fix(JsonObject jso)
 	{
 		(ws.getSession().setWorker(new Worker(() -> {
@@ -246,11 +255,12 @@ public class ProfileActions extends PathAbstractor
 		}))).start();
 	}
 
+	@SuppressWarnings("exports")
 	public void setProperty(JsonObject jso)
 	{
 		final var profile = jso.getString("profile", null);
 		ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().getCurrProfile().getSettings();
-		JsonObject pjso = jso.get("params").asObject();
+		JsonObject pjso = jso.get(PARAMS).asObject();
 		for (Member m : pjso)
 		{
 			JsonValue value = m.getValue();
@@ -285,7 +295,7 @@ public class ProfileActions extends PathAbstractor
 				final var rjso = new JsonObject();
 				rjso.add("cmd", "Profile.loaded");
 				final var params = new JsonObject();
-				params.add("success", profile != null);
+				params.add(SUCCESS, profile != null);
 				if (profile != null)
 				{
 					params.add("name", profile.getName());
@@ -310,7 +320,7 @@ public class ProfileActions extends PathAbstractor
 					if (profile.getSettings() != null)
 						params.add("settings", profile.getSettings().asJSO());
 				}
-				rjso.add("params", params);
+				rjso.add(PARAMS, params);
 				ws.send(rjso.toString());
 			}
 		}
@@ -329,13 +339,13 @@ public class ProfileActions extends PathAbstractor
 				final var rjso = new JsonObject();
 				rjso.add("cmd", "Profile.scanned");
 				final var params = new JsonObject();
-				params.add("success", scan != null);
+				params.add(SUCCESS, scan != null);
 				if (scan != null)
 				{
 					params.add("actions", scan.actions.stream().mapToInt(Collection::size).sum());
 					params.add("report", hasReport);
 				}
-				rjso.add("params", params);
+				rjso.add(PARAMS, params);
 				ws.send(rjso.toString());
 			}
 		}
@@ -354,10 +364,10 @@ public class ProfileActions extends PathAbstractor
 				final var rjso = new JsonObject();
 				rjso.add("cmd", "Profile.fixed");
 				final var params = new JsonObject();
-				params.add("success", fix != null);
+				params.add(SUCCESS, fix != null);
 				if (fix != null)
 					params.add("actions", fix.getActionsRemain());
-				rjso.add("params", params);
+				rjso.add(PARAMS, params);
 				ws.send(rjso.toString());
 			}
 		}
@@ -377,9 +387,9 @@ public class ProfileActions extends PathAbstractor
 				rjso.add("cmd", "Profile.imported");
 				final var params = new JsonObject();
 				params.add("path", file.getPath());
-				params.add("parent", file.getParent());
+				params.add(PARENT, file.getParent());
 				params.add("name", file.getName());
-				rjso.add("params", params);
+				rjso.add(PARAMS, params);
 				ws.send(rjso.toString());
 			}
 		}

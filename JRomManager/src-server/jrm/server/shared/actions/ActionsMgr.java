@@ -18,6 +18,7 @@ public interface ActionsMgr extends SessionStub
 
 	public WebSession getSession();
 
+	@SuppressWarnings("exports")
 	public default void processActions(ActionsMgr mgr, JsonObject jso)
 	{
 		try

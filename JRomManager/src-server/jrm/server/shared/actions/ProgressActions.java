@@ -316,18 +316,7 @@ public class ProgressActions implements ProgressHandler
 			}
 			data.pb1.stringPainted = val != 0;
 			data.pb1.indeterminate = val == 0;
-			if (max != null)
-				data.pb1.max = max;
-			if (val >= 0)
-				data.pb1.val = val;
-			if (val == 0)
-				data.pb1.startTime = System.currentTimeMillis();
-			if (data.pb1.val >= 0 && data.pb1.max > 0)
-			{
-				final var perc = data.pb1.val * 100.0f / data.pb1.max;
-				force = (int) data.pb1.perc != (int) perc;
-				data.pb1.perc = perc;
-			}
+			force = computeProgress(data.pb1, val, max, force);
 			showDuration(data.pb1, val);
 		}
 		if (submsg != null || (val != null && val == -1))
@@ -338,6 +327,67 @@ public class ProgressActions implements ProgressHandler
 				data.subinfos[offset] = submsg;
 		}
 		sendSetProgress(1, force);
+	}
+
+	@Override
+	public void setProgress2(String msg, Integer val, Integer max)
+	{
+		var force = false;
+		if (msg != null && val != null)
+		{
+			if (!data.pb2.visibility)
+				data.pb2.visibility = true;
+			data.pb2.stringPainted = true/*msg != null || val > 0*/;
+			data.pb2.msg = msg;
+			data.pb2.indeterminate = val == 0 && msg == null;
+			force = computeProgress(data.pb2, val, max, force);
+			showDuration(data.pb2, val);
+		}
+		else if (data.pb2.visibility)
+			data.pb2.visibility = false;
+		sendSetProgress(2, force);
+	}
+
+	@Override
+	public void setProgress3(String msg, Integer val, Integer max)
+	{
+		var force = false;
+		if (msg != null && val != null)
+		{
+			if (!data.pb3.visibility)
+				data.pb3.visibility = true;
+			data.pb3.stringPainted = true/*msg != null || val > 0*/;
+			data.pb3.msg = msg;
+			data.pb3.indeterminate = val == 0 && msg == null;
+			force = computeProgress(data.pb3, val, max, force);
+			showDuration(data.pb3, val);
+		}
+		else if (data.pb3.visibility)
+			data.pb3.visibility = false;
+		sendSetProgress(3, force);
+	}
+
+	/**
+	 * @param val
+	 * @param max
+	 * @param force
+	 * @return
+	 */
+	private boolean computeProgress(final PB pb, final Integer val, final Integer max, boolean force)
+	{
+		if (max != null)
+			pb.max = max;
+		if (val >= 0)
+			pb.val = val;
+		if (val == 0)
+			pb.startTime = System.currentTimeMillis();
+		if (pb.val >= 0 && pb.max > 0)
+		{
+			final var perc = pb.val * 100.0f / pb.max;
+			force = (int) pb.perc != (int) perc;
+			pb.perc = perc;
+		}
+		return force;
 	}
 
 	/**
@@ -400,66 +450,6 @@ public class ProgressActions implements ProgressHandler
 			}
 		}
 		return exists;
-	}
-
-	@Override
-	public void setProgress2(String msg, Integer val, Integer max)
-	{
-		var force = false;
-		if (msg != null && val != null)
-		{
-			if (!data.pb2.visibility)
-				data.pb2.visibility = true;
-			data.pb2.stringPainted = true/*msg != null || val > 0*/;
-			data.pb2.msg = msg;
-			data.pb2.indeterminate = val == 0 && msg == null;
-			if (max != null)
-				data.pb2.max = max;
-			if (val >= 0)
-				data.pb2.val = val;
-			if (val == 0)
-				data.pb2.startTime = System.currentTimeMillis();
-			if (data.pb2.val >= 0 && data.pb2.max > 0)
-			{
-				final var perc = data.pb2.val * 100.0f / data.pb2.max;
-				force = (int) data.pb2.perc != (int) perc;
-				data.pb2.perc = perc;
-			}
-			showDuration(data.pb2, val);
-		}
-		else if (data.pb2.visibility)
-			data.pb2.visibility = false;
-		sendSetProgress(2, force);
-	}
-
-	@Override
-	public void setProgress3(String msg, Integer val, Integer max)
-	{
-		var force = false;
-		if (msg != null && val != null)
-		{
-			if (!data.pb3.visibility)
-				data.pb3.visibility = true;
-			data.pb3.stringPainted = true/*msg != null || val > 0*/;
-			data.pb3.msg = msg;
-			data.pb3.indeterminate = val == 0 && msg == null;
-			if (max != null)
-				data.pb3.max = max;
-			if (val >= 0)
-				data.pb3.val = val;
-			if (val == 0)
-				data.pb3.startTime = System.currentTimeMillis();
-			if (data.pb3.val >= 0 && data.pb3.max > 0)
-			{
-				final var perc = data.pb3.val * 100.0f / data.pb3.max;
-				force = (int) data.pb3.perc != (int) perc;
-				data.pb3.perc = perc;
-			}
-			showDuration(data.pb3, val);
-		}
-		else if (data.pb3.visibility)
-			data.pb3.visibility = false;
-		sendSetProgress(3, force);
 	}
 
 	/**

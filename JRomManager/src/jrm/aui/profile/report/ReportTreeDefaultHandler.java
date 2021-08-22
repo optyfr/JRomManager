@@ -11,15 +11,15 @@ public class ReportTreeDefaultHandler implements ReportTreeHandler
 {
 
 	/** The org root. */
-	private Report org_root;
-	private Report filtered_root;
+	private Report orgRoot;
+	private Report filteredRoot;
 	
 	/** The filter options. */
 	private List<FilterOptions> filterOptions = new ArrayList<>();
 
 	public ReportTreeDefaultHandler(final Report root)
 	{
-		this.org_root = root;
+		this.orgRoot = root;
 		root.setHandler(this);
 		initClone();
 	}
@@ -27,7 +27,7 @@ public class ReportTreeDefaultHandler implements ReportTreeHandler
 	@Override
 	public void initClone()
 	{
-		filtered_root = org_root.clone(filterOptions);
+		filteredRoot = orgRoot.clone(filterOptions);
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class ReportTreeDefaultHandler implements ReportTreeHandler
 	@Override
 	public EnumSet<FilterOptions> getFilterOptions()
 	{
-		if(filterOptions.size()==0)
+		if(filterOptions.isEmpty())
 			return EnumSet.noneOf(FilterOptions.class);
 		return EnumSet.copyOf(filterOptions);
 	}
@@ -48,13 +48,13 @@ public class ReportTreeDefaultHandler implements ReportTreeHandler
 	@Override
 	public Report getFilteredReport()
 	{
-		return filtered_root;
+		return filteredRoot;
 	}
 
 	@Override
 	public Report getOriginalReport()
 	{
-		return org_root;
+		return orgRoot;
 	}
 
 }

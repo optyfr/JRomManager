@@ -19,6 +19,7 @@ public class NPlayersActions
 		this.ws = ws;
 	}
 
+	@SuppressWarnings("exports")
 	public void load(JsonObject jso)
 	{
 		JsonValue jsv = jso.get("params").asObject().get("path");

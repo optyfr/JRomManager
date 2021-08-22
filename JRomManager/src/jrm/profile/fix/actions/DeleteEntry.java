@@ -34,6 +34,9 @@ import jrm.security.Session;
  */
 public class DeleteEntry extends EntryAction
 {
+	private static final String DELETE_S_AT_S_FAILED = "delete %s@%s failed";
+	private static final String DELETE_ENTRY_DELETING = "DeleteEntry.Deleting";
+
 	/**
 	 * constructor
 	 * @param entry the entry to delete
@@ -49,14 +52,14 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); //$NON-NLS-1$
 			path = dstfs.getPath(entry.getFile());
 			Files.deleteIfExists(path);
 			return true;
 		}
 		catch(final Exception e)
 		{
-			Log.err("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}
@@ -67,14 +70,14 @@ public class DeleteEntry extends EntryAction
 		Path path = null;
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); //$NON-NLS-1$
 			path = target.resolve(entry.getFile());
 			Files.deleteIfExists(path);
 			return true;
 		}
 		catch(final Exception e)
 		{
-			Log.err("delete " + parent.container.getFile().getName() + "@" + path + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}
@@ -84,12 +87,12 @@ public class DeleteEntry extends EntryAction
 	{
 		try
 		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString("DeleteEntry.Deleting"), entry.getRelFile()))); //$NON-NLS-1$
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); //$NON-NLS-1$
 			return archive.delete(entry.getFile()) == 0;
 		}
 		catch(final Exception e)
 		{
-			Log.err("delete " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), entry.getRelFile())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
 	}

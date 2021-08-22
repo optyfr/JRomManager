@@ -30,7 +30,7 @@ public class ProfileSettings extends Settings
 		super();
 	}
 
-	public static void DIR(Session session, File src)
+	public static void DIR(Session session, File src)	//NOSONAR
 	{
 		final var settings = new ProfileSettings();
 		settings.setProperty(SettingsEnum.need_sha1_or_md5, false); //$NON-NLS-1$
@@ -52,7 +52,7 @@ public class ProfileSettings extends Settings
 		session.getUser().getSettings().saveProfileSettings(src, settings);
 	}
 	
-	public static void TZIP(Session session, File src)
+	public static void TZIP(Session session, File src)	//NOSONAR
 	{
 		final var settings = new ProfileSettings();
 		settings.setProperty(SettingsEnum.need_sha1_or_md5, false); //$NON-NLS-1$

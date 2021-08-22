@@ -20,13 +20,15 @@ public class Archive7ZOpenVolumeCallback implements IArchiveOpenVolumeCallback
 		this.closeables = closeables;
 	}
 
-	private Map<String, RandomAccessFile> openedRandomAccessFileList = new HashMap<String, RandomAccessFile>();
+	private Map<String, RandomAccessFile> openedRandomAccessFileList = new HashMap<>();
 
+	@SuppressWarnings("exports")
 	public Object getProperty(PropID propID) throws SevenZipException
 	{
 		return null;
 	}
 
+	@SuppressWarnings("exports")
 	public IInStream getStream(String filename) throws SevenZipException
 	{
 		try
@@ -36,7 +38,8 @@ public class Archive7ZOpenVolumeCallback implements IArchiveOpenVolumeCallback
 				randomAccessFile.seek(0);
 			else
 			{
-				closeables.addCloseables(randomAccessFile = new RandomAccessFile(filename, "r"));
+				randomAccessFile = new RandomAccessFile(filename, "r");
+				closeables.addCloseables(randomAccessFile);
 				openedRandomAccessFileList.put(filename, randomAccessFile);					
 			}
 			return new RandomAccessFileInStream(randomAccessFile);
@@ -47,7 +50,16 @@ public class Archive7ZOpenVolumeCallback implements IArchiveOpenVolumeCallback
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException(e);
+			throw new Archive7ZVolCBException(e);
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	class Archive7ZVolCBException extends RuntimeException
+	{
+		public Archive7ZVolCBException(Throwable e)
+		{
+			super(e);
 		}
 	}
 }
