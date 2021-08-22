@@ -38,6 +38,9 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class Rom extends Entity implements Serializable
 {
+	private static final String OFFSET_STR = "offset";
+	private static final String NAME_STR = "name";
+	private static final String ROM_STR = "rom";
 	/**
 	 * the bios name otherwise null
 	 */
@@ -198,26 +201,39 @@ public class Rom extends Entity implements Serializable
 		for (final Rom r : parent.getRoms())
 			if (rom != r && rom.equals(r) && r.ownStatus != EntityStatus.UNKNOWN)
 				return r.ownStatus;
-		if (parent.parent != null) // find same rom in parent clone (if any and recursively)
+		if (parent.parent == null)
 		{
-			if (getParent().profile.getSettings().getMergeMode().isMerge())
-			{
-				for (final Anyware clone : parent.getParent().clones.values())
-					if (clone != parent)
-						for (final Rom r : clone.getRoms())
-							if (rom.equals(r) && r.ownStatus != EntityStatus.UNKNOWN)
-								return r.ownStatus;
-			}
-			for (final Rom r : parent.getParent().getRoms())
-			{
-				if (rom.equals(r))
-					return r.getStatus();
-			}
-			if (parent.parent.parent != null)
-				return findRomStatus(parent.getParent(), rom);
+			if (parent.isRomOf() && rom.merge != null)
+				return EntityStatus.OK;
+			return null;
 		}
-		else if (parent.isRomOf() && rom.merge != null)
-			return EntityStatus.OK;
+		// find same rom in parent clone (if any and recursively)
+		final var status = findRomStatusMerge(parent, rom);
+		if (status != null)
+			return status;
+		for (final Rom r : parent.getParent().getRoms())
+		{
+			if (rom.equals(r))
+				return r.getStatus();
+		}
+		if (parent.parent.parent != null)
+			return findRomStatus(parent.getParent(), rom);
+		return null;
+	}
+
+	/**
+	 * @param parent
+	 * @param rom
+	 */
+	private EntityStatus findRomStatusMerge(final Anyware parent, final Rom rom)
+	{
+		if (!getParent().profile.getSettings().getMergeMode().isMerge())
+			return null;
+		for (final Anyware clone : parent.getParent().clones.values())
+			if (clone != parent)
+				for (final Rom r : clone.getRoms())
+					if (rom.equals(r) && r.ownStatus != EntityStatus.UNKNOWN)
+						return r.ownStatus;
 		return null;
 	}
 
@@ -248,43 +264,43 @@ public class Rom extends Entity implements Serializable
 	{
 		if (parent instanceof Software)
 		{
-			writer.writeElement("rom", //$NON-NLS-1$
-					new SimpleAttribute("name", name), //$NON-NLS-1$
-					new SimpleAttribute("size", size), //$NON-NLS-1$
-					new SimpleAttribute("crc", crc), //$NON-NLS-1$
-					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
-					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
+			writer.writeElement(ROM_STR, //$NON-NLS-1$
+					new SimpleAttribute(NAME_STR, name), //$NON-NLS-1$
+					new SimpleAttribute(SIZE_STR, size), //$NON-NLS-1$
+					new SimpleAttribute(CRC_STR, crc), //$NON-NLS-1$
+					new SimpleAttribute(SHA1_STR, sha1), //$NON-NLS-1$
+					new SimpleAttribute(MERGE_STR, merge), //$NON-NLS-1$
+					new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("value", value), //$NON-NLS-1$
 					new SimpleAttribute("loadflag", loadflag), //$NON-NLS-1$
-					new SimpleAttribute("offset", offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
 			);
 		}
 		else if (is_mame)
 		{
-			writer.writeElement("rom", //$NON-NLS-1$
-					new SimpleAttribute("name", name), //$NON-NLS-1$
+			writer.writeElement(ROM_STR, //$NON-NLS-1$
+					new SimpleAttribute(NAME_STR, name), //$NON-NLS-1$
 					new SimpleAttribute("bios", bios), //$NON-NLS-1$
-					new SimpleAttribute("size", size), //$NON-NLS-1$
-					new SimpleAttribute("crc", crc), //$NON-NLS-1$
-					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
-					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
+					new SimpleAttribute(SIZE_STR, size), //$NON-NLS-1$
+					new SimpleAttribute(CRC_STR, crc), //$NON-NLS-1$
+					new SimpleAttribute(SHA1_STR, sha1), //$NON-NLS-1$
+					new SimpleAttribute(MERGE_STR, merge), //$NON-NLS-1$
+					new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("optional", optional ? "yes" : null), //$NON-NLS-1$ //$NON-NLS-2$
 					new SimpleAttribute("region", region), //$NON-NLS-1$
-					new SimpleAttribute("offset", offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
+					new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
 			);
 		}
 		else
 		{
-			writer.writeElement("rom", //$NON-NLS-1$
-					new SimpleAttribute("name", name), //$NON-NLS-1$
-					new SimpleAttribute("size", size), //$NON-NLS-1$
-					new SimpleAttribute("crc", crc), //$NON-NLS-1$
-					new SimpleAttribute("sha1", sha1), //$NON-NLS-1$
-					new SimpleAttribute("md5", md5), //$NON-NLS-1$
-					new SimpleAttribute("merge", merge), //$NON-NLS-1$
-					new SimpleAttribute("status", dumpStatus.getXML(is_mame)), //$NON-NLS-1$
+			writer.writeElement(ROM_STR, //$NON-NLS-1$
+					new SimpleAttribute(NAME_STR, name), //$NON-NLS-1$
+					new SimpleAttribute(SIZE_STR, size), //$NON-NLS-1$
+					new SimpleAttribute(CRC_STR, crc), //$NON-NLS-1$
+					new SimpleAttribute(SHA1_STR, sha1), //$NON-NLS-1$
+					new SimpleAttribute(MD5_STR, md5), //$NON-NLS-1$
+					new SimpleAttribute(MERGE_STR, merge), //$NON-NLS-1$
+					new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), //$NON-NLS-1$
 					new SimpleAttribute("date", date) //$NON-NLS-1$
 			);
 		}

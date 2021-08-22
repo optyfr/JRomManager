@@ -38,7 +38,6 @@ import jrm.misc.GlobalSettings;
 import jrm.misc.IOUtils;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
-import lombok.*;
 import net.sf.sevenzipjbinding.ArchiveFormat;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
 import net.sf.sevenzipjbinding.IOutCreateArchive;
@@ -164,70 +163,69 @@ abstract class NArchive extends NArchiveBase
 	@Override
 	public void close() throws IOException
 	{
-		if(!getToAdd().isEmpty() || !getToRename().isEmpty() || !getToDelete().isEmpty() || !getToCopy().isEmpty())
-		{
-			val rafs = new HashMap<Integer, RandomAccessFile>();
-			val tmpfiles = new HashMap<Integer, File>();
-
-			try
-			{
-				val callback = new CloseCreateCallback(this, tmpfiles, rafs) {
-					@Override
-					public void setTotal(final long total) throws SevenZipException
-					{
-						if (cb != null)
-							cb.setTotal(total);
-					}
-	
-					@Override
-					public void setCompleted(final long complete) throws SevenZipException
-					{
-						if (cb != null)
-							cb.setCompleted(complete);
-					}
-				};
-	
-				if(archive.exists() && getIInArchive() != null)
-				{
-					// System.out.println("modifying archive "+archive);
-					val tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", "." + ext).toFile(); //$NON-NLS-1$ //$NON-NLS-2$
-					tmpfile.delete();
-					try(final var raf = new RandomAccessFile(tmpfile, "rw")) //$NON-NLS-1$
-					{
-						final IOutUpdateArchive<IOutItemAllFormats> iout = getIInArchive().getConnectedOutArchive();
-						SetOptions(iout);
-	
-						final int itemsCount = getIInArchive().getNumberOfItems() - getToDelete().size() + getToAdd().size() + getToCopy().size();
-						iout.updateItems(new RandomAccessFileOutStream(raf), itemsCount, callback);
-					}
-					super.close();
-					if (tmpfile.exists() && tmpfile.length() > 0 && Files.deleteIfExists(archive.toPath()) && !tmpfile.renameTo(archive))
-						tmpfile.delete();
-				}
-				else
-				{
-					try(val iout = SevenZip.openOutArchive(format); RandomAccessFile raf = new RandomAccessFile(archive, "rw")) //$NON-NLS-1$
-					{
-						SetOptions(iout);
-	
-						val itemsCount = getToAdd().size() + getToCopy().size();
-	
-						iout.createArchive(new RandomAccessFileOutStream(raf), itemsCount, callback);
-					}
-					super.close();
-				}
-			}
-			finally
-			{
-				for(val raf : rafs.values())
-					raf.close();
-				for(val tmpfile : tmpfiles.values())
-					tmpfile.delete();
-			}
-		}
-		else
+		if(getToAdd().isEmpty() && getToRename().isEmpty() && getToDelete().isEmpty() && getToCopy().isEmpty())
 		{
 			super.close();
+			clearTempDir();
+			return;
+		}
+			
+		final var rafs = new HashMap<Integer, RandomAccessFile>();
+		final var tmpfiles = new HashMap<Integer, File>();
+
+		try
+		{
+			final var callback = new CloseCreateCallback(this, tmpfiles, rafs) {
+				@Override
+				public void setTotal(final long total) throws SevenZipException
+				{
+					if (cb != null)
+						cb.setTotal(total);
+				}
+
+				@Override
+				public void setCompleted(final long complete) throws SevenZipException
+				{
+					if (cb != null)
+						cb.setCompleted(complete);
+				}
+			};
+
+			if(archive.exists() && getIInArchive() != null)
+			{
+				final var tmpfile = Files.createTempFile(archive.getParentFile().toPath(), "JRM", "." + ext); //$NON-NLS-1$ //$NON-NLS-2$
+				Files.deleteIfExists(tmpfile);
+				try(final var raf = new RandomAccessFile(tmpfile.toFile(), "rw")) //$NON-NLS-1$
+				{
+					final IOutUpdateArchive<IOutItemAllFormats> iout = getIInArchive().getConnectedOutArchive();
+					setOptions(iout);
+
+					final int itemsCount = getIInArchive().getNumberOfItems() - getToDelete().size() + getToAdd().size() + getToCopy().size();
+					iout.updateItems(new RandomAccessFileOutStream(raf), itemsCount, callback);
+				}
+				super.close();
+				if (Files.exists(tmpfile) && Files.size(tmpfile) > 0 && Files.deleteIfExists(archive.toPath()) && !tmpfile.toFile().renameTo(archive))
+					Files.delete(tmpfile);
+			}
+			else
+			{
+				try(final var iout = SevenZip.openOutArchive(format); RandomAccessFile raf = new RandomAccessFile(archive, "rw")) //$NON-NLS-1$
+				{
+					setOptions(iout);
+
+					final var itemsCount = getToAdd().size() + getToCopy().size();
+
+					iout.createArchive(new RandomAccessFileOutStream(raf), itemsCount, callback);
+				}
+				super.close();
+			}
+		}
+		finally
+		{
+			for(final var raf : rafs.values())
+				raf.close();
+			for(final var tmpfile : tmpfiles.values())
+				Files.delete(tmpfile.toPath());
 		}
 		clearTempDir();
 	}
@@ -237,7 +235,7 @@ abstract class NArchive extends NArchiveBase
 	 * @param iout the archive feature to map (see code to know what is supported)
 	 * @throws SevenZipException
 	 */
-	private void SetOptions(final Object iout) throws SevenZipException
+	private void setOptions(final Object iout) throws SevenZipException
 	{
 		switch(format)
 		{
@@ -272,60 +270,65 @@ abstract class NArchive extends NArchiveBase
 	{
 		if(entry != null)
 		{
-			val simpleInArchive = getIInArchive().getSimpleInterface();
-			for(val item : simpleInArchive.getArchiveItems())
+			final var simpleInArchive = getIInArchive().getSimpleInterface();
+			for(final var item : simpleInArchive.getArchiveItems())
 			{
 				if(item.getPath().equals(entry))
 				{
-					val file = new File(baseDir, entry);
+					final var file = new File(baseDir, entry);
 					FileUtils.forceMkdirParent(file);
-					try(val out = new RandomAccessFile(file, "rw")) //$NON-NLS-1$
+					try(final var out = new RandomAccessFile(file, "rw")) //$NON-NLS-1$
 					{
 						if(item.extractSlow(new RandomAccessFileOutStream(out)) == ExtractOperationResult.OK)
 							return 0;
 					}
 				}
 			}
+			return -1;
 		}
-		else
+		final var tmpfiles = new HashMap<Integer, File>();
+		final var rafs = new HashMap<Integer, RandomAccessFile>();
+		final var idx = new int[getIInArchive().getNumberOfItems()];
+		for (var i = 0; i < idx.length; i++)
 		{
-			val tmpfiles = new HashMap<Integer, File>();
-			val rafs = new HashMap<Integer, RandomAccessFile>();
-			val idx = new int[getIInArchive().getNumberOfItems()];
-			for (var i = 0; i < idx.length; i++)
+			idx[i] = i;
+			if(!(boolean)getIInArchive().getProperty(i, PropID.IS_FOLDER))
 			{
-				idx[i] = i;
-				if(!(boolean)getIInArchive().getProperty(i, PropID.IS_FOLDER))
-				{
-					val file = IOUtils.createTempFile("JRM", null).toFile();
-					tmpfiles.put(i, file); //$NON-NLS-1$
-					rafs.put(i, new RandomAccessFile(file, "rw")); //$NON-NLS-1$
-				}
-				else
-				{
-					val dir = new File(baseDir, (String) getIInArchive().getProperty(i, PropID.PATH));
-					FileUtils.forceMkdir(dir);
-				}
+				final var file = IOUtils.createTempFile("JRM", null).toFile();
+				tmpfiles.put(i, file); //$NON-NLS-1$
+				rafs.put(i, new RandomAccessFile(file, "rw")); //$NON-NLS-1$
 			}
-			
-			getIInArchive().extract(idx, false, new ExtractorCallback(this, baseDir, tmpfiles, rafs) {
-				@Override
-				public void setTotal(long total) throws SevenZipException
-				{
-					if(cb != null)
-						cb.setTotal(total);
-				}
-
-				@Override
-				public void setCompleted(long complete) throws SevenZipException
-				{
-					if(cb != null)
-						cb.setCompleted(complete);
-				}				
-			});
-			return 0;
+			else
+			{
+				final var dir = new File(baseDir, (String) getIInArchive().getProperty(i, PropID.PATH));
+				FileUtils.forceMkdir(dir);
+			}
 		}
-		return -1;
+		
+		getIInArchive().extract(idx, false, new ExtractorCallbackWithProgress(this, baseDir, tmpfiles, rafs));
+		return 0;
+	}
+
+	private final class ExtractorCallbackWithProgress extends ExtractorCallback
+	{
+		private ExtractorCallbackWithProgress(NArchiveBase nArchive, File baseDir, Map<Integer, File> tmpfiles, Map<Integer, RandomAccessFile> rafs)
+		{
+			super(nArchive, baseDir, tmpfiles, rafs);
+		}
+
+		@Override
+		public void setTotal(long total) throws SevenZipException
+		{
+			if(cb != null)
+				cb.setTotal(total);
+		}
+
+		@Override
+		public void setCompleted(long complete) throws SevenZipException
+		{
+			if(cb != null)
+				cb.setCompleted(complete);
+		}
 	}
 
 	@Override
@@ -338,7 +341,7 @@ abstract class NArchive extends NArchiveBase
 	public File extract(final String entry) throws IOException
 	{
 		extract(getTempDir(), entry);
-		val result = new File(getTempDir(), entry);
+		final var result = new File(getTempDir(), entry);
 		if(result.exists())
 			return result;
 		return null;

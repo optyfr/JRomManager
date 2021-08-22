@@ -3,7 +3,7 @@ package jrm.compressors.sevenzipjbinding;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
@@ -22,12 +22,12 @@ public abstract class ExtractorCallback implements IArchiveExtractCallback
 	 */
 	private final NArchiveBase nArchive;
 	private final File baseDir;
-	private final HashMap<Integer, File> tmpfiles;
-	private final HashMap<Integer, RandomAccessFile> rafs;
+	private final Map<Integer, File> tmpfiles;
+	private final Map<Integer, RandomAccessFile> rafs;
 	private boolean skipExtraction;
 	private int index;
 
-	public ExtractorCallback(NArchiveBase nArchive, File baseDir, HashMap<Integer, File> tmpfiles, HashMap<Integer, RandomAccessFile> rafs)
+	protected ExtractorCallback(NArchiveBase nArchive, File baseDir, Map<Integer, File> tmpfiles, Map<Integer, RandomAccessFile> rafs)
 	{
 		this.nArchive = nArchive;
 		this.baseDir = baseDir;
@@ -35,18 +35,21 @@ public abstract class ExtractorCallback implements IArchiveExtractCallback
 		this.rafs = rafs;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void prepareOperation(ExtractAskMode extractAskMode) throws SevenZipException
 	{
+		// do nothing
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void setOperationResult(ExtractOperationResult extractOperationResult) throws SevenZipException
 	{
 		if (skipExtraction)
 			return;
 		if (extractOperationResult != ExtractOperationResult.OK)
-			System.err.println("Extraction error");
+			Log.err("Extraction error");
 		else
 		{
 			try
@@ -66,6 +69,7 @@ public abstract class ExtractorCallback implements IArchiveExtractCallback
 		}
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public ISequentialOutStream getStream(int index, ExtractAskMode extractAskMode) throws SevenZipException
 	{

@@ -11,15 +11,15 @@ public class TrntChkReportTreeDefaultHandler implements TrntChkReportTreeHandler
 {
 
 	/** The org root. */
-	private TrntChkReport org_root;
-	private TrntChkReport filtered_root;
+	private TrntChkReport orgRoot;
+	private TrntChkReport filteredRoot;
 	
 	/** The filter options. */
 	private List<FilterOptions> filterOptions = new ArrayList<>();
 
 	public TrntChkReportTreeDefaultHandler(final TrntChkReport root)
 	{
-		this.org_root = root;
+		this.orgRoot = root;
 		root.setHandler(this);
 		initClone();
 	}
@@ -27,7 +27,7 @@ public class TrntChkReportTreeDefaultHandler implements TrntChkReportTreeHandler
 	@Override
 	public void initClone()
 	{
-		filtered_root = org_root.clone(filterOptions);
+		filteredRoot = orgRoot.clone(filterOptions);
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class TrntChkReportTreeDefaultHandler implements TrntChkReportTreeHandler
 	@Override
 	public EnumSet<FilterOptions> getFilterOptions()
 	{
-		if(filterOptions.size()==0)
+		if(filterOptions.isEmpty())
 			return EnumSet.noneOf(FilterOptions.class);
 		return EnumSet.copyOf(filterOptions);
 	}
@@ -48,13 +48,13 @@ public class TrntChkReportTreeDefaultHandler implements TrntChkReportTreeHandler
 	@Override
 	public TrntChkReport getFilteredReport()
 	{
-		return filtered_root;
+		return filteredRoot;
 	}
 
 	@Override
 	public TrntChkReport getOriginalReport()
 	{
-		return org_root;
+		return orgRoot;
 	}
 
 }

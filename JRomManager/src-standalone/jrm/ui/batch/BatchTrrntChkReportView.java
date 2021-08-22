@@ -5,6 +5,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.EnumSet;
+import java.util.Set;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
@@ -69,7 +70,7 @@ public class BatchTrrntChkReportView extends JScrollPane
 		final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_green.png")); //$NON-NLS-1$
 		chckbxmntmShowOkEntries.addItemListener(e -> {
-			final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
+			final Set<FilterOptions> options = report.getHandler().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
 				options.add(FilterOptions.SHOWOK);
 			else
@@ -81,7 +82,7 @@ public class BatchTrrntChkReportView extends JScrollPane
 		final JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_red.png")); //$NON-NLS-1$
 		chckbxmntmHideFullyMissing.addItemListener(e -> {
-			final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
+			final Set<FilterOptions> options = report.getHandler().getFilterOptions();
 			if(e.getStateChange() == ItemEvent.SELECTED)
 				options.add(FilterOptions.HIDEMISSING);
 			else

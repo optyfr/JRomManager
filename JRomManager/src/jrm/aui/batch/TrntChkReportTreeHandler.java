@@ -3,6 +3,7 @@ package jrm.aui.batch;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import jrm.batch.TrntChkReport;
 import jrm.profile.report.FilterOptions;
@@ -36,7 +37,7 @@ public interface TrntChkReportTreeHandler
 	 *
 	 * @return the filter options
 	 */
-	public EnumSet<FilterOptions> getFilterOptions();
+	public Set<FilterOptions> getFilterOptions();
 	
 	public default boolean hasListeners()
 	{

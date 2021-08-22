@@ -1,5 +1,6 @@
 package jrm.ui.profile.data;
 
+import java.util.Optional;
 import java.util.Set;
 
 import javax.swing.event.TableModelEvent;
@@ -13,11 +14,13 @@ public class MachineListModel extends AnywareListModel
 {
 	MachineList machineList;
 
+	@SuppressWarnings("exports")
 	public MachineListModel(MachineList machineList)
 	{
 		this.machineList = machineList;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public TableCellRenderer[] getCellRenderers()
 	{
@@ -81,11 +84,11 @@ public class MachineListModel extends AnywareListModel
 			case 3:
 				return String.format("%d/%d", machine.countHave(), machine.countAll()); //$NON-NLS-1$
 			case 4:
-				return machine.getCloneof() != null ? (machineList.containsName(machine.getCloneof()) ? machineList.getByName(machine.getCloneof()) : machine.getCloneof()) : null;
+				return Optional.ofNullable(machine.getCloneof()).map(cloneof -> machineList.containsName(cloneof) ? machineList.getByName(cloneof) : cloneof).orElse(null);
 			case 5:
-				return machine.getRomof() != null && !machine.getRomof().equals(machine.getCloneof()) ? (machineList.containsName(machine.getRomof()) ? machineList.getByName(machine.getRomof()) : machine.getRomof()) : null;
+				return Optional.ofNullable(machine.getRomof()).filter(romof -> !romof.equals(machine.getCloneof())).map(romof -> machineList.containsName(romof) ? machineList.getByName(romof) : romof).orElse(null);
 			case 6:
-				return machine.getSampleof() != null ? (machineList.samplesets.containsName(machine.getSampleof()) ? machineList.samplesets.getByName(machine.getSampleof()) : machine.getSampleof()) : null;
+				return Optional.ofNullable(machine.getSampleof()).map(sampleof -> machineList.samplesets.containsName(sampleof) ? machineList.samplesets.getByName(sampleof) : sampleof).orElse(null);
 			case 7:
 				return machine.isSelected();
 			default:
@@ -103,6 +106,7 @@ public class MachineListModel extends AnywareListModel
 		}
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public TableCellRenderer getColumnRenderer(int columnIndex)
 	{
@@ -115,12 +119,14 @@ public class MachineListModel extends AnywareListModel
 		fireTableChanged(new TableModelEvent(this));
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public MachineList getList()
 	{
 		return machineList;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void setFilter(Set<AnywareStatus> filter)
 	{

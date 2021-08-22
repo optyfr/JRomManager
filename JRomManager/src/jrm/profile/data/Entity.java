@@ -32,17 +32,12 @@ import lombok.Setter;
  */
 public abstract class Entity extends EntityBase implements Serializable
 {
-	private static final String STATUS_STR = "status";
-
-	private static final String MERGE_STR = "merge";
-
-	private static final String MD5_STR = "md5";
-
-	private static final String SHA1_STR = "sha1";
-
-	private static final String CRC_STR = "crc";
-
-	private static final String SIZE_STR = "size";
+	protected static final String STATUS_STR = "status";
+	protected static final String MERGE_STR = "merge";
+	protected static final String MD5_STR = "md5";
+	protected static final String SHA1_STR = "sha1";
+	protected static final String CRC_STR = "crc";
+	protected static final String SIZE_STR = "size";
 
 	private static final long serialVersionUID = 1L;
 
@@ -182,11 +177,9 @@ public abstract class Entity extends EntityBase implements Serializable
 		}
 		else 
 		{
-			if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.HALFDUMB)
-				return true;
-			else if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMB)
-				return true;
-			else if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMBER)
+			if (getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.HALFDUMB
+				|| getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMB
+				|| getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMBER)
 				return true;
 		}
 		return collision;
