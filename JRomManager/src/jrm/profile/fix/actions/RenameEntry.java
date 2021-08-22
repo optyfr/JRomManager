@@ -37,6 +37,7 @@ import jrm.security.Session;
  */
 public class RenameEntry extends EntryAction
 {
+	private static final String RENAME_S_AT_S_TO_S_AT_S = "rename %s@%s to %s@%s";
 	private static final String RENAME_ENTRY_RENAMING = "RenameEntry.Renaming";
 	/**
 	 * the desired new name of the entry to rename
@@ -81,12 +82,12 @@ public class RenameEntry extends EntryAction
 				Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 				entry.rename(dstpath.toString(), PathAbstractor.getRelativePath(session, dstpath).toString());
 			}
-			Log.debug("rename "+parent.container.getFile().getName()+"@"+srcpath+" to "+parent.container.getFile().getName()+"@"+dstpath);
+			Log.debug(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), srcpath, parent.container.getFile().getName(), dstpath));
 			return true;
 		}
 		catch(final Exception e)
 		{
-			Log.err("rename " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			Log.err(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), newname));
 		}
 		return false;
 	}
@@ -105,12 +106,12 @@ public class RenameEntry extends EntryAction
 				Files.createDirectories(parent);
 			Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			entry.rename(dstpath.toString(), PathAbstractor.getRelativePath(session, dstpath).toString());
-			Log.debug("rename "+this.parent.container.getFile().getName()+"@"+srcpath+" to "+this.parent.container.getFile().getName()+"@"+dstpath);
+			Log.debug(String.format(RENAME_S_AT_S_TO_S_AT_S, this.parent.container.getFile().getName(), srcpath, this.parent.container.getFile().getName(), dstpath));
 			return true;
 		}
 		catch(final Exception e)
 		{
-			Log.err("rename " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			Log.err(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), newname));
 		}
 		return false;
 	}
