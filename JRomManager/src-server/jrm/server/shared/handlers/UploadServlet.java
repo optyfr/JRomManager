@@ -60,25 +60,43 @@ public class UploadServlet extends HttpServlet
 			}
 			catch (IOException e)
 			{
-				try
-				{
-					resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-				}
-				catch (IOException e1)
-				{
-					Log.err(e1.getMessage(), e1);
-				}
+				internalError(resp, e);
 			}
 		}
 		else
-			try
-			{
-				super.doPost(req, resp);
-			}
-			catch (ServletException | IOException e)
-			{
-				Log.err(e.getMessage(), e);
-			}
+			superPost(req, resp);
+	}
+
+	/**
+	 * @param req
+	 * @param resp
+	 */
+	private void superPost(HttpServletRequest req, HttpServletResponse resp)
+	{
+		try
+		{
+			super.doPost(req, resp);
+		}
+		catch (ServletException | IOException e)
+		{
+			Log.err(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * @param resp
+	 * @param e
+	 */
+	private void internalError(HttpServletResponse resp, IOException e)
+	{
+		try
+		{
+			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+		catch (IOException e1)
+		{
+			Log.err(e1.getMessage(), e1);
+		}
 	}
 
 	/**
@@ -190,25 +208,11 @@ public class UploadServlet extends HttpServlet
 			}
 			catch (IOException e)
 			{
-				try
-				{
-					resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-				}
-				catch (IOException e1)
-				{
-					Log.err(e1.getMessage(), e1);
-				}
+				internalError(resp, e);
 			}
 		}
 		else
-			try
-			{
-				super.doPost(req, resp);
-			}
-			catch (ServletException | IOException e)
-			{
-				Log.err(e.getMessage(), e);
-			}
+			superPost(req, resp);
 	}
 
 	/**

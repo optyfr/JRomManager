@@ -1,9 +1,11 @@
 package jrm.fullserver.handlers;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.stream.XMLStreamException;
 
 import jrm.fullserver.datasources.AdminXMLResponse;
 import jrm.server.shared.TempFileInputStream;
@@ -15,7 +17,7 @@ import jrm.server.shared.handlers.DataSourceServlet;
 public class FullDataSourceServlet extends DataSourceServlet
 {
 	@Override
-	protected TempFileInputStream processResponse(WebSession sess, HttpServletRequest req, HttpServletResponse resp) throws Exception
+	protected TempFileInputStream processResponse(WebSession sess, HttpServletRequest req, HttpServletResponse resp) throws IOException, XMLStreamException
 	{
 		if ("/datasources/admin".equals(req.getRequestURI()))
 		{

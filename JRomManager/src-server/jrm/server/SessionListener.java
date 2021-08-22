@@ -5,9 +5,12 @@ import javax.servlet.http.HttpSessionListener;
 
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class SessionListener implements HttpSessionListener
 {
+	final boolean multi;
 
 	@Override
 	public void sessionDestroyed(HttpSessionEvent se)
@@ -22,7 +25,7 @@ public class SessionListener implements HttpSessionListener
 	public void sessionCreated(HttpSessionEvent se)
 	{
 		Log.debug(() -> "Creating session " + se.getSession().getId());
-		se.getSession().setAttribute("session", new WebSession(se.getSession().getId()));
+		se.getSession().setAttribute("session", multi ? new WebSession(se.getSession().getId(), null, null) : new WebSession(se.getSession().getId()));
 	}
 
 }

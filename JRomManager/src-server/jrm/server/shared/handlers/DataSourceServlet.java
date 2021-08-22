@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 
@@ -70,7 +71,7 @@ public class DataSourceServlet extends HttpServlet
 		}
 	}
 
-	protected TempFileInputStream processResponse(WebSession sess, HttpServletRequest req, HttpServletResponse resp) throws Exception
+	protected TempFileInputStream processResponse(WebSession sess, HttpServletRequest req, HttpServletResponse resp) throws IOException, XMLStreamException
 	{
 		int bodylen = req.getContentLength();
 		XMLResponse response = null;

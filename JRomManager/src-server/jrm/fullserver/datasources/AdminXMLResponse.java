@@ -1,6 +1,7 @@
 package jrm.fullserver.datasources;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Optional;
 
 import javax.xml.stream.XMLStreamException;
@@ -71,11 +72,7 @@ public class AdminXMLResponse extends XMLResponse
 				try (final var login = new Login())
 				{
 					login.update("INSERT INTO USERS VALUES(?, ?, ?)", operation.getData(LOGIN), CryptCredential.hash(operation.getData(PASSWORD)), Optional.ofNullable(operation.getData(ROLES)).orElse("admin"));
-					val user = login.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<UserCredential>(UserCredential.class), operation.getData(LOGIN));
-					if(user != null)
-						writeSingle(user);
-					else
-						failure();
+					fetchSingle(operation, login);
 				}
 				catch(Exception e)
 				{
@@ -89,20 +86,6 @@ public class AdminXMLResponse extends XMLResponse
 			failure(CAN_T_DO_THAT);
 	}
 
-	/**
-	 * @param user
-	 * @throws XMLStreamException
-	 */
-	private void writeSingle(final jrm.fullserver.security.UserCredential user) throws XMLStreamException
-	{
-		writer.writeStartElement(RESPONSE);
-		writer.writeElement(STATUS, "0");
-		writer.writeStartElement("data");
-		writeRecord(user);
-		writer.writeEndElement();
-		writer.writeEndElement();
-	}
-
 	@Override
 	public void update(Operation operation) throws XMLStreamException
 	{
@@ -113,11 +96,7 @@ public class AdminXMLResponse extends XMLResponse
 				try (final var login = new Login())
 				{
 					login.update("UPDATE USERS SET PASSWORD=?, ROLES=? WHERE LOGIN=?", CryptCredential.hash(operation.getData(PASSWORD)), Optional.ofNullable(operation.getData(ROLES)).orElse("admin"), operation.getData(LOGIN));
-					val user = login.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<UserCredential>(UserCredential.class), operation.getData(LOGIN));
-					if(user != null)
-						writeSingle(user);
-					else
-						failure();
+					fetchSingle(operation, login);
 				}
 				catch(Exception e)
 				{
@@ -165,4 +144,35 @@ public class AdminXMLResponse extends XMLResponse
 		else
 			failure(CAN_T_DO_THAT);
 	}
+	
+	/**
+	 * @param operation
+	 * @param login
+	 * @throws SQLException
+	 * @throws XMLStreamException
+	 */
+	private void fetchSingle(Operation operation, final Login login) throws SQLException, XMLStreamException
+	{
+		val user = login.queryHandler("SELECT * FROM USERS WHERE LOGIN=?", new BeanHandler<UserCredential>(UserCredential.class), operation.getData(LOGIN));
+		if(user != null)
+			writeSingle(user);
+		else
+			failure();
+	}
+
+	/**
+	 * @param user
+	 * @throws XMLStreamException
+	 */
+	private void writeSingle(final jrm.fullserver.security.UserCredential user) throws XMLStreamException
+	{
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		writer.writeStartElement("data");
+		writeRecord(user);
+		writer.writeEndElement();
+		writer.writeEndElement();
+	}
+
+
 }

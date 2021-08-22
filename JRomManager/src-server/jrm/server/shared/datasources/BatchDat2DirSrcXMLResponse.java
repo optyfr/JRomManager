@@ -32,13 +32,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 		final String[] srcdirs = StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
 		writer.writeStartElement(RESPONSE);
 		writer.writeElement(STATUS, "0");
-		writer.writeElement("startRow", "0");
-		writer.writeElement("endRow", Integer.toString(srcdirs.length-1));
-		writer.writeElement("totalRows", Integer.toString(srcdirs.length));
-		writer.writeStartElement("data");
-		for(final var srcdir : srcdirs)
-			writer.writeElement(RECORD, new SimpleAttribute("name", srcdir));
-		writer.writeEndElement();
+		fetchArray(operation, srcdirs.length, (i, count) -> writeRecord(srcdirs[i]));
 		writer.writeEndElement();
 	}
 	
@@ -57,10 +51,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 				request.getSession().getUser().getSettings().saveSettings();
 				writer.writeStartElement(RESPONSE);
 				writer.writeElement(STATUS, "0");
-				writer.writeStartElement("data");
-				for(final var name : names)
-					writer.writeElement(RECORD, new SimpleAttribute("name", name));
-				writer.writeEndElement();
+				fetchList(operation, names, (name, idx) -> writeRecord(name));
 				writer.writeEndElement();
 			}
 			else
@@ -68,6 +59,16 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 		}
 		else
 			failure("name is missing in request");
+	}
+
+
+	/**
+	 * @param name
+	 * @throws XMLStreamException
+	 */
+	private void writeRecord(final String name) throws XMLStreamException
+	{
+		writer.writeElement(RECORD, new SimpleAttribute("name", name));
 	}
 	
 	@Override
@@ -85,10 +86,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 				request.getSession().getUser().getSettings().saveSettings();
 				writer.writeStartElement(RESPONSE);
 				writer.writeElement(STATUS, "0");
-				writer.writeStartElement("data");
-				for(final var name : names)
-					writer.writeElement(RECORD, new SimpleAttribute("name", name));
-				writer.writeEndElement();
+				fetchList(operation, names, (name, idx) -> writeRecord(name));
 				writer.writeEndElement();
 			}
 			else

@@ -23,6 +23,7 @@ import lombok.Getter;
 
 public class XMLRequest
 {
+
 	public static class Operation
 	{
 		public static class Sorter
@@ -174,133 +175,7 @@ public class XMLRequest
 			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 			try (final var tfis = TempFileInputStream.newInstance(in, len))
 			{
-				parser.parse(tfis, new org.xml.sax.helpers.DefaultHandler()
-				{
-					boolean isRequest = false;
-					boolean inOperationType = false;
-					boolean inOperationId = false;
-					boolean inStartRow = false;
-					boolean inEndRow = false;
-					boolean inSortBy = false;
-					boolean inData = false;
-					boolean inOldValues = false;
-					StringBuilder datavalue = new StringBuilder();
-					Operation currentRequest;
-
-					@Override
-					public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
-					{
-						if (qName.equals("request"))
-						{
-							currentRequest = new Operation();
-							if (getTransaction() != null)
-								getTransaction().getOperations().add(currentRequest);
-							else
-								operation = currentRequest;
-							isRequest = true;
-						}
-						else if (qName.equals("transaction"))
-							transaction = new Transaction();
-						else if (isRequest)
-						{
-							switch (qName)
-							{
-								case "operationType":
-									inOperationType = true;
-									break;
-								case "operationId":
-									inOperationId = true;
-									break;
-								case "startRow":
-									inStartRow = true;
-									datavalue.setLength(0);
-									break;
-								case "endRow":
-									inEndRow = true;
-									datavalue.setLength(0);
-									break;
-								case "sortBy":
-									inSortBy = true;
-									datavalue.setLength(0);
-									break;
-								case "data":
-									inData = true;
-									break;
-								case "oldValues":
-									inOldValues = true;
-									break;
-								default:
-									if (inData || inOldValues)
-										datavalue.setLength(0);
-									break;
-							}
-						}
-					}
-
-					@Override
-					public void endElement(String uri, String localName, String qName) throws SAXException
-					{
-						switch (qName)
-						{
-							case "operationType":
-								inOperationType = false;
-								break;
-							case "operationId":
-								inOperationId = false;
-								break;
-							case "startRow":
-								inStartRow = false;
-								ExceptionUtils.unthrow(start -> currentRequest.startRow = start, Integer::parseInt, datavalue.toString());
-								datavalue.setLength(0);
-								break;
-							case "endRow":
-								inEndRow = false;
-								ExceptionUtils.unthrow(end -> currentRequest.endRow = end, Integer::parseInt, datavalue.toString());
-								datavalue.setLength(0);
-								break;
-							case "sortBy":
-								inSortBy = false;
-								currentRequest.getSort().add(new Sorter(datavalue.toString()));
-								datavalue.setLength(0);
-								break;
-							case "data":
-								inData = false;
-								break;
-							case "oldValues":
-								inOldValues = false;
-								break;
-							default:
-								if (inData)
-								{
-									currentRequest.addData(qName, datavalue.toString());
-									datavalue.setLength(0);
-								}
-								else if (inOldValues)
-								{
-									currentRequest.getOldValues().put(qName, datavalue.toString());
-									datavalue.setLength(0);
-								}
-								break;
-						}
-					}
-
-					@Override
-					public void characters(char[] ch, int start, int length) throws SAXException
-					{
-						if (inOperationType)
-							currentRequest.getOperationType().append(ch, start, length);
-						else if (inOperationId)
-							currentRequest.getOperationId().append(ch, start, length);
-						else if (inStartRow || inEndRow)
-							datavalue.append(ch, start, length);
-						else if (inSortBy)
-							datavalue.append(ch, start, length);
-						else if (inData)
-							datavalue.append(ch, start, length);
-						else if (inOldValues)
-							datavalue.append(ch, start, length);
-					}
-				});
+				parser.parse(tfis, new XMLRequestHandler());
 			}
 		}
 		catch (ParserConfigurationException | SAXException e)
@@ -325,4 +200,131 @@ public class XMLRequest
 		return operation;
 	}
 
+	private final class XMLRequestHandler extends org.xml.sax.helpers.DefaultHandler
+	{
+		boolean isRequest = false;
+		boolean inOperationType = false;
+		boolean inOperationId = false;
+		boolean inStartRow = false;
+		boolean inEndRow = false;
+		boolean inSortBy = false;
+		boolean inData = false;
+		boolean inOldValues = false;
+		StringBuilder datavalue = new StringBuilder();
+		Operation currentRequest;
+
+		@Override
+		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
+		{
+			if (qName.equals("request"))
+			{
+				currentRequest = new Operation();
+				if (getTransaction() != null)
+					getTransaction().getOperations().add(currentRequest);
+				else
+					operation = currentRequest;
+				isRequest = true;
+			}
+			else if (qName.equals("transaction"))
+				transaction = new Transaction();
+			else if (isRequest)
+			{
+				switch (qName)
+				{
+					case "operationType":
+						inOperationType = true;
+						break;
+					case "operationId":
+						inOperationId = true;
+						break;
+					case "startRow":
+						inStartRow = true;
+						datavalue.setLength(0);
+						break;
+					case "endRow":
+						inEndRow = true;
+						datavalue.setLength(0);
+						break;
+					case "sortBy":
+						inSortBy = true;
+						datavalue.setLength(0);
+						break;
+					case "data":
+						inData = true;
+						break;
+					case "oldValues":
+						inOldValues = true;
+						break;
+					default:
+						if (inData || inOldValues)
+							datavalue.setLength(0);
+						break;
+				}
+			}
+		}
+
+		@Override
+		public void endElement(String uri, String localName, String qName) throws SAXException
+		{
+			switch (qName)
+			{
+				case "operationType":
+					inOperationType = false;
+					break;
+				case "operationId":
+					inOperationId = false;
+					break;
+				case "startRow":
+					inStartRow = false;
+					ExceptionUtils.unthrow(start -> currentRequest.startRow = start, Integer::parseInt, datavalue.toString());
+					datavalue.setLength(0);
+					break;
+				case "endRow":
+					inEndRow = false;
+					ExceptionUtils.unthrow(end -> currentRequest.endRow = end, Integer::parseInt, datavalue.toString());
+					datavalue.setLength(0);
+					break;
+				case "sortBy":
+					inSortBy = false;
+					currentRequest.getSort().add(new Sorter(datavalue.toString()));
+					datavalue.setLength(0);
+					break;
+				case "data":
+					inData = false;
+					break;
+				case "oldValues":
+					inOldValues = false;
+					break;
+				default:
+					if (inData)
+					{
+						currentRequest.addData(qName, datavalue.toString());
+						datavalue.setLength(0);
+					}
+					else if (inOldValues)
+					{
+						currentRequest.getOldValues().put(qName, datavalue.toString());
+						datavalue.setLength(0);
+					}
+					break;
+			}
+		}
+
+		@Override
+		public void characters(char[] ch, int start, int length) throws SAXException
+		{
+			if (inOperationType)
+				currentRequest.getOperationType().append(ch, start, length);
+			else if (inOperationId)
+				currentRequest.getOperationId().append(ch, start, length);
+			else if (inStartRow || inEndRow)
+				datavalue.append(ch, start, length);
+			else if (inSortBy)
+				datavalue.append(ch, start, length);
+			else if (inData)
+				datavalue.append(ch, start, length);
+			else if (inOldValues)
+				datavalue.append(ch, start, length);
+		}
+	}
 }

@@ -87,7 +87,7 @@ public class Server extends AbstractServer
 
 		context.getSessionHandler().setMaxInactiveInterval(300);
 
-		context.getSessionHandler().addEventListener(new SessionListener());
+		context.getSessionHandler().addEventListener(new SessionListener(false));
 
 		jettyserver.setHandler(context);
 		jettyserver.setStopAtShutdown(true);

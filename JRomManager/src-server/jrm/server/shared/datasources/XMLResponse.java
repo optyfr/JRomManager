@@ -201,7 +201,7 @@ public abstract class XMLResponse implements Closeable
 	@FunctionalInterface
 	protected interface FetchArrayCallback
 	{
-		public void apply(int idx, int count);
+		public void apply(int idx, int count) throws XMLStreamException;
 	}
 
 	protected void fetchArray(Operation operation, int count, FetchArrayCallback cb) throws XMLStreamException

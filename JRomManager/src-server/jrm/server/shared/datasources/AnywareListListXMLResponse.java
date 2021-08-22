@@ -1,5 +1,6 @@
 package jrm.server.shared.datasources;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +21,7 @@ public class AnywareListListXMLResponse extends XMLResponse
 
 	private static final String STATUS = "status";
 
-	public AnywareListListXMLResponse(XMLRequest request) throws Exception
+	public AnywareListListXMLResponse(XMLRequest request) throws IOException, XMLStreamException
 	{
 		super(request);
 	}

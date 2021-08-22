@@ -45,6 +45,7 @@ import jrm.fullserver.security.SSLReload;
 import jrm.misc.Log;
 import jrm.misc.URIUtils;
 import jrm.server.AbstractServer;
+import jrm.server.SessionListener;
 import jrm.server.shared.handlers.ActionServlet;
 import jrm.server.shared.handlers.DownloadServlet;
 import jrm.server.shared.handlers.ImageServlet;
@@ -115,7 +116,7 @@ public class FullServer extends AbstractServer
 		setSecurity(context);
 
 		context.getSessionHandler().setMaxInactiveInterval(300);
-		context.getSessionHandler().addEventListener(new SessionListener());
+		context.getSessionHandler().addEventListener(new SessionListener(true));
 
 		jettyserver.setHandler(context);
 		jettyserver.setStopAtShutdown(true);
