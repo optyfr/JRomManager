@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,11 +46,9 @@ import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
  * @author optyfr
  *
  */
-public class SevenZipArchive implements Archive
+public class SevenZipArchive extends AbstractArchive
 {
 	private Session session;
-	private File tempDir = null;
-	private File archive = null;
 	private String cmd = null;
 	private boolean readonly = false;
 
@@ -104,36 +101,13 @@ public class SevenZipArchive implements Archive
 			}
 			else
 			{
-				int err = -1;
 				final var cmdAdd = new ArrayList<String>();
 				final Path tmpfile = IOUtils.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 				Files.delete(tmpfile);
 				Collections.addAll(cmdAdd, session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd, FindCmd.find7z()), "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				Collections.addAll(cmdAdd, "-ms=" + (session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, false) ? "on" : "off"), "-mx=" + SevenZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_level, SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 				Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
-				final var process = new ProcessBuilder(cmdAdd).directory(tempDir).redirectErrorStream(true).start();
-				try
-				{
-					err = process.waitFor();
-				}
-				catch(InterruptedException e)
-				{
-					Log.err(e.getMessage(),e);
-					Thread.currentThread().interrupt();
-				}
-				FileUtils.deleteDirectory(tempDir);
-				if(err != 0)
-				{
-					Files.deleteIfExists(tmpfile);
-					throw new IOException("Process returned " + err); //$NON-NLS-1$
-				}
-				else
-				{
-					synchronized(archive)
-					{
-						Files.move(tmpfile, archive.toPath(), StandardCopyOption.REPLACE_EXISTING);
-					}
-				}
+				close(cmdAdd, tmpfile);
 			}
 			tempDir = null;
 		}

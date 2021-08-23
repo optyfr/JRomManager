@@ -27,7 +27,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,11 +54,9 @@ import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
  * @author optyfr
  *
  */
-public class ZipArchive implements Archive
+public class ZipArchive extends AbstractArchive
 {
 	private Session session;
-	private File tempDir = null;
-	private File archive;
 	private String cmd;
 	private boolean readonly;
 	private ProgressNarchiveCallBack cb;
@@ -120,7 +117,6 @@ public class ZipArchive implements Archive
 			tempDir = null;
 			return;
 		}
-		int err = -1;
 		final List<String> cmdAdd = new ArrayList<>();
 		final Path tmpfile = IOUtils.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 		Files.delete(tmpfile);
@@ -136,31 +132,10 @@ public class ZipArchive implements Archive
 			Collections.addAll(cmdAdd, "-" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 			Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 		}
-		final var process = new ProcessBuilder(cmdAdd).directory(tempDir).redirectErrorStream(true).start();
-		try
-		{
-			err = process.waitFor();
-		}
-		catch(InterruptedException e)
-		{
-			Log.err(e.getMessage(),e);
-			Thread.currentThread().interrupt();
-		}
-		FileUtils.deleteDirectory(tempDir);
-		if(err != 0)
-		{
-			Files.deleteIfExists(tmpfile);
-			throw new IOException("Process returned " + err); //$NON-NLS-1$
-		}
-		else
-		{
-			synchronized(archive)
-			{
-				Files.move(tmpfile, archive.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			}
-		}
+		close(cmdAdd, tmpfile);
 		tempDir = null;
-	}
+}
+
 
 	@Override
 	public File getTempDir() throws IOException
@@ -222,6 +197,39 @@ public class ZipArchive implements Archive
 		return -1;
 	}
 
+	private final class CustomVisitorCB extends SimpleFileVisitor<Path>
+	{
+		private final CustomVisitor sfv;
+		long cnt = 0;
+
+		private CustomVisitorCB(CustomVisitor sfv)
+		{
+			this.sfv = sfv;
+		}
+
+		@Override
+		public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+		{
+			return sfv.preVisitDirectory(dir, attrs);
+		}
+
+		@Override
+		public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
+		{
+			sfv.postVisitDirectory(dir, exc);
+			return FileVisitResult.CONTINUE;
+		}
+
+		@Override
+		public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
+		{
+			sfv.visitFile(file, attrs);
+			if(cb != null)
+				cb.setCompleted(++cnt);
+			return FileVisitResult.CONTINUE;
+		}
+	}
+
 	public static class CustomVisitor extends SimpleFileVisitor<Path>
 	{
 		private Path sourcePath = null;
@@ -268,32 +276,7 @@ public class ZipArchive implements Archive
 				{
 					cb.setTotal(stream.filter(Files::isRegularFile).count());
 				}
-			Files.walkFileTree(sfv.getSourcePath(), new SimpleFileVisitor<Path>()
-			{
-				long cnt = 0;
-
-				@Override
-				public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-				{
-					return sfv.preVisitDirectory(dir, attrs);
-				}
-
-				@Override
-				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-				{
-					sfv.postVisitDirectory(dir, exc);
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
-				{
-					sfv.visitFile(file, attrs);
-					if(cb != null)
-						cb.setCompleted(++cnt);
-					return FileVisitResult.CONTINUE;
-				}
-			});
+			Files.walkFileTree(sfv.getSourcePath(), new CustomVisitorCB(sfv));
 			return 0;
 		}
 		catch(IOException ex)
@@ -313,32 +296,7 @@ public class ZipArchive implements Archive
 				{
 					cb.setTotal(stream.filter(Files::isRegularFile).count());
 				}
-			Files.walkFileTree(sfv.getSourcePath(), new SimpleFileVisitor<Path>()
-			{
-				long cnt = 0;
-
-				@Override
-				public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-				{
-					return sfv.preVisitDirectory(dir, attrs);
-				}
-
-				@Override
-				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-				{
-					sfv.postVisitDirectory(dir, exc);
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
-				{
-					sfv.visitFile(file, attr);
-					if(cb != null)
-						cb.setCompleted(++cnt);
-					return FileVisitResult.CONTINUE;
-				}
-			});
+			Files.walkFileTree(sfv.getSourcePath(), new CustomVisitorCB(sfv));
 		}
 		catch(IOException ex)
 		{
