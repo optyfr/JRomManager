@@ -2,7 +2,6 @@ package jrm.ui.batch;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -32,7 +31,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -42,7 +40,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.FilenameUtils;
@@ -80,46 +77,10 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 	    private final EventListenerList listenerList = new EventListenerList();
 		private final String[] columnNames = new String[] {Messages.getString("BatchCompressorPanel.File"), Messages.getString("BatchCompressorPanel.Status")}; //$NON-NLS-1$ //$NON-NLS-2$
 		private final Class<?>[] columnTypes = new Class<?>[] { Object.class, String.class };
-		private final TableCellRenderer[] cellRenderers = new TableCellRenderer[] { new DefaultTableCellRenderer()
-		{
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-			{
-				setBackground(Color.white);
-				if (value instanceof File)
-				{
-					super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-					setText(trimmedStringCalculator(((File) value).getPath(), table, this, table.getColumnModel().getColumn(column).getWidth() - 10));
-					return this;
-				}
-				return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-			}
-		}, new DefaultTableCellRenderer()
-		{
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-			{
-				setBackground(Color.white);
-				setHorizontalAlignment(TRAILING);
-				return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			}
-		} };
+		private final TableCellRenderer[] cellRenderers = new TableCellRenderer[] { new FileCellRenderer(), new StatusCellRenderer() };
 		private final int[] widths = {0, 0};
 		private final String[] headersTT = columnNames;
 
-		private static String trimmedStringCalculator(String inputText, JTable table, JLabel component, int width)
-		{
-			String ellipses = "..."; //$NON-NLS-1$
-			final var textToBeDisplayed = new StringBuilder(); //$NON-NLS-1$
-			FontMetrics fm = table.getFontMetrics(component.getFont());
-			for (int i = inputText.length() - 1; i >= 0; i--)
-				if (fm.stringWidth(ellipses + textToBeDisplayed) <= width)
-					textToBeDisplayed.insert(0, inputText);
-			if (0 != CharSequence.compare(textToBeDisplayed, inputText))
-				return String.join(ellipses, textToBeDisplayed);
-			return inputText;
-		}
 	    
 	 		@Override
 		public int getRowCount()

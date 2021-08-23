@@ -2,13 +2,10 @@ package jrm.ui.batch;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.FontMetrics;
 import java.io.File;
 
-import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -18,6 +15,27 @@ import jrm.ui.basic.SDRTableModel;
 
 public class BatchTableModel extends SDRTableModel
 {
+
+	@SuppressWarnings("serial")
+	private final class FCellRenderer extends FileCellRenderer
+	{
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		{
+			if (row == getCurrentRow() && column == getCurrentCol())
+				setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
+			else
+				setBackground(Color.white);
+			if (value instanceof File)
+			{
+				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				setText(trimmedStringCalculator(((File) value).getPath(), table, this, table.getColumnModel().getColumn(column).getWidth() - 10));
+				return this;
+			}
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+		}
+	}
 
 	private final String[] headers;
 	private final String[] headersTT;
@@ -43,67 +61,9 @@ public class BatchTableModel extends SDRTableModel
 
 	private JTableButton buttons = new JTableButton();
 
-	@SuppressWarnings("serial")
-	private final TableCellRenderer[] cellRenderers = { new DefaultTableCellRenderer()
-	{
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-		{
-			if (row == getCurrentRow() && column == getCurrentCol())
-				setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
-			else
-				setBackground(Color.white);
-			if (value instanceof File)
-			{
-				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				setText(trimmedStringCalculator(((File) value).getPath(), table, this, table.getColumnModel().getColumn(column).getWidth() - 10));
-				return this;
-			}
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-		}
-	}, new DefaultTableCellRenderer()
-	{
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-		{
-			if (row == getCurrentRow() && column == getCurrentCol())
-				setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
-			else
-				setBackground(Color.white);
-			if (value instanceof File)
-			{
-				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				setText(trimmedStringCalculator(((File) value).getPath(), table, this, table.getColumnModel().getColumn(column).getWidth() - 10));
-				return this;
-			}
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		}
-	}, new DefaultTableCellRenderer()
-	{
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-		{
-			setBackground(Color.white);
-			setHorizontalAlignment(TRAILING);
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		}
-	}, buttons, null };
+	private final TableCellRenderer[] cellRenderers = { new FileCellRenderer(), new FCellRenderer(), new StatusCellRenderer(), buttons, null };
 
 	private final TableCellEditor[] cellEditors = { null, null, null, buttons, null };
-
-	private static String trimmedStringCalculator(String inputText, JTable table, JLabel component, int width)
-	{
-		String ellipses = "..."; //$NON-NLS-1$
-		final var textToBeDisplayed = new StringBuilder(); // $NON-NLS-1$
-		FontMetrics fm = table.getFontMetrics(component.getFont());
-		for (int i = inputText.length() - 1; i >= 0; i--)
-			if (fm.stringWidth(ellipses + textToBeDisplayed) <= width)
-				textToBeDisplayed.insert(0, inputText.charAt(i));
-		if (0 != CharSequence.compare(textToBeDisplayed, inputText))
-			return ellipses + textToBeDisplayed;
-		return inputText;
-	}
 
 	@Override
 	public int getRowCount()
