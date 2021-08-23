@@ -435,7 +435,7 @@ project(':JRomManager:jrmserver') {
 		implementation group: 'commons-dbutils', name:'commons-dbutils'
 		implementation group: 'com.h2database', name:'h2'
 		implementation group: 'org.mindrot', name:'jbcrypt'
-		implementation 'net.java.dev.jna:jna:5.8.0'
+		implementation 'net.java.dev.jna:jna:5.9.0'
 		implementation group: 'de.mkammerer', name:'argon2-jvm'
 		implementation files(WebClientJar)
 	}
