@@ -283,7 +283,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException
 	{
 		if(is_mame)
 			writer.writeStartElement("mame"); //$NON-NLS-1$

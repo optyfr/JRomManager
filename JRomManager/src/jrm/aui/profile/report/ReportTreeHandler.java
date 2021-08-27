@@ -1,8 +1,8 @@
 package jrm.aui.profile.report;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
@@ -36,7 +36,7 @@ public interface ReportTreeHandler
 	 *
 	 * @return the filter options
 	 */
-	public EnumSet<FilterOptions> getFilterOptions();
+	public Set<FilterOptions> getFilterOptions();
 	
 	public default boolean hasListeners()
 	{

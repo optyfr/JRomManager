@@ -128,25 +128,38 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	{
 		if (softwareListDefs.containsKey(softwarelist))
 		{
-			return softwareListDefs.get(softwarelist).stream().filter(m -> m.isCompatible(softwarelist, compatibility) > 0).sorted((o1, o2) -> {
-				int c1 = o1.isCompatible(softwarelist, compatibility);
-				int c2 = o2.isCompatible(softwarelist, compatibility);
-				if (o1.driver.getStatus() == Driver.StatusType.good)
-					c1 += 2;
-				if (o1.driver.getStatus() == Driver.StatusType.imperfect)
-					c1 += 1;
-				if (o2.driver.getStatus() == Driver.StatusType.good)
-					c2 += 2;
-				if (o2.driver.getStatus() == Driver.StatusType.imperfect)
-					c2 += 1;
-				if (c1 < c2)
-					return 1;
-				if (c1 > c2)
-					return -1;
-				return 0;
-			}).collect(Collectors.toList());
+			return softwareListDefs.get(softwarelist).stream()
+					.filter(m -> m.isCompatible(softwarelist, compatibility) > 0)
+					.sorted((o1, o2) -> getComparator(softwarelist, compatibility, o1, o2))
+					.collect(Collectors.toList());
 		}
 		return List.of();
+	}
+
+	/**
+	 * @param softwarelist
+	 * @param compatibility
+	 * @param o1
+	 * @param o2
+	 * @return
+	 */
+	protected int getComparator(final String softwarelist, final String compatibility, Machine o1, Machine o2)
+	{
+		int c1 = o1.isCompatible(softwarelist, compatibility);
+		int c2 = o2.isCompatible(softwarelist, compatibility);
+		if (o1.driver.getStatus() == Driver.StatusType.good)
+			c1 += 2;
+		if (o1.driver.getStatus() == Driver.StatusType.imperfect)
+			c1 += 1;
+		if (o2.driver.getStatus() == Driver.StatusType.good)
+			c2 += 2;
+		if (o2.driver.getStatus() == Driver.StatusType.imperfect)
+			c2 += 1;
+		if (c1 < c2)
+			return 1;
+		if (c1 > c2)
+			return -1;
+		return 0;
 	}
 	
 	/**

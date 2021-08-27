@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -236,7 +236,7 @@ public class ReportView extends JScrollPane implements Popup
 	 */
 	private void hideFullyMissing(Report report, ItemEvent e)
 	{
-		final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
+		final Set<FilterOptions> options = report.getHandler().getFilterOptions();
 		if(e.getStateChange() == ItemEvent.SELECTED)
 			options.add(FilterOptions.HIDEMISSING);
 		else
@@ -267,7 +267,7 @@ public class ReportView extends JScrollPane implements Popup
 	 */
 	private void showOKEntries(Report report, ItemEvent e)
 	{
-		final EnumSet<FilterOptions> options = report.getHandler().getFilterOptions();
+		final Set<FilterOptions> options = report.getHandler().getFilterOptions();
 		if(e.getStateChange() == ItemEvent.SELECTED)
 			options.add(FilterOptions.SHOWOK);
 		else

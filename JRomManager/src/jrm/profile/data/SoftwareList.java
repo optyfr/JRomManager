@@ -194,7 +194,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, boolean filtered, final ProgressHandler progress) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, boolean filtered, final ProgressHandler progress) throws XMLStreamException
 	{
 		writer.writeStartElement("softwarelist", //$NON-NLS-1$
 				new SimpleAttribute("name",name), //$NON-NLS-1$

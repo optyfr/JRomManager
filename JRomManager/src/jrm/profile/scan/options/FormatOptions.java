@@ -79,12 +79,12 @@ public @RequiredArgsConstructor enum FormatOptions
 		 */
 		FAKE(".$$$"); //$NON-NLS-1$
 
-		private final String ext;
+		private final String value;
 
 		@Override
 		public String toString()
 		{
-			return ext;
+			return value;
 		}
 
 		/**

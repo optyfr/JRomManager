@@ -2,6 +2,7 @@ package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Set;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
@@ -24,7 +25,7 @@ public class ReportActions
 	{
 		final JsonObject pjso = jso.get("params").asObject();
 		final Report report = lite ? ws.getSession().getTmpReport() : ws.getSession().getReport();
-		EnumSet<FilterOptions> options = report.getHandler().getFilterOptions().clone();
+		Set<FilterOptions> options = ((EnumSet<FilterOptions>)report.getHandler().getFilterOptions()).clone();
 		for (Member m : pjso)
 		{
 			try
