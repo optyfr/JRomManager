@@ -24,7 +24,6 @@ import javax.swing.event.TreeSelectionListener;
 import jrm.profile.manager.Dir;
 import jrm.security.Session;
 
-// TODO: Auto-generated Javadoc
 /**
  * The listener interface for receiving dirTreeSelection events.
  */

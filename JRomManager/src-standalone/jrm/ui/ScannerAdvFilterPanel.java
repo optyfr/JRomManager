@@ -218,25 +218,15 @@ public class ScannerAdvFilterPanel extends JPanel
 	 */
 	private void catVerMatureUnselect(final Session session)
 	{
-		final List<NGTreeNode> matureNodes = new ArrayList<>();
-		for (final Category cat : session.getCurrProfile().getCatver())
-		{
-			final CatVerModel catvermodel = (CatVerModel)treeCatVer.getModel();
-			final CategoryNode catnode = ((CatVerNode)catvermodel.getRoot()).getNode(cat);
-			if (cat.name.endsWith(MATURE)) //$NON-NLS-1$
-				matureNodes.add(catnode);
-			else
-				for (final SubCategory subcat : cat)
-					if (subcat.name.endsWith(MATURE)) //$NON-NLS-1$
-						matureNodes.add(catnode.getNode(subcat));
-		}
+		final List<NGTreeNode> matureNodes = getMatures(session);
 		treeCatVer.unselect(matureNodes.toArray(new NGTreeNode[0]));
 	}
 
 	/**
 	 * @param session
+	 * @return
 	 */
-	private void catVerMatureSelect(final Session session)
+	protected List<NGTreeNode> getMatures(final Session session)
 	{
 		final List<NGTreeNode> matureNodes = new ArrayList<>();
 		for (final Category cat : session.getCurrProfile().getCatver())
@@ -250,6 +240,15 @@ public class ScannerAdvFilterPanel extends JPanel
 					if (subcat.name.endsWith(MATURE)) //$NON-NLS-1$
 						matureNodes.add(catnode.getNode(subcat));
 		}
+		return matureNodes;
+	}
+
+	/**
+	 * @param session
+	 */
+	private void catVerMatureSelect(final Session session)
+	{
+		final List<NGTreeNode> matureNodes = getMatures(session);
 		treeCatVer.select(matureNodes.toArray(new NGTreeNode[0]));
 	}
 

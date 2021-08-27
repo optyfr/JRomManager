@@ -16,7 +16,6 @@
  */
 package jrm.xml;
 
-// TODO: Auto-generated Javadoc
 /**
  * A simple attribute only with {@link #name} and {@link #value}.
  *

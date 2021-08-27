@@ -13,6 +13,7 @@ public class MachineListListModel extends AnywareListListModel
 	
 	private SoftwareListListModel sllmodel;
 	
+	@SuppressWarnings("exports")
 	public MachineListListModel(MachineListList machineListList)
 	{
 		this.machineListList = machineListList;
@@ -52,6 +53,7 @@ public class MachineListListModel extends AnywareListListModel
 		fireTableChanged(new TableModelEvent(this));
 	}
 	
+	@SuppressWarnings("exports")
 	public void setFilter(final Set<AnywareStatus> filter)
 	{
 		machineListList.setFilterCache(filter);

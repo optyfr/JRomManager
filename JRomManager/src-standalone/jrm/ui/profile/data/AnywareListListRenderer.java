@@ -30,7 +30,6 @@ import jrm.profile.data.SoftwareList;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.CenteredTableCellRenderer;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class AnywareListListRenderer.
  */

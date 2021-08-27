@@ -20,7 +20,6 @@ import jrm.locale.Messages;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Enum ScanAutomation.
  *

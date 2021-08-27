@@ -29,7 +29,6 @@ import javax.swing.tree.TreePath;
  *
  * @author optyfr
  */
-// TODO: Auto-generated Javadoc
 public class DirTreeCellEditor extends DefaultTreeCellEditor
 {
 	

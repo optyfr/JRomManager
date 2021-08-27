@@ -81,13 +81,6 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	}
 
 	@Override
-	protected void initTransient()
-	{
-		super.initTransient();
-	}
-
-
-	@Override
 	public void resetCache()
 	{
 		this.filteredList = null;

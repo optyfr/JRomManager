@@ -28,7 +28,6 @@ import jrm.ui.MainFrame;
  *
  * @author optyfr
  */
-// TODO: Auto-generated Javadoc
 @SuppressWarnings("serial")
 public class DirTreeCellRenderer extends DefaultTreeCellRenderer
 {

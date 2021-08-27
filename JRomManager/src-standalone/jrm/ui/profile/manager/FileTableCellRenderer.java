@@ -31,7 +31,6 @@ import jrm.profile.manager.ProfileNFO;
  *
  * @author optyfr
  */
-// TODO: Auto-generated Javadoc
 @SuppressWarnings("serial")
 public class FileTableCellRenderer extends DefaultTableCellRenderer
 {
