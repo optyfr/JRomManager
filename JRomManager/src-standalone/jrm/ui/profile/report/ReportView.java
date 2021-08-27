@@ -1,13 +1,10 @@
 package jrm.ui.profile.report;
 
-import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,12 +33,13 @@ import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
 import jrm.ui.MainFrame;
+import jrm.ui.basic.Popup;
 import jrm.ui.profile.report.ReportNode.SubjectNode;
 import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 import lombok.val;
 
 @SuppressWarnings("serial")
-public class ReportView extends JScrollPane
+public class ReportView extends JScrollPane implements Popup
 {
 	private final Report report;
 	private final JLabel wait;
@@ -65,7 +63,7 @@ public class ReportView extends JScrollPane
 		build(report);
 
 		final JPopupMenu popupMenu = new JPopupMenu();
-		ReportView.addPopup(tree, popupMenu);
+		addPopup(tree, popupMenu);
 
 		final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
 		mntmOpenAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_open.png")); //$NON-NLS-1$
@@ -331,41 +329,6 @@ public class ReportView extends JScrollPane
 				}
 			}
 		}.execute();
-	}
-
-	/**
-	 * Adds the popup.
-	 *
-	 * @param component the component
-	 * @param popup the popup
-	 */
-	private static void addPopup(final Component component, final JPopupMenu popup)
-	{
-		component.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mousePressed(final MouseEvent e)
-			{
-				if(e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			@Override
-			public void mouseReleased(final MouseEvent e)
-			{
-				if(e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			private void showMenu(final MouseEvent e)
-			{
-				popup.show(e.getComponent(), e.getX(), e.getY());
-			}
-		});
 	}
 
 	public void update()

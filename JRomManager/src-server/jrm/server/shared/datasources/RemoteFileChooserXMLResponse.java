@@ -232,20 +232,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			try
 			{
 				Files.createDirectory(entry);
-				writer.writeStartElement(RESPONSE);
-				writer.writeElement(STATUS, "0");
-				writeParent(parent);
-				writer.writeStartElement("data");
-				writer.writeStartElement(RECORD);
-				writer.writeAttribute("Name", entry.getFileName().toString());
-				writer.writeAttribute("Path", pathAbstractor.getRelativePath(entry).toString());
-				writer.writeAttribute(REL_PATH, pathAbstractor.getRelativePath(entry).toString());
-				writer.writeAttribute("Size", "-1");
-				writer.writeAttribute(MODIFIED, Files.getLastModifiedTime(entry).toString());
-				writer.writeAttribute(IS_DIR, Boolean.TRUE.toString());
-				writer.writeEndElement();
-				writer.writeEndElement();
-				writer.writeEndElement();
+				writeResponseSingle(parent, entry);
 			}
 			catch (Exception ex)
 			{
@@ -254,6 +241,30 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		}
 		else
 			failure("Can't create " + name);
+	}
+
+	/**
+	 * @param parent
+	 * @param entry
+	 * @throws XMLStreamException
+	 * @throws IOException
+	 */
+	protected void writeResponseSingle(Path parent, Path entry) throws XMLStreamException, IOException
+	{
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		writeParent(parent);
+		writer.writeStartElement("data");
+		writer.writeStartElement(RECORD);
+		writer.writeAttribute("Name", entry.getFileName().toString());
+		writer.writeAttribute("Path", pathAbstractor.getRelativePath(entry).toString());
+		writer.writeAttribute(REL_PATH, pathAbstractor.getRelativePath(entry).toString());
+		writer.writeAttribute("Size", "-1");
+		writer.writeAttribute(MODIFIED, Files.getLastModifiedTime(entry).toString());
+		writer.writeAttribute(IS_DIR, Boolean.TRUE.toString());
+		writer.writeEndElement();
+		writer.writeEndElement();
+		writer.writeEndElement();
 	}
 
 	@Override
@@ -271,20 +282,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 			try
 			{
 				Files.move(oldentry, entry);
-				writer.writeStartElement(RESPONSE);
-				writer.writeElement(STATUS, "0");
-				writeParent(parent);
-				writer.writeStartElement("data");
-				writer.writeStartElement(RECORD);
-				writer.writeAttribute("Name", entry.getFileName().toString());
-				writer.writeAttribute("Path", pathAbstractor.getRelativePath(entry).toString());
-				writer.writeAttribute(REL_PATH, pathAbstractor.getRelativePath(entry).toString());
-				writer.writeAttribute("Size", "-1");
-				writer.writeAttribute(MODIFIED, Files.getLastModifiedTime(entry).toString());
-				writer.writeAttribute(IS_DIR, Boolean.TRUE.toString());
-				writer.writeEndElement();
-				writer.writeEndElement();
-				writer.writeEndElement();
+				writeResponseSingle(parent, entry);
 			}
 			catch (Exception ex)
 			{

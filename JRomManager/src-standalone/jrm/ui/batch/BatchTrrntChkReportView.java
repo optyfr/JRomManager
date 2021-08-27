@@ -1,9 +1,6 @@
 package jrm.ui.batch;
 
-import java.awt.Component;
 import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Set;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -17,9 +14,10 @@ import jrm.locale.Messages;
 import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
+import jrm.ui.basic.Popup;
 
 @SuppressWarnings("serial")
-public class BatchTrrntChkReportView extends JScrollPane
+public class BatchTrrntChkReportView extends JScrollPane implements Popup
 {
 	@SuppressWarnings("exports")
 	public BatchTrrntChkReportView(Session session, TrntChkReport report)
@@ -32,7 +30,7 @@ public class BatchTrrntChkReportView extends JScrollPane
 		this.setViewportView(tree);
 
 		final JPopupMenu popupMenu = new JPopupMenu();
-		BatchTrrntChkReportView.addPopup(tree, popupMenu);
+		addPopup(tree, popupMenu);
 
 		final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
 		mntmOpenAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_open.png")); //$NON-NLS-1$
@@ -89,40 +87,5 @@ public class BatchTrrntChkReportView extends JScrollPane
 			report.getHandler().filter(options.toArray(new FilterOptions[0]));
 		});
 		popupMenu.add(chckbxmntmHideFullyMissing);
-	}
-
-	/**
-	 * Adds the popup.
-	 *
-	 * @param component the component
-	 * @param popup the popup
-	 */
-	private static void addPopup(final Component component, final JPopupMenu popup)
-	{
-		component.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mousePressed(final MouseEvent e)
-			{
-				if(e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			@Override
-			public void mouseReleased(final MouseEvent e)
-			{
-				if(e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			private void showMenu(final MouseEvent e)
-			{
-				popup.show(e.getComponent(), e.getX(), e.getY());
-			}
-		});
 	}
 }

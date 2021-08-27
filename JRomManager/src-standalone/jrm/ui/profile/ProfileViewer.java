@@ -17,7 +17,6 @@
 package jrm.ui.profile;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -100,6 +99,7 @@ import jrm.profile.manager.ProfileNFOMame.MameStatus;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.JRMFileChooser;
+import jrm.ui.basic.Popup;
 import jrm.ui.profile.data.AnywareListListModel;
 import jrm.ui.profile.data.AnywareListModel;
 import jrm.ui.profile.data.AnywareModel;
@@ -114,7 +114,7 @@ import lombok.val;
  * The Class ProfileViewer.
  */
 @SuppressWarnings("serial")
-public class ProfileViewer extends JDialog
+public class ProfileViewer extends JDialog implements Popup
 {
 	
 	private static final String PROFILE_VIEWER_AS_SW_LISTS_DAT = "ProfileViewer.AsSWListsDat";
@@ -358,7 +358,7 @@ public class ProfileViewer extends JDialog
 		tableWL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		final var popupMenu = new JPopupMenu();
-		ProfileViewer.addPopup(tableWL, popupMenu);
+		addPopup(tableWL, popupMenu);
 
 		final var mnExportAll = new JMenu(Messages.getString("ProfileViewer.ExportAll")); //$NON-NLS-1$
 		popupMenu.add(mnExportAll);
@@ -1114,40 +1114,5 @@ public class ProfileViewer extends JDialog
 			tableW.setRowSelectionInterval(row, row);
 			tableW.scrollRectToVisible(tableW.getCellRect(row, 0, true));
 		}
-	}
-
-	/**
-	 * Adds the popup.
-	 *
-	 * @param component the component
-	 * @param popup the popup
-	 */
-	private static void addPopup(final Component component, final JPopupMenu popup)
-	{
-		component.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mousePressed(final MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			@Override
-			public void mouseReleased(final MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			private void showMenu(final MouseEvent e)
-			{
-				popup.show(e.getComponent(), e.getX(), e.getY());
-			}
-		});
 	}
 }
