@@ -23,6 +23,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import jrm.batch.TrntChkReport.Child;
+import jrm.batch.TrntChkReport.Status;
 import jrm.misc.Log;
 import jrm.ui.MainFrame;
 import jrm.ui.batch.BatchTrrntChkReportNode.ChildNode;
@@ -62,70 +63,40 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 			title += " [" + node.getData().getStatus() + "]";
 			super.getTreeCellRendererComponent(tree, title, sel, expanded, leaf, row, hasFocus);
 			if (!leaf)
-			{
-				String icon = "/jrm/resicons/folder"; //$NON-NLS-1$
-				if (expanded)
-					icon += "_open"; //$NON-NLS-1$
-				else
-					icon += "_closed"; //$NON-NLS-1$
-				switch (node.getData().getStatus())
-				{
-					case OK:
-						icon += "_green";
-						break;
-					case MISSING:
-						icon += "_red";
-						break;
-					case SHA1:
-						icon += "_purple";
-						break;
-					case SIZE:
-						icon += "_blue";
-						break;
-					case SKIPPED:
-						icon += "_orange";
-						break;
-					case UNKNOWN:
-						icon += "_gray";
-						break;
-					default:
-						break;
-				}
-				icon += ".png"; //$NON-NLS-1$
-				setIcon(MainFrame.getIcon(icon));
-			}
+				setIcon(MainFrame.getIcon("/jrm/resicons/folder" + (expanded ? "_open" : "_closed") + statusColor(node.getData().getStatus()) + ".png"));
 			else
-			{
-				String icon = "/jrm/resicons/icons/bullet"; //$NON-NLS-1$
-				switch (node.getData().getStatus())
-				{
-					case OK:
-						icon += "_green";
-						break;
-					case MISSING:
-						icon += "_red";
-						break;
-					case SHA1:
-						icon += "_purple";
-						break;
-					case SIZE:
-						icon += "_blue";
-						break;
-					case SKIPPED:
-						icon += "_orange";
-						break;
-					case UNKNOWN:
-						icon += "_black";
-						break;
-				}
-				icon += ".png"; //$NON-NLS-1$
-				setIcon(MainFrame.getIcon(icon));
-			}
+				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet" + statusColor(node.getData().getStatus()) + ".png"));
 		}
 		catch (Exception e)
 		{
 			Log.err(e.getMessage(), e);
 		}
 		return this;
+	}
+
+	/**
+	 * @param icon
+	 * @param status
+	 * @return
+	 */
+	protected String statusColor(final Status status)
+	{
+		switch (status)
+		{
+			case OK:
+				return "_green";
+			case MISSING:
+				return "_red";
+			case SHA1:
+				return "_purple";
+			case SIZE:
+				return "_blue";
+			case SKIPPED:
+				return "_orange";
+			case UNKNOWN:
+				return "_gray";
+			default:
+				return "";
+		}
 	}
 }

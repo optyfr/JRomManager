@@ -126,15 +126,7 @@ public class Compressor implements HTMLRenderer
 			final var newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
 			if (sevenZip2SevenZip(file, cb, tmpfile, newfile) && Files.exists(tmpfile))
 			{
-				if (FileUtils.deleteQuietly(file))
-				{
-					FileUtils.moveFile(tmpfile.toFile(), newfile);
-					scb.apply(newfile);
-					cb.apply(OK);
-					return newfile;
-				}
-				else
-					cb.apply(FAILED);
+				return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
 			}
 		}
 		catch(IOException e)
@@ -145,6 +137,28 @@ public class Compressor implements HTMLRenderer
 		{
 			// do nothing
 		}
+		return null;
+	}
+
+	/**
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @param tmpfile
+	 * @param newfile
+	 * @throws IOException
+	 */
+	private File finalizeTmpFile(final File file, final UpdResultCallBack cb, final UpdSrcCallBack scb, final Path tmpfile, final File newfile) throws IOException
+	{
+		if (FileUtils.deleteQuietly(file))
+		{
+			FileUtils.moveFile(tmpfile.toFile(), newfile);
+			scb.apply(newfile);
+			cb.apply(OK);
+			return newfile;
+		}
+		else
+			cb.apply(FAILED);
 		return null;
 	}
 
@@ -208,15 +222,7 @@ public class Compressor implements HTMLRenderer
 			final var newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
 			if(sevenZip2Zip(file, tzip, cb, tmpfile, newfile)&&Files.exists(tmpfile))
 			{
-				if(FileUtils.deleteQuietly(file))
-				{
-					FileUtils.moveFile(tmpfile.toFile(), newfile);
-					scb.apply(newfile);
-					cb.apply(OK);
-					return newfile;
-				}
-				else
-					cb.apply(FAILED);
+				return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
 			}
 		}
 		catch (final IOException e)
@@ -333,15 +339,7 @@ public class Compressor implements HTMLRenderer
 			}
 			if(Files.exists(tmpfile))
 			{
-				if(FileUtils.deleteQuietly(file))
-				{
-					FileUtils.moveFile(tmpfile.toFile(), newfile);
-					scb.apply(newfile);
-					cb.apply(OK);
-					return newfile;
-				}
-				else
-					cb.apply(FAILED);
+				return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
 			}
 		}
 		catch(IOException e)
