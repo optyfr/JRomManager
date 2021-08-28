@@ -13,20 +13,15 @@ import jrm.profile.data.Entry;
  *
  */
 @SuppressWarnings("serial")
-public class EntryUnneeded extends Note implements Serializable
+public class EntryUnneeded extends EntryExtNote implements Serializable
 {
-	/**
-	 * The {@link Entry} that is not needed
-	 */
-	final Entry entry;
-
 	/**
 	 * The constructor
 	 * @param entry The {@link Entry} that is not needed
 	 */
 	public EntryUnneeded(final Entry entry)
 	{
-		this.entry = entry;
+		super(null, entry);
 	}
 
 	@Override
@@ -53,42 +48,6 @@ public class EntryUnneeded extends Note implements Serializable
 		else
 			hash = entry.getCrc();
 		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryUnneeded.Unneeded")), toBold(parent.ware.getFullName()), toBold(entry.getRelFile()), hash)); //$NON-NLS-1$
-	}
-
-	@Override
-	public String getDetail()
-	{
-		return getCurrentEntry(entry);
-	}
-
-	@Override
-	public String getName()
-	{
-		return entry.getName();
-	}
-
-	@Override
-	public String getCrc()
-	{
-		return entry.getCrc();
-	}
-
-	@Override
-	public String getSha1()
-	{
-		return entry.getSha1();
-	}
-	
-	@Override
-	public boolean equals(Object obj)
-	{
-		return super.equals(obj);
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
 	}
 
 }

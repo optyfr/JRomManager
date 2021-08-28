@@ -13,21 +13,15 @@ import jrm.profile.data.Container;
  *
  */
 @SuppressWarnings("serial")
-public class ContainerUnneeded extends Subject implements Serializable
+public class ContainerUnneeded extends ContainerSubject implements Serializable
 {
-	/**
-	 * The {@link Container} in relation
-	 */
-	final Container container;
-
 	/**
 	 * Constructor with no related {@link AnywareBase} (set to <code>null</code>), but a related {@link Container}
 	 * @param c the {@link Container} in relation
 	 */
 	public ContainerUnneeded(final Container c)
 	{
-		super(null);
-		container = c;
+		super(c);
 	}
 
 	@Override
@@ -37,33 +31,8 @@ public class ContainerUnneeded extends Subject implements Serializable
 	}
 
 	@Override
-	public String getHTML()
-	{
-		return toString();
-	}
-	
-	@Override
 	public Subject clone(final List<FilterOptions> filterOptions)
 	{
 		return new ContainerUnneeded(container);
 	}
-
-	@Override
-	public void updateStats()
-	{
-		// do nothing
-	}
-	
-	@Override
-	public boolean equals(Object o)
-	{
-		return super.equals(o);
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
-	}
-
 }

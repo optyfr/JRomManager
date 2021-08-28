@@ -1,9 +1,5 @@
 package jrm.profile.report;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamField;
 import java.io.Serializable;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -18,35 +14,11 @@ import jrm.profile.data.Entry;
  * @author optyfr
  *
  */
-public class EntryMissing extends Note implements Serializable
+public class EntryMissing extends EntryNote implements Serializable
 {
 	private static final String ENTRY_MISSING_MISSING = "EntryMissing.Missing";
 
-	private static final String ENTITY_STR = "entity";
-
-	private static final long serialVersionUID = 2L;
-
-	/**
-	 * The related {@link EntityBase}
-	 */
-	EntityBase entity;
-
-	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
-		new ObjectStreamField(ENTITY_STR, EntityBase.class)
-	};
-	
-	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
-	{
-		final ObjectOutputStream.PutField fields = stream.putFields();
-		fields.put(ENTITY_STR, entity);
-		stream.writeFields();
-	}
-
-	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
-	{
-		final ObjectInputStream.GetField fields = stream.readFields();
-		entity = (EntityBase)fields.get(ENTITY_STR, null);
-	}
+	private static final long serialVersionUID = 3L;
 
 	/**
 	 * The constructor
@@ -54,7 +26,7 @@ public class EntryMissing extends Note implements Serializable
 	 */
 	public EntryMissing(final EntityBase entity)
 	{
-		this.entity = entity;
+		super(entity);
 	}
 
 	@Override
@@ -79,46 +51,6 @@ public class EntryMissing extends Note implements Serializable
 			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName())) + " ("+hash+")"); //$NON-NLS-1$
 		}
 		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName()))); //$NON-NLS-1$
-	}
-
-	@Override
-	public String getDetail()
-	{
-		return getExpectedEntity(entity);
-	}
-
-	@Override
-	public String getName()
-	{
-		return entity.getBaseName();
-	}
-
-	@Override
-	public String getCrc()
-	{
-		if(entity instanceof Entity)
-			return ((Entity)entity).getCrc();
-		return null;
-	}
-
-	@Override
-	public String getSha1()
-	{
-		if(entity instanceof Entity)
-			return ((Entity)entity).getSha1();
-		return null;
-	}
-	
-	@Override
-	public boolean equals(Object obj)
-	{
-		return super.equals(obj);
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
 	}
 
 }

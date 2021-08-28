@@ -14,17 +14,8 @@ import jrm.profile.data.Entry;
  *
  */
 @SuppressWarnings("serial")
-public class EntryWrongName extends Note implements Serializable
+public class EntryWrongName extends EntryExtNote implements Serializable
 {
-	/**
-	 * The related {@link Entity}
-	 */
-	final Entity entity;
-	/**
-	 * The entry wrongly named
-	 */
-	final Entry entry;
-
 	/**
 	 * The constructor
 	 * @param entity The related {@link Entity}
@@ -32,8 +23,7 @@ public class EntryWrongName extends Note implements Serializable
 	 */
 	public EntryWrongName(final Entity entity, final Entry entry)
 	{
-		this.entity = entity;
-		this.entry = entry;
+		super(entity, entry);
 	}
 
 	@Override
@@ -46,42 +36,6 @@ public class EntryWrongName extends Note implements Serializable
 	public String getHTML()
 	{
 		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryWrongName.Wrong")), toBlue(parent.ware.getFullName()), toBold(entry.getName()), toBold(entity.getNormalizedName()))); //$NON-NLS-1$
-	}
-
-	@Override
-	public String getDetail()
-	{
-		return getExpectedEntity(entity) + getCurrentEntry(entry);
-	}
-
-	@Override
-	public String getName()
-	{
-		return entity.getBaseName();
-	}
-
-	@Override
-	public String getCrc()
-	{
-		return entity.getCrc();
-	}
-
-	@Override
-	public String getSha1()
-	{
-		return entity.getSha1();
-	}
-	
-	@Override
-	public boolean equals(Object obj)
-	{
-		return super.equals(obj);
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
 	}
 
 }

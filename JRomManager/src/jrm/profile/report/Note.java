@@ -31,6 +31,8 @@ public abstract class Note implements HTMLRenderer, Serializable
 
 	public abstract String getCrc();
 
+	public abstract String getMd5();
+
 	public abstract String getSha1();
 
 	public int getId()
@@ -52,6 +54,8 @@ public abstract class Note implements HTMLRenderer, Serializable
 	
 	protected String getExpectedEntity(EntityBase entity)
 	{
+		if (entity == null)
+			return "";
 		String msg = "";
 		msg += "== Expected == \n";
 		msg += "Name : " + entity.getBaseName() + "\n";
@@ -68,6 +72,8 @@ public abstract class Note implements HTMLRenderer, Serializable
 
 	protected String getCurrentEntry(Entry entry)
 	{
+		if (entry == null)
+			return "";
 		String msg = "";
 		msg += "== Current == \n";
 		msg += "Name : " + entry.getName() + "\n";

@@ -1,9 +1,5 @@
 package jrm.profile.report;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,34 +11,9 @@ import jrm.profile.data.Container;
  * @author optyfr
  *
  */
-public class ContainerTZip extends Subject implements Serializable
+public class ContainerTZip extends ContainerSubject implements Serializable
 {
-	private static final String CONTAINER_STR = "container";
-
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * The {@link Container} in relation
-	 */
-	Container container;
-
-	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
-		new ObjectStreamField(CONTAINER_STR, Container.class)
-	};
-
-	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
-	{
-		final ObjectOutputStream.PutField fields = stream.putFields();
-		fields.put(CONTAINER_STR, container);
-		stream.writeFields();
-	}
-
-	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
-	{
-		final ObjectInputStream.GetField fields = stream.readFields();
-		container = (Container)fields.get(CONTAINER_STR, null);
-	}
-
+	private static final long serialVersionUID = 2L;
 
 	/**
 	 * Constructor with no related {@link AnywareBase} (set to <code>null</code>), but a related {@link Container}
@@ -50,8 +21,7 @@ public class ContainerTZip extends Subject implements Serializable
 	 */
 	public ContainerTZip(final Container c)
 	{
-		super(null);
-		container = c;
+		super(c);
 	}
 
 	@Override
@@ -61,33 +31,8 @@ public class ContainerTZip extends Subject implements Serializable
 	}
 
 	@Override
-	public String getHTML()
-	{
-		return toString();
-	}
-	
-	@Override
 	public Subject clone(final List<FilterOptions> filterOptions)
 	{
 		return new ContainerTZip(container);
 	}
-
-	@Override
-	public void updateStats()
-	{
-		// do nothing
-	}
-	
-	@Override
-	public boolean equals(Object o)
-	{
-		return super.equals(o);
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
-	}
-
 }

@@ -178,36 +178,67 @@ public class Entry implements Serializable
 	public boolean equals(final Object obj)
 	{
 		if(obj instanceof Entry)
-		{
-			if(((Entry) obj).sha1 != null && sha1 != null)
-				return ((Entry) obj).sha1.equals(sha1);
-			if(((Entry) obj).md5 != null && md5 != null)
-				return ((Entry) obj).md5.equals(md5);
-			if(((Entry) obj).crc != null && crc != null)
-				return ((Entry) obj).crc.equals(crc) && ((Entry) obj).size == size;
-			if(((Entry) obj).modified != 0 && modified != 0)
-				return ((Entry) obj).modified == modified && ((Entry) obj).size == size;
-		}
-		else if(obj instanceof Rom)
-		{
-			if(((Rom) obj).sha1 != null && sha1 != null)
-				return ((Rom) obj).sha1.equals(sha1);
-			if(((Rom) obj).md5 != null && md5 != null)
-				return ((Rom) obj).md5.equals(md5);
-			if(((Rom) obj).crc != null && crc != null)
-				return ((Rom) obj).crc.equals(crc) && ((Rom) obj).size == size;
-		}
-		else if(obj instanceof Disk)
-		{
-			if(((Disk) obj).sha1 != null && sha1 != null)
-				return ((Disk) obj).sha1.equals(sha1);
-			if(((Disk) obj).md5 != null && md5 != null)
-				return ((Disk) obj).md5.equals(md5);
-		}
-		else if(obj instanceof Sample)
-		{
-			return ((Sample)obj).getNormalizedName().equals(this.getName());
-		}
+			return equalsEntry(obj);
+		if(obj instanceof Rom)
+			return equalsRom(obj);
+		if(obj instanceof Disk)
+			return equalsDisk(obj);
+		if(obj instanceof Sample)
+			return equalsSample(obj);
+		return super.equals(obj);
+	}
+
+	/**
+	 * @param obj
+	 * @return
+	 */
+	protected boolean equalsSample(final Object obj)
+	{
+		return ((Sample)obj).getNormalizedName().equals(this.getName());
+	}
+
+	/**
+	 * @param obj
+	 * @return
+	 */
+	protected boolean equalsDisk(final Object obj)
+	{
+		if(((Disk) obj).sha1 != null && sha1 != null)
+			return ((Disk) obj).sha1.equals(sha1);
+		if(((Disk) obj).md5 != null && md5 != null)
+			return ((Disk) obj).md5.equals(md5);
+		return super.equals(obj);
+	}
+
+	/**
+	 * @param obj
+	 * @return
+	 */
+	protected boolean equalsRom(final Object obj)
+	{
+		if(((Rom) obj).sha1 != null && sha1 != null)
+			return ((Rom) obj).sha1.equals(sha1);
+		if(((Rom) obj).md5 != null && md5 != null)
+			return ((Rom) obj).md5.equals(md5);
+		if(((Rom) obj).crc != null && crc != null)
+			return ((Rom) obj).crc.equals(crc) && ((Rom) obj).size == size;
+		return super.equals(obj);
+	}
+
+	/**
+	 * @param obj
+	 * @return
+	 */
+	protected boolean equalsEntry(final Object obj)
+	{
+		if(((Entry) obj).sha1 != null && sha1 != null)
+			return ((Entry) obj).sha1.equals(sha1);
+		if(((Entry) obj).md5 != null && md5 != null)
+			return ((Entry) obj).md5.equals(md5);
+		if(((Entry) obj).crc != null && crc != null)
+			return ((Entry) obj).crc.equals(crc) && ((Entry) obj).size == size;
+		if(((Entry) obj).modified != 0 && modified != 0)
+			return ((Entry) obj).modified == modified && ((Entry) obj).size == size;
 		return super.equals(obj);
 	}
 
