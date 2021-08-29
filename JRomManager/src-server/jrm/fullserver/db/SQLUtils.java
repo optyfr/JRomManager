@@ -159,18 +159,13 @@ public interface SQLUtils
 			case CHAR:
 			case NCHAR:
 			case NCLOB:
-				if(value == null || value.length()==0)
-					return " DEFAULT " + (notNull?"''":"NULL");
-				return " DEFAULT '" + value + "'";
+				return getCharDefaultValue(value, notNull);
 			case BOOLEAN:
-				if(value == null || value.length()==0)
-					return " DEFAULT " + (notNull?"FALSE":"NULL");
-				if(value.length()>0)
-					return " DEFAULT " + value;
-				return "";
+				return getBoolDefaultValue(value, notNull);
 			case INTEGER:
 			case TINYINT:
 			case SMALLINT:
+				return getIntDefaultValue(value, notNull);
 			default:
 				if(value == null || value.length()==0)
 					return " DEFAULT " + (notNull?"0":"NULL");
@@ -178,6 +173,46 @@ public interface SQLUtils
 					return " DEFAULT " + value;
 				return "";
 		}
+	}
+
+	/**
+	 * @param value
+	 * @param notNull
+	 * @return
+	 */
+	default String getIntDefaultValue(String value, boolean notNull)
+	{
+		if(value == null || value.length()==0)
+			return " DEFAULT " + (notNull?"0":"NULL");
+		if(value.length()>0)
+			return " DEFAULT " + value;
+		return "";
+	}
+
+	/**
+	 * @param value
+	 * @param notNull
+	 * @return
+	 */
+	default String getBoolDefaultValue(String value, boolean notNull)
+	{
+		if(value == null || value.length()==0)
+			return " DEFAULT " + (notNull?"FALSE":"NULL");
+		if(value.length()>0)
+			return " DEFAULT " + value;
+		return "";
+	}
+
+	/**
+	 * @param value
+	 * @param notNull
+	 * @return
+	 */
+	default String getCharDefaultValue(String value, boolean notNull)
+	{
+		if(value == null || value.length()==0)
+			return " DEFAULT " + (notNull?"''":"NULL");
+		return " DEFAULT '" + value + "'";
 	}
 	
 	public default Number val(String str)

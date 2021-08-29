@@ -1,14 +1,15 @@
 package jrm.server.shared.datasources;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.xml.stream.XMLStreamException;
 
 import jrm.batch.Compressor.FileResult;
 import jrm.server.shared.datasources.XMLRequest.Operation;
+import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
 
 public class BatchCompressorFRXMLResponse extends XMLResponse
@@ -34,14 +35,8 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 		writer.writeElement("endRow", Integer.toString(request.getSession().getCachedCompressorList().size() - 1));
 		writer.writeElement("totalRows", Integer.toString(request.getSession().getCachedCompressorList().size()));
 		writer.writeStartElement("data");
-		for(Entry<String, FileResult> sr : request.getSession().getCachedCompressorList().entrySet())
-		{
-			writer.writeElement(RECORD, 
-				new SimpleAttribute("id", sr.getKey()),
-				new SimpleAttribute("file", sr.getValue().getFile()),
-				new SimpleAttribute(RESULT, sr.getValue().getResult())
-			);
-		}
+		for(final var sr : request.getSession().getCachedCompressorList().entrySet())
+			writeRecord(writer, sr.getKey(), sr.getValue().getFile(), sr.getValue().getResult());
 		writer.writeEndElement();
 		writer.writeEndElement();
 	}
@@ -57,11 +52,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 			writer.writeStartElement(RESPONSE);
 			writer.writeElement(STATUS, "0");
 			writer.writeStartElement("data");
-			writer.writeElement(RECORD, 
-				new SimpleAttribute("id", id),
-				new SimpleAttribute("file", fr.getFile()),
-				new SimpleAttribute(RESULT, fr.getResult())
-			);
+			writeRecord(writer, id, fr.getFile(), fr.getResult());
 			writer.writeEndElement();
 			writer.writeEndElement();
 		}
@@ -72,37 +63,42 @@ public class BatchCompressorFRXMLResponse extends XMLResponse
 	@Override
 	protected void update(Operation operation) throws XMLStreamException
 	{
-		if(operation.hasData("id"))
+		if(!operation.hasData("id"))
 		{
-			final String id = operation.getData("id");
-			final FileResult fr = request.getSession().getCachedCompressorList().get(id);
-			if(fr!=null)
-			{
-				if(operation.hasData("file") || operation.hasData(RESULT))
-				{
-					if(operation.hasData("file"))
-						fr.setFile(Paths.get(operation.getData("file")));
-					if(operation.hasData(RESULT))
-						fr.setResult(operation.getData(RESULT));
-					writer.writeStartElement(RESPONSE);
-					writer.writeElement(STATUS, "0");
-					writer.writeStartElement("data");
-					writer.writeElement(RECORD, 
-						new SimpleAttribute("id", id),
-						new SimpleAttribute("file", fr.getFile()),
-						new SimpleAttribute(RESULT, fr.getResult())
-					);
-					writer.writeEndElement();
-					writer.writeEndElement();
-				}
-				else
-					failure("field to update is missing in request");
-			}
-			else
-				failure(id + " not in list");
-		}
-		else
 			failure("id is missing in request");
+			return;
+		}
+		final String id = operation.getData("id");
+		final FileResult fr = request.getSession().getCachedCompressorList().get(id);
+		if (fr == null)
+		{
+			failure(id + " not in list");
+			return;
+		}
+		if (!operation.hasData("file") && !operation.hasData(RESULT))
+		{
+			failure("field to update is missing in request");
+			return;
+		}
+		if(operation.hasData("file"))
+			fr.setFile(Paths.get(operation.getData("file")));
+		if(operation.hasData(RESULT))
+			fr.setResult(operation.getData(RESULT));
+		writer.writeStartElement(RESPONSE);
+		writer.writeElement(STATUS, "0");
+		writer.writeStartElement("data");
+		writeRecord(writer, id, fr.getFile(), fr.getResult());
+		writer.writeEndElement();
+		writer.writeEndElement();
+	}
+	
+	private void writeRecord(EnhancedXMLStreamWriter writer, String id, Path file, String result) throws XMLStreamException
+	{
+		writer.writeElement(RECORD, 
+			new SimpleAttribute("id", id),
+			new SimpleAttribute("file", file),
+			new SimpleAttribute(RESULT, result)
+		);
 	}
 	
 	@Override

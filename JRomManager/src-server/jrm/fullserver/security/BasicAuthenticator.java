@@ -17,6 +17,7 @@ import org.eclipse.jetty.security.authentication.DeferredAuthentication;
 import org.eclipse.jetty.security.authentication.LoginAuthenticator;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.server.Authentication.User;
+import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.util.security.Constraint;
 
 /**
@@ -42,37 +43,15 @@ public class BasicAuthenticator extends LoginAuthenticator
 	{
 		HttpServletRequest request = (HttpServletRequest)req;
 		HttpServletResponse response = (HttpServletResponse)res;
-		String credentials = request.getHeader(HttpHeader.AUTHORIZATION.asString());
 
 		try
 		{
-			if(!mandatory) return new DeferredAuthentication(this);
+			if (!mandatory)
+				return new DeferredAuthentication(this);
 
-			if(credentials != null)
-			{
-				int space = credentials.indexOf(' ');
-				if(space > 0)
-				{
-					final var method = credentials.substring(0, space);
-					if("basic".equalsIgnoreCase(method))
-					{
-						credentials = credentials.substring(space + 1);
-						credentials = new String(Base64.getDecoder().decode(credentials), StandardCharsets.UTF_8);
-						int i = credentials.indexOf(':');
-						if(i > 0)
-						{
-							final var username = credentials.substring(0, i);
-							final var password = credentials.substring(i + 1);
-
-							final var user = login(username, password, request);
-							if(user != null)
-							{
-								return new UserAuthentication(getAuthMethod(), user);
-							}
-						}
-					}
-				}
-			}
+			final var user = getIdentity(request);
+			if (user != null)
+				return new UserAuthentication(getAuthMethod(), user);
 
 			if (DeferredAuthentication.isDeferred(response))
 				return Authentication.UNAUTHENTICATED;
@@ -85,6 +64,32 @@ public class BasicAuthenticator extends LoginAuthenticator
 		{
 			throw new ServerAuthException(e);
 		}
+	}
+	
+	private UserIdentity getIdentity(HttpServletRequest request)
+	{
+		final var auth = request.getHeader(HttpHeader.AUTHORIZATION.asString());
+		if (auth != null)
+		{
+			int space = auth.indexOf(' ');
+			if (space > 0)
+			{
+				final var method = auth.substring(0, space);
+				if ("basic".equalsIgnoreCase(method))
+				{
+					final var credentials = auth.substring(space + 1).trim();
+					final var decoded = new String(Base64.getDecoder().decode(credentials), StandardCharsets.UTF_8);
+					int i = decoded.indexOf(':');
+					if (i > 0)
+					{
+						final var username = decoded.substring(0, i);
+						final var password = decoded.substring(i + 1);
+						return login(username, password, request);
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override

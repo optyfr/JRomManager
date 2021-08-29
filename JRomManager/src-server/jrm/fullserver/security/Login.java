@@ -48,6 +48,7 @@ public class Login extends SQL implements LoginService
 	private static final HashMap<String, UserIdentity> cache = new HashMap<>();
 	private static long cachetime = System.currentTimeMillis();
 
+	@SuppressWarnings("exports")
 	@Override
 	public UserIdentity login(String username, Object credentials, ServletRequest request)
 	{
@@ -63,6 +64,18 @@ public class Login extends SQL implements LoginService
 					sess = (WebSession) session.getAttribute("session");
 			}
 		}
+		return login(username, credentials, sessionid, sess);
+	}
+
+	/**
+	 * @param username
+	 * @param credentials
+	 * @param sessionid
+	 * @param sess
+	 * @return
+	 */
+	private UserIdentity login(String username, Object credentials, String sessionid, WebSession sess)
+	{
 		synchronized (cache)
 		{
 			if (60000 < (System.currentTimeMillis() - cachetime))
@@ -98,6 +111,7 @@ public class Login extends SQL implements LoginService
 		return null;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public boolean validate(UserIdentity user)
 	{
@@ -108,18 +122,21 @@ public class Login extends SQL implements LoginService
 		return false;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public IdentityService getIdentityService()
 	{
 		return identityService;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void setIdentityService(IdentityService service)
 	{
 		// disabled
 	}
 
+	@SuppressWarnings("exports")
 	@Override
 	public void logout(UserIdentity user)
 	{

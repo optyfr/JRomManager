@@ -65,48 +65,60 @@ public class AnywareXMLResponse extends XMLResponse
 			writer.writeAttribute("name", e.getBaseName());
 			writer.writeAttribute(STATUS, e.getStatus().toString());
 			if (e instanceof Rom)
-			{
-				Rom r = (Rom)e;
-				writer.writeAttribute("type", "ROM");
-				if(r.getSize()>0)
-					writer.writeAttribute("size", Long.toString(r.getSize()));
-				if(r.getCrc()!=null)
-					writer.writeAttribute("crc", r.getCrc());
-				if(r.getMd5()!=null)
-					writer.writeAttribute("md5", r.getMd5());
-				if(r.getSha1()!=null)
-					writer.writeAttribute("sha1", r.getSha1());
-				if(r.getMerge()!=null)
-					writer.writeAttribute("merge", r.getMerge());
-				if(r.getDumpStatus()!=null)
-					writer.writeAttribute("dumpstatus", r.getDumpStatus().toString());
-			}
+				writeRomInfos((Rom)e);
 			else if (e instanceof Disk)
-			{
-				Disk d = (Disk)e;
-				writer.writeAttribute("type", "DISK");
-				if(d.getSize()>0)
-					writer.writeAttribute("size", Long.toString(d.getSize()));
-				if(d.getCrc()!=null)
-					writer.writeAttribute("crc", d.getCrc());
-				if(d.getMd5()!=null)
-					writer.writeAttribute("md5", d.getMd5());
-				if(d.getSha1()!=null)
-					writer.writeAttribute("sha1", d.getSha1());
-				if(d.getMerge()!=null)
-					writer.writeAttribute("merge", d.getMerge());
-				if(d.getDumpStatus()!=null)
-					writer.writeAttribute("dumpstatus", d.getDumpStatus().toString());
-			}
+				writeDiskInfos((Disk)e);
 			else if (e instanceof Sample)
-			{
 				writer.writeAttribute("type", "SAMPLE");
-			}
 		}
 		catch (XMLStreamException ex)
 		{
 			Log.err(ex.getMessage(),ex);
 		}
+	}
+
+
+	/**
+	 * @param d
+	 * @throws XMLStreamException
+	 */
+	protected void writeDiskInfos(Disk d) throws XMLStreamException
+	{
+		writer.writeAttribute("type", "DISK");
+		if(d.getSize()>0)
+			writer.writeAttribute("size", Long.toString(d.getSize()));
+		if(d.getCrc()!=null)
+			writer.writeAttribute("crc", d.getCrc());
+		if(d.getMd5()!=null)
+			writer.writeAttribute("md5", d.getMd5());
+		if(d.getSha1()!=null)
+			writer.writeAttribute("sha1", d.getSha1());
+		if(d.getMerge()!=null)
+			writer.writeAttribute("merge", d.getMerge());
+		if(d.getDumpStatus()!=null)
+			writer.writeAttribute("dumpstatus", d.getDumpStatus().toString());
+	}
+
+
+	/**
+	 * @param r
+	 * @throws XMLStreamException
+	 */
+	protected void writeRomInfos(Rom r) throws XMLStreamException
+	{
+		writer.writeAttribute("type", "ROM");
+		if(r.getSize()>0)
+			writer.writeAttribute("size", Long.toString(r.getSize()));
+		if(r.getCrc()!=null)
+			writer.writeAttribute("crc", r.getCrc());
+		if(r.getMd5()!=null)
+			writer.writeAttribute("md5", r.getMd5());
+		if(r.getSha1()!=null)
+			writer.writeAttribute("sha1", r.getSha1());
+		if(r.getMerge()!=null)
+			writer.writeAttribute("merge", r.getMerge());
+		if(r.getDumpStatus()!=null)
+			writer.writeAttribute("dumpstatus", r.getDumpStatus().toString());
 	}
 	
 	@Override

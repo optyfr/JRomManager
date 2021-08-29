@@ -16,7 +16,6 @@ import jrm.server.shared.actions.CatVerActions;
 import jrm.server.shared.actions.NPlayersActions;
 import jrm.server.shared.actions.ProfileActions;
 import jrm.server.shared.lpr.LongPollingReqMgr;
-import lombok.val;
 
 @SuppressWarnings("serial")
 public class ActionServlet extends HttpServlet
@@ -118,39 +117,39 @@ public class ActionServlet extends HttpServlet
 	 */
 	private void doLPR(HttpServletResponse resp, WebSession sess)
 	{
-		if (!WebSession.isTerminate())
+		if (WebSession.isTerminate())
 		{
-			try
+			resp.setStatus(HttpServletResponse.SC_GONE);
+			return;
+		}
+		try
+		{
+			var msg = sess.getLprMsg().poll(20, TimeUnit.SECONDS);
+			if (msg == null && WebSession.isTerminate())
+				resp.setStatus(HttpServletResponse.SC_GONE);
+			else
 			{
-				val msgs = new ArrayList<String>();
-				var msg = sess.getLprMsg().poll(20, TimeUnit.SECONDS);
-				if (msg == null && WebSession.isTerminate())
-					resp.setStatus(HttpServletResponse.SC_GONE);
-				else
+				final var msgs = new ArrayList<String>();
+				msgs.add(msg);
+				while (msgs.size() <= 100)
 				{
+					if (null == (msg = sess.getLprMsg().poll()))
+						break;
 					msgs.add(msg);
-					while (msgs.size() <= 100)
-					{
-						if (null == (msg = sess.getLprMsg().poll()))
-							break;
-						msgs.add(msg);
-					}
-					msg = encapsulate(msgs);
-					sendResp(resp, msg);
 				}
-			}
-			catch (InterruptedException e)
-			{
-				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				Thread.currentThread().interrupt();
-			}
-			catch (IOException e)
-			{
-				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				msg = encapsulate(msgs);
+				sendResp(resp, msg);
 			}
 		}
-		else
-			resp.setStatus(HttpServletResponse.SC_GONE);
+		catch (InterruptedException e)
+		{
+			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			Thread.currentThread().interrupt();
+		}
+		catch (IOException e)
+		{
+			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	/**

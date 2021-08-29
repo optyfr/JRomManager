@@ -102,26 +102,26 @@ class H2 extends DB
 				if (ext.equalsIgnoreCase("mv") || ext.equalsIgnoreCase("h2"))
 					ext = FilenameUtils.getExtension(FilenameUtils.getBaseName(FilenameUtils.getBaseName(name))).toLowerCase();
 			}
-			if("sys".equals(ext))
+			if ("sys".equals(ext))
 				basepath = settings.getBasePath();
-			if (full && !name.endsWith(".db"))
-				return basepath.resolve(name + (MV_STORE ? ".mv.db" : ".h2.db"));
-			else if (!full && name.endsWith(".db"))
-				return basepath.resolve(name.substring(0, name.length() - 6));
-			else
-				return basepath.resolve(name);
+			return basepath.resolve(resolveName(name, full));
 		}
 		else
 		{
-			if (full && !name.endsWith(".db"))
-				return Paths.get(name + (MV_STORE ? ".mv.db" : ".h2.db"));
-			else if (!full && name.endsWith(".db"))
-				return Paths.get(name.substring(0, name.length() - 6));
-			else
-				return Paths.get(name);
+			return resolveName(name, full);
 		}
 	}
 
+	private Path resolveName(String name, final boolean full)
+	{
+		if (full && !name.endsWith(".db"))
+			return Paths.get(name + (MV_STORE ? ".mv.db" : ".h2.db"));
+		else if (!full && name.endsWith(".db"))
+			return Paths.get(name.substring(0, name.length() - 6));
+		else
+			return Paths.get(name);
+	}
+	
 	private Path getDBPath(final String name)
 	{
 		return getDBPath(name, false);
