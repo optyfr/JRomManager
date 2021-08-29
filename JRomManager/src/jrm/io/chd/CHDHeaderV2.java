@@ -18,29 +18,10 @@ package jrm.io.chd;
 
 import java.nio.MappedByteBuffer;
 
-class CHDHeaderV2 extends CHDHeader implements CHDHeaderIntf
+class CHDHeaderV2 extends CHDHeaderMD5
 {
-	private final String md5;
-
 	public CHDHeaderV2(final MappedByteBuffer bb, final CHDHeader header)
 	{
-		super();
-		tag = header.tag;
-		len = header.len;
-		version = header.version;
-		md5 = getHash(bb, 44, 16);
+		super(bb, header, 44);
 	}
-
-	@Override
-	public String getSHA1()
-	{
-		return null;
-	}
-
-	@Override
-	public String getMD5()
-	{
-		return md5;
-	}
-
 }

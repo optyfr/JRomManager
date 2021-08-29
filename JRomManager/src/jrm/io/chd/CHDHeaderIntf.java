@@ -45,11 +45,17 @@ interface CHDHeaderIntf
 	 * get the SHA1 (for uncompressed data), null if not reported by header
 	 * @return the SHA1 string or null
 	 */
-	public String getSHA1();
+	public default String getSHA1()
+	{
+		return null;
+	}
 
 	/**
 	 * get the MD5 (for uncompressed data), null if not reported by header
 	 * @return the MD5 string or null
 	 */
-	public String getMD5();
+	public default String getMD5()
+	{
+		return null;
+	}
 }
