@@ -41,8 +41,6 @@ module jrmcore
 	requires org.apache.commons.text;
 	requires minimal.json;
 	requires trrntzip;
-//	requires sevenzipjbinding;
-//	requires sevenzipjbinding.all;
 	requires SevenZipJBindingAllInOne;
 	requires java.management;
 }

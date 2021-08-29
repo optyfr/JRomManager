@@ -108,7 +108,7 @@ public @UtilityClass class Utils
 	public static void printByte(byte b)
 	{
 		String s1 = String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0'); //$NON-NLS-1$
-		System.out.println(s1); // 10000001
+		System.out.println(s1);//NOSONAR // 10000001
 	}
 
 	/**

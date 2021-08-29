@@ -27,8 +27,7 @@ import java.util.Map;
 public class BDictionary implements IBencodable
 {
 	private final Map<BByteString, IBencodable> dictionary;
-	private byte[] blob;
-
+//	
 	public BDictionary()
 	{
 		// LinkedHashMap to preserve order.

@@ -27,7 +27,6 @@ import java.util.List;
  */
 public class BList implements IBencodable
 {
-	private byte[] blob;
 	private final List<IBencodable> list;
 
 	public BList()

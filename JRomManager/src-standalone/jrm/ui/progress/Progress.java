@@ -319,6 +319,16 @@ public class Progress extends JDialog
 				startTime = System.currentTimeMillis();
 			showTimeLeft(startTime, val, progressBar, lblTimeleft);
 		}
+		subMsg(offset, val, submsg);
+	}
+
+	/**
+	 * @param offset
+	 * @param val
+	 * @param submsg
+	 */
+	protected void subMsg(final int offset, final Integer val, final String submsg)
+	{
 		if (submsg != null || MOINS_UN.equals(val))
 		{
 			if (lblSubInfo.length == 1)

@@ -26,7 +26,6 @@ import jrm.io.torrent.bencoding.Utils;
  */
 public class BInt implements IBencodable
 {
-	private byte[] blob;
 	private final Long value;
 
 	public BInt(Long value)
