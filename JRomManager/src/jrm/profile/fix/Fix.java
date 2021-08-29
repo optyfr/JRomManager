@@ -76,30 +76,10 @@ public class Fix
 			if(!actions.isEmpty())
 			{
 				final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
-				// resets progression parallelism (needed since thread IDs may change between to parallel streaming)
+				// resets progression parallelism (needed since thread IDs may change between two parallel streaming)
 				progress.setInfos(nThreads, useParallelism);
-				new MultiThreading<ContainerAction>(nThreads, action -> {
-					if (progress.isCancel())
-						return;
-					try
-					{
-						if (!action.doAction(currProfile.getSession(), progress)) // do action...
-							progress.cancel(); // ... and cancel all if it failed
-						else
-							done.add(action); // add to "done" list successful action
-						progress.setProgress("", i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression
-					}
-					catch (final BreakException be)
-					{	// special catch case from BreakException thrown from underlying streams
-						progress.cancel();
-					}
-					catch (final Exception e)
-					{	// oups! something unexpected happened
-						progress.setProgress("");
-						Log.err(e.getMessage(), e);
-					}
-					return;
-				}).start(actions.stream().sorted(ContainerAction.rcomparator()));
+				new MultiThreading<ContainerAction>(nThreads, action -> doAction(currProfile, progress, i, done, action))
+					.start(actions.stream().sorted(ContainerAction.rcomparator()));
 				// close all open FS from backup (if the last actions was backup)
 				if (!done.isEmpty() && done.get(0) instanceof BackupContainer)
 					BackupContainer.closeAllFS();
@@ -117,6 +97,37 @@ public class Fix
 		
 		// output to console timing information
 		Log.info(()->"Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
+	}
+
+
+	/**
+	 * @param currProfile
+	 * @param progress
+	 * @param i
+	 * @param done
+	 * @param action
+	 */
+	private void doAction(final Profile currProfile, final ProgressHandler progress, final AtomicInteger i, final List<ContainerAction> done, ContainerAction action)
+	{
+		if (progress.isCancel())
+			return;
+		try
+		{
+			if (!action.doAction(currProfile.getSession(), progress)) // do action...
+				progress.cancel(); // ... and cancel all if it failed
+			else
+				done.add(action); // add to "done" list successful action
+			progress.setProgress("", i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression
+		}
+		catch (final BreakException be)
+		{	// special catch case from BreakException thrown from underlying streams
+			progress.cancel();
+		}
+		catch (final Exception e)
+		{	// oups! something unexpected happened
+			progress.setProgress("");
+			Log.err(e.getMessage(), e);
+		}
 	}
 
 	

@@ -15,19 +15,19 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.zip.CRC32;
 
 import jrm.aui.batch.TrntChkReportTreeHandler;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
+import jrm.profile.report.ReportFile;
 import jrm.profile.report.Subject;
 import jrm.security.Session;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-public final class TrntChkReport implements Serializable, HTMLRenderer
+public final class TrntChkReport implements Serializable, HTMLRenderer, ReportFile
 {
 	private static final long serialVersionUID = 4L;
 	
@@ -202,30 +202,18 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 		return sb.toString();
 	}
 
+	@Override
 	public File getFile()
 	{
 		return this.file;
 	}
 	
+	@Override
 	public long getFileModified()
 	{
 		return fileModified;
 	}
 	
-	public File getReportFile(final Session session)
-	{
-		return getReportFile(session, getFile());
-	}
-
-	public static File getReportFile(final Session session, final File file)
-	{
-		final CRC32 crc = new CRC32();
-		crc.update(file.getAbsolutePath().getBytes());
-		final File reports = session.getUser().getSettings().getWorkPath().resolve("reports").toFile(); //$NON-NLS-1$
-		reports.mkdirs();
-		return new File(reports, String.format("%08x", crc.getValue()) + ".tc_report"); //$NON-NLS-1$
-	}
-
 	public void save(final File file)
 	{
 		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file))))
@@ -240,11 +228,11 @@ public final class TrntChkReport implements Serializable, HTMLRenderer
 	
 	public static TrntChkReport load(final Session session, final File file)
 	{
-		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(getReportFile(session, file)))))
+		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(ReportFile.getReportFile(session, file)))))
 		{
 			final TrntChkReport report = (TrntChkReport)ois.readObject();
 			report.file = file;
-			report.fileModified = getReportFile(session, file).lastModified();
+			report.fileModified = ReportFile.getReportFile(session, file).lastModified();
 			return report;
 		}
 		catch (final Exception e)

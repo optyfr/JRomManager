@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.zip.CRC32;
 
 import jrm.aui.profile.report.ReportTreeDefaultHandler;
 import jrm.aui.profile.report.ReportTreeHandler;
@@ -60,7 +59,7 @@ import one.util.streamex.IntStreamEx;
  * @author optyfr
  *
  */
-public class Report extends AbstractList<Subject> implements HTMLRenderer, Serializable
+public class Report extends AbstractList<Subject> implements HTMLRenderer, Serializable, ReportFile
 {
 	private static final String STATS_STR = "stats";
 	private static final String SUBJECTS_STR = "subjects";
@@ -586,29 +585,16 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 
 	}
 
-
+	@Override
 	public File getFile()
 	{
 		return this.profile!=null?this.profile.getNfo().getFile():this.file;
 	}
 	
+	@Override
 	public long getFileModified()
 	{
 		return fileModified;
-	}
-	
-	public File getReportFile(final Session session)
-	{
-		return getReportFile(session, getFile());
-	}
-
-	public static File getReportFile(final Session session, final File file)
-	{
-		final CRC32 crc = new CRC32();
-		crc.update(file.getAbsolutePath().getBytes());
-		final File reports = session.getUser().getSettings().getWorkPath().resolve("reports").toFile(); //$NON-NLS-1$
-		reports.mkdirs();
-		return new File(reports, String.format("%08x", crc.getValue()) + ".report"); //$NON-NLS-1$
 	}
 
 	public void save(final Session session)
@@ -630,11 +616,11 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	
 	public static Report load(final Session session, final File file)
 	{
-		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(getReportFile(session, file)))))
+		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(ReportFile.getReportFile(session, file)))))
 		{
 			Report report = (Report)ois.readObject();
 			report.file = file;
-			report.fileModified = getReportFile(session, file).lastModified();
+			report.fileModified = ReportFile.getReportFile(session, file).lastModified();
 			report.handler = new ReportTreeDefaultHandler(report);
 			return report;
 		}
