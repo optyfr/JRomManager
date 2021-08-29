@@ -16,17 +16,7 @@
  */
 package jrm.ui.profile.report;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
-import javax.swing.tree.DefaultTreeModel;
-
 import jrm.aui.profile.report.ReportTreeHandler;
-import jrm.profile.report.FilterOptions;
 import jrm.profile.report.Report;
 
 /**
@@ -35,15 +25,8 @@ import jrm.profile.report.Report;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public final class ReportTreeModel extends DefaultTreeModel implements ReportTreeHandler<Report>
+public final class ReportTreeModel extends ReportTreeModelGeneric<Report>
 {
-	
-	/** The org root. */
-	private Report orgRoot;
-	
-	/** The filter options. */
-	private List<FilterOptions> filterOptions = new ArrayList<>();
-
 	/**
 	 * Instantiates a new report tree model.
 	 *
@@ -66,81 +49,11 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 		orgRoot.setHandler(this);
 	}
 	
-	
-	/**
-	 * Inits the clone.
-	 */
-	public void initClone()
-	{
-		setRoot(new ReportNode(orgRoot.clone(filterOptions)));
-	}
-
-	/**
-	 * Filter.
-	 *
-	 * @param filterOptions the filter options
-	 */
-	@SuppressWarnings("exports")
 	@Override
-	public void filter(final FilterOptions... filterOptions)
+	public ReportNode getNodeInstance(Report report)
 	{
-		filter(Arrays.asList(filterOptions));
-	}
-
-	/**
-	 * Filter.
-	 *
-	 * @param filterOptions the filter options
-	 */
-	@SuppressWarnings("exports")
-	public void filter(final List<FilterOptions> filterOptions)
-	{
-		this.filterOptions = filterOptions;
-		setRoot(new ReportNode(orgRoot.clone(filterOptions)));
-	}
-
-	/**
-	 * Gets the filter options.
-	 *
-	 * @return the filter options
-	 */
-	@SuppressWarnings("exports")
-	public EnumSet<FilterOptions> getFilterOptions()
-	{
-		if(filterOptions.isEmpty())
-			return EnumSet.noneOf(FilterOptions.class);
-		return EnumSet.copyOf(filterOptions);
-	}
-
-	@SuppressWarnings("exports")
-	@Override
-	public Report getFilteredReport()
-	{
-		return ((ReportNode)getRoot()).getReport();
-	}
-
-	@SuppressWarnings("exports")
-	@Override
-	public Report getOriginalReport()
-	{
-		return orgRoot;
-	}
-
-	@Override
-	public boolean hasListeners()
-	{
-		return getTreeModelListeners().length>0;
+		return new ReportNode(report);
 	}
 	
-	@Override
-	public void notifyInsertion(int[] childIndices, Object[] children)
-	{
-		if(getTreeModelListeners().length>0)
-		{
-			final TreeModelEvent event = new TreeModelEvent(this, getPathToRoot((ReportNode)getRoot()), childIndices, children);
-			for(final TreeModelListener l : getTreeModelListeners())
-				l.treeNodesInserted(event);
-		}
-	}
-	
+
 }

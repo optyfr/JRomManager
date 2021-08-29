@@ -9,18 +9,17 @@ import javax.swing.tree.TreeNode;
 
 import jrm.batch.TrntChkReport;
 import jrm.batch.TrntChkReport.Child;
+import jrm.ui.profile.report.ReportNodeGeneric;
 import lombok.Getter;
 
-public class BatchTrrntChkReportNode implements TreeNode
+public class BatchTrrntChkReportNode extends ReportNodeGeneric<TrntChkReport>
 {
-	private @Getter TrntChkReport report;
-	
 	private Map<Long,ChildNode> nodeCache = new HashMap<>();
 
 	@SuppressWarnings("exports")
 	public BatchTrrntChkReportNode(final TrntChkReport report)
 	{
-		this.report = report;
+		super(report);
 	}
 
 	@SuppressWarnings("exports")
@@ -52,22 +51,9 @@ public class BatchTrrntChkReportNode implements TreeNode
 
 	@SuppressWarnings("exports")
 	@Override
-	public TreeNode getParent()
-	{
-		return null;
-	}
-
-	@SuppressWarnings("exports")
-	@Override
 	public int getIndex(TreeNode node)
 	{
 		return report.getNodes().indexOf(((ChildNode)node).child);
-	}
-
-	@Override
-	public boolean getAllowsChildren()
-	{
-		return true;
 	}
 
 	@Override

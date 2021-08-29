@@ -12,16 +12,14 @@ import jrm.profile.report.Report;
 import jrm.profile.report.Subject;
 import lombok.Getter;
 
-public class ReportNode implements TreeNode
+public class ReportNode extends ReportNodeGeneric<Report>
 {
-	private final @Getter Report report;
-	
 	private final Map<Integer,SubjectNode> subjectNodeCache = new HashMap<>();
 
 	@SuppressWarnings("exports")
 	public ReportNode(final Report report)
 	{
-		this.report = report;
+		super(report);
 	}
 
 	@SuppressWarnings("exports")
@@ -44,22 +42,9 @@ public class ReportNode implements TreeNode
 
 	@SuppressWarnings("exports")
 	@Override
-	public TreeNode getParent()
-	{
-		return null;
-	}
-
-	@SuppressWarnings("exports")
-	@Override
 	public int getIndex(TreeNode node)
 	{
 		return report.getSubjects().indexOf(((SubjectNode)node).subject);
-	}
-
-	@Override
-	public boolean getAllowsChildren()
-	{
-		return true;
 	}
 
 	@Override
