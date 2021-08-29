@@ -16,17 +16,13 @@
  */
 package jrm.profile.filter;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.apache.commons.lang3.StringUtils;
 
 import jrm.locale.Messages;
 import lombok.Getter;
@@ -35,7 +31,7 @@ import lombok.Getter;
  * nplayers.ini management class
  * @author optyfr
  */
-public final class NPlayers implements Iterable<NPlayer>
+public final class NPlayers implements Iterable<NPlayer>, IniProcessor
 {
 	/**
 	 * The {@link List} of {@link NPlayer} modes
@@ -53,32 +49,21 @@ public final class NPlayers implements Iterable<NPlayer>
 	 */
 	private NPlayers(final File file) throws IOException
 	{
-		try(final var reader = new BufferedReader(new FileReader(file));)
-		{
-			final Map<String, NPlayer> nplayers = new TreeMap<>();
-			this.file = file;
-			String line;
-			var inSection = false;
-			while(null != (line = reader.readLine()))
-			{
-				if(line.equalsIgnoreCase("[NPlayers]")) //$NON-NLS-1$
-					inSection = true;
-				else if(line.startsWith("[") && inSection) //$NON-NLS-1$
-					break;
-				else if(inSection)
-				{
-					final String[] kv = StringUtils.split(line, '=');
-					if(kv.length == 2)
-					{
-						final var nplayer = nplayers.computeIfAbsent(kv[1].trim(), NPlayer::new);
-						nplayer.add(kv[0].trim());
-					}
-				}
-			}
-			listNPlayers.addAll(nplayers.values());
-			if(listNPlayers.isEmpty())
-				throw new IOException(Messages.getString("NPlayers.NoNPlayersData")); //$NON-NLS-1$
-		}
+		final Map<String, NPlayer> nplayers = new TreeMap<>();
+		this.file = file;
+		processFile(file, kv -> {
+			final var nplayer = nplayers.computeIfAbsent(kv[1].trim(), NPlayer::new);
+			nplayer.add(kv[0].trim());
+		});
+		listNPlayers.addAll(nplayers.values());
+		if(listNPlayers.isEmpty())
+			throw new IOException(Messages.getString("NPlayers.NoNPlayersData")); //$NON-NLS-1$
+	}
+
+	@Override
+	public String getSection()
+	{
+		return "[NPlayers]";
 	}
 
 	/**

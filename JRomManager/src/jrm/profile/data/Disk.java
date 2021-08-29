@@ -142,30 +142,46 @@ public class Disk extends Entity implements Serializable
 	 */
 	private static EntityStatus findDiskStatus(final Anyware parent, final Disk disk)
 	{
-		if (parent.parent != null) // find same disk in parent clone (if any and recursively)
+		if (parent.parent == null)
 		{
-			if (parent.profile.getSettings().getMergeMode().isMerge())
+			if (parent.isRomOf() && disk.merge != null)
+				return EntityStatus.OK;
+			return null;
+		}
+		 // find same disk in parent clone (if any and recursively)
+		if (parent.profile.getSettings().getMergeMode().isMerge())
+		{
+			final var status = findDiskStatusInClones(parent, disk);
+			if(status != null)
+				return status;
+		}
+		for (final Disk d : parent.getParent().getDisks())
+		{
+			if (disk.equals(d))
+				return d.getStatus();
+		}
+		if (parent.parent.parent != null)
+			return findDiskStatus(parent.getParent(), disk);
+		return null;
+	}
+
+	/**
+	 * @param parent
+	 * @param disk
+	 */
+	private static EntityStatus findDiskStatusInClones(final Anyware parent, final Disk disk)
+	{
+		for (final Anyware clone : parent.getParent().clones.values())
+		{
+			if (clone != parent)
 			{
-				for (final Anyware clone : parent.getParent().clones.values())
+				for (final Disk d : clone.getDisks())
 				{
-					if (clone != parent)
-						for (final Disk d : clone.getDisks())
-						{
-							if (disk.equals(d) && d.ownStatus != EntityStatus.UNKNOWN)
-								return d.ownStatus;
-						}
+					if (d.ownStatus != EntityStatus.UNKNOWN && disk.equals(d))
+						return d.ownStatus;
 				}
 			}
-			for (final Disk d : parent.getParent().getDisks())
-			{
-				if (disk.equals(d))
-					return d.getStatus();
-			}
-			if (parent.parent.parent != null)
-				return findDiskStatus(parent.getParent(), disk);
 		}
-		else if (parent.isRomOf() && disk.merge != null)
-			return EntityStatus.OK;
 		return null;
 	}
 

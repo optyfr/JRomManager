@@ -16,9 +16,7 @@
  */
 package jrm.profile.filter;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +37,7 @@ import lombok.Getter;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public final class CatVer implements Iterable<CatVer.Category>, PropertyStub
+public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, IniProcessor
 {
 	/**
 	 * class describing games category with sub-categories list
@@ -230,42 +228,32 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub
 	 */
 	private CatVer(final Profile profile, final File file) throws IOException
 	{
+		final Map<String, Category> categories = new TreeMap<>();
 		this.profile = profile;
-		try(final var reader = new BufferedReader(new FileReader(file));)
-		{
-			final Map<String, Category> categories = new TreeMap<>();
-			this.file = file;
-			String line;
-			var inSection = false;
-			while(null != (line = reader.readLine()))
+		this.file = file;
+		processFile(file, kv -> {
+			final String[] v = StringUtils.split(kv[1], '/');
+			if(v.length == 2)
 			{
-				if(line.equalsIgnoreCase("[Category]")) //$NON-NLS-1$
-					inSection = true;
-				else if(line.startsWith("[") && inSection) //$NON-NLS-1$
-					break;
-				else if(inSection)
-				{
-					final String[] kv = StringUtils.split(line, '=');
-					if(kv.length == 2)
-					{
-						final String[] v = StringUtils.split(kv[1], '/');
-						if(v.length == 2)
-						{
-							final var cat = categories.computeIfAbsent(v[0].trim(), Category::new);
-							final var subcat = cat.computeIfAbsent(v[1].trim(), s -> cat.new SubCategory(s));	//NOSONAR
-							subcat.add(kv[0].trim());
-						}
-					}
-				}
+				final var cat = categories.computeIfAbsent(v[0].trim(), Category::new);
+				final var subcat = cat.computeIfAbsent(v[1].trim(), s -> cat.new SubCategory(s));	//NOSONAR
+				subcat.add(kv[0].trim());
 			}
-			listCategories.addAll(categories.values());
-			for(final Category cat : listCategories)
-				cat.listSubCategories.addAll(cat.subcategories.values());
-			if(listCategories.isEmpty())
-				throw new IOException(profile.getSession().getMsgs().getString("CatVer.NoCatVerData")); //$NON-NLS-1$
-		}
+		});
+		listCategories.addAll(categories.values());
+		for(final Category cat : listCategories)
+			cat.listSubCategories.addAll(cat.subcategories.values());
+		if(listCategories.isEmpty())
+			throw new IOException(profile.getSession().getMsgs().getString("CatVer.NoCatVerData")); //$NON-NLS-1$
 	}
 
+	@Override
+	public String getSection()
+	{
+		return "[Category]";
+	}
+	
+	
 	/**
 	 * static method shortcut to constructor
 	 * @param file the catver.ini to read
