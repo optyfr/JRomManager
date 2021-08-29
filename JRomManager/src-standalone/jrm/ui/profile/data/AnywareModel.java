@@ -2,24 +2,17 @@ package jrm.ui.profile.data;
 
 import java.util.Set;
 
-import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import jrm.profile.data.Anyware;
 import jrm.profile.data.EntityStatus;
-import jrm.ui.basic.EnhTableModel;
+import jrm.ui.basic.AbstractEnhTableModel;
 
-public class AnywareModel implements EnhTableModel
+public class AnywareModel extends AbstractEnhTableModel
 {
 	private Anyware anyware;
-
-	/**
-	 * Event Listener list for firing events to Swing controls (Table)
-	 */
-	private static EventListenerList listenerList = new EventListenerList();
 
 	public AnywareModel(Anyware anyware)
 	{
@@ -89,18 +82,6 @@ public class AnywareModel implements EnhTableModel
 	}
 
 	@Override
-	public void addTableModelListener(TableModelListener l)
-	{
-		listenerList.add(TableModelListener.class, l);
-	}
-
-	@Override
-	public void removeTableModelListener(TableModelListener l)
-	{
-		listenerList.remove(TableModelListener.class, l);
-	}
-
-	@Override
 	public TableCellRenderer[] getCellRenderers()
 	{
 		return AnywareRenderer.columnsRenderers;
@@ -127,18 +108,6 @@ public class AnywareModel implements EnhTableModel
 	public TableCellRenderer getColumnRenderer(final int columnIndex)
 	{
 		return columnIndex < AnywareRenderer.columnsRenderers.length && AnywareRenderer.columnsRenderers[columnIndex] != null ? AnywareRenderer.columnsRenderers[columnIndex] : new DefaultTableCellRenderer();
-	}
-
-	/**
-	 * Sends TableChanged event to listeners
-	 * @param e the {@link TableModelEvent} to send
-	 */
-	public void fireTableChanged(final TableModelEvent e)
-	{
-		final Object[] listeners = listenerList.getListenerList();
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
-			if (listeners[i] == TableModelListener.class)
-				((TableModelListener) listeners[i + 1]).tableChanged(e);
 	}
 
 	/**

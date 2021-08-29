@@ -37,9 +37,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.FilenameUtils;
@@ -55,7 +53,7 @@ import jrm.misc.MultiThreading;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
-import jrm.ui.basic.EnhTableModel;
+import jrm.ui.basic.AbstractEnhTableModel;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.progress.SwingWorkerProgress;
 
@@ -70,11 +68,10 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 	private JMenuItem mntmAddArchive;
 	private JMenuItem mntmRemoveSelectedArchives;
 	
-	static class BatchCompressorTableModel implements EnhTableModel
+	static class BatchCompressorTableModel extends AbstractEnhTableModel
 	{
 		
 		private List<FileResult> data = new ArrayList<>();
-	    private final EventListenerList listenerList = new EventListenerList();
 		private final String[] columnNames = new String[] {Messages.getString("BatchCompressorPanel.File"), Messages.getString("BatchCompressorPanel.Status")}; //$NON-NLS-1$ //$NON-NLS-2$
 		private final Class<?>[] columnTypes = new Class<?>[] { Object.class, String.class };
 		private final TableCellRenderer[] cellRenderers = new TableCellRenderer[] { new FileCellRenderer(), new StatusCellRenderer() };
@@ -106,30 +103,6 @@ public class BatchCompressorPanel extends JPanel implements HTMLRenderer
 		{
 			this.data = data;
 			fireTableChanged(new TableModelEvent(this));
-		}
-
-		@Override
-		public void addTableModelListener(final TableModelListener l)
-		{
-			listenerList.add(TableModelListener.class, l);
-		}
-
-		@Override
-		public void removeTableModelListener(final TableModelListener l)
-		{
-			listenerList.remove(TableModelListener.class, l);
-		}
-
-		/**
-		 * Sends TableChanged event to listeners
-		 * @param e the {@link TableModelEvent} to send
-		 */
-		public void fireTableChanged(final TableModelEvent e)
-		{
-			final Object[] listeners = listenerList.getListenerList();
-			for(int i = listeners.length - 2; i >= 0; i -= 2)
-				if(listeners[i] == TableModelListener.class)
-					((TableModelListener) listeners[i + 1]).tableChanged(e);
 		}
 
 		@Override
