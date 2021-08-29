@@ -59,7 +59,7 @@ import one.util.streamex.IntStreamEx;
  * @author optyfr
  *
  */
-public class Report extends AbstractList<Subject> implements HTMLRenderer, Serializable, ReportFile
+public class Report extends AbstractList<Subject> implements HTMLRenderer, Serializable, ReportIntf<Report>
 {
 	private static final String STATS_STR = "stats";
 	private static final String SUBJECTS_STR = "subjects";
@@ -93,7 +93,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	/**
 	 * the linked UI tree model
 	 */
-	private transient ReportTreeHandler handler = null;
+	private transient ReportTreeHandler<Report> handler = null;
 
 	
 	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
@@ -383,6 +383,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
 	 * @return the cloned {@link Report}
 	 */
+	@Override
 	public Report clone(final List<FilterOptions> filterOptions)
 	{
 		return new Report(this, filterOptions);
@@ -441,12 +442,12 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	 * get the current {@link ReportTreeHandler}
 	 * @return a {@link ReportTreeHandler}
 	 */
-	public ReportTreeHandler getHandler()
+	public ReportTreeHandler<Report> getHandler()
 	{
 		return handler;
 	}
 
-	public void setHandler(ReportTreeHandler handler)
+	public void setHandler(ReportTreeHandler<Report> handler)
 	{
 		this.handler = handler;
 	}
@@ -616,11 +617,11 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	
 	public static Report load(final Session session, final File file)
 	{
-		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(ReportFile.getReportFile(session, file)))))
+		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(ReportIntf.getReportFile(session, file)))))
 		{
 			Report report = (Report)ois.readObject();
 			report.file = file;
-			report.fileModified = ReportFile.getReportFile(session, file).lastModified();
+			report.fileModified = ReportIntf.getReportFile(session, file).lastModified();
 			report.handler = new ReportTreeDefaultHandler(report);
 			return report;
 		}

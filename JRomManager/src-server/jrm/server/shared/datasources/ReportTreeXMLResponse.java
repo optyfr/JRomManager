@@ -6,7 +6,7 @@ import javax.xml.stream.XMLStreamException;
 
 import jrm.profile.report.Note;
 import jrm.profile.report.Report;
-import jrm.profile.report.ReportFile;
+import jrm.profile.report.ReportIntf;
 import jrm.profile.report.Subject;
 import jrm.profile.report.SubjectSet;
 import jrm.server.shared.datasources.XMLRequest.Operation;
@@ -33,7 +33,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 		if (operation.hasData("src"))
 		{
 			final var srcfile = pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();
-			final var reportfile = ReportFile.getReportFile(request.session, srcfile);
+			final var reportfile = ReportIntf.getReportFile(request.session, srcfile);
 			if (request.session.getTmpReport() == null || !(request.session.getTmpReport().getReportFile(request.session).equals(reportfile) && request.session.getTmpReport().getFileModified() == reportfile.lastModified()))
 				request.session.setTmpReport(Report.load(request.session, srcfile));
 			report = request.session.getTmpReport();
@@ -131,7 +131,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 			if (operation.hasData("src"))
 			{
 				final var srcfile = pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();
-				final var reportfile = ReportFile.getReportFile(request.session, srcfile);
+				final var reportfile = ReportIntf.getReportFile(request.session, srcfile);
 				if (request.session.getTmpReport() == null || !(request.session.getTmpReport().getReportFile(request.session).equals(reportfile) && request.session.getTmpReport().getFileModified() == reportfile.lastModified()))
 					request.session.setTmpReport(Report.load(request.session, srcfile));
 				report = request.session.getTmpReport();

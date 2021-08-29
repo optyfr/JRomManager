@@ -10,7 +10,7 @@ import javax.xml.stream.XMLStreamException;
 import jrm.batch.TrntChkReport;
 import jrm.batch.TrntChkReport.Child;
 import jrm.batch.TrntChkReport.Status;
-import jrm.profile.report.ReportFile;
+import jrm.profile.report.ReportIntf;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 
 public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
@@ -30,7 +30,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 		if (operation.hasData("src"))
 		{
 			final var srcfile =  pathAbstractor.getAbsolutePath(operation.getData("src")).toFile();
-			final var reportfile = ReportFile.getReportFile(request.getSession(), srcfile);
+			final var reportfile = ReportIntf.getReportFile(request.getSession(), srcfile);
 			if (request.session.getTmpTCReport() == null || !(request.session.getTmpTCReport().getReportFile(request.getSession()).equals(reportfile) && request.getSession().getTmpTCReport().getFileModified() == reportfile.lastModified()))
 				request.session.setTmpTCReport(TrntChkReport.load(request.getSession(), srcfile));
 			report = request.session.getTmpTCReport();

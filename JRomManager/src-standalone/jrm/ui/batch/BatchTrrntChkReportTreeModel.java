@@ -9,13 +9,13 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
 
-import jrm.aui.batch.TrntChkReportTreeHandler;
+import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.batch.TrntChkReport;
 import jrm.profile.report.FilterOptions;
 import jrm.ui.profile.report.ReportNode;
 
 @SuppressWarnings("serial")
-public class BatchTrrntChkReportTreeModel extends DefaultTreeModel implements TrntChkReportTreeHandler
+public class BatchTrrntChkReportTreeModel extends DefaultTreeModel implements ReportTreeHandler<TrntChkReport>
 {
 	/** The org root. */
 	private final TrntChkReport orgRoot;
@@ -33,7 +33,7 @@ public class BatchTrrntChkReportTreeModel extends DefaultTreeModel implements Tr
 	}
 
 	@SuppressWarnings("exports")
-	public BatchTrrntChkReportTreeModel(final TrntChkReportTreeHandler handler)
+	public BatchTrrntChkReportTreeModel(final ReportTreeHandler<TrntChkReport> handler)
 	{
 		super(new BatchTrrntChkReportNode(handler.getFilteredReport()));
 		getFilteredReport().setHandler(this);

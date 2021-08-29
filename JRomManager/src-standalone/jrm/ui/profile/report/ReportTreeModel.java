@@ -35,7 +35,7 @@ import jrm.profile.report.Report;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public final class ReportTreeModel extends DefaultTreeModel implements ReportTreeHandler
+public final class ReportTreeModel extends DefaultTreeModel implements ReportTreeHandler<Report>
 {
 	
 	/** The org root. */
@@ -58,7 +58,7 @@ public final class ReportTreeModel extends DefaultTreeModel implements ReportTre
 	}
 
 	@SuppressWarnings("exports")
-	public ReportTreeModel(final ReportTreeHandler handler)
+	public ReportTreeModel(final ReportTreeHandler<Report> handler)
 	{
 		super(new ReportNode(handler.getFilteredReport()));
 		getFilteredReport().setHandler(this);

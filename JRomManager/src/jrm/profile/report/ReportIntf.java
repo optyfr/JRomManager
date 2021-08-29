@@ -1,12 +1,19 @@
 package jrm.profile.report;
 
 import java.io.File;
+import java.util.List;
 import java.util.zip.CRC32;
 
+import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.security.Session;
 
-public interface ReportFile
+public interface ReportIntf<T>
 {
+	public T clone(final List<FilterOptions> filterOptions);
+	
+	public void setHandler(ReportTreeHandler<T> handler);
+	public ReportTreeHandler<T> getHandler();
+
 	public File getFile();
 	
 	public long getFileModified();
@@ -24,5 +31,4 @@ public interface ReportFile
 		reports.mkdirs();
 		return new File(reports, String.format("%08x", crc.getValue()) + ".report"); //$NON-NLS-1$
 	}
-
 }

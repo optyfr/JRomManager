@@ -16,18 +16,18 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import jrm.aui.batch.TrntChkReportTreeHandler;
+import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
-import jrm.profile.report.ReportFile;
+import jrm.profile.report.ReportIntf;
 import jrm.profile.report.Subject;
 import jrm.security.Session;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-public final class TrntChkReport implements Serializable, HTMLRenderer, ReportFile
+public final class TrntChkReport implements Serializable, HTMLRenderer, ReportIntf<TrntChkReport>
 {
 	private static final long serialVersionUID = 4L;
 	
@@ -42,7 +42,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer, ReportFi
 	/**
 	 * the linked UI tree model
 	 */
-	private transient @Setter @Getter TrntChkReportTreeHandler handler = null;
+	private transient @Setter @Getter ReportTreeHandler<TrntChkReport> handler = null;
 
 	public TrntChkReport(final File src)
 	{
@@ -228,11 +228,11 @@ public final class TrntChkReport implements Serializable, HTMLRenderer, ReportFi
 	
 	public static TrntChkReport load(final Session session, final File file)
 	{
-		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(ReportFile.getReportFile(session, file)))))
+		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(ReportIntf.getReportFile(session, file)))))
 		{
 			final TrntChkReport report = (TrntChkReport)ois.readObject();
 			report.file = file;
-			report.fileModified = ReportFile.getReportFile(session, file).lastModified();
+			report.fileModified = ReportIntf.getReportFile(session, file).lastModified();
 			return report;
 		}
 		catch (final Exception e)
@@ -254,6 +254,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer, ReportFi
 		all = report.all;
 	}
 	
+	@Override
 	public TrntChkReport clone(List<FilterOptions> filterOptions)
 	{
 		return new TrntChkReport(this, filterOptions);

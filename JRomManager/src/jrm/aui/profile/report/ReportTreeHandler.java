@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import jrm.profile.report.FilterOptions;
-import jrm.profile.report.Report;
 
-public interface ReportTreeHandler
+public interface ReportTreeHandler<T>
 {
 	/**
 	 * Inits the clone.
@@ -48,7 +47,7 @@ public interface ReportTreeHandler
 		
 	}
 	
-	public Report getFilteredReport();
-	public Report getOriginalReport();
+	public T getFilteredReport();
+	public T getOriginalReport();
 	
 }
