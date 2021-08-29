@@ -28,10 +28,7 @@ class CHDHeaderV1 extends CHDHeader implements CHDHeaderIntf
 		tag = header.tag;
 		len = header.len;
 		version = header.version;
-		bb.position(44);
-		final var hash = new byte[16];
-		bb.get(hash);
-		this.md5 = CHDHeader.bytesToHex(hash);
+		md5 = getHash(bb, 44, 16);
 	}
 
 	@Override

@@ -69,7 +69,7 @@ public class Log
 		Logger.getGlobal().addHandler(new ConsoleHandler());
 	}
 	
-	public static void init(final String file, final boolean debug, final int limit, final int count)
+	public static void init(final String file, final boolean debug, final int limit, final int count)	//NOSONAR
 	{
 		try
 		{

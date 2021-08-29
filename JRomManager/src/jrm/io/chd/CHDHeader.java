@@ -1,5 +1,6 @@
 package jrm.io.chd;
 
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -80,5 +81,13 @@ class CHDHeader implements CHDHeaderIntf
 	public String getMD5()
 	{
 		return null;
+	}
+	
+	protected String getHash(ByteBuffer bb, int position, int size)
+	{
+		bb.position(position);
+		final var hash = new byte[size];
+		bb.get(hash);
+		return CHDHeader.bytesToHex(hash);
 	}
 }
