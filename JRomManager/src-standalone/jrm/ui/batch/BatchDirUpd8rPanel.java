@@ -54,6 +54,7 @@ import jrm.ui.basic.JFileDropMode;
 import jrm.ui.basic.JListHintUI;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JSDRDropTable;
+import jrm.ui.basic.Popup;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.progress.SwingWorkerProgress;
 import one.util.streamex.StreamEx;
@@ -102,7 +103,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		scrollPaneLeft.setViewportView(listBatchToolsDat2DirSrc);
 
 		final JPopupMenu popupMenuSrc = new JPopupMenu();
-		MainFrame.addPopup(listBatchToolsDat2DirSrc, popupMenuSrc);
+		Popup.addPopup(listBatchToolsDat2DirSrc, popupMenuSrc);
 
 		JMenuItem mnDat2DirAddSrcDir = new JMenuItem(Messages.getString("MainFrame.AddSrcDir"));
 		mnDat2DirAddSrcDir.addActionListener(e -> addSrcDir());
@@ -132,7 +133,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		tableBatchToolsDat2Dir.addMouseListener(new Dir2DatMouseAdapter(session));
 
 		JPopupMenu popupMenu = new JPopupMenu();
-		MainFrame.addPopup(tableBatchToolsDat2Dir, popupMenu);
+		Popup.addPopup(tableBatchToolsDat2Dir, popupMenu);
 
 		JMenuItem mnDat2DirAddDat = new JMenuItem(Messages.getString("MainFrame.AddDat"));
 		mnDat2DirAddDat.addActionListener(e -> addDat());

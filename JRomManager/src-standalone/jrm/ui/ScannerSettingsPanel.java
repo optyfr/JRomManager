@@ -24,6 +24,7 @@ import jrm.misc.SettingsEnum;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
+import jrm.ui.basic.Popup;
 import lombok.Getter;
 
 @SuppressWarnings("serial")
@@ -89,7 +90,7 @@ public class ScannerSettingsPanel extends JPanel
 		this.setBackground(UIManager.getColor("Panel.background")); //$NON-NLS-1$
 
 		JPopupMenu popupMenu = new JPopupMenu();
-		MainFrame.addPopup(this, popupMenu);
+		Popup.addPopup(this, popupMenu);
 
 		JMenu mnPresets = new JMenu(Messages.getString("MainFrame.mnPresets.text")); //$NON-NLS-1$
 		popupMenu.add(mnPresets);

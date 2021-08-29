@@ -49,6 +49,7 @@ import jrm.security.Session;
 import jrm.ui.MainFrame;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JSDRDropTable;
+import jrm.ui.basic.Popup;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.progress.SwingWorkerProgress;
 
@@ -124,7 +125,7 @@ public class BatchTrrntChkPanel extends JPanel
 		scrollPane.setViewportView(tableTrntChk);
 
 		final JPopupMenu pmTrntChk = new JPopupMenu();
-		MainFrame.addPopup(tableTrntChk, pmTrntChk);
+		Popup.addPopup(tableTrntChk, pmTrntChk);
 
 		final JMenuItem mntmAddTorrent = new JMenuItem(Messages.getString("BatchToolsTrrntChkPanel.mntmAddTorrent.text"));
 		mntmAddTorrent.addActionListener(e -> addTorrent());

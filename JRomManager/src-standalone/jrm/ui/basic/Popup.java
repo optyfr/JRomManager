@@ -8,8 +8,8 @@ import javax.swing.JPopupMenu;
 
 public interface Popup
 {
-
-	public default void addPopup(final Component component, final JPopupMenu popup)
+	@SuppressWarnings("exports")
+	public static void addPopup(final Component component, final JPopupMenu popup)
 	{
 		component.addMouseListener(new MouseAdapter()
 		{

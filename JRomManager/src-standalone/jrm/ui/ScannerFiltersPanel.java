@@ -32,6 +32,7 @@ import jrm.profile.data.Software.Supported;
 import jrm.profile.data.Systm;
 import jrm.security.Session;
 import jrm.ui.basic.JCheckBoxList;
+import jrm.ui.basic.Popup;
 import jrm.ui.profile.data.YearsModel;
 
 @SuppressWarnings("serial")
@@ -86,7 +87,7 @@ public class ScannerFiltersPanel extends JSplitPane
 		systemsFilterScrollPane.setViewportView(checkBoxListSystems);
 
 		JPopupMenu popupMenu = new JPopupMenu();
-		MainFrame.addPopup(checkBoxListSystems, popupMenu);
+		Popup.addPopup(checkBoxListSystems, popupMenu);
 
 		JMenu mnSelect = new JMenu(Messages.getString("MainFrame.mnSelect.text")); //$NON-NLS-1$
 		popupMenu.add(mnSelect);

@@ -114,7 +114,7 @@ import lombok.val;
  * The Class ProfileViewer.
  */
 @SuppressWarnings("serial")
-public class ProfileViewer extends JDialog implements Popup
+public class ProfileViewer extends JDialog
 {
 	
 	private static final String PROFILE_VIEWER_AS_SW_LISTS_DAT = "ProfileViewer.AsSWListsDat";
@@ -302,7 +302,7 @@ public class ProfileViewer extends JDialog implements Popup
 		tableW.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
 		final var popupWMenu = new JPopupMenu();
-		addPopup(tableW, popupWMenu);
+		Popup.addPopup(tableW, popupWMenu);
 
 		final var mntmCollectKeywords = new JMenuItem(Messages.getString("ProfileViewer.mntmCollectKeywords.text")); //$NON-NLS-1$
 		mntmCollectKeywords.addActionListener(e -> new Keywords().filter());
@@ -358,7 +358,7 @@ public class ProfileViewer extends JDialog implements Popup
 		tableWL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		final var popupMenu = new JPopupMenu();
-		addPopup(tableWL, popupMenu);
+		Popup.addPopup(tableWL, popupMenu);
 
 		final var mnExportAll = new JMenu(Messages.getString("ProfileViewer.ExportAll")); //$NON-NLS-1$
 		popupMenu.add(mnExportAll);
@@ -504,7 +504,7 @@ public class ProfileViewer extends JDialog implements Popup
 		scrollPaneEntity.setViewportView(tableEntity);
 		
 		final var popupEntMenu = new JPopupMenu();
-		addPopup(tableEntity, popupEntMenu);
+		Popup.addPopup(tableEntity, popupEntMenu);
 		
 		final var mntmCopyCRC = new JMenuItem("Copy CRC");
 		mntmCopyCRC.addActionListener(e -> copyHash(3));

@@ -54,6 +54,7 @@ import jrm.profile.manager.ProfileNFOMame.MameStatus;
 import jrm.security.Session;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JRMFileChooser.OneRootFileSystemView;
+import jrm.ui.basic.Popup;
 import jrm.ui.profile.manager.DirNode;
 import jrm.ui.profile.manager.DirTreeCellEditor;
 import jrm.ui.profile.manager.DirTreeCellRenderer;
@@ -213,7 +214,7 @@ public class ProfilePanel extends JPanel
 					mntmUpdateFromMame.setText(Messages.getString(MAIN_FRAME_MNTM_UPDATE_FROM_MAME_TEXT)); //$NON-NLS-1$
 			}
 		});
-		MainFrame.addPopup(profilesList, popupMenuList);
+		Popup.addPopup(profilesList, popupMenuList);
 
 		mntmDeleteProfile = new JMenuItem(Messages.getString("MainFrame.mntmDeleteProfile.text")); //$NON-NLS-1$
 		mntmDeleteProfile.addActionListener(e -> deleteProfile(session, filemodel));
@@ -260,7 +261,7 @@ public class ProfilePanel extends JPanel
 				mntmDeleteFolder.setEnabled(profilesTree.getSelectionCount() > 0 && !((DirNode) profilesTree.getLastSelectedPathComponent()).isRoot());
 			}
 		});
-		MainFrame.addPopup(profilesTree, popupMenuTree);
+		Popup.addPopup(profilesTree, popupMenuTree);
 
 		mntmCreateFolder = new JMenuItem(Messages.getString("MainFrame.mntmCreateFolder.text")); //$NON-NLS-1$
 		mntmCreateFolder.addActionListener(e -> createFolder(profilesTreeModel));

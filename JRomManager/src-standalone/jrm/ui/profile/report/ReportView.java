@@ -63,7 +63,7 @@ public class ReportView extends JScrollPane implements Popup
 		build(report);
 
 		final JPopupMenu popupMenu = new JPopupMenu();
-		addPopup(tree, popupMenu);
+		Popup.addPopup(tree, popupMenu);
 
 		final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
 		mntmOpenAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_open.png")); //$NON-NLS-1$

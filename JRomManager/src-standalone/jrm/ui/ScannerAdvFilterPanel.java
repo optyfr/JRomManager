@@ -34,6 +34,7 @@ import jrm.ui.basic.JFileDropMode;
 import jrm.ui.basic.JFileDropTextField;
 import jrm.ui.basic.JTextFieldHintUI;
 import jrm.ui.basic.NGTreeNode;
+import jrm.ui.basic.Popup;
 import jrm.ui.profile.filter.CatVerModel;
 import jrm.ui.profile.filter.CatVerNode;
 import jrm.ui.profile.filter.CatVerNode.CategoryNode;
@@ -128,7 +129,7 @@ public class ScannerAdvFilterPanel extends JPanel
 		scrollPaneNPlayers.setViewportView(listNPlayers);
 
 		JPopupMenu popupMenuNPlay = new JPopupMenu();
-		MainFrame.addPopup(listNPlayers, popupMenuNPlay);
+		Popup.addPopup(listNPlayers, popupMenuNPlay);
 
 		JMenuItem mntmSelectAllNPlay = new JMenuItem(Messages.getString("MainFrame.SelectAll")); //$NON-NLS-1$
 		mntmSelectAllNPlay.addActionListener(e -> listNPlayers.selectAll());
@@ -168,7 +169,7 @@ public class ScannerAdvFilterPanel extends JPanel
 
 		JPopupMenu popupMenuCat = new JPopupMenu();
 		popupMenuCat.addPopupMenuListener(new CatVerPopupMenuListener());
-		MainFrame.addPopup(treeCatVer, popupMenuCat);
+		Popup.addPopup(treeCatVer, popupMenuCat);
 
 		JMenu mnSelectCat = new JMenu(Messages.getString("MainFrame.Select")); //$NON-NLS-1$
 		popupMenuCat.add(mnSelectCat);

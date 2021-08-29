@@ -17,7 +17,7 @@ import jrm.ui.MainFrame;
 import jrm.ui.basic.Popup;
 
 @SuppressWarnings("serial")
-public class BatchTrrntChkReportView extends JScrollPane implements Popup
+public class BatchTrrntChkReportView extends JScrollPane
 {
 	@SuppressWarnings("exports")
 	public BatchTrrntChkReportView(Session session, TrntChkReport report)
@@ -30,7 +30,7 @@ public class BatchTrrntChkReportView extends JScrollPane implements Popup
 		this.setViewportView(tree);
 
 		final JPopupMenu popupMenu = new JPopupMenu();
-		addPopup(tree, popupMenu);
+		Popup.addPopup(tree, popupMenu);
 
 		final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
 		mntmOpenAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_open.png")); //$NON-NLS-1$

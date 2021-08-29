@@ -18,10 +18,7 @@
 package jrm.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -31,7 +28,6 @@ import java.util.Optional;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -44,6 +40,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.security.Session;
+import jrm.ui.basic.Popup;
 import jrm.ui.batch.BatchPanel;
 import jrm.ui.profile.ProfileViewer;
 import jrm.ui.profile.report.ReportFrame;
@@ -54,7 +51,7 @@ import lombok.Setter;
  * The Class MainFrame.
  */
 @SuppressWarnings("serial")
-public class MainFrame extends JFrame
+public class MainFrame extends JFrame implements Popup
 {
 
 	/** The profile viewer. */
@@ -195,43 +192,6 @@ public class MainFrame extends JFrame
 	{
 		final SettingsPanel settingsPanel = new SettingsPanel(session);
 		mainPane.addTab(Messages.getString("MainFrame.Settings"), MainFrame.getIcon("/jrm/resicons/icons/cog.png"), settingsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	/**
-	 * Adds and show the popup menu.
-	 *
-	 * @param component
-	 *            the component to add a popup menu
-	 * @param popup
-	 *            the popup menu to add
-	 */
-	public static void addPopup(@SuppressWarnings("exports") final Component component, @SuppressWarnings("exports") final JPopupMenu popup)
-	{
-		component.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mousePressed(final MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			@Override
-			public void mouseReleased(final MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-				{
-					showMenu(e);
-				}
-			}
-
-			private void showMenu(final MouseEvent e)
-			{
-				popup.show(e.getComponent(), e.getX(), e.getY());
-			}
-		});
 	}
 
 	private static HashMap<String, ImageIcon> iconsCache = new HashMap<>();

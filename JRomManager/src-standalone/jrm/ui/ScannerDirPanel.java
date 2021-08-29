@@ -32,6 +32,7 @@ import jrm.ui.basic.JFileDropTextField;
 import jrm.ui.basic.JListHintUI;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JTextFieldHintUI;
+import jrm.ui.basic.Popup;
 
 @SuppressWarnings("serial")
 public class ScannerDirPanel extends JPanel
@@ -363,7 +364,7 @@ public class ScannerDirPanel extends JPanel
 				mntmDeleteSelected.setEnabled(!listSrcDir.getSelectedValuesList().isEmpty());
 			}
 		});
-		MainFrame.addPopup(listSrcDir, popupMenu);
+		Popup.addPopup(listSrcDir, popupMenu);
 
 		mntmDeleteSelected = new JMenuItem(Messages.getString("MainFrame.mntmDeleteSelected.text")); //$NON-NLS-1$
 		mntmDeleteSelected.addActionListener(e -> listSrcDir.del(listSrcDir.getSelectedValuesList()));
