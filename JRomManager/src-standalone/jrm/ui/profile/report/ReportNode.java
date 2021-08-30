@@ -10,6 +10,7 @@ import javax.swing.tree.TreeNode;
 import jrm.profile.report.Note;
 import jrm.profile.report.Report;
 import jrm.profile.report.Subject;
+import jrm.ui.basic.AbstractNGTreeNode;
 import lombok.Getter;
 
 public class ReportNode extends ReportNodeGeneric<Report>
@@ -152,7 +153,7 @@ public class ReportNode extends ReportNodeGeneric<Report>
 		}
 		
 		
-		public final class NoteNode implements TreeNode
+		public final class NoteNode extends AbstractNGTreeNode
 		{
 			private final @Getter Note note;
 			
@@ -162,51 +163,11 @@ public class ReportNode extends ReportNodeGeneric<Report>
 				this.note = note;
 			}
 
-			@SuppressWarnings("exports")
-			@Override
-			public TreeNode getChildAt(int childIndex)
-			{
-				return null;
-			}
-
-			@Override
-			public int getChildCount()
-			{
-				return 0;
-			}
-
 			@Override
 			public SubjectNode getParent()
 			{
 				return SubjectNode.this;
 			}
-
-			@SuppressWarnings("exports")
-			@Override
-			public int getIndex(TreeNode node)
-			{
-				return 0;
-			}
-
-			@Override
-			public boolean getAllowsChildren()
-			{
-				return false;
-			}
-
-			@Override
-			public boolean isLeaf()
-			{
-				return true;
-			}
-
-			@SuppressWarnings("exports")
-			@Override
-			public Enumeration<? extends TreeNode> children()
-			{
-				return null;
-			}
-			
 		}
 	}
 	

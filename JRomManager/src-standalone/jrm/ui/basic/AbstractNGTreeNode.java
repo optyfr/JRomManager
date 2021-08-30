@@ -16,6 +16,8 @@
  */
 package jrm.ui.basic;
 
+import java.util.Enumeration;
+
 import javax.swing.tree.TreeNode;
 
 /**
@@ -77,5 +79,61 @@ public abstract class AbstractNGTreeNode implements NGTreeNode
 		}
 		return retNodes;
 	}
+	
+	@SuppressWarnings("exports")
+	@Override
+	public TreeNode getChildAt(int childIndex)
+	{
+		return null;
+	}
+	
+	@Override
+	public int getChildCount()
+	{
+		return 0;
+	}
 
+	@SuppressWarnings("exports")
+	@Override
+	public int getIndex(TreeNode node)
+	{
+		return 0;
+	}
+
+	@Override
+	public boolean getAllowsChildren()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isLeaf()
+	{
+		return true;
+	}
+
+	@SuppressWarnings("exports")
+	@Override
+	public Enumeration<? extends TreeNode> children()
+	{
+		return null;
+	}
+
+	@Override
+	public Object getUserObject()
+	{
+		return null;
+	}
+	
+	@Override
+	public void setSelected(boolean selected)
+	{
+		// do nothing
+	}
+	
+	@Override
+	public boolean isSelected()
+	{
+		return false;
+	}
 }
