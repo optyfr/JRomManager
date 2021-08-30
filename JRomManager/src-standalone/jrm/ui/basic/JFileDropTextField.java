@@ -20,7 +20,6 @@ import java.awt.Color;
 import java.awt.HeadlessException;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
@@ -34,8 +33,6 @@ import java.util.List;
 
 import javax.swing.JTextField;
 import javax.swing.text.Document;
-
-import jrm.misc.Log;
 
 /**
  * The Class JFileDropTextField.
@@ -172,7 +169,7 @@ public class JFileDropTextField extends JTextField implements FocusListener, JFi
 	public void dragEnter(final DropTargetDragEvent dtde)
 	{
 		final Transferable transferable = dtde.getTransferable();
-		if (JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+		if (isFlavorSupported(transferable))
 		{
 			JFileDropTextField.this.setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
 			dtde.acceptDrag(DnDConstants.ACTION_COPY);
@@ -196,36 +193,30 @@ public class JFileDropTextField extends JTextField implements FocusListener, JFi
 	public void drop(final DropTargetDropEvent dtde)
 	{
 		JFileDropTextField.this.setBackground(color);
-		try
-		{
-			final Transferable transferable = dtde.getTransferable();
+		drop(dtde, files -> {
+			JFileDropTextField.this.setText(files.get(0).getAbsolutePath());
+			callback.call(JFileDropTextField.this.getText());
+		});
+	}
 
-			if (JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
-			{
-				dtde.acceptDrop(DnDConstants.ACTION_COPY);
-				final List<File> files = getTransferData(transferable);
-				if (files.size() == 1)
-				{
-					JFileDropTextField.this.setText(files.get(0).getAbsolutePath());
-					callback.call(JFileDropTextField.this.getText());
-					dtde.getDropTargetContext().dropComplete(true);
-				}
-				else
-					dtde.getDropTargetContext().dropComplete(false);
-			}
-			else
-				dtde.rejectDrop();
-		}
-		catch (final UnsupportedFlavorException e)
-		{
-			Log.warn(e.getMessage());
-			dtde.rejectDrop();
-		}
-		catch (final Exception e)
-		{
-			Log.err(e.getMessage(), e);
-			dtde.rejectDrop();
-		}
+	/**
+	 * @param files
+	 * @return
+	 */
+	@Override
+	public boolean checkValid(final List<File> files)
+	{
+		return files.size() == 1;
+	}
+
+	/**
+	 * @param transferable
+	 * @return
+	 */
+	@Override
+	public boolean isFlavorSupported(final Transferable transferable)
+	{
+		return JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
 	}
 
 	@Override

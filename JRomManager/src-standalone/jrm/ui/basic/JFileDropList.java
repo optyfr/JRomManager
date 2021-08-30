@@ -19,7 +19,6 @@ package jrm.ui.basic;
 import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
@@ -32,8 +31,6 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
-
-import jrm.misc.Log;
 
 /**
  * The Class JFileDropList.
@@ -126,37 +123,21 @@ public class JFileDropList extends JList<File> implements JFileDrop
 	public void drop(final DropTargetDropEvent dtde)
 	{
 		setBackground(color);
-		try
-		{
-			final Transferable transferable = dtde.getTransferable();
-
-			if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
-			{
-				dtde.acceptDrop(DnDConstants.ACTION_COPY);
-				final List<File> files = getTransferData(transferable);
-				if (!files.isEmpty())
-				{
-					add(files);
-					dtde.getDropTargetContext().dropComplete(true);
-				}
-				else
-					dtde.getDropTargetContext().dropComplete(false);
-			}
-			else
-				dtde.rejectDrop();
-		}
-		catch (final UnsupportedFlavorException e)
-		{
-			Log.warn(e.getMessage());
-			dtde.rejectDrop();
-		}
-		catch (final Exception e)
-		{
-			Log.err(e.getMessage(), e);
-			dtde.rejectDrop();
-		}
+		drop(dtde, this::add);
 	}
 
+	@Override
+	public boolean isFlavorSupported(Transferable transferable)
+	{
+		return transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+	}
+	
+	@Override
+	public boolean checkValid(List<File> files)
+	{
+		return !files.isEmpty();
+	}
+	
 	/**
 	 * Adds the.
 	 *

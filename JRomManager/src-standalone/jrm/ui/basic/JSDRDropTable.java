@@ -168,7 +168,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 			{
 				final var startSize = model.getData().size();
 				for (int i = 0; i < files.size(); i++)
-					addFile(files.get(i), row, col, i);
+					model.addFile(files.get(i), row, col, i);
 				if (row != -1)
 					model.fireTableChanged(new TableModelEvent(model, row, startSize - 1, col));
 				if (startSize != model.getData().size())
@@ -188,28 +188,6 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 			Log.err(e.getMessage(), e);
 			dtde.rejectDrop();
 		}
-	}
-
-	/**
-	 * @param file
-	 * @param row
-	 * @param col
-	 * @param i
-	 */
-	private void addFile(File file, int row, int col, int i)
-	{
-		SrcDstResult line;
-		if (row == -1 || row + i >= model.getData().size())
-		{
-			line = new SrcDstResult();
-			model.getData().add(line);
-		}
-		else
-			line = model.getData().get(row + i);
-		if (col == 1)
-			line.setDst(file.getPath());
-		else
-			line.setSrc(file.getPath());
 	}
 
 	/**

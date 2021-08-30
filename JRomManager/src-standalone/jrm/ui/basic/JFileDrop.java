@@ -3,13 +3,17 @@ package jrm.ui.basic;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import jrm.misc.Log;
 
 interface JFileDrop extends DropTargetListener 
 {
@@ -48,5 +52,46 @@ interface JFileDrop extends DropTargetListener
 			return true;
 		}).collect(Collectors.toList());
 	}
+	
+	public boolean checkValid(final List<File> files);
+	public boolean isFlavorSupported(final Transferable transferable);
+	
+	@FunctionalInterface
+	interface CallBack
+	{
+		void apply(List<File> files);
+	}
+	
+	default void drop(final DropTargetDropEvent dtde, final CallBack cb)
+	{
+		try
+		{
+			final var transferable = dtde.getTransferable();
 
+			if (isFlavorSupported(transferable))
+			{
+				dtde.acceptDrop(DnDConstants.ACTION_COPY);
+				final var files = getTransferData(transferable);
+				if (checkValid(files))
+				{
+					cb.apply(files);
+					dtde.getDropTargetContext().dropComplete(true);
+				}
+				else
+					dtde.getDropTargetContext().dropComplete(false);
+			}
+			else
+				dtde.rejectDrop();
+		}
+		catch (final UnsupportedFlavorException e)
+		{
+			Log.warn(e.getMessage());
+			dtde.rejectDrop();
+		}
+		catch (final Exception e)
+		{
+			Log.err(e.getMessage(), e);
+			dtde.rejectDrop();
+		}
+	}
 }

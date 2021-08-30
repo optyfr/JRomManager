@@ -1,9 +1,11 @@
 package jrm.ui.basic;
 
+import java.io.File;
 import java.io.FileFilter;
 
 import javax.swing.event.TableModelEvent;
 
+import jrm.aui.basic.SrcDstResult;
 import jrm.aui.basic.SrcDstResult.SDRList;
 
 public abstract class SDRTableModel extends AbstractEnhTableModel
@@ -105,5 +107,19 @@ public abstract class SDRTableModel extends AbstractEnhTableModel
 		this.dstFilter = dstFilter;
 	}
 	
-
+	public void addFile(File file, int row, int col, int i)
+	{
+		final SrcDstResult line;
+		if (row == -1 || row + i >= this.getData().size())
+		{
+			line = new SrcDstResult();
+			this.getData().add(line);
+		}
+		else
+			line = this.getData().get(row + i);
+		if (col == 1)
+			line.setDst(file.getPath());
+		else
+			line.setSrc(file.getPath());
+	}
 }
