@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.zip.ZipOutputStream;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
@@ -199,6 +200,27 @@ public abstract class ContainerAction implements HTMLRenderer, Comparable<Contai
 			if (!action.doAction(session, target, handler, i, entryActions.size()))
 			{
 				Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @param session
+	 * @param handler
+	 * @param os
+	 * @return
+	 */
+	protected boolean zosAction(final Session session, final ProgressHandler handler, final ZipOutputStream os)
+	{
+		var i = 0;
+		for (final EntryAction action : entryActions)
+		{
+			i++;
+			if (!action.doAction(session, os, handler, i, entryActions.size()))
+			{
+				Log.err(() -> String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
 				return false;
 			}
 		}

@@ -19,6 +19,7 @@ package jrm.profile.fix.actions;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.ZipOutputStream;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
@@ -101,5 +102,11 @@ public class DeleteEntry extends EntryAction
 	public String toString()
 	{
 		return String.format(Messages.getString("DeleteEntry.Delete"), entry); //$NON-NLS-1$
+	}
+
+	@Override
+	public boolean doAction(Session session, ZipOutputStream zos, ProgressHandler handler, int i, int max)
+	{
+		throw new UnsupportedOperationException("update forbidden");
 	}
 }

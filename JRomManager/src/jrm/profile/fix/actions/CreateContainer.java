@@ -16,20 +16,17 @@
  */
 package jrm.profile.fix.actions;
 
-import java.net.URI;
+import java.io.FileOutputStream;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
-import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.compressors.zipfs.ZipLevel;
-import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.locale.Messages;
 import jrm.misc.IOUtils;
 import jrm.misc.Log;
@@ -189,6 +186,16 @@ public class CreateContainer extends ContainerAction
 	 */
 	private boolean createZip(final Session session, final ProgressHandler handler)
 	{
+		try(final var zout = new ZipOutputStream(new FileOutputStream(container.getFile())))
+		{
+			zout.setLevel(format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel());
+			return zosAction(session, handler, zout);
+		}
+		catch (final Exception e)
+		{
+			Log.err(e.getMessage(),e);
+		}
+/*		
 		final Map<String, Object> env = new HashMap<>();
 		env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -201,7 +208,7 @@ public class CreateContainer extends ContainerAction
 		catch (final Exception e)
 		{
 			Log.err(e.getMessage(),e);
-		}
+		}*/
 		return false;
 	}
 

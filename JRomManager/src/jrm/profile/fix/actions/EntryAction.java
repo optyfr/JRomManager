@@ -18,6 +18,7 @@ package jrm.profile.fix.actions;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.util.zip.ZipOutputStream;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
@@ -83,6 +84,17 @@ public abstract class EntryAction implements HTMLRenderer
 	 */
 	public abstract boolean doAction(final Session session, Path target, ProgressHandler handler, int i, int max);
 	
+	/**
+	 * do action on entry on a {@link FileSystem}
+	 * @param session the current {@link Session}  
+	 * @param zos the {@link ZipOutputStream} provided by {@link ContainerAction#doAction(Session, ProgressHandler)} in which we should apply entry action
+	 * @param handler handler the {@link ProgressHandler} to show progression state
+	 * @param i the progression level
+	 * @param max the progression maximum
+	 * @return true if successful, otherwise false
+	 */
+	public abstract boolean doAction(final Session session, final ZipOutputStream zos, ProgressHandler handler, int i, int max);
+
 	public long estimatedSize()
 	{
 		return ESTIMATED_SIZE;

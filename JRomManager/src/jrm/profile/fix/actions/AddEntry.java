@@ -23,6 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
@@ -195,6 +197,25 @@ public class AddEntry extends EntryAction
 		}
 	}
 
+
+	@Override
+	public boolean doAction(final Session session, final ZipOutputStream zos, final ProgressHandler handler, int i, int max)
+	{
+		handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(ADD_ENTRY_ADDING), entity.getName()))); //$NON-NLS-1$
+		switch(entry.getParent().getType())
+		{
+			case DIR:
+				return dir2zos(zos, entity.getName());
+			case FAKE:
+				return fake2zos(zos, entity.getName());
+			case ZIP:
+				return zip2zos(zos, entity.getName());
+			default:
+				return default2zos(session, zos, entity.getName());
+		}
+	}
+
+
 	/**
 	 * @param session
 	 * @param dstpath
@@ -224,6 +245,33 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
+	 * @param session
+	 * @param zos
+	 * @param zentry
+	 * @return
+	 */
+	private boolean default2zos(final Session session, final ZipOutputStream zos, String zentry)
+	{
+		Path srcpath = null;
+		try(Archive srcarchive = new SevenZipArchive(session, entry.getParent().getFile()))
+		{
+			final File srcfile;
+			if((srcfile=srcarchive.extract(entry.getFile())) != null)
+			{
+				srcpath = srcfile.toPath();
+				final var ze = new ZipEntry(zentry);
+				zos.putNextEntry(ze);
+				Files.copy(srcpath, zos);
+			}
+			return true;
+		}
+		catch(final IOException e)
+		{
+			Log.err(String.format(ADD_FROM_S_AT_S_TO_S_AT_S_FAILED, entry.getParent().getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), entity.getName()), e);
+		}
+		return false;
+	}
+	/**
 	 * @param dstpath
 	 * @return
 	 */
@@ -237,6 +285,28 @@ public class AddEntry extends EntryAction
 			if(parent != null)
 				Files.createDirectories(parent);
 			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			return true;
+		}
+		catch(final Exception e)
+		{
+			Log.err(String.format(ADD_FROM_S_AT_S_TO_S_AT_S_FAILED, entry.getParent().getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), entity.getName()), e);
+		}
+		return false;
+	}
+
+	/**
+	 * @param zos
+	 * @param zentry
+	 * @return
+	 */
+	private boolean zip2zos(final ZipOutputStream zos, String zentry)
+	{
+		Path srcpath = null;
+		try(final var srcfs = new ZipFileSystemProvider().newFileSystem(entry.getParent().getFile().toPath(), Collections.singletonMap(READ_ONLY, true));)
+		{
+			srcpath = srcfs.getPath(entry.getFile());
+			zos.putNextEntry(new ZipEntry(zentry));
+			Files.copy(srcpath, zos);
 			return true;
 		}
 		catch(final Exception e)
@@ -270,6 +340,28 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
+	 * @param zos
+	 * @param zentry
+	 * @return
+	 */
+	private boolean fake2zos(final ZipOutputStream zos, String zentry)
+	{
+		Path srcpath = null;
+		try
+		{
+			srcpath = entry.getParent().getFile().getParentFile().toPath().resolve(entry.getFile());
+			zos.putNextEntry(new ZipEntry(zentry));
+			Files.copy(srcpath, zos);
+			return true;
+		}
+		catch (IOException e)
+		{
+			Log.err(String.format(ADD_FROM_S_AT_S_TO_S_AT_S_FAILED, entry.getParent().getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), entity.getName()), e);
+		}
+		return false;
+	}
+
+	/**
 	 * @param dstpath
 	 * @return
 	 */
@@ -288,6 +380,28 @@ public class AddEntry extends EntryAction
 		catch (IOException e)
 		{
 			Log.err(String.format(ADD_FROM_S_TO_S_AT_S_FAILED, srcpath, parent.container.getFile().getName(), dstpath), e);
+		}
+		return false;
+	}
+
+	/**
+	 * @param zos
+	 * @param zentry
+	 * @return
+	 */
+	private boolean dir2zos(final ZipOutputStream zos, String zentry)
+	{
+		Path srcpath = null;
+		try
+		{
+			srcpath = entry.getParent().getFile().toPath().resolve(entry.getFile());
+			zos.putNextEntry(new ZipEntry(zentry));
+			Files.copy(srcpath, zos);
+			return true;
+		}
+		catch (IOException e)
+		{
+			Log.err(String.format(ADD_FROM_S_AT_S_TO_S_AT_S_FAILED, entry.getParent().getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), entity.getName()), e);
 		}
 		return false;
 	}

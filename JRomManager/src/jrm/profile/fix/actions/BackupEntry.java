@@ -22,6 +22,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.zip.ZipOutputStream;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
@@ -127,5 +128,11 @@ public class BackupEntry extends EntryAction
 	public String toString()
 	{
 		return String.format("Backup of %s", entry); //$NON-NLS-1$
+	}
+
+	@Override
+	public boolean doAction(Session session, ZipOutputStream zos, ProgressHandler handler, int i, int max)
+	{
+		throw new UnsupportedOperationException("update forbidden");
 	}
 }

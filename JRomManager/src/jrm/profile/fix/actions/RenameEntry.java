@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+import java.util.zip.ZipOutputStream;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
@@ -139,5 +140,11 @@ public class RenameEntry extends EntryAction
 	public String toString()
 	{
 		return String.format(Messages.getString("RenameEntry.Rename"), entry, newname); //$NON-NLS-1$
+	}
+
+	@Override
+	public boolean doAction(Session session, ZipOutputStream zos, ProgressHandler handler, int i, int max)
+	{
+		throw new UnsupportedOperationException("update forbidden");
 	}
 }
