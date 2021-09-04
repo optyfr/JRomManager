@@ -73,7 +73,7 @@ public class Log
 	{
 		try
 		{
-			final var filehandler = new FileHandler(file, 1024 * 1024, 5, false);
+			final var filehandler = new FileHandler(file, 100 * 1024 * 1024, 5, false);
 			filehandler.setFormatter(Log.formatter);
 			Logger.getGlobal().setUseParentHandlers(false);
 			Logger.getGlobal().addHandler(filehandler);
