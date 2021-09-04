@@ -1535,15 +1535,11 @@ public class Scan extends PathAbstractor
 	{
 		List<Entry> entries = null;
 		if (rom.getSha1() != null)
-		{
 			entries = scanData.entriesBySha1.get(rom.getSha1());
-			if (entries == null && rom.getMd5() != null)
-			{
-				entries = scanData.entriesByMd5.get(rom.getMd5());
-				if (entries == null && rom.getCrc() != null)
-					entries = scanData.entriesByCrc.get(rom.getCrc() + '.' + rom.getSize());
-			}
-		}
+		if (entries == null && rom.getMd5() != null)
+			entries = scanData.entriesByMd5.get(rom.getMd5());
+		if (entries == null && rom.getCrc() != null)
+			entries = scanData.entriesByCrc.get(rom.getCrc() + '.' + rom.getSize());
 		return entries;
 	}
 
