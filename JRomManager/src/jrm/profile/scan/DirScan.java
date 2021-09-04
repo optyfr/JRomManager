@@ -503,7 +503,6 @@ public final class DirScan extends PathAbstractor
 				}
 				return;
 			}).start(stream);
-			
 			/*
 			 * Remove files from cache that are not in up2date state, because that mean that those files were removed from FS since the previous scan
 			 */
@@ -669,10 +668,10 @@ public final class DirScan extends PathAbstractor
 	 */
 	private void listFilesDest(final File file, final BasicFileAttributes attr)
 	{
-		Container c;
-		val type = attr.isRegularFile() ? Container.getType(file) : Type.DIR;
-		val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
-		if(null == (c = containersByName.get(fname)) /* new container */ || ((c.getModified() != attr.lastModifiedTime().toMillis() /* container date changed */ || (c instanceof Archive && c.getSize() != attr.size()) /* container size changed */) && !c.isUp2date()))
+		final var type = attr.isRegularFile() ? Container.getType(file) : Type.DIR;
+		final var  fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
+		var c = containersByName.get(fname); 
+		if(null == c  /* new container */ || ((c.getModified() != attr.lastModifiedTime().toMillis() /* container date changed */ || (c instanceof Archive && c.getSize() != attr.size()) /* container size changed */) && !c.isUp2date()))
 		{
 			if(attr.isRegularFile())
 			{
@@ -683,9 +682,9 @@ public final class DirScan extends PathAbstractor
 			}
 			else
 				c = new Directory(file, getRelativePath(file), attr);
+			c.setUp2date(true);
 			containers.add(c);
 			containersByName.put(fname, c);
-			c.setUp2date(true);
 		}
 		else if(!c.isUp2date())
 		{
@@ -802,7 +801,8 @@ public final class DirScan extends PathAbstractor
 					@Override
 					public FileVisitResult visitFile(final Path entryPath, final BasicFileAttributes attrs) throws IOException
 					{
-						updateEntry(c.add(new Entry(entryPath.toString(),getRelativePath(entryPath).toString())), entryPath, options);
+						final var entry = c.add(new Entry(entryPath.toString(),getRelativePath(entryPath).toString()));
+						updateEntry(entry, entryPath, options);
 						return FileVisitResult.CONTINUE;
 					}
 
@@ -1515,7 +1515,7 @@ public final class DirScan extends PathAbstractor
 		{
 			// ignore silently
 		}
-		return new HashMap<>();
+		return Collections.synchronizedMap(new HashMap<>());
 	}
 	
 	/**
