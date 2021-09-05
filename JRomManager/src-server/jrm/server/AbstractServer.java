@@ -23,17 +23,18 @@ public abstract class AbstractServer
 	private static final String TRUE = "true";
 	private static final String FALSE = "false";
 
-	private final boolean debug;
+	protected static Path clientPath;
+	protected static Server jettyserver = null;
+	protected static boolean debug;
 
-	protected AbstractServer(boolean debug)
+	protected AbstractServer()
 	{
-		this.debug = debug;
 	}
 	
 	/**
 	 * @return
 	 */
-	protected ServletHolder holderStatic()
+	protected static ServletHolder holderStatic()
 	{
 		final var holderStatic = new ServletHolder("static", DefaultServlet.class);
 		holderStatic.setInitParameter(DIR_ALLOWED, FALSE);
@@ -45,7 +46,7 @@ public abstract class AbstractServer
 	/**
 	 * @return
 	 */
-	protected ServletHolder holderStaticJS()
+	protected static ServletHolder holderStaticJS()
 	{
 		final var holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
 		holderStaticJS.setInitParameter(DIR_ALLOWED, FALSE);
@@ -58,7 +59,7 @@ public abstract class AbstractServer
 	/**
 	 * @return
 	 */
-	protected ServletHolder holderStaticCache()
+	protected static ServletHolder holderStaticCache()
 	{
 		final var holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
 		holderStaticCache.setInitParameter(DIR_ALLOWED, FALSE);
@@ -70,7 +71,7 @@ public abstract class AbstractServer
 	/**
 	 * @return
 	 */
-	protected ServletHolder holderStaticNoCache()
+	protected static ServletHolder holderStaticNoCache()
 	{
 		final var holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
 		holderStaticNoCache.setInitParameter(DIR_ALLOWED, FALSE);
@@ -100,7 +101,7 @@ public abstract class AbstractServer
 	 * @throws InterruptedException
 	 * @throws Exception
 	 */
-	protected void waitStop(final Server jettyserver) throws InterruptedException, JettyException
+	protected static void waitStop() throws InterruptedException, JettyException
 	{
 		try
 		{
@@ -113,15 +114,15 @@ public abstract class AbstractServer
 					System.out.println("Enter 'stop' to halt: ");	//NOSONAR
 					while (!sc.nextLine().equalsIgnoreCase("stop"))
 						Thread.sleep(1000);
-					if (!jettyserver.isStopped())
+					if (isStarted())
 					{
-						WebSession.closeAll();
-						jettyserver.stop();
+						terminate();
 					}
 				}
 			}
 			else
-				jettyserver.join();
+				if (isStarted())
+					jettyserver.join();
 		}
 		catch (InterruptedException e)
 		{
@@ -133,8 +134,33 @@ public abstract class AbstractServer
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public static synchronized void terminate() throws Exception
+	{
+		WebSession.closeAll();
+		if (jettyserver != null)
+		{
+			jettyserver.stop();
+			jettyserver = null;
+		}
+	}
+
+	public static final synchronized boolean isStarted()
+	{
+		return jettyserver != null && jettyserver.isStarted();
+
+	}
+
+	public static final synchronized boolean isStopped()
+	{
+		return jettyserver == null;
+
+	}
+
 	@SuppressWarnings("serial")
-	protected class JettyException extends Exception
+	protected static class JettyException extends Exception
 	{
 		@SuppressWarnings("unused")
 		public JettyException()

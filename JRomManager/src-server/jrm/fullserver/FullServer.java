@@ -2,7 +2,6 @@ package jrm.fullserver;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Security;
 import java.sql.SQLException;
@@ -15,6 +14,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.conscrypt.OpenSSLProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
@@ -53,8 +53,6 @@ import jrm.server.shared.handlers.UploadServlet;
 
 public class FullServer extends AbstractServer
 {
-	private Path clientPath;
-
 	private static final String KEY_STORE = "jrt:/jrm.merged.module/certs/";
 	private static final String KEY_STORE_PATH_DEFAULT = KEY_STORE + "localhost.pfx";
 	private static final String KEY_STORE_PW_PATH_DEFAULT = KEY_STORE + "localhost.pw";
@@ -64,106 +62,62 @@ public class FullServer extends AbstractServer
 	private static final int PROTOCOLS_DEFAULT = 0xff;
 	private static final int CONNLIMIT_DEFAULT = 50;
 
-	private final String keyStorePath;
-	private final String keyStorePWPath;
-	private final int protocols; // bit 1 = HTTP, bit 2 = HTTPS, bit 3 = HTTP2 (with bit 2)
-	private final int httpPort;
-	private final int httpsPort;
-	private final String bind;
-	private final int connlimit;
+	private static String keyStorePath;
+	private static String keyStorePWPath;
+	private static int protocols; // bit 1 = HTTP, bit 2 = HTTPS, bit 3 = HTTP2 (with bit 2)
+	private static int httpPort;
+	private static int httpsPort;
+	private static String bind;
+	private static int connlimit;
 
-	public FullServer(CommandLine cmd) throws IOException, SQLException, InterruptedException, JettyException
+	/**
+	 * @param cmd
+	 * @throws IOException
+	 */
+	public static void parseArgs(String... args) throws IOException
 	{
-		super(cmd.hasOption('d'));
-		clientPath = getOption(cmd, 'c').map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
-		bind = getOption(cmd, 'b').orElse(BIND_DEFAULT);
-		httpPort = getOption(cmd, 'p').map(Integer::parseInt).orElse(HTTP_PORT_DEFAULT);
-		httpsPort = getOption(cmd, 's').map(Integer::parseInt).orElse(HTTPS_PORT_DEFAULT);
-		keyStorePath = getOption(cmd, 'C').filter(p->Files.exists(Paths.get(p))).orElse(KEY_STORE_PATH_DEFAULT);
-		if (Files.exists(Paths.get(keyStorePath + ".pw")))
-			keyStorePWPath = keyStorePath + ".pw";
-		else if(keyStorePath.equals(KEY_STORE_PATH_DEFAULT) && Files.exists(Paths.get(KEY_STORE_PW_PATH_DEFAULT)))
-			keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
-		else
-			keyStorePWPath = null;
-		getOption(cmd, 'w').map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
-		protocols = PROTOCOLS_DEFAULT;
-		connlimit = CONNLIMIT_DEFAULT;
-		
-		Locale.setDefault(Locale.US);
-		System.setProperty("file.encoding", "UTF-8");
-		Log.init(getLogPath() + "/Server.%g.log", false, 1024 * 1024, 5);
-
-		final var jettyserver = new Server();
-
-		final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setBaseResource(Resource.newResource(this.clientPath));
-		context.setContextPath("/");
-
-		context.setGzipHandler(gzipHandler());
-
-		context.addServlet(new ServletHolder("datasources", FullDataSourceServlet.class), "/datasources/*");
-		context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
-		context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
-		context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
-		context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
-		context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
-		context.addServlet(holderStaticNoCache(), "*.nocache.js");
-		context.addServlet(holderStaticCache(), "*.cache.js");
-		context.addServlet(holderStaticJS(), "*.js");
-		context.addServlet(holderStatic(), "/");
-
-		setSecurity(context);
-
-		context.getSessionHandler().setMaxInactiveInterval(300);
-		context.getSessionHandler().addEventListener(new SessionListener(true));
-
-		jettyserver.setHandler(context);
-		jettyserver.setStopAtShutdown(true);
-
-		// LetsEncrypt certs with embedded Jetty on
-		// HTTP Configuration
-		final var config = new HttpConfiguration();
-		config.addCustomizer(new SecureRequestCustomizer());
-		config.addCustomizer(new ForwardedRequestCustomizer());
-
-		if ((protocols & 0x1) == 0x1)
-		{
-			// Create the HTTP connection
-			jettyserver.addConnector(httpConnector(jettyserver, config));
-		}
-
-		if ((protocols & 0x2) == 0x2 && URIUtils.URIExists(keyStorePath))
-		{
-			if ((protocols & 0x4) == 0x4)
-				jettyserver.addConnector(http2Connector(jettyserver));
-			else
-				jettyserver.addConnector(httpsConnector(jettyserver));
-		}
-
-		jettyserver.addBean(new ConnectionLimit(connlimit, jettyserver)); // limit simultaneous connections
+		final var options = new Options();
+		options.addOption(new Option("c", "client", true, "Client Path"));
+		options.addOption(new Option("w", "workpath", true, "Working Path"));
+		options.addOption(new Option("d", "debug", false, "Debug"));
+		options.addOption(new Option("C", "cert", true, "cert file, default is " + KEY_STORE_PATH_DEFAULT));
+		options.addOption(new Option("s", "https", true, "https port, default is " + HTTPS_PORT_DEFAULT));
+		options.addOption(new Option("p", "http", true, "http port, default is " + HTTP_PORT_DEFAULT));
+		options.addOption(new Option("b", "bind", true, "bind to address or host, default is " + BIND_DEFAULT));
 
 		try
 		{
-			jettyserver.start();
-			Log.config("Start server");
-			for (final var connector : jettyserver.getConnectors())
-				Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to " + ((ServerConnector) connector).getHost());
-			Log.config("clientPath: " + clientPath);
-			Log.config("workPath: " + getWorkPath());
-			waitStop(jettyserver);
+			final var cmd = new DefaultParser().parse(options, args);
+			debug = cmd.hasOption('d');
+			clientPath = getOption(cmd, 'c').map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
+			bind = getOption(cmd, 'b').orElse(BIND_DEFAULT);
+			httpPort = getOption(cmd, 'p').map(Integer::parseInt).orElse(HTTP_PORT_DEFAULT);
+			httpsPort = getOption(cmd, 's').map(Integer::parseInt).orElse(HTTPS_PORT_DEFAULT);
+			keyStorePath = getOption(cmd, 'C').filter(p->Files.exists(Paths.get(p))).orElse(KEY_STORE_PATH_DEFAULT);
+			if (Files.exists(Paths.get(keyStorePath + ".pw")))
+				keyStorePWPath = keyStorePath + ".pw";
+			else if(keyStorePath.equals(KEY_STORE_PATH_DEFAULT) && Files.exists(Paths.get(KEY_STORE_PW_PATH_DEFAULT)))
+				keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
+			else
+				keyStorePWPath = null;
+			getOption(cmd, 'w').map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
+			protocols = PROTOCOLS_DEFAULT;
+			connlimit = CONNLIMIT_DEFAULT;
+			
+			Locale.setDefault(Locale.US);
+			System.setProperty("file.encoding", "UTF-8");
+			Log.init(getLogPath() + "/Server.%g.log", false, 1024 * 1024, 5);
 		}
-		catch (InterruptedException|JettyException e)
+		catch(ParseException e)
 		{
-			throw e;
-		}
-		catch (Exception e)
-		{
-			throw new JettyException(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
+			e.printStackTrace();
+			new HelpFormatter().printHelp("Server", options);
+			System.exit(1);
 		}
 	}
 
-	private Optional<String> getOption(CommandLine cmd, char c)
+	private static Optional<String> getOption(CommandLine cmd, char c)
 	{
 		if(cmd.hasOption(c))
 			return Optional.ofNullable(cmd.getOptionValue(c));
@@ -175,7 +129,7 @@ public class FullServer extends AbstractServer
 	 * @return
 	 * @throws IOException
 	 */
-	private ServerConnector httpsConnector(final Server jettyserver) throws IOException
+	private static ServerConnector httpsConnector(final Server jettyserver) throws IOException
 	{
 		// SSL Context Factory for HTTPS and HTTP/2
 		final var sslContextFactory = sslContext();
@@ -202,7 +156,7 @@ public class FullServer extends AbstractServer
 	 * @return
 	 * @throws IOException
 	 */
-	private ServerConnector http2Connector(final Server jettyserver) throws IOException
+	private static ServerConnector http2Connector(final Server jettyserver) throws IOException
 	{
 		// SSL Context Factory for HTTPS and HTTP/2
 		final var sslContextFactory = sslContext();
@@ -234,7 +188,7 @@ public class FullServer extends AbstractServer
 	/**
 	 * @return
 	 */
-	private HttpConfiguration httpsConfig()
+	private static HttpConfiguration httpsConfig()
 	{
 		final var httpsConfig = new HttpConfiguration();
 		httpsConfig.setSecureScheme("https");
@@ -247,7 +201,7 @@ public class FullServer extends AbstractServer
 	 * @return
 	 * @throws IOException
 	 */
-	private org.eclipse.jetty.util.ssl.SslContextFactory.Server sslContext() throws IOException
+	private static org.eclipse.jetty.util.ssl.SslContextFactory.Server sslContext() throws IOException
 	{
 		var sslContextFactory = new SslContextFactory.Server();
 		sslContextFactory.setKeyStoreType("PKCS12");
@@ -266,7 +220,7 @@ public class FullServer extends AbstractServer
 	 * @param config
 	 * @return
 	 */
-	private ServerConnector httpConnector(final Server jettyserver, final HttpConfiguration config)
+	private static ServerConnector httpConnector(final Server jettyserver, final HttpConfiguration config)
 	{
 		final var httpConnectionFactory = new HttpConnectionFactory(config);
 		final var httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
@@ -279,7 +233,7 @@ public class FullServer extends AbstractServer
 	/**
 	 * @return
 	 */
-	private GzipHandler gzipHandler()
+	private static GzipHandler gzipHandler()
 	{
 		final var gzipHandler = new GzipHandler();
 		gzipHandler.setIncludedMethods("POST", "GET");
@@ -294,7 +248,7 @@ public class FullServer extends AbstractServer
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	private void setSecurity(final ServletContextHandler context) throws IOException, SQLException
+	private static void setSecurity(final ServletContextHandler context) throws IOException, SQLException
 	{
 		// Authentification server by login & password
 		final var security = new ConstraintSecurityHandler();
@@ -316,19 +270,11 @@ public class FullServer extends AbstractServer
 
 	public static void main(String[] args)
 	{
-		final var options = new Options();
-		options.addOption(new Option("c", "client", true, "Client Path"));
-		options.addOption(new Option("w", "workpath", true, "Working Path"));
-		options.addOption(new Option("d", "debug", false, "Debug"));
-		options.addOption(new Option("C", "cert", true, "cert file, default is " + KEY_STORE_PATH_DEFAULT));
-		options.addOption(new Option("s", "https", true, "https port, default is " + HTTPS_PORT_DEFAULT));
-		options.addOption(new Option("p", "http", true, "http port, default is " + HTTP_PORT_DEFAULT));
-		options.addOption(new Option("b", "bind", true, "bind to address or host, default is " + BIND_DEFAULT));
-
 		try
 		{
-			CommandLine cmd = new DefaultParser().parse(options, args);
-			new FullServer(cmd);
+			parseArgs(args);
+			initialize();
+			waitStop();
 		}
 		catch (InterruptedException e)
 		{
@@ -339,10 +285,75 @@ public class FullServer extends AbstractServer
 		catch (Exception e)
 		{
 			Log.err(e.getMessage(), e);
-			e.printStackTrace();
-			new HelpFormatter().printHelp("Server", options);
 			System.exit(1);
 		}
+	}
+
+	/**
+	 * @throws Exception 
+	 */
+	public static void initialize() throws Exception
+	{
+		if(jettyserver==null)
+		{
+			jettyserver = new Server();
+	
+			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+			context.setBaseResource(Resource.newResource(clientPath));
+			context.setContextPath("/");
+	
+			context.setGzipHandler(gzipHandler());
+	
+			context.addServlet(new ServletHolder("datasources", FullDataSourceServlet.class), "/datasources/*");
+			context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
+			context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
+			context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
+			context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
+			context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
+			context.addServlet(holderStaticNoCache(), "*.nocache.js");
+			context.addServlet(holderStaticCache(), "*.cache.js");
+			context.addServlet(holderStaticJS(), "*.js");
+			context.addServlet(holderStatic(), "/");
+	
+			setSecurity(context);
+	
+			context.getSessionHandler().setMaxInactiveInterval(300);
+			context.getSessionHandler().addEventListener(new SessionListener(true));
+	
+			jettyserver.setHandler(context);
+			jettyserver.setStopAtShutdown(true);
+	
+			// LetsEncrypt certs with embedded Jetty on
+			// HTTP Configuration
+			final var config = new HttpConfiguration();
+			config.addCustomizer(new SecureRequestCustomizer());
+			config.addCustomizer(new ForwardedRequestCustomizer());
+	
+			if ((protocols & 0x1) == 0x1)
+			{
+				// Create the HTTP connection
+				jettyserver.addConnector(httpConnector(jettyserver, config));
+			}
+	
+			if ((protocols & 0x2) == 0x2 && URIUtils.URIExists(keyStorePath))
+			{
+				if ((protocols & 0x4) == 0x4)
+					jettyserver.addConnector(http2Connector(jettyserver));
+				else
+					jettyserver.addConnector(httpsConnector(jettyserver));
+			}
+	
+			jettyserver.addBean(new ConnectionLimit(connlimit, jettyserver)); // limit simultaneous connections
+	
+			jettyserver.start();
+			Log.config("Start server");
+			for (final var connector : jettyserver.getConnectors())
+				Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to " + ((ServerConnector) connector).getHost());
+			Log.config("clientPath: " + clientPath);
+			Log.config("workPath: " + getWorkPath());
+		}
+		else
+			Log.err("Already initialized");
 	}
 
 

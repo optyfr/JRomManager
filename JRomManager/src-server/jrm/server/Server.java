@@ -1,14 +1,12 @@
 package jrm.server;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -31,103 +29,24 @@ import jrm.server.shared.handlers.DataSourceServlet;
 import jrm.server.shared.handlers.DownloadServlet;
 import jrm.server.shared.handlers.ImageServlet;
 import jrm.server.shared.handlers.UploadServlet;
-import lombok.val;
 
 public class Server extends AbstractServer
 {
-	private Path clientPath;
-	private boolean debug = false;
 	private static final int HTTP_PORT_DEFAULT = 8080;
-	private int httpPort = HTTP_PORT_DEFAULT;
+	private static int httpPort = HTTP_PORT_DEFAULT;
 	private static final String BIND_DEFAULT = "0.0.0.0";
-	private String bind = BIND_DEFAULT;
-	private int connLimit = 50;
+	private static String bind = BIND_DEFAULT;
+	private static int connLimit = 50;
 
 	static final Map<String, WebSession> sessions = new HashMap<>();
 	
-		
-	@SuppressWarnings("exports")
-	public Server(CommandLine cmd) throws IOException, JettyException, InterruptedException
-	{
-		super(cmd.hasOption('d'));
-		this.clientPath = Optional.ofNullable(cmd.getOptionValue('c')).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
-		if (cmd.hasOption('b'))
-			bind = cmd.getOptionValue('b');
-		if (cmd.hasOption('p'))
-			httpPort = Integer.parseInt(cmd.getOptionValue('p'));
-		if (cmd.hasOption('w'))
-			System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
-		Locale.setDefault(Locale.US);
-		System.setProperty("file.encoding", "UTF-8");
-		Log.init(getLogPath() + "/Server.%g.log", debug, 1024 * 1024, 5);
 
-		val jettyserver = new org.eclipse.jetty.server.Server();
-
-		final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setBaseResource(Resource.newResource(this.clientPath));
-		context.setContextPath("/");
-
-		final var gzipHandler = new GzipHandler();
-		gzipHandler.setIncludedMethods("POST", "GET");
-		gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
-		gzipHandler.setInflateBufferSize(2048);
-		gzipHandler.setMinGzipSize(2048);
-		context.setGzipHandler(gzipHandler);
-
-		context.addServlet(new ServletHolder("datasources", DataSourceServlet.class), "/datasources/*");
-		context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
-		context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
-		context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
-		context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
-		context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
-		context.addServlet(holderStaticNoCache(), "*.nocache.js");
-		context.addServlet(holderStaticCache(), "*.cache.js");
-		context.addServlet(holderStaticJS(), "*.js");
-		context.addServlet(holderStatic(), "/");
-
-		context.getSessionHandler().setMaxInactiveInterval(300);
-
-		context.getSessionHandler().addEventListener(new SessionListener(false));
-
-		jettyserver.setHandler(context);
-		jettyserver.setStopAtShutdown(true);
-
-		// Create the HTTP connection
-		final var httpConnectionFactory = new HttpConnectionFactory();
-		final var httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
-		httpConnector.setPort(httpPort);
-		httpConnector.setHost(bind);
-		httpConnector.setName("HTTP");
-		jettyserver.addConnector(httpConnector);
-		
-		jettyserver.addBean(new ConnectionLimit(connLimit, jettyserver)); // limit simultaneous connections
-
-		try
-		{
-			jettyserver.start();
-			Log.config("Start server");
-			for (val connector : jettyserver.getConnectors())
-				Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort()+ " binded to " +((ServerConnector) connector).getHost());
-			Log.config("clientPath: " + clientPath);
-			Log.config("workPath: " + getWorkPath());
-			waitStop(jettyserver);
-		}
-		catch (InterruptedException e)
-		{
-			throw e;
-		}
-		catch (Exception e)
-		{
-			throw new JettyException(e.getMessage());
-		}
-	}
-	
 	/**
-	 * Main entry point
-	 * 
-	 * @param args
+	 * @param cmd
+	 * @throws NumberFormatException
+	 * @throws IOException
 	 */
-	public static void main(String[] args)
+	public static void parseArgs(String... args) throws NumberFormatException, IOException
 	{
 		final var options = new Options();
 		options.addOption(new Option("c", "client", true, "Client Path"));
@@ -138,8 +57,40 @@ public class Server extends AbstractServer
 
 		try
 		{
-			CommandLine cmd = new DefaultParser().parse(options, args);
-			new Server(cmd);
+			final var cmd = new DefaultParser().parse(options, args);
+			debug = cmd.hasOption('d');
+			clientPath = Optional.ofNullable(cmd.getOptionValue('c')).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
+			if (cmd.hasOption('b'))
+				bind = cmd.getOptionValue('b');
+			if (cmd.hasOption('p'))
+				httpPort = Integer.parseInt(cmd.getOptionValue('p'));
+			if (cmd.hasOption('w'))
+				System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
+			Locale.setDefault(Locale.US);
+			System.setProperty("file.encoding", "UTF-8");
+			Log.init(getLogPath() + "/Server.%g.log", debug, 1024 * 1024, 5);
+		}
+		catch(ParseException e)
+		{
+			Log.err(e.getMessage(), e);
+			e.printStackTrace();
+			new HelpFormatter().printHelp("Server", options);
+			System.exit(1);
+		}
+	}
+	
+	/**
+	 * Main entry point
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args)
+	{
+		try
+		{
+			parseArgs(args);
+			initialize();
+			waitStop();
 		}
 		catch (InterruptedException e)
 		{
@@ -147,11 +98,69 @@ public class Server extends AbstractServer
 			System.exit(1);
 			Thread.currentThread().interrupt();
 		}
-		catch (ParseException | IOException | JettyException e)
+		catch (Exception e)
 		{
 			Log.err(e.getMessage(), e);
-			new HelpFormatter().printHelp("Server", options);
 			System.exit(1);
 		}
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public static void initialize() throws Exception
+	{
+		if(jettyserver==null)
+		{
+			jettyserver = new org.eclipse.jetty.server.Server();
+	
+			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+			context.setBaseResource(Resource.newResource(clientPath));
+			context.setContextPath("/");
+	
+			final var gzipHandler = new GzipHandler();
+			gzipHandler.setIncludedMethods("POST", "GET");
+			gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
+			gzipHandler.setInflateBufferSize(2048);
+			gzipHandler.setMinGzipSize(2048);
+			context.setGzipHandler(gzipHandler);
+	
+			context.addServlet(new ServletHolder("datasources", DataSourceServlet.class), "/datasources/*");
+			context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
+			context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
+			context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
+			context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
+			context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
+			context.addServlet(holderStaticNoCache(), "*.nocache.js");
+			context.addServlet(holderStaticCache(), "*.cache.js");
+			context.addServlet(holderStaticJS(), "*.js");
+			context.addServlet(holderStatic(), "/");
+	
+			context.getSessionHandler().setMaxInactiveInterval(300);
+	
+			context.getSessionHandler().addEventListener(new SessionListener(false));
+	
+			jettyserver.setHandler(context);
+			jettyserver.setStopAtShutdown(true);
+	
+			// Create the HTTP connection
+			final var httpConnectionFactory = new HttpConnectionFactory();
+			final var httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
+			httpConnector.setPort(httpPort);
+			httpConnector.setHost(bind);
+			httpConnector.setName("HTTP");
+			jettyserver.addConnector(httpConnector);
+			
+			jettyserver.addBean(new ConnectionLimit(connLimit, jettyserver)); // limit simultaneous connections
+	
+			jettyserver.start();
+			Log.config("Start server");
+			for (final var connector : jettyserver.getConnectors())
+				Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort()+ " binded to " +((ServerConnector) connector).getHost());
+			Log.config("clientPath: " + clientPath);
+			Log.config("workPath: " + getWorkPath());
+		}
+		else
+			Log.err("Already initialized");
 	}
 }

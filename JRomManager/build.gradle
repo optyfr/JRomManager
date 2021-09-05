@@ -2,6 +2,7 @@ plugins {
 	id 'java' 
 	id 'jacoco'
 	id "org.sonarqube"
+	id 'eclipse'
 	id "de.undercouch.download" version "4.1.2"
 	id "nebula.ospackage" version "8.6.3"
 	id "de.inetsoftware.setupbuilder" version "4.8.10"
@@ -9,7 +10,6 @@ plugins {
 	id "io.freefair.lombok" version "6.1.0"
 	id "org.beryx.jlink" version "2.24.1"
 }
-
 
 apply plugin: 'java'
 sourceCompatibility = 11
@@ -65,9 +65,9 @@ subprojects {
 	apply plugin: 'java'
 	sourceCompatibility = 11
 	targetCompatibility = 11
-	apply plugin: 'eclipse'
 	apply plugin: 'org.javamodularity.moduleplugin'
-	
+	apply plugin: 'eclipse'
+
 	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
 	repositories {
 		mavenCentral()
@@ -85,11 +85,16 @@ subprojects {
 		}
 	}
 
-	jacocoTestReport {
-		reports {
-			xml.enabled true
+	test {
+		useJUnitPlatform {
+			includeEngines 'junit-jupiter'
 		}
-		dependsOn test
+		jacocoTestReport {
+			reports {
+				xml.enabled true
+			}
+		}
+		finalizedBy jacocoTestReport
 	}
 	
 	sonarqube {
@@ -415,6 +420,11 @@ project(':JRomManager:jrmserver') {
 				srcDirs = ["../src-server"]
 			}
 		}
+		test {
+			java {
+				srcDirs = ["../test-server"]
+			}
+		}
 	}
 	dependencies {
 		implementation project(':JRomManager:jrmstandalone')
@@ -438,6 +448,14 @@ project(':JRomManager:jrmserver') {
 		implementation 'net.java.dev.jna:jna:5.9.0'
 		implementation group: 'de.mkammerer', name:'argon2-jvm'
 		implementation files(WebClientJar)
+
+		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version: '9.4.43.v20210629'
+		testImplementation group: 'org.eclipse.jetty', name: 'jetty-http', version: '9.4.43.v20210629'
+		testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.0'
+		testImplementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+		testImplementation 'commons-daemon:commons-daemon:1.2.4'
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
 	}
 	jar {
 		manifest {
