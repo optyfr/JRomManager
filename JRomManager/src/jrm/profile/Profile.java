@@ -97,9 +97,10 @@ import lombok.Setter;
  * @author optyfr
  *
  */
-@SuppressWarnings("serial")
 public class Profile implements Serializable
 {
+	private static final long serialVersionUID = 2L;
+	
 	private static final String DESCRIPTION = "description";
 	private static final String VERSION = "version";
 	/*
@@ -126,7 +127,7 @@ public class Profile implements Serializable
 	 * dat build and header informations
 	 */
 	private @Getter String build = null;
-	private final @Getter Map<String, StringBuffer> header = new HashMap<>();
+	private final @Getter Map<String, StringBuilder> header = new HashMap<>();
 
 	/**
 	 * The main object that will contains all the games AND the related software
@@ -315,6 +316,8 @@ public class Profile implements Serializable
 
 		private class ProfileHandlerException extends RuntimeException
 		{
+			private static final long serialVersionUID = 1L;
+
 			public ProfileHandlerException(String message, Exception e)
 			{
 				super(message, e);
@@ -1241,40 +1244,43 @@ public class Profile implements Serializable
 		@Override
 		public void characters(final char[] ch, final int start, final int length) throws SAXException
 		{
+			final var value = new String(ch, start, length);
+			if(value.isBlank())
+				return;
 			if (inDescription)
 			{
 				// we are in description block, so fill up description data for current
 				// machine/software/softwarelist
 				if (currMachine != null)
-					currMachine.description.append(ch, start, length);
+					currMachine.description.append(value);
 				else if (currSoftware != null)
-					currSoftware.description.append(ch, start, length);
+					currSoftware.description.append(value);
 				else if (currSoftwareList != null)
-					currSoftwareList.getDescription().append(ch, start, length);
+					currSoftwareList.getDescription().append(value);
 			}
 			else if (inYear)
 			{
 				// we are in year block, so fill up year data for current machine/software
 				if (currMachine != null)
-					currMachine.year.append(ch, start, length);
+					currMachine.year.append(value);
 				else if (currSoftware != null)
-					currSoftware.year.append(ch, start, length);
+					currSoftware.year.append(value);
 			}
 			else if (inManufacturer && currMachine != null)
 			{
 				// we are in manufacturer block, so fill up manufacturer data for current
 				// machine
-				currMachine.manufacturer.append(ch, start, length);
+				currMachine.manufacturer.append(value);
 			}
 			else if (inPublisher && currSoftware != null)
 			{
 				// we are in publisher block, so fill up publisher data for current software
-				currSoftware.getPublisher().append(ch, start, length);
+				currSoftware.getPublisher().append(value);
 			}
 			else if (inHeader)
 			{
 				// we are in header, so filling header data structure...
-				header.computeIfAbsent(currTag, StringBuffer::new).append(ch, start, length);
+				header.computeIfAbsent(currTag, k -> new StringBuilder()).append(value);
 			}
 		}
 	}
@@ -1663,8 +1669,7 @@ public class Profile implements Serializable
 	 */
 	public String getName()
 	{
-		String name = "<html><body>[<span style='color:blue'>" + session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.getFile().toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-																																																				// //$NON-NLS-4$
+		String name = "<html><body>[<span style='color:blue'>" + session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.getFile().toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if (build != null)
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if (header.size() > 0)
