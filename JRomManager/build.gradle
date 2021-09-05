@@ -4,7 +4,7 @@ plugins {
 	id "org.sonarqube"
 	id "de.undercouch.download" version "4.1.2"
 	id "nebula.ospackage" version "8.6.3"
-	id "de.inetsoftware.setupbuilder" version "4.8.7"
+	id "de.inetsoftware.setupbuilder" version "4.8.10"
 	id "org.javamodularity.moduleplugin" version "1.8.9"
 	id "io.freefair.lombok" version "6.1.0"
 	id "org.beryx.jlink" version "2.24.1"
