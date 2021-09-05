@@ -449,7 +449,7 @@ project(':JRomManager:jrmserver') {
 		implementation group: 'de.mkammerer', name:'argon2-jvm'
 		implementation files(WebClientJar)
 
-		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version: '9.4.43.v20210629'
+		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version: '11.0.6'
 		testImplementation group: 'org.eclipse.jetty', name: 'jetty-http', version: '9.4.43.v20210629'
 		testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.0'
 		testImplementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
