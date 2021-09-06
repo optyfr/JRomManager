@@ -1,6 +1,5 @@
 plugins {
 	id 'java' 
-	id 'jacoco'
 	id "org.sonarqube"
 	id 'eclipse'
 	id "de.undercouch.download" version "4.1.2"
@@ -9,7 +8,56 @@ plugins {
 	id "org.javamodularity.moduleplugin" version "1.8.9"
 	id "io.freefair.lombok" version "6.1.0"
 	id "org.beryx.jlink" version "2.24.1"
+	id 'jacoco'
 }
+
+sonarqube {
+	properties {
+		property "sonar.projectBaseDir", ".."
+		property "sonar.sourceEncoding", "utf-8"
+		property "sonar.log.level", "INFO"
+		property "sonar.verbose", "true"
+		property "sonar.exclusions", "**/compressors/zipfs/*.java"
+		property "sonar.scm.provider", "github"
+		property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/JRomManager/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
+	}
+}
+
+tasks.register("codeCoverageReport", JacocoReport) {
+    // If a subproject applies the 'jacoco' plugin, add the result it to the report
+    subprojects { subproject ->
+        subproject.plugins.withType(JacocoPlugin).configureEach {
+            subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
+                sourceSets subproject.sourceSets.main
+                executionData(testTask)
+            }
+/*
+            // To automatically run `test` every time `./gradlew codeCoverageReport` is called,
+            // you may want to set up a task dependency between them as shown below.
+            // Note that this requires the `test` tasks to be resolved eagerly (see `forEach`) which
+            // may have a negative effect on the configuration time of your build.
+            subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {
+                rootProject.tasks.codeCoverageReport.dependsOn(it)
+            }*/
+        }
+    }
+
+    // enable the different report types (html, xml, csv)
+    reports {
+        // xml is usually used to integrate code coverage with
+        // other tools like SonarQube, Coveralls or Codecov
+        xml.enabled true
+
+        // HTML reports can be used to see code coverage
+        // without any external tools
+        html.enabled true
+    }
+}
+
+codeCoverageReport.dependsOn {
+    subprojects*.test
+}
+
 
 apply plugin: 'java'
 sourceCompatibility = 11
@@ -61,6 +109,9 @@ task WebClientJar(type: Jar, dependsOn: [':WebClient:build']) {
 	}
 }
 
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 subprojects {
 	apply plugin: 'java'
 	sourceCompatibility = 11
@@ -105,6 +156,7 @@ subprojects {
 			property "sonar.verbose", "true"
 			property "sonar.exclusions", "**/compressors/zipfs/*.java"
 			property "sonar.scm.provider", "github"
+			property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/JRomManager/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
 		}
 	}
 
@@ -303,6 +355,11 @@ project(':JRomManager:jrmcore') {
 				srcDirs = ["../src"]
 			}
 		}
+		test {
+			java {
+				srcDirs = ["../test"]
+			}
+		}
 	}
 	dependencies {
 		implementation 'com.github.optyfr:SevenZipJBindingAllInOne:1.0'
@@ -316,6 +373,9 @@ project(':JRomManager:jrmcore') {
 		implementation group: 'com.sun.activation', name: 'javax.activation'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 	//	compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations'
+	
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
 	}
 	jar {
 		manifest {
@@ -325,6 +385,7 @@ project(':JRomManager:jrmcore') {
 			)
 		}
 	}
+	apply plugin:'jacoco'
 }
 
 project(':JRomManager:jrmcli') {
@@ -339,6 +400,11 @@ project(':JRomManager:jrmcli') {
 				srcDirs = ["../src-cli"]
 			}
 		}
+		test {
+			java {
+				srcDirs = ["../test-cli"]
+			}
+		}
 	}
 	dependencies {
 		implementation project(':JRomManager:jrmcore')
@@ -346,6 +412,9 @@ project(':JRomManager:jrmcli') {
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+	
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
 	}
 	jar {
 		manifest {
@@ -355,6 +424,7 @@ project(':JRomManager:jrmcli') {
 			)
 		}
 	}
+	apply plugin:'jacoco'
 	
 }
 
@@ -390,6 +460,11 @@ project(':JRomManager:jrmstandalone') {
 				srcDirs = ["../src-standalone"]
 			}
 		}
+		test {
+			java {
+				srcDirs = ["../test-standalone"]
+			}
+		}
 	}
 	dependencies {
 		implementation project(':JRomManager:jrmcore')
@@ -401,6 +476,9 @@ project(':JRomManager:jrmstandalone') {
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		implementation 'com.sun.activation:javax.activation:1.2.0'
+	
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
 	}
 	jar {
 		manifest {
@@ -410,6 +488,7 @@ project(':JRomManager:jrmstandalone') {
 			)
 		}
 	}
+	apply plugin:'jacoco'
 }
 
 project(':JRomManager:jrmserver') {
@@ -457,6 +536,56 @@ project(':JRomManager:jrmserver') {
 		testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
 		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
 	}
+	
+	apply plugin: 'jacoco'
+	test {
+		useJUnitPlatform {
+			includeEngines 'junit-jupiter'
+		}
+		jacocoTestReport {
+			reports {
+				xml.enabled true
+			}
+		}
+		finalizedBy jacocoTestReport
+	    testLogging {
+	        // set options for log level LIFECYCLE
+	        events TestLogEvent.FAILED,
+	               TestLogEvent.PASSED,
+	               TestLogEvent.SKIPPED,
+	               TestLogEvent.STANDARD_OUT
+	        exceptionFormat TestExceptionFormat.FULL
+	        showExceptions true
+	        showCauses true
+	        showStackTraces true
+	
+	        // set options for log level DEBUG and INFO
+	        debug {
+	            events TestLogEvent.STARTED,
+	                   TestLogEvent.FAILED,
+	                   TestLogEvent.PASSED,
+	                   TestLogEvent.SKIPPED,
+	                   TestLogEvent.STANDARD_ERROR,
+	                   TestLogEvent.STANDARD_OUT
+	            exceptionFormat TestExceptionFormat.FULL
+	        }
+	        info.events = debug.events
+	        info.exceptionFormat = debug.exceptionFormat
+	
+	        afterSuite { desc, result ->
+	            if (!desc.parent) { // will match the outermost suite
+	                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+	                def startItem = '|  ', endItem = '  |'
+	                def repeatLength = startItem.length() + output.length() + endItem.length()
+	                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+	            }
+	        }
+	    }
+	    systemProperty "JRomManager.rootPath", "${rootDir}"
+	    systemProperty "file.encoding", "utf-8"
+	}
+
+	
 	jar {
 		manifest {
 			attributes(

@@ -1,6 +1,8 @@
-package jrmtest;
+package jrm.test.server;
 
 import static org.junit.jupiter.api.Assertions.fail;
+
+import java.nio.file.Paths;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -35,8 +37,8 @@ class LauncherTest
 		try
 		{
 			FullServer.parseArgs(
-				"--client=\".\\WebClient\\war\"",
-				"--cert=\".\\JRomManager\\certs\\localhost.pfx\"",
+				"--client=" + Paths.get(System.getProperty("JRomManager.rootPath")).resolve("WebClient").resolve("war"),
+				"--cert=" + Paths.get(System.getProperty("JRomManager.rootPath")).resolve("JRomManager").resolve("certs").resolve("localhost.pfx"),
 				"--debug"
 			);
 			FullServer.initialize();
