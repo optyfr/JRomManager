@@ -375,9 +375,12 @@ public class Scan extends PathAbstractor
 		if(profile.getProperty(SettingsEnum.samples_dest_dir_enabled, false))
 		{
 			final String samplesDstDirTxt = profile.getProperty(SettingsEnum.samples_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
-			if(!samplesDstDirTxt.isEmpty())
+			if(samplesDstDirTxt.isEmpty())
 				throw new ScanException("Samples dst dir is empty");
-			return getAbsolutePath(samplesDstDirTxt).toFile();
+			final var samplesDstDir = getAbsolutePath(samplesDstDirTxt).toFile();
+			if(!samplesDstDir.isDirectory())
+				throw new ScanException("Samples dst dir is not a directory");
+			return samplesDstDir;
 		}
 		return null;
 	}
