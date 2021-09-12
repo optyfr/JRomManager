@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -42,6 +43,8 @@ import jrm.ui.progress.SwingWorkerProgress;
 @SuppressWarnings("serial")
 public class ScannerPanel extends JPanel implements ProfileLoader
 {
+	private static final String ERROR_STR = "Error";
+
 	/** The scanner cfg tab. */
 	private JTabbedPane scannerTabbedPane;
 
@@ -258,21 +261,38 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected void done()
 			{
-				btnFix.setEnabled(session.getCurrScan()!=null && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0);
-				close();
-				/* update entries in profile viewer */ 
-				if (MainFrame.getProfileViewer() != null)
-					MainFrame.getProfileViewer().reload();
-				ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
-				if(MainFrame.getReportFrame() != null)
+				try
 				{
-					if(automation.hasReport())
-						MainFrame.getReportFrame().setVisible(true);
-					MainFrame.getReportFrame().setNeedUpdate(true);
+					get();
+					btnFix.setEnabled(session.getCurrScan()!=null && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0);
+					close();
+					/* update entries in profile viewer */ 
+					if (MainFrame.getProfileViewer() != null)
+						MainFrame.getProfileViewer().reload();
+					ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+					if(MainFrame.getReportFrame() != null)
+					{
+						if(automation.hasReport())
+							MainFrame.getReportFrame().setVisible(true);
+						MainFrame.getReportFrame().setNeedUpdate(true);
+					}
+					if (automate && btnFix.isEnabled() && automation.hasFix())
+					{
+						fix(session);
+					}
 				}
-				if (automate && btnFix.isEnabled() && automation.hasFix())
-				{
-					fix(session);
+				catch (InterruptedException e) {
+					Log.err(e.getMessage(), e);
+					Thread.currentThread().interrupt();
+				}
+				catch (Exception e) {
+					Optional.ofNullable(e.getCause()).ifPresentOrElse(cause -> {
+						Log.err(cause.getMessage(), cause);
+						JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), cause.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
+					}, () -> {
+						Log.err(e.getMessage(), e);
+						JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), e.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
+					});
 				}
 			}
 		}.execute();
@@ -315,14 +335,33 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected void done()
 			{
-				btnFix.setEnabled(toFix);
-				close();
-				/* update entries in profile viewer */ 
-				if (MainFrame.getProfileViewer() != null)
-					MainFrame.getProfileViewer().reload();
-				ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
-				if(automation.hasScanAgain())
-					scan(session, false);
+				try
+				{
+					get();
+					btnFix.setEnabled(toFix);
+					close();
+					/* update entries in profile viewer */
+					if (MainFrame.getProfileViewer() != null)
+						MainFrame.getProfileViewer().reload();
+					ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+					if (automation.hasScanAgain())
+						scan(session, false);
+				}
+				catch (InterruptedException e)
+				{
+					Log.err(e.getMessage(), e);
+					Thread.currentThread().interrupt();
+				}
+				catch (Exception e)
+				{
+					Optional.ofNullable(e.getCause()).ifPresentOrElse(cause -> {
+						Log.err(cause.getMessage(), cause);
+						JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), cause.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
+					}, () -> {
+						Log.err(e.getMessage(), e);
+						JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), e.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
+					});
+				}
 			}
 
 		}.execute();
@@ -370,20 +409,39 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 			@Override
 			protected void done()
 			{
-				session.getReport().setProfile(session.getCurrProfile());
-				if (MainFrame.getProfileViewer() != null)
-					MainFrame.getProfileViewer().reset(session.getCurrProfile());
-				mainPane.setEnabledAt(1, success);
-				btnScan.setEnabled(success);
-				btnFix.setEnabled(false);
-				if (success && session.getCurrProfile() != null)
+				try
 				{
-					lblProfileinfo.setText(session.getCurrProfile().getName());
-					scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.getCurrProfile().getSystems()));
-					initProfileSettings(session);
-					mainPane.setSelectedIndex(1);
+					get();
+					session.getReport().setProfile(session.getCurrProfile());
+					if (MainFrame.getProfileViewer() != null)
+						MainFrame.getProfileViewer().reset(session.getCurrProfile());
+					mainPane.setEnabledAt(1, success);
+					btnScan.setEnabled(success);
+					btnFix.setEnabled(false);
+					if (success && session.getCurrProfile() != null)
+					{
+						lblProfileinfo.setText(session.getCurrProfile().getName());
+						scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.getCurrProfile().getSystems()));
+						initProfileSettings(session);
+						mainPane.setSelectedIndex(1);
+					}
+					this.close();
 				}
-				this.close();
+				catch (InterruptedException e)
+				{
+					Log.err(e.getMessage(), e);
+					Thread.currentThread().interrupt();
+				}
+				catch (Exception e)
+				{
+					Optional.ofNullable(e.getCause()).ifPresentOrElse(cause -> {
+						Log.err(cause.getMessage(), cause);
+						JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), cause.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
+					}, () -> {
+						Log.err(e.getMessage(), e);
+						JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), e.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
+					});
+				}
 			}
 		}.execute();
 		
