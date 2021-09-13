@@ -375,7 +375,7 @@ project(':JRomManager:jrmcore') {
 	//	compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations'
 	
 		testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
-		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
 	}
 	jar {
 		manifest {
@@ -414,7 +414,7 @@ project(':JRomManager:jrmcli') {
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 	
 		testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
-		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
 	}
 	jar {
 		manifest {
@@ -478,7 +478,7 @@ project(':JRomManager:jrmstandalone') {
 		implementation 'com.sun.activation:javax.activation:1.2.0'
 	
 		testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
-		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
 	}
 	jar {
 		manifest {
@@ -534,7 +534,7 @@ project(':JRomManager:jrmserver') {
 		testImplementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
 		testImplementation 'commons-daemon:commons-daemon:1.2.4'
 		testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
-		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
 	}
 	
 	apply plugin: 'jacoco'
