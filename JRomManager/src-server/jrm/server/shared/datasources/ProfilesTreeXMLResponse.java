@@ -42,7 +42,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse
 			else
 				count++;
 		}
-		return ++count;
+		return count;
 	}
 
 	private void outputNode(XMLStreamWriter writer, Node<Dir> node, String parentID, AtomicInteger id) throws XMLStreamException

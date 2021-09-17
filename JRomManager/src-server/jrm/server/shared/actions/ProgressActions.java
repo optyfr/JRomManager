@@ -2,6 +2,7 @@ package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,7 @@ public class ProgressActions implements ProgressHandler
 				boolean indeterminate = false;
 				int max = 100;
 				int val = 0;
-				float perc = 0f;
+				float perc = 0;
 				String msg = null;
 				String timeleft;
 
@@ -237,6 +238,7 @@ public class ProgressActions implements ProgressHandler
 				ws.send(gson.toJson(new SetFullProgress(data)));
 			else
 				ws.sendOptional(gson.toJson(new SetFullProgress(data)));
+			data.pb1.msg = null;
 		}
 		catch (IOException e)
 		{
@@ -460,7 +462,7 @@ public class ProgressActions implements ProgressHandler
 		if (val > 0)
 		{
 			if (pb.msg == null)
-				pb.msg = String.format("%.02f", pb.perc);
+				pb.msg = String.format("%.02f%%", pb.perc);
 			final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - pb.startTime) * (pb.max - val) / val, HH_MM_SS); //$NON-NLS-1$
 			final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - pb.startTime) * pb.max / val, HH_MM_SS); //$NON-NLS-1$
 			pb.timeleft = String.format(S_OF_S, left, total); //$NON-NLS-1$
