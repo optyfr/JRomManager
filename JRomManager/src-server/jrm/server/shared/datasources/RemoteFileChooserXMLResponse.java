@@ -59,6 +59,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 				case "tfSWDest":
 				case "tfSWDisksDest":
 				case "tfSamplesDest":
+				case "tfBackupDest":
 				case "listSrcDir":
 				case "addDatSrc":
 				case "updDat":

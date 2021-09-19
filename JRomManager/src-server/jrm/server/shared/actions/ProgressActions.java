@@ -48,7 +48,7 @@ public class ProgressActions implements ProgressHandler
 				boolean indeterminate = false;
 				int max = 100;
 				int val = 0;
-				float perc = 0;
+				double perc = 0;
 				String msg = null;
 				String timeleft;
 

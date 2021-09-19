@@ -51,6 +51,8 @@ public enum SettingsEnum
 	swdisks_dest_dir,	//NOSONAR
 	samples_dest_dir_enabled,	//NOSONAR
 	samples_dest_dir,	//NOSONAR
+	backup_dest_dir_enabled,	//NOSONAR
+	backup_dest_dir,	//NOSONAR
 	src_dir,	//NOSONAR
 	dat2dir_srcdirs("dat2dir.srcdirs"),	//NOSONAR
 	dat2dir_sdr("dat2dir.sdr"),	//NOSONAR

@@ -28,9 +28,11 @@ import java.util.zip.CRC32;
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.misc.Log;
+import jrm.misc.SettingsEnum;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
 import jrm.profile.scan.options.FormatOptions;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
 
 /**
@@ -92,8 +94,14 @@ public class BackupContainer extends ContainerAction
 		final var crc2 = action.entry.getCrc().substring(0, 2);
 		if (!filesystems.containsKey(crc2))
 		{
-			final var workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
-			final var backupdir = new File(workdir, "backup"); //$NON-NLS-1$
+			final String workdir;
+			if (session.getCurrProfile().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
+				workdir = session.getCurrProfile().getSettings().getProperty(SettingsEnum.backup_dest_dir, "%work/backup");
+			else if (session.getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
+				workdir = session.getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir, "%work/backup");
+			else
+				workdir = "%work/backup"; //$NON-NLS-1$
+			final var backupdir = PathAbstractor.getAbsolutePath(session, workdir).toFile();
 			final var crc = new CRC32();
 			crc.update(container.getFile().getAbsoluteFile().getParent().getBytes());
 			final var backupfile = new File(new File(backupdir, String.format("%08x", crc.getValue())), crc2 + ".zip"); //$NON-NLS-1$ //$NON-NLS-2$

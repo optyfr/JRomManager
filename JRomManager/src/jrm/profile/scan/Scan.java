@@ -358,6 +358,20 @@ public class Scan extends PathAbstractor
 			}
 		}
 		/* then add extra backup dir to that list */
+		final String workdir;
+		if (profile.getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
+			workdir = profile.getSettings().getProperty(SettingsEnum.backup_dest_dir, "%work/backup");
+		else
+			workdir = "%work/backup";
+		if (!workdir.equals("%work/backup"))
+			srcdirs.add(PathAbstractor.getAbsolutePath(profile.getSession(), workdir).toFile()); // $NON-NLS-1$
+		final String gworkdir;
+		if (profile.getSession().getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
+			gworkdir = profile.getSession().getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir, "%work/backup");
+		else
+			gworkdir = "%work/backup";
+		if (!gworkdir.equals("%work/backup") && !gworkdir.equals(workdir))
+			srcdirs.add(PathAbstractor.getAbsolutePath(profile.getSession(), gworkdir).toFile()); // $NON-NLS-1$
 		srcdirs.add(new File(profile.getSession().getUser().getSettings().getWorkPath().toFile(), "backup")); //$NON-NLS-1$
 		return srcdirs;
 	}
