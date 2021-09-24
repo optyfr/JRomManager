@@ -101,6 +101,7 @@ import jrm.security.PathAbstractor;
  */
 public class Scan extends PathAbstractor
 {
+	private static final String WORK_BACKUP = "%work/backup";
 	private static final String MSG_SCAN_SEARCHING_FOR_FIXES = "Scan.SearchingForFixes";
 	/**
 	 * the attached {@link Report}
@@ -360,17 +361,17 @@ public class Scan extends PathAbstractor
 		/* then add extra backup dir to that list */
 		final String workdir;
 		if (profile.getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
-			workdir = profile.getSettings().getProperty(SettingsEnum.backup_dest_dir, "%work/backup");
+			workdir = profile.getSettings().getProperty(SettingsEnum.backup_dest_dir, WORK_BACKUP);
 		else
-			workdir = "%work/backup";
-		if (!workdir.equals("%work/backup"))
+			workdir = WORK_BACKUP;
+		if (!workdir.equals(WORK_BACKUP))
 			srcdirs.add(PathAbstractor.getAbsolutePath(profile.getSession(), workdir).toFile()); // $NON-NLS-1$
 		final String gworkdir;
 		if (profile.getSession().getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
-			gworkdir = profile.getSession().getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir, "%work/backup");
+			gworkdir = profile.getSession().getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir, WORK_BACKUP);
 		else
-			gworkdir = "%work/backup";
-		if (!gworkdir.equals("%work/backup") && !gworkdir.equals(workdir))
+			gworkdir = WORK_BACKUP;
+		if (!gworkdir.equals(WORK_BACKUP) && !gworkdir.equals(workdir))
 			srcdirs.add(PathAbstractor.getAbsolutePath(profile.getSession(), gworkdir).toFile()); // $NON-NLS-1$
 		srcdirs.add(new File(profile.getSession().getUser().getSettings().getWorkPath().toFile(), "backup")); //$NON-NLS-1$
 		return srcdirs;
@@ -1009,37 +1010,72 @@ public class Scan extends PathAbstractor
 			return;
 		reportSubject.setFound();
 
-		final var data = new ScanDisksData(disks, container);
+		final var scanData = new ScanDisksData(disks, container);
 
 		for (final Disk disk : disks)
 		{
 			disk.setStatus(EntityStatus.KO);
-			Entry foundEntry = scanDisksEntries(directory, reportSubject, container, data, disk);
-			if (foundEntry == null)	// did not find disk in container
+			Entry foundEntry = Optional.ofNullable(findEntriesByHash(scanData, disk))
+					.map(entries -> scanDisksEntries(directory, reportSubject, scanData, disk, entries))
+					.orElse(null);
+			
+			final Entry wrongHash = foundEntry == null ? checkWrongHash(scanData, disk) : null;
+			
+			if (foundEntry == null) // did not find rom in container
 			{
-				report.getStats().incMissingDisksCnt();
+				report.getStats().incMissingRomsCnt();
+				
 				foundEntry = searchDiskInAllScans(disk);
-				if (null != foundEntry)	// found an entry
+				if (foundEntry != null)	// found an entry
 				{
 					reportSubject.add(new EntryAdd(disk, foundEntry));
-					OpenContainer.getInstance(data.addSet, directory, format, 0L).addAction(new AddEntry(disk, foundEntry));
+					OpenContainer.getInstance(scanData.addSet, directory, format, 0L).addAction(new AddEntry(disk, foundEntry));
 				}
-				else	
-					reportSubject.add(new EntryMissing(disk));
+				else // we did not found this rom anywhere
+					reportSubject.add(wrongHash != null ? new EntryWrongHash(disk, wrongHash) : new EntryMissing(disk));
 			}
 			else
 			{
 				disk.setStatus(EntityStatus.OK);
 				reportSubject.add(new EntryOK(disk));
-				data.found.add(foundEntry);
+				scanData.found.add(foundEntry);
 			}
 		}
-		removeUnneededEntries(directory, reportSubject, container, data);
-		ContainerAction.addToList(renameBeforeActions, data.renameBeforeSet.get());
-		ContainerAction.addToList(duplicateActions, data.duplicateSet.get());
-		ContainerAction.addToList(addActions, data.addSet.get());
-		ContainerAction.addToList(deleteActions, data.deleteSet.get());
-		ContainerAction.addToList(renameAfterActions, data.renameAfterSet.get());
+		removeUnneededEntries(directory, reportSubject, container, scanData);
+		ContainerAction.addToList(renameBeforeActions, scanData.renameBeforeSet.get());
+		ContainerAction.addToList(duplicateActions, scanData.duplicateSet.get());
+		ContainerAction.addToList(addActions, scanData.addSet.get());
+		ContainerAction.addToList(deleteActions, scanData.deleteSet.get());
+		ContainerAction.addToList(renameAfterActions, scanData.renameAfterSet.get());
+	}
+
+	/**
+	 * @param directory
+	 * @param reportSubject
+	 * @param estimatedRomsSize
+	 * @param scanData
+	 * @param disk
+	 * @param foundEntry
+	 * @param entries
+	 * @return
+	 */
+	private Entry scanDisksEntries(final Directory directory, final SubjectSet reportSubject, final ScanDisksData scanData, final Disk disk, final List<Entry> entries)
+	{
+		for (final var candidate_entry : entries)
+		{
+			Log.debug(() -> "The entry " + candidate_entry.getName() + " match hash from disk " + disk.getNormalizedName());
+			if (!disk.getNormalizedName().equals(candidate_entry.getName())) // but this entry name does not match the rom name
+			{
+				if(scanDisksEntriesNameMismatch(directory, reportSubject, scanData, disk, candidate_entry))
+					return candidate_entry;
+			}
+			else
+			{
+				Log.debug(() -> "\tThe entry " + candidate_entry.getName() + " match hash and name for disk " + disk.getNormalizedName());
+				return candidate_entry;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -1060,41 +1096,6 @@ public class Scan extends PathAbstractor
 				OpenContainer.getInstance(data.deleteSet, directory, format, 0L).addAction(new DeleteEntry(unneeded_entry));
 			}
 		}
-	}
-
-	/**
-	 * @param directory
-	 * @param reportSubject
-	 * @param container
-	 * @param data
-	 * @param disk
-	 * @return
-	 */
-	@SuppressWarnings("unlikely-arg-type")
-	private Entry scanDisksEntries(final Directory directory, final SubjectSet reportSubject, final Container container, final ScanDisksData data, final Disk disk)
-	{
-		for (final var candidateEntry : container.getEntries())
-		{
-			if (candidateEntry.equals(disk)) // NOSONAR
-			{
-				Log.debug(() -> "The disk " + candidateEntry.getName() + " match hash from disk " + disk.getNormalizedName());
-				if (!disk.getNormalizedName().equals(candidateEntry.getName())) // but this entry name does not match the disk name
-				{
-					if(scanDisksEntriesNameMismatch(directory, reportSubject, data, disk, candidateEntry))
-						return candidateEntry;
-				}
-				else
-				{
-					return candidateEntry;
-				}
-			}
-			else if (disk.getNormalizedName().equals(candidateEntry.getName()))
-			{
-				reportSubject.add(new EntryWrongHash(disk, candidateEntry));
-				return null;
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -1199,27 +1200,35 @@ public class Scan extends PathAbstractor
 		protected final Map<String,Entry> entriesByName;
 		protected final Set<Entry> markedForRename = new HashSet<>();
 
-		public ScanData(final Container container)
+		protected ScanData(final Container container)
 		{
 			entriesByName = container.getEntriesByName();
 		}
 	}
 	
-	private final class ScanRomsData extends ScanData
+	private final class ScanRomsData extends ScanHashData
 	{
 		protected final AtomicReference<BackupContainer> backupSet = new AtomicReference<>();
 
 		protected final Map<String,Rom> romsByName;
 
-		protected final HashMap<String, List<Entry>> entriesBySha1 = new HashMap<>();
-		protected final HashMap<String, List<Entry>> entriesByMd5 = new HashMap<>();
-		protected final HashMap<String, List<Entry>> entriesByCrc = new HashMap<>();
-
 		public ScanRomsData(final List<Rom> roms, final Container container)
 		{
 			super(container);
 			romsByName  = Rom.getRomsByName(roms);
-			initHashesFromContainerEntries(container, entriesBySha1, entriesByMd5, entriesByCrc);
+		}
+	}
+	
+	private abstract class ScanHashData extends ScanData
+	{
+		protected final HashMap<String, List<Entry>> entriesBySha1 = new HashMap<>();
+		protected final HashMap<String, List<Entry>> entriesByMd5 = new HashMap<>();
+		protected final HashMap<String, List<Entry>> entriesByCrc = new HashMap<>();
+
+		protected ScanHashData(final Container container)
+		{
+			super(container);
+			initHashesFromContainerEntries(container);
 		}
 
 		/**
@@ -1228,7 +1237,7 @@ public class Scan extends PathAbstractor
 		 * @param entriesByMd5
 		 * @param entriesByCrc
 		 */
-		private void initHashesFromContainerEntries(final Container container, final HashMap<String, List<Entry>> entriesBySha1, final HashMap<String, List<Entry>> entriesByMd5, final HashMap<String, List<Entry>> entriesByCrc)
+		private void initHashesFromContainerEntries(final Container container)
 		{
 			container.getEntries().forEach(e -> {
 				if (e.getSha1() != null)
@@ -1241,7 +1250,7 @@ public class Scan extends PathAbstractor
 		}
 	}
 	
-	private final class ScanDisksData extends ScanData
+	private final class ScanDisksData extends ScanHashData
 	{
 		final Map<String, Disk> disksByName;
 
@@ -1250,6 +1259,7 @@ public class Scan extends PathAbstractor
 			super(container);
 			disksByName = Disk.getDisksByName(disks);
 		}
+
 	}
 
 	private final class ScanSamplesData extends ScanData
@@ -1331,6 +1341,23 @@ public class Scan extends PathAbstractor
 		if (candidateEntry != null)
 		{
 			Log.debug(() -> "\tOups! we got wrong hash in " + candidateEntry.getName() + " for " + rom.getNormalizedName());
+			return candidateEntry;
+		}
+		return null;
+	}
+
+	/**
+	 * @param scanData
+	 * @param disk
+	 * @param wrongHash
+	 * @return
+	 */
+	private Entry checkWrongHash(final ScanDisksData scanData, final Disk disk)
+	{
+		final var candidateEntry = scanData.entriesByName.get(disk.getNormalizedName());
+		if (candidateEntry != null)
+		{
+			Log.debug(() -> "\tOups! we got wrong hash in " + candidateEntry.getName() + " for " + disk.getNormalizedName());
 			return candidateEntry;
 		}
 		return null;
@@ -1557,6 +1584,25 @@ public class Scan extends PathAbstractor
 			entries = scanData.entriesByMd5.get(rom.getMd5());
 		if (entries == null && rom.getCrc() != null)
 			entries = scanData.entriesByCrc.get(rom.getCrc() + '.' + rom.getSize());
+		return entries;
+	}
+
+	/**
+	 * @param entriesBySha1
+	 * @param entriesByMd5
+	 * @param entriesByCrc
+	 * @param disk
+	 * @return
+	 */
+	private List<Entry> findEntriesByHash(final ScanDisksData scanData, final Disk disk)
+	{
+		List<Entry> entries = null;
+		if (disk.getSha1() != null)
+			entries = scanData.entriesBySha1.get(disk.getSha1());
+		if (entries == null && disk.getMd5() != null)
+			entries = scanData.entriesByMd5.get(disk.getMd5());
+		if (entries == null && disk.getCrc() != null)
+			entries = scanData.entriesByCrc.get(disk.getCrc() + '.' + disk.getSize());
 		return entries;
 	}
 
