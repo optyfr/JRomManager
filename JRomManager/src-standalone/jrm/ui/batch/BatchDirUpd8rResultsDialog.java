@@ -28,7 +28,7 @@ public class BatchDirUpd8rResultsDialog extends JDialog
 		super(parent);
 		this.parentWindow = parent;
 		parent.setEnabled(false);
-		setBounds(100, 100, 455, 410);
+		setBounds(100, 100, 635, 410);
 		getContentPane().setLayout(new BorderLayout());
 		JScrollPane contentPanel = new BatchDirUpdResultsView(session, results);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));

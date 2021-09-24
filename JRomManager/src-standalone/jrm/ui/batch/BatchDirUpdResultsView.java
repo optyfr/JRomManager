@@ -1,9 +1,14 @@
 package jrm.ui.batch;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -17,15 +22,32 @@ import jrm.ui.profile.report.ReportLite;
 @SuppressWarnings("serial")
 public class BatchDirUpdResultsView extends JScrollPane
 {
+	private static class ColorRenderer extends DefaultTableCellRenderer
+	{
+		private Color color;
+		
+		public ColorRenderer(Color color)
+		{
+			this.color = color;
+		}
+		
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		{
+			this.setForeground(color);
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		}
+	}
+	
 	private final class BatchDirUpdResultsViewModel implements EnhTableModel
 	{
 		private final DirUpdaterResults results;
 		private JTableButton buttons = new JTableButton();
-		private final String[] headers = {"DAT/XML","Have","Miss","Total","Report"};
-		private final Class<?>[] types = {String.class,String.class,String.class,String.class,String.class};
-		private final int[] widths = {240, 40, 40, 40, -70};
-		final TableCellRenderer[] renderers = {null,null,null,null,buttons};
-		final TableCellEditor[] editors = {null,null,null,null,buttons};
+		private final String[] headers = {"DAT/XML","Have","Create","Fix","Miss","Total","Report"};
+		private final Class<?>[] types = {String.class,String.class,String.class,String.class,String.class,String.class,String.class};
+		private final int[] widths = {400, 40, 40, 40, 40, 40, -70};
+		final TableCellRenderer[] renderers = { null, new ColorRenderer(new Color(0, 180, 0)), new ColorRenderer(new Color(0, 0, 180)), new ColorRenderer(new Color(127, 0, 180)), new ColorRenderer(new Color(180, 0, 0)), null, buttons };
+		final TableCellEditor[] editors = {null,null,null,null,null,null,buttons};
 
 		private BatchDirUpdResultsViewModel(DirUpdaterResults results, Session session)
 		{
@@ -48,7 +70,7 @@ public class BatchDirUpdResultsView extends JScrollPane
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex)
 		{
-			return columnIndex==4;
+			return columnIndex==6;
 		}
 
 		@Override
@@ -59,15 +81,19 @@ public class BatchDirUpdResultsView extends JScrollPane
 				DirUpdaterResult result = results.getResults().get(rowIndex);
 				switch(columnIndex)
 				{
-					case 0:
+					case 0: // dat/xml name
 						return result.getDat().toString();
-					case 1:
-						return result.getStats().getSetCreateComplete() + result.getStats().getSetFoundFixComplete() + result.getStats().getSetFoundOk();
-					case 2:
+					case 1: // have
+						return result.getStats().getSetFoundOk();
+					case 2: // create
+						return result.getStats().getSetCreateComplete();
+					case 3: // fix
+						return result.getStats().getSetFoundFixComplete();
+					case 4:	// miss
 						return result.getStats().getSetCreate() + result.getStats().getSetFound() + result.getStats().getSetMissing() - (result.getStats().getSetCreateComplete() + result.getStats().getSetFoundFixComplete() + result.getStats().getSetFoundOk());
-					case 3:
+					case 5:	// total
 						return result.getStats().getSetCreate() + result.getStats().getSetFound() + result.getStats().getSetMissing();
-					case 4:
+					case 6: // report button
 						return "Report";
 					default:
 						return null;
@@ -140,6 +166,7 @@ public class BatchDirUpdResultsView extends JScrollPane
 	{
 		table = new JTable();
 		setViewportView(table);
+		setPreferredSize(new Dimension(700, 400));
 		EnhTableModel model = new BatchDirUpdResultsViewModel(results, session);
 		table.setModel(model);
 		for(int i = 0; i < table.getColumnModel().getColumnCount(); i++)
