@@ -1712,15 +1712,17 @@ public class Profile implements Serializable
 		systems.add(SystmDevice.DEVICE);
 		final ArrayList<Machine> machines = new ArrayList<>();
 		this.sources = new Sources();
-		final var srces = new TreeMap<String, Integer>(); 
+		final var srces = new TreeMap<String, Source>(); 
 		machineListList.get(0).forEach(m -> {
 			if (m.isIsbios())
 				machines.add(m);
-			Optional.ofNullable(m.getSourcefile()).ifPresent(s -> srces.compute(s, (k, v) -> v == null ? 1 : ++v));
+			Optional.ofNullable(m.getSourcefile()).ifPresent(s -> srces.compute(s, (k, v) -> v == null ? new Source(k) : v.inc()));
 		});
 		machines.sort((a, b) -> a.getName().compareTo(b.getName()));
 		machines.forEach(systems::add);
-		srces.forEach((name, cnt) -> sources.add(new Source(name, cnt)));
+		srces.forEach((name, src) -> sources.add(src));
+		machineListList.get(0).forEach(m -> m.setSource(srces.get(m.getSourcefile())));
+		
 		final ArrayList<SoftwareList> softwarelists = new ArrayList<>();
 		machineListList.getSoftwareListList().forEach(softwarelists::add);
 		softwarelists.sort((a, b) -> a.getName().compareTo(b.getName()));

@@ -8,17 +8,22 @@ import lombok.Getter;
 public final class Source implements PropertyStub
 {
 	private final @Getter String name;
-	private final @Getter int count;
+	private @Getter int count = 1;
 
 	private final String propname;
 
-	public Source(String name, int count)
+	public Source(String name)
 	{
 		this.name = name;
-		this.count = count;
 		this.propname = "filter.sources." + name.replace('/', '_').substring(0, Optional.of(name.lastIndexOf('.')).filter(idx -> idx > 0).orElse(name.length()));
 	}
 
+	public Source inc()
+	{
+		count++;
+		return this;
+	}
+	
 	public String getPropertyName()
 	{
 		return propname;

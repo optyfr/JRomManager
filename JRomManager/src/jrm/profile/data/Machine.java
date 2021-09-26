@@ -121,10 +121,16 @@ public class Machine extends Anyware implements Serializable
 	 * category/subcategory as defined by catver.ini
 	 */
 	protected transient @Getter @Setter SubCategory subcat = null;
+
 	/**
 	 * nplayer as defined by nplayers.ini
 	 */
 	protected transient @Getter @Setter NPlayer nplayer = null;
+	
+	/**
+	 * source as defined by sourcefile property
+	 */
+	protected transient @Getter @Setter Source source  = null;
 	
 	/**
 	 * SWList link reference with support status and filter option 
