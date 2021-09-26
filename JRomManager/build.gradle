@@ -374,8 +374,8 @@ project(':JRomManager:jrmcore') {
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 	//	compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations'
 	
-		testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.0"
-		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.1"
 	}
 	jar {
 		manifest {
@@ -413,8 +413,8 @@ project(':JRomManager:jrmcli') {
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 	
-		testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.0"
-		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.1"
 	}
 	jar {
 		manifest {
@@ -477,8 +477,8 @@ project(':JRomManager:jrmstandalone') {
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		implementation 'com.sun.activation:javax.activation:1.2.0'
 	
-		testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.0"
-		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.1"
 	}
 	jar {
 		manifest {
@@ -533,8 +533,8 @@ project(':JRomManager:jrmserver') {
 		testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.0'
 		testImplementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
 		testImplementation 'commons-daemon:commons-daemon:1.2.4'
-		testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.0"
-		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
+		testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.1"
 	}
 	
 	apply plugin: 'jacoco'
