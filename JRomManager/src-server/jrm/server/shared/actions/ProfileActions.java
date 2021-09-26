@@ -312,6 +312,15 @@ public class ProfileActions extends PathAbstractor
 						});
 						params.add("systems", systems);
 					}
+					final var sources = new JsonArray();
+					profile.getSources().forEach(s -> {
+						final var source = new JsonObject();
+						source.add("name", s.toString());
+						source.add("selected", s.isSelected(profile));
+						source.add("property", s.getPropertyName());
+						sources.add(source);
+					});
+					params.add("sources", sources);
 					final var years = new JsonArray();
 					final ArrayList<String> arrlst = new ArrayList<>(profile.getYears());
 					arrlst.sort(String::compareTo);

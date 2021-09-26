@@ -32,7 +32,9 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
@@ -71,6 +73,8 @@ import jrm.profile.data.Software.Part.DataArea;
 import jrm.profile.data.Software.Part.DataArea.Endianness;
 import jrm.profile.data.Software.Part.DiskArea;
 import jrm.profile.data.SoftwareList;
+import jrm.profile.data.Source;
+import jrm.profile.data.Sources;
 import jrm.profile.data.SystmDevice;
 import jrm.profile.data.SystmMechanical;
 import jrm.profile.data.SystmStandard;
@@ -167,6 +171,7 @@ public class Profile implements Serializable
 	private transient @Getter @Setter CatVer catver = null;
 	private transient @Getter @Setter NPlayers nplayers = null;
 	private transient @Getter Session session = null;
+	private transient @Getter Sources sources = null;
 
 	/**
 	 * The Profile class is instantiated via
@@ -759,7 +764,7 @@ public class Profile implements Serializable
 
 		private void startSoftwareList(final Attributes attributes)
 		{
-			if (currSoftwareList != null)
+			if (currMachine != null)
 				startSoftwareListDesc(attributes);
 			else
 			{// this is a *real* software list
@@ -941,6 +946,9 @@ public class Profile implements Serializable
 						break;
 					case "isdevice": //$NON-NLS-1$
 						currMachine.setIsdevice(BooleanUtils.toBoolean(attributes.getValue(i)));
+						break;
+					case "sourcefile": //$NON-NLS-1$
+						currMachine.setSourcefile(attributes.getValue(i));
 						break;
 					default:
 						break;
@@ -1703,12 +1711,16 @@ public class Profile implements Serializable
 		systems.add(SystmMechanical.MECHANICAL);
 		systems.add(SystmDevice.DEVICE);
 		final ArrayList<Machine> machines = new ArrayList<>();
+		this.sources = new Sources();
+		final var srces = new TreeMap<String, Integer>(); 
 		machineListList.get(0).forEach(m -> {
 			if (m.isIsbios())
 				machines.add(m);
+			Optional.ofNullable(m.getSourcefile()).ifPresent(s -> srces.compute(s, (k, v) -> v == null ? 1 : ++v));
 		});
 		machines.sort((a, b) -> a.getName().compareTo(b.getName()));
 		machines.forEach(systems::add);
+		srces.forEach((name, cnt) -> sources.add(new Source(name, cnt)));
 		final ArrayList<SoftwareList> softwarelists = new ArrayList<>();
 		machineListList.getSoftwareListList().forEach(softwarelists::add);
 		softwarelists.sort((a, b) -> a.getName().compareTo(b.getName()));
@@ -1738,7 +1750,7 @@ public class Profile implements Serializable
 		try
 		{
 			final var file = PathAbstractor.getAbsolutePath(session, getProperty(SettingsEnum.filter_catver_ini, null)).toFile();
-			if (file.exists())
+			if (!file.exists())
 			{
 				catver=null;
 				return;

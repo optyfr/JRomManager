@@ -43,9 +43,13 @@ import lombok.Setter;
  * Represent a complete Machine (or a game set in Logiqx terminology)
  * @author optyfr
  */
-@SuppressWarnings("serial")
 public class Machine extends Anyware implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/**
 	 * if defined, romof will tell that this machine will share rom with another machine named in that romof field
 	 */
@@ -67,6 +71,8 @@ public class Machine extends Anyware implements Serializable
 	 */
 	protected @Getter @Setter boolean isdevice = false;
 
+	protected @Getter @Setter String sourcefile = null;
+	
 	/**
 	 * the manufacturer, if known
 	 */
@@ -123,6 +129,7 @@ public class Machine extends Anyware implements Serializable
 	/**
 	 * SWList link reference with support status and filter option 
 	 */
+	@SuppressWarnings("serial")
 	public @Data class SWList implements Serializable
 	{
 		private String name;
