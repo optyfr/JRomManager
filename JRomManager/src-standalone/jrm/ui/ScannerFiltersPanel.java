@@ -29,6 +29,7 @@ import jrm.profile.data.Driver;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
 import jrm.profile.data.Software.Supported;
+import jrm.profile.data.Source;
 import jrm.profile.data.Systm;
 import jrm.security.Session;
 import jrm.ui.basic.JCheckBoxList;
@@ -68,6 +69,9 @@ public class ScannerFiltersPanel extends JSplitPane
 	/** The check box list systems. */
 	JCheckBoxList<Systm> checkBoxListSystems;
 
+	/** The check box list systems. */
+	JCheckBoxList<Source> checkBoxListSources;
+
 
 	/**
 	 * Create the panel.
@@ -77,8 +81,16 @@ public class ScannerFiltersPanel extends JSplitPane
 		this.setResizeWeight(0.5);
 		this.setOneTouchExpandable(true);
 		this.setContinuousLayout(true);
+		
+		JSplitPane rightsplit = new JSplitPane();
+		rightsplit.setOrientation(VERTICAL_SPLIT);
+		rightsplit.setResizeWeight(0.5);
+		rightsplit.setOneTouchExpandable(true);
+		rightsplit.setContinuousLayout(true);
+		this.setRightComponent(rightsplit);
+		
 		JScrollPane systemsFilterScrollPane = new JScrollPane();
-		this.setRightComponent(systemsFilterScrollPane);
+		rightsplit.setTopComponent(systemsFilterScrollPane);
 		systemsFilterScrollPane.setViewportBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), Messages.getString("MainFrame.systemsFilter.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
 
 		checkBoxListSystems = new JCheckBoxList<>();
@@ -86,42 +98,18 @@ public class ScannerFiltersPanel extends JSplitPane
 		checkBoxListSystems.addListSelectionListener(e -> checkBoxListSystemsValueChanged(session, e));
 		systemsFilterScrollPane.setViewportView(checkBoxListSystems);
 
-		JPopupMenu popupMenu = new JPopupMenu();
-		Popup.addPopup(checkBoxListSystems, popupMenu);
+		buildSystemsMenu();
+		
+		JScrollPane sourcesFilterScrollPane = new JScrollPane();
+		rightsplit.setBottomComponent(sourcesFilterScrollPane);
+		sourcesFilterScrollPane.setViewportBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), Messages.getString("MainFrame.sourcesFilter.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
 
-		JMenu mnSelect = new JMenu(Messages.getString("MainFrame.mnSelect.text")); //$NON-NLS-1$
-		popupMenu.add(mnSelect);
+		checkBoxListSources = new JCheckBoxList<>();
+		checkBoxListSources.setCellRenderer(getCheckBoxListSourcesCellRenderer(session));
+		checkBoxListSources.addListSelectionListener(e -> checkBoxListSourcesValueChanged(session, e));
+		sourcesFilterScrollPane.setViewportView(checkBoxListSources);
 
-		JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
-		mnSelect.add(mntmSelectAll);
-
-		JMenuItem mntmSelectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
-		mntmSelectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, true));
-		mnSelect.add(mntmSelectAllBios);
-
-		JMenuItem mntmSelectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
-		mntmSelectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, true));
-		mnSelect.add(mntmSelectAllSoftwares);
-
-		JMenu mnUnselect = new JMenu(Messages.getString("MainFrame.mnUnselect.text")); //$NON-NLS-1$
-		popupMenu.add(mnUnselect);
-
-		JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
-		mnUnselect.add(mntmUnselectAll);
-
-		JMenuItem mntmUnselectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
-		mntmUnselectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, false));
-		mnUnselect.add(mntmUnselectAllBios);
-
-		JMenuItem mntmUnselectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
-		mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, false));
-		mnUnselect.add(mntmUnselectAllSoftwares);
-
-		JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
-		mntmInvertSelection.addActionListener(e -> checkBoxListSystems.selectInvert());
-		popupMenu.add(mntmInvertSelection);
-		mntmUnselectAll.addActionListener(e -> checkBoxListSystems.selectNone());
-		mntmSelectAll.addActionListener(e -> checkBoxListSystems.selectAll());
+		buildSourcesMenu();
 
 		JPanel panel = new JPanel();
 		this.setLeftComponent(panel);
@@ -273,6 +261,70 @@ public class ScannerFiltersPanel extends JSplitPane
 	}
 
 	/**
+	 * 
+	 */
+	private void buildSystemsMenu()
+	{
+		JPopupMenu popupMenu = new JPopupMenu();
+		Popup.addPopup(checkBoxListSystems, popupMenu);
+
+		JMenu mnSelect = new JMenu(Messages.getString("MainFrame.mnSelect.text")); //$NON-NLS-1$
+		popupMenu.add(mnSelect);
+
+		JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
+		mntmSelectAll.addActionListener(e -> checkBoxListSystems.selectAll());
+		mnSelect.add(mntmSelectAll);
+
+		JMenuItem mntmSelectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
+		mntmSelectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, true));
+		mnSelect.add(mntmSelectAllBios);
+
+		JMenuItem mntmSelectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
+		mntmSelectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, true));
+		mnSelect.add(mntmSelectAllSoftwares);
+
+		JMenu mnUnselect = new JMenu(Messages.getString("MainFrame.mnUnselect.text")); //$NON-NLS-1$
+		popupMenu.add(mnUnselect);
+
+		JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
+		mntmUnselectAll.addActionListener(e -> checkBoxListSystems.selectNone());
+		mnUnselect.add(mntmUnselectAll);
+
+		JMenuItem mntmUnselectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
+		mntmUnselectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, false));
+		mnUnselect.add(mntmUnselectAllBios);
+
+		JMenuItem mntmUnselectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
+		mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, false));
+		mnUnselect.add(mntmUnselectAllSoftwares);
+
+		JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
+		mntmInvertSelection.addActionListener(e -> checkBoxListSystems.selectInvert());
+		popupMenu.add(mntmInvertSelection);
+	}
+
+	/**
+	 * 
+	 */
+	private void buildSourcesMenu()
+	{
+		JPopupMenu popupMenu = new JPopupMenu();
+		Popup.addPopup(checkBoxListSources, popupMenu);
+
+		JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
+		mntmSelectAll.addActionListener(e -> checkBoxListSources.selectAll());
+		popupMenu.add(mntmSelectAll);
+
+		JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
+		mntmUnselectAll.addActionListener(e -> checkBoxListSources.selectNone());
+		popupMenu.add(mntmUnselectAll);
+
+		JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
+		mntmInvertSelection.addActionListener(e -> checkBoxListSources.selectInvert());
+		popupMenu.add(mntmInvertSelection);
+	}
+
+	/**
 	 * @param session
 	 * @param e
 	 */
@@ -406,6 +458,21 @@ public class ScannerFiltersPanel extends JSplitPane
 
 	/**
 	 * @param session
+	 * @param e
+	 */
+	private void checkBoxListSourcesValueChanged(final Session session, ListSelectionEvent e)
+	{
+		if (!e.getValueIsAdjusting() && e.getFirstIndex() != -1)
+		{
+			for (int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
+				checkBoxListSources.getModel().getElementAt(index).setSelected(session.getCurrProfile(), checkBoxListSources.isSelectedIndex(index));
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		}
+	}
+
+	/**
+	 * @param session
 	 * @return
 	 */
 	private JCheckBoxList<Systm>.CellRenderer getCheckBoxListSystemsCellRenderer(final Session session)
@@ -414,6 +481,24 @@ public class ScannerFiltersPanel extends JSplitPane
 		{
 			@Override
 			public Component getListCellRendererComponent(final JList<? extends Systm> list, final Systm value, final int index, final boolean isSelected, final boolean cellHasFocus)
+			{
+				final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				checkbox.setSelected(value.isSelected(session.getCurrProfile()));
+				return checkbox;
+			}
+		};
+	}
+
+	/**
+	 * @param session
+	 * @return
+	 */
+	private JCheckBoxList<Source>.CellRenderer getCheckBoxListSourcesCellRenderer(final Session session)
+	{
+		return checkBoxListSources.new CellRenderer()
+		{
+			@Override
+			public Component getListCellRendererComponent(final JList<? extends Source> list, final Source value, final int index, final boolean isSelected, final boolean cellHasFocus)
 			{
 				final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				checkbox.setSelected(value.isSelected(session.getCurrProfile()));

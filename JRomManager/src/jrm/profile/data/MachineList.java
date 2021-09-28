@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -163,7 +164,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			return false;
 		if(!options.filterIncludeSamples && t.getSamples().size() > 0)	// exclude machines with samples
 			return false;
-		if(!t.getSystem().isSelected(profile))	//NOSONAR	// exclude machines for which their BIOS system were not selected
+		if(!t.getSystem().isSelected(profile))	// exclude machines for which their BIOS system were not selected
+			return false;
+		if(Optional.ofNullable(t.getSource()).map(s->!s.isSelected(profile)).orElse(false)) //NOSONAR exclude machines for which their source file were not selected
 			return false;
 		return true;
 	}

@@ -37,6 +37,7 @@ import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.Session;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.profile.ProfileViewer;
+import jrm.ui.profile.data.SourcesModel;
 import jrm.ui.profile.data.SystmsModel;
 import jrm.ui.progress.SwingWorkerProgress;
 
@@ -422,6 +423,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 					{
 						lblProfileinfo.setText(session.getCurrProfile().getName());
 						scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.getCurrProfile().getSystems()));
+						scannerFilters.checkBoxListSources.setModel(new SourcesModel(session.getCurrProfile().getSources()));
 						initProfileSettings(session);
 						mainPane.setSelectedIndex(1);
 					}
