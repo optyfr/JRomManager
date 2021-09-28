@@ -1,5 +1,5 @@
 package jrm.test.cli;
 
-class CliTest
+class CliTest	//NOSONAR
 {
 }

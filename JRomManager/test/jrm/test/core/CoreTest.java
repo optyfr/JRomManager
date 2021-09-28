@@ -1,6 +1,6 @@
 package jrm.test.core;
 
-class CoreTest
+class CoreTest	//NOSONAR
 {
 
 }

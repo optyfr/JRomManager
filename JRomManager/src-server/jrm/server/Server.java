@@ -73,7 +73,6 @@ public class Server extends AbstractServer
 		catch(ParseException e)
 		{
 			Log.err(e.getMessage(), e);
-			e.printStackTrace();
 			new HelpFormatter().printHelp("Server", options);
 			System.exit(1);
 		}

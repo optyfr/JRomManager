@@ -1,11 +1,13 @@
 package jrm.profile.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import lombok.Getter;
 
-public class Sources implements Iterable<Source>
+@SuppressWarnings("serial")
+public class Sources implements Serializable, Iterable<Source>
 {
 	private final @Getter ArrayList<Source> srces = new ArrayList<>();
 

@@ -2,7 +2,6 @@ package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
