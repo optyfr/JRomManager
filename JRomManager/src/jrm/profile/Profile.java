@@ -32,6 +32,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -1721,7 +1722,7 @@ public class Profile implements Serializable
 		machines.sort((a, b) -> a.getName().compareTo(b.getName()));
 		machines.forEach(systems::add);
 		srces.forEach((name, src) -> sources.add(src));
-		machineListList.get(0).forEach(m -> m.setSource(srces.get(m.getSourcefile())));
+		machineListList.get(0).stream().filter(m -> m.getSourcefile() != null).forEach(m -> m.setSource(srces.get(m.getSourcefile())));
 		
 		final ArrayList<SoftwareList> softwarelists = new ArrayList<>();
 		machineListList.getSoftwareListList().forEach(softwarelists::add);
