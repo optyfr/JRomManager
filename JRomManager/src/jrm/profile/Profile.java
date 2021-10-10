@@ -1677,7 +1677,13 @@ public class Profile implements Serializable
 	 */
 	public String getName()
 	{
-		String name = "<html><body>[<span style='color:blue'>" + session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().relativize(nfo.getFile().toPath()) + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		final var xmlpath = session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
+		final String fname; 
+		if(nfo.getFile().toPath().startsWith(xmlpath))
+			fname = xmlpath.relativize(nfo.getFile().toPath()).toString();
+		else
+			fname = nfo.getFile().getName();
+		String name = "<html><body>[<span style='color:blue'>" + fname + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if (build != null)
 			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 		else if (header.size() > 0)

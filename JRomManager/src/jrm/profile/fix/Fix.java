@@ -87,6 +87,8 @@ public class Fix
 				actions.removeAll(done);
 				// this actions group is finished, clear progression status
 				progress.clearInfos();
+				if (!actions.isEmpty())
+					Log.warn(() -> "Missed " + actions.size() + " actions"); //$NON-NLS-1$
 			}
 		});		
 		
@@ -96,7 +98,7 @@ public class Fix
 		currProfile.getNfo().getStats().setFixed(new Date());
 		
 		// output to console timing information
-		Log.info(()->"Fix total duration : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
+		Log.info(() -> "Fix total duration for " + currProfile.getNfo().getName() + " : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
 	}
 
 
@@ -114,7 +116,10 @@ public class Fix
 		try
 		{
 			if (!action.doAction(currProfile.getSession(), progress)) // do action...
+			{
+				Log.warn(()-> "Action " + action.toString() +" has failed, remaining actions processing will be cancelled");
 				progress.cancel(); // ... and cancel all if it failed
+			}
 			else
 				done.add(action); // add to "done" list successful action
 			progress.setProgress("", i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression

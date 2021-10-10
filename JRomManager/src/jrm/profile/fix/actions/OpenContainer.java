@@ -248,9 +248,9 @@ public class OpenContainer extends ContainerAction
 					filescnt += Files.isDirectory(folder) ? deleteEmptyFolders(folder) : 1;
 			}
 			if (filescnt == 0)
-				Files.delete(baseFolder);
+				Files.deleteIfExists(baseFolder);
 		}
-		catch (final IOException e)
+		catch (final Exception e)
 		{
 			Log.err(e.getMessage(),e);
 		}
