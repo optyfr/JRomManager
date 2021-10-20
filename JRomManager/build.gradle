@@ -7,7 +7,7 @@ plugins {
 	id "de.inetsoftware.setupbuilder" version "7.2.11"
 	id "org.javamodularity.moduleplugin" version "1.8.10"
 	id "io.freefair.lombok" version "6.2.0"
-	id "org.beryx.jlink" version "2.24.2"
+	id "org.beryx.jlink" version "2.24.4"
 	id 'jacoco'
 }
 
