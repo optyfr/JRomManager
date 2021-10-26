@@ -4,10 +4,10 @@ plugins {
 //	id 'eclipse' apply false
 	id "de.undercouch.download" version "4.1.2"
 	id "nebula.ospackage" version "9.0.0"
-	id "de.inetsoftware.setupbuilder" version "7.2.11"
+	id "de.inetsoftware.setupbuilder" version "7.2.13"
 	id "org.javamodularity.moduleplugin" version "1.8.10"
 	id "io.freefair.lombok" version "6.2.0"
-	id "org.beryx.jlink" version "2.24.2"
+	id "org.beryx.jlink" version "2.24.4"
 	id 'jacoco'
 }
 

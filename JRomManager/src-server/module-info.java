@@ -41,6 +41,7 @@ open module jrmserver
 	requires org.eclipse.jetty.http2.hpack;
 	requires org.eclipse.jetty.http2.server;
 	requires org.eclipse.jetty.util;
+	requires de.mkammerer.argon2.nolibs;
 	requires de.mkammerer.argon2;
 	requires jbcrypt;
 	requires com.h2database;
