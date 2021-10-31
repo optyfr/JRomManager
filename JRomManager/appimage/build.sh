@@ -16,8 +16,8 @@ cp -p "$HERE/AppRun" AppDir/
 chmod +x AppDir/AppRun
 
 rm -f *.AppImage
-wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
 chmod +x appimagetool-x86_64.AppImage
-./appimagetool-x86_64.AppImage -n -v AppDir
+./appimagetool-x86_64.AppImage -n AppDir
 
 popd
