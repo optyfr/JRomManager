@@ -1,0 +1,21 @@
+#!bin/bash
+
+HERE="$(dirname "$(readlink -f "${0}")")"
+
+pushd "$HERE/../build" 
+
+mkdir -p AppDir/usr
+mkdir -p AppDir/opt/jrommanager
+
+cp -rp jpackage/JRomManager/* AppDir/opt/jrommanager/
+cp jpackage/JRomManager/lib/JRomManager.png AppDir/
+cp "$HERE/jrommanager.desktop" AppDir/
+
+cp "$HERE/AppRun" AppDir/
+chmod +x AppDir/AppRun
+
+wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+chmod +x appimagetool-x86_64.AppImage
+./appimagetool-x86_64.AppImage -n -v AppDir
+
+popd
