@@ -2,7 +2,7 @@
 
 HERE="$(dirname "$(readlink -f "${0}")")"
 
-pushd "$HERE/../build"
+pushd "$HERE/../build" >/dev/null
 
 rm -rf AppDir
 mkdir -p AppDir/usr
@@ -20,4 +20,4 @@ wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/app
 chmod +x appimagetool-x86_64.AppImage
 ./appimagetool-x86_64.AppImage -n AppDir
 
-popd
+popd >/dev/null
