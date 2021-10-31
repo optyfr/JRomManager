@@ -8,10 +8,10 @@ mkdir -p AppDir/usr
 mkdir -p AppDir/opt/jrommanager
 
 cp -rp jpackage/JRomManager/* AppDir/opt/jrommanager/
-cp jpackage/JRomManager/lib/JRomManager.png AppDir/
-cp "$HERE/jrommanager.desktop" AppDir/
+cp -p jpackage/JRomManager/lib/JRomManager.png AppDir/
+cp -p "$HERE/jrommanager.desktop" AppDir/
 
-cp "$HERE/AppRun" AppDir/
+cp -p "$HERE/AppRun" AppDir/
 chmod +x AppDir/AppRun
 
 wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
