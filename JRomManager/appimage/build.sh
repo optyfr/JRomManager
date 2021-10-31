@@ -1,8 +1,8 @@
-#!bin/bash
+#!/bin/bash
 
 HERE="$(dirname "$(readlink -f "${0}")")"
 
-pushd "$HERE/../build" 
+pushd "$HERE/../build"
 
 mkdir -p AppDir/usr
 mkdir -p AppDir/opt/jrommanager
