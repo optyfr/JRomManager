@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -41,6 +42,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -103,7 +105,7 @@ import lombok.Setter;
  */
 public class Profile implements Serializable
 {
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 3L;
 	
 	private static final String DESCRIPTION = "description";
 	private static final String VERSION = "version";
@@ -384,11 +386,11 @@ public class Profile implements Serializable
 						break;
 					}
 					case "sha1": //$NON-NLS-1$
-						currDisk.setSha1(attributes.getValue(i).toLowerCase());
+						currDisk.setSha1(safeHex(attributes.getValue(i), 40));
 						sha1Disks = true;
 						break;
 					case "md5": //$NON-NLS-1$
-						currDisk.setMd5(attributes.getValue(i).toLowerCase());
+						currDisk.setMd5(safeHex(attributes.getValue(i), 32));
 						md5Disks = true;
 						break;
 					case "merge": //$NON-NLS-1$
@@ -447,14 +449,14 @@ public class Profile implements Serializable
 						currRom.setValue(attributes.getValue(i));
 						break;
 					case "crc": //$NON-NLS-1$
-						currRom.setCrc(attributes.getValue(i).toLowerCase());
+						currRom.setCrc(safeHex(attributes.getValue(i), 8));
 						break;
 					case "sha1": //$NON-NLS-1$
-						currRom.setSha1(attributes.getValue(i).toLowerCase());
+						currRom.setSha1(safeHex(attributes.getValue(i), 40));
 						sha1Roms = true;
 						break;
 					case "md5": //$NON-NLS-1$
-						currRom.setMd5(attributes.getValue(i).toLowerCase());
+						currRom.setMd5(safeHex(attributes.getValue(i), 32));
 						md5Roms = true;
 						break;
 					case "merge": //$NON-NLS-1$
@@ -484,6 +486,28 @@ public class Profile implements Serializable
 			}
 		}
 
+		private String safeHex(String value, int len)
+		{
+			value = value.trim();
+			if (value.startsWith("0x"))
+			{
+				if (len > 8)
+				{
+					final var bi = new BigInteger(value.substring(2), 16).toString(16);
+					return StringUtils.leftPad(bi.toLowerCase(), len - bi.length(), '0');
+				}
+				else
+				{
+					final var fmt = "%0" + len + "x";
+					return String.format(fmt, Long.decode(value));
+				}
+			}
+			else if (value.length() == len)
+				return value.toLowerCase();
+			else
+				return StringUtils.leftPad(value.toLowerCase(), len-value.length(), '0');
+		}
+		
 		/**
 		 * @param attributes
 		 */
