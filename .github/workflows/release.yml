@@ -90,6 +90,21 @@ jobs:
         replacesArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
         
+    - name: build AppImage
+      run: ./JRomManager/appimage/build.sh
+        
+    - name: Releasing AppImage
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "JRomManager/build/JRomManager-*.AppImage"
+        draft: false
+        prerelease: ${{ env.beta }}
+        allowUpdates: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        replacesArtifacts: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
   build_windows:
     env:
       beta: ${{contains(github.ref, 'beta')}}
