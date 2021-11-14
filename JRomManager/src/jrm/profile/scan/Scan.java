@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -167,39 +168,39 @@ public class Scan extends PathAbstractor
 	/**
 	 * backup actions, always made first on entries that will be removed
 	 */
-	private final List<jrm.profile.fix.actions.ContainerAction> backupActions = new ArrayList<>();
+	private final List<jrm.profile.fix.actions.ContainerAction> backupActions = Collections.synchronizedList(new ArrayList<>());
 	/**
 	 * create actions, only for entries on totally new sets
 	 */
-	private final List<jrm.profile.fix.actions.ContainerAction> createActions = new ArrayList<>();
+	private final List<jrm.profile.fix.actions.ContainerAction> createActions = Collections.synchronizedList(new ArrayList<>());
 	/**
 	 * rename before actions, all entries that will be delete are renamed first, to
 	 * avoid collision from add and because they can be used for another add
 	 * elsewhere during fix
 	 */
-	private final List<jrm.profile.fix.actions.ContainerAction> renameBeforeActions = new ArrayList<>();
+	private final List<jrm.profile.fix.actions.ContainerAction> renameBeforeActions = Collections.synchronizedList(new ArrayList<>());
 	/**
 	 * add actions
 	 */
-	private final List<jrm.profile.fix.actions.ContainerAction> addActions = new ArrayList<>();
+	private final List<jrm.profile.fix.actions.ContainerAction> addActions = Collections.synchronizedList(new ArrayList<>());
 	/**
 	 * delete actions
 	 */
-	private final List<jrm.profile.fix.actions.ContainerAction> deleteActions = new ArrayList<>();
+	private final List<jrm.profile.fix.actions.ContainerAction> deleteActions = Collections.synchronizedList(new ArrayList<>());
 	/**
 	 * rename after actions, for entries that need to replace another entry that
 	 * have to be delete first
 	 */
-	private final List<jrm.profile.fix.actions.ContainerAction> renameAfterActions = new ArrayList<>();
+	private final List<jrm.profile.fix.actions.ContainerAction> renameAfterActions = Collections.synchronizedList(new ArrayList<>());
 	/**
 	 * duplicate actions
 	 */
-	private final List<jrm.profile.fix.actions.ContainerAction> duplicateActions = new ArrayList<>();
+	private final List<jrm.profile.fix.actions.ContainerAction> duplicateActions = Collections.synchronizedList(new ArrayList<>());
 	/**
 	 * torrentzip actions, always the last actions when there is no more to do on
 	 * zip archive
 	 */
-	private final Map<String, jrm.profile.fix.actions.ContainerAction> tzipActions = new HashMap<>();
+	private final Map<String, jrm.profile.fix.actions.ContainerAction> tzipActions = Collections.synchronizedMap(new HashMap<>());
 
 	/**
 	 * get a negated {@link Predicate} from a provided {@link Predicate}
