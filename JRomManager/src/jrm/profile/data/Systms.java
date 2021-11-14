@@ -19,6 +19,7 @@ package jrm.profile.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import lombok.Getter;
 
@@ -33,7 +34,7 @@ public final class Systms implements Serializable, Iterable<Systm>
 	/**
 	 * The internal {@link ArrayList} of {@link Systm}s
 	 */
-	private final @Getter ArrayList<Systm> systems = new ArrayList<>();
+	private final @Getter List<Systm> systems = new ArrayList<>();
 
 	/**
 	 * add a {@link Systm} to the list

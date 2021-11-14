@@ -3,13 +3,14 @@ package jrm.profile.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import lombok.Getter;
 
 @SuppressWarnings("serial")
 public class Sources implements Serializable, Iterable<Source>
 {
-	private final @Getter ArrayList<Source> srces = new ArrayList<>();
+	private final @Getter List<Source> srces = new ArrayList<>();
 
 	public boolean add(final Source source)
 	{
