@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -258,7 +259,21 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public List<Rom> filterRoms()
 	{
-		return getFilterRomsStream().filter(this::getRomsFilter).collect(Collectors.toList());
+		final var list = getFilterRomsStream().filter(this::getRomsFilter).collect(Collectors.toCollection(ArrayList::new));
+		if (profile.getSettings().getMergeMode() == MergeOptions.SUPERFULLNOMERGE)
+		{
+			final var map = new HashMap<String, Rom>();
+			final var toRemove = new ArrayList<Rom>();
+			for (final var r : list)
+			{
+				final var o = map.putIfAbsent(r.getName(), r);
+				if (o != null)
+					toRemove.add(o.parent == this?r:o);
+			}
+			if(!toRemove.isEmpty())
+				list.removeAll(toRemove);
+		}
+		return list;
 	}
 
 	/**
