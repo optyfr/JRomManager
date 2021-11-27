@@ -170,10 +170,9 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
     - The name of the game is the same than the name of the rom (minus the rom file extension)
 
 ## Short Term Planned Features
-- Drop nanohttpd and use only jetty as web server
-- Switch to java 11 as minimal source/target requirement
-- Use Java 9+ modularity feature and include Java runtime for Windows (and possibly Mac OS X) using JLink
-- new MSI installer using JPackage (from Java 14)
+- Switch from Java 11 to Java 17
+- Switch from Swing to JavaFX 17 for standalone interface
+- Drop ZipFileSystem and ZipFile to the favor of Zip4J
 - Mode to keep existing container archive format
 - Disk/Threads quotas for "Full Server" mode
 
@@ -185,7 +184,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 ## Long Term Planned Features and Ideas
 - Emulator-friendly format converter?
 - Interoperability with other managers?
-- Torrent7Z support ?
+- Torrent7Z support?
 
 ## Not planned features
 - Inverted/complemented CRC: obsolete replaced by "status" attribute since Mame 0.68
