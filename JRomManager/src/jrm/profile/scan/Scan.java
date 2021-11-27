@@ -797,7 +797,7 @@ public class Scan extends PathAbstractor
 		final Container container = romsDstScan.getContainerByName(ware.getDest().getName() + format.getExt());
 		if (container != null)
 		{
-			if (container.getLastTZipCheck() < container.getModified() || !container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip) || reportSubject.hasFix())
+			if (container.getLastTZipCheck() < container.getModified() || !container.getLastTZipStatus().contains(TrrntZipStatus.VALIDTRRNTZIP) || reportSubject.hasFix())
 				tzipcontainer = Optional.of(container);
 		}
 		else if (createMode)
@@ -837,7 +837,7 @@ public class Scan extends PathAbstractor
 			final Container container = samplesDstScan.getContainerByName(archive.getFile().getName());
 			if (container != null)
 			{
-				if (container.getLastTZipCheck() < container.getModified() || !container.getLastTZipStatus().contains(TrrntZipStatus.ValidTrrntzip) || reportSubject.hasFix())
+				if (container.getLastTZipCheck() < container.getModified() || !container.getLastTZipStatus().contains(TrrntZipStatus.VALIDTRRNTZIP) || reportSubject.hasFix())
 					tzipcontainer = container;
 			}
 			else if (createMode && reportSubject.hasFix())

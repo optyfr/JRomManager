@@ -427,7 +427,7 @@ public class Compressor implements HTMLRenderer
 			progress.setProgress(toHTML("TorrentZipping " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 			cb.apply(PROCESSING+file.getName());
 			final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(progress), new SimpleTorrentZipOptions(force,false)).process(file);
-			if(status.contains(TrrntZipStatus.ValidTrrntzip))
+			if(status.contains(TrrntZipStatus.VALIDTRRNTZIP))
 			{
 				cb.apply(OK);
 				return file;

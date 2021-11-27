@@ -68,7 +68,7 @@ public class TZipContainer extends ContainerAction
 				if (container.getFile().exists())
 				{
 					final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).process(container.getFile());
-					if (!status.contains(TrrntZipStatus.ValidTrrntzip))
+					if (!status.contains(TrrntZipStatus.VALIDTRRNTZIP))
 						Log.info(()->String.format("%-64s => %s%n", container.getRelFile(), status.toString())); //$NON-NLS-1$
 				}
 				return true;
