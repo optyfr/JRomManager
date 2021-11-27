@@ -60,8 +60,8 @@ codeCoverageReport.dependsOn {
 
 
 apply plugin: 'java'
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 17
+targetCompatibility = 17
 apply plugin: 'eclipse'
 eclipse {
 	classpath {
@@ -114,8 +114,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 subprojects {
 	apply plugin: 'java'
-	sourceCompatibility = 11
-	targetCompatibility = 11
+	sourceCompatibility = 17
+	targetCompatibility = 17
 	apply plugin: 'org.javamodularity.moduleplugin'
 	apply plugin: 'eclipse'
 
@@ -804,12 +804,12 @@ ospackage {
 }
 
 buildDeb {
-	requires('java11-runtime').or('java12-runtime').or('java13-runtime').or('java14-runtime').or('java15-runtime').or('java16-runtime')
+	requires('java17-runtime').or('java18-runtime')
 	arch = "all"
 }
 
 buildRpm {
-	requires('java', '1:11', EQUAL).or('java', '1:12', EQUAL).or('java', '1:13', EQUAL).or('java', '1:14', EQUAL).or('java', '1:15', EQUAL).or('java', '1:16', EQUAL)
+	requires('java', '1:17', EQUAL).or('java', '1:18', EQUAL)
 	arch = NOARCH
 	os = LINUX
 	addParentDirs = false
@@ -857,13 +857,16 @@ jlink {
 		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
 	targetPlatform("win") {
-		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.10_9.zip")
+//		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.10_9.zip")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.1%2B12/OpenJDK17U-jdk_x64_windows_hotspot_17.0.1_12.zip")
 	}
 	targetPlatform("linux-x64") {
-		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz")
+//		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.1%2B12/OpenJDK17U-jdk_x64_linux_hotspot_17.0.1_12.tar.gz")
 	}
 	targetPlatform("macos-x64") {
-		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_mac_hotspot_11.0.10_9.tar.gz")
+//		jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_mac_hotspot_11.0.10_9.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.1%2B12/OpenJDK17U-jdk_x64_mac_hotspot_17.0.1_12.tar.gz")
 	}
 	jpackage {
 		installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
