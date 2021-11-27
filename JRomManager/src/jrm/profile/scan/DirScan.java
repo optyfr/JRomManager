@@ -55,9 +55,6 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.io.FilenameUtils;
 
-import JTrrntzip.DummyLogCallback;
-import JTrrntzip.SimpleTorrentZipOptions;
-import JTrrntzip.TorrentZip;
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.zipfs.ZipFileSystemProvider;
@@ -83,6 +80,9 @@ import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.FormatOptions.Ext;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
+import jtrrntzip.DummyLogCallback;
+import jtrrntzip.SimpleTorrentZipOptions;
+import jtrrntzip.TorrentZip;
 import lombok.val;
 import net.sf.sevenzipjbinding.ExtractAskMode;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
@@ -826,7 +826,7 @@ public final class DirScan extends PathAbstractor
 		}
 		if(options.isDest && options.formatTZip && c.getLastTZipCheck() < c.getModified())
 		{
-			c.setLastTZipStatus(options.torrentzip.Process(c.getFile()));
+			c.setLastTZipStatus(options.torrentzip.process(c.getFile()));
 			c.setLastTZipCheck(System.currentTimeMillis());
 		}
 	}

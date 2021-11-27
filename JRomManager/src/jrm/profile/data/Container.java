@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 
-import JTrrntzip.TrrntZipStatus;
+import jtrrntzip.TrrntZipStatus;
 import lombok.Getter;
 import lombok.Setter;
 

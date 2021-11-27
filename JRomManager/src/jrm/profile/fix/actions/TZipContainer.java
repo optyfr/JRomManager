@@ -22,15 +22,15 @@ import java.util.Set;
 
 import org.apache.commons.text.StringEscapeUtils;
 
-import JTrrntzip.SimpleTorrentZipOptions;
-import JTrrntzip.TorrentZip;
-import JTrrntzip.TrrntZipStatus;
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressTZipCallBack;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
+import jtrrntzip.SimpleTorrentZipOptions;
+import jtrrntzip.TorrentZip;
+import jtrrntzip.TrrntZipStatus;
 
 /**
  * The specialized container action for trrntzipping zip containers
@@ -67,7 +67,7 @@ public class TZipContainer extends ContainerAction
 			{
 				if (container.getFile().exists())
 				{
-					final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).Process(container.getFile());
+					final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).process(container.getFile());
 					if (!status.contains(TrrntZipStatus.ValidTrrntzip))
 						Log.info(()->String.format("%-64s => %s%n", container.getRelFile(), status.toString())); //$NON-NLS-1$
 				}

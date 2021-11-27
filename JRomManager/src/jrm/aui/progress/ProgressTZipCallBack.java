@@ -1,7 +1,7 @@
 package jrm.aui.progress;
 
-import JTrrntzip.LogCallback;
 import jrm.misc.HTMLRenderer;
+import jtrrntzip.LogCallback;
 
 /**
  * The Class ProgressTZipCallBack.

@@ -20,9 +20,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
-import JTrrntzip.SimpleTorrentZipOptions;
-import JTrrntzip.TorrentZip;
-import JTrrntzip.TrrntZipStatus;
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.aui.progress.ProgressTZipCallBack;
@@ -36,6 +33,9 @@ import jrm.misc.HTMLRenderer;
 import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.security.Session;
+import jtrrntzip.SimpleTorrentZipOptions;
+import jtrrntzip.TorrentZip;
+import jtrrntzip.TrrntZipStatus;
 import lombok.Data;
 import lombok.Getter;
 
@@ -426,7 +426,7 @@ public class Compressor implements HTMLRenderer
 		{
 			progress.setProgress(toHTML("TorrentZipping " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
 			cb.apply(PROCESSING+file.getName());
-			final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(progress), new SimpleTorrentZipOptions(force,false)).Process(file);
+			final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(progress), new SimpleTorrentZipOptions(force,false)).process(file);
 			if(status.contains(TrrntZipStatus.ValidTrrntzip))
 			{
 				cb.apply(OK);
