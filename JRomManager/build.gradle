@@ -536,6 +536,46 @@ project(':JRomManager:jrmstandalone') {
 	apply plugin:'jacoco'
 }
 
+project(':JRomManager:jrmfx') {
+	apply plugin: "io.freefair.lombok"
+	apply plugin: "org.beryx.jlink"
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["../src-jfx"]
+			}
+		}
+		test {
+			java {
+				srcDirs = ["../test-jfx"]
+			}
+		}
+	}
+	dependencies {
+		implementation project(':JRomManager:jrmcore')
+		implementation project(':JRomManager:res-icons')
+		implementation group: 'commons-codec', name:'commons-codec'
+		implementation group: 'commons-cli', name: 'commons-cli'
+		implementation group: 'commons-io', name: 'commons-io'
+		implementation group: 'org.apache.commons', name: 'commons-lang3'
+		implementation group: 'one.util', name: 'streamex'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+		implementation group: 'com.sun.activation', name: 'javax.activation'
+	
+		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
+		testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine'
+	}
+	jar {
+		manifest {
+			attributes(
+				"Manifest-Version"     : "1.0",
+				"Specification-Title"  : "JRomManager JFX",
+			)
+		}
+	}
+	apply plugin:'jacoco'
+}
+
 project(':JRomManager:jrmserver') {
 	apply plugin: "io.freefair.lombok"
 	sourceSets {
@@ -643,6 +683,7 @@ project(':JRomManager:jrmserver') {
 
 dependencies {
 	implementation project(':JRomManager:jrmstandalone')
+	implementation project(':JRomManager:jrmfx')
 	implementation project(':JRomManager:jrmcli')
 	implementation project(':JRomManager:jrmserver')
 }
