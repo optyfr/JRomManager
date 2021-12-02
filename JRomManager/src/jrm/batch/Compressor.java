@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -25,10 +26,9 @@ import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.aui.progress.ProgressTZipCallBack;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
+import jrm.compressors.ZipLevel;
+import jrm.compressors.ZipTempThreshold;
 import jrm.compressors.ZipArchive.CustomVisitor;
-import jrm.compressors.zipfs.ZipFileSystemProvider;
-import jrm.compressors.zipfs.ZipLevel;
-import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.IOUtils;
 import jrm.misc.Log;
@@ -38,6 +38,10 @@ import jtrrntzip.TorrentZip;
 import jtrrntzip.TrrntZipStatus;
 import lombok.Data;
 import lombok.Getter;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
 
 public class Compressor implements HTMLRenderer
 {
@@ -252,34 +256,35 @@ public class Compressor implements HTMLRenderer
 			if(archive.extract()==0)
 			{
 				final File basedir = archive.getTempDir();
-				final Map<String, Object> env = new HashMap<>();
-				env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("useTempFile", FileUtils.sizeOf(basedir) > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("compressionLevel", tzip ? 1 :  ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+
+				final var zipp = new ZipParameters();
+				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString()));
+				switch(level)
+				{
+					case STORE		-> zipp.setCompressionMethod(CompressionMethod.STORE); 
+					case FASTEST	-> zipp.setCompressionLevel(CompressionLevel.FASTEST);
+					case FAST		-> zipp.setCompressionLevel(CompressionLevel.FAST);
+					case NORMAL		-> zipp.setCompressionLevel(CompressionLevel.NORMAL);
+					case MAXIMUM	-> zipp.setCompressionLevel(CompressionLevel.MAXIMUM);
+					case ULTRA		-> zipp.setCompressionLevel(CompressionLevel.ULTRA);
+					default			-> zipp.setCompressionLevel(CompressionLevel.NORMAL);
+				}
 				FileUtils.forceMkdirParent(tmpfile.toFile());
 				progress.setProgress(toHTML("creating " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
-				try(final var dstarchive = new ZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
+				try(final var srczipf = new ZipFile(file); final var dstzipf = new ZipFile(tmpfile.toFile()))
 				{
-					dstarchive.compressCustom(new CustomVisitor(basedir.toPath()) {
+					Files.walkFileTree(basedir.toPath(), new SimpleFileVisitor<Path>() {
 						@Override
-						public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
+						public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
 						{
-							final var dst = getFileSystem().getPath(basedir.toPath().relativize(file).toString());
-							if(dst.getParent()!=null)
-								Files.createDirectories(dst.getParent());
-							Files.copy(file, dst, StandardCopyOption.REPLACE_EXISTING);
+							final var zippf = new ZipParameters(zipp);
+							zippf.setFileNameInZip(basedir.toPath().relativize(file).toString());
+							dstzipf.addFile(file.toFile(), zippf);
 							return FileVisitResult.CONTINUE;
 						}
-						
-						@Override
-						public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-						{
-							final var dst = getFileSystem().getPath(basedir.toPath().relativize(dir).toString());
-							Files.createDirectories(dst);
-							return FileVisitResult.CONTINUE;
-						}
-					}, env);
+					});
 				}
+				
 			}
 			else
 			{
@@ -306,35 +311,29 @@ public class Compressor implements HTMLRenderer
 			final var tmpfile = IOUtils.createTempFile("JRM", ".zip");
 			Files.delete(tmpfile);
 			final var newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
-			try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + file.toURI()), new HashMap<>());) //$NON-NLS-1$
+			try(final var srczipf = new ZipFile(file); final var dstzipf = new ZipFile(tmpfile.toFile()))
 			{
-				final var basedir = fs.getPath("/");
-				final Map<String, Object> env = new HashMap<>();
-				env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("useTempFile", size(basedir) > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
-				env.put("compressionLevel", ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$
-				progress.setProgress(toHTML(CRUNCHING + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
-				try (final var newarchive = new ZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
+				final var zipp = new ZipParameters();
+				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString()));
+				switch(level)
 				{
-					newarchive.compressCustom(new CustomVisitor(basedir) {
-						@Override
-						public FileVisitResult visitFile(final Path file, final BasicFileAttributes attr) throws IOException
-						{
-							final var dst = getFileSystem().getPath(basedir.relativize(file).toString());
-							if(dst.getParent()!=null)
-								Files.createDirectories(dst.getParent());
-							Files.copy(file, dst, StandardCopyOption.REPLACE_EXISTING);
-							return FileVisitResult.CONTINUE;
-						}
-						
-						@Override
-						public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException
-						{
-							final var dst = getFileSystem().getPath(basedir.relativize(dir).toString());
-							Files.createDirectories(dst);
-							return FileVisitResult.CONTINUE;
-						}
-					}, env);
+					case STORE		-> zipp.setCompressionMethod(CompressionMethod.STORE); 
+					case FASTEST	-> zipp.setCompressionLevel(CompressionLevel.FASTEST);
+					case FAST		-> zipp.setCompressionLevel(CompressionLevel.FAST);
+					case NORMAL		-> zipp.setCompressionLevel(CompressionLevel.NORMAL);
+					case MAXIMUM	-> zipp.setCompressionLevel(CompressionLevel.MAXIMUM);
+					case ULTRA		-> zipp.setCompressionLevel(CompressionLevel.ULTRA);
+					default			-> zipp.setCompressionLevel(CompressionLevel.NORMAL);
+				}
+				progress.setProgress(toHTML(CRUNCHING + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
+				for(final var hdr : srczipf.getFileHeaders())
+				{
+					if(!hdr.isDirectory())
+					{
+						final var zippf = new ZipParameters(zipp);
+						zippf.setFileNameInZip(hdr.getFileName());
+						dstzipf.addStream(srczipf.getInputStream(hdr), zippf);
+					}
 				}
 			}
 			if(Files.exists(tmpfile))

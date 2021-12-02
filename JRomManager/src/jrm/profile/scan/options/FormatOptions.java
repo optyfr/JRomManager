@@ -19,10 +19,10 @@ package jrm.profile.scan.options;
 import java.util.EnumSet;
 import java.util.Set;
 
-import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.locale.Messages;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.lingala.zip4j.ZipFile;
 
 /**
  * The supported format options
@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 public @RequiredArgsConstructor enum FormatOptions
 {
 	/**
-	 * Zip (internally handled via {@link ZipFileSystemProvider})
+	 * Zip (internally handled via {@link ZipFile})
 	 */
 	ZIP(Messages.getString("FormatOptions.Zip"), Ext.ZIP), //$NON-NLS-1$
 	/**

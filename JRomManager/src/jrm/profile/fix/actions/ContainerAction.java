@@ -17,20 +17,23 @@
 package jrm.profile.fix.actions;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.zip.ZipOutputStream;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
+import jrm.compressors.ZipLevel;
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
 
 /**
  * The base class for container operations
@@ -163,27 +166,6 @@ public abstract class ContainerAction implements HTMLRenderer, Comparable<Contai
 			return true;
 		}
 	}
-	
-	/**
-	 * @param session
-	 * @param handler
-	 * @param fs
-	 * @return
-	 */
-	protected boolean fsAction(final Session session, final ProgressHandler handler, final FileSystem fs)
-	{
-		var i = 0;
-		for (final EntryAction action : entryActions)
-		{
-			i++;
-			if (!action.doAction(session, fs, handler, i, entryActions.size() ))
-			{
-				Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
-				return false;
-			}
-		}
-		return true;
-	}
 
 	/**
 	 * @param session
@@ -212,13 +194,31 @@ public abstract class ContainerAction implements HTMLRenderer, Comparable<Contai
 	 * @param os
 	 * @return
 	 */
-	protected boolean zosAction(final Session session, final ProgressHandler handler, final ZipOutputStream os)
+	protected boolean zosAction(final Session session, final ProgressHandler handler, final ZipFile zipf)
 	{
 		var i = 0;
 		for (final EntryAction action : entryActions)
 		{
 			i++;
-			if (!action.doAction(session, os, handler, i, entryActions.size()))
+			final var zipp = new ZipParameters();
+			if(format == FormatOptions.TZIP)
+				zipp.setCompressionLevel(CompressionLevel.FASTEST);
+			else
+			{
+				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString()));
+				switch(level)
+				{
+					case STORE		-> zipp.setCompressionMethod(CompressionMethod.STORE);
+					case FASTEST	-> zipp.setCompressionLevel(CompressionLevel.FASTEST);
+					case FAST		-> zipp.setCompressionLevel(CompressionLevel.FAST);
+					case NORMAL		-> zipp.setCompressionLevel(CompressionLevel.NORMAL);
+					case MAXIMUM	-> zipp.setCompressionLevel(CompressionLevel.MAXIMUM);
+					case ULTRA		-> zipp.setCompressionLevel(CompressionLevel.ULTRA);
+					default			-> zipp.setCompressionLevel(CompressionLevel.NORMAL);
+				}
+			}
+
+			if (!action.doAction(session, zipf, zipp, handler, i, entryActions.size()))
 			{
 				Log.err(() -> String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
 				return false;

@@ -16,20 +16,21 @@
  */
 package jrm.profile.fix.actions;
 
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
-import java.util.zip.ZipOutputStream;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
+import jrm.compressors.ZipTools;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Entry;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
 
 /**
  * Rename an entry inside its container
@@ -66,28 +67,25 @@ public class RenameEntry extends EntryAction
 		this.newname = newname;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
-	public boolean doAction(final Session session, final FileSystem fs, final ProgressHandler handler, int i, int max)
+	public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max)
 	{
 		Path dstpath = null;
 		try
 		{
 			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(RENAME_ENTRY_RENAMING), entry.getRelFile(), newname))); //$NON-NLS-1$
-			final var srcpath = fs.getPath(entry.getFile());
-			dstpath = fs.getPath(newname);
-			if(dstpath!=null)
-			{
-				final var parent = dstpath.getParent();
-				if(parent != null)
-					Files.createDirectories(parent);
-				Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
-				entry.rename(dstpath.toString(), PathAbstractor.getRelativePath(session, dstpath).toString());
-			}
+			
+			zipf.renameFile(ZipTools.toZipEntry(entry.getFile()), newname);
+			dstpath = Path.of(newname);
+			final var srcpath = entry.getFile();
+			entry.rename(newname, PathAbstractor.getRelativePath(session, dstpath).toString());
 			Log.debug(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), srcpath, parent.container.getFile().getName(), dstpath));
 			return true;
 		}
 		catch(final Exception e)
 		{
+			Log.err(e.getMessage(), e);
 			Log.err(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), newname));
 		}
 		return false;
@@ -140,11 +138,5 @@ public class RenameEntry extends EntryAction
 	public String toString()
 	{
 		return String.format(Messages.getString("RenameEntry.Rename"), entry, newname); //$NON-NLS-1$
-	}
-
-	@Override
-	public boolean doAction(Session session, ZipOutputStream zos, ProgressHandler handler, int i, int max)
-	{
-		throw new UnsupportedOperationException("update forbidden");
 	}
 }

@@ -23,9 +23,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.URI;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
@@ -49,7 +49,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
-import java.util.zip.ZipError;
 
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
@@ -57,7 +56,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.SevenZipArchive;
-import jrm.compressors.zipfs.ZipFileSystemProvider;
+import jrm.compressors.ZipTools;
 import jrm.digest.MDigest;
 import jrm.digest.MDigest.Algo;
 import jrm.io.chd.CHDInfoReader;
@@ -84,6 +83,8 @@ import jtrrntzip.DummyLogCallback;
 import jtrrntzip.SimpleTorrentZipOptions;
 import jtrrntzip.TorrentZip;
 import lombok.val;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.FileHeader;
 import net.sf.sevenzipjbinding.ExtractAskMode;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
 import net.sf.sevenzipjbinding.IArchiveExtractCallback;
@@ -429,8 +430,7 @@ public final class DirScan extends PathAbstractor
 				scanZip(container, options);
 				break;
 			}
-			case RAR:
-			case SEVENZIP:
+			case RAR, SEVENZIP:
 			{
 				try(final var entries = new SevenZUpdateEntries(container, options))
 				{
@@ -788,46 +788,84 @@ public final class DirScan extends PathAbstractor
 	 */
 	private void scanZip(Container c, ScanOptions options) throws IOException
 	{
-		if(c.getLoaded() < 1 || (options.needSha1OrMd5 && c.getLoaded() < 2))
+		try(final var zipf = new ZipFile(c.getFile()))
 		{
-			final Map<String, Object> env = new HashMap<>();
-			env.put("useTempFile", true); //$NON-NLS-1$
-			env.put("readOnly", true); //$NON-NLS-1$
-			try(final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + c.getFile().toURI()), env);) //$NON-NLS-1$
+			if(c.getLoaded() < 1 || (options.needSha1OrMd5 && c.getLoaded() < 2))
 			{
-				final var root = fs.getPath("/"); //$NON-NLS-1$
-				Files.walkFileTree(root, new SimpleFileVisitor<Path>()
-				{
-					@Override
-					public FileVisitResult visitFile(final Path entryPath, final BasicFileAttributes attrs) throws IOException
+					for(final var hdr : zipf.getFileHeaders())
 					{
-						final var entry = c.add(new Entry(entryPath.toString(),getRelativePath(entryPath).toString()));
-						updateEntry(entry, entryPath, options);
-						return FileVisitResult.CONTINUE;
+						final var entry = c.add(new Entry(ZipTools.toEntry(hdr.getFileName()), ZipTools.toEntry(hdr.getFileName())));
+						updateEntry(entry, zipf, hdr, options);
 					}
-
-					@Override
-					public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-					{
-						return FileVisitResult.CONTINUE;
-					}
-				});
-				c.setLoaded(options.needSha1OrMd5 ? 2 : 1);
+					c.setLoaded(options.needSha1OrMd5 ? 2 : 1);
+				
 			}
-			catch (ZipError | IOException e)
+			else
 			{
-				Log.err(() -> c.getRelFile() + " : " + e.getMessage());
+					for(final Entry entry : c.getEntries())
+						updateEntry(entry, zipf, null, options);
 			}
 		}
-		else
+		catch (Exception e)
 		{
-			for(final Entry entry : c.getEntries())
-				updateEntry(entry, options);
+			Log.err(() -> c.getRelFile() + " : " + e.getMessage());
 		}
 		if(options.isDest && options.formatTZip && c.getLastTZipCheck() < c.getModified())
 		{
 			c.setLastTZipStatus(options.torrentzip.process(c.getFile()));
 			c.setLastTZipCheck(System.currentTimeMillis());
+		}
+	}
+	
+	private void updateEntry(Entry entry, ZipFile zipf, FileHeader hdr, ScanOptions options)
+	{
+		if(entry.getSize() == 0 && entry.getCrc() == null)
+		{
+			entry.setSize(hdr.getUncompressedSize()); //$NON-NLS-1$
+			entry.setCrc(String.format("%08x", hdr.getCrc())); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		entriesByCrc.put(entry.getCrc() + "." + entry.getSize(), entry); //$NON-NLS-1$
+		if(options.needSha1OrMd5 || entry.getCrc() == null || isSuspiciousCRC(entry.getCrc()))
+		{
+			List<Algo> algorithms = getAlgorithms(entry, options);
+			if(!algorithms.isEmpty()) try
+			{
+				if(hdr == null)
+					hdr = zipf.getFileHeader(ZipTools.toZipEntry(entry.getFile()));
+				MDigest[] digests = computeHash(zipf.getInputStream(hdr), algorithms);
+				updateEntryFromHashes(entry, digests);
+			}
+			catch (IOException | NoSuchAlgorithmException e)
+			{
+				Log.err(e.getMessage(),e);
+			}
+		}
+		else
+		{
+			updateHashesFromEntry(entry);
+		}
+	}
+
+	/**
+	 * @param entry
+	 * @param digests
+	 */
+	private void updateEntryFromHashes(Entry entry, MDigest[] digests)
+	{
+		for(MDigest md : digests)
+		{
+			switch (md.getAlgorithm())
+			{
+				case CRC32: //$NON-NLS-1$
+					entry.setCrc(md.toString());
+					break;
+				case MD5: //$NON-NLS-1$
+					entry.setMd5(md.toString());
+					break;
+				case SHA1: //$NON-NLS-1$
+					entry.setSha1(md.toString());
+					break;
+			}
 		}
 	}
 
@@ -1233,12 +1271,7 @@ public final class DirScan extends PathAbstractor
 		}
 		else
 		{
-			if(entry.getCrc() != null)
-				entriesByCrc.put(entry.getCrc() + "." + entry.getSize(), entry); //$NON-NLS-1$
-			if(entry.getSha1() != null)
-				entriesBySha1.put(entry.getSha1(), entry);
-			if(entry.getMd5() != null)
-				entriesByMd5.put(entry.getMd5(), entry);
+			updateHashesFromEntry(entry);
 		}
 	}
 
@@ -1250,6 +1283,31 @@ public final class DirScan extends PathAbstractor
 	 */
 	private void updateEntryExt(final Entry entry, final Path entryPath, ScanOptions options) throws IOException
 	{
+		List<Algo> algorithms = getAlgorithms(entry, options);
+		updateEntryExt(entry, entryPath, algorithms);
+		updateHashesFromEntry(entry);
+	}
+
+	/**
+	 * @param entry
+	 */
+	private void updateHashesFromEntry(final Entry entry)
+	{
+		if(entry.getCrc() != null)
+			entriesByCrc.put(entry.getCrc() + "." + entry.getSize(), entry); //$NON-NLS-1$
+		if(entry.getSha1() != null)
+			entriesBySha1.put(entry.getSha1(), entry);
+		if(entry.getMd5() != null)
+			entriesByMd5.put(entry.getMd5(), entry);
+	}
+
+	/**
+	 * @param entry
+	 * @param options
+	 * @return
+	 */
+	private List<Algo> getAlgorithms(final Entry entry, ScanOptions options)
+	{
 		List<Algo> algorithms = new ArrayList<>();
 		if(entry.getCrc()==null)
 			algorithms.add(Algo.CRC32); //$NON-NLS-1$
@@ -1257,13 +1315,7 @@ public final class DirScan extends PathAbstractor
 			algorithms.add(Algo.MD5); //$NON-NLS-1$
 		if(entry.getSha1() == null && (options.sha1Roms || options.needSha1OrMd5))
 			algorithms.add(Algo.SHA1); //$NON-NLS-1$
-		updateEntryExt(entry, entryPath, algorithms);
-		if(entry.getCrc() != null)
-			entriesByCrc.put(entry.getCrc() + "." + entry.getSize(), entry); //$NON-NLS-1$
-		if(entry.getSha1() != null)
-			entriesBySha1.put(entry.getSha1(), entry);
-		if(entry.getMd5() != null)
-			entriesByMd5.put(entry.getMd5(), entry);
+		return algorithms;
 	}
 
 	/**
@@ -1280,21 +1332,7 @@ public final class DirScan extends PathAbstractor
 			if(entryPath == null)
 				path = getPath(entry);
 			MDigest[] digests = computeHash(path, algorithms);
-			for(MDigest md : digests)
-			{
-				switch (md.getAlgorithm())
-				{
-					case CRC32: //$NON-NLS-1$
-						entry.setCrc(md.toString());
-						break;
-					case MD5: //$NON-NLS-1$
-						entry.setMd5(md.toString());
-						break;
-					case SHA1: //$NON-NLS-1$
-						entry.setSha1(md.toString());
-						break;
-				}
-			}
+			updateEntryFromHashes(entry, digests);
 			if(entryPath == null)
 				path.getFileSystem().close();
 		}
@@ -1360,21 +1398,44 @@ public final class DirScan extends PathAbstractor
 	
 	private MDigest[] computeHash(final Path entryPath, final Algo[] algorithm) throws NoSuchAlgorithmException
 	{
-		var md = new MDigest[algorithm.length];
-		for(var i = 0; i < algorithm.length; i++)
-			md[i] = MDigest.getAlgorithm(algorithm[i]);
+		var md = getMDigest(algorithm);
 		try
 		{
 			MDigest.computeHash(Files.newInputStream(entryPath), md);
 		}
-		catch(final Exception e)
+		catch(final IOException e)
 		{
 			Log.err(e.getMessage(),e);
 		}
 		return md;
 	}
-	
 
+	/**
+	 * @param algorithm
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 */
+	private MDigest[] getMDigest(final Algo[] algorithm) throws NoSuchAlgorithmException
+	{
+		var md = new MDigest[algorithm.length];
+		for(var i = 0; i < algorithm.length; i++)
+			md[i] = MDigest.getAlgorithm(algorithm[i]);
+		return md;
+	}
+	
+	private MDigest[] computeHash(final InputStream is, final List<Algo> algorithm) throws IOException, NoSuchAlgorithmException
+	{
+		return computeHash(is, algorithm.toArray(new Algo[0]));
+	}
+	
+	private MDigest[] computeHash(final InputStream is, final Algo[] algorithm) throws IOException, NoSuchAlgorithmException
+	{
+		var md = getMDigest(algorithm);
+		MDigest.computeHash(is, md);
+		return md;
+	}
+
+	
 	/**
 	 * get {@link Path} from {@link Entry} using FS deduced from {@link Entry#parent}
 	 * @param entry the {@link Entry} to retrieve {@link Path}

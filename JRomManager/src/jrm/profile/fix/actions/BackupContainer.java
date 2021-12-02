@@ -18,7 +18,6 @@ package jrm.profile.fix.actions;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.FileSystem;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,14 +25,17 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.CRC32;
 
 import jrm.aui.progress.ProgressHandler;
-import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
+import jrm.profile.data.Entry.Type;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.CompressionLevel;
 
 /**
  * Special class aimed to backup some or all entries from a container
@@ -80,7 +82,7 @@ public class BackupContainer extends ContainerAction
 	/**
 	 * a maintained list of opened Zip {@link FileSystem}s
 	 */
-	private static final Map<String, FileSystem> filesystems = new HashMap<>();
+	private static final Map<String, ZipFile> zipfiles = new HashMap<>();
 
 	/**
 	 * get a {@link FileSystem} to backup {@link EntryAction} file from {@link Container}
@@ -89,10 +91,12 @@ public class BackupContainer extends ContainerAction
 	 * @return a valid Zip {@link FileSystem} for which to save the entry, {@link FileSystem} archive will be created if not already existing, otherwise it will be opened for writing or reused if has already be returned for another entry 
 	 * @throws IOException if the zip archive could not be opened or created for writing
 	 */
-	public static synchronized FileSystem getFS(final Session session, Container container, EntryAction action) throws IOException
+	@SuppressWarnings("exports")
+	public static synchronized ZipFile getZipFile(final Session session, Container container, EntryAction action)
 	{
+		Log.info(action.entry.getFile());
 		final var crc2 = action.entry.getCrc().substring(0, 2);
-		if (!filesystems.containsKey(crc2))
+		if (!zipfiles.containsKey(crc2))
 		{
 			final String workdir;
 			if (session.getCurrProfile().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
@@ -106,14 +110,9 @@ public class BackupContainer extends ContainerAction
 			crc.update(container.getFile().getAbsoluteFile().getParent().getBytes());
 			final var backupfile = new File(new File(backupdir, String.format("%08x", crc.getValue())), crc2 + ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 			backupfile.getParentFile().mkdirs();
-			final Map<String, Object> env = new HashMap<>();
-			if (!backupfile.exists())
-				env.put("create", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-			env.put("useTempFile", true); //$NON-NLS-1$
-			env.put("compressionLevel", 1); //$NON-NLS-1$
-			filesystems.put(crc2, new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + backupfile.toURI()), env)); //$NON-NLS-1$
+			zipfiles.put(crc2, new ZipFile(backupfile)); //$NON-NLS-1$
 		}
-		return filesystems.get(crc2);
+		return zipfiles.get(crc2);
 	}
 
 	/**
@@ -121,13 +120,13 @@ public class BackupContainer extends ContainerAction
 	 */
 	public static void closeAllFS()
 	{
-		for(final var fs : filesystems.values())
+		for(final var zipfile : zipfiles.values())
 		{
 			try
 			{
-				synchronized (fs)
+				synchronized (zipfile)
 				{
-					fs.close();
+					zipfile.close();
 				}
 			}
 			catch (IOException e)
@@ -135,7 +134,7 @@ public class BackupContainer extends ContainerAction
 				Log.err(e.getMessage(),e);
 			}
 		}
-		filesystems.clear();
+		zipfiles.clear();
 	}
 
 	@Override
@@ -146,14 +145,17 @@ public class BackupContainer extends ContainerAction
 			var i = 0;
 			if (entryActions.isEmpty())
 				for (Entry entry : container.getEntries())
-					addAction(new BackupEntry(entry));
+					if(entry.getType()!=Type.CHD)
+						addAction(new BackupEntry(entry));
 			for (final EntryAction action : entryActions)
 			{
 				i++;
-				final FileSystem fs = getFS(session, container, action);
-				synchronized (fs)
+				final var zipf = getZipFile(session, container, action);
+				synchronized (zipf)
 				{
-					if (!action.doAction(session, fs, handler, i, entryActions.size()))
+					final var zipp = new ZipParameters();
+					zipp.setCompressionLevel(CompressionLevel.FASTEST);
+					if (!action.doAction(session, zipf, zipp, handler, i, entryActions.size()))
 					{
 						Log.err("action to " + container.getFile().getName() + "@" + action.entry.getRelFile() + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return false;

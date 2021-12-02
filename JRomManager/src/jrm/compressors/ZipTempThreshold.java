@@ -1,4 +1,4 @@
-package jrm.compressors.zipfs;
+package jrm.compressors;
 
 import jrm.locale.Messages;
 

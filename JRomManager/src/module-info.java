@@ -2,7 +2,6 @@ module jrmcore
 {
 	exports jrm.batch;
 	exports jrm.compressors;
-	exports jrm.compressors.zipfs;
 	exports jrm.compressors.sevenzipjbinding;
 	exports jrm.digest;
 	exports jrm.io.chd;
@@ -43,4 +42,5 @@ module jrmcore
 	requires trrntzip;
 	requires SevenZipJBindingAllInOne;
 	requires java.management;
+	requires zip4j;
 }

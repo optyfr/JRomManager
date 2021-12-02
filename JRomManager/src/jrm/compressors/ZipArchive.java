@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -32,12 +31,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
 import jrm.aui.progress.ProgressNarchiveCallBack;
-import jrm.compressors.zipfs.ZipFileSystemProvider;
 import jrm.misc.FindCmd;
 import jrm.misc.IOUtils;
 import jrm.misc.Log;
@@ -278,25 +275,6 @@ public class ZipArchive extends AbstractArchive
 				}
 			Files.walkFileTree(sfv.getSourcePath(), new CustomVisitorCB(sfv));
 			return 0;
-		}
-		catch(IOException ex)
-		{
-			Log.err(ex.getMessage(),ex);
-		}
-		return -1;
-	}
-	
-	public int compressCustom(CustomVisitor sfv, Map<String, Object> env)
-	{
-		try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + archive.toURI()), env);) //$NON-NLS-1$
-		{
-			sfv.setFileSystem(fs);
-			if(cb != null)
-				try(final var stream = Files.walk(sfv.getSourcePath()))
-				{
-					cb.setTotal(stream.filter(Files::isRegularFile).count());
-				}
-			Files.walkFileTree(sfv.getSourcePath(), new CustomVisitorCB(sfv));
 		}
 		catch(IOException ex)
 		{

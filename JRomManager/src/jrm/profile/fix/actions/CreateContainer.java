@@ -16,23 +16,21 @@
  */
 package jrm.profile.fix.actions;
 
-import java.io.FileOutputStream;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
-import jrm.compressors.zipfs.ZipLevel;
 import jrm.locale.Messages;
 import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
+import net.lingala.zip4j.ZipFile;
 
 /**
  * specialized class when container need to be created before doing actions on entries (which should be only {@link AddEntry}) 
@@ -186,14 +184,13 @@ public class CreateContainer extends ContainerAction
 	 */
 	private boolean createZip(final Session session, final ProgressHandler handler)
 	{
-		try(final var zout = new ZipOutputStream(new FileOutputStream(container.getFile())))
+		try(final var zipf = new ZipFile(container.getFile()))
 		{
-			zout.setLevel(format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel());
-			return zosAction(session, handler, zout);
+			return zosAction(session, handler, zipf);
 		}
-		catch (final Exception e)
+		catch (Exception e)
 		{
-			Log.err(e.getMessage(),e);
+			Log.err(e.getMessage(), e);
 		}
 		return false;
 	}

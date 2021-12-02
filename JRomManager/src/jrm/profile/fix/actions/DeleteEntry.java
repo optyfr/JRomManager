@@ -16,17 +16,20 @@
  */
 package jrm.profile.fix.actions;
 
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.zip.ZipOutputStream;
+import java.util.stream.Collectors;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
+import jrm.compressors.ZipTools;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Entry;
 import jrm.security.Session;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.ZipParameters;
 
 /**
  * Delete an entry from its container
@@ -47,19 +50,28 @@ public class DeleteEntry extends EntryAction
 		super(entry);
 	}
 
+	@SuppressWarnings("exports")
 	@Override
-	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
+	public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max)
 	{
 		Path path = null;
 		try
 		{
 			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); //$NON-NLS-1$
-			path = dstfs.getPath(entry.getFile());
-			Files.deleteIfExists(path);
+			Log.info(() -> "remove " + entry.getFile() + " from " + zipf.getFile());
+			final var ziphdr = zipf.getFileHeader(ZipTools.toZipEntry(entry.getFile()));
+			if (ziphdr != null)
+				zipf.removeFile(ziphdr);
+			else
+			{
+				Log.info(() -> "ziphdr not found");
+				Log.info(zipf.getFileHeaders().stream().map(FileHeader::getFileName).collect(Collectors.joining(", ")));
+			}
 			return true;
 		}
 		catch(final Exception e)
 		{
+			Log.err(e.getMessage(), e);
 			Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return false;
@@ -104,9 +116,4 @@ public class DeleteEntry extends EntryAction
 		return String.format(Messages.getString("DeleteEntry.Delete"), entry); //$NON-NLS-1$
 	}
 
-	@Override
-	public boolean doAction(Session session, ZipOutputStream zos, ProgressHandler handler, int i, int max)
-	{
-		throw new UnsupportedOperationException("update forbidden");
-	}
 }

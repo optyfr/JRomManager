@@ -18,15 +18,11 @@ package jrm.profile.fix.actions;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -34,14 +30,12 @@ import org.apache.commons.text.StringEscapeUtils;
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
-import jrm.compressors.zipfs.ZipFileSystemProvider;
-import jrm.compressors.zipfs.ZipLevel;
-import jrm.compressors.zipfs.ZipTempThreshold;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.security.Session;
+import net.lingala.zip4j.ZipFile;
 
 /**
  * specialized class when an already existing container have to be opened before doing actions on entries (which should be only {@link AddEntry}) 
@@ -182,15 +176,9 @@ public class OpenContainer extends ContainerAction
 	 */
 	private boolean doActionZip(final Session session, final ProgressHandler handler)
 	{
-		final Map<String, Object> env = new HashMap<>();
-		env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString())).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
-		env.put("compressionLevel", format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
-		try (final var fs = new ZipFileSystemProvider().newFileSystem(URI.create("zip:" + container.getFile().toURI()), env);) //$NON-NLS-1$
+		try(final var zif = new ZipFile(container.getFile()))
 		{
-			if(!fsAction(session, handler, fs))
-				return false;
-			deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
-			return true;
+			return zosAction(session, handler, zif);
 		}
 		catch (final Exception e)
 		{
@@ -244,7 +232,7 @@ public class OpenContainer extends ContainerAction
 		{
 			try(final var stream = Files.list(baseFolder))
 			{
-				for (final Path folder : stream.collect(Collectors.toList()))
+				for (final Path folder : stream.toList())
 					filescnt += Files.isDirectory(folder) ? deleteEmptyFolders(folder) : 1;
 			}
 			if (filescnt == 0)

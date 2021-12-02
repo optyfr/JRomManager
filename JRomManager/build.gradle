@@ -350,6 +350,11 @@ subprojects {
 					prefer 'latest.release'
 				}
 			}
+			implementation('net.lingala.zip4j:zip4j') {
+				version {
+					prefer 'latest.release'
+				}
+			}
 		}
 	}
 }
@@ -412,7 +417,7 @@ project(':JRomManager:jrmcore') {
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.sun.activation', name: 'javax.activation'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
-	//	compileOnly group: 'com.github.spotbugs', name:'spotbugs-annotations'
+		implementation group: 'net.lingala.zip4j', name: 'zip4j'
 	
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
 		testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine'

@@ -24,9 +24,9 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import jrm.compressors.SevenZipOptions;
+import jrm.compressors.ZipLevel;
 import jrm.compressors.ZipOptions;
-import jrm.compressors.zipfs.ZipLevel;
-import jrm.compressors.zipfs.ZipTempThreshold;
+import jrm.compressors.ZipTempThreshold;
 import jrm.locale.Messages;
 import jrm.misc.FindCmd;
 import jrm.misc.SettingsEnum;

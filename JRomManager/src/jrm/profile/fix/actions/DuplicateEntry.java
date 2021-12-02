@@ -16,18 +16,20 @@
  */
 package jrm.profile.fix.actions;
 
-import java.nio.file.FileSystem;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.zip.ZipOutputStream;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
+import jrm.compressors.ZipTools;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Entry;
 import jrm.security.Session;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
 
 /**
  * Duplicate an entry inside the *same* container
@@ -54,24 +56,39 @@ public class DuplicateEntry extends EntryAction
 		this.newname = newname;
 	}
 
+	@SuppressWarnings("exports")
 	@Override
-	public boolean doAction(final Session session, final FileSystem fs, final ProgressHandler handler, int i, int max)
+	public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max)
 	{
-		final var dstpath = fs.getPath(newname);
+		Path tmpdir = null;
 		try
 		{
+			tmpdir = Files.createTempDirectory("JRM");
 			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DUPLICATE_ENTRY_DUPLICATING), entry.getRelFile(), newname))); //$NON-NLS-1$
-			final var srcpath = fs.getPath(entry.getFile());
-			final var parent2 = dstpath.getParent();
-			if(parent2 != null)
-				Files.createDirectories(parent2);
-			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			zipf.extractFile(ZipTools.toZipEntry(entry.getFile()), tmpdir.toString(), "file");
+			zipp.setFileNameInZip(newname);
+			zipf.addFile(tmpdir.resolve("file").toFile(), zipp);
 			return true;
 		}
 		catch(final Exception e)
 		{
 			Log.err(e.getMessage(),e);
 			Log.err(String.format(DUPLICATE_S_AT_S_TO_S_AT_S_FAILED, parent.container.getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), newname));
+		}
+		finally
+		{
+			try
+			{
+				if(tmpdir!=null)
+				{
+					Files.deleteIfExists(tmpdir.resolve("file"));
+					Files.delete(tmpdir);
+				}
+			}
+			catch (IOException e)
+			{
+				Log.err(e.getMessage(),e);
+			}
 		}
 		return false;
 	}
@@ -120,11 +137,5 @@ public class DuplicateEntry extends EntryAction
 	public String toString()
 	{
 		return String.format(Messages.getString("DuplicateEntry.Duplicate"), entry, newname); //$NON-NLS-1$
-	}
-
-	@Override
-	public boolean doAction(Session session, ZipOutputStream zos, ProgressHandler handler, int i, int max)
-	{
-		throw new UnsupportedOperationException("update forbidden");
 	}
 }
