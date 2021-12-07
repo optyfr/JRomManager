@@ -23,9 +23,6 @@ class H2 extends DB
 		super(settings);
 	}
 
-	private static final boolean MV_STORE = true;
-	private static final boolean MVCC = false;
-
 	/**
 	 * Open connection to the H2 database
 	 * 
@@ -115,7 +112,7 @@ class H2 extends DB
 	private Path resolveName(String name, final boolean full)
 	{
 		if (full && !name.endsWith(".db"))
-			return Paths.get(name + (MV_STORE ? ".mv.db" : ".h2.db"));
+			return Paths.get(name + ".mv.db");
 		else if (!full && name.endsWith(".db"))
 			return Paths.get(name.substring(0, name.length() - 6));
 		else
