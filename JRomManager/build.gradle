@@ -7,6 +7,7 @@ plugins {
 	id "de.inetsoftware.setupbuilder" version "7.2.13"
 	id "org.javamodularity.moduleplugin" version "1.8.10"
 	id "io.freefair.lombok" version "6.3.0"
+    id 'org.openjfx.javafxplugin' version '0.0.10'
 	id "org.beryx.jlink" version "2.24.4"
 	id 'jacoco'
 }
@@ -19,6 +20,7 @@ sonarqube {
 		property "sonar.verbose", "true"
 		property "sonar.exclusions", "**/compressors/zipfs/*.java"
 		property "sonar.scm.provider", "github"
+		property "sonar.coverage.exclusions", "**/src-jfx/**/*"
 		property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/JRomManager/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
 	}
 }
@@ -116,8 +118,8 @@ subprojects {
 	apply plugin: 'java'
 	sourceCompatibility = 17
 	targetCompatibility = 17
-	apply plugin: 'org.javamodularity.moduleplugin'
-	apply plugin: 'eclipse'
+//	apply plugin: 'org.javamodularity.moduleplugin'
+//	apply plugin: 'eclipse'
 
 	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
 	repositories {
@@ -156,14 +158,12 @@ subprojects {
 			property "sonar.verbose", "true"
 			property "sonar.exclusions", "**/compressors/zipfs/*.java"
 			property "sonar.scm.provider", "github"
+			property "sonar.coverage.exclusions", "**/src-jfx/**/*"
 			property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/JRomManager/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
 		}
 	}
-
-	eclipse {
+/*	eclipse {
 		classpath {
-			downloadJavadoc = true
-			downloadSources = true
 			file {
 				whenMerged {
 					//Define a module as being either a library or a project dependency.
@@ -171,9 +171,11 @@ subprojects {
 					entries.findAll {  (it instanceof org.gradle.plugins.ide.eclipse.model.Library || it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency) && !it.entryAttributes.get('gradle_used_by_scope').equals('test') }.each {
 						it.entryAttributes['module'] = 'true'
 					}
-					
+				
 					//Test-scoped stuff should set the appropriate flag
-					entries.findAll { (it.properties.kind.equals('src') || it.properties.kind.equals('lib')) && it.entryAttributes.get('gradle_used_by_scope').equals('test') }.each {
+					entries.findAll {
+							(it.properties.kind.equals('src') || it.properties.kind.equals('lib')) && it.entryAttributes.get('gradle_used_by_scope').equals('test')
+					}.each {
 						it.entryAttributes['test'] = 'true'
 					}
 					
@@ -183,11 +185,12 @@ subprojects {
 				}
 			}
 		}
-	}
-
+	}*/
+/*
 	java {
-		modularity.inferModulePath.set(true)
+		modularity.inferModulePath = true
 	}
+	*/
 	jar {
 		manifest {
 			attributes(
@@ -391,6 +394,37 @@ project(':Jtrrntzip') {
 
 project(':JRomManager:jrmcore') {
 	apply plugin: "io.freefair.lombok"
+	
+	apply plugin: 'org.javamodularity.moduleplugin'
+	apply plugin: "eclipse"
+	eclipse {
+		classpath {
+			file {
+				whenMerged {
+					//Define a module as being either a library or a project dependency.
+					//Test sources are excluded because eclipse wants them on the classpath for some reason (1)
+					entries.findAll {  (it instanceof org.gradle.plugins.ide.eclipse.model.Library || it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency) && !it.entryAttributes.get('gradle_used_by_scope').equals('test') }.each {
+						it.entryAttributes['module'] = 'true'
+					}
+				
+					//Test-scoped stuff should set the appropriate flag
+					entries.findAll {
+							(it.properties.kind.equals('src') || it.properties.kind.equals('lib')) && it.entryAttributes.get('gradle_used_by_scope').equals('test')
+					}.each {
+						it.entryAttributes['test'] = 'true'
+					}
+					
+					entries.findAll { isConGradle(it) }.each {
+					  it.entryAttributes['module'] = 'true'
+					}
+				}
+			}
+		}
+	}
+	java {
+		modularity.inferModulePath = true
+	}
+	
 	sourceSets {
 		main {
 			java {
@@ -406,6 +440,7 @@ project(':JRomManager:jrmcore') {
 			}
 		}
 	}
+	
 	dependencies {
 		implementation 'com.github.optyfr:SevenZipJBindingAllInOne:1.0'
 		implementation project(':Jtrrntzip')
@@ -436,6 +471,37 @@ project(':JRomManager:jrmcore') {
 project(':JRomManager:jrmcli') {
 	apply plugin: "io.freefair.lombok"
 	apply plugin: "org.beryx.jlink"
+	
+	apply plugin: 'org.javamodularity.moduleplugin'
+	apply plugin: "eclipse"
+	eclipse {
+		classpath {
+			file {
+				whenMerged {
+					//Define a module as being either a library or a project dependency.
+					//Test sources are excluded because eclipse wants them on the classpath for some reason (1)
+					entries.findAll {  (it instanceof org.gradle.plugins.ide.eclipse.model.Library || it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency) && !it.entryAttributes.get('gradle_used_by_scope').equals('test') }.each {
+						it.entryAttributes['module'] = 'true'
+					}
+				
+					//Test-scoped stuff should set the appropriate flag
+					entries.findAll {
+							(it.properties.kind.equals('src') || it.properties.kind.equals('lib')) && it.entryAttributes.get('gradle_used_by_scope').equals('test')
+					}.each {
+						it.entryAttributes['test'] = 'true'
+					}
+					
+					entries.findAll { isConGradle(it) }.each {
+					  it.entryAttributes['module'] = 'true'
+					}
+				}
+			}
+		}
+	}
+	java {
+		modularity.inferModulePath = true
+	}
+	
 	sourceSets {
 		main {
 			java {
@@ -499,6 +565,37 @@ project(':JRomManager:res-icons') {
 project(':JRomManager:jrmstandalone') {
 	apply plugin: "io.freefair.lombok"
 	apply plugin: "org.beryx.jlink"
+
+	apply plugin: 'org.javamodularity.moduleplugin'
+	apply plugin: "eclipse"
+	eclipse {
+		classpath {
+			file {
+				whenMerged {
+					//Define a module as being either a library or a project dependency.
+					//Test sources are excluded because eclipse wants them on the classpath for some reason (1)
+					entries.findAll {  (it instanceof org.gradle.plugins.ide.eclipse.model.Library || it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency) && !it.entryAttributes.get('gradle_used_by_scope').equals('test') }.each {
+						it.entryAttributes['module'] = 'true'
+					}
+				
+					//Test-scoped stuff should set the appropriate flag
+					entries.findAll {
+							(it.properties.kind.equals('src') || it.properties.kind.equals('lib')) && it.entryAttributes.get('gradle_used_by_scope').equals('test')
+					}.each {
+						it.entryAttributes['test'] = 'true'
+					}
+					
+					entries.findAll { isConGradle(it) }.each {
+					  it.entryAttributes['module'] = 'true'
+					}
+				}
+			}
+		}
+	}
+	java {
+		modularity.inferModulePath = true
+	}
+	
 	sourceSets {
 		main {
 			java {
@@ -537,8 +634,21 @@ project(':JRomManager:jrmstandalone') {
 }
 
 project(':JRomManager:jrmfx') {
+	apply plugin: 'org.javamodularity.moduleplugin'
+	apply plugin: "eclipse"
 	apply plugin: "io.freefair.lombok"
 	apply plugin: "org.beryx.jlink"
+	apply plugin: "org.openjfx.javafxplugin"
+	
+	javafx {
+		version = '17'
+		modules = [ 'javafx.controls', 'javafx.fxml' ]
+	}
+	
+	java {
+		modularity.inferModulePath = true
+	}
+	
 	sourceSets {
 		main {
 			java {
@@ -554,16 +664,16 @@ project(':JRomManager:jrmfx') {
 	dependencies {
 		implementation project(':JRomManager:jrmcore')
 		implementation project(':JRomManager:res-icons')
-		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'commons-cli', name: 'commons-cli'
 		implementation group: 'commons-io', name: 'commons-io'
+/*		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		implementation group: 'com.sun.activation', name: 'javax.activation'
 	
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
-		testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine'
+		testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine'*/
 	}
 	jar {
 		manifest {
@@ -573,11 +683,36 @@ project(':JRomManager:jrmfx') {
 			)
 		}
 	}
-	apply plugin:'jacoco'
 }
 
 project(':JRomManager:jrmserver') {
 	apply plugin: "io.freefair.lombok"
+	apply plugin: 'org.javamodularity.moduleplugin'
+	apply plugin: "eclipse"
+	eclipse {
+		classpath {
+			file {
+				whenMerged {
+					//Define a module as being either a library or a project dependency.
+					//Test sources are excluded because eclipse wants them on the classpath for some reason (1)
+					entries.findAll {  (it instanceof org.gradle.plugins.ide.eclipse.model.Library || it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency) && !it.entryAttributes.get('gradle_used_by_scope').equals('test') }.each {
+						it.entryAttributes['module'] = 'true'
+					}
+				
+					//Test-scoped stuff should set the appropriate flag
+					entries.findAll {
+							(it.properties.kind.equals('src') || it.properties.kind.equals('lib')) && it.entryAttributes.get('gradle_used_by_scope').equals('test')
+					}.each {
+						it.entryAttributes['test'] = 'true'
+					}
+					
+					entries.findAll { isConGradle(it) }.each {
+					  it.entryAttributes['module'] = 'true'
+					}
+				}
+			}
+		}
+	}
 	sourceSets {
 		main {
 			java {
