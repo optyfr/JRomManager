@@ -4,4 +4,4 @@ fileExclusions=DIRECTORY\:JRomManager/src/jrm/compressors/zipfs
 idePrefixKey=
 projectKey=optyfr_JRomManager
 serverId=SonarCloud/optyfr
-sqPrefixKey=
+sqPrefixKey=work/JRomManager/JRomManager

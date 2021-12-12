@@ -395,7 +395,7 @@ public final class DirScan extends PathAbstractor
 			catch(final BreakException e)
 			{
 				c.setLoaded(0);
-				handler.cancel();
+				handler.doCancel();
 			}
 			catch(final Exception e)
 			{
@@ -499,7 +499,7 @@ public final class DirScan extends PathAbstractor
 				}
 				catch(final BreakException e)
 				{
-					handler.cancel();
+					handler.doCancel();
 				}
 				return;
 			}).start(stream);

@@ -381,12 +381,12 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 		return false;
 	}
 
-	public String getVersion()
+	public String getHTMLVersion()
 	{
 		return toHTML(Optional.ofNullable(stats.getVersion()).map(this::toNoBR).orElse(toGray("???"))); //$NON-NLS-1$
 	}
 
-	public String getHaveSets()
+	public String getHTMLHaveSets()
 	{
 		final String have;
 		if(stats.getHaveSets() == null)
@@ -410,7 +410,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 		return toHTML(have);
 	}
 
-	public String getHaveRoms()
+	public String getHTMLHaveRoms()
 	{
 		final String have;
 		if(stats.getHaveRoms() == null)
@@ -434,7 +434,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 		return toHTML(have);
 	}
 
-	public String getHaveDisks()
+	public String getHTMLHaveDisks()
 	{
 		final String have;
 		if(stats.getHaveDisks() == null)
@@ -458,17 +458,17 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 		return toHTML(have);
 	}
 
-	public String getCreated()
+	public String getHTMLCreated()
 	{
 		return toHTML(stats.getCreated() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getCreated())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public String getScanned()
+	public String getHTMLScanned()
 	{
 		return toHTML(stats.getScanned() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getScanned())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public String getFixed()
+	public String getHTMLFixed()
 	{
 		return toHTML(stats.getFixed() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getFixed())); //$NON-NLS-1$ //$NON-NLS-2$
 	}

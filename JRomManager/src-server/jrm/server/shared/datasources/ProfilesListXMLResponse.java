@@ -56,13 +56,13 @@ public class ProfilesListXMLResponse extends XMLResponse
 		writer.writeAttribute("Name", nfo.getName());
 		writer.writeAttribute(PARENT, pathAbstractor.getRelativePath(nfo.getFile().getParentFile().toPath()).toString());
 		writer.writeAttribute("File", nfo.getFile().getName());
-		writer.writeAttribute("version", nfo.getVersion());
-		writer.writeAttribute("haveSets", nfo.getHaveSets());
-		writer.writeAttribute("haveRoms", nfo.getHaveRoms());
-		writer.writeAttribute("haveDisks", nfo.getHaveDisks());
-		writer.writeAttribute("created", nfo.getCreated());
-		writer.writeAttribute("scanned", nfo.getScanned());
-		writer.writeAttribute("fixed", nfo.getFixed());
+		writer.writeAttribute("version", nfo.getHTMLVersion());
+		writer.writeAttribute("haveSets", nfo.getHTMLHaveSets());
+		writer.writeAttribute("haveRoms", nfo.getHTMLHaveRoms());
+		writer.writeAttribute("haveDisks", nfo.getHTMLHaveDisks());
+		writer.writeAttribute("created", nfo.getHTMLCreated());
+		writer.writeAttribute("scanned", nfo.getHTMLScanned());
+		writer.writeAttribute("fixed", nfo.getHTMLFixed());
 	}
 
 	@Override

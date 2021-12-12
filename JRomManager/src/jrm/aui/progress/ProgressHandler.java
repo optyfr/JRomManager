@@ -127,21 +127,21 @@ public interface ProgressHandler
 	 *
 	 * @return the value
 	 */
-	public int getValue();
+	public int getCurrent();
 
 	/**
 	 * Gets the value 2.
 	 *
 	 * @return the value 2
 	 */
-	public int getValue2();
+	public int getCurrent2();
 
 	/**
 	 * Gets the value 3.
 	 *
 	 * @return the value 3
 	 */
-	public int getValue3();
+	public int getCurrent3();
 	
 	/**
 	 * Checks if is cancel.
@@ -153,7 +153,7 @@ public interface ProgressHandler
 	/**
 	 * Cancel.
 	 */
-	public void cancel();
+	public void doCancel();
 	
 	/**
 	 * Set Can Cancel.

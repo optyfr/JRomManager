@@ -118,7 +118,7 @@ public class Fix
 			if (!action.doAction(currProfile.getSession(), progress)) // do action...
 			{
 				Log.warn(()-> "Action " + action.toString() +" has failed, remaining actions processing will be cancelled");
-				progress.cancel(); // ... and cancel all if it failed
+				progress.doCancel(); // ... and cancel all if it failed
 			}
 			else
 				done.add(action); // add to "done" list successful action
@@ -126,7 +126,7 @@ public class Fix
 		}
 		catch (final BreakException be)
 		{	// special catch case from BreakException thrown from underlying streams
-			progress.cancel();
+			progress.doCancel();
 		}
 		catch (final Exception e)
 		{	// oups! something unexpected happened

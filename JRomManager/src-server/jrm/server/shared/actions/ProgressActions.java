@@ -471,19 +471,19 @@ public class ProgressActions implements ProgressHandler
 	}
 
 	@Override
-	public int getValue()
+	public int getCurrent()
 	{
 		return data.pb1.val;
 	}
 
 	@Override
-	public int getValue2()
+	public int getCurrent2()
 	{
 		return data.pb2.val;
 	}
 
 	@Override
-	public int getValue3()
+	public int getCurrent3()
 	{
 		return data.pb3.val;
 	}
@@ -495,7 +495,7 @@ public class ProgressActions implements ProgressHandler
 	}
 
 	@Override
-	public void cancel()
+	public void doCancel()
 	{
 		cancel = true;
 	}

@@ -178,4 +178,26 @@ public final @Data class ProfileNFOStats implements Serializable
 		scanned = null;
 		fixed = null;
 	}
+	
+	public static @Data class HaveNTotal
+	{
+		private final Long have;
+		private final Long total;
+	}
+	
+	public HaveNTotal getSets()
+	{
+		return new HaveNTotal(haveSets, totalSets);
+	}
+	
+	public HaveNTotal getRoms()
+	{
+		return new HaveNTotal(haveRoms, totalRoms);
+	}
+	
+	public HaveNTotal getDisks()
+	{
+		return new HaveNTotal(haveDisks, totalDisks);
+	}
+	
 }

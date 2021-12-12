@@ -51,19 +51,19 @@ public class Progress implements ProgressHandler
 	}
 
 	@Override
-	public int getValue()
+	public int getCurrent()
 	{
 		return 0;
 	}
 
 	@Override
-	public int getValue2()
+	public int getCurrent2()
 	{
 		return 0;
 	}
 
 	@Override
-	public int getValue3()
+	public int getCurrent3()
 	{
 		return 0;
 	}
@@ -75,7 +75,7 @@ public class Progress implements ProgressHandler
 	}
 
 	@Override
-	public void cancel()
+	public void doCancel()
 	{
 		// not implemented
 	}

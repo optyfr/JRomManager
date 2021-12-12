@@ -155,19 +155,19 @@ public class FileTableModel extends AbstractTableModel implements HTMLRenderer
 			case 0:
 				return pnfo.getName();
 			case 1:
-				return pnfo.getVersion();
+				return pnfo.getHTMLVersion();
 			case 2:
-				return pnfo.getHaveSets(); 
+				return pnfo.getHTMLHaveSets(); 
 			case 3:
-				return pnfo.getHaveRoms(); 
+				return pnfo.getHTMLHaveRoms(); 
 			case 4:
-				return pnfo.getHaveDisks(); 
+				return pnfo.getHTMLHaveDisks(); 
 			case 5:
-				return pnfo.getCreated();
+				return pnfo.getHTMLCreated();
 			case 6:
-				return pnfo.getScanned();
+				return pnfo.getHTMLScanned();
 			case 7:
-				return pnfo.getFixed();
+				return pnfo.getHTMLFixed();
 			default:
 				break;
 		}

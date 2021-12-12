@@ -264,19 +264,19 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 	}
 
 	@Override
-	public int getValue()
+	public int getCurrent()
 	{
 		return progress.getValue();
 	}
 
 	@Override
-	public int getValue2()
+	public int getCurrent2()
 	{
 		return progress.getValue2();
 	}
 
 	@Override
-	public int getValue3()
+	public int getCurrent3()
 	{
 		return progress.getValue3();
 	}
@@ -288,7 +288,7 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 	}
 
 	@Override
-	public void cancel()
+	public void doCancel()
 	{
 		firePropertyChange("cancel", false, true);
 	}

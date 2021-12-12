@@ -20,6 +20,7 @@ public class MainFrameController implements Initializable
 	@FXML private Tab scannerPanelTab;
 	
 	@FXML private ProfilePanelController profilePanelController ;
+	@FXML private ScannerPanelController scannerPanelController ;
 	
 	private Session session;
 	

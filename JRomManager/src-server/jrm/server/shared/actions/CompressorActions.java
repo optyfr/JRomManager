@@ -56,7 +56,7 @@ public class CompressorActions
 			}
 			catch (BreakException e)
 			{
-				session.getWorker().progress.cancel();
+				session.getWorker().progress.doCancel();
 			}
 			finally
 			{
@@ -112,7 +112,7 @@ public class CompressorActions
 		}
 		catch (BreakException e)
 		{
-			session.getWorker().progress.cancel();
+			session.getWorker().progress.doCancel();
 		}
 		catch (final Exception e)
 		{ // oups! something unexpected happened

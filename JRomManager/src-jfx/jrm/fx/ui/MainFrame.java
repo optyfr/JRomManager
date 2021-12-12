@@ -1,5 +1,7 @@
 package jrm.fx.ui;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -20,11 +22,12 @@ public class MainFrame extends Application
 	}
 	
 	@Override
-	public void start(Stage primaryStage) throws Exception
+	public void start(Stage primaryStage) throws IOException, URISyntaxException
 	{
-		System.out.println("start");
 		final var root = FXMLLoader.<TabPane>load(getClass().getResource("MainFrame.fxml").toURI().toURL(), Messages.getBundle());
 		root.getStylesheets().add(getClass().getResource("MainFrame.css").toExternalForm());
+		primaryStage.getIcons().add(getIcon("/jrm/resicons/rom.png"));
+		primaryStage.setTitle(Messages.getString("MainFrame.Title") + " " + getVersion());
 		primaryStage.setScene(new Scene(root));
 		primaryStage.show();
 	}
@@ -61,4 +64,21 @@ public class MainFrame extends Application
 		return iconsCache.get(res);
 	}
 
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	private String getVersion()
+	{
+		String version = ""; //$NON-NLS-1$
+		final Package pkg = this.getClass().getPackage();
+		if (pkg.getSpecificationVersion() != null)
+		{
+			version += pkg.getSpecificationVersion(); // $NON-NLS-1$
+			if (pkg.getImplementationVersion() != null)
+				version += "." + pkg.getImplementationVersion(); //$NON-NLS-1$
+		}
+		return version;
+	}
 }

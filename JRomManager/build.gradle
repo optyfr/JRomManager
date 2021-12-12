@@ -642,7 +642,7 @@ project(':JRomManager:jrmfx') {
 	
 	javafx {
 		version = '17'
-		modules = [ 'javafx.controls', 'javafx.fxml' ]
+		modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web' ]
 	}
 	
 	java {
@@ -666,8 +666,8 @@ project(':JRomManager:jrmfx') {
 		implementation project(':JRomManager:res-icons')
 		implementation group: 'commons-cli', name: 'commons-cli'
 		implementation group: 'commons-io', name: 'commons-io'
-/*		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
+/*		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'one.util', name: 'streamex'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		implementation group: 'com.sun.activation', name: 'javax.activation'

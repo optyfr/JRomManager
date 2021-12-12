@@ -102,7 +102,7 @@ public interface ActionsMgr extends SessionStub
 					case "Progress.cancel":
 					{
 						if (mgr.getSession().getWorker() != null && mgr.getSession().getWorker().isAlive() && mgr.getSession().getWorker().progress != null)
-							mgr.getSession().getWorker().getProgress().cancel();
+							mgr.getSession().getWorker().getProgress().doCancel();
 						break;
 					}
 					case "Dat2Dir.start":

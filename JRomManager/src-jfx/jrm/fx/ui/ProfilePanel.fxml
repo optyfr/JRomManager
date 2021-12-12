@@ -12,19 +12,25 @@
 
 <BorderPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ProfilePanelController">
    <center>
-      <SplitPane dividerPositions="0.25" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.2" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <items>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <TreeView prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <TreeView fx:id="profilesTree" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                </children>
             </AnchorPane>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <TableView prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <TableView fx:id="profilesList" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <columns>
-                        <TableColumn prefWidth="75.0" text="C1" />
-                        <TableColumn prefWidth="75.0" text="C2" />
+                        <TableColumn fx:id="profileCol" editable="false" prefWidth="200.0" sortable="false" text="%FileTableModel.Profile" />
+                        <TableColumn fx:id="profileVersionCol" editable="false" prefWidth="50.0" sortable="false" text="%FileTableModel.Version" />
+                        <TableColumn fx:id="profileHaveSetsCol" editable="false" prefWidth="90.0" sortable="false" text="%FileTableModel.HaveSets" />
+                        <TableColumn fx:id="profileHaveRomsCol" editable="false" prefWidth="90.0" sortable="false" text="%FileTableModel.HaveRoms" />
+                        <TableColumn fx:id="profileHaveDisksCol" editable="false" prefWidth="70.0" sortable="false" text="%FileTableModel.HaveDisks" />
+                        <TableColumn fx:id="profileCreatedCol" editable="false" prefWidth="125.0" sortable="false" text="%FileTableModel.Created" />
+                        <TableColumn fx:id="profileLastScanCol" editable="false" prefWidth="125.0" sortable="false" text="%FileTableModel.Scanned" />
+                        <TableColumn fx:id="profileLastFixCol" editable="false" prefWidth="125.0" sortable="false" text="%FileTableModel.Fixed" />
                      </columns>
                   </TableView>
                </children>
@@ -35,7 +41,7 @@
    <bottom>
       <HBox alignment="CENTER" prefHeight="40.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="btnLoad" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" text="%MainFrame.btnLoadProfile.text" />
+            <Button fx:id="btnLoad" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#actionLoad" text="%MainFrame.btnLoadProfile.text" />
             <Button fx:id="btnImportDat" mnemonicParsing="false" text="%MainFrame.btnImportDat.text">
                <opaqueInsets>
                   <Insets />

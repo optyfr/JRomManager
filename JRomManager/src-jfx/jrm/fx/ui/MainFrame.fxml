@@ -6,7 +6,7 @@
 
 <TabPane fx:id="tabPane" prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.MainFrameController">
    <tabs>
-      <Tab fx:id="profilePanelTab" text="%MainFrame.Profiles">
+      <Tab fx:id="profilePanelTab" closable="false" text="%MainFrame.Profiles">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -14,9 +14,12 @@
                </children></AnchorPane>
         </content>
       </Tab>
-      <Tab fx:id="scannerPanelTab" text="%MainFrame.Scanner">
+      <Tab fx:id="scannerPanelTab" closable="false" text="%MainFrame.Scanner">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <fx:include fx:id="scannerPanel" source="ScannerPanel.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children></AnchorPane>
         </content>
       </Tab>
    </tabs>
