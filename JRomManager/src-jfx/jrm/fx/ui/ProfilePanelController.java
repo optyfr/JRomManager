@@ -28,6 +28,7 @@ import jrm.profile.manager.ProfileNFO;
 import jrm.profile.manager.ProfileNFOStats.HaveNTotal;
 import jrm.security.Session;
 import jrm.security.Sessions;
+import lombok.Setter;
 
 
 public class ProfilePanelController implements Initializable
@@ -47,6 +48,7 @@ public class ProfilePanelController implements Initializable
 	@FXML TableColumn<ProfileNFO, Date> profileLastFixCol;
 
 	final Session session = Sessions.getSingleSession();
+	private @Setter ProfileLoader profileLoader;
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
@@ -135,7 +137,11 @@ public class ProfilePanelController implements Initializable
 
 	@FXML void actionLoad(ActionEvent e) throws IOException, URISyntaxException
 	{
-		new Progress((Stage)profilesTree.getScene().getWindow());
+		final var profile = profilesList.getSelectionModel().getSelectedItem();
+		if (profile != null)
+			profileLoader.loadProfile(session, profile);
 	}
+	
+	
 	
 }

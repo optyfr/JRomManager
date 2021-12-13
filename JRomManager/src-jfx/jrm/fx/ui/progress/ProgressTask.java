@@ -152,15 +152,13 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	@Override
 	public void setProgress2(String msg, Integer val, Integer max)
 	{
-		// TODO Auto-generated method stub
-
+		Platform.runLater(() -> progress.getController().setProgress2(msg, val, max));
 	}
 
 	@Override
 	public void setProgress3(String msg, Integer val, Integer max)
 	{
-		// TODO Auto-generated method stub
-
+		Platform.runLater(() -> progress.getController().setProgress3(msg, val, max));
 	}
 
 	@Override
@@ -221,8 +219,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	@Override
 	public void close()
 	{
-		// TODO Auto-generated method stub
-
+		progress.close();
 	}
 
 	@Override

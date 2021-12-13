@@ -20,6 +20,7 @@ public class Progress extends Stage
 		super();
 		initOwner(parent);
 		initModality(Modality.APPLICATION_MODAL);
+		getIcons().add(parent.getIcons().get(0));
 		setOnShowing(e -> {
 		});
 		setOnCloseRequest(e -> {

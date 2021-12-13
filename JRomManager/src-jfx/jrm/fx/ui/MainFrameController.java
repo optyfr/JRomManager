@@ -31,6 +31,7 @@ public class MainFrameController implements Initializable
 		session = Sessions.getSingleSession();
 		profilePanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script.png")));
 		scannerPanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_magnify.png")));
+		profilePanelController.setProfileLoader(scannerPanelController);
 	}
 
 }

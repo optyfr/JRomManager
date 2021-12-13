@@ -8,12 +8,18 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import jrm.fx.ui.MainFrame;
@@ -36,6 +42,15 @@ public class ProgressController implements Initializable
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		cancelBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/stop.png")));
+		setInfos(1, false);
+		progressBar2.setVisible(false);
+		progressBarLbl2.setVisible(false);
+		lblTimeleft2.setVisible(false);
+		((GridPane)lblTimeleft2.getParent()).getRowConstraints().get(2).setPrefHeight(0);
+		progressBar3.setVisible(false);
+		progressBarLbl3.setVisible(false);
+		lblTimeleft3.setVisible(false);
+		((GridPane)lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(0);
 	}
 
 	private static final String S_OF_S = "%s / %s";
@@ -64,9 +79,9 @@ public class ProgressController implements Initializable
 		lblInfo = new Label[threadCnt];
 		lblSubInfo = new Label[lblSubInfoCnt];
 
-		final Color normal = Color.GRAY;
-		final Color light = Color.DARKGRAY;
-		final Color lighter = Color.LIGHTGRAY;
+		final Color normal = new Color(0.7, 0.7, 0.7, 1.0);
+		final Color light = new Color(0.8, 0.8, 0.8, 1.0);
+		final Color lighter = new Color(0.9, 0.9, 0.9, 1.0);
 
 		for (int i = 0; i < threadCnt; i++)
 		{
@@ -91,11 +106,14 @@ public class ProgressController implements Initializable
 	private Label buildLabel(Color color)
 	{
 		final var label = new Label();
+		label.setMaxWidth(Double.MAX_VALUE);
+		label.setAlignment(Pos.CENTER);
 		label.setBackground(new Background(new BackgroundFill(color, null, null)));
+		label.setBorder(new Border(new BorderStroke(color.darker(), color.brighter(), color.brighter(), color.darker(), BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, null, null)));
 		return label;
 	}
 
-	public void clearInfos()
+	void clearInfos()
 	{
 		for (final var label : lblInfo)
 			label.setText(null);
@@ -109,7 +127,7 @@ public class ProgressController implements Initializable
 	private Integer max = null;
 	private Integer val = null;
 
-	public synchronized void setProgress(final int offset, final String msg, final Integer val, final Integer max, final String submsg)
+	synchronized void setProgress(final int offset, final String msg, final Integer val, final Integer max, final String submsg)
 	{
 		if (msg != null)
 			lblInfo[offset].setText(msg);
@@ -120,20 +138,21 @@ public class ProgressController implements Initializable
 				progressBar.setVisible(false);
 				progressBarLbl.setVisible(false);
 				lblTimeleft.setVisible(false);
-				// packHeight();
+				((GridPane)lblTimeleft.getParent()).getRowConstraints().get(1).setPrefHeight(0);
 			}
 			else if (val >= 0 && !progressBar.isVisible())
 			{
 				progressBar.setVisible(true);
-				progressBarLbl.setVisible(val != 0);
 				lblTimeleft.setVisible(true);
-				// packHeight();
+				((GridPane)lblTimeleft.getParent()).getRowConstraints().get(1).setPrefHeight(Region.USE_COMPUTED_SIZE);
 			}
 			if (max != null)
 				this.max = max;
 			if (val >= 0)
 			{
 				this.val = val;
+				if(!progressBarLbl.isVisible())
+					progressBarLbl.setVisible(val != 0);
 				if (this.max != null && this.max > 0)
 				{
 					progressBar.setProgress(val == 0 ? -1 : (this.val.doubleValue() / this.max.doubleValue()));
@@ -153,7 +172,7 @@ public class ProgressController implements Initializable
 	 * @param val
 	 * @param submsg
 	 */
-	protected void subMsg(final int offset, final Integer val, final String submsg)
+	private void subMsg(final int offset, final Integer val, final String submsg)
 	{
 		if (submsg != null || MOINS_UN.equals(val))
 		{
@@ -176,4 +195,90 @@ public class ProgressController implements Initializable
 			lab.setText(HH_MM_SS_OF_HH_MM_SS_NONE); // $NON-NLS-1$
 	}
 
+	void close()
+	{
+		panel.getScene().getWindow().hide();
+	}
+	
+	private long startTime2 = System.currentTimeMillis();
+	private Integer max2 = null;
+	private Integer val2 = null;
+
+	public void setProgress2(final String msg, final Integer val, final Integer max)
+	{
+		if (msg != null && val != null)
+		{
+			if (!progressBar2.isVisible())
+			{
+				progressBar2.setVisible(true);
+				lblTimeleft2.setVisible(true);
+				((GridPane)lblTimeleft2.getParent()).getRowConstraints().get(2).setPrefHeight(Region.USE_COMPUTED_SIZE);
+			}
+			if (max != null)
+				this.max2 = max;
+			if (val >= 0)
+			{
+				this.val2 = val;
+				if(!progressBarLbl2.isVisible())
+					progressBarLbl2.setVisible(val != 0);
+				if (this.max2 != null && this.max2 > 0)
+				{
+					progressBar2.setProgress(val == 0 ? -1 : (this.val2.doubleValue() / this.max2.doubleValue()));
+					if (val > 0)
+						progressBarLbl2.setText(String.format("%.02f%%", (this.val2.doubleValue() / this.max2.doubleValue())*100));
+				}
+			}
+			if (val == 0)
+				startTime2 = System.currentTimeMillis();
+			showTimeLeft(startTime2, val, progressBar2, lblTimeleft2);
+		}
+		else if (progressBar2.isVisible())
+		{
+			progressBar2.setVisible(false);
+			progressBarLbl2.setVisible(false);
+			lblTimeleft2.setVisible(false);
+			((GridPane)lblTimeleft2.getParent()).getRowConstraints().get(2).setPrefHeight(0);
+		}
+	}
+
+	private long startTime3 = System.currentTimeMillis();
+	private Integer max3 = null;
+	private Integer val3 = null;
+
+	public void setProgress3(final String msg, final Integer val, final Integer max)
+	{
+		if (msg != null && val != null)
+		{
+			if (!progressBar3.isVisible())
+			{
+				progressBar3.setVisible(true);
+				lblTimeleft3.setVisible(true);
+				((GridPane)lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(Region.USE_COMPUTED_SIZE);
+			}
+			if (max != null)
+				this.max3 = max;
+			if (val >= 0)
+			{
+				this.val2 = val;
+				if(!progressBarLbl3.isVisible())
+					progressBarLbl3.setVisible(val != 0);
+				if (this.max3 != null && this.max3 > 0)
+				{
+					progressBar3.setProgress(val == 0 ? -1 : (this.val3.doubleValue() / this.max3.doubleValue()));
+					if (val > 0)
+						progressBarLbl3.setText(String.format("%.02f%%", (this.val3.doubleValue() / this.max3.doubleValue())*100));
+				}
+			}
+			if (val == 0)
+				startTime3 = System.currentTimeMillis();
+			showTimeLeft(startTime3, val, progressBar3, lblTimeleft3);
+		}
+		else if (progressBar3.isVisible())
+		{
+			progressBar3.setVisible(false);
+			progressBarLbl3.setVisible(false);
+			lblTimeleft3.setVisible(false);
+			((GridPane)lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(0);
+		}
+	}
 }

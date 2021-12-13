@@ -1,7 +1,10 @@
 package jrm.fx.ui;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,8 +13,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
+import jrm.fx.ui.progress.ProgressTask;
+import jrm.profile.Profile;
+import jrm.profile.manager.ProfileNFO;
+import jrm.security.Session;
 
-public class ScannerPanelController implements Initializable
+public class ScannerPanelController implements Initializable,ProfileLoader
 {
 	private static final String DISK_ICON = "/jrm/resicons/icons/disk.png";
 	
@@ -95,6 +103,57 @@ public class ScannerPanelController implements Initializable
 			backupDest.setDisable(!cb.isSelected());
 			backupDestBtn.setDisable(!cb.isSelected());
 		}
+	}
+
+	@Override
+	public void loadProfile(Session session, ProfileNFO profile)
+	{
+		try
+		{
+			new Thread(new ProgressTask<Profile>((Stage)romsDest.getScene().getWindow())
+			{
+
+				@Override
+				protected Profile call() throws Exception
+				{
+					return Profile.load(session, profile, this);
+				}
+				
+				@Override
+				protected void succeeded()
+				{
+					try
+					{
+						final var profile = get();
+						session.getReport().setProfile(session.getCurrProfile());
+/*						if (MainFrame.getProfileViewer() != null)
+							MainFrame.getProfileViewer().reset(session.getCurrProfile());
+						mainPane.setEnabledAt(1, success);
+						btnScan.setEnabled(success);
+						btnFix.setEnabled(false);
+						if (success && session.getCurrProfile() != null)
+						{
+							lblProfileinfo.setText(session.getCurrProfile().getName());
+							scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.getCurrProfile().getSystems()));
+							scannerFilters.checkBoxListSources.setModel(new SourcesModel(session.getCurrProfile().getSources()));
+							initProfileSettings(session);
+							mainPane.setSelectedIndex(1);
+						}*/
+						this.close();
+					}
+					catch (InterruptedException | ExecutionException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}).start();;
+		}
+		catch (IOException | URISyntaxException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }
