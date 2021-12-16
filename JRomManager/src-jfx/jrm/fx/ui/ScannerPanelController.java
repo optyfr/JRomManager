@@ -110,7 +110,7 @@ public class ScannerPanelController implements Initializable,ProfileLoader
 	{
 		try
 		{
-			new Thread(new ProgressTask<Profile>((Stage)romsDest.getScene().getWindow())
+			final var thread = new Thread(new ProgressTask<Profile>((Stage)romsDest.getScene().getWindow())
 			{
 
 				@Override
@@ -146,7 +146,10 @@ public class ScannerPanelController implements Initializable,ProfileLoader
 						e.printStackTrace();
 					}
 				}
-			}).start();;
+			});
+			thread.setDaemon(true);
+			thread.setPriority(Thread.MIN_PRIORITY);
+			thread.start();
 		}
 		catch (IOException | URISyntaxException e)
 		{

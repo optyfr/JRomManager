@@ -15,7 +15,7 @@ public class Progress extends Stage
 {
 	private @Getter ProgressController controller;
 
-	public Progress(Stage parent) throws IOException, URISyntaxException
+	public Progress(Stage parent, ProgressTask<?> task) throws IOException, URISyntaxException
 	{
 		super();
 		initOwner(parent);
@@ -29,6 +29,7 @@ public class Progress extends Stage
 		final var loader = new FXMLLoader(getClass().getResource("Progress.fxml").toURI().toURL(), Messages.getBundle());
 		final var root = loader.<GridPane>load();
 		controller = loader.getController();
+		controller.setTask(task);
 		setScene(new Scene(root));
 		sizeToScene();
 		show();

@@ -4,8 +4,6 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import org.apache.commons.lang3.time.DurationFormatUtils;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -23,6 +21,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import jrm.fx.ui.MainFrame;
+import jrm.fx.ui.progress.ProgressTask.PData;
+import jrm.locale.Messages;
+import lombok.Setter;
 
 public class ProgressController implements Initializable
 {
@@ -37,6 +38,8 @@ public class ProgressController implements Initializable
 	@FXML private Label progressBarLbl3;
 	@FXML private Label lblTimeleft3;
 	@FXML private Button cancelBtn;
+	
+	private @Setter ProgressTask<?> task;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
@@ -53,13 +56,7 @@ public class ProgressController implements Initializable
 		((GridPane)lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(0);
 	}
 
-	private static final String S_OF_S = "%s / %s";
-
-	private static final String HH_MM_SS_FMT = "HH:mm:ss";
-
 	private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
-
-	private static final String HH_MM_SS_NONE = "--:--:--";
 
 	/** The lbl info. */
 	private Label[] lblInfo;
@@ -99,8 +96,6 @@ public class ProgressController implements Initializable
 			lblSubInfo[0] = buildLabel(lighter);
 			panel.getChildren().add(lblSubInfo[0]);
 		}
-
-		// packHeight();
 	}
 
 	private Label buildLabel(Color color)
@@ -121,78 +116,100 @@ public class ProgressController implements Initializable
 			label.setText(null);
 	}
 
-	/** The start time. */
-	private long startTime = System.currentTimeMillis();
-	private static final Integer MOINS_UN = Integer.valueOf(-1);
-	private Integer max = null;
-	private Integer val = null;
 
-	synchronized void setProgress(final int offset, final String msg, final Integer val, final Integer max, final String submsg)
+	public void setFullProgress(PData pd)
 	{
-		if (msg != null)
-			lblInfo[offset].setText(msg);
-		if (val != null)
+		for (int i = 0; i < lblInfo.length; i++)
+			lblInfo[i].setText(Optional.ofNullable(pd.getInfos()[i]).orElse(""));
+		for (int i = 0; i < lblSubInfo.length; i++)
+			lblSubInfo[i].setText(Optional.ofNullable(pd.getSubinfos()[i]).orElse(""));
+		if (progressBar.isVisible() != pd.getPb1().isVisibility())
 		{
-			if (val < 0 && progressBar.isVisible())
+			progressBar.setVisible(pd.getPb1().isVisibility());
+			lblTimeleft.setVisible(pd.getPb1().isVisibility());
+			((GridPane)lblTimeleft.getParent()).getRowConstraints().get(1).setPrefHeight(pd.getPb1().isVisibility()?Region.USE_COMPUTED_SIZE:0);
+		}
+		if (pd.getPb1().isVisibility())
+		{
+			if(pd.getPb1().isIndeterminate())
 			{
-				progressBar.setVisible(false);
+				progressBar.setProgress(-1);
 				progressBarLbl.setVisible(false);
-				lblTimeleft.setVisible(false);
-				((GridPane)lblTimeleft.getParent()).getRowConstraints().get(1).setPrefHeight(0);
 			}
-			else if (val >= 0 && !progressBar.isVisible())
+			else if (pd.getPb1().getVal() > 0)
 			{
-				progressBar.setVisible(true);
-				lblTimeleft.setVisible(true);
-				((GridPane)lblTimeleft.getParent()).getRowConstraints().get(1).setPrefHeight(Region.USE_COMPUTED_SIZE);
-			}
-			if (max != null)
-				this.max = max;
-			if (val >= 0)
-			{
-				this.val = val;
-				if(!progressBarLbl.isVisible())
-					progressBarLbl.setVisible(val != 0);
-				if (this.max != null && this.max > 0)
+				if ((int)(progressBar.getProgress()*100) != (int) pd.getPb1().getPerc())
+					progressBar.setProgress(pd.getPb1().getPerc()/100);
+				if (pd.getPb1().isStringPainted())
 				{
-					progressBar.setProgress(val == 0 ? -1 : (this.val.doubleValue() / this.max.doubleValue()));
-					if (val > 0)
-						progressBarLbl.setText(String.format("%.02f%%", (this.val.doubleValue() / this.max.doubleValue())*100));
+					progressBarLbl.setVisible(true);
+					progressBarLbl.setText(Optional.ofNullable(pd.getPb1().getMsg()).orElse(""));
 				}
+				else
+					progressBarLbl.setVisible(false);
+				lblTimeleft.setText(pd.getPb1().getTimeleft());
 			}
-			if (val == 0)
-				startTime = System.currentTimeMillis();
-			showTimeLeft(startTime, val, progressBar, lblTimeleft);
+			else
+				lblTimeleft.setText(HH_MM_SS_OF_HH_MM_SS_NONE);
 		}
-		subMsg(offset, val, submsg);
-	}
-
-	/**
-	 * @param offset
-	 * @param val
-	 * @param submsg
-	 */
-	private void subMsg(final int offset, final Integer val, final String submsg)
-	{
-		if (submsg != null || MOINS_UN.equals(val))
+		if (progressBar2.isVisible() != pd.getPb2().isVisibility())
 		{
-			if (lblSubInfo.length == 1)
-				lblSubInfo[0].setText(submsg);
-			else if (lblSubInfo.length > 1)
-				lblSubInfo[offset].setText(submsg);
+			progressBar2.setVisible(pd.getPb2().isVisibility());
+			lblTimeleft2.setVisible(pd.getPb2().isVisibility());
+			((GridPane)lblTimeleft2.getParent()).getRowConstraints().get(2).setPrefHeight(pd.getPb2().isVisibility()?Region.USE_COMPUTED_SIZE:0);
 		}
-	}
-
-	private void showTimeLeft(long start, int val, ProgressBar pb, Label lab)
-	{
-		if (val > 0)
+		if (pd.getPb2().isVisibility())
 		{
-			final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - start) * (this.max - val) / val, HH_MM_SS_FMT); // $NON-NLS-1$
-			final String total = DurationFormatUtils.formatDuration((System.currentTimeMillis() - start) * this.max / val, HH_MM_SS_FMT); // $NON-NLS-1$
-			lab.setText(String.format(S_OF_S, left, total)); // $NON-NLS-1$
+			if(pd.getPb2().isIndeterminate())
+			{
+				progressBar2.setProgress(-1);
+				progressBarLbl2.setVisible(false);
+			}
+			else if (pd.getPb2().getPerc() >= 0)
+			{
+				if ((int)(progressBar2.getProgress()*100) != (int) pd.getPb2().getPerc())
+					progressBar2.setProgress(pd.getPb2().getPerc()/100);
+				if (pd.getPb2().isStringPainted())
+				{
+					progressBarLbl2.setVisible(true);
+					progressBarLbl2.setText(Optional.ofNullable(pd.getPb2().getMsg()).orElse(""));
+				}
+				else
+					progressBarLbl2.setVisible(false);
+				lblTimeleft2.setText(pd.getPb2().getTimeleft());
+			}
+			else
+				lblTimeleft2.setText(HH_MM_SS_OF_HH_MM_SS_NONE);
 		}
-		else
-			lab.setText(HH_MM_SS_OF_HH_MM_SS_NONE); // $NON-NLS-1$
+		if (progressBar3.isVisible() != pd.getPb3().isVisibility())
+		{
+			progressBar3.setVisible(pd.getPb2().isVisibility());
+			lblTimeleft3.setVisible(pd.getPb2().isVisibility());
+			((GridPane)lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(pd.getPb3().isVisibility()?Region.USE_COMPUTED_SIZE:0);
+		}
+		if (pd.getPb3().isVisibility())
+		{
+			if(pd.getPb3().isIndeterminate())
+			{
+				progressBar3.setProgress(-1);
+				progressBarLbl3.setVisible(false);
+			}
+			else if (pd.getPb3().getPerc() >= 0)
+			{
+				if ((int)(progressBar3.getProgress()*100) != (int) pd.getPb3().getPerc())
+					progressBar3.setProgress(pd.getPb3().getPerc()/100);
+				if (pd.getPb3().isStringPainted())
+				{
+					progressBarLbl3.setVisible(true);
+					progressBarLbl3.setText(Optional.ofNullable(pd.getPb3().getMsg()).orElse(""));
+				}
+				else
+					progressBarLbl3.setVisible(false);
+				lblTimeleft3.setText(pd.getPb3().getTimeleft());
+			}
+			else
+				lblTimeleft3.setText(HH_MM_SS_OF_HH_MM_SS_NONE);
+		}
 	}
 
 	void close()
@@ -200,85 +217,15 @@ public class ProgressController implements Initializable
 		panel.getScene().getWindow().hide();
 	}
 	
-	private long startTime2 = System.currentTimeMillis();
-	private Integer max2 = null;
-	private Integer val2 = null;
-
-	public void setProgress2(final String msg, final Integer val, final Integer max)
+	void canCancel(boolean canCancel)
 	{
-		if (msg != null && val != null)
-		{
-			if (!progressBar2.isVisible())
-			{
-				progressBar2.setVisible(true);
-				lblTimeleft2.setVisible(true);
-				((GridPane)lblTimeleft2.getParent()).getRowConstraints().get(2).setPrefHeight(Region.USE_COMPUTED_SIZE);
-			}
-			if (max != null)
-				this.max2 = max;
-			if (val >= 0)
-			{
-				this.val2 = val;
-				if(!progressBarLbl2.isVisible())
-					progressBarLbl2.setVisible(val != 0);
-				if (this.max2 != null && this.max2 > 0)
-				{
-					progressBar2.setProgress(val == 0 ? -1 : (this.val2.doubleValue() / this.max2.doubleValue()));
-					if (val > 0)
-						progressBarLbl2.setText(String.format("%.02f%%", (this.val2.doubleValue() / this.max2.doubleValue())*100));
-				}
-			}
-			if (val == 0)
-				startTime2 = System.currentTimeMillis();
-			showTimeLeft(startTime2, val, progressBar2, lblTimeleft2);
-		}
-		else if (progressBar2.isVisible())
-		{
-			progressBar2.setVisible(false);
-			progressBarLbl2.setVisible(false);
-			lblTimeleft2.setVisible(false);
-			((GridPane)lblTimeleft2.getParent()).getRowConstraints().get(2).setPrefHeight(0);
-		}
+		cancelBtn.setDisable(!canCancel);
 	}
-
-	private long startTime3 = System.currentTimeMillis();
-	private Integer max3 = null;
-	private Integer val3 = null;
-
-	public void setProgress3(final String msg, final Integer val, final Integer max)
+	
+	@FXML void doCancel()
 	{
-		if (msg != null && val != null)
-		{
-			if (!progressBar3.isVisible())
-			{
-				progressBar3.setVisible(true);
-				lblTimeleft3.setVisible(true);
-				((GridPane)lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(Region.USE_COMPUTED_SIZE);
-			}
-			if (max != null)
-				this.max3 = max;
-			if (val >= 0)
-			{
-				this.val2 = val;
-				if(!progressBarLbl3.isVisible())
-					progressBarLbl3.setVisible(val != 0);
-				if (this.max3 != null && this.max3 > 0)
-				{
-					progressBar3.setProgress(val == 0 ? -1 : (this.val3.doubleValue() / this.max3.doubleValue()));
-					if (val > 0)
-						progressBarLbl3.setText(String.format("%.02f%%", (this.val3.doubleValue() / this.max3.doubleValue())*100));
-				}
-			}
-			if (val == 0)
-				startTime3 = System.currentTimeMillis();
-			showTimeLeft(startTime3, val, progressBar3, lblTimeleft3);
-		}
-		else if (progressBar3.isVisible())
-		{
-			progressBar3.setVisible(false);
-			progressBarLbl3.setVisible(false);
-			lblTimeleft3.setVisible(false);
-			((GridPane)lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(0);
-		}
+		task.doCancel();
+		cancelBtn.setDisable(true);
+		cancelBtn.setText(Messages.getString("Progress.Canceling")); //$NON-NLS-1$
 	}
 }
