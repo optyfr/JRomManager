@@ -3,18 +3,22 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.web.WebView?>
 
 <BorderPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ScannerPanelController">
    <top>
@@ -55,79 +59,246 @@
    <center>
       <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
          <tabs>
-            <Tab text="%MainFrame.scannerDirectories.title">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+            <Tab fx:id="dirTab" closable="false" text="%MainFrame.scannerDirectories.title">
+               <content>
+                  <GridPane vgap="3.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="175.0" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="32.0" minWidth="28.0" prefWidth="32.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" vgrow="ALWAYS" />
+                     </rowConstraints>
                      <children>
-                        <GridPane layoutX="88.0" layoutY="57.0" vgap="3.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="175.0" minWidth="10.0" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="32.0" minWidth="28.0" prefWidth="32.0" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
-                            <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
-                            <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="30.0" minHeight="26.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" vgrow="ALWAYS" />
-                              <RowConstraints maxHeight="40.0" minHeight="20.0" vgrow="SOMETIMES" />
-                          </rowConstraints>
+                        <ListView fx:id="srcList" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                        <TextField fx:id="romsDest" GridPane.columnIndex="1" />
+                        <TextField fx:id="disksDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="swDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="swDisksDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <TextField fx:id="samplesDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <TextField fx:id="backupDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Button fx:id="romsDestBtn" contentDisplay="GRAPHIC_ONLY" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" />
+                        <Button fx:id="disksDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Button fx:id="swDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Button fx:id="swDisksDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Button fx:id="samplesDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                        <Button fx:id="backupDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                        <Label text="%MainFrame.lblRomsDest.text" GridPane.halignment="RIGHT">
+                           <GridPane.margin>
+                              <Insets right="2.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label alignment="TOP_RIGHT" text="%MainFrame.lblSrcDir.text" GridPane.halignment="RIGHT" GridPane.rowIndex="6" GridPane.valignment="TOP">
+                           <GridPane.margin>
+                              <Insets right="2.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <CheckBox mnemonicParsing="false" onAction="#switchDisksDest" text="%MainFrame.lblDisksDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets right="2.0" />
+                           </GridPane.margin>
+                        </CheckBox>
+                        <CheckBox mnemonicParsing="false" onAction="#switchSWDest" text="%MainFrame.chckbxSoftwareDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                           <GridPane.margin>
+                              <Insets right="2.0" />
+                           </GridPane.margin>
+                        </CheckBox>
+                        <CheckBox mnemonicParsing="false" onAction="#switchSWDisksDest" text="%MainFrame.chckbxSwdisksdest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+                           <GridPane.margin>
+                              <Insets right="2.0" />
+                           </GridPane.margin>
+                        </CheckBox>
+                        <CheckBox mnemonicParsing="false" onAction="#switchSamplesDest" text="%MainFrame.lblSamplesDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                           <GridPane.margin>
+                              <Insets right="2.0" />
+                           </GridPane.margin>
+                        </CheckBox>
+                        <CheckBox mnemonicParsing="false" onAction="#switchBackupDest" text="%MainFrame.lblBackupDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+                           <GridPane.margin>
+                              <Insets right="2.0" />
+                           </GridPane.margin>
+                        </CheckBox>
+                     </children>
+                  </GridPane>
+               </content>
+            </Tab>
+            <Tab fx:id="settingsTab" closable="false" text="%MainFrame.scannerSettingsPanel.title">
+               <content>
+                  <GridPane hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="5.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS" />
+                     </rowConstraints>
+                     <children>
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxNeedSHA1.text" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxCreateMissingSets.text" GridPane.columnIndex="1" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxUseParallelism.text" GridPane.rowIndex="1" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxCreateOnlyComplete.text" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreUnneededContainers.text" GridPane.rowIndex="2" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreUnneededEntries.text" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreUnknownContainers.text" GridPane.rowIndex="3" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxUseImplicitMerge.text" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreMergeName.text" GridPane.rowIndex="4" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreMergeName_1.text" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxExcludeGames.text" GridPane.rowIndex="5" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxExcludeMachines.text" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxBackup.text" GridPane.rowIndex="6" />
+                        <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="25.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" GridPane.valignment="CENTER">
                            <children>
-                              <ListView fx:id="srcList" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                              <Label contentDisplay="TEXT_ONLY" maxWidth="1.7976931348623157E308" style="-fx-border-insets: 0; -fx-border-width: 2px; -fx-border-color: grey lightgray lightgray grey; -fx-border-radius: 4px;" GridPane.columnSpan="3" GridPane.rowIndex="7" />
-                              <TextField fx:id="romsDest" GridPane.columnIndex="1" />
-                              <TextField fx:id="disksDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                              <TextField fx:id="swDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                              <TextField fx:id="swDisksDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                              <TextField fx:id="samplesDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                              <TextField fx:id="backupDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                              <Button fx:id="romsDestBtn" contentDisplay="GRAPHIC_ONLY" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" />
-                              <Button fx:id="disksDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                              <Button fx:id="swDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                              <Button fx:id="swDisksDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                              <Button fx:id="samplesDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                              <Button fx:id="backupDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                              <Label text="%MainFrame.lblRomsDest.text" GridPane.halignment="RIGHT">
-                                 <GridPane.margin>
-                                    <Insets right="2.0" />
-                                 </GridPane.margin></Label>
-                              <Label alignment="TOP_RIGHT" text="%MainFrame.lblSrcDir.text" GridPane.halignment="RIGHT" GridPane.rowIndex="6" GridPane.valignment="TOP">
-                                 <GridPane.margin>
-                                    <Insets right="2.0" />
-                                 </GridPane.margin></Label>
-                              <CheckBox mnemonicParsing="false" onAction="#switchDisksDest" text="%MainFrame.lblDisksDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
-                                 <GridPane.margin>
-                                    <Insets right="2.0" />
-                                 </GridPane.margin></CheckBox>
-                              <CheckBox mnemonicParsing="false" onAction="#switchSWDest" text="%MainFrame.chckbxSoftwareDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
-                                 <GridPane.margin>
-                                    <Insets right="2.0" />
-                                 </GridPane.margin></CheckBox>
-                              <CheckBox mnemonicParsing="false" onAction="#switchSWDisksDest" text="%MainFrame.chckbxSwdisksdest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
-                                 <GridPane.margin>
-                                    <Insets right="2.0" />
-                                 </GridPane.margin></CheckBox>
-                              <CheckBox mnemonicParsing="false" onAction="#switchSamplesDest" text="%MainFrame.lblSamplesDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
-                                 <GridPane.margin>
-                                    <Insets right="2.0" />
-                                 </GridPane.margin></CheckBox>
-                              <CheckBox mnemonicParsing="false" onAction="#switchBackupDest" text="%MainFrame.lblBackupDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
-                                 <GridPane.margin>
-                                    <Insets right="2.0" />
-                                 </GridPane.margin></CheckBox>
+                              <Label maxHeight="1.7976931348623157E308" minWidth="-Infinity" text="%MainFrame.lblCompression.text">
+                                 <padding>
+                                    <Insets right="5.0" />
+                                 </padding>
+                              </Label>
+                              <ComboBox fx:id="compressionCbx" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
                            </children>
-                        </GridPane>
+                        </HBox>
+                        <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="25.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="8" GridPane.valignment="CENTER">
+                           <children>
+                              <Label maxHeight="1.7976931348623157E308" minWidth="-Infinity" text="%MainFrame.lblMergeMode.text">
+                                 <padding>
+                                    <Insets right="5.0" />
+                                 </padding>
+                              </Label>
+                              <ComboBox fx:id="mergeModeCbx" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+                        <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="25.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="9" GridPane.valignment="CENTER">
+                           <children>
+                              <Label maxHeight="1.7976931348623157E308" minWidth="-Infinity" text="%MainFrame.lblHashCollision.text">
+                                 <padding>
+                                    <Insets right="5.0" />
+                                 </padding>
+                              </Label>
+                              <ComboBox fx:id="collisionModeCbx" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
                      </children>
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
-                  </AnchorPane>
+                  </GridPane>
+               </content>
+            </Tab>
+            <Tab fx:id="filterTab" closable="false" text="%MainFrame.Filters">
+               <content>
+                  <SplitPane dividerPositions="0.5">
+                     <items>
+                        <GridPane hgap="5.0">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                              <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                           <children>
+                              <Label text="%MainFrame.lblYear.text" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="7" />
+                              <ComboBox GridPane.halignment="RIGHT" GridPane.rowIndex="7" />
+                              <ComboBox GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="7" />
+                              <Label text="%MainFrame.lblSwMinSupport.text" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="6" />
+                              <ComboBox GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                              <Label text="%MainFrame.lblDriverStatus.text" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="5" />
+                              <ComboBox GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                              <ComboBox GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                              <ComboBox GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                              <Label text="%MainFrame.lblOrientation.text" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
+                              <Label text="%MainFrame.lblMachineType.text" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIncludeSamples.text" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIncludeDisks.text" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIncludeClones.text" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" />
+                           </children>
+                        </GridPane>
+                        <SplitPane dividerPositions="0.5" orientation="VERTICAL">
+                           <items>
+                              <TitledPane animated="false" collapsible="false" text="%MainFrame.systemsFilter.viewportBorderTitle">
+                                 <content>
+                                    <ListView prefHeight="200.0" prefWidth="200.0" />
+                                 </content>
+                              </TitledPane>
+                              <TitledPane animated="false" collapsible="false" prefHeight="200.0" prefWidth="200.0" text="%MainFrame.sourcesFilter.viewportBorderTitle">
+                                 <content>
+                                    <ListView prefHeight="200.0" prefWidth="200.0" />
+                                 </content>
+                              </TitledPane>
+                           </items>
+                        </SplitPane>
+                     </items>
+                  </SplitPane>
+               </content>
+            </Tab>
+            <Tab fx:id="advFilterTab" closable="false" text="%MainFrame.AdvFilters">
+               <content>
+                  <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
+                     <items>
+                        <BorderPane>
+                           <top>
+                              <TextField editable="false" BorderPane.alignment="CENTER" />
+                           </top>
+                           <center>
+                              <TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+                                 <content>
+                                    <ListView prefHeight="200.0" prefWidth="200.0" />
+                                 </content>
+                              </TitledPane>
+                           </center>
+                        </BorderPane>
+                        <BorderPane>
+                           <top>
+                              <TextField editable="false" BorderPane.alignment="CENTER" />
+                           </top>
+                           <center>
+                              <TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+                                 <content>
+                                    <ListView prefHeight="200.0" prefWidth="200.0" />
+                                 </content>
+                              </TitledPane>
+                           </center>
+                        </BorderPane>
+                     </items>
+                  </SplitPane>
+               </content>
+            </Tab>
+            <Tab fx:id="automationTab" closable="false" text="%MainFrame.Automation">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
               </content>
             </Tab>
          </tabs>
       </TabPane>
    </center>
+   <bottom>
+      <WebView fx:id="profileinfoLbl" maxHeight="40.0" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="3.0" left="3.0" right="3.0" />
+         </BorderPane.margin>
+      </WebView>
+   </bottom>
 </BorderPane>

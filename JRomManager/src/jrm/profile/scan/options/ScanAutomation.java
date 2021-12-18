@@ -31,7 +31,7 @@ public
   *
   * @param desc the desc
   */
- @RequiredArgsConstructor enum ScanAutomation
+ @RequiredArgsConstructor enum ScanAutomation implements Descriptor
 {
 	
 	/** The scan. */

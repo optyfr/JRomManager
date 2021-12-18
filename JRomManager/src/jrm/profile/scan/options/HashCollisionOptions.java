@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
  * @author optyfr
  *
  */
-public @RequiredArgsConstructor enum HashCollisionOptions
+public @RequiredArgsConstructor enum HashCollisionOptions implements Descriptor
 {
 	/**
 	 * only collisioned entries in clone subfolder

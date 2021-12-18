@@ -1,7 +1,5 @@
 package jrm.fx.ui;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -13,16 +11,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
 import jrm.fx.ui.controls.DateCellFactory;
 import jrm.fx.ui.controls.NameCellFactory;
 import jrm.fx.ui.controls.VersionCellFactory;
 import jrm.fx.ui.profile.manager.DirItem;
 import jrm.fx.ui.profile.manager.HaveNTotalCellFactory;
-import jrm.fx.ui.progress.Progress;
 import jrm.profile.manager.Dir;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.manager.ProfileNFOStats.HaveNTotal;
@@ -57,9 +54,7 @@ public class ProfilePanelController implements Initializable
 		btnImportDat.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_go.png")));
 		btnImportSL.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_go.png")));
 		profilesTree.setRoot(new DirItem(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile()));
-		profilesTree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			profilesList.setItems(FXCollections.observableArrayList(ProfileNFO.list(session, newValue.getValue().getFile())));
-		});
+		profilesTree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> profilesList.setItems(FXCollections.observableArrayList(ProfileNFO.list(session, newValue.getValue().getFile()))));
 		profilesTree.getSelectionModel().select(0);
 		profileCol.setCellFactory(param -> new NameCellFactory<>());
 		profileCol.setCellValueFactory(param -> new ObservableValueBase<String>()
@@ -133,9 +128,18 @@ public class ProfilePanelController implements Initializable
 				return param.getValue().getStats().getFixed();
 			}
 		});
+		profilesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> btnLoad.setDisable(newValue == null));
+		profilesList.setRowFactory(tv -> {
+			final var row = new TableRow<ProfileNFO>();
+			row.setOnMouseClicked(event -> {
+				if (event.getClickCount() == 2 && !row.isEmpty())
+					profileLoader.loadProfile(session, row.getItem());
+			});
+			return row;
+		});
 	}
 
-	@FXML void actionLoad(ActionEvent e) throws IOException, URISyntaxException
+	@FXML void actionLoad(ActionEvent e)
 	{
 		final var profile = profilesList.getSelectionModel().getSelectedItem();
 		if (profile != null)

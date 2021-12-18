@@ -32,9 +32,6 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	/** The thread id offset. */
 	private Map<Long, Integer> threadIdOffset = new HashMap<>();
 
-	/** The cancel. */
-	private boolean cancel = false;
-
 	private boolean canCancel = true;
 
 	static final @Data class PData
@@ -376,13 +373,13 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	@Override
 	public boolean isCancel()
 	{
-		return cancel;
+		return super.isCancelled();
 	}
 
 	@Override
 	public void doCancel()
 	{
-		cancel = true;
+		super.cancel();
 	}
 
 	public boolean canCancel()

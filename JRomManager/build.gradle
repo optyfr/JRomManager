@@ -654,6 +654,9 @@ project(':JRomManager:jrmfx') {
 			java {
 				srcDirs = ["../src-jfx"]
 			}
+			resources {
+				srcDirs = ["../src-jfx"]
+			}
 		}
 		test {
 			java {
@@ -666,6 +669,7 @@ project(':JRomManager:jrmfx') {
 		implementation project(':JRomManager:res-icons')
 		implementation group: 'commons-cli', name: 'commons-cli'
 		implementation group: 'commons-io', name: 'commons-io'
+		implementation group: 'org.apache.commons', name: 'commons-text'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 /*		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'one.util', name: 'streamex'
@@ -1006,12 +1010,18 @@ jlink {
 //	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 	mergedModuleName = "jrm.merged.module"
 	customImage {
-		appModules = ['jrm.merged.module','jrmstandalone','jrmcli','jrmserver']
+		appModules = ['jrm.merged.module','jrmstandalone','jrmfx','jrmcli','jrmserver']
 	}
 	launcher {
 		name = 'JRomManager'
 		moduleName = 'jrmstandalone'
 		mainClass = 'jrm.JRomManagerMulti'
+		jvmArgs = ['-XX:MaxRAMPercentage=75']
+	}
+	secondaryLauncher {
+		name = 'JRomManagerFX'
+		moduleName = 'jrmfx'
+		mainClass = 'jrm.fx.JRomManagerMulti'
 		jvmArgs = ['-XX:MaxRAMPercentage=75']
 	}
 	secondaryLauncher {

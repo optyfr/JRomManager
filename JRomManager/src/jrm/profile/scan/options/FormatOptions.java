@@ -29,7 +29,7 @@ import net.lingala.zip4j.ZipFile;
  * @author optyfr
  *
  */
-public @RequiredArgsConstructor enum FormatOptions
+public @RequiredArgsConstructor enum FormatOptions implements Descriptor
 {
 	/**
 	 * Zip (internally handled via {@link ZipFile})

@@ -11,13 +11,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import jrm.security.Session;
 import jrm.security.Sessions;
+import lombok.Getter;
 
 public class MainFrameController implements Initializable
 {
-	@FXML private TabPane tabPane;
+	@FXML private @Getter TabPane tabPane;
 	@FXML private BorderPane profilePanel;
 	@FXML private Tab profilePanelTab;
-	@FXML private Tab scannerPanelTab;
+	@FXML private @Getter Tab scannerPanelTab;
 	
 	@FXML private ProfilePanelController profilePanelController ;
 	@FXML private ScannerPanelController scannerPanelController ;
@@ -31,6 +32,7 @@ public class MainFrameController implements Initializable
 		session = Sessions.getSingleSession();
 		profilePanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script.png")));
 		scannerPanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_magnify.png")));
+		scannerPanelTab.setDisable(true);
 		profilePanelController.setProfileLoader(scannerPanelController);
 	}
 

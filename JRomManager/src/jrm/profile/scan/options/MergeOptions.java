@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
  * @author optyfr
  *
  */
-public @RequiredArgsConstructor enum MergeOptions
+public @RequiredArgsConstructor enum MergeOptions implements Descriptor
 {
 	/**
 	 * merge clones and bioses into parent
