@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import jrm.locale.Messages;
 import jrm.misc.Log;
+import jrm.security.Sessions;
 import lombok.Getter;
 
 public class MainFrame extends Application
@@ -52,6 +53,12 @@ public class MainFrame extends Application
 				loading.hide();
 			}
 		});
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			if (Sessions.getSingleSession().getCurrProfile() != null)
+				Sessions.getSingleSession().getCurrProfile().saveSettings();
+			Sessions.getSingleSession().getUser().getSettings().saveSettings();
+			System.out.println("Shutdown");
+		}));
 	}
 
 	private static HashMap<String, Image> iconsCache = new HashMap<>();
@@ -94,7 +101,7 @@ public class MainFrame extends Application
 	private String getVersion()
 	{
 		String version = ""; //$NON-NLS-1$
-		final Package pkg = this.getClass().getPackage();
+		final var pkg = getClass().getPackage();
 		if (pkg.getSpecificationVersion() != null)
 		{
 			version += pkg.getSpecificationVersion(); // $NON-NLS-1$

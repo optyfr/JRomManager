@@ -684,6 +684,9 @@ project(':JRomManager:jrmfx') {
 			attributes(
 				"Manifest-Version"     : "1.0",
 				"Specification-Title"  : "JRomManager JFX",
+				"Specification-Version": props.getProperty("Specification-Version"),
+				"Implementation-Title"  : "jrm",
+				"Implementation-Version" : props.getProperty("Implementation-Version"),
 			)
 		}
 	}

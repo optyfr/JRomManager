@@ -1,10 +1,16 @@
 package jrm.fx.ui;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
 
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -13,25 +19,31 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.web.WebView;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.fx.ui.web.HTMLFormatter;
 import jrm.misc.Log;
+import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.options.Descriptor;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
+import jrm.security.PathAbstractor;
 import jrm.security.Session;
+import jrm.security.Sessions;
 
 public class ScannerPanelController implements Initializable, ProfileLoader
 {
@@ -48,19 +60,42 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 
 	@FXML	private Button romsDestBtn;
 	@FXML	private TextField romsDest;
+	@FXML	private CheckBox disksDestCB;
 	@FXML	private Button disksDestBtn;
 	@FXML	private TextField disksDest;
+	@FXML	private CheckBox swDestCB;
 	@FXML	private Button swDestBtn;
 	@FXML	private TextField swDest;
+	@FXML	private CheckBox swDisksDestCB;
 	@FXML	private Button swDisksDestBtn;
 	@FXML	private TextField swDisksDest;
+	@FXML	private CheckBox samplesDestCB;
 	@FXML	private Button samplesDestBtn;
 	@FXML	private TextField samplesDest;
+	@FXML	private CheckBox backupDestCB;
 	@FXML	private Button backupDestBtn;
 	@FXML	private TextField backupDest;
+	
+	@FXML	private ListView<File> srcList;
+	@FXML	private ContextMenu srcListMenu;
+	@FXML	private MenuItem srcListAddMenuItem;
+	@FXML	private MenuItem srcListDelMenuItem;
 
 	@FXML	private Tab settingsTab;
 
+	@FXML	private CheckBox needSHA1Chkbx;
+	@FXML	private CheckBox useParallelismChkbx;
+	@FXML	private CheckBox createMissingSetsChkbx;
+	@FXML	private CheckBox createOnlyCompleteChkbx;
+	@FXML	private CheckBox ignoreUnneededContainersChkbx;
+	@FXML	private CheckBox ignoreUnneededEntriesChkbx;
+	@FXML	private CheckBox ignoreUnknownContainersChkbx;
+	@FXML	private CheckBox useImplicitMergeChkbx;
+	@FXML	private CheckBox ignoreMergeNameRomsChkbx;
+	@FXML	private CheckBox ignoreMergeNameDisksChkbx;
+	@FXML	private CheckBox excludeGamesChkbx;
+	@FXML	private CheckBox excludeMachinesChkbx;
+	@FXML	private CheckBox backupChkbx;
 	@FXML	private ComboBox<Descriptor> compressionCbx;
 	@FXML	private ComboBox<Descriptor> mergeModeCbx;
 	@FXML	private ComboBox<Descriptor> collisionModeCbx;
@@ -70,6 +105,8 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 	@FXML	private Tab automationTab;
 
 	@FXML	private WebView profileinfoLbl;
+
+	final Session session = Sessions.getSingleSession();
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
@@ -82,16 +119,75 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		
 		romsDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
 		disksDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		disksDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			disksDest.setDisable(!newValue);
+			disksDestBtn.setDisable(!newValue);
+			session.getCurrProfile().setProperty(SettingsEnum.disks_dest_dir_enabled, newValue);
+		});
 		swDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		swDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			swDest.setDisable(!newValue);
+			swDestBtn.setDisable(!newValue);
+			session.getCurrProfile().setProperty(SettingsEnum.swroms_dest_dir_enabled, newValue);
+		});
 		swDisksDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		swDisksDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			swDisksDest.setDisable(!newValue);
+			swDisksDestBtn.setDisable(!newValue);
+			session.getCurrProfile().setProperty(SettingsEnum.swdisks_dest_dir_enabled, newValue);
+		});
 		samplesDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		samplesDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			samplesDest.setDisable(!newValue);
+			samplesDestBtn.setDisable(!newValue);
+			session.getCurrProfile().setProperty(SettingsEnum.samples_dest_dir_enabled, newValue);
+		});
 		backupDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		backupDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			backupDest.setDisable(!newValue);
+			backupDestBtn.setDisable(!newValue);
+			session.getCurrProfile().setProperty(SettingsEnum.backup_dest_dir_enabled, newValue);
+		});
 		infosBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/information.png")));
 		scanBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/magnifier.png")));
 		reportBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/report.png")));
 		fixBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/tick.png")));
 		importBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/table_refresh.png")));
 		exportBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/table_save.png")));
+		
+		srcList.setCellFactory(param -> new ListCell<File>()
+		{
+			@Override
+			protected void updateItem(File item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty)
+				{
+					setText(null);
+					setOnMouseClicked(null);
+				}
+				else
+				{
+					setText(item.toString());
+					setOnMouseClicked(ev -> {
+						if (ev.getClickCount() == 2)
+						{
+							chooseSrc(item, SettingsEnum.src_dir, "MainFrame.ChooseRomsSource");
+						}
+					});
+				}
+			}
+		});
+		srcListMenu.setOnShowing(e -> {
+			srcListDelMenuItem.setDisable(srcList.getSelectionModel().getSelectedIndex()<0);
+		});
+		srcListDelMenuItem.setOnAction(e -> {
+			srcList.getItems().removeAll(srcList.getSelectionModel().getSelectedItems());
+			saveSrcList();
+		});
+		srcListAddMenuItem.setOnAction(e -> chooseSrc(null, SettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
+		
 		Callback<ListView<Descriptor>, ListCell<Descriptor>> cellFactory = param -> new ListCell<Descriptor>()
 		{
 			@Override
@@ -104,70 +200,42 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 					setText(item.getDesc());
 			}
 		};
+		needSHA1Chkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.need_sha1_or_md5, newValue));
+		useParallelismChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.use_parallelism, newValue));
+		createMissingSetsChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.create_mode, newValue));
+		createOnlyCompleteChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.createfull_mode, newValue));
+		ignoreUnneededContainersChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_unneeded_containers, newValue));
+		ignoreUnneededEntriesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_unneeded_entries, newValue));
+		ignoreUnknownContainersChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_unknown_containers, newValue));
+		useImplicitMergeChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.implicit_merge, newValue));
+		ignoreMergeNameRomsChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_merge_name_roms, newValue));
+		ignoreMergeNameDisksChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_merge_name_disks, newValue));
+		excludeGamesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.exclude_games, newValue));
+		excludeMachinesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.exclude_machines, newValue));
+		backupChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.backup, newValue));
 		compressionCbx.setItems(FXCollections.observableArrayList(FormatOptions.values()));
 		compressionCbx.setCellFactory(cellFactory);
 		compressionCbx.setButtonCell(cellFactory.call(null));
+		compressionCbx.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.format, newValue.toString()));
 		mergeModeCbx.setItems(FXCollections.observableArrayList(MergeOptions.values()));
 		mergeModeCbx.setCellFactory(cellFactory);
 		mergeModeCbx.setButtonCell(cellFactory.call(null));
+		mergeModeCbx.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.merge_mode, newValue.toString()));
 		collisionModeCbx.setItems(FXCollections.observableArrayList(HashCollisionOptions.values()));
 		collisionModeCbx.setCellFactory(cellFactory);
 		collisionModeCbx.setButtonCell(cellFactory.call(null));
+		collisionModeCbx.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.hash_collision_mode, newValue.toString()));
 	}
-
-	@FXML
-	void switchDisksDest(ActionEvent e)
-	{
-		if (e.getSource() instanceof CheckBox cb)
-		{
-			disksDest.setDisable(!cb.isSelected());
-			disksDestBtn.setDisable(!cb.isSelected());
-		}
-	}
-
-	@FXML
-	void switchSWDest(ActionEvent e)
-	{
-		if (e.getSource() instanceof CheckBox cb)
-		{
-			swDest.setDisable(!cb.isSelected());
-			swDestBtn.setDisable(!cb.isSelected());
-		}
-	}
-
-	@FXML
-	void switchSWDisksDest(ActionEvent e)
-	{
-		if (e.getSource() instanceof CheckBox cb)
-		{
-			swDisksDest.setDisable(!cb.isSelected());
-			swDisksDestBtn.setDisable(!cb.isSelected());
-		}
-	}
-
-	@FXML
-	void switchSamplesDest(ActionEvent e)
-	{
-		if (e.getSource() instanceof CheckBox cb)
-		{
-			samplesDest.setDisable(!cb.isSelected());
-			samplesDestBtn.setDisable(!cb.isSelected());
-		}
-	}
-
-	@FXML
-	void switchBackupDest(ActionEvent e)
-	{
-		if (e.getSource() instanceof CheckBox cb)
-		{
-			backupDest.setDisable(!cb.isSelected());
-			backupDestBtn.setDisable(!cb.isSelected());
-		}
-	}
-
+	
 	@Override
 	public void loadProfile(Session session, ProfileNFO profile)
 	{
+		if (session.getCurrProfile() != null)
+			session.getCurrProfile().saveSettings();
+		
+/*		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().clear();
+*/
 		try
 		{
 			final var thread = new Thread(new ProgressTask<Profile>((Stage) romsDest.getScene().getWindow())
@@ -197,12 +265,10 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 						{
 							profileinfoLbl.getEngine().loadContent(HTMLFormatter.toHTML(session.getCurrProfile().getName()));
 							/*
-							 * scannerFilters.checkBoxListSystems.setModel(new
-							 * SystmsModel(session.getCurrProfile().getSystems()));
-							 * scannerFilters.checkBoxListSources.setModel(new
-							 * SourcesModel(session.getCurrProfile().getSources()));
-							 * initProfileSettings(session);
+							 * scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.getCurrProfile().getSystems()));
+							 * scannerFilters.checkBoxListSources.setModel(new SourcesModel(session.getCurrProfile().getSources()));
 							 */
+							initProfileSettings(session);
 							MainFrame.getController().getTabPane().getSelectionModel().select(1);
 						}
 						this.close();
@@ -240,4 +306,124 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 
 	}
 
+	private void initProfileSettings(Session session)
+	{
+		romsDest.setText(session.getCurrProfile().getProperty(SettingsEnum.roms_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		disksDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.disks_dest_dir_enabled, false)); //$NON-NLS-1$
+		disksDest.setText(session.getCurrProfile().getProperty(SettingsEnum.disks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		swDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.swroms_dest_dir_enabled, false)); //$NON-NLS-1$
+		swDest.setText(session.getCurrProfile().getProperty(SettingsEnum.swroms_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		swDisksDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.swdisks_dest_dir_enabled, false)); //$NON-NLS-1$
+		swDisksDest.setText(session.getCurrProfile().getProperty(SettingsEnum.swdisks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		samplesDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.samples_dest_dir_enabled, false)); //$NON-NLS-1$
+		samplesDest.setText(session.getCurrProfile().getProperty(SettingsEnum.samples_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		backupDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.backup_dest_dir_enabled, false)); //$NON-NLS-1$
+		backupDest.setText(session.getCurrProfile().getProperty(SettingsEnum.backup_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(SettingsEnum.src_dir, ""),'|')).filter(s->!s.isEmpty()).map(File::new).collect(Collectors.toList())));
+
+		needSHA1Chkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.need_sha1_or_md5, false));
+		useParallelismChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.use_parallelism, true));
+		createMissingSetsChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.create_mode, true));
+		createOnlyCompleteChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.createfull_mode, false));
+		ignoreUnneededContainersChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_unneeded_containers, false));
+		ignoreUnneededEntriesChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_unneeded_entries, false));
+		ignoreUnknownContainersChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_unknown_containers, false));
+		useImplicitMergeChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.implicit_merge, false));
+		ignoreMergeNameRomsChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_merge_name_roms, false));
+		ignoreMergeNameDisksChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_merge_name_disks, false));
+		excludeGamesChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.exclude_games, false));
+		excludeMachinesChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.exclude_machines, false));
+		backupChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.backup, false));
+		compressionCbx.getSelectionModel().select(FormatOptions.valueOf(session.getCurrProfile().getProperty(SettingsEnum.format, FormatOptions.ZIP.toString())));
+		mergeModeCbx.getSelectionModel().select(MergeOptions.valueOf(session.getCurrProfile().getProperty(SettingsEnum.merge_mode, MergeOptions.SPLIT.toString())));
+		collisionModeCbx.getSelectionModel().select(HashCollisionOptions.valueOf(session.getCurrProfile().getProperty(SettingsEnum.hash_collision_mode, HashCollisionOptions.SINGLEFILE.toString())));
+}
+	
+	@FXML private void chooseRomsDest(ActionEvent e)
+	{
+		chooseAnyDest(romsDest, SettingsEnum.roms_dest_dir, "MainFrame.ChooseRomsDestination");
+	}
+	
+	@FXML private void chooseDisksDest(ActionEvent e)
+	{
+		chooseAnyDest(disksDest, SettingsEnum.disks_dest_dir, "MainFrame.ChooseDisksDestination");
+	}
+	
+	@FXML private void chooseSWRomsDest(ActionEvent e)
+	{
+		chooseAnyDest(swDest, SettingsEnum.swroms_dest_dir, "MainFrame.ChooseSWRomsDestination");
+	}
+	
+	@FXML private void chooseSWDisksDest(ActionEvent e)
+	{
+		chooseAnyDest(swDisksDest, SettingsEnum.swdisks_dest_dir, "MainFrame.ChooseSWDisksDestination");
+	}
+	
+	@FXML private void chooseSamplesDest(ActionEvent e)
+	{
+		chooseAnyDest(samplesDest, SettingsEnum.samples_dest_dir, "MainFrame.ChooseSamplesDestination");
+	}
+	
+	@FXML private void chooseBackupDest(ActionEvent e)
+	{
+		chooseAnyDest(backupDest, SettingsEnum.backup_dest_dir, "MainFrame.ChooseBackupDestination");
+	}
+	
+	private void chooseAnyDest(TextField tf, SettingsEnum ppt, String defPptName)
+	{
+		final var workdir = session.getUser().getSettings().getWorkPath().toFile();
+		final var defdir = PathAbstractor.getAbsolutePath(session, session.getCurrProfile().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
+		final var chooser = new DirectoryChooser();
+		Optional.ofNullable(tf.getText()).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> chooser.setInitialDirectory(defdir));
+		final var chosen = chooser.showDialog(tf.getScene().getWindow());
+		if (chosen != null)
+		{
+			final var dir = PathAbstractor.getRelativePath(session, chosen.toPath());
+			tf.setText(dir.toString());
+			session.getCurrProfile().setProperty(defPptName, tf.getText()); // $NON-NLS-1$
+			session.getCurrProfile().setProperty(ppt, tf.getText()); // $NON-NLS-1$
+		}
+	}
+	
+	private void chooseSrc(File oldDir, SettingsEnum ppt, String defPptName)
+	{
+		final var workdir = session.getUser().getSettings().getWorkPath().toFile();
+		final var defdir = PathAbstractor.getAbsolutePath(session, session.getCurrProfile().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
+		final var chooser = new DirectoryChooser();
+		Optional.ofNullable(oldDir).map(f->PathAbstractor.getAbsolutePath(session, f.toString()).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, ()->chooser.setInitialDirectory(defdir));
+		final var chosen = chooser.showDialog(srcList.getScene().getWindow());
+		if (chosen != null)
+		{
+			var modified = false;
+			final var dir = PathAbstractor.getRelativePath(session, chosen.toPath());
+			if(oldDir!=null)
+			{
+				if(!oldDir.equals(dir.toFile()))
+				{
+					final var i = srcList.getItems().indexOf(oldDir);
+					srcList.getItems().set(i, dir.toFile());
+					modified = true;
+				}
+			}
+			else
+			{
+				if(-1 == srcList.getItems().indexOf(dir.toFile()))
+				{
+					srcList.getItems().add(dir.toFile());
+					modified = true;
+				}
+			}
+			if(modified)
+			{
+				saveSrcList();
+				session.getCurrProfile().setProperty(defPptName, dir.toString()); // $NON-NLS-1$
+			}
+		}
+	}
+	
+	private void saveSrcList()
+	{
+		session.getCurrProfile().setProperty(SettingsEnum.src_dir, String.join("|", srcList.getItems().stream().map(File::getAbsolutePath).toList()));
+	}
+	
 }

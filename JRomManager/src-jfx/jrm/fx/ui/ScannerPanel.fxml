@@ -4,8 +4,10 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -77,19 +79,27 @@
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" vgrow="ALWAYS" />
                      </rowConstraints>
                      <children>
-                        <ListView fx:id="srcList" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                        <ListView fx:id="srcList" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6">
+			               <contextMenu>
+			                  <ContextMenu fx:id="srcListMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+			                    <items>
+			                        <MenuItem fx:id="srcListDelMenuItem" mnemonicParsing="false" text="%MainFrame.mntmDeleteSelected.text" />
+			                        <MenuItem fx:id="srcListAddMenuItem" mnemonicParsing="false" text="%MainFrame.mntmAddDirectory.text" />
+			                    </items>
+			                  </ContextMenu>
+			               </contextMenu></ListView>
                         <TextField fx:id="romsDest" GridPane.columnIndex="1" />
                         <TextField fx:id="disksDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <TextField fx:id="swDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <TextField fx:id="swDisksDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <TextField fx:id="samplesDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                         <TextField fx:id="backupDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                        <Button fx:id="romsDestBtn" contentDisplay="GRAPHIC_ONLY" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" />
-                        <Button fx:id="disksDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <Button fx:id="swDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                        <Button fx:id="swDisksDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                        <Button fx:id="samplesDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                        <Button fx:id="backupDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                        <Button fx:id="romsDestBtn" contentDisplay="GRAPHIC_ONLY" minWidth="32.0" mnemonicParsing="false" onAction="#chooseRomsDest" GridPane.columnIndex="2" />
+                        <Button fx:id="disksDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" onAction="#chooseDisksDest" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Button fx:id="swDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" onAction="#chooseSWRomsDest" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Button fx:id="swDisksDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" onAction="#chooseSWDisksDest" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Button fx:id="samplesDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" onAction="#chooseSamplesDest" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                        <Button fx:id="backupDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" onAction="#chooseBackupDest" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                         <Label text="%MainFrame.lblRomsDest.text" GridPane.halignment="RIGHT">
                            <GridPane.margin>
                               <Insets right="2.0" />
@@ -100,32 +110,35 @@
                               <Insets right="2.0" />
                            </GridPane.margin>
                         </Label>
-                        <CheckBox mnemonicParsing="false" onAction="#switchDisksDest" text="%MainFrame.lblDisksDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                        <CheckBox fx:id="disksDestCB" mnemonicParsing="false" text="%MainFrame.lblDisksDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
                            <GridPane.margin>
                               <Insets right="2.0" />
                            </GridPane.margin>
                         </CheckBox>
-                        <CheckBox mnemonicParsing="false" onAction="#switchSWDest" text="%MainFrame.chckbxSoftwareDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                        <CheckBox fx:id="swDestCB" mnemonicParsing="false" text="%MainFrame.chckbxSoftwareDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
                            <GridPane.margin>
                               <Insets right="2.0" />
                            </GridPane.margin>
                         </CheckBox>
-                        <CheckBox mnemonicParsing="false" onAction="#switchSWDisksDest" text="%MainFrame.chckbxSwdisksdest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+                        <CheckBox fx:id="swDisksDestCB" mnemonicParsing="false" text="%MainFrame.chckbxSwdisksdest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
                            <GridPane.margin>
                               <Insets right="2.0" />
                            </GridPane.margin>
                         </CheckBox>
-                        <CheckBox mnemonicParsing="false" onAction="#switchSamplesDest" text="%MainFrame.lblSamplesDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                        <CheckBox fx:id="samplesDestCB" mnemonicParsing="false" text="%MainFrame.lblSamplesDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
                            <GridPane.margin>
                               <Insets right="2.0" />
                            </GridPane.margin>
                         </CheckBox>
-                        <CheckBox mnemonicParsing="false" onAction="#switchBackupDest" text="%MainFrame.lblBackupDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+                        <CheckBox fx:id="backupDestCB" mnemonicParsing="false" text="%MainFrame.lblBackupDest.text" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
                            <GridPane.margin>
                               <Insets right="2.0" />
                            </GridPane.margin>
                         </CheckBox>
                      </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
                   </GridPane>
                </content>
             </Tab>
@@ -149,19 +162,19 @@
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS" />
                      </rowConstraints>
                      <children>
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxNeedSHA1.text" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxCreateMissingSets.text" GridPane.columnIndex="1" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxUseParallelism.text" GridPane.rowIndex="1" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxCreateOnlyComplete.text" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreUnneededContainers.text" GridPane.rowIndex="2" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreUnneededEntries.text" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreUnknownContainers.text" GridPane.rowIndex="3" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxUseImplicitMerge.text" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreMergeName.text" GridPane.rowIndex="4" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIgnoreMergeName_1.text" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxExcludeGames.text" GridPane.rowIndex="5" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxExcludeMachines.text" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxBackup.text" GridPane.rowIndex="6" />
+                        <CheckBox fx:id="needSHA1Chkbx" mnemonicParsing="false" text="%MainFrame.chckbxNeedSHA1.text" />
+                        <CheckBox fx:id="createMissingSetsChkbx" mnemonicParsing="false" text="%MainFrame.chckbxCreateMissingSets.text" GridPane.columnIndex="1" />
+                        <CheckBox fx:id="useParallelismChkbx" mnemonicParsing="false" text="%MainFrame.chckbxUseParallelism.text" GridPane.rowIndex="1" />
+                        <CheckBox fx:id="createOnlyCompleteChkbx" mnemonicParsing="false" text="%MainFrame.chckbxCreateOnlyComplete.text" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <CheckBox fx:id="ignoreUnneededContainersChkbx" mnemonicParsing="false" text="%MainFrame.chckbxIgnoreUnneededContainers.text" GridPane.rowIndex="2" />
+                        <CheckBox fx:id="ignoreUnneededEntriesChkbx" mnemonicParsing="false" text="%MainFrame.chckbxIgnoreUnneededEntries.text" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <CheckBox fx:id="ignoreUnknownContainersChkbx" mnemonicParsing="false" text="%MainFrame.chckbxIgnoreUnknownContainers.text" GridPane.rowIndex="3" />
+                        <CheckBox fx:id="useImplicitMergeChkbx" mnemonicParsing="false" text="%MainFrame.chckbxUseImplicitMerge.text" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <CheckBox fx:id="ignoreMergeNameRomsChkbx" mnemonicParsing="false" text="%MainFrame.chckbxIgnoreMergeName.text" GridPane.rowIndex="4" />
+                        <CheckBox fx:id="ignoreMergeNameDisksChkbx" mnemonicParsing="false" text="%MainFrame.chckbxIgnoreMergeName_1.text" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <CheckBox fx:id="excludeGamesChkbx" mnemonicParsing="false" text="%MainFrame.chckbxExcludeGames.text" GridPane.rowIndex="5" />
+                        <CheckBox fx:id="excludeMachinesChkbx" mnemonicParsing="false" text="%MainFrame.chckbxExcludeMachines.text" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <CheckBox fx:id="backupChkbx" mnemonicParsing="false" text="%MainFrame.chckbxBackup.text" GridPane.rowIndex="6" />
                         <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="25.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" GridPane.valignment="CENTER">
                            <children>
                               <Label maxHeight="1.7976931348623157E308" minWidth="-Infinity" text="%MainFrame.lblCompression.text">
@@ -203,7 +216,7 @@
                <content>
                   <SplitPane dividerPositions="0.5">
                      <items>
-                        <GridPane hgap="5.0">
+                        <GridPane hgap="5.0" vgap="5.0">
                            <columnConstraints>
                               <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
