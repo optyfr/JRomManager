@@ -32,6 +32,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	/** The thread id offset. */
 	private Map<Long, Integer> threadIdOffset = new HashMap<>();
 
+	private boolean cancel = false;
 	private boolean canCancel = true;
 
 	static final @Data class PData
@@ -249,29 +250,37 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 		sendSetProgress(1, force);
 	}
 
-	private void sendSetProgress(final int pb, final boolean force)
+	private long lastEvent = 0;
+	private PData lastPData = null;
+	
+	private synchronized void sendSetProgress(final int pb, final boolean force)
 	{
 		boolean doit = false;
-			if (pb == 1)
-				cleanup();
-			if (force)
-				doit = true;
-			else if (!data.pb1.visibility && !data.pb2.visibility && !data.pb3.visibility)
-				doit = true;
-			else if (pb == 1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
-				doit = true;
-			else if (pb == 2 && data.pb2.visibility && !data.pb2.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
-				doit = true;
-			else if (pb == 3 && data.pb3.visibility && !data.pb3.indeterminate && data.pb3.val > 0 && data.pb3.max == data.pb3.val)
-				doit = true;
-/*			else
-				doit = true;*/
-			if(doit)
-			{
-				final var d = new PData(this.data);
-				Platform.runLater(()->progress.getController().setFullProgress(d));
-			}
-			data.pb1.msg = null;
+		if (pb == 1)
+			cleanup();
+		if (force)
+			doit = true;
+		else if (!data.pb1.visibility && !data.pb2.visibility && !data.pb3.visibility)
+			doit = true;
+		else if (pb == 1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
+			doit = true;
+		else if (pb == 2 && data.pb2.visibility && !data.pb2.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
+			doit = true;
+		else if (pb == 3 && data.pb3.visibility && !data.pb3.indeterminate && data.pb3.val > 0 && data.pb3.max == data.pb3.val)
+			doit = true;
+		else if(lastPData==null || (lastPData.infos[0]!=null && !lastPData.infos[0].equals(this.data.infos[0])))
+			doit = true;
+		else if (System.currentTimeMillis() - lastEvent > 500)
+		{
+			lastEvent = System.currentTimeMillis();
+			doit = true;
+		}
+		if (doit)
+		{
+			lastPData = new PData(this.data);
+			Platform.runLater(() -> progress.getController().setFullProgress(lastPData));
+		}
+		data.pb1.msg = null;
 	}
 
 	/**
@@ -373,13 +382,13 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	@Override
 	public boolean isCancel()
 	{
-		return super.isCancelled();
+		return cancel;
 	}
 
 	@Override
 	public void doCancel()
 	{
-		super.cancel();
+		cancel = true;;
 	}
 
 	public boolean canCancel()

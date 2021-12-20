@@ -2,9 +2,11 @@ package jrm.fx.ui.controls;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
@@ -44,6 +46,21 @@ public @UtilityClass class Dialogs
 		alert.showAndWait();
 	}
 
+	public static Optional<ButtonType> showConfirmation(String title, String message, ButtonType... buttons)
+	{
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle(title);
+//		alert.setHeaderText(message);
+		alert.setHeaderText(null);
+		alert.setContentText(message);
+		if (buttons != null && buttons.length > 0)
+		{
+			alert.getButtonTypes().clear();
+			alert.getButtonTypes().addAll(buttons);
+		}
+		return alert.showAndWait();
+	}
+	
 	private static String getStackTrace(Throwable e)
 	{
 		final var sw = new StringWriter();

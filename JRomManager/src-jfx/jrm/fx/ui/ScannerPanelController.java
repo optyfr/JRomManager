@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
@@ -17,6 +18,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -33,14 +35,19 @@ import javafx.util.Callback;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.fx.ui.web.HTMLFormatter;
+import jrm.locale.Messages;
+import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
+import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
+import jrm.profile.scan.Scan;
 import jrm.profile.scan.options.Descriptor;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
+import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.security.Sessions;
@@ -273,26 +280,41 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 						}
 						this.close();
 					}
-					catch (InterruptedException | ExecutionException e)
+					catch (InterruptedException e)
 					{
 						this.close();
 						Log.err(e.getMessage(), e);
-						Dialogs.showError(e);
+						Thread.currentThread().interrupt();
+					}
+					catch (ExecutionException e)
+					{
+						this.close();
+						Optional.ofNullable(e.getCause()).ifPresentOrElse(cause -> {
+							Log.err(cause.getMessage(), cause);
+							Dialogs.showError(cause);
+						}, () -> {
+							Log.err(e.getMessage(), e);
+							Dialogs.showError(e);
+						});
 					}
 				}
 
 				@Override
 				protected void failed()
 				{
-					this.close();
-					Dialogs.showError(getException());
-				}
-
-				@Override
-				protected void cancelled()
-				{
-					this.close();
-					Dialogs.showAlert("Cancelled");
+					if (getException() instanceof BreakException)
+						Dialogs.showAlert("Cancelled");
+					else
+					{
+						this.close();
+						Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
+							Log.err(cause.getMessage(), cause);
+							Dialogs.showError(cause);
+						}, () -> {
+							Log.err(getException().getMessage(), getException());
+							Dialogs.showError(getException());
+						});
+					}
 				}
 			});
 			thread.setDaemon(true);
@@ -306,6 +328,209 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 
 	}
 
+	@FXML private void scan(ActionEvent e)
+	{
+		scan(session, true);
+	}
+	
+	/**
+	 * Scan.
+	 */
+	private void scan(final Session session, final boolean automate)
+	{
+		String txtdstdir = romsDest.getText();
+		if (txtdstdir.isEmpty())
+		{
+			romsDestBtn.fire();
+			txtdstdir = romsDest.getText();
+		}
+		if (txtdstdir.isEmpty())
+			return;
+		try
+		{
+			final var thread = new Thread(new ProgressTask<Scan>((Stage) romsDest.getScene().getWindow())
+			{
+
+				@Override
+				protected Scan call() throws Exception
+				{
+					return new Scan(session.getCurrProfile(), this);
+				}
+
+				@Override
+				protected void succeeded()
+				{
+					try
+					{
+						session.setCurrScan(get());
+						fixBtn.setDisable(session.getCurrScan()==null || session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() == 0);
+						close();
+						// update entries in profile viewer 
+/*						if (MainFrame.getProfileViewer() != null)
+							MainFrame.getProfileViewer().reload();*/
+						ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+/*						if(MainFrame.getReportFrame() != null)
+						{
+							if(automation.hasReport())
+								MainFrame.getReportFrame().setVisible(true);
+							MainFrame.getReportFrame().setNeedUpdate(true);
+						}*/
+						if (automate && !fixBtn.isDisabled() && automation.hasFix())
+						{
+							fix(session);
+						}
+					}
+					catch (InterruptedException e)
+					{
+						this.close();
+						Log.err(e.getMessage(), e);
+						Thread.currentThread().interrupt();
+					}
+					catch (Exception e)
+					{
+						this.close();
+						Optional.ofNullable(e.getCause()).ifPresentOrElse(cause -> {
+							Log.err(cause.getMessage(), cause);
+							Dialogs.showError(cause);
+						}, () -> {
+							Log.err(e.getMessage(), e);
+							Dialogs.showError(e);
+						});
+					}
+				}
+				
+				@Override
+				protected void failed()
+				{
+					this.close();
+					if (getException() instanceof BreakException)
+						Dialogs.showAlert("Cancelled");
+					else
+					{
+						Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
+							Log.err(cause.getMessage(), cause);
+							Dialogs.showError(cause);
+						}, () -> {
+							Log.err(getException().getMessage(), getException());
+							Dialogs.showError(getException());
+						});
+					}
+				}
+			});
+			thread.setDaemon(true);
+			thread.start();
+		}
+		catch (IOException | URISyntaxException e)
+		{
+			Log.err(e.getMessage(), e);
+			Dialogs.showError(e);
+		}
+	}
+	
+	@FXML private void fix(ActionEvent e)
+	{
+		fix(session);
+	}
+
+	/**
+	 * Fix.
+	 */
+	private void fix(final Session session)
+	{
+		try
+		{
+			final var thread = new Thread(new ProgressTask<Fix>((Stage) romsDest.getScene().getWindow())
+			{
+				private boolean toFix = false;
+				
+				@Override
+				protected Fix call() throws Exception
+				{
+					if (session.getCurrProfile().hasPropsChanged())
+					{
+						final var answer = Dialogs.showConfirmation(Messages.getString("MainFrame.WarnSettingsChanged"), Messages.getString("MainFrame.RescanBeforeFix"), ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+						if (answer.isPresent())
+						{
+							if (answer.get() == ButtonType.YES)
+							{
+								session.setCurrScan(new Scan(session.getCurrProfile(), this));
+								toFix = session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
+								if (!toFix)
+									return null;
+							}
+							else if (answer.get() != ButtonType.NO)
+								return null;
+						}
+					}
+					final Fix fix = new Fix(session.getCurrProfile(), session.getCurrScan(), this);
+					toFix = fix.getActionsRemain() > 0;
+					return fix;
+				}
+				
+				@Override
+				protected void succeeded()
+				{
+					try
+					{
+						get();
+						fixBtn.setDisable(!toFix);
+						close();
+						// update entries in profile viewer
+/*						if (MainFrame.getProfileViewer() != null)
+							MainFrame.getProfileViewer().reload();*/
+						ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+						if (automation.hasScanAgain())
+							scan(session, false);
+					}
+					catch (InterruptedException e)
+					{
+						this.close();
+						Log.err(e.getMessage(), e);
+						Thread.currentThread().interrupt();
+					}
+					catch (Exception e)
+					{
+						this.close();
+						Optional.ofNullable(e.getCause()).ifPresentOrElse(cause -> {
+							Log.err(cause.getMessage(), cause);
+							Dialogs.showError(cause);
+						}, () -> {
+							Log.err(e.getMessage(), e);
+							Dialogs.showError(e);
+						});
+					}
+				}
+				
+				@Override
+				protected void failed()
+				{
+					if (getException() instanceof BreakException)
+						Dialogs.showAlert("Cancelled");
+					else
+					{
+						this.close();
+						Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
+							Log.err(cause.getMessage(), cause);
+							Dialogs.showError(cause);
+						}, () -> {
+							Log.err(getException().getMessage(), getException());
+							Dialogs.showError(getException());
+						});
+					}
+				}
+			});
+			thread.setDaemon(true);
+			thread.start();
+		}
+		catch (IOException | URISyntaxException e)
+		{
+			Log.err(e.getMessage(), e);
+			Dialogs.showError(e);
+		}
+
+	}
+
+	
 	private void initProfileSettings(Session session)
 	{
 		romsDest.setText(session.getCurrProfile().getProperty(SettingsEnum.roms_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$

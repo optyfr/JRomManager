@@ -32,7 +32,7 @@
                </HBox.margin>
             </Button>
             <Separator orientation="VERTICAL" />
-            <Button fx:id="scanBtn" mnemonicParsing="false" text="%MainFrame.btnScan.text">
+            <Button fx:id="scanBtn" mnemonicParsing="false" onAction="#scan" text="%MainFrame.btnScan.text">
                <HBox.margin>
                   <Insets right="4.0" />
                </HBox.margin>
@@ -42,7 +42,7 @@
                   <Insets right="4.0" />
                </HBox.margin>
             </Button>
-            <Button fx:id="fixBtn" mnemonicParsing="false" text="%MainFrame.btnFix.text">
+            <Button fx:id="fixBtn" mnemonicParsing="false" onAction="#fix" text="%MainFrame.btnFix.text">
                <HBox.margin>
                   <Insets right="3.0" />
                </HBox.margin>
