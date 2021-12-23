@@ -271,14 +271,12 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 		else if(lastPData==null || (lastPData.infos[0]!=null && !lastPData.infos[0].equals(this.data.infos[0])))
 			doit = true;
 		else if (System.currentTimeMillis() - lastEvent > 500)
-		{
-			lastEvent = System.currentTimeMillis();
 			doit = true;
-		}
 		if (doit)
 		{
 			lastPData = new PData(this.data);
 			Platform.runLater(() -> progress.getController().setFullProgress(lastPData));
+			lastEvent = System.currentTimeMillis();
 		}
 		data.pb1.msg = null;
 	}

@@ -126,6 +126,7 @@ public class ProgressController implements Initializable
 		if (progressBar.isVisible() != pd.getPb1().isVisibility())
 		{
 			progressBar.setVisible(pd.getPb1().isVisibility());
+			progressBarLbl.setVisible(pd.getPb1().isVisibility());
 			lblTimeleft.setVisible(pd.getPb1().isVisibility());
 			((GridPane)lblTimeleft.getParent()).getRowConstraints().get(1).setPrefHeight(pd.getPb1().isVisibility()?Region.USE_COMPUTED_SIZE:0);
 		}
@@ -155,6 +156,7 @@ public class ProgressController implements Initializable
 		if (progressBar2.isVisible() != pd.getPb2().isVisibility())
 		{
 			progressBar2.setVisible(pd.getPb2().isVisibility());
+			progressBarLbl2.setVisible(pd.getPb2().isVisibility());
 			lblTimeleft2.setVisible(pd.getPb2().isVisibility());
 			((GridPane)lblTimeleft2.getParent()).getRowConstraints().get(2).setPrefHeight(pd.getPb2().isVisibility()?Region.USE_COMPUTED_SIZE:0);
 		}
@@ -183,8 +185,9 @@ public class ProgressController implements Initializable
 		}
 		if (progressBar3.isVisible() != pd.getPb3().isVisibility())
 		{
-			progressBar3.setVisible(pd.getPb2().isVisibility());
-			lblTimeleft3.setVisible(pd.getPb2().isVisibility());
+			progressBar3.setVisible(pd.getPb3().isVisibility());
+			progressBarLbl3.setVisible(pd.getPb3().isVisibility());
+			lblTimeleft3.setVisible(pd.getPb3().isVisibility());
 			((GridPane)lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(pd.getPb3().isVisibility()?Region.USE_COMPUTED_SIZE:0);
 		}
 		if (pd.getPb3().isVisibility())
