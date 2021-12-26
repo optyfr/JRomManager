@@ -120,9 +120,9 @@ public class ProgressController implements Initializable
 	public void setFullProgress(PData pd)
 	{
 		for (int i = 0; i < lblInfo.length; i++)
-			lblInfo[i].setText(Optional.ofNullable(pd.getInfos()[i]).orElse(""));
+			lblInfo[i].setText(i < pd.getInfos().length ? pd.getInfos()[i]:"");
 		for (int i = 0; i < lblSubInfo.length; i++)
-			lblSubInfo[i].setText(Optional.ofNullable(pd.getSubinfos()[i]).orElse(""));
+			lblSubInfo[i].setText(i < pd.getSubinfos().length ? pd.getSubinfos()[i] : "");
 		if (progressBar.isVisible() != pd.getPb1().isVisibility())
 		{
 			progressBar.setVisible(pd.getPb1().isVisibility());

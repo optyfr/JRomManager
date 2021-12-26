@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TreeView?>
+
+<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.report.ReportViewController">
+   <content>
+      <TreeView fx:id="treeview" />
+   </content>
+</ScrollPane>

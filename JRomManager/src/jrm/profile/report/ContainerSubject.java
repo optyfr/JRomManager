@@ -1,6 +1,7 @@
 package jrm.profile.report;
 
 import jrm.profile.data.Container;
+import lombok.Getter;
 
 abstract class ContainerSubject extends Subject
 {
@@ -8,7 +9,7 @@ abstract class ContainerSubject extends Subject
 	/**
 	 * The {@link Container} in relation
 	 */
-	final Container container;
+	protected @Getter final Container container;
 
 	protected ContainerSubject(Container container)
 	{

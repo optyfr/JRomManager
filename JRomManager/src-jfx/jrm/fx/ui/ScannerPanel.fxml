@@ -37,7 +37,7 @@
                   <Insets right="4.0" />
                </HBox.margin>
             </Button>
-            <Button fx:id="reportBtn" mnemonicParsing="false" text="%MainFrame.btnReport.text">
+            <Button fx:id="reportBtn" mnemonicParsing="false" onAction="#report" text="%MainFrame.btnReport.text">
                <HBox.margin>
                   <Insets right="4.0" />
                </HBox.margin>

@@ -118,7 +118,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 			this.data.subinfos = new String[0];
 		else
 			this.data.subinfos = new String[multipleSubInfos.booleanValue() ? this.data.threadCnt : 1];
-		Platform.runLater(() -> progress.getController().setInfos(this.data.threadCnt, this.data.multipleSubInfos));
+		Platform.runLater(() -> progress.getController().setInfos(data.threadCnt, data.multipleSubInfos));
 	}
 
 	@Override
@@ -268,7 +268,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 			doit = true;
 		else if (pb == 3 && data.pb3.visibility && !data.pb3.indeterminate && data.pb3.val > 0 && data.pb3.max == data.pb3.val)
 			doit = true;
-		else if(lastPData==null || (lastPData.infos[0]!=null && !lastPData.infos[0].equals(this.data.infos[0])))
+		else if (lastPData == null || (lastPData.infos.length == 1 && lastPData.infos[0] != null && !lastPData.infos[0].equals(this.data.infos[0])))
 			doit = true;
 		else if (System.currentTimeMillis() - lastEvent > 500)
 			doit = true;

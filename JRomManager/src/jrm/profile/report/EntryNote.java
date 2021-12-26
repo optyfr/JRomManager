@@ -2,6 +2,7 @@ package jrm.profile.report;
 
 import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -12,7 +13,7 @@ abstract class EntryNote extends Note
 	/**
 	 * The related {@link EntityBase}
 	 */
-	protected final EntityBase entity;
+	protected final @Getter EntityBase entity;
 
 	@Override
 	public String getDetail()

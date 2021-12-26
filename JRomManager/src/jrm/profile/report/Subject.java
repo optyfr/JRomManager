@@ -26,7 +26,7 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 	/**
 	 * The related {@link AnywareBase}
 	 */
-	protected AnywareBase ware;
+	protected @Getter AnywareBase ware;
 
 	/**
 	 * the {@link List} of {@link Note}s

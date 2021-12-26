@@ -2,6 +2,7 @@ package jrm.profile.report;
 
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
+import lombok.Getter;
 
 abstract class EntryExtNote extends EntryNote
 {
@@ -13,7 +14,7 @@ abstract class EntryExtNote extends EntryNote
 	/**
 	 * Wrong hash {@link Entry}
 	 */
-	final Entry entry;
+	final @Getter Entry entry;
 	
 	protected EntryExtNote(EntityBase entity, Entry entry)
 	{

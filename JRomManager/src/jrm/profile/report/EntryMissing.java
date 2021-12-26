@@ -38,9 +38,8 @@ public class EntryMissing extends EntryNote implements Serializable
 	@Override
 	public String getHTML()
 	{
-		if(entity instanceof Entity)
+		if(entity instanceof Entity e)
 		{
-			Entity e = (Entity)entity;
 			final String hash;
 			if (e.getSha1() != null)
 				hash = e.getSha1();

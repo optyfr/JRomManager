@@ -19,7 +19,7 @@ public class RomSuspiciousCRC extends Subject implements Serializable
 	/**
 	 * The suspicious crc hex value
 	 */
-	String crc;
+	private String crc;
 
 	/**
 	 * constructor with no {@link AnywareBase} in relation

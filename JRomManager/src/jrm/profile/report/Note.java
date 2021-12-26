@@ -6,6 +6,7 @@ import jrm.misc.HTMLRenderer;
 import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
+import lombok.Getter;
 
 /**
  * A Subject is a report node about an entry of a container
@@ -18,7 +19,7 @@ public abstract class Note implements HTMLRenderer, Serializable
 	/**
 	 * The parent {@link Subject}
 	 */
-	transient Subject parent;
+	transient @Getter Subject parent;
 	
 	transient int id = -1;
 
@@ -59,9 +60,8 @@ public abstract class Note implements HTMLRenderer, Serializable
 		String msg = "";
 		msg += "== Expected == \n";
 		msg += "Name : " + entity.getBaseName() + "\n";
-		if (entity instanceof Entity)
+		if (entity instanceof Entity e1)
 		{
-			final Entity e1 = (Entity) entity;
 			if (e1.getSize() >= 0)		msg += "Size : " + e1.getSize() + "\n";
 			if (e1.getCrc() != null)	msg += "CRC : " + e1.getCrc() + "\n";
 			if (e1.getMd5() != null)	msg += "MD5 : " + e1.getMd5() + "\n";

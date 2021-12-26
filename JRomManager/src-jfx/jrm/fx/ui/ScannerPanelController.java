@@ -33,6 +33,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import jrm.fx.ui.controls.Dialogs;
+import jrm.fx.ui.profile.report.ReportFrame;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.fx.ui.web.HTMLFormatter;
 import jrm.locale.Messages;
@@ -419,6 +420,19 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 			});
 			thread.setDaemon(true);
 			thread.start();
+		}
+		catch (IOException | URISyntaxException e)
+		{
+			Log.err(e.getMessage(), e);
+			Dialogs.showError(e);
+		}
+	}
+	
+	@FXML private void report(ActionEvent evt)
+	{
+		try
+		{
+			new ReportFrame((Stage) reportBtn.getScene().getWindow(), session.getReport());
 		}
 		catch (IOException | URISyntaxException e)
 		{
