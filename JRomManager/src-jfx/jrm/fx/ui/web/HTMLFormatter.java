@@ -13,12 +13,15 @@ public final @UtilityClass class HTMLFormatter
 	private static String head = """
 <head>
 	<style>
-		body{
+		body {
 			font:normal 12px sans-serif;
 			margin:0 0;
 			padding:1 1;
 			border:1px inset;
 			border-radius:2px;
+			overflow:hidden;
+			white-space:nowrap;
+			text-overflow:ellipsis;
 		}
 	</style>
 </head>""";

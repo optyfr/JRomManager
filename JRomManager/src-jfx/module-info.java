@@ -13,6 +13,9 @@ module jrmfx
 	requires javafx.fxml;
 	requires javafx.web;
 	
+	requires jakarta.xml.bind;
+	requires org.eclipse.persistence.moxy;
+	
 	requires commons.cli;
 	requires org.apache.commons.io;
 	requires org.apache.commons.lang3;
@@ -22,6 +25,7 @@ module jrmfx
 
 	requires jrmcore;
 	requires res.icons;
+	requires java.xml;
 
 	opens jrm.fx.ui to javafx.graphics, javafx.fxml;
 	opens jrm.fx.ui.progress to javafx.graphics, javafx.fxml;

@@ -12,15 +12,23 @@ import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import jrm.fx.ui.misc.Settings;
+import jrm.fx.ui.profile.report.ReportFrame;
 import jrm.locale.Messages;
 import jrm.misc.Log;
+import jrm.security.Session;
 import jrm.security.Sessions;
 import lombok.Getter;
+import lombok.Setter;
 
 public class MainFrame extends Application
 {
 	private static @Getter MainFrameController controller;
 
+	private static @Getter @Setter ReportFrame reportFrame;
+
+	private static @Getter Session session = Sessions.getSingleSession();
+	
 	public static void launch()
 	{
 		Application.launch();
@@ -41,9 +49,14 @@ public class MainFrame extends Application
 					final var root = loader.<TabPane>load();
 					controller = loader.getController();
 					root.getStylesheets().add(getClass().getResource("MainFrame.css").toExternalForm());
+					primaryStage.setOnCloseRequest(e->{
+						session.getUser().getSettings().setProperty("MainFrame.Bounds", Settings.marshal(primaryStage));
+					});
 					primaryStage.getIcons().add(getIcon("/jrm/resicons/rom.png"));
 					primaryStage.setTitle(Messages.getString("MainFrame.Title") + " " + getVersion());
 					primaryStage.setScene(new Scene(root));
+					setReportFrame(new ReportFrame(primaryStage));
+					Settings.unmarshal(session.getUser().getSettings().getProperty("MainFrame.Bounds", null), primaryStage);
 					primaryStage.show();
 				}
 				catch (URISyntaxException | IOException e)

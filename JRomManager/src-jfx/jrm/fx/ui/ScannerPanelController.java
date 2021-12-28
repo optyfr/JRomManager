@@ -33,7 +33,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import jrm.fx.ui.controls.Dialogs;
-import jrm.fx.ui.profile.report.ReportFrame;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.fx.ui.web.HTMLFormatter;
 import jrm.locale.Messages;
@@ -262,6 +261,8 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 					{
 						final var profile = get();
 						session.getReport().setProfile(session.getCurrProfile());
+						MainFrame.getReportFrame().setNeedUpdate(true);
+						
 						/*
 						 * if (MainFrame.getProfileViewer() != null)
 						 * MainFrame.getProfileViewer().reset(session.getCurrProfile());
@@ -370,12 +371,12 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 /*						if (MainFrame.getProfileViewer() != null)
 							MainFrame.getProfileViewer().reload();*/
 						ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
-/*						if(MainFrame.getReportFrame() != null)
+						if(MainFrame.getReportFrame() != null)
 						{
 							if(automation.hasReport())
-								MainFrame.getReportFrame().setVisible(true);
+								MainFrame.getReportFrame().setVisible();
 							MainFrame.getReportFrame().setNeedUpdate(true);
-						}*/
+						}
 						if (automate && !fixBtn.isDisabled() && automation.hasFix())
 						{
 							fix(session);
@@ -430,15 +431,7 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 	
 	@FXML private void report(ActionEvent evt)
 	{
-		try
-		{
-			new ReportFrame((Stage) reportBtn.getScene().getWindow(), session.getReport());
-		}
-		catch (IOException | URISyntaxException e)
-		{
-			Log.err(e.getMessage(), e);
-			Dialogs.showError(e);
-		}
+		MainFrame.getReportFrame().setVisible();
 	}
 	
 	@FXML private void fix(ActionEvent e)

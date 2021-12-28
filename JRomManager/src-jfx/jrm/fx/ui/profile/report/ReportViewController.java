@@ -27,6 +27,8 @@ import jrm.profile.report.EntryMissing;
 import jrm.profile.report.EntryMissingDuplicate;
 import jrm.profile.report.EntryOK;
 import jrm.profile.report.EntryUnneeded;
+import jrm.profile.report.EntryWrongHash;
+import jrm.profile.report.EntryWrongName;
 import jrm.profile.report.Report;
 import jrm.profile.report.RomSuspiciousCRC;
 import jrm.profile.report.SubjectSet;
@@ -70,6 +72,8 @@ public class ReportViewController implements Initializable
 		final String[] emissingdup = regex.split(Messages.getString("EntryMissingDuplicate.MissingDuplicate"));
 		final String[] eok = regex.split(Messages.getString("EntryOK.OK"));
 		final String[] eunneeded = regex.split(Messages.getString("EntryUnneeded.Unneeded"));
+		final String[] ewronghash = regex.split(Messages.getString("EntryWrongHash.Wrong"));
+		final String[] ewrongname = regex.split(Messages.getString("EntryWrongName.Wrong"));
 		treeview.setFixedCellSize(20);
 		treeview.setCellFactory(p -> new TreeCell<>()
 		{
@@ -95,7 +99,11 @@ public class ReportViewController implements Initializable
 							case CREATE, CREATEFULL -> s.isFixable() ? missingtotallycreated : missingpartiallycreated;
 							default -> unknown;
 						};
-						final var i = new ImageView(MainFrame.getIcon(getFolderIcon(s, false)));
+						final ImageView i;
+						if (s.getNotes().isEmpty() && SubjectSet.Status.FOUND.equals(s.getStatus()))
+							i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"));
+						else
+							i = new ImageView(MainFrame.getIcon(getFolderIcon(s, false)));
 						final var n = new Text(s.getWare().getFullName());
 						n.setFill(Color.BLUE);
 						final var d = new Text(s.getWare().getDescription().toString());
@@ -136,7 +144,7 @@ public class ReportViewController implements Initializable
 						en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
 						final var ep = new Text(s.getEntry().getParent().getRelFile().toString());
 						ep.setFont(Font.font(ep.getFont().getFamily(), FontPosture.ITALIC, ep.getFont().getSize()));
-						final var ef = new Text(s.getEntry().getRelFile().toString());
+						final var ef = new Text(s.getEntry().getRelFile());
 						ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
 						setGraphic(new HBox(i, new Text(eadd[0]), n, new Text(eadd[1]), en, new Text(eadd[2]), ep, new Text(eadd[3]), ef));
 						setText(null);
@@ -200,6 +208,47 @@ public class ReportViewController implements Initializable
 						else
 							hash = s.getEntry().getCrc();
 						setGraphic(new HBox(i, new Text(eunneeded[0]), n, new Text(eunneeded[1]), ef, new Text(eunneeded[2]), new Text(hash), new Text(eunneeded[3])));
+						setText(null);
+					}
+					else if(item instanceof EntryWrongHash s)
+					{
+						final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_orange.png"));
+						final var n = new Text(s.getParent().getWare().getFullName());
+						n.setFill(Color.BLUE);
+						final var ef = new Text(s.getEntry().getRelFile());
+						ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
+						final String hashname, ehash, hash;
+						if(s.getEntry().getMd5() == null && s.getEntry().getSha1() == null)
+						{
+							hashname = "CRC";
+							ehash = s.getEntry().getCrc();
+							hash = s.getCrc();
+						}
+						else if(s.getEntry().getSha1() == null)
+						{
+							hashname = "MD5";
+							ehash = s.getEntry().getMd5();
+							hash = s.getMd5();
+						}
+						else
+						{
+							hashname = "SHA-1";
+							ehash = s.getEntry().getSha1();
+							hash = s.getSha1();
+						}
+						setGraphic(new HBox(i, new Text(ewronghash[0]), n, new Text(ewronghash[1]), ef, new Text(ewronghash[2]), new Text(hashname), new Text(ewronghash[3]), new Text(ehash), new Text(ewronghash[4]), new Text(hash), new Text(ewronghash[5])));
+						setText(null);
+					}
+					else if(item instanceof EntryWrongName s)
+					{
+						final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png"));
+						final var n = new Text(s.getParent().getWare().getFullName());
+						n.setFill(Color.BLUE);
+						final var en = new Text(s.getEntry().getName());
+						en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+						final var enn = new Text(s.getEntity().getNormalizedName());
+						enn.setFont(Font.font(enn.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, enn.getFont().getSize()));
+						setGraphic(new HBox(i, new Text(ewrongname[0]), n, new Text(ewrongname[1]), en, new Text(ewrongname[2]), enn, new Text(ewrongname[3])));
 						setText(null);
 					}
 					else
