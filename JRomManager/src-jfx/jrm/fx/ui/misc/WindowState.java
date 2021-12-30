@@ -1,13 +1,11 @@
 package jrm.fx.ui.misc;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
 import javafx.stage.Stage;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@XmlRootElement
 class WindowState
 {
 	private double x;

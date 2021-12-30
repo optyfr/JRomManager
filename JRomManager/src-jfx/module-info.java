@@ -13,8 +13,7 @@ module jrmfx
 	requires javafx.fxml;
 	requires javafx.web;
 	
-	requires jakarta.xml.bind;
-	requires org.eclipse.persistence.moxy;
+	requires com.google.gson;
 	
 	requires commons.cli;
 	requires org.apache.commons.io;
