@@ -13,10 +13,8 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import javafx.stage.Stage;
 import jrm.misc.Log;
-import lombok.Data;
 
 public class Settings
 {
@@ -25,34 +23,6 @@ public class Settings
 		// Do not instantiate
 	}
 	
-	@XmlRootElement
-	private static @Data class WindowState
-	{
-		private double x;
-		private double y;
-		private double w;
-		private double h;
-		private boolean m = false;
-		private boolean f = false;
-		private boolean i = false;
-
-		public static WindowState get(Stage window)
-		{
-			final var w = new WindowState();
-			w.m = window.isMaximized();
-			w.f = window.isFullScreen();
-			w.i = window.isIconified();
-			window.setIconified(false);
-			window.setFullScreen(false);
-			window.setMaximized(false);
-			w.x = window.getX();
-			w.y = window.getY();
-			w.w = window.getWidth();
-			w.h = window.getHeight();
-			return w;
-		}
-	}
-
 	private static Map<String, Marshaller> marshallers = new HashMap<>();
 	
 	private static Marshaller getMarshaller(Class<?> c) throws JAXBException
@@ -86,12 +56,12 @@ public class Settings
 		return unmarshallers.get(c.getSimpleName());
 	}
 	
-	public static String marshal(Stage window)
+	public static String toJson(Stage window)
 	{
 		try
 		{
 			final var sw = new StringWriter();
-			getMarshaller(WindowState.class).marshal(WindowState.get(window), sw);
+			getMarshaller(WindowState.class).marshal(WindowState.getInstance(window), sw);
 			return sw.toString();
 		}
 		catch (JAXBException e)
@@ -101,7 +71,7 @@ public class Settings
 		return null;
 	}
 
-	public static void unmarshal(String json, Stage window)
+	public static void fromJson(String json, Stage window)
 	{
 		if(json==null || json.isEmpty())
 			return;
@@ -109,13 +79,7 @@ public class Settings
 		{
 			final var ss = new StreamSource(new StringReader(json));
 			final var state = getUnmarshaller(WindowState.class).unmarshal(ss,WindowState.class).getValue();
-			window.setX(state.x);
-			window.setY(state.y);
-			window.setWidth(state.w);
-			window.setHeight(state.h);
-			window.setMaximized(state.m);
-			window.setFullScreen(state.f);
-			window.setIconified(state.i);
+			state.restore(window);
 		}
 		catch (Exception e)
 		{

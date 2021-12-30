@@ -1,9 +1,8 @@
 package jrm.ui.profile.report;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -21,7 +20,7 @@ public abstract class ReportTreeModelGeneric<T extends ReportIntf<T>> extends De
 	protected transient T orgRoot;
 	
 	/** The filter options. */
-	protected transient List<FilterOptions> filterOptions = new ArrayList<>();
+	protected transient Set<FilterOptions> filterOptions = new HashSet<>();
 
 	protected ReportTreeModelGeneric(TreeNode root)
 	{
@@ -63,7 +62,7 @@ public abstract class ReportTreeModelGeneric<T extends ReportIntf<T>> extends De
 	@Override
 	public void filter(final FilterOptions... filterOptions)
 	{
-		filter(Arrays.asList(filterOptions));
+		filter(Set.of(filterOptions));
 	}
 
 	/**
@@ -72,7 +71,7 @@ public abstract class ReportTreeModelGeneric<T extends ReportIntf<T>> extends De
 	 * @param filterOptions the filter options
 	 */
 	@SuppressWarnings("exports")
-	public void filter(final List<FilterOptions> filterOptions)
+	public void filter(final Set<FilterOptions> filterOptions)
 	{
 		this.filterOptions = filterOptions;
 		setRoot(getNodeInstance(orgRoot.clone(filterOptions)));

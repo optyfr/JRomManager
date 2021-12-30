@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import jrm.misc.HTMLRenderer;
 import jrm.profile.data.AnywareBase;
@@ -88,7 +90,15 @@ public abstract class Subject extends AbstractList<Note> implements HTMLRenderer
 	 * @param filterOptions {@link List}&lt;{@link FilterOptions}&gt; to apply while cloning
 	 * @return the cloned {@link Subject}
 	 */
-	public abstract Subject clone(List<FilterOptions> filterOptions);
+	public abstract Subject clone(Set<FilterOptions> filterOptions);
+
+	
+	/**
+	 * Stream this subject according a {@link List}&lt;{@link FilterOptions}&gt;
+	 * @param filterOptions {@link List}&lt;{@link FilterOptions}&gt; to apply while cloning
+	 * @return the streamed {@link Subject}
+	 */
+	public abstract Stream<Note> stream(Set<FilterOptions> filterOptions);
 
 	/**
 	 * add a {@link Note} to this {@link Subject}

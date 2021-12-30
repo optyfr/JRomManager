@@ -9,8 +9,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import jrm.security.Session;
-import jrm.security.Sessions;
 import lombok.Getter;
 
 public class MainFrameController implements Initializable
@@ -23,13 +21,9 @@ public class MainFrameController implements Initializable
 	@FXML private ProfilePanelController profilePanelController ;
 	@FXML private ScannerPanelController scannerPanelController ;
 	
-	private Session session;
-	
-
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		session = Sessions.getSingleSession();
 		profilePanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script.png")));
 		scannerPanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_magnify.png")));
 		scannerPanelTab.setDisable(true);

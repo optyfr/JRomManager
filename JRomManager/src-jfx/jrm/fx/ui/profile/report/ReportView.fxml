@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TreeView?>
 
 <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.report.ReportViewController">
    <content>
-      <TreeView fx:id="treeview" />
+      <TreeView fx:id="treeview">
+         <contextMenu>
+            <ContextMenu fx:id="menu">
+              <items>
+                  <MenuItem fx:id="openAllNodes" mnemonicParsing="false" onAction="#openAllNodes" text="%ReportFrame.mntmOpenAllNodes.text" />
+                  <MenuItem fx:id="closeAllNodes" mnemonicParsing="false" onAction="#closeAllNodes" text="%ReportFrame.mntmCloseAllNodes.text" />
+                  <CheckMenuItem fx:id="showok" mnemonicParsing="false" onAction="#showok" text="%ReportFrame.chckbxmntmShowOkEntries.text" />
+                  <CheckMenuItem fx:id="hidemissing" mnemonicParsing="false" onAction="#hidemissing" text="%ReportFrame.chckbxmntmHideFullyMissing.text" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="detail" disable="true" mnemonicParsing="false" onAction="#detail" text="%ReportView.mntmDetail.text" />
+                  <MenuItem fx:id="copyCrc" disable="true" mnemonicParsing="false" onAction="#copyCrc" text="Copy CRC" />
+                  <MenuItem fx:id="copySha1" disable="true" mnemonicParsing="false" onAction="#copySha1" text="Copy SHA-1" />
+                  <MenuItem fx:id="copyName" disable="true" mnemonicParsing="false" onAction="#copyName" text="Copy Name" />
+                  <MenuItem fx:id="searchWeb" disable="true" mnemonicParsing="false" onAction="#searchWeb" text="Search on the web" />
+              </items>
+            </ContextMenu>
+         </contextMenu></TreeView>
    </content>
 </ScrollPane>

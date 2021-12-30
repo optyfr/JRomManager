@@ -29,6 +29,8 @@ public class MainFrame extends Application
 
 	private static @Getter Session session = Sessions.getSingleSession();
 	
+	private static @Getter Application application;
+	
 	public static void launch()
 	{
 		Application.launch();
@@ -38,33 +40,24 @@ public class MainFrame extends Application
 	public void start(Stage primaryStage)
 	{
 		System.out.println("Starting...");
+		application = this;
 		final var loading = new Loading();
-		Platform.runLater(new Runnable()
-		{
-			public void run()
+		Platform.runLater(() -> {
+			try
 			{
-				try
-				{
-					final var loader = new FXMLLoader(getClass().getResource("MainFrame.fxml").toURI().toURL(), Messages.getBundle());
-					final var root = loader.<TabPane>load();
-					controller = loader.getController();
-					root.getStylesheets().add(getClass().getResource("MainFrame.css").toExternalForm());
-					primaryStage.setOnCloseRequest(e->{
-						session.getUser().getSettings().setProperty("MainFrame.Bounds", Settings.marshal(primaryStage));
-					});
-					primaryStage.getIcons().add(getIcon("/jrm/resicons/rom.png"));
-					primaryStage.setTitle(Messages.getString("MainFrame.Title") + " " + getVersion());
-					primaryStage.setScene(new Scene(root));
-					setReportFrame(new ReportFrame(primaryStage));
-					Settings.unmarshal(session.getUser().getSettings().getProperty("MainFrame.Bounds", null), primaryStage);
-					primaryStage.show();
-				}
-				catch (URISyntaxException | IOException e)
-				{
-					e.printStackTrace();
-				}
-				loading.hide();
+				primaryStage.setOnCloseRequest(e -> session.getUser().getSettings().setProperty("MainFrame.Bounds", Settings.toJson(primaryStage)));
+				primaryStage.getIcons().add(getIcon("/jrm/resicons/rom.png"));
+				primaryStage.setTitle(Messages.getString("MainFrame.Title") + " " + getVersion());
+				primaryStage.setScene(new Scene(loadMain()));
+				setReportFrame(new ReportFrame(primaryStage));
+				Settings.fromJson(session.getUser().getSettings().getProperty("MainFrame.Bounds", null), primaryStage);
+				primaryStage.show();
 			}
+			catch (URISyntaxException | IOException e)
+			{
+				e.printStackTrace();
+			}
+			loading.hide();
 		});
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			if (Sessions.getSingleSession().getCurrProfile() != null)
@@ -74,6 +67,15 @@ public class MainFrame extends Application
 		}));
 	}
 
+	private static synchronized TabPane loadMain() throws URISyntaxException, IOException
+	{
+		final var loader = new FXMLLoader(MainFrame.class.getResource("MainFrame.fxml").toURI().toURL(), Messages.getBundle());
+		final var root = loader.<TabPane>load();
+		controller = loader.getController();
+		root.getStylesheets().add(MainFrame.class.getResource("MainFrame.css").toExternalForm());
+		return root;
+	}
+	
 	private static HashMap<String, Image> iconsCache = new HashMap<>();
 	private static Optional<Module> iconsModule = ModuleLayer.boot().findModule("res.icons");
 

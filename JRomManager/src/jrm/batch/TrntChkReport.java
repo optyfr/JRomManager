@@ -10,8 +10,10 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -69,13 +71,13 @@ public final class TrntChkReport implements Serializable, HTMLRenderer, ReportIn
 		/**
 		 * {@link List} of {@link FilterOptions}
 		 */
-		List<FilterOptions> filterOptions;
+		Set<FilterOptions> filterOptions;
 
 		/**
 		 * The predicate constructor
 		 * @param filterOptions {@link List} of {@link FilterOptions} to test against
 		 */
-		public FilterPredicate(final List<FilterOptions> filterOptions)
+		public FilterPredicate(final Set<FilterOptions> filterOptions)
 		{
 			this.filterOptions = filterOptions;
 		}
@@ -95,7 +97,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer, ReportIn
 	/**
 	 * the current filter predicate (initialized with an empty {@link List} of {@link FilterOptions})
 	 */
-	private transient FilterPredicate filterPredicate = new FilterPredicate(new ArrayList<>());
+	private transient FilterPredicate filterPredicate = new FilterPredicate(new HashSet<>());
 
 	public static final class ChildData implements Serializable
 	{
@@ -244,7 +246,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer, ReportIn
 	}
 
 	
-	private TrntChkReport(TrntChkReport report, List<FilterOptions> filterOptions)
+	private TrntChkReport(TrntChkReport report, Set<FilterOptions> filterOptions)
 	{
 		filterPredicate = report.filterPredicate;
 		fileModified = report.fileModified;
@@ -255,7 +257,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer, ReportIn
 	}
 	
 	@Override
-	public TrntChkReport clone(List<FilterOptions> filterOptions)
+	public TrntChkReport clone(Set<FilterOptions> filterOptions)
 	{
 		return new TrntChkReport(this, filterOptions);
 	}
@@ -265,7 +267,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer, ReportIn
 	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
 	 * @return a {@link List} of {@link Subject}
 	 */
-	public List<Child> filter(final List<FilterOptions> filterOptions)
+	public List<Child> filter(final Set<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
 		return nodes.stream().filter(filterPredicate)/*.map(n -> n.clone())*/.collect(Collectors.toList());

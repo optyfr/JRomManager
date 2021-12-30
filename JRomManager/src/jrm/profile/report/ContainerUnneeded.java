@@ -1,7 +1,8 @@
 package jrm.profile.report;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import jrm.locale.Messages;
 import jrm.profile.data.AnywareBase;
@@ -31,8 +32,14 @@ public class ContainerUnneeded extends ContainerSubject implements Serializable
 	}
 
 	@Override
-	public Subject clone(final List<FilterOptions> filterOptions)
+	public Subject clone(final Set<FilterOptions> filterOptions)
 	{
 		return new ContainerUnneeded(container);
+	}
+	
+	@Override
+	public Stream<Note> stream(Set<FilterOptions> filterOptions)
+	{
+		return notes.stream();
 	}
 }

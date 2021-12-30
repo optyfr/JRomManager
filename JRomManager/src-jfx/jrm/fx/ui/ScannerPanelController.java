@@ -186,9 +186,7 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 				}
 			}
 		});
-		srcListMenu.setOnShowing(e -> {
-			srcListDelMenuItem.setDisable(srcList.getSelectionModel().getSelectedIndex()<0);
-		});
+		srcListMenu.setOnShowing(e -> srcListDelMenuItem.setDisable(srcList.getSelectionModel().getSelectedIndex() < 0));
 		srcListDelMenuItem.setOnAction(e -> {
 			srcList.getItems().removeAll(srcList.getSelectionModel().getSelectedItems());
 			saveSrcList();

@@ -33,13 +33,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jrm.aui.profile.report.ReportTreeDefaultHandler;
 import jrm.aui.profile.report.ReportTreeHandler;
@@ -118,7 +121,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		subjectHash = subjects.stream()
 				.peek(s -> s.parent = this)	//NOSONAR
 				.collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
-		filterPredicate = new FilterPredicate(new ArrayList<>());
+		filterPredicate = new FilterPredicate(new HashSet<>());
 		handler = new ReportTreeDefaultHandler(this);
 	}
 
@@ -319,13 +322,13 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		/**
 		 * {@link List} of {@link FilterOptions}
 		 */
-		List<FilterOptions> filterOptions;
+		Set<FilterOptions> filterOptions;
 
 		/**
 		 * The predicate constructor
 		 * @param filterOptions {@link List} of {@link FilterOptions} to test against
 		 */
-		public FilterPredicate(final List<FilterOptions> filterOptions)
+		public FilterPredicate(final Set<FilterOptions> filterOptions)
 		{
 			this.filterOptions = filterOptions;
 		}
@@ -333,9 +336,9 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 		@Override
 		public boolean test(final Subject t)
 		{
-			if(!filterOptions.contains(FilterOptions.SHOWOK) && t instanceof SubjectSet && ((SubjectSet) t).isOK())
+			if(!filterOptions.contains(FilterOptions.SHOWOK) && t instanceof SubjectSet ss && ss.isOK())
 				return false;
-			if(filterOptions.contains(FilterOptions.HIDEMISSING) && t instanceof SubjectSet && ((SubjectSet) t).isMissing())	//NOSONAR
+			if(filterOptions.contains(FilterOptions.HIDEMISSING) && t instanceof SubjectSet ss && ss.isMissing())	//NOSONAR
 				return false;
 			return true;
 		}
@@ -345,14 +348,14 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	/**
 	 * the current filter predicate (initialized with an empty {@link List} of {@link FilterOptions})
 	 */
-	private transient FilterPredicate filterPredicate = new FilterPredicate(new ArrayList<>());
+	private transient FilterPredicate filterPredicate = new FilterPredicate(new HashSet<>());
 
 	/**
 	 * The internal constructor aimed for cloning
 	 * @param report The {@link Report} to copy
 	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
 	 */
-	private Report(final Report report, final List<FilterOptions> filterOptions)
+	private Report(final Report report, final Set<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
 		idCnt = new AtomicInteger();
@@ -384,7 +387,7 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	 * @return the cloned {@link Report}
 	 */
 	@Override
-	public Report clone(final List<FilterOptions> filterOptions)
+	public Report clone(final Set<FilterOptions> filterOptions)
 	{
 		return new Report(this, filterOptions);
 	}
@@ -394,12 +397,17 @@ public class Report extends AbstractList<Subject> implements HTMLRenderer, Seria
 	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
 	 * @return a {@link List} of {@link Subject}
 	 */
-	public List<Subject> filter(final List<FilterOptions> filterOptions)
+	public List<Subject> filter(final Set<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
-		return subjects.stream().filter(filterPredicate).map(s -> s.clone(filterOptions)).collect(Collectors.toList());
+		return stream(filterOptions).map(s -> s.clone(filterOptions)).collect(Collectors.toList());
 	}
 
+	public Stream<Subject> stream(final Set<FilterOptions> filterOptions)
+	{
+		return subjects.stream().filter(new FilterPredicate(filterOptions));
+	}
+	
 	/**
 	 * Set the current profile
 	 * @param profile {@link Profile}

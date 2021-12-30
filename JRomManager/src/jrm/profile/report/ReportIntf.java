@@ -1,7 +1,7 @@
 package jrm.profile.report;
 
 import java.io.File;
-import java.util.List;
+import java.util.Set;
 import java.util.zip.CRC32;
 
 import jrm.aui.profile.report.ReportTreeHandler;
@@ -9,7 +9,7 @@ import jrm.security.Session;
 
 public interface ReportIntf<T>
 {
-	public T clone(final List<FilterOptions> filterOptions);
+	public T clone(final Set<FilterOptions> filterOptions);
 	
 	public void setHandler(ReportTreeHandler<T> handler);
 	public ReportTreeHandler<T> getHandler();

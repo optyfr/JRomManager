@@ -6,7 +6,9 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -97,7 +99,7 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	@Override
-	public Subject clone(final List<FilterOptions> filterOptions)
+	public Subject clone(final Set<FilterOptions> filterOptions)
 	{
 		SubjectSet clone;
 		clone = new SubjectSet(this, filter(filterOptions));
@@ -110,9 +112,15 @@ public class SubjectSet extends Subject implements Serializable
 	 * @param filterOptions {@link List}&lt;{@link FilterOptions}&gt; to apply while filtering
 	 * @return a filtered {@link List}&lt;{@link FilterOptions}&gt;
 	 */
-	public List<Note> filter(final List<FilterOptions> filterOptions)
+	public List<Note> filter(final Set<FilterOptions> filterOptions)
 	{
-		return notes.stream().filter(n -> !(!filterOptions.contains(FilterOptions.SHOWOK) && n instanceof EntryOK)).collect(Collectors.toList());
+		return stream(filterOptions).collect(Collectors.toList());
+	}
+	
+	@Override
+	public Stream<Note> stream(Set<FilterOptions> filterOptions)
+	{
+		return notes.stream().filter(n -> !(!filterOptions.contains(FilterOptions.SHOWOK) && n instanceof EntryOK));
 	}
 
 	/**

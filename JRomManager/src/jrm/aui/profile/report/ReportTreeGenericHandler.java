@@ -1,8 +1,8 @@
 package jrm.aui.profile.report;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.ReportIntf;
@@ -16,7 +16,7 @@ public abstract class ReportTreeGenericHandler<T extends ReportIntf<T>> implemen
 
 	
 	/** The filter options. */
-	protected List<FilterOptions> filterOptions = new ArrayList<>();
+	protected Set<FilterOptions> filterOptions = new HashSet<>();
 
 	protected ReportTreeGenericHandler(final T root)
 	{
@@ -32,7 +32,7 @@ public abstract class ReportTreeGenericHandler<T extends ReportIntf<T>> implemen
 	}
 	
 	@Override
-	public void filter(List<FilterOptions> filterOptions)
+	public void filter(Set<FilterOptions> filterOptions)
 	{
 		this.filterOptions = filterOptions;
 		initClone();

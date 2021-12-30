@@ -9,7 +9,7 @@ abstract class ContainerSubject extends Subject
 	/**
 	 * The {@link Container} in relation
 	 */
-	protected @Getter final Container container;
+	protected final @Getter Container container;
 
 	protected ContainerSubject(Container container)
 	{

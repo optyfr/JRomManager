@@ -1,7 +1,5 @@
 package jrm.aui.profile.report;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import jrm.profile.report.FilterOptions;
@@ -20,7 +18,7 @@ public interface ReportTreeHandler<T>
 	 */
 	public default void filter(final FilterOptions... filterOptions)
 	{
-		filter(Arrays.asList(filterOptions));
+		filter(Set.of(filterOptions));
 	}
 	
 	/**
@@ -28,7 +26,7 @@ public interface ReportTreeHandler<T>
 	 *
 	 * @param filterOptions the filter options
 	 */
-	public void filter(final List<FilterOptions> filterOptions);
+	public void filter(final Set<FilterOptions> filterOptions);
 	
 	/**
 	 * Gets the filter options.

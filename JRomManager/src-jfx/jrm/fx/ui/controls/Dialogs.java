@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
 
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -53,6 +54,21 @@ public @UtilityClass class Dialogs
 //		alert.setHeaderText(message);
 		alert.setHeaderText(null);
 		alert.setContentText(message);
+		if (buttons != null && buttons.length > 0)
+		{
+			alert.getButtonTypes().clear();
+			alert.getButtonTypes().addAll(buttons);
+		}
+		return alert.showAndWait();
+	}
+	
+	public static Optional<ButtonType> showConfirmation(String title, Node message, ButtonType... buttons)
+	{
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle(title);
+//		alert.setHeaderText(message);
+		alert.setHeaderText(null);
+		alert.getDialogPane().setContent(message);
 		if (buttons != null && buttons.length > 0)
 		{
 			alert.getButtonTypes().clear();
