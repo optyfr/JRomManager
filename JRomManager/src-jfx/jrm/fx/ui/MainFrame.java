@@ -40,7 +40,7 @@ public class MainFrame extends Application
 	public void start(Stage primaryStage)
 	{
 		System.out.println("Starting...");
-		application = this;
+		setApplication(this);
 		final var loading = new Loading();
 		Platform.runLater(() -> {
 			try
@@ -124,5 +124,10 @@ public class MainFrame extends Application
 				version += "." + pkg.getImplementationVersion(); //$NON-NLS-1$
 		}
 		return version;
+	}
+
+	private static synchronized void setApplication(Application application)
+	{
+		MainFrame.application = application;
 	}
 }

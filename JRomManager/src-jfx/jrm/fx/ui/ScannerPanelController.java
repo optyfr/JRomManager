@@ -20,7 +20,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -31,7 +30,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.fx.ui.web.HTMLFormatter;
@@ -43,10 +41,6 @@ import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
-import jrm.profile.scan.options.Descriptor;
-import jrm.profile.scan.options.FormatOptions;
-import jrm.profile.scan.options.HashCollisionOptions;
-import jrm.profile.scan.options.MergeOptions;
 import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
@@ -90,23 +84,8 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 
 	@FXML	private Tab settingsTab;
 
-	@FXML	private CheckBox needSHA1Chkbx;
-	@FXML	private CheckBox useParallelismChkbx;
-	@FXML	private CheckBox createMissingSetsChkbx;
-	@FXML	private CheckBox createOnlyCompleteChkbx;
-	@FXML	private CheckBox ignoreUnneededContainersChkbx;
-	@FXML	private CheckBox ignoreUnneededEntriesChkbx;
-	@FXML	private CheckBox ignoreUnknownContainersChkbx;
-	@FXML	private CheckBox useImplicitMergeChkbx;
-	@FXML	private CheckBox ignoreMergeNameRomsChkbx;
-	@FXML	private CheckBox ignoreMergeNameDisksChkbx;
-	@FXML	private CheckBox excludeGamesChkbx;
-	@FXML	private CheckBox excludeMachinesChkbx;
-	@FXML	private CheckBox backupChkbx;
-	@FXML	private ComboBox<Descriptor> compressionCbx;
-	@FXML	private ComboBox<Descriptor> mergeModeCbx;
-	@FXML	private ComboBox<Descriptor> collisionModeCbx;
-
+	@FXML	private ScannerPanelSettingsController scannerPanelSettingsController; 
+	
 	@FXML	private Tab filterTab;
 	@FXML	private Tab advFilterTab;
 	@FXML	private Tab automationTab;
@@ -193,43 +172,6 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		});
 		srcListAddMenuItem.setOnAction(e -> chooseSrc(null, SettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
 		
-		Callback<ListView<Descriptor>, ListCell<Descriptor>> cellFactory = param -> new ListCell<Descriptor>()
-		{
-			@Override
-			protected void updateItem(Descriptor item, boolean empty)
-			{
-				super.updateItem(item, empty);
-				if (item == null || empty)
-					setGraphic(null);
-				else
-					setText(item.getDesc());
-			}
-		};
-		needSHA1Chkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.need_sha1_or_md5, newValue));
-		useParallelismChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.use_parallelism, newValue));
-		createMissingSetsChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.create_mode, newValue));
-		createOnlyCompleteChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.createfull_mode, newValue));
-		ignoreUnneededContainersChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_unneeded_containers, newValue));
-		ignoreUnneededEntriesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_unneeded_entries, newValue));
-		ignoreUnknownContainersChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_unknown_containers, newValue));
-		useImplicitMergeChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.implicit_merge, newValue));
-		ignoreMergeNameRomsChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_merge_name_roms, newValue));
-		ignoreMergeNameDisksChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.ignore_merge_name_disks, newValue));
-		excludeGamesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.exclude_games, newValue));
-		excludeMachinesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.exclude_machines, newValue));
-		backupChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.backup, newValue));
-		compressionCbx.setItems(FXCollections.observableArrayList(FormatOptions.values()));
-		compressionCbx.setCellFactory(cellFactory);
-		compressionCbx.setButtonCell(cellFactory.call(null));
-		compressionCbx.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.format, newValue.toString()));
-		mergeModeCbx.setItems(FXCollections.observableArrayList(MergeOptions.values()));
-		mergeModeCbx.setCellFactory(cellFactory);
-		mergeModeCbx.setButtonCell(cellFactory.call(null));
-		mergeModeCbx.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.merge_mode, newValue.toString()));
-		collisionModeCbx.setItems(FXCollections.observableArrayList(HashCollisionOptions.values()));
-		collisionModeCbx.setCellFactory(cellFactory);
-		collisionModeCbx.setButtonCell(cellFactory.call(null));
-		collisionModeCbx.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.hash_collision_mode, newValue.toString()));
 	}
 	
 	@Override
@@ -551,22 +493,8 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		backupDest.setText(session.getCurrProfile().getProperty(SettingsEnum.backup_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(SettingsEnum.src_dir, ""),'|')).filter(s->!s.isEmpty()).map(File::new).collect(Collectors.toList())));
 
-		needSHA1Chkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.need_sha1_or_md5, false));
-		useParallelismChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.use_parallelism, true));
-		createMissingSetsChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.create_mode, true));
-		createOnlyCompleteChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.createfull_mode, false));
-		ignoreUnneededContainersChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_unneeded_containers, false));
-		ignoreUnneededEntriesChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_unneeded_entries, false));
-		ignoreUnknownContainersChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_unknown_containers, false));
-		useImplicitMergeChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.implicit_merge, false));
-		ignoreMergeNameRomsChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_merge_name_roms, false));
-		ignoreMergeNameDisksChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.ignore_merge_name_disks, false));
-		excludeGamesChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.exclude_games, false));
-		excludeMachinesChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.exclude_machines, false));
-		backupChkbx.setSelected(session.getCurrProfile().getProperty(SettingsEnum.backup, false));
-		compressionCbx.getSelectionModel().select(FormatOptions.valueOf(session.getCurrProfile().getProperty(SettingsEnum.format, FormatOptions.ZIP.toString())));
-		mergeModeCbx.getSelectionModel().select(MergeOptions.valueOf(session.getCurrProfile().getProperty(SettingsEnum.merge_mode, MergeOptions.SPLIT.toString())));
-		collisionModeCbx.getSelectionModel().select(HashCollisionOptions.valueOf(session.getCurrProfile().getProperty(SettingsEnum.hash_collision_mode, HashCollisionOptions.SINGLEFILE.toString())));
+		scannerPanelSettingsController.initProfileSettings(session);
+		
 }
 	
 	@FXML private void chooseRomsDest(ActionEvent e)

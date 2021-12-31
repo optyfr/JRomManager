@@ -95,178 +95,247 @@ public class ReportViewController implements Initializable
 				setGraphic(null);
 				setText(null);
 			}
+			else if (item instanceof SubjectSet s)
+				updateSubjectSet(s);
+			else if(item instanceof RomSuspiciousCRC s)
+				updateRomSuspiciousCRC(s);
+			else if(item instanceof ContainerTZip s)
+				updateContainerTZip(s);
+			else if(item instanceof ContainerUnknown s)
+				updateContainerUnknown(s);
+			else if(item instanceof ContainerUnneeded s)
+				updateContainerUnneeded(s);
+			else if(item instanceof EntryAdd s)
+				updateEntryAdd(s);
+			else if(item instanceof EntryMissing s)
+				updateEntryMissing(s);
+			else if(item instanceof EntryMissingDuplicate s)
+				updateEntryMissingDuplicate(s);
+			else if(item instanceof EntryOK s)
+				updateEntryOK(s);
+			else if(item instanceof EntryUnneeded s)
+				updateEntryUnneeded(s);
+			else if(item instanceof EntryWrongHash s)
+				updateEntryWrongHash(s);
+			else if(item instanceof EntryWrongName s)
+				updateEntryWrongName(s);
 			else
 			{
-				if (item instanceof SubjectSet s)
-				{
-					final String[] t = switch (s.getStatus())
-					{
-						case MISSING -> missing;
-						case UNNEEDED -> unneeded;
-						case FOUND -> s.hasNotes() ? (s.isFixable() ? foundneedfixes : foundincomplete) : found;
-						case CREATE, CREATEFULL -> s.isFixable() ? missingtotallycreated : missingpartiallycreated;
-						default -> unknown;
-					};
-					final ImageView i;
-					if (s.getNotes().isEmpty() && SubjectSet.Status.FOUND.equals(s.getStatus()))
-						i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"));
-					else
-						i = new ImageView(MainFrame.getIcon(getFolderIcon(s, false)));
-					final var n = new Text(s.getWare().getFullName());
-					n.setFill(Color.BLUE);
-					final var d = new Text(s.getWare().getDescription().toString());
-					d.setFill(Color.PURPLE);
-					setGraphic(new HBox(i, new Text(t[0]), n, new Text(t[1]), d, new Text(t[2])));
-					setText(null);
-				}
-				else if(item instanceof RomSuspiciousCRC s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/information.png"));
-					setGraphic(new HBox(i, new Text(s.toString())));
-					setText(null);
-				}
-				else if(item instanceof ContainerTZip s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png"));
-					setGraphic(new HBox(i, new Text(s.toString())));
-					setText(null);
-				}
-				else if(item instanceof ContainerUnknown s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/error.png"));
-					setGraphic(new HBox(i, new Text(s.toString())));
-					setText(null);
-				}
-				else if(item instanceof ContainerUnneeded s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/exclamation.png"));
-					setGraphic(new HBox(i, new Text(s.toString())));
-					setText(null);
-				}
-				else if(item instanceof EntryAdd s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_blue.png"));
-					final var n = new Text(s.getParent().getWare().getFullName());
-					n.setFill(Color.BLUE);
-					final var en = new Text(s.getEntity().getNormalizedName());
-					en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
-					final var ep = new Text(s.getEntry().getParent().getRelFile().toString());
-					ep.setFont(Font.font(ep.getFont().getFamily(), FontPosture.ITALIC, ep.getFont().getSize()));
-					final var ef = new Text(s.getEntry().getRelFile());
-					ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
-					setGraphic(new HBox(i, new Text(eadd[0]), n, new Text(eadd[1]), en, new Text(eadd[2]), ep, new Text(eadd[3]), ef));
-					setText(null);
-				}
-				else if(item instanceof EntryMissing s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png"));
-					final var n = new Text(s.getParent().getWare().getFullName());
-					n.setFill(Color.BLUE);
-					final var en = new Text(s.getEntity().getName());
-					en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
-					if (s.getEntity() instanceof Entity e)
-					{
-						final String hash;
-						if (e.getSha1() != null)
-							hash = e.getSha1();
-						else if (e.getMd5() != null)
-							hash = e.getMd5();
-						else
-							hash = e.getCrc();
-						setGraphic(new HBox(i, new Text(emissing[0]), n, new Text(emissing[1]), en, new Text(emissing[2] + " (" + hash + ")")));
-					}
-					else
-						setGraphic(new HBox(i, new Text(emissing[0]), n, new Text(emissing[1]), en, new Text(emissing[2])));
-					setText(null);
-				}
-				else if(item instanceof EntryMissingDuplicate s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_purple.png"));
-					final var n = new Text(s.getParent().getWare().getFullName());
-					n.setFill(Color.BLUE);
-					final var ef = new Text(s.getEntry().getRelFile());
-					ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
-					final var en = new Text(s.getEntity().getName());
-					en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
-					setGraphic(new HBox(i, new Text(emissingdup[0]), n, new Text(emissingdup[1]), ef, new Text(emissingdup[2]), en));
-					setText(null);
-				}
-				else if(item instanceof EntryOK s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"));
-					final var n = new Text(s.getParent().getWare().getFullName());
-					n.setFill(Color.BLUE);
-					final var en = new Text(s.getEntity().getNormalizedName());
-					en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
-					setGraphic(new HBox(i, new Text(eok[0]), n, new Text(eok[1]), en, new Text(eok[2])));
-					setText(null);
-				}
-				else if(item instanceof EntryUnneeded s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png"));
-					final var n = new Text(s.getParent().getWare().getFullName());
-					n.setFill(Color.BLUE);
-					final var ef = new Text(s.getEntry().getRelFile());
-					ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
-					final String hash;
-					if (s.getEntry().getSha1() != null)
-						hash = s.getEntry().getSha1();
-					else if (s.getEntry().getMd5() != null)
-						hash = s.getEntry().getMd5();
-					else
-						hash = s.getEntry().getCrc();
-					setGraphic(new HBox(i, new Text(eunneeded[0]), n, new Text(eunneeded[1]), ef, new Text(eunneeded[2]), new Text(hash), new Text(eunneeded[3])));
-					setText(null);
-				}
-				else if(item instanceof EntryWrongHash s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_orange.png"));
-					final var n = new Text(s.getParent().getWare().getFullName());
-					n.setFill(Color.BLUE);
-					final var ef = new Text(s.getEntry().getRelFile());
-					ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
-					final String hashname;
-					final String ehash;
-					final String hash;
-					if(s.getEntry().getMd5() == null && s.getEntry().getSha1() == null)
-					{
-						hashname = "CRC";
-						ehash = s.getEntry().getCrc();
-						hash = s.getCrc();
-					}
-					else if(s.getEntry().getSha1() == null)
-					{
-						hashname = "MD5";
-						ehash = s.getEntry().getMd5();
-						hash = s.getMd5();
-					}
-					else
-					{
-						hashname = "SHA-1";
-						ehash = s.getEntry().getSha1();
-						hash = s.getSha1();
-					}
-					setGraphic(new HBox(i, new Text(ewronghash[0]), n, new Text(ewronghash[1]), ef, new Text(ewronghash[2]), new Text(hashname), new Text(ewronghash[3]), new Text(ehash), new Text(ewronghash[4]), new Text(hash), new Text(ewronghash[5])));
-					setText(null);
-				}
-				else if(item instanceof EntryWrongName s)
-				{
-					final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png"));
-					final var n = new Text(s.getParent().getWare().getFullName());
-					n.setFill(Color.BLUE);
-					final var en = new Text(s.getEntry().getName());
-					en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
-					final var enn = new Text(s.getEntity().getNormalizedName());
-					enn.setFont(Font.font(enn.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, enn.getFont().getSize()));
-					setGraphic(new HBox(i, new Text(ewrongname[0]), n, new Text(ewrongname[1]), en, new Text(ewrongname[2]), enn, new Text(ewrongname[3])));
-					setText(null);
-				}
-				else
-				{
-					setGraphic(null);
-					setText(item.toString());
-				}
+				setGraphic(null);
+				setText(item.toString());
 			}
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateContainerUnneeded(ContainerUnneeded s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/exclamation.png"));
+			setGraphic(new HBox(i, new Text(s.toString())));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateContainerUnknown(ContainerUnknown s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/error.png"));
+			setGraphic(new HBox(i, new Text(s.toString())));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateContainerTZip(ContainerTZip s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png"));
+			setGraphic(new HBox(i, new Text(s.toString())));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateRomSuspiciousCRC(RomSuspiciousCRC s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/information.png"));
+			setGraphic(new HBox(i, new Text(s.toString())));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateEntryWrongName(EntryWrongName s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png"));
+			final var n = new Text(s.getParent().getWare().getFullName());
+			n.setFill(Color.BLUE);
+			final var en = new Text(s.getEntry().getName());
+			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			final var enn = new Text(s.getEntity().getNormalizedName());
+			enn.setFont(Font.font(enn.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, enn.getFont().getSize()));
+			setGraphic(new HBox(i, new Text(ewrongname[0]), n, new Text(ewrongname[1]), en, new Text(ewrongname[2]), enn, new Text(ewrongname[3])));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateEntryWrongHash(EntryWrongHash s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_orange.png"));
+			final var n = new Text(s.getParent().getWare().getFullName());
+			n.setFill(Color.BLUE);
+			final var ef = new Text(s.getEntry().getRelFile());
+			ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
+			final String hashname;
+			final String ehash;
+			final String hash;
+			if(s.getEntry().getMd5() == null && s.getEntry().getSha1() == null)
+			{
+				hashname = "CRC";
+				ehash = s.getEntry().getCrc();
+				hash = s.getCrc();
+			}
+			else if(s.getEntry().getSha1() == null)
+			{
+				hashname = "MD5";
+				ehash = s.getEntry().getMd5();
+				hash = s.getMd5();
+			}
+			else
+			{
+				hashname = "SHA-1";
+				ehash = s.getEntry().getSha1();
+				hash = s.getSha1();
+			}
+			setGraphic(new HBox(i, new Text(ewronghash[0]), n, new Text(ewronghash[1]), ef, new Text(ewronghash[2]), new Text(hashname), new Text(ewronghash[3]), new Text(ehash), new Text(ewronghash[4]), new Text(hash), new Text(ewronghash[5])));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateEntryUnneeded(EntryUnneeded s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png"));
+			final var n = new Text(s.getParent().getWare().getFullName());
+			n.setFill(Color.BLUE);
+			final var ef = new Text(s.getEntry().getRelFile());
+			ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
+			final String hash;
+			if (s.getEntry().getSha1() != null)
+				hash = s.getEntry().getSha1();
+			else if (s.getEntry().getMd5() != null)
+				hash = s.getEntry().getMd5();
+			else
+				hash = s.getEntry().getCrc();
+			setGraphic(new HBox(i, new Text(eunneeded[0]), n, new Text(eunneeded[1]), ef, new Text(eunneeded[2]), new Text(hash), new Text(eunneeded[3])));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateEntryOK(EntryOK s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"));
+			final var n = new Text(s.getParent().getWare().getFullName());
+			n.setFill(Color.BLUE);
+			final var en = new Text(s.getEntity().getNormalizedName());
+			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			setGraphic(new HBox(i, new Text(eok[0]), n, new Text(eok[1]), en, new Text(eok[2])));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateEntryMissingDuplicate(EntryMissingDuplicate s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_purple.png"));
+			final var n = new Text(s.getParent().getWare().getFullName());
+			n.setFill(Color.BLUE);
+			final var ef = new Text(s.getEntry().getRelFile());
+			ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
+			final var en = new Text(s.getEntity().getName());
+			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			setGraphic(new HBox(i, new Text(emissingdup[0]), n, new Text(emissingdup[1]), ef, new Text(emissingdup[2]), en));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateEntryMissing(EntryMissing s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png"));
+			final var n = new Text(s.getParent().getWare().getFullName());
+			n.setFill(Color.BLUE);
+			final var en = new Text(s.getEntity().getName());
+			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			if (s.getEntity() instanceof Entity e)
+			{
+				final String hash;
+				if (e.getSha1() != null)
+					hash = e.getSha1();
+				else if (e.getMd5() != null)
+					hash = e.getMd5();
+				else
+					hash = e.getCrc();
+				setGraphic(new HBox(i, new Text(emissing[0]), n, new Text(emissing[1]), en, new Text(emissing[2] + " (" + hash + ")")));
+			}
+			else
+				setGraphic(new HBox(i, new Text(emissing[0]), n, new Text(emissing[1]), en, new Text(emissing[2])));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateEntryAdd(EntryAdd s)
+		{
+			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_blue.png"));
+			final var n = new Text(s.getParent().getWare().getFullName());
+			n.setFill(Color.BLUE);
+			final var en = new Text(s.getEntity().getNormalizedName());
+			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			final var ep = new Text(s.getEntry().getParent().getRelFile().toString());
+			ep.setFont(Font.font(ep.getFont().getFamily(), FontPosture.ITALIC, ep.getFont().getSize()));
+			final var ef = new Text(s.getEntry().getRelFile());
+			ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
+			setGraphic(new HBox(i, new Text(eadd[0]), n, new Text(eadd[1]), en, new Text(eadd[2]), ep, new Text(eadd[3]), ef));
+			setText(null);
+		}
+
+		/**
+		 * @param s
+		 */
+		private void updateSubjectSet(SubjectSet s)
+		{
+			final String[] t = switch (s.getStatus())
+			{
+				case MISSING -> missing;
+				case UNNEEDED -> unneeded;
+				case FOUND -> s.hasNotes() ? (s.isFixable() ? foundneedfixes : foundincomplete) : found;
+				case CREATE, CREATEFULL -> s.isFixable() ? missingtotallycreated : missingpartiallycreated;
+				default -> unknown;
+			};
+			final ImageView i;
+			if (s.getNotes().isEmpty() && SubjectSet.Status.FOUND.equals(s.getStatus()))
+				i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"));
+			else
+				i = new ImageView(MainFrame.getIcon(getFolderIcon(s, false)));
+			final var n = new Text(s.getWare().getFullName());
+			n.setFill(Color.BLUE);
+			final var d = new Text(s.getWare().getDescription().toString());
+			d.setFill(Color.PURPLE);
+			setGraphic(new HBox(i, new Text(t[0]), n, new Text(t[1]), d, new Text(t[2])));
+			setText(null);
 		}
 		
 		/**

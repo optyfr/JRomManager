@@ -8,7 +8,7 @@ import lombok.experimental.UtilityClass;
 
 public final @UtilityClass class HTMLFormatter
 {
-	private static Pattern pattern = Pattern.compile("<html>(.*)</html>", Pattern.CASE_INSENSITIVE);
+	private static Pattern html = Pattern.compile("<html>(.*)</html>", Pattern.CASE_INSENSITIVE);
 	
 	private static String head = """
 <head>
@@ -28,7 +28,7 @@ public final @UtilityClass class HTMLFormatter
 	
 	public static String toHTML(String any)
 	{
-		final var matcher = pattern.matcher(any);
+		final var matcher = html.matcher(any);
 		if(matcher.matches()) // it is html
 			return "<html>" + head + matcher.group(1) + "</html>"; 
 		else	// assumed as simple text
