@@ -31,6 +31,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import jrm.fx.ui.controls.Dialogs;
+import jrm.fx.ui.profile.ProfileViewer;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.fx.ui.web.HTMLFormatter;
 import jrm.locale.Messages;
@@ -180,9 +181,9 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		if (session.getCurrProfile() != null)
 			session.getCurrProfile().saveSettings();
 		
-/*		if (MainFrame.getProfileViewer() != null)
+		if (MainFrame.getProfileViewer() != null)
 			MainFrame.getProfileViewer().clear();
-*/
+
 		try
 		{
 			final var thread = new Thread(new ProgressTask<Profile>((Stage) romsDest.getScene().getWindow())
@@ -203,10 +204,9 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 						session.getReport().setProfile(session.getCurrProfile());
 						MainFrame.getReportFrame().setNeedUpdate(true);
 						
-						/*
-						 * if (MainFrame.getProfileViewer() != null)
-						 * MainFrame.getProfileViewer().reset(session.getCurrProfile());
-						 */
+						if (MainFrame.getProfileViewer() != null)
+							MainFrame.getProfileViewer().reset(session.getCurrProfile());
+
 						MainFrame.getController().getScannerPanelTab().setDisable(profile == null);
 						scanBtn.setDisable(profile == null);
 						fixBtn.setDisable(true);
@@ -308,8 +308,8 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 						fixBtn.setDisable(session.getCurrScan()==null || session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() == 0);
 						close();
 						// update entries in profile viewer 
-/*						if (MainFrame.getProfileViewer() != null)
-							MainFrame.getProfileViewer().reload();*/
+						if (MainFrame.getProfileViewer() != null)
+							MainFrame.getProfileViewer().reload();
 						ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 						if(MainFrame.getReportFrame() != null)
 						{
@@ -423,8 +423,8 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 						fixBtn.setDisable(!toFix);
 						close();
 						// update entries in profile viewer
-/*						if (MainFrame.getProfileViewer() != null)
-							MainFrame.getProfileViewer().reload();*/
+						if (MainFrame.getProfileViewer() != null)
+							MainFrame.getProfileViewer().reload();
 						ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
 						if (automation.hasScanAgain())
 							scan(session, false);
@@ -584,4 +584,22 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		session.getCurrProfile().setProperty(SettingsEnum.src_dir, String.join("|", srcList.getItems().stream().map(File::getAbsolutePath).toList()));
 	}
 	
+	@FXML private void infos(ActionEvent evt)
+	{
+		if (MainFrame.getProfileViewer() == null)
+		{
+			try
+			{
+				MainFrame.setProfileViewer(new ProfileViewer((Stage)infosBtn.getScene().getWindow()));
+			}
+			catch (IOException | URISyntaxException e)
+			{
+				Log.err(e.getMessage(), e);
+			}
+		}
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().show();
+	}
+	
+
 }

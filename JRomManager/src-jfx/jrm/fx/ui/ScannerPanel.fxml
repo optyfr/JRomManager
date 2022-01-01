@@ -26,7 +26,7 @@
    <top>
       <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="infosBtn" mnemonicParsing="false" text="%MainFrame.btnInfo.text">
+            <Button fx:id="infosBtn" mnemonicParsing="false" onAction="#infos" text="%MainFrame.btnInfo.text">
                <HBox.margin>
                   <Insets right="3.0" />
                </HBox.margin>

@@ -13,6 +13,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import jrm.fx.ui.misc.Settings;
+import jrm.fx.ui.profile.ProfileViewer;
 import jrm.fx.ui.profile.report.ReportFrame;
 import jrm.locale.Messages;
 import jrm.misc.Log;
@@ -26,6 +27,8 @@ public class MainFrame extends Application
 	private static @Getter MainFrameController controller;
 
 	private static @Getter @Setter ReportFrame reportFrame;
+	
+	private static @Getter @Setter ProfileViewer profileViewer;
 
 	private static @Getter Session session = Sessions.getSingleSession();
 	

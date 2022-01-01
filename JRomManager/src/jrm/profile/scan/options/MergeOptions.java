@@ -70,6 +70,6 @@ public @RequiredArgsConstructor enum MergeOptions implements Descriptor
 	 */
 	public boolean isMerge()
 	{
-		return EnumSet.of(MERGE, FULLMERGE).contains(this);
+		return this == MERGE || this == MergeOptions.FULLMERGE;
 	}
 }

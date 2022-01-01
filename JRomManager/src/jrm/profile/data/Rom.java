@@ -141,14 +141,14 @@ public class Rom extends Entity implements Serializable
 	@Override
 	public boolean equals(final Object obj)
 	{
-		if (obj instanceof Rom)
+		if (obj instanceof Rom rom)
 		{
-			if (((Rom) obj).sha1 != null && sha1 != null)
-				return ((Rom) obj).sha1.equals(sha1);
-			if (((Rom) obj).md5 != null && md5 != null)
-				return ((Rom) obj).md5.equals(md5);
-			if (((Rom) obj).crc != null && crc != null)
-				return ((Rom) obj).crc.equals(crc) && ((Rom) obj).size == size;
+			if (rom.sha1 != null && sha1 != null)
+				return rom.sha1.equals(sha1);
+			if (rom.md5 != null && md5 != null)
+				return rom.md5.equals(md5);
+			if (rom.crc != null && crc != null)
+				return rom.crc.equals(crc) && rom.size == size;
 		}
 		return super.equals(obj);
 	}
@@ -199,8 +199,14 @@ public class Rom extends Entity implements Serializable
 	private EntityStatus findRomStatus(final Anyware parent, final Rom rom)
 	{
 		for (final Rom r : parent.getRoms())
-			if (rom != r && rom.equals(r) && r.ownStatus != EntityStatus.UNKNOWN)
-				return r.ownStatus;
+		{
+			if (rom != r && rom.equals(r))
+			{
+				if(r.ownStatus != EntityStatus.UNKNOWN)
+					return r.ownStatus;
+				break;
+			}
+		}
 		if (parent.parent == null)
 		{
 			if (parent.isRomOf() && rom.merge != null)
@@ -230,10 +236,21 @@ public class Rom extends Entity implements Serializable
 		if (!getParent().profile.getSettings().getMergeMode().isMerge())
 			return null;
 		for (final Anyware clone : parent.getParent().clones.values())
+		{
 			if (clone != parent)
+			{
 				for (final Rom r : clone.getRoms())
-					if (rom.equals(r) && r.ownStatus != EntityStatus.UNKNOWN)
-						return r.ownStatus;
+				{
+					if (rom.equals(r))
+					{
+						if(r.ownStatus != EntityStatus.UNKNOWN)
+							return r.ownStatus;
+						break;
+					}
+					
+				}
+			}
+		}
 		return null;
 	}
 

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Scene?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+
+<Scene xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.ProfileViewerController">
+   <root>
+      <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0">
+         <items>
+            <SplitPane dividerPositions="0.29797979797979796" prefHeight="160.0" prefWidth="200.0">
+              <items>
+                  <BorderPane prefHeight="200.0" prefWidth="200.0">
+                     <center>
+                        <TableView fx:id="tableWL" prefHeight="200.0" prefWidth="200.0">
+                          <columns>
+                            <TableColumn fx:id="tableWLName" prefWidth="70.0" text="%SoftwareListListRenderer.Name" />
+                            <TableColumn fx:id="tableWLDesc" prefWidth="150.0" text="%SoftwareListListRenderer.Description" />
+                              <TableColumn fx:id="tableWLHave" maxWidth="80.0" minWidth="80.0" resizable="false" text="%SoftwareListListRenderer.Have" />
+                          </columns>
+                        </TableView>
+                     </center>
+                     <bottom>
+                        <ToolBar BorderPane.alignment="CENTER">
+                          <items>
+                            <Button mnemonicParsing="false" text="Button" />
+                          </items>
+                        </ToolBar>
+                     </bottom>
+                  </BorderPane>
+                  <BorderPane prefHeight="200.0" prefWidth="200.0">
+                     <center>
+                        <TableView fx:id="tableW" prefHeight="200.0" prefWidth="200.0">
+                          <columns>
+                            <TableColumn prefWidth="75.0" text="C1" />
+                            <TableColumn prefWidth="75.0" text="C2" />
+                          </columns>
+                        </TableView>
+                     </center>
+                     <bottom>
+                        <ToolBar BorderPane.alignment="CENTER">
+                          <items>
+                            <Button mnemonicParsing="false" text="Button" />
+                          </items>
+                        </ToolBar>
+                     </bottom>
+                  </BorderPane>
+              </items>
+            </SplitPane>
+            <BorderPane prefHeight="200.0" prefWidth="200.0">
+               <center>
+                  <TableView fx:id="tableEntity" prefHeight="200.0" prefWidth="200.0">
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="C1" />
+                      <TableColumn prefWidth="75.0" text="C2" />
+                    </columns>
+                  </TableView>
+               </center>
+               <bottom>
+                  <ToolBar BorderPane.alignment="CENTER">
+                    <items>
+                      <Button mnemonicParsing="false" text="Button" />
+                    </items>
+                  </ToolBar>
+               </bottom>
+            </BorderPane>
+         </items>
+      </SplitPane>
+   </root>
+</Scene>
