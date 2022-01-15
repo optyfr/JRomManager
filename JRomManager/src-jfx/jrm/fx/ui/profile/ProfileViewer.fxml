@@ -18,9 +18,9 @@
                      <center>
                         <TableView fx:id="tableWL" prefHeight="200.0" prefWidth="200.0">
                           <columns>
-                            <TableColumn fx:id="tableWLName" prefWidth="70.0" text="%SoftwareListListRenderer.Name" />
-                            <TableColumn fx:id="tableWLDesc" prefWidth="150.0" text="%SoftwareListListRenderer.Description" />
-                              <TableColumn fx:id="tableWLHave" maxWidth="80.0" minWidth="80.0" resizable="false" text="%SoftwareListListRenderer.Have" />
+                            <TableColumn fx:id="tableWLName" editable="false" prefWidth="70.0" sortable="false" text="%SoftwareListListRenderer.Name" />
+                            <TableColumn fx:id="tableWLDesc" editable="false" prefWidth="150.0" sortable="false" text="%SoftwareListListRenderer.Description" />
+                              <TableColumn fx:id="tableWLHave" editable="false" maxWidth="80.0" minWidth="80.0" resizable="false" sortable="false" text="%SoftwareListListRenderer.Have" />
                           </columns>
                         </TableView>
                      </center>
