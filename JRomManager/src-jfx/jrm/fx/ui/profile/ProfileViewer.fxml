@@ -35,10 +35,6 @@
                   <BorderPane prefHeight="200.0" prefWidth="200.0">
                      <center>
                         <TableView fx:id="tableW" prefHeight="200.0" prefWidth="200.0">
-                          <columns>
-                            <TableColumn prefWidth="75.0" text="C1" />
-                            <TableColumn prefWidth="75.0" text="C2" />
-                          </columns>
                         </TableView>
                      </center>
                      <bottom>

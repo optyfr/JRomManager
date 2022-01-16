@@ -91,18 +91,18 @@ public final class MachineListRenderer
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			if(value instanceof Machine)
+			if(value instanceof Machine m)
 			{
-				super.getTableCellRendererComponent(table, ((Machine) value).getBaseName(), isSelected, hasFocus, row, column);
-				if(((Machine) value).isIsbios())
+				super.getTableCellRendererComponent(table, m.getBaseName(), isSelected, hasFocus, row, column);
+				if(m.isIsbios())
 					setIcon(applicationOSXTerminal);
-				else if(((Machine) value).isIsdevice())
+				else if(m.isIsdevice())
 					setIcon(computer);
-				else if(((Machine) value).isIsmechanical())
+				else if(m.isIsmechanical())
 					setIcon(wrench);
 				else
 					setIcon(joystick);
-				setText(((Machine) value).getBaseName());
+				setText(m.getBaseName());
 				return this;
 			}
 			setIcon(null);
@@ -115,10 +115,10 @@ public final class MachineListRenderer
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			if(value instanceof Samples)
+			if(value instanceof Samples s)
 			{
-				super.getTableCellRendererComponent(table, ((Samples) value).getBaseName(), isSelected, hasFocus, row, column);
-				setIcon(((Samples) value).getStatus());
+				super.getTableCellRendererComponent(table, s.getBaseName(), isSelected, hasFocus, row, column);
+				setIcon(s.getStatus());
 				return this;
 			}
 			setIcon((Icon)null);
@@ -133,10 +133,10 @@ public final class MachineListRenderer
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			if (value instanceof Anyware)
+			if (value instanceof Anyware a)
 			{
-				super.getTableCellRendererComponent(table, ((Anyware) value).getBaseName(), isSelected, hasFocus, row, column);
-				setIcon(((Anyware) value).getStatus());
+				super.getTableCellRendererComponent(table, a.getBaseName(), isSelected, hasFocus, row, column);
+				setIcon(a.getStatus());
 				return this;
 			}
 			setIcon((Icon)null);
