@@ -1,6 +1,7 @@
 package jrm.fx.ui.profile;
 
 import java.net.URL;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.ResourceBundle;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -17,6 +19,7 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -32,6 +35,7 @@ import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Disk;
 import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
+import jrm.profile.data.EntityStatus;
 import jrm.profile.data.Machine;
 import jrm.profile.data.MachineList;
 import jrm.profile.data.Rom;
@@ -39,6 +43,8 @@ import jrm.profile.data.Sample;
 import jrm.profile.data.Samples;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
+import jrm.security.Session;
+import jrm.security.Sessions;
 
 public class ProfileViewerController implements Initializable
 {
@@ -46,6 +52,10 @@ public class ProfileViewerController implements Initializable
 	@FXML private TableColumn<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>> tableWLName;
 	@FXML private TableColumn<AnywareList<? extends Anyware>, String> tableWLDesc;
 	@FXML private TableColumn<AnywareList<? extends Anyware>, String> tableWLHave;
+	@FXML private ToggleButton toggleWLUnknown;
+	@FXML private ToggleButton toggleWLMissing;
+	@FXML private ToggleButton toggleWLPartial;
+	@FXML private ToggleButton toggleWLComplete;
 	@FXML private TableView<Anyware> tableW;
 	private final TableColumn<Anyware, Anyware> tableWMStatus = new TableColumn<>(Messages.getString("MachineListRenderer.Status"));
 	private final TableColumn<Anyware, Machine> tableWMName = new TableColumn<>(Messages.getString("MachineListRenderer.Name"));
@@ -61,6 +71,10 @@ public class ProfileViewerController implements Initializable
 	private final TableColumn<Anyware, String> tableWSHave = new TableColumn<>(Messages.getString("SoftwareListRenderer.Have"));
 	private final TableColumn<Anyware, Object> tableWSCloneOf = new TableColumn<>(Messages.getString("SoftwareListRenderer.CloneOf"));
 	private final TableColumn<Anyware, CheckBox> tableWSSelected = new TableColumn<>(Messages.getString("SoftwareListRenderer.Selected"));
+	@FXML private ToggleButton toggleWUnknown;
+	@FXML private ToggleButton toggleWMissing;
+	@FXML private ToggleButton toggleWPartial;
+	@FXML private ToggleButton toggleWComplete;
 	@FXML private TableView<EntityBase> tableEntity;
 	@FXML private TableColumn<EntityBase, EntityBase> tableEntityStatus;
 	@FXML private TableColumn<EntityBase, EntityBase> tableEntityName;
@@ -70,8 +84,25 @@ public class ProfileViewerController implements Initializable
 	@FXML private TableColumn<EntityBase, String> tableEntitySHA1;
 	@FXML private TableColumn<EntityBase, String> tableEntityMergeName;
 	@FXML private TableColumn<EntityBase, Entity.Status> tableEntityDumpStatus;
+	@FXML private ToggleButton toggleEntityUnknown;
+	@FXML private ToggleButton toggleEntityKO;
+	@FXML private ToggleButton toggleEntityOK;
+
+	private static final Image diskMultipleGreen = MainFrame.getIcon("/jrm/resicons/disk_multiple_green.png"); //$NON-NLS-1$
+	private static final Image diskMultipleOrange = MainFrame.getIcon("/jrm/resicons/disk_multiple_orange.png"); //$NON-NLS-1$
+	private static final Image diskMultipleRed = MainFrame.getIcon("/jrm/resicons/disk_multiple_red.png"); //$NON-NLS-1$
+	private static final Image diskMultipleGray = MainFrame.getIcon("/jrm/resicons/disk_multiple_gray.png"); //$NON-NLS-1$
+	private static final Image folderClosedGreen = MainFrame.getIcon("/jrm/resicons/folder_closed_green.png"); //$NON-NLS-1$
+	private static final Image folderClosedOrange = MainFrame.getIcon("/jrm/resicons/folder_closed_orange.png"); //$NON-NLS-1$
+	private static final Image folderClosedRed = MainFrame.getIcon("/jrm/resicons/folder_closed_red.png"); //$NON-NLS-1$
+	private static final Image folderClosedGray = MainFrame.getIcon("/jrm/resicons/folder_closed_gray.png"); //$NON-NLS-1$
+	private static final Image bulletGreen = MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"); //$NON-NLS-1$
+	private static final Image bulletRed = MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png"); //$NON-NLS-1$
+	private static final Image bulletBlack = MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png"); //$NON-NLS-1$
 
 	private final Map<String,String> haveCache = new HashMap<>();
+	
+	private Session session = Sessions.getSingleSession();
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
@@ -80,10 +111,6 @@ public class ProfileViewerController implements Initializable
 		tableW.setFixedCellSize(18);
 		tableWLName.setCellFactory(p -> new TableCell<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>>()
 		{
-			private static final Image diskMultipleGreen = MainFrame.getIcon("/jrm/resicons/disk_multiple_green.png"); //$NON-NLS-1$
-			private static final Image diskMultipleOrange = MainFrame.getIcon("/jrm/resicons/disk_multiple_orange.png"); //$NON-NLS-1$
-			private static final Image diskMultipleRed = MainFrame.getIcon("/jrm/resicons/disk_multiple_red.png"); //$NON-NLS-1$
-			private static final Image diskMultipleGray = MainFrame.getIcon("/jrm/resicons/disk_multiple_gray.png"); //$NON-NLS-1$
 
 			@Override
 			protected void updateItem(AnywareList<? extends Anyware> item, boolean empty)
@@ -462,10 +489,6 @@ public class ProfileViewerController implements Initializable
 		tableWSSelected.setCellValueFactory(tableWMSelected.getCellValueFactory());
 		tableEntityStatus.setCellFactory(p -> new TableCell<EntityBase, EntityBase>()
 		{
-			final Image bulletGreen = MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"); //$NON-NLS-1$
-			final Image bulletRed = MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png"); //$NON-NLS-1$
-			final Image bulletBlack = MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png"); //$NON-NLS-1$
-			
 			@Override
 			protected void updateItem(EntityBase item, boolean empty)
 			{
@@ -688,9 +711,50 @@ public class ProfileViewerController implements Initializable
 			}
 		});
 		tableWL.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			tableW.getColumns().clear();
-			final var list = FXCollections.<Anyware>observableArrayList();
-			if(newValue instanceof MachineList ml)
+			reloadW(newValue);
+		});
+		tableW.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			reloadE(newValue);
+		});
+		toggleWLUnknown.setGraphic(new ImageView(diskMultipleGray));
+		toggleWLMissing.setGraphic(new ImageView(diskMultipleRed));
+		toggleWLPartial.setGraphic(new ImageView(diskMultipleOrange));
+		toggleWLComplete.setGraphic(new ImageView(diskMultipleGreen));
+		toggleWUnknown.setGraphic(new ImageView(folderClosedGray));
+		toggleWMissing.setGraphic(new ImageView(folderClosedRed));
+		toggleWPartial.setGraphic(new ImageView(folderClosedOrange));
+		toggleWComplete.setGraphic(new ImageView(folderClosedGreen));
+		toggleEntityUnknown.setGraphic(new ImageView(bulletBlack));
+		toggleEntityKO.setGraphic(new ImageView(bulletRed));
+		toggleEntityOK.setGraphic(new ImageView(bulletGreen));
+	}
+
+	/**
+	 * @param newValue
+	 */
+	private void reloadE(Anyware newValue)
+	{
+		final var list = FXCollections.<EntityBase>observableArrayList();
+		if (newValue != null)
+		{
+			newValue.resetCache();
+			for (final var e : newValue.getEntities())
+				list.add(e);
+		}
+		tableEntity.setItems(list);
+	}
+
+	/**
+	 * 
+	 */
+	private void reloadW(AnywareList<? extends Anyware> newValue)
+	{
+		tableW.getColumns().clear();
+		final var list = FXCollections.<Anyware>observableArrayList();
+		if (newValue != null)
+		{
+			newValue.resetCache();
+			if (newValue instanceof MachineList ml)
 			{
 				tableW.getColumns().add(tableWMStatus);
 				tableW.getColumns().add(tableWMName);
@@ -703,7 +767,7 @@ public class ProfileViewerController implements Initializable
 				for (final var w : ml.getFilteredList())
 					list.add(w);
 			}
-			else if(newValue instanceof SoftwareList sl)
+			else if (newValue instanceof SoftwareList sl)
 			{
 				tableW.getColumns().add(tableWSStatus);
 				tableW.getColumns().add(tableWSName);
@@ -714,21 +778,71 @@ public class ProfileViewerController implements Initializable
 				for (final var w : sl.getFilteredList())
 					list.add(w);
 			}
-			tableW.setItems(list);
-		});
-		tableW.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			final var list = FXCollections.<EntityBase>observableArrayList();
-			if (newValue != null)
-				for (final var e : newValue.getEntities())
-					list.add(e);
-			tableEntity.setItems(list);
-		});
+		}
+		tableW.setItems(list);
 	}
 
-	private static final Image folderClosedGreen = MainFrame.getIcon("/jrm/resicons/folder_closed_green.png"); //$NON-NLS-1$
-	private static final Image folderClosedOrange = MainFrame.getIcon("/jrm/resicons/folder_closed_orange.png"); //$NON-NLS-1$
-	private static final Image folderClosedRed = MainFrame.getIcon("/jrm/resicons/folder_closed_red.png"); //$NON-NLS-1$
-	private static final Image folderClosedGray = MainFrame.getIcon("/jrm/resicons/folder_closed_gray.png"); //$NON-NLS-1$
+	@FXML void diskMultipleFilter(ActionEvent e)
+	{
+		setFilterWL(toggleWLUnknown.isSelected(), toggleWLMissing.isSelected(), toggleWLPartial.isSelected(), toggleWLComplete.isSelected());
+	}
+
+	@FXML void folderFilter(ActionEvent e)
+	{
+		setFilterW(toggleWUnknown.isSelected(), toggleWMissing.isSelected(), toggleWPartial.isSelected(), toggleWComplete.isSelected());
+	}
+
+	@FXML void bulletFilter(ActionEvent e)
+	{
+		setFilterE(toggleEntityUnknown.isSelected(), toggleEntityKO.isSelected(), toggleEntityOK.isSelected());
+	}
+
+	private void setFilterWL(final boolean unknown, final boolean missing, final boolean partial, final boolean complete)
+	{
+		final EnumSet<AnywareStatus> filter = EnumSet.noneOf(AnywareStatus.class);
+		if (unknown)
+			filter.add(AnywareStatus.UNKNOWN);
+		if (missing)
+			filter.add(AnywareStatus.MISSING);
+		if (partial)
+			filter.add(AnywareStatus.PARTIAL);
+		if (complete)
+			filter.add(AnywareStatus.COMPLETE);
+		session.getCurrProfile().setFilterListLists(filter);
+		reset(session.getCurrProfile());
+	}
+
+	private void setFilterW(final boolean unknown, final boolean missing, final boolean partial, final boolean complete)
+	{
+		final EnumSet<AnywareStatus> filter = EnumSet.noneOf(AnywareStatus.class);
+		if (unknown)
+			filter.add(AnywareStatus.UNKNOWN);
+		if (missing)
+			filter.add(AnywareStatus.MISSING);
+		if (partial)
+			filter.add(AnywareStatus.PARTIAL);
+		if (complete)
+			filter.add(AnywareStatus.COMPLETE);
+		session.getCurrProfile().setFilterList(filter);
+		final var item = tableWL.getSelectionModel().getSelectedItem();
+		if(item!=null)
+			reloadW(item);
+	}
+
+	private void setFilterE(final boolean unknown, final boolean missing, final boolean complete)
+	{
+		final EnumSet<EntityStatus> filter = EnumSet.noneOf(EntityStatus.class);
+		if (unknown)
+			filter.add(EntityStatus.UNKNOWN);
+		if (missing)
+			filter.add(EntityStatus.KO);
+		if (complete)
+			filter.add(EntityStatus.OK);
+		session.getCurrProfile().setFilterEntities(filter);
+		final var item = tableW.getSelectionModel().getSelectedItem();
+		if(item!=null)
+			reloadE(item);
+	}
 
 	private static Image getStatusIcon(AnywareStatus status)
 	{
@@ -760,20 +874,26 @@ public class ProfileViewerController implements Initializable
 	{
 		tableWL.setItems(null);
 		haveCache.clear();
+		tableW.setItems(null);
+		tableEntity.setItems(null);
 	}
 
 	void reload()
 	{
 		tableWL.refresh();
 		haveCache.clear();
+		tableW.refresh();;
+		tableEntity.refresh();
 	}
 
 	void reset(Profile profile)
 	{
 		clear();
 		final var wl = FXCollections.<AnywareList<? extends Anyware>>observableArrayList();
+		profile.getMachineListList().resetCache();
 		for (final var w : profile.getMachineListList().getFilteredList())
 			wl.add(w);
+		profile.getMachineListList().getSoftwareListList().resetCache();
 		for (final var w : profile.getMachineListList().getSoftwareListList().getFilteredList())
 			wl.add(w);
 		tableWL.setItems(wl);

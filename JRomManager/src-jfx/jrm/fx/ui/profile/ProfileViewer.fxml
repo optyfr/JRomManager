@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.Scene?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
 
@@ -26,9 +26,12 @@
                      </center>
                      <bottom>
                         <ToolBar BorderPane.alignment="CENTER">
-                          <items>
-                            <Button mnemonicParsing="false" text="Button" />
-                          </items>
+                           <items>
+                              <ToggleButton fx:id="toggleWLUnknown" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#diskMultipleFilter" selected="true" />
+                              <ToggleButton fx:id="toggleWLMissing" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#diskMultipleFilter" selected="true" />
+                              <ToggleButton fx:id="toggleWLPartial" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#diskMultipleFilter" selected="true" />
+                              <ToggleButton fx:id="toggleWLComplete" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#diskMultipleFilter" selected="true" />
+                           </items>
                         </ToolBar>
                      </bottom>
                   </BorderPane>
@@ -40,7 +43,10 @@
                      <bottom>
                         <ToolBar BorderPane.alignment="CENTER">
                           <items>
-                            <Button mnemonicParsing="false" text="Button" />
+                              <ToggleButton fx:id="toggleWUnknown" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
+                              <ToggleButton fx:id="toggleWMissing" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
+                              <ToggleButton fx:id="toggleWPartial" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
+                              <ToggleButton fx:id="toggleWComplete" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
                           </items>
                         </ToolBar>
                      </bottom>
@@ -64,9 +70,11 @@
                </center>
                <bottom>
                   <ToolBar BorderPane.alignment="CENTER">
-                    <items>
-                      <Button mnemonicParsing="false" text="Button" />
-                    </items>
+                     <items>
+                        <ToggleButton fx:id="toggleEntityUnknown" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#bulletFilter" selected="true" />
+                        <ToggleButton fx:id="toggleEntityKO" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#bulletFilter" selected="true" />
+                        <ToggleButton fx:id="toggleEntityOK" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#bulletFilter" selected="true" />
+                     </items>
                   </ToolBar>
                </bottom>
             </BorderPane>
