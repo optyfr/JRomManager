@@ -147,6 +147,8 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 			progress.setProgress2(String.format(N_OF_T, 0, lists.size()), 0, lists.size()); //$NON-NLS-1$
 			for(final SoftwareList list : lists)
 			{
+				if(progress.isCancel())
+					break;
 				list.export(writer, filtered, progress);
 				progress.setProgress2(String.format(N_OF_T, progress.getCurrent2()+1, lists.size()), progress.getCurrent2()+1); //$NON-NLS-1$
 			}

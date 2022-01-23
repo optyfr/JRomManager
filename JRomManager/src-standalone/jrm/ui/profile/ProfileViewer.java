@@ -85,7 +85,6 @@ import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
-import jrm.profile.data.AnywareListList;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.EntityStatus;
 import jrm.profile.data.Machine;
@@ -427,7 +426,7 @@ public class ProfileViewer extends JDialog
 			{
 				final boolean has_machines = session.getCurrProfile().getMachineListList().getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
 				final boolean has_filtered_machines = session.getCurrProfile().getMachineListList().getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
-				final boolean has_selected_swlist = tableWL.getSelectedRowCount() == 1 && tableWL.getModel() instanceof AnywareListList<?> && ((MachineListListModel) tableWL.getModel()).getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
+				final boolean has_selected_swlist = tableWL.getSelectedRowCount() == 1 && tableWL.getModel() instanceof MachineListListModel model && model.getValueAt(tableWL.getSelectedRow(), 0) instanceof SoftwareList;
 				mntmAllAsMameDat.setEnabled(has_machines);
 				mntmAllAsLogiqxDat.setEnabled(has_machines);
 				mntmAllAsSoftwareLists.setEnabled(!session.getCurrProfile().getMachineListList().getSoftwareListList().isEmpty());

@@ -7,6 +7,9 @@
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Menu?>
 
 <Scene xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.ProfileViewerController">
    <root>
@@ -22,6 +25,36 @@
                             <TableColumn fx:id="tableWLDesc" editable="false" prefWidth="150.0" sortable="false" text="%SoftwareListListRenderer.Description" />
                               <TableColumn fx:id="tableWLHave" editable="false" maxWidth="80.0" minWidth="80.0" resizable="false" sortable="false" text="%SoftwareListListRenderer.Have" />
                           </columns>
+                          <contextMenu>
+                            <ContextMenu fx:id="menuWL">
+                              <items>
+                                <Menu mnemonicParsing="false" text="%ProfileViewer.ExportAll">
+                                  <items>
+                                    <Menu mnemonicParsing="false" text="%ProfileViewer.Filtered">
+                                      <items>
+                                        <MenuItem fx:id="mntmFilteredAsLogiqxDat" mnemonicParsing="false" onAction="#exportFilteredAsLogiqxDat" text="%ProfileViewer.AsLogiqxDat" />
+                                        <MenuItem fx:id="mntmFilteredAsMameDat" mnemonicParsing="false" onAction="#exportFilteredAsMameDat" text="%ProfileViewer.AsMameDat" />
+                                        <MenuItem fx:id="mntmFilteredAsSoftwareLists" mnemonicParsing="false" onAction="#exportFilteredAsSoftwareLists" text="%ProfileViewer.AsSWListsDat" />
+                                      </items>
+                                    </Menu>
+                                    <MenuItem fx:id="mntmAllAsLogiqxDat" mnemonicParsing="false" onAction="#exportAllAsLogiqxDat" text="%ProfileViewer.AsLogiqxDat" />
+                                    <MenuItem fx:id="mntmAllAsMameDat" mnemonicParsing="false" onAction="#exportAllAsMameDat" text="%ProfileViewer.AsMameDat" />
+                                    <MenuItem fx:id="mntmAllAsSoftwareLists" mnemonicParsing="false" onAction="#exportAllAsSoftwareLists" text="%ProfileViewer.AsSWListsDat" />
+                                  </items>
+                                </Menu>
+                                <Menu mnemonicParsing="false" text="%ProfileViewer.ExportSelected">
+                                  <items>
+                                    <Menu mnemonicParsing="false" text="%ProfileViewer.Filtered">
+                                      <items>
+                                        <MenuItem fx:id="mntmSelectedFilteredAsSoftwareLists" disable="true" mnemonicParsing="false" onAction="#exportSelectedFilteredAsSoftwareLists" text="%ProfileViewer.AsSWListsDat" />
+                                      </items>
+                                    </Menu>
+                                    <MenuItem fx:id="mntmSelectedAsSoftwareLists" disable="true" mnemonicParsing="false" onAction="#exportSelectedAsSoftwareLists" text="%ProfileViewer.AsSWListsDat" />
+                                  </items>
+                                </Menu>
+                              </items>
+                            </ContextMenu>
+                          </contextMenu>
                         </TableView>
                      </center>
                      <bottom>
@@ -38,6 +71,16 @@
                   <BorderPane prefHeight="200.0" prefWidth="200.0">
                      <center>
                         <TableView fx:id="tableW" prefHeight="200.0" prefWidth="200.0">
+                          <contextMenu>
+                            <ContextMenu fx:id="menuW">
+                              <items>
+                                <MenuItem fx:id="mntmSelectByKeywords" mnemonicParsing="false" onAction="#selectByKeywords" text="%ProfileViewer.mntmCollectKeywords.text" />
+                                <MenuItem fx:id="mntmSelectNone" mnemonicParsing="false" onAction="#selectNone" text="%ProfileViewer.mntmSelectNone.text" />
+                                <MenuItem fx:id="mntmSelectAll" mnemonicParsing="false" onAction="#selectAll" text="%ProfileViewer.mntmSelectAll.text" />
+                                <MenuItem fx:id="mntmSelectInvert" mnemonicParsing="false" onAction="#selectInvert" text="%ProfileViewer.mntmSelectInvert.text" />
+                              </items>
+                            </ContextMenu>
+                          </contextMenu>
                         </TableView>
                      </center>
                      <bottom>
@@ -66,6 +109,16 @@
                         <TableColumn fx:id="tableEntityMergeName" editable="false" minWidth="50.0" prefWidth="100.0" sortable="false" text="%AnywareRenderer.Merge" />
                         <TableColumn fx:id="tableEntityDumpStatus" editable="false" minWidth="20.0" prefWidth="20.0" resizable="false" sortable="false" text="%AnywareRenderer.DumpStatus" />
                     </columns>
+                    <contextMenu>
+                        <ContextMenu fx:id="menuEntity">
+                          <items>
+                            <MenuItem fx:id="mntmCopyCrc" mnemonicParsing="false" onAction="#copyCrc" text="Copy CRC" />
+                            <MenuItem fx:id="mntmCopySha1" mnemonicParsing="false" onAction="#copySha1" text="Copy SHA-1" />
+                            <MenuItem fx:id="mntmCopyName" mnemonicParsing="false" onAction="#copyName" text="Copy Name" />
+                            <MenuItem fx:id="mntmSearchWeb" mnemonicParsing="false" onAction="#searchWeb" text="Search on the web" />
+                          </items>
+                        </ContextMenu>
+                    </contextMenu>
                   </TableView>
                </center>
                <bottom>
