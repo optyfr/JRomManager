@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.Scene?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.control.ContextMenu?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.Menu?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 
 <Scene xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.ProfileViewerController">
    <root>
@@ -58,14 +61,17 @@
                         </TableView>
                      </center>
                      <bottom>
-                        <ToolBar BorderPane.alignment="CENTER">
-                           <items>
+                        <HBox spacing="2.0" BorderPane.alignment="CENTER">
+                           <children>
                               <ToggleButton fx:id="toggleWLUnknown" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#diskMultipleFilter" selected="true" />
                               <ToggleButton fx:id="toggleWLMissing" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#diskMultipleFilter" selected="true" />
                               <ToggleButton fx:id="toggleWLPartial" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#diskMultipleFilter" selected="true" />
                               <ToggleButton fx:id="toggleWLComplete" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#diskMultipleFilter" selected="true" />
-                           </items>
-                        </ToolBar>
+                           </children>
+                           <padding>
+                              <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                           </padding>
+                        </HBox>
                      </bottom>
                   </BorderPane>
                   <BorderPane prefHeight="200.0" prefWidth="200.0">
@@ -84,14 +90,19 @@
                         </TableView>
                      </center>
                      <bottom>
-                        <ToolBar BorderPane.alignment="CENTER">
-                          <items>
+                        <HBox spacing="2.0" BorderPane.alignment="CENTER">
+                           <children>
                               <ToggleButton fx:id="toggleWUnknown" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
                               <ToggleButton fx:id="toggleWMissing" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
                               <ToggleButton fx:id="toggleWPartial" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
                               <ToggleButton fx:id="toggleWComplete" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
-                          </items>
-                        </ToolBar>
+                              <Region maxHeight="-Infinity" minHeight="-Infinity" prefHeight="10.0" HBox.hgrow="ALWAYS" />
+                              <TextField fx:id="search" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="100.0" prefHeight="24.0" prefWidth="200.0" promptText="Search" HBox.hgrow="SOMETIMES" />
+                           </children>
+                           <padding>
+                              <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                           </padding>
+                        </HBox>
                      </bottom>
                   </BorderPane>
               </items>
@@ -122,13 +133,16 @@
                   </TableView>
                </center>
                <bottom>
-                  <ToolBar BorderPane.alignment="CENTER">
-                     <items>
+                  <HBox spacing="2.0" BorderPane.alignment="CENTER">
+                     <children>
                         <ToggleButton fx:id="toggleEntityUnknown" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#bulletFilter" selected="true" />
                         <ToggleButton fx:id="toggleEntityKO" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#bulletFilter" selected="true" />
                         <ToggleButton fx:id="toggleEntityOK" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#bulletFilter" selected="true" />
-                     </items>
-                  </ToolBar>
+                     </children>
+                     <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                     </padding>
+                  </HBox>
                </bottom>
             </BorderPane>
          </items>

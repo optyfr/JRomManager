@@ -11,10 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -27,12 +31,14 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -96,6 +102,7 @@ public class ProfileViewerController implements Initializable
 	@FXML private ToggleButton toggleWMissing;
 	@FXML private ToggleButton toggleWPartial;
 	@FXML private ToggleButton toggleWComplete;
+	@FXML private TextField search;
 	@FXML private TableView<EntityBase> tableEntity;
 	@FXML private TableColumn<EntityBase, EntityBase> tableEntityStatus;
 	@FXML private TableColumn<EntityBase, EntityBase> tableEntityName;
@@ -689,8 +696,26 @@ public class ProfileViewerController implements Initializable
 		toggleWMissing.setGraphic(new ImageView(folderClosedRed));
 		toggleWPartial.setGraphic(new ImageView(folderClosedOrange));
 		toggleWComplete.setGraphic(new ImageView(folderClosedGreen));
+		
+		search.textProperty().addListener((observable, oldValue, newValue) -> filteredData.setPredicate(searchPredicate(newValue)));
 	}
 
+	/**
+	 * @param newValue
+	 * @return
+	 */
+	private Predicate<? super Anyware> searchPredicate(String newValue)
+	{
+		return t -> {
+			if (newValue == null || newValue.isEmpty())
+				return true;
+			final var lcase = newValue.toLowerCase();
+			return t.getBaseName().toLowerCase().contains(lcase) || t.getDescription().toString().toLowerCase().contains(lcase);
+		};
+	}
+
+	
+	
 	/**
 	 * 
 	 */
@@ -738,6 +763,8 @@ public class ProfileViewerController implements Initializable
 		tableEntity.setItems(list);
 	}
 
+	private FilteredList<Anyware> filteredData;
+	
 	/**
 	 * 
 	 */
@@ -773,7 +800,8 @@ public class ProfileViewerController implements Initializable
 					list.add(w);
 			}
 		}
-		tableW.setItems(list);
+		filteredData = new FilteredList<>(list, searchPredicate(search.getText()));
+		tableW.setItems(filteredData);
 	}
 
 	@FXML void diskMultipleFilter(ActionEvent e)
