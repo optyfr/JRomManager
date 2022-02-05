@@ -31,6 +31,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import jrm.fx.ui.controls.Dialogs;
+import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.profile.ProfileViewer;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.fx.ui.web.HTMLFormatter;
@@ -172,7 +173,7 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 			saveSrcList();
 		});
 		srcListAddMenuItem.setOnAction(e -> chooseSrc(null, SettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
-		
+		new DragNDrop(romsDest).addDragDropFile(txt -> romsDest.setText(txt));
 	}
 	
 	@Override

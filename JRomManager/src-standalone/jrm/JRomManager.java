@@ -26,6 +26,7 @@ import org.apache.commons.io.FilenameUtils;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.Parameters;
 
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
@@ -45,6 +46,7 @@ public final class JRomManager
 {
 	private static @Getter MainFrame mainFrame;
 
+	@Parameters(separators = " =")
 	private static class Args
 	{
 		@Parameter(names = { "-m", "--multiuser" }, description = "Multi-user mode")

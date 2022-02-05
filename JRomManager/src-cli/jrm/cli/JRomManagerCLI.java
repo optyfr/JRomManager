@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.Parameters;
 import com.eclipsesource.json.Json;
 
 import jrm.aui.basic.ResultColUpdater;
@@ -66,6 +67,7 @@ public class JRomManagerCLI
 
 	Progress handler = null;
 
+	@Parameters(separators = " =")
 	private static class Args
 	{
 		@Parameter(names = { "--help", "-h" }, help = true)
@@ -312,6 +314,7 @@ public class JRomManagerCLI
 		return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
 	}
 
+	@Parameters(separators = " =")
 	private static class RmArgs
 	{
 		@Parameter(names = { "--recursive", "-r" }, description = "Recursive delete")
@@ -380,6 +383,7 @@ public class JRomManagerCLI
 		return session.getCurrScan().actions.stream().mapToInt(Collection::size).sum();
 	}
 
+	@Parameters(separators = " =")
 	private static class MdArgs
 	{
 		@Parameter(names = { "--parents", "-p" }, description = "Create parents up to this directory")
@@ -533,6 +537,7 @@ public class JRomManagerCLI
 		return 0;
 	}
 
+	@Parameters(separators = " =")
 	private static class DirUpdaterArgs
 	{
 		@Parameter(names = { "--dryrun", "-d" }, description = "Dry run")
@@ -691,6 +696,7 @@ public class JRomManagerCLI
 		return 0;
 	}
 
+	@Parameters(separators = " =")
 	private static class TrntchkArgs
 	{
 		@Parameter(names = { "--checkmode", "-m" }, arity = 1, description = "Check mode")
@@ -741,6 +747,7 @@ public class JRomManagerCLI
 		return 0;
 	}
 
+	@Parameters(separators = " =")
 	private static class CompressorArgs
 	{
 		@Parameter(names = { "--compressor", "-c" }, arity = 1, required = true, description = "Compression format")

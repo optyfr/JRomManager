@@ -18,6 +18,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.Parameters;
 
 import jrm.misc.Log;
 import jrm.misc.URIUtils;
@@ -39,7 +40,8 @@ public class Server extends AbstractServer
 
 	static final Map<String, WebSession> sessions = new HashMap<>();
 	
-	private static class Args
+	@Parameters(separators = " =")
+	public static class Args
 	{
 		@Parameter(names = { "-c", "--client", "--clientPath" }, arity = 1, description = "Client path")
 		private String clientPath = null;
@@ -47,9 +49,9 @@ public class Server extends AbstractServer
 		private String workPath;
 		@Parameter(names = { "-d", "--debug" }, description = "Activate debug mode")
 		private boolean debug = false;
-		@Parameter(names = { "-p", "--http" }, arity = 1, description = "http port, default is " + HTTP_PORT_DEFAULT)
+		@Parameter(names = { "-p", "--http" }, arity = 1, description = "http port")
 		private int httpPort = HTTP_PORT_DEFAULT;
-		@Parameter(names = { "-b", "--bind" }, arity = 1, description = "bind to address or host, default is " + BIND_DEFAULT)
+		@Parameter(names = { "-b", "--bind" }, arity = 1, description = "bind to address or host")
 		private String bind = BIND_DEFAULT;
 	}
 	

@@ -34,6 +34,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.Parameters;
 
 import jrm.fullserver.handlers.FullDataSourceServlet;
 import jrm.fullserver.handlers.SessionServlet;
@@ -68,6 +69,7 @@ public class FullServer extends AbstractServer
 	private static String bind;
 	private static int connlimit;
 
+	@Parameters(separators = " =")
 	private static class Args
 	{
 		@Parameter(names = { "-c", "--client", "--clientPath" }, arity = 1, description = "Client path")
