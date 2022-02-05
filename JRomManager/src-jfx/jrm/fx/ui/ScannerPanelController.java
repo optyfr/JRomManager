@@ -173,7 +173,13 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 			saveSrcList();
 		});
 		srcListAddMenuItem.setOnAction(e -> chooseSrc(null, SettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
-		new DragNDrop(romsDest).addDragDropFile(txt -> romsDest.setText(txt));
+		new DragNDrop(romsDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.roms_dest_dir, txt));
+		new DragNDrop(disksDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.disks_dest_dir, txt));
+		new DragNDrop(swDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.swroms_dest_dir, txt));
+		new DragNDrop(swDisksDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.swdisks_dest_dir, txt));
+		new DragNDrop(samplesDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.samples_dest_dir, txt));
+		new DragNDrop(backupDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.backup_dest_dir, txt));
+		new DragNDrop(srcList).addDirs(files -> session.getCurrProfile().setProperty(SettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).toList())));
 	}
 	
 	@Override

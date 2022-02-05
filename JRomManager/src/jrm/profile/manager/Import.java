@@ -33,6 +33,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.DOMException;
 
 import jrm.aui.progress.ProgressHandler;
+import jrm.aui.progress.ProgressHandler.Option;
 import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.misc.UnitRenderer;
@@ -59,6 +60,7 @@ public class Import implements UnitRenderer
 	 */
 	public Import(final Session session, final File file, final boolean sl, ProgressHandler progress)
 	{
+		progress.setOptions(Option.LAZY);
 		orgFile = file;
 		final var workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
 		final var xmldir = new File(workdir, "xmlfiles"); //$NON-NLS-1$

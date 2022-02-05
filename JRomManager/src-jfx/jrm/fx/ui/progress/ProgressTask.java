@@ -5,10 +5,12 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
@@ -260,8 +262,6 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 			cleanup();
 		if (force)
 			doit = true;
-		else if (!data.pb1.visibility && !data.pb2.visibility && !data.pb3.visibility)
-			doit = true;
 		else if (pb == 1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
 			doit = true;
 		else if (pb == 2 && data.pb2.visibility && !data.pb2.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
@@ -271,6 +271,8 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 		else if (lastPData == null || (lastPData.infos.length == 1 && lastPData.infos[0] != null && !lastPData.infos[0].equals(this.data.infos[0])))
 			doit = true;
 		else if (System.currentTimeMillis() - lastEvent > 500)
+			doit = true;
+		else if (!data.pb1.visibility && !data.pb2.visibility && !data.pb3.visibility && !options.contains(Option.LAZY))
 			doit = true;
 		if (doit)
 		{
@@ -386,7 +388,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	@Override
 	public void doCancel()
 	{
-		cancel = true;;
+		cancel = true;
 	}
 
 	public boolean canCancel()
@@ -416,5 +418,14 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	public void addError(String error)
 	{
 		errors.add(error);
+	}
+	
+	private Set<Option> options = EnumSet.noneOf(Option.class);
+	
+	@Override
+	public void setOptions(Option first, Option... rest)
+	{
+		options = EnumSet.of(first, rest);
+		
 	}
 }

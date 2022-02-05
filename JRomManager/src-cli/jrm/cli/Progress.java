@@ -120,4 +120,10 @@ public class Progress implements ProgressHandler
 		errors.add(error);
 	}
 
+	@Override
+	public void setOptions(Option first, Option... rest)
+	{
+
+	}
+	
 }

@@ -1,25 +1,25 @@
 package jrm.fx.ui.misc;
 
-import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.input.Dragboard;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import javafx.scene.control.Control;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 
 public class DragNDrop
 {
-	private Node node;
-	private Background bg;
+	private static final String STYLE_ACCEPT = "-fx-control-inner-background: #DDFFDD;";
+	private static final String STYLE_REJECT = "-fx-control-inner-background: #FFDDDD;";
 	
-	public DragNDrop(Node node)
+	private Control control;
+	
+	public DragNDrop(Control control)
 	{
-		this.node = node;
-		Region region = (Region) node.lookup(".content");
-		this.bg = region.getBackground();
+		this.control = control;
 	}
 	
 	/**
@@ -37,34 +37,38 @@ public class DragNDrop
 		 */
 		public void call(String txt);
 	}
-
-	public void addDragDropFile(SetCallBack cb)
+	
+	public interface SetFilesCallBack
 	{
-		node.setOnDragEntered(event -> {
-			if (event.getGestureSource() != node && event.getDragboard().hasFiles())
+		public void call(List<File> files);
+	}
+
+	public void addFile(SetCallBack cb)
+	{
+		control.setOnDragOver(event -> {
+			if (event.getGestureSource() != control)
 			{
-				event.acceptTransferModes(TransferMode.COPY);
-				Region region = (Region) node.lookup(".content");
-				region.setBackground(new Background(new BackgroundFill(Color.valueOf("#DDFFDD"), CornerRadii.EMPTY, Insets.EMPTY)));
+				final var db = event.getDragboard();
+				if(db.hasFiles() && db.getFiles().size()==1 && Files.isRegularFile(db.getFiles().get(0).toPath()))
+				{
+					event.acceptTransferModes(TransferMode.COPY);
+					control.setStyle(STYLE_ACCEPT);
+					return;
+				}
 			}
-			else
-			{
-				Region region = (Region) node.lookup(".content");
-				region.setBackground(new Background(new BackgroundFill(Color.valueOf("#FFDDDD"), CornerRadii.EMPTY, Insets.EMPTY)));
-			}
+			control.setStyle(STYLE_REJECT);
 			event.consume();
 		});
 		
-		node.setOnDragExited(event -> {
-			Region region = (Region) node.lookup(".content");
-			region.setBackground(bg);
-		});
+		control.setOnDragExited(event -> control.setStyle(""));
 
-		node.setOnDragDropped(event -> {
-			Dragboard db = event.getDragboard();
-			boolean success = false;
-			if (db.hasFiles())
+		control.setOnDragDropped(event -> {
+			final var db = event.getDragboard();
+			var success = false;
+			if (db.hasFiles() && db.getFiles().size()==1 && Files.isRegularFile(db.getFiles().get(0).toPath()))
 			{
+				if(control instanceof TextInputControl tic)
+					tic.setText(db.getFiles().get(0).toString());
 				cb.call(db.getFiles().get(0).toString());
 				success = true;
 			}
@@ -73,4 +77,116 @@ public class DragNDrop
 		});
 
 	}
+
+	public void addAny(SetFilesCallBack cb)
+	{
+		control.setOnDragOver(event -> {
+			if (event.getGestureSource() != control)
+			{
+				final var db = event.getDragboard();
+				if(db.hasFiles())
+				{
+					event.acceptTransferModes(TransferMode.COPY);
+					control.setStyle(STYLE_ACCEPT);
+					return;
+				}
+			}
+			control.setStyle(STYLE_REJECT);
+			event.consume();
+		});
+		
+		control.setOnDragExited(event -> control.setStyle(""));
+
+		control.setOnDragDropped(event -> {
+			final var db = event.getDragboard();
+			var success = false;
+			if (db.hasFiles())
+			{
+				cb.call(db.getFiles());
+				success = true;
+			}
+			event.setDropCompleted(success);
+			event.consume();
+		});
+
+	}
+
+	public void addDir(SetCallBack cb)
+	{
+		control.setOnDragOver(event -> {
+			if (event.getGestureSource() != control)
+			{
+				final var db = event.getDragboard();
+				if(db.hasFiles() && db.getFiles().size()==1 && Files.isDirectory(db.getFiles().get(0).toPath()))
+				{
+					event.acceptTransferModes(TransferMode.COPY);
+					control.setStyle(STYLE_ACCEPT);
+					return;
+				}
+			}
+			control.setStyle(STYLE_REJECT);
+			event.consume();
+		});
+		
+		control.setOnDragExited(event -> control.setStyle(""));
+
+		control.setOnDragDropped(event -> {
+			final var db = event.getDragboard();
+			var success = false;
+			if (db.hasFiles() && db.getFiles().size()==1 && Files.isDirectory(db.getFiles().get(0).toPath()))
+			{
+				if(control instanceof TextInputControl tic)
+					tic.setText(db.getFiles().get(0).toString());
+				cb.call(db.getFiles().get(0).toString());
+				success = true;
+			}
+			event.setDropCompleted(success);
+			event.consume();
+		});
+
+	}
+	
+	public void addDirs(SetFilesCallBack cb)
+	{
+		control.setOnDragOver(event -> {
+			if (event.getGestureSource() != control)
+			{
+				final var db = event.getDragboard();
+				if(db.hasFiles() && db.getFiles().stream().filter(f -> !Files.isDirectory(f.toPath())).count()==0)
+				{
+					event.acceptTransferModes(TransferMode.COPY);
+					control.setStyle(STYLE_ACCEPT);
+					return;
+				}
+			}
+			control.setStyle(STYLE_REJECT);
+			event.consume();
+		});
+
+		control.setOnDragExited(event -> control.setStyle(""));
+
+		control.setOnDragDropped(event -> {
+			final var db = event.getDragboard();
+			var success = false;
+			if(db.hasFiles() && db.getFiles().stream().filter(f -> !Files.isDirectory(f.toPath())).count()==0)
+			{
+				if(control instanceof ListView)
+				{
+					@SuppressWarnings("unchecked")
+					final var lv = (ListView<File>)control;
+					final var set = new LinkedHashSet<>(lv.getItems());
+					for(final var f : db.getFiles())
+						if(!set.contains(f))
+							lv.getItems().add(f);
+					cb.call(lv.getItems());
+				}
+				else
+					cb.call(db.getFiles());
+				success = true;
+			}
+			event.setDropCompleted(success);
+			event.consume();
+		});
+	}
+	
 }

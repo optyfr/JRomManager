@@ -322,4 +322,9 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 	{
 		errors.add(error);
 	}
+	
+	@Override
+	public void setOptions(Option first, Option... rest)
+	{
+	}
 }

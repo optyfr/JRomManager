@@ -13,7 +13,7 @@
 
 <BorderPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ProfilePanelController">
    <center>
-      <SplitPane dividerPositions="0.2" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.1" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <items>
             <TreeView fx:id="profilesTree" prefHeight="200.0" prefWidth="200.0">
                <contextMenu>
@@ -43,12 +43,12 @@
       <HBox alignment="CENTER" prefHeight="40.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
             <Button fx:id="btnLoad" disable="true" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#actionLoad" text="%MainFrame.btnLoadProfile.text" />
-            <Button fx:id="btnImportDat" mnemonicParsing="false" text="%MainFrame.btnImportDat.text">
+            <Button fx:id="btnImportDat" mnemonicParsing="false" onAction="#actionImportDat" text="%MainFrame.btnImportDat.text">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>
             </Button>
-            <Button fx:id="btnImportSL" mnemonicParsing="false" text="%MainFrame.btnImportSL.text" />
+            <Button fx:id="btnImportSL" mnemonicParsing="false" onAction="#actionImportSL" text="%MainFrame.btnImportSL.text" />
          </children>
          <opaqueInsets>
             <Insets />

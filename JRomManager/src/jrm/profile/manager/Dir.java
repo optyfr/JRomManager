@@ -31,4 +31,18 @@ public class Dir
 	{
 		return name;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof Dir d)
+			return file.equals(d.file);
+		return false;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return file.hashCode();
+	}
 }

@@ -32,6 +32,10 @@ public final class HaveNTotalCellFactory<T> extends TableCell<T,HaveNTotal>
 				have.setStroke(Color.GRAY);
 				tf.getChildren().add(have);
 				tf.getChildren().add(new Text(String.format("/%d", hnt.getTotal())));
+				tf.setMinWidth(USE_PREF_SIZE);
+				tf.setPrefWidth(USE_COMPUTED_SIZE);
+				tf.setTextAlignment(TextAlignment.CENTER);
+				tf.setPrefHeight(10);
 				setGraphic(tf);
 			}
 		}
@@ -46,9 +50,9 @@ public final class HaveNTotalCellFactory<T> extends TableCell<T,HaveNTotal>
 				have.setFill(Color.GREEN);
 			else
 				have.setFill(Color.ORANGE);
+			tf.getChildren().addAll(have, total);
 			tf.setMinWidth(USE_PREF_SIZE);
 			tf.setPrefWidth(USE_COMPUTED_SIZE);
-			tf.getChildren().addAll(have, total);
 			tf.setTextAlignment(TextAlignment.CENTER);
 			tf.setPrefHeight(10);
 			setGraphic(tf);

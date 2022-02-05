@@ -25,7 +25,12 @@ import java.io.InputStream;
  */
 public interface ProgressHandler
 {
+	public enum Option
+	{
+		LAZY;
+	}
 	
+	public void setOptions(Option first, Option... rest);
 	/**
 	 * Sets the infos.
 	 *

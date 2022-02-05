@@ -550,4 +550,11 @@ public class ProgressActions implements ProgressHandler
 		errors.add(error);
 	}
 
+	@Override
+	public void setOptions(Option first, Option... rest)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
 }
