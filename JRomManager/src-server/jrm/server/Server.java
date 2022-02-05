@@ -7,11 +7,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
@@ -19,6 +14,10 @@ import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 
 import jrm.misc.Log;
 import jrm.misc.URIUtils;
@@ -40,7 +39,20 @@ public class Server extends AbstractServer
 
 	static final Map<String, WebSession> sessions = new HashMap<>();
 	
-
+	private static class Args
+	{
+		@Parameter(names = { "-c", "--client", "--clientPath" }, arity = 1, description = "Client path")
+		private String clientPath = null;
+		@Parameter(names = { "-w", "--work", "--workpath" }, arity = 1, description = "Working path")
+		private String workPath;
+		@Parameter(names = { "-d", "--debug" }, description = "Activate debug mode")
+		private boolean debug = false;
+		@Parameter(names = { "-p", "--http" }, arity = 1, description = "http port, default is " + HTTP_PORT_DEFAULT)
+		private int httpPort = HTTP_PORT_DEFAULT;
+		@Parameter(names = { "-b", "--bind" }, arity = 1, description = "bind to address or host, default is " + BIND_DEFAULT)
+		private String bind = BIND_DEFAULT;
+	}
+	
 	/**
 	 * @param cmd
 	 * @throws NumberFormatException
@@ -48,32 +60,24 @@ public class Server extends AbstractServer
 	 */
 	public static void parseArgs(String... args) throws NumberFormatException, IOException
 	{
-		final var options = new Options();
-		options.addOption(new Option("c", "client", true, "Client Path"));
-		options.addOption(new Option("w", "workpath", true, "Working Path"));
-		options.addOption(new Option("d", "debug", false, "Debug"));
-		options.addOption(new Option("p", "http", true, "http port, default is " + HTTP_PORT_DEFAULT));
-		options.addOption(new Option("b", "bind", true, "bind to address or host, default is " + BIND_DEFAULT));
-
+		final var jArgs = new Args();
+		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
 		try
 		{
-			final var cmd = new DefaultParser().parse(options, args);
-			debug = cmd.hasOption('d');
-			clientPath = Optional.ofNullable(cmd.getOptionValue('c')).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
-			if (cmd.hasOption('b'))
-				bind = cmd.getOptionValue('b');
-			if (cmd.hasOption('p'))
-				httpPort = Integer.parseInt(cmd.getOptionValue('p'));
-			if (cmd.hasOption('w'))
-				System.setProperty("jrommanager.dir", cmd.getOptionValue('w').replace("%HOMEPATH%", System.getProperty("user.home")));
+			cmd.parse(args);
+			debug = jArgs.debug;
+			clientPath = Optional.ofNullable(jArgs.clientPath).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
+			bind = jArgs.bind;
+			httpPort = jArgs.httpPort;
+			System.setProperty("jrommanager.dir", jArgs.workPath.replace("%HOMEPATH%", System.getProperty("user.home")));
 			Locale.setDefault(Locale.US);
 			System.setProperty("file.encoding", "UTF-8");
 			Log.init(getLogPath() + "/Server.%g.log", debug, 1024 * 1024, 5);
 		}
-		catch(ParseException e)
+		catch(ParameterException e)
 		{
 			Log.err(e.getMessage(), e);
-			new HelpFormatter().printHelp("Server", options);
+			cmd.usage();
 			System.exit(1);
 		}
 	}

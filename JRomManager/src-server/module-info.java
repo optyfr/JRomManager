@@ -23,7 +23,7 @@ open module jrmserver
 	
 	requires static lombok;
 	
-	requires commons.cli;
+	requires jcommander;
 	requires commons.dbutils;
 	requires minimal.json;
 	

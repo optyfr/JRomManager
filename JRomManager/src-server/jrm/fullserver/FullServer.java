@@ -9,12 +9,6 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.conscrypt.OpenSSLProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
@@ -36,6 +30,10 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 
 import jrm.fullserver.handlers.FullDataSourceServlet;
 import jrm.fullserver.handlers.SessionServlet;
@@ -70,37 +68,48 @@ public class FullServer extends AbstractServer
 	private static String bind;
 	private static int connlimit;
 
+	private static class Args
+	{
+		@Parameter(names = { "-c", "--client", "--clientPath" }, arity = 1, description = "Client path")
+		private String clientPath = null;
+		@Parameter(names = { "-w", "--work", "--workpath" }, arity = 1, description = "Working path")
+		private String workPath;
+		@Parameter(names = { "-d", "--debug" }, description = "Activate debug mode")
+		private boolean debug = false;
+		@Parameter(names = { "-C", "--cert" }, arity = 1, description = "cert file, default is " + KEY_STORE_PATH_DEFAULT)
+		private String cert = KEY_STORE_PATH_DEFAULT;
+		@Parameter(names = { "-s", "--https" }, arity = 1, description = "https port, default is " + HTTPS_PORT_DEFAULT)
+		private int httpsPort = HTTPS_PORT_DEFAULT;
+		@Parameter(names = { "-p", "--http" }, arity = 1, description = "http port, default is " + HTTP_PORT_DEFAULT)
+		private int httpPort = HTTP_PORT_DEFAULT;
+		@Parameter(names = { "-b", "--bind" }, arity = 1, description = "bind to address or host, default is " + BIND_DEFAULT)
+		private String bind = BIND_DEFAULT;
+	}
+
 	/**
 	 * @param cmd
 	 * @throws IOException
 	 */
 	public static void parseArgs(String... args) throws IOException
 	{
-		final var options = new Options();
-		options.addOption(new Option("c", "client", true, "Client Path"));
-		options.addOption(new Option("w", "workpath", true, "Working Path"));
-		options.addOption(new Option("d", "debug", false, "Debug"));
-		options.addOption(new Option("C", "cert", true, "cert file, default is " + KEY_STORE_PATH_DEFAULT));
-		options.addOption(new Option("s", "https", true, "https port, default is " + HTTPS_PORT_DEFAULT));
-		options.addOption(new Option("p", "http", true, "http port, default is " + HTTP_PORT_DEFAULT));
-		options.addOption(new Option("b", "bind", true, "bind to address or host, default is " + BIND_DEFAULT));
-
+		final var jArgs = new Args();
+		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
 		try
 		{
-			final var cmd = new DefaultParser().parse(options, args);
-			debug = cmd.hasOption('d');
-			clientPath = getOption(cmd, 'c').map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
-			bind = getOption(cmd, 'b').orElse(BIND_DEFAULT);
-			httpPort = getOption(cmd, 'p').map(Integer::parseInt).orElse(HTTP_PORT_DEFAULT);
-			httpsPort = getOption(cmd, 's').map(Integer::parseInt).orElse(HTTPS_PORT_DEFAULT);
-			keyStorePath = getOption(cmd, 'C').filter(p->Files.exists(Paths.get(p))).orElse(KEY_STORE_PATH_DEFAULT);
+			cmd.parse(args);
+			debug = jArgs.debug;
+			clientPath = Optional.ofNullable(jArgs.clientPath).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
+			bind = jArgs.bind;
+			httpPort = jArgs.httpPort;
+			httpsPort = jArgs.httpsPort;
+			keyStorePath = Optional.of(jArgs.cert).filter(p->Files.exists(Paths.get(p))).orElse(KEY_STORE_PATH_DEFAULT);
 			if (Files.exists(Paths.get(keyStorePath + ".pw")))
 				keyStorePWPath = keyStorePath + ".pw";
 			else if(keyStorePath.equals(KEY_STORE_PATH_DEFAULT) && Files.exists(Paths.get(KEY_STORE_PW_PATH_DEFAULT)))
 				keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
 			else
 				keyStorePWPath = null;
-			getOption(cmd, 'w').map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
+			Optional.of(jArgs.workPath).map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
 			protocols = PROTOCOLS_DEFAULT;
 			connlimit = CONNLIMIT_DEFAULT;
 			
@@ -108,22 +117,15 @@ public class FullServer extends AbstractServer
 			System.setProperty("file.encoding", "UTF-8");
 			Log.init(getLogPath() + "/Server.%g.log", false, 1024 * 1024, 5);
 		}
-		catch(ParseException e)
+		catch(ParameterException e)
 		{
 			Log.err(e.getMessage(), e);
 			e.printStackTrace();
-			new HelpFormatter().printHelp("Server", options);
+			cmd.usage();
 			System.exit(1);
 		}
 	}
 
-	private static Optional<String> getOption(CommandLine cmd, char c)
-	{
-		if(cmd.hasOption(c))
-			return Optional.ofNullable(cmd.getOptionValue(c));
-		return Optional.empty();
-	}
-	
 	/**
 	 * @param jettyserver
 	 * @return

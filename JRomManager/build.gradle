@@ -218,7 +218,7 @@ subprojects {
 					prefer '2.+'
 				}
 			}
-			implementation('commons-cli:commons-cli') {
+			implementation('com.beust:jcommander') {
 				version {
 					prefer '1.+'
 				}
@@ -519,7 +519,7 @@ project(':JRomManager:jrmcli') {
 	}
 	dependencies {
 		implementation project(':JRomManager:jrmcore')
-		implementation group: 'commons-cli', name: 'commons-cli'
+		implementation group: 'com.beust', name: 'jcommander'
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
@@ -612,7 +612,7 @@ project(':JRomManager:jrmstandalone') {
 		implementation project(':JRomManager:jrmcore')
 		implementation project(':JRomManager:res-icons')
 		implementation group: 'commons-codec', name:'commons-codec'
-		implementation group: 'commons-cli', name: 'commons-cli'
+		implementation group: 'com.beust', name: 'jcommander'
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'one.util', name: 'streamex'
@@ -644,9 +644,23 @@ project(':JRomManager:jrmfx') {
 		version = '17'
 		modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web' ]
 	}
-	
+	/*
 	java {
-		modularity.inferModulePath = true
+		modularity.inferModulePath = false
+	}
+	*/
+	eclipse {
+		classpath {
+			file {
+				whenMerged {
+					entries.findAll { it.properties.path.contains('jcommander'); }.each {
+						it.entryAttributes['module'] = 'true'
+					}
+				}
+			}
+			downloadSources = true
+			downloadJavadoc = true
+		}
 	}
 	
 	sourceSets {
@@ -667,7 +681,7 @@ project(':JRomManager:jrmfx') {
 	dependencies {
 		implementation project(':JRomManager:jrmcore')
 		implementation project(':JRomManager:res-icons')
-		implementation group: 'commons-cli', name: 'commons-cli'
+		implementation group: 'com.beust', name: 'jcommander'
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-text'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
@@ -737,7 +751,7 @@ project(':JRomManager:jrmserver') {
 		implementation project(':JRomManager:jrmstandalone')
 		implementation project(':JRomManager:jrmcore')
 		implementation project(':JRomManager:res-icons')
-		implementation group: 'commons-cli', name: 'commons-cli'
+		implementation group: 'com.beust', name: 'jcommander'
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'org.eclipse.jetty', name:'jetty-server'

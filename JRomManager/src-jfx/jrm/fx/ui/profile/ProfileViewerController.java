@@ -14,8 +14,6 @@ import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -38,7 +36,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -928,17 +925,21 @@ public class ProfileViewerController implements Initializable
 
 	@FXML private void selectNone(ActionEvent e)
 	{
+		tableW.getItems().forEach(ware -> ware.setSelected(false));
+		tableW.refresh();
 		
 	}
 
 	@FXML private void selectAll(ActionEvent e)
 	{
-		
+		tableW.getItems().forEach(ware -> ware.setSelected(true));
+		tableW.refresh();
 	}
 
 	@FXML private void selectInvert(ActionEvent e)
 	{
-		
+		tableW.getItems().forEach(ware -> ware.setSelected(!ware.isSelected()));
+		tableW.refresh();
 	}
 
 	@FXML private void copyCrc(javafx.event.ActionEvent e)

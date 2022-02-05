@@ -26,15 +26,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import com.eclipsesource.json.Json;
 
 import jrm.aui.basic.ResultColUpdater;
@@ -69,8 +66,21 @@ public class JRomManagerCLI
 
 	Progress handler = null;
 
+	private static class Args
+	{
+		@Parameter(names = { "--help", "-h" }, help = true)
+		private boolean help = false;
+	
+		@Parameter(names = { "--interactive", "-i" }, description = "Interactive sheel")
+		private boolean interactive = false;
+	
+		@Parameter(names = { "--file", "-f" }, description = "Input file", arity = 1)
+		private String file = null;
+	}
+
+	
 	@SuppressWarnings("exports")
-	public JRomManagerCLI(CommandLine cmd) throws IOException
+	public JRomManagerCLI(Args cmd) throws IOException
 	{
 		session = Sessions.getSession(true, false);
 		rootdir = cwdir = session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize(); //$NON-NLS-1$
@@ -78,7 +88,7 @@ public class JRomManagerCLI
 		Log.init(session.getUser().getSettings().getLogPath() + "/JRM.%g.log", false, 1024 * 1024, 5); //$NON-NLS-1$
 		handler = new Progress();
 
-		if (cmd.hasOption('i'))
+		if (cmd.interactive)
 		{
 			interactive();
 		}
@@ -92,9 +102,9 @@ public class JRomManagerCLI
 	 * @param cmd
 	 * @throws FileNotFoundException
 	 */
-	private void stream(CommandLine cmd) throws FileNotFoundException
+	private void stream(Args cmd) throws FileNotFoundException
 	{
-		Reader reader = cmd.hasOption('f')?new FileReader(cmd.getOptionValue('f')):new InputStreamReader(System.in);
+		Reader reader = cmd.file!=null?new FileReader(cmd.file):new InputStreamReader(System.in);
 		try (final var in = new BufferedReader(reader);)
 		{
 			String line;
@@ -221,7 +231,7 @@ public class JRomManagerCLI
 		{
 			Log.err(e.getMessage(), e);
 		}
-		catch (ScanException|ParseException e)
+		catch (ScanException|ParameterException e)
 		{
 			System.out.println(e.getMessage());	//NOSONAR
 			Log.err(e.getMessage(), e);
@@ -302,18 +312,27 @@ public class JRomManagerCLI
 		return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
 	}
 
+	private static class RmArgs
+	{
+		@Parameter(names = { "--recursive", "-r" }, description = "Recursive delete")
+		private boolean recurisve;
+
+		@Parameter(description = "Files")
+		private List<String> files = new ArrayList<>();
+	}
+	
 	/**
 	 * @param args
 	 * @return
 	 * @throws ParseException
 	 * @throws IOException
 	 */
-	private int rm(String... args) throws ParseException, IOException
+	private int rm(String... args) throws ParameterException, IOException
 	{
-		final var options = new Options().addOption("r", "recursive", false, "Recursive delete"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
-		for(String arg : cmdline.getArgList())
-			recursiveDelete(Paths.get(arg), cmdline.hasOption('r'));
+		final var jArgs = new RmArgs();
+		JCommander.newBuilder().addObject(jArgs).build().parse(Arrays.copyOfRange(args, 1, args.length));
+		for(String arg : jArgs.files)
+			recursiveDelete(Paths.get(arg), jArgs.recurisve);
 		return 0;
 	}
 
@@ -361,22 +380,31 @@ public class JRomManagerCLI
 		return session.getCurrScan().actions.stream().mapToInt(Collection::size).sum();
 	}
 
+	private static class MdArgs
+	{
+		@Parameter(names = { "--parents", "-p" }, description = "Create parents up to this directory")
+		private boolean parents;
+
+		@Parameter(description = "Files")
+		private List<String> files = new ArrayList<>();
+	}
+	
 	/**
 	 * @param args
 	 * @return
 	 * @throws ParseException
 	 * @throws IOException
 	 */
-	private int md(String... args) throws ParseException, IOException
+	private int md(String... args) throws ParameterException, IOException
 	{
-		final var options = new Options().addOption("p", "parents", false, "create parents up to this directory"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		CommandLine cmdline = new DefaultParser().parse(options, Arrays.copyOfRange(args, 1, args.length), true);
-		for(String arg : cmdline.getArgList())
+		final var jArgs = new MdArgs();
+		JCommander.newBuilder().addObject(jArgs).build().parse(Arrays.copyOfRange(args, 1, args.length));
+		for(String arg : jArgs.files)
 		{
 			final var path = Paths.get(arg);
 			if(!Files.exists(path))
 			{
-				if(cmdline.hasOption('p'))
+				if(jArgs.parents)
 					Files.createDirectories(path);
 				else
 					Files.createDirectory(path);
@@ -442,7 +470,7 @@ public class JRomManagerCLI
 		}
 	}
 
-	private int dirupd8r(String cmd, String... args) throws ParseException
+	private int dirupd8r(String cmd, String... args) throws ParameterException
 	{
 		switch (CMD_DIRUPD8R.of(cmd))
 		{
@@ -505,12 +533,18 @@ public class JRomManagerCLI
 		return 0;
 	}
 
+	private static class DirUpdaterArgs
+	{
+		@Parameter(names = { "--dryrun", "-d" }, description = "Dry run")
+		private boolean dryrun;
+	}
+
 	/**
 	 * @param args
 	 * @return
 	 * @throws ParseException
 	 */
-	private int dirupd8rStart(String... args) throws ParseException
+	private int dirupd8rStart(String... args) throws ParameterException
 	{
 		List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
 		List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs, ""), '|')).map(File::new).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -530,9 +564,9 @@ public class JRomManagerCLI
 					results[i] = ""; //$NON-NLS-1$
 			}
 		};
-		final var options = new Options().addOption("d", "dryrun", false, "Dry run"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		CommandLine cmdline = new DefaultParser().parse(options, args);
-		new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, cmdline.hasOption('d'));
+		final var jArgs = new DirUpdaterArgs();
+		JCommander.newBuilder().addObject(jArgs).build().parse(args);
+		new DirUpdater(session, sdrl, handler, srcdirs, resulthandler, jArgs.dryrun);
 		for (var i = 0; i < results.length; i++)
 			System.out.println(i + " = " + results[i]); //$NON-NLS-1$	//NOSONAR
 		return 0;
@@ -608,7 +642,7 @@ public class JRomManagerCLI
 			return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); //$NON-NLS-1$
 	}
 
-	private int trntchk(String cmd, String... args) throws IOException, ParseException
+	private int trntchk(String cmd, String... args) throws IOException, ParameterException
 	{
 		switch (CMD_TRNTCHK.of(cmd))
 		{
@@ -657,12 +691,27 @@ public class JRomManagerCLI
 		return 0;
 	}
 
+	private static class TrntchkArgs
+	{
+		@Parameter(names = { "--checkmode", "-m" }, arity = 1, description = "Check mode")
+		private String checkmode = null;
+	
+		@Parameter(names = { "--removeunknown", "-u" }, description = "Remove unknown files")
+		private boolean removeunknown = false;
+		
+		@Parameter(names = { "--removewrongsized", "-w" }, description = "Remove wrong sized files")
+		private boolean removewrongsized = false;
+		
+		@Parameter(names = { "--detectarchives", "-a" }, description = "Detect archived folders")
+		private boolean detectarchives = false;
+	}
+
 	/**
 	 * @param args
 	 * @return
 	 * @throws ParseException
 	 */
-	private int trntchkStart(String... args) throws ParseException
+	private int trntchkStart(String... args) throws ParameterException
 	{
 		List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr, "[]")); //$NON-NLS-1$ //$NON-NLS-2$
 		final var results = new String[sdrl.size()];
@@ -681,32 +730,38 @@ public class JRomManagerCLI
 					results[i] = ""; //$NON-NLS-1$
 			}
 		};
-		final var options = new Options()
-				.addOption("m", "checkmode", true, "Check mode") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				.addOption("u", "removeunknown", false, "Remove unknown files") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				.addOption("w", "removewrongsized", false, "Remove wrong sized files") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				.addOption("a", "detectarchives", false, "Detect archived folders"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		CommandLine cmdline = new DefaultParser().parse(options, args);
-		TrntChkMode mode = cmdline.hasOption('m')?TrntChkMode.valueOf(cmdline.getOptionValue('m')):TrntChkMode.FILESIZE;
+		final var jArgs = new TrntchkArgs();
+		JCommander.newBuilder().addObject(jArgs).build().parse(args);
+		TrntChkMode mode = jArgs.checkmode!=null?TrntChkMode.valueOf(jArgs.checkmode):TrntChkMode.FILESIZE;
 		final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
-		if(cmdline.hasOption('u')) opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
-		if(cmdline.hasOption('w')) opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
-		if(cmdline.hasOption('d')) opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
+		if(jArgs.removeunknown) opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
+		if(jArgs.removewrongsized) opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
+		if(jArgs.detectarchives) opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
 		new TorrentChecker(session, handler, sdrl, mode, resulthandler, opts);
 		return 0;
 	}
 
-	private int compressor(String... args) throws IOException, ParseException
+	private static class CompressorArgs
 	{
-		final var options = new Options()
-				.addRequiredOption("c", "compressor", true, "Compression format") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				.addOption("f", "force", false, "Force recompression"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		@Parameter(names = { "--compressor", "-c" }, arity = 1, required = true, description = "Compression format")
+		private String compressor;
+
+		@Parameter(names = { "--force", "-f" }, description = "Force compression")
+		private boolean force;
+
+		@Parameter(description = "Files")
+		private List<String> files = new ArrayList<>();
+	}
+
+	private int compressor(String... args) throws IOException, ParameterException
+	{
+		final var jArgs = new CompressorArgs();
+		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
 		try
 		{
-			CommandLine cmdline = new DefaultParser().parse(options, args, true);
-			CompressorFormat format = cmdline.hasOption('c')?CompressorFormat.valueOf(cmdline.getOptionValue('c')):CompressorFormat.TZIP;
-			boolean force = cmdline.hasOption('f');
-			for(final var arg : cmdline.getArgList())
+			cmd.parse(args);
+			CompressorFormat format = jArgs.compressor!=null?CompressorFormat.valueOf(jArgs.compressor):CompressorFormat.TZIP;
+			for(final var arg : jArgs.files)
 			{
 				final var path = Paths.get(arg);
 				final List<FileResult> frl;
@@ -714,7 +769,7 @@ public class JRomManagerCLI
 				{
 					try(final var stream = Files.walk(path))
 					{
-						frl = stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.getExtensions())).map(FileResult::new).collect(Collectors.toList());
+						frl = stream.filter(p -> Files.isRegularFile(p) && FilenameUtils.isExtension(p.getFileName().toString(), Compressor.getExtensions())).map(FileResult::new).toList();
 					}
 				}
 				else
@@ -726,14 +781,14 @@ public class JRomManagerCLI
 					cnt.incrementAndGet();
 					Compressor.UpdResultCallBack cb = fr::setResult;
 					Compressor.UpdSrcCallBack scb = src -> fr.setFile(src.toPath());
-					compressor.compress(format, file.toFile(), force, cb, scb);
+					compressor.compress(format, file.toFile(), jArgs.force, cb, scb);
 				});
 			}
 		}
-		catch (ParseException e)
+		catch (ParameterException e)
 		{
 			Log.err(e.getMessage(), e);
-			new HelpFormatter().printHelp(CMD.COMPRESSOR.toString(), options);
+			cmd.usage();
 			throw e;
 		}
 		return 0;
@@ -859,17 +914,17 @@ public class JRomManagerCLI
 
 	public static void main(String[] args)
 	{
-		final var options = new Options();
-		options.addOption(new Option("i", "interactive", false, "Interactive shell")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		options.addOption(new Option("f", "file", true, "Input file")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final var jArgs = new Args();
+		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
 		try
 		{
-			new JRomManagerCLI(new DefaultParser().parse(options, args));
+			cmd.parse(args);
+			new JRomManagerCLI(jArgs);
 		}
-		catch (ParseException e)
+		catch (ParameterException e)
 		{
 			Log.err(e.getMessage(), e);
-			new HelpFormatter().printHelp(JRomManagerCLI.class.getName(), options);
+			cmd.usage();
 			System.exit(1);
 		}
 		catch (IOException e)

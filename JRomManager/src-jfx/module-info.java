@@ -15,7 +15,7 @@ module jrmfx
 	
 	requires com.google.gson;
 	
-	requires commons.cli;
+	requires jcommander;
 	requires org.apache.commons.io;
 	requires org.apache.commons.lang3;
 	requires org.apache.commons.text;

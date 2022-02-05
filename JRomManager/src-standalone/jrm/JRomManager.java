@@ -21,13 +21,11 @@ import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 
 import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
@@ -47,37 +45,36 @@ public final class JRomManager
 {
 	private static @Getter MainFrame mainFrame;
 
+	private static class Args
+	{
+		@Parameter(names = { "-m", "--multiuser" }, description = "Multi-user mode")
+		private boolean multiuser = false;
+		@Parameter(names = { "-n", "--noupdate" }, description = "Don't search for update")
+		private boolean noupdate = false;
+		@Parameter(names = { "-d", "--debug" }, description = "Activate debug mode")
+		private boolean debug = false;
+	}
+	
 	public static void main(final String[] args)
 	{
 		System.setProperty("file.encoding", "UTF-8");
 		Sessions.setSingleMode(true);
 		HTMLRenderer.Options.setHTML5(false);
-		var multiuser = false;
-		var noupdate = false;
-		var debug = false;
-		final var options = new Options();
-		options.addOption(new Option("m", "multiuser", false, "Multi-user mode"));
-		options.addOption(new Option("n", "noupdate", false, "Don't search for update"));
-		options.addOption(new Option("d", "debug", false, "Activate debug mode"));
+		final var jArgs = new Args();
+		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
 		try
 		{
-			CommandLine cmd = new DefaultParser().parse(options, args);
-			if (cmd.hasOption('m'))
-				multiuser = true;
-			if (cmd.hasOption('n'))
-				noupdate = true;
-			if (cmd.hasOption('d'))
-				debug = true;
+			cmd.parse(args);
 		}
-		catch (ParseException e)
+		catch (ParameterException e)
 		{
 			Log.err(e.getMessage(), e);
-			new HelpFormatter().printHelp("JRomManager", options);
+			cmd.usage();
 			System.exit(1);
 		}
-		final var session = Sessions.getSession(multiuser, noupdate);
-		Log.init(session.getUser().getSettings().getLogPath() + "/JRM.%g.log", debug, 1024 * 1024, 5);
-		if (!debug)
+		final var session = Sessions.getSession(jArgs.multiuser, jArgs.noupdate);
+		Log.init(session.getUser().getSettings().getLogPath() + "/JRM.%g.log", jArgs.debug, 1024 * 1024, 5);
+		if (!jArgs.debug)
 			Log.setLevel(Level.parse(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_level, Log.getLevel().toString())));
 		if (JRomManager.lockInstance(session, FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{

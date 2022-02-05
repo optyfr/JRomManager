@@ -13,7 +13,7 @@ module jrmstandalone
 	
 	requires java.desktop;
 	
-	requires commons.cli;
+	requires jcommander;
 	requires minimal.json;
 
 	requires org.apache.commons.io;
