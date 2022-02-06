@@ -18,7 +18,7 @@ public class MainFrameController implements Initializable
 	@FXML private Tab profilePanelTab;
 	@FXML private @Getter Tab scannerPanelTab;
 	
-	@FXML private ProfilePanelController profilePanelController ;
+	@FXML private @Getter ProfilePanelController profilePanelController ;
 	@FXML private ScannerPanelController scannerPanelController ;
 	
 	@Override

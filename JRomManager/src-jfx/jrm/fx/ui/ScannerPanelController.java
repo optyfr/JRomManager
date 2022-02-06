@@ -226,6 +226,7 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 							 */
 							initProfileSettings(session);
 							MainFrame.getController().getTabPane().getSelectionModel().select(1);
+							MainFrame.getController().getProfilePanelController().refreshList();
 						}
 						this.close();
 					}
