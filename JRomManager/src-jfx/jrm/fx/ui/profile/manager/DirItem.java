@@ -64,6 +64,8 @@ public class DirItem extends TreeItem<Dir>
 	{
 		getChildren().clear();
 		buildDirTree(getValue(), this);
+		if(!isLeaf())
+			setExpanded(true);
 	}
 	
 }
