@@ -228,8 +228,7 @@ public class Profile implements Serializable
 				currTag = qName;
 				switch(qName)
 				{
-					case "name":
-					case "datafile":
+					case "mame", "datafile":
 						startDatfile(attributes);
 						break;
 					case "header":
@@ -253,8 +252,7 @@ public class Profile implements Serializable
 					case "diskarea":
 						startSoftwarePartDiskarea(attributes);
 						break;
-					case "machine":
-					case "game":
+					case "machine", "game":
 						startMachine(attributes);
 						break;
 					case DESCRIPTION:
@@ -906,12 +904,10 @@ public class Profile implements Serializable
 						ExceptionUtils.unthrowF(currDataArea::setSize, Integer::decode, value, t -> ExceptionUtils.test(t, "0x" + value, 0));
 						break;
 					}
-					case "width": //$NON-NLS-1$
-					case "databits": //$NON-NLS-1$
+					case "width", "databits": //$NON-NLS-1$
 						currDataArea.setDatabits(Integer.valueOf(attributes.getValue(i)));
 						break;
-					case "endianness": //$NON-NLS-1$
-					case "endian": //$NON-NLS-1$
+					case "endianness", "endian": //$NON-NLS-1$
 						currDataArea.setEndianness(Endianness.valueOf(attributes.getValue(i)));
 						break;
 					default:
@@ -1423,6 +1419,7 @@ public class Profile implements Serializable
 		profile.nfo.getStats().setTotalSets(profile.softwaresCnt + profile.machinesCnt);
 		profile.nfo.getStats().setTotalRoms(profile.romsCnt + profile.swromsCnt);
 		profile.nfo.getStats().setTotalDisks(profile.disksCnt + profile.swdisksCnt);
+		profile.nfo.save(session);
 		// Load profile settings
 		handler.setProgress("Loading settings...", -1); //$NON-NLS-1$
 		profile.loadSettings();
