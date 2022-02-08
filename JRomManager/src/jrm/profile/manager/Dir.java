@@ -45,4 +45,11 @@ public class Dir
 	{
 		return file.hashCode();
 	}
+	
+	public Dir renameTo(File newFile)
+	{
+		if(this.file.renameTo(newFile))
+			return new Dir(newFile);
+		return this;
+	}
 }

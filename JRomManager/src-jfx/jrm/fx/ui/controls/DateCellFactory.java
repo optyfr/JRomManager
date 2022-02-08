@@ -4,11 +4,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javafx.scene.control.TableCell;
+import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import jrm.profile.manager.ProfileNFO;
 
 public final class DateCellFactory extends TableCell<ProfileNFO, Date>
 {
+	private static final SimpleDateFormat DATEFMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+	
 	@Override
 	protected void updateItem(Date item, boolean empty)
 	{
@@ -20,7 +23,11 @@ public final class DateCellFactory extends TableCell<ProfileNFO, Date>
 			setText("????-??-?? ??:??:??");
 		}
 		else
-			setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(item));
+		{
+			final var date = DATEFMT.format(item);
+			setText(date);
+			setTooltip(new Tooltip(date));
+		}
 		setGraphic(null);
 		setStyle("");
 	}

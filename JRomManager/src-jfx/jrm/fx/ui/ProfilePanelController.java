@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -22,18 +23,22 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import jrm.fx.ui.controls.DateCellFactory;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.controls.NameCellFactory;
@@ -70,6 +75,14 @@ public class ProfilePanelController implements Initializable
 	@FXML TableColumn<ProfileNFO, Date> profileCreatedCol;
 	@FXML TableColumn<ProfileNFO, Date> profileLastScanCol;
 	@FXML TableColumn<ProfileNFO, Date> profileLastFixCol;
+	@FXML MenuItem createFolderMenu;
+	@FXML MenuItem deleteFolderMenu;
+	@FXML MenuItem deleteProfileMenu;
+	@FXML MenuItem renameProfileMenu;
+	@FXML MenuItem dropCacheMenu;
+	@FXML MenuItem updateFromMameMenu;
+	@FXML ContextMenu folderMenu;
+	@FXML ContextMenu profileMenu;
 
 	final Session session = Sessions.getSingleSession();
 	private @Setter ProfileLoader profileLoader;
@@ -80,6 +93,44 @@ public class ProfilePanelController implements Initializable
 		btnLoad.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/add.png")));
 		btnImportDat.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_go.png")));
 		btnImportSL.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_go.png")));
+		createFolderMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/folder_add.png")));
+		deleteFolderMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/folder_delete.png")));
+		deleteProfileMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_delete.png")));
+		renameProfileMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_edit.png")));
+		dropCacheMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bin.png")));
+		folderMenu.setOnShowing(e -> {
+			final var selected = profilesTree.getSelectionModel().getSelectedItem();
+			deleteFolderMenu.setDisable(selected==null);
+			createFolderMenu.setDisable(selected==null);
+		});
+		profileMenu.setOnShowing(e -> {
+			final var selected = profilesList.getSelectionModel().getSelectedItem();
+			deleteProfileMenu.setDisable(selected==null);
+			renameProfileMenu.setDisable(selected==null);
+			dropCacheMenu.setDisable(selected==null);
+			updateFromMameMenu.setDisable(selected==null||!selected.isJRM());
+		});
+		profilesTree.setCellFactory(p -> new TextFieldTreeCell<>(new StringConverter<>()
+		{
+			private Dir dir;
+			
+			@Override
+			public String toString(Dir dir)
+			{
+				this.dir = dir;
+				return dir.toString();
+			}
+
+			@Override
+			public Dir fromString(String string)
+			{
+				return dir.renameTo(dir.getFile().toPath().getParent().resolve(string).toFile());
+			}
+		}));
+		profilesTree.setOnEditCommit(e -> Platform.runLater(() -> {
+			if (getTreeViewItem(profilesTree.getRoot(), e.getNewValue()) instanceof DirItem newItem)
+				newItem.reload();
+		}));
 		profilesTree.setRoot(new DirItem(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile()));
 		profilesTree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> populate(newValue));
 		profilesTree.getSelectionModel().select(0);
@@ -172,6 +223,8 @@ public class ProfilePanelController implements Initializable
 	 */
 	private void populate(TreeItem<Dir> newValue)
 	{
+		if(newValue==null)
+			return;
 		profilesList.setItems(FXCollections.observableArrayList(ProfileNFO.list(session, newValue.getValue().getFile())));
 	}
 
@@ -468,6 +521,70 @@ public class ProfilePanelController implements Initializable
 	public void refreshList()
 	{
 		profilesList.refresh();
+	}
+	
+	@FXML private void createFolder(ActionEvent e)
+	{
+		final var selectedItem = profilesTree.getSelectionModel().getSelectedItem();
+		if(selectedItem instanceof DirItem d)
+		{
+			final var newDir = new Dir(new File(selectedItem.getValue().getFile(), Messages.getString("MainFrame.NewFolder")));
+			d.reload();
+			final var newItem = getTreeViewItem(d, newDir);
+			profilesTree.getSelectionModel().clearSelection();
+			profilesTree.getSelectionModel().select(newItem);
+			profilesTree.layout();
+			profilesTree.edit(newItem);
+		}
+	}
+	
+	@FXML private void deleteFolder(ActionEvent e)
+	{
+		final var selectedItem = profilesTree.getSelectionModel().getSelectedItem();
+		if(selectedItem instanceof DirItem d)
+		{
+			try
+			{
+				boolean empty = false;
+				try (final var entries = Files.list(d.getValue().getFile().toPath()))
+				{
+					empty = !entries.findFirst().isPresent();
+				}
+				boolean doit = empty;
+				if (!empty)
+					doit = Dialogs.showConfirmation("Dir not empty", "This directory is not empty, delete?", ButtonType.YES, ButtonType.NO).map(t -> t == ButtonType.YES).orElse(false);
+				if (doit)
+				{
+					FileUtils.deleteDirectory(d.getValue().getFile());
+					selectedItem.getParent().getChildren().remove(d);
+				}
+			}
+			catch(IOException ex)
+			{
+				Log.err(ex.getMessage(), ex);
+				Dialogs.showAlert(ex.getMessage());
+			}
+		}
+	}
+
+	@FXML private void deleteProfile(ActionEvent e)
+	{
+		
+	}
+
+	@FXML private void renameProfile(ActionEvent e)
+	{
+		
+	}
+
+	@FXML private void dropCache(ActionEvent e)
+	{
+		
+	}
+
+	@FXML private void updateFromMame(ActionEvent e)
+	{
+		
 	}
 	
 }

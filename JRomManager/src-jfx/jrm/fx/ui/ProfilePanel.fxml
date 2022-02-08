@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -15,26 +16,37 @@
    <center>
       <SplitPane dividerPositions="0.1" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <items>
-            <TreeView fx:id="profilesTree" prefHeight="200.0" prefWidth="200.0">
+            <TreeView fx:id="profilesTree" editable="true" prefHeight="200.0" prefWidth="200.0">
                <contextMenu>
-                  <ContextMenu anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+                  <ContextMenu fx:id="folderMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="%MainFrame.mntmCreateFolder.text" />
-                        <MenuItem mnemonicParsing="false" text="%MainFrame.mntmDeleteFolder.text" />
+                        <MenuItem fx:id="createFolderMenu" mnemonicParsing="false" onAction="#createFolder" text="%MainFrame.mntmCreateFolder.text" />
+                        <MenuItem fx:id="deleteFolderMenu" mnemonicParsing="false" onAction="#deleteFolder" text="%MainFrame.mntmDeleteFolder.text" />
                     </items>
                   </ContextMenu>
                </contextMenu></TreeView>
             <TableView fx:id="profilesList" prefHeight="200.0" prefWidth="200.0">
                <columns>
-                  <TableColumn fx:id="profileCol" editable="false" prefWidth="200.0" sortable="false" text="%FileTableModel.Profile" />
-                  <TableColumn fx:id="profileVersionCol" editable="false" prefWidth="50.0" sortable="false" text="%FileTableModel.Version" />
+                  <TableColumn fx:id="profileCol" editable="false" prefWidth="250.0" sortable="false" text="%FileTableModel.Profile" />
+                  <TableColumn fx:id="profileVersionCol" editable="false" prefWidth="60.0" sortable="false" text="%FileTableModel.Version" />
                   <TableColumn fx:id="profileHaveSetsCol" editable="false" prefWidth="90.0" sortable="false" text="%FileTableModel.HaveSets" />
                   <TableColumn fx:id="profileHaveRomsCol" editable="false" prefWidth="90.0" sortable="false" text="%FileTableModel.HaveRoms" />
                   <TableColumn fx:id="profileHaveDisksCol" editable="false" prefWidth="70.0" sortable="false" text="%FileTableModel.HaveDisks" />
-                  <TableColumn fx:id="profileCreatedCol" editable="false" prefWidth="125.0" sortable="false" text="%FileTableModel.Created" />
-                  <TableColumn fx:id="profileLastScanCol" editable="false" prefWidth="125.0" sortable="false" text="%FileTableModel.Scanned" />
-                  <TableColumn fx:id="profileLastFixCol" editable="false" prefWidth="125.0" sortable="false" text="%FileTableModel.Fixed" />
+                  <TableColumn fx:id="profileCreatedCol" editable="false" prefWidth="90.0" sortable="false" text="%FileTableModel.Created" />
+                  <TableColumn fx:id="profileLastScanCol" editable="false" prefWidth="90.0" sortable="false" text="%FileTableModel.Scanned" />
+                  <TableColumn fx:id="profileLastFixCol" editable="false" prefWidth="90.0" sortable="false" text="%FileTableModel.Fixed" />
                </columns>
+               <contextMenu>
+                  <ContextMenu fx:id="profileMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+                    <items>
+                        <MenuItem fx:id="deleteProfileMenu" mnemonicParsing="false" onAction="#deleteProfile" text="%MainFrame.mntmDeleteProfile.text" />
+                        <MenuItem fx:id="renameProfileMenu" mnemonicParsing="false" onAction="#renameProfile" text="%MainFrame.mntmRenameProfile.text" />
+                        <MenuItem fx:id="dropCacheMenu" mnemonicParsing="false" onAction="#dropCache" text="%MainFrame.mntmDropCache.text" />
+                        <SeparatorMenuItem />
+                        <MenuItem fx:id="updateFromMameMenu" mnemonicParsing="false" onAction="#updateFromMame" text="%MainFrame.mntmUpdateFromMame.text" />
+                    </items>
+                  </ContextMenu>
+               </contextMenu>
             </TableView>
          </items>
       </SplitPane>
