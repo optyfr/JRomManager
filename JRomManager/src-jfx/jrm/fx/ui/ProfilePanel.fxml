@@ -25,7 +25,7 @@
                     </items>
                   </ContextMenu>
                </contextMenu></TreeView>
-            <TableView fx:id="profilesList" prefHeight="200.0" prefWidth="200.0">
+            <TableView fx:id="profilesList" editable="true" prefHeight="200.0" prefWidth="200.0">
                <columns>
                   <TableColumn fx:id="profileCol" editable="false" prefWidth="250.0" sortable="false" text="%FileTableModel.Profile" />
                   <TableColumn fx:id="profileVersionCol" editable="false" prefWidth="60.0" sortable="false" text="%FileTableModel.Version" />

@@ -75,7 +75,7 @@ public class FullServer extends AbstractServer
 		@Parameter(names = { "-c", "--client", "--clientPath" }, arity = 1, description = "Client path")
 		private String clientPath = null;
 		@Parameter(names = { "-w", "--work", "--workpath" }, arity = 1, description = "Working path")
-		private String workPath;
+		private String workPath = null;
 		@Parameter(names = { "-d", "--debug" }, description = "Activate debug mode")
 		private boolean debug = false;
 		@Parameter(names = { "-C", "--cert" }, arity = 1, description = "cert file, default is " + KEY_STORE_PATH_DEFAULT)
@@ -111,7 +111,7 @@ public class FullServer extends AbstractServer
 				keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
 			else
 				keyStorePWPath = null;
-			Optional.of(jArgs.workPath).map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
+			Optional.ofNullable(jArgs.workPath).map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
 			protocols = PROTOCOLS_DEFAULT;
 			connlimit = CONNLIMIT_DEFAULT;
 			

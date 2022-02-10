@@ -100,15 +100,15 @@ public class ProfilePanelController implements Initializable
 		dropCacheMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bin.png")));
 		folderMenu.setOnShowing(e -> {
 			final var selected = profilesTree.getSelectionModel().getSelectedItem();
-			deleteFolderMenu.setDisable(selected==null);
-			createFolderMenu.setDisable(selected==null);
+			deleteFolderMenu.setDisable(selected == null);
+			createFolderMenu.setDisable(selected == null);
 		});
 		profileMenu.setOnShowing(e -> {
 			final var selected = profilesList.getSelectionModel().getSelectedItem();
-			deleteProfileMenu.setDisable(selected==null);
-			renameProfileMenu.setDisable(selected==null);
-			dropCacheMenu.setDisable(selected==null);
-			updateFromMameMenu.setDisable(selected==null||!selected.isJRM());
+			deleteProfileMenu.setDisable(selected == null);
+			renameProfileMenu.setDisable(selected == null);
+			dropCacheMenu.setDisable(selected == null);
+			updateFromMameMenu.setDisable(selected == null || !selected.isJRM());
 		});
 		profilesTree.setCellFactory(p -> new TextFieldTreeCell<>(new StringConverter<>()
 		{
@@ -134,7 +134,23 @@ public class ProfilePanelController implements Initializable
 		profilesTree.setRoot(new DirItem(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile()));
 		profilesTree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> populate(newValue));
 		profilesTree.getSelectionModel().select(0);
-		profileCol.setCellFactory(param -> new NameCellFactory<>());
+		profileCol.setEditable(true);
+		profilesList.setEditable(true);
+		profileCol.setCellFactory(param -> new NameCellFactory<>(new StringConverter<>()
+		{
+
+			@Override
+			public String toString(String object)
+			{
+				return object;
+			}
+
+			@Override
+			public String fromString(String string)
+			{
+				return string;
+			}
+		}));
 		profileCol.setCellValueFactory(param -> new ObservableValueBase<String>()
 		{
 			@Override
@@ -574,7 +590,7 @@ public class ProfilePanelController implements Initializable
 
 	@FXML private void renameProfile(ActionEvent e)
 	{
-		
+		profilesList.edit(profilesList.getSelectionModel().getSelectedIndex(), profileCol);
 	}
 
 	@FXML private void dropCache(ActionEvent e)

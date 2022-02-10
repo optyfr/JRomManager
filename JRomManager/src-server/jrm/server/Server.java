@@ -46,7 +46,7 @@ public class Server extends AbstractServer
 		@Parameter(names = { "-c", "--client", "--clientPath" }, arity = 1, description = "Client path")
 		private String clientPath = null;
 		@Parameter(names = { "-w", "--work", "--workpath" }, arity = 1, description = "Working path")
-		private String workPath;
+		private String workPath = null;
 		@Parameter(names = { "-d", "--debug" }, description = "Activate debug mode")
 		private boolean debug = false;
 		@Parameter(names = { "-p", "--http" }, arity = 1, description = "http port")
@@ -71,7 +71,7 @@ public class Server extends AbstractServer
 			clientPath = Optional.ofNullable(jArgs.clientPath).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
 			bind = jArgs.bind;
 			httpPort = jArgs.httpPort;
-			System.setProperty("jrommanager.dir", jArgs.workPath.replace("%HOMEPATH%", System.getProperty("user.home")));
+			Optional.ofNullable(jArgs.workPath).map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
 			Locale.setDefault(Locale.US);
 			System.setProperty("file.encoding", "UTF-8");
 			Log.init(getLogPath() + "/Server.%g.log", debug, 1024 * 1024, 5);

@@ -1,13 +1,21 @@
 package jrm.fx.ui.controls;
 
-import javafx.scene.control.TableCell;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.StringConverter;
 
-public final class NameCellFactory<T> extends TableCell<T,String>
+public final class NameCellFactory<T> extends TextFieldTableCell<T, String>
 {
-	@Override
-	protected void updateItem(String item, boolean empty)
+	public NameCellFactory(StringConverter<String> converter)
 	{
+		super(converter);
+		setEditable(true);
+	}
+	
+	@Override
+	public void updateItem(String item, boolean empty)
+	{
+		super.updateItem(item, empty);
 		if (empty)
 			setText("");
 		else
