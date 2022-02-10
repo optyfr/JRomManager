@@ -11,7 +11,13 @@ public final class NameCellFactory<T> extends TextFieldTableCell<T, String>
 		super(converter);
 		setEditable(true);
 	}
-	
+
+	public NameCellFactory()
+	{
+		super();
+		setEditable(true);
+	}
+
 	@Override
 	public void updateItem(String item, boolean empty)
 	{

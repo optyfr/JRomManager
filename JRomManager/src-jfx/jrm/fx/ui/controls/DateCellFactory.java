@@ -10,7 +10,7 @@ import jrm.profile.manager.ProfileNFO;
 
 public final class DateCellFactory extends TableCell<ProfileNFO, Date>
 {
-	private static final SimpleDateFormat DATEFMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+	private final SimpleDateFormat DATEFMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
 	
 	@Override
 	protected void updateItem(Date item, boolean empty)

@@ -133,10 +133,13 @@ public class JRomManagerCLI
 			do
 			{
 				if (session.getCurrProfile() != null)
-					System.out.format("jrm [%s]> ", session.getCurrProfile().getNfo().getFile().getName()); //$NON-NLS-1$	//NOSONAR
+					System.out.format("jrm [%s]> ", session.getCurrProfile().getNfo().getFile().getName()); //$NON-NLS-1$ //NOSONAR
 				else
-					System.out.print("jrm> "); //$NON-NLS-1$	//NOSONAR
-				analyze(splitLine(console.readLine()));
+					System.out.print("jrm> "); //$NON-NLS-1$ //NOSONAR
+				final var line = console.readLine();
+				if (line == null)
+					break;
+				analyze(splitLine(line));
 			}
 			while (true); // we break out with <control><C>
 		}

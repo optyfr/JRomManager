@@ -6,10 +6,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.FileUtils;
@@ -27,6 +29,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -127,15 +130,11 @@ public class ProfilePanelController implements Initializable
 				return dir.renameTo(dir.getFile().toPath().getParent().resolve(string).toFile());
 			}
 		}));
-		profilesTree.setOnEditCommit(e -> Platform.runLater(() -> {
-			if (getTreeViewItem(profilesTree.getRoot(), e.getNewValue()) instanceof DirItem newItem)
-				newItem.reload();
-		}));
+		profilesTree.setOnEditCommit(this::editCommitProfileDir);
 		profilesTree.setRoot(new DirItem(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile()));
 		profilesTree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> populate(newValue));
 		profilesTree.getSelectionModel().select(0);
 		profileCol.setEditable(true);
-		profilesList.setEditable(true);
 		profileCol.setCellFactory(param -> new NameCellFactory<>(new StringConverter<>()
 		{
 
@@ -151,6 +150,7 @@ public class ProfilePanelController implements Initializable
 				return string;
 			}
 		}));
+		profileCol.setOnEditCommit(this::editCommitProfile);
 		profileCol.setCellValueFactory(param -> new ObservableValueBase<String>()
 		{
 			@Override
@@ -231,7 +231,48 @@ public class ProfilePanelController implements Initializable
 			});
 			return row;
 		});
+		profilesList.setEditable(true);
 		new DragNDrop(profilesList).addAny(files -> importDat(files, true));
+	}
+
+	/**
+	 * 
+	 */
+	private void editCommitProfileDir(TreeView.EditEvent<Dir> e)
+	{
+		Platform.runLater(() -> {
+			if (getTreeViewItem(profilesTree.getRoot(), e.getNewValue()) instanceof DirItem newItem)
+				newItem.reload();
+		});
+	}
+
+	/**
+	 * @param e
+	 */
+	private void editCommitProfile(CellEditEvent<ProfileNFO, String> e)
+	{
+		final ProfileNFO pnfo = e.getRowValue();
+		AtomicInteger err = new AtomicInteger();
+		Arrays.asList("", ".properties", ".cache").forEach(ext -> { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final var oldfile = new File(pnfo.getFile().getParentFile(), pnfo.getName() + ext);
+			final var newfile = new File(pnfo.getFile().getParentFile(), e.getNewValue() + ext);
+			final var success = oldfile.renameTo(newfile);
+			err.set((err.get() << 1) | (success ? 0 : 1));
+			if (!success)
+				Log.warn(() -> "Can't rename " + oldfile.getName() + " to " + newfile.getName());
+		});
+		if (err.get() != 0)
+		{
+			Dialogs.showAlert("Can't rename " + e.getOldValue() + " to " + e.getNewValue());
+			e.getTableView().refresh();
+		}
+		else
+		{
+			final var newNfoFile = new File(pnfo.getFile().getParentFile(), e.getNewValue());
+			if (session.getCurrProfile() != null && session.getCurrProfile().getNfo().getFile().equals(pnfo.getFile()))
+				session.getCurrProfile().getNfo().relocate(session, newNfoFile);
+			pnfo.relocate(session, newNfoFile);
+		}
 	}
 
 	/**
