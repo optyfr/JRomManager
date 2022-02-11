@@ -4,9 +4,9 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 
-public final class NameCellFactory<T> extends TextFieldTableCell<T, String>
+public class NameCellFactory<T> extends TextFieldTableCell<T, T>
 {
-	public NameCellFactory(StringConverter<String> converter)
+	public NameCellFactory(StringConverter<T> converter)
 	{
 		super(converter);
 		setEditable(true);
@@ -19,15 +19,15 @@ public final class NameCellFactory<T> extends TextFieldTableCell<T, String>
 	}
 
 	@Override
-	public void updateItem(String item, boolean empty)
+	public void updateItem(T item, boolean empty)
 	{
 		super.updateItem(item, empty);
 		if (empty)
 			setText("");
 		else
 		{
-			setText(item);
-			setTooltip(new Tooltip(item));
+			setText(item.toString());
+			setTooltip(new Tooltip(item.toString()));
 		}
 		setGraphic(null);
 		setStyle("");

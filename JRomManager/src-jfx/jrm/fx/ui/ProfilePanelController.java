@@ -44,7 +44,7 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import jrm.fx.ui.controls.DateCellFactory;
 import jrm.fx.ui.controls.Dialogs;
-import jrm.fx.ui.controls.NameCellFactory;
+import jrm.fx.ui.controls.ProfileCellFactory;
 import jrm.fx.ui.controls.VersionCellFactory;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.profile.manager.DirItem;
@@ -70,7 +70,7 @@ public class ProfilePanelController implements Initializable
 	@FXML Button btnImportSL;
 	@FXML TreeView<Dir> profilesTree;
 	@FXML TableView<ProfileNFO> profilesList;
-	@FXML TableColumn<ProfileNFO, String> profileCol;
+	@FXML TableColumn<ProfileNFO, ProfileNFO> profileCol;
 	@FXML TableColumn<ProfileNFO, String> profileVersionCol;
 	@FXML TableColumn<ProfileNFO, HaveNTotal> profileHaveSetsCol;
 	@FXML TableColumn<ProfileNFO, HaveNTotal> profileHaveRomsCol;
@@ -135,28 +135,14 @@ public class ProfilePanelController implements Initializable
 		profilesTree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> populate(newValue));
 		profilesTree.getSelectionModel().select(0);
 		profileCol.setEditable(true);
-		profileCol.setCellFactory(param -> new NameCellFactory<>(new StringConverter<>()
-		{
-
-			@Override
-			public String toString(String object)
-			{
-				return object;
-			}
-
-			@Override
-			public String fromString(String string)
-			{
-				return string;
-			}
-		}));
+		profileCol.setCellFactory(param -> new ProfileCellFactory());
 		profileCol.setOnEditCommit(this::editCommitProfile);
-		profileCol.setCellValueFactory(param -> new ObservableValueBase<String>()
+		profileCol.setCellValueFactory(param -> new ObservableValueBase<>()
 		{
 			@Override
-			public String getValue()
+			public ProfileNFO getValue()
 			{
-				return param.getValue().getName();
+				return param.getValue();
 			}
 		});
 		profileVersionCol.setCellFactory(param -> new VersionCellFactory<>());
@@ -249,26 +235,26 @@ public class ProfilePanelController implements Initializable
 	/**
 	 * @param e
 	 */
-	private void editCommitProfile(CellEditEvent<ProfileNFO, String> e)
+	private void editCommitProfile(CellEditEvent<ProfileNFO, ProfileNFO> e)
 	{
 		final ProfileNFO pnfo = e.getRowValue();
 		AtomicInteger err = new AtomicInteger();
 		Arrays.asList("", ".properties", ".cache").forEach(ext -> { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			final var oldfile = new File(pnfo.getFile().getParentFile(), pnfo.getName() + ext);
-			final var newfile = new File(pnfo.getFile().getParentFile(), e.getNewValue() + ext);
-			final var success = oldfile.renameTo(newfile);
+			final var newfile = new File(pnfo.getFile().getParentFile(), e.getNewValue().getNewName() + ext);
+			final var success = !oldfile.equals(newfile)&&oldfile.renameTo(newfile);
 			err.set((err.get() << 1) | (success ? 0 : 1));
 			if (!success)
 				Log.warn(() -> "Can't rename " + oldfile.getName() + " to " + newfile.getName());
 		});
 		if (err.get() != 0)
 		{
-			Dialogs.showAlert("Can't rename " + e.getOldValue() + " to " + e.getNewValue());
+			Dialogs.showAlert("Can't rename " + e.getOldValue().getName() + " to " + e.getNewValue().getNewName());
 			e.getTableView().refresh();
 		}
 		else
 		{
-			final var newNfoFile = new File(pnfo.getFile().getParentFile(), e.getNewValue());
+			final var newNfoFile = new File(pnfo.getFile().getParentFile(), e.getNewValue().getNewName());
 			if (session.getCurrProfile() != null && session.getCurrProfile().getNfo().getFile().equals(pnfo.getFile()))
 				session.getCurrProfile().getNfo().relocate(session, newNfoFile);
 			pnfo.relocate(session, newNfoFile);

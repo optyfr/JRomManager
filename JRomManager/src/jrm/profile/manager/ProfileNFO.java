@@ -55,6 +55,7 @@ import jrm.misc.Log;
 import jrm.security.Session;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * The Profile NFO file managing class with tolerant manual (de)serialization
@@ -92,6 +93,11 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 	 * The {@link ProfileNFOMame} mame sub class
 	 */
 	private @Getter ProfileNFOMame mame = new ProfileNFOMame();
+	
+	/**
+	 * Temporary new name
+	 */
+	private transient @Getter @Setter String newName = null;
 
 	/**
 	 * fields declaration for manual serialization
@@ -489,5 +495,11 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 			}
 		}
 		return rows;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getName();
 	}
 }
