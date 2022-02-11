@@ -17,13 +17,16 @@ public class ProfileCellFactory extends NameCellFactory<ProfileNFO>
 			public String toString(ProfileNFO nfo)
 			{
 				this.nfo = nfo;
-				return nfo.getName();
+				if(nfo!=null)
+					return nfo.getName();
+				return null;
 			}
 
 			@Override
 			public ProfileNFO fromString(String string)
 			{
-				nfo.setNewName(string);
+				if(nfo!=null)
+					nfo.setNewName(string);
 				return nfo;
 			}
 			

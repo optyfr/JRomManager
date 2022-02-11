@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.nio.file.Files;
+import java.util.Optional;
 
 import jrm.locale.Messages;
 import jrm.misc.Log;
@@ -54,7 +55,7 @@ public final class ProfileNFOMame implements Serializable
 	/**
 	 * The last mame update date
 	 */
-	private Long modified = null;
+	private Long modified = 0L;
 	/**
 	 * Whether it contains a software list or not
 	 */
@@ -110,7 +111,7 @@ public final class ProfileNFOMame implements Serializable
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
 		file = (File) fields.get(FILE_STR, null); //$NON-NLS-1$
-		modified = (Long) fields.get(MODIFIED_STR, null); //$NON-NLS-1$
+		modified = Optional.ofNullable((Long) fields.get(MODIFIED_STR, (Long)0L)).orElse(0L); //$NON-NLS-1$
 		sl = fields.get(SL_STR, false); //$NON-NLS-1$
 		fileroms = (File)fields.get(FILEROMS_STR, null); //$NON-NLS-1$
 		filesl = (File)fields.get(FILESL_STR, null); //$NON-NLS-1$
@@ -225,7 +226,7 @@ public final class ProfileNFOMame implements Serializable
 	 */
 	public MameStatus relocate(final File newFile)
 	{
-		if(file != null && newFile != null)
+		if(/*file != null && */newFile != null)
 		{
 			if(newFile.exists())
 			{
