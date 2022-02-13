@@ -907,6 +907,7 @@ public class ProfileViewerController implements Initializable
 
 	void reset(Profile profile)
 	{
+		final var selected = tableWL.getSelectionModel().getSelectedItem();
 		clear();
 		final var wl = FXCollections.<AnywareList<? extends Anyware>>observableArrayList();
 		profile.getMachineListList().resetCache();
@@ -916,6 +917,9 @@ public class ProfileViewerController implements Initializable
 		for (final var w : profile.getMachineListList().getSoftwareListList().getFilteredList())
 			wl.add(w);
 		tableWL.setItems(wl);
+		if (selected != null)
+			tableWL.getSelectionModel().select(selected);
+		tableWL.refresh();
 	}
 
 	@FXML private void selectByKeywords(ActionEvent e)

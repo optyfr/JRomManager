@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -26,6 +28,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
@@ -40,6 +43,8 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
+import jrm.profile.data.Source;
+import jrm.profile.data.Systm;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
@@ -93,6 +98,21 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 	@FXML	private Tab automationTab;
 
 	@FXML	private WebView profileinfoLbl;
+	
+	@FXML	private ListView<Systm> systemsFilter;
+	@FXML	private ContextMenu systemsFilterMenu;
+	@FXML	private MenuItem systemsFilterSelectAllMenuItem;
+	@FXML	private MenuItem systemsFilterSelectAllBiosMenuItem;
+	@FXML	private MenuItem systemsFilterSelectAllSoftwaresMenuItem;
+	@FXML	private MenuItem systemsFilterUnselectAllMenuItem;
+	@FXML	private MenuItem systemsFilterUnselectAllBiosMenuItem;
+	@FXML	private MenuItem systemsFilterUnselectAllSoftwaresMenuItem;
+	@FXML	private MenuItem systemsFilterInvertSelectionMenuItem;
+	@FXML	private ListView<Source> sourcesFilter;
+	@FXML	private ContextMenu sourcesFilterMenu;
+	@FXML	private MenuItem sourcesFilterSelectAllMenuItem;
+	@FXML	private MenuItem sourcesFilterUnselectAllMenuItem;
+	@FXML	private MenuItem sourcesFilterInvertSelectionMenuItem;
 
 	final Session session = Sessions.getSingleSession();
 
@@ -180,6 +200,26 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		new DragNDrop(samplesDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.samples_dest_dir, txt));
 		new DragNDrop(backupDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.backup_dest_dir, txt));
 		new DragNDrop(srcList).addDirs(files -> session.getCurrProfile().setProperty(SettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).toList())));
+		
+		systemsFilter.setCellFactory(CheckBoxListCell.forListView(item -> {
+			BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
+			observable.addListener((obs, wasSelected, isNowSelected) -> {
+				item.setSelected(session.getCurrProfile(), isNowSelected);
+				if (MainFrame.getProfileViewer() != null)
+					MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			});
+			return observable;
+		}));
+
+		sourcesFilter.setCellFactory(CheckBoxListCell.forListView(item -> {
+			BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
+			observable.addListener((obs, wasSelected, isNowSelected) -> {
+				item.setSelected(session.getCurrProfile(), isNowSelected);
+				if (MainFrame.getProfileViewer() != null)
+					MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			});
+			return observable;
+		}));
 	}
 	
 	@Override
@@ -220,10 +260,8 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 						if (profile != null && session.getCurrProfile() != null)
 						{
 							profileinfoLbl.getEngine().loadContent(HTMLFormatter.toHTML(session.getCurrProfile().getName()));
-							/*
-							 * scannerFilters.checkBoxListSystems.setModel(new SystmsModel(session.getCurrProfile().getSystems()));
-							 * scannerFilters.checkBoxListSources.setModel(new SourcesModel(session.getCurrProfile().getSources()));
-							 */
+							systemsFilter.setItems(FXCollections.observableList(session.getCurrProfile().getSystems().getSystems()));
+							sourcesFilter.setItems(FXCollections.observableList(session.getCurrProfile().getSources().getSrces()));
 							initProfileSettings(session);
 							MainFrame.getController().getTabPane().getSelectionModel().select(1);
 							MainFrame.getController().getProfilePanelController().refreshList();
@@ -609,5 +647,108 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 			MainFrame.getProfileViewer().show();
 	}
 	
+	@FXML
+	private void systemsFilterSelectAll()
+	{
+		for (final var systm : session.getCurrProfile().getSystems())
+			systm.setSelected(session.getCurrProfile(), true);
+		systemsFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML
+	private void systemsFilterSelectAllBios()
+	{
+		for (final var systm : session.getCurrProfile().getSystems())
+			if (systm.getType() == Systm.Type.BIOS)
+				systm.setSelected(session.getCurrProfile(), true);
+		systemsFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML
+	private void systemsFilterSelectAllSoftwares()
+	{
+		for (final var systm : session.getCurrProfile().getSystems())
+			if (systm.getType() == Systm.Type.SOFTWARELIST)
+				systm.setSelected(session.getCurrProfile(), true);
+		systemsFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML
+	private void systemsFilterUnselectAll()
+	{
+		for (final var systm : session.getCurrProfile().getSystems())
+			systm.setSelected(session.getCurrProfile(), false);
+		systemsFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML
+	private void systemsFilterUnselectAllBios()
+	{
+		for (final var systm : session.getCurrProfile().getSystems())
+			if (systm.getType() == Systm.Type.BIOS)
+				systm.setSelected(session.getCurrProfile(), false);
+		systemsFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML
+	private void systemsFilterUnselectAllSoftwares()
+	{
+		for (final var systm : session.getCurrProfile().getSystems())
+			if (systm.getType() == Systm.Type.SOFTWARELIST)
+				systm.setSelected(session.getCurrProfile(), false);
+		systemsFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML
+	private void systemsFilterInvertSelection()
+	{
+		for(final var systm : session.getCurrProfile().getSystems())
+			systm.setSelected(session.getCurrProfile(), !systm.isSelected(session.getCurrProfile()));
+		systemsFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML
+	private void sourcesFilterSelectAll()
+	{
+		for (final var source : session.getCurrProfile().getSources())
+			source.setSelected(session.getCurrProfile(), true);
+		sourcesFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML
+	private void sourcesFilterUnselectAll()
+	{
+		for (final var source : session.getCurrProfile().getSources())
+			source.setSelected(session.getCurrProfile(), false);
+		sourcesFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML
+	private void sourcesFilterInvertSelection()
+	{
+		for (final var source : session.getCurrProfile().getSources())
+			source.setSelected(session.getCurrProfile(), !source.isSelected(session.getCurrProfile()));
+		sourcesFilter.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
 
 }

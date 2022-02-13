@@ -11,13 +11,18 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import jrm.fx.ui.MainFrame;
 import lombok.experimental.UtilityClass;
 
 public @UtilityClass class Dialogs
 {
+	private static final String ICO = "/jrm/resicons/rom.png";
+
 	public static void showError(Throwable e)
 	{
 		final var alert = new Alert(AlertType.ERROR);
+		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
 		alert.setTitle("Error");
 		alert.setHeaderText(e.getMessage());
 
@@ -38,6 +43,7 @@ public @UtilityClass class Dialogs
 	public static void showAlert(String message)
 	{
 		Alert alert = new Alert(AlertType.WARNING);
+		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
 		alert.setTitle("Warning");
 
 		// Header Text: null
@@ -50,8 +56,8 @@ public @UtilityClass class Dialogs
 	public static Optional<ButtonType> showConfirmation(String title, String message, ButtonType... buttons)
 	{
 		Alert alert = new Alert(AlertType.CONFIRMATION);
+		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
 		alert.setTitle(title);
-//		alert.setHeaderText(message);
 		alert.setHeaderText(null);
 		alert.setContentText(message);
 		if (buttons != null && buttons.length > 0)
@@ -65,8 +71,8 @@ public @UtilityClass class Dialogs
 	public static Optional<ButtonType> showConfirmation(String title, Node message, ButtonType... buttons)
 	{
 		Alert alert = new Alert(AlertType.CONFIRMATION);
+		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
 		alert.setTitle(title);
-//		alert.setHeaderText(message);
 		alert.setHeaderText(null);
 		alert.getDialogPane().setContent(message);
 		if (buttons != null && buttons.length > 0)
