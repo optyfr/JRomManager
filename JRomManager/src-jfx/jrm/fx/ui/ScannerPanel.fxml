@@ -92,12 +92,12 @@
 										</ContextMenu>
 									</contextMenu>
 								</ListView>
-								<TextField fx:id="romsDest" GridPane.columnIndex="1" />
-								<TextField fx:id="disksDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-								<TextField fx:id="swDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-								<TextField fx:id="swDisksDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-								<TextField fx:id="samplesDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-								<TextField fx:id="backupDest" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+								<TextField fx:id="romsDest" promptText="%MainFrame.DropDirHint" GridPane.columnIndex="1" />
+								<TextField fx:id="disksDest" disable="true" promptText="%MainFrame.DropDirHint" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+								<TextField fx:id="swDest" disable="true" promptText="%MainFrame.DropDirHint" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+								<TextField fx:id="swDisksDest" disable="true" promptText="%MainFrame.DropDirHint" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+								<TextField fx:id="samplesDest" disable="true" promptText="%MainFrame.DropDirHint" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+								<TextField fx:id="backupDest" disable="true" promptText="%MainFrame.DropDirHint" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 								<Button fx:id="romsDestBtn" contentDisplay="GRAPHIC_ONLY" minWidth="32.0" mnemonicParsing="false" onAction="#chooseRomsDest" GridPane.columnIndex="2" />
 								<Button fx:id="disksDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" onAction="#chooseDisksDest" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 								<Button fx:id="swDestBtn" contentDisplay="GRAPHIC_ONLY" disable="true" minWidth="32.0" mnemonicParsing="false" onAction="#chooseSWRomsDest" GridPane.columnIndex="2" GridPane.rowIndex="2" />
@@ -173,19 +173,19 @@
 									</rowConstraints>
 									<children>
 										<Label text="%MainFrame.lblYear.text" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="7" />
-										<ComboBox GridPane.halignment="RIGHT" GridPane.rowIndex="7" />
-										<ComboBox GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="7" />
+										<ComboBox fx:id="cbbxYearMin" GridPane.halignment="RIGHT" GridPane.rowIndex="7" />
+										<ComboBox fx:id="cbbxYearMax" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="7" />
 										<Label text="%MainFrame.lblSwMinSupport.text" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="6" />
-										<ComboBox GridPane.columnIndex="2" GridPane.rowIndex="6" />
+										<ComboBox fx:id="cbbxSWMinSupportedLvl" GridPane.columnIndex="2" GridPane.rowIndex="6" />
 										<Label text="%MainFrame.lblDriverStatus.text" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="5" />
-										<ComboBox GridPane.columnIndex="2" GridPane.rowIndex="5" />
-										<ComboBox GridPane.columnIndex="2" GridPane.rowIndex="4" />
-										<ComboBox GridPane.columnIndex="2" GridPane.rowIndex="3" />
+										<ComboBox fx:id="cbbxDriverStatus" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+										<ComboBox fx:id="cbbxFilterDisplayOrientation" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+										<ComboBox fx:id="cbbxFilterCabinetType" GridPane.columnIndex="2" GridPane.rowIndex="3" />
 										<Label text="%MainFrame.lblOrientation.text" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
 										<Label text="%MainFrame.lblMachineType.text" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
-										<CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIncludeSamples.text" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-										<CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIncludeDisks.text" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-										<CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIncludeClones.text" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" />
+										<CheckBox fx:id="chckbxIncludeSamples" mnemonicParsing="false" text="%MainFrame.chckbxIncludeSamples.text" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+										<CheckBox fx:id="chckbxIncludeDisks" mnemonicParsing="false" text="%MainFrame.chckbxIncludeDisks.text" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+										<CheckBox fx:id="chckbxIncludeClones" mnemonicParsing="false" text="%MainFrame.chckbxIncludeClones.text" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" />
 									</children>
 								</GridPane>
 								<SplitPane dividerPositions="0.5" orientation="VERTICAL">
@@ -198,19 +198,19 @@
 															<items>
 																<Menu text="%MainFrame.mnSelect.text">
 																	<items>
-																		<MenuItem fx:id="systemsFilterSelectAllMenuItem" onAction="#systemsFilterSelectAll" mnemonicParsing="false" text="%MainFrame.mntmSelectAll.text" />
-																		<MenuItem fx:id="systemsFilterSelectAllBiosMenuItem" onAction="#systemsFilterSelectAllBios" mnemonicParsing="false" text="%MainFrame.mntmAllBios.text" />
-																		<MenuItem fx:id="systemsFilterSelectAllSoftwaresMenuItem" onAction="#systemsFilterSelectAllSoftwares" mnemonicParsing="false" text="%MainFrame.mntmAllSoftwares.text" />
+																		<MenuItem fx:id="systemsFilterSelectAllMenuItem" mnemonicParsing="false" onAction="#systemsFilterSelectAll" text="%MainFrame.mntmSelectAll.text" />
+																		<MenuItem fx:id="systemsFilterSelectAllBiosMenuItem" mnemonicParsing="false" onAction="#systemsFilterSelectAllBios" text="%MainFrame.mntmAllBios.text" />
+																		<MenuItem fx:id="systemsFilterSelectAllSoftwaresMenuItem" mnemonicParsing="false" onAction="#systemsFilterSelectAllSoftwares" text="%MainFrame.mntmAllSoftwares.text" />
 																	</items>
 																</Menu>
 																<Menu text="%MainFrame.mnUnselect.text">
 																	<items>
-																		<MenuItem fx:id="systemsFilterUnselectAllMenuItem" onAction="#systemsFilterUnselectAll" mnemonicParsing="false" text="%MainFrame.mntmSelectNone.text" />
-																		<MenuItem fx:id="systemsFilterUnselectAllBiosMenuItem" onAction="#systemsFilterUnselectAllBios" mnemonicParsing="false" text="%MainFrame.mntmAllBios.text" />
-																		<MenuItem fx:id="systemsFilterUnselectAllSoftwaresMenuItem" onAction="#systemsFilterUnselectAllSoftwares" mnemonicParsing="false" text="%MainFrame.mntmAllSoftwares.text" />
+																		<MenuItem fx:id="systemsFilterUnselectAllMenuItem" mnemonicParsing="false" onAction="#systemsFilterUnselectAll" text="%MainFrame.mntmSelectNone.text" />
+																		<MenuItem fx:id="systemsFilterUnselectAllBiosMenuItem" mnemonicParsing="false" onAction="#systemsFilterUnselectAllBios" text="%MainFrame.mntmAllBios.text" />
+																		<MenuItem fx:id="systemsFilterUnselectAllSoftwaresMenuItem" mnemonicParsing="false" onAction="#systemsFilterUnselectAllSoftwares" text="%MainFrame.mntmAllSoftwares.text" />
 																	</items>
 																</Menu>
-																<MenuItem fx:id="systemsFilterInvertSelectionMenuItem" onAction="#systemsFilterInvertSelection" mnemonicParsing="false" text="%MainFrame.mntmInvertSelection.text" />
+																<MenuItem fx:id="systemsFilterInvertSelectionMenuItem" mnemonicParsing="false" onAction="#systemsFilterInvertSelection" text="%MainFrame.mntmInvertSelection.text" />
 															</items>
 														</ContextMenu>
 													</contextMenu>
@@ -223,9 +223,9 @@
 													<contextMenu>
 														<ContextMenu fx:id="sourcesFilterMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
 															<items>
-																<MenuItem fx:id="sourcesFilterSelectAllMenuItem" onAction="#sourcesFilterSelectAll" mnemonicParsing="false" text="%MainFrame.mntmSelectAll.text" />
-																<MenuItem fx:id="sourcesFilterUnselectAllMenuItem" onAction="#sourcesFilterUnselectAll" mnemonicParsing="false" text="%MainFrame.mntmSelectNone.text" />
-																<MenuItem fx:id="sourcesFilterInvertSelectionMenuItem" onAction="#sourcesFilterInvertSelection" mnemonicParsing="false" text="%MainFrame.mntmInvertSelection.text" />
+																<MenuItem fx:id="sourcesFilterSelectAllMenuItem" mnemonicParsing="false" onAction="#sourcesFilterSelectAll" text="%MainFrame.mntmSelectAll.text" />
+																<MenuItem fx:id="sourcesFilterUnselectAllMenuItem" mnemonicParsing="false" onAction="#sourcesFilterUnselectAll" text="%MainFrame.mntmSelectNone.text" />
+																<MenuItem fx:id="sourcesFilterInvertSelectionMenuItem" mnemonicParsing="false" onAction="#sourcesFilterInvertSelection" text="%MainFrame.mntmInvertSelection.text" />
 															</items>
 														</ContextMenu>
 													</contextMenu>
@@ -244,7 +244,7 @@
 							<items>
 								<BorderPane>
 									<top>
-										<TextField editable="false" BorderPane.alignment="CENTER" />
+										<TextField editable="false" promptText="%MainFrame.DropNPlayersIniHere" BorderPane.alignment="CENTER" />
 									</top>
 									<center>
 										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
@@ -256,7 +256,7 @@
 								</BorderPane>
 								<BorderPane>
 									<top>
-										<TextField editable="false" BorderPane.alignment="CENTER" />
+										<TextField editable="false" promptText="%MainFrame.DropCatVerIniHere" BorderPane.alignment="CENTER" />
 									</top>
 									<center>
 										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">

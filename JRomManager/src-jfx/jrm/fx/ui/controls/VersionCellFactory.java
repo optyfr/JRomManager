@@ -13,7 +13,7 @@ public final class VersionCellFactory<T> extends TableCell<T,String>
 			setText("");
 		else if(item == null)
 		{
-			setTextFill(Color.GRAY);
+			setTextFill(getTableRow().isSelected()?Color.LIGHTGRAY:Color.GRAY);
 			setText("???");
 		}
 		else

@@ -1,5 +1,7 @@
 package jrm.fx.ui.controls;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Tooltip;
 import javafx.util.StringConverter;
 import jrm.locale.Messages;
@@ -39,24 +41,27 @@ public class ProfileCellFactory extends NameCellFactory<ProfileNFO>
 	{
 		super.updateItem(item, empty);
 		if (!empty)
-			switch (item.getMame().getStatus())
+		{
+			styleProperty().bind(Bindings.when(getTableRow().selectedProperty()).then(new SimpleStringProperty(switch (item.getMame().getStatus())
 			{
-				case UPTODATE:
-					setTextFill(javafx.scene.paint.Color.valueOf("#00aa00")); //$NON-NLS-1$
-					setTooltip(new Tooltip(String.format(Messages.getString("FileTableCellRenderer.IsUpToDate"), item.getName()))); //$NON-NLS-1$
-					break;
-				case NEEDUPDATE:
-					setTextFill(javafx.scene.paint.Color.valueOf("#cc8800")); //$NON-NLS-1$
-					setTooltip(new Tooltip(String.format(Messages.getString("FileTableCellRenderer.NeedUpdateFromMame"), item.getName()))); //$NON-NLS-1$
-					break;
-				case NOTFOUND:
-					setTextFill(javafx.scene.paint.Color.valueOf("#cc0000")); //$NON-NLS-1$
-					setTooltip(new Tooltip(String.format(Messages.getString("FileTableCellRenderer.StatusUnknownMameNotFound"), item.getName()))); //$NON-NLS-1$
-					break;
-				default:
-					setTextFill(javafx.scene.paint.Color.BLACK);
-					setTooltip(new Tooltip(getText()));
-					break;
-			}
+				case UPTODATE -> "-fx-text-fill: #aaffaa;";
+				case NEEDUPDATE -> "-fx-text-fill: #ffaa88;";
+				case NOTFOUND -> "-fx-text-fill: #ffaaaa;";
+				default -> "-fx-text-fill: #ffffff;";
+			})).otherwise(new SimpleStringProperty(switch (item.getMame().getStatus())
+			{
+				case UPTODATE -> "-fx-text-fill: #00aa00;";
+				case NEEDUPDATE -> "-fx-text-fill: #cc8800;";
+				case NOTFOUND -> "-fx-text-fill: #cc0000;";
+				default -> "-fx-text-fill: #000000;";
+			})));
+			setTooltip(new Tooltip(switch (item.getMame().getStatus())
+			{
+				case UPTODATE -> String.format(Messages.getString("FileTableCellRenderer.IsUpToDate"), item.getName());
+				case NEEDUPDATE -> String.format(Messages.getString("FileTableCellRenderer.NeedUpdateFromMame"), item.getName());
+				case NOTFOUND -> String.format(Messages.getString("FileTableCellRenderer.StatusUnknownMameNotFound"), item.getName());
+				default -> getText();
+			}));
+		}
 	}
 }

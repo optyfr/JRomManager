@@ -30,6 +30,6 @@ public class NameCellFactory<T> extends TextFieldTableCell<T, T>
 			setTooltip(new Tooltip(item.toString()));
 		}
 		setGraphic(null);
-		setStyle("");
+	//	setStyle("");
 	}
 }

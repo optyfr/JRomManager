@@ -19,7 +19,7 @@ public final class DateCellFactory extends TableCell<ProfileNFO, Date>
 			setText("");
 		else if (item == null)
 		{
-			setTextFill(Color.GRAY);
+			setTextFill(getTableRow().isSelected()?Color.LIGHTGRAY:Color.GRAY);
 			setText("????-??-?? ??:??:??");
 		}
 		else

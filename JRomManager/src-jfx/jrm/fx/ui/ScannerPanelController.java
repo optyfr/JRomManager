@@ -22,6 +22,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -43,8 +44,12 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
+import jrm.profile.data.Driver;
 import jrm.profile.data.Source;
 import jrm.profile.data.Systm;
+import jrm.profile.data.Machine.CabinetType;
+import jrm.profile.data.Machine.DisplayOrientation;
+import jrm.profile.data.Software.Supported;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
@@ -113,6 +118,16 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 	@FXML	private MenuItem sourcesFilterSelectAllMenuItem;
 	@FXML	private MenuItem sourcesFilterUnselectAllMenuItem;
 	@FXML	private MenuItem sourcesFilterInvertSelectionMenuItem;
+
+	@FXML	private CheckBox chckbxIncludeClones;
+	@FXML	private CheckBox chckbxIncludeDisks;
+	@FXML	private CheckBox chckbxIncludeSamples;
+	@FXML	private ComboBox<Driver.StatusType> cbbxDriverStatus;
+	@FXML	private ComboBox<CabinetType> cbbxFilterCabinetType;
+	@FXML	private ComboBox<DisplayOrientation> cbbxFilterDisplayOrientation;
+	@FXML	private ComboBox<Supported> cbbxSWMinSupportedLvl;
+	@FXML	private ComboBox<String> cbbxYearMin;
+	@FXML	private ComboBox<String> cbbxYearMax;
 
 	final Session session = Sessions.getSingleSession();
 
@@ -220,6 +235,11 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 			});
 			return observable;
 		}));
+
+		cbbxDriverStatus.setItems(FXCollections.observableArrayList(Driver.StatusType.values()));
+		cbbxFilterCabinetType.setItems(FXCollections.observableArrayList(CabinetType.values()));
+		cbbxFilterDisplayOrientation.setItems(FXCollections.observableArrayList(DisplayOrientation.values()));
+		cbbxSWMinSupportedLvl.setItems(FXCollections.observableArrayList(Supported.values()));
 	}
 	
 	@Override
@@ -541,7 +561,18 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 
 		scannerPanelSettingsController.initProfileSettings(session);
 		
-}
+		chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclClones, true)); //$NON-NLS-1$
+		chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclDisks, true)); //$NON-NLS-1$
+		chckbxIncludeSamples.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclSamples, true)); //$NON-NLS-1$
+		cbbxDriverStatus.getSelectionModel().select(Driver.StatusType.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_DriverStatus, Driver.StatusType.preliminary.toString()))); //$NON-NLS-1$
+		cbbxFilterCabinetType.getSelectionModel().select(CabinetType.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString()))); //$NON-NLS-1$
+		cbbxFilterDisplayOrientation.getSelectionModel().select(DisplayOrientation.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString()))); //$NON-NLS-1$
+		cbbxSWMinSupportedLvl.getSelectionModel().select(Supported.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString()))); //$NON-NLS-1$
+		cbbxYearMin.setItems(FXCollections.observableArrayList(session.getCurrProfile().getYears()).sorted());
+		cbbxYearMin.getSelectionModel().select(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMin, cbbxYearMin.getItems().get(0))); //$NON-NLS-1$
+		cbbxYearMax.setItems(FXCollections.observableArrayList(session.getCurrProfile().getYears()).sorted());
+		cbbxYearMax.getSelectionModel().select(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getItems().get(cbbxYearMax.getItems().size()-1))); //$NON-NLS-1$
+	}
 	
 	@FXML private void chooseRomsDest(ActionEvent e)
 	{

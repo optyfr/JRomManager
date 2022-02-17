@@ -219,13 +219,13 @@ public class ProfilePanelController implements Initializable
 			row.setOnMouseClicked(event -> {
 				if (event.getClickCount() == 2 && !row.isEmpty())
 				{
-					event.consume();
 					profileLoader.loadProfile(session, row.getItem());
 				}
 			});
 			return row;
 		});
-		profilesList.setEditable(true);
+		profilesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> profilesList.refresh());
+		profilesList.setEditable(false);
 		new DragNDrop(profilesList).addAny(files -> importDat(files, true));
 	}
 
@@ -715,7 +715,9 @@ public class ProfilePanelController implements Initializable
 
 	@FXML private void renameProfile(ActionEvent e)
 	{
+		profilesList.setEditable(true);
 		profilesList.edit(profilesList.getSelectionModel().getSelectedIndex(), profileCol);
+		profilesList.setEditable(false);
 	}
 
 	@FXML private void dropCache(ActionEvent e)
