@@ -11,6 +11,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import jrm.fx.ui.controls.DescriptorCellFactory;
 import jrm.misc.SettingsEnum;
 import jrm.profile.scan.options.Descriptor;
 import jrm.profile.scan.options.FormatOptions;
@@ -44,18 +45,7 @@ public class ScannerPanelSettingsController implements Initializable
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		Callback<ListView<Descriptor>, ListCell<Descriptor>> cellFactory = param -> new ListCell<Descriptor>()
-		{
-			@Override
-			protected void updateItem(Descriptor item, boolean empty)
-			{
-				super.updateItem(item, empty);
-				if (item == null || empty)
-					setGraphic(null);
-				else
-					setText(item.getDesc());
-			}
-		};
+		final Callback<ListView<Descriptor>, ListCell<Descriptor>> cellFactory = param -> new DescriptorCellFactory();
 		needSHA1Chkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.need_sha1_or_md5, newValue));
 		useParallelismChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.use_parallelism, newValue));
 		createMissingSetsChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.create_mode, newValue));

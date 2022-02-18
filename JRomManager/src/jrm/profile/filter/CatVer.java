@@ -143,6 +143,12 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
 		{
 			return String.format("%s (%d)", name, listSubCategories.stream().filter(SubCategory::isSelected).mapToInt(SubCategory::size).sum()); //$NON-NLS-1$
 		}
+		
+		@Override
+		public String toString()
+		{
+			return (String)getUserObject();
+		}
 
 		@Override
 		public Iterator<SubCategory> iterator()
@@ -192,6 +198,12 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
 				return name + " (" + games.size() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
+			@Override
+			public String toString()
+			{
+				return (String)getUserObject();
+			}
+			
 			@Override
 			public String getPropertyName()
 			{
@@ -270,6 +282,12 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
 		return String.format("%s (%d)", profile.getSession().getMsgs().getString("CatVer.AllCategories"), listCategories.stream().flatMap(c -> c.listSubCategories.stream().filter(Category.SubCategory::isSelected)).mapToInt(Category.SubCategory::size).sum()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
+	public String toString()
+	{
+		return (String)getUserObject();
+	}
+	
 	@Override
 	public Iterator<Category> iterator()
 	{

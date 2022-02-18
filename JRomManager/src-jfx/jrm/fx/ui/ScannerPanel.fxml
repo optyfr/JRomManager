@@ -15,7 +15,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -244,24 +244,24 @@
 							<items>
 								<BorderPane>
 									<top>
-										<TextField editable="false" promptText="%MainFrame.DropNPlayersIniHere" BorderPane.alignment="CENTER" />
+										<TextField fx:id="tfNPlayers" editable="false" promptText="%MainFrame.DropNPlayersIniHere" BorderPane.alignment="CENTER" />
 									</top>
 									<center>
-										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%MainFrame.NPlayers" BorderPane.alignment="CENTER">
 											<content>
-												<ListView prefHeight="200.0" prefWidth="200.0" />
+												<ListView fx:id="listNPlayers" prefHeight="200.0" prefWidth="200.0" />
 											</content>
 										</TitledPane>
 									</center>
 								</BorderPane>
 								<BorderPane>
 									<top>
-										<TextField editable="false" promptText="%MainFrame.DropCatVerIniHere" BorderPane.alignment="CENTER" />
+										<TextField fx:id="tfCatVer" editable="false" promptText="%MainFrame.DropCatVerIniHere" BorderPane.alignment="CENTER" />
 									</top>
 									<center>
-										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%MainFrame.Categories" BorderPane.alignment="CENTER">
 											<content>
-												<ListView prefHeight="200.0" prefWidth="200.0" />
+												<TreeView fx:id="treeCatVer" prefHeight="200.0" prefWidth="200.0" />
 											</content>
 										</TitledPane>
 									</center>
@@ -272,7 +272,19 @@
 				</Tab>
 				<Tab fx:id="automationTab" closable="false" text="%MainFrame.Automation">
 					<content>
-						<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+						<BorderPane>
+							<center>
+								<HBox alignment="CENTER" fillHeight="false" minWidth="0.0" BorderPane.alignment="CENTER">
+									<children>
+										<Label text="%ScannerAutomationPanel.OnScanAction">
+                                 <HBox.margin>
+                                    <Insets right="5.0" />
+                                 </HBox.margin></Label>
+										<ComboBox fx:id="cbAutomation" />
+									</children>
+								</HBox>
+							</center>
+						</BorderPane>
 					</content>
 				</Tab>
 			</tabs>

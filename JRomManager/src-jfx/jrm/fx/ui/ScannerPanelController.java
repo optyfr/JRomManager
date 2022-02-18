@@ -22,6 +22,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
@@ -29,11 +30,16 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxListCell;
+import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
+import jrm.fx.ui.controls.DescriptorCellFactory;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.profile.ProfileViewer;
@@ -45,14 +51,19 @@ import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver;
-import jrm.profile.data.Source;
-import jrm.profile.data.Systm;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
+import jrm.profile.data.PropertyStub;
 import jrm.profile.data.Software.Supported;
+import jrm.profile.data.Source;
+import jrm.profile.data.Systm;
+import jrm.profile.filter.CatVer.Category;
+import jrm.profile.filter.CatVer.Category.SubCategory;
+import jrm.profile.filter.NPlayer;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
+import jrm.profile.scan.options.Descriptor;
 import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
@@ -129,6 +140,13 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 	@FXML	private ComboBox<String> cbbxYearMin;
 	@FXML	private ComboBox<String> cbbxYearMax;
 
+
+	@FXML private TextField tfNPlayers;
+	@FXML private ListView<NPlayer> listNPlayers; 
+	@FXML private TextField tfCatVer;
+	@FXML private TreeView<PropertyStub> treeCatVer; 
+	@FXML private ComboBox<Descriptor> cbAutomation;
+	
 	final Session session = Sessions.getSingleSession();
 
 	@Override
@@ -240,6 +258,39 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		cbbxFilterCabinetType.setItems(FXCollections.observableArrayList(CabinetType.values()));
 		cbbxFilterDisplayOrientation.setItems(FXCollections.observableArrayList(DisplayOrientation.values()));
 		cbbxSWMinSupportedLvl.setItems(FXCollections.observableArrayList(Supported.values()));
+		
+		listNPlayers.setCellFactory(CheckBoxListCell.forListView(item -> {
+			BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
+			observable.addListener((obs, wasSelected, isNowSelected) -> {
+				item.setSelected(session.getCurrProfile(), isNowSelected);
+				if (MainFrame.getProfileViewer() != null)
+					MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			});
+			return observable;
+		}));
+		
+		treeCatVer.setCellFactory(CheckBoxTreeCell.forTreeView(item -> {
+			if (item instanceof CheckBoxTreeItem<?> i)
+				return i.selectedProperty();
+			return null;
+		}, new StringConverter<TreeItem<PropertyStub>>()
+		{
+
+			@Override
+			public String toString(TreeItem<PropertyStub> object)
+			{
+				return object.getValue().toString();
+			}
+
+			@Override
+			public TreeItem<PropertyStub> fromString(String string)
+			{
+				return null;
+			}
+		}));
+		
+		cbAutomation.setItems(FXCollections.observableArrayList(ScanAutomation.values()));
+		cbAutomation.setCellFactory(param -> new DescriptorCellFactory());
 	}
 	
 	@Override
@@ -572,6 +623,42 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		cbbxYearMin.getSelectionModel().select(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMin, cbbxYearMin.getItems().get(0))); //$NON-NLS-1$
 		cbbxYearMax.setItems(FXCollections.observableArrayList(session.getCurrProfile().getYears()).sorted());
 		cbbxYearMax.getSelectionModel().select(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getItems().get(cbbxYearMax.getItems().size()-1))); //$NON-NLS-1$
+		
+		tfNPlayers.setText(session.getCurrProfile().getNplayers() != null ? session.getCurrProfile().getNplayers().file.getAbsolutePath() : null);
+		listNPlayers.setItems(FXCollections.observableArrayList(session.getCurrProfile().getNplayers().getListNPlayers()));
+		tfCatVer.setText(session.getCurrProfile().getCatver() != null ? session.getCurrProfile().getCatver().file.getAbsolutePath() : null);
+		
+		final var root = session.getCurrProfile().getCatver();
+		final var rootitem = new CheckBoxTreeItem<PropertyStub>(root);
+		rootitem.setExpanded(true);
+		session.getCurrProfile().getCatver().forEach(cat -> {
+			final var catitem = new CheckBoxTreeItem<PropertyStub>(cat);
+			rootitem.getChildren().add(catitem);
+			cat.forEach(subcat -> {
+				final var subcatitem = new CheckBoxTreeItem<PropertyStub>(subcat);
+				catitem.getChildren().add(subcatitem);
+			});
+		});
+		treeCatVer.setRoot(rootitem);
+		
+		rootitem.selectedProperty().addListener((observable, oldvalue, newvalue) -> {
+			root.setSelected(newvalue);
+		});
+		rootitem.getChildren().forEach(catitem -> {
+			((CheckBoxTreeItem<PropertyStub>)catitem).selectedProperty().addListener((observable, oldvalue, newvalue) -> {
+				((Category)catitem.getValue()).setSelected(newvalue);
+			});
+			catitem.getChildren().forEach(subcatitem -> {
+				((CheckBoxTreeItem<PropertyStub>)subcatitem).selectedProperty().addListener((observable, oldvalue, newvalue) -> {
+					((SubCategory)subcatitem.getValue()).setSelected(newvalue);
+					treeCatVer.refresh();
+					if (MainFrame.getProfileViewer() != null)
+						MainFrame.getProfileViewer().reset(session.getCurrProfile());
+				});
+				((CheckBoxTreeItem<PropertyStub>)subcatitem).setSelected(((SubCategory)subcatitem.getValue()).isSelected());
+			});
+		});
+
 	}
 	
 	@FXML private void chooseRomsDest(ActionEvent e)
