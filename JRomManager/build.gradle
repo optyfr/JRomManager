@@ -6,7 +6,7 @@ plugins {
 	id "nebula.ospackage" version "9.1.1"
 	id "de.inetsoftware.setupbuilder" version "7.2.13"
 	id "org.javamodularity.moduleplugin" version "1.8.10"
-	id "io.freefair.lombok" version "6.4.0"
+	id "io.freefair.lombok" version "6.4.1"
     id 'org.openjfx.javafxplugin' version '0.0.11'
 	id "org.beryx.jlink" version "2.24.4"
 	id 'jacoco'
