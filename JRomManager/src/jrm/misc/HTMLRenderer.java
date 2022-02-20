@@ -42,12 +42,18 @@ public interface HTMLRenderer
 	static @UtilityClass class Options
 	{
 		private static @Setter boolean isPlain = false;
+		private static @Setter boolean isAbstract = false;
 		private static @Setter boolean isHTML5 = true;
 	}
 	
 	public default boolean isPlain()
 	{
 		return Options.isPlain;
+	}
+	
+	public default boolean isAbstract()
+	{
+		return Options.isAbstract;
 	}
 	
 	public default boolean isHTML5()
@@ -63,9 +69,11 @@ public interface HTMLRenderer
 	 */
 	public default String toHTML(final CharSequence str)
 	{
-		if(isPlain())
+		if (isPlain())
 			return str.toString();
-		return "<html>"+str+"</html>"; //$NON-NLS-1$ //$NON-NLS-2$
+		if (isAbstract())
+			return "<hbox>" + str + "</hbox>";
+		return "<html><body>" + str + "</body></html>";
 	}
 
 	public default String toStr(Object any)
@@ -82,6 +90,8 @@ public interface HTMLRenderer
 	{
 		if(isPlain())
 			return str.toString();
+		if (isAbstract())
+			return str.toString();
 		return "<nobr>"+str+"</nobr>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -94,7 +104,9 @@ public interface HTMLRenderer
 	{
 		if(isPlain())
 			return str.toString();
-		return "<span style='color:blue'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
+		if (isAbstract())
+			return "<label color=\"blue\">"+str+"</label>";
+		return "<span style='color:blue'>"+str+"</span>";
 	}
 
 	/**
@@ -106,6 +118,8 @@ public interface HTMLRenderer
 	{
 		if(isPlain())
 			return str.toString();
+		if (isAbstract())
+			return "<label color=\"red\">"+str+"</label>";
 		return "<span style='color:red'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -118,6 +132,8 @@ public interface HTMLRenderer
 	{
 		if(isPlain())
 			return str.toString();
+		if (isAbstract())
+			return "<label color=\"green\">"+str+"</label>";
 		return "<span style='color:green'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -130,6 +146,8 @@ public interface HTMLRenderer
 	{
 		if(isPlain())
 			return str.toString();
+		if (isAbstract())
+			return "<label color=\"gray\">"+str+"</label>";
 		return "<span style='color:gray'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -142,6 +160,8 @@ public interface HTMLRenderer
 	{
 		if(isPlain())
 			return str.toString();
+		if (isAbstract())
+			return "<label color=\"orange\">"+str+"</label>";
 		return "<span style='color:orange'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -154,6 +174,8 @@ public interface HTMLRenderer
 	{
 		if(isPlain())
 			return str.toString();
+		if (isAbstract())
+			return "<label color=\"purple\">"+str+"</label>";
 		return "<span style='color:purple'>"+str+"</span>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -164,9 +186,9 @@ public interface HTMLRenderer
 	 */
 	public default String toBold(final CharSequence str)
 	{
-		if(isPlain())
+		if (isPlain())
 			return str.toString();
-		return "<b>"+str+"</b>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<b>" + str + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -176,9 +198,9 @@ public interface HTMLRenderer
 	 */
 	public default String toItalic(final CharSequence str)
 	{
-		if(isPlain())
+		if (isPlain())
 			return str.toString();
-		return "<i>"+str+"</i>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<i>" + str + "</i>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
@@ -190,27 +212,47 @@ public interface HTMLRenderer
 	 */
 	public default String progress(final int i, final int max, final String msg)
 	{
-		if(isPlain())
-			return msg + " " + progress(100, i, max);
-		return String.format("<html>" //$NON-NLS-1$
-				+ "<table cellpadding=2 cellspacing=0><tr>" //$NON-NLS-1$
-				+ "\t<td valign='middle'>%s</td>" //$NON-NLS-1$
-				+ "\t<td style='font-size:95%%;white-space:nowrap'>%s</td>" //$NON-NLS-1$
-				+ "</table>" //$NON-NLS-1$
-			, progress(100, i, max), StringEscapeUtils.escapeHtml4(msg));
+		return progress(100, i, max, msg);
+	}
+	
+	public default String progress(final int width, final int i, final int max, final String msg)
+	{
+		if(msg!=null)
+		{
+			if(isPlain())
+				return msg + " " + internalProgress(width, i, max);
+			if (isAbstract())
+				return toHTML(internalProgress(width, i, max) + escape(msg));
+			return String.format("<html><table cellpadding=2 cellspacing=0><tr><td valign='middle'>%s</td><td style='font-size:95%%;white-space:nowrap'>%s</td></table></html>", internalProgress(width, i, max), escape(msg));
+		}
+		else
+		{
+			if(isPlain())
+				return internalProgress(width, i, max);
+			if (isAbstract())
+				return toHTML(internalProgress(width, i, max));
+			return String.format("<html><table cellpadding=2 cellspacing=0><tr><td valign='middle'>%s</td></table></html>", internalProgress(width, i, max));
+		}
 	}
 	
 	
-	public default String progress(final int width, final long i, final long max)
+	public default String internalProgress(final int width, final long i, final long max)
 	{
 		if(isPlain())
 			return String.format("(%d/%d)", i, max);
+		if (isAbstract())
+			return String.format("<progress width=\"%d\" value=\"%d\" max=\"%d\"></progress>", width, i, max);
 		if(isHTML5())
-			return String.format("<progress style='width:%dpx' value='%d' max='%d'></progress>", width, i, max);
-		return String.format("<table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray;table-layout:fixed'><tr>"
-				+ "<td style='width:%dpx;height:2px;background-color:#00ff00'></td>" //$NON-NLS-1$
-				+ "<td></td>" //$NON-NLS-1$
-				+ "</table>" //$NON-NLS-1$
-			, width + 8, i * width / max);
+			return String.format("<progress style=\"width:%dpx\" value=\"%d\" max=\"%d\"></progress>", width, i, max);
+		return String.format("<table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray;table-layout:fixed'><tr><td style='width:%dpx;height:2px;background-color:#00ff00'></td><td></td></table>", width + 8, i * width / max);
+	}
+	
+	public default String escape(CharSequence str)
+	{
+		if(isPlain())
+			return str.toString();
+		if(isAbstract())
+			return StringEscapeUtils.escapeXml10(str.toString());
+		return StringEscapeUtils.escapeHtml4(str.toString());
 	}
 }

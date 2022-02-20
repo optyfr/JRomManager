@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -60,6 +62,7 @@ import jrm.profile.data.Systm;
 import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.Category.SubCategory;
 import jrm.profile.filter.NPlayer;
+import jrm.profile.filter.NPlayers;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
@@ -146,6 +149,17 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 	@FXML private TextField tfCatVer;
 	@FXML private TreeView<PropertyStub> treeCatVer; 
 	@FXML private ComboBox<Descriptor> cbAutomation;
+	@FXML private ContextMenu nPlayersMenu;
+	@FXML private MenuItem nPlayersMenuItemAll;
+	@FXML private MenuItem nPlayersMenuItemNone;
+	@FXML private MenuItem nPlayersMenuItemInvert;
+	@FXML private MenuItem nPlayersMenuItemClear;
+	@FXML private ContextMenu catVerMenu;
+	@FXML private MenuItem catVerMenuItemSelectAll;
+	@FXML private MenuItem catVerMenuItemSelectMature;
+	@FXML private MenuItem catVerMenuItemUnselectAll;
+	@FXML private MenuItem catVerMenuItemUnselectMature;
+	@FXML private MenuItem catVerMenuItemClear;
 	
 	final Session session = Sessions.getSingleSession();
 
@@ -258,7 +272,53 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		cbbxFilterCabinetType.setItems(FXCollections.observableArrayList(CabinetType.values()));
 		cbbxFilterDisplayOrientation.setItems(FXCollections.observableArrayList(DisplayOrientation.values()));
 		cbbxSWMinSupportedLvl.setItems(FXCollections.observableArrayList(Supported.values()));
+		chckbxIncludeClones.setOnAction(e -> {
+			session.getCurrProfile().setProperty(SettingsEnum.filter_InclClones, chckbxIncludeClones.isSelected());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		});
+		chckbxIncludeDisks.setOnAction(e -> {
+			session.getCurrProfile().setProperty(SettingsEnum.filter_InclDisks, chckbxIncludeDisks.isSelected());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		});
+		chckbxIncludeSamples.setOnAction(e -> {
+			session.getCurrProfile().setProperty(SettingsEnum.filter_InclSamples, chckbxIncludeSamples.isSelected());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		});
+		cbbxFilterCabinetType.setOnAction(e -> {
+			session.getCurrProfile().setProperty(SettingsEnum.filter_CabinetType, cbbxFilterCabinetType.getValue().toString());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		});
+		cbbxFilterDisplayOrientation.setOnAction(e -> {
+			session.getCurrProfile().setProperty(SettingsEnum.filter_DisplayOrientation, cbbxFilterDisplayOrientation.getValue().toString());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		});
+		cbbxDriverStatus.setOnAction(e -> {
+			session.getCurrProfile().setProperty(SettingsEnum.filter_DriverStatus, cbbxDriverStatus.getValue().toString());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		});
+		cbbxSWMinSupportedLvl.setOnAction(e -> {
+			session.getCurrProfile().setProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, cbbxSWMinSupportedLvl.getValue().toString());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		});
+		cbbxYearMin.setOnAction(e -> {
+			session.getCurrProfile().setProperty(SettingsEnum.filter_YearMin, cbbxYearMin.getValue());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		});
+		cbbxYearMax.setOnAction(e -> {
+			session.getCurrProfile().setProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getValue());
+			if (MainFrame.getProfileViewer() != null)
+				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		});
 		
+		new DragNDrop(tfNPlayers).addFile(this::selectNPlayersFile);
 		listNPlayers.setCellFactory(CheckBoxListCell.forListView(item -> {
 			BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
 			observable.addListener((obs, wasSelected, isNowSelected) -> {
@@ -269,6 +329,7 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 			return observable;
 		}));
 		
+		new DragNDrop(tfCatVer).addFile(this::selectCatVerFile);
 		treeCatVer.setCellFactory(CheckBoxTreeCell.forTreeView(item -> {
 			if (item instanceof CheckBoxTreeItem<?> i)
 				return i.selectedProperty();
@@ -291,6 +352,8 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		
 		cbAutomation.setItems(FXCollections.observableArrayList(ScanAutomation.values()));
 		cbAutomation.setCellFactory(param -> new DescriptorCellFactory());
+		cbAutomation.setButtonCell(cbAutomation.getCellFactory().call(null));
+		cbAutomation.setOnAction(e -> session.getCurrProfile().setProperty(SettingsEnum.automation_scan, cbAutomation.getValue().toString()));
 	}
 	
 	@Override
@@ -624,41 +687,70 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 		cbbxYearMax.setItems(FXCollections.observableArrayList(session.getCurrProfile().getYears()).sorted());
 		cbbxYearMax.getSelectionModel().select(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getItems().get(cbbxYearMax.getItems().size()-1))); //$NON-NLS-1$
 		
+		showNPlayers();
+		showCatVer();
+		
+		cbAutomation.getSelectionModel().select(ScanAutomation.valueOf(session.getCurrProfile().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString())));
+	}
+	
+	private void selectNPlayersFile(String file)
+	{
+		if(Files.isRegularFile(Path.of(file)))
+		{
+			session.getCurrProfile().setProperty(SettingsEnum.filter_nplayers_ini, file);
+			session.getCurrProfile().loadNPlayers(null);
+			showNPlayers();
+		}
+	}
+	
+	private void showNPlayers()
+	{
 		tfNPlayers.setText(session.getCurrProfile().getNplayers() != null ? session.getCurrProfile().getNplayers().file.getAbsolutePath() : null);
-		listNPlayers.setItems(FXCollections.observableArrayList(session.getCurrProfile().getNplayers().getListNPlayers()));
+		listNPlayers.setItems(Optional.ofNullable(session.getCurrProfile().getNplayers()).map(NPlayers::getListNPlayers).map(FXCollections::observableArrayList).orElse(null));
+	}
+	
+	private void selectCatVerFile(String file)
+	{
+		if(Files.isRegularFile(Path.of(file)))
+		{
+			session.getCurrProfile().setProperty(SettingsEnum.filter_catver_ini, file);
+			session.getCurrProfile().loadCatVer(null);
+			showCatVer();
+		}		
+	}
+	
+	private void showCatVer()
+	{
 		tfCatVer.setText(session.getCurrProfile().getCatver() != null ? session.getCurrProfile().getCatver().file.getAbsolutePath() : null);
 		
 		final var root = session.getCurrProfile().getCatver();
-		final var rootitem = new CheckBoxTreeItem<PropertyStub>(root);
-		rootitem.setExpanded(true);
-		session.getCurrProfile().getCatver().forEach(cat -> {
-			final var catitem = new CheckBoxTreeItem<PropertyStub>(cat);
-			rootitem.getChildren().add(catitem);
-			cat.forEach(subcat -> {
-				final var subcatitem = new CheckBoxTreeItem<PropertyStub>(subcat);
-				catitem.getChildren().add(subcatitem);
+		if(root!=null)
+		{
+			final var rootitem = new CheckBoxTreeItem<PropertyStub>(root);
+			rootitem.setExpanded(true);
+			session.getCurrProfile().getCatver().forEach(cat -> {
+				final var catitem = new CheckBoxTreeItem<PropertyStub>(cat);
+				rootitem.getChildren().add(catitem);
+				cat.forEach(subcat -> catitem.getChildren().add(new CheckBoxTreeItem<>(subcat)));
 			});
-		});
-		treeCatVer.setRoot(rootitem);
-		
-		rootitem.selectedProperty().addListener((observable, oldvalue, newvalue) -> {
-			root.setSelected(newvalue);
-		});
-		rootitem.getChildren().forEach(catitem -> {
-			((CheckBoxTreeItem<PropertyStub>)catitem).selectedProperty().addListener((observable, oldvalue, newvalue) -> {
-				((Category)catitem.getValue()).setSelected(newvalue);
-			});
-			catitem.getChildren().forEach(subcatitem -> {
-				((CheckBoxTreeItem<PropertyStub>)subcatitem).selectedProperty().addListener((observable, oldvalue, newvalue) -> {
-					((SubCategory)subcatitem.getValue()).setSelected(newvalue);
-					treeCatVer.refresh();
-					if (MainFrame.getProfileViewer() != null)
-						MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			treeCatVer.setRoot(rootitem);
+			
+			rootitem.selectedProperty().addListener((observable, oldvalue, newvalue) -> root.setSelected(newvalue));
+			rootitem.getChildren().forEach(catitem -> {
+				((CheckBoxTreeItem<PropertyStub>) catitem).selectedProperty().addListener((observable, oldvalue, newvalue) -> ((Category) catitem.getValue()).setSelected(newvalue));
+				catitem.getChildren().forEach(subcatitem -> {
+					((CheckBoxTreeItem<PropertyStub>)subcatitem).selectedProperty().addListener((observable, oldvalue, newvalue) -> {
+						((SubCategory)subcatitem.getValue()).setSelected(newvalue);
+						treeCatVer.refresh();
+						if (MainFrame.getProfileViewer() != null)
+							MainFrame.getProfileViewer().reset(session.getCurrProfile());
+					});
+					((CheckBoxTreeItem<PropertyStub>)subcatitem).setSelected(((SubCategory)subcatitem.getValue()).isSelected());
 				});
-				((CheckBoxTreeItem<PropertyStub>)subcatitem).setSelected(((SubCategory)subcatitem.getValue()).isSelected());
 			});
-		});
-
+		}
+		else
+			treeCatVer.setRoot(null);
 	}
 	
 	@FXML private void chooseRomsDest(ActionEvent e)
@@ -869,4 +961,95 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 			MainFrame.getProfileViewer().reset(session.getCurrProfile());
 	}
 
+	@FXML void nPlayersListSelectAll()
+	{
+		for (final var nplayer : session.getCurrProfile().getNplayers())
+			nplayer.setSelected(session.getCurrProfile(), true);
+		listNPlayers.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+	
+	@FXML void nPlayersListSelectNone()
+	{
+		for (final var nplayer : session.getCurrProfile().getNplayers())
+			nplayer.setSelected(session.getCurrProfile(), false);
+		listNPlayers.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML void nPlayersListSelectInvert()
+	{
+		for (final var nplayer : session.getCurrProfile().getNplayers())
+			nplayer.setSelected(session.getCurrProfile(), !nplayer.isSelected(session.getCurrProfile()));
+		listNPlayers.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	@FXML void nPlayersListClear()
+	{
+		session.getCurrProfile().saveSettings();
+		session.getCurrProfile().setNplayers(null);
+		session.getCurrProfile().setProperty(SettingsEnum.filter_nplayers_ini, null);
+		session.getCurrProfile().saveSettings();
+		tfNPlayers.setText(null);
+		listNPlayers.setItems(null);
+	}
+
+	private Stream<CheckBoxTreeItem<PropertyStub>> streamSubCatItems()
+	{
+		return ((CheckBoxTreeItem<PropertyStub>) treeCatVer.getRoot()).getChildren().stream().flatMap(t -> t.getChildren().stream()).map(t -> (CheckBoxTreeItem<PropertyStub>) t);
+	}
+	
+	@FXML void catVerListSelectAll()
+	{
+		streamSubCatItems().forEachOrdered(subcat -> subcat.setSelected(true));
+		treeCatVer.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+	
+	@FXML void catVerListUnselectAll()
+	{
+		streamSubCatItems().forEachOrdered(subcat -> subcat.setSelected(false));
+		listNPlayers.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+	private static final String MATURE = "* Mature *";
+
+	private Stream<CheckBoxTreeItem<PropertyStub>> streamMatureItems()
+	{
+		return streamSubCatItems().filter(t -> t.getValue() instanceof SubCategory subcat && (subcat.name.endsWith(MATURE) || subcat.getParent().name.endsWith(MATURE)));
+	}
+
+	@FXML void catVerListSelectMature()
+	{
+		streamMatureItems().forEachOrdered(subcat -> subcat.setSelected(true));
+		treeCatVer.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+	
+	@FXML void catVerListUnselectMature()
+	{
+		streamMatureItems().forEachOrdered(subcat -> subcat.setSelected(false));
+		listNPlayers.refresh();
+		if (MainFrame.getProfileViewer() != null)
+			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+	}
+
+
+	@FXML void catVerListClear()
+	{
+		session.getCurrProfile().saveSettings();
+		session.getCurrProfile().setCatver(null);
+		session.getCurrProfile().setProperty(SettingsEnum.filter_catver_ini, null);
+		session.getCurrProfile().saveSettings();
+		tfCatVer.setText(null);
+		treeCatVer.setRoot(null);
+	}
 }

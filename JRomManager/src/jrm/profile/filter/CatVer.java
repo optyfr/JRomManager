@@ -219,6 +219,11 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
 			{
 				return PropertyStub.super.isSelected(profile);
 			}
+			
+			public Category getParent()
+			{
+				return Category.this;
+			}
 		}
 	}
 

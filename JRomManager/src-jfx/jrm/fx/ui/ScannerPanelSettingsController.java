@@ -8,8 +8,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.Pane;
 import javafx.util.Callback;
 import jrm.fx.ui.controls.DescriptorCellFactory;
 import jrm.misc.SettingsEnum;
@@ -39,7 +41,11 @@ public class ScannerPanelSettingsController implements Initializable
 	@FXML	private ComboBox<Descriptor> compressionCbx;
 	@FXML	private ComboBox<Descriptor> mergeModeCbx;
 	@FXML	private ComboBox<Descriptor> collisionModeCbx;
-
+	
+	@FXML	private Pane settingsPane;
+	
+	@FXML 	private ContextMenu catVerMenu;
+	
 	private final Session session = Sessions.getSingleSession();
 
 	@Override
@@ -71,6 +77,11 @@ public class ScannerPanelSettingsController implements Initializable
 		collisionModeCbx.setCellFactory(cellFactory);
 		collisionModeCbx.setButtonCell(cellFactory.call(null));
 		collisionModeCbx.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getCurrProfile().setProperty(SettingsEnum.hash_collision_mode, newValue.toString()));
+		settingsPane.setOnContextMenuRequested(event -> {
+			catVerMenu.show(settingsPane, event.getScreenX(), event.getScreenY());
+			event.consume();
+		});
+		settingsPane.setOnMousePressed(e -> catVerMenu.hide());
 	}
 
 	void initProfileSettings(Session session)
@@ -91,5 +102,48 @@ public class ScannerPanelSettingsController implements Initializable
 		compressionCbx.getSelectionModel().select(FormatOptions.valueOf(session.getCurrProfile().getProperty(SettingsEnum.format, FormatOptions.ZIP.toString())));
 		mergeModeCbx.getSelectionModel().select(MergeOptions.valueOf(session.getCurrProfile().getProperty(SettingsEnum.merge_mode, MergeOptions.SPLIT.toString())));
 		collisionModeCbx.getSelectionModel().select(HashCollisionOptions.valueOf(session.getCurrProfile().getProperty(SettingsEnum.hash_collision_mode, HashCollisionOptions.SINGLEFILE.toString())));
+	}
+	
+	@FXML private void pdMameMergedPreset()
+	{
+		createMissingSetsChkbx.setSelected(true);
+		createOnlyCompleteChkbx.setSelected(false);
+		ignoreUnneededContainersChkbx.setSelected(false);
+		ignoreUnneededEntriesChkbx.setSelected(false);
+		ignoreUnknownContainersChkbx.setSelected(true);
+		useImplicitMergeChkbx.setSelected(true);
+		ignoreMergeNameDisksChkbx.setSelected(true); // Don't remove _ReadMe_.txt
+		ignoreMergeNameRomsChkbx.setSelected(false);
+		compressionCbx.getSelectionModel().select(FormatOptions.TZIP);
+		mergeModeCbx.getSelectionModel().select(MergeOptions.MERGE);
+		collisionModeCbx.getSelectionModel().select(HashCollisionOptions.HALFDUMB);
+	}
+	
+	@FXML private void pdMameNonMergedPreset()
+	{
+		createMissingSetsChkbx.setSelected(true);
+		createOnlyCompleteChkbx.setSelected(false);
+		ignoreUnneededContainersChkbx.setSelected(false);
+		ignoreUnneededEntriesChkbx.setSelected(false);
+		ignoreUnknownContainersChkbx.setSelected(true); // Don't remove _ReadMe_.txt
+		useImplicitMergeChkbx.setSelected(true);
+		ignoreMergeNameDisksChkbx.setSelected(true);
+		ignoreMergeNameRomsChkbx.setSelected(false);
+		compressionCbx.getSelectionModel().select(FormatOptions.TZIP);
+		mergeModeCbx.getSelectionModel().select(MergeOptions.SUPERFULLNOMERGE);
+	}
+	
+	@FXML private void pdMameSplitPreset()
+	{
+		createMissingSetsChkbx.setSelected(true);
+		createOnlyCompleteChkbx.setSelected(false);
+		ignoreUnneededContainersChkbx.setSelected(false);
+		ignoreUnneededEntriesChkbx.setSelected(false);
+		ignoreUnknownContainersChkbx.setSelected(true); // Don't remove _ReadMe_.txt
+		useImplicitMergeChkbx.setSelected(true);
+		ignoreMergeNameDisksChkbx.setSelected(true);
+		ignoreMergeNameRomsChkbx.setSelected(false);
+		compressionCbx.getSelectionModel().select(FormatOptions.TZIP);
+		mergeModeCbx.getSelectionModel().select(MergeOptions.SPLIT);
 	}
 }

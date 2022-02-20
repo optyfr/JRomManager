@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.locale.Messages;
@@ -65,7 +64,7 @@ public class DeleteContainer extends ContainerAction
 	@Override
 	public boolean doAction(final Session session, final ProgressHandler handler)
 	{
-		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(session.getMsgs().getString("DeleteContainer.Deleting")), toBlue(container.getFile().getName()))))); //$NON-NLS-1$
+		handler.setProgress(toHTML(toNoBR(String.format(escape(session.getMsgs().getString("DeleteContainer.Deleting")), toBlue(escape(container.getFile().getName())))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP || container.getType() == Container.Type.SEVENZIP || container.getType() == Container.Type.UNK)
 		{
 			try

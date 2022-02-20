@@ -9,6 +9,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -192,7 +193,7 @@
 									<items>
 										<TitledPane animated="false" collapsible="false" text="%MainFrame.systemsFilter.viewportBorderTitle">
 											<content>
-												<ListView fx:id="systemsFilter" prefHeight="200.0" prefWidth="200.0">
+												<ListView fx:id="systemsFilter">
 													<contextMenu>
 														<ContextMenu fx:id="systemsFilterMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
 															<items>
@@ -217,9 +218,9 @@
 												</ListView>
 											</content>
 										</TitledPane>
-										<TitledPane animated="false" collapsible="false" prefHeight="200.0" prefWidth="200.0" text="%MainFrame.sourcesFilter.viewportBorderTitle">
+										<TitledPane animated="false" collapsible="false" text="%MainFrame.sourcesFilter.viewportBorderTitle">
 											<content>
-												<ListView fx:id="sourcesFilter" prefHeight="200.0" prefWidth="200.0">
+												<ListView fx:id="sourcesFilter">
 													<contextMenu>
 														<ContextMenu fx:id="sourcesFilterMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
 															<items>
@@ -250,6 +251,17 @@
 										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%MainFrame.NPlayers" BorderPane.alignment="CENTER">
 											<content>
 												<ListView fx:id="listNPlayers" prefHeight="200.0" prefWidth="200.0" />
+												<contextMenu>
+													<ContextMenu fx:id="nPlayersMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+														<items>
+															<MenuItem fx:id="nPlayersMenuItemAll" onAction="#nPlayersListSelectAll" mnemonicParsing="false" text="%MainFrame.SelectAll" />
+															<MenuItem fx:id="nPlayersMenuItemNone" onAction="#nPlayersListSelectNone" mnemonicParsing="false" text="%MainFrame.SelectNone" />
+															<MenuItem fx:id="nPlayersMenuItemInvert" onAction="#nPlayersListSelectInvert" mnemonicParsing="false" text="%MainFrame.InvertSelection" />
+															<SeparatorMenuItem />
+															<MenuItem fx:id="nPlayersMenuItemClear" onAction="#nPlayersListClear" mnemonicParsing="false" text="%ScannerAdvFilterPanel.mntmClear.text" />
+														</items>
+													</ContextMenu>
+												</contextMenu>
 											</content>
 										</TitledPane>
 									</center>
@@ -262,6 +274,26 @@
 										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%MainFrame.Categories" BorderPane.alignment="CENTER">
 											<content>
 												<TreeView fx:id="treeCatVer" prefHeight="200.0" prefWidth="200.0" />
+												<contextMenu>
+													<ContextMenu fx:id="catVerMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+														<items>
+															<Menu text="%MainFrame.mnSelect.text">
+																<items>
+																	<MenuItem fx:id="catVerMenuItemSelectAll" onAction="#catVerListSelectAll" mnemonicParsing="false" text="%MainFrame.All" />
+																	<MenuItem fx:id="catVerMenuItemSelectMature" onAction="#catVerListSelectMature" mnemonicParsing="false" text="%MainFrame.Mature" />
+																</items>
+															</Menu>
+															<Menu text="%MainFrame.mnUnselect.text">
+																<items>
+																	<MenuItem fx:id="catVerMenuItemUnselectAll" onAction="#catVerListUnselectAll" mnemonicParsing="false" text="%MainFrame.All" />
+																	<MenuItem fx:id="catVerMenuItemUnselectMature" onAction="#catVerListUnselectMature" mnemonicParsing="false" text="%MainFrame.Mature" />
+																</items>
+															</Menu>
+															<SeparatorMenuItem />
+															<MenuItem fx:id="catVerMenuItemClear" onAction="#catVerListClear" mnemonicParsing="false" text="%ScannerAdvFilterPanel.mntmClear.text" />
+														</items>
+													</ContextMenu>
+												</contextMenu>
 											</content>
 										</TitledPane>
 									</center>
@@ -277,9 +309,10 @@
 								<HBox alignment="CENTER" fillHeight="false" minWidth="0.0" BorderPane.alignment="CENTER">
 									<children>
 										<Label text="%ScannerAutomationPanel.OnScanAction">
-                                 <HBox.margin>
-                                    <Insets right="5.0" />
-                                 </HBox.margin></Label>
+											<HBox.margin>
+												<Insets right="5.0" />
+											</HBox.margin>
+										</Label>
 										<ComboBox fx:id="cbAutomation" />
 									</children>
 								</HBox>

@@ -25,10 +25,7 @@ public final class ProgressNarchiveCallBack implements IProgress, HTMLRenderer
 	public void setCompleted(long complete) throws SevenZipException
 	{
 		if(!isPlain())
-			ph.setProgress(null, null, null, String.format("<html>"
-				+ "<table cellpadding=2 cellspacing=0>"
-				+ "<tr><td valign='middle'>%s</td></tr>"
-				+ "</table>", progress(200, complete, total))); //$NON-NLS-1$
+			ph.setProgress(null, null, null, progress(200, (int)complete, (int)total, null)); //$NON-NLS-1$
 	}
 
 }

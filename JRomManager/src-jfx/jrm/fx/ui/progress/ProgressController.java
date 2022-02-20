@@ -1,15 +1,22 @@
 package jrm.fx.ui.progress;
 
 import java.net.URL;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -17,12 +24,19 @@ import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.FontSmoothingType;
+import javafx.scene.web.WebView;
 import jrm.fx.ui.MainFrame;
 import jrm.fx.ui.progress.ProgressTask.PData;
+import jrm.fx.ui.web.AbstractFormatter;
+import jrm.fx.ui.web.HTMLFormatter;
 import jrm.locale.Messages;
+import jrm.misc.HTMLRenderer;
 import lombok.Setter;
 
 public class ProgressController implements Initializable
@@ -40,7 +54,7 @@ public class ProgressController implements Initializable
 	@FXML private Button cancelBtn;
 	
 	private @Setter ProgressTask<?> task;
-
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -59,10 +73,10 @@ public class ProgressController implements Initializable
 	private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
 
 	/** The lbl info. */
-	private Label[] lblInfo;
+	private Pane[] lblInfo;
 
 	/** The lbl sub info. */
-	private Label[] lblSubInfo;
+	private Pane[] lblSubInfo;
 
 	void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
@@ -71,10 +85,11 @@ public class ProgressController implements Initializable
 		if (lblInfo != null && lblInfo.length == threadCnt && lblSubInfo != null && lblSubInfo.length == lblSubInfoCnt)
 			return;
 
+		panel.getChildren().forEach(n -> {if(n instanceof Pane w) viewCache.add(w);});
 		panel.getChildren().clear();
 
-		lblInfo = new Label[threadCnt];
-		lblSubInfo = new Label[lblSubInfoCnt];
+		lblInfo = new Pane[threadCnt];
+		lblSubInfo = new Pane[lblSubInfoCnt];
 
 		final Color normal = new Color(0.7, 0.7, 0.7, 1.0);
 		final Color light = new Color(0.8, 0.8, 0.8, 1.0);
@@ -82,20 +97,36 @@ public class ProgressController implements Initializable
 
 		for (int i = 0; i < threadCnt; i++)
 		{
-			lblInfo[i] = buildLabel((i % 2) != 0 ? normal : light);
+			lblInfo[i] = buildView((i % 2) != 0 ? normal : light);
 			panel.getChildren().add(lblInfo[i]);
 
 			if (Boolean.TRUE.equals(multipleSubInfos))
 			{
-				lblSubInfo[i] = buildLabel((i % 2) != 0 ? normal : light);
+				lblSubInfo[i] = buildView((i % 2) != 0 ? normal : light);
 				panel.getChildren().add(lblSubInfo[i]);
 			}
 		}
 		if (Boolean.FALSE.equals(multipleSubInfos))
 		{
-			lblSubInfo[0] = buildLabel(lighter);
+			lblSubInfo[0] = buildView(lighter);
 			panel.getChildren().add(lblSubInfo[0]);
 		}
+	}
+
+	private Deque<Pane> viewCache = new ArrayDeque<>(); 
+	
+	private Pane buildView(Color color)
+	{
+		final Pane view;
+		if(!viewCache.isEmpty())
+			view = viewCache.poll();
+		else
+		{
+			view = new HBox();
+			view.setPrefHeight(20);
+		}
+		view.setUserData(color);
+		return view;
 	}
 
 	private Label buildLabel(Color color)
@@ -111,18 +142,18 @@ public class ProgressController implements Initializable
 	void clearInfos()
 	{
 		for (final var label : lblInfo)
-			label.setText(null);
+			label.getChildren().clear();;
 		for (final var label : lblSubInfo)
-			label.setText(null);
+			label.getChildren().clear();;
 	}
 
 
 	public void setFullProgress(PData pd)
 	{
 		for (int i = 0; i < lblInfo.length; i++)
-			lblInfo[i].setText(i < pd.getInfos().length ? pd.getInfos()[i]:"");
+			lblInfo[i].getChildren().setAll(AbstractFormatter.toNode(i < pd.getInfos().length ? pd.getInfos()[i]:"",(Color)lblInfo[i].getUserData()));
 		for (int i = 0; i < lblSubInfo.length; i++)
-			lblSubInfo[i].setText(i < pd.getSubinfos().length ? pd.getSubinfos()[i] : "");
+			lblSubInfo[i].getChildren().setAll(AbstractFormatter.toNode(i < pd.getSubinfos().length ? pd.getSubinfos()[i] : "",(Color)lblSubInfo[i].getUserData()));
 		if (progressBar.isVisible() != pd.getPb1().isVisibility())
 		{
 			progressBar.setVisible(pd.getPb1().isVisibility());

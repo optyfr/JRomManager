@@ -19,8 +19,6 @@ package jrm.profile.fix.actions;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
@@ -88,7 +86,7 @@ public class CreateContainer extends ContainerAction
 	@Override
 	public boolean doAction(final Session session, final ProgressHandler handler)
 	{
-		handler.setProgress(toHTML(toNoBR(String.format(StringEscapeUtils.escapeHtml4(session.getMsgs().getString("CreateContainer.Creating")), toBlue(container.getRelAW().getFullName(container.getFile().getName())), toPurple(container.getRelAW().getDescription()))))); //$NON-NLS-1$
+		handler.setProgress(toHTML(toNoBR(String.format(escape(session.getMsgs().getString("CreateContainer.Creating")), toBlue(escape(container.getRelAW().getFullName(container.getFile().getName()))), toPurple(escape(container.getRelAW().getDescription())))))); //$NON-NLS-1$
 		if (container.getType() == Container.Type.ZIP)
 		{
 			if (format == FormatOptions.ZIP || format == FormatOptions.TZIP)

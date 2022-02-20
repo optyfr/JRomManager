@@ -28,10 +28,7 @@ public final class ProgressTZipCallBack implements LogCallback, HTMLRenderer
 	public void statusCallBack(int percent)
 	{
 		if(!isPlain())
-			ph.setProgress(null, null, null, String.format("<html>"
-				+ "<table cellpadding=2 cellspacing=0>"
-				+ "<tr><td valign='middle'>%s</td></tr>"
-				+ "</table>", progress(200, percent, 100))); //$NON-NLS-1$
+			progress(200, percent, 100, null);
 	}
 
 	@Override

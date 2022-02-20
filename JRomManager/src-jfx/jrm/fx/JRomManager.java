@@ -39,7 +39,7 @@ public class JRomManager
 	{
 		System.setProperty("file.encoding", "UTF-8");
 		Sessions.setSingleMode(true);
-		HTMLRenderer.Options.setHTML5(false);
+		HTMLRenderer.Options.setAbstract(true);
 		final var jArgs = new Args();
 		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
 		try

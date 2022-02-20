@@ -270,7 +270,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 			doit = true;
 		else if (lastPData == null || (lastPData.infos.length == 1 && lastPData.infos[0] != null && !lastPData.infos[0].equals(this.data.infos[0])))
 			doit = true;
-		else if (System.currentTimeMillis() - lastEvent > 500)
+		else if (System.currentTimeMillis() - lastEvent > 100)
 			doit = true;
 		else if (!data.pb1.visibility && !data.pb2.visibility && !data.pb3.visibility && !options.contains(Option.LAZY))
 			doit = true;
