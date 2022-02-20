@@ -39,7 +39,6 @@ public @UtilityClass class AbstractFormatter
 			switch(qName)
 			{
 				case "document":
-					System.out.println("hbox");
 					break;
 				case "label":
 				{
@@ -90,7 +89,6 @@ public @UtilityClass class AbstractFormatter
 					final var progress = new ProgressBar();
 					progress.setPrefWidth(width);
 					progress.setProgress((double) value / (double) max);
-					System.out.println("progress value=%d max=%d width=%d".formatted(value, max, width));
 					nodes.add(progress);
 					break;
 				}
@@ -120,7 +118,6 @@ public @UtilityClass class AbstractFormatter
 					current = new Label();
 				current.setText(buffer.toString());
 				buffer.setLength(0);
-				System.out.println("label '%s' color=%s".formatted(current.getText(), current.getTextFill()));
 				nodes.add(current);
 				current = null;
 			}
