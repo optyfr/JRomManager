@@ -71,7 +71,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 				writer.writeStartElement(RECORD);
 				writer.writeAttribute("ID", Integer.toString(n.getId()));
 				writer.writeAttribute(PARENT_ID, Integer.toString(parentID));
-				writer.writeAttribute("title", n.getHTML());
+				writer.writeAttribute("title", n.getDocument());
 				writer.writeAttribute("class", n.getClass().getSimpleName());
 				writer.writeAttribute("isFolder", Boolean.toString(false));
 				writer.writeEndElement();
@@ -107,7 +107,7 @@ public class ReportTreeXMLResponse extends XMLResponse
 				writer.writeStartElement(RECORD);
 				writer.writeAttribute("ID", Integer.toString(s.getId()));
 				writer.writeAttribute(PARENT_ID, Integer.toString(0));
-				writer.writeAttribute("title", s.getHTML());
+				writer.writeAttribute("title", s.getDocument());
 				writer.writeAttribute("class", s.getClass().getSimpleName());
 				if (s instanceof SubjectSet)
 				{

@@ -37,6 +37,8 @@ import com.eclipsesource.json.Json;
 
 import jrm.aui.basic.ResultColUpdater;
 import jrm.aui.basic.SrcDstResult;
+import jrm.aui.status.PlainTextRenderer;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.batch.Compressor;
 import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
@@ -44,7 +46,6 @@ import jrm.batch.DirUpdater;
 import jrm.batch.TorrentChecker;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.BreakException;
-import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
 import jrm.profile.Profile;
@@ -86,7 +87,7 @@ public class JRomManagerCLI
 	{
 		session = Sessions.getSession(true, false);
 		rootdir = cwdir = session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize(); //$NON-NLS-1$
-		HTMLRenderer.Options.setPlain(true);
+		StatusRendererFactory.Factory.setInstance(new PlainTextRenderer());
 		Log.init(session.getUser().getSettings().getLogPath() + "/JRM.%g.log", false, 1024 * 1024, 5); //$NON-NLS-1$
 		handler = new Progress();
 

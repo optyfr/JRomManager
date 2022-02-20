@@ -2,41 +2,26 @@ package jrm.fx.ui.progress;
 
 import java.net.URL;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
-import java.util.List;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.CacheHint;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.FontSmoothingType;
-import javafx.scene.web.WebView;
 import jrm.fx.ui.MainFrame;
 import jrm.fx.ui.progress.ProgressTask.PData;
 import jrm.fx.ui.web.AbstractFormatter;
-import jrm.fx.ui.web.HTMLFormatter;
 import jrm.locale.Messages;
-import jrm.misc.HTMLRenderer;
 import lombok.Setter;
 
 public class ProgressController implements Initializable
@@ -85,7 +70,13 @@ public class ProgressController implements Initializable
 		if (lblInfo != null && lblInfo.length == threadCnt && lblSubInfo != null && lblSubInfo.length == lblSubInfoCnt)
 			return;
 
-		panel.getChildren().forEach(n -> {if(n instanceof Pane w) viewCache.add(w);});
+		panel.getChildren().forEach(n -> {
+			if (n instanceof Pane w)
+			{
+				w.getChildren().clear();
+				viewCache.add(w);
+			}
+		});
 		panel.getChildren().clear();
 
 		lblInfo = new Pane[threadCnt];
@@ -129,31 +120,21 @@ public class ProgressController implements Initializable
 		return view;
 	}
 
-	private Label buildLabel(Color color)
-	{
-		final var label = new Label();
-		label.setMaxWidth(Double.MAX_VALUE);
-		label.setAlignment(Pos.CENTER);
-		label.setBackground(new Background(new BackgroundFill(color, null, null)));
-		label.setBorder(new Border(new BorderStroke(color.darker(), color.brighter(), color.brighter(), color.darker(), BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, null, null)));
-		return label;
-	}
-
 	void clearInfos()
 	{
 		for (final var label : lblInfo)
-			label.getChildren().clear();;
+			label.getChildren().clear();
 		for (final var label : lblSubInfo)
-			label.getChildren().clear();;
+			label.getChildren().clear();
 	}
 
 
 	public void setFullProgress(PData pd)
 	{
 		for (int i = 0; i < lblInfo.length; i++)
-			lblInfo[i].getChildren().setAll(AbstractFormatter.toNode(i < pd.getInfos().length ? pd.getInfos()[i]:"",(Color)lblInfo[i].getUserData()));
+			lblInfo[i].getChildren().setAll(AbstractFormatter.toNodes(i < pd.getInfos().length ? pd.getInfos()[i]:"",(Color)lblInfo[i].getUserData()));
 		for (int i = 0; i < lblSubInfo.length; i++)
-			lblSubInfo[i].getChildren().setAll(AbstractFormatter.toNode(i < pd.getSubinfos().length ? pd.getSubinfos()[i] : "",(Color)lblSubInfo[i].getUserData()));
+			lblSubInfo[i].getChildren().setAll(AbstractFormatter.toNodes(i < pd.getSubinfos().length ? pd.getSubinfos()[i] : "",(Color)lblSubInfo[i].getUserData()));
 		if (progressBar.isVisible() != pd.getPb1().isVisibility())
 		{
 			progressBar.setVisible(pd.getPb1().isVisibility());

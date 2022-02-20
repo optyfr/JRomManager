@@ -64,7 +64,7 @@ public class DeleteContainer extends ContainerAction
 	@Override
 	public boolean doAction(final Session session, final ProgressHandler handler)
 	{
-		handler.setProgress(toHTML(toNoBR(String.format(escape(session.getMsgs().getString("DeleteContainer.Deleting")), toBlue(escape(container.getFile().getName())))))); //$NON-NLS-1$
+		handler.setProgress(toDocument(toNoBR(String.format(escape(session.getMsgs().getString("DeleteContainer.Deleting")), toBlue(escape(container.getFile().getName())))))); //$NON-NLS-1$
 		if(container.getType() == Container.Type.ZIP || container.getType() == Container.Type.SEVENZIP || container.getType() == Container.Type.UNK)
 		{
 			try

@@ -28,7 +28,8 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
-import jrm.misc.HTMLRenderer;
+import jrm.aui.status.Html4Renderer;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.security.Sessions;
@@ -61,7 +62,7 @@ public final class JRomManager
 	{
 		System.setProperty("file.encoding", "UTF-8");
 		Sessions.setSingleMode(true);
-		HTMLRenderer.Options.setHTML5(false);
+		StatusRendererFactory.Factory.setInstance(new Html4Renderer());
 		final var jArgs = new Args();
 		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
 		try

@@ -50,7 +50,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import jrm.misc.HTMLRenderer;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.misc.Log;
 import jrm.security.Session;
 
@@ -62,7 +62,7 @@ import lombok.Setter;
  * 
  * @author optyfr
  */
-public final class ProfileNFO implements Serializable, HTMLRenderer
+public final class ProfileNFO implements Serializable, StatusRendererFactory
 {
 	private static final String MAME_STR = "mame";
 	private static final String STATS_STR = "stats";
@@ -389,7 +389,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 
 	public String getHTMLVersion()
 	{
-		return toHTML(Optional.ofNullable(stats.getVersion()).map(this::toNoBR).orElse(toGray("???"))); //$NON-NLS-1$
+		return toDocument(Optional.ofNullable(stats.getVersion()).map(this::toNoBR).orElse(toGray("???"))); //$NON-NLS-1$
 	}
 
 	public String getHTMLHaveSets()
@@ -413,7 +413,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 				n = toOrange(toStr(stats.getHaveSets())); 
 			have = String.format(N_OF_T, n, stats.getTotalSets());
 		}
-		return toHTML(have);
+		return toDocument(have);
 	}
 
 	public String getHTMLHaveRoms()
@@ -437,7 +437,7 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 				n = toOrange(toStr(stats.getHaveRoms())); 
 			have = String.format(N_OF_T, n, stats.getTotalRoms());
 		}
-		return toHTML(have);
+		return toDocument(have);
 	}
 
 	public String getHTMLHaveDisks()
@@ -461,22 +461,22 @@ public final class ProfileNFO implements Serializable, HTMLRenderer
 				n = toOrange(toStr(stats.getHaveDisks()));
 			have = String.format(N_OF_T, n, stats.getTotalDisks());
 		}
-		return toHTML(have);
+		return toDocument(have);
 	}
 
 	public String getHTMLCreated()
 	{
-		return toHTML(stats.getCreated() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getCreated())); //$NON-NLS-1$ //$NON-NLS-2$
+		return toDocument(stats.getCreated() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getCreated())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String getHTMLScanned()
 	{
-		return toHTML(stats.getScanned() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getScanned())); //$NON-NLS-1$ //$NON-NLS-2$
+		return toDocument(stats.getScanned() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getScanned())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String getHTMLFixed()
 	{
-		return toHTML(stats.getFixed() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getFixed())); //$NON-NLS-1$ //$NON-NLS-2$
+		return toDocument(stats.getFixed() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getFixed())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public static List<ProfileNFO> list(Session session, File dir)

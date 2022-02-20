@@ -3,6 +3,8 @@ package jrm.fx.ui.web;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,8 +17,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -27,7 +27,7 @@ public @UtilityClass class AbstractFormatter
 {
 	private class Handler extends DefaultHandler
 	{
-		private Pane root;
+		private List<Node> nodes = new ArrayList<>();
 		
 		private Label current = null;
 		
@@ -38,13 +38,15 @@ public @UtilityClass class AbstractFormatter
 		{
 			switch(qName)
 			{
-				case "hbox":
-					root = new HBox();
+				case "document":
 					System.out.println("hbox");
 					break;
 				case "label":
+				{
 					flush();
 					current = new Label();
+					var bold = false;
+					var italic = false;
 					for(int i = 0 ; i < attributes.getLength(); i++)
 					{
 						switch(attributes.getQName(i))
@@ -52,9 +54,18 @@ public @UtilityClass class AbstractFormatter
 							case "color":
 								current.setTextFill(Color.web(attributes.getValue(i)));
 								break;
+							case "bold":
+								bold = Boolean.parseBoolean(attributes.getValue(i));
+								break;
+							case "italic":
+								italic = Boolean.parseBoolean(attributes.getValue(i));
+								break;
 						}
 					}
+					if(bold || italic)
+						current.setFont(Font.font(current.getFont().getFamily(), bold?FontWeight.BOLD:FontWeight.NORMAL, italic?FontPosture.ITALIC:FontPosture.REGULAR, current.getFont().getSize()));
 					break;
+				}
 				case "progress":
 				{
 					flush();
@@ -80,29 +91,9 @@ public @UtilityClass class AbstractFormatter
 					progress.setPrefWidth(width);
 					progress.setProgress((double) value / (double) max);
 					System.out.println("progress value=%d max=%d width=%d".formatted(value, max, width));
-					root.getChildren().add(progress);
+					nodes.add(progress);
 					break;
 				}
-				/*				case "b":
-				{
-					Label oldCurrent = current;
-					flush();
-					current = new Label();
-					if(oldCurrent!=null)
-						current.setTextFill(oldCurrent.getTextFill());
-					current.setFont(Font.font("sans-serif",FontWeight.BOLD,12));
-					break;
-				}
-				case "i":
-				{
-					Label oldCurrent = current;
-					flush();
-					current = new Label();
-					if(oldCurrent!=null)
-						current.setTextFill(oldCurrent.getTextFill());
-					current.setFont(Font.font("sans-serif",FontWeight.NORMAL,FontPosture.ITALIC,12));
-					break;
-				}*/
 				default:
 					break;
 			}
@@ -113,7 +104,7 @@ public @UtilityClass class AbstractFormatter
 		{
 			switch(qName)
 			{
-				case "hbox", "label":
+				case "document", "label":
 					flush();
 					break;
 				default:
@@ -130,7 +121,7 @@ public @UtilityClass class AbstractFormatter
 				current.setText(buffer.toString());
 				buffer.setLength(0);
 				System.out.println("label '%s' color=%s".formatted(current.getText(), current.getTextFill()));
-				root.getChildren().add(current);
+				nodes.add(current);
 				current = null;
 			}
 		}
@@ -142,13 +133,12 @@ public @UtilityClass class AbstractFormatter
 		}
 	}
 	
-	public static Node toNode(String xml, Color color)
+	public static List<Node> toNodes(String xml, Color color)
 	{
 		if(xml==null)
-			return new Label();
-		if(xml.startsWith("<hbox>"))
+			return List.of();
+		if(xml.startsWith("<document>"))
 		{
-			System.out.println(xml);
 			try (final var in = new ByteArrayInputStream(("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+xml).getBytes(StandardCharsets.UTF_8)))
 			{
 				final var factory = SAXParserFactory.newInstance();
@@ -159,13 +149,13 @@ public @UtilityClass class AbstractFormatter
 				parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); // compliant
 				final var handler = new Handler();
 				parser.parse(in, handler);
-				return handler.root;
+				return handler.nodes;
 			}
 			catch (SAXException | ParserConfigurationException | IOException e)
 			{
 				e.printStackTrace();
 			}
 		}
-		return new Label(xml);
+		return List.of(new Label(xml));
 	}
 }

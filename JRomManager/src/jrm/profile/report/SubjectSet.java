@@ -10,8 +10,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import jrm.locale.Messages;
 import jrm.profile.data.AnywareBase;
 
@@ -252,8 +250,7 @@ public class SubjectSet extends Subject implements Serializable
 					return String.format(Messages.getString("SubjectSet.FoundIncomplete"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
 				}
 				return String.format(Messages.getString("SubjectSet.Found"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
-			case CREATE:
-			case CREATEFULL:
+			case CREATE, CREATEFULL:
 				if(isFixable())
 					return String.format(Messages.getString("SubjectSet.MissingTotallyCreated"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
 				return String.format(Messages.getString("SubjectSet.MissingPartiallyCreated"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
@@ -263,31 +260,30 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	@Override
-	public String getHTML()
+	public String getDocument()
 	{
 		final String machine_name = toBlue(ware.getFullName());
 		final String machine_description = toPurple(ware.getDescription());
 		switch(status)
 		{
 			case MISSING:
-				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.Missing")), machine_name, machine_description)); //$NON-NLS-1$
+				return toDocument(String.format(escape(Messages.getString("SubjectSet.Missing")), machine_name, machine_description)); //$NON-NLS-1$
 			case UNNEEDED:
-				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.Unneeded")), machine_name, machine_description)); //$NON-NLS-1$
+				return toDocument(String.format(escape(Messages.getString("SubjectSet.Unneeded")), machine_name, machine_description)); //$NON-NLS-1$
 			case FOUND:
 				if(hasNotes())
 				{
 					if(isFixable())
-						return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.FoundNeedFixes")), machine_name, machine_description)); //$NON-NLS-1$
-					return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.FoundIncomplete")), machine_name, machine_description)); //$NON-NLS-1$
+						return toDocument(String.format(escape(Messages.getString("SubjectSet.FoundNeedFixes")), machine_name, machine_description)); //$NON-NLS-1$
+					return toDocument(String.format(escape(Messages.getString("SubjectSet.FoundIncomplete")), machine_name, machine_description)); //$NON-NLS-1$
 				}
-				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.Found")), machine_name, machine_description)); //$NON-NLS-1$
-			case CREATE:
-			case CREATEFULL:
+				return toDocument(String.format(escape(Messages.getString("SubjectSet.Found")), machine_name, machine_description)); //$NON-NLS-1$
+			case CREATE, CREATEFULL:
 				if(isFixable())
-					return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.MissingTotallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
-				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.MissingPartiallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
+					return toDocument(String.format(escape(Messages.getString("SubjectSet.MissingTotallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
+				return toDocument(String.format(escape(Messages.getString("SubjectSet.MissingPartiallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
 			default:
-				return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("SubjectSet.Unknown")), machine_name, machine_description)); //$NON-NLS-1$
+				return toDocument(String.format(escape(Messages.getString("SubjectSet.Unknown")), machine_name, machine_description)); //$NON-NLS-1$
 		}
 	}
 
@@ -314,8 +310,7 @@ public class SubjectSet extends Subject implements Serializable
 				else
 					parent.getStats().incSetFoundOk();
 				break;
-			case CREATE:
-			case CREATEFULL:
+			case CREATE, CREATEFULL:
 				parent.getStats().incSetCreate();
 				if(isFixable())
 					parent.getStats().incSetCreateComplete();

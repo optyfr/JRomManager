@@ -22,8 +22,8 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import jrm.aui.status.StatusRendererFactory;
 import jrm.locale.Messages;
-import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.manager.Dir;
 import jrm.profile.manager.ProfileNFO;
@@ -37,7 +37,7 @@ import lombok.Getter;
  */
 
 @SuppressWarnings("serial")
-public class FileTableModel extends AbstractTableModel implements HTMLRenderer
+public class FileTableModel extends AbstractTableModel implements StatusRendererFactory
 {
 	
 	/** The curr dir. */

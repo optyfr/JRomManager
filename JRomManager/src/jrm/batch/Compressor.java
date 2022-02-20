@@ -2,16 +2,11 @@ package jrm.batch;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,17 +14,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.text.StringEscapeUtils;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.aui.progress.ProgressTZipCallBack;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
-import jrm.compressors.ZipLevel;
-import jrm.compressors.ZipTempThreshold;
 import jrm.compressors.ZipArchive.CustomVisitor;
-import jrm.misc.HTMLRenderer;
+import jrm.compressors.ZipLevel;
 import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.security.Session;
@@ -43,7 +36,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 
-public class Compressor implements HTMLRenderer
+public class Compressor implements StatusRendererFactory
 {
 	private static final String OK = "OK";
 	private static final String FAILED = "Failed";
@@ -177,7 +170,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try(final var archive = new SevenZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)))
 		{
-			progress.setProgress(toHTML(EXTRACTING + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
+			progress.setProgress(toDocument(EXTRACTING + toItalic(escape(file.getName()))), cnt.get(), total);
 			if(archive.extract()==0)
 			{
 				try(final var newarchive = new SevenZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
@@ -197,7 +190,7 @@ public class Compressor implements HTMLRenderer
 							return FileVisitResult.CONTINUE;
 						}
 					});
-					progress.setProgress(toHTML(CRUNCHING + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
+					progress.setProgress(toDocument(CRUNCHING + toItalic(escape(newfile.getName()))), cnt.get(), total);
 				}
 			}
 			else
@@ -252,7 +245,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try(final var archive = new SevenZipArchive(session, file, false, new ProgressNarchiveCallBack(progress)))
 		{
-			progress.setProgress(toHTML(EXTRACTING + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
+			progress.setProgress(toDocument(EXTRACTING + toItalic(escape(file.getName()))), cnt.get(), total);
 			if(archive.extract()==0)
 			{
 				final File basedir = archive.getTempDir();
@@ -270,7 +263,7 @@ public class Compressor implements HTMLRenderer
 					default			-> zipp.setCompressionLevel(CompressionLevel.NORMAL);
 				}
 				FileUtils.forceMkdirParent(tmpfile.toFile());
-				progress.setProgress(toHTML("creating " + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
+				progress.setProgress(toDocument("creating " + toItalic(escape(newfile.getName()))), cnt.get(), total);
 				try(final var srczipf = new ZipFile(file); final var dstzipf = new ZipFile(tmpfile.toFile()))
 				{
 					Files.walkFileTree(basedir.toPath(), new SimpleFileVisitor<Path>() {
@@ -325,7 +318,7 @@ public class Compressor implements HTMLRenderer
 					case ULTRA		-> zipp.setCompressionLevel(CompressionLevel.ULTRA);
 					default			-> zipp.setCompressionLevel(CompressionLevel.NORMAL);
 				}
-				progress.setProgress(toHTML(CRUNCHING + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
+				progress.setProgress(toDocument(CRUNCHING + toItalic(escape(newfile.getName()))), cnt.get(), total);
 				for(final var hdr : srczipf.getFileHeaders())
 				{
 					if(!hdr.isDirectory())
@@ -395,7 +388,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try(final var archive = new SevenZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
 		{
-			progress.setProgress(toHTML(EXTRACTING + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
+			progress.setProgress(toDocument(EXTRACTING + toItalic(escape(file.getName()))), cnt.get(), total);
 			try(final var srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress));)
 			{
 				srcarchive.extractCustom(new CustomVisitor() {
@@ -407,7 +400,7 @@ public class Compressor implements HTMLRenderer
 					}
 				});
 			}
-			progress.setProgress(toHTML(CRUNCHING + toItalic(StringEscapeUtils.escapeHtml4(newfile.getName()))), cnt.get(), total);
+			progress.setProgress(toDocument(CRUNCHING + toItalic(escape(newfile.getName()))), cnt.get(), total);
 		}
 		catch (Exception e)
 		{
@@ -423,7 +416,7 @@ public class Compressor implements HTMLRenderer
 	{
 		try
 		{
-			progress.setProgress(toHTML("TorrentZipping " + toItalic(StringEscapeUtils.escapeHtml4(file.getName()))), cnt.get(), total);
+			progress.setProgress(toDocument("TorrentZipping " + toItalic(escape(file.getName()))), cnt.get(), total);
 			cb.apply(PROCESSING+file.getName());
 			final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(progress), new SimpleTorrentZipOptions(force,false)).process(file);
 			if(status.contains(TrrntZipStatus.VALIDTRRNTZIP))

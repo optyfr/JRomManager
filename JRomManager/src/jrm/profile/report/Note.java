@@ -2,7 +2,7 @@ package jrm.profile.report;
 
 import java.io.Serializable;
 
-import jrm.misc.HTMLRenderer;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
@@ -13,7 +13,7 @@ import lombok.Getter;
  * @author optyfr
  *
  */
-public abstract class Note implements HTMLRenderer, Serializable
+public abstract class Note implements StatusRendererFactory, Serializable
 {
 	private static final long serialVersionUID = 2L;
 	/**

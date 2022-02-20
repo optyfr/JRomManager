@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import jrm.aui.profile.report.ReportTreeHandler;
-import jrm.misc.HTMLRenderer;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.misc.Log;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.ReportIntf;
@@ -29,7 +29,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-public final class TrntChkReport implements Serializable, HTMLRenderer, ReportIntf<TrntChkReport>
+public final class TrntChkReport implements Serializable, StatusRendererFactory, ReportIntf<TrntChkReport>
 {
 	private static final long serialVersionUID = 4L;
 	
@@ -107,7 +107,7 @@ public final class TrntChkReport implements Serializable, HTMLRenderer, ReportIn
 		private @Getter Status status = Status.UNKNOWN;
 	}
 	
-	public final class Child implements Serializable, HTMLRenderer
+	public final class Child implements Serializable, StatusRendererFactory
 	{
 		private static final long serialVersionUID = 3L;
 

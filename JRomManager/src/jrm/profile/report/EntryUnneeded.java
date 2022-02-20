@@ -2,8 +2,6 @@ package jrm.profile.report;
 
 import java.io.Serializable;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import jrm.locale.Messages;
 import jrm.profile.data.Entry;
 
@@ -38,7 +36,7 @@ public class EntryUnneeded extends EntryExtNote implements Serializable
 	}
 
 	@Override
-	public String getHTML()
+	public String getDocument()
 	{
 		final String hash;
 		if (entry.getSha1() != null)
@@ -47,7 +45,7 @@ public class EntryUnneeded extends EntryExtNote implements Serializable
 			hash = entry.getMd5();
 		else
 			hash = entry.getCrc();
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryUnneeded.Unneeded")), toBold(parent.ware.getFullName()), toBold(entry.getRelFile()), hash)); //$NON-NLS-1$
+		return toDocument(String.format(escape(Messages.getString("EntryUnneeded.Unneeded")), toBold(parent.ware.getFullName()), toBold(entry.getRelFile()), hash)); //$NON-NLS-1$
 	}
 
 }

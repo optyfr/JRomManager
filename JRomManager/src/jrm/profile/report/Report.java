@@ -47,8 +47,8 @@ import java.util.stream.Stream;
 import jrm.aui.profile.report.ReportTreeDefaultHandler;
 import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.aui.progress.StatusHandler;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.locale.Messages;
-import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
@@ -62,7 +62,7 @@ import one.util.streamex.IntStreamEx;
  * @author optyfr
  *
  */
-public class Report extends AbstractList<Subject> implements HTMLRenderer, Serializable, ReportIntf<Report>
+public class Report extends AbstractList<Subject> implements StatusRendererFactory, Serializable, ReportIntf<Report>
 {
 	private static final String STATS_STR = "stats";
 	private static final String SUBJECTS_STR = "subjects";

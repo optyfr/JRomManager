@@ -86,7 +86,7 @@ public class CreateContainer extends ContainerAction
 	@Override
 	public boolean doAction(final Session session, final ProgressHandler handler)
 	{
-		handler.setProgress(toHTML(toNoBR(String.format(escape(session.getMsgs().getString("CreateContainer.Creating")), toBlue(escape(container.getRelAW().getFullName(container.getFile().getName()))), toPurple(escape(container.getRelAW().getDescription())))))); //$NON-NLS-1$
+		handler.setProgress(toDocument(toNoBR(String.format(escape(session.getMsgs().getString("CreateContainer.Creating")), toBlue(escape(container.getRelAW().getFullName(container.getFile().getName()))), toPurple(escape(container.getRelAW().getDescription())))))); //$NON-NLS-1$
 		if (container.getType() == Container.Type.ZIP)
 		{
 			if (format == FormatOptions.ZIP || format == FormatOptions.TZIP)

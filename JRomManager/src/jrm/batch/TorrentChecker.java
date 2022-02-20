@@ -29,6 +29,7 @@ import org.apache.commons.io.FilenameUtils;
 import jrm.aui.basic.ResultColUpdater;
 import jrm.aui.basic.SrcDstResult;
 import jrm.aui.progress.ProgressHandler;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.batch.TrntChkReport.Child;
 import jrm.batch.TrntChkReport.Status;
 import jrm.io.torrent.Torrent;
@@ -36,7 +37,6 @@ import jrm.io.torrent.TorrentException;
 import jrm.io.torrent.TorrentFile;
 import jrm.io.torrent.TorrentParser;
 import jrm.io.torrent.options.TrntChkMode;
-import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.misc.MultiThreading;
 import jrm.misc.SettingsEnum;
@@ -44,7 +44,7 @@ import jrm.misc.UnitRenderer;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 
-public class TorrentChecker implements UnitRenderer, HTMLRenderer
+public class TorrentChecker implements UnitRenderer, StatusRendererFactory
 {
 	private static final String TORRENT_CHECKER_PIECE_PROGRESSION = "TorrentChecker.PieceProgression";
 	private static final String TORRENT_CHECKER_RESULT_COMPLETE = "TorrentChecker.ResultComplete";
@@ -174,9 +174,9 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 		if (data.ok == data.total)
 		{
 			if (removedFiles > 0)
-				result = toHTML(toBold(toBlue(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE))));
+				result = toDocument(toBoldBlue(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE)));
 			else
-				result = toHTML(toBold(toGreen(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE))));
+				result = toDocument(toBoldGreen(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE)));
 		}
 		else if (mode == TrntChkMode.FILENAME)
 			result = String.format(session.getMsgs().getString("TorrentChecker.ResultFileName"), data.ok * 100.0 / data.total, data.missingFiles, removedFiles); //$NON-NLS-1$
@@ -203,7 +203,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 		data.paths.add(file.toAbsolutePath());
 		final var identity = Paths.get(".");
 		final Child node = report.add(tfile.getFileDirs().stream().map(Paths::get).reduce(identity, (r, e) -> r.resolve(e)).toString());
-		progress.setProgress(toHTML(toPurple(src.getAbsolutePath())), -1, null, file.toString());
+		progress.setProgress(toDocument(toPurple(src.getAbsolutePath())), -1, null, file.toString());
 		progress.setProgress2(current + "/" + processing, current.get(), processing.get()); //$NON-NLS-1$
 		if (Files.exists(file))
 		{
@@ -311,9 +311,9 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 			if (data.pieceValid == data.pieceCnt)
 			{
 				if (removedFiles > 0)
-					result = toHTML(toBold(toBlue(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE))));
+					result = toDocument(toBoldBlue(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE)));
 				else
-					result = toHTML(toBold(toGreen(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE))));
+					result = toDocument(toBoldGreen(session.getMsgs().getString(TORRENT_CHECKER_RESULT_COMPLETE)));
 			}
 			else
 				result = String.format(session.getMsgs().getString("TorrentChecker.ResultSHA1"), data.pieceValid * 100.0 / data.pieceCnt, humanReadableByteCount(data.missingBytes, false), data.wrongSizedFiles.get(), removedFiles); //$NON-NLS-1$
@@ -344,7 +344,7 @@ public class TorrentChecker implements UnitRenderer, HTMLRenderer
 		data.node = data.block.add(tfile.getFileDirs().stream().map(Paths::get).reduce(identity, (r, e) -> r.resolve(e)).toString());
 		try (BufferedInputStream in = getFileStram(options, data.wrongSizedFiles, data.node, data.valid, tfile, file))
 		{
-			progress.setProgress(toHTML(toPurple(src.getAbsolutePath())), -1, null, file.toString());
+			progress.setProgress(toDocument(toPurple(src.getAbsolutePath())), -1, null, file.toString());
 			long flen = (data.node.getData().setLength(tfile.getFileLength()).getLength());
 			while (flen >= data.toGo)
 			{

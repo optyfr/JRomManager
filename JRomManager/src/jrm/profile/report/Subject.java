@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import jrm.misc.HTMLRenderer;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.profile.data.AnywareBase;
 import lombok.Getter;
 
@@ -18,7 +18,7 @@ import lombok.Getter;
  * @author optyfr
  *
  */
-public abstract class Subject extends AbstractList<Note> implements HTMLRenderer, Serializable
+public abstract class Subject extends AbstractList<Note> implements StatusRendererFactory, Serializable
 {
 	private static final String WARE_STR = "ware";
 	private static final String NOTES_STR = "notes";

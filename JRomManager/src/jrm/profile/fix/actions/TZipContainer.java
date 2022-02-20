@@ -20,8 +20,6 @@ package jrm.profile.fix.actions;
 import java.io.IOException;
 import java.util.Set;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressTZipCallBack;
 import jrm.misc.Log;
@@ -62,7 +60,7 @@ public class TZipContainer extends ContainerAction
 	{
 		if (container.getType() == Container.Type.ZIP && format == FormatOptions.TZIP)
 		{
-			handler.setProgress(toHTML(toNoBR(String.format(escape("TorrentZipping %s [%s]"), toBlue(escape(container.getRelAW().getFullName(container.getFile().getName()))), toPurple(escape(container.getRelAW().getDescription())))))); //$NON-NLS-1$
+			handler.setProgress(toDocument(toNoBR(String.format(escape("TorrentZipping %s [%s]"), toBlue(escape(container.getRelAW().getFullName(container.getFile().getName()))), toPurple(escape(container.getRelAW().getDescription())))))); //$NON-NLS-1$
 			try
 			{
 				if (container.getFile().exists())

@@ -18,7 +18,7 @@ abstract class ContainerSubject extends Subject
 	}
 
 	@Override
-	public String getHTML()
+	public String getDocument()
 	{
 		return toString();
 	}

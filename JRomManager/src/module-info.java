@@ -24,6 +24,7 @@ module jrmcore
 	exports jrm.aui.basic;
 	exports jrm.aui.progress;
 	exports jrm.aui.batch;
+	exports jrm.aui.status;
 	exports jrm.aui.profile.report;
 	exports jrm.xml;
 

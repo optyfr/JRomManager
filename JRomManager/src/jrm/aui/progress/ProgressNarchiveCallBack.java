@@ -1,10 +1,10 @@
 package jrm.aui.progress;
 
-import jrm.misc.HTMLRenderer;
+import jrm.aui.status.StatusRendererFactory;
 import net.sf.sevenzipjbinding.IProgress;
 import net.sf.sevenzipjbinding.SevenZipException;
 
-public final class ProgressNarchiveCallBack implements IProgress, HTMLRenderer
+public final class ProgressNarchiveCallBack implements IProgress, StatusRendererFactory
 {
 	ProgressHandler ph;
 	long total;
@@ -24,7 +24,7 @@ public final class ProgressNarchiveCallBack implements IProgress, HTMLRenderer
 	@Override
 	public void setCompleted(long complete) throws SevenZipException
 	{
-		if(!isPlain())
+		if(hasProgress())
 			ph.setProgress(null, null, null, progress(200, (int)complete, (int)total, null)); //$NON-NLS-1$
 	}
 

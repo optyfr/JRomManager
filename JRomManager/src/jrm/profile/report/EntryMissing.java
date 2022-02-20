@@ -2,8 +2,6 @@ package jrm.profile.report;
 
 import java.io.Serializable;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import jrm.locale.Messages;
 import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
@@ -36,7 +34,7 @@ public class EntryMissing extends EntryNote implements Serializable
 	}
 
 	@Override
-	public String getHTML()
+	public String getDocument()
 	{
 		if(entity instanceof Entity e)
 		{
@@ -47,9 +45,9 @@ public class EntryMissing extends EntryNote implements Serializable
 				hash = e.getMd5();
 			else
 				hash = e.getCrc();
-			return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName())) + " ("+hash+")"); //$NON-NLS-1$
+			return toDocument(String.format(escape(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName())) + " ("+hash+")"); //$NON-NLS-1$
 		}
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName()))); //$NON-NLS-1$
+		return toDocument(String.format(escape(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName()))); //$NON-NLS-1$
 	}
 
 }

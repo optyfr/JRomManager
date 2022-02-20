@@ -2,8 +2,6 @@ package jrm.profile.report;
 
 import java.io.Serializable;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import jrm.locale.Messages;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
@@ -33,8 +31,8 @@ public class EntryAdd extends EntryExtNote implements Serializable
 	}
 
 	@Override
-	public String getHTML()
+	public String getDocument()
 	{
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()), toItalic(entry.getParent().getRelFile().getName()), toBold(entry.getRelFile()))); //$NON-NLS-1$
+		return toDocument(String.format(escape(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()), toItalic(entry.getParent().getRelFile().getName()), toBold(entry.getRelFile()))); //$NON-NLS-1$
 	}
 }

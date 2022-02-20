@@ -23,9 +23,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import jrm.aui.progress.ProgressHandler;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.compressors.Archive;
 import jrm.compressors.ZipLevel;
-import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.scan.options.FormatOptions;
@@ -40,7 +40,7 @@ import net.lingala.zip4j.model.enums.CompressionMethod;
  * @author optyfr
  *
  */
-public abstract class ContainerAction implements HTMLRenderer, Comparable<ContainerAction>
+public abstract class ContainerAction implements StatusRendererFactory, Comparable<ContainerAction>
 {
 	private static final String ACTION_TO_S_AT_S_FAILED = "action to %s@%s failed";
 	private static final int COUNT = 0;

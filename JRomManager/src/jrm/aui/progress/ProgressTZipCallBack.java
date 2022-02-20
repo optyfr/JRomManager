@@ -1,6 +1,6 @@
 package jrm.aui.progress;
 
-import jrm.misc.HTMLRenderer;
+import jrm.aui.status.StatusRendererFactory;
 import jtrrntzip.LogCallback;
 
 /**
@@ -8,7 +8,7 @@ import jtrrntzip.LogCallback;
  *
  * @author optyfr
  */
-public final class ProgressTZipCallBack implements LogCallback, HTMLRenderer
+public final class ProgressTZipCallBack implements LogCallback, StatusRendererFactory
 {
 	
 	/** The ph. */
@@ -27,8 +27,8 @@ public final class ProgressTZipCallBack implements LogCallback, HTMLRenderer
 	@Override
 	public void statusCallBack(int percent)
 	{
-		if(!isPlain())
-			progress(200, percent, 100, null);
+		if(hasProgress())
+			ph.setProgress(null, null, null, progress(200, percent, 100, null));
 	}
 
 	@Override

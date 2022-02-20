@@ -2,8 +2,6 @@ package jrm.profile.report;
 
 import java.io.Serializable;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import jrm.locale.Messages;
 import jrm.profile.data.EntityBase;
 
@@ -31,9 +29,9 @@ public class EntryOK extends EntryNote implements Serializable
 	}
 
 	@Override
-	public String getHTML()
+	public String getDocument()
 	{
-		return toHTML(String.format(StringEscapeUtils.escapeHtml4(Messages.getString("EntryOK.OK")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()))); //$NON-NLS-1$
+		return toDocument(String.format(escape(Messages.getString("EntryOK.OK")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()))); //$NON-NLS-1$
 	}
 
 }

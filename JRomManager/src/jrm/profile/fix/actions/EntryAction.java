@@ -20,8 +20,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
 import jrm.aui.progress.ProgressHandler;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.compressors.Archive;
-import jrm.misc.HTMLRenderer;
 import jrm.profile.data.Entry;
 import jrm.security.Session;
 import net.lingala.zip4j.ZipFile;
@@ -32,7 +32,7 @@ import net.lingala.zip4j.model.ZipParameters;
  * @author optyfr
  *
  */
-public abstract class EntryAction implements HTMLRenderer
+public abstract class EntryAction implements StatusRendererFactory
 {
 	private static final long ESTIMATED_SIZE = 0L;
 	/**

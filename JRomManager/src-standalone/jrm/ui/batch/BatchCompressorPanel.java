@@ -43,11 +43,11 @@ import javax.swing.table.TableCellRenderer;
 import org.apache.commons.io.FilenameUtils;
 
 import jrm.aui.basic.SrcDstResult;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.batch.Compressor;
 import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
 import jrm.locale.Messages;
-import jrm.misc.HTMLRenderer;
 import jrm.misc.Log;
 import jrm.misc.MultiThreading;
 import jrm.misc.SettingsEnum;
@@ -58,7 +58,7 @@ import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.progress.SwingWorkerProgress;
 
 @SuppressWarnings("serial")
-public class BatchCompressorPanel extends JPanel implements HTMLRenderer
+public class BatchCompressorPanel extends JPanel implements StatusRendererFactory
 {
 	private BatchCompressorTable table;
 	private JCheckBox chckbxForce;

@@ -21,7 +21,7 @@ import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import jrm.misc.HTMLRenderer;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.misc.Log;
 import jrm.profile.report.ContainerTZip;
 import jrm.profile.report.ContainerUnknown;
@@ -64,18 +64,18 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 	{
 		try
 		{
-			if(value instanceof ReportNode)
-				value = ((ReportNode)value).getReport();
-			else if(value instanceof SubjectNode)
-				value = ((SubjectNode)value).getSubject();
-			else if(value instanceof NoteNode)
-				value = ((NoteNode)value).getNote();
-			if(value instanceof Subject)
-				super.getTreeCellRendererComponent(tree, ((Subject)value).getHTML(), sel, expanded, leaf, row, hasFocus);
-			else if(value instanceof Note)
-				super.getTreeCellRendererComponent(tree, ((Note)value).getHTML(), sel, expanded, leaf, row, hasFocus);
-			else
-				super.getTreeCellRendererComponent(tree, ((HTMLRenderer)value).getHTML(), sel, expanded, leaf, row, hasFocus);
+			if(value instanceof ReportNode rn)
+				value = rn.getReport();
+			else if(value instanceof SubjectNode sn)
+				value = sn.getSubject();
+			else if(value instanceof NoteNode nn)
+				value = nn.getNote();
+			if(value instanceof Subject s)
+				super.getTreeCellRendererComponent(tree, s.getDocument(), sel, expanded, leaf, row, hasFocus);
+			else if(value instanceof Note n)
+				super.getTreeCellRendererComponent(tree, n.getDocument(), sel, expanded, leaf, row, hasFocus);
+			else if(value instanceof StatusRendererFactory srf)
+				super.getTreeCellRendererComponent(tree, srf.getDocument(), sel, expanded, leaf, row, hasFocus);
 			setIcon(value, expanded, leaf);
 		}
 		catch(Exception e)
@@ -116,7 +116,7 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png")); //$NON-NLS-1$
 		else if(!leaf)
 			setIcon(MainFrame.getIcon(getFolderIcon(value, expanded)));
-		else if (value instanceof SubjectSet && SubjectSet.Status.FOUND.equals(((SubjectSet) value).getStatus()))
+		else if (value instanceof SubjectSet ss && SubjectSet.Status.FOUND.equals(ss.getStatus()))
 			setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
 	}
 
@@ -129,19 +129,18 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer
 	{
 		String icon = "/jrm/resicons/folder"; //$NON-NLS-1$
 		icon += expanded ? "_open" : "_closed";
-		if(value instanceof SubjectSet)
+		if(value instanceof SubjectSet ss)
 		{
-			switch(((SubjectSet) value).getStatus())
+			switch(ss.getStatus())
 			{
 				case FOUND:
-					if (((SubjectSet) value).hasNotes())
-						icon += ((SubjectSet) value).isFixable() ? "_purple" : "_orange";
+					if (ss.hasNotes())
+						icon += ss.isFixable() ? "_purple" : "_orange";
 					else
 						icon += "_green"; //$NON-NLS-1$
 					break;
-				case CREATE:
-				case CREATEFULL:
-					icon += ((SubjectSet) value).isFixable() ? "_blue" : "_orange";
+				case CREATE, CREATEFULL:
+					icon += ss.isFixable() ? "_blue" : "_orange";
 					break;
 				case MISSING:
 					icon += "_red"; //$NON-NLS-1$

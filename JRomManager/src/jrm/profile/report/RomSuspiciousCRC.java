@@ -39,7 +39,7 @@ public class RomSuspiciousCRC extends Subject implements Serializable
 	}
 
 	@Override
-	public String getHTML()
+	public String getDocument()
 	{
 		return toString();
 	}
