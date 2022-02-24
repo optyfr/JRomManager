@@ -1,4 +1,4 @@
-package jrm.fx.ui.web;
+package jrm.fx.ui.status;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,9 +23,9 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import lombok.experimental.UtilityClass;
 
-public @UtilityClass class AbstractFormatter
+public @UtilityClass class NeutralToNodeFormatter
 {
-	private class Handler extends DefaultHandler
+	private static class Handler extends DefaultHandler
 	{
 		private List<Node> nodes = new ArrayList<>();
 		
@@ -88,6 +88,7 @@ public @UtilityClass class AbstractFormatter
 					}
 					final var progress = new ProgressBar();
 					progress.setPrefWidth(width);
+					progress.setPrefHeight(10);
 					progress.setProgress((double) value / (double) max);
 					nodes.add(progress);
 					break;
@@ -130,7 +131,7 @@ public @UtilityClass class AbstractFormatter
 		}
 	}
 	
-	public static List<Node> toNodes(String xml, Color color)
+	public static List<Node> toNodes(String xml)
 	{
 		if(xml==null)
 			return List.of();

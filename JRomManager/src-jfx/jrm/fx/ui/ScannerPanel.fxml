@@ -22,7 +22,6 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.web.WebView?>
 
 <BorderPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ScannerPanelController">
 	<top>
@@ -254,11 +253,11 @@
 												<contextMenu>
 													<ContextMenu fx:id="nPlayersMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
 														<items>
-															<MenuItem fx:id="nPlayersMenuItemAll" onAction="#nPlayersListSelectAll" mnemonicParsing="false" text="%MainFrame.SelectAll" />
-															<MenuItem fx:id="nPlayersMenuItemNone" onAction="#nPlayersListSelectNone" mnemonicParsing="false" text="%MainFrame.SelectNone" />
-															<MenuItem fx:id="nPlayersMenuItemInvert" onAction="#nPlayersListSelectInvert" mnemonicParsing="false" text="%MainFrame.InvertSelection" />
+															<MenuItem fx:id="nPlayersMenuItemAll" mnemonicParsing="false" onAction="#nPlayersListSelectAll" text="%MainFrame.SelectAll" />
+															<MenuItem fx:id="nPlayersMenuItemNone" mnemonicParsing="false" onAction="#nPlayersListSelectNone" text="%MainFrame.SelectNone" />
+															<MenuItem fx:id="nPlayersMenuItemInvert" mnemonicParsing="false" onAction="#nPlayersListSelectInvert" text="%MainFrame.InvertSelection" />
 															<SeparatorMenuItem />
-															<MenuItem fx:id="nPlayersMenuItemClear" onAction="#nPlayersListClear" mnemonicParsing="false" text="%ScannerAdvFilterPanel.mntmClear.text" />
+															<MenuItem fx:id="nPlayersMenuItemClear" mnemonicParsing="false" onAction="#nPlayersListClear" text="%ScannerAdvFilterPanel.mntmClear.text" />
 														</items>
 													</ContextMenu>
 												</contextMenu>
@@ -279,18 +278,18 @@
 														<items>
 															<Menu text="%MainFrame.mnSelect.text">
 																<items>
-																	<MenuItem fx:id="catVerMenuItemSelectAll" onAction="#catVerListSelectAll" mnemonicParsing="false" text="%MainFrame.All" />
-																	<MenuItem fx:id="catVerMenuItemSelectMature" onAction="#catVerListSelectMature" mnemonicParsing="false" text="%MainFrame.Mature" />
+																	<MenuItem fx:id="catVerMenuItemSelectAll" mnemonicParsing="false" onAction="#catVerListSelectAll" text="%MainFrame.All" />
+																	<MenuItem fx:id="catVerMenuItemSelectMature" mnemonicParsing="false" onAction="#catVerListSelectMature" text="%MainFrame.Mature" />
 																</items>
 															</Menu>
 															<Menu text="%MainFrame.mnUnselect.text">
 																<items>
-																	<MenuItem fx:id="catVerMenuItemUnselectAll" onAction="#catVerListUnselectAll" mnemonicParsing="false" text="%MainFrame.All" />
-																	<MenuItem fx:id="catVerMenuItemUnselectMature" onAction="#catVerListUnselectMature" mnemonicParsing="false" text="%MainFrame.Mature" />
+																	<MenuItem fx:id="catVerMenuItemUnselectAll" mnemonicParsing="false" onAction="#catVerListUnselectAll" text="%MainFrame.All" />
+																	<MenuItem fx:id="catVerMenuItemUnselectMature" mnemonicParsing="false" onAction="#catVerListUnselectMature" text="%MainFrame.Mature" />
 																</items>
 															</Menu>
 															<SeparatorMenuItem />
-															<MenuItem fx:id="catVerMenuItemClear" onAction="#catVerListClear" mnemonicParsing="false" text="%ScannerAdvFilterPanel.mntmClear.text" />
+															<MenuItem fx:id="catVerMenuItemClear" mnemonicParsing="false" onAction="#catVerListClear" text="%ScannerAdvFilterPanel.mntmClear.text" />
 														</items>
 													</ContextMenu>
 												</contextMenu>
@@ -323,11 +322,7 @@
 			</tabs>
 		</TabPane>
 	</center>
-	<bottom>
-		<WebView fx:id="profileinfoLbl" maxHeight="40.0" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" BorderPane.alignment="CENTER">
-			<BorderPane.margin>
-				<Insets bottom="3.0" left="3.0" right="3.0" />
-			</BorderPane.margin>
-		</WebView>
-	</bottom>
+   <bottom>
+      <HBox fx:id="profileinfoLbl" maxHeight="40.0" maxWidth="1.7976931348623157E308" minHeight="20.0" style="-fx-border-style: solid; -fx-border-width: 1px; -fx-border-color: rgb(60%,60%,60%) rgb(80%,80%,80%) rgb(80%,80%,80%) rgb(60%,60%,60%); -fx-border-radius: 5 5 5 5; -fx-border-insets: 0 4 2 4; -fx-padding: 0 5 0 5;" BorderPane.alignment="CENTER" />
+   </bottom>
 </BorderPane>

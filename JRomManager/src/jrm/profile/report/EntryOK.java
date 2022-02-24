@@ -31,7 +31,7 @@ public class EntryOK extends EntryNote implements Serializable
 	@Override
 	public String getDocument()
 	{
-		return toDocument(String.format(escape(Messages.getString("EntryOK.OK")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()))); //$NON-NLS-1$
+		return toDocument(String.format(escape(Messages.getString("EntryOK.OK")), toBlue(parent.ware.getFullName()), toBoldBlack(entity.getNormalizedName()))); //$NON-NLS-1$
 	}
 
 }

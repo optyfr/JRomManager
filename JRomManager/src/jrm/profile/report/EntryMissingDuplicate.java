@@ -33,6 +33,6 @@ public class EntryMissingDuplicate extends EntryExtNote implements Serializable
 	@Override
 	public String getDocument()
 	{
-		return toDocument(String.format(escape(Messages.getString("EntryMissingDuplicate.MissingDuplicate")), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), toBold(entity.getName()))); //$NON-NLS-1$
+		return toDocument(String.format(escape(Messages.getString("EntryMissingDuplicate.MissingDuplicate")), toBlue(parent.ware.getFullName()), toBoldBlack(entry.getRelFile()), toBoldBlack(entity.getName()))); //$NON-NLS-1$
 	}
 }

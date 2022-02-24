@@ -41,11 +41,11 @@ public class EntryWrongHash extends EntryExtNote implements Serializable
 	public String getDocument()
 	{
 		if(entry.getMd5() == null && entry.getSha1() == null)
-			return toDocument(String.format(escape(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "CRC", entry.getCrc(), getCrc())); //$NON-NLS-1$ //$NON-NLS-2$
+			return toDocument(String.format(escape(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBoldBlack(entry.getRelFile()), "CRC", entry.getCrc(), getCrc())); //$NON-NLS-1$ //$NON-NLS-2$
 		else if(entry.getSha1() == null)
-			return toDocument(String.format(escape(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "MD5", entry.getMd5(), getMd5())); //$NON-NLS-1$ //$NON-NLS-2$
+			return toDocument(String.format(escape(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBoldBlack(entry.getRelFile()), "MD5", entry.getMd5(), getMd5())); //$NON-NLS-1$ //$NON-NLS-2$
 		else
-			return toDocument(String.format(escape(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBold(entry.getRelFile()), "SHA-1", entry.getSha1(), getSha1())); //$NON-NLS-1$ //$NON-NLS-2$
+			return toDocument(String.format(escape(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBoldBlack(entry.getRelFile()), "SHA-1", entry.getSha1(), getSha1())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }

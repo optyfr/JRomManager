@@ -8,10 +8,16 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -20,7 +26,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import jrm.fx.ui.MainFrame;
 import jrm.fx.ui.progress.ProgressTask.PData;
-import jrm.fx.ui.web.AbstractFormatter;
+import jrm.fx.ui.status.NeutralToNodeFormatter;
 import jrm.locale.Messages;
 import lombok.Setter;
 
@@ -71,7 +77,7 @@ public class ProgressController implements Initializable
 			return;
 
 		panel.getChildren().forEach(n -> {
-			if (n instanceof Pane w)
+			if (n instanceof HBox w)
 			{
 				w.getChildren().clear();
 				viewCache.add(w);
@@ -104,19 +110,22 @@ public class ProgressController implements Initializable
 		}
 	}
 
-	private Deque<Pane> viewCache = new ArrayDeque<>(); 
+	private Deque<HBox> viewCache = new ArrayDeque<>(); 
 	
-	private Pane buildView(Color color)
+	private HBox buildView(Color color)
 	{
-		final Pane view;
+		final HBox view;
 		if(!viewCache.isEmpty())
 			view = viewCache.poll();
 		else
 		{
 			view = new HBox();
 			view.setPrefHeight(20);
+			view.setMaxWidth(Integer.MAX_VALUE);
+			view.setAlignment(Pos.CENTER_LEFT);
 		}
-		view.setUserData(color);
+		view.setBackground(new Background(new BackgroundFill(color, null, null)));
+		view.setBorder(new Border(new BorderStroke(color.darker(), color.brighter(), color.brighter(), color.darker(), BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, null, null)));
 		return view;
 	}
 
@@ -132,9 +141,9 @@ public class ProgressController implements Initializable
 	public void setFullProgress(PData pd)
 	{
 		for (int i = 0; i < lblInfo.length; i++)
-			lblInfo[i].getChildren().setAll(AbstractFormatter.toNodes(i < pd.getInfos().length ? pd.getInfos()[i]:"",(Color)lblInfo[i].getUserData()));
+			lblInfo[i].getChildren().setAll(NeutralToNodeFormatter.toNodes(i < pd.getInfos().length ? pd.getInfos()[i]:""));
 		for (int i = 0; i < lblSubInfo.length; i++)
-			lblSubInfo[i].getChildren().setAll(AbstractFormatter.toNodes(i < pd.getSubinfos().length ? pd.getSubinfos()[i] : "",(Color)lblSubInfo[i].getUserData()));
+			lblSubInfo[i].getChildren().setAll(NeutralToNodeFormatter.toNodes(i < pd.getSubinfos().length ? pd.getSubinfos()[i] : ""));
 		if (progressBar.isVisible() != pd.getPb1().isVisibility())
 		{
 			progressBar.setVisible(pd.getPb1().isVisibility());

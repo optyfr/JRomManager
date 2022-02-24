@@ -33,6 +33,6 @@ public class EntryAdd extends EntryExtNote implements Serializable
 	@Override
 	public String getDocument()
 	{
-		return toDocument(String.format(escape(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBold(entity.getNormalizedName()), toItalic(entry.getParent().getRelFile().getName()), toBold(entry.getRelFile()))); //$NON-NLS-1$
+		return toDocument(String.format(escape(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBoldBlack(entity.getNormalizedName()), toItalicBlack(entry.getParent().getRelFile().getName()), toBoldBlack(entry.getRelFile()))); //$NON-NLS-1$
 	}
 }

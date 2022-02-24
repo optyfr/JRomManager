@@ -30,7 +30,7 @@ public class NeutralRenderer implements StatusRenderer
 	{
 		if(msg==null)
 			return toDocument(internalProgress(width, i, max));
-		return toDocument(internalProgress(width, i, max) + escape(msg));
+		return toDocument(internalProgress(width, i, max) + " " + escape(msg));
 	}
 
 	protected String internalProgress(final int width, final long i, final long max)

@@ -45,9 +45,9 @@ public class EntryMissing extends EntryNote implements Serializable
 				hash = e.getMd5();
 			else
 				hash = e.getCrc();
-			return toDocument(String.format(escape(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName())) + " ("+hash+")"); //$NON-NLS-1$
+			return toDocument(String.format(escape(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBoldBlack(entity.getName())) + " ("+hash+")"); //$NON-NLS-1$
 		}
-		return toDocument(String.format(escape(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBold(entity.getName()))); //$NON-NLS-1$
+		return toDocument(String.format(escape(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBoldBlack(entity.getName()))); //$NON-NLS-1$
 	}
 
 }

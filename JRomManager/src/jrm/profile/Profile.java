@@ -48,6 +48,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import jrm.aui.progress.ProgressHandler;
+import jrm.aui.status.StatusRendererFactory;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.ExceptionUtils;
@@ -103,7 +104,7 @@ import lombok.Setter;
  * @author optyfr
  *
  */
-public class Profile implements Serializable
+public class Profile implements Serializable,StatusRendererFactory
 {
 	private static final long serialVersionUID = 3L;
 	
@@ -1704,16 +1705,16 @@ public class Profile implements Serializable
 			fname = xmlpath.relativize(nfo.getFile().toPath()).toString();
 		else
 			fname = nfo.getFile().getName();
-		String name = "<html><body>[<span style='color:blue'>" + fname + "</span>] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String name = "[" + toBlue(fname) + "] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if (build != null)
-			name += "<b>" + build + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
+			name += toBoldBlack(build); //$NON-NLS-1$ //$NON-NLS-2$
 		else if (header.size() > 0)
 		{
 			if (header.containsKey(DESCRIPTION)) //$NON-NLS-1$
-				name += "<b>" + header.get(DESCRIPTION) + "</b>"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+				name += toBoldBlack(header.get(DESCRIPTION)); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			else if (header.containsKey("name")) //$NON-NLS-1$
 			{
-				name += "<b>" + header.get("name") + "</b>"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+				name += toBoldBlack(header.get("name")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 				if (header.containsKey(VERSION)) //$NON-NLS-1$
 					name += " (" + header.get(VERSION) + ")"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			}
@@ -1723,8 +1724,8 @@ public class Profile implements Serializable
 			strcnt += machinesCnt + " Machines"; //$NON-NLS-1$
 		if (!machineListList.getSoftwareListList().isEmpty())
 			strcnt += (strcnt.isEmpty() ? "" : ", ") + softwaresListCnt + " Software Lists, " + softwaresCnt + " Softwares"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		name += "(" + strcnt + ")</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
-		return name;
+		name += "(" + strcnt + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		return toDocument(name);
 	}
 
 	/**

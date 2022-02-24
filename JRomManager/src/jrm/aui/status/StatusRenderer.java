@@ -58,14 +58,14 @@ interface StatusRenderer
 		return toLabel(str, "purple");
 	}
 	
-	public default String toBold(CharSequence str)
+	public default String toBoldBlack(CharSequence str)
 	{
-		return toLabel(str, null, true);
+		return toLabel(str, "black", true);
 	}
 	
-	public default String toItalic(CharSequence str)
+	public default String toItalicBlack(CharSequence str)
 	{
-		return toLabel(str, null, false, true);
+		return toLabel(str, "black", false, true);
 	}
 	
 	public default String toLabel(CharSequence str, String webcolor)

@@ -37,7 +37,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.image.ImageView;
-import javafx.scene.web.WebView;
+import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -46,7 +46,7 @@ import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.profile.ProfileViewer;
 import jrm.fx.ui.progress.ProgressTask;
-import jrm.fx.ui.web.HTMLFormatter;
+import jrm.fx.ui.status.NeutralToNodeFormatter;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
@@ -116,7 +116,7 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 	@FXML	private Tab advFilterTab;
 	@FXML	private Tab automationTab;
 
-	@FXML	private WebView profileinfoLbl;
+	@FXML	private HBox profileinfoLbl;
 	
 	@FXML	private ListView<Systm> systemsFilter;
 	@FXML	private ContextMenu systemsFilterMenu;
@@ -393,7 +393,7 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 						fixBtn.setDisable(true);
 						if (profile != null && session.getCurrProfile() != null)
 						{
-							profileinfoLbl.getEngine().loadContent(HTMLFormatter.toHTML(session.getCurrProfile().getName()));
+							profileinfoLbl.getChildren().setAll(NeutralToNodeFormatter.toNodes(session.getCurrProfile().getName()));
 							systemsFilter.setItems(FXCollections.observableList(session.getCurrProfile().getSystems().getSystems()));
 							sourcesFilter.setItems(FXCollections.observableList(session.getCurrProfile().getSources().getSrces()));
 							initProfileSettings(session);

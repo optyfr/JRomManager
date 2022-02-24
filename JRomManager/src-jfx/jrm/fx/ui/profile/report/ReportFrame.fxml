@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.web.WebView?>
+<?import javafx.scene.layout.HBox?>
 
 <BorderPane maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.report.ReportFrameController">
    <center>
       <fx:include fx:id="view" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" source="ReportView.fxml" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
-      <WebView fx:id="status" maxHeight="-Infinity" minHeight="20.0" minWidth="-1.0" prefHeight="40.0" prefWidth="-1.0" BorderPane.alignment="CENTER" />
+      <HBox fx:id="status" minHeight="20.0" style="-fx-border-style: solid; -fx-border-width: 1px; -fx-border-color: rgb(60%,60%,60%) rgb(80%,80%,80%) rgb(80%,80%,80%) rgb(60%,60%,60%); -fx-border-radius: 5 5 5 5; -fx-border-insets: 0 2 2 2; -fx-padding: 0 5 0 5;" BorderPane.alignment="CENTER" />
    </bottom>
 </BorderPane>

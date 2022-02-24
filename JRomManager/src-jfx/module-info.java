@@ -5,7 +5,7 @@ module jrmfx
 	exports jrm.fx.ui.controls;
 	exports jrm.fx.ui.profile.manager;
 	exports jrm.fx.ui.progress;
-	exports jrm.fx.ui.web;
+	exports jrm.fx.ui.status;
 
 	requires javafx.base;
 	requires javafx.graphics;

@@ -45,7 +45,7 @@ public class EntryUnneeded extends EntryExtNote implements Serializable
 			hash = entry.getMd5();
 		else
 			hash = entry.getCrc();
-		return toDocument(String.format(escape(Messages.getString("EntryUnneeded.Unneeded")), toBold(parent.ware.getFullName()), toBold(entry.getRelFile()), hash)); //$NON-NLS-1$
+		return toDocument(String.format(escape(Messages.getString("EntryUnneeded.Unneeded")), toBoldBlack(parent.ware.getFullName()), toBoldBlack(entry.getRelFile()), hash)); //$NON-NLS-1$
 	}
 
 }

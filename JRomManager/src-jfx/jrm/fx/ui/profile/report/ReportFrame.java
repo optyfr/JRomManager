@@ -10,7 +10,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jrm.aui.progress.StatusHandler;
 import jrm.fx.ui.misc.Settings;
-import jrm.fx.ui.web.HTMLFormatter;
+import jrm.fx.ui.status.NeutralToNodeFormatter;
 import jrm.locale.Messages;
 import jrm.security.Session;
 import jrm.security.Sessions;
@@ -64,7 +64,7 @@ public class ReportFrame extends Stage implements StatusHandler
 		if(needUpdate)
 		{
 			controller.viewController.setReport(Sessions.getSingleSession().getReport());
-			controller.status.getEngine().loadContent(HTMLFormatter.toHTML(status));
+			controller.status.getChildren().setAll(NeutralToNodeFormatter.toNodes(status));
 			needUpdate = false;
 		}
 	}

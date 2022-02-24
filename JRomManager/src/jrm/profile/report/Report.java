@@ -468,8 +468,8 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	public Subject findSubject(final Integer id)
 	{
 		Object obj = all.get(id);
-		if(obj instanceof Subject)
-			return (Subject) obj;
+		if(obj instanceof Subject s)
+			return s;
 		return null;	//NOSONAR
 	}
 
