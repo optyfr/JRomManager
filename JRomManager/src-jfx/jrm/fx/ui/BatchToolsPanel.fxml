@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+
+<TabPane prefHeight="400.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17">
+   <tabs>
+      <Tab closable="false" text="Untitled Tab">
+        <content>
+            <BorderPane>
+               <center>
+                  <SplitPane dividerPositions="0.4" orientation="VERTICAL">
+                    <items>
+                        <TableView>
+                          <columns>
+                            <TableColumn prefWidth="75.0" text="C1" />
+                          </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                           <contextMenu>
+                              <ContextMenu>
+                                <items>
+                                  <MenuItem mnemonicParsing="false" text="Unspecified Action" />
+                                </items>
+                              </ContextMenu>
+                           </contextMenu>
+                        </TableView>
+                        <TableView>
+                          <columns>
+                            <TableColumn prefWidth="75.0" text="C1" />
+                            <TableColumn prefWidth="75.0" text="C2" />
+                              <TableColumn prefWidth="75.0" text="C3" />
+                              <TableColumn maxWidth="30.0" minWidth="30.0" prefWidth="30.0" resizable="false" text="S" />
+                          </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                           <contextMenu>
+                              <ContextMenu>
+                                <items>
+                                  <MenuItem mnemonicParsing="false" text="Unspecified Action" />
+                                </items>
+                              </ContextMenu>
+                           </contextMenu>
+                        </TableView>
+                    </items>
+                  </SplitPane>
+               </center>
+               <bottom>
+                  <HBox prefHeight="20.0" BorderPane.alignment="CENTER" />
+               </bottom>
+            </BorderPane>
+        </content>
+      </Tab>
+      <Tab closable="false" text="Untitled Tab">
+        <content>
+            <BorderPane>
+               <center>
+                  <TableView>
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="C1" />
+                      <TableColumn prefWidth="75.0" text="C2" />
+                        <TableColumn prefWidth="75.0" text="C3" />
+                        <TableColumn maxWidth="30.0" minWidth="30.0" prefWidth="30.0" resizable="false" text="S" />
+                    </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                     <contextMenu>
+                        <ContextMenu>
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Unspecified Action" />
+                          </items>
+                        </ContextMenu>
+                     </contextMenu>
+                  </TableView>
+               </center>
+               <bottom>
+                  <HBox prefHeight="20.0" BorderPane.alignment="CENTER" />
+               </bottom>
+            </BorderPane>
+        </content>
+      </Tab>
+      <Tab closable="false" text="Untitled Tab">
+        <content>
+            <BorderPane>
+               <center>
+                  <TableView>
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="C1" />
+                      <TableColumn prefWidth="75.0" text="C2" />
+                    </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                     <contextMenu>
+                        <ContextMenu>
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Unspecified Action" />
+                          </items>
+                        </ContextMenu>
+                     </contextMenu>
+                  </TableView>
+               </center>
+               <bottom>
+                  <HBox prefHeight="20.0" BorderPane.alignment="CENTER" />
+               </bottom>
+            </BorderPane>
+        </content>
+      </Tab>
+   </tabs>
+</TabPane>

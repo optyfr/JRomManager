@@ -84,7 +84,7 @@
 							<children>
 								<ListView fx:id="srcList" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6">
 									<contextMenu>
-										<ContextMenu fx:id="srcListMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+										<ContextMenu fx:id="srcListMenu">
 											<items>
 												<MenuItem fx:id="srcListDelMenuItem" mnemonicParsing="false" text="%MainFrame.mntmDeleteSelected.text" />
 												<MenuItem fx:id="srcListAddMenuItem" mnemonicParsing="false" text="%MainFrame.mntmAddDirectory.text" />
@@ -194,7 +194,7 @@
 											<content>
 												<ListView fx:id="systemsFilter">
 													<contextMenu>
-														<ContextMenu fx:id="systemsFilterMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+														<ContextMenu fx:id="systemsFilterMenu">
 															<items>
 																<Menu text="%MainFrame.mnSelect.text">
 																	<items>
@@ -221,7 +221,7 @@
 											<content>
 												<ListView fx:id="sourcesFilter">
 													<contextMenu>
-														<ContextMenu fx:id="sourcesFilterMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+														<ContextMenu fx:id="sourcesFilterMenu">
 															<items>
 																<MenuItem fx:id="sourcesFilterSelectAllMenuItem" mnemonicParsing="false" onAction="#sourcesFilterSelectAll" text="%MainFrame.mntmSelectAll.text" />
 																<MenuItem fx:id="sourcesFilterUnselectAllMenuItem" mnemonicParsing="false" onAction="#sourcesFilterUnselectAll" text="%MainFrame.mntmSelectNone.text" />
@@ -251,7 +251,7 @@
 											<content>
 												<ListView fx:id="listNPlayers" prefHeight="200.0" prefWidth="200.0" />
 												<contextMenu>
-													<ContextMenu fx:id="nPlayersMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+													<ContextMenu fx:id="nPlayersMenu">
 														<items>
 															<MenuItem fx:id="nPlayersMenuItemAll" mnemonicParsing="false" onAction="#nPlayersListSelectAll" text="%MainFrame.SelectAll" />
 															<MenuItem fx:id="nPlayersMenuItemNone" mnemonicParsing="false" onAction="#nPlayersListSelectNone" text="%MainFrame.SelectNone" />
@@ -274,7 +274,7 @@
 											<content>
 												<TreeView fx:id="treeCatVer" prefHeight="200.0" prefWidth="200.0" />
 												<contextMenu>
-													<ContextMenu fx:id="catVerMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+													<ContextMenu fx:id="catVerMenu">
 														<items>
 															<Menu text="%MainFrame.mnSelect.text">
 																<items>

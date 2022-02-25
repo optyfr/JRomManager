@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
 
 <TabPane fx:id="tabPane" prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.MainFrameController">
    <tabs>
@@ -14,6 +15,21 @@
          <content>
             <fx:include fx:id="scannerPanel" source="ScannerPanel.fxml" />
          </content>
+      </Tab>
+      <Tab fx:id="dir2datPanelTab" closable="false" text="%MainFrame.Dir2Dat">
+        <content>
+            <fx:include fx:id="dir2datPanel" source="Dir2DatPanel.fxml" />
+        </content>
+      </Tab>
+      <Tab fx:id="batchtoolsPanelTab" closable="false" text="%MainFrame.BatchTools">
+        <content>
+            <fx:include fx:id="batchtoolsPanel" source="BatchToolsPanel.fxml" />
+        </content>
+      </Tab>
+      <Tab fx:id="settingsPanelTab" closable="false" text="%MainFrame.Settings">
+        <content>
+            <fx:include fx:id="settingsPanel" source="SettingsPanel.fxml" />
+        </content>
       </Tab>
    </tabs>
 </TabPane>
