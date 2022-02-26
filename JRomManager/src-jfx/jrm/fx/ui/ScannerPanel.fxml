@@ -250,18 +250,18 @@
 										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%MainFrame.NPlayers" BorderPane.alignment="CENTER">
 											<content>
 												<ListView fx:id="listNPlayers" prefHeight="200.0" prefWidth="200.0" />
-												<contextMenu>
-													<ContextMenu fx:id="nPlayersMenu">
-														<items>
-															<MenuItem fx:id="nPlayersMenuItemAll" mnemonicParsing="false" onAction="#nPlayersListSelectAll" text="%MainFrame.SelectAll" />
-															<MenuItem fx:id="nPlayersMenuItemNone" mnemonicParsing="false" onAction="#nPlayersListSelectNone" text="%MainFrame.SelectNone" />
-															<MenuItem fx:id="nPlayersMenuItemInvert" mnemonicParsing="false" onAction="#nPlayersListSelectInvert" text="%MainFrame.InvertSelection" />
-															<SeparatorMenuItem />
-															<MenuItem fx:id="nPlayersMenuItemClear" mnemonicParsing="false" onAction="#nPlayersListClear" text="%ScannerAdvFilterPanel.mntmClear.text" />
-														</items>
-													</ContextMenu>
-												</contextMenu>
 											</content>
+											<contextMenu>
+												<ContextMenu fx:id="nPlayersMenu">
+													<items>
+														<MenuItem fx:id="nPlayersMenuItemAll" mnemonicParsing="false" onAction="#nPlayersListSelectAll" text="%MainFrame.SelectAll" />
+														<MenuItem fx:id="nPlayersMenuItemNone" mnemonicParsing="false" onAction="#nPlayersListSelectNone" text="%MainFrame.SelectNone" />
+														<MenuItem fx:id="nPlayersMenuItemInvert" mnemonicParsing="false" onAction="#nPlayersListSelectInvert" text="%MainFrame.InvertSelection" />
+														<SeparatorMenuItem />
+														<MenuItem fx:id="nPlayersMenuItemClear" mnemonicParsing="false" onAction="#nPlayersListClear" text="%ScannerAdvFilterPanel.mntmClear.text" />
+													</items>
+												</ContextMenu>
+											</contextMenu>
 										</TitledPane>
 									</center>
 								</BorderPane>
@@ -273,27 +273,27 @@
 										<TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%MainFrame.Categories" BorderPane.alignment="CENTER">
 											<content>
 												<TreeView fx:id="treeCatVer" prefHeight="200.0" prefWidth="200.0" />
-												<contextMenu>
-													<ContextMenu fx:id="catVerMenu">
-														<items>
-															<Menu text="%MainFrame.mnSelect.text">
-																<items>
-																	<MenuItem fx:id="catVerMenuItemSelectAll" mnemonicParsing="false" onAction="#catVerListSelectAll" text="%MainFrame.All" />
-																	<MenuItem fx:id="catVerMenuItemSelectMature" mnemonicParsing="false" onAction="#catVerListSelectMature" text="%MainFrame.Mature" />
-																</items>
-															</Menu>
-															<Menu text="%MainFrame.mnUnselect.text">
-																<items>
-																	<MenuItem fx:id="catVerMenuItemUnselectAll" mnemonicParsing="false" onAction="#catVerListUnselectAll" text="%MainFrame.All" />
-																	<MenuItem fx:id="catVerMenuItemUnselectMature" mnemonicParsing="false" onAction="#catVerListUnselectMature" text="%MainFrame.Mature" />
-																</items>
-															</Menu>
-															<SeparatorMenuItem />
-															<MenuItem fx:id="catVerMenuItemClear" mnemonicParsing="false" onAction="#catVerListClear" text="%ScannerAdvFilterPanel.mntmClear.text" />
-														</items>
-													</ContextMenu>
-												</contextMenu>
 											</content>
+											<contextMenu>
+												<ContextMenu fx:id="catVerMenu">
+													<items>
+														<Menu text="%MainFrame.mnSelect.text">
+															<items>
+																<MenuItem fx:id="catVerMenuItemSelectAll" mnemonicParsing="false" onAction="#catVerListSelectAll" text="%MainFrame.All" />
+																<MenuItem fx:id="catVerMenuItemSelectMature" mnemonicParsing="false" onAction="#catVerListSelectMature" text="%MainFrame.Mature" />
+															</items>
+														</Menu>
+														<Menu text="%MainFrame.mnUnselect.text">
+															<items>
+																<MenuItem fx:id="catVerMenuItemUnselectAll" mnemonicParsing="false" onAction="#catVerListUnselectAll" text="%MainFrame.All" />
+																<MenuItem fx:id="catVerMenuItemUnselectMature" mnemonicParsing="false" onAction="#catVerListUnselectMature" text="%MainFrame.Mature" />
+															</items>
+														</Menu>
+														<SeparatorMenuItem />
+														<MenuItem fx:id="catVerMenuItemClear" mnemonicParsing="false" onAction="#catVerListClear" text="%ScannerAdvFilterPanel.mntmClear.text" />
+													</items>
+												</ContextMenu>
+											</contextMenu>
 										</TitledPane>
 									</center>
 								</BorderPane>
@@ -322,7 +322,7 @@
 			</tabs>
 		</TabPane>
 	</center>
-   <bottom>
-      <HBox fx:id="profileinfoLbl" maxHeight="40.0" maxWidth="1.7976931348623157E308" minHeight="20.0" style="-fx-border-style: solid; -fx-border-width: 1px; -fx-border-color: rgb(60%,60%,60%) rgb(80%,80%,80%) rgb(80%,80%,80%) rgb(60%,60%,60%); -fx-border-radius: 5 5 5 5; -fx-border-insets: 0 4 2 4; -fx-padding: 0 5 0 5;" BorderPane.alignment="CENTER" />
-   </bottom>
+	<bottom>
+		<HBox fx:id="profileinfoLbl" maxHeight="40.0" maxWidth="1.7976931348623157E308" minHeight="20.0" style="-fx-border-style: solid; -fx-border-width: 1px; -fx-border-color: rgb(60%,60%,60%) rgb(80%,80%,80%) rgb(80%,80%,80%) rgb(60%,60%,60%); -fx-border-radius: 5 5 5 5; -fx-border-insets: 0 4 2 4; -fx-padding: 0 5 0 5;" BorderPane.alignment="CENTER" />
+	</bottom>
 </BorderPane>
