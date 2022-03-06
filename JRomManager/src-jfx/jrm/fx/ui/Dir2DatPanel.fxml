@@ -5,6 +5,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -18,193 +19,204 @@
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
    </columnConstraints>
    <rowConstraints>
-      <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+      <RowConstraints fillHeight="false" vgrow="NEVER" />
    </rowConstraints>
    <children>
       <TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="250.0" text="%MainFrame.Options">
          <content>
-            <GridPane>
-               <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                  <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-               </columnConstraints>
-               <rowConstraints>
-                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-               </rowConstraints>
-               <children>
-                  <VBox alignment="CENTER_LEFT" fillWidth="false" GridPane.columnIndex="1">
+            <ScrollPane fitToHeight="true" fitToWidth="true">
+               <content>
+                  <GridPane>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES" />
+                     </rowConstraints>
                      <children>
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxScanSubfolders.text" />
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxDeepScanFor.text">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </CheckBox>
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxAddMd.text">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </CheckBox>
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxAddShamd.text">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </CheckBox>
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxJunkSubfolders.text">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </CheckBox>
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxDoNotScan.text">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </CheckBox>
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxMatchCurrentProfile.text">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </CheckBox>
-                        <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIncludeEmptyDirs.text">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </CheckBox>
+                        <VBox alignment="CENTER_LEFT" fillWidth="false" GridPane.columnIndex="1">
+                           <children>
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxScanSubfolders.text" />
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxDeepScanFor.text">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxAddMd.text">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxAddShamd.text">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxJunkSubfolders.text">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxDoNotScan.text">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxMatchCurrentProfile.text">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                              <CheckBox mnemonicParsing="false" text="%MainFrame.chckbxIncludeEmptyDirs.text">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                           </children>
+                        </VBox>
                      </children>
-                  </VBox>
-               </children>
-            </GridPane>
+                  </GridPane>
+               </content>
+            </ScrollPane>
          </content>
       </TitledPane>
       <TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%MainFrame.Headers" GridPane.columnIndex="1">
          <content>
-            <GridPane>
-              <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="50.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <Label text="%MainFrame.lblName.text" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="1">
-                     <GridPane.margin>
-                        <Insets />
-                     </GridPane.margin>
-                  </TextField>
-                  <Label layoutX="92.0" layoutY="104.0" text="%MainFrame.lblDescription.text" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="2">
-                     <GridPane.margin>
-                        <Insets top="5.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <Label text="%MainFrame.lblVersion.text" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="3">
-                     <GridPane.margin>
-                        <Insets top="5.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <Label text="%MainFrame.lblAuthor.text" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="4">
-                     <GridPane.margin>
-                        <Insets top="5.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <Label text="%MainFrame.lblComment.text" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="5">
-                     <GridPane.margin>
-                        <Insets top="5.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <Label text="%MainFrame.lblCategory.text" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <Label text="%MainFrame.lblDate.text" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <Label text="%MainFrame.lblEmail.text" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <Label text="%MainFrame.lblHomepage.text" GridPane.halignment="RIGHT" GridPane.rowIndex="9">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <Label text="%MainFrame.lblUrl.text" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
-                     <GridPane.margin>
-                        <Insets right="5.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="6">
-                     <GridPane.margin>
-                        <Insets top="5.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="7">
-                     <GridPane.margin>
-                        <Insets top="5.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="8">
-                     <GridPane.margin>
-                        <Insets top="5.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="9">
-                     <GridPane.margin>
-                        <Insets top="5.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="10">
-                     <GridPane.margin>
-                        <Insets top="5.0" />
-                     </GridPane.margin>
-                  </TextField>
-               </children>
-            </GridPane>
+            <ScrollPane fitToHeight="true" fitToWidth="true" pannable="true">
+               <content>
+                  <GridPane alignment="CENTER">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="NEVER" minWidth="50.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" vgrow="SOMETIMES" />
+                      <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="%MainFrame.lblName.text" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                        <Label layoutX="92.0" layoutY="104.0" text="%MainFrame.lblDescription.text" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="2">
+                           <GridPane.margin>
+                              <Insets top="5.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <Label text="%MainFrame.lblVersion.text" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="3">
+                           <GridPane.margin>
+                              <Insets top="5.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <Label text="%MainFrame.lblAuthor.text" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="4">
+                           <GridPane.margin>
+                              <Insets top="5.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <Label text="%MainFrame.lblComment.text" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="5">
+                           <GridPane.margin>
+                              <Insets top="5.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <Label text="%MainFrame.lblCategory.text" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label text="%MainFrame.lblDate.text" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label text="%MainFrame.lblEmail.text" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label text="%MainFrame.lblHomepage.text" GridPane.halignment="RIGHT" GridPane.rowIndex="9">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label text="%MainFrame.lblUrl.text" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="6">
+                           <GridPane.margin>
+                              <Insets top="5.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="7">
+                           <GridPane.margin>
+                              <Insets top="5.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="8">
+                           <GridPane.margin>
+                              <Insets top="5.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="9">
+                           <GridPane.margin>
+                              <Insets top="5.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="10">
+                           <GridPane.margin>
+                              <Insets top="5.0" />
+                           </GridPane.margin>
+                        </TextField>
+                     </children>
+                  </GridPane>
+               </content>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </ScrollPane>
          </content>
       </TitledPane>
-      <TitledPane animated="false" collapsible="false" maxWidth="1.7976931348623157E308" minHeight="50.0" text="%MainFrame.IO" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" GridPane.vgrow="NEVER">
+      <TitledPane animated="false" collapsible="false" maxWidth="1.7976931348623157E308" text="%MainFrame.IO" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" GridPane.vgrow="NEVER">
          <content>
             <GridPane>
               <columnConstraints>
@@ -216,9 +228,9 @@
                   <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
               </columnConstraints>
               <rowConstraints>
-                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                <RowConstraints vgrow="SOMETIMES" />
+                <RowConstraints vgrow="SOMETIMES" />
+                <RowConstraints vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Label text="%MainFrame.lblSrcDir_1.text" GridPane.halignment="RIGHT">
