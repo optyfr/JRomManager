@@ -9,6 +9,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	
 	/** The thread id offset. */
 	private Map<Long, Integer> threadIdOffset = new HashMap<>();
+	private ThreadGroup currentThreadGroup = null;
 
 	private boolean cancel = false;
 	private boolean canCancel = true;
@@ -139,7 +141,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 		final var ct = Thread.currentThread();
 		if (!threadIdOffset.containsKey(ct.getId()))
 			return;
-		final var tg = ct.getThreadGroup();	//NOSONAR
+		final var tg = Optional.ofNullable(currentThreadGroup).orElse(ct.getThreadGroup());	//NOSONAR
 		if (threadIdOffset.size() == tg.activeCount())
 			return;
 		final var tl = new Thread[tg.activeCount()];
@@ -163,6 +165,11 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	 */
 	private synchronized int getOffset()
 	{
+		if(!Thread.currentThread().getThreadGroup().equals(currentThreadGroup))
+		{
+			threadIdOffset.clear();
+			currentThreadGroup = Thread.currentThread().getThreadGroup();
+		}
 		if (!threadIdOffset.containsKey(Thread.currentThread().getId()))
 		{
 			if (threadIdOffset.size() < data.threadCnt)

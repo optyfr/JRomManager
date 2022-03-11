@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
@@ -32,6 +33,7 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 	
 	/** The thread id offset. */
 	private Map<Long, Integer> threadIdOffset = new HashMap<>();
+	private ThreadGroup currentThreadGroup = null;
 	private int threadCnt;
 
 	protected SwingWorkerProgress(final Window owner)
@@ -142,7 +144,7 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 			final Thread ct = Thread.currentThread();
 			if (!threadIdOffset.containsKey(ct.getId()))
 				return;
-			final ThreadGroup tg = ct.getThreadGroup();	//NOSONAR
+			final var tg = Optional.ofNullable(currentThreadGroup).orElse(ct.getThreadGroup());	//NOSONAR
 			if (threadIdOffset.size() == tg.activeCount())
 				return;
 			final var tl = new Thread[tg.activeCount()];
@@ -176,6 +178,11 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 		final int offset;
 		synchronized (threadIdOffset)
 		{
+			if(!Thread.currentThread().getThreadGroup().equals(currentThreadGroup))
+			{
+				threadIdOffset.clear();
+				currentThreadGroup = Thread.currentThread().getThreadGroup();
+			}
 			if (!threadIdOffset.containsKey(Thread.currentThread().getId()))
 			{
 				if (threadIdOffset.size() < threadCnt)

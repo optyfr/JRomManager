@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -28,6 +29,7 @@ public class ProgressActions implements ProgressHandler
 
 	/** The thread id offset. */
 	private final Map<Long, Integer> threadIdOffset = new HashMap<>();
+	private ThreadGroup currentThreadGroup = null;
 
 	/** The cancel. */
 	private boolean cancel = false;
@@ -200,7 +202,7 @@ public class ProgressActions implements ProgressHandler
 		final var ct = Thread.currentThread();
 		if (!threadIdOffset.containsKey(ct.getId()))
 			return;
-		final var tg = ct.getThreadGroup();	//NOSONAR
+		final var tg = Optional.ofNullable(currentThreadGroup).orElse(ct.getThreadGroup());	//NOSONAR
 		if (threadIdOffset.size() == tg.activeCount())
 			return;
 		final var tl = new Thread[tg.activeCount()];
@@ -396,6 +398,11 @@ public class ProgressActions implements ProgressHandler
 	 */
 	private synchronized int getOffset()
 	{
+		if(!Thread.currentThread().getThreadGroup().equals(currentThreadGroup))
+		{
+			threadIdOffset.clear();
+			currentThreadGroup = Thread.currentThread().getThreadGroup();
+		}
 		if (!threadIdOffset.containsKey(Thread.currentThread().getId()))
 		{
 			if (threadIdOffset.size() < data.threadCnt)

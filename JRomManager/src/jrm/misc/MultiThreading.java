@@ -7,8 +7,10 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
@@ -44,8 +46,33 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 		this.adaptive = isAdaptive(nThreads);
 		this.interval = 60_000;	// check interval for adaptive mode (expressed in milliseconds)
 		this.calledWith = cw;
+		setThreadFactory(new DefaultThreadFactory());
 	}
 
+	private static class DefaultThreadFactory implements ThreadFactory
+	{
+		private static final AtomicInteger poolNumber = new AtomicInteger(1);
+		private final ThreadGroup group;
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		private final String namePrefix;
+
+		DefaultThreadFactory()
+		{
+			group = new ThreadGroup("pool-" + poolNumber.getAndIncrement());
+			namePrefix = group.getName() + "-thread-";
+		}
+
+		public Thread newThread(Runnable r)
+		{
+			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+			if (t.isDaemon())
+				t.setDaemon(false);
+			if (t.getPriority() != Thread.NORM_PRIORITY)
+				t.setPriority(Thread.NORM_PRIORITY);
+			return t;
+		}
+	}
+	
 	/**
 	 * Return absolute maximum number of threads to use
 	 * @param nThreads
