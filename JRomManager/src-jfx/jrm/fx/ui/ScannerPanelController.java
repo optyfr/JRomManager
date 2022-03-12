@@ -20,7 +20,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
@@ -38,7 +37,6 @@ import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import jrm.fx.ui.controls.DescriptorCellFactory;
@@ -70,9 +68,8 @@ import jrm.profile.scan.options.Descriptor;
 import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
-import jrm.security.Sessions;
 
-public class ScannerPanelController implements Initializable, ProfileLoader
+public class ScannerPanelController extends BaseController implements ProfileLoader
 {
 	private static final String DISK_ICON = "/jrm/resicons/icons/disk.png";
 
@@ -161,8 +158,6 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 	@FXML private MenuItem catVerMenuItemUnselectMature;
 	@FXML private MenuItem catVerMenuItemClear;
 	
-	final Session session = Sessions.getSingleSession();
-
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -787,29 +782,19 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 	{
 		final var workdir = session.getUser().getSettings().getWorkPath().toFile();
 		final var defdir = PathAbstractor.getAbsolutePath(session, session.getCurrProfile().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
-		final var chooser = new DirectoryChooser();
-		Optional.ofNullable(tf.getText()).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> chooser.setInitialDirectory(defdir));
-		final var chosen = chooser.showDialog(tf.getScene().getWindow());
-		if (chosen != null)
-		{
-			final var dir = PathAbstractor.getRelativePath(session, chosen.toPath());
+		chooseDir(tf, tf.getText(), defdir, dir -> {
 			tf.setText(dir.toString());
 			session.getCurrProfile().setProperty(defPptName, tf.getText()); // $NON-NLS-1$
 			session.getCurrProfile().setProperty(ppt, tf.getText()); // $NON-NLS-1$
-		}
+		});
 	}
 	
 	private void chooseSrc(File oldDir, SettingsEnum ppt, String defPptName)
 	{
 		final var workdir = session.getUser().getSettings().getWorkPath().toFile();
 		final var defdir = PathAbstractor.getAbsolutePath(session, session.getCurrProfile().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
-		final var chooser = new DirectoryChooser();
-		Optional.ofNullable(oldDir).map(f->PathAbstractor.getAbsolutePath(session, f.toString()).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, ()->chooser.setInitialDirectory(defdir));
-		final var chosen = chooser.showDialog(srcList.getScene().getWindow());
-		if (chosen != null)
-		{
+		chooseDir(srcList, oldDir!=null?oldDir.toString():null, defdir, dir -> {
 			var modified = false;
-			final var dir = PathAbstractor.getRelativePath(session, chosen.toPath());
 			if(oldDir!=null)
 			{
 				if(!oldDir.equals(dir.toFile()))
@@ -832,7 +817,7 @@ public class ScannerPanelController implements Initializable, ProfileLoader
 				saveSrcList();
 				session.getCurrProfile().setProperty(defPptName, dir.toString()); // $NON-NLS-1$
 			}
-		}
+		});
 	}
 	
 	private void saveSrcList()
