@@ -86,7 +86,7 @@ public class ZipArchive extends AbstractArchive
 		catch(final SevenZipNativeInitializationException e)
 		{
 			this.readonly = readonly;
-			cmd = session.getUser().getSettings().getProperty(SettingsEnum.zip_cmd, FindCmd.find7z()); //$NON-NLS-1$
+			cmd = session.getUser().getSettings().getProperty(SettingsEnum.zip_cmd); //$NON-NLS-1$
 			if(!new File(cmd).exists() && !new File(cmd + ".exe").exists()) //$NON-NLS-1$
 				throw new IOException(cmd + " does not exists"); //$NON-NLS-1$
 			if(null == (this.archive = ZipArchive.archives.get(archive.getAbsolutePath())))
@@ -120,13 +120,13 @@ public class ZipArchive extends AbstractArchive
 		if(is7z)
 		{
 			Collections.addAll(cmdAdd, cmd, "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			Collections.addAll(cmdAdd, "-mx=" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+			Collections.addAll(cmdAdd, "-mx=" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level)).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 			Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 		}
 		else
 		{
 			Collections.addAll(cmdAdd, cmd, "-r"); //$NON-NLS-1$
-			Collections.addAll(cmdAdd, "-" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+			Collections.addAll(cmdAdd, "-" + ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level)).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
 			Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 		}
 		close(cmdAdd, tmpfile);

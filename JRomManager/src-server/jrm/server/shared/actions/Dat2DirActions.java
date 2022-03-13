@@ -41,14 +41,14 @@ public class Dat2DirActions
 	{
 		(ws.getSession().setWorker(new Worker(()->{
 			WebSession session = ws.getSession();
-			boolean dryrun = session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, true);
+			boolean dryrun = session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, Boolean.class);
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
-				String[] srcdirs = StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
+				String[] srcdirs = StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs),'|');
 				if (srcdirs.length > 0)
 				{
-					SDRList sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
+					SDRList sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr));
 					if (sdrl.stream().filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile()).exists()).count() > 0)
 						new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else

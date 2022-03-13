@@ -21,7 +21,7 @@ public class BatchDat2DirSDRXMLResponse extends SDRXMLResponse
 	@Override
 	protected void fetch(Operation operation) throws XMLStreamException
 	{
-		SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
+		SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr));
 		needSave(sdrl, SettingsEnum.dat2dir_sdr);
 		writeResponse(operation, sdrl);
 	}
@@ -33,7 +33,7 @@ public class BatchDat2DirSDRXMLResponse extends SDRXMLResponse
 	{
 		if(operation.hasData("src"))
 		{
-			final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
+			final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr));
 			needSave(sdrl, SettingsEnum.dat2dir_sdr);
 			final SrcDstResult sdr = new SrcDstResult(operation.getData("src"));
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(s->s.getSrc().equals(operation.getData("src"))).findAny();
@@ -59,7 +59,7 @@ public class BatchDat2DirSDRXMLResponse extends SDRXMLResponse
 			failure(SRC_IS_MISSING_IN_REQUEST);
 			return;
 		}
-		final SDRList sdrl = SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
+		final SDRList sdrl = SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr));
 		needSave(sdrl, SettingsEnum.dat2dir_sdr);
 		Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
 		if(!candidate.isPresent())
@@ -89,7 +89,7 @@ public class BatchDat2DirSDRXMLResponse extends SDRXMLResponse
 	{
 		if(operation.hasData("id"))
 		{
-			final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]"));
+			final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr));
 			needSave(sdrl, SettingsEnum.dat2dir_sdr);
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
 			if(candidate.isPresent())

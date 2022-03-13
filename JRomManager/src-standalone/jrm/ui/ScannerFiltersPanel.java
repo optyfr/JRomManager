@@ -24,7 +24,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 
 import jrm.locale.Messages;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.data.Driver;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
@@ -330,7 +330,7 @@ public class ScannerFiltersPanel extends JSplitPane
 	 */
 	private void chckbxIncludeSamplesStateChanged(final Session session, ItemEvent e)
 	{
-		session.getCurrProfile().setProperty(SettingsEnum.filter_InclSamples, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclSamples, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 		if (MainFrame.getProfileViewer() != null)
 			MainFrame.getProfileViewer().reset(session.getCurrProfile());
 	}
@@ -341,7 +341,7 @@ public class ScannerFiltersPanel extends JSplitPane
 	 */
 	private void chckbxIncludeClonesStateChanged(final Session session, ItemEvent e)
 	{
-		session.getCurrProfile().setProperty(SettingsEnum.filter_InclClones, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclClones, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 		if (MainFrame.getProfileViewer() != null)
 			MainFrame.getProfileViewer().reset(session.getCurrProfile());
 	}
@@ -352,7 +352,7 @@ public class ScannerFiltersPanel extends JSplitPane
 	 */
 	private void chckbxIncludeDisksStateChanged(final Session session, ItemEvent e)
 	{
-		session.getCurrProfile().setProperty(SettingsEnum.filter_InclDisks, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclDisks, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 		if (MainFrame.getProfileViewer() != null)
 			MainFrame.getProfileViewer().reset(session.getCurrProfile());
 	}
@@ -365,7 +365,7 @@ public class ScannerFiltersPanel extends JSplitPane
 	{
 		if (e.getStateChange() == ItemEvent.SELECTED)
 		{
-			session.getCurrProfile().setProperty(SettingsEnum.filter_DriverStatus, e.getItem().toString()); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DriverStatus, e.getItem().toString()); //$NON-NLS-1$
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		}
@@ -379,7 +379,7 @@ public class ScannerFiltersPanel extends JSplitPane
 	{
 		if (e.getStateChange() == ItemEvent.SELECTED)
 		{
-			session.getCurrProfile().setProperty(SettingsEnum.filter_YearMax, e.getItem().toString()); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMax, e.getItem().toString()); //$NON-NLS-1$
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		}
@@ -393,7 +393,7 @@ public class ScannerFiltersPanel extends JSplitPane
 	{
 		if (e.getStateChange() == ItemEvent.SELECTED)
 		{
-			session.getCurrProfile().setProperty(SettingsEnum.filter_YearMin, e.getItem().toString()); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMin, e.getItem().toString()); //$NON-NLS-1$
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		}
@@ -407,7 +407,7 @@ public class ScannerFiltersPanel extends JSplitPane
 	{
 		if (e.getStateChange() == ItemEvent.SELECTED)
 		{
-			session.getCurrProfile().setProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, e.getItem().toString()); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, e.getItem().toString()); //$NON-NLS-1$
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		}
@@ -421,7 +421,7 @@ public class ScannerFiltersPanel extends JSplitPane
 	{
 		if (e.getStateChange() == ItemEvent.SELECTED)
 		{
-			session.getCurrProfile().setProperty(SettingsEnum.filter_DisplayOrientation, e.getItem().toString()); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DisplayOrientation, e.getItem().toString()); //$NON-NLS-1$
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		}
@@ -435,7 +435,7 @@ public class ScannerFiltersPanel extends JSplitPane
 	{
 		if (e.getStateChange() == ItemEvent.SELECTED)
 		{
-			session.getCurrProfile().setProperty(SettingsEnum.filter_CabinetType, e.getItem().toString()); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_CabinetType, e.getItem().toString()); //$NON-NLS-1$
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		}
@@ -509,17 +509,17 @@ public class ScannerFiltersPanel extends JSplitPane
 
 	public void initProfileSettings(@SuppressWarnings("exports") final Session session)
 	{
-		chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclClones, true)); //$NON-NLS-1$
-		chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclDisks, true)); //$NON-NLS-1$
-		chckbxIncludeSamples.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclSamples, true)); //$NON-NLS-1$
-		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_DriverStatus, Driver.StatusType.preliminary.toString()))); //$NON-NLS-1$
-		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString()))); //$NON-NLS-1$
-		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString()))); //$NON-NLS-1$
-		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString()))); //$NON-NLS-1$
+		chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class)); //$NON-NLS-1$
+		chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class)); //$NON-NLS-1$
+		chckbxIncludeSamples.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclSamples, Boolean.class)); //$NON-NLS-1$
+		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_DriverStatus))); //$NON-NLS-1$
+		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_CabinetType))); //$NON-NLS-1$
+		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_DisplayOrientation))); //$NON-NLS-1$
+		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel))); //$NON-NLS-1$
 		cbbxYearMin.setModel(new YearsModel(session.getCurrProfile().getYears()));
-		cbbxYearMin.setSelectedItem(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMin, cbbxYearMin.getModel().getElementAt(0))); //$NON-NLS-1$
+		cbbxYearMin.setSelectedItem(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMin)); //$NON-NLS-1$
 		cbbxYearMax.setModel(new YearsModel(session.getCurrProfile().getYears()));
-		cbbxYearMax.setSelectedItem(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getModel().getElementAt(cbbxYearMax.getModel().getSize() - 1))); //$NON-NLS-1$
+		cbbxYearMax.setSelectedItem(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMax)); //$NON-NLS-1$
 		
 	}
 	

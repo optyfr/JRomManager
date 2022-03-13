@@ -78,7 +78,7 @@ public final class JRomManager
 		final var session = Sessions.getSession(jArgs.multiuser, jArgs.noupdate);
 		Log.init(session.getUser().getSettings().getLogPath() + "/JRM.%g.log", jArgs.debug, 1024 * 1024, 5);
 		if (!jArgs.debug)
-			Log.setLevel(Level.parse(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_level, Log.getLevel().toString())));
+			Log.setLevel(Level.parse(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_level)));
 		if (JRomManager.lockInstance(session, FilenameUtils.removeExtension(JRomManager.class.getSimpleName()) + ".lock")) //$NON-NLS-1$
 		{
 			// Open main window

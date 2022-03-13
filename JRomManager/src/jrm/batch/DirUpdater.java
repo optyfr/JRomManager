@@ -22,7 +22,7 @@ import jrm.aui.basic.SrcDstResult;
 import jrm.aui.progress.ProgressHandler;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.report.Report;
@@ -139,10 +139,10 @@ public class DirUpdater
 				progress.setProgress3(String.format("%s (%d/%d)", FilenameUtils.getBaseName(datlist[j].getName()), j , datlist.length), j, datlist.length);
 			session.getReport().setProfile(Profile.load(session, datlist[j], progress));
 			if(session.getCurrProfile().getSoftwaresListCnt()>0 && dat.isDirectory())
-				session.getCurrProfile().setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(ProfileSettingsEnum.roms_dest_dir, dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
 			else
-				session.getCurrProfile().setProperty(SettingsEnum.roms_dest_dir, dstlist[j].getAbsolutePath()); //$NON-NLS-1$
-			session.getCurrProfile().setProperty(SettingsEnum.src_dir, String.join("|", srcdirs.stream().map(File::getAbsolutePath).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
+				session.getCurrProfile().setProperty(ProfileSettingsEnum.roms_dest_dir, dstlist[j].getAbsolutePath()); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", srcdirs.stream().map(File::getAbsolutePath).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
 			final var scan = new Scan(session.getCurrProfile(), progress, scancache);
 			if (!dryrun && !scan.actions.isEmpty())
 			{

@@ -6,7 +6,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 import jrm.misc.Log;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.security.PathAbstractor;
 
@@ -23,7 +23,7 @@ public class NPlayersActions
 	public void load(JsonObject jso)
 	{
 		JsonValue jsv = jso.get("params").asObject().get("path");
-		ws.getSession().getCurrProfile().setProperty(SettingsEnum.filter_nplayers_ini, jsv!=null&&!jsv.isNull()?jsv.asString():null); //$NON-NLS-1$
+		ws.getSession().getCurrProfile().setProperty(ProfileSettingsEnum.filter_nplayers_ini, jsv!=null&&!jsv.isNull()?jsv.asString():null); //$NON-NLS-1$
 		ws.getSession().getCurrProfile().loadNPlayers(null);
 		ws.getSession().getCurrProfile().saveSettings();
 		loaded(ws.getSession().getCurrProfile());

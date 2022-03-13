@@ -8,4 +8,5 @@ module jrmcli
 	requires org.apache.commons.lang3;
 	requires jcommander;
 	requires minimal.json;
+	opens jrm.cli to jcommander;
 }

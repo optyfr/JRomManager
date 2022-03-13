@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 
 import jrm.locale.Messages;
 import jrm.misc.ProfileSettings;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.scan.options.ScanAutomation;
 
 @SuppressWarnings("serial")
@@ -53,7 +53,7 @@ public final class ScannerAutomationPanel extends JPanel
 				return this;
 			}
 		});
-		comboBox.addActionListener(e -> settings.setProperty(SettingsEnum.automation_scan, comboBox.getSelectedItem().toString())); //$NON-NLS-1$
+		comboBox.addActionListener(e -> settings.setProperty(ProfileSettingsEnum.automation_scan, comboBox.getSelectedItem().toString())); //$NON-NLS-1$
 		GridBagConstraints gbcComboBox = new GridBagConstraints();
 		gbcComboBox.insets = new Insets(0, 0, 5, 5);
 		gbcComboBox.fill = GridBagConstraints.HORIZONTAL;
@@ -65,6 +65,6 @@ public final class ScannerAutomationPanel extends JPanel
 	public void initProfileSettings(@SuppressWarnings("exports") final ProfileSettings settings)
 	{
 		this.settings = settings;
-		comboBox.setSelectedItem(ScanAutomation.valueOf(settings.getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()))); //$NON-NLS-1$
+		comboBox.setSelectedItem(ScanAutomation.valueOf(settings.getProperty(ProfileSettingsEnum.automation_scan))); //$NON-NLS-1$
 	}
 }

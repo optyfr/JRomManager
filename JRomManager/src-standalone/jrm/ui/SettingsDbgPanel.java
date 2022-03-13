@@ -71,7 +71,7 @@ public class SettingsDbgPanel extends JPanel
 			session.getUser().getSettings().setProperty(SettingsEnum.debug_level, cbLogLevel.getSelectedItem().toString());
 			Log.setLevel(Level.parse(cbLogLevel.getSelectedItem().toString()));
 		}); //$NON-NLS-1$
-		cbLogLevel.setSelectedItem(Level.parse(session.getUser().getSettings().getProperty(SettingsEnum.debug_level, Log.getLevel().toString()))); //$NON-NLS-1$
+		cbLogLevel.setSelectedItem(Level.parse(session.getUser().getSettings().getProperty(SettingsEnum.debug_level))); //$NON-NLS-1$
 
 		JLabel lblMemory = new JLabel(Messages.getString("MainFrame.lblMemory.text")); //$NON-NLS-1$
 		lblMemory.setHorizontalAlignment(SwingConstants.TRAILING);

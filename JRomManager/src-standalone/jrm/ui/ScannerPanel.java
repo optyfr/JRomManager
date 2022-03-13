@@ -28,7 +28,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import jrm.locale.Messages;
 import jrm.misc.Log;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
@@ -270,7 +270,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 					/* update entries in profile viewer */ 
 					if (MainFrame.getProfileViewer() != null)
 						MainFrame.getProfileViewer().reload();
-					ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+					ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
 					if(MainFrame.getReportFrame() != null)
 					{
 						if(automation.hasReport())
@@ -344,7 +344,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader
 					/* update entries in profile viewer */
 					if (MainFrame.getProfileViewer() != null)
 						MainFrame.getProfileViewer().reload();
-					ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+					ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
 					if (automation.hasScanAgain())
 						scan(session, false);
 				}

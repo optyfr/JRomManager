@@ -29,7 +29,6 @@ import java.util.HashMap;
 import org.apache.commons.io.FileUtils;
 
 import jrm.aui.progress.ProgressNarchiveCallBack;
-import jrm.misc.FindCmd;
 import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
@@ -77,7 +76,7 @@ public class SevenZipArchive extends AbstractArchive
 		{
 			Log.err(e.getMessage(), e);
 			this.readonly = readonly;
-			cmd = session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd, FindCmd.find7z()); //$NON-NLS-1$
+			cmd = session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd); //$NON-NLS-1$
 			if(!new File(cmd).exists() && !new File(cmd + ".exe").exists()) //$NON-NLS-1$
 				throw new IOException(cmd + " does not exists"); //$NON-NLS-1$
 			if(null == (this.archive = SevenZipArchive.archives.get(archive.getAbsolutePath())))
@@ -104,8 +103,8 @@ public class SevenZipArchive extends AbstractArchive
 				final var cmdAdd = new ArrayList<String>();
 				final Path tmpfile = IOUtils.createTempFile(archive.getParentFile().toPath(), "JRM", ".7z"); //$NON-NLS-1$ //$NON-NLS-2$
 				Files.delete(tmpfile);
-				Collections.addAll(cmdAdd, session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd, FindCmd.find7z()), "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				Collections.addAll(cmdAdd, "-ms=" + (session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, false) ? "on" : "off"), "-mx=" + SevenZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_level, SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				Collections.addAll(cmdAdd, session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd), "a", "-r", "-t7z"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				Collections.addAll(cmdAdd, "-ms=" + (session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, Boolean.class) ? "on" : "off"), "-mx=" + SevenZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_level)).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 				Collections.addAll(cmdAdd, tmpfile.toFile().getAbsolutePath(), "*"); //$NON-NLS-1$
 				close(cmdAdd, tmpfile);
 			}
@@ -135,7 +134,7 @@ public class SevenZipArchive extends AbstractArchive
 	private int extract(final File baseDir, final String entry) throws IOException
 	{
 		final var command = new ArrayList<String>();
-		Collections.addAll(command, session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd, FindCmd.find7z()), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		Collections.addAll(command, session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd), "x", "-y", archive.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		if(entry != null && !entry.isEmpty())
 			command.add(entry);
 		final ProcessBuilder pb = new ProcessBuilder(command).directory(baseDir);

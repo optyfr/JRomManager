@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 import javax.xml.stream.XMLStreamException;
 
 import jrm.aui.progress.ProgressHandler;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Software.Supported;
 import jrm.xml.EnhancedXMLStreamWriter;
@@ -123,11 +123,11 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 		/*
 		 * get all needed profile options
 		 */
-		final boolean filterIncludeClones = profile.getProperty(SettingsEnum.filter_InclClones, true); //$NON-NLS-1$
-		final boolean filterIncludeDisks = profile.getProperty(SettingsEnum.filter_InclDisks, true); //$NON-NLS-1$
-		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString())); //$NON-NLS-1$
-		final String filterYearMin = profile.getProperty(SettingsEnum.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final String filterYearMax = profile.getProperty(SettingsEnum.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
+		final boolean filterIncludeClones = profile.getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class); //$NON-NLS-1$
+		final boolean filterIncludeDisks = profile.getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class); //$NON-NLS-1$
+		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, String.class)); //$NON-NLS-1$
+		final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); //$NON-NLS-1$ //$NON-NLS-2$
+		final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	@Override

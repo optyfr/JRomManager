@@ -42,7 +42,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 	 */
 	private String[] getSrcDirs()
 	{
-		return StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""),'|');
+		return StringUtils.split(request.getSession().getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs),'|');
 	}
 	
 	@Override

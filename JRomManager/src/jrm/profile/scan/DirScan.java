@@ -64,6 +64,7 @@ import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.MultiThreading;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Archive;
@@ -197,7 +198,7 @@ public final class DirScan extends PathAbstractor
 			formatTZip = options.contains(Options.FORMAT_TZIP);
 			includeEmptyDirs = options.contains(Options.EMPTY_DIRS);
 			archivesAndChdAsRoms = options.contains(Options.ARCHIVES_AND_CHD_AS_ROMS);
-			nThreads = useParallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+			nThreads = useParallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 			torrentzip = (isDest && formatTZip) ? new TorrentZip(new DummyLogCallback(), new SimpleTorrentZipOptions(false, true)) : null;
 		}
 	}
@@ -258,13 +259,13 @@ public final class DirScan extends PathAbstractor
 		 */
 		if(profile==null)
 			return options;
-		if (profile.getProperty(jrm.misc.SettingsEnum.need_sha1_or_md5, false)) // $NON-NLS-1$
+		if (profile.getProperty(ProfileSettingsEnum.need_sha1_or_md5, Boolean.class)) // $NON-NLS-1$
 			options.add(Options.NEED_SHA1_OR_MD5);
-		if (profile.getProperty(jrm.misc.SettingsEnum.use_parallelism, profile.getSession().isServer())) // $NON-NLS-1$
+		if (profile.getProperty(ProfileSettingsEnum.use_parallelism, Boolean.class)) // $NON-NLS-1$
 			options.add(Options.USE_PARALLELISM);
-		if (profile.getProperty(jrm.misc.SettingsEnum.archives_and_chd_as_roms, false)) // $NON-NLS-1$
+		if (profile.getProperty(ProfileSettingsEnum.archives_and_chd_as_roms, Boolean.class)) // $NON-NLS-1$
 			options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-		final var format = FormatOptions.valueOf(profile.getProperty(jrm.misc.SettingsEnum.format, FormatOptions.ZIP.toString())); // $NON-NLS-1$
+		final var format = FormatOptions.valueOf(profile.getProperty(ProfileSettingsEnum.format, String.class)); // $NON-NLS-1$
 		if (FormatOptions.TZIP == format)
 			options.add(Options.FORMAT_TZIP);
 		else if (FormatOptions.DIR == format)
@@ -343,7 +344,7 @@ public final class DirScan extends PathAbstractor
 		/*
 		 * Loading scan cache
 		 */
-		if(!session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_nocache, false)) //$NON-NLS-1$
+		if(!session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_nocache, Boolean.class)) //$NON-NLS-1$
 			containersByName = load(dir, soptions);
 		else
 			containersByName = Collections.synchronizedMap(new HashMap<>());

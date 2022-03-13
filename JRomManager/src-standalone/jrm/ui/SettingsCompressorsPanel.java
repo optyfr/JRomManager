@@ -28,7 +28,6 @@ import jrm.compressors.ZipLevel;
 import jrm.compressors.ZipOptions;
 import jrm.compressors.ZipTempThreshold;
 import jrm.locale.Messages;
-import jrm.misc.FindCmd;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
 import jrm.ui.basic.JFileDropMode;
@@ -98,7 +97,7 @@ public class SettingsCompressorsPanel extends JPanel
 
 		cbbxZipTempThreshold = new JComboBox<>();
 		cbbxZipTempThreshold.setModel(new DefaultComboBoxModel<>(ZipTempThreshold.values()));
-		cbbxZipTempThreshold.setSelectedItem(ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_temp_threshold, ZipTempThreshold._10MB.toString()))); //$NON-NLS-1$
+		cbbxZipTempThreshold.setSelectedItem(ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_temp_threshold))); //$NON-NLS-1$
 		cbbxZipTempThreshold.addActionListener(e->session.getUser().getSettings().setProperty(SettingsEnum.zip_temp_threshold, cbbxZipTempThreshold.getSelectedItem().toString()));
 		cbbxZipTempThreshold.setRenderer(new DefaultListCellRenderer()
 		{
@@ -127,7 +126,7 @@ public class SettingsCompressorsPanel extends JPanel
 
 		cbbxZipLevel = new JComboBox<>();
 		cbbxZipLevel.setModel(new DefaultComboBoxModel<>(ZipLevel.values()));
-		cbbxZipLevel.setSelectedItem(ZipLevel.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString()))); //$NON-NLS-1$
+		cbbxZipLevel.setSelectedItem(ZipLevel.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_compression_level))); //$NON-NLS-1$
 		cbbxZipLevel.addActionListener(e->session.getUser().getSettings().setProperty(SettingsEnum.zip_compression_level, cbbxZipLevel.getSelectedItem().toString()));
 		cbbxZipLevel.setRenderer(new DefaultListCellRenderer()
 		{
@@ -165,7 +164,7 @@ public class SettingsCompressorsPanel extends JPanel
 		tfZipECmd = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(SettingsEnum.zip_cmd, txt));//$NON-NLS-1$
 		tfZipECmd.setMode(JFileDropMode.FILE);
 		tfZipECmd.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
-		tfZipECmd.setText(session.getUser().getSettings().getProperty(SettingsEnum.zip_cmd, FindCmd.find7z())); //$NON-NLS-1$
+		tfZipECmd.setText(session.getUser().getSettings().getProperty(SettingsEnum.zip_cmd)); //$NON-NLS-1$
 		final GridBagConstraints gbcTFZipECmd = new GridBagConstraints();
 		gbcTFZipECmd.insets = new Insets(0, 0, 5, 0);
 		gbcTFZipECmd.fill = GridBagConstraints.BOTH;
@@ -205,7 +204,7 @@ public class SettingsCompressorsPanel extends JPanel
 			}
 		});
 		cbZipEArgs.addActionListener(arg0 -> session.getUser().getSettings().setProperty(SettingsEnum.zip_level, cbZipEArgs.getSelectedItem().toString())); //$NON-NLS-1$
-		cbZipEArgs.setSelectedItem(ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString()))); //$NON-NLS-1$
+		cbZipEArgs.setSelectedItem(ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level))); //$NON-NLS-1$
 		final GridBagConstraints gbcCbZipEArgs = new GridBagConstraints();
 		gbcCbZipEArgs.insets = new Insets(0, 0, 5, 5);
 		gbcCbZipEArgs.gridwidth = 2;
@@ -266,7 +265,7 @@ public class SettingsCompressorsPanel extends JPanel
 		tf7zCmd = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_cmd, txt)); //$NON-NLS-1$
 		tf7zCmd.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		tf7zCmd.setMode(JFileDropMode.FILE);
-		tf7zCmd.setText(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd, FindCmd.find7z())); //$NON-NLS-1$
+		tf7zCmd.setText(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_cmd)); //$NON-NLS-1$
 		tf7zCmd.setColumns(30);
 		final GridBagConstraints gbcTF7zCmd = new GridBagConstraints();
 		gbcTF7zCmd.gridwidth = 2;
@@ -307,7 +306,7 @@ public class SettingsCompressorsPanel extends JPanel
 				return this;
 			}
 		});
-		cb7zArgs.setSelectedItem(SevenZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_level, SevenZipOptions.NORMAL.toString()))); //$NON-NLS-1$
+		cb7zArgs.setSelectedItem(SevenZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_level))); //$NON-NLS-1$
 		final GridBagConstraints gbcCb7zArgs = new GridBagConstraints();
 		gbcCb7zArgs.fill = GridBagConstraints.BOTH;
 		gbcCb7zArgs.gridwidth = 3;
@@ -325,7 +324,7 @@ public class SettingsCompressorsPanel extends JPanel
 		panel7Zip.add(lbl7zThreads, gbcLbl7zThreads);
 
 		tf7zThreads = new JTextField();
-		tf7zThreads.setText(Integer.toString(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_threads, -1))); //$NON-NLS-1$
+		tf7zThreads.setText(Integer.toString(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_threads, Integer.class))); //$NON-NLS-1$
 		tf7zThreads.addFocusListener(new FocusAdapter()
 		{
 			@Override
@@ -345,7 +344,7 @@ public class SettingsCompressorsPanel extends JPanel
 		tf7zThreads.setColumns(4);
 
 		ckbx7zSolid = new JCheckBox(Messages.getString("MainFrame.ckbx7zSolid.text")); //$NON-NLS-1$
-		ckbx7zSolid.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, true)); //$NON-NLS-1$
+		ckbx7zSolid.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, Boolean.class)); //$NON-NLS-1$
 		ckbx7zSolid.addActionListener(arg0 -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_solid, ckbx7zSolid.isSelected()));
 		final GridBagConstraints gbcCkbx7zSolid = new GridBagConstraints();
 		gbcCkbx7zSolid.insets = new Insets(0, 0, 5, 5);

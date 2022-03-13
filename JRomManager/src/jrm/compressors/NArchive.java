@@ -241,17 +241,17 @@ abstract class NArchive extends NArchiveBase
 		{
 			case SEVEN_ZIP:
 				if(iout instanceof IOutFeatureSetSolid)
-					((IOutFeatureSetSolid) iout).setSolid(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, true)); //$NON-NLS-1$
+					((IOutFeatureSetSolid) iout).setSolid(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, Boolean.class)); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_level, SevenZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
+					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_level)).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_threads, -1)); //$NON-NLS-1$
+					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_threads, Integer.class)); //$NON-NLS-1$
 				break;
 			case ZIP:
 				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level, ZipOptions.NORMAL.toString())).getLevel()); //$NON-NLS-1$
+					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level)).getLevel()); //$NON-NLS-1$
 				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().getSettings().getProperty(SettingsEnum.zip_threads, -1)); //$NON-NLS-1$
+					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().getSettings().getProperty(SettingsEnum.zip_threads, Integer.class)); //$NON-NLS-1$
 				break;
 			default:
 				break;

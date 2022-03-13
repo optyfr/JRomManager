@@ -48,7 +48,7 @@ import jrm.fx.ui.status.NeutralToNodeFormatter;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver;
 import jrm.profile.data.Machine.CabinetType;
@@ -172,31 +172,31 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		disksDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			disksDest.setDisable(!newValue);
 			disksDestBtn.setDisable(!newValue);
-			session.getCurrProfile().setProperty(SettingsEnum.disks_dest_dir_enabled, newValue);
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.disks_dest_dir_enabled, newValue);
 		});
 		swDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
 		swDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			swDest.setDisable(!newValue);
 			swDestBtn.setDisable(!newValue);
-			session.getCurrProfile().setProperty(SettingsEnum.swroms_dest_dir_enabled, newValue);
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, newValue);
 		});
 		swDisksDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
 		swDisksDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			swDisksDest.setDisable(!newValue);
 			swDisksDestBtn.setDisable(!newValue);
-			session.getCurrProfile().setProperty(SettingsEnum.swdisks_dest_dir_enabled, newValue);
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, newValue);
 		});
 		samplesDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
 		samplesDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			samplesDest.setDisable(!newValue);
 			samplesDestBtn.setDisable(!newValue);
-			session.getCurrProfile().setProperty(SettingsEnum.samples_dest_dir_enabled, newValue);
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.samples_dest_dir_enabled, newValue);
 		});
 		backupDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
 		backupDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			backupDest.setDisable(!newValue);
 			backupDestBtn.setDisable(!newValue);
-			session.getCurrProfile().setProperty(SettingsEnum.backup_dest_dir_enabled, newValue);
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, newValue);
 		});
 		infosBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/information.png")));
 		scanBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/magnifier.png")));
@@ -223,7 +223,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 					setOnMouseClicked(ev -> {
 						if (ev.getClickCount() == 2)
 						{
-							chooseSrc(item, SettingsEnum.src_dir, "MainFrame.ChooseRomsSource");
+							chooseSrc(item, ProfileSettingsEnum.src_dir, "MainFrame.ChooseRomsSource");
 						}
 					});
 				}
@@ -234,14 +234,14 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			srcList.getItems().removeAll(srcList.getSelectionModel().getSelectedItems());
 			saveSrcList();
 		});
-		srcListAddMenuItem.setOnAction(e -> chooseSrc(null, SettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
-		new DragNDrop(romsDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.roms_dest_dir, txt));
-		new DragNDrop(disksDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.disks_dest_dir, txt));
-		new DragNDrop(swDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.swroms_dest_dir, txt));
-		new DragNDrop(swDisksDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.swdisks_dest_dir, txt));
-		new DragNDrop(samplesDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.samples_dest_dir, txt));
-		new DragNDrop(backupDest).addDir(txt -> session.getCurrProfile().setProperty(SettingsEnum.backup_dest_dir, txt));
-		new DragNDrop(srcList).addDirs(files -> session.getCurrProfile().setProperty(SettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).toList())));
+		srcListAddMenuItem.setOnAction(e -> chooseSrc(null, ProfileSettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
+		new DragNDrop(romsDest).addDir(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.roms_dest_dir, txt));
+		new DragNDrop(disksDest).addDir(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.disks_dest_dir, txt));
+		new DragNDrop(swDest).addDir(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.swroms_dest_dir, txt));
+		new DragNDrop(swDisksDest).addDir(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.swdisks_dest_dir, txt));
+		new DragNDrop(samplesDest).addDir(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.samples_dest_dir, txt));
+		new DragNDrop(backupDest).addDir(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.backup_dest_dir, txt));
+		new DragNDrop(srcList).addDirs(files -> session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).toList())));
 		
 		systemsFilter.setCellFactory(CheckBoxListCell.forListView(item -> {
 			BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
@@ -268,47 +268,47 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		cbbxFilterDisplayOrientation.setItems(FXCollections.observableArrayList(DisplayOrientation.values()));
 		cbbxSWMinSupportedLvl.setItems(FXCollections.observableArrayList(Supported.values()));
 		chckbxIncludeClones.setOnAction(e -> {
-			session.getCurrProfile().setProperty(SettingsEnum.filter_InclClones, chckbxIncludeClones.isSelected());
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclClones, chckbxIncludeClones.isSelected());
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
 		chckbxIncludeDisks.setOnAction(e -> {
-			session.getCurrProfile().setProperty(SettingsEnum.filter_InclDisks, chckbxIncludeDisks.isSelected());
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclDisks, chckbxIncludeDisks.isSelected());
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
 		chckbxIncludeSamples.setOnAction(e -> {
-			session.getCurrProfile().setProperty(SettingsEnum.filter_InclSamples, chckbxIncludeSamples.isSelected());
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclSamples, chckbxIncludeSamples.isSelected());
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
 		cbbxFilterCabinetType.setOnAction(e -> {
-			session.getCurrProfile().setProperty(SettingsEnum.filter_CabinetType, cbbxFilterCabinetType.getValue().toString());
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_CabinetType, cbbxFilterCabinetType.getValue().toString());
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
 		cbbxFilterDisplayOrientation.setOnAction(e -> {
-			session.getCurrProfile().setProperty(SettingsEnum.filter_DisplayOrientation, cbbxFilterDisplayOrientation.getValue().toString());
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DisplayOrientation, cbbxFilterDisplayOrientation.getValue().toString());
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
 		cbbxDriverStatus.setOnAction(e -> {
-			session.getCurrProfile().setProperty(SettingsEnum.filter_DriverStatus, cbbxDriverStatus.getValue().toString());
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DriverStatus, cbbxDriverStatus.getValue().toString());
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
 		cbbxSWMinSupportedLvl.setOnAction(e -> {
-			session.getCurrProfile().setProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, cbbxSWMinSupportedLvl.getValue().toString());
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, cbbxSWMinSupportedLvl.getValue().toString());
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
 		cbbxYearMin.setOnAction(e -> {
-			session.getCurrProfile().setProperty(SettingsEnum.filter_YearMin, cbbxYearMin.getValue());
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMin, cbbxYearMin.getValue());
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
 		cbbxYearMax.setOnAction(e -> {
-			session.getCurrProfile().setProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getValue());
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMax, cbbxYearMax.getValue());
 			if (MainFrame.getProfileViewer() != null)
 				MainFrame.getProfileViewer().reset(session.getCurrProfile());
 		});
@@ -348,7 +348,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		cbAutomation.setItems(FXCollections.observableArrayList(ScanAutomation.values()));
 		cbAutomation.setCellFactory(param -> new DescriptorCellFactory());
 		cbAutomation.setButtonCell(cbAutomation.getCellFactory().call(null));
-		cbAutomation.setOnAction(e -> session.getCurrProfile().setProperty(SettingsEnum.automation_scan, cbAutomation.getValue().toString()));
+		cbAutomation.setOnAction(e -> session.getCurrProfile().setProperty(ProfileSettingsEnum.automation_scan, cbAutomation.getValue().toString()));
 	}
 	
 	@Override
@@ -485,7 +485,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 						// update entries in profile viewer 
 						if (MainFrame.getProfileViewer() != null)
 							MainFrame.getProfileViewer().reload();
-						ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+						ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
 						if(MainFrame.getReportFrame() != null)
 						{
 							if(automation.hasReport())
@@ -600,7 +600,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 						// update entries in profile viewer
 						if (MainFrame.getProfileViewer() != null)
 							MainFrame.getProfileViewer().reload();
-						ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+						ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
 						if (automation.hasScanAgain())
 							scan(session, false);
 					}
@@ -655,44 +655,44 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	
 	private void initProfileSettings(Session session)
 	{
-		romsDest.setText(session.getCurrProfile().getProperty(SettingsEnum.roms_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		disksDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.disks_dest_dir_enabled, false)); //$NON-NLS-1$
-		disksDest.setText(session.getCurrProfile().getProperty(SettingsEnum.disks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		swDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.swroms_dest_dir_enabled, false)); //$NON-NLS-1$
-		swDest.setText(session.getCurrProfile().getProperty(SettingsEnum.swroms_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		swDisksDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.swdisks_dest_dir_enabled, false)); //$NON-NLS-1$
-		swDisksDest.setText(session.getCurrProfile().getProperty(SettingsEnum.swdisks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		samplesDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.samples_dest_dir_enabled, false)); //$NON-NLS-1$
-		samplesDest.setText(session.getCurrProfile().getProperty(SettingsEnum.samples_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		backupDestCB.setSelected(session.getCurrProfile().getProperty(SettingsEnum.backup_dest_dir_enabled, false)); //$NON-NLS-1$
-		backupDest.setText(session.getCurrProfile().getProperty(SettingsEnum.backup_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(SettingsEnum.src_dir, ""),'|')).filter(s->!s.isEmpty()).map(File::new).collect(Collectors.toList())));
+		romsDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.roms_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		disksDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		disksDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.disks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		swDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		swDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swroms_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		swDisksDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		swDisksDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		samplesDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		samplesDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		backupDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		backupDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir),'|')).filter(s->!s.isEmpty()).map(File::new).collect(Collectors.toList())));
 
 		scannerPanelSettingsController.initProfileSettings(session);
 		
-		chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclClones, true)); //$NON-NLS-1$
-		chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclDisks, true)); //$NON-NLS-1$
-		chckbxIncludeSamples.setSelected(session.getCurrProfile().getProperty(SettingsEnum.filter_InclSamples, true)); //$NON-NLS-1$
-		cbbxDriverStatus.getSelectionModel().select(Driver.StatusType.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_DriverStatus, Driver.StatusType.preliminary.toString()))); //$NON-NLS-1$
-		cbbxFilterCabinetType.getSelectionModel().select(CabinetType.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString()))); //$NON-NLS-1$
-		cbbxFilterDisplayOrientation.getSelectionModel().select(DisplayOrientation.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString()))); //$NON-NLS-1$
-		cbbxSWMinSupportedLvl.getSelectionModel().select(Supported.valueOf(session.getCurrProfile().getProperty(SettingsEnum.filter_MinSoftwareSupportedLevel, Supported.no.toString()))); //$NON-NLS-1$
+		chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class)); //$NON-NLS-1$
+		chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class)); //$NON-NLS-1$
+		chckbxIncludeSamples.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclSamples, Boolean.class)); //$NON-NLS-1$
+		cbbxDriverStatus.getSelectionModel().select(Driver.StatusType.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_DriverStatus))); //$NON-NLS-1$
+		cbbxFilterCabinetType.getSelectionModel().select(CabinetType.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_CabinetType))); //$NON-NLS-1$
+		cbbxFilterDisplayOrientation.getSelectionModel().select(DisplayOrientation.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_DisplayOrientation))); //$NON-NLS-1$
+		cbbxSWMinSupportedLvl.getSelectionModel().select(Supported.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel))); //$NON-NLS-1$
 		cbbxYearMin.setItems(FXCollections.observableArrayList(session.getCurrProfile().getYears()).sorted());
-		cbbxYearMin.getSelectionModel().select(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMin, cbbxYearMin.getItems().get(0))); //$NON-NLS-1$
+		cbbxYearMin.getSelectionModel().select(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMin)); //$NON-NLS-1$
 		cbbxYearMax.setItems(FXCollections.observableArrayList(session.getCurrProfile().getYears()).sorted());
-		cbbxYearMax.getSelectionModel().select(session.getCurrProfile().getProperty(SettingsEnum.filter_YearMax, cbbxYearMax.getItems().get(cbbxYearMax.getItems().size()-1))); //$NON-NLS-1$
+		cbbxYearMax.getSelectionModel().select(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMax)); //$NON-NLS-1$
 		
 		showNPlayers();
 		showCatVer();
 		
-		cbAutomation.getSelectionModel().select(ScanAutomation.valueOf(session.getCurrProfile().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString())));
+		cbAutomation.getSelectionModel().select(ScanAutomation.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.automation_scan)));
 	}
 	
 	private void selectNPlayersFile(String file)
 	{
 		if(Files.isRegularFile(Path.of(file)))
 		{
-			session.getCurrProfile().setProperty(SettingsEnum.filter_nplayers_ini, file);
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_nplayers_ini, file);
 			session.getCurrProfile().loadNPlayers(null);
 			showNPlayers();
 		}
@@ -708,7 +708,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	{
 		if(Files.isRegularFile(Path.of(file)))
 		{
-			session.getCurrProfile().setProperty(SettingsEnum.filter_catver_ini, file);
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_catver_ini, file);
 			session.getCurrProfile().loadCatVer(null);
 			showCatVer();
 		}		
@@ -750,35 +750,35 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	
 	@FXML private void chooseRomsDest(ActionEvent e)
 	{
-		chooseAnyDest(romsDest, SettingsEnum.roms_dest_dir, "MainFrame.ChooseRomsDestination");
+		chooseAnyDest(romsDest, ProfileSettingsEnum.roms_dest_dir, "MainFrame.ChooseRomsDestination");
 	}
 	
 	@FXML private void chooseDisksDest(ActionEvent e)
 	{
-		chooseAnyDest(disksDest, SettingsEnum.disks_dest_dir, "MainFrame.ChooseDisksDestination");
+		chooseAnyDest(disksDest, ProfileSettingsEnum.disks_dest_dir, "MainFrame.ChooseDisksDestination");
 	}
 	
 	@FXML private void chooseSWRomsDest(ActionEvent e)
 	{
-		chooseAnyDest(swDest, SettingsEnum.swroms_dest_dir, "MainFrame.ChooseSWRomsDestination");
+		chooseAnyDest(swDest, ProfileSettingsEnum.swroms_dest_dir, "MainFrame.ChooseSWRomsDestination");
 	}
 	
 	@FXML private void chooseSWDisksDest(ActionEvent e)
 	{
-		chooseAnyDest(swDisksDest, SettingsEnum.swdisks_dest_dir, "MainFrame.ChooseSWDisksDestination");
+		chooseAnyDest(swDisksDest, ProfileSettingsEnum.swdisks_dest_dir, "MainFrame.ChooseSWDisksDestination");
 	}
 	
 	@FXML private void chooseSamplesDest(ActionEvent e)
 	{
-		chooseAnyDest(samplesDest, SettingsEnum.samples_dest_dir, "MainFrame.ChooseSamplesDestination");
+		chooseAnyDest(samplesDest, ProfileSettingsEnum.samples_dest_dir, "MainFrame.ChooseSamplesDestination");
 	}
 	
 	@FXML private void chooseBackupDest(ActionEvent e)
 	{
-		chooseAnyDest(backupDest, SettingsEnum.backup_dest_dir, "MainFrame.ChooseBackupDestination");
+		chooseAnyDest(backupDest, ProfileSettingsEnum.backup_dest_dir, "MainFrame.ChooseBackupDestination");
 	}
 	
-	private void chooseAnyDest(TextField tf, SettingsEnum ppt, String defPptName)
+	private void chooseAnyDest(TextField tf, ProfileSettingsEnum ppt, String defPptName)
 	{
 		final var workdir = session.getUser().getSettings().getWorkPath().toFile();
 		final var defdir = PathAbstractor.getAbsolutePath(session, session.getCurrProfile().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
@@ -789,7 +789,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		});
 	}
 	
-	private void chooseSrc(File oldDir, SettingsEnum ppt, String defPptName)
+	private void chooseSrc(File oldDir, ProfileSettingsEnum ppt, String defPptName)
 	{
 		final var workdir = session.getUser().getSettings().getWorkPath().toFile();
 		final var defdir = PathAbstractor.getAbsolutePath(session, session.getCurrProfile().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
@@ -822,7 +822,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	
 	private void saveSrcList()
 	{
-		session.getCurrProfile().setProperty(SettingsEnum.src_dir, String.join("|", srcList.getItems().stream().map(File::getAbsolutePath).toList()));
+		session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", srcList.getItems().stream().map(File::getAbsolutePath).toList()));
 	}
 	
 	@FXML private void infos(ActionEvent evt)
@@ -977,7 +977,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	{
 		session.getCurrProfile().saveSettings();
 		session.getCurrProfile().setNplayers(null);
-		session.getCurrProfile().setProperty(SettingsEnum.filter_nplayers_ini, null);
+		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_nplayers_ini, null);
 		session.getCurrProfile().saveSettings();
 		tfNPlayers.setText(null);
 		listNPlayers.setItems(null);
@@ -1032,7 +1032,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	{
 		session.getCurrProfile().saveSettings();
 		session.getCurrProfile().setCatver(null);
-		session.getCurrProfile().setProperty(SettingsEnum.filter_catver_ini, null);
+		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_catver_ini, null);
 		session.getCurrProfile().saveSettings();
 		tfCatVer.setText(null);
 		treeCatVer.setRoot(null);

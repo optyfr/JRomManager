@@ -374,7 +374,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
 		comboBox.setModel(new DefaultComboBoxModel<>(CompressorFormat.values()));
 		comboBox.setSelectedIndex(1);
 		if(session!=null)
-			comboBox.setSelectedItem(CompressorFormat.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_format, CompressorFormat.TZIP.toString()))); //$NON-NLS-1$
+			comboBox.setSelectedItem(CompressorFormat.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_format))); //$NON-NLS-1$
 		comboBox.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_format, comboBox.getSelectedItem().toString()));
 		GridBagConstraints gbcComboBox = new GridBagConstraints();
 		gbcComboBox.insets = new Insets(0, 0, 0, 5);
@@ -386,7 +386,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
 		chckbxForce = new JCheckBox(Messages.getString("BatchCompressorPanel.Force")); //$NON-NLS-1$
 		chckbxForce.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_force, chckbxForce.isSelected()));
 		if(session!=null)
-			chckbxForce.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_force, false)); //$NON-NLS-1$
+			chckbxForce.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_force, Boolean.class)); //$NON-NLS-1$
 		GridBagConstraints gbcChckbxForce = new GridBagConstraints();
 		gbcChckbxForce.insets = new Insets(0, 0, 0, 5);
 		gbcChckbxForce.gridx = 2;
@@ -427,8 +427,8 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
 					table.setValueAt("", i, 1);
 				final var cnt = new AtomicInteger();
 				final var compressor = new Compressor(session, cnt, table.getRowCount(), this);
-				final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, true);
-				final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+				final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, Boolean.class);
+				final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 				new MultiThreading<FileResult>(nThreads, fr -> {
 					if (isCancel())
 						return;

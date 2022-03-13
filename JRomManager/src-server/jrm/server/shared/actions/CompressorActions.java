@@ -36,11 +36,11 @@ public class CompressorActions
 	{
 		(ws.getSession().setWorker(new Worker(() -> {
 			final var session = ws.getSession();
-			final var format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format, "TZIP"));
-			final var force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, false);
+			final var format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format));
+			final var force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, Boolean.class);
 
-			final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, true);
-			final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+			final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, Boolean.class);
+			final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 
 			session.getWorker().progress = new ProgressActions(ws);
 			session.getWorker().progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), ws.getSession().getCachedCompressorList().size()), true);

@@ -19,7 +19,7 @@ import jrm.misc.BreakException;
 import jrm.misc.FindCmd;
 import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.Import;
 import jrm.profile.manager.ProfileNFO;
@@ -214,7 +214,7 @@ public class ProfileActions extends PathAbstractor
 			session.getWorker().progress.close();
 			session.getWorker().progress = null;
 			session.setLastAction(new Date());
-			final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+			final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
 			scanned(session.getCurrScan(), automation.hasReport());
 			if (automate && session.getCurrScan() != null && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
 				fix(jso);
@@ -245,7 +245,7 @@ public class ProfileActions extends PathAbstractor
 			}
 			finally
 			{
-				final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(SettingsEnum.automation_scan, ScanAutomation.SCAN.toString()));
+				final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
 				if (automation.hasScanAgain())
 					scan(jso, false);
 				session.getWorker().progress.close();

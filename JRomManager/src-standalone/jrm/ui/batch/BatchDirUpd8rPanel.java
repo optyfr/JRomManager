@@ -120,7 +120,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		tableBatchToolsDat2Dir = new JSDRDropTable(model, files -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(files))); // $NON-NLS-1$
 		model.setButtonHandler((row, column) -> showResult(session, model, row));
 		if (session != null)
-			tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr, "[]")));
+			tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr)));
 		tableBatchToolsDat2Dir.setCellSelectionEnabled(false);
 		tableBatchToolsDat2Dir.setRowSelectionAllowed(true);
 		tableBatchToolsDat2Dir.getSDRModel().setSrcFilter(this::srcFilter);
@@ -189,13 +189,13 @@ public class BatchDirUpd8rPanel extends JPanel
 		mntmCustom.addActionListener(e -> customPreset(session));
 		mnDat2DirPresets.add(mntmCustom);
 		if (session != null)
-			for (final String s : StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs, ""), '|')) //$NON-NLS-1$ //$NON-NLS-2$
+			for (final String s : StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|')) //$NON-NLS-1$ //$NON-NLS-2$
 				if (!s.isEmpty())
 					listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
 
 		JCheckBox cbBatchToolsDat2DirDryRun = new JCheckBox(Messages.getString("MainFrame.cbBatchToolsDat2DirDryRun.text")); //$NON-NLS-1$
 		if (session != null)
-			cbBatchToolsDat2DirDryRun.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, false)); // $NON-NLS-1$
+			cbBatchToolsDat2DirDryRun.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, Boolean.class)); // $NON-NLS-1$
 		cbBatchToolsDat2DirDryRun.addItemListener(e -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, e.getStateChange() == ItemEvent.SELECTED)); // $NON-NLS-1$
 
 		JButton btnBatchToolsDir2DatStart = new JButton(Messages.getString("MainFrame.btnStart.text")); //$NON-NLS-1$

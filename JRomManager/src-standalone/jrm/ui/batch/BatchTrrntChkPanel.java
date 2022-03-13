@@ -94,7 +94,7 @@ public class BatchTrrntChkPanel extends JPanel
 		final SDRList sdrl2 = new SDRList();
 		if (session != null)
 		{
-			for (final JsonValue arrv : Json.parse(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr, "[]")).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
+			for (final JsonValue arrv : Json.parse(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr)).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				final SrcDstResult sdr = new SrcDstResult();
 				final JsonObject jso = arrv.asObject();
@@ -167,7 +167,7 @@ public class BatchTrrntChkPanel extends JPanel
 		cbbxTrntChk = new JComboBox<>();
 		cbbxTrntChk.setModel(new DefaultComboBoxModel<>(TrntChkMode.values()));
 		if (session != null)
-			cbbxTrntChk.setSelectedItem(TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode, TrntChkMode.FILENAME.toString()))); // $NON-NLS-1$
+			cbbxTrntChk.setSelectedItem(TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode))); // $NON-NLS-1$
 		cbbxTrntChk.addActionListener(e -> {
 			session.getUser().getSettings().setProperty(SettingsEnum.trntchk_mode, cbbxTrntChk.getSelectedItem().toString());
 			cbRemoveWrongSizedFiles.setEnabled(cbbxTrntChk.getSelectedItem() != TrntChkMode.FILENAME);
@@ -186,7 +186,7 @@ public class BatchTrrntChkPanel extends JPanel
 		chckbxDetectArchivedFolder = new JCheckBox(Messages.getString("BatchTrrntChkPanel.chckbxDetectArchivedFolder.text")); //$NON-NLS-1$
 		chckbxDetectArchivedFolder.addActionListener(e -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_detect_archived_folders, chckbxDetectArchivedFolder.isSelected()));
 		if (session != null)
-			chckbxDetectArchivedFolder.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, true)); // $NON-NLS-1$
+			chckbxDetectArchivedFolder.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, Boolean.class)); // $NON-NLS-1$
 		GridBagConstraints gbcChckbxDetectArchivedFolder = new GridBagConstraints();
 		gbcChckbxDetectArchivedFolder.insets = new Insets(0, 0, 0, 5);
 		gbcChckbxDetectArchivedFolder.gridx = 2;
@@ -196,7 +196,7 @@ public class BatchTrrntChkPanel extends JPanel
 		cbRemoveUnknownFiles = new JCheckBox(Messages.getString("BatchToolsTrrntChkPanel.chckbxRemoveUnknownFiles.text")); //$NON-NLS-1$
 		cbRemoveUnknownFiles.addActionListener(e -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_unknown_files, cbRemoveUnknownFiles.isSelected()));
 		if (session != null)
-			cbRemoveUnknownFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, false)); // $NON-NLS-1$
+			cbRemoveUnknownFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, Boolean.class)); // $NON-NLS-1$
 		GridBagConstraints gbcCbRemoveUnknownFiles = new GridBagConstraints();
 		gbcCbRemoveUnknownFiles.insets = new Insets(0, 0, 0, 5);
 		gbcCbRemoveUnknownFiles.gridx = 3;
@@ -206,7 +206,7 @@ public class BatchTrrntChkPanel extends JPanel
 		cbRemoveWrongSizedFiles = new JCheckBox(Messages.getString("BatchToolsTrrntChkPanel.chckbxRemoveWrongSized.text")); //$NON-NLS-1$
 		cbRemoveWrongSizedFiles.addActionListener(e -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_wrong_sized_files, cbRemoveWrongSizedFiles.isSelected()));
 		if (session != null)
-			cbRemoveWrongSizedFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, false)); // $NON-NLS-1$
+			cbRemoveWrongSizedFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, Boolean.class)); // $NON-NLS-1$
 		cbRemoveWrongSizedFiles.setEnabled(cbbxTrntChk.getSelectedItem() != TrntChkMode.FILENAME);
 		GridBagConstraints gbcCbRemoveWrongSizedFiles = new GridBagConstraints();
 		gbcCbRemoveWrongSizedFiles.anchor = GridBagConstraints.WEST;

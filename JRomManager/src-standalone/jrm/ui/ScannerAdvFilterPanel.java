@@ -23,7 +23,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import jrm.locale.Messages;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.Category.SubCategory;
 import jrm.profile.filter.NPlayer;
@@ -207,7 +207,7 @@ public class ScannerAdvFilterPanel extends JPanel
 	 */
 	private void catVerClear(final Session session)
 	{
-		session.getCurrProfile().setProperty(SettingsEnum.filter_catver_ini, null); //$NON-NLS-1$
+		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_catver_ini, null); //$NON-NLS-1$
 		session.getCurrProfile().setCatver(null);
 		session.getCurrProfile().saveSettings();
 		tfCatVer.setText(null);
@@ -304,7 +304,7 @@ public class ScannerAdvFilterPanel extends JPanel
 	 */
 	private void dropCatVerIni(final Session session, String txt)
 	{
-		session.getCurrProfile().setProperty(SettingsEnum.filter_catver_ini, txt); //$NON-NLS-1$
+		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_catver_ini, txt); //$NON-NLS-1$
 		session.getCurrProfile().loadCatVer(null);
 		session.getCurrProfile().saveSettings();
 		treeCatVer.setModel(session.getCurrProfile().getCatver() != null ? new CatVerModel(new CatVerNode(session.getCurrProfile().getCatver())) : new CatVerModel());
@@ -316,7 +316,7 @@ public class ScannerAdvFilterPanel extends JPanel
 	 */
 	private void dropNPLayersIni(final Session session, String txt)
 	{
-		session.getCurrProfile().setProperty(SettingsEnum.filter_nplayers_ini, txt); //$NON-NLS-1$
+		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_nplayers_ini, txt); //$NON-NLS-1$
 		session.getCurrProfile().loadNPlayers(null);
 		session.getCurrProfile().saveSettings();
 		listNPlayers.setModel(new NPlayersModel(session.getCurrProfile().getNplayers()));

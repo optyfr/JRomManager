@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 import javax.xml.stream.XMLStreamException;
 
 import jrm.aui.progress.ProgressHandler;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Driver.StatusType;
 import jrm.profile.data.Machine.CabinetType;
@@ -92,16 +92,16 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 
 	private class FilterOptions
 	{
-		final boolean excludeGames = profile.getProperty(SettingsEnum.exclude_games, false); //$NON-NLS-1$
-		final boolean excludeMachines = profile.getProperty(SettingsEnum.exclude_machines, false); //$NON-NLS-1$
-		final boolean filterIncludeClones = profile.getProperty(SettingsEnum.filter_InclClones, true); //$NON-NLS-1$
-		final boolean filterIncludeDisks = profile.getProperty(SettingsEnum.filter_InclDisks, true); //$NON-NLS-1$
-		final boolean filterIncludeSamples = profile.getProperty(SettingsEnum.filter_InclSamples, true); //$NON-NLS-1$
-		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty(SettingsEnum.filter_DriverStatus, Driver.StatusType.preliminary.toString())); //$NON-NLS-1$
-		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(SettingsEnum.filter_DisplayOrientation, DisplayOrientation.any.toString())); //$NON-NLS-1$
-		final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty(SettingsEnum.filter_CabinetType, CabinetType.any.toString())); //$NON-NLS-1$
-		final String filterYearMin = profile.getProperty(SettingsEnum.filter_YearMin, ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final String filterYearMax = profile.getProperty(SettingsEnum.filter_YearMax, "????"); //$NON-NLS-1$ //$NON-NLS-2$
+		final boolean excludeGames = profile.getProperty(ProfileSettingsEnum.exclude_games, Boolean.class); //$NON-NLS-1$
+		final boolean excludeMachines = profile.getProperty(ProfileSettingsEnum.exclude_machines, Boolean.class); //$NON-NLS-1$
+		final boolean filterIncludeClones = profile.getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class); //$NON-NLS-1$
+		final boolean filterIncludeDisks = profile.getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class); //$NON-NLS-1$
+		final boolean filterIncludeSamples = profile.getProperty(ProfileSettingsEnum.filter_InclSamples, Boolean.class); //$NON-NLS-1$
+		final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty(ProfileSettingsEnum.filter_DriverStatus, String.class)); //$NON-NLS-1$
+		final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(ProfileSettingsEnum.filter_DisplayOrientation, String.class)); //$NON-NLS-1$
+		final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty(ProfileSettingsEnum.filter_CabinetType, String.class)); //$NON-NLS-1$
+		final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); //$NON-NLS-1$ //$NON-NLS-2$
+		final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	@Override

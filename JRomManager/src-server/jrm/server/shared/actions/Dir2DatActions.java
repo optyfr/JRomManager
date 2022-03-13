@@ -34,9 +34,9 @@ public class Dir2DatActions
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
-				String srcdir = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, null);
-				String dstdat = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, null);
-				String format = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format, "MAME");
+				String srcdir = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir);
+				String dstdat = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file);
+				String format = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format);
 				JsonObject opts = jso.get("params").asObject().get("options").asObject();
 				EnumSet<DirScan.Options> options = getOptions(opts);
 				HashMap<String, String> headers = new HashMap<>();

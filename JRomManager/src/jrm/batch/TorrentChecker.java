@@ -80,8 +80,8 @@ public class TorrentChecker implements UnitRenderer, StatusRendererFactory
 		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), (int) sdrl.stream().filter(SrcDstResult::isSelected).count()), true);
 		progress.setProgress2("", 0, 1); //$NON-NLS-1$
 		sdrl.stream().filter(SrcDstResult::isSelected).forEach(sdr -> updater.updateResult(sdrl.indexOf(sdr), ""));
-		final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, true);
-		final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+		final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, Boolean.class);
+		final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 		new MultiThreading<SrcDstResult>(nThreads, sdr -> {
 			if (progress.isCancel())
 				return;

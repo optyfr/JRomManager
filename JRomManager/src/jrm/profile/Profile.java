@@ -54,6 +54,7 @@ import jrm.misc.BreakException;
 import jrm.misc.ExceptionUtils;
 import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.misc.SettingsEnum;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Device;
@@ -1401,7 +1402,7 @@ public class Profile implements Serializable,StatusRendererFactory
 	{
 		Profile profile = null;
 		final var cachefile = session.getUser().getSettings().getCacheFile(nfo.getFile());
-		if (cachefile.lastModified() >= nfo.getFile().lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.getMame().getFileroms().lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, false)) // $NON-NLS-1$
+		if (cachefile.lastModified() >= nfo.getFile().lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.getMame().getFileroms().lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, Boolean.class)) // $NON-NLS-1$
 		{ // Load from cache if cachefile is not outdated and debug_nocache is disabled
 			profile = loadCache(session, nfo, handler, profile, cachefile);
 		}
@@ -1584,7 +1585,7 @@ public class Profile implements Serializable,StatusRendererFactory
 	 * @param value
 	 *            the boolean property value
 	 */
-	public void setProperty(final Enum<?> property, final boolean value)
+	public void setProperty(final ProfileSettingsEnum property, final boolean value)
 	{
 		settings.setProperty(property, Boolean.toString(value));
 	}
@@ -1602,7 +1603,7 @@ public class Profile implements Serializable,StatusRendererFactory
 	 * @param value
 	 *            the string property value
 	 */
-	public void setProperty(final Enum<?> property, final String value)
+	public void setProperty(final ProfileSettingsEnum property, final String value)
 	{
 		settings.setProperty(property, value);
 	}
@@ -1612,42 +1613,20 @@ public class Profile implements Serializable,StatusRendererFactory
 		settings.setProperty(property, value);
 	}
 
-	/**
-	 * get a property boolean value
-	 * 
-	 * @param property
-	 *            the property name
-	 * @param def
-	 *            the default boolean value if no property is defined
-	 * @return the property value if it exists, otherwise {@code def} is returned
-	 */
-	public boolean getProperty(final Enum<?> property, final boolean def)
-	{
-		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
-	}
-
 	public boolean getProperty(final String property, final boolean def)
 	{
 		return Boolean.parseBoolean(settings.getProperty(property, Boolean.toString(def)));
 	}
 
-	/**
-	 * get a property int value
-	 * 
-	 * @param property
-	 *            the property name
-	 * @param def
-	 *            the default int value if no property is defined
-	 * @return the property value if it exists, otherwise {@code def} is returned
-	 */
-	public int getProperty(final Enum<?> property, final int def)
-	{
-		return Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
-	}
 
 	public int getProperty(final String property, final int def)
 	{
 		return Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
+	}
+
+	public String getProperty(final String property, final String def)
+	{
+		return settings.getProperty(property, def);
 	}
 
 	/**
@@ -1659,14 +1638,14 @@ public class Profile implements Serializable,StatusRendererFactory
 	 *            the default string value if no property is defined
 	 * @return the property value if it exists, otherwise {@code def} is returned
 	 */
-	public String getProperty(final Enum<?> property, final String def)
+	public <T> T getProperty(final ProfileSettingsEnum property, Class<T> cls)
 	{
-		return settings.getProperty(property, def);
+		return settings.getProperty(property, cls);
 	}
 
-	public String getProperty(final String property, final String def)
+	public String getProperty(final ProfileSettingsEnum property)
 	{
-		return settings.getProperty(property, def);
+		return settings.getProperty(property, String.class);
 	}
 
 	/**
@@ -1779,7 +1758,7 @@ public class Profile implements Serializable,StatusRendererFactory
 	{
 		try
 		{
-			final var file = PathAbstractor.getAbsolutePath(session, getProperty(SettingsEnum.filter_catver_ini, null)).toFile();
+			final var file = PathAbstractor.getAbsolutePath(session, getProperty(ProfileSettingsEnum.filter_catver_ini, null)).toFile();
 			if (!file.exists())
 			{
 				catver=null;
@@ -1816,7 +1795,7 @@ public class Profile implements Serializable,StatusRendererFactory
 	{
 		try
 		{
-			final var file = PathAbstractor.getAbsolutePath(session, getProperty(SettingsEnum.filter_nplayers_ini, null)).toFile();
+			final var file = PathAbstractor.getAbsolutePath(session, getProperty(ProfileSettingsEnum.filter_nplayers_ini, null)).toFile();
 			if (file.exists())
 			{
 				if (handler != null)

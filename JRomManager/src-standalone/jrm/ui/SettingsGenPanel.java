@@ -21,6 +21,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import jrm.locale.Messages;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
 import jrm.ui.basic.JFileDropMode;
@@ -118,15 +119,15 @@ public class SettingsGenPanel extends JPanel
 		cbThreading.addActionListener(arg0 -> 
 			session.getUser().getSettings().setProperty(SettingsEnum.thread_count, ((ThreadCnt)cbThreading.getSelectedItem()).getCnt())
 		); //$NON-NLS-1$
-		cbThreading.setSelectedItem(new ThreadCnt(session.getUser().getSettings().getProperty(SettingsEnum.thread_count, -1)));
+		cbThreading.setSelectedItem(new ThreadCnt(session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class)));
 		
 		
 		
-		final var tfBackupDest = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(SettingsEnum.backup_dest_dir, txt)); //$NON-NLS-1$
+		final var tfBackupDest = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, txt)); //$NON-NLS-1$
 		tfBackupDest.setMode(JFileDropMode.DIRECTORY);
-		tfBackupDest.setEnabled(session.getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false));
+		tfBackupDest.setEnabled(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class));
 		tfBackupDest.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
-		tfBackupDest.setText(session.getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir, "%work/backup")); //$NON-NLS-1$
+		tfBackupDest.setText(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir)); //$NON-NLS-1$
 		
 		final var btnBackupDest = new JButton(""); //$NON-NLS-1$
 		btnBackupDest.addActionListener(e -> {
@@ -134,21 +135,21 @@ public class SettingsGenPanel extends JPanel
 			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getUser().getSettings().getProperty("MainFrame.ChooseBackupGDestination", workdir.getAbsolutePath())), new File(tfBackupDest.getText()), null, Messages.getString("MainFrame.ChooseBackupDestination"), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				session.getUser().getSettings().setProperty("MainFrame.ChooseBackupGDestination", chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfBackupDest.setText(chooser.getSelectedFile().getAbsolutePath());
-				session.getUser().getSettings().setProperty(SettingsEnum.backup_dest_dir, tfBackupDest.getText()); //$NON-NLS-1$
+				session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, tfBackupDest.getText()); //$NON-NLS-1$
 				return true;
 			});
 		});
-		btnBackupDest.setEnabled(session.getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false));
+		btnBackupDest.setEnabled(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class));
 		btnBackupDest.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
 
 		final var lblBackupDest = new JCheckBox(Messages.getString("MainFrame.lblBackupDest.text")); //$NON-NLS-1$
 		lblBackupDest.addItemListener(e -> {
 			tfBackupDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			btnBackupDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
-			session.getUser().getSettings().setProperty(SettingsEnum.backup_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 		});
 		lblBackupDest.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblBackupDest.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false));
+		lblBackupDest.setSelected(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class));
 		final GridBagConstraints gbcLblBackupDest = new GridBagConstraints();
 		gbcLblBackupDest.fill = GridBagConstraints.HORIZONTAL;
 		gbcLblBackupDest.insets = new Insets(0, 0, 5, 5);

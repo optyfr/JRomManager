@@ -26,7 +26,7 @@ import java.util.zip.CRC32;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.misc.Log;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
 import jrm.profile.data.Entry.Type;
@@ -99,10 +99,10 @@ public class BackupContainer extends ContainerAction
 		if (!zipfiles.containsKey(crc2))
 		{
 			final String workdir;
-			if (session.getCurrProfile().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
-				workdir = session.getCurrProfile().getSettings().getProperty(SettingsEnum.backup_dest_dir, "%work/backup");
-			else if (session.getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
-				workdir = session.getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir, "%work/backup");
+			if (session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class))
+				workdir = session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir);
+			else if (session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class))
+				workdir = session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir);
 			else
 				workdir = "%work/backup"; //$NON-NLS-1$
 			final var backupdir = PathAbstractor.getAbsolutePath(session, workdir).toFile();

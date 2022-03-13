@@ -251,7 +251,7 @@ public class Compressor implements StatusRendererFactory
 				final File basedir = archive.getTempDir();
 
 				final var zipp = new ZipParameters();
-				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString()));
+				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level));
 				switch(level)
 				{
 					case STORE		-> zipp.setCompressionMethod(CompressionMethod.STORE); 
@@ -307,7 +307,7 @@ public class Compressor implements StatusRendererFactory
 			try(final var srczipf = new ZipFile(file); final var dstzipf = new ZipFile(tmpfile.toFile()))
 			{
 				final var zipp = new ZipParameters();
-				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString()));
+				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level));
 				switch(level)
 				{
 					case STORE		-> zipp.setCompressionMethod(CompressionMethod.STORE); 

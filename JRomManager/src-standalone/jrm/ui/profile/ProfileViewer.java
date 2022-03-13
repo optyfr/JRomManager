@@ -81,7 +81,7 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import jrm.locale.Messages;
 import jrm.misc.Log;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
@@ -748,9 +748,9 @@ public class ProfileViewer extends JDialog
 	private String[] getMameArgsMachine(final Anyware ware, final Profile profile, final ProfileNFOMame mame)
 	{
 		String[] args;
-		final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(SettingsEnum.roms_dest_dir, ""))); //$NON-NLS-1$ //$NON-NLS-2$
-		if (profile.getProperty(SettingsEnum.disks_dest_dir_enabled, false)) //$NON-NLS-1$
-			rompaths.add(profile.getProperty(SettingsEnum.disks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); //$NON-NLS-1$ //$NON-NLS-2$
+		if (profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class)) //$NON-NLS-1$
+			rompaths.add(profile.getProperty(ProfileSettingsEnum.disks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
 		args = new String[] { mame.getFile().getAbsolutePath(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", rompaths.stream().collect(Collectors.joining(";")) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return args;
 	}
@@ -765,13 +765,13 @@ public class ProfileViewer extends JDialog
 	 */
 	private String[] getMameArgsSofware(final Anyware ware, final Profile profile, final ProfileNFOMame mame, String[] args) throws HeadlessException
 	{
-		final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(SettingsEnum.roms_dest_dir, ""))); //$NON-NLS-1$ //$NON-NLS-2$
-		if (profile.getProperty(SettingsEnum.swroms_dest_dir_enabled, false)) //$NON-NLS-1$
-			rompaths.add(profile.getProperty(SettingsEnum.swroms_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		if (profile.getProperty(SettingsEnum.disks_dest_dir_enabled, false)) //$NON-NLS-1$
-			rompaths.add(profile.getProperty(SettingsEnum.disks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		if (profile.getProperty(SettingsEnum.swdisks_dest_dir_enabled, false)) //$NON-NLS-1$
-			rompaths.add(profile.getProperty(SettingsEnum.swdisks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); //$NON-NLS-1$ //$NON-NLS-2$
+		if (profile.getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class)) //$NON-NLS-1$
+			rompaths.add(profile.getProperty(ProfileSettingsEnum.swroms_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		if (profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class)) //$NON-NLS-1$
+			rompaths.add(profile.getProperty(ProfileSettingsEnum.disks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		if (profile.getProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, Boolean.class)) //$NON-NLS-1$
+			rompaths.add(profile.getProperty(ProfileSettingsEnum.swdisks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
 		Log.debug(()->((Software) ware).getSl().getBaseName() + ", " + ((Software) ware).getCompatibility()); //$NON-NLS-1$
 		JList<Machine> machines = new JList<>(profile.getMachineListList().getSortedMachines(((Software) ware).getSl().getBaseName(), ((Software) ware).getCompatibility()).toArray(new Machine[0]));
 		machines.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

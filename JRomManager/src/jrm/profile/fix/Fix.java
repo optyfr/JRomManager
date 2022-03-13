@@ -28,6 +28,7 @@ import jrm.aui.progress.ProgressHandler;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.MultiThreading;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.fix.actions.BackupContainer;
@@ -55,8 +56,8 @@ public class Fix
 	{
 		this.currScan = currScan;
 
-		val useParallelism = currProfile.getProperty(SettingsEnum.use_parallelism, currProfile.getSession().isServer()); // $NON-NLS-1$
-		val nThreads = useParallelism ? currProfile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+		val useParallelism = currProfile.getProperty(ProfileSettingsEnum.use_parallelism, Boolean.class); // $NON-NLS-1$
+		val nThreads = useParallelism ? currProfile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 
 		final long start = System.currentTimeMillis();
 		

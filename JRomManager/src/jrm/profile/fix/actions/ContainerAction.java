@@ -205,7 +205,7 @@ public abstract class ContainerAction implements StatusRendererFactory, Comparab
 				zipp.setCompressionLevel(CompressionLevel.FASTEST);
 			else
 			{
-				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level, ZipLevel.DEFAULT.toString()));
+				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level));
 				switch(level)
 				{
 					case STORE		-> zipp.setCompressionMethod(CompressionMethod.STORE);

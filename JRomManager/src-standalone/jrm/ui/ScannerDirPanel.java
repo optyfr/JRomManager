@@ -25,7 +25,7 @@ import javax.swing.event.PopupMenuListener;
 import org.apache.commons.lang3.StringUtils;
 
 import jrm.locale.Messages;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.security.Session;
 import jrm.ui.basic.JFileDropList;
 import jrm.ui.basic.JFileDropMode;
@@ -181,7 +181,7 @@ public class ScannerDirPanel extends JPanel
 		gbcLblSrcDir.gridy = 6;
 		this.add(lblSrcDir, gbcLblSrcDir);
 
-		listSrcDir = new JFileDropList(files -> session.getCurrProfile().setProperty(SettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).collect(Collectors.toList())))); // $NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$ // $NON-NLS-2$
+		listSrcDir = new JFileDropList(files -> session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).collect(Collectors.toList())))); // $NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$ // $NON-NLS-2$
 		listSrcDir.setMode(JFileDropMode.DIRECTORY);
 		listSrcDir.setUI(new JListHintUI(Messages.getString(MAIN_FRAME_DROP_DIR_HINT), Color.gray)); //$NON-NLS-1$
 		final GridBagConstraints gbcListSrcDir = new GridBagConstraints();
@@ -206,7 +206,7 @@ public class ScannerDirPanel extends JPanel
 			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_SW_DISKS_DESTINATION, workdir.getAbsolutePath())), new File(tfSWDisksDest.getText()), null, Messages.getString(MAIN_FRAME_CHOOSE_SW_DISKS_DESTINATION), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				session.getCurrProfile().setProperty(MAIN_FRAME_CHOOSE_SW_DISKS_DESTINATION, chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfSWDisksDest.setText(chooser.getSelectedFile().getAbsolutePath());
-				session.getCurrProfile().setProperty(SettingsEnum.swdisks_dest_dir, tfSWDisksDest.getText()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(ProfileSettingsEnum.swdisks_dest_dir, tfSWDisksDest.getText()); //$NON-NLS-1$
 				return true;
 			});
 		});
@@ -217,7 +217,7 @@ public class ScannerDirPanel extends JPanel
 		lblSWDisksDest.addItemListener(e -> {
 			tfSWDisksDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			btnSWDisksDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
-			session.getCurrProfile().setProperty(SettingsEnum.swdisks_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 		});
 		final GridBagConstraints gbcLblSWDisksDest = new GridBagConstraints();
 		gbcLblSWDisksDest.insets = new Insets(0, 0, 5, 5);
@@ -225,7 +225,7 @@ public class ScannerDirPanel extends JPanel
 		gbcLblSWDisksDest.gridy = 3;
 		this.add(lblSWDisksDest, gbcLblSWDisksDest);
 
-		tfSWDisksDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(SettingsEnum.swdisks_dest_dir, txt)); //$NON-NLS-1$
+		tfSWDisksDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.swdisks_dest_dir, txt)); //$NON-NLS-1$
 		tfSWDisksDest.setMode(JFileDropMode.DIRECTORY);
 		tfSWDisksDest.setEnabled(false);
 		tfSWDisksDest.setUI(new JTextFieldHintUI(Messages.getString(MAIN_FRAME_DROP_DIR_HINT), Color.gray)); //$NON-NLS-1$
@@ -257,7 +257,7 @@ public class ScannerDirPanel extends JPanel
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_SW_ROMS_DESTINATION, workdir.getAbsolutePath())), new File(tfSWDest.getText()), null, Messages.getString(MAIN_FRAME_CHOOSE_SW_ROMS_DESTINATION), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				session.getCurrProfile().setProperty(MAIN_FRAME_CHOOSE_SW_ROMS_DESTINATION, chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfSWDest.setText(chooser.getSelectedFile().getAbsolutePath());
-				session.getCurrProfile().setProperty(SettingsEnum.swroms_dest_dir, tfSWDest.getText()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(ProfileSettingsEnum.swroms_dest_dir, tfSWDest.getText()); //$NON-NLS-1$
 				return null;
 			});
 		});
@@ -268,7 +268,7 @@ public class ScannerDirPanel extends JPanel
 		lblSWDest.addItemListener(e -> {
 			tfSWDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			btnSWDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
-			session.getCurrProfile().setProperty(SettingsEnum.swroms_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 		});
 		lblSWDest.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbcLblSWDest = new GridBagConstraints();
@@ -278,7 +278,7 @@ public class ScannerDirPanel extends JPanel
 		gbcLblSWDest.gridy = 2;
 		this.add(lblSWDest, gbcLblSWDest);
 
-		tfSWDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(SettingsEnum.swroms_dest_dir, txt)); //$NON-NLS-1$
+		tfSWDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.swroms_dest_dir, txt)); //$NON-NLS-1$
 		tfSWDest.setMode(JFileDropMode.DIRECTORY);
 		tfSWDest.setEnabled(false);
 		tfSWDest.setUI(new JTextFieldHintUI(Messages.getString(MAIN_FRAME_DROP_DIR_HINT), Color.gray)); //$NON-NLS-1$
@@ -312,7 +312,7 @@ public class ScannerDirPanel extends JPanel
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_DISKS_DESTINATION, workdir.getAbsolutePath())), new File(tfDisksDest.getText()), null, Messages.getString(MAIN_FRAME_CHOOSE_DISKS_DESTINATION), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				session.getCurrProfile().setProperty(MAIN_FRAME_CHOOSE_DISKS_DESTINATION, chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfDisksDest.setText(chooser.getSelectedFile().getAbsolutePath());
-				session.getCurrProfile().setProperty(SettingsEnum.disks_dest_dir, tfDisksDest.getText()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(ProfileSettingsEnum.disks_dest_dir, tfDisksDest.getText()); //$NON-NLS-1$
 				return null;
 			});
 		});
@@ -321,7 +321,7 @@ public class ScannerDirPanel extends JPanel
 		lblDisksDest.addItemListener(e -> {
 			tfDisksDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			btnDisksDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
-			session.getCurrProfile().setProperty(SettingsEnum.disks_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.disks_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 		});
 		lblDisksDest.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbcLblDisksDest = new GridBagConstraints();
@@ -331,7 +331,7 @@ public class ScannerDirPanel extends JPanel
 		gbcLblDisksDest.gridy = 1;
 		this.add(lblDisksDest, gbcLblDisksDest);
 
-		tfDisksDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(SettingsEnum.disks_dest_dir, txt)); //$NON-NLS-1$
+		tfDisksDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.disks_dest_dir, txt)); //$NON-NLS-1$
 		tfDisksDest.setMode(JFileDropMode.DIRECTORY);
 		tfDisksDest.setEnabled(false);
 		tfDisksDest.setUI(new JTextFieldHintUI(Messages.getString(MAIN_FRAME_DROP_DIR_HINT), Color.gray)); //$NON-NLS-1$
@@ -366,7 +366,7 @@ public class ScannerDirPanel extends JPanel
 		gbcLblRomsDest.gridy = 0;
 		this.add(lblRomsDest, gbcLblRomsDest);
 
-		txtRomsDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(SettingsEnum.roms_dest_dir, txt)); //$NON-NLS-1$
+		txtRomsDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.roms_dest_dir, txt)); //$NON-NLS-1$
 		txtRomsDest.setMode(JFileDropMode.DIRECTORY);
 		txtRomsDest.setUI(new JTextFieldHintUI(Messages.getString(MAIN_FRAME_DROP_DIR_HINT), Color.gray)); //$NON-NLS-1$
 		txtRomsDest.setColumns(10);
@@ -384,7 +384,7 @@ public class ScannerDirPanel extends JPanel
 			new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_ROMS_DESTINATION, workdir.getAbsolutePath())), new File(txtRomsDest.getText()), null, Messages.getString(MAIN_FRAME_CHOOSE_ROMS_DESTINATION), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$ //$NON-NLS-2$
 				session.getCurrProfile().setProperty(MAIN_FRAME_CHOOSE_ROMS_DESTINATION, chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				txtRomsDest.setText(chooser.getSelectedFile().getAbsolutePath());
-				session.getCurrProfile().setProperty(SettingsEnum.roms_dest_dir, txtRomsDest.getText()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(ProfileSettingsEnum.roms_dest_dir, txtRomsDest.getText()); //$NON-NLS-1$
 				return null;
 			});
 		});
@@ -408,7 +408,7 @@ public class ScannerDirPanel extends JPanel
 			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_SAMPLES_DESTINATION, workdir.getAbsolutePath())), new File(tfSamplesDest.getText()), null, Messages.getString(MAIN_FRAME_CHOOSE_SAMPLES_DESTINATION), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				session.getCurrProfile().setProperty(MAIN_FRAME_CHOOSE_SAMPLES_DESTINATION, chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfSamplesDest.setText(chooser.getSelectedFile().getAbsolutePath());
-				session.getCurrProfile().setProperty(SettingsEnum.samples_dest_dir, tfSamplesDest.getText()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(ProfileSettingsEnum.samples_dest_dir, tfSamplesDest.getText()); //$NON-NLS-1$
 				return true;
 			});
 		});
@@ -419,7 +419,7 @@ public class ScannerDirPanel extends JPanel
 		lblSamplesDest.addItemListener(e -> {
 			tfSamplesDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			btnSamplesDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
-			session.getCurrProfile().setProperty(SettingsEnum.samples_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.samples_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 		});
 		lblSamplesDest.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbcLblSamplesDest = new GridBagConstraints();
@@ -429,7 +429,7 @@ public class ScannerDirPanel extends JPanel
 		gbcLblSamplesDest.gridy = 4;
 		this.add(lblSamplesDest, gbcLblSamplesDest);
 
-		tfSamplesDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(SettingsEnum.samples_dest_dir, txt)); //$NON-NLS-1$
+		tfSamplesDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.samples_dest_dir, txt)); //$NON-NLS-1$
 		tfSamplesDest.setMode(JFileDropMode.DIRECTORY);
 		tfSamplesDest.setEnabled(false);
 		tfSamplesDest.setUI(new JTextFieldHintUI(Messages.getString(MAIN_FRAME_DROP_DIR_HINT), Color.gray)); //$NON-NLS-1$
@@ -461,7 +461,7 @@ public class ScannerDirPanel extends JPanel
 			new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_BACKUP_DESTINATION, workdir.getAbsolutePath())), new File(tfBackupDest.getText()), null, Messages.getString(MAIN_FRAME_CHOOSE_BACKUP_DESTINATION), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { //$NON-NLS-1$//$NON-NLS-2$
 				session.getCurrProfile().setProperty(MAIN_FRAME_CHOOSE_BACKUP_DESTINATION, chooser.getCurrentDirectory().getAbsolutePath()); //$NON-NLS-1$
 				tfBackupDest.setText(chooser.getSelectedFile().getAbsolutePath());
-				session.getCurrProfile().setProperty(SettingsEnum.backup_dest_dir, tfBackupDest.getText()); //$NON-NLS-1$
+				session.getCurrProfile().setProperty(ProfileSettingsEnum.backup_dest_dir, tfBackupDest.getText()); //$NON-NLS-1$
 				return true;
 			});
 		});
@@ -472,7 +472,7 @@ public class ScannerDirPanel extends JPanel
 		lblBackupDest.addItemListener(e -> {
 			tfBackupDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			btnBackupDest.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
-			session.getCurrProfile().setProperty(SettingsEnum.backup_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
 		});
 		lblBackupDest.setHorizontalAlignment(SwingConstants.TRAILING);
 		final GridBagConstraints gbcLblBackupDest = new GridBagConstraints();
@@ -482,7 +482,7 @@ public class ScannerDirPanel extends JPanel
 		gbcLblBackupDest.gridy = 5;
 		this.add(lblBackupDest, gbcLblBackupDest);
 	
-		tfBackupDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(SettingsEnum.backup_dest_dir, txt)); //$NON-NLS-1$
+		tfBackupDest = new JFileDropTextField(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.backup_dest_dir, txt)); //$NON-NLS-1$
 		tfBackupDest.setMode(JFileDropMode.DIRECTORY);
 		tfBackupDest.setEnabled(false);
 		tfBackupDest.setUI(new JTextFieldHintUI(Messages.getString(MAIN_FRAME_DROP_DIR_HINT), Color.gray)); //$NON-NLS-1$
@@ -504,19 +504,19 @@ public class ScannerDirPanel extends JPanel
 
 	public void initProfileSettings(@SuppressWarnings("exports") final Session session)
 	{
-		txtRomsDest.setText(session.getCurrProfile().getProperty(SettingsEnum.roms_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblDisksDest.setSelected(session.getCurrProfile().getProperty(SettingsEnum.disks_dest_dir_enabled, false)); //$NON-NLS-1$
-		tfDisksDest.setText(session.getCurrProfile().getProperty(SettingsEnum.disks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblSWDest.setSelected(session.getCurrProfile().getProperty(SettingsEnum.swroms_dest_dir_enabled, false)); //$NON-NLS-1$
-		tfSWDest.setText(session.getCurrProfile().getProperty(SettingsEnum.swroms_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblSWDisksDest.setSelected(session.getCurrProfile().getProperty(SettingsEnum.swdisks_dest_dir_enabled, false)); //$NON-NLS-1$
-		tfSWDisksDest.setText(session.getCurrProfile().getProperty(SettingsEnum.swdisks_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblSamplesDest.setSelected(session.getCurrProfile().getProperty(SettingsEnum.samples_dest_dir_enabled, false)); //$NON-NLS-1$
-		tfSamplesDest.setText(session.getCurrProfile().getProperty(SettingsEnum.samples_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		lblBackupDest.setSelected(session.getCurrProfile().getProperty(SettingsEnum.backup_dest_dir_enabled, false)); //$NON-NLS-1$
-		tfBackupDest.setText(session.getCurrProfile().getProperty(SettingsEnum.backup_dest_dir, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		txtRomsDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.roms_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		lblDisksDest.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		tfDisksDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.disks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		lblSWDest.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		tfSWDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swroms_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		lblSWDisksDest.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		tfSWDisksDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		lblSamplesDest.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		tfSamplesDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		lblBackupDest.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
+		tfBackupDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
 		listSrcDir.getModel().removeAllElements();
-		for (final String s : StringUtils.split(session.getCurrProfile().getProperty(SettingsEnum.src_dir, ""),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		for (final String s : StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir),'|')) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (!s.isEmpty())
 				listSrcDir.getModel().addElement(new File(s));
 		

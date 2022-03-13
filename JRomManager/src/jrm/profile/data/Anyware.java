@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import jrm.misc.ProfileSettings;
-import jrm.misc.SettingsEnum;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
 import jrm.profile.scan.options.HashCollisionOptions;
@@ -317,9 +317,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		{
 			if(profile.getSettings().getMergeMode().equals(MergeOptions.SUPERFULLNOMERGE))	// also include devices
 			{
-				if(profile.getProperty(SettingsEnum.exclude_games, false))
+				if(profile.getProperty(ProfileSettingsEnum.exclude_games, Boolean.class))
 				{
-					if(profile.getProperty(SettingsEnum.exclude_machines, false))	//NOSONAR
+					if(profile.getProperty(ProfileSettingsEnum.exclude_machines, Boolean.class))	//NOSONAR
 						stream = streamWithDevices(true, false, true);	// bios-devices
 					else
 						stream = streamWithDevices(true, false, true);	// machine-bios-devices

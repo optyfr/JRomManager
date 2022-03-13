@@ -1,6 +1,7 @@
 package jrm.misc;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.Properties;
 
 public abstract class SettingsImpl
@@ -11,6 +12,29 @@ public abstract class SettingsImpl
 	 */
 	public abstract Properties getProperties();
 	
+
+	/**
+	 * get type T property using default value direct from a special enum
+	 * @param property an enum which contains a default value
+	 * @param cls the class type to return, as to be compatible with default value 
+	 * @return return the property as T
+	 */
+	public <T> T getProperty(final EnumWithDefault property, Class<T> cls)
+	{
+		if (cls == Boolean.class)
+			return cls.cast(getProperty(property.toString(), (Boolean) property.getDefault()));
+		if (cls == Integer.class)
+			return cls.cast(getProperty(property.toString(), ((Number) property.getDefault()).intValue()));
+		if (cls == String.class)
+			return cls.cast(getProperty(property.toString(), Optional.ofNullable(property.getDefault()).map(Object::toString).orElse("")));
+		return null;
+	}
+	
+	public String getProperty(final EnumWithDefault property)
+	{
+		return getProperty(property, String.class);
+	}
+
 	/**
 	 * get a boolean property
 	 * @param property the property name
@@ -18,11 +42,7 @@ public abstract class SettingsImpl
 	 * @return return the property as boolean
 	 */
 	protected abstract boolean getProperty(final String property, final boolean def);
-	public boolean getProperty(final Enum<?> property, final boolean def)
-	{
-		return getProperty(property.toString(), def);
-	}
-
+	
 	/**
 	 * get a int property
 	 * @param property the property name
@@ -30,10 +50,6 @@ public abstract class SettingsImpl
 	 * @return return the property as int
 	 */
 	protected abstract int getProperty(final String property, final int def);
-	public int getProperty(final Enum<?> property, final int def)
-	{
-		return getProperty(property.toString(), def);
-	}
 
 	/**
 	 * get a string property
@@ -42,10 +58,6 @@ public abstract class SettingsImpl
 	 * @return return the property as string
 	 */
 	protected abstract String getProperty(final String property, final String def);
-	public String getProperty(final Enum<?> property, final String def)
-	{
-		return getProperty(property.toString(), def);
-	}
 
 	/**
 	 * load settings from settings file

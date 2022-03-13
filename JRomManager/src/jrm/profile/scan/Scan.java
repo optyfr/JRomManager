@@ -45,6 +45,7 @@ import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.MultiThreading;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
@@ -255,16 +256,16 @@ public class Scan extends PathAbstractor
 		/*
 		 * Store locally various profile settings
 		 */
-		format = FormatOptions.valueOf(profile.getProperty(SettingsEnum.format, FormatOptions.ZIP.toString())); // $NON-NLS-1$
-		mergeMode = MergeOptions.valueOf(profile.getProperty(SettingsEnum.merge_mode, MergeOptions.SPLIT.toString())); // $NON-NLS-1$
-		createMode = profile.getProperty(SettingsEnum.create_mode, true); // $NON-NLS-1$
-		createFullMode = profile.getProperty(SettingsEnum.createfull_mode, false); // $NON-NLS-1$
-		ignoreUnneededContainers = profile.getProperty(SettingsEnum.ignore_unneeded_containers, false); // $NON-NLS-1$
-		ignoreUnneededEntries = profile.getProperty(SettingsEnum.ignore_unneeded_entries, false); // $NON-NLS-1$
-		ignoreUnknownContainers = profile.getProperty(SettingsEnum.ignore_unknown_containers, false); // $NON-NLS-1$
-		backup = profile.getProperty(SettingsEnum.backup, true); // $NON-NLS-1$
-		useParallelism = profile.getProperty(SettingsEnum.use_parallelism, profile.getSession().isServer());
-		nThreads = useParallelism ? profile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, -1) : 1;
+		format = FormatOptions.valueOf(profile.getProperty(ProfileSettingsEnum.format)); // $NON-NLS-1$
+		mergeMode = MergeOptions.valueOf(profile.getProperty(ProfileSettingsEnum.merge_mode)); // $NON-NLS-1$
+		createMode = profile.getProperty(ProfileSettingsEnum.create_mode, Boolean.class); // $NON-NLS-1$
+		createFullMode = profile.getProperty(ProfileSettingsEnum.createfull_mode, Boolean.class); // $NON-NLS-1$
+		ignoreUnneededContainers = profile.getProperty(ProfileSettingsEnum.ignore_unneeded_containers, Boolean.class); // $NON-NLS-1$
+		ignoreUnneededEntries = profile.getProperty(ProfileSettingsEnum.ignore_unneeded_entries, Boolean.class); // $NON-NLS-1$
+		ignoreUnknownContainers = profile.getProperty(ProfileSettingsEnum.ignore_unknown_containers, Boolean.class); // $NON-NLS-1$
+		backup = profile.getProperty(ProfileSettingsEnum.backup, Boolean.class); // $NON-NLS-1$
+		useParallelism = profile.getProperty(ProfileSettingsEnum.use_parallelism, Boolean.class);
+		nThreads = useParallelism ? profile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 
 		final File romsDstDir = initRomsDstDir(profile);
 		final File disksDstDir = initDisksDstDir(profile, romsDstDir);
@@ -349,7 +350,7 @@ public class Scan extends PathAbstractor
 		 * explode all src dir string into an ArrayList<File>
 		 */
 		final var srcdirs = new ArrayList<File>();
-		for (final var s : StringUtils.split(profile.getProperty(SettingsEnum.src_dir, ""), '|')) //$NON-NLS-1$ //$NON-NLS-2$
+		for (final var s : StringUtils.split(profile.getProperty(ProfileSettingsEnum.src_dir), '|')) //$NON-NLS-1$ //$NON-NLS-2$
 																									// //$NON-NLS-3$
 		{
 			if (!s.isEmpty())
@@ -361,15 +362,15 @@ public class Scan extends PathAbstractor
 		}
 		/* then add extra backup dir to that list */
 		final String workdir;
-		if (profile.getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
-			workdir = profile.getSettings().getProperty(SettingsEnum.backup_dest_dir, WORK_BACKUP);
+		if (profile.getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class))
+			workdir = profile.getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir);
 		else
 			workdir = WORK_BACKUP;
 		if (!workdir.equals(WORK_BACKUP))
 			srcdirs.add(PathAbstractor.getAbsolutePath(profile.getSession(), workdir).toFile()); // $NON-NLS-1$
 		final String gworkdir;
-		if (profile.getSession().getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir_enabled, false))
-			gworkdir = profile.getSession().getUser().getSettings().getProperty(SettingsEnum.backup_dest_dir, WORK_BACKUP);
+		if (profile.getSession().getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class))
+			gworkdir = profile.getSession().getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir);
 		else
 			gworkdir = WORK_BACKUP;
 		if (!gworkdir.equals(WORK_BACKUP) && !gworkdir.equals(workdir))
@@ -388,9 +389,9 @@ public class Scan extends PathAbstractor
 		/*
 		 * use samples dest dir if enabled and valid, otherwise it's null and not used
 		 */
-		if(profile.getProperty(SettingsEnum.samples_dest_dir_enabled, false))
+		if(profile.getProperty(ProfileSettingsEnum.samples_dest_dir_enabled, Boolean.class))
 		{
-			final String samplesDstDirTxt = profile.getProperty(SettingsEnum.samples_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			final String samplesDstDirTxt = profile.getProperty(ProfileSettingsEnum.samples_dest_dir); //$NON-NLS-1$ //$NON-NLS-2$
 			if(samplesDstDirTxt.isEmpty())
 				throw new ScanException("Samples dst dir is empty");
 			final var samplesDstDir = getAbsolutePath(samplesDstDirTxt).toFile();
@@ -414,9 +415,9 @@ public class Scan extends PathAbstractor
 		 * dest dir (which in turn can be the same than roms dest dir)
 		 */
 		final File swdisksDstDir;
-		if (profile.getProperty(SettingsEnum.swdisks_dest_dir_enabled, false)) // $NON-NLS-1$
+		if (profile.getProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, Boolean.class)) // $NON-NLS-1$
 		{
-			final String swdisksDstDirTxt = profile.getProperty(SettingsEnum.swdisks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			final String swdisksDstDirTxt = profile.getProperty(ProfileSettingsEnum.swdisks_dest_dir); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swdisksDstDirTxt.isEmpty())
 				throw new ScanException("Software Disks dst dir is empty");
 			swdisksDstDir = getAbsolutePath(swdisksDstDirTxt).toFile();
@@ -439,9 +440,9 @@ public class Scan extends PathAbstractor
 		 * dir
 		 */
 		final File swromsDstDir;
-		if (profile.getProperty(SettingsEnum.swroms_dest_dir_enabled, false)) // $NON-NLS-1$
+		if (profile.getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class)) // $NON-NLS-1$
 		{
-			final String swromsDstDirTxt = profile.getProperty(SettingsEnum.swroms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			final String swromsDstDirTxt = profile.getProperty(ProfileSettingsEnum.swroms_dest_dir); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swromsDstDirTxt.isEmpty())
 				throw new ScanException("Software roms dst dir is empty");
 			swromsDstDir = getAbsolutePath(swromsDstDirTxt).toFile();
@@ -462,9 +463,9 @@ public class Scan extends PathAbstractor
 	private File initDisksDstDir(final Profile profile, final File romsDstDir) throws ScanException
 	{
 		final File disksDstDir;
-		if (profile.getProperty(SettingsEnum.disks_dest_dir_enabled, false)) // $NON-NLS-1$
+		if (profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class)) // $NON-NLS-1$
 		{
-			final String disksDstDirTxt = profile.getProperty(SettingsEnum.disks_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			final String disksDstDirTxt = profile.getProperty(ProfileSettingsEnum.disks_dest_dir); //$NON-NLS-1$ //$NON-NLS-2$
 			if (disksDstDirTxt.isEmpty())
 				throw new ScanException("Disks dst dir is empty");
 			disksDstDir = getAbsolutePath(disksDstDirTxt).toFile();
@@ -481,7 +482,7 @@ public class Scan extends PathAbstractor
 	 */
 	private File initRomsDstDir(final Profile profile) throws ScanException
 	{
-		final String dstDirTxt = profile.getProperty(SettingsEnum.roms_dest_dir, ""); //$NON-NLS-1$ //$NON-NLS-2$
+		final String dstDirTxt = profile.getProperty(ProfileSettingsEnum.roms_dest_dir); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dstDirTxt.isEmpty())
 			throw new ScanException("dst dir is empty");
 		final File romsDstDir = getAbsolutePath(dstDirTxt).toFile();
