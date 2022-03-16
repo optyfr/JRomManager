@@ -40,13 +40,13 @@
 										</ContextMenu>
 									</contextMenu>
 								</TableView>
-								<TableView fx:id="tvBatchToolsDat2DirDst">
+								<TableView fx:id="tvBatchToolsDat2DirDst" editable="true">
 									<columns>
-										<TableColumn editable="false" prefWidth="75.0" sortable="false" text="%BatchTableModel.SrcDats" />
-										<TableColumn editable="false" prefWidth="75.0" sortable="false" text="%BatchTableModel.DstDirs" />
-										<TableColumn editable="false" prefWidth="75.0" sortable="false" text="%BatchTableModel.Result" />
-										<TableColumn editable="false" maxWidth="-1.0" minWidth="70.0" prefWidth="70.0" sortable="false" text="Details" />
-										<TableColumn editable="false" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" resizable="false" sortable="false" text="S" />
+										<TableColumn fx:id="tvBatchToolsDat2DirDstDatsCol" editable="false" prefWidth="75.0" sortable="false" text="%BatchTableModel.SrcDats" />
+										<TableColumn fx:id="tvBatchToolsDat2DirDstDirsCol" editable="false" prefWidth="75.0" sortable="false" text="%BatchTableModel.DstDirs" />
+										<TableColumn fx:id="tvBatchToolsDat2DirDstResultCol" editable="false" prefWidth="75.0" sortable="false" text="%BatchTableModel.Result" />
+										<TableColumn fx:id="tvBatchToolsDat2DirDstDetailsCol" editable="false" maxWidth="-1.0" minWidth="70.0" prefWidth="70.0" sortable="false" text="Details" />
+										<TableColumn fx:id="tvBatchToolsDat2DirDstSelCol" editable="true" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" resizable="false" sortable="false" text="S" />
 									</columns>
 									<columnResizePolicy>
 										<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

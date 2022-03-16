@@ -1,6 +1,7 @@
 package jrm.aui.basic;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.eclipsesource.json.Json;
@@ -93,7 +94,7 @@ public class SrcDstResult
 		this.selected = jso.getBoolean("selected", true); //$NON-NLS-1$
 	}
 	
-	public static String toJSON(SDRList list)
+	public static String toJSON(List<SrcDstResult> list)
 	{
 		JsonArray array = Json.array();
 		for (SrcDstResult sdr : list)

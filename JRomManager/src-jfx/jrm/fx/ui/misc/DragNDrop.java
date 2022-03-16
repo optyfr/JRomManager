@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import javafx.scene.control.Cell;
 import javafx.scene.control.Control;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextInputControl;
@@ -12,13 +13,23 @@ import javafx.scene.input.TransferMode;
 
 public class DragNDrop
 {
-	private static final String STYLE_ACCEPT = "-fx-control-inner-background: #DDFFDD;";
-	private static final String STYLE_REJECT = "-fx-control-inner-background: #FFDDDD;";
+	private final String STYLE_ACCEPT;
+	private final String STYLE_REJECT;
 	
 	private Control control;
 	
 	public DragNDrop(Control control)
 	{
+		if(control instanceof Cell)
+		{
+			STYLE_ACCEPT = "-fx-background-color: #DDFFDD;";
+			STYLE_REJECT = "-fx-background-color: #FFDDDD;";
+		}
+		else
+		{
+			STYLE_ACCEPT = "-fx-control-inner-background: #DDFFDD;";
+			STYLE_REJECT = "-fx-control-inner-background: #FFDDDD;";
+		}
 		this.control = control;
 	}
 	

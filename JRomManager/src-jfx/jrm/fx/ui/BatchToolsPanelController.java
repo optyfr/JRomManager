@@ -2,11 +2,15 @@ package jrm.fx.ui;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -15,18 +19,20 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import jrm.aui.basic.SrcDstResult;
 import jrm.batch.CompressorFormat;
 import jrm.fx.ui.misc.DragNDrop;
+import jrm.fx.ui.misc.DragNDrop.SetFilesCallBack;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.SettingsEnum;
-import jrm.security.Session;
-import jrm.security.Sessions;
+import jrm.security.PathAbstractor;
 
 public class BatchToolsPanelController extends BaseController
 {
@@ -46,12 +52,15 @@ public class BatchToolsPanelController extends BaseController
 	@FXML	CheckBox cbBatchToolsCompressorForce;
 	@FXML	TableView<File> tvBatchToolsDat2DirSrc;
 	@FXML	TableColumn<File, File> tvBatchToolsDat2DirSrcCol;
-	@FXML	TableView<SrcDstResult> tvBatchToolsDat2DirDst;
 	@FXML	ContextMenu popupMenuSrc;
 	@FXML	MenuItem mnDat2DirAddSrcDir;
 	@FXML	MenuItem mnDat2DirDelSrcDir;
-
-	final Session session = Sessions.getSingleSession();
+	@FXML	TableView<SrcDstResult> tvBatchToolsDat2DirDst;
+	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstDatsCol;
+	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstDirsCol;
+	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstResultCol;
+	@FXML	TableColumn<SrcDstResult, SrcDstResult> tvBatchToolsDat2DirDstDetailsCol;
+	@FXML	TableColumn<SrcDstResult, Boolean> tvBatchToolsDat2DirDstSelCol;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
@@ -115,14 +124,96 @@ public class BatchToolsPanelController extends BaseController
 			tvBatchToolsDat2DirSrc.getItems().removeAll(tvBatchToolsDat2DirSrc.getSelectionModel().getSelectedItems());
 			saveSrc();
 		});
-		mnDat2DirAddSrcDir.setOnAction(e -> {
-			chooseDir(tvBatchToolsDat2DirSrc, null, null, dir -> {
-				tvBatchToolsDat2DirSrc.getItems().add(dir.toFile());
-				saveSrc();
-			});
+		mnDat2DirAddSrcDir.setOnAction(e -> chooseDir(tvBatchToolsDat2DirSrc, null, null, dir -> {
+			tvBatchToolsDat2DirSrc.getItems().add(dir.toFile());
+			saveSrc();
+		}));
+		tvBatchToolsDat2DirDst.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr)));
+		tvBatchToolsDat2DirDstDatsCol.setCellFactory(param -> new DropCell((sdrlist, files) -> {
+			for (int i = 0; i < files.size(); i++)
+				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			tvBatchToolsDat2DirDst.refresh();
+			saveDst();
+		}, false));
+		tvBatchToolsDat2DirDstDatsCol.setCellValueFactory(param -> new ObservableValueBase<>()
+		{
+			@Override
+			public String getValue()
+			{
+				return param.getValue().getSrc();
+			}
 		});
+		tvBatchToolsDat2DirDstDirsCol.setCellFactory(param -> new DropCell((sdrlist, files) -> {
+			for (int i = 0; i < files.size(); i++)
+				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			tvBatchToolsDat2DirDst.refresh();
+			saveDst();
+		}, true));
+		tvBatchToolsDat2DirDstDirsCol.setCellValueFactory(param -> new ObservableValueBase<>()
+		{
+			@Override
+			public String getValue()
+			{
+				return param.getValue().getDst();
+			}
+		});
+		tvBatchToolsDat2DirDstSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
+			final var sdr = tvBatchToolsDat2DirDst.getItems().get(param);
+			BooleanProperty observable = new SimpleBooleanProperty(sdr.isSelected());
+			observable.addListener((obs, wasSelected, isNowSelected) -> {
+				sdr.setSelected(isNowSelected);
+				saveDst();
+			});
+			return observable;
+		}));
+/*		new DragNDrop(tvBatchToolsDat2DirDst).addAny(any -> {
+		});*/
 	}
 
+	private class DropCell extends TableCell<SrcDstResult, String>
+	{
+		interface DropCellCallback
+		{
+			void call(List<SrcDstResult> sdrlist, List<File> files);
+		}
+		
+		DropCell(DropCellCallback cb, boolean dirOnly)
+		{
+			final SetFilesCallBack drop = files -> {
+				int dropidx = this.getIndex();
+				int count = tvBatchToolsDat2DirDst.getItems().size();
+				if (dropidx > count)
+					dropidx = count;
+				final var sdrlist = new ArrayList<SrcDstResult>(); 
+				for (int i = 0; i < files.size(); i++)
+				{
+					if(dropidx + i >= count)
+						tvBatchToolsDat2DirDst.getItems().add(new SrcDstResult());
+					sdrlist.add(tvBatchToolsDat2DirDst.getItems().get(dropidx + i));
+				}
+				cb.call(sdrlist, files);
+			};
+			if(dirOnly)
+				new DragNDrop(this).addDirs(drop);
+			else
+				new DragNDrop(this).addAny(drop);
+		}
+		
+		@Override
+		protected void updateItem(String item, boolean empty)
+		{
+			super.updateItem(item, empty);
+			setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
+			setText(empty?"":item);
+			setGraphic(null);
+		}
+	}
+	
+	private void saveDst()
+	{
+		session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(tvBatchToolsDat2DirDst.getItems()));
+	}
+	
 	private void saveSrc()
 	{
 		session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, String.join("|", tvBatchToolsDat2DirSrc.getItems().stream().map(File::getAbsolutePath).toList()));
