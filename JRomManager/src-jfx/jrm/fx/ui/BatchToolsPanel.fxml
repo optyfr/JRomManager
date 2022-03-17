@@ -6,7 +6,9 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -52,9 +54,21 @@
 										<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
 									</columnResizePolicy>
 									<contextMenu>
-										<ContextMenu>
+										<ContextMenu fx:id="popupMenuDst">
 											<items>
-												<MenuItem mnemonicParsing="false" text="Unspecified Action" />
+												<MenuItem mnemonicParsing="false" onAction="#onAddDst" text="%MainFrame.AddDat" />
+												<MenuItem fx:id="mnDat2DirDelDstDat" mnemonicParsing="false" onAction="#onDelDst" text="%MainFrame.DelDat" />
+												<Menu fx:id="mntmDat2DirDstPresets" text="%MainFrame.Presets">
+													<items>
+														<Menu text="%MainFrame.Dir2DatMenu">
+															<items>
+																<MenuItem mnemonicParsing="false" onAction="#onTZIPPresets" text="%MainFrame.TZIP" />
+																<MenuItem mnemonicParsing="false" onAction="#onDIRPresets" text="%MainFrame.DIR" />
+															</items>
+														</Menu>
+														<MenuItem mnemonicParsing="false" onAction="#onCustomPresets" text="%BatchToolsDirUpd8rPanel.mntmCustom.text" />
+													</items>
+												</Menu>
 											</items>
 										</ContextMenu>
 									</contextMenu>

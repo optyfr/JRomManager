@@ -668,7 +668,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		backupDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
 		srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir),'|')).filter(s->!s.isEmpty()).map(File::new).collect(Collectors.toList())));
 
-		scannerPanelSettingsController.initProfileSettings(session);
+		scannerPanelSettingsController.initProfileSettings(session.getCurrProfile().getSettings());
 		
 		chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class)); //$NON-NLS-1$
 		chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class)); //$NON-NLS-1$

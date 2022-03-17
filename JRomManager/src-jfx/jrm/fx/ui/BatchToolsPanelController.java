@@ -1,9 +1,9 @@
 package jrm.fx.ui;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
@@ -13,24 +13,36 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.OverrunStyle;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import jrm.aui.basic.SrcDstResult;
 import jrm.batch.CompressorFormat;
+import jrm.fx.ui.controls.DropCell;
 import jrm.fx.ui.misc.DragNDrop;
-import jrm.fx.ui.misc.DragNDrop.SetFilesCallBack;
 import jrm.io.torrent.options.TrntChkMode;
+import jrm.locale.Messages;
+import jrm.misc.ProfileSettings;
 import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 
@@ -61,7 +73,10 @@ public class BatchToolsPanelController extends BaseController
 	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstResultCol;
 	@FXML	TableColumn<SrcDstResult, SrcDstResult> tvBatchToolsDat2DirDstDetailsCol;
 	@FXML	TableColumn<SrcDstResult, Boolean> tvBatchToolsDat2DirDstSelCol;
-
+	@FXML	ContextMenu popupMenuDst;
+	@FXML	MenuItem mnDat2DirDelDstDat;
+	@FXML	Menu mntmDat2DirDstPresets;
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -129,7 +144,7 @@ public class BatchToolsPanelController extends BaseController
 			saveSrc();
 		}));
 		tvBatchToolsDat2DirDst.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr)));
-		tvBatchToolsDat2DirDstDatsCol.setCellFactory(param -> new DropCell((sdrlist, files) -> {
+		tvBatchToolsDat2DirDstDatsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
 			tvBatchToolsDat2DirDst.refresh();
@@ -143,7 +158,7 @@ public class BatchToolsPanelController extends BaseController
 				return param.getValue().getSrc();
 			}
 		});
-		tvBatchToolsDat2DirDstDirsCol.setCellFactory(param -> new DropCell((sdrlist, files) -> {
+		tvBatchToolsDat2DirDstDirsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
 			tvBatchToolsDat2DirDst.refresh();
@@ -166,49 +181,12 @@ public class BatchToolsPanelController extends BaseController
 			});
 			return observable;
 		}));
-/*		new DragNDrop(tvBatchToolsDat2DirDst).addAny(any -> {
-		});*/
+		popupMenuDst.setOnShowing(e -> {
+			mntmDat2DirDstPresets.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
+			mnDat2DirDelDstDat.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
+		});
 	}
 
-	private class DropCell extends TableCell<SrcDstResult, String>
-	{
-		interface DropCellCallback
-		{
-			void call(List<SrcDstResult> sdrlist, List<File> files);
-		}
-		
-		DropCell(DropCellCallback cb, boolean dirOnly)
-		{
-			final SetFilesCallBack drop = files -> {
-				int dropidx = this.getIndex();
-				int count = tvBatchToolsDat2DirDst.getItems().size();
-				if (dropidx > count)
-					dropidx = count;
-				final var sdrlist = new ArrayList<SrcDstResult>(); 
-				for (int i = 0; i < files.size(); i++)
-				{
-					if(dropidx + i >= count)
-						tvBatchToolsDat2DirDst.getItems().add(new SrcDstResult());
-					sdrlist.add(tvBatchToolsDat2DirDst.getItems().get(dropidx + i));
-				}
-				cb.call(sdrlist, files);
-			};
-			if(dirOnly)
-				new DragNDrop(this).addDirs(drop);
-			else
-				new DragNDrop(this).addAny(drop);
-		}
-		
-		@Override
-		protected void updateItem(String item, boolean empty)
-		{
-			super.updateItem(item, empty);
-			setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
-			setText(empty?"":item);
-			setGraphic(null);
-		}
-	}
-	
 	private void saveDst()
 	{
 		session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(tvBatchToolsDat2DirDst.getItems()));
@@ -219,4 +197,84 @@ public class BatchToolsPanelController extends BaseController
 		session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, String.join("|", tvBatchToolsDat2DirSrc.getItems().stream().map(File::getAbsolutePath).toList()));
 	}
 	
+	@FXML void onCustomPresets(ActionEvent e)
+	{
+		try
+		{
+			if(!tvBatchToolsDat2DirDst.getSelectionModel().isEmpty())
+				new CustomPresets((Stage)tvBatchToolsDat2DirDst.getScene().getWindow());
+		}
+		catch (IOException | URISyntaxException e1)
+		{
+			e1.printStackTrace();
+		}
+	}
+	
+	@FXML void onDelDst(ActionEvent e)
+	{
+		tvBatchToolsDat2DirDst.getItems().removeAll(tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems());
+		saveDst();
+	}
+	
+	@FXML void onAddDst(ActionEvent e)
+	{
+	}
+	
+	@FXML void onTZIPPresets(ActionEvent e)
+	{
+		for (final var sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
+			ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
+	}
+	
+	@FXML void onDIRPresets(ActionEvent e)
+	{
+		for (final var sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
+			ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
+	}
+	
+	public class CustomPresets extends Stage
+	{
+		ScannerPanelSettingsController controller;
+		
+		public CustomPresets(Stage parent) throws IOException, URISyntaxException
+		{
+			super();
+			initOwner(parent);
+			initModality(Modality.WINDOW_MODAL);
+			getIcons().add(parent.getIcons().get(0));
+			setOnShowing(e -> {
+			});
+			setOnCloseRequest(e -> {
+				hide();
+			});
+			final var loader = new FXMLLoader(getClass().getResource("ScannerPanelSettings.fxml").toURI().toURL(), Messages.getBundle());
+			final var settings = loader.<ScrollPane>load();
+			controller = loader.getController();
+			final var root = new BorderPane(settings);
+			final var cancel = new Button("Cancel");
+			cancel.setOnAction(e -> close());
+			final var ok = new Button("OK");
+			ok.setOnAction(e -> save());
+			final var bar = new HBox(cancel, ok);
+			bar.setPadding(new Insets(5));
+			bar.setSpacing(5);
+			bar.setAlignment(Pos.CENTER_RIGHT);
+			root.setBottom(bar);
+			setScene(new Scene(root, 600, 400));
+			sizeToScene();
+
+			SrcDstResult entry = tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems().get(0);
+			controller.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.getSrc()).toFile(), null));
+
+			show();
+		}
+		
+		private void save()
+		{
+			for (final var sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
+				session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile(), controller.getSettings());
+			close();
+		}
+
+	}
 }
