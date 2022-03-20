@@ -56,7 +56,9 @@
 									<contextMenu>
 										<ContextMenu fx:id="popupMenuDst">
 											<items>
-												<MenuItem mnemonicParsing="false" onAction="#onAddDst" text="%MainFrame.AddDat" />
+												<MenuItem mnemonicParsing="false" onAction="#onAddDstDat" text="%MainFrame.AddDat" />
+												<MenuItem mnemonicParsing="false" onAction="#onAddDstDatDir" text="%MainFrame.mntmAddDirectory.text" />
+												<MenuItem mnemonicParsing="false" onAction="#onAddDstDir" text="%MainFrame.mntmAddDstDir.text" />
 												<MenuItem fx:id="mnDat2DirDelDstDat" mnemonicParsing="false" onAction="#onDelDst" text="%MainFrame.DelDat" />
 												<Menu fx:id="mntmDat2DirDstPresets" text="%MainFrame.Presets">
 													<items>

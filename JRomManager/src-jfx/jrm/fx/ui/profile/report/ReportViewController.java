@@ -364,7 +364,7 @@ public class ReportViewController implements Initializable
 
 	}
 
-	@FXML private TreeView<Object> treeview;
+	@FXML protected TreeView<Object> treeview;
 	@FXML private ContextMenu menu;
 	@FXML private MenuItem openAllNodes;
 	@FXML private MenuItem closeAllNodes;

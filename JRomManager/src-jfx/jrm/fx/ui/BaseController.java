@@ -2,6 +2,7 @@ package jrm.fx.ui;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Control;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.security.Sessions;
@@ -36,28 +38,34 @@ abstract class BaseController implements Initializable
 			cb.call(PathAbstractor.getRelativePath(session, chosen.toPath()));
 	}
 
-	protected void chooseOpenFile(Control parent, String initialValue, File defdir, Callback cb)
+	protected void chooseOpenFile(Control parent, String initialValue, File defdir, Collection<ExtensionFilter> filters, Callback cb)
 	{
 		final var chooser = new FileChooser();
 		Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> chooser.setInitialDirectory(defdir));
+		if (filters != null)
+			chooser.getExtensionFilters().addAll(filters);
 		final var chosen = chooser.showOpenDialog(parent.getScene().getWindow());
 		if (chosen != null)
 			cb.call(PathAbstractor.getRelativePath(session, chosen.toPath()));
 	}
 
-	protected void chooseOpenFileMulti(Control parent, String initialValue, File defdir, CallbackMulti cb)
+	protected void chooseOpenFileMulti(Control parent, String initialValue, File defdir, Collection<ExtensionFilter> filters, CallbackMulti cb)
 	{
 		final var chooser = new FileChooser();
 		Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> chooser.setInitialDirectory(defdir));
+		if (filters != null)
+			chooser.getExtensionFilters().addAll(filters);
 		final var chosen = chooser.showOpenMultipleDialog(parent.getScene().getWindow());
 		if (chosen != null)
 			cb.call(chosen.stream().map(f -> PathAbstractor.getRelativePath(session, f.toPath())).toList());
 	}
 
-	protected void chooseSaveFile(Control parent, String initialValue, File defdir, Callback cb)
+	protected void chooseSaveFile(Control parent, String initialValue, File defdir, Collection<ExtensionFilter> filters, Callback cb)
 	{
 		final var chooser = new FileChooser();
 		Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> chooser.setInitialDirectory(defdir));
+		if (filters != null)
+			chooser.getExtensionFilters().addAll(filters);
 		final var chosen = chooser.showSaveDialog(parent.getScene().getWindow());
 		if (chosen != null)
 			cb.call(PathAbstractor.getRelativePath(session, chosen.toPath()));

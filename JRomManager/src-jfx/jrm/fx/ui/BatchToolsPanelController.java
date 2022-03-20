@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
@@ -34,10 +37,13 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jrm.aui.basic.SrcDstResult;
 import jrm.batch.CompressorFormat;
+import jrm.batch.DirUpdaterResults;
+import jrm.fx.ui.controls.ButtonCellFactory;
 import jrm.fx.ui.controls.DropCell;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.io.torrent.options.TrntChkMode;
@@ -149,7 +155,19 @@ public class BatchToolsPanelController extends BaseController
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
 			tvBatchToolsDat2DirDst.refresh();
 			saveDst();
-		}, false));
+		}, file -> {
+			if (Files.isRegularFile(file.toPath()))
+				return file.getName().endsWith(".xml") || file.getName().endsWith(".dat");
+			if (file.isDirectory())
+				try
+				{
+					return Files.list(file.toPath()).map(Path::toFile).anyMatch(f -> f.getName().endsWith(".xml") || f.getName().endsWith(".dat"));
+				}
+				catch (IOException e1)
+				{
+				}
+			return false;
+		}));
 		tvBatchToolsDat2DirDstDatsCol.setCellValueFactory(param -> new ObservableValueBase<>()
 		{
 			@Override
@@ -163,7 +181,7 @@ public class BatchToolsPanelController extends BaseController
 				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
 			tvBatchToolsDat2DirDst.refresh();
 			saveDst();
-		}, true));
+		}, File::isDirectory));
 		tvBatchToolsDat2DirDstDirsCol.setCellValueFactory(param -> new ObservableValueBase<>()
 		{
 			@Override
@@ -180,6 +198,18 @@ public class BatchToolsPanelController extends BaseController
 				saveDst();
 			});
 			return observable;
+		}));
+		tvBatchToolsDat2DirDstDetailsCol.setCellFactory(param -> new ButtonCellFactory<>("Detail", cell -> {
+			final var sdr = tvBatchToolsDat2DirDst.getItems().get(cell.getIndex());
+			final var results = DirUpdaterResults.load(session, new File(sdr.getSrc()));
+			try
+			{
+				new BatchDirUpd8rResults((Stage)tvBatchToolsDat2DirDst.getScene().getWindow(), results);
+			}
+			catch (URISyntaxException | IOException e1)
+			{
+				e1.printStackTrace();
+			}
 		}));
 		popupMenuDst.setOnShowing(e -> {
 			mntmDat2DirDstPresets.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
@@ -216,8 +246,40 @@ public class BatchToolsPanelController extends BaseController
 		saveDst();
 	}
 	
-	@FXML void onAddDst(ActionEvent e)
+	@FXML void onAddDstDat(ActionEvent e)
 	{
+		chooseOpenFileMulti(tvBatchToolsDat2DirDst, null, null, Arrays.asList(new FileChooser.ExtensionFilter("DAT files", "*.dat", "*.xml")), paths -> {
+			DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
+				for (int i = 0; i < files.size(); i++)
+					sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+				tvBatchToolsDat2DirDst.refresh();
+				saveDst();
+			});
+		});
+	}
+
+	@FXML void onAddDstDatDir(ActionEvent e)
+	{
+		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> {
+			DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
+				for (int i = 0; i < files.size(); i++)
+					sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+				tvBatchToolsDat2DirDst.refresh();
+				saveDst();
+			});
+		});
+	}
+	
+	@FXML void onAddDstDir(ActionEvent e)
+	{
+		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> {
+			DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
+				for (int i = 0; i < files.size(); i++)
+					sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+				tvBatchToolsDat2DirDst.refresh();
+				saveDst();
+			});
+		});
 	}
 	
 	@FXML void onTZIPPresets(ActionEvent e)

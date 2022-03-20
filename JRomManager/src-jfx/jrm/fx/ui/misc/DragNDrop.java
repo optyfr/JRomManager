@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.function.Predicate;
 
 import javafx.scene.control.Cell;
 import javafx.scene.control.Control;
@@ -33,19 +34,9 @@ public class DragNDrop
 		this.control = control;
 	}
 	
-	/**
-	 * The Interface SetCallBack.
-	 */
 	@FunctionalInterface
 	public interface SetCallBack
 	{
-
-		/**
-		 * Call.
-		 *
-		 * @param txt
-		 *            the txt
-		 */
 		public void call(String txt);
 	}
 	
@@ -56,114 +47,31 @@ public class DragNDrop
 
 	public void addFile(SetCallBack cb)
 	{
-		control.setOnDragOver(event -> {
-			if (event.getGestureSource() != control)
-			{
-				final var db = event.getDragboard();
-				if(db.hasFiles() && db.getFiles().size()==1 && Files.isRegularFile(db.getFiles().get(0).toPath()))
-				{
-					event.acceptTransferModes(TransferMode.COPY);
-					control.setStyle(STYLE_ACCEPT);
-					return;
-				}
-			}
-			control.setStyle(STYLE_REJECT);
-			event.consume();
-		});
-		
-		control.setOnDragExited(event -> control.setStyle(""));
-
-		control.setOnDragDropped(event -> {
-			final var db = event.getDragboard();
-			var success = false;
-			if (db.hasFiles() && db.getFiles().size()==1 && Files.isRegularFile(db.getFiles().get(0).toPath()))
-			{
-				if(control instanceof TextInputControl tic)
-					tic.setText(db.getFiles().get(0).toString());
-				cb.call(db.getFiles().get(0).toString());
-				success = true;
-			}
-			event.setDropCompleted(success);
-			event.consume();
-		});
-
+		addFiltered(f -> Files.isRegularFile(f.toPath()), cb);
 	}
 
 	public void addAny(SetFilesCallBack cb)
 	{
-		control.setOnDragOver(event -> {
-			if (event.getGestureSource() != control)
-			{
-				final var db = event.getDragboard();
-				if(db.hasFiles())
-				{
-					event.acceptTransferModes(TransferMode.COPY);
-					control.setStyle(STYLE_ACCEPT);
-					return;
-				}
-			}
-			control.setStyle(STYLE_REJECT);
-			event.consume();
-		});
-		
-		control.setOnDragExited(event -> control.setStyle(""));
-
-		control.setOnDragDropped(event -> {
-			final var db = event.getDragboard();
-			var success = false;
-			if (db.hasFiles())
-			{
-				cb.call(db.getFiles());
-				success = true;
-			}
-			event.setDropCompleted(success);
-			event.consume();
-		});
-
+		addFiltered(f -> true, cb);
 	}
 
 	public void addDir(SetCallBack cb)
 	{
-		control.setOnDragOver(event -> {
-			if (event.getGestureSource() != control)
-			{
-				final var db = event.getDragboard();
-				if(db.hasFiles() && db.getFiles().size()==1 && Files.isDirectory(db.getFiles().get(0).toPath()))
-				{
-					event.acceptTransferModes(TransferMode.COPY);
-					control.setStyle(STYLE_ACCEPT);
-					return;
-				}
-			}
-			control.setStyle(STYLE_REJECT);
-			event.consume();
-		});
-		
-		control.setOnDragExited(event -> control.setStyle(""));
-
-		control.setOnDragDropped(event -> {
-			final var db = event.getDragboard();
-			var success = false;
-			if (db.hasFiles() && db.getFiles().size()==1 && Files.isDirectory(db.getFiles().get(0).toPath()))
-			{
-				if(control instanceof TextInputControl tic)
-					tic.setText(db.getFiles().get(0).toString());
-				cb.call(db.getFiles().get(0).toString());
-				success = true;
-			}
-			event.setDropCompleted(success);
-			event.consume();
-		});
-
+		addFiltered(f -> Files.isDirectory(f.toPath()), cb);
 	}
 	
 	public void addDirs(SetFilesCallBack cb)
+	{
+		addFiltered(f -> Files.isDirectory(f.toPath()), cb);
+	}
+	
+	public void addFiltered(Predicate<File> filter, SetFilesCallBack cb)
 	{
 		control.setOnDragOver(event -> {
 			if (event.getGestureSource() != control)
 			{
 				final var db = event.getDragboard();
-				if(db.hasFiles() && db.getFiles().stream().filter(f -> !Files.isDirectory(f.toPath())).count()==0)
+				if(db.hasFiles() && db.getFiles().stream().filter(f -> !filter.test(f)).count()==0)
 				{
 					event.acceptTransferModes(TransferMode.COPY);
 					control.setStyle(STYLE_ACCEPT);
@@ -179,7 +87,7 @@ public class DragNDrop
 		control.setOnDragDropped(event -> {
 			final var db = event.getDragboard();
 			var success = false;
-			if(db.hasFiles() && db.getFiles().stream().filter(f -> !Files.isDirectory(f.toPath())).count()==0)
+			if(db.hasFiles() && db.getFiles().stream().filter(f -> !filter.test(f)).count()==0)
 			{
 				if(control instanceof ListView)
 				{
@@ -199,5 +107,38 @@ public class DragNDrop
 			event.consume();
 		});
 	}
-	
+
+	public void addFiltered(Predicate<File> filter, SetCallBack cb)
+	{
+		control.setOnDragOver(event -> {
+			if (event.getGestureSource() != control)
+			{
+				final var db = event.getDragboard();
+				if (db.hasFiles() && db.getFiles().size() == 1 && filter.test(db.getFiles().get(0)))
+				{
+					event.acceptTransferModes(TransferMode.COPY);
+					control.setStyle(STYLE_ACCEPT);
+					return;
+				}
+			}
+			control.setStyle(STYLE_REJECT);
+			event.consume();
+		});
+
+		control.setOnDragExited(event -> control.setStyle(""));
+
+		control.setOnDragDropped(event -> {
+			final var db = event.getDragboard();
+			var success = false;
+			if (db.hasFiles() && db.getFiles().size() == 1 && filter.test(db.getFiles().get(0)))
+			{
+				if (control instanceof TextInputControl tic)
+					tic.setText(db.getFiles().get(0).toString());
+				cb.call(db.getFiles().get(0).toString());
+				success = true;
+			}
+			event.setDropCompleted(success);
+			event.consume();
+		});
+	}
 }
