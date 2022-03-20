@@ -7,6 +7,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
@@ -33,26 +35,34 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jrm.aui.basic.ResultColUpdater;
 import jrm.aui.basic.SrcDstResult;
 import jrm.batch.CompressorFormat;
+import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
 import jrm.fx.ui.controls.ButtonCellFactory;
+import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.controls.DropCell;
 import jrm.fx.ui.misc.DragNDrop;
+import jrm.fx.ui.progress.ProgressTask;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
+import jrm.misc.BreakException;
+import jrm.misc.Log;
 import jrm.misc.ProfileSettings;
 import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 
-public class BatchToolsPanelController extends BaseController
+public class BatchToolsPanelController extends BaseController implements ResultColUpdater
 {
 	@FXML	Tab panelBatchToolsDat2Dir;
 	@FXML	Tab panelBatchToolsDir2Torrent;
@@ -82,6 +92,8 @@ public class BatchToolsPanelController extends BaseController
 	@FXML	ContextMenu popupMenuDst;
 	@FXML	MenuItem mnDat2DirDelDstDat;
 	@FXML	Menu mntmDat2DirDstPresets;
+	
+	private Font font = new Font(10);
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
@@ -122,6 +134,7 @@ public class BatchToolsPanelController extends BaseController
 			tvBatchToolsDat2DirSrc.getItems().addAll(dirs);
 			saveSrc();
 		});
+		tvBatchToolsDat2DirSrc.setFixedCellSize(18);
 		tvBatchToolsDat2DirSrc.getItems().setAll(Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|')).filter(s->!s.isBlank()).map(File::new).toList());
 		tvBatchToolsDat2DirSrcCol.setCellFactory(param -> new TableCell<File, File>()
 		{
@@ -129,6 +142,7 @@ public class BatchToolsPanelController extends BaseController
 			protected void updateItem(File item, boolean empty)
 			{
 				super.updateItem(item, empty);
+				setFont(font);
 				setText(empty?"":item.toString());
 			}
 		});
@@ -149,6 +163,7 @@ public class BatchToolsPanelController extends BaseController
 			tvBatchToolsDat2DirSrc.getItems().add(dir.toFile());
 			saveSrc();
 		}));
+		tvBatchToolsDat2DirDst.setFixedCellSize(18);
 		tvBatchToolsDat2DirDst.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr)));
 		tvBatchToolsDat2DirDstDatsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
@@ -190,6 +205,30 @@ public class BatchToolsPanelController extends BaseController
 				return param.getValue().getDst();
 			}
 		});
+		tvBatchToolsDat2DirDstResultCol.setCellFactory(param -> new TableCell<SrcDstResult, String>()
+		{
+			@Override
+			protected void updateItem(String item, boolean empty)
+			{
+				super.updateItem(item, empty);
+				setFont(font);
+				if(empty)
+					setText("");
+				else
+				{
+					setText(item);
+					setTooltip(new Tooltip(item));
+				}
+			}
+		});
+		tvBatchToolsDat2DirDstResultCol.setCellValueFactory(param -> new ObservableValueBase<>()
+		{
+			@Override
+			public String getValue()
+			{
+				return param.getValue().getResult();
+			}
+		});
 		tvBatchToolsDat2DirDstSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
 			final var sdr = tvBatchToolsDat2DirDst.getItems().get(param);
 			BooleanProperty observable = new SimpleBooleanProperty(sdr.isSelected());
@@ -214,6 +253,76 @@ public class BatchToolsPanelController extends BaseController
 		popupMenuDst.setOnShowing(e -> {
 			mntmDat2DirDstPresets.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
 			mnDat2DirDelDstDat.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
+		});
+		btnBatchToolsDir2DatStart.setOnAction(e -> {
+			
+			if (!tvBatchToolsDat2DirSrc.getItems().isEmpty())
+			{
+				final List<SrcDstResult> sdrl = tvBatchToolsDat2DirDst.getItems();
+				if (sdrl.stream().filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile()).exists()).count() > 0)
+					Dialogs.showAlert(Messages.getString("MainFrame.AllDatsPresetsAssigned"));
+				else
+				{
+					try
+					{
+						final var thread = new Thread(new ProgressTask<DirUpdater>((Stage)tvBatchToolsDat2DirDst.getScene().getWindow())
+						{
+	
+							@Override
+							protected DirUpdater call() throws Exception
+							{
+								final var srclist = tvBatchToolsDat2DirSrc.getItems().stream().map(f -> PathAbstractor.getAbsolutePath(session, f.toString()).toFile()).toList();
+								return new DirUpdater(session, sdrl, this, srclist, BatchToolsPanelController.this, cbBatchToolsDat2DirDryRun.isSelected());
+							}
+							
+							@Override
+							public void succeeded()
+							{
+								close();
+								session.setCurrProfile(null);
+								session.setCurrScan(null);
+								session.getReport().setProfile(session.getCurrProfile());
+								if (MainFrame.getProfileViewer() != null)
+								{
+									MainFrame.getProfileViewer().hide();
+									MainFrame.setProfileViewer(null);
+								}
+								if (MainFrame.getReportFrame() != null)
+									MainFrame.getReportFrame().hide();
+								MainFrame.getController().getTabPane().getTabs().get(1).setDisable(true);
+							}
+							
+							@Override
+							protected void failed()
+							{
+								if (getException() instanceof BreakException)
+									Dialogs.showAlert("Cancelled");
+								else
+								{
+									this.close();
+									Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
+										Log.err(cause.getMessage(), cause);
+										Dialogs.showError(cause);
+									}, () -> {
+										Log.err(getException().getMessage(), getException());
+										Dialogs.showError(getException());
+									});
+								}
+							}
+
+							
+						});
+						thread.setDaemon(true);
+						thread.start();
+					}
+					catch(URISyntaxException|IOException ex)
+					{
+						ex.printStackTrace();
+					}
+				}
+			}
+			else
+				Dialogs.showAlert(Messages.getString("MainFrame.AtLeastOneSrcDir"));
 		});
 	}
 
@@ -338,5 +447,20 @@ public class BatchToolsPanelController extends BaseController
 			close();
 		}
 
+	}
+
+	@Override
+	public void updateResult(int row, String result)
+	{
+		tvBatchToolsDat2DirDst.getItems().get(row).setResult(result);
+		tvBatchToolsDat2DirDst.refresh();
+	}
+
+	@Override
+	public void clearResults()
+	{
+		for(final var item : tvBatchToolsDat2DirDst.getItems())
+			item.setResult("");
+		tvBatchToolsDat2DirDst.refresh();
 	}
 }

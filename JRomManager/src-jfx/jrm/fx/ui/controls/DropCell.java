@@ -9,6 +9,7 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
+import javafx.scene.text.Font;
 import jrm.aui.basic.SrcDstResult;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.misc.DragNDrop.SetFilesCallBack;
@@ -23,6 +24,7 @@ public class DropCell extends TableCell<SrcDstResult, String>
 	public DropCell(TableView<SrcDstResult> view, DropCell.DropCellCallback cb, Predicate<File> filter)
 	{
 		final SetFilesCallBack drop = files -> process(view, getIndex(), files, cb);
+		setFont(new Font(10));
 		new DragNDrop(this).addFiltered(filter, drop);
 	}
 	
