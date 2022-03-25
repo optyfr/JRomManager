@@ -56,10 +56,10 @@
 									<contextMenu>
 										<ContextMenu fx:id="popupMenuDst">
 											<items>
-												<MenuItem mnemonicParsing="false" onAction="#onAddDstDat" text="%MainFrame.AddDat" />
-												<MenuItem mnemonicParsing="false" onAction="#onAddDstDatDir" text="%MainFrame.mntmAddDirectory.text" />
-												<MenuItem mnemonicParsing="false" onAction="#onAddDstDir" text="%MainFrame.mntmAddDstDir.text" />
-												<MenuItem fx:id="mnDat2DirDelDstDat" mnemonicParsing="false" onAction="#onDelDst" text="%MainFrame.DelDat" />
+												<MenuItem mnemonicParsing="false" onAction="#onAddDat2DirDstDat" text="%MainFrame.AddDat" />
+												<MenuItem mnemonicParsing="false" onAction="#onAddDat2DirDstDatDir" text="%MainFrame.mntmAddDirectory.text" />
+												<MenuItem mnemonicParsing="false" onAction="#onAddDat2DirDstDir" text="%MainFrame.mntmAddDstDir.text" />
+												<MenuItem fx:id="mnDat2DirDelDstDat" mnemonicParsing="false" onAction="#onDelDat2DirDst" text="%MainFrame.DelDat" />
 												<Menu fx:id="mntmDat2DirDstPresets" text="%MainFrame.Presets">
 													<items>
 														<Menu text="%MainFrame.Dir2DatMenu">
@@ -96,13 +96,13 @@
 			<content>
 				<BorderPane>
 					<center>
-						<TableView>
+						<TableView fx:id="tvBatchToolsTorrent">
 							<columns>
-								<TableColumn prefWidth="75.0" text="%MainFrame.TorrentFiles" />
-								<TableColumn prefWidth="75.0" text="%MainFrame.DstDirs" />
-								<TableColumn prefWidth="75.0" text="%MainFrame.Result" />
-								<TableColumn editable="false" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" sortable="false" text="Details" />
-								<TableColumn maxWidth="30.0" minWidth="30.0" prefWidth="30.0" resizable="false" text="S" />
+								<TableColumn fx:id="tvBatchToolsTorrentFilesCol" prefWidth="75.0" text="%MainFrame.TorrentFiles" />
+								<TableColumn fx:id="tvBatchToolsTorrentDstDirsCol" prefWidth="75.0" text="%MainFrame.DstDirs" />
+								<TableColumn fx:id="tvBatchToolsTorrentResultCol" prefWidth="75.0" text="%MainFrame.Result" />
+								<TableColumn fx:id="tvBatchToolsTorrentDetailsCol" editable="false" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" sortable="false" text="Details" />
+								<TableColumn fx:id="tvBatchToolsTorrentSelCol" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" resizable="false" text="S" />
 							</columns>
 							<columnResizePolicy>
 								<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
