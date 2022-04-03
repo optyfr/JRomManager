@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.aui.status.StatusRendererFactory;
@@ -269,8 +270,13 @@ public final class TrntChkReport implements Serializable, StatusRendererFactory,
 	 */
 	public List<Child> filter(final Set<FilterOptions> filterOptions)
 	{
+		return stream(filterOptions)/*.map(n -> n.clone())*/.collect(Collectors.toList());
+	}
+	
+	public Stream<Child> stream(final Set<FilterOptions> filterOptions)
+	{
 		filterPredicate = new FilterPredicate(filterOptions);
-		return nodes.stream().filter(filterPredicate)/*.map(n -> n.clone())*/.collect(Collectors.toList());
+		return nodes.stream().filter(filterPredicate);
 	}
 
 }

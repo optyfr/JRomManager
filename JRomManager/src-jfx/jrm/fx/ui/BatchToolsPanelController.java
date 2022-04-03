@@ -332,16 +332,16 @@ public class BatchToolsPanelController extends BaseController implements ResultC
 			return observable;
 		}));
 		tvBatchToolsTorrentDetailsCol.setCellFactory(param -> new ButtonCellFactory<>("Detail", cell -> {
-			final var sdr = tvBatchToolsDat2DirDst.getItems().get(cell.getIndex());
-			final var results = TrntChkReport.load(session, new File(sdr.getSrc()));
-/*			try
+			final var sdr = tvBatchToolsTorrent.getItems().get(cell.getIndex());
+			final var results = TrntChkReport.load(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
+			try
 			{
 				new BatchTorrentResults((Stage)tvBatchToolsTorrent.getScene().getWindow(), results);
 			}
 			catch (URISyntaxException | IOException e1)
 			{
 				e1.printStackTrace();
-			}*/
+			}
 		}));
 	}
 
