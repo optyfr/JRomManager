@@ -6,23 +6,37 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.MenuItem?>
 
 <BorderPane prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.BatchTorrentResultsController">
-   <center>
-      <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <content>
-            <TreeView fx:id="treeview" fixedCellSize="18.0" showRoot="false" />
-         </content>
-      </ScrollPane>
-   </center>
-   <bottom>
-      <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" minHeight="20.0" BorderPane.alignment="CENTER">
-         <children>
-            <Button mnemonicParsing="false" onAction="#onOK" text="OK" />
-         </children>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-      </HBox>
-   </bottom>
+	<center>
+		<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+			<content>
+				<TreeView fx:id="treeview" fixedCellSize="18.0" showRoot="false">
+					<contextMenu>
+						<ContextMenu fx:id="menu">
+							<items>
+								<MenuItem fx:id="openAllNodes" mnemonicParsing="false" onAction="#openAllNodes" text="%ReportFrame.mntmOpenAllNodes.text" />
+								<MenuItem fx:id="closeAllNodes" mnemonicParsing="false" onAction="#closeAllNodes" text="%ReportFrame.mntmCloseAllNodes.text" />
+								<CheckMenuItem fx:id="showok" mnemonicParsing="false" onAction="#showok" text="%ReportFrame.chckbxmntmShowOkEntries.text" />
+								<CheckMenuItem fx:id="hidemissing" mnemonicParsing="false" onAction="#hidemissing" text="%ReportFrame.chckbxmntmHideFullyMissing.text" />
+							</items>
+						</ContextMenu>
+					</contextMenu>
+				</TreeView>
+			</content>
+		</ScrollPane>
+	</center>
+	<bottom>
+		<HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" minHeight="20.0" BorderPane.alignment="CENTER">
+			<children>
+				<Button mnemonicParsing="false" onAction="#onOK" text="OK" />
+			</children>
+			<padding>
+				<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+			</padding>
+		</HBox>
+	</bottom>
 </BorderPane>

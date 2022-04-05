@@ -2,20 +2,15 @@ package jrm.fx.ui;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.EnumSet;
-import java.util.List;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jrm.batch.TrntChkReport;
-import jrm.batch.TrntChkReport.Child;
 import jrm.fx.ui.misc.Settings;
 import jrm.locale.Messages;
-import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
 import jrm.security.Sessions;
 
@@ -44,19 +39,10 @@ class BatchTorrentResults extends Stage
 		controller = loader.getController();
 
 		if (results != null)
-			controller.getTreeview().setRoot(buildTree(null, results.filter(EnumSet.noneOf(FilterOptions.class))));
+			controller.setResult(results);
 
 		setScene(new Scene(root));
 		sizeToScene();
 		show();
-	}
-	
-	private TreeItem<Child> buildTree(TreeItem<Child> parent, List<Child> children)
-	{
-		final var p = parent == null ? new TreeItem<Child>() : parent;
-		if (children != null)
-			for(final var c : children)
-				p.getChildren().add(buildTree(new TreeItem<>(c), c.getChildren()));
-		return p;
 	}
 }

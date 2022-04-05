@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -49,6 +50,8 @@ import jrm.aui.basic.SrcDstResult;
 import jrm.batch.CompressorFormat;
 import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
+import jrm.batch.TorrentChecker;
+import jrm.batch.TorrentChecker.Options;
 import jrm.batch.TrntChkReport;
 import jrm.fx.ui.controls.ButtonCellFactory;
 import jrm.fx.ui.controls.Dialogs;
@@ -63,7 +66,7 @@ import jrm.misc.ProfileSettings;
 import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 
-public class BatchToolsPanelController extends BaseController implements ResultColUpdater
+public class BatchToolsPanelController extends BaseController
 {
 	@FXML	Tab panelBatchToolsDat2Dir;
 	@FXML	Tab panelBatchToolsDir2Torrent;
@@ -343,6 +346,7 @@ public class BatchToolsPanelController extends BaseController implements ResultC
 				e1.printStackTrace();
 			}
 		}));
+		btnBatchToolsTrntChkStart.setOnAction(e -> startTorrent());
 	}
 
 	/**
@@ -359,7 +363,24 @@ public class BatchToolsPanelController extends BaseController implements ResultC
 			{
 				try
 				{
-					final var thread = new Thread(buildDir2DatTask(sdrl));
+					final var updater = new ResultColUpdater()
+					{
+						@Override
+						public void updateResult(int row, String result)
+						{
+							tvBatchToolsDat2DirDst.getItems().get(row).setResult(result);
+							tvBatchToolsDat2DirDst.refresh();
+						}
+
+						@Override
+						public void clearResults()
+						{
+							for(final var item : tvBatchToolsDat2DirDst.getItems())
+								item.setResult("");
+							tvBatchToolsDat2DirDst.refresh();
+						}
+					};
+					final var thread = new Thread(buildDir2DatTask(sdrl, updater));
 					thread.setDaemon(true);
 					thread.start();
 				}
@@ -374,12 +395,62 @@ public class BatchToolsPanelController extends BaseController implements ResultC
 	}
 
 	/**
+	 * 
+	 */
+	private void startTorrent()
+	{
+		if (!tvBatchToolsTorrent.getItems().isEmpty())
+		{
+			final List<SrcDstResult> sdrl = tvBatchToolsTorrent.getItems();
+
+			final TrntChkMode mode = cbbxBatchToolsTrntChk.getSelectionModel().getSelectedItem();
+			final ResultColUpdater updater = new ResultColUpdater()
+			{
+				@Override
+				public void updateResult(int row, String result)
+				{
+					tvBatchToolsTorrent.getItems().get(row).setResult(result);
+					tvBatchToolsTorrent.refresh();
+				}
+				
+				@Override
+				public void clearResults()
+				{
+					for(final var item : tvBatchToolsTorrent.getItems())
+						item.setResult("");
+					tvBatchToolsTorrent.refresh();
+				}
+			};
+			final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
+			if (cbBatchToolsTrntChkRemoveUnknownFiles.isSelected())
+				opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
+			if (cbBatchToolsTrntChkRemoveWrongSizedFiles.isSelected())
+				opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
+			if (cbBatchToolsTrntChkDetectArchivedFolder.isSelected())
+				opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
+
+			try
+			{
+				final var thread = new Thread(buildTorrentTask(sdrl, mode, updater, opts));
+				thread.setDaemon(true);
+				thread.start();
+			}
+			catch(URISyntaxException|IOException ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+		else
+			Dialogs.showAlert(Messages.getString("MainFrame.AtLeastOneSrcDir"));
+	}
+
+	/**
 	 * @param sdrl
 	 * @return
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	private ProgressTask<DirUpdater> buildDir2DatTask(final List<SrcDstResult> sdrl) throws IOException, URISyntaxException
+	private ProgressTask<DirUpdater> buildDir2DatTask(final List<SrcDstResult> sdrl, ResultColUpdater updater) throws IOException, URISyntaxException
 	{
 		return new ProgressTask<DirUpdater>((Stage)tvBatchToolsDat2DirDst.getScene().getWindow())
 		{
@@ -388,7 +459,63 @@ public class BatchToolsPanelController extends BaseController implements ResultC
 			protected DirUpdater call() throws Exception
 			{
 				final var srclist = tvBatchToolsDat2DirSrc.getItems().stream().map(f -> PathAbstractor.getAbsolutePath(session, f.toString()).toFile()).toList();
-				return new DirUpdater(session, sdrl, this, srclist, BatchToolsPanelController.this, cbBatchToolsDat2DirDryRun.isSelected());
+				return new DirUpdater(session, sdrl, this, srclist, updater, cbBatchToolsDat2DirDryRun.isSelected());
+			}
+			
+			@Override
+			public void succeeded()
+			{
+				close();
+				session.setCurrProfile(null);
+				session.setCurrScan(null);
+				session.getReport().setProfile(session.getCurrProfile());
+				if (MainFrame.getProfileViewer() != null)
+				{
+					MainFrame.getProfileViewer().hide();
+					MainFrame.setProfileViewer(null);
+				}
+				if (MainFrame.getReportFrame() != null)
+					MainFrame.getReportFrame().hide();
+				MainFrame.getController().getTabPane().getTabs().get(1).setDisable(true);
+			}
+			
+			@Override
+			protected void failed()
+			{
+				if (getException() instanceof BreakException)
+					Dialogs.showAlert("Cancelled");
+				else
+				{
+					this.close();
+					Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
+						Log.err(cause.getMessage(), cause);
+						Dialogs.showError(cause);
+					}, () -> {
+						Log.err(getException().getMessage(), getException());
+						Dialogs.showError(getException());
+					});
+				}
+			}
+
+			
+		};
+	}
+
+	/**
+	 * @param sdrl
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	private ProgressTask<TorrentChecker> buildTorrentTask(final List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater, EnumSet<Options> opts) throws IOException, URISyntaxException
+	{
+		return new ProgressTask<TorrentChecker>((Stage)tvBatchToolsDat2DirDst.getScene().getWindow())
+		{
+
+			@Override
+			protected TorrentChecker call() throws Exception
+			{
+				return new TorrentChecker(session, this, sdrl, mode, updater, opts);
 			}
 			
 			@Override
@@ -556,20 +683,5 @@ public class BatchToolsPanelController extends BaseController implements ResultC
 			close();
 		}
 
-	}
-
-	@Override
-	public void updateResult(int row, String result)
-	{
-		tvBatchToolsDat2DirDst.getItems().get(row).setResult(result);
-		tvBatchToolsDat2DirDst.refresh();
-	}
-
-	@Override
-	public void clearResults()
-	{
-		for(final var item : tvBatchToolsDat2DirDst.getItems())
-			item.setResult("");
-		tvBatchToolsDat2DirDst.refresh();
 	}
 }
