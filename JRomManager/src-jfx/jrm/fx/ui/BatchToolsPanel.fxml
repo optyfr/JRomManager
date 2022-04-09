@@ -107,13 +107,15 @@
 							<columnResizePolicy>
 								<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
 							</columnResizePolicy>
-							<contextMenu>
-								<ContextMenu>
-									<items>
-										<MenuItem mnemonicParsing="false" text="Unspecified Action" />
-									</items>
-								</ContextMenu>
-							</contextMenu>
+									<contextMenu>
+										<ContextMenu fx:id="popupMenuTorrent">
+											<items>
+												<MenuItem mnemonicParsing="false" onAction="#onAddTorrent" text="%BatchToolsTrrntChkPanel.mntmAddTorrent.text" />
+												<MenuItem mnemonicParsing="false" onAction="#onAddTorrentDstDir" text="%MainFrame.mntmAddDstDir.text" />
+												<MenuItem fx:id="mnDelTorrent" mnemonicParsing="false" onAction="#onDelTorrent" text="%BatchToolsTrrntChkPanel.mntmDelTorrent.text" />
+											</items>
+										</ContextMenu>
+									</contextMenu>
 						</TableView>
 					</center>
 					<bottom>

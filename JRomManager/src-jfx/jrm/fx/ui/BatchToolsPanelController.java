@@ -102,6 +102,8 @@ public class BatchToolsPanelController extends BaseController
 	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsTorrentResultCol;
 	@FXML	TableColumn<SrcDstResult, SrcDstResult> tvBatchToolsTorrentDetailsCol;
 	@FXML	TableColumn<SrcDstResult, Boolean> tvBatchToolsTorrentSelCol;
+	@FXML	ContextMenu popupMenuTorrent;
+	@FXML	MenuItem mnDelTorrent;
 	
 	private Font font = new Font(10);
 	
@@ -347,6 +349,9 @@ public class BatchToolsPanelController extends BaseController
 			}
 		}));
 		btnBatchToolsTrntChkStart.setOnAction(e -> startTorrent());
+		popupMenuTorrent.setOnShowing(e -> {
+			mnDelTorrent.setDisable(tvBatchToolsTorrent.getSelectionModel().isEmpty());
+		});
 	}
 
 	/**
@@ -637,6 +642,36 @@ public class BatchToolsPanelController extends BaseController
 	{
 		for (final var sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
 			ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
+	}
+	
+	@FXML void onAddTorrent(ActionEvent e)
+	{
+		chooseOpenFileMulti(tvBatchToolsTorrent, null, null, Arrays.asList(new FileChooser.ExtensionFilter("Torrent files", "*.torrent")), paths -> {
+			DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
+				for (int i = 0; i < files.size(); i++)
+					sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+				tvBatchToolsTorrent.refresh();
+				saveTorrentDst();
+			});
+		});
+	}
+	
+	@FXML void onAddTorrentDstDir(ActionEvent e)
+	{
+		chooseDir(tvBatchToolsTorrent, null, null, path -> {
+			DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
+				for (int i = 0; i < files.size(); i++)
+					sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+				tvBatchToolsTorrent.refresh();
+				saveTorrentDst();
+			});
+		});
+	}
+	
+	@FXML void onDelTorrent(ActionEvent e)
+	{
+		tvBatchToolsTorrent.getItems().removeAll(tvBatchToolsTorrent.getSelectionModel().getSelectedItems());
+		saveTorrentDst();
 	}
 	
 	public class CustomPresets extends Stage
