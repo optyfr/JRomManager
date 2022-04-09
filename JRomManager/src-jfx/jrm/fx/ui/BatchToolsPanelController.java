@@ -8,11 +8,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javafx.beans.property.BooleanProperty;
@@ -47,6 +50,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jrm.aui.basic.ResultColUpdater;
 import jrm.aui.basic.SrcDstResult;
+import jrm.batch.Compressor;
 import jrm.batch.CompressorFormat;
 import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
@@ -57,168 +61,98 @@ import jrm.fx.ui.controls.ButtonCellFactory;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.controls.DropCell;
 import jrm.fx.ui.misc.DragNDrop;
+import jrm.fx.ui.misc.FileResult;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.MultiThreading;
 import jrm.misc.ProfileSettings;
 import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 
 public class BatchToolsPanelController extends BaseController
 {
-	@FXML	Tab panelBatchToolsDat2Dir;
-	@FXML	Tab panelBatchToolsDir2Torrent;
-	@FXML	Tab panelBatchToolsCompressor;
-	@FXML	Button btnBatchToolsDir2DatStart;
-	@FXML	Button btnBatchToolsTrntChkStart;
-	@FXML	Button btnBatchToolsCompressorStart;
-	@FXML	Button btnBatchToolsCompressorClear;
-	@FXML	ChoiceBox<TrntChkMode> cbbxBatchToolsTrntChk;
-	@FXML	ChoiceBox<CompressorFormat> cbbxBatchToolsCompressorFormat;
-	@FXML	CheckBox cbBatchToolsDat2DirDryRun;
-	@FXML	CheckBox cbBatchToolsTrntChkDetectArchivedFolder;
-	@FXML	CheckBox cbBatchToolsTrntChkRemoveUnknownFiles;
-	@FXML	CheckBox cbBatchToolsTrntChkRemoveWrongSizedFiles;
-	@FXML	CheckBox cbBatchToolsCompressorForce;
-	@FXML	TableView<File> tvBatchToolsDat2DirSrc;
-	@FXML	TableColumn<File, File> tvBatchToolsDat2DirSrcCol;
-	@FXML	ContextMenu popupMenuSrc;
-	@FXML	MenuItem mnDat2DirAddSrcDir;
-	@FXML	MenuItem mnDat2DirDelSrcDir;
-	@FXML	TableView<SrcDstResult> tvBatchToolsDat2DirDst;
-	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstDatsCol;
-	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstDirsCol;
-	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstResultCol;
-	@FXML	TableColumn<SrcDstResult, SrcDstResult> tvBatchToolsDat2DirDstDetailsCol;
-	@FXML	TableColumn<SrcDstResult, Boolean> tvBatchToolsDat2DirDstSelCol;
-	@FXML	ContextMenu popupMenuDst;
-	@FXML	MenuItem mnDat2DirDelDstDat;
-	@FXML	Menu mntmDat2DirDstPresets;
-	@FXML	TableView<SrcDstResult> tvBatchToolsTorrent;
-	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsTorrentFilesCol;
-	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsTorrentDstDirsCol;
-	@FXML	TableColumn<SrcDstResult, String> tvBatchToolsTorrentResultCol;
-	@FXML	TableColumn<SrcDstResult, SrcDstResult> tvBatchToolsTorrentDetailsCol;
-	@FXML	TableColumn<SrcDstResult, Boolean> tvBatchToolsTorrentSelCol;
-	@FXML	ContextMenu popupMenuTorrent;
-	@FXML	MenuItem mnDelTorrent;
+	private static final String ICON_BULLET_GO = "/jrm/resicons/icons/bullet_go.png";
+	
+	@FXML private Tab panelBatchToolsDat2Dir;
+	@FXML private Tab panelBatchToolsDir2Torrent;
+	@FXML private Tab panelBatchToolsCompressor;
+	@FXML private Button btnBatchToolsDir2DatStart;
+	@FXML private Button btnBatchToolsTrntChkStart;
+	@FXML private Button btnBatchToolsCompressorStart;
+	@FXML private Button btnBatchToolsCompressorClear;
+	@FXML private ChoiceBox<TrntChkMode> cbbxBatchToolsTrntChk;
+	@FXML private ChoiceBox<CompressorFormat> cbbxBatchToolsCompressorFormat;
+	@FXML private CheckBox cbBatchToolsDat2DirDryRun;
+	@FXML private CheckBox cbBatchToolsTrntChkDetectArchivedFolder;
+	@FXML private CheckBox cbBatchToolsTrntChkRemoveUnknownFiles;
+	@FXML private CheckBox cbBatchToolsTrntChkRemoveWrongSizedFiles;
+	@FXML private CheckBox cbBatchToolsCompressorForce;
+	@FXML private TableView<File> tvBatchToolsDat2DirSrc;
+	@FXML private TableColumn<File, File> tvBatchToolsDat2DirSrcCol;
+	@FXML private ContextMenu popupMenuSrc;
+	@FXML private MenuItem mnDat2DirAddSrcDir;
+	@FXML private MenuItem mnDat2DirDelSrcDir;
+	@FXML private TableView<SrcDstResult> tvBatchToolsDat2DirDst;
+	@FXML private TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstDatsCol;
+	@FXML private TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstDirsCol;
+	@FXML private TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstResultCol;
+	@FXML private TableColumn<SrcDstResult, SrcDstResult> tvBatchToolsDat2DirDstDetailsCol;
+	@FXML private TableColumn<SrcDstResult, Boolean> tvBatchToolsDat2DirDstSelCol;
+	@FXML private ContextMenu popupMenuDst;
+	@FXML private MenuItem mnDat2DirDelDstDat;
+	@FXML private Menu mntmDat2DirDstPresets;
+	@FXML private TableView<SrcDstResult> tvBatchToolsTorrent;
+	@FXML private TableColumn<SrcDstResult, String> tvBatchToolsTorrentFilesCol;
+	@FXML private TableColumn<SrcDstResult, String> tvBatchToolsTorrentDstDirsCol;
+	@FXML private TableColumn<SrcDstResult, String> tvBatchToolsTorrentResultCol;
+	@FXML private TableColumn<SrcDstResult, SrcDstResult> tvBatchToolsTorrentDetailsCol;
+	@FXML private TableColumn<SrcDstResult, Boolean> tvBatchToolsTorrentSelCol;
+	@FXML private ContextMenu popupMenuTorrent;
+	@FXML private MenuItem mnDelTorrent;
+	
+	@FXML private TableView<FileResult> tvBatchToolsCompressor;
+	@FXML private TableColumn<FileResult, Path> tvBatchToolsCompressorFileCol;
+	@FXML private TableColumn<FileResult, String> tvBatchToolsCompressorStatusCol;
 	
 	private Font font = new Font(10);
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		panelBatchToolsDat2Dir.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_cascade.png")));
-		panelBatchToolsDir2Torrent.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_web.png")));
+		initDat2Dir();
+		initTorrent();
+		initCompressor();
+	}
+	
+	/**
+	 * 
+	 */
+	private void initCompressor()
+	{
 		panelBatchToolsCompressor.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png")));
-		btnBatchToolsDir2DatStart.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_go.png")));
-		btnBatchToolsTrntChkStart.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_go.png")));
-		btnBatchToolsCompressorStart.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_go.png")));
-		btnBatchToolsCompressorClear.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bin.png")));
-		cbbxBatchToolsTrntChk.setItems(FXCollections.observableArrayList(TrntChkMode.values()));
-		cbbxBatchToolsTrntChk.getSelectionModel().select(TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode)));
-		cbbxBatchToolsTrntChk.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			session.getUser().getSettings().setProperty(SettingsEnum.trntchk_mode, newValue.toString());
-			// cbRemoveWrongSizedFiles.setEnabled(newValue != TrntChkMode.FILENAME);
-		});
-		cbbxBatchToolsCompressorFormat.setItems(FXCollections.observableArrayList(CompressorFormat.values()));
-		cbbxBatchToolsCompressorFormat.getSelectionModel().select(CompressorFormat.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_format))); // $NON-NLS-1$
-		cbbxBatchToolsCompressorFormat.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.compressor_format, newValue.toString()));
 
-		cbBatchToolsDat2DirDryRun.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, Boolean.class));
-		cbBatchToolsDat2DirDryRun.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, newValue));
-
-		cbBatchToolsTrntChkDetectArchivedFolder.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, Boolean.class));
-		cbBatchToolsTrntChkDetectArchivedFolder.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_detect_archived_folders, newValue));
-
-		cbBatchToolsTrntChkRemoveWrongSizedFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, Boolean.class));
-		cbBatchToolsTrntChkRemoveWrongSizedFiles.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_wrong_sized_files, newValue));
-
-		cbBatchToolsTrntChkRemoveUnknownFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, Boolean.class));
-		cbBatchToolsTrntChkRemoveUnknownFiles.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_unknown_files, newValue));
-
-		cbBatchToolsCompressorForce.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, Boolean.class));
-		cbBatchToolsCompressorForce.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.compressor_force, newValue));
-
-		new DragNDrop(tvBatchToolsDat2DirSrc).addDirs(dirs -> {
-			tvBatchToolsDat2DirSrc.getItems().addAll(dirs);
-			saveDat2DirSrc();
-		});
-		tvBatchToolsDat2DirSrc.setFixedCellSize(18);
-		tvBatchToolsDat2DirSrc.getItems().setAll(Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|')).filter(s->!s.isBlank()).map(File::new).toList());
-		tvBatchToolsDat2DirSrcCol.setCellFactory(param -> new TableCell<File, File>()
+		new DragNDrop(tvBatchToolsCompressor).addAny(this::addFilesToCompressorList);
+		tvBatchToolsCompressorFileCol.setCellFactory(param -> new TableCell<FileResult, Path>()
 		{
 			@Override
-			protected void updateItem(File item, boolean empty)
+			protected void updateItem(Path item, boolean empty)
 			{
 				super.updateItem(item, empty);
 				setFont(font);
-				setText(empty?"":item.toString());
-			}
-		});
-		tvBatchToolsDat2DirSrcCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public File getValue()
-			{
-				return param.getValue();
-			}
-		});
-		popupMenuSrc.setOnShowing(e -> mnDat2DirDelSrcDir.setDisable(tvBatchToolsDat2DirSrc.getSelectionModel().isEmpty()));
-		mnDat2DirDelSrcDir.setOnAction(e -> {
-			tvBatchToolsDat2DirSrc.getItems().removeAll(tvBatchToolsDat2DirSrc.getSelectionModel().getSelectedItems());
-			saveDat2DirSrc();
-		});
-		mnDat2DirAddSrcDir.setOnAction(e -> chooseDir(tvBatchToolsDat2DirSrc, null, null, dir -> {
-			tvBatchToolsDat2DirSrc.getItems().add(dir.toFile());
-			saveDat2DirSrc();
-		}));
-		tvBatchToolsDat2DirDst.setFixedCellSize(18);
-		tvBatchToolsDat2DirDst.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr)));
-		tvBatchToolsDat2DirDstDatsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
-			for (int i = 0; i < files.size(); i++)
-				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsDat2DirDst.refresh();
-			saveDat2DirDst();
-		}, file -> {
-			if (Files.isRegularFile(file.toPath()))
-				return file.getName().endsWith(".xml") || file.getName().endsWith(".dat");
-			if (file.isDirectory())
-				try
+				if(empty)
+					setText("");
+				else
 				{
-					return Files.list(file.toPath()).map(Path::toFile).anyMatch(f -> f.getName().endsWith(".xml") || f.getName().endsWith(".dat"));
+					setText(item.toString());
+					setTooltip(new Tooltip(getText()));
 				}
-				catch (IOException e1)
-				{
-					// do nothing
-				}
-			return false;
-		}));
-		tvBatchToolsDat2DirDstDatsCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public String getValue()
-			{
-				return param.getValue().getSrc();
 			}
 		});
-		tvBatchToolsDat2DirDstDirsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
-			for (int i = 0; i < files.size(); i++)
-				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsDat2DirDst.refresh();
-			saveDat2DirDst();
-		}, File::isDirectory));
-		tvBatchToolsDat2DirDstDirsCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public String getValue()
-			{
-				return param.getValue().getDst();
-			}
-		});
-		tvBatchToolsDat2DirDstResultCol.setCellFactory(param -> new TableCell<SrcDstResult, String>()
+		tvBatchToolsCompressorFileCol.setCellValueFactory(param -> param.getValue().fileProperty());
+		tvBatchToolsCompressorStatusCol.setCellFactory(param -> new TableCell<FileResult, String>()
 		{
 			@Override
 			protected void updateItem(String item, boolean empty)
@@ -234,41 +168,243 @@ public class BatchToolsPanelController extends BaseController
 				}
 			}
 		});
-		tvBatchToolsDat2DirDstResultCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public String getValue()
-			{
-				return param.getValue().getResult();
-			}
-		});
-		tvBatchToolsDat2DirDstSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
-			final var sdr = tvBatchToolsDat2DirDst.getItems().get(param);
-			BooleanProperty observable = new SimpleBooleanProperty(sdr.isSelected());
-			observable.addListener((obs, wasSelected, isNowSelected) -> {
-				sdr.setSelected(isNowSelected);
-				saveDat2DirDst();
-			});
-			return observable;
-		}));
-		tvBatchToolsDat2DirDstDetailsCol.setCellFactory(param -> new ButtonCellFactory<>("Detail", cell -> {
-			final var sdr = tvBatchToolsDat2DirDst.getItems().get(cell.getIndex());
-			final var results = DirUpdaterResults.load(session, new File(sdr.getSrc()));
+		tvBatchToolsCompressorStatusCol.setCellValueFactory(param -> param.getValue().resultProperty());
+		
+		cbbxBatchToolsCompressorFormat.setItems(FXCollections.observableArrayList(CompressorFormat.values()));
+		cbbxBatchToolsCompressorFormat.getSelectionModel().select(CompressorFormat.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_format))); // $NON-NLS-1$
+		cbbxBatchToolsCompressorFormat.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.compressor_format, newValue.toString()));
+
+		cbBatchToolsCompressorForce.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, Boolean.class));
+		cbBatchToolsCompressorForce.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.compressor_force, newValue));
+
+		btnBatchToolsCompressorClear.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bin.png")));
+		
+		btnBatchToolsCompressorStart.setGraphic(new ImageView(MainFrame.getIcon(ICON_BULLET_GO)));
+		btnBatchToolsCompressorStart.setOnAction(e -> {
 			try
 			{
-				new BatchDirUpd8rResults((Stage)tvBatchToolsDat2DirDst.getScene().getWindow(), results);
+				final var thread = new Thread(startCompression());
+				thread.setDaemon(true);
+				thread.start();
 			}
-			catch (URISyntaxException | IOException e1)
+			catch (IOException | URISyntaxException e1)
 			{
 				e1.printStackTrace();
-			}
-		}));
-		popupMenuDst.setOnShowing(e -> {
-			mntmDat2DirDstPresets.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
-			mnDat2DirDelDstDat.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
+			}			
 		});
-		btnBatchToolsDir2DatStart.setOnAction(e -> startDir2Dat());
+	}
 
+	/**
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	private ProgressTask<Void> startCompression() throws IOException, URISyntaxException
+	{
+		return new ProgressTask<Void>((Stage)btnBatchToolsCompressorStart.getScene().getWindow())
+		{
+
+			@Override
+			protected Void call() throws Exception
+			{
+				final var cnt = new AtomicInteger();
+				final var compressor = new Compressor(session, cnt, tvBatchToolsCompressor.getItems().size(), this);
+				final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, Boolean.class);
+				final var nThreads = Boolean.TRUE.equals(use_parallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
+
+				setInfos(nThreads <= 0 ? Runtime.getRuntime().availableProcessors() : nThreads, true);
+				tvBatchToolsCompressor.getItems().forEach(fr -> fr.setResult(""));
+
+				new MultiThreading<FileResult>(nThreads, fr -> {
+					if (isCancel())
+						return;
+					compress(cnt, compressor, fr);
+				}).start(tvBatchToolsCompressor.getItems().stream());
+				return null;
+			}
+			
+			@Override
+			public void succeeded()
+			{
+				close();
+			}
+			
+			@Override
+			protected void failed()
+			{
+				if (getException() instanceof BreakException)
+					Dialogs.showAlert("Cancelled");
+				else
+				{
+					this.close();
+					Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
+						Log.err(cause.getMessage(), cause);
+						Dialogs.showError(cause);
+					}, () -> {
+						Log.err(getException().getMessage(), getException());
+						Dialogs.showError(getException());
+					});
+				}
+			}
+		};
+	}
+
+	/**
+	 * @param cnt
+	 * @param compressor
+	 * @param fr
+	 * @throws IllegalArgumentException
+	 */
+	private void compress(final AtomicInteger cnt, final Compressor compressor, FileResult fr) throws IllegalArgumentException
+	{
+		var file = fr.getFile().toFile();
+		cnt.incrementAndGet();
+		Compressor.UpdResultCallBack cb = fr::setResult;
+		Compressor.UpdSrcCallBack scb = src -> fr.setFile(src.toPath());
+		switch (cbbxBatchToolsCompressorFormat.getSelectionModel().getSelectedItem())
+		{
+			case SEVENZIP:
+			{
+				toSevenZip(compressor, file, cb, scb);
+				break;
+			}
+			case ZIP:
+			{
+				toZip(compressor, file, cb, scb);
+				break;
+			}
+			case TZIP:
+			{
+				toTZip(compressor, file, cb, scb);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * @param compressor
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @throws IllegalArgumentException
+	 */
+	private void toSevenZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
+	{
+		switch (FilenameUtils.getExtension(file.getName()))
+		{
+			case "zip":
+				compressor.zip2SevenZip(file, cb, scb);
+				break;
+			case "7z":
+				if (cbBatchToolsCompressorForce.isSelected())
+					compressor.sevenZip2SevenZip(file, cb, scb);
+				else
+					cb.apply("Skipped");
+				break;
+			default:
+				compressor.sevenZip2SevenZip(file, cb, scb);
+				break;
+		}
+	}
+
+
+	/**
+	 * @param compressor
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @throws IllegalArgumentException
+	 */
+	private void toZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
+	{
+		if("zip".equals(FilenameUtils.getExtension(file.getName())))
+		{
+			if (cbBatchToolsCompressorForce.isSelected())
+				compressor.zip2Zip(file, cb, scb);
+			else
+				cb.apply("Skipped");
+		}
+		else
+			compressor.sevenZip2Zip(file, false, cb, scb);
+	}
+
+
+	/**
+	 * @param compressor
+	 * @param file
+	 * @param cb
+	 * @param scb
+	 * @throws IllegalArgumentException
+	 */
+	private void toTZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException
+	{
+		if("zip".equals(FilenameUtils.getExtension(file.getName())))
+			compressor.zip2TZip(file, cbBatchToolsCompressorForce.isSelected(), cb);
+		else
+		{
+			file = compressor.sevenZip2Zip(file, true, cb, scb);
+			if (file != null && file.exists())
+				compressor.zip2TZip(file, cbBatchToolsCompressorForce.isSelected(), cb);
+		}
+	}
+
+
+	
+	/**
+	 * @param files
+	 */
+	private void addFilesToCompressorList(List<File> files)
+	{
+		final var extensions = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
+		final var set = new LinkedHashSet<>(tvBatchToolsCompressor.getItems());
+		final var ffiles = files.stream().flatMap(f -> {
+			try
+			{
+				return f.isDirectory() ? Files.find(f.toPath(), Integer.MAX_VALUE, (p, attr) -> attr.isRegularFile() && FilenameUtils.isExtension(p.getFileName().toString(), extensions)) : Stream.of(f.toPath());
+			}
+			catch (IOException e)
+			{
+				return null;
+			}
+		}).map(FileResult::new).toList();
+		set.addAll(ffiles);
+		tvBatchToolsCompressor.setItems(FXCollections.observableArrayList(set));
+	}
+
+	/**
+	 * 
+	 */
+	private void initTorrent()
+	{
+		panelBatchToolsDir2Torrent.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_web.png")));
+		
+		initTorrentList();
+
+		cbbxBatchToolsTrntChk.setItems(FXCollections.observableArrayList(TrntChkMode.values()));
+		cbbxBatchToolsTrntChk.getSelectionModel().select(TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode)));
+		cbbxBatchToolsTrntChk.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			session.getUser().getSettings().setProperty(SettingsEnum.trntchk_mode, newValue.toString());
+			cbBatchToolsTrntChkRemoveWrongSizedFiles.setDisable(newValue == TrntChkMode.FILENAME);
+		});
+		
+		cbBatchToolsTrntChkDetectArchivedFolder.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, Boolean.class));
+		cbBatchToolsTrntChkDetectArchivedFolder.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_detect_archived_folders, newValue));
+
+		cbBatchToolsTrntChkRemoveWrongSizedFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, Boolean.class));
+		cbBatchToolsTrntChkRemoveWrongSizedFiles.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_wrong_sized_files, newValue));
+
+		cbBatchToolsTrntChkRemoveUnknownFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, Boolean.class));
+		cbBatchToolsTrntChkRemoveUnknownFiles.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_unknown_files, newValue));
+
+		btnBatchToolsTrntChkStart.setOnAction(e -> startTorrent());
+		btnBatchToolsTrntChkStart.setGraphic(new ImageView(MainFrame.getIcon(ICON_BULLET_GO)));
+}
+
+	/**
+	 * 
+	 */
+	private void initTorrentList()
+	{
 		tvBatchToolsTorrent.setFixedCellSize(18);
 		tvBatchToolsTorrent.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr)));
 		tvBatchToolsTorrentFilesCol.setCellFactory(param -> new DropCell(tvBatchToolsTorrent, (sdrlist, files) -> {
@@ -348,10 +484,168 @@ public class BatchToolsPanelController extends BaseController
 				e1.printStackTrace();
 			}
 		}));
-		btnBatchToolsTrntChkStart.setOnAction(e -> startTorrent());
-		popupMenuTorrent.setOnShowing(e -> {
-			mnDelTorrent.setDisable(tvBatchToolsTorrent.getSelectionModel().isEmpty());
+		popupMenuTorrent.setOnShowing(e -> 	mnDelTorrent.setDisable(tvBatchToolsTorrent.getSelectionModel().isEmpty()));
+	}
+
+	/**
+	 * 
+	 */
+	private void initDat2Dir()
+	{
+		panelBatchToolsDat2Dir.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_cascade.png")));
+		initDat2DirSrc();
+		initDat2DirDst();
+		cbBatchToolsDat2DirDryRun.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, Boolean.class));
+		cbBatchToolsDat2DirDryRun.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, newValue));
+		btnBatchToolsDir2DatStart.setGraphic(new ImageView(MainFrame.getIcon(ICON_BULLET_GO)));
+		btnBatchToolsDir2DatStart.setOnAction(e -> startDir2Dat());
+	}
+
+	/**
+	 * 
+	 */
+	private void initDat2DirDst()
+	{
+		tvBatchToolsDat2DirDst.setFixedCellSize(18);
+		tvBatchToolsDat2DirDst.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr)));
+		tvBatchToolsDat2DirDstDatsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
+			for (int i = 0; i < files.size(); i++)
+				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			tvBatchToolsDat2DirDst.refresh();
+			saveDat2DirDst();
+		}, file -> {
+			if (Files.isRegularFile(file.toPath()))
+				return file.getName().endsWith(".xml") || file.getName().endsWith(".dat");
+			if (file.isDirectory())
+				try
+				{
+					return Files.list(file.toPath()).map(Path::toFile).anyMatch(f -> f.getName().endsWith(".xml") || f.getName().endsWith(".dat"));
+				}
+				catch (IOException e1)
+				{
+					// do nothing
+				}
+			return false;
+		}));
+		tvBatchToolsDat2DirDstDatsCol.setCellValueFactory(param -> new ObservableValueBase<>()
+		{
+			@Override
+			public String getValue()
+			{
+				return param.getValue().getSrc();
+			}
 		});
+		tvBatchToolsDat2DirDstDirsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
+			for (int i = 0; i < files.size(); i++)
+				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			tvBatchToolsDat2DirDst.refresh();
+			saveDat2DirDst();
+		}, File::isDirectory));
+		tvBatchToolsDat2DirDstDirsCol.setCellValueFactory(param -> new ObservableValueBase<>()
+		{
+			@Override
+			public String getValue()
+			{
+				return param.getValue().getDst();
+			}
+		});
+		tvBatchToolsDat2DirDstResultCol.setCellFactory(param -> new TableCell<SrcDstResult, String>()
+		{
+			@Override
+			protected void updateItem(String item, boolean empty)
+			{
+				super.updateItem(item, empty);
+				setFont(font);
+				if(empty)
+					setText("");
+				else
+				{
+					setText(item);
+					setTooltip(new Tooltip(item));
+				}
+			}
+		});
+		tvBatchToolsDat2DirDstResultCol.setCellValueFactory(param -> new ObservableValueBase<>()
+		{
+			@Override
+			public String getValue()
+			{
+				return param.getValue().getResult();
+			}
+		});
+		tvBatchToolsDat2DirDstDetailsCol.setCellFactory(param -> getDat2DirDetailButtonCellFactory());
+		tvBatchToolsDat2DirDstSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
+			final var sdr = tvBatchToolsDat2DirDst.getItems().get(param);
+			BooleanProperty observable = new SimpleBooleanProperty(sdr.isSelected());
+			observable.addListener((obs, wasSelected, isNowSelected) -> {
+				sdr.setSelected(isNowSelected);
+				saveDat2DirDst();
+			});
+			return observable;
+		}));
+		popupMenuDst.setOnShowing(e -> {
+			mntmDat2DirDstPresets.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
+			mnDat2DirDelDstDat.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
+		});
+	}
+
+	/**
+	 * @return
+	 */
+	private ButtonCellFactory<SrcDstResult, SrcDstResult> getDat2DirDetailButtonCellFactory()
+	{
+		return new ButtonCellFactory<>("Detail", cell -> {
+			final var sdr = tvBatchToolsDat2DirDst.getItems().get(cell.getIndex());
+			final var results = DirUpdaterResults.load(session, new File(sdr.getSrc()));
+			try
+			{
+				new BatchDirUpd8rResults((Stage)tvBatchToolsDat2DirDst.getScene().getWindow(), results);
+			}
+			catch (URISyntaxException | IOException e1)
+			{
+				e1.printStackTrace();
+			}
+		});
+	}
+
+	/**
+	 * 
+	 */
+	private void initDat2DirSrc()
+	{
+		new DragNDrop(tvBatchToolsDat2DirSrc).addDirs(dirs -> {
+			tvBatchToolsDat2DirSrc.getItems().addAll(dirs);
+			saveDat2DirSrc();
+		});
+		tvBatchToolsDat2DirSrc.setFixedCellSize(18);
+		tvBatchToolsDat2DirSrc.getItems().setAll(Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|')).filter(s->!s.isBlank()).map(File::new).toList());
+		tvBatchToolsDat2DirSrcCol.setCellFactory(param -> new TableCell<File, File>()
+		{
+			@Override
+			protected void updateItem(File item, boolean empty)
+			{
+				super.updateItem(item, empty);
+				setFont(font);
+				setText(empty?"":item.toString());
+			}
+		});
+		tvBatchToolsDat2DirSrcCol.setCellValueFactory(param -> new ObservableValueBase<>()
+		{
+			@Override
+			public File getValue()
+			{
+				return param.getValue();
+			}
+		});
+		popupMenuSrc.setOnShowing(e -> mnDat2DirDelSrcDir.setDisable(tvBatchToolsDat2DirSrc.getSelectionModel().isEmpty()));
+		mnDat2DirDelSrcDir.setOnAction(e -> {
+			tvBatchToolsDat2DirSrc.getItems().removeAll(tvBatchToolsDat2DirSrc.getSelectionModel().getSelectedItems());
+			saveDat2DirSrc();
+		});
+		mnDat2DirAddSrcDir.setOnAction(e -> chooseDir(tvBatchToolsDat2DirSrc, null, null, dir -> {
+			tvBatchToolsDat2DirSrc.getItems().add(dir.toFile());
+			saveDat2DirSrc();
+		}));
 	}
 
 	/**
@@ -598,38 +892,32 @@ public class BatchToolsPanelController extends BaseController
 	
 	@FXML void onAddDat2DirDstDat(ActionEvent e)
 	{
-		chooseOpenFileMulti(tvBatchToolsDat2DirDst, null, null, Arrays.asList(new FileChooser.ExtensionFilter("DAT files", "*.dat", "*.xml")), paths -> {
-			DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
-				for (int i = 0; i < files.size(); i++)
-					sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-				tvBatchToolsDat2DirDst.refresh();
-				saveDat2DirDst();
-			});
-		});
+		chooseOpenFileMulti(tvBatchToolsDat2DirDst, null, null, Arrays.asList(new FileChooser.ExtensionFilter("DAT files", "*.dat", "*.xml")), paths -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
+			for (int i = 0; i < files.size(); i++)
+				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			tvBatchToolsDat2DirDst.refresh();
+			saveDat2DirDst();
+		}));
 	}
 
 	@FXML void onAddDat2DirDstDatDir(ActionEvent e)
 	{
-		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> {
-			DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
-				for (int i = 0; i < files.size(); i++)
-					sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-				tvBatchToolsDat2DirDst.refresh();
-				saveDat2DirDst();
-			});
-		});
+		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
+			for (int i = 0; i < files.size(); i++)
+				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			tvBatchToolsDat2DirDst.refresh();
+			saveDat2DirDst();
+		}));
 	}
 	
 	@FXML void onAddDat2DirDstDir(ActionEvent e)
 	{
-		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> {
-			DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
-				for (int i = 0; i < files.size(); i++)
-					sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-				tvBatchToolsDat2DirDst.refresh();
-				saveDat2DirDst();
-			});
-		});
+		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
+			for (int i = 0; i < files.size(); i++)
+				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			tvBatchToolsDat2DirDst.refresh();
+			saveDat2DirDst();
+		}));
 	}
 	
 	@FXML void onTZIPPresets(ActionEvent e)
@@ -646,26 +934,22 @@ public class BatchToolsPanelController extends BaseController
 	
 	@FXML void onAddTorrent(ActionEvent e)
 	{
-		chooseOpenFileMulti(tvBatchToolsTorrent, null, null, Arrays.asList(new FileChooser.ExtensionFilter("Torrent files", "*.torrent")), paths -> {
-			DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
-				for (int i = 0; i < files.size(); i++)
-					sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-				tvBatchToolsTorrent.refresh();
-				saveTorrentDst();
-			});
-		});
+		chooseOpenFileMulti(tvBatchToolsTorrent, null, null, Arrays.asList(new FileChooser.ExtensionFilter("Torrent files", "*.torrent")), paths -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
+			for (int i = 0; i < files.size(); i++)
+				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			tvBatchToolsTorrent.refresh();
+			saveTorrentDst();
+		}));
 	}
 	
 	@FXML void onAddTorrentDstDir(ActionEvent e)
 	{
-		chooseDir(tvBatchToolsTorrent, null, null, path -> {
-			DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
-				for (int i = 0; i < files.size(); i++)
-					sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-				tvBatchToolsTorrent.refresh();
-				saveTorrentDst();
-			});
-		});
+		chooseDir(tvBatchToolsTorrent, null, null, path -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
+			for (int i = 0; i < files.size(); i++)
+				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			tvBatchToolsTorrent.refresh();
+			saveTorrentDst();
+		}));
 	}
 	
 	@FXML void onDelTorrent(ActionEvent e)
@@ -686,9 +970,7 @@ public class BatchToolsPanelController extends BaseController
 			getIcons().add(parent.getIcons().get(0));
 			setOnShowing(e -> {
 			});
-			setOnCloseRequest(e -> {
-				hide();
-			});
+			setOnCloseRequest(e -> hide());
 			final var loader = new FXMLLoader(getClass().getResource("ScannerPanelSettings.fxml").toURI().toURL(), Messages.getBundle());
 			final var settings = loader.<ScrollPane>load();
 			controller = loader.getController();

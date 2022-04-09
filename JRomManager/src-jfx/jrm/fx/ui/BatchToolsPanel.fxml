@@ -156,10 +156,10 @@
 			<content>
 				<BorderPane>
 					<center>
-						<TableView>
+						<TableView fx:id="tvBatchToolsCompressor">
 							<columns>
-								<TableColumn prefWidth="75.0" text="%BatchCompressorPanel.File" />
-								<TableColumn prefWidth="75.0" text="%BatchCompressorPanel.Status" />
+								<TableColumn fx:id="tvBatchToolsCompressorFileCol" prefWidth="75.0" text="%BatchCompressorPanel.File" />
+								<TableColumn fx:id="tvBatchToolsCompressorStatusCol" prefWidth="75.0" text="%BatchCompressorPanel.Status" />
 							</columns>
 							<columnResizePolicy>
 								<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

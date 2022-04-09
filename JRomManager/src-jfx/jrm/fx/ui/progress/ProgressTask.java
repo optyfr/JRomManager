@@ -52,7 +52,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 			String msg = null;
 			String timeleft;
 
-			transient long startTime = 0;	//NOSONAR
+			transient long startTime = System.currentTimeMillis();	//NOSONAR
 			
 			PB()
 			{
