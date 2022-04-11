@@ -6,9 +6,10 @@ import java.util.EnumSet;
 
 import com.eclipsesource.json.JsonObject;
 
+import jrm.aui.basic.AbstractSrcDstResult;
 import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SDRList;
 import jrm.aui.basic.SrcDstResult;
-import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.batch.TorrentChecker;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.BreakException;
@@ -43,14 +44,14 @@ public class TrntChkActions
 			session.getWorker().progress = new ProgressActions(ws);
 			try
 			{
-				SDRList sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
-				new TorrentChecker(session, session.getWorker().progress, sdrl, mode, new ResultColUpdater()
+				SDRList<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
+				new TorrentChecker<SrcDstResult>(session, session.getWorker().progress, sdrl, mode, new ResultColUpdater()
 				{
 					@Override
 					public void updateResult(int row, String result)
 					{
 						sdrl.get(row).setResult(result);
-						session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
+						session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(sdrl));
 						session.getUser().getSettings().saveSettings();
 						TrntChkActions.this.updateResult(row, result);
 					}
@@ -59,7 +60,7 @@ public class TrntChkActions
 					public void clearResults()
 					{
 						sdrl.forEach(sdr -> sdr.setResult(""));
-						session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(sdrl));
+						session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(sdrl));
 						session.getUser().getSettings().saveSettings();
 						TrntChkActions.this.clearResults();
 					}

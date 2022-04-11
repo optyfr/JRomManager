@@ -48,8 +48,8 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jrm.aui.basic.AbstractSrcDstResult;
 import jrm.aui.basic.ResultColUpdater;
-import jrm.aui.basic.SrcDstResult;
 import jrm.batch.Compressor;
 import jrm.batch.CompressorFormat;
 import jrm.batch.DirUpdater;
@@ -62,6 +62,7 @@ import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.controls.DropCell;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.misc.FileResult;
+import jrm.fx.ui.misc.SrcDstResult;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
@@ -410,35 +411,19 @@ public class BatchToolsPanelController extends BaseController
 		tvBatchToolsTorrentFilesCol.setCellFactory(param -> new DropCell(tvBatchToolsTorrent, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsTorrent.refresh();
 			saveTorrentDst();
 		}, file -> {
 			if (Files.isRegularFile(file.toPath()))
 				return file.getName().endsWith(".torrent");
 			return false;
 		}));
-		tvBatchToolsTorrentFilesCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public String getValue()
-			{
-				return param.getValue().getSrc();
-			}
-		});
+		tvBatchToolsTorrentFilesCol.setCellValueFactory(param ->  param.getValue().srcProperty());
 		tvBatchToolsTorrentDstDirsCol.setCellFactory(param -> new DropCell(tvBatchToolsTorrent, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsTorrent.refresh();
 			saveTorrentDst();
 		}, File::isDirectory));
-		tvBatchToolsTorrentDstDirsCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public String getValue()
-			{
-				return param.getValue().getDst();
-			}
-		});
+		tvBatchToolsTorrentDstDirsCol.setCellValueFactory(param -> param.getValue().dstProperty());
 		tvBatchToolsTorrentResultCol.setCellFactory(param -> new TableCell<SrcDstResult, String>()
 		{
 			@Override
@@ -455,14 +440,7 @@ public class BatchToolsPanelController extends BaseController
 				}
 			}
 		});
-		tvBatchToolsTorrentResultCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public String getValue()
-			{
-				return param.getValue().getResult();
-			}
-		});
+		tvBatchToolsTorrentResultCol.setCellValueFactory(param -> param.getValue().resultProperty());
 		tvBatchToolsTorrentSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
 			final var sdr = tvBatchToolsTorrent.getItems().get(param);
 			BooleanProperty observable = new SimpleBooleanProperty(sdr.isSelected());
@@ -473,7 +451,7 @@ public class BatchToolsPanelController extends BaseController
 			return observable;
 		}));
 		tvBatchToolsTorrentDetailsCol.setCellFactory(param -> new ButtonCellFactory<>("Detail", cell -> {
-			final var sdr = tvBatchToolsTorrent.getItems().get(cell.getIndex());
+			final AbstractSrcDstResult sdr = tvBatchToolsTorrent.getItems().get(cell.getIndex());
 			final var results = TrntChkReport.load(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
 			try
 			{
@@ -511,7 +489,6 @@ public class BatchToolsPanelController extends BaseController
 		tvBatchToolsDat2DirDstDatsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsDat2DirDst.refresh();
 			saveDat2DirDst();
 		}, file -> {
 			if (Files.isRegularFile(file.toPath()))
@@ -527,28 +504,13 @@ public class BatchToolsPanelController extends BaseController
 				}
 			return false;
 		}));
-		tvBatchToolsDat2DirDstDatsCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public String getValue()
-			{
-				return param.getValue().getSrc();
-			}
-		});
+		tvBatchToolsDat2DirDstDatsCol.setCellValueFactory(param -> param.getValue().srcProperty());
 		tvBatchToolsDat2DirDstDirsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsDat2DirDst.refresh();
 			saveDat2DirDst();
 		}, File::isDirectory));
-		tvBatchToolsDat2DirDstDirsCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public String getValue()
-			{
-				return param.getValue().getDst();
-			}
-		});
+		tvBatchToolsDat2DirDstDirsCol.setCellValueFactory(param -> param.getValue().dstProperty());
 		tvBatchToolsDat2DirDstResultCol.setCellFactory(param -> new TableCell<SrcDstResult, String>()
 		{
 			@Override
@@ -565,14 +527,7 @@ public class BatchToolsPanelController extends BaseController
 				}
 			}
 		});
-		tvBatchToolsDat2DirDstResultCol.setCellValueFactory(param -> new ObservableValueBase<>()
-		{
-			@Override
-			public String getValue()
-			{
-				return param.getValue().getResult();
-			}
-		});
+		tvBatchToolsDat2DirDstResultCol.setCellValueFactory(param -> param.getValue().resultProperty());
 		tvBatchToolsDat2DirDstDetailsCol.setCellFactory(param -> getDat2DirDetailButtonCellFactory());
 		tvBatchToolsDat2DirDstSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
 			final var sdr = tvBatchToolsDat2DirDst.getItems().get(param);
@@ -595,7 +550,7 @@ public class BatchToolsPanelController extends BaseController
 	private ButtonCellFactory<SrcDstResult, SrcDstResult> getDat2DirDetailButtonCellFactory()
 	{
 		return new ButtonCellFactory<>("Detail", cell -> {
-			final var sdr = tvBatchToolsDat2DirDst.getItems().get(cell.getIndex());
+			final AbstractSrcDstResult sdr = tvBatchToolsDat2DirDst.getItems().get(cell.getIndex());
 			final var results = DirUpdaterResults.load(session, new File(sdr.getSrc()));
 			try
 			{
@@ -674,7 +629,7 @@ public class BatchToolsPanelController extends BaseController
 						@Override
 						public void clearResults()
 						{
-							for(final var item : tvBatchToolsDat2DirDst.getItems())
+							for(final AbstractSrcDstResult item : tvBatchToolsDat2DirDst.getItems())
 								item.setResult("");
 							tvBatchToolsDat2DirDst.refresh();
 						}
@@ -709,15 +664,13 @@ public class BatchToolsPanelController extends BaseController
 				public void updateResult(int row, String result)
 				{
 					tvBatchToolsTorrent.getItems().get(row).setResult(result);
-					tvBatchToolsTorrent.refresh();
 				}
 				
 				@Override
 				public void clearResults()
 				{
-					for(final var item : tvBatchToolsTorrent.getItems())
+					for(final AbstractSrcDstResult item : tvBatchToolsTorrent.getItems())
 						item.setResult("");
-					tvBatchToolsTorrent.refresh();
 				}
 			};
 			final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
@@ -806,15 +759,15 @@ public class BatchToolsPanelController extends BaseController
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	private ProgressTask<TorrentChecker> buildTorrentTask(final List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater, EnumSet<Options> opts) throws IOException, URISyntaxException
+	private ProgressTask<TorrentChecker<SrcDstResult>> buildTorrentTask(final List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater, EnumSet<Options> opts) throws IOException, URISyntaxException
 	{
-		return new ProgressTask<TorrentChecker>((Stage)tvBatchToolsDat2DirDst.getScene().getWindow())
+		return new ProgressTask<TorrentChecker<SrcDstResult>>((Stage)tvBatchToolsDat2DirDst.getScene().getWindow())
 		{
 
 			@Override
-			protected TorrentChecker call() throws Exception
+			protected TorrentChecker<SrcDstResult> call() throws Exception
 			{
-				return new TorrentChecker(session, this, sdrl, mode, updater, opts);
+				return new TorrentChecker<>(session, this, sdrl, mode, updater, opts);
 			}
 			
 			@Override
@@ -922,13 +875,13 @@ public class BatchToolsPanelController extends BaseController
 	
 	@FXML void onTZIPPresets(ActionEvent e)
 	{
-		for (final var sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
+		for (final AbstractSrcDstResult sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
 			ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
 	}
 	
 	@FXML void onDIRPresets(ActionEvent e)
 	{
-		for (final var sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
+		for (final AbstractSrcDstResult sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
 			ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
 	}
 	
@@ -987,7 +940,7 @@ public class BatchToolsPanelController extends BaseController
 			setScene(new Scene(root, 600, 400));
 			sizeToScene();
 
-			SrcDstResult entry = tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems().get(0);
+			AbstractSrcDstResult entry = tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems().get(0);
 			controller.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.getSrc()).toFile(), null));
 
 			show();
@@ -995,7 +948,7 @@ public class BatchToolsPanelController extends BaseController
 		
 		private void save()
 		{
-			for (final var sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
+			for (final AbstractSrcDstResult sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
 				session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile(), controller.getSettings());
 			close();
 		}

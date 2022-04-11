@@ -5,12 +5,12 @@ import java.io.FileFilter;
 
 import javax.swing.event.TableModelEvent;
 
+import jrm.aui.basic.SDRList;
 import jrm.aui.basic.SrcDstResult;
-import jrm.aui.basic.SrcDstResult.SDRList;
 
 public abstract class SDRTableModel extends AbstractEnhTableModel
 {
-	private SDRList data = new SDRList();
+	private SDRList<SrcDstResult> data = new SDRList<>();
     private FileFilter srcFilter = null;
     private FileFilter dstFilter = null;
 
@@ -58,7 +58,7 @@ public abstract class SDRTableModel extends AbstractEnhTableModel
 	 * @return the data
 	 */
 	@SuppressWarnings("exports")
-	public SDRList getData()
+	public SDRList<SrcDstResult> getData()
 	{
 		return data;
 	}
@@ -67,7 +67,7 @@ public abstract class SDRTableModel extends AbstractEnhTableModel
 	 * @param data initialize data
 	 */
 	@SuppressWarnings("exports")
-	public void setData(SDRList data)
+	public void setData(SDRList<SrcDstResult> data)
 	{
 		currentRow = -1;
 		this.data = data;

@@ -36,9 +36,10 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import jrm.aui.basic.AbstractSrcDstResult;
 import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SDRList;
 import jrm.aui.basic.SrcDstResult;
-import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.batch.TorrentChecker;
 import jrm.batch.TrntChkReport;
 import jrm.io.torrent.options.TrntChkMode;
@@ -87,11 +88,11 @@ public class BatchTrrntChkPanel extends JPanel
 		this.add(scrollPane, gbcScrollPane);
 
 		BatchTableModel model = new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"), Messages.getString("MainFrame.Result"), "Details", "Selected" });
-		tableTrntChk = new JSDRDropTable(model, files -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(files)));
+		tableTrntChk = new JSDRDropTable(model, files -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(files)));
 		model.setButtonHandler((row, column) -> new BatchTrrntChkResultsDialog(session, SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this), TrntChkReport.load(session, PathAbstractor.getAbsolutePath(session, model.getData().get(row).getSrc()).toFile())));
 		tableTrntChk.addMouseListener(getTableTrntChkMouseListener());
 		((BatchTableModel) tableTrntChk.getModel()).applyColumnsWidths(tableTrntChk);
-		final SDRList sdrl2 = new SDRList();
+		final SDRList<SrcDstResult> sdrl2 = new SDRList<>();
 		if (session != null)
 		{
 			for (final JsonValue arrv : Json.parse(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr)).asArray()) //$NON-NLS-1$ //$NON-NLS-2$
@@ -229,7 +230,7 @@ public class BatchTrrntChkPanel extends JPanel
 	{
 		final int col = tableTrntChk.columnAtPoint(popupPoint);
 		final int row = tableTrntChk.rowAtPoint(popupPoint);
-		List<SrcDstResult> list = tableTrntChk.getSelectedValuesList();
+		final var list = tableTrntChk.getSelectedValuesList();
 		final var type = col == 0 ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG;
 		final var mode = col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY;
 		final File currdir;
@@ -329,7 +330,7 @@ public class BatchTrrntChkPanel extends JPanel
 
 	private void trrntChk(final Session session)
 	{
-		final List<SrcDstResult> sdrl = ((SDRTableModel) tableTrntChk.getModel()).getData();
+		final var sdrl = ((SDRTableModel) tableTrntChk.getModel()).getData();
 		final TrntChkMode mode = (TrntChkMode) cbbxTrntChk.getSelectedItem();
 		final ResultColUpdater updater = tableTrntChk;
 		final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
@@ -340,12 +341,12 @@ public class BatchTrrntChkPanel extends JPanel
 		if (chckbxDetectArchivedFolder.isSelected())
 			opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
 
-		new SwingWorkerProgress<TorrentChecker, Void>(SwingUtilities.getWindowAncestor(this))
+		new SwingWorkerProgress<TorrentChecker<SrcDstResult>, Void>(SwingUtilities.getWindowAncestor(this))
 		{
 			@Override
-			protected TorrentChecker doInBackground() throws Exception
+			protected TorrentChecker<SrcDstResult> doInBackground() throws Exception
 			{
-				return new TorrentChecker(session, this, sdrl, mode, updater, opts);
+				return new TorrentChecker<SrcDstResult>(session, this, sdrl, mode, updater, opts);
 			}
 
 			@Override

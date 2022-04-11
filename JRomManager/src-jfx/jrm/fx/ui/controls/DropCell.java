@@ -10,9 +10,9 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Font;
-import jrm.aui.basic.SrcDstResult;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.misc.DragNDrop.SetFilesCallBack;
+import jrm.fx.ui.misc.SrcDstResult;
 
 public class DropCell extends TableCell<SrcDstResult, String>
 {

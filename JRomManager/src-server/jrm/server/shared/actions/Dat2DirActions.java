@@ -12,9 +12,10 @@ import com.eclipsesource.json.JsonObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import jrm.aui.basic.AbstractSrcDstResult;
 import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SDRList;
 import jrm.aui.basic.SrcDstResult;
-import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.batch.DirUpdater;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
@@ -48,7 +49,7 @@ public class Dat2DirActions
 				String[] srcdirs = StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs),'|');
 				if (srcdirs.length > 0)
 				{
-					SDRList sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr));
+					SDRList<SrcDstResult> sdrl =  SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr));
 					if (sdrl.stream().filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile()).exists()).count() > 0)
 						new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 					else
@@ -59,7 +60,7 @@ public class Dat2DirActions
 							public void updateResult(int row, String result)
 							{
 								sdrl.get(row).setResult(result);
-								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
+								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(sdrl));
 								session.getUser().getSettings().saveSettings();
 								Dat2DirActions.this.updateResult(row, result);
 							}
@@ -68,7 +69,7 @@ public class Dat2DirActions
 							public void clearResults()
 							{
 								sdrl.forEach(sdr -> sdr.setResult(""));
-								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(sdrl));
+								session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(sdrl));
 								session.getUser().getSettings().saveSettings();
 								Dat2DirActions.this.clearResults();
 							}

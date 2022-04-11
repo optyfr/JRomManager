@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.aui.basic.AbstractSrcDstResult;
 import jrm.aui.basic.ResultColUpdater;
-import jrm.aui.basic.SrcDstResult;
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.status.StatusRendererFactory;
 import jrm.batch.TrntChkReport.Child;
@@ -44,7 +44,7 @@ import jrm.misc.UnitRenderer;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 
-public class TorrentChecker implements UnitRenderer, StatusRendererFactory
+public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRenderer, StatusRendererFactory
 {
 	private static final String TORRENT_CHECKER_PIECE_PROGRESSION = "TorrentChecker.PieceProgression";
 	private static final String TORRENT_CHECKER_RESULT_COMPLETE = "TorrentChecker.ResultComplete";
@@ -72,17 +72,17 @@ public class TorrentChecker implements UnitRenderer, StatusRendererFactory
 	 *            the result interface
 	 * @throws IOException
 	 */
-	public TorrentChecker(final Session session, final ProgressHandler progress, List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater, Set<Options> options)
+	public TorrentChecker(final Session session, final ProgressHandler progress, List<T> sdrl, TrntChkMode mode, ResultColUpdater updater, Set<Options> options)
 	{
 		this.session = session;
 		this.options = options;
 		this.mode = mode;
-		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), (int) sdrl.stream().filter(SrcDstResult::isSelected).count()), true);
+		progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), (int) sdrl.stream().filter(AbstractSrcDstResult::isSelected).count()), true);
 		progress.setProgress2("", 0, 1); //$NON-NLS-1$
-		sdrl.stream().filter(SrcDstResult::isSelected).forEach(sdr -> updater.updateResult(sdrl.indexOf(sdr), ""));
+		sdrl.stream().filter(AbstractSrcDstResult::isSelected).forEach(sdr -> updater.updateResult(sdrl.indexOf(sdr), ""));
 		final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, Boolean.class);
 		final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
-		new MultiThreading<SrcDstResult>(nThreads, sdr -> {
+		new MultiThreading<T>(nThreads, sdr -> {
 			if (progress.isCancel())
 				return;
 			try
@@ -97,7 +97,7 @@ public class TorrentChecker implements UnitRenderer, StatusRendererFactory
 			{
 				Log.err(e.getMessage(), e);
 			}
-		}).start(sdrl.stream().filter(SrcDstResult::isSelected));
+		}).start(sdrl.stream().filter(AbstractSrcDstResult::isSelected));
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class TorrentChecker implements UnitRenderer, StatusRendererFactory
 	 * @throws IOException
 	 * @throws TorrentException
 	 */
-	private String check(final ProgressHandler progress, final SrcDstResult sdr) throws IOException, TorrentException
+	private String check(final ProgressHandler progress, final T sdr) throws IOException, TorrentException
 	{
 		if (sdr.getSrc() == null || sdr.getDst() == null)
 			return sdr.getSrc() == null ? session.getMsgs().getString("TorrentChecker.SrcNotDefined") : session.getMsgs().getString("TorrentChecker.DstNotDefined"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -157,7 +157,7 @@ public class TorrentChecker implements UnitRenderer, StatusRendererFactory
 	 * @return
 	 * @throws IOException
 	 */
-	private String checkFiles(final ProgressHandler progress, final SrcDstResult sdr, final File src, final File dst, final TrntChkReport report, final List<TorrentFile> tfiles) throws IOException
+	private String checkFiles(final ProgressHandler progress, final T sdr, final File src, final File dst, final TrntChkReport report, final List<TorrentFile> tfiles) throws IOException
 	{
 		String result;
 		CheckFilesData data = new CheckFilesData(tfiles);
@@ -266,7 +266,7 @@ public class TorrentChecker implements UnitRenderer, StatusRendererFactory
 	 * @param tfiles
 	 * @return
 	 */
-	private String checkBlocks(final ProgressHandler progress, final SrcDstResult sdr, final File src, final File dst, final TrntChkReport report, final Torrent torrent, final List<TorrentFile> tfiles)
+	private String checkBlocks(final ProgressHandler progress, final T sdr, final File src, final File dst, final TrntChkReport report, final Torrent torrent, final List<TorrentFile> tfiles)
 	{
 		String result;
 		try
@@ -446,7 +446,7 @@ public class TorrentChecker implements UnitRenderer, StatusRendererFactory
 		return null;
 	}
 
-	private int removeUnknownFiles(final TrntChkReport report, final Set<Path> paths, final SrcDstResult sdr, final boolean remove) throws IOException
+	private int removeUnknownFiles(final TrntChkReport report, final Set<Path> paths, final T sdr, final boolean remove) throws IOException
 	{
 		final var filesToRemove = new ArrayList<Path>();
 		final var dst = PathAbstractor.getAbsolutePath(session, sdr.getDst());
@@ -487,7 +487,7 @@ public class TorrentChecker implements UnitRenderer, StatusRendererFactory
 		return count;
 	}
 
-	private void detectArchives(final SrcDstResult sdr, final List<TorrentFile> tfiles, final boolean unarchive)
+	private void detectArchives(final T sdr, final List<TorrentFile> tfiles, final boolean unarchive)
 	{
 		final var components = new HashSet<String>();
 		final var archives = new HashSet<Path>();

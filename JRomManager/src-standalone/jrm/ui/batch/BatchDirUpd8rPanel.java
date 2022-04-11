@@ -39,6 +39,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import jrm.JRomManager;
+import jrm.aui.basic.AbstractSrcDstResult;
+import jrm.aui.basic.SDRList;
 import jrm.aui.basic.SrcDstResult;
 import jrm.batch.DirUpdater;
 import jrm.batch.DirUpdaterResults;
@@ -173,14 +175,14 @@ public class BatchDirUpd8rPanel extends JPanel
 
 		JMenuItem mntmDat2DirD2DTzip = new JMenuItem(Messages.getString("MainFrame.TZIP")); //$NON-NLS-1$
 		mntmDat2DirD2DTzip.addActionListener(e -> {
-			for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
+			for (AbstractSrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
 				ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
 		});
 		mnDat2DirD2D.add(mntmDat2DirD2DTzip);
 
 		JMenuItem mntmDat2DirD2DDir = new JMenuItem(Messages.getString("MainFrame.DIR")); //$NON-NLS-1$
 		mntmDat2DirD2DDir.addActionListener(e -> {
-			for (SrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
+			for (AbstractSrcDstResult sdr : tableBatchToolsDat2Dir.getSelectedValuesList())
 				ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
 		});
 		mnDat2DirD2D.add(mntmDat2DirD2DDir);
@@ -221,16 +223,16 @@ public class BatchDirUpd8rPanel extends JPanel
 	 */
 	private void customPreset(final Session session) throws SecurityException
 	{
-		List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
+		SDRList<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
 		if (!list.isEmpty())
 		{
 			BatchDirUpd8rSettingsDialog dialog = new BatchDirUpd8rSettingsDialog(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this));
-			SrcDstResult entry = list.get(0);
+			AbstractSrcDstResult entry = list.get(0);
 			dialog.settingsPanel.initProfileSettings(session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, entry.getSrc()).toFile(), null));
 			dialog.setVisible(true);
 			if (dialog.isSuccess())
 			{
-				for (SrcDstResult sdr : list)
+				for (AbstractSrcDstResult sdr : list)
 				{
 					session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile(), dialog.settingsPanel.getSettings());
 				}
@@ -245,7 +247,7 @@ public class BatchDirUpd8rPanel extends JPanel
 	{
 		final int col = tableBatchToolsDat2Dir.columnAtPoint(popupPoint);
 		final int row = tableBatchToolsDat2Dir.rowAtPoint(popupPoint);
-		List<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
+		SDRList<SrcDstResult> list = tableBatchToolsDat2Dir.getSelectedValuesList();
 		final File currdir;
 		final int type = col == 0 ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG;
 		final int mode = col == 0 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY;
@@ -333,7 +335,7 @@ public class BatchDirUpd8rPanel extends JPanel
 	 */
 	private void showResult(final Session session, SDRTableModel model, int row)
 	{
-		final SrcDstResult sdr = model.getData().get(row);
+		final AbstractSrcDstResult sdr = model.getData().get(row);
 		new SwingWorkerProgress<DirUpdaterResults, Void>(SwingUtilities.getWindowAncestor(BatchDirUpd8rPanel.this))
 		{
 
@@ -386,7 +388,7 @@ public class BatchDirUpd8rPanel extends JPanel
 	{
 		if (listBatchToolsDat2DirSrc.getModel().getSize() > 0)
 		{
-			final List<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
+			final SDRList<SrcDstResult> sdrl = ((SDRTableModel) tableBatchToolsDat2Dir.getModel()).getData();
 			if (sdrl.stream().filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile()).exists()).count() > 0)
 				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), Messages.getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
 			else

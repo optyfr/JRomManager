@@ -14,7 +14,6 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +21,10 @@ import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
 
+import jrm.aui.basic.AbstractSrcDstResult;
 import jrm.aui.basic.ResultColUpdater;
+import jrm.aui.basic.SDRList;
 import jrm.aui.basic.SrcDstResult;
-import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.misc.Log;
 
 @SuppressWarnings("serial")
@@ -47,7 +47,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	@FunctionalInterface
 	public interface AddDelCallBack
 	{
-		public void call(@SuppressWarnings("exports") SDRList files);
+		public void call(@SuppressWarnings("exports") SDRList<SrcDstResult> files);
 	}
 
 	public JSDRDropTable(SDRTableModel model, AddDelCallBack callback)
@@ -228,9 +228,9 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	 *
 	 * @param sdrl the data to delete
 	 */
-	public void del(@SuppressWarnings("exports") final List<SrcDstResult> sdrl)
+	public void del(@SuppressWarnings("exports") final SDRList<SrcDstResult> sdrl)
 	{
-		for (final SrcDstResult sdr : sdrl)
+		for (final AbstractSrcDstResult sdr : sdrl)
 			model.getData().remove(sdr);
 		model.fireTableChanged(new TableModelEvent(model));
 		addCallBack.call(model.getData());
@@ -241,10 +241,10 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 	 * @return the {@link List} of {@link SrcDstResult} corresponding to selected values
 	 */
 	@SuppressWarnings("exports")
-	public List<SrcDstResult> getSelectedValuesList()
+	public SDRList<SrcDstResult> getSelectedValuesList()
 	{
 		int[] rows = getSelectedRows();
-		List<SrcDstResult> list = new ArrayList<>();
+		final var list = new SDRList<SrcDstResult>();
 		for(int row : rows)
 			list.add(model.getData().get(row));
 		return list;

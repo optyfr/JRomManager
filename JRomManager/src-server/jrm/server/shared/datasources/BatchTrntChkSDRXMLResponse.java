@@ -5,8 +5,9 @@ import java.util.Optional;
 
 import javax.xml.stream.XMLStreamException;
 
+import jrm.aui.basic.AbstractSrcDstResult;
+import jrm.aui.basic.SDRList;
 import jrm.aui.basic.SrcDstResult;
-import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.misc.SettingsEnum;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 
@@ -22,7 +23,7 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse
 	@Override
 	protected void fetch(Operation operation) throws XMLStreamException
 	{
-		SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
+		SDRList<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
 		needSave(sdrl, SettingsEnum.trntchk_sdr);
 		writeResponse(operation, sdrl);
 	}
@@ -33,14 +34,14 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse
 	{
 		if(operation.hasData("src"))
 		{
-			final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
+			final SDRList<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
 			needSave(sdrl, SettingsEnum.trntchk_sdr);
 			final var sdr = new SrcDstResult(operation.getData("src"));
 			Optional<SrcDstResult> candidate = sdrl.stream().filter(s->s.getSrc().equals(operation.getData("src"))).findAny();
 			if(!candidate.isPresent())
 			{
 				sdrl.add(sdr);
-				request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,SrcDstResult.toJSON(sdrl));
+				request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,AbstractSrcDstResult.toJSON(sdrl));
 				request.getSession().getUser().getSettings().saveSettings();
 				writeResponseSingle(sdr);
 			}
@@ -60,7 +61,7 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse
 			failure(SRC_IS_MISSING_IN_REQUEST);
 			return;
 		}
-		final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
+		final SDRList<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
 		needSave(sdrl, SettingsEnum.trntchk_sdr);
 		final Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
 		if(!candidate.isPresent())
@@ -73,14 +74,14 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse
 			failure("field to update is missing in request");
 			return;
 		}
-		final var sdr = candidate.get();
+		final AbstractSrcDstResult sdr = candidate.get();
 		if(operation.hasData("src"))
 			sdr.setSrc(operation.getData("src"));
 		if(operation.hasData("dst"))
 			sdr.setDst(operation.getData("dst"));
 		if(operation.hasData(SELECTED))
 			sdr.setSelected(Boolean.parseBoolean(operation.getData(SELECTED)));
-		request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,SrcDstResult.toJSON(sdrl));
+		request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,AbstractSrcDstResult.toJSON(sdrl));
 		request.getSession().getUser().getSettings().saveSettings();
 		writeResponseSingle(sdr);
 	}
@@ -90,14 +91,14 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse
 	{
 		if(operation.hasData("id"))
 		{
-			final SDRList sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
+			final SDRList<SrcDstResult> sdrl =  SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
 			needSave(sdrl, SettingsEnum.trntchk_sdr);
 			final Optional<SrcDstResult> candidate = sdrl.stream().filter(sdr->sdr.getId().equals(operation.getData("id"))).findFirst();
 			if(candidate.isPresent())
 			{
-				final var sdr = candidate.get();
+				final AbstractSrcDstResult sdr = candidate.get();
 				sdrl.remove(sdr);
-				request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,SrcDstResult.toJSON(sdrl));
+				request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr,AbstractSrcDstResult.toJSON(sdrl));
 				request.getSession().getUser().getSettings().saveSettings();
 				writeResponseKey(sdr);
 				

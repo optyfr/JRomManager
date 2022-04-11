@@ -558,7 +558,7 @@ public class JRomManagerCLI
 	 */
 	private int dirupd8rStart(String... args) throws ParameterException
 	{
-		List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); //$NON-NLS-1$ //$NON-NLS-2$
+		final var sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); //$NON-NLS-1$ //$NON-NLS-2$
 		List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs), '|')).map(File::new).collect(Collectors.toCollection(ArrayList::new)); //$NON-NLS-1$ //$NON-NLS-2$
 		final var results = new String[sdrl.size()];
 		final var resulthandler = new ResultColUpdater()
@@ -726,7 +726,7 @@ public class JRomManagerCLI
 	 */
 	private int trntchkStart(String... args) throws ParameterException
 	{
-		List<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)); //$NON-NLS-1$ //$NON-NLS-2$
+		final var sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)); //$NON-NLS-1$ //$NON-NLS-2$
 		final var results = new String[sdrl.size()];
 		ResultColUpdater resulthandler = new ResultColUpdater()
 		{
@@ -750,7 +750,7 @@ public class JRomManagerCLI
 		if(jArgs.removeunknown) opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
 		if(jArgs.removewrongsized) opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
 		if(jArgs.detectarchives) opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
-		new TorrentChecker(session, handler, sdrl, mode, resulthandler, opts);
+		new TorrentChecker<SrcDstResult>(session, handler, sdrl, mode, resulthandler, opts);
 		return 0;
 	}
 

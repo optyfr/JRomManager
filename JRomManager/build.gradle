@@ -653,7 +653,7 @@ project(':JRomManager:jrmfx') {
 		classpath {
 			file {
 				whenMerged {
-					entries.findAll { it.properties.path.contains('jcommander'); }.each {
+					entries.findAll { it.properties.path.contains('jcommander') || it.properties.path.contains('minimal-json'); }.each {
 						it.entryAttributes['module'] = 'true'
 					}
 				}
@@ -686,9 +686,9 @@ project(':JRomManager:jrmfx') {
 		implementation group: 'org.apache.commons', name: 'commons-text'
 		implementation group: 'org.apache.commons', name: 'commons-lang3'
 		implementation group: 'com.google.code.gson', name: 'gson'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 /*		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'one.util', name: 'streamex'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
 		implementation group: 'com.sun.activation', name: 'javax.activation'
 	
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'

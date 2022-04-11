@@ -17,8 +17,8 @@ import java.util.stream.Stream;
 import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FilenameUtils;
 
+import jrm.aui.basic.AbstractSrcDstResult;
 import jrm.aui.basic.ResultColUpdater;
-import jrm.aui.basic.SrcDstResult;
 import jrm.aui.progress.ProgressHandler;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
@@ -39,7 +39,7 @@ import jrm.security.Session;
 public class DirUpdater
 {
 	private final Session session;
-	private final List<SrcDstResult> sdrl;
+	private final List<? extends AbstractSrcDstResult> sdrl;
 	private final ProgressHandler progress;
 	private final List<File> srcdirs;
 	private final ResultColUpdater result;
@@ -53,7 +53,7 @@ public class DirUpdater
 	 * @param result the result interfaceo
 	 * @param dryrun tell not to fix
 	 */
-	public DirUpdater(final Session session, final List<SrcDstResult> sdrl, final ProgressHandler progress, final List<File> srcdirs, final ResultColUpdater result, final boolean dryrun)
+	public DirUpdater(final Session session, final List<? extends AbstractSrcDstResult> sdrl, final ProgressHandler progress, final List<File> srcdirs, final ResultColUpdater result, final boolean dryrun)
 	{
 		this.session = session;
 		this.sdrl = sdrl;
@@ -63,10 +63,10 @@ public class DirUpdater
 		this.dryrun = dryrun;
 		
 		final Map<String, DirScan> scancache = new HashMap<>();
-		sdrl.stream().filter(SrcDstResult::isSelected).forEach(sdr->
+		sdrl.stream().filter(AbstractSrcDstResult::isSelected).forEach(sdr->
 			result.updateResult(sdrl.indexOf(sdr), "") //$NON-NLS-1$
 		);
-		sdrl.stream().filter(SrcDstResult::isSelected).takeWhile(p->!progress.isCancel()).forEach(sdr-> update(scancache, sdr));
+		sdrl.stream().filter(AbstractSrcDstResult::isSelected).takeWhile(p->!progress.isCancel()).forEach(sdr-> update(scancache, sdr));
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class DirUpdater
 	 * @throws SecurityException
 	 * @throws BreakException
 	 */
-	private void update(final Map<String, DirScan> scancache, SrcDstResult sdr) throws SecurityException, BreakException
+	private void update(final Map<String, DirScan> scancache, AbstractSrcDstResult sdr) throws SecurityException, BreakException
 	{
 		final var row = sdrl.indexOf(sdr);
 		result.updateResult(row, "In progress..."); //$NON-NLS-1$

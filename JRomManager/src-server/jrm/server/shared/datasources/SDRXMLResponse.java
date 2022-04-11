@@ -5,8 +5,9 @@ import java.util.Optional;
 
 import javax.xml.stream.XMLStreamException;
 
+import jrm.aui.basic.AbstractSrcDstResult;
+import jrm.aui.basic.SDRList;
 import jrm.aui.basic.SrcDstResult;
-import jrm.aui.basic.SrcDstResult.SDRList;
 import jrm.misc.SettingsEnum;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
@@ -29,7 +30,7 @@ abstract class SDRXMLResponse extends XMLResponse
 	 * @param sdr
 	 * @throws XMLStreamException
 	 */
-	protected void writeRecord(SrcDstResult sdr) throws XMLStreamException
+	protected void writeRecord(AbstractSrcDstResult sdr) throws XMLStreamException
 	{
 		writer.writeElement(RECORD, 
 			new SimpleAttribute("id", sdr.getId()),
@@ -45,7 +46,7 @@ abstract class SDRXMLResponse extends XMLResponse
 	 * @param sdrl
 	 * @throws XMLStreamException
 	 */
-	protected void writeResponse(Operation operation, SDRList sdrl) throws XMLStreamException
+	protected void writeResponse(Operation operation, SDRList<SrcDstResult> sdrl) throws XMLStreamException
 	{
 		writer.writeStartElement(RESPONSE);
 		writer.writeElement(STATUS, "0");
@@ -57,7 +58,7 @@ abstract class SDRXMLResponse extends XMLResponse
 	 * @param sdr
 	 * @throws XMLStreamException
 	 */
-	protected void writeResponseSingle(final SrcDstResult sdr) throws XMLStreamException
+	protected void writeResponseSingle(final AbstractSrcDstResult sdr) throws XMLStreamException
 	{
 		writer.writeStartElement(RESPONSE);
 		writer.writeElement(STATUS, "0");
@@ -71,7 +72,7 @@ abstract class SDRXMLResponse extends XMLResponse
 	 * @param sdr
 	 * @throws XMLStreamException
 	 */
-	protected void writeResponseKey(final SrcDstResult sdr) throws XMLStreamException
+	protected void writeResponseKey(final AbstractSrcDstResult sdr) throws XMLStreamException
 	{
 		writer.writeStartElement(RESPONSE);
 		writer.writeElement(STATUS, "0");
@@ -84,11 +85,11 @@ abstract class SDRXMLResponse extends XMLResponse
 	/**
 	 * @param sdrl
 	 */
-	protected void needSave(SDRList sdrl, SettingsEnum ppt)
+	protected void needSave(SDRList<SrcDstResult> sdrl, SettingsEnum ppt)
 	{
 		if (sdrl.isNeedSave())
 		{
-			request.getSession().getUser().getSettings().setProperty(ppt,SrcDstResult.toJSON(sdrl));
+			request.getSession().getUser().getSettings().setProperty(ppt,AbstractSrcDstResult.toJSON(sdrl));
 			request.getSession().getUser().getSettings().saveSettings();
 		}
 	}
