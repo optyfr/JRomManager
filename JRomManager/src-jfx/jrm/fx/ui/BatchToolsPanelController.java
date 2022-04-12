@@ -623,7 +623,6 @@ public class BatchToolsPanelController extends BaseController
 						public void updateResult(int row, String result)
 						{
 							tvBatchToolsDat2DirDst.getItems().get(row).setResult(result);
-							tvBatchToolsDat2DirDst.refresh();
 						}
 
 						@Override
@@ -631,7 +630,6 @@ public class BatchToolsPanelController extends BaseController
 						{
 							for(final AbstractSrcDstResult item : tvBatchToolsDat2DirDst.getItems())
 								item.setResult("");
-							tvBatchToolsDat2DirDst.refresh();
 						}
 					};
 					final var thread = new Thread(buildDir2DatTask(sdrl, updater));
@@ -718,6 +716,7 @@ public class BatchToolsPanelController extends BaseController
 			public void succeeded()
 			{
 				close();
+				saveDat2DirDst();
 				session.setCurrProfile(null);
 				session.setCurrScan(null);
 				session.getReport().setProfile(session.getCurrProfile());
@@ -774,6 +773,7 @@ public class BatchToolsPanelController extends BaseController
 			public void succeeded()
 			{
 				close();
+				saveTorrentDst();
 				session.setCurrProfile(null);
 				session.setCurrScan(null);
 				session.getReport().setProfile(session.getCurrProfile());
@@ -848,7 +848,6 @@ public class BatchToolsPanelController extends BaseController
 		chooseOpenFileMulti(tvBatchToolsDat2DirDst, null, null, Arrays.asList(new FileChooser.ExtensionFilter("DAT files", "*.dat", "*.xml")), paths -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsDat2DirDst.refresh();
 			saveDat2DirDst();
 		}));
 	}
@@ -858,7 +857,6 @@ public class BatchToolsPanelController extends BaseController
 		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsDat2DirDst.refresh();
 			saveDat2DirDst();
 		}));
 	}
@@ -868,7 +866,6 @@ public class BatchToolsPanelController extends BaseController
 		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsDat2DirDst.refresh();
 			saveDat2DirDst();
 		}));
 	}
@@ -890,7 +887,6 @@ public class BatchToolsPanelController extends BaseController
 		chooseOpenFileMulti(tvBatchToolsTorrent, null, null, Arrays.asList(new FileChooser.ExtensionFilter("Torrent files", "*.torrent")), paths -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsTorrent.refresh();
 			saveTorrentDst();
 		}));
 	}
@@ -900,7 +896,6 @@ public class BatchToolsPanelController extends BaseController
 		chooseDir(tvBatchToolsTorrent, null, null, path -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-			tvBatchToolsTorrent.refresh();
 			saveTorrentDst();
 		}));
 	}

@@ -119,7 +119,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		splitPane.setRightComponent(scrollPaneRight);
 
 		BatchTableModel model = new BatchTableModel();
-		tableBatchToolsDat2Dir = new JSDRDropTable(model, files -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(files))); // $NON-NLS-1$
+		tableBatchToolsDat2Dir = new JSDRDropTable(model, files -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(files))); // $NON-NLS-1$
 		model.setButtonHandler((row, column) -> showResult(session, model, row));
 		if (session != null)
 			tableBatchToolsDat2Dir.getSDRModel().setData(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr)));
