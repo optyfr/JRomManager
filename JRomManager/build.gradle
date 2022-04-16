@@ -1019,8 +1019,10 @@ buildRpm {
 	createDirectoryEntry = false
 }
 
+buildRpm.dependsOn distZip
 buildRpm.dependsOn distZip2
 build.dependsOn buildRpm
+buildDeb.dependsOn distZip
 buildDeb.dependsOn distZip2
 build.dependsOn buildDeb
 
