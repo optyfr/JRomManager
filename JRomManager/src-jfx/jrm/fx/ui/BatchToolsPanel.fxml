@@ -167,7 +167,8 @@
 							<contextMenu>
 								<ContextMenu>
 									<items>
-										<MenuItem mnemonicParsing="false" text="Unspecified Action" />
+										<MenuItem mnemonicParsing="false" onAction="#onAddArchive" text="%BatchCompressorPanel.mntmAddArchive.text" />
+										<MenuItem fx:id="mnDelTorrent" mnemonicParsing="false" onAction="#onDelArchive" text="%BatchCompressorPanel.mntmRemoveSelectedArchives.text" />
 									</items>
 								</ContextMenu>
 							</contextMenu>

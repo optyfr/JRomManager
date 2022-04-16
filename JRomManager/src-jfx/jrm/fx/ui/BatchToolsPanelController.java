@@ -135,6 +135,7 @@ public class BatchToolsPanelController extends BaseController
 	{
 		panelBatchToolsCompressor.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png")));
 
+		tvBatchToolsCompressor.setFixedCellSize(18);
 		new DragNDrop(tvBatchToolsCompressor).addAny(this::addFilesToCompressorList);
 		tvBatchToolsCompressorFileCol.setCellFactory(param -> new TableCell<FileResult, Path>()
 		{
@@ -906,6 +907,17 @@ public class BatchToolsPanelController extends BaseController
 		saveTorrentDst();
 	}
 	
+
+	@FXML void onAddArchive(ActionEvent e)
+	{
+		chooseOpenFileMulti(tvBatchToolsCompressor, null, null, Arrays.asList(new FileChooser.ExtensionFilter("Archive files", "*.zip", "*.7z", "*.rar", "*.arj", "*.tar", "*.lzh", "*.lha", "*.tgz", "*.tbz", "*.tbz2", "*.rpm", "*.iso", "*.deb", "*.cab")), paths -> paths.stream().map(FileResult::new).forEachOrdered(tvBatchToolsCompressor.getItems()::add));
+	}
+	
+	@FXML void onDelArchive(ActionEvent e)
+	{
+		tvBatchToolsCompressor.getItems().removeAll(tvBatchToolsCompressor.getSelectionModel().getSelectedItems());
+	}
+	
 	public class CustomPresets extends Stage
 	{
 		ScannerPanelSettingsController controller;
@@ -947,6 +959,5 @@ public class BatchToolsPanelController extends BaseController
 				session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile(), controller.getSettings());
 			close();
 		}
-
 	}
 }
