@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
@@ -18,7 +19,7 @@ public class MainFrameController implements Initializable
 	@FXML private BorderPane profilePanel;
 	@FXML private GridPane dir2datPanel;
 	@FXML private TabPane batchtoolsPanel;
-	@FXML private TabPane settingsPanel;
+	@FXML private ScrollPane settingsPanel;
 	
 	@FXML private Tab profilePanelTab;
 	@FXML private @Getter Tab scannerPanelTab;

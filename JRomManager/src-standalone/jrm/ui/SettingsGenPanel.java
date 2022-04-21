@@ -69,8 +69,8 @@ public class SettingsGenPanel extends JPanel
 		{
 			if(obj == null)
 				return false;
-			if(obj instanceof ThreadCnt)
-				return this.cnt == ((ThreadCnt) obj).cnt;
+			if(obj instanceof ThreadCnt tc)
+				return this.cnt == tc.cnt;
 			return super.equals(obj);
 		}
 		
