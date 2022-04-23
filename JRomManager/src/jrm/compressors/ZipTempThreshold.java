@@ -15,19 +15,18 @@ public enum ZipTempThreshold
 	_250MB(Messages.getString("ZipTempThreshold.250MB"), 250_000_000L), //$NON-NLS-1$
 	_500MB(Messages.getString("ZipTempThreshold.500MB"), 500_000_000L); //$NON-NLS-1$
 	
-	String name;
+	String desc;
 	long threshold;
 	
 	private ZipTempThreshold(String name, long threshold)
 	{
-		this.name = name;
+		this.desc = name;
 		this.threshold = threshold;
 	}
 
-
-	public String getName()
+	public String getDesc()
 	{
-		return name;
+		return desc;
 	}
 
 	public long getThreshold()

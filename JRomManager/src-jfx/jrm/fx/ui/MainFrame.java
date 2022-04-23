@@ -48,7 +48,10 @@ public class MainFrame extends Application
 		Platform.runLater(() -> {
 			try
 			{
-				primaryStage.setOnCloseRequest(e -> session.getUser().getSettings().setProperty("MainFrame.Bounds", Settings.toJson(primaryStage)));
+				primaryStage.setOnCloseRequest(e -> {
+					session.getUser().getSettings().setProperty("MainFrame.Bounds", Settings.toJson(primaryStage));
+					controller.getSettingsPanelController().scheduler.shutdown();
+				});
 				primaryStage.getIcons().add(getIcon("/jrm/resicons/rom.png"));
 				primaryStage.setTitle(Messages.getString("MainFrame.Title") + " " + getVersion());
 				primaryStage.setScene(new Scene(loadMain()));

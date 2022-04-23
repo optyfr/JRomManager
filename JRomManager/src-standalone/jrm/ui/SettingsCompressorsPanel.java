@@ -104,7 +104,7 @@ public class SettingsCompressorsPanel extends JPanel
 			@Override
 			public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus)
 			{
-				setText(((ZipTempThreshold) value).getName());
+				setText(((ZipTempThreshold) value).getDesc());
 				return this;
 			}
 		});

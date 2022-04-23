@@ -29,6 +29,7 @@ public class MainFrameController implements Initializable
 	
 	@FXML private @Getter ProfilePanelController profilePanelController ;
 	@FXML private ScannerPanelController scannerPanelController ;
+	@FXML private @Getter SettingsPanelController settingsPanelController ;
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
