@@ -304,7 +304,7 @@ public class Compressor implements StatusRendererFactory
 			final var tmpfile = IOUtils.createTempFile("JRM", ".zip");
 			Files.delete(tmpfile);
 			final var newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".zip");
-			try(final var srczipf = new ZipFile(file); final var dstzipf = new ZipFile(tmpfile.toFile()))
+			try(final var srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)); final var dstzipf = new ZipFile(tmpfile.toFile()))
 			{
 				final var zipp = new ZipParameters();
 				final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level));
@@ -319,15 +319,16 @@ public class Compressor implements StatusRendererFactory
 					default			-> zipp.setCompressionLevel(CompressionLevel.NORMAL);
 				}
 				progress.setProgress(toDocument(CRUNCHING + toItalicBlack(escape(newfile.getName()))), cnt.get(), total);
-				for(final var hdr : srczipf.getFileHeaders())
-				{
-					if(!hdr.isDirectory())
+				srcarchive.extractCustom(new CustomVisitor() {
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException
 					{
 						final var zippf = new ZipParameters(zipp);
-						zippf.setFileNameInZip(hdr.getFileName());
-						dstzipf.addStream(srczipf.getInputStream(hdr), zippf);
+						zippf.setFileNameInZip(getSourcePath().relativize(file).toString());
+						dstzipf.addStream(Files.newInputStream(file), zippf);
+						return FileVisitResult.CONTINUE;
 					}
-				}
+				});
 			}
 			if(Files.exists(tmpfile))
 			{
@@ -353,17 +354,10 @@ public class Compressor implements StatusRendererFactory
 			final var tmpfile = IOUtils.createTempFile("JRM", ".7z");
 			Files.delete(tmpfile);
 			final var newfile = new File(file.getParentFile(),FilenameUtils.getBaseName(file.getName())+".7z");
-			if(zip2SevenZip(file, cb, tmpfile, newfile)&&Files.exists(tmpfile))
+			
+			if (zip2SevenZip(file, cb, tmpfile, newfile) && Files.exists(tmpfile))
 			{
-				if(FileUtils.deleteQuietly(file))
-				{
-					FileUtils.moveFile(tmpfile.toFile(), newfile);
-					scb.apply(newfile);
-					cb.apply(OK);
-					return newfile;
-				}
-				else
-					cb.apply("Failed to replace original file");
+				return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
 			}
 		}
 		catch(IOException e)
@@ -386,7 +380,7 @@ public class Compressor implements StatusRendererFactory
 	 */
 	private boolean zip2SevenZip(final File file, final UpdResultCallBack cb, final Path tmpfile, final File newfile) throws IOException
 	{
-		try(final var archive = new SevenZipArchive(session, tmpfile.toFile(), new ProgressNarchiveCallBack(progress)))
+		try(final var archive = new SevenZipArchive(session, tmpfile.toFile(), null))
 		{
 			progress.setProgress(toDocument(EXTRACTING + toItalicBlack(escape(file.getName()))), cnt.get(), total);
 			try(final var srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress));)

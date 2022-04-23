@@ -240,18 +240,18 @@ abstract class NArchive extends NArchiveBase
 		switch(format)
 		{
 			case SEVEN_ZIP:
-				if(iout instanceof IOutFeatureSetSolid)
-					((IOutFeatureSetSolid) iout).setSolid(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, Boolean.class)); //$NON-NLS-1$
-				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(SevenZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_level)).getLevel()); //$NON-NLS-1$
-				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_threads, Integer.class)); //$NON-NLS-1$
+				if(iout instanceof IOutFeatureSetSolid ss)
+					ss.setSolid(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, Boolean.class)); //$NON-NLS-1$
+				if(iout instanceof IOutFeatureSetLevel sl)
+					sl.setLevel(SevenZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_level)).getLevel()); //$NON-NLS-1$
+				if(iout instanceof IOutFeatureSetMultithreading sm)
+					sm.setThreadCount(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_threads, Integer.class)); //$NON-NLS-1$
 				break;
 			case ZIP:
-				if(iout instanceof IOutFeatureSetLevel)
-					((IOutFeatureSetLevel) iout).setLevel(ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level)).getLevel()); //$NON-NLS-1$
-				if(iout instanceof IOutFeatureSetMultithreading)
-					((IOutFeatureSetMultithreading) iout).setThreadCount(session.getUser().getSettings().getProperty(SettingsEnum.zip_threads, Integer.class)); //$NON-NLS-1$
+				if(iout instanceof IOutFeatureSetLevel sl)
+					sl.setLevel(ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level)).getLevel()); //$NON-NLS-1$
+				if(iout instanceof IOutFeatureSetMultithreading sm)
+					sm.setThreadCount(session.getUser().getSettings().getProperty(SettingsEnum.zip_threads, Integer.class)); //$NON-NLS-1$
 				break;
 			default:
 				break;
