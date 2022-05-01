@@ -688,7 +688,8 @@ public class BatchToolsPanelController extends BaseController
 			}
 			catch(URISyntaxException|IOException ex)
 			{
-				ex.printStackTrace();
+				Log.err(ex.getMessage(), ex);
+				Dialogs.showError(ex);
 			}
 		}
 		else
@@ -774,18 +775,6 @@ public class BatchToolsPanelController extends BaseController
 			public void succeeded()
 			{
 				close();
-				saveTorrentDst();
-				session.setCurrProfile(null);
-				session.setCurrScan(null);
-				session.getReport().setProfile(session.getCurrProfile());
-				if (MainFrame.getProfileViewer() != null)
-				{
-					MainFrame.getProfileViewer().hide();
-					MainFrame.setProfileViewer(null);
-				}
-				if (MainFrame.getReportFrame() != null)
-					MainFrame.getReportFrame().hide();
-				MainFrame.getController().getTabPane().getTabs().get(1).setDisable(true);
 			}
 			
 			@Override

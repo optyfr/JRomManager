@@ -20,8 +20,6 @@ import jrm.profile.scan.options.Descriptor;
 import jrm.profile.scan.options.FormatOptions;
 import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
-import jrm.security.Session;
-import jrm.security.Sessions;
 import lombok.Getter;
 
 public class ScannerPanelSettingsController implements Initializable
@@ -48,8 +46,6 @@ public class ScannerPanelSettingsController implements Initializable
 	
 	@FXML 	private ContextMenu catVerMenu;
 	
-	private final Session session = Sessions.getSingleSession();
-
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
