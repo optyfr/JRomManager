@@ -560,7 +560,7 @@ public class Scan extends PathAbstractor
 		if (profile.getMachineListList().getSoftwareListList().isEmpty())
 			return;
 		final AtomicInteger j = new AtomicInteger();
-		handler.setProgress2(String.format("%d/%d", j.get(), profile.getMachineListList().getSoftwareListList().size()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
+		handler.setProgress3(String.format("%d/%d", j.get(), profile.getMachineListList().getSoftwareListList().size()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
 		for (final SoftwareList sl : profile.getMachineListList().getSoftwareListList().getFilteredStream().collect(Collectors.toList()))
 		{
 			sl.resetFilteredName();
@@ -573,11 +573,11 @@ public class Scan extends PathAbstractor
 				sldir = new File(swdisksDstDir, sl.getName());
 				swdisksDstScans.put(sl.getName(), dirscan(sl, sldir, unknown, unneeded, handler));
 			}
-			handler.setProgress2(String.format("%d/%d (%s)", j.incrementAndGet(), profile.getMachineListList().getSoftwareListList().size(), sl.getName()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
+			handler.setProgress3(String.format("%d/%d (%s)", j.incrementAndGet(), profile.getMachineListList().getSoftwareListList().size(), sl.getName()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
 			if (handler.isCancel())
 				throw new BreakException();
 		}
-		handler.setProgress2(null, null);
+		handler.setProgress3(null, null);
 		searchUnknownDirs(romsDstDir, swromsDstDir, swdisksDstDir, unknown);
 	}
 

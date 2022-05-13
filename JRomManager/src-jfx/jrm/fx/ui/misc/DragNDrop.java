@@ -9,13 +9,16 @@ import java.util.function.Predicate;
 import javafx.scene.control.Cell;
 import javafx.scene.control.Control;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.TransferMode;
+import jrm.security.PathAbstractor;
+import jrm.security.Sessions;
 
 public class DragNDrop
 {
-	private final String STYLE_ACCEPT;
-	private final String STYLE_REJECT;
+	private final String styleAccept;
+	private final String styleReject;
 	
 	private Control control;
 	
@@ -23,13 +26,13 @@ public class DragNDrop
 	{
 		if(control instanceof Cell)
 		{
-			STYLE_ACCEPT = "-fx-background-color: #DDFFDD;";
-			STYLE_REJECT = "-fx-background-color: #FFDDDD;";
+			styleAccept = "-fx-background-color: #DDFFDD;";
+			styleReject = "-fx-background-color: #FFDDDD;";
 		}
 		else
 		{
-			STYLE_ACCEPT = "-fx-control-inner-background: #DDFFDD;";
-			STYLE_REJECT = "-fx-control-inner-background: #FFDDDD;";
+			styleAccept = "-fx-control-inner-background: #DDFFDD;";
+			styleReject = "-fx-control-inner-background: #FFDDDD;";
 		}
 		this.control = control;
 	}
@@ -74,11 +77,11 @@ public class DragNDrop
 				if(db.hasFiles() && db.getFiles().stream().filter(f -> !filter.test(f)).count()==0)
 				{
 					event.acceptTransferModes(TransferMode.COPY);
-					control.setStyle(STYLE_ACCEPT);
+					control.setStyle(styleAccept);
 					return;
 				}
 			}
-			control.setStyle(STYLE_REJECT);
+			control.setStyle(styleReject);
 			event.consume();
 		});
 
@@ -110,6 +113,21 @@ public class DragNDrop
 
 	public void addFiltered(Predicate<File> filter, SetCallBack cb)
 	{
+		if(control instanceof TextField tf)
+		{
+			tf.textProperty().addListener((observable, oldValue, newValue) -> {
+				if(newValue == null || newValue.isBlank() || tf.isDisabled())
+					tf.setStyle(null);
+				else if(filter.test(PathAbstractor.getAbsolutePath(Sessions.getSingleSession(), newValue).toFile()))
+				{
+					tf.setStyle("-fx-text-inner-color: green;");
+					cb.call(newValue);
+				}
+				else
+					tf.setStyle("-fx-text-inner-color: red;");
+			});
+		}
+
 		control.setOnDragOver(event -> {
 			if (event.getGestureSource() != control)
 			{
@@ -117,11 +135,11 @@ public class DragNDrop
 				if (db.hasFiles() && db.getFiles().size() == 1 && filter.test(db.getFiles().get(0)))
 				{
 					event.acceptTransferModes(TransferMode.COPY);
-					control.setStyle(STYLE_ACCEPT);
+					control.setStyle(styleAccept);
 					return;
 				}
 			}
-			control.setStyle(STYLE_REJECT);
+			control.setStyle(styleReject);
 			event.consume();
 		});
 

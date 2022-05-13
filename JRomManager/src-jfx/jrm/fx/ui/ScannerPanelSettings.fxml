@@ -3,24 +3,24 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.control.ContextMenu?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuItem?>
 
-
-<ScrollPane fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ScannerPanelSettingsController">
+<ScrollPane fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ScannerPanelSettingsController">
 	<content>
 		<GridPane fx:id="settingsPane" alignment="CENTER" hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="400.0" vgap="5.0">
 			<columnConstraints>
 				<ColumnConstraints hgrow="ALWAYS" minWidth="0.0" />
 				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
 				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+				<ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
 				<ColumnConstraints hgrow="ALWAYS" minWidth="0.0" />
 			</columnConstraints>
 			<rowConstraints>
@@ -81,24 +81,18 @@
 						<ComboBox fx:id="collisionModeCbx" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
 					</children>
 				</HBox>
+				<ListView fx:id="dstExcludeGlob" editable="true" maxWidth="1.7976931348623157E308" minWidth="100.0" onEditCommit="#commitGlob" prefWidth="100.0" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.rowSpan="9">
+					<contextMenu>
+						<ContextMenu fx:id="dstExcludeGlobMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
+							<items>
+								<MenuItem fx:id="addDstExcludeGlobMenu" mnemonicParsing="false" onAction="#addGlob" text="add" />
+								<MenuItem fx:id="deleteDstExcludeGlobMenu" mnemonicParsing="false" onAction="#delGlob" text="delete" />
+							</items>
+						</ContextMenu>
+					</contextMenu>
+				</ListView>
+				<Label alignment="CENTER" text="Dst Exclude glob" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
 			</children>
 		</GridPane>
 	</content>
-	<fx:define>
-		<ContextMenu fx:id="catVerMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
-			<items>
-				<Menu text="%MainFrame.mnPresets.text">
-					<items>
-						<Menu text="%MainFrame.mnPdMame.text">
-							<items>
-								<MenuItem fx:id="pdMameMenuItemMerged" mnemonicParsing="false" onAction="#pdMameMergedPreset" text="%MainFrame.mntmPleasuredome.text" />
-								<MenuItem fx:id="pdMameMenuItemNonMerged" mnemonicParsing="false" onAction="#pdMameNonMergedPreset" text="%MainFrame.mntmPdMameNon.text" />
-								<MenuItem fx:id="pdMameMenuItemSplit" mnemonicParsing="false" onAction="#pdMameSplitPreset" text="%MainFrame.mntmPdMameNon.text" />
-							</items>
-						</Menu>
-					</items>
-				</Menu>
-			</items>
-		</ContextMenu>
-	</fx:define>
 </ScrollPane>
