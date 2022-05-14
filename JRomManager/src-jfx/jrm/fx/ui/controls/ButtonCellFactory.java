@@ -29,6 +29,7 @@ public final class ButtonCellFactory<S, T> extends TableCell<S, T>
 	@Override
 	protected void updateItem(T item, boolean empty)
 	{
+		setFont(new Font(10));
 		super.updateItem(item, empty);
 		setGraphic(empty ? null : btn);
 	}

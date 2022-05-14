@@ -46,6 +46,7 @@ public class DropCell extends TableCell<SrcDstResult, String>
 	@Override
 	protected void updateItem(String item, boolean empty)
 	{
+		setFont(new Font(10));
 		super.updateItem(item, empty);
 		if(empty)
 			setText("");

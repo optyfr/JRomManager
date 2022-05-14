@@ -2,6 +2,7 @@ package jrm.fx.ui.controls;
 
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.text.Font;
 import javafx.util.StringConverter;
 
 public class NameCellFactory<T> extends TextFieldTableCell<T, T>
@@ -21,6 +22,7 @@ public class NameCellFactory<T> extends TextFieldTableCell<T, T>
 	@Override
 	public void updateItem(T item, boolean empty)
 	{
+		setFont(new Font(10));
 		super.updateItem(item, empty);
 		if (empty)
 			setText("");

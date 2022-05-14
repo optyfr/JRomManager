@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -37,6 +38,7 @@ import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import jrm.fx.ui.controls.DescriptorCellFactory;
@@ -349,6 +351,31 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		cbAutomation.setCellFactory(param -> new DescriptorCellFactory());
 		cbAutomation.setButtonCell(cbAutomation.getCellFactory().call(null));
 		cbAutomation.setOnAction(e -> session.getCurrProfile().setProperty(ProfileSettingsEnum.automation_scan, cbAutomation.getValue().toString()));
+		
+		importBtn.setOnAction(e -> {
+			final var filters = Arrays.asList(new ExtensionFilter("Properties", "properties"));
+			final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
+			chooseOpenFile(importBtn, null, presets.toFile(), filters, file -> {
+				session.getCurrProfile().loadSettings(file.toFile());
+				session.getCurrProfile().loadCatVer(null);
+				session.getCurrProfile().loadNPlayers(null);
+				initProfileSettings(session);
+			});
+		});
+		
+		exportBtn.setOnAction(e -> {
+			final var filters = Arrays.asList(new ExtensionFilter("Properties", "properties"));
+			final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
+			try
+			{
+				Files.createDirectories(presets);
+				chooseSaveFile(exportBtn, null, presets.toFile(), filters, file -> session.getCurrProfile().saveSettings(file.toFile()));
+			}
+			catch (IOException e1)
+			{
+				Log.err(e1.getMessage(), e1);
+			}
+		});
 	}
 	
 	@Override

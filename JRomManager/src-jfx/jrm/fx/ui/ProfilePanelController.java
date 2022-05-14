@@ -226,6 +226,7 @@ public class ProfilePanelController implements Initializable
 		});
 		profilesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> profilesList.refresh());
 		profilesList.setEditable(false);
+		profilesList.setFixedCellSize(18);
 		new DragNDrop(profilesList).addAny(files -> importDat(files, true));
 	}
 

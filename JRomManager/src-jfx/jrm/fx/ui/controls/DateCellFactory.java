@@ -6,6 +6,7 @@ import java.util.Date;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import jrm.profile.manager.ProfileNFO;
 
 public final class DateCellFactory extends TableCell<ProfileNFO, Date>
@@ -15,6 +16,7 @@ public final class DateCellFactory extends TableCell<ProfileNFO, Date>
 	@Override
 	protected void updateItem(Date item, boolean empty)
 	{
+		setFont(new Font(10));
 		if (empty)
 			setText("");
 		else if (item == null)

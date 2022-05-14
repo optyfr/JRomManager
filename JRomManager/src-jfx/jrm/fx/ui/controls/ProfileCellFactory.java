@@ -3,6 +3,7 @@ package jrm.fx.ui.controls;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Tooltip;
+import javafx.scene.text.Font;
 import javafx.util.StringConverter;
 import jrm.locale.Messages;
 import jrm.profile.manager.ProfileNFO;
@@ -39,6 +40,7 @@ public class ProfileCellFactory extends NameCellFactory<ProfileNFO>
 	@Override
 	public void updateItem(ProfileNFO item, boolean empty)
 	{
+		setFont(new Font(10));
 		super.updateItem(item, empty);
 		if (!empty)
 		{
