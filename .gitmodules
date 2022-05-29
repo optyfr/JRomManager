@@ -1,9 +1,3 @@
-[submodule "Jtrrntzip"]
-	path = Jtrrntzip
-	url = https://github.com/optyfr/Jtrrntzip
-[submodule "JLauncher"]
-	path = JLauncher
-	url = https://github.com/optyfr/JLauncher
 [submodule "WebClient"]
 	path = WebClient
 	url = https://github.com/optyfr/JRomManager-WebClient

@@ -1,7 +1,6 @@
 plugins {
 	id 'java' 
 	id "org.sonarqube"
-//	id 'eclipse' apply false
 	id "de.undercouch.download" version "5.0.5"
 	id "nebula.ospackage" version "9.1.1"
 	id "de.inetsoftware.setupbuilder" version "7.2.13"
@@ -14,6 +13,9 @@ plugins {
 
 sonarqube {
 	properties {
+		property "sonar.projectKey", "optyfr_JRomManager"
+		property "sonar.organization", "optyfr"
+		property "sonar.host.url", "https://sonarcloud.io"
 		property "sonar.projectBaseDir", ".."
 		property "sonar.sourceEncoding", "utf-8"
 		property "sonar.log.level", "INFO"
@@ -74,7 +76,7 @@ eclipse {
 
 
 lombok {
-	version = '1.18.20'
+	version = '1.18.24'
 	config['lombok.extern.findbugs.addSuppressFBWarnings'] = 'false'
 }
 
@@ -85,6 +87,13 @@ version = props.getProperty("Specification-Version")+'.'+props.getProperty("Impl
 
 repositories {
 	mavenCentral()
+	maven {
+		url = uri("https://maven.pkg.github.com/optyfr/Jtrrntzip")
+		credentials {
+			username = "public"
+			password = "\u0067hp_6DEjEzjpKxxDeQ5s39Wfm3wOMRTrxH2L20xf"
+		}
+	}
 	maven { url "https://jitpack.io" }
 }
 
@@ -124,6 +133,13 @@ subprojects {
 	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
 	repositories {
 		mavenCentral()
+		maven {
+			url = uri("https://maven.pkg.github.com/optyfr/Jtrrntzip")
+			credentials {
+				username = "public"
+				password = "\u0067hp_6DEjEzjpKxxDeQ5s39Wfm3wOMRTrxH2L20xf"
+			}
+		}
 		maven { url "https://jitpack.io" }
 	}
 	ext.moduleName = 'minimal.json'
@@ -152,6 +168,9 @@ subprojects {
 	
 	sonarqube {
 		properties {
+			property "sonar.projectKey", "optyfr_JRomManager"
+			property "sonar.organization", "optyfr"
+			property "sonar.host.url", "https://sonarcloud.io"
 			property "sonar.projectBaseDir", ".."
 			property "sonar.sourceEncoding", "utf-8"
 			property "sonar.log.level", "INFO"
@@ -361,32 +380,8 @@ subprojects {
 		}
 	}
 }
-/*
-project(':JRomManager:trrntzip') {
-	sourceSets {
-		main {
-			java {
-				srcDirs = ["../../Jtrrntzip/src"]
-			}
-			resources {
-				srcDirs = ["../../Jtrrntzip/src"]
-			}
-		}
-	}
-	dependencies {
-		implementation group: 'commons-codec', name:'commons-codec'
-		implementation group: 'commons-io', name: 'commons-io'
-	}
-}
-*/
 
 project(':WebClient') {
-	sonarqube {
-		skipProject = true
-	}
-}
-
-project(':Jtrrntzip') {
 	sonarqube {
 		skipProject = true
 	}
@@ -443,7 +438,7 @@ project(':JRomManager:jrmcore') {
 	
 	dependencies {
 		implementation 'com.github.optyfr:SevenZipJBindingAllInOne:1.0'
-		implementation project(':Jtrrntzip')
+		implementation 'com.github.optyfr:jtrrntzip:1.30'
 		implementation group: 'commons-codec', name:'commons-codec'
 		implementation group: 'commons-io', name: 'commons-io'
 		implementation group: 'org.apache.commons', name: 'commons-text'

@@ -4,7 +4,6 @@ pluginManagement {
 	}
 }
 rootProject.name = 'JRomManagerDist'
-include "Jtrrntzip"
 include "JRomManager"
 include "JRomManager:jrmcore"
 include "JRomManager:jrmcli"
