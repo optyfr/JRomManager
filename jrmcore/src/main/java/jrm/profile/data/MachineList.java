@@ -284,7 +284,6 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	 * @param is_mame is it mame (true) or logqix (false) format ?
 	 * @param filtered do we use the current machine filters of none
 	 * @throws XMLStreamException
-	 * @throws IOException
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException
 	{

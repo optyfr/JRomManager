@@ -192,7 +192,6 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	 * @param filtered do we use the current machine filters of none
 	 * @param progress the {@link ProgressHandler} to show the current progress
 	 * @throws XMLStreamException
-	 * @throws IOException
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, boolean filtered, final ProgressHandler progress) throws XMLStreamException
 	{

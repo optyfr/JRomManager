@@ -265,7 +265,6 @@ public class GlobalSettings extends Settings implements SystemSettings
 	 * @param file the file from which derive the {@link Properties} file
 	 * @param settings the {@link Properties} to save, can be <code>null</code>
 	 * @return the saved {@link Properties}
-	 * @throws IOException
 	 */
 	public ProfileSettings saveProfileSettings(final File file, ProfileSettings settings)
 	{
@@ -280,7 +279,6 @@ public class GlobalSettings extends Settings implements SystemSettings
 	 * @param file the file from which derive the {@link Properties} file
 	 * @param settings the {@link Properties} to load, can be <code>null</code>
 	 * @return the loaded {@link Properties}
-	 * @throws IOException
 	 */
 	public ProfileSettings loadProfileSettings(File file, ProfileSettings settings)
 	{

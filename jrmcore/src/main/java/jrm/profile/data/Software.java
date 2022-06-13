@@ -216,7 +216,6 @@ public class Software extends Anyware implements Serializable
 	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
 	 * @param entries can be null, if specified, will filter according this entries list
 	 * @throws XMLStreamException
-	 * @throws IOException
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries) throws XMLStreamException
 	{

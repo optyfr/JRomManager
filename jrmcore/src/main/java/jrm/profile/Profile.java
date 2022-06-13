@@ -1624,11 +1624,6 @@ public class Profile implements Serializable,StatusRendererFactory
 		return Integer.parseInt(settings.getProperty(property, Integer.toString(def)));
 	}
 
-	public String getProperty(final String property, final String def)
-	{
-		return settings.getProperty(property, def);
-	}
-
 	/**
 	 * get a property string value
 	 * 
@@ -1638,6 +1633,11 @@ public class Profile implements Serializable,StatusRendererFactory
 	 *            the default string value if no property is defined
 	 * @return the property value if it exists, otherwise {@code def} is returned
 	 */
+	public String getProperty(final String property, final String def)
+	{
+		return settings.getProperty(property, def);
+	}
+
 	public <T> T getProperty(final ProfileSettingsEnum property, Class<T> cls)
 	{
 		return settings.getProperty(property, cls);

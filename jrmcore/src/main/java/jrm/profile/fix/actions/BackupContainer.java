@@ -89,7 +89,6 @@ public class BackupContainer extends ContainerAction
 	 * @param container the originating entry's {@link Container}
 	 * @param action the {@link EntryAction} describing the entry 
 	 * @return a valid Zip {@link FileSystem} for which to save the entry, {@link FileSystem} archive will be created if not already existing, otherwise it will be opened for writing or reused if has already be returned for another entry 
-	 * @throws IOException if the zip archive could not be opened or created for writing
 	 */
 	@SuppressWarnings("exports")
 	public static synchronized ZipFile getZipFile(final Session session, Container container, EntryAction action)

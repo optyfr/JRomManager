@@ -191,7 +191,7 @@ public abstract class ContainerAction implements StatusRendererFactory, Comparab
 	/**
 	 * @param session
 	 * @param handler
-	 * @param os
+	 * @param zipf
 	 * @return
 	 */
 	protected boolean zosAction(final Session session, final ProgressHandler handler, final ZipFile zipf)

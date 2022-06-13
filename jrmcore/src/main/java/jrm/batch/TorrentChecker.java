@@ -70,7 +70,6 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
 	 *            the check mode (see {@link TrntChkMode}
 	 * @param updater
 	 *            the result interface
-	 * @throws IOException
 	 */
 	public TorrentChecker(final Session session, final ProgressHandler progress, List<T> sdrl, TrntChkMode mode, ResultColUpdater updater, Set<Options> options)
 	{

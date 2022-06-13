@@ -57,7 +57,7 @@ public abstract class MDigest
 
 	/**
 	 * get the current named algorithm
-	 * @return the same string used when getting instance with {@link #getAlgorithm(String)}
+	 * @return  {@link Algo}
 	 */
 	public abstract Algo getAlgorithm();
 	/**

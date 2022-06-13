@@ -302,7 +302,6 @@ public class Machine extends Anyware implements Serializable
 	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
 	 * @param is_mame is it mame (true) or logqix (false) format ?
 	 * @throws XMLStreamException
-	 * @throws IOException
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException
 	{
