@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=JRomManager-2.5.1
-Comment=JRomManager
-Exec=/opt/jrommanager/bin/JRomManager
-Icon=JRomManager
-Terminal=false
-Type=Application
-Categories=Utility
-MimeType=

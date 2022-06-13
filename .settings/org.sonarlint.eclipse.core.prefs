@@ -1,7 +1,3 @@
 autoEnabled=true
 eclipse.preferences.version=1
 fileExclusions=DIRECTORY\:JRomManager/src/jrm/compressors/zipfs
-idePrefixKey=
-projectKey=optyfr_JRomManager
-serverId=SonarCloud/optyfr
-sqPrefixKey=work/JRomManager/JRomManager

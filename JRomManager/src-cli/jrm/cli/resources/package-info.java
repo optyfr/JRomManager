@@ -1,1 +1,0 @@
-package jrm.cli.resources;
