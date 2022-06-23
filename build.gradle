@@ -77,7 +77,6 @@ eclipse {
 
 lombok {
 	version = '1.18.24'
-	config['lombok.extern.findbugs.addSuppressFBWarnings'] = 'false'
 }
 
 ext.props = new Properties()
