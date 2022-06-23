@@ -46,7 +46,7 @@ jobs:
     - name: Releasing
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "build/distributions/JRomManager-*-src.tgz, JRomManager/build/distributions/jrommanager_*_*.deb, JRomManager/build/distributions/jrommanager-*.*.rpm, JRomManager/build/distributions/JRomManager-*.zip"
+        artifacts: "JRomManager/build/distributions/jrommanager_*_*.deb, JRomManager/build/distributions/jrommanager-*.*.rpm, JRomManager/build/distributions/JRomManager-*.zip"
         draft: false
         prerelease: ${{ env.beta }}
         allowUpdates: true
@@ -57,7 +57,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: JPackage DEB with Gradle
-      run: ./gradlew :JRomManager:jpackage -PtargetPlatform=linux-x64 -PinstallerType=deb
+      run: ./gradlew jpackage -PtargetPlatform=linux-x64 -PinstallerType=deb
       env:
         JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
@@ -74,7 +74,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: JPackage RPM with Gradle
-      run: ./gradlew :JRomManager:jpackage -PtargetPlatform=linux-x64 -PinstallerType=rpm
+      run: ./gradlew jpackage -PtargetPlatform=linux-x64 -PinstallerType=rpm
       env:
         JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
@@ -137,7 +137,7 @@ jobs:
         java-version: 17
         
     - name: JPackage MSI with Gradle
-      run: ./gradlew :JRomManager:jpackage -PtargetPlatform=win -PinstallerType=msi
+      run: ./gradlew jpackage -PtargetPlatform=win -PinstallerType=msi
       env:
         JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
@@ -187,7 +187,7 @@ jobs:
       run: chmod +x gradlew
       
     - name: JPackage DMG with Gradle
-      run: ./gradlew :JRomManager:jpackage -PtargetPlatform=macos-x64 -PinstallerType=dmg
+      run: ./gradlew jpackage -PtargetPlatform=macos-x64 -PinstallerType=dmg
       env:
         JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
