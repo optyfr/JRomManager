@@ -7,11 +7,11 @@ import java.util.HashMap;
 import javax.security.auth.Subject;
 import javax.servlet.ServletRequest;
 
-import org.eclipse.jetty.security.AbstractLoginService;
-import org.eclipse.jetty.security.AbstractLoginService.UserPrincipal;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.RolePrincipal;
+import org.eclipse.jetty.security.UserPrincipal;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.UserIdentity;
 
@@ -48,15 +48,14 @@ public class Login extends SQL implements LoginService
 	private static final HashMap<String, UserIdentity> cache = new HashMap<>();
 	private static long cachetime = System.currentTimeMillis();
 
-	@SuppressWarnings("exports")
 	@Override
 	public UserIdentity login(String username, Object credentials, ServletRequest request)
 	{
 		String sessionid = null;
 		WebSession sess = null;
-		if (request instanceof Request)
+		if (request instanceof Request r)
 		{
-			val session = ((Request) request).getSession();
+			val session = r.getSession();
 			if (session != null)
 			{
 				sessionid = session.getId();
@@ -96,7 +95,7 @@ public class Login extends SQL implements LoginService
 					subject.getPublicCredentials().add(username + ":" + sessionid);
 					String[] roles = credential.getUser().getRoles().split(";");
 					for (String role : roles)
-						subject.getPrincipals().add(new AbstractLoginService.RolePrincipal(role));
+						subject.getPrincipals().add(new RolePrincipal(role));
 
 					final var identity = identityService.newUserIdentity(subject, principal, roles);
 					if (sessionid != null)

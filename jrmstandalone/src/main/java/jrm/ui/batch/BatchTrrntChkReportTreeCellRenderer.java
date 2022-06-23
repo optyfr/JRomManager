@@ -75,7 +75,6 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
 	}
 
 	/**
-	 * @param icon
 	 * @param status
 	 * @return
 	 */

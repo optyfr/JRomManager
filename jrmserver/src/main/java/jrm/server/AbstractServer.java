@@ -1,15 +1,19 @@
 package jrm.server;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import jrm.fullserver.FullServer;
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 
@@ -97,16 +101,28 @@ public abstract class AbstractServer
 	}
 
 	/**
-	 * @param jettyserver
 	 * @throws InterruptedException
-	 * @throws Exception
+	 * @throws JettyException
 	 */
 	protected static void waitStop() throws InterruptedException, JettyException
 	{
 		try
 		{
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> Log.info("Server stopped.")));
-			if (debug)
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				if (isStarted())
+				{
+					try
+					{
+						terminate();
+						Log.info("Server stopped.");
+					}
+					catch (Exception e)
+					{
+						// ignore
+					}
+				}
+			}));
+			if (debug || SystemUtils.IS_OS_WINDOWS)
 			{
 				try (final var sc = new Scanner(System.in))
 				{
@@ -114,10 +130,7 @@ public abstract class AbstractServer
 					System.out.println("Enter 'stop' to halt: ");	//NOSONAR
 					while (!sc.nextLine().equalsIgnoreCase("stop"))
 						Thread.sleep(1000);
-					if (isStarted())
-					{
-						terminate();
-					}
+					System.exit(0);
 				}
 			}
 			else
@@ -177,6 +190,21 @@ public abstract class AbstractServer
 		{
 			super(message, cause);
 		}
+	}
+	
+	protected static Path getClientPath(String path) throws URISyntaxException
+	{
+		if(path!=null)
+			return getPath(path);
+		final var p = getPath("jrt:/jrm.merged.module/webclient/");
+		if(Files.exists(p))
+			return p;
+		return Path.of(FullServer.class.getResource("/webclient/").toURI());
+	}
+	
+	protected static Path getPath(String path)
+	{
+		return path.startsWith("jrt:")?Path.of(URI.create(path)):Paths.get(path);
 	}
 	
 

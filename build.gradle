@@ -104,10 +104,9 @@ configurations.all {
 boolean isConGradle(entry) {
 	entry.kind == 'con' && entry.path == 'org.eclipse.buildship.core.gradleclasspathcontainer'
 }
-
-task WebClientJar/*(type: Jar, dependsOn: [':WebClient:build'])*/ {
-	dependsOn ':WebClient:build'
-/*	archiveBaseName = 'jrm-webui'
+/*
+task WebClientJar (type: Jar, dependsOn: [':WebClient:build']) {
+	archiveBaseName = 'jrm-webui'
 	from (new File(project(':WebClient').buildDir,"/gwt/release")) {
 		into('webclient')
 	}
@@ -116,10 +115,10 @@ task WebClientJar/*(type: Jar, dependsOn: [':WebClient:build'])*/ {
 	}
 	from ('certs') {
 		into('certs')
-	}*/
+	}
 	outputs.file new File(project(':WebClient').buildDir,'/libs/jrm-WebClient-'+version+'.jar') 
 }
-
+*/
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -186,96 +185,6 @@ subprojects {
 	
 	dependencies {
 		constraints {
-			implementation('commons-codec:commons-codec') {
-				version {
-					prefer '1.+'
-				}
-			}
-			implementation('commons-io:commons-io') {
-				version {
-					prefer '2.+'
-				}
-			}
-			implementation('com.beust:jcommander') {
-				version {
-					prefer '1.+'
-				}
-			}
-			implementation('org.apache.commons:commons-text') {
-				version {
-					prefer '1.+'
-				}
-			}
-			implementation('org.apache.commons:commons-compress') {
-				version {
-					prefer '1.+'
-				}
-			}
-			implementation('org.apache.commons:commons-lang3') {
-				version {
-					prefer '3.+'
-				}
-			}
-			implementation('one.util:streamex') {
-				version {
-					prefer '0.7.+'
-				}
-			}
-			implementation('com.sun.activation:javax.activation') {
-				version {
-					prefer '[1.2.0,)'
-				}
-			}
-			implementation('com.eclipsesource.minimal-json:minimal-json') {
-				version {
-					prefer '0.9.5'
-				}
-			}
-			compileOnly('com.github.spotbugs:spotbugs-annotations') {
-				version {
-					prefer '3.1.+'
-				}
-			}
-			implementation('com.atlassian.commonmark:commonmark') {
-				version {
-					prefer 'latest.release'
-				}
-			}
-			implementation('org.eclipse.jetty:jetty-server') {
-				version {
-					prefer '9.+'
-				}
-			}
-			implementation('org.eclipse.jetty:jetty-client') {
-				version {
-					prefer '9.+'
-				}
-			}
-			implementation('org.eclipse.jetty:jetty-http') {
-				version {
-					prefer '9.+'
-				}
-			}
-			implementation('org.eclipse.jetty:jetty-alpn-server') {
-				version {
-					prefer '9.+'
-				}
-			}
-			implementation('org.eclipse.jetty:jetty-alpn-conscrypt-server') {
-				version {
-					prefer '9.+'
-				}
-			}
-			implementation('org.eclipse.jetty:jetty-servlet') {
-				version {
-					prefer '9.+'
-				}
-			}
-			implementation('org.eclipse.jetty.http2:http2-server') {
-				version {
-					prefer '9.+'
-				}
-			}
 			implementation(group: 'com.google.code.gson', name: 'gson') {
 				version {
 					prefer 'latest.release'
@@ -304,11 +213,6 @@ subprojects {
 			implementation('org.awaitility:awaitility') {
 				version {
 					prefer '4.+'
-				}
-			}
-			implementation('commons-io:commons-io') {
-				version {
-					prefer 'latest.release'
 				}
 			}
 			implementation('commons-daemon:commons-daemon') {
@@ -354,14 +258,14 @@ project(':jrmcore') {
 	dependencies {
 		implementation group: 'com.github.optyfr', name:'SevenZipJBindingAllInOne', version:'1.0'
 		implementation group: 'com.github.optyfr', name:'jtrrntzip', version:'1.3.0'
-		implementation group: 'commons-codec', name:'commons-codec'
-		implementation group: 'commons-io', name: 'commons-io'
-		implementation group: 'org.apache.commons', name: 'commons-text'
-		implementation group: 'org.apache.commons', name: 'commons-compress'
+		implementation group: 'commons-codec', name:'commons-codec', version:'1.+'
+		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
+		implementation group: 'org.apache.commons', name: 'commons-text', version:'1.+'
+		implementation group: 'org.apache.commons', name: 'commons-compress', version:'1.+'
 	//	implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding'
-		implementation group: 'one.util', name: 'streamex'
-		implementation group: 'com.sun.activation', name: 'javax.activation'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
+		implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.+'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 		implementation group: 'net.lingala.zip4j', name: 'zip4j'
 	
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
@@ -389,10 +293,10 @@ project(':jrmcli') {
 
 	dependencies {
 		implementation project(':jrmcore')
-		implementation group: 'com.beust', name: 'jcommander'
-		implementation group: 'commons-io', name: 'commons-io'
-		implementation group: 'org.apache.commons', name: 'commons-lang3'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
+		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
+		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 	
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine'
@@ -406,6 +310,10 @@ project(':jrmcli') {
 				"Implementation-Title" : "jrmcli",
 			)
 		}
+	}
+	javadoc {
+		exclude '**/*.properties'
+		source = sourceSets.main.allJava
 	}
 	apply plugin:'jacoco'
 	
@@ -444,13 +352,13 @@ project(':jrmstandalone') {
 	dependencies {
 		implementation project(':jrmcore')
 		implementation project(':res-icons')
-		implementation group: 'commons-codec', name:'commons-codec'
-		implementation group: 'com.beust', name: 'jcommander'
-		implementation group: 'commons-io', name: 'commons-io'
-		implementation group: 'org.apache.commons', name: 'commons-lang3'
-		implementation group: 'one.util', name: 'streamex'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
-		implementation group: 'com.sun.activation', name: 'javax.activation'
+		implementation group: 'commons-codec', name:'commons-codec', version:'1.+'
+		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
+		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
+		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
+		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
+		implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.+'
 	
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine'
@@ -487,21 +395,28 @@ project(':jrmfx') {
 		}
 	}
 
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["src/main/java"]
+			}
+		}
+		main {
+			resources {
+				srcDirs = ["src/main/java"]
+			}
+		}
+	}
+
 	dependencies {
 		implementation project(':jrmcore')
 		implementation project(':res-icons')
-		implementation group: 'com.beust', name: 'jcommander'
-		implementation group: 'commons-io', name: 'commons-io'
-		implementation group: 'org.apache.commons', name: 'commons-text'
-		implementation group: 'org.apache.commons', name: 'commons-lang3'
+		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
+		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
+		implementation group: 'org.apache.commons', name: 'commons-text', version:'1.+'
+		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
 		implementation group: 'com.google.code.gson', name: 'gson'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
-/*		implementation group: 'commons-codec', name:'commons-codec'
-		implementation group: 'one.util', name: 'streamex'
-		implementation group: 'com.sun.activation', name: 'javax.activation'
-	
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
-		testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine'*/
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 	}
 	apply plugin: 'application'
 	application.mainClass='jrm.fx.JRomManager'
@@ -516,6 +431,10 @@ project(':jrmfx') {
 			)
 		}
 	}
+	javadoc {
+		exclude '**/*.fxml'
+		source = sourceSets.main.allJava
+	}
 }
 
 project(':jrmserver') {
@@ -524,32 +443,31 @@ project(':jrmserver') {
 	apply plugin: "eclipse"
 
 	dependencies {
-		implementation project(':jrmstandalone')
 		implementation project(':jrmcore')
 		implementation project(':res-icons')
-		implementation group: 'com.beust', name: 'jcommander'
-		implementation group: 'commons-io', name: 'commons-io'
-		implementation group: 'org.apache.commons', name: 'commons-lang3'
-		implementation group: 'org.eclipse.jetty', name:'jetty-server'
-		implementation group: 'org.eclipse.jetty', name:'jetty-servlet'
-		implementation group: 'org.eclipse.jetty', name:'jetty-security'
-		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-server'
-		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-conscrypt-server'
-		implementation group: 'org.eclipse.jetty.http2', name:'http2-server'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json'
+		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
+		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
+		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
+		implementation group: 'org.eclipse.jetty', name:'jetty-server', version:'10.+'
+		implementation group: 'org.eclipse.jetty', name:'jetty-servlet', version:'10.+'
+		implementation group: 'org.eclipse.jetty', name:'jetty-security', version:'10.+'
+		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-server', version:'10.+'
+		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-conscrypt-server', version:'10.+'
+		implementation group: 'org.eclipse.jetty.http2', name:'http2-server', version:'10.+'
+		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 		implementation group: 'com.google.code.gson', name: 'gson'
-		implementation group: 'one.util', name: 'streamex'
+		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
 		implementation group: 'commons-dbutils', name:'commons-dbutils'
 		implementation group: 'com.h2database', name:'h2'
 		implementation group: 'org.mindrot', name:'jbcrypt'
 		implementation group: 'net.java.dev.jna', name:'jna'
 		implementation group: 'de.mkammerer', name:'argon2-jvm'
-		implementation files(WebClientJar)
+		implementation files(project(':WebClient').jar)
 
-		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client'
-		testImplementation group: 'org.eclipse.jetty', name: 'jetty-http'
+		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version:'10.+'
+		testImplementation group: 'org.eclipse.jetty', name: 'jetty-http', version:'10.+'
 		testImplementation group: 'org.awaitility', name: 'awaitility'
-		testImplementation group: 'commons-io', name: 'commons-io'
+		testImplementation group: 'commons-io', name: 'commons-io', version:'2.+'
 		testImplementation group: 'commons-daemon', name:'commons-daemon'
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine'
@@ -614,18 +532,25 @@ project(':jrmserver') {
 	}
 }
 
+configurations {
+	jlinkConfig
+	noarchConfig.extendsFrom runtimeClasspath, runtime
+}
+
 dependencies {
-	implementation project(':jrmstandalone')
-	implementation project(':jrmfx')
-	implementation project(':jrmcli')
-	implementation project(':jrmserver')
+	jlinkConfig project(':jrmstandalone')
+	jlinkConfig project(':jrmfx')
+	jlinkConfig project(':jrmcli')
+	jlinkConfig project(':jrmserver')
+	noarchConfig project(':jrmcli')
+	noarchConfig project(':jrmserver')
 }
 
 
 jar {
 	def mainClassName="jrm.JRomManager"
 	manifest {
-		def path =configurations.runtimeClasspath.filter { it.name.endsWith('.jar') }.collect { 'lib/' + it.getName() }.join(' ')
+		def path =configurations.noarchConfig.filter { it.name.endsWith('.jar') }.collect { 'lib/' + it.getName() }.join(' ')
 		attributes(
 			"Manifest-Version"     : "1.0",
 			"Specification-Title"  : "JRomManager",
@@ -660,7 +585,94 @@ task cliFatJar(type: Jar) {
 
 build.dependsOn cliFatJar 
 
-task docZip(type: Zip, dependsOn: javadoc) {
+task downloadWrapper(type: Download) {
+	src 'https://download.tanukisoftware.com/wrapper/3.5.45/wrapper-delta-pack-3.5.45.zip'
+	dest file("$buildDir/wrapper.zip")
+	onlyIfModified true
+}
+
+distZip.dependsOn jar
+distZip.dependsOn ':WebClient:build'
+distZip.dependsOn downloadWrapper
+distTar.dependsOn jar
+distTar.dependsOn ':WebClient:build'
+distTar.dependsOn downloadWrapper
+
+distTar {
+	compression = Compression.GZIP
+	archiveExtension = "tar.gz"
+}
+
+distributions {
+	main {
+		contents {
+			from (configurations.noarchConfig) {
+				into('lib')
+				exclude '*.zip'
+				include '*.jar'
+			}
+			from (jar)
+			from (zipTree(file("$buildDir/wrapper.zip"))) {
+				exclude '*/bin/*.bat'
+				exclude '*/*/*test*'
+				exclude '*/*/*demo*'
+				exclude '*/src/**'
+				exclude '*/conf/*'
+				eachFile { fcp ->
+					fcp.path = fcp.path.replaceFirst("^wrapper-delta-pack-[0-9a-z\\.]*", 'wrapper')
+					if(fcp.path.endsWith(".sh") || fcp.name.startsWith("wrapper")) {
+						fcp.mode = 0755
+					}
+				}
+				includeEmptyDirs false
+		  	}
+			from ('dist/wrapper') {
+				include '*.bat'
+				include '*.sh'
+				include '*.shconf'
+				into 'wrapper/bin'
+				fileMode = 0755
+			}
+			from ('dist/wrapper') {
+				include 'wrapper.conf'
+				into 'wrapper/conf'
+			}
+		/*	from ('dist/wrapper') {
+				include 'wrapper.dll'
+				into 'wrapper/lib'
+			}*/
+			from ('dist/logs') {
+				include '.do_not_delete'
+				into 'logs'
+				dirMode = 0777
+			}
+			from ('dist') {
+				include '*.bat'
+				include '*.sh'
+				fileMode = 0755
+			}
+		}
+	}
+}
+
+task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
+	destinationDir = file("$buildDir/docs/javadoc")
+	title = "$project.name $version API"
+	options.author true
+	options.links 'https://docs.oracle.com/en/java/javase/17/docs/api', 'https://openjfx.io/javadoc/17/'
+	options.addStringOption 'Xdoclint:none', '-quiet'
+	
+	subprojects.each { proj ->
+		proj.tasks.withType(Javadoc).each { javadocTask ->
+			source += javadocTask.source
+			classpath += javadocTask.classpath
+			excludes += javadocTask.excludes
+			includes += javadocTask.includes
+		}
+	}
+}
+
+task docZip(type: Zip, dependsOn: aggregatedJavadocs) {
 	destinationDirectory = buildDir
 	classifier "javadocs"
 	from javadoc.outputs.files
@@ -669,73 +681,6 @@ task docZip(type: Zip, dependsOn: javadoc) {
 	destinationDirectory = file("$buildDir/distributions/")
 }
 
-task downloadWrapper(type: Download) {
-	src 'https://download.tanukisoftware.com/wrapper/3.5.45/wrapper-delta-pack-3.5.45.zip'
-	dest file("$buildDir/wrapper.zip")
-	onlyIfModified true
-}
-
-task distZip2(type: Zip, dependsOn: [jar, ':WebClient:build',downloadWrapper]) {
-	from (configurations.runtimeClasspath) {
-		into('lib')
-		exclude '*.zip'
-		include '*.jar'
-	}
-	from (jar)
-//	from (project(':JUpdater').jar)
-	from (new File(project(':WebClient').buildDir,"/gwt/release")) {
-		into('webclient')
-	}
-	from (new File(project(':WebClient').projectDir,"/war/index.html")) {
-		into('webclient')
-	}
-	from ('certs') {
-		into('certs')
-	}
-	from (zipTree(file("$buildDir/wrapper.zip"))) {
-		exclude '*/bin/*.bat'
-		exclude '*/*/*test*'
-		exclude '*/*/*demo*'
-		exclude '*/src/**'
-		exclude '*/conf/*'
-		eachFile { fcp ->
-			fcp.path = fcp.path.replaceFirst("^wrapper-delta-pack-[0-9a-z\\.]*", 'wrapper')
-			if(fcp.path.endsWith(".sh") || fcp.name.startsWith("wrapper")) {
-				fcp.mode = 0755
-			}
-		}
-		includeEmptyDirs false
-  	}
-	from ('dist/wrapper') {
-		include '*.bat'
-		include '*.sh'
-		include '*.shconf'
-		into 'wrapper/bin'
-		fileMode = 0755
-	}
-	from ('dist/wrapper') {
-		include 'wrapper.conf'
-		into 'wrapper/conf'
-	}
-/*	from ('dist/wrapper') {
-		include 'wrapper.dll'
-		into 'wrapper/lib'
-	}*/
-	from ('dist/logs') {
-		include '.do_not_delete'
-		into 'logs'
-		dirMode = 0777
-	}
-	from ('dist') {
-		include '*.bat'
-		include '*.sh'
-		fileMode = 0755
-	}
-	archiveFileName = project.archivesBaseName + '-' + project.version + '.zip'
-	destinationDirectory = file("$buildDir/distributions/")
-}
-
-build.dependsOn distZip2
 build.dependsOn docZip
 
 apply plugin: 'nebula.ospackage'
@@ -753,17 +698,14 @@ ospackage {
 	permissionGroup 'root'
 	into '/opt/jrommanager'
 	url 'https://github.com/optyfr/JRomManager'
-	from (configurations.runtimeClasspath) {
+	from (configurations.noarchConfig) {
 		into('lib')
 		exclude '*.zip'
 		include '*.jar'
 	}
 	from (jar)
-//	from (project(':JUpdater').jar)
-	from (zipTree(distZip2.archivePath)) {
+	from (zipTree(distZip.archivePath)) {
 		include 'wrapper/**'
-		include 'webclient/**'
-		include 'certs/**'
   	}
 	from ('dist') {
 		include '*.bat'
@@ -796,44 +738,48 @@ buildRpm {
 }
 
 buildRpm.dependsOn distZip
-buildRpm.dependsOn distZip2
 build.dependsOn buildRpm
 buildDeb.dependsOn distZip
-buildDeb.dependsOn distZip2
 build.dependsOn buildDeb
+
+
 
 apply plugin: "org.beryx.jlink"
 
 jlink {
 //	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 	mergedModuleName = "jrm.merged.module"
+	configuration = 'jlinkConfig'
 	addExtraDependencies("javafx")
-	
+	mergedModule {
+		additive = true
+		requires 'com.google.gson'
+	}
 	launcher {
-		name = 'JRomManagerFX'
+		name = 'JRomManager'
 		moduleName = 'jrm.merged.module'
 		mainClass = 'jrm.fx.JRomManagerMulti'
-		jvmArgs = ['-XX:MaxRAMPercentage=75']
+		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
 	}
 	secondaryLauncher {
 		name = 'JRomManagerSwing'
 		moduleName = 'jrm.merged.module'
 		mainClass = 'jrm.JRomManagerMulti'
-		jvmArgs = ['-XX:MaxRAMPercentage=75']
+		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
 	}
 	secondaryLauncher {
 		name = 'JRomManagerCLI'
 		moduleName = 'jrm.merged.module'
 		mainClass = 'jrm.cli.JRomManagerCLI'
 		winConsole = true
-		jvmArgs = ['-XX:MaxRAMPercentage=75']
+		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
 	}
 	secondaryLauncher {
 		name = 'JRomManagerServer'
 		moduleName = 'jrm.merged.module'
 		mainClass = 'jrm.server.Server'
 		winConsole = true
-		jvmArgs = ['-XX:MaxRAMPercentage=75']
+		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
 		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
 	secondaryLauncher {
@@ -841,17 +787,17 @@ jlink {
 		moduleName = 'jrm.merged.module'
 		mainClass = 'jrm.fullserver.FullServer'
 		winConsole = true
-		jvmArgs = ['-XX:MaxRAMPercentage=75']
+		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
 		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
 	targetPlatform("win") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.1%2B12/OpenJDK17U-jdk_x64_windows_hotspot_17.0.1_12.zip")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.3%2B7/OpenJDK17U-jdk_x64_windows_hotspot_17.0.3_7.zip")
 	}
 	targetPlatform("linux-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.1%2B12/OpenJDK17U-jdk_x64_linux_hotspot_17.0.1_12.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.3%2B7/OpenJDK17U-jdk_x64_linux_hotspot_17.0.3_7.tar.gz")
 	}
 	targetPlatform("macos-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.1%2B12/OpenJDK17U-jdk_x64_mac_hotspot_17.0.1_12.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.3%2B7/OpenJDK17U-jdk_x64_mac_hotspot_17.0.3_7.tar.gz")
 	}
 	jpackage {
 		installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
@@ -883,3 +829,4 @@ jlink {
 		}
 	}	
 }
+

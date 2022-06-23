@@ -1,10 +1,8 @@
 package jrm.fullserver;
 
 import java.io.IOException;
-import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Security;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -91,10 +89,11 @@ public class FullServer extends AbstractServer
 	}
 
 	/**
-	 * @param cmd
+	 * @param args
 	 * @throws IOException
+	 * @throws URISyntaxException 
 	 */
-	public static void parseArgs(String... args) throws IOException
+	public static void parseArgs(String... args) throws IOException, URISyntaxException
 	{
 		final var jArgs = new Args();
 		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
@@ -102,14 +101,14 @@ public class FullServer extends AbstractServer
 		{
 			cmd.parse(args);
 			debug = jArgs.debug;
-			clientPath = Optional.ofNullable(jArgs.clientPath).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
+			clientPath = getClientPath(jArgs.clientPath);
 			bind = jArgs.bind;
 			httpPort = jArgs.httpPort;
 			httpsPort = jArgs.httpsPort;
-			keyStorePath = Optional.of(jArgs.cert).filter(p->Files.exists(Paths.get(p))).orElse(KEY_STORE_PATH_DEFAULT);
-			if (Files.exists(keyStorePath.startsWith("jrt:")?Path.of(URI.create(keyStorePath + ".pw")):Paths.get(keyStorePath + ".pw")))
+			keyStorePath = Optional.of(jArgs.cert).filter(p -> Files.exists(getPath(p))).orElse(KEY_STORE_PATH_DEFAULT);
+			if (Files.exists(getPath(keyStorePath + ".pw")))
 				keyStorePWPath = keyStorePath + ".pw";
-			else if(keyStorePath.equals(KEY_STORE_PATH_DEFAULT) && Files.exists(KEY_STORE_PW_PATH_DEFAULT.startsWith("jrt:")?Path.of(URI.create(KEY_STORE_PW_PATH_DEFAULT)):Paths.get(KEY_STORE_PW_PATH_DEFAULT)))
+			else if (keyStorePath.equals(KEY_STORE_PATH_DEFAULT) && Files.exists(getPath(KEY_STORE_PW_PATH_DEFAULT)))
 				keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
 			else
 				keyStorePWPath = null;

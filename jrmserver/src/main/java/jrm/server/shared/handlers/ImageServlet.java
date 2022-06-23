@@ -31,7 +31,7 @@ public class ImageServlet extends HttpServlet
 	{
 		if (isModule == null)
 		{
-			uri = URI.create("jrt:/res.icons/jrm/resicons/");
+			uri = URI.create("jrt:/jrm.merged.module/jrm/resicons/");
 			isModule = URIUtils.URIExists(uri);
 			if (!isModule)
 				uri = ImageServlet.class.getResource("/jrm/resicons/").toURI();

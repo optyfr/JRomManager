@@ -1,7 +1,7 @@
 package jrm.server;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -21,7 +21,6 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
 import jrm.misc.Log;
-import jrm.misc.URIUtils;
 import jrm.server.handlers.SessionServlet;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.handlers.ActionServlet;
@@ -56,11 +55,12 @@ public class Server extends AbstractServer
 	}
 	
 	/**
-	 * @param cmd
+	 * @param args
 	 * @throws NumberFormatException
 	 * @throws IOException
+	 * @throws URISyntaxException 
 	 */
-	public static void parseArgs(String... args) throws NumberFormatException, IOException
+	public static void parseArgs(String... args) throws NumberFormatException, IOException, URISyntaxException
 	{
 		final var jArgs = new Args();
 		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
@@ -68,7 +68,7 @@ public class Server extends AbstractServer
 		{
 			cmd.parse(args);
 			debug = jArgs.debug;
-			clientPath = Optional.ofNullable(jArgs.clientPath).map(Paths::get).orElse(URIUtils.getPath("jrt:/jrm.merged.module/webclient/"));
+			clientPath = getClientPath(jArgs.clientPath);
 			bind = jArgs.bind;
 			httpPort = jArgs.httpPort;
 			Optional.ofNullable(jArgs.workPath).map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));

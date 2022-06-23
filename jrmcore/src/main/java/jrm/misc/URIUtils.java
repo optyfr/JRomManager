@@ -44,8 +44,8 @@ public @UtilityClass class URIUtils
 		try
 		{
 			var uri = URI.create(path);
-			if(uri.getScheme().startsWith("jrt") && !uri.getPath().startsWith("modules"))
-				uri = new URI("jrt:/modules/" + uri.getPath());
+/*			if(uri.getScheme().startsWith("jrt") && !uri.getPath().startsWith("modules"))
+				uri = new URI("jrt:/modules/" + uri.getPath());*/
 			return Path.of(uri);
 		}
 		catch (Exception e)
@@ -57,8 +57,8 @@ public @UtilityClass class URIUtils
 	
 	public static Path getPath(URI uri) throws URISyntaxException
 	{
-		if(uri.getScheme().startsWith("jrt") && !uri.getPath().startsWith("modules"))
-			uri = new URI("jrt:/modules/" + uri.getPath());
+/*		if(uri.getScheme().startsWith("jrt") && !uri.getPath().startsWith("modules"))
+			uri = new URI("jrt:/modules/" + uri.getPath());*/
 		return Path.of(uri);
 	}
 	

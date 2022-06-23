@@ -70,7 +70,6 @@ public class BatchTorrentResultsController implements Initializable
 	}
 
 	/**
-	 * @param icon
 	 * @param status
 	 * @return
 	 */
