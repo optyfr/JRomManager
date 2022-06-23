@@ -180,68 +180,6 @@ subprojects {
 		}
 		archiveFileName = 'jrm-' + project.archivesBaseName + '-' + project.version + '.jar'
 	}
-	
-	
-	
-	dependencies {
-		constraints {
-			implementation(group: 'com.google.code.gson', name: 'gson') {
-				version {
-					prefer 'latest.release'
-				}
-			}
-			implementation('commons-dbutils:commons-dbutils') {
-				version {
-					prefer 'latest.release'
-				}
-			}
-			implementation('com.h2database:h2') {
-				version {
-					prefer 'latest.release'
-				}
-			}
-			implementation('de.mkammerer:argon2-jvm') { 
-				version { 
-					prefer 'latest.release' 
-				}
-			}
-			implementation('org.mindrot:jbcrypt') { 
-				version { 
-					prefer '0.4' 
-				}
-			}
-			implementation('org.awaitility:awaitility') {
-				version {
-					prefer '4.+'
-				}
-			}
-			implementation('commons-daemon:commons-daemon') {
-				version {
-					prefer 'latest.release'
-				}
-			}
-			implementation('org.junit.jupiter:junit-jupiter-api') {
-				version {
-					prefer 'latest.release'
-				}
-			}
-			implementation('org.junit.jupiter:junit-jupiter-engine') {
-				version {
-					prefer 'latest.release'
-				}
-			}
-			implementation('net.java.dev.jna:jna') {
-				version {
-					prefer 'latest.release'
-				}
-			}
-			implementation('net.lingala.zip4j:zip4j') {
-				version {
-					prefer 'latest.release'
-				}
-			}
-		}
-	}
 }
 
 project(':WebClient') {
@@ -266,10 +204,10 @@ project(':jrmcore') {
 		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
 		implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.+'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-		implementation group: 'net.lingala.zip4j', name: 'zip4j'
+		implementation group: 'net.lingala.zip4j', name: 'zip4j', version: 'latest.release'
 	
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine'
+		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
+		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
 	}
 	jar {
 		manifest {
@@ -298,8 +236,8 @@ project(':jrmcli') {
 		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 	
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine'
+		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
+		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
 	}
 	apply plugin: 'application'
 	application.mainClass='jrm.cli.JRomManagerCLI'
@@ -360,8 +298,8 @@ project(':jrmstandalone') {
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 		implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.+'
 	
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine'
+		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
+		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
 	}
 	apply plugin: 'application'
 	application.mainClass='jrm.JRomManager'
@@ -415,7 +353,7 @@ project(':jrmfx') {
 		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
 		implementation group: 'org.apache.commons', name: 'commons-text', version:'1.+'
 		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
-		implementation group: 'com.google.code.gson', name: 'gson'
+		implementation group: 'com.google.code.gson', name: 'gson', version: 'latest.release'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 	}
 	apply plugin: 'application'
@@ -447,6 +385,7 @@ project(':jrmserver') {
 		implementation project(':res-icons')
 		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
 		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
+		implementation group: 'commons-daemon', name:'commons-daemon', version: 'latest.release'
 		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
 		implementation group: 'org.eclipse.jetty', name:'jetty-server', version:'10.+'
 		implementation group: 'org.eclipse.jetty', name:'jetty-servlet', version:'10.+'
@@ -455,22 +394,20 @@ project(':jrmserver') {
 		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-conscrypt-server', version:'10.+'
 		implementation group: 'org.eclipse.jetty.http2', name:'http2-server', version:'10.+'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-		implementation group: 'com.google.code.gson', name: 'gson'
+		implementation group: 'com.google.code.gson', name: 'gson', version: 'latest.release'
 		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
-		implementation group: 'commons-dbutils', name:'commons-dbutils'
-		implementation group: 'com.h2database', name:'h2'
-		implementation group: 'org.mindrot', name:'jbcrypt'
-		implementation group: 'net.java.dev.jna', name:'jna'
-		implementation group: 'de.mkammerer', name:'argon2-jvm'
+		implementation group: 'commons-dbutils', name:'commons-dbutils', version: 'latest.release'
+		implementation group: 'com.h2database', name:'h2', version: 'latest.release'
+		implementation group: 'org.mindrot', name:'jbcrypt', version:'0.4'
+		implementation group: 'net.java.dev.jna', name:'jna', version: 'latest.release'
+		implementation group: 'de.mkammerer', name:'argon2-jvm', version: 'latest.release'
 		implementation files(project(':WebClient').jar)
 
 		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version:'10.+'
 		testImplementation group: 'org.eclipse.jetty', name: 'jetty-http', version:'10.+'
-		testImplementation group: 'org.awaitility', name: 'awaitility'
-		testImplementation group: 'commons-io', name: 'commons-io', version:'2.+'
-		testImplementation group: 'commons-daemon', name:'commons-daemon'
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api'
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine'
+		testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.+'
+		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
+		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
 	}
 	
 	apply plugin: 'jacoco'

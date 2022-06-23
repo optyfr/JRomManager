@@ -110,7 +110,6 @@ public class Login extends SQL implements LoginService
 		return null;
 	}
 
-	@SuppressWarnings("exports")
 	@Override
 	public boolean validate(UserIdentity user)
 	{
@@ -121,21 +120,18 @@ public class Login extends SQL implements LoginService
 		return false;
 	}
 
-	@SuppressWarnings("exports")
 	@Override
 	public IdentityService getIdentityService()
 	{
 		return identityService;
 	}
 
-	@SuppressWarnings("exports")
 	@Override
 	public void setIdentityService(IdentityService service)
 	{
 		// disabled
 	}
 
-	@SuppressWarnings("exports")
 	@Override
 	public void logout(UserIdentity user)
 	{
