@@ -52,7 +52,7 @@ A Rom Manager entirely written in Java and released under GPL-2
 ## Technical
 _Minimal development requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature and Gradle Buildship
-- Java 11
+- Java 17
 - Gradle dependencies (via Maven repositories)
     - Apache Commons Codec 1.+ 
     - Apache Commons CLI 1.+ 
@@ -60,9 +60,9 @@ _Minimal development requirements_:
     - Apache Commons Lang3 3.+
     - Apache Commons Text 1.+
     - Apache Commons Compress 1.+ (used solely to list 7zip content)
-    - StreamEx 0.7.+
+    - StreamEx 0.8.+
     - SevenZipJBinding 16.02-2.01 (faster than using 7z cmd line)
-    - Jetty 9.x (server mode)
+    - Jetty 10.x (server mode)
 - Git submodules dependencies
     - [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
     - [JUpdater](https://github.com/optyfr/JUpdater)

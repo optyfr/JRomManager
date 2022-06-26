@@ -1,3 +1,13 @@
+## Release v3.0.0 beta 1
+- 3.x milestone is an attempt to simplify the whole project since it was becoming more and more unmanageable
+- Java 17 is now required
+- JavaFX 17 gui is the new desktop standard interface, as a replacement of the outdated swing interface
+- src archive is removed, to compile from sources => ``git clone --recursive https://github.com/optyfr/JRomManager.git``
+- modularization (jigsaw) has been dropped, it give far more problems and constraints than features
+- zip4j is replacing the hacked Zip File System Provider, it should be able to add/delete entries into a zip without overall archive recompression
+- possibility to skip during scan dirs or files using glob list (not yet functional)
+- Warning : No desktop gui for noarch/all/zip builds since javafx is hardware/os dependent, you'll have to use arch specific packages/installers, for uncommon os/hardware it'll be web or cli mode
+
 ## Release v2.5.0
 - Java 11 is now a minimal source/target requirement
 - Dropped obsolete/unmaintained NanoHTTPd, and using only Jetty
