@@ -91,7 +91,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: build AppImage
-      run: ./JRomManager/appimage/build.sh
+      run: ./appimage/build.sh
         
     - name: Releasing AppImage
       uses: ncipollo/release-action@v1
