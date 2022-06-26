@@ -54,16 +54,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 		{
 			switch (context)
 			{
-				case "tfRomsDest":
-				case "tfDisksDest":
-				case "tfSWDest":
-				case "tfSWDisksDest":
-				case "tfSamplesDest":
-				case "tfBackupDest":
-				case "listSrcDir":
-				case "addDatSrc":
-				case "updDat":
-				case "updTrnt":
+				case "tfRomsDest", "tfDisksDest", "tfSWDest", "tfSWDisksDest", "tfSamplesDest", "tfBackupDest", "listSrcDir", "addDatSrc", "updDat", "updTrnt", "tfSrcDir":
 					isDir = true;
 					pathmatcher = null;
 					break;
@@ -71,8 +62,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 					pathmatcher = "glob:*.torrent";
 					isDir = false;
 					break;
-				case "importDat":
-				case "addDat":
+				case "importDat", "addDat", "tfDstDat":
 					pathmatcher = "glob:*.{xml,dat}";
 					isDir = false;
 					break;
@@ -80,8 +70,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse
 					pathmatcher = "glob:*.{zip,7z,rar,arj,tar,lzh,lha,tgz,tbz,tbz2,rpm,iso,deb,cab}";
 					isDir = false;
 					break;
-				case "importSettings":
-				case "exportSettings":
+				case "importSettings", "exportSettings":
 					pathmatcher = "glob:*.properties";
 					isDir = false;
 					break;

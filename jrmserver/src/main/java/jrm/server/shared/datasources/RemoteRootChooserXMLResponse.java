@@ -59,15 +59,11 @@ public class RemoteRootChooserXMLResponse extends XMLResponse
 		{
 			switch(operation.getData("context"))
 			{
-				case "listSrcDir":
-				case "importDat":
-				case "addDatSrc":
-				case "addDat":
+				case "listSrcDir", "importDat", "addDatSrc", "addDat", "tfSrcDir", "tfDstDat":
 					paths.put("Work", Paths.get(WORK));
 					paths.put("Shared", Paths.get("%shared"));
 					break;
-				case "importSettings":
-				case "exportSettings":
+				case "importSettings", "exportSettings":
 					paths.put("Presets", Paths.get("%presets"));
 					break;
 				default:

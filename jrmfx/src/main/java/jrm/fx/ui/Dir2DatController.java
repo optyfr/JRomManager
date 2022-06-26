@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -16,6 +19,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.misc.DragNDrop;
@@ -91,7 +95,7 @@ public class Dir2DatController extends BaseController
 		dstDatBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png")));
 		dstDatBtn.setOnAction(e -> {
 			final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
-			chooseDir(dstDatBtn, srcDir.getText(), new File(session.getUser().getSettings().getProperty("MainFrame.ChooseDatDst", workdir.toString())), path -> {
+			chooseSaveFile(dstDatBtn, dstDat.getText(), new File(session.getUser().getSettings().getProperty("MainFrame.ChooseDatDst", workdir.toString())), Collections.singletonList(new FileChooser.ExtensionFilter("Dat file","*.xml","*.dat")), path -> {
 				session.getUser().getSettings().setProperty("MainFrame.ChooseDatDst", path.toString()); //$NON-NLS-1$
 				dstDat.setText(path.toString());
 				session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, dstDat.getText()); // $NON-NLS-1$
