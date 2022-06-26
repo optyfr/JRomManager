@@ -46,7 +46,7 @@ jobs:
     - name: Releasing
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "JRomManager/build/distributions/jrommanager_*_*.deb, JRomManager/build/distributions/jrommanager-*.*.rpm, JRomManager/build/distributions/JRomManager-*.zip"
+        artifacts: "build/distributions/jrommanager_*_*.deb, build/distributions/jrommanager-*.*.rpm, build/distributions/JRomManager-*.zip"
         draft: false
         prerelease: ${{ env.beta }}
         allowUpdates: true
@@ -64,7 +64,7 @@ jobs:
     - name: Releasing DEB
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "JRomManager/build/installer/*"
+        artifacts: "build/installer/*"
         draft: false
         prerelease: ${{ env.beta }}
         allowUpdates: true
@@ -81,7 +81,7 @@ jobs:
     - name: Releasing RPM
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "JRomManager/build/installer/*"
+        artifacts: "build/installer/*"
         draft: false
         prerelease: ${{ env.beta }}
         allowUpdates: true
@@ -96,7 +96,7 @@ jobs:
     - name: Releasing AppImage
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "JRomManager/build/JRomManager-*.AppImage"
+        artifacts: "build/JRomManager-*.AppImage"
         draft: false
         prerelease: ${{ env.beta }}
         allowUpdates: true
@@ -144,7 +144,7 @@ jobs:
     - name: Releasing MSI
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "JRomManager/build/installer/*"
+        artifacts: "build/installer/*"
         draft: false
         prerelease: ${{ env.beta }}
         allowUpdates: true
@@ -194,7 +194,7 @@ jobs:
     - name: Releasing DMG
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "JRomManager/build/installer/*"
+        artifacts: "build/installer/*"
         draft: false
         prerelease: ${{ env.beta }}
         allowUpdates: true
