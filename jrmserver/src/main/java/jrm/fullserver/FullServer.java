@@ -308,7 +308,7 @@ public class FullServer extends AbstractServer
 			context.setBaseResource(Resource.newResource(clientPath));
 			context.setContextPath("/");
 	
-			context.setGzipHandler(gzipHandler());
+			context.insertHandler(gzipHandler());
 	
 			context.addServlet(new ServletHolder("datasources", FullDataSourceServlet.class), "/datasources/*");
 			context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
