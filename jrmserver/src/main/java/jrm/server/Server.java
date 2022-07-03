@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.daemon.DaemonContext;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
@@ -128,7 +129,7 @@ public class Server extends AbstractServer
 			gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
 			gzipHandler.setInflateBufferSize(2048);
 			gzipHandler.setMinGzipSize(2048);
-			context.setGzipHandler(gzipHandler);
+			context.insertHandler(gzipHandler);
 	
 			context.addServlet(new ServletHolder("datasources", DataSourceServlet.class), "/datasources/*");
 			context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
@@ -168,4 +169,37 @@ public class Server extends AbstractServer
 		else
 			Log.err("Already initialized");
 	}
+
+	@Override
+	public void init(DaemonContext context) throws Exception
+	{
+		parseArgs(context.getArguments());
+		initialize();
+	}
+
+	@Override
+	public void start() throws Exception
+	{
+		// do nothing
+	}
+
+	@Override
+	public void stop() throws Exception
+	{
+		// do nothing
+	}
+
+	@Override
+	public void destroy()
+	{
+		try
+		{
+			terminate();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 }

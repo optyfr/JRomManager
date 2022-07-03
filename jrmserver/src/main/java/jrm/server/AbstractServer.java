@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import org.apache.commons.daemon.Daemon;
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -17,7 +18,7 @@ import jrm.fullserver.FullServer;
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 
-public abstract class AbstractServer
+public abstract class AbstractServer implements Daemon
 {
 
 	private static final String CACHE_CONTROL = "cacheControl";

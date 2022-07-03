@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.apache.commons.daemon.DaemonContext;
 import org.conscrypt.OpenSSLProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
@@ -361,5 +362,36 @@ public class FullServer extends AbstractServer
 			Log.err("Already initialized");
 	}
 
+	@Override
+	public void init(DaemonContext context) throws Exception
+	{
+		parseArgs(context.getArguments());
+		initialize();
+	}
+
+	@Override
+	public void start() throws Exception
+	{
+		// do nothing
+	}
+
+	@Override
+	public void stop() throws Exception
+	{
+		// do nothing
+	}
+
+	@Override
+	public void destroy()
+	{
+		try
+		{
+			terminate();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 }
