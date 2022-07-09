@@ -21,6 +21,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
+import jrm.misc.DefaultEnvironmentProperties;
 import jrm.misc.Log;
 import jrm.server.handlers.SessionServlet;
 import jrm.server.shared.WebSession;
@@ -39,6 +40,9 @@ public class Server extends AbstractServer
 	private static int connLimit = 50;
 
 	static final Map<String, WebSession> sessions = new HashMap<>();
+
+	private static final DefaultEnvironmentProperties env = DefaultEnvironmentProperties.getInstance(Server.class);
+
 	
 	@Parameters(separators = " =")
 	public static class Args
@@ -55,6 +59,15 @@ public class Server extends AbstractServer
 		private String bind = BIND_DEFAULT;
 	}
 	
+	private static void initFromEnv(Args jArgs)
+	{
+		Optional.ofNullable(env.getProperty("jrm.server.clientpath", jArgs.clientPath)).ifPresent(v -> jArgs.clientPath = v);
+		Optional.ofNullable(env.getProperty("jrm.server.workpath", jArgs.workPath)).ifPresent(v -> jArgs.workPath = v);
+		Optional.ofNullable(env.getProperty("jrm.server.debug", jArgs.debug)).ifPresent(v -> jArgs.debug = v);
+		Optional.ofNullable(env.getProperty("jrm.server.http", jArgs.httpPort)).ifPresent(v -> jArgs.httpPort = v);
+		Optional.ofNullable(env.getProperty("jrm.server.bind", jArgs.bind)).ifPresent(v -> jArgs.bind = v);
+	}
+	
 	/**
 	 * @param args
 	 * @throws NumberFormatException
@@ -67,6 +80,8 @@ public class Server extends AbstractServer
 		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
 		try
 		{
+			initFromEnv(jArgs);
+			
 			cmd.parse(args);
 			debug = jArgs.debug;
 			clientPath = getClientPath(jArgs.clientPath);

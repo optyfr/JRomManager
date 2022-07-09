@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.daemon.DaemonContext;
 import org.conscrypt.OpenSSLProvider;
@@ -17,6 +18,7 @@ import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.server.AcceptRateLimit;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -31,6 +33,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -42,6 +45,7 @@ import jrm.fullserver.handlers.SessionServlet;
 import jrm.fullserver.security.BasicAuthenticator;
 import jrm.fullserver.security.Login;
 import jrm.fullserver.security.SSLReload;
+import jrm.misc.DefaultEnvironmentProperties;
 import jrm.misc.Log;
 import jrm.misc.URIUtils;
 import jrm.server.AbstractServer;
@@ -61,6 +65,10 @@ public class FullServer extends AbstractServer
 	private static final int HTTPS_PORT_DEFAULT = 8443;
 	private static final int PROTOCOLS_DEFAULT = 0xff;
 	private static final int CONNLIMIT_DEFAULT = 50;
+	private static final int RATELIMIT_DEFAULT = CONNLIMIT_DEFAULT / 10;
+	private static final int MAXTHREADS_DEFAULT = CONNLIMIT_DEFAULT * 4;
+	private static final int MINTHREADS_DEFAULT = CONNLIMIT_DEFAULT / 4;
+	private static final int SESSIONTIMEOUT_DEFAULT = 300;
 
 	private static String keyStorePath;
 	private static String keyStorePWPath;
@@ -68,27 +76,71 @@ public class FullServer extends AbstractServer
 	private static int httpPort;
 	private static int httpsPort;
 	private static String bind;
-	private static int connlimit;
+	private static int connLimit = CONNLIMIT_DEFAULT;
+	private static int rateLimit = RATELIMIT_DEFAULT;
+	private static int maxThreads = MAXTHREADS_DEFAULT;
+	private static int minThreads = MINTHREADS_DEFAULT;
+	private static int sessionTimeOut = SESSIONTIMEOUT_DEFAULT;
 
+	private static final DefaultEnvironmentProperties env = DefaultEnvironmentProperties.getInstance(FullServer.class);
+	
 	@Parameters(separators = " =")
 	private static class Args
 	{
 		@Parameter(names = { "-c", "--client", "--clientPath" }, arity = 1, description = "Client path")
 		private String clientPath = null;
+
 		@Parameter(names = { "-w", "--work", "--workpath" }, arity = 1, description = "Working path")
 		private String workPath = null;
+
 		@Parameter(names = { "-d", "--debug" }, description = "Activate debug mode")
 		private boolean debug = false;
+
 		@Parameter(names = { "-C", "--cert" }, arity = 1, description = "cert file, default is " + KEY_STORE_PATH_DEFAULT)
 		private String cert = KEY_STORE_PATH_DEFAULT;
+
 		@Parameter(names = { "-s", "--https" }, arity = 1, description = "https port, default is " + HTTPS_PORT_DEFAULT)
 		private int httpsPort = HTTPS_PORT_DEFAULT;
+
 		@Parameter(names = { "-p", "--http" }, arity = 1, description = "http port, default is " + HTTP_PORT_DEFAULT)
 		private int httpPort = HTTP_PORT_DEFAULT;
+
 		@Parameter(names = { "-b", "--bind" }, arity = 1, description = "bind to address or host, default is " + BIND_DEFAULT)
 		private String bind = BIND_DEFAULT;
+		
+		@Parameter(names = { "--conn-limit" }, arity = 1, description = "max simultaneous connection, default is " + CONNLIMIT_DEFAULT)
+		private int connlimit = CONNLIMIT_DEFAULT;
+		
+		@Parameter(names = { "--rate-limit" }, arity = 1, description = "max connection rate per second, default is " + RATELIMIT_DEFAULT)
+		private int ratelimit = RATELIMIT_DEFAULT;
+		
+		@Parameter(names = { "--max-threads" }, arity = 1, description = "max server threads, default is " + MAXTHREADS_DEFAULT)
+		private int maxThreads = MAXTHREADS_DEFAULT;
+		
+		@Parameter(names = { "--min-threads" }, arity = 1, description = "min server threads, default is " + MINTHREADS_DEFAULT)
+		private int minThreads = MINTHREADS_DEFAULT;
+		
+		@Parameter(names = { "--session-timeout" }, arity = 1, description = "session timeout, default is " + SESSIONTIMEOUT_DEFAULT)
+		private int sessionTimeOut = MINTHREADS_DEFAULT;
+		
 	}
 
+	private static void initFromEnv(Args jArgs)
+	{
+		Optional.ofNullable(env.getProperty("jrm.server.clientpath", jArgs.clientPath)).ifPresent(v -> jArgs.clientPath = v);
+		Optional.ofNullable(env.getProperty("jrm.server.workpath", jArgs.workPath)).ifPresent(v -> jArgs.workPath = v);
+		Optional.ofNullable(env.getProperty("jrm.server.debug", jArgs.debug)).ifPresent(v -> jArgs.debug = v);
+		Optional.ofNullable(env.getProperty("jrm.server.cert", jArgs.cert)).ifPresent(v -> jArgs.cert = v);
+		Optional.ofNullable(env.getProperty("jrm.server.https", jArgs.httpsPort)).ifPresent(v -> jArgs.httpsPort = v);
+		Optional.ofNullable(env.getProperty("jrm.server.http", jArgs.httpPort)).ifPresent(v -> jArgs.httpPort = v);
+		Optional.ofNullable(env.getProperty("jrm.server.bind", jArgs.bind)).ifPresent(v -> jArgs.bind = v);
+		Optional.ofNullable(env.getProperty("jrm.server.connlimit", jArgs.connlimit)).ifPresent(v -> jArgs.connlimit = v);
+		Optional.ofNullable(env.getProperty("jrm.server.ratelimit", jArgs.ratelimit)).ifPresent(v -> jArgs.ratelimit = v);
+		Optional.ofNullable(env.getProperty("jrm.server.minthreads", jArgs.minThreads)).ifPresent(v -> jArgs.minThreads = v);
+		Optional.ofNullable(env.getProperty("jrm.server.maxthreads", jArgs.maxThreads)).ifPresent(v -> jArgs.maxThreads = v);
+		Optional.ofNullable(env.getProperty("jrm.server.sessiontimeout", jArgs.sessionTimeOut)).ifPresent(v -> jArgs.sessionTimeOut = v);
+	}
+	
 	/**
 	 * @param args
 	 * @throws IOException
@@ -100,6 +152,8 @@ public class FullServer extends AbstractServer
 		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
 		try
 		{
+			initFromEnv(jArgs);
+			
 			cmd.parse(args);
 			debug = jArgs.debug;
 			clientPath = getClientPath(jArgs.clientPath);
@@ -115,7 +169,11 @@ public class FullServer extends AbstractServer
 				keyStorePWPath = null;
 			Optional.ofNullable(jArgs.workPath).map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
 			protocols = PROTOCOLS_DEFAULT;
-			connlimit = CONNLIMIT_DEFAULT;
+			connLimit = jArgs.connlimit;
+			rateLimit = jArgs.ratelimit;
+			minThreads = jArgs.minThreads;
+			maxThreads = jArgs.maxThreads;
+			sessionTimeOut = jArgs.sessionTimeOut;
 			
 			Locale.setDefault(Locale.US);
 			System.setProperty("file.encoding", "UTF-8");
@@ -302,7 +360,7 @@ public class FullServer extends AbstractServer
 	{
 		if(jettyserver==null)
 		{
-			jettyserver = new Server();
+			jettyserver = new Server(new QueuedThreadPool(maxThreads > 0?maxThreads:(connLimit * 4), minThreads > 0?minThreads:(connLimit / 4)));
 	
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 			context.setBaseResource(Resource.newResource(clientPath));
@@ -323,7 +381,7 @@ public class FullServer extends AbstractServer
 	
 			setSecurity(context);
 	
-			context.getSessionHandler().setMaxInactiveInterval(300);
+			context.getSessionHandler().setMaxInactiveInterval(sessionTimeOut);
 			context.getSessionHandler().addEventListener(new SessionListener(true));
 	
 			jettyserver.setHandler(context);
@@ -349,7 +407,8 @@ public class FullServer extends AbstractServer
 					jettyserver.addConnector(httpsConnector(jettyserver));
 			}
 	
-			jettyserver.addBean(new ConnectionLimit(connlimit, jettyserver)); // limit simultaneous connections
+			jettyserver.addBean(new ConnectionLimit(connLimit, jettyserver)); // limit simultaneous connections
+			jettyserver.addBean(new AcceptRateLimit(rateLimit > 0 ? rateLimit : (connLimit / 10), 1, TimeUnit.SECONDS, jettyserver));	// rate limit
 	
 			jettyserver.start();
 			Log.config("Start server");

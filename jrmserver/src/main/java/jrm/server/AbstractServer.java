@@ -156,7 +156,8 @@ public abstract class AbstractServer implements Daemon
 		WebSession.closeAll();
 		if (jettyserver != null)
 		{
-			jettyserver.stop();
+			if(jettyserver.isStarted())
+				jettyserver.stop();
 			jettyserver = null;
 		}
 	}
