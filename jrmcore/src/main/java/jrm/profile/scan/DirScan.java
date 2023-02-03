@@ -835,17 +835,13 @@ public final class DirScan extends PathAbstractor
 					hdr = zipf.getFileHeader(ZipTools.toZipEntry(entry.getFile()));
 				MDigest[] digests = computeHash(zipf.getInputStream(hdr), algorithms);
 				updateEntryFromHashes(entry, digests);
-				updateHashesFromEntry(entry);
 			}
 			catch (IOException | NoSuchAlgorithmException e)
 			{
 				Log.err(e.getMessage(),e);
 			}
 		}
-		else
-		{
-			updateHashesFromEntry(entry);
-		}
+		updateHashesFromEntry(entry);
 	}
 
 	/**
