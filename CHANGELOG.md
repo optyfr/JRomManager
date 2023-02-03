@@ -1,3 +1,7 @@
+## Release v3.0.0 beta 2
+- fixed broken torrentzip
+- fixed sha1 scan miss (whatever rom is suspicious or unconditional sha1 calculation was enabled)
+
 ## Release v3.0.0 beta 1
 - 3.x milestone is an attempt to simplify the whole project since it was becoming more and more unmanageable
 - Java 17 is now required
