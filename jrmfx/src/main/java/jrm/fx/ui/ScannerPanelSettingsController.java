@@ -86,7 +86,7 @@ public class ScannerPanelSettingsController implements Initializable
 		pdMameMenuItemMerged.setOnAction(e -> pdMameMergedPreset());
 		final var pdMameMenuItemNonMerged = new MenuItem(Messages.getString("MainFrame.mntmPdMameNon.text"));
 		pdMameMenuItemNonMerged.setOnAction(e -> pdMameNonMergedPreset());
-		final var pdMameMenuItemSplit = new MenuItem(Messages.getString("MainFrame.mntmPdMameNon.text"));
+		final var pdMameMenuItemSplit = new MenuItem(Messages.getString("MainFrame.mntmPdMameSplit.text"));
 		pdMameMenuItemSplit.setOnAction(e -> pdMameSplitPreset());
 		catVerMenu = new ContextMenu(new Menu(Messages.getString("MainFrame.mnPresets.text"),null, pdMameMenuItemMerged, pdMameMenuItemNonMerged, pdMameMenuItemSplit));
 		settingsPane.setOnContextMenuRequested(event -> {
