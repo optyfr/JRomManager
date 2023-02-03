@@ -10,7 +10,7 @@ jobs:
   build_linux:
     env:
       beta: ${{contains(github.ref, 'beta')}}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     
     - id: get_version
@@ -56,23 +56,8 @@ jobs:
         name: "v${{ steps.get_version.outputs.version }}"
         token: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: build AppImage
-      run: ./appimage/build.sh
-        
-    - name: Releasing AppImage
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: "build/JRomManager-*.AppImage"
-        draft: false
-        prerelease: ${{ env.beta }}
-        allowUpdates: true
-        omitBodyDuringUpdate: true
-        omitNameDuringUpdate: true
-        replacesArtifacts: true
-        token: ${{ secrets.GITHUB_TOKEN }}
-        
     - name: JPackage DEB with Gradle
-      run: ./gradlew clean jpackage -PtargetPlatform=linux-x64 -PinstallerType=deb
+      run: ./gradlew jpackage -PtargetPlatform=linux-x64 -PinstallerType=deb
       env:
         JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
@@ -89,7 +74,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: JPackage RPM with Gradle
-      run: ./gradlew clean jpackage -PtargetPlatform=linux-x64 -PinstallerType=rpm
+      run: ./gradlew jpackage -PtargetPlatform=linux-x64 -PinstallerType=rpm
       env:
         JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
@@ -97,6 +82,21 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "build/installer/*"
+        draft: false
+        prerelease: ${{ env.beta }}
+        allowUpdates: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        replacesArtifacts: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: build AppImage
+      run: ./appimage/build.sh
+        
+    - name: Releasing AppImage
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "build/JRomManager-*.AppImage"
         draft: false
         prerelease: ${{ env.beta }}
         allowUpdates: true
