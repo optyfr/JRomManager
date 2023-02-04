@@ -45,6 +45,7 @@ A Rom Manager entirely written in Java and released under GPL-2
     - [Lombok Gradle plugin](https://github.com/franzbecker/gradle-lombok),
     - [GWT SDK](http://www.gwtproject.org) (Google),
     - [GWT WebSockets](https://github.com/sksamuel/gwt-websockets) (Stephen Samuel),
+    - [Zip4J](https://github.com/srikanth-lingala/zip4j) (Srikanth Reddy Lingala),
     - [Jetty](https://www.eclipse.org/jetty/)
     - and all the [Apache commons](https://commons.apache.org/) libraries
 
@@ -61,17 +62,22 @@ _Minimal development requirements_:
     - Apache Commons Text 1.+
     - Apache Commons Compress 1.+ (used solely to list 7zip content)
     - StreamEx 0.8.+
+    - Zip4J
     - SevenZipJBinding 16.02-2.01 (faster than using 7z cmd line)
-    - Jetty 10.x (server mode)
+    - JCommander 1.+
+    - Minimal JSON 0.9.5
+    - Google GSON
+    - Jetty 10.+ (server mode)
+    - H2 Database (full server mode)
+    - *and various others dependencies...*
 - Git submodules dependencies
     - [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
-    - [JUpdater](https://github.com/optyfr/JUpdater)
     - [JRomManager-WebClient](https://github.com/optyfr/JRomManager-WebClient)
 
 _Minimal usage requirements_:
 - 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)
 - Any OS with at least Java 8 runtime (64 bits version required to get more than 1GB)
-- (optional) 7zip or p7zip cmdline program if you need 7z format and only if SevenZipJBinding doesn't work on your platform
+- ~~(optional) 7zip or p7zip cmdline program if you need 7z format and only if SevenZipJBinding doesn't work on your platform~~
 - ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~ *(now integrated with Jtrrntzip)*
 
 _Behavior compared to other Rom managers_
@@ -84,8 +90,8 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
     - [Optional] If your are on Windows, and you want to build the MSI installer, you'll need
        - the latest WIX Toolset to be installed and its bin/ folder added in your %PATH% 
        - OpenJDK 14 installed (for jpackage)
-- Download and unarchive `https://github.com/optyfr/JRomManager/releases/download/<version>/JRomManager-<version>-src.tgz` (use sevenzip for Windows); **Do not download `Source Code (zip)` or `Source Code (tar.gz)`, those ones are automatically built by github and unfortunately does not contains required submodules**
-- `cd JRomManager-<version>`
+- Download code using `git clone --recursive https://github.com/optyfr/JRomManager`
+- `cd JRomManager`
 - run
     - Unix: `sh ./gradlew build`
     - Windows: `.\gradlew.bat build`
@@ -106,7 +112,7 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Per profile settings (what to fix, how to scan, ...)
 - MultiThreading support (at least for archive manipulation and checksum calculation, **fast disks required**)
 - MD5 support (for old dats)
-- 7z support via SevenZipJBinding + 7z command line as functional backup
+- 7z support via SevenZipJBinding ~~+ 7z command line as functional backup~~
 - TorrentZip support using [Jtrrntzip](https://github.com/optyfr/Jtrrntzip)
 - Samples support (with separate Dest dir that may be eventually a subdir of Roms dir)
 - Multiple Source Dir
@@ -123,8 +129,8 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - Double click on cloneof or romof item in profile viewer will jump to that item definition
 - Advanced filtering functionalities when a nplayers.ini and catver.ini is associated with a mame profile
 - Popup menu in profile viewer to export as dat (dat2dat)... selection mode : all or selected, filtering mode : filtered or unfiltered, format : logiqx/mame/softwarelist/softwarelists (according selection and/or profile context)
-- One-click easy updater (can be manually disabled at launch)
-- Jar installer
+- ~~One-click easy updater (can be manually disabled at launch)~~
+- ~~Jar installer~~
 - Extra merging and collision modes to generate PleasureDome compatible Mame sets, as of v0.223 :
     - ROMs split => 100% torrent joining
     - ROMs merged => 99.962% torrent joining (435KB to complete, 4 archives with more files than in PD related to devices)
@@ -150,11 +156,11 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
     - The Web interface is full feature complete, and very powerful, thanks to SmartGWT from isomorphic
     - This feature is for basic usage, it means that :
         - It has not been tested over the internet => the purpose is to access from intranet
-        - It's a simple web server with basic websockets support => proxies may not work, no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
+        - It's a simple web server => no encrypted connection (https/wss), no protection against DDOS, no connection limitations, ...
         - There is currently no multiuser support nor access control implemented => you can break your server easily if you don't know what you're doing
 - Full Server mode, include all features from Simple server mode plus the following:
     - Made for a "community or family usage" over the Internet **provided that each one own the original games for the shared roms, or that the roms are copyleft (see [disclaimer](#disclaimer) above)**
-    - Jetty is used instead of NanoHTTPd
+    - Jetty is used
     - Multi-user with access rights, and separated workdir, a shared read-only space, and no access to entire FileSystem
     - Totally secured (separate accounts with login/password, HTTPS with TLS 1.3, server certificate handling and auto reload, ...)
     - HTTP2 support (only with TLS 1.2) which permit long polling request usage in place of websockets without loosing too much network performance
@@ -168,11 +174,11 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - "Single file" compression mode : to store single rom games without directories nor compression, this mode will work correctly only if:
     - There is only 1 rom per game and no relationship between games (parent/clone)
     - The name of the game is the same than the name of the rom (minus the rom file extension)
+- Java 17 as minimal (since 3.0.0)
+- JavaFX 17 for standalone interface (replace Swing since 3.0.0)
+- Use Zip4J which is faster for adding/removing files into existing zip archives (since 3.0.0)
 
 ## Short Term Planned Features
-- Switch from Java 11 to Java 17
-- Switch from Swing to JavaFX 17 for standalone interface
-- Drop ZipFileSystem and ZipFile to the favor of Zip4J
 - Mode to keep existing container archive format
 - Disk/Threads quotas for "Full Server" mode
 
@@ -194,4 +200,4 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 
 ## Known issues
 - JRomManager were made on my free time, it may not be perfect for all usage, please don't complain if it broke your romset, it is your responsability to make backup before using this tool
-- Zip integrated in java can leave useless directory entries in zip central directory, it is by design, and this implementation is the fastest available, this will not disturb Mame or any emulator, but clrmamepro will complain about useless dirs, and trrntzip will remove those entries as expected :wink:
+- ~~Zip integrated in java can leave useless directory entries in zip central directory, it is by design, and this implementation is the fastest available, this will not disturb Mame or any emulator, but clrmamepro will complain about useless dirs, and trrntzip will remove those entries as expected :wink:~~
