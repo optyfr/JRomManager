@@ -76,7 +76,7 @@ _Minimal development requirements_:
 
 _Minimal usage requirements_:
 - 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)
-- Any OS with at least Java 8 runtime (64 bits version required to get more than 1GB)
+- Any OS with Java 17 runtime if not already bundled (a 64 bits version is required to get more than 1GB)
 - ~~(optional) 7zip or p7zip cmdline program if you need 7z format and only if SevenZipJBinding doesn't work on your platform~~
 - ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~ *(now integrated with Jtrrntzip)*
 
