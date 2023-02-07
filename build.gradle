@@ -525,8 +525,14 @@ build.dependsOn cliFatJar
 
 task downloadDaemonWin(type: Download) {
 	src 'https://dlcdn.apache.org/commons/daemon/binaries/windows/commons-daemon-1.3.3-bin-windows.zip'
-	dest file("$buildDir/commons-daemon-bin-windows.zip")
+	dest file("$buildDir/commons-daemon-1.3.3-bin-windows.zip")
 	onlyIfModified true
+}
+
+task extractDaemonWin(type: Copy) {
+    dependsOn downloadDaemonWin
+    from zipTree(file("${buildDir}/commons-daemon-1.3.3-bin-windows.zip"))
+    into "${buildDir}/commons-daemon-bin-windows"
 }
 
 task downloadDaemonLinux(type: Download) {
@@ -563,9 +569,10 @@ import org.gradle.internal.os.OperatingSystem
 
 distZip.dependsOn jar
 distZip.dependsOn ':WebClient:build'
-distZip.dependsOn downloadDaemonWin
+distZip.dependsOn extractDaemonWin
 distTar.dependsOn jar
 distTar.dependsOn ':WebClient:build'
+distTar.dependsOn extractDaemonWin
 if (OperatingSystem.current().isLinux()) {
 	distZip.dependsOn compileDaemonLinux
 }
@@ -584,10 +591,7 @@ distributions {
 				include '*.jar'
 			}
 			from (jar)
-			from(zipTree(file("$buildDir/commons-daemon-bin-windows.zip")).matching{
-					include 'amd64/*.exe'
-					include 'prunmgr.exe'
-				}.files) {
+			from (fileTree("${buildDir}/commons-daemon-bin-windows").include('amd64/*.exe', 'prunmgr.exe').files) {
 				fileMode = 0755
 			}
 			from ('dist/logs') {
