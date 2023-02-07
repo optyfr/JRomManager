@@ -549,7 +549,7 @@ task extractDaemonLinux(type: Copy) {
 
 task configureDaemonLinux(type:Exec, dependsOn:extractDaemonLinux){
 	workingDir "${buildDir}/commons-daemon-1.3.3-native-src/unix"
-	commandLine './configure'
+	commandLine './configure', '--with-java='+System.properties['java.home']
 	standardOutput = new ByteArrayOutputStream()
 	doLast{
 		print standardOutput.toString().trim()
