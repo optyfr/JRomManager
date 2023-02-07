@@ -567,7 +567,6 @@ distZip.dependsOn downloadDaemonWin
 distTar.dependsOn jar
 distTar.dependsOn ':WebClient:build'
 if (OperatingSystem.current().isLinux()) {
-	println "*** Building on ${os.toString()}."
 	distZip.dependsOn compileDaemonLinux
 }
 
