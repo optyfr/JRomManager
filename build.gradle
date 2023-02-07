@@ -400,6 +400,8 @@ project(':jrmserver') {
 		implementation group: 'org.mindrot', name:'jbcrypt', version:'0.4'
 		implementation group: 'net.java.dev.jna', name:'jna', version: 'latest.release'
 		implementation group: 'de.mkammerer', name:'argon2-jvm', version: 'latest.release'
+		implementation group: 'ch.qos.logback', name:'logback-core', version: 'latest.release'
+		implementation group: 'ch.qos.logback', name:'logback-classic', version: 'latest.release'
 		implementation files(project(':WebClient').jar)
 
 		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version:'10.+'
@@ -484,7 +486,7 @@ dependencies {
 
 
 jar {
-	def mainClassName="jrm.JRomManager"
+	def mainClassName="jrm.server.Server"
 	manifest {
 		def path =configurations.noarchConfig.filter { it.name.endsWith('.jar') }.collect { 'lib/' + it.getName() }.join(' ')
 		attributes(
@@ -501,7 +503,7 @@ jar {
 }
 
 task cliFatJar(type: Jar) {
-	def mainClassName="jrm.JRomManagerCLI"
+	def mainClassName="jrm.cli.JRomManagerCLI"
 	manifest {
 		attributes(
 			"Manifest-Version"     : "1.0",
@@ -521,18 +523,53 @@ task cliFatJar(type: Jar) {
 
 build.dependsOn cliFatJar 
 
-task downloadWrapper(type: Download) {
-	src 'https://download.tanukisoftware.com/wrapper/3.5.45/wrapper-delta-pack-3.5.45.zip'
-	dest file("$buildDir/wrapper.zip")
+task downloadDaemonWin(type: Download) {
+	src 'https://dlcdn.apache.org/commons/daemon/binaries/windows/commons-daemon-1.3.3-bin-windows.zip'
+	dest file("$buildDir/commons-daemon-bin-windows.zip")
 	onlyIfModified true
 }
 
+task downloadDaemonLinux(type: Download) {
+	src 'https://dlcdn.apache.org/commons/daemon/source/commons-daemon-1.3.3-native-src.tar.gz'
+	dest file("$buildDir/commons-daemon-1.3.3-native-src.tar.gz")
+	onlyIfModified true
+}
+
+task extractDaemonLinux(type: Copy) {
+    dependsOn downloadDaemonLinux
+    from tarTree(file("${buildDir}/commons-daemon-1.3.3-native-src.tar.gz"))
+    into "${buildDir}"
+}
+
+task configureDaemonLinux(type:Exec){
+	workingDir "${buildDir}/commons-daemon-1.3.3-native-src/unix"
+	commandLine './configure'
+	standardOutput = new ByteArrayOutputStream()
+	doLast{
+		print standardOutput.toString().trim()
+	}
+}
+
+task compileDaemonLinux(type:Exec, dependsOn:configureDaemonLinux){
+	workingDir "${buildDir}/commons-daemon-1.3.3-native-src/unix"
+	commandLine 'make'
+	standardOutput = new ByteArrayOutputStream()
+	doLast{
+		print standardOutput.toString().trim()
+	}
+}
+
+import org.gradle.internal.os.OperatingSystem
+
 distZip.dependsOn jar
 distZip.dependsOn ':WebClient:build'
-distZip.dependsOn downloadWrapper
+distZip.dependsOn downloadDaemonWin
 distTar.dependsOn jar
 distTar.dependsOn ':WebClient:build'
-distTar.dependsOn downloadWrapper
+if (OperatingSystem.current().isLinux()) {
+	println "*** Building on ${os.toString()}."
+	distZip.dependsOn compileDaemonLinux
+}
 
 distTar {
 	compression = Compression.GZIP
@@ -548,35 +585,12 @@ distributions {
 				include '*.jar'
 			}
 			from (jar)
-			from (zipTree(file("$buildDir/wrapper.zip"))) {
-				exclude '*/bin/*.bat'
-				exclude '*/*/*test*'
-				exclude '*/*/*demo*'
-				exclude '*/src/**'
-				exclude '*/conf/*'
-				eachFile { fcp ->
-					fcp.path = fcp.path.replaceFirst("^wrapper-delta-pack-[0-9a-z\\.]*", 'wrapper')
-					if(fcp.path.endsWith(".sh") || fcp.name.startsWith("wrapper")) {
-						fcp.mode = 0755
-					}
-				}
-				includeEmptyDirs false
-		  	}
-			from ('dist/wrapper') {
-				include '*.bat'
-				include '*.sh'
-				include '*.shconf'
-				into 'wrapper/bin'
+			from(zipTree(file("$buildDir/commons-daemon-bin-windows.zip")).matching{
+					include 'amd64/*.exe'
+					include 'prunmgr.exe'
+				}.files) {
 				fileMode = 0755
 			}
-			from ('dist/wrapper') {
-				include 'wrapper.conf'
-				into 'wrapper/conf'
-			}
-		/*	from ('dist/wrapper') {
-				include 'wrapper.dll'
-				into 'wrapper/lib'
-			}*/
 			from ('dist/logs') {
 				include '.do_not_delete'
 				into 'logs'
@@ -619,6 +633,8 @@ task docZip(type: Zip, dependsOn: aggregatedJavadocs) {
 
 build.dependsOn docZip
 
+
+
 apply plugin: 'nebula.ospackage'
 
 ospackage {
@@ -640,9 +656,6 @@ ospackage {
 		include '*.jar'
 	}
 	from (jar)
-	from (zipTree(distZip.archivePath)) {
-		include 'wrapper/**'
-  	}
 	from ('dist') {
 		include '*.bat'
 		include '*.sh'

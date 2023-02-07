@@ -1,0 +1,14 @@
+[Unit]
+Description=CADServer
+After=network-online.target remote-fs.target
+Wants=network-online.target
+
+[Service]
+EnvironmentFile=/opt/CADServer/env.sh
+Type=forking
+ExecStart=/opt/CADServer/jsvc -cwd ${CADSERVER_PATH} -user ${CADSERVER_USER} -home ${CADSERVER_PATH}/CADServer-linux-x64 -pidfile /var/run/CADServer.pid -procname CADServer -outfile /var/log/CADServer.log -errfile /var/log/CADServer.err compodata.cad.server.CADServer
+ExecStop=/opt/CADServer/jsvc -stop -cwd ${CADSERVER_PATH} -user ${CADSERVER_USER} -home ${CADSERVER_PATH}/CADServer-linux-x64 -pidfile /var/run/CADServer.pid -cp lib/server-5.0.jar compodata.capture.CaptureServer
+TimeoutSec=1min
+
+[Install]
+WantedBy=multi-user.target

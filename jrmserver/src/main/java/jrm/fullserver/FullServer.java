@@ -5,10 +5,13 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.security.Security;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.daemon.DaemonContext;
 import org.conscrypt.OpenSSLProvider;
@@ -70,7 +73,7 @@ public class FullServer extends AbstractServer
 	private static final int MINTHREADS_DEFAULT = CONNLIMIT_DEFAULT / 4;
 	private static final int SESSIONTIMEOUT_DEFAULT = 300;
 
-	private static String keyStorePath;
+	private static Resource keyStorePath;
 	private static String keyStorePWPath;
 	private static int protocols; // bit 1 = HTTP, bit 2 = HTTPS, bit 3 = HTTP2 (with bit 2)
 	private static int httpPort;
@@ -160,7 +163,7 @@ public class FullServer extends AbstractServer
 			bind = jArgs.bind;
 			httpPort = jArgs.httpPort;
 			httpsPort = jArgs.httpsPort;
-			keyStorePath = Optional.of(jArgs.cert).filter(p -> Files.exists(getPath(p))).orElse(KEY_STORE_PATH_DEFAULT);
+			keyStorePath = Optional.of(getCertsPath(jArgs.cert)).filter(p -> p.exists()).orElse(getCertsPath(null));
 			if (Files.exists(getPath(keyStorePath + ".pw")))
 				keyStorePWPath = keyStorePath + ".pw";
 			else if (keyStorePath.equals(KEY_STORE_PATH_DEFAULT) && Files.exists(getPath(KEY_STORE_PW_PATH_DEFAULT)))
@@ -269,11 +272,11 @@ public class FullServer extends AbstractServer
 	{
 		var sslContextFactory = new SslContextFactory.Server();
 		sslContextFactory.setKeyStoreType("PKCS12");
-		sslContextFactory.setKeyStorePath(keyStorePath);
+		sslContextFactory.setKeyStorePath(keyStorePath.getURI().toString());
 		sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 		sslContextFactory.setUseCipherSuitesOrder(true);
 
-		String keyStorePassword = (keyStorePWPath != null && URIUtils.URIExists(keyStorePWPath)) ? URIUtils.readString(keyStorePWPath).trim() : "";
+		String keyStorePassword = (keyStorePWPath != null && Files.exists(getPath(keyStorePWPath))) ? URIUtils.readString(keyStorePWPath).trim() : "";
 		sslContextFactory.setKeyStorePassword(keyStorePassword);
 		sslContextFactory.setKeyManagerPassword(keyStorePassword);
 		return sslContextFactory;
@@ -363,7 +366,7 @@ public class FullServer extends AbstractServer
 			jettyserver = new Server(new QueuedThreadPool(maxThreads > 0?maxThreads:(connLimit * 4), minThreads > 0?minThreads:(connLimit / 4)));
 	
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-			context.setBaseResource(Resource.newResource(clientPath));
+			context.setBaseResource(clientPath);
 			context.setContextPath("/");
 	
 			context.insertHandler(gzipHandler());
@@ -399,7 +402,7 @@ public class FullServer extends AbstractServer
 				jettyserver.addConnector(httpConnector(jettyserver, config));
 			}
 	
-			if ((protocols & 0x2) == 0x2 && URIUtils.URIExists(keyStorePath))
+			if ((protocols & 0x2) == 0x2 && keyStorePath.exists())
 			{
 				if ((protocols & 0x4) == 0x4)
 					jettyserver.addConnector(http2Connector(jettyserver));
@@ -453,4 +456,48 @@ public class FullServer extends AbstractServer
 		}
 	}
 
+	static void windowsService(String [] args) throws Exception
+	{
+		Log.info(() -> "WINDOW SERVICE " + Stream.of(args).collect(Collectors.joining(" ")));
+		var cmd = "start";
+		if(args.length > 0) cmd = args[0];
+
+		try
+		{
+			parseArgs(Arrays.copyOfRange(args, 1, args.length));
+			if("start".equals(cmd))
+				windowsStart();
+			else
+				windowsStop();
+		}
+		catch(Exception e)
+		{
+			Log.err(e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	static void windowsStart() throws Exception
+	{
+		Log.info("WIN START");
+		initialize();
+		while(isStopped())
+		{
+			synchronized(Server.class)
+			{
+				Server.class.wait(60000); // wait 1 minute and check if stopped
+			}
+		}
+	}
+
+	static void windowsStop() throws Exception
+	{
+		Log.info("WIN STOP");
+		terminate();
+		synchronized(Server.class)
+		{
+			// stop the start loop
+			Server.class.notifyAll();
+		}
+	}
 }

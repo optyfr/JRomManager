@@ -2,10 +2,13 @@ package jrm.server;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.daemon.DaemonContext;
 import org.eclipse.jetty.server.ConnectionLimit;
@@ -136,7 +139,7 @@ public class Server extends AbstractServer
 			jettyserver = new org.eclipse.jetty.server.Server();
 	
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-			context.setBaseResource(Resource.newResource(clientPath));
+			context.setBaseResource(clientPath);
 			context.setContextPath("/");
 	
 			final var gzipHandler = new GzipHandler();
@@ -217,4 +220,48 @@ public class Server extends AbstractServer
 		}
 	}
 
+	static void windowsService(String [] args) throws Exception
+	{
+		Log.info(() -> "WINDOW SERVICE " + Stream.of(args).collect(Collectors.joining(" ")));
+		var cmd = "start";
+		if(args.length > 0) cmd = args[0];
+
+		try
+		{
+			parseArgs(Arrays.copyOfRange(args, 1, args.length));
+			if("start".equals(cmd))
+				windowsStart();
+			else
+				windowsStop();
+		}
+		catch(Exception e)
+		{
+			Log.err(e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	static void windowsStart() throws Exception
+	{
+		Log.info("WIN START");
+		initialize();
+		while(isStopped())
+		{
+			synchronized(Server.class)
+			{
+				Server.class.wait(60000); // wait 1 minute and check if stopped
+			}
+		}
+	}
+
+	static void windowsStop() throws Exception
+	{
+		Log.info("WIN STOP");
+		terminate();
+		synchronized(Server.class)
+		{
+			// stop the start loop
+			Server.class.notifyAll();
+		}
+	}
 }

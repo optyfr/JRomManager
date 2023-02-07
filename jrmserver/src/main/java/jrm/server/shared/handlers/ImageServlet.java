@@ -61,7 +61,8 @@ public class ImageServlet extends HttpServlet
 	{
 		try
 		{
-			val url = getURI().resolve(req.getRequestURI().substring(8)).toURL();
+			val uri = URI.create(getURI() + req.getRequestURI().substring(8));
+			val url = uri.toURL();
 			val urlconn = url.openConnection();
 			urlconn.setDoInput(true);
 			if (urlconn.getContentLength() == 0)

@@ -3,9 +3,12 @@ package jrm.server;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Scanner;
 
 import org.apache.commons.daemon.Daemon;
@@ -13,6 +16,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
 
 import jrm.fullserver.FullServer;
 import jrm.misc.Log;
@@ -28,14 +32,14 @@ public abstract class AbstractServer implements Daemon
 	private static final String TRUE = "true";
 	private static final String FALSE = "false";
 
-	protected static Path clientPath;
+	protected static Resource clientPath;
 	protected static Server jettyserver = null;
 	protected static boolean debug;
 
 	protected AbstractServer()
 	{
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -85,7 +89,7 @@ public abstract class AbstractServer implements Daemon
 		holderStaticNoCache.setInitParameter(CACHE_CONTROL, "no-store");
 		return holderStaticNoCache;
 	}
-	
+
 	protected static Path getWorkPath()
 	{
 		String base = System.getProperty("jrommanager.dir");
@@ -128,15 +132,14 @@ public abstract class AbstractServer implements Daemon
 				try (final var sc = new Scanner(System.in))
 				{
 					// wait until receive stop command from keyboard
-					System.out.println("Enter 'stop' to halt: ");	//NOSONAR
+					System.out.println("Enter 'stop' to halt: "); // NOSONAR
 					while (!sc.nextLine().equalsIgnoreCase("stop"))
 						Thread.sleep(1000);
 					System.exit(0);
 				}
 			}
-			else
-				if (isStarted())
-					jettyserver.join();
+			else if (isStarted())
+				jettyserver.join();
 		}
 		catch (InterruptedException e)
 		{
@@ -144,7 +147,7 @@ public abstract class AbstractServer implements Daemon
 		}
 		catch (Exception e)
 		{
-			throw new JettyException(e.getMessage(),e);
+			throw new JettyException(e.getMessage(), e);
 		}
 	}
 
@@ -156,7 +159,7 @@ public abstract class AbstractServer implements Daemon
 		WebSession.closeAll();
 		if (jettyserver != null)
 		{
-			if(jettyserver.isStarted())
+			if (jettyserver.isStarted())
 				jettyserver.stop();
 			jettyserver = null;
 		}
@@ -182,7 +185,7 @@ public abstract class AbstractServer implements Daemon
 		{
 			super();
 		}
-		
+
 		public JettyException(String message)
 		{
 			super(message);
@@ -193,21 +196,46 @@ public abstract class AbstractServer implements Daemon
 			super(message, cause);
 		}
 	}
-	
-	protected static Path getClientPath(String path) throws URISyntaxException
+
+	protected static Resource getClientPath(String path) throws URISyntaxException
 	{
-		if(path!=null)
-			return getPath(path);
+		if (path != null)
+			return Resource.newResource(getPath(path));
 		final var p = getPath("jrt:/jrm.merged.module/webclient/");
-		if(Files.exists(p))
-			return p;
-		return Path.of(FullServer.class.getResource("/webclient/").toURI());
+		if (Files.exists(p))
+			return Resource.newResource(p);
+		return Resource.newResource(FullServer.class.getResource("/webclient/"));
 	}
-	
+
+	protected static Resource getCertsPath(String path) throws URISyntaxException
+	{
+		if (path != null)
+			return Resource.newResource(getPath(path));
+		final var p = getPath("jrt:/jrm.merged.module/certs/localhost.pfx");
+		if (Files.exists(p))
+			return Resource.newResource(p);
+		return Resource.newResource(FullServer.class.getResource("/certs/localhost.pfx"));
+	}
+
 	protected static Path getPath(String path)
 	{
-		return path.startsWith("jrt:")?Path.of(URI.create(path)):Paths.get(path);
+		try
+		{
+			return path.startsWith("jrt:") || path.startsWith("file:") || path.startsWith("jar:") ? Path.of(URI.create(path)) : Paths.get(path);
+		}
+		catch (FileSystemNotFoundException e)
+		{
+			final var uri = URI.create(path);
+			try
+			{
+				FileSystems.newFileSystem(uri, Collections.emptyMap());
+				return Path.of(uri);
+			}
+			catch (IOException e1)
+			{
+				return null;
+			}
+		}
 	}
-	
 
 }

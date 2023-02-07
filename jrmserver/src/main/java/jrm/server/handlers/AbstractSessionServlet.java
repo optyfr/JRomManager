@@ -44,7 +44,8 @@ public abstract class AbstractSessionServlet extends HttpServlet
 		final var jsonStr = jso.toString();
 		resp.setStatus(HttpServletResponse.SC_OK);
 		resp.setContentType("text/json");
-		resp.setContentLength(jsonStr.getBytes().length);
+		resp.setContentLength(jsonStr.getBytes("UTF-8").length);
 		resp.getWriter().write(jsonStr);
+		resp.getWriter().flush();
 	}
 }
