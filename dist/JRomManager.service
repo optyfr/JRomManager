@@ -1,13 +1,13 @@
 [Unit]
-Description=CADServer
+Description=JRomManager
 After=network-online.target remote-fs.target
 Wants=network-online.target
 
 [Service]
-EnvironmentFile=/opt/CADServer/env.sh
+EnvironmentFile=/opt/JRomManager/env.sh
 Type=forking
-ExecStart=/opt/CADServer/jsvc -cwd ${CADSERVER_PATH} -user ${CADSERVER_USER} -home ${CADSERVER_PATH}/CADServer-linux-x64 -pidfile /var/run/CADServer.pid -procname CADServer -outfile /var/log/CADServer.log -errfile /var/log/CADServer.err compodata.cad.server.CADServer
-ExecStop=/opt/CADServer/jsvc -stop -cwd ${CADSERVER_PATH} -user ${CADSERVER_USER} -home ${CADSERVER_PATH}/CADServer-linux-x64 -pidfile /var/run/CADServer.pid -cp lib/server-5.0.jar compodata.capture.CaptureServer
+ExecStart=/opt/JRomManager/jsvc -cwd ${JROMMANAGER_PATH} -user ${JROMMANAGER_USER} -home ${JAVA_HOME} -cp JRomManager.jar -pidfile /var/run/JRomManager.pid -procname JRomManager -outfile /var/log/JRomManager.log -errfile /var/log/JRomManager.err jrm.server.Server
+ExecStop=/opt/JRomManager/jsvc -stop -cwd ${JROMMANAGER_PATH} -user ${JROMMANAGER_USER} -home ${JAVA_HOME} -pidfile /var/run/JRomManager.pid -cp JRomManager.jar jrm.server.Server
 TimeoutSec=1min
 
 [Install]
