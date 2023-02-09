@@ -580,6 +580,7 @@ distTar.dependsOn ':WebClient:build'
 distTar.dependsOn extractDaemonWin
 if (OperatingSystem.current().isLinux()) {
 	distZip.dependsOn compileDaemonLinux
+	distTar.dependsOn compileDaemonLinux
 }
 
 distTar {
