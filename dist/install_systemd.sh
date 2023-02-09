@@ -24,7 +24,7 @@ TimeoutSec=1min
 WantedBy=multi-user.target
 EOF
 
-sudo ln -sf JRomManager.service /etc/systemd/system/
+sudo ln -sf JRomManager.service /etc/systemd/system/JRomManager.service
 sudo systemctl enable JRomManager.service
 sudo systemctl start JRomManager.service
 
