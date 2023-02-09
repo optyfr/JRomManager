@@ -1,14 +1,9 @@
 #!/bin/bash
 
-if [ ! -d /run/systemd/system ]
-then
-	echo "Your OS does not use systemd";
-	exit
-fi
-
 DIR="$(dirname -- "$(readlink -f -- "$0")")"
 
-JAVA_HOME="$(dirname -- "$(dirname -- "$(readlink -f "$(which java)")")")"
+source "$DIR/check_systemd.sh"
+source "$DIR/check_java.sh"
 
 pushd "$DIR"
 
