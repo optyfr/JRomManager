@@ -554,7 +554,7 @@ task extractDaemonLinux(type: Copy) {
 
 task configureDaemonLinux(type:Exec, dependsOn:extractDaemonLinux){
 	workingDir "${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix"
-	commandLine './configure', '--with-java='+System.properties['java.home']
+	commandLine './configure', '--silent', '--with-java='+System.properties['java.home']
 	standardOutput = new ByteArrayOutputStream()
 	doLast{
 		print standardOutput.toString().trim()
@@ -563,7 +563,7 @@ task configureDaemonLinux(type:Exec, dependsOn:extractDaemonLinux){
 
 task compileDaemonLinux(type:Exec, dependsOn:configureDaemonLinux){
 	workingDir "${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix"
-	commandLine 'make'
+	commandLine 'make', '--silent'
 	standardOutput = new ByteArrayOutputStream()
 	doLast{
 		print standardOutput.toString().trim()
