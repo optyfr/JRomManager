@@ -4,8 +4,11 @@ DIR="$(dirname -- "$(readlink -f -- "$0")")"
 
 source "$DIR/check_systemd.sh"
 source "$DIR/check_java.sh"
+source "$DIR/create_env.sh"
 
 pushd "$DIR"
+
+
 
 cat > JRomManager.service << EOF
 [Unit]
@@ -25,6 +28,7 @@ WantedBy=multi-user.target
 EOF
 
 sudo ln -sf "$DIR/JRomManager.service" /etc/systemd/system/
+sudo systemctl daemon-reload
 sudo systemctl enable JRomManager.service
 sudo systemctl start JRomManager.service
 
