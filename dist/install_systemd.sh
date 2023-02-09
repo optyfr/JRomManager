@@ -16,6 +16,7 @@ Wants=network-online.target
 
 [Service]
 EnvironmentFile="${DIR}/env.sh"
+PassEnvironment=JRM_SERVER_HTTP JRM_SERVER_WORKPATH
 Type=forking
 ExecStart="${DIR}/jsvc" -cwd "${DIR}" -home "${JAVA_HOME}"  -user ${USER} -cp JRomManager.jar -pidfile /var/run/JRomManager.pid -procname JRomManager -outfile "${DIR}/logs/JRomManager.log" -errfile "${DIR}/logs/JRomManager.err" -Dfile.encoding=UTF-8 jrm.server.Server
 ExecStop="${DIR}/jsvc" -stop -cwd "${DIR}" -home "${JAVA_HOME}" -user ${USER} -pidfile /var/run/JRomManager.pid -cp JRomManager.jar jrm.server.Server
