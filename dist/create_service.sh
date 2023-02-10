@@ -4,7 +4,7 @@ DIR="$(dirname -- "$(readlink -f -- "$0")")"
 
 pushd "$DIR" >/dev/null
 
-cat > JRomManager.service << EOF
+sudo cat > JRomManager.service << EOF
 [Unit]
 Description=JRomManager
 After=network-online.target remote-fs.target
@@ -20,7 +20,6 @@ TimeoutSec=1min
 WantedBy=multi-user.target
 EOF
 
-sudo chown root:root "${DIR}/JRomManager.service"
 sudo chmod 755 "${DIR}/JRomManager.service"
 sudo ln -sf "$DIR/JRomManager.service" /etc/systemd/system/
 sudo systemctl daemon-reload
