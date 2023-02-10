@@ -1,7 +1,10 @@
+#!/bin/bash
+
 if [ ! -f "${DIR}/env.sh" ]
 then
 	mkdir -p ${HOME}/.jrommanager
 	sudo cat > "${DIR}/env.sh" <<- EOF
+		#!/bin/bash
 		export JRM_SERVER_HTTP=8080
 		export JRM_SERVER_HTTPS=8443
 		export JRM_SERVER_WORKPATH="${HOME}/.jrommanager"
