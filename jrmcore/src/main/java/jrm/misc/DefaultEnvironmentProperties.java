@@ -28,13 +28,11 @@ public class DefaultEnvironmentProperties
 			properties.clear();
 		}
 		map = init(properties);
-		map.forEach((k,v)->System.err.println(k+"="+v));
 	}
 	
 	public DefaultEnvironmentProperties(Properties properties)
 	{
 		map = init(properties);
-		map.forEach((k,v)->System.err.println(k+"="+v));
 	}
 
 	public static DefaultEnvironmentProperties getInstance(Class<?> loader)
