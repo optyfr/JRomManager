@@ -12,7 +12,8 @@ sudo cat > start_service.sh << EOF
 #!/bin/bash
 source "${DIR}/env.sh"
 mkdir -p "\${JRM_SERVER_WORKPATH}"
-chown \${JRM_SERVER_SERVICE_USER} "\${JRM_SERVER_WORKPATH}"
+mkdir -p "\${JRM_SERVER_WORKPATH}/logs"
+chown -R \${JRM_SERVER_SERVICE_USER} "\${JRM_SERVER_WORKPATH}"
 touch "\${JRM_SERVER_SERVICE_LOG}"
 chown \${JRM_SERVER_SERVICE_USER} "\${JRM_SERVER_SERVICE_LOG}"
 touch "\${JRM_SERVER_SERVICE_ERR}"

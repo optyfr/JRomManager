@@ -8,8 +8,8 @@ then
 		export JRM_SERVER_HTTPS=8443
 		export JRM_SERVER_WORKPATH="${HOME}/.jrommanager"
 		export JRM_SERVER_SERVICE_USER="${USER:-root}"
-		export JRM_SERVER_SERVICE_LOG="${DIR}/logs/service.log"
-		export JRM_SERVER_SERVICE_ERR="${DIR}/logs/service.err"
+		export JRM_SERVER_SERVICE_LOG="\${JRM_SERVER_WORKPATH}/logs/service.log"
+		export JRM_SERVER_SERVICE_ERR="\${JRM_SERVER_WORKPATH}/logs/service.err"
 EOF
 	sudo chmod 700 "${DIR}/env.sh"
 fi
