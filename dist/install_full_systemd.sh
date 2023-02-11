@@ -11,7 +11,13 @@ source create_env.sh
 sudo cat > start_service.sh << EOF
 #!/bin/bash
 source "${DIR}/env.sh"
-"${DIR}/jsvc" -cwd "${DIR}" -home "${JAVA_HOME}" -user ${USER} -cp JRomManager.jar -pidfile /var/run/JRomManager.pid -procname JRomManager -outfile "${DIR}/logs/JRomManager.log" -errfile "${DIR}/logs/JRomManager.err" -Dfile.encoding=UTF-8 jrm.fullserver.FullServer
+mkdir -p "\${JRM_SERVER_WORKPATH}"
+chown \${JRM_SERVER_SERVICE_USER} "\${JRM_SERVER_WORKPATH}"
+touch "\${JRM_SERVER_SERVICE_LOG}"
+chown \${JRM_SERVER_SERVICE_USER} "\${JRM_SERVER_SERVICE_LOG}"
+touch "\${JRM_SERVER_SERVICE_ERR}"
+chown \${JRM_SERVER_SERVICE_USER} "\${JRM_SERVER_SERVICE_ERR}"
+"${DIR}/jsvc" -cwd "${DIR}" -home "${JAVA_HOME}" -user \${JRM_SERVER_SERVICE_USER} -cp JRomManager.jar -pidfile /var/run/JRomManager.pid -procname JRomManager -outfile "\${JRM_SERVER_SERVICE_LOG}" -errfile "\${JRM_SERVER_SERVICE_ERR}" -Dfile.encoding=UTF-8 jrm.fullserver.FullServer
 EOF
 
 sudo chmod 755 start_service.sh
@@ -19,7 +25,7 @@ sudo chmod 755 start_service.sh
 sudo cat > stop_service.sh << EOF
 #!/bin/bash
 source "${DIR}/env.sh"
-"${DIR}/jsvc" -stop -cwd "${DIR}" -home "${JAVA_HOME}" -user ${USER} -pidfile /var/run/JRomManager.pid -cp JRomManager.jar jrm.fullserver.FullServer
+"${DIR}/jsvc" -stop -cwd "${DIR}" -home "${JAVA_HOME}" -user \${JRM_SERVER_SERVICE_USER} -pidfile /var/run/JRomManager.pid -cp JRomManager.jar jrm.fullserver.FullServer
 EOF
 
 sudo chmod 755 stop_service.sh
