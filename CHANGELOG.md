@@ -1,3 +1,8 @@
+## Release v3.0.0 beta 3
+- WebClient was not found when not using module version (case of zip package)
+- Some bugs fixed in WebClient, mainly because of misinterpretation of doc in SmartGWT for datasource's request customization
+- Provided scripts to install server versions with systemd
+
 ## Release v3.0.0 beta 2
 - fixed broken torrentzip
 - fixed sha1 scan miss (whatever rom is suspicious or unconditional sha1 calculation was enabled)
