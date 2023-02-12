@@ -1,3 +1,6 @@
+## Release v3.0.0 beta 4
+- logback-classic was missing in all the arch packaged versions (so no log output)
+
 ## Release v3.0.0 beta 3
 - WebClient was not found when not using module version (case of zip package)
 - Some bugs fixed in WebClient, mainly because of misinterpretation of doc in SmartGWT for datasource's request customization

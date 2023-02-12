@@ -711,13 +711,14 @@ build.dependsOn buildDeb
 apply plugin: "org.beryx.jlink"
 
 jlink {
-//	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 	mergedModuleName = "jrm.merged.module"
 	configuration = 'jlinkConfig'
 	addExtraDependencies("javafx")
 	mergedModule {
 		additive = true
 		requires 'com.google.gson'
+		requires 'ch.qos.logback.classic'
 	}
 	launcher {
 		name = 'JRomManager'
