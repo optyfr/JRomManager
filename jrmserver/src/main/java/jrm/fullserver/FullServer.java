@@ -166,7 +166,7 @@ public class FullServer extends AbstractServer
 			keyStorePath = Optional.of(getCertsPath(jArgs.cert)).filter(p -> p.exists()).orElse(getCertsPath(null));
 			if (Files.exists(getPath(keyStorePath + ".pw")))
 				keyStorePWPath = keyStorePath + ".pw";
-			else if (keyStorePath.equals(KEY_STORE_PATH_DEFAULT) && Files.exists(getPath(KEY_STORE_PW_PATH_DEFAULT)))
+			else if (keyStorePath != null && keyStorePath.getFile() != null && KEY_STORE_PATH_DEFAULT.equals(keyStorePath.getFile().getPath()) && Files.exists(getPath(KEY_STORE_PW_PATH_DEFAULT)))
 				keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
 			else
 				keyStorePWPath = null;
