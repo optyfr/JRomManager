@@ -1,7 +1,7 @@
 plugins {
 	id 'java' 
 	id 'application'
-	id "org.sonarqube" version "4.0.0.2929"
+	id "org.sonarqube"
 	id "de.undercouch.download" version "5.3.1"
 	id "com.netflix.nebula.ospackage" version "11.0.0"
 	id "de.inetsoftware.setupbuilder" version "7.2.16"
@@ -282,6 +282,9 @@ project(':res-icons') {
 	javadoc {
 		enabled = false
 	}
+	sonarqube {
+		skipProject = true
+	}
 }
 
 project(':jrmstandalone') {
@@ -375,6 +378,7 @@ project(':jrmfx') {
 		exclude '**/*.fxml'
 		source = sourceSets.main.allJava
 	}
+	apply plugin:'jacoco'
 }
 
 project(':jrmserver') {
