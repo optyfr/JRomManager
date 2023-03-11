@@ -648,7 +648,7 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
 
 task docZip(type: Zip, dependsOn: aggregatedJavadocs) {
 	destinationDirectory = buildDir
-	archiveClassifier "javadocs"
+	archiveClassifier = 'javadocs'
 	from javadoc.outputs.files
 	into "docs"
 	archiveFileName = project.archivesBaseName + '-' + project.version + '-apidocs' + '.zip'
