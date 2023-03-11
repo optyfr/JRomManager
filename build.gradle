@@ -50,11 +50,11 @@ tasks.register("codeCoverageReport", JacocoReport) {
     reports {
         // xml is usually used to integrate code coverage with
         // other tools like SonarQube, Coveralls or Codecov
-        xml.enabled true
+        xml.required = true
 
         // HTML reports can be used to see code coverage
         // without any external tools
-        html.enabled true
+        html.required = true
     }
 }
 
@@ -145,7 +145,7 @@ subprojects {
 		}
 		jacocoTestReport {
 			reports {
-				xml.enabled true
+				xml.required = true
 			}
 		}
 		finalizedBy jacocoTestReport
@@ -278,6 +278,9 @@ project(':res-icons') {
 				"Implementation-Title" : "res-icons",
 			)
 		}
+	}
+	javadoc {
+		enabled = false
 	}
 }
 
@@ -418,7 +421,7 @@ project(':jrmserver') {
 		}
 		jacocoTestReport {
 			reports {
-				xml.enabled true
+				xml.required = true
 			}
 		}
 		finalizedBy jacocoTestReport
@@ -627,14 +630,20 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
 	options.links 'https://docs.oracle.com/en/java/javase/17/docs/api', 'https://openjfx.io/javadoc/17/'
 	options.addStringOption 'Xdoclint:none', '-quiet'
 	
-	subprojects.each { proj ->
+	def projectsWithJavadoc = subprojects.findAll { it.javadoc.enabled }
+	source = projectsWithJavadoc.collect { it.sourceSets.main.allJava }
+	classpath = files(projectsWithJavadoc.collect { it.sourceSets.main.compileClasspath })
+	includes = projectsWithJavadoc.collectMany { it.javadoc.getIncludes() }
+	excludes = projectsWithJavadoc.collectMany { it.javadoc.getExcludes() }
+	
+/*	subprojects.each { proj ->
 		proj.tasks.withType(Javadoc).each { javadocTask ->
 			source += javadocTask.source
 			classpath += javadocTask.classpath
 			excludes += javadocTask.excludes
 			includes += javadocTask.includes
 		}
-	}
+	}*/
 }
 
 task docZip(type: Zip, dependsOn: aggregatedJavadocs) {
