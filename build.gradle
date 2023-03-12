@@ -11,18 +11,15 @@ plugins {
 	id 'jacoco'
 }
 
-sonarqube {
+sonar {
 	properties {
 		property "sonar.projectKey", "optyfr_JRomManager"
 		property "sonar.organization", "optyfr"
 		property "sonar.host.url", "https://sonarcloud.io"
-//		property "sonar.projectBaseDir", "."
 		property "sonar.sourceEncoding", "utf-8"
 		property "sonar.log.level", "INFO"
 		property "sonar.verbose", "true"
-	//	property "sonar.exclusions", "**/compressors/zipfs/*.java"
 		property "sonar.scm.provider", "git"
-	//	property "sonar.coverage.exclusions", "**/src-jfx/**/*"
 		property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
 	}
 }
@@ -151,16 +148,14 @@ subprojects {
 		finalizedBy jacocoTestReport
 	}
 	
-	sonarqube {
+	sonar {
 		properties {
 			property "sonar.projectKey", "optyfr_JRomManager"
 			property "sonar.organization", "optyfr"
 			property "sonar.host.url", "https://sonarcloud.io"
-	//		property "sonar.projectBaseDir", "."
 			property "sonar.sourceEncoding", "utf-8"
 			property "sonar.log.level", "INFO"
 			property "sonar.verbose", "true"
-			property "sonar.exclusions", "**/compressors/zipfs/*.java"
 			property "sonar.scm.provider", "github"
 			property "sonar.coverage.exclusions", "**/src-jfx/**/*"
 			property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
@@ -182,7 +177,7 @@ subprojects {
 }
 
 project(':WebClient') {
-	sonarqube {
+	sonar {
 		skipProject = true
 	}
 }
@@ -282,7 +277,7 @@ project(':res-icons') {
 	javadoc {
 		enabled = false
 	}
-	sonarqube {
+	sonar {
 		skipProject = true
 	}
 }
