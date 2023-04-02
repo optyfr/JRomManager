@@ -6,8 +6,8 @@ services:
   server:
     image: optyfr/jrommanager:latest
     environment:
-      - JRM_SERVER_WORKPATH=/work
-      - JRM_SERVER_HTTP=8080
+      JRM_SERVER_WORKPATH: "${JRM_SERVER_WORKPATH}"
+      JRM_SERVER_HTTP: ${JRM_SERVER_HTTP}
     volumes:
       - work:${JRM_SERVER_WORKPATH}:rw
     ports:
