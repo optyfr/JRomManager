@@ -580,10 +580,15 @@ distZip.dependsOn extractDaemonWin
 distTar.dependsOn jar
 distTar.dependsOn ':WebClient:build'
 distTar.dependsOn extractDaemonWin
+installDist.dependsOn jar
+installDist.dependsOn ':WebClient:build'
+installDist.dependsOn extractDaemonWin
 if (OperatingSystem.current().isLinux()) {
 	distZip.dependsOn compileDaemonLinux
 	distTar.dependsOn compileDaemonLinux
+	installDist.dependsOn compileDaemonLinux
 }
+
 
 distTar {
 	compression = Compression.GZIP
@@ -656,7 +661,7 @@ task docZip(type: Zip, dependsOn: aggregatedJavadocs) {
 
 build.dependsOn docZip
 
-
+build.dependsOn installDist
 
 apply plugin: 'com.netflix.nebula.ospackage'
 
