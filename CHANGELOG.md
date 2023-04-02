@@ -1,3 +1,6 @@
+## Release v3.0.0 beta 5
+- docker images support
+
 ## Release v3.0.0 beta 4
 - logback-classic was missing in all the arch packaged versions (so no log output)
 
