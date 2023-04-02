@@ -48,4 +48,5 @@ jobs:
       with:
         context: ./build/docker/
         push: true
+        platforms: linux/amd64,linux/arm64
         tags: optyfr/jrommanager:dev
