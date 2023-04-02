@@ -1,0 +1,18 @@
+version: "3.9"
+
+name: jrommanager
+
+services:
+  server:
+    image: optyfr/jrommanager:latest
+    environment:
+      - JRM_SERVER_WORKPATH=/work
+      - JRM_SERVER_HTTP=8080
+    volumes:
+      - work:${JRM_SERVER_WORKPATH}:rw
+    ports:
+      - "8080:${JRM_SERVER_HTTP}"
+    restart: unless-stopped
+
+volumes:
+  work:
