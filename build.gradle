@@ -572,28 +572,10 @@ task compileDaemonLinux(type:Exec, dependsOn:configureDaemonLinux){
 	}
 }
 
-import org.gradle.internal.os.OperatingSystem
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
-distZip.dependsOn jar
-distZip.dependsOn ':WebClient:build'
-distZip.dependsOn extractDaemonWin
-distTar.dependsOn jar
-distTar.dependsOn ':WebClient:build'
-distTar.dependsOn extractDaemonWin
-installDist.dependsOn jar
-installDist.dependsOn ':WebClient:build'
-installDist.dependsOn extractDaemonWin
-if (OperatingSystem.current().isLinux()) {
-	distZip.dependsOn compileDaemonLinux
-	distTar.dependsOn compileDaemonLinux
-	installDist.dependsOn compileDaemonLinux
-}
-
-
-distTar {
-	compression = Compression.GZIP
-	archiveExtension = "tar.gz"
-}
+def os = DefaultNativePlatform.currentOperatingSystem
+def arch = DefaultNativePlatform.currentArchitecture
 
 distributions {
 	main {
@@ -604,14 +586,14 @@ distributions {
 				include '*.jar'
 			}
 			from (jar)
-			from ("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows") {
-				fileMode = 0755
-			}
-			if (OperatingSystem.current().isLinux()) {
+			if (os.isLinux()) {
 				from ("${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix") {
 					include 'jsvc'
 					fileMode = 0755
 				}
+			}
+			from ("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows") {
+				fileMode = 0755
 			}
 			from ('dist/logs') {
 				include '.do_not_delete'
@@ -625,6 +607,93 @@ distributions {
 			}
 		}
 	}
+	win64 {
+        distributionBaseName = 'JRomManager_win-x64'
+		contents {
+			from (configurations.jlinkConfig) {
+				into('lib')
+				exclude '*.zip'
+				include '*.jar'
+			}
+			from (jar)
+			from ("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows") {
+				fileMode = 0755
+			}
+			from ('dist/logs') {
+				include '.do_not_delete'
+				into 'logs'
+				dirMode = 0777
+			}
+			from ('dist') {
+				include '*.bat'
+				fileMode = 0755
+			}
+		}
+	}
+	linux64 {
+        distributionBaseName = 'JRomManager_linux-x64'
+		contents {
+			from (configurations.jlinkConfig) {
+				into('lib')
+				exclude '*.zip'
+				include '*.jar'
+			}
+			from (jar)
+			from ("${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix") {
+				include 'jsvc'
+				fileMode = 0755
+			}
+			from ('dist/logs') {
+				include '.do_not_delete'
+				into 'logs'
+				dirMode = 0777
+			}
+			from ('dist') {
+				include '*.bat'
+				fileMode = 0755
+			}
+		}
+	}
+}
+
+distTar {
+	compression = Compression.GZIP
+	archiveExtension = "tar.gz"
+}
+
+distZip.dependsOn jar
+distZip.dependsOn ':WebClient:build'
+distZip.dependsOn extractDaemonWin
+distTar.dependsOn jar
+distTar.dependsOn ':WebClient:build'
+distTar.dependsOn extractDaemonWin
+installDist.dependsOn jar
+installDist.dependsOn ':WebClient:build'
+installDist.dependsOn extractDaemonWin
+if (os.isLinux()) {
+	win64DistZip.enabled = false
+	win64DistTar.enabled = false
+	linux64DistZip.enabled = false
+	linux64DistTar.dependsOn jar
+	linux64DistTar.dependsOn ':WebClient:build'
+	linux64DistTar.dependsOn compileDaemonLinux
+	linux64DistTar {
+		compression = Compression.GZIP
+		archiveExtension = "tar.gz"
+	}
+	distZip.dependsOn compileDaemonLinux
+	distTar.dependsOn compileDaemonLinux
+	installDist.dependsOn compileDaemonLinux
+	build.dependsOn linux64DistTar
+}
+else if (os.isWindows()) {
+	linux64DistTar.enabled = false
+	linux64DistZip.enabled = false
+	win64DistTar.enabled = false
+	win64DistZip.dependsOn jar
+	win64DistZip.dependsOn ':WebClient:build'
+	win64DistZip.dependsOn extractDaemonWin
+	build.dependsOn win64DistZip
 }
 
 task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
@@ -720,18 +789,18 @@ buildDeb.dependsOn distZip
 build.dependsOn buildDeb
 
 
-
 apply plugin: "org.beryx.jlink"
 
 jlink {
-	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+//	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 	mergedModuleName = "jrm.merged.module"
 	configuration = 'jlinkConfig'
 	addExtraDependencies("javafx")
 	mergedModule {
-		additive = true
+ 		additive = true
 		requires 'com.google.gson'
 		requires 'ch.qos.logback.classic'
+		requires 'one.util.streamex'
 	}
 	launcher {
 		name = 'JRomManager'
@@ -769,7 +838,7 @@ jlink {
 		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
 	targetPlatform("win") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.3%2B7/OpenJDK17U-jdk_x64_windows_hotspot_17.0.3_7.zip")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip")
 	}
 	targetPlatform("linux-x64") {
 		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.3%2B7/OpenJDK17U-jdk_x64_linux_hotspot_17.0.3_7.tar.gz")
