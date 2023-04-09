@@ -353,7 +353,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		cbAutomation.setOnAction(e -> session.getCurrProfile().setProperty(ProfileSettingsEnum.automation_scan, cbAutomation.getValue().toString()));
 		
 		importBtn.setOnAction(e -> {
-			final var filters = Arrays.asList(new ExtensionFilter("Properties", "properties"));
+			final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
 			final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
 			chooseOpenFile(importBtn, null, presets.toFile(), filters, file -> {
 				session.getCurrProfile().loadSettings(file.toFile());
@@ -364,12 +364,12 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		});
 		
 		exportBtn.setOnAction(e -> {
-			final var filters = Arrays.asList(new ExtensionFilter("Properties", "properties"));
+			final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
 			final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
 			try
 			{
 				Files.createDirectories(presets);
-				chooseSaveFile(exportBtn, null, presets.toFile(), filters, file -> session.getCurrProfile().saveSettings(file.toFile()));
+				chooseSaveFile(exportBtn, null, presets.toFile(), filters, file -> session.getCurrProfile().saveSettings(PathAbstractor.getAbsolutePath(session, file.toString()).toFile()));
 			}
 			catch (IOException e1)
 			{
