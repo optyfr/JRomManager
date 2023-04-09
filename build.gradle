@@ -628,6 +628,10 @@ distributions {
 				include '*.bat'
 				fileMode = 0755
 			}
+			from ('dist/full') {
+				include '*.bat'
+				fileMode = 0755
+			}
 		}
 	}
 	linux64 {
@@ -649,7 +653,11 @@ distributions {
 				dirMode = 0777
 			}
 			from ('dist') {
-				include '*.bat'
+				include '*.sh'
+				fileMode = 0755
+			}
+			from ('dist/full') {
+				include '*.sh'
 				fileMode = 0755
 			}
 		}
@@ -841,10 +849,10 @@ jlink {
 		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip")
 	}
 	targetPlatform("linux-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.3%2B7/OpenJDK17U-jdk_x64_linux_hotspot_17.0.3_7.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_linux_hotspot_17.0.6_10.tar.gz")
 	}
 	targetPlatform("macos-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.3%2B7/OpenJDK17U-jdk_x64_mac_hotspot_17.0.3_7.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_mac_hotspot_17.0.6_10.tar.gz")
 	}
 	jpackage {
 		installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)

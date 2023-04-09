@@ -12,4 +12,4 @@ if [ $? -eq 0 ]; then
 		if [ $? -eq 0 ]; then OPT=-xmx2g; fi
 	fi
 fi
-java $OPT -jar JRomManager.jar&
+java $OPT -cp "JRomManager.jar;lib/*"  jrm.fullserver.FullServer
