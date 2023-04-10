@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ProfilePanelController">
+<BorderPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ProfilePanelController">
    <center>
       <SplitPane dividerPositions="0.1" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <items>
@@ -27,14 +27,14 @@
                </contextMenu></TreeView>
             <TableView fx:id="profilesList" editable="true" prefHeight="200.0" prefWidth="200.0">
                <columns>
-                  <TableColumn fx:id="profileCol" editable="false" prefWidth="200.0" sortable="false" text="%FileTableModel.Profile" />
-                  <TableColumn fx:id="profileVersionCol" editable="false" prefWidth="60.0" sortable="false" text="%FileTableModel.Version" />
-                  <TableColumn fx:id="profileHaveSetsCol" editable="false" prefWidth="90.0" sortable="false" text="%FileTableModel.HaveSets" />
-                  <TableColumn fx:id="profileHaveRomsCol" editable="false" prefWidth="90.0" sortable="false" text="%FileTableModel.HaveRoms" />
-                  <TableColumn fx:id="profileHaveDisksCol" editable="false" prefWidth="70.0" sortable="false" text="%FileTableModel.HaveDisks" />
-                  <TableColumn fx:id="profileCreatedCol" editable="false" prefWidth="95.0" sortable="false" text="%FileTableModel.Created" />
-                  <TableColumn fx:id="profileLastScanCol" editable="false" prefWidth="95.0" sortable="false" text="%FileTableModel.Scanned" />
-                  <TableColumn fx:id="profileLastFixCol" editable="false" prefWidth="95.0" sortable="false" text="%FileTableModel.Fixed" />
+                  <TableColumn fx:id="profileCol" editable="false" prefWidth="200.0" text="%FileTableModel.Profile" />
+                  <TableColumn fx:id="profileVersionCol" editable="false" prefWidth="60.0" text="%FileTableModel.Version" />
+                  <TableColumn fx:id="profileHaveSetsCol" editable="false" prefWidth="90.0" text="%FileTableModel.HaveSets" />
+                  <TableColumn fx:id="profileHaveRomsCol" editable="false" prefWidth="90.0" text="%FileTableModel.HaveRoms" />
+                  <TableColumn fx:id="profileHaveDisksCol" editable="false" prefWidth="70.0" text="%FileTableModel.HaveDisks" />
+                  <TableColumn fx:id="profileCreatedCol" editable="false" prefWidth="95.0" text="%FileTableModel.Created" />
+                  <TableColumn fx:id="profileLastScanCol" editable="false" prefWidth="95.0" text="%FileTableModel.Scanned" />
+                  <TableColumn fx:id="profileLastFixCol" editable="false" prefWidth="95.0" text="%FileTableModel.Fixed" />
                </columns>
                <contextMenu>
                   <ContextMenu fx:id="profileMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">

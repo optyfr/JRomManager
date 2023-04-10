@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 
-<Scene xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.ProfileViewerController">
+<Scene xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.ProfileViewerController">
    <root>
       <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0">
          <items>
@@ -112,12 +112,12 @@
                   <TableView fx:id="tableEntity" prefHeight="200.0" prefWidth="200.0">
                     <columns>
                       <TableColumn fx:id="tableEntityStatus" editable="false" minWidth="20.0" prefWidth="20.0" resizable="false" sortable="false" text="%AnywareRenderer.Status" />
-                      <TableColumn fx:id="tableEntityName" editable="false" minWidth="100.0" prefWidth="256.0" sortable="false" text="%AnywareRenderer.Name" />
-                        <TableColumn fx:id="tableEntitySize" editable="false" minWidth="72.0" prefWidth="72.0" resizable="false" sortable="false" text="%AnywareRenderer.Size" />
-                        <TableColumn fx:id="tableEntityCRC" editable="false" minWidth="60.0" prefWidth="60.0" resizable="false" sortable="false" text="%AnywareRenderer.CRC" />
-                        <TableColumn fx:id="tableEntityMD5" editable="false" minWidth="204.0" prefWidth="204.0" resizable="false" sortable="false" text="%AnywareRenderer.MD5" />
-                        <TableColumn fx:id="tableEntitySHA1" editable="false" minWidth="252.0" prefWidth="252.0" resizable="false" sortable="false" text="%AnywareRenderer.SHA-1" />
-                        <TableColumn fx:id="tableEntityMergeName" editable="false" minWidth="50.0" prefWidth="100.0" sortable="false" text="%AnywareRenderer.Merge" />
+                      <TableColumn fx:id="tableEntityName" editable="false" minWidth="100.0" prefWidth="256.0" text="%AnywareRenderer.Name" />
+                        <TableColumn fx:id="tableEntitySize" editable="false" minWidth="72.0" prefWidth="72.0" resizable="false" text="%AnywareRenderer.Size" />
+                        <TableColumn fx:id="tableEntityCRC" editable="false" minWidth="60.0" prefWidth="60.0" resizable="false" text="%AnywareRenderer.CRC" />
+                        <TableColumn fx:id="tableEntityMD5" editable="false" minWidth="204.0" prefWidth="204.0" resizable="false" text="%AnywareRenderer.MD5" />
+                        <TableColumn fx:id="tableEntitySHA1" editable="false" minWidth="252.0" prefWidth="252.0" resizable="false" text="%AnywareRenderer.SHA-1" />
+                        <TableColumn fx:id="tableEntityMergeName" editable="false" minWidth="50.0" prefWidth="100.0" text="%AnywareRenderer.Merge" />
                         <TableColumn fx:id="tableEntityDumpStatus" editable="false" minWidth="20.0" prefWidth="20.0" resizable="false" sortable="false" text="%AnywareRenderer.DumpStatus" />
                     </columns>
                     <contextMenu>

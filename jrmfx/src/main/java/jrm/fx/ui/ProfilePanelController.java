@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -94,7 +95,13 @@ public class ProfilePanelController implements Initializable
 
 	final Session session = Sessions.getSingleSession();
 	private @Setter ProfileLoader profileLoader;
-	
+
+	private static Comparator<Long> nullSafeLongComparator = Comparator.nullsFirst(Long::compareTo); 
+
+	private static Comparator<HaveNTotal> haveNTotalComparator = Comparator
+		.comparing(HaveNTotal::getHave, nullSafeLongComparator)
+	        .thenComparing(HaveNTotal::getHave, nullSafeLongComparator);
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -168,6 +175,7 @@ public class ProfilePanelController implements Initializable
 				return param.getValue().getStats().getSets();
 			}
 		});
+		profileHaveSetsCol.setComparator(haveNTotalComparator);
 		profileHaveRomsCol.setCellFactory(param -> new HaveNTotalCellFactory<>());
 		profileHaveRomsCol.setCellValueFactory(param -> new ObservableValueBase<>()
 		{
@@ -177,6 +185,7 @@ public class ProfilePanelController implements Initializable
 				return param.getValue().getStats().getRoms();
 			}
 		});
+		profileHaveRomsCol.setComparator(haveNTotalComparator);
 		profileHaveDisksCol.setCellFactory(param -> new HaveNTotalCellFactory<>());
 		profileHaveDisksCol.setCellValueFactory(param -> new ObservableValueBase<>()
 		{
@@ -186,6 +195,7 @@ public class ProfilePanelController implements Initializable
 				return param.getValue().getStats().getDisks();
 			}
 		});
+		profileHaveDisksCol.setComparator(haveNTotalComparator);
 		profileCreatedCol.setCellFactory(param -> new DateCellFactory());
 		profileCreatedCol.setCellValueFactory(param -> new ObservableValueBase<>()
 		{

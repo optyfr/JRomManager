@@ -579,6 +579,8 @@ def arch = DefaultNativePlatform.currentArchitecture
 
 distributions {
 	main {
+        distributionBaseName = 'JRomManager'
+       	distributionClassifier = 'nogui-noarch'
 		contents {
 			from (configurations.noarchConfig) {
 				into('lib')
@@ -607,8 +609,18 @@ distributions {
 			}
 		}
 	}
-	win64 {
-        distributionBaseName = 'JRomManager_win-x64'
+	win {
+        distributionBaseName = 'JRomManager'
+        if(arch.isI386())
+        	distributionClassifier = 'win-x32'
+        else if(arch.isAmd64())
+        	distributionClassifier = 'win-x64'
+        else if(arch.isArm32())
+        	distributionClassifier = 'win-arm32'
+        else if(arch.isArm64())
+        	distributionClassifier = 'win-arm64'
+        else
+        	distributionClassifier = 'win-'+arch.getName()
 		contents {
 			from (configurations.jlinkConfig) {
 				into('lib')
@@ -634,8 +646,18 @@ distributions {
 			}
 		}
 	}
-	linux64 {
-        distributionBaseName = 'JRomManager_linux-x64'
+	linux {
+        distributionBaseName = 'JRomManager'
+        if(arch.isI386())
+        	distributionClassifier = 'linux-x32'
+        else if(arch.isAmd64())
+        	distributionClassifier = 'linux-x64'
+        else if(arch.isArm32())
+        	distributionClassifier = 'linux-arm32'
+        else if(arch.isArm64())
+        	distributionClassifier = 'linux-arm64'
+        else
+        	distributionClassifier = 'linux-'+arch.getName()
 		contents {
 			from (configurations.jlinkConfig) {
 				into('lib')
@@ -679,29 +701,29 @@ installDist.dependsOn jar
 installDist.dependsOn ':WebClient:build'
 installDist.dependsOn extractDaemonWin
 if (os.isLinux()) {
-	win64DistZip.enabled = false
-	win64DistTar.enabled = false
-	linux64DistZip.enabled = false
-	linux64DistTar.dependsOn jar
-	linux64DistTar.dependsOn ':WebClient:build'
-	linux64DistTar.dependsOn compileDaemonLinux
-	linux64DistTar {
+	winDistZip.enabled = false
+	winDistTar.enabled = false
+	linuxDistZip.enabled = false
+	linuxDistTar.dependsOn jar
+	linuxDistTar.dependsOn ':WebClient:build'
+	linuxDistTar.dependsOn compileDaemonLinux
+	linuxDistTar {
 		compression = Compression.GZIP
 		archiveExtension = "tar.gz"
 	}
 	distZip.dependsOn compileDaemonLinux
 	distTar.dependsOn compileDaemonLinux
 	installDist.dependsOn compileDaemonLinux
-	build.dependsOn linux64DistTar
+	build.dependsOn linuxDistTar
 }
 else if (os.isWindows()) {
-	linux64DistTar.enabled = false
-	linux64DistZip.enabled = false
-	win64DistTar.enabled = false
-	win64DistZip.dependsOn jar
-	win64DistZip.dependsOn ':WebClient:build'
-	win64DistZip.dependsOn extractDaemonWin
-	build.dependsOn win64DistZip
+	linuxDistTar.enabled = false
+	linuxDistZip.enabled = false
+	winDistTar.enabled = false
+	winDistZip.dependsOn jar
+	winDistZip.dependsOn ':WebClient:build'
+	winDistZip.dependsOn extractDaemonWin
+	build.dependsOn winDistZip
 }
 
 task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {

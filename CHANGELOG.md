@@ -1,3 +1,8 @@
+## Release v3.0.0 beta 7
+- Fix presets import/export
+- Added os-arch specific archives (zip or tgz), renamed existing
+- Profile table is sortable by column and columns can be reordered (close #198)
+
 ## Release v3.0.0 beta 6
 - Missed one dependency
 

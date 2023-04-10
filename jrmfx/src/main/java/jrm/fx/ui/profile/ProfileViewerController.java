@@ -428,7 +428,6 @@ public class ProfileViewerController implements Initializable
 				return p.getValue();
 			}
 		});
-		tableWMName.setSortable(false);
 		tableWMName.setMinWidth(50);
 		tableWMName.setPrefWidth(100);
 		tableWMName.setCellFactory(p -> new TableCell<Anyware, Machine>()
@@ -472,7 +471,7 @@ public class ProfileViewerController implements Initializable
 				return null;
 			}
 		});
-		tableWMDescription.setSortable(false);
+		tableWMName.setSortable(true);
 		tableWMDescription.setMinWidth(100);
 		tableWMDescription.setPrefWidth(200);
 		tableWMDescription.setCellFactory(p -> new TableCell<Anyware, String>()
@@ -499,6 +498,7 @@ public class ProfileViewerController implements Initializable
 				return p.getValue().getDescription().toString();
 			}
 		});
+		tableWMDescription.setSortable(true);
 		tableWMHave.setResizable(false);
 		tableWMHave.setSortable(false);
 		tableWMHave.setPrefWidth(45);
@@ -640,7 +640,7 @@ public class ProfileViewerController implements Initializable
 		tableWSStatus.setPrefWidth(20);
 		tableWSStatus.setCellFactory(tableWMStatus.getCellFactory());
 		tableWSStatus.setCellValueFactory(tableWMStatus.getCellValueFactory());
-		tableWSName.setSortable(false);
+		tableWSName.setSortable(true);
 		tableWSName.setMinWidth(50);
 		tableWSName.setPrefWidth(100);
 		tableWSName.setCellFactory(tableWMDescription.getCellFactory());
@@ -652,7 +652,7 @@ public class ProfileViewerController implements Initializable
 				return p.getValue().getBaseName();
 			}
 		});
-		tableWSDescription.setSortable(false);
+		tableWSDescription.setSortable(true);
 		tableWSDescription.setMinWidth(200);
 		tableWSDescription.setPrefWidth(400);
 		tableWSDescription.setCellFactory(tableWMDescription.getCellFactory());
@@ -721,6 +721,7 @@ public class ProfileViewerController implements Initializable
 		tableWL.setFixedCellSize(18);
 		tableWLName.setCellFactory(p -> new TableCellWLName());
 		tableWLName.setCellValueFactory(ValueWLName::new);
+		tableWLName.setSortable(true);
 		tableWLDesc.setCellFactory(p -> new TableCellWLDesc());
 		tableWLDesc.setCellValueFactory(ValueWLDesc::new);
 		tableWLHave.setCellFactory(p -> new TableCellWLHave());
