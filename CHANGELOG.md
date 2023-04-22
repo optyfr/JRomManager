@@ -1,3 +1,6 @@
+## Release v3.0.0 beta 8
+- problem copying files from zip to directories
+
 ## Release v3.0.0 beta 7
 - Fix presets import/export
 - Added os-arch specific archives (zip or tgz), renamed existing
