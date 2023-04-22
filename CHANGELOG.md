@@ -1,3 +1,6 @@
+## Release v3.0.0 beta 9
+- add support for sevenzipjbinding on aarch64
+
 ## Release v3.0.0 beta 8
 - problem copying files from zip to directories
 
