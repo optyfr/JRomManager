@@ -107,7 +107,7 @@ public class DuplicateEntry extends EntryAction
 				final var parent2 = dstpath.getParent();
 				if(parent2 != null)
 					Files.createDirectories(parent2);
-				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES);
+				Files.copy(srcpath, dstpath);
 				return true;
 			}
 		}

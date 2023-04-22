@@ -116,7 +116,7 @@ public class AddEntry extends EntryAction
 				final var parent = dstpath.getParent();
 				if(parent != null)
 					Files.createDirectories(parent);
-				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			}
 			return true;
 		}
@@ -162,7 +162,7 @@ public class AddEntry extends EntryAction
 			srczf.setBufferSize((int) Math.max(InternalZipConstants.MIN_BUFF_SIZE, Math.min(entry.getSize(), 65536)));
 			final var srcheader = srczf.getFileHeader(ZipTools.toZipEntry(entry.getFile()));
 			final var srcstream = srczf.getInputStream(srcheader);
-			Files.copy(srcstream, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(srcstream, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		}
 		catch(final Exception e)
@@ -208,7 +208,7 @@ public class AddEntry extends EntryAction
 			final var parent = dstpath.getParent(); 
 			if(parent != null)
 				Files.createDirectories(parent);
-			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		}
 		catch (IOException e)
@@ -253,7 +253,7 @@ public class AddEntry extends EntryAction
 			final var parent = dstpath.getParent(); 
 			if(parent != null)
 				Files.createDirectories(parent);
-			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		}
 		catch (IOException e)
