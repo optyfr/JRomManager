@@ -235,11 +235,11 @@ public class BatchToolsPanelController extends BaseController
 			@Override
 			protected void failed()
 			{
-				if (getException() instanceof BreakException)
+				close();
+				if (getException() instanceof BreakException || isCancelled())
 					Dialogs.showAlert("Cancelled");
 				else
 				{
-					this.close();
 					Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
 						Log.err(cause.getMessage(), cause);
 						Dialogs.showError(cause);
@@ -721,11 +721,11 @@ public class BatchToolsPanelController extends BaseController
 			@Override
 			protected void failed()
 			{
-				if (getException() instanceof BreakException)
+				close();
+				if (getException() instanceof BreakException || isCancelled())
 					Dialogs.showAlert("Cancelled");
 				else
 				{
-					this.close();
 					Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
 						Log.err(cause.getMessage(), cause);
 						Dialogs.showError(cause);
@@ -766,11 +766,11 @@ public class BatchToolsPanelController extends BaseController
 			@Override
 			protected void failed()
 			{
-				if (getException() instanceof BreakException)
+				close();
+				if (getException() instanceof BreakException || isCancelled())
 					Dialogs.showAlert("Cancelled");
 				else
 				{
-					this.close();
 					Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
 						Log.err(cause.getMessage(), cause);
 						Dialogs.showError(cause);
