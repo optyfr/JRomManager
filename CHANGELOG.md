@@ -1,3 +1,7 @@
+## Release v3.0.0 beta 10
+- fix problem with some missing devices for FULLNOMERGE mode
+- fix torrent result display for javafx gui
+
 ## Release v3.0.0 beta 9
 - add support for sevenzipjbinding on aarch64
 
