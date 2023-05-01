@@ -167,7 +167,7 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
 			TorrentFile tfile = tfiles.get(j);
 			checkFilesFile(data, src, dst, tfile, report, progress);
 			if (progress.isCancel())
-				break;
+				return "Cancelled...";
 		}
 		int removedFiles = removeUnknownFiles(report, data.paths, sdr, options.contains(Options.REMOVEUNKNOWNFILES) && !progress.isCancel());
 		if (data.ok == data.total)
@@ -284,7 +284,7 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
 			{
 				checkBlocksFile(data, src, dst, tfile, report, progress);
 				if (progress.isCancel())
-					break;
+					return "cancelled...";
 			}
 			progress.setProgress2(String.format(session.getMsgs().getString(TORRENT_CHECKER_PIECE_PROGRESSION), current.get(), processing.get()), current.get(), processing.get()); //$NON-NLS-1$
 			if (data.valid.get())
