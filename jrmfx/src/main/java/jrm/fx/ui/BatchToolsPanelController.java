@@ -60,6 +60,7 @@ import jrm.batch.TrntChkReport;
 import jrm.fx.ui.controls.ButtonCellFactory;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.controls.DropCell;
+import jrm.fx.ui.controls.NodeCellFactory;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.misc.FileResult;
 import jrm.fx.ui.misc.SrcDstResult;
@@ -425,22 +426,7 @@ public class BatchToolsPanelController extends BaseController
 			saveTorrentDst();
 		}, File::isDirectory));
 		tvBatchToolsTorrentDstDirsCol.setCellValueFactory(param -> param.getValue().dstProperty());
-		tvBatchToolsTorrentResultCol.setCellFactory(param -> new TableCell<SrcDstResult, String>()
-		{
-			@Override
-			protected void updateItem(String item, boolean empty)
-			{
-				super.updateItem(item, empty);
-				setFont(font);
-				if(empty)
-					setText("");
-				else
-				{
-					setText(item);
-					setTooltip(new Tooltip(item));
-				}
-			}
-		});
+		tvBatchToolsTorrentResultCol.setCellFactory(param -> new NodeCellFactory<>());
 		tvBatchToolsTorrentResultCol.setCellValueFactory(param -> param.getValue().resultProperty());
 		tvBatchToolsTorrentSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
 			final var sdr = tvBatchToolsTorrent.getItems().get(param);
