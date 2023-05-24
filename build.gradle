@@ -73,7 +73,7 @@ eclipse {
 
 
 lombok {
-	version = '1.18.26'
+	version = '1.18.28'
 }
 
 ext.props = new Properties()
