@@ -1,17 +1,23 @@
 package jrm.fx.ui.profile;
 
+import java.awt.HeadlessException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValueBase;
@@ -22,6 +28,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -36,6 +43,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -47,6 +55,7 @@ import jrm.fx.ui.progress.ProgressTask;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
@@ -64,6 +73,8 @@ import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
 import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
+import jrm.profile.manager.ProfileNFOMame;
+import jrm.profile.manager.ProfileNFOMame.MameStatus;
 import jrm.security.Session;
 import jrm.security.Sessions;
 import lombok.val;
@@ -399,6 +410,102 @@ public class ProfileViewerController implements Initializable
 	}
 
 	/**
+	 * @param ware
+	 * @param profile
+	 * @param mame
+	 * @return
+	 */
+	private void getMameArgsMachine(final Anyware ware, final Profile profile, final ProfileNFOMame mame, ArrayList<String> args)
+	{
+		final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); //$NON-NLS-1$ //$NON-NLS-2$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class))) //$NON-NLS-1$
+			rompaths.add(profile.getProperty(ProfileSettingsEnum.disks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		args.add(mame.getFile().getAbsolutePath());
+		args.add(ware.getBaseName());
+		args.add("-homepath");
+		args.add(mame.getFile().getParent());
+		args.add("-rompath");
+		args.add(rompaths.stream().collect(Collectors.joining(";")));
+	}
+
+	/**
+	 * @param ware
+	 * @param profile
+	 * @param mame
+	 * @param args
+	 * @return
+	 * @throws HeadlessException
+	 */
+	private void getMameArgsSofware(final Anyware ware, final Profile profile, final ProfileNFOMame mame, ArrayList<String> args) throws HeadlessException
+	{
+		final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); //$NON-NLS-1$ //$NON-NLS-2$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class))) //$NON-NLS-1$
+			rompaths.add(profile.getProperty(ProfileSettingsEnum.swroms_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class))) //$NON-NLS-1$
+			rompaths.add(profile.getProperty(ProfileSettingsEnum.disks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, Boolean.class))) //$NON-NLS-1$
+			rompaths.add(profile.getProperty(ProfileSettingsEnum.swdisks_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
+		Log.debug(()->((Software) ware).getSl().getBaseName() + ", " + ((Software) ware).getCompatibility()); //$NON-NLS-1$
+		final var machines = new ChoiceDialog<Machine>(null, profile.getMachineListList().getSortedMachines(((Software) ware).getSl().getBaseName(), ((Software) ware).getCompatibility()));
+		final var machine = machines.showAndWait();
+		machine.ifPresent(m -> {
+			final var device = new StringBuilder(); //$NON-NLS-1$
+			for(final var dev : m.getDevices())
+			{
+				if (Objects.equals(((Software) ware).getParts().get(0).getIntrface(), dev.getIntrface()) && dev.getInstance() != null)
+				{
+					device.append("-" + dev.getInstance().getName()); //$NON-NLS-1$
+					break;
+				}
+			}
+			Log.debug(()->"-> " + m.getBaseName() + " " + device + " " + ware.getBaseName()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			args.add(mame.getFile().getAbsolutePath());
+			args.add(m.getBaseName());
+			args.add(device.toString());
+			args.add(ware.getBaseName());
+			args.add("-homepath");
+			args.add(mame.getFile().getParent());
+			args.add("-rompath");
+			args.add(rompaths.stream().collect(Collectors.joining(";")));
+		});
+	}
+
+	/**
+	 * @param ware
+	 * @param profile
+	 * @throws HeadlessException
+	 */
+	private void launchMame(final Anyware ware, final Profile profile) throws HeadlessException
+	{
+		final ProfileNFOMame mame = profile.getNfo().getMame();
+		final var args = new ArrayList<String>();
+		if (ware instanceof Software)
+		{
+			getMameArgsSofware(ware, profile, mame, args);
+		}
+		else
+		{
+			getMameArgsMachine(ware, profile, mame, args);
+		}
+		if (!args.isEmpty())
+		{
+			final ProcessBuilder pb = new ProcessBuilder(args).directory(mame.getFile().getParentFile()).redirectErrorStream(true).redirectOutput(new File(mame.getFile().getParentFile(), "JRomManager.log")); //$NON-NLS-1$
+			try
+			{
+				pb.start().waitFor();
+			}
+			catch (IOException e1)
+			{
+				Dialogs.showError(e1);
+			}
+			catch (InterruptedException e1)
+			{
+				Dialogs.showError(e1);
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
+	/**
 	 * 
 	 */
 	private void initTableW()
@@ -430,36 +537,53 @@ public class ProfileViewerController implements Initializable
 		});
 		tableWMName.setMinWidth(50);
 		tableWMName.setPrefWidth(100);
-		tableWMName.setCellFactory(p -> new TableCell<Anyware, Machine>()
-		{
-			private static final Image applicationOSXTerminal = MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"); //$NON-NLS-1$
-			private static final Image computer = MainFrame.getIcon("/jrm/resicons/icons/computer.png"); //$NON-NLS-1$
-			private static final Image wrench = MainFrame.getIcon("/jrm/resicons/icons/wrench.png"); //$NON-NLS-1$
-			private static final Image joystick = MainFrame.getIcon("/jrm/resicons/icons/joystick.png"); //$NON-NLS-1$
-			
-			@Override
-			protected void updateItem(Machine item, boolean empty)
-			{
-				if (empty)
-				{
-					setText("");
-					setGraphic(null);
+		tableWMName.setCellFactory(p -> {
+			final var cell = new TableCell<Anyware, Machine>() {
+				private static final Image applicationOSXTerminal = MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"); //$NON-NLS-1$
+				private static final Image computer = MainFrame.getIcon("/jrm/resicons/icons/computer.png"); //$NON-NLS-1$
+				private static final Image wrench = MainFrame.getIcon("/jrm/resicons/icons/wrench.png"); //$NON-NLS-1$
+				private static final Image joystick = MainFrame.getIcon("/jrm/resicons/icons/joystick.png"); //$NON-NLS-1$
+
+				@Override
+				protected void updateItem(Machine item, boolean empty) {
+					if (empty) {
+						setText("");
+						setGraphic(null);
+					} else {
+						setText(item.getBaseName());
+						setUserData(item);
+						setTooltip(new Tooltip(item.getName()));
+						if (item.isIsbios())
+							setGraphic(new ImageView(applicationOSXTerminal));
+						else if (item.isIsdevice())
+							setGraphic(new ImageView(computer));
+						else if (item.isIsmechanical())
+							setGraphic(new ImageView(wrench));
+						else
+							setGraphic(new ImageView(joystick));
+					}
+					setFont(new Font(10));
 				}
-				else
-				{
-					setText(item.getBaseName());
-					setTooltip(new Tooltip(item.getName()));
-					if(item.isIsbios())
-						setGraphic(new ImageView(applicationOSXTerminal));
-					else if(item.isIsdevice())
-						setGraphic(new ImageView(computer));
-					else if(item.isIsmechanical())
-						setGraphic(new ImageView(wrench));
-					else
-						setGraphic(new ImageView(joystick));
+			};
+			cell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+				if (event.getClickCount() > 1 && (event.getSource() instanceof TableCell<?, ?> c
+						&& (c.getUserData() instanceof Machine ware))) {
+					if (ware.getStatus() == AnywareStatus.COMPLETE) {
+						if (session.getCurrProfile() != null) {
+							final var profile = session.getCurrProfile();
+							if (profile.getNfo().getMame().getStatus() == MameStatus.UPTODATE)
+								launchMame(ware, profile);
+							else
+								Dialogs.showAlert(
+										String.format(Messages.getString("ProfileViewer.MameNotAvailableOrObsolete"),
+												profile.getNfo().getMame().getStatus()));
+						} else
+							Dialogs.showAlert(Messages.getString("ProfileViewer.NoProfile"));
+					} else
+						Dialogs.showAlert(String.format(Messages.getString("ProfileViewer.CantLaunchIncompleteSet"), ware.getStatus()));
 				}
-				setFont(new Font(10));
-			}
+			});
+			return cell;
 		});
 		tableWMName.setCellValueFactory(p -> new ObservableValueBase<Machine>()
 		{
@@ -530,31 +654,43 @@ public class ProfileViewerController implements Initializable
 		tableWMCloneOf.setSortable(false);
 		tableWMCloneOf.setMinWidth(50);
 		tableWMCloneOf.setPrefWidth(100);
-		tableWMCloneOf.setCellFactory(p -> new TableCell<Anyware, Object>()
-		{
-			@Override
-			protected void updateItem(Object item, boolean empty)
+		tableWMCloneOf.setCellFactory(p -> {
+			final var cell = new TableCell<Anyware, Object>()
 			{
-				if (item==null || empty)
+				@Override
+				protected void updateItem(Object item, boolean empty)
 				{
-					setText("");
-					setGraphic(null);
-				}
-				else
-				{
-					if(item instanceof Anyware aw)
+					if (item==null || empty)
 					{
-						setGraphic(new ImageView(getStatusIcon(aw.getStatus())));
-						setText(aw.getBaseName());
+						setText("");
+						setGraphic(null);
 					}
 					else
 					{
-						setGraphic(new ImageView(folderClosedGray));
-						setText(item.toString());
+						if(item instanceof Anyware aw)
+						{
+							setGraphic(new ImageView(getStatusIcon(aw.getStatus())));
+							setUserData(aw);
+							setText(aw.getBaseName());
+						}
+						else
+						{
+							setGraphic(new ImageView(folderClosedGray));
+							setText(item.toString());
+						}
 					}
+					setFont(new Font(10));
 				}
-				setFont(new Font(10));
-			}
+			};
+			cell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+				if (event.getClickCount() > 1 && event.getSource() instanceof TableCell<?, ?> c && (c.getUserData() instanceof Anyware ware)) {
+					final var sm = tableW.getSelectionModel();
+					sm.clearSelection();
+					sm.select(ware);
+					tableW.scrollTo(ware);
+				}	
+			});
+			return cell;
 		});
 		tableWMCloneOf.setCellValueFactory(p -> new ObservableValueBase<Object>()
 		{
