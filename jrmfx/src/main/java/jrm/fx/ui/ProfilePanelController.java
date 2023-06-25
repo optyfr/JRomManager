@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValueBase;
@@ -312,7 +313,7 @@ public class ProfilePanelController implements Initializable
 		final var workdir = session.getUser().getSettings().getWorkPath().toFile();
 		final var chooser = new FileChooser();
 		final var filter = new ExtensionFilter(Messages.getString("MainFrame.DatFile"), "*.dat", "*.xml");
-		final var filter2 = new ExtensionFilter(Messages.getString("MainFrame.MameExecutable"), "*.exe");
+		final var filter2 = new ExtensionFilter(Messages.getString("MainFrame.MameExecutable"), SystemUtils.IS_OS_WINDOWS?"*mame*.exe":"*mame*");
 		chooser.getExtensionFilters().addAll(filter, filter2);
 		chooser.setSelectedExtensionFilter(filter);
 		Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToImport", workdir.getAbsolutePath())).map(File::new).ifPresent(chooser::setInitialDirectory);
