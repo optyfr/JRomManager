@@ -1,3 +1,11 @@
+## Release v3.0.0 beta 11
+- auto close progress when cancelled in batch tools
+- faster cancel on torrent check
+- changed file chooser filter for better handling of mame exec file
+- Enhanced Profile Viewer wares list :
+  - Launch mame on doubleclick ware,
+  - Select ware on doubleclick on cloneof or romof cell
+
 ## Release v3.0.0 beta 10
 - fix problem with some missing devices for FULLNOMERGE mode
 - fix torrent result display for javafx gui
