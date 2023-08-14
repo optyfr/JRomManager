@@ -5,7 +5,7 @@ plugins {
 	id "de.undercouch.download" version "5.4.0"
 	id "com.netflix.nebula.ospackage" version "11.4.0"
 	id "de.inetsoftware.setupbuilder" version "7.2.18"
-	id "io.freefair.lombok" version "8.0.1"
+	id "io.freefair.lombok" version "8.2.2"
     id 'org.openjfx.javafxplugin' version '0.0.14'
 	id "org.beryx.jlink" version "2.26.0" apply false
 	id 'jacoco'
