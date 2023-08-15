@@ -41,13 +41,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.JDialog;
@@ -91,6 +87,7 @@ import jrm.profile.data.Machine;
 import jrm.profile.data.MachineList;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
+import jrm.profile.filter.Keywords;
 import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.manager.ProfileNFOMame;
@@ -131,51 +128,6 @@ public class ProfileViewer extends JDialog
 	
 	/** The txt search. */
 	private JTextField txtSearch;
-
-	/**
-	 * The Class keypref.
-	 */
-	private class KeyPref
-	{
-		
-		/** The order. */
-		int order;
-		
-		/** The wares. */
-		List<Anyware> wares = new ArrayList<>();
-
-		/**
-		 * Instantiates a new keypref.
-		 *
-		 * @param order the order
-		 * @param ware the ware
-		 */
-		private KeyPref(int order, Anyware ware)
-		{
-			this.order = order;
-			add(ware);
-		}
-		
-		/**
-		 * Adds the.
-		 *
-		 * @param ware the ware
-		 */
-		private void add(Anyware ware)
-		{
-			ware.setSelected(true);
-			this.wares.add(ware);
-		}
-		
-		/**
-		 * Clear.
-		 */
-		private void clear()
-		{
-			wares.forEach(w -> w.setSelected(false));
-			wares.clear();
-		}
-	}
 
 	/**
 	 * Instantiates a new profile viewer.
@@ -304,12 +256,12 @@ public class ProfileViewer extends JDialog
 		Popup.addPopup(tableW, popupWMenu);
 
 		final var mntmCollectKeywords = new JMenuItem(Messages.getString("ProfileViewer.mntmCollectKeywords.text")); //$NON-NLS-1$
-		mntmCollectKeywords.addActionListener(e -> new Keywords().filter());
+		mntmCollectKeywords.addActionListener(e -> new KW().filter(((AnywareListModel<Anyware>) tableW.getModel()).getList()));
 		popupWMenu.add(mntmCollectKeywords);
 
 		final var mntmSelectNone = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectNone.text")); //$NON-NLS-1$
 		mntmSelectNone.addActionListener(e -> {
-			final AnywareListModel list = (AnywareListModel) tableW.getModel();
+			final AnywareListModel<Anyware> list = (AnywareListModel<Anyware>) tableW.getModel();
 			list.getList().getFilteredStream().forEach(ware -> ware.setSelected(false));
 			list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		});
@@ -317,7 +269,7 @@ public class ProfileViewer extends JDialog
 
 		final var mntmSelectAll = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectAll.text")); //$NON-NLS-1$
 		mntmSelectAll.addActionListener(e -> {
-			final AnywareListModel list = (AnywareListModel) tableW.getModel();
+			final AnywareListModel<Anyware> list = (AnywareListModel<Anyware>) tableW.getModel();
 			list.getList().getFilteredStream().forEach(ware -> ware.setSelected(true));
 			list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		});
@@ -325,7 +277,7 @@ public class ProfileViewer extends JDialog
 
 		final var mntmSelectInvert = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectInvert.text")); //$NON-NLS-1$
 		mntmSelectInvert.addActionListener(e -> {
-			final AnywareListModel list = (AnywareListModel) tableW.getModel();
+			final AnywareListModel<Anyware> list = (AnywareListModel<Anyware>) tableW.getModel();
 			list.getList().getFilteredStream().forEach(ware -> ware.setSelected(!ware.isSelected()));
 			list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		});
@@ -665,7 +617,7 @@ public class ProfileViewer extends JDialog
 		int row = tableW.getSelectedRow();
 		if (row < 0)
 			return;
-		final var tablemodel = (AnywareListModel) tableW.getModel();
+		final var tablemodel = (AnywareListModel<Anyware>) tableW.getModel();
 		final var column = tableW.columnAtPoint(e.getPoint());
 		final Object obj = tablemodel.getValueAt(row, column);
 		if (!(obj instanceof Anyware))
@@ -810,7 +762,7 @@ public class ProfileViewer extends JDialog
 			if (!model.isSelectionEmpty())
 			{
 				final AnywareList<?> awlist = (AnywareList<?>) tablemodel.getValueAt(model.getMinSelectionIndex(), 0);
-				final AnywareListModel anywarelist = awlist instanceof MachineList ? new MachineListModel((MachineList) awlist) : new SoftwareListModel((SoftwareList) awlist);
+				final AnywareListModel<?> anywarelist = awlist instanceof MachineList ml ? new MachineListModel(ml) : new SoftwareListModel((SoftwareList) awlist);
 				anywarelist.reset();
 				tableW.setModel(anywarelist);
 				tableW.setTableHeader(new JTableHeader(tableW.getColumnModel())
@@ -836,7 +788,7 @@ public class ProfileViewer extends JDialog
 	/**
 	 * @param anywarelist
 	 */
-	private void readjustColumnsW(final AnywareListModel anywarelist)
+	private void readjustColumnsW(final AnywareListModel<?> anywarelist)
 	{
 		for (var i = 0; i < tableW.getColumnModel().getColumnCount(); i++)
 		{
@@ -856,96 +808,19 @@ public class ProfileViewer extends JDialog
 		}
 	}
 
-	private class Keywords
+	private class KW extends Keywords
 	{
-		final Pattern pattern = Pattern.compile("^(.*?)(\\(.*\\))++"); //$NON-NLS-1$
-		final Pattern patternParenthesis = Pattern.compile("\\((.*?)\\)"); //$NON-NLS-1$
-		final Pattern patternSplit = Pattern.compile(","); //$NON-NLS-1$
-		final Pattern patternAlpha = Pattern.compile("^[a-zA-Z]*$"); //$NON-NLS-1$
-		final HashSet<String> keywordSet = new HashSet<>();
-		final AnywareListModel list = (AnywareListModel) tableW.getModel();
+		final AnywareListModel<Anyware> list = (AnywareListModel<Anyware>) tableW.getModel();
 
-		/**
-		 * 
-		 */
-		private void filter()
-		{
-			list.getList().getFilteredStream().forEach(ware -> {
-				final var matcher = pattern.matcher(ware.getDescription());
-				if (matcher.find() && matcher.groupCount() > 1 && matcher.group(2) != null)
-				{
-					final var matcherParenthesis = patternParenthesis.matcher(matcher.group(2));
-					while (matcherParenthesis.find())
-					{
-						Arrays.asList(patternSplit.split(matcherParenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(patternAlpha.asPredicate()).forEach(keywordSet::add);
-					}
-				}
-			});
-			new KeywordFilter(ProfileViewer.this, keywordSet.stream().sorted((s1, s2) -> 
-				s1.length() == s2.length() ? s1.compareToIgnoreCase(s2) : s1.length() - s2.length()
-			).toArray(size -> new String[size]), this::filterCallBack);
+		@Override
+		protected void showFilter(String[] keywords, KFCallBack callback) {
+			new KeywordFilter(ProfileViewer.this, keywords, list.getList(), this::filterCallBack);
 		}
 
-		/**
-		 * @param f
-		 */
-		private void filterCallBack(KeywordFilter f)
-		{
-			final var filter = f.getFilter();
-			HashMap<String, KeyPref> prefmap = new HashMap<>();
-			list.getList().getFilteredStream().forEach(ware -> {
-				final var matcher = pattern.matcher(ware.getDescription());
-				keywordSet.clear();
-				if (matcher.find())
-				{
-					if (matcher.groupCount() > 1 && matcher.group(2) != null)
-					{
-						final var matcherParenthesis = patternParenthesis.matcher(matcher.group(2));
-						while (matcherParenthesis.find())
-						{
-							Arrays.asList(patternSplit.split(matcherParenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(patternAlpha.asPredicate()).forEach(keywordSet::add);
-						}
-					}
-					ware.setSelected(false);
-					selectFromKeywords(filter, prefmap, ware, matcher);
-				}
-				else
-				{
-					prefmap.computeIfAbsent(ware.getDescription().toString(), k -> new KeyPref(Integer.MAX_VALUE, ware));
-				}
-			});
+		@Override
+		protected void updateList() {
 			list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
-		}
-
-		/**
-		 * @param filter
-		 * @param prefmap
-		 * @param ware
-		 * @param matcher
-		 */
-		private void selectFromKeywords(final List<String> filter, HashMap<String, KeyPref> prefmap, Anyware ware, final Matcher matcher)
-		{
-			for (var i = 0; i < filter.size(); i++)
-			{
-				if (keywordSet.contains(filter.get(i)))
-				{
-					final var pos = i;
-					prefmap.compute(matcher.group(1), (key, pref) -> {
-						if (pref == null)
-							return new KeyPref(pos, ware);
-						else if (pos < pref.order)
-						{
-							pref.clear();
-							return new KeyPref(pos, ware);
-						}
-						else if (pos == pref.order)
-							pref.add(ware);
-						return pref;
-					});
-					break;
-				}
-			}
-		}
+ 		}
 		
 	}
 	
@@ -1020,7 +895,7 @@ public class ProfileViewer extends JDialog
 			filter.add(AnywareStatus.PARTIAL);
 		if (complete)
 			filter.add(AnywareStatus.COMPLETE);
-		((AnywareListModel)tableW.getModel()).setFilter(filter);
+		((AnywareListModel<?>)tableW.getModel()).setFilter(filter);
 		if (tableW.getRowCount() > 0)
 			tableW.setRowSelectionInterval(0, 0);
 	}
@@ -1058,7 +933,6 @@ public class ProfileViewer extends JDialog
 	 *
 	 * @param profile the profile
 	 */
-	@SuppressWarnings("exports")
 	public void reset(final Profile profile)
 	{
 		final var model = new MachineListListModel(profile.getMachineListList());
@@ -1091,14 +965,14 @@ public class ProfileViewer extends JDialog
 	public void reload()
 	{
 		var tablemodel = tableWL.getModel();
-		if (tablemodel instanceof MachineListListModel)
-			((MachineListListModel) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((MachineListListModel) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+		if (tablemodel instanceof MachineListListModel mlm)
+			mlm.fireTableChanged(new TableModelEvent(tablemodel, 0, mlm.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		tablemodel = tableW.getModel();
-		if (tablemodel instanceof AnywareListModel)
-			((AnywareListModel) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((AnywareListModel) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+		if (tablemodel instanceof AnywareListModel<?> alm)
+			alm.fireTableChanged(new TableModelEvent(tablemodel, 0, alm.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 		tablemodel = tableEntity.getModel();
-		if (tablemodel instanceof AnywareModel)
-			((AnywareModel) tablemodel).fireTableChanged(new TableModelEvent(tablemodel, 0, ((AnywareModel) tablemodel).getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+		if (tablemodel instanceof AnywareModel am)
+			am.fireTableChanged(new TableModelEvent(tablemodel, 0, am.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 	}
 
 	/**
@@ -1107,7 +981,7 @@ public class ProfileViewer extends JDialog
 	private void search()
 	{
 		final String search = txtSearch.getText();
-		final int row = ((AnywareListModel) tableW.getModel()).getList().find(search);
+		final int row = ((AnywareListModel<?>) tableW.getModel()).getList().find(search);
 		if (row >= 0)
 		{
 			tableW.setRowSelectionInterval(row, row);

@@ -9,7 +9,7 @@ import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
 
-public class SoftwareListModel extends AnywareListModel
+public class SoftwareListModel extends AnywareListModel<Software>
 {
 	private SoftwareList softwareList;
 	

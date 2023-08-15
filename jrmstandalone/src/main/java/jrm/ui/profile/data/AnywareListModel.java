@@ -2,11 +2,12 @@ package jrm.ui.profile.data;
 
 import java.util.Set;
 
+import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
 import jrm.profile.data.AnywareStatus;
 import jrm.ui.basic.AbstractEnhTableModel;
 
-public abstract class AnywareListModel extends AbstractEnhTableModel
+public abstract class AnywareListModel<T extends Anyware> extends AbstractEnhTableModel
 {
 	
 	/**
@@ -18,5 +19,5 @@ public abstract class AnywareListModel extends AbstractEnhTableModel
 	
 	public abstract void reset();
 	
-	public abstract AnywareList<?> getList();	//NOSONAR
+	public abstract AnywareList<T> getList();	//NOSONAR
 }

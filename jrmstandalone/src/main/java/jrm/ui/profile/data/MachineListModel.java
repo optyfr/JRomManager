@@ -10,7 +10,7 @@ import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Machine;
 import jrm.profile.data.MachineList;
 
-public class MachineListModel extends AnywareListModel
+public class MachineListModel extends AnywareListModel<Machine>
 {
 	MachineList machineList;
 

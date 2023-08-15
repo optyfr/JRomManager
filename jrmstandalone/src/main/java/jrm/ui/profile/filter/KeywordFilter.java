@@ -46,6 +46,9 @@ import javax.swing.border.TitledBorder;
 
 import jrm.locale.Messages;
 import jrm.misc.Log;
+import jrm.profile.data.Anyware;
+import jrm.profile.data.AnywareList;
+import jrm.profile.filter.Keywords.KFCallBack;
 import jrm.ui.MainFrame;
 
 /**
@@ -72,7 +75,7 @@ public class KeywordFilter extends JDialog
 	 * @param callback the callback
 	 */
 	@SuppressWarnings("exports")
-	public KeywordFilter(Window owner, String[] src, CallBack callback)
+	public KeywordFilter(Window owner, String[] src, AnywareList<Anyware> list, KFCallBack callback)
 	{
 		super(owner, Messages.getString("KeywordFilter.Title"), ModalityType.APPLICATION_MODAL); //$NON-NLS-1$
 		setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
@@ -99,7 +102,7 @@ public class KeywordFilter extends JDialog
 
 		JButton btnFilter = new JButton(Messages.getString("KeywordFilter.Filter")); //$NON-NLS-1$
 		btnFilter.addActionListener(e -> {
-			callback.call(KeywordFilter.this);
+			callback.call(list, getFilter());
 			dispose();
 		});
 		btnFilter.setHorizontalAlignment(SwingConstants.TRAILING);
