@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Scene?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<Scene fx:id="sceneKW" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.filter.KeywordsController">
+  <root>
+      <BorderPane prefHeight="200.0" prefWidth="400.0">
+         <center>
+      <SplitPane dividerPositions="0.5" minHeight="-Infinity" minWidth="-Infinity">
+               <items>
+                  <TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" text="%KeywordFilter.Available">
+                     <content>
+                        <ListView fx:id="listAvailKW" />
+                     </content>
+                  </TitledPane>
+                  <TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" text="%KeywordFilter.Used">
+                     <content>
+                        <ListView fx:id="listUsedKW" />
+                     </content>
+                  </TitledPane>
+               </items>
+               <BorderPane.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </BorderPane.margin>
+            </SplitPane>
+         </center>
+         <bottom>
+            <BorderPane BorderPane.alignment="CENTER">
+               <left>
+                  <Button mnemonicParsing="false" onAction="#onClose" text="%KeywordFilter.Cancel" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </BorderPane.margin>
+                  </Button>
+               </left>
+               <right>
+                  <Button mnemonicParsing="false" onAction="#onFilter" text="%KeywordFilter.Filter" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </BorderPane.margin>
+                  </Button>
+               </right>
+            </BorderPane>
+         </bottom>
+      </BorderPane>
+  </root>
+</Scene>

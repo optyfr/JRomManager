@@ -51,6 +51,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import jrm.fx.ui.MainFrame;
 import jrm.fx.ui.controls.Dialogs;
+import jrm.fx.ui.profile.filter.Keywords;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
@@ -71,6 +72,7 @@ import jrm.profile.data.Sample;
 import jrm.profile.data.Samples;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
+import jrm.profile.filter.Keywords.KFCallBack;
 import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.manager.ProfileNFOMame;
@@ -1059,9 +1061,29 @@ public class ProfileViewerController implements Initializable
 		tableWL.refresh();
 	}
 
+	private class KW extends jrm.profile.filter.Keywords
+	{
+
+		@Override
+		protected void showFilter(String[] keywords, KFCallBack callback) {
+			try {
+				new Keywords((ProfileViewer) tableWL.getScene().getWindow(), keywords, tableWL.getSelectionModel().getSelectedItem(), callback);
+			} catch (URISyntaxException | IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+
+		@Override
+		protected void updateList() {
+			tableW.refresh();
+		}
+		
+	}
+
 	@FXML private void selectByKeywords(ActionEvent e)
 	{
-		
+		final var lst = tableWL.getSelectionModel().getSelectedItem();
+		new KW().filter(lst);
 	}
 
 	@FXML private void selectNone(ActionEvent e)

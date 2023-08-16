@@ -12,6 +12,7 @@ import jrm.locale.Messages;
 import jrm.profile.Profile;
 import jrm.security.Session;
 import jrm.security.Sessions;
+import lombok.Getter;
 
 public class ProfileViewer extends Stage
 {
@@ -19,6 +20,7 @@ public class ProfileViewer extends Stage
 	
 	private Session session;
 	
+	private @Getter Profile profile;
 
 	public ProfileViewer(Stage parent) throws IOException, URISyntaxException
 	{
@@ -53,6 +55,7 @@ public class ProfileViewer extends Stage
 	
 	public void reset(Profile profile)
 	{
+		this.profile = profile;
 		controller.reset(profile);
 	}
 }

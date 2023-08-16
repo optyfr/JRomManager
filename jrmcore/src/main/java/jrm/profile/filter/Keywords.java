@@ -29,7 +29,7 @@ public abstract class Keywords {
 		 *
 		 * @param filter the filter
 		 */
-		public void call(AnywareList<Anyware> list, List<String> filter);
+		public void call(AnywareList<? extends Anyware> list, List<String> filter);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public abstract class Keywords {
 	/**
 	 * 
 	 */
-	public void filter(AnywareList<Anyware> list)
+	public void filter(AnywareList<? extends Anyware> list)
 	{
 		list.getFilteredStream().forEach(ware -> {
 			final var matcher = pattern.matcher(ware.getDescription());
@@ -93,9 +93,7 @@ public abstract class Keywords {
 				}
 			}
 		});
-		showFilter(keywordSet.stream().sorted((s1, s2) -> 
-			s1.length() == s2.length() ? s1.compareToIgnoreCase(s2) : s1.length() - s2.length()
-		).toArray(String[]::new), this::filterCallBack);
+		showFilter(keywordSet.stream().sorted(String::compareToIgnoreCase).toArray(String[]::new), this::filterCallBack);
 	}
 
 	protected abstract void showFilter(String[] keywords, KFCallBack callback);
@@ -105,7 +103,7 @@ public abstract class Keywords {
 	/**
 	 * @param f
 	 */
-	public void filterCallBack(AnywareList<Anyware> list, List<String> filter)
+	public void filterCallBack(AnywareList<? extends Anyware> list, List<String> filter)
 	{
 		HashMap<String, KeyPref> prefmap = new HashMap<>();
 		list.getFilteredStream().forEach(ware -> {
