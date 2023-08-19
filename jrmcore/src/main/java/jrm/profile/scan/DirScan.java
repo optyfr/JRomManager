@@ -33,6 +33,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -47,12 +48,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
 
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.SevenZipArchive;
@@ -65,6 +68,7 @@ import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.MultiThreading;
 import jrm.misc.ProfileSettingsEnum;
+import jrm.misc.Settings;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Archive;
@@ -104,6 +108,7 @@ import one.util.streamex.IntStreamEx;
  */
 public final class DirScan extends PathAbstractor
 {
+	private static final String GLOB = "glob:";
 	/**
 	 * List of found {@link Container}s
 	 */
@@ -144,6 +149,8 @@ public final class DirScan extends PathAbstractor
 	 */
 	private final ProgressHandler handler;
 
+	private List<PathMatcher> exclusions = Collections.emptyList();
+	
 	private class ScanOptions
 	{
 		/**
@@ -184,7 +191,7 @@ public final class DirScan extends PathAbstractor
 		 * Initialize torrentzip if needed
 		 */
 		final TorrentZip torrentzip;
-
+		
 		public ScanOptions(Set<Options> options)
 		{
 			needSha1OrMd5 = options.contains(Options.NEED_SHA1_OR_MD5) || options.contains(Options.NEED_SHA1) || options.contains(Options.NEED_MD5);
@@ -305,6 +312,17 @@ public final class DirScan extends PathAbstractor
 	DirScan(final Profile profile, final File dir, final ProgressHandler handler, final boolean is_dest) throws BreakException
 	{
 		this(profile.getSession(), dir, handler, profile.getSuspiciousCRC(), getOptions(profile, is_dest));
+		final var fs = FileSystems.getDefault();
+		if(is_dest)
+			exclusions = Stream.of(StringUtils
+					.split(profile.getProperty(ProfileSettingsEnum.exclusion_glob_list.toString(), "|"), "|"))
+					.filter(s -> !s.isEmpty()).map(s -> {
+						if(!s.startsWith(GLOB) && !s.startsWith("regex:"))
+							s = GLOB + s;
+						if (s.startsWith(GLOB) && !s.contains("**/"))
+							s = GLOB + "**/" + s.substring(5);
+						return fs.getPathMatcher(s);
+					}).toList();
 	}
 	
 	/**
@@ -488,7 +506,11 @@ public final class DirScan extends PathAbstractor
 				{
 					final BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
 					if(options.isDest)
+					{
+						if(exclusions.stream().anyMatch(pm->pm.matches(p)))
+							return;
 						listFilesDest(file, attr);
+					}
 					else
 						listFilesSrc(path, p, file, attr, options);
 					handler.setProgress(path.relativize(p).toString(), -1); //$NON-NLS-1$

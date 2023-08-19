@@ -2,6 +2,11 @@ package jrm.fx.ui;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -123,6 +128,7 @@ public class ScannerPanelSettingsController implements Initializable
 		mergeModeCbx.getSelectionModel().select(MergeOptions.valueOf(settings.getProperty(ProfileSettingsEnum.merge_mode)));
 		collisionModeCbx.getSelectionModel().select(HashCollisionOptions.valueOf(settings.getProperty(ProfileSettingsEnum.hash_collision_mode)));
 		dstExcludeGlob.setCellFactory(TextFieldListCell.forListView());
+		loadGlob();
 	}
 	
 	@FXML private void pdMameMergedPreset()
@@ -177,7 +183,10 @@ public class ScannerPanelSettingsController implements Initializable
 	@FXML private void delGlob()
 	{
 		if(!dstExcludeGlob.getSelectionModel().isEmpty())
+		{
 			dstExcludeGlob.getItems().remove(dstExcludeGlob.getSelectionModel().getSelectedIndex());
+			saveGlob();
+		}
 	}
 	
 	@FXML private void commitGlob(EditEvent<String> e)
@@ -186,5 +195,16 @@ public class ScannerPanelSettingsController implements Initializable
 			dstExcludeGlob.getItems().remove(e.getIndex());
 		else
 			dstExcludeGlob.getItems().set(e.getIndex(), e.getNewValue());
+		saveGlob();
+	}
+	
+	private void saveGlob()
+	{
+		settings.setProperty(ProfileSettingsEnum.exclusion_glob_list, dstExcludeGlob.getItems().stream().collect(Collectors.joining("|")));
+	}
+	
+	private void loadGlob()
+	{
+		dstExcludeGlob.getItems().setAll(Stream.of(StringUtils.split(settings.getProperty(ProfileSettingsEnum.exclusion_glob_list.toString(),"|"),"|")).filter(s->!s.isEmpty()).collect(Collectors.toList()));
 	}
 }
