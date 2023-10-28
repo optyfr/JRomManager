@@ -5,9 +5,9 @@ plugins {
 	id "de.undercouch.download" version "5.4.0"
 	id "com.netflix.nebula.ospackage" version "11.4.0"
 	id "de.inetsoftware.setupbuilder" version "7.2.18"
-	id "io.freefair.lombok" version "8.2.2"
-    id 'org.openjfx.javafxplugin' version '0.0.14'
-	id "org.beryx.jlink" version "2.26.0" apply false
+	id "io.freefair.lombok" version "8.4"
+	id 'org.openjfx.javafxplugin' version '0.0.14'
+	id "org.beryx.jlink" version "3.0.1" apply false
 	id 'jacoco'
 }
 
@@ -63,8 +63,8 @@ codeCoverageReport.dependsOn {
 apply plugin: 'java'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 apply plugin: 'eclipse'
@@ -77,7 +77,7 @@ eclipse {
 
 
 lombok {
-	version = '1.18.28'
+	version = '1.18.30'
 }
 
 ext.props = new Properties()
@@ -125,8 +125,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 subprojects {
 	apply plugin: 'java'
 	java {
-	    sourceCompatibility = JavaVersion.VERSION_17
-	    targetCompatibility = JavaVersion.VERSION_17
+	    sourceCompatibility = JavaVersion.VERSION_21
+	    targetCompatibility = JavaVersion.VERSION_21
 	}
 
 	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
@@ -229,6 +229,18 @@ project(':jrmcli') {
 	
 	apply plugin: "eclipse"
 
+	sourceSets {
+		main {
+			java {
+				srcDirs = ["src/main/java"]
+			}
+		}
+		main {
+			resources {
+				srcDirs = ["src/main/java"]
+			}
+		}
+	}
 	dependencies {
 		implementation project(':jrmcore')
 		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
@@ -326,7 +338,7 @@ project(':jrmfx') {
 	apply plugin: "org.openjfx.javafxplugin"
 	
 	javafx {
-		version = '17'
+		version = '21'
 		modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web' ]
 	}
 
@@ -738,7 +750,7 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
 	destinationDir = file("$buildDir/docs/javadoc")
 	title = "$project.name $version API"
 	options.author true
-	options.links 'https://docs.oracle.com/en/java/javase/17/docs/api', 'https://openjfx.io/javadoc/17/'
+	options.links 'https://docs.oracle.com/en/java/javase/21/docs/api', 'https://openjfx.io/javadoc/21/'
 	options.addStringOption 'Xdoclint:none', '-quiet'
 	
 	def projectsWithJavadoc = subprojects.findAll { it.javadoc.enabled }
@@ -809,12 +821,12 @@ ospackage {
 }
 
 buildDeb {
-	requires('java17-runtime').or('java18-runtime').or('java19-runtime')
+	requires('java21-runtime')
 	arch = "all"
 }
 
 buildRpm {
-	requires('java', '1:17', EQUAL).or('java', '1:18', EQUAL).or('java', '1:19', EQUAL).or('java-17').or('java-18').or('java-19')
+	requires('java', '1:21', EQUAL).or('java-21')
 	arch = NOARCH
 	os = LINUX
 	addParentDirs = false
@@ -836,9 +848,9 @@ jlink {
 	addExtraDependencies("javafx")
 	mergedModule {
  		additive = true
-		requires 'com.google.gson'
+	//	requires 'com.google.gson'
 		requires 'ch.qos.logback.classic'
-		requires 'one.util.streamex'
+	//	requires 'one.util.streamex'
 	}
 	launcher {
 		name = 'JRomManager'
@@ -876,13 +888,13 @@ jlink {
 		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
 	targetPlatform("win") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1%2B12/OpenJDK21U-jdk_x64_windows_hotspot_21.0.1_12.zip")
 	}
 	targetPlatform("linux-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_linux_hotspot_17.0.6_10.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1%2B12/OpenJDK21U-jdk_x64_linux_hotspot_21.0.1_12.tar.gz")
 	}
 	targetPlatform("macos-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_mac_hotspot_17.0.6_10.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1%2B12/OpenJDK21U-jdk_x64_mac_hotspot_21.0.1_12.tar.gz")
 	}
 	jpackage {
 		installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)

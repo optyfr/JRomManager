@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.8_7-jdk
+FROM eclipse-temurin:21-jdk
 
 LABEL org.opencontainers.image.description "Docker image of JRomManager (with JDK 17)"
 LABEL org.opencontainers.image.source https://github.com/optyfr/JRomManager

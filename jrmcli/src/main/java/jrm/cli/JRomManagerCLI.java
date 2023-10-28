@@ -77,7 +77,7 @@ public class JRomManagerCLI
 		@Parameter(names = { "--help", "-h" }, help = true)
 		private boolean help = false;
 	
-		@Parameter(names = { "--interactive", "-i" }, description = "Interactive sheel")
+		@Parameter(names = { "--interactive", "-i" }, description = "Interactive shell")
 		private boolean interactive = false;
 	
 		@Parameter(names = { "--file", "-f" }, description = "Input file", arity = 1)
@@ -933,7 +933,10 @@ public class JRomManagerCLI
 		try
 		{
 			cmd.parse(args);
-			new JRomManagerCLI(jArgs);
+			if(jArgs.help)
+				cmd.usage();
+			else
+				new JRomManagerCLI(jArgs);
 		}
 		catch (ParameterException e)
 		{

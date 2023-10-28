@@ -1,3 +1,10 @@
+## Release v3.0.0 beta 12
+- Fixes in CLI version
+- Switched to latest Java 21.0.1 LTS to :
+  - get rid of the 2 different JDK versions to be able to build everything
+  - get access to latest language features for next versions
+- updated some tools and libraries for java 21 compatibility
+
 ## Release v3.0.0 beta 11
 - auto close progress when cancelled in batch tools
 - faster cancel on torrent check

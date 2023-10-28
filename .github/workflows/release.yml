@@ -20,22 +20,11 @@ jobs:
       with:
         submodules: true
         
-    - name: Set up JDK 14
+    - name: Set up JDK 21
       uses: actions/setup-java@v3
       with:
-        distribution: 'adopt'
-        java-version: 14
-        
-    - name: Retain JDK 14 Path
-      id: jdk14
-      run: |
-        echo "JDK14=${{env.JAVA_HOME}}" >> $GITHUB_ENV
-        
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'adopt'
-        java-version: 17
+        distribution: 'temurin'
+        java-version: '21.0.1'
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -58,8 +47,6 @@ jobs:
         
     - name: JPackage DEB with Gradle
       run: ./gradlew jpackage -PtargetPlatform=linux-x64 -PinstallerType=deb
-      env:
-        JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
     - name: Releasing DEB
       uses: ncipollo/release-action@v1
@@ -156,28 +143,14 @@ jobs:
       with:
         submodules: true
         
-    - name: Set up JDK 14
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'adopt'
-        java-version: 14
-        
-    - name: Retain JDK 14 Path
-      id: jdk14
-      run: |
-        chcp 65001 #set code page to utf-8
-        echo ("JDK14=" + $env:JAVA_HOME) >> $env:GITHUB_ENV
-        
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        distribution: 'adopt'
-        java-version: 17
+        distribution: 'temurin'
+        java-version: '21.0.1'
         
     - name: JPackage MSI with Gradle
       run: ./gradlew build jpackage -PtargetPlatform=win -PinstallerType=msi
-      env:
-        JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
     - name: Releasing
       uses: ncipollo/release-action@v1
@@ -216,22 +189,11 @@ jobs:
       with:
         submodules: true
         
-    - name: Set up JDK 14
+    - name: Set up JDK 21
       uses: actions/setup-java@v3
       with:
-        distribution: 'adopt'
-        java-version: 14
-        
-    - name: Retain JDK 14 Path
-      id: jdk14
-      run: |
-        echo "JDK14=${{env.JAVA_HOME}}" >> $GITHUB_ENV
-        
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'adopt'
-        java-version: 17
+        distribution: 'temurin'
+        java-version: '21.0.1'
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
