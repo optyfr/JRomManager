@@ -99,9 +99,11 @@ public abstract class Keywords {
 	protected abstract void showFilter(String[] keywords, KFCallBack callback);
 	
 	protected abstract void updateList();
-	
+
 	/**
-	 * @param f
+	 * 
+	 * @param list
+	 * @param filter
 	 */
 	public void filterCallBack(AnywareList<? extends Anyware> list, List<String> filter)
 	{

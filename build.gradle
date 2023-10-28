@@ -3,10 +3,9 @@ plugins {
 	id 'application'
 	id "org.sonarqube"
 	id "de.undercouch.download" version "5.4.0"
-	id "com.netflix.nebula.ospackage" version "11.4.0"
-	id "de.inetsoftware.setupbuilder" version "7.2.18"
+	id "com.netflix.nebula.ospackage" version "11.5.0"
 	id "io.freefair.lombok" version "8.4"
-	id 'org.openjfx.javafxplugin' version '0.0.14'
+	id 'org.openjfx.javafxplugin' version '0.1.0'
 	id "org.beryx.jlink" version "3.0.1" apply false
 	id 'jacoco'
 }
@@ -506,6 +505,12 @@ dependencies {
 	noarchConfig project(':jrmserver')
 }
 
+configurations.jlinkConfig  {
+    def runtimeAttributes = configurations.runtimeClasspath.attributes
+    runtimeAttributes.keySet().each { key ->
+        attributes.attribute(key, runtimeAttributes.getAttribute(key))
+    }
+}
 
 jar {
 	def mainClassName="jrm.server.Server"
