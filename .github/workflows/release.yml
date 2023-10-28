@@ -16,7 +16,7 @@ jobs:
     - id: get_version
       uses: battila7/get-version-action@v2
       
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       with:
         submodules: true
         
@@ -139,7 +139,7 @@ jobs:
     
     - id: get_version
       uses: battila7/get-version-action@v2
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       with:
         submodules: true
         
@@ -185,7 +185,7 @@ jobs:
     
     - id: get_version
       uses: battila7/get-version-action@v2
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       with:
         submodules: true
         
