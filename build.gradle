@@ -410,7 +410,7 @@ project(':jrmserver') {
 		implementation group: 'org.eclipse.jetty', name:'jetty-security', version:'10.+'
 		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-server', version:'10.+'
 		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-conscrypt-server', version:'10.+'
-		implementation group: 'org.eclipse.jetty.http2', name:'http2-server', version:'10.+'
+		implementation group: 'org.eclipse.jetty.http2', name:'http2-server', version:'11.+'
 		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
 		implementation group: 'com.google.code.gson', name: 'gson', version: 'latest.release'
 		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
