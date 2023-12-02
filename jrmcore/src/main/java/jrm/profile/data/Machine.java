@@ -381,8 +381,8 @@ public class Machine extends Anyware implements Serializable
 	@Override
 	public boolean equals(Object obj)
 	{
-		if(obj instanceof Machine)
-			return this.name.equals(((Machine)obj).name);
+		if(obj instanceof Machine m)
+			return this.name.equals(m.name);
 		return super.equals(obj);
 	}
 	

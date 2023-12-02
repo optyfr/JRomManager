@@ -30,24 +30,24 @@ abstract class EntryNote extends Note
 	@Override
 	public String getCrc()
 	{
-		if(entity instanceof Entity)
-			return ((Entity)entity).getCrc();
+		if(entity instanceof Entity e)
+			return e.getCrc();
 		return null;
 	}
 
 	@Override
 	public String getMd5()
 	{
-		if(entity instanceof Entity)
-			return ((Entity)entity).getMd5();
+		if(entity instanceof Entity e)
+			return e.getMd5();
 		return null;
 	}
 
 	@Override
 	public String getSha1()
 	{
-		if(entity instanceof Entity)
-			return ((Entity)entity).getSha1();
+		if(entity instanceof Entity e)
+			return e.getSha1();
 		return null;
 	}
 	

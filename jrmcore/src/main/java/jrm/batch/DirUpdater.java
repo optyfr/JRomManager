@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.compress.utils.Sets;
@@ -142,7 +141,7 @@ public class DirUpdater
 				session.getCurrProfile().setProperty(ProfileSettingsEnum.roms_dest_dir, dstlist[j].getParentFile().getAbsolutePath()); //$NON-NLS-1$
 			else
 				session.getCurrProfile().setProperty(ProfileSettingsEnum.roms_dest_dir, dstlist[j].getAbsolutePath()); //$NON-NLS-1$
-			session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", srcdirs.stream().map(File::getAbsolutePath).collect(Collectors.toList()))); //$NON-NLS-1$ //$NON-NLS-2$
+			session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", srcdirs.stream().map(File::getAbsolutePath).toList())); //$NON-NLS-1$ //$NON-NLS-2$
 			final var scan = new Scan(session.getCurrProfile(), progress, scancache);
 			if (!dryrun && !scan.actions.isEmpty())
 			{

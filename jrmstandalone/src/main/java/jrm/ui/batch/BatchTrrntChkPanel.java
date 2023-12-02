@@ -346,7 +346,7 @@ public class BatchTrrntChkPanel extends JPanel
 			@Override
 			protected TorrentChecker<SrcDstResult> doInBackground() throws Exception
 			{
-				return new TorrentChecker<SrcDstResult>(session, this, sdrl, mode, updater, opts);
+				return new TorrentChecker<>(session, this, sdrl, mode, updater, opts);
 			}
 
 			@Override

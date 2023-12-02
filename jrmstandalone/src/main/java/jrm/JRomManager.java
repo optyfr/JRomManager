@@ -96,9 +96,8 @@ public final class JRomManager
 	 */
 	private static boolean lockInstance(final Session session, final String lockFile)
 	{
-		try
+		try(final var fc = FileChannel.open(session.getUser().getSettings().getWorkPath().resolve(lockFile), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.DELETE_ON_CLOSE))
 		{
-			final var fc = FileChannel.open(session.getUser().getSettings().getWorkPath().resolve(lockFile), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.DELETE_ON_CLOSE);
 			final var fl = fc.tryLock();
 			if (fl != null)
 			{
@@ -106,7 +105,6 @@ public final class JRomManager
 					try
 					{
 						fl.release();
-						fc.close();
 					}
 					catch (final Exception e)
 					{
@@ -116,8 +114,6 @@ public final class JRomManager
 				}));
 				return true;
 			}
-			else
-				fc.close();
 		}
 		catch (final Exception e)
 		{

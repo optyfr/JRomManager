@@ -65,9 +65,8 @@ public @UtilityClass class TorrentParser
 
 	private static Torrent parseTorrent(Object o) throws ParseException, TorrentException
 	{
-		if (o instanceof BDictionary)
+		if (o instanceof BDictionary torrentDictionary)
 		{
-			BDictionary torrentDictionary = (BDictionary) o;
 			BDictionary infoDictionary = parseInfoDictionary(torrentDictionary);
 
 			if (infoDictionary != null)
@@ -288,9 +287,8 @@ public @UtilityClass class TorrentParser
 			while (fileBDicts.hasNext())
 			{
 				Object fileObject = fileBDicts.next();
-				if (fileObject instanceof BDictionary)
+				if (fileObject instanceof BDictionary fileBDict)
 				{
-					BDictionary fileBDict = (BDictionary) fileObject;
 					BList filePaths = (BList) fileBDict.find(new BByteString("path")); //$NON-NLS-1$
 					BInt fileLength = (BInt) fileBDict.find(new BByteString(LENGTH)); // $NON-NLS-1$
 					// Pick out each subdirectory as a string.

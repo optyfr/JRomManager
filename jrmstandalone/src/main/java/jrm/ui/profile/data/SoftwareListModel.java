@@ -92,10 +92,10 @@ public class SoftwareListModel extends AnywareListModel<Software>
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
 	{
-		if(columnIndex==5 && aValue instanceof Boolean)
+		if(columnIndex==5 && aValue instanceof Boolean b)
 		{
 			final Software software = softwareList.getFilteredList().get(rowIndex);
-			software.setSelected((Boolean)aValue);
+			software.setSelected(b);
 		}
 	}
 

@@ -99,10 +99,10 @@ public class MachineListModel extends AnywareListModel<Machine>
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
 	{
-		if(columnIndex==7 && aValue instanceof Boolean)
+		if(columnIndex==7 && aValue instanceof Boolean b)
 		{
 			final Machine machine = machineList.getFilteredList().get(rowIndex);
-			machine.setSelected((Boolean)aValue);
+			machine.setSelected(b);
 		}
 	}
 

@@ -51,7 +51,7 @@ public enum ProfileSettingsEnum implements EnumWithDefault
 	backup_dest_dir_enabled(false), // NOSONAR
 	backup_dest_dir("%work/backup"), // NOSONAR
 	src_dir("|"), // NOSONAR
-	automation_scan(ScanAutomation.SCAN, "automation.scan"),
+	automation_scan(ScanAutomation.SCAN, "automation.scan"), // NOSONAR
 	exclusion_glob_list("|"); // NOSONAR
 
 	private String name = null;

@@ -32,9 +32,9 @@ public class Progress implements ProgressHandler
 		if (msg != null && !msg.isEmpty() && !quiet)
 		{
 			if (val != null && val > 0)
-				System.out.format("%s (%d/%d)%n", msg, val, this.max);
+				System.out.format("%s (%d/%d)%n", msg, val, this.max);	// NOSONAR
 			else
-				System.out.format("%s%n", msg);
+				System.out.format("%s%n", msg);	// NOSONAR
 		}
 	}
 
@@ -101,7 +101,7 @@ public class Progress implements ProgressHandler
 	@Override
 	public void close()
 	{
-		errors.forEach(System.err::println);
+		errors.forEach(System.err::println);	// NOSONAR
 	}
 	
 	public void quiet(boolean quiet)
@@ -123,7 +123,7 @@ public class Progress implements ProgressHandler
 	@Override
 	public void setOptions(Option first, Option... rest)
 	{
-
+		// Do nothing
 	}
 	
 }

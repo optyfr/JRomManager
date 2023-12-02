@@ -87,8 +87,8 @@ abstract class NameBase implements Serializable, Comparable<NameBase>
 	@Override
 	public boolean equals(Object obj)
 	{
-		if(obj instanceof NameBase)
-			return name.equals(((NameBase)obj).name);
+		if(obj instanceof NameBase nb)
+			return name.equals(nb.name);
 		return super.equals(obj);
 	}
 	

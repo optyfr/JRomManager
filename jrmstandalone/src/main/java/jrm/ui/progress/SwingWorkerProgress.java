@@ -33,7 +33,7 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 	
 	/** The thread id offset. */
 	private Map<Long, Integer> threadIdOffset = new HashMap<>();
-	private ThreadGroup currentThreadGroup = null;
+	private ThreadGroup currentThreadGroup = null;	// NOSONAR
 	private int threadCnt;
 
 	protected SwingWorkerProgress(final Window owner)
@@ -54,30 +54,26 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 		switch (e.getPropertyName())
 		{
 			case SET_PROGRESS:
-				if (e.getNewValue() instanceof SetProgress)
+				if (e.getNewValue() instanceof SetProgress props)
 				{
-					SetProgress props = (SetProgress) e.getNewValue();
 					progress.setProgress(props.offset, props.msg, props.val, props.max, props.submsg);
 				}
 				break;
 			case SET_PROGRESS_2:
-				if (e.getNewValue() instanceof SetProgress2)
+				if (e.getNewValue() instanceof SetProgress2 props)
 				{
-					SetProgress2 props = (SetProgress2) e.getNewValue();
 					progress.setProgress2(props.msg, props.val, props.max);
 				}
 				break;
 			case SET_PROGRESS_3:
-				if (e.getNewValue() instanceof SetProgress3)
+				if (e.getNewValue() instanceof SetProgress3 props)
 				{
-					SetProgress3 props = (SetProgress3) e.getNewValue();
 					progress.setProgress3(props.msg, props.val, props.max);
 				}
 				break;
 			case "setInfos":
-				if (e.getNewValue() instanceof SetInfos)
+				if (e.getNewValue() instanceof SetInfos props)
 				{
-					SetInfos props = (SetInfos) e.getNewValue();
 					progress.setInfos(props.threadCnt, props.multipleSubInfos);
 				}
 				break;
@@ -142,7 +138,7 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 		synchronized (threadIdOffset)
 		{
 			final Thread ct = Thread.currentThread();
-			if (!threadIdOffset.containsKey(ct.getId()))
+			if (!threadIdOffset.containsKey(ct.threadId()))
 				return;
 			final var tg = Optional.ofNullable(currentThreadGroup).orElse(ct.getThreadGroup());	//NOSONAR
 			if (threadIdOffset.size() == tg.activeCount())
@@ -183,20 +179,20 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 				threadIdOffset.clear();
 				currentThreadGroup = Thread.currentThread().getThreadGroup();
 			}
-			if (!threadIdOffset.containsKey(Thread.currentThread().getId()))
+			if (!threadIdOffset.containsKey(Thread.currentThread().threadId()))
 			{
 				if (threadIdOffset.size() < threadCnt)
-					threadIdOffset.put(Thread.currentThread().getId(), threadIdOffset.size());
+					threadIdOffset.put(Thread.currentThread().threadId(), threadIdOffset.size());
 				else
 				{
 					final var tg = Thread.currentThread().getThreadGroup();	//NOSONAR
 					final var tl = new Thread[tg.activeCount()];
 					final var tlCount = tg.enumerate(tl, false);
 					if (!isOffsetFound(tl, tlCount))
-						threadIdOffset.put(Thread.currentThread().getId(), 0);
+						threadIdOffset.put(Thread.currentThread().threadId(), 0);
 				}
 			}
-			offset = threadIdOffset.get(Thread.currentThread().getId());
+			offset = threadIdOffset.get(Thread.currentThread().threadId());
 		}
 		return offset;
 	}
@@ -214,7 +210,7 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 			if(!isOffsetExist(e, tl, tlCount))
 			{
 				threadIdOffset.remove(e.getKey());
-				threadIdOffset.put(Thread.currentThread().getId(), e.getValue());
+				threadIdOffset.put(Thread.currentThread().threadId(), e.getValue());
 				found = true;
 				break;
 			}
@@ -233,7 +229,7 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 		boolean exists = false;
 		for (int i = 0; i < tlCount; i++)
 		{
-			if (entry.getKey() == tl[i].getId())
+			if (entry.getKey() == tl[i].threadId())
 			{
 				exists = true;
 				break;

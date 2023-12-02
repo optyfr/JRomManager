@@ -19,7 +19,6 @@ package jrm.profile.fix.actions;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;

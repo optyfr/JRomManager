@@ -52,7 +52,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 	private static class DefaultThreadFactory implements ThreadFactory
 	{
 		private static final AtomicInteger poolNumber = new AtomicInteger(1);
-		private final ThreadGroup group;
+		private final ThreadGroup group; // NOSONAR
 		private final AtomicInteger threadNumber = new AtomicInteger(1);
 		private final String namePrefix;
 
@@ -162,7 +162,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 			adaptiveLoad(load);
 		time = System.currentTimeMillis();
 		startCPUTimeByThread.entrySet().removeIf(e->!e.getKey().isAlive());	// cleanup dead thread from list
-		startCPUTimeByThread.entrySet().stream().forEach(e -> e.setValue(tmxb.getThreadCpuTime(e.getKey().getId())));	// reset startCPUTime
+		startCPUTimeByThread.entrySet().stream().forEach(e -> e.setValue(tmxb.getThreadCpuTime(e.getKey().threadId())));	// reset startCPUTime
 	}
 
 	/**
@@ -208,7 +208,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 		double load;
 		// Compute cumulated CPUTime of all alive threads (number between 0.0 and n with n the count of active threads)
 		load = (startCPUTimeByThread.entrySet().stream().filter(e->e.getKey().isAlive())
-				.mapToLong(e -> tmxb.getThreadCpuTime(e.getKey().getId()) - e.getValue())
+				.mapToLong(e -> tmxb.getThreadCpuTime(e.getKey().threadId()) - e.getValue())
 				.sum() / 1_000_000.0 /* ns to ms */) / elapsed;
 		// Compute usage ratio (number between 0.0 and 1.0)
 		double usage = load / getPoolSize();

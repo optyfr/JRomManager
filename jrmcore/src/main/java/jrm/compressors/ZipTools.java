@@ -2,6 +2,9 @@ package jrm.compressors;
 
 public class ZipTools
 {
+	private ZipTools() 
+	{
+	}
 	
 	public static String toZipEntry(String name)
 	{

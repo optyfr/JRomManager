@@ -181,7 +181,7 @@ public class ScannerDirPanel extends JPanel
 		gbcLblSrcDir.gridy = 6;
 		this.add(lblSrcDir, gbcLblSrcDir);
 
-		listSrcDir = new JFileDropList(files -> session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).collect(Collectors.toList())))); // $NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$ // $NON-NLS-2$
+		listSrcDir = new JFileDropList(files -> session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).toList()))); // $NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$ // $NON-NLS-2$
 		listSrcDir.setMode(JFileDropMode.DIRECTORY);
 		listSrcDir.setUI(new JListHintUI(Messages.getString(MAIN_FRAME_DROP_DIR_HINT), Color.gray)); //$NON-NLS-1$
 		final GridBagConstraints gbcListSrcDir = new GridBagConstraints();

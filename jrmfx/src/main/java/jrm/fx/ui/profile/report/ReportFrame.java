@@ -28,9 +28,7 @@ public class ReportFrame extends Stage implements StatusHandler
 		initOwner(parent);
 		initModality(Modality.NONE);
 		getIcons().add(parent.getIcons().get(0));
-		setOnShowing(e -> {
-			Settings.fromJson(session.getUser().getSettings().getProperty("ReportFrame.Bounds", null), this);
-		});
+		setOnShowing(e -> Settings.fromJson(session.getUser().getSettings().getProperty("ReportFrame.Bounds", null), this));
 		setOnCloseRequest(e -> {
 			session.getUser().getSettings().setProperty("ReportFrame.Bounds", Settings.toJson(this));
 			hide();

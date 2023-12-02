@@ -35,6 +35,7 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.eclipsesource.json.Json;
 
+import jrm.aui.basic.AbstractSrcDstResult;
 import jrm.aui.basic.ResultColUpdater;
 import jrm.aui.basic.SrcDstResult;
 import jrm.aui.status.PlainTextRenderer;
@@ -512,7 +513,7 @@ public class JRomManagerCLI
 			{
 				val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); //$NON-NLS-1$ //$NON-NLS-2$
 				list.add(new SrcDstResult(args[0],args[1]));
-				prefs(jrm.misc.SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(list)); //$NON-NLS-1$
+				prefs(jrm.misc.SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(list)); //$NON-NLS-1$
 				break;
 			}
 			case START:
@@ -669,7 +670,7 @@ public class JRomManagerCLI
 				{
 					val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)); //$NON-NLS-1$ //$NON-NLS-2$
 					list.add(new SrcDstResult(args[0],args[1]));
-					prefs(jrm.misc.SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(list)); //$NON-NLS-1$
+					prefs(jrm.misc.SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(list)); //$NON-NLS-1$
 				}
 				else
 					return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS));

@@ -34,7 +34,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	
 	/** The thread id offset. */
 	private Map<Long, Integer> threadIdOffset = new HashMap<>();
-	private ThreadGroup currentThreadGroup = null;
+	private ThreadGroup currentThreadGroup = null;	//NOSONAR
 
 	private boolean cancel = false;
 	private boolean canCancel = true;
@@ -139,7 +139,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	private synchronized void cleanup()
 	{
 		final var ct = Thread.currentThread();
-		if (!threadIdOffset.containsKey(ct.getId()))
+		if (!threadIdOffset.containsKey(ct.threadId()))
 			return;
 		final var tg = Optional.ofNullable(currentThreadGroup).orElse(ct.getThreadGroup());	//NOSONAR
 		if (threadIdOffset.size() == tg.activeCount())
@@ -170,20 +170,20 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 			threadIdOffset.clear();
 			currentThreadGroup = Thread.currentThread().getThreadGroup();
 		}
-		if (!threadIdOffset.containsKey(Thread.currentThread().getId()))
+		if (!threadIdOffset.containsKey(Thread.currentThread().threadId()))
 		{
 			if (threadIdOffset.size() < data.threadCnt)
-				threadIdOffset.put(Thread.currentThread().getId(), threadIdOffset.size());
+				threadIdOffset.put(Thread.currentThread().threadId(), threadIdOffset.size());
 			else
 			{
 				final var tg = Thread.currentThread().getThreadGroup();	//NOSONAR
 				final var tl = new Thread[tg.activeCount()];
 				final var tl_count = tg.enumerate(tl, false);
 				if (!isOffsetFound(tl, tl_count))
-					threadIdOffset.put(Thread.currentThread().getId(), 0);
+					threadIdOffset.put(Thread.currentThread().threadId(), 0);
 			}
 		}
-		return threadIdOffset.get(Thread.currentThread().getId());
+		return threadIdOffset.get(Thread.currentThread().threadId());
 	}
 
 	/**
@@ -199,7 +199,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 			if (!isOffsetExist(entry, tl, tl_count))
 			{
 				threadIdOffset.remove(entry.getKey());
-				threadIdOffset.put(Thread.currentThread().getId(), entry.getValue());
+				threadIdOffset.put(Thread.currentThread().threadId(), entry.getValue());
 				found = true;
 				break;
 			}
@@ -218,7 +218,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 		var exists = false;
 		for (var i = 0; i < tl_count; i++)
 		{
-			if (entry.getKey() == tl[i].getId())
+			if (entry.getKey() == tl[i].threadId())
 			{
 				exists = true;
 				break;

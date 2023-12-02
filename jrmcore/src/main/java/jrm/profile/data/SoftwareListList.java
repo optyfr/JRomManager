@@ -129,7 +129,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 		else
 		{
 			if(filtered)
-				lists=getFilteredStream().collect(Collectors.toList());
+				lists=getFilteredStream().toList();
 			else
 				lists=getList();
 		}

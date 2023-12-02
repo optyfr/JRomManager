@@ -1402,7 +1402,7 @@ public class Profile implements Serializable,StatusRendererFactory
 	{
 		Profile profile = null;
 		final var cachefile = session.getUser().getSettings().getCacheFile(nfo.getFile());
-		if (cachefile.lastModified() >= nfo.getFile().lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.getMame().getFileroms().lastModified()) && !session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, Boolean.class)) // $NON-NLS-1$
+		if (cachefile.lastModified() >= nfo.getFile().lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.getMame().getFileroms().lastModified()) && Boolean.TRUE.equals(!session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, Boolean.class))) // $NON-NLS-1$
 		{ // Load from cache if cachefile is not outdated and debug_nocache is disabled
 			profile = loadCache(session, nfo, handler, profile, cachefile);
 		}

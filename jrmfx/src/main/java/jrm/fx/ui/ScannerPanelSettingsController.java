@@ -2,7 +2,6 @@ package jrm.fx.ui;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -205,6 +204,6 @@ public class ScannerPanelSettingsController implements Initializable
 	
 	private void loadGlob()
 	{
-		dstExcludeGlob.getItems().setAll(Stream.of(StringUtils.split(settings.getProperty(ProfileSettingsEnum.exclusion_glob_list.toString(),"|"),"|")).filter(s->!s.isEmpty()).collect(Collectors.toList()));
+		dstExcludeGlob.getItems().setAll(Stream.of(StringUtils.split(settings.getProperty(ProfileSettingsEnum.exclusion_glob_list.toString(),"|"),"|")).filter(s->!s.isEmpty()).toList());
 	}
 }

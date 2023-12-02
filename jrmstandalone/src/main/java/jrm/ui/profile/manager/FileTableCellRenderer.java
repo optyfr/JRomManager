@@ -46,9 +46,9 @@ public class FileTableCellRenderer extends DefaultTableCellRenderer
 	@Override
 	public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 	{
-		if(column==0 && table.getModel() instanceof FileTableModel)
+		if(column==0 && table.getModel() instanceof FileTableModel ftm)
 		{
-			final ProfileNFO nfo = ((FileTableModel)table.getModel()).getNfoAt(row);
+			final ProfileNFO nfo = ftm.getNfoAt(row);
 			super.getTableCellRendererComponent(table, nfo.getName(), isSelected, hasFocus, row, column);
 			switch(nfo.getMame().getStatus())
 			{

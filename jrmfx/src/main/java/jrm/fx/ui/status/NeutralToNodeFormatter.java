@@ -59,6 +59,8 @@ public @UtilityClass class NeutralToNodeFormatter
 							case "italic":
 								italic = Boolean.parseBoolean(attributes.getValue(i));
 								break;
+							default:
+								break;
 						}
 					}
 					if(bold || italic)

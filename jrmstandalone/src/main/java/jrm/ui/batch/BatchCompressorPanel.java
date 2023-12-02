@@ -255,7 +255,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
 					FileFilter filter = pathname -> pathname.isDirectory() || FilenameUtils.isExtension(pathname.getName(), extensions);
 
 					@SuppressWarnings("unchecked")
-					final List<File> files = ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor)).stream().filter(filter::accept).collect(Collectors.toList());
+					final List<File> files = ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor)).stream().filter(filter::accept).toList();
 					if (!files.isEmpty())
 					{
 						addFiles(files, extensions);
@@ -428,12 +428,14 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
 				final var cnt = new AtomicInteger();
 				final var compressor = new Compressor(session, cnt, table.getRowCount(), this);
 				final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, Boolean.class);
-				final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
-				new MultiThreading<FileResult>(nThreads, fr -> {
+				final var nThreads = Boolean.TRUE.equals(use_parallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
+				try(final var mt = new MultiThreading<FileResult>(nThreads, fr -> {
 					if (isCancel())
 						return;
 					compress(cnt, compressor, fr);
-				}).start(table.model.getData().stream());
+				})){
+					mt.start(table.model.getData().stream());
+				}
 				return null;
 			}
 

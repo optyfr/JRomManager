@@ -51,7 +51,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 		if(operation.hasData("name"))
 		{
 			final List<String> lsrcdirs = Stream.of(getSrcDirs()).collect(Collectors.toList());
-			final List<String> names = operation.getDatas("name").stream().filter(n->!lsrcdirs.contains(n)).collect(Collectors.toList());
+			final List<String> names = operation.getDatas("name").stream().filter(n->!lsrcdirs.contains(n)).toList();
 			if(!names.isEmpty())
 			{
 				lsrcdirs.addAll(names);
@@ -105,7 +105,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse
 		if(operation.hasData("name"))
 		{
 			final List<String> lsrcdirs = Stream.of(getSrcDirs()).collect(Collectors.toList());
-			final List<String> names = operation.getDatas("name").stream().filter(lsrcdirs::contains).collect(Collectors.toList());
+			final List<String> names = operation.getDatas("name").stream().filter(lsrcdirs::contains).toList();
 			if(!names.isEmpty())
 			{
 				lsrcdirs.removeAll(names);

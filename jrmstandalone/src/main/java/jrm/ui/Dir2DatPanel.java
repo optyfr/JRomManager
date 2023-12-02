@@ -544,21 +544,21 @@ public class Dir2DatPanel extends JPanel
 	private EnumSet<DirScan.Options> initOptions(final Session session)
 	{
 		EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
-		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, Boolean.class)) //$NON-NLS-1$
+		if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, Boolean.class))) //$NON-NLS-1$
 			options.add(Options.RECURSE);
-		if (!session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, Boolean.class)) //$NON-NLS-1$
+		if (Boolean.FALSE.equals(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, Boolean.class))) //$NON-NLS-1$
 			options.add(Options.IS_DEST);
-		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, Boolean.class)) //$NON-NLS-1$
+		if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, Boolean.class))) //$NON-NLS-1$
 			options.add(Options.NEED_MD5);
-		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, Boolean.class)) //$NON-NLS-1$
+		if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, Boolean.class))) //$NON-NLS-1$
 			options.add(Options.NEED_SHA1);
-		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, Boolean.class)) //$NON-NLS-1$
+		if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, Boolean.class))) //$NON-NLS-1$
 			options.add(Options.JUNK_SUBFOLDERS);
-		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, Boolean.class)) //$NON-NLS-1$
+		if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, Boolean.class))) //$NON-NLS-1$
 			options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, Boolean.class)) //$NON-NLS-1$
+		if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, Boolean.class))) //$NON-NLS-1$
 			options.add(Options.MATCH_PROFILE);
-		if (session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, Boolean.class)) //$NON-NLS-1$
+		if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, Boolean.class))) //$NON-NLS-1$
 			options.add(Options.EMPTY_DIRS);
 		return options;
 	}

@@ -49,5 +49,5 @@ public class NeutralRenderer implements StatusRenderer
 	public boolean hasProgress()
 	{
 		return true;
-	};
+	}
 }

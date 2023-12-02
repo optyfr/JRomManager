@@ -139,7 +139,7 @@ public class DefaultEnvironmentProperties
 
 	private static Map<String, String> resolvePlaceHolders(final Map<String, String> mapin)
 	{
-		final Function<? super Map.Entry<String, String>, ? extends String> mapper = e -> e.getKey().startsWith("JRM_")?replaceValue(e.getValue(), mapin):e.getValue();
+		final Function<? super Map.Entry<String, String>, String> mapper = e -> e.getKey().startsWith("JRM_")?replaceValue(e.getValue(), mapin):e.getValue();
 		return mapin.entrySet().stream().collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, mapper));
 	}
 

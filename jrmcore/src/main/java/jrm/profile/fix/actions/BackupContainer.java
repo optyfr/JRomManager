@@ -98,9 +98,9 @@ public class BackupContainer extends ContainerAction
 		if (!zipfiles.containsKey(crc2))
 		{
 			final String workdir;
-			if (session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class))
+			if (Boolean.TRUE.equals(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class)))
 				workdir = session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir);
-			else if (session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class))
+			else if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class)))
 				workdir = session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir);
 			else
 				workdir = "%work/backup"; //$NON-NLS-1$

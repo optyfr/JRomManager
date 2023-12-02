@@ -64,10 +64,10 @@ public class AnywareXMLResponse extends XMLResponse
 			writer.writeAttribute("ware", aw.getBaseName());
 			writer.writeAttribute("name", e.getBaseName());
 			writer.writeAttribute(STATUS, e.getStatus().toString());
-			if (e instanceof Rom)
-				writeRomInfos((Rom)e);
-			else if (e instanceof Disk)
-				writeDiskInfos((Disk)e);
+			if (e instanceof Rom r)
+				writeRomInfos(r);
+			else if (e instanceof Disk dsk)
+				writeDiskInfos(dsk);
 			else if (e instanceof Sample)
 				writer.writeAttribute("type", "SAMPLE");
 		}

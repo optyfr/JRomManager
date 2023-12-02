@@ -109,8 +109,8 @@ public class Log
 	{
 		if(msg==null)
 			return;
-		if(msg instanceof String)
-			Logger.getGlobal().info((String)msg);
+		if(msg instanceof String str)
+			Logger.getGlobal().info(str);
 		else
 			Logger.getGlobal().info(msg::toString);
 	}
@@ -124,8 +124,8 @@ public class Log
 	{
 		if(msg==null)
 			return;
-		if(msg instanceof String)
-			Logger.getGlobal().warning((String)msg);
+		if(msg instanceof String str)
+			Logger.getGlobal().warning(str);
 		else
 			Logger.getGlobal().warning(msg::toString);
 	}
@@ -139,8 +139,8 @@ public class Log
 	{
 		if(msg==null)
 			return;
-		if(msg instanceof String)
-			Logger.getGlobal().severe((String)msg);
+		if(msg instanceof String str)
+			Logger.getGlobal().severe(str);
 		else
 			Logger.getGlobal().severe(msg::toString);
 	}
@@ -164,8 +164,8 @@ public class Log
 	{
 		if(msg==null)
 			return;
-		if(msg instanceof String)
-			Logger.getGlobal().fine((String)msg);
+		if(msg instanceof String str)
+			Logger.getGlobal().fine(str);
 		else
 			Logger.getGlobal().fine(msg::toString);
 	}
@@ -179,8 +179,8 @@ public class Log
 	{
 		if(msg==null)
 			return;
-		if(msg instanceof String)
-			Logger.getGlobal().finest((String)msg);
+		if(msg instanceof String str)
+			Logger.getGlobal().finest(str);
 		else
 			Logger.getGlobal().finest(msg::toString);
 	}
@@ -194,8 +194,8 @@ public class Log
 	{
 		if(msg==null)
 			return;
-		if(msg instanceof String)
-			Logger.getGlobal().config((String)msg);
+		if(msg instanceof String str)
+			Logger.getGlobal().config(str);
 		else
 			Logger.getGlobal().config(msg::toString);
 	}

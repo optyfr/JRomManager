@@ -98,7 +98,7 @@ public class BatchDirUpd8rPanel extends JPanel
 		splitPane.setLeftComponent(scrollPaneLeft);
 		scrollPaneLeft.setBorder(new TitledBorder(null, Messages.getString("MainFrame.SrcDirs"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
-		listBatchToolsDat2DirSrc = new JFileDropList(files -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, String.join("|", files.stream().map(File::getAbsolutePath).collect(Collectors.toList())))); //$NON-NLS-1$ //$NON-NLS-2$
+		listBatchToolsDat2DirSrc = new JFileDropList(files -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, String.join("|", files.stream().map(File::getAbsolutePath).toList()))); //$NON-NLS-1$ //$NON-NLS-2$
 		listBatchToolsDat2DirSrc.setMode(JFileDropMode.DIRECTORY);
 		listBatchToolsDat2DirSrc.setUI(new JListHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
 		listBatchToolsDat2DirSrc.setToolTipText(Messages.getString("MainFrame.listBatchToolsDat2DirSrc.toolTipText")); //$NON-NLS-1$

@@ -123,9 +123,9 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
 		else
 		{
 			button = new JButton();
-			if (value instanceof String)
+			if (value instanceof String s)
 			{
-				button.setText((String) value);
+				button.setText(s);
 			}
 			button.addActionListener(e -> {
 				if (handlers != null)
@@ -150,8 +150,8 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
 		else
 		{
 			button = new JButton();
-			if (value instanceof String)
-				button.setText((String) value);
+			if (value instanceof String s)
+				button.setText(s);
 			buttons.put(row, button);
 		}
 

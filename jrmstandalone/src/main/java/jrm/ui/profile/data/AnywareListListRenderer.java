@@ -57,10 +57,10 @@ public final class AnywareListListRenderer
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			if (value instanceof SoftwareList)
+			if (value instanceof SoftwareList sl)
 			{
-				super.getTableCellRendererComponent(table, ((SoftwareList) value).getBaseName(), isSelected, hasFocus, row, column);
-				switch (((SoftwareList) value).getStatus())
+				super.getTableCellRendererComponent(table, sl.getBaseName(), isSelected, hasFocus, row, column);
+				switch (sl.getStatus())
 				{
 					case COMPLETE:
 						setIcon(diskMultipleGreen);
@@ -79,10 +79,10 @@ public final class AnywareListListRenderer
 				}
 				return this;
 			}
-			else if (value instanceof MachineList)
+			else if (value instanceof MachineList ml)
 			{
 				super.getTableCellRendererComponent(table, Messages.getString("MachineListListRenderer.*"), isSelected, hasFocus, row, column); //$NON-NLS-1$
-				switch (((MachineList) value).getStatus())
+				switch (ml.getStatus())
 				{
 					case COMPLETE:
 						setIcon(diskMultipleGreen);

@@ -40,7 +40,7 @@ public class CompressorActions
 			final var force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, Boolean.class);
 
 			final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, Boolean.class);
-			final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
+			final var nThreads = Boolean.TRUE.equals(use_parallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 
 			session.getWorker().progress = new ProgressActions(ws);
 			session.getWorker().progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), ws.getSession().getCachedCompressorList().size()), true);
@@ -51,7 +51,9 @@ public class CompressorActions
 				final var compressor = new Compressor(session, cnt, ws.getSession().getCachedCompressorList().size(), session.getWorker().progress);
 				List<FileResult> values = new ArrayList<>(ws.getSession().getCachedCompressorList().values());
 
-				new MultiThreading<Compressor.FileResult>(nThreads, fr -> doCompress(session, format, force, cnt, compressor, values, fr)).start(ws.getSession().getCachedCompressorList().values().stream());
+				try(final var mt = new MultiThreading<Compressor.FileResult>(nThreads, fr -> doCompress(session, format, force, cnt, compressor, values, fr))) {
+					mt.start(ws.getSession().getCachedCompressorList().values().stream());
+				}
 
 			}
 			catch (BreakException e)

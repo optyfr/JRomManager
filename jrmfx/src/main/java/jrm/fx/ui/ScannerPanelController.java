@@ -693,7 +693,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		samplesDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
 		backupDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class)); //$NON-NLS-1$
 		backupDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir)); //$NON-NLS-1$ //$NON-NLS-2$
-		srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir),'|')).filter(s->!s.isEmpty()).map(File::new).collect(Collectors.toList())));
+		srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir),'|')).filter(s->!s.isEmpty()).map(File::new).toList()));
 
 		scannerPanelSettingsController.initProfileSettings(session.getCurrProfile().getSettings());
 		

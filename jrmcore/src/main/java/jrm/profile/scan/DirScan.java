@@ -266,11 +266,11 @@ public final class DirScan extends PathAbstractor
 		 */
 		if(profile==null)
 			return options;
-		if (profile.getProperty(ProfileSettingsEnum.need_sha1_or_md5, Boolean.class)) // $NON-NLS-1$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.need_sha1_or_md5, Boolean.class))) // $NON-NLS-1$
 			options.add(Options.NEED_SHA1_OR_MD5);
-		if (profile.getProperty(ProfileSettingsEnum.use_parallelism, Boolean.class)) // $NON-NLS-1$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.use_parallelism, Boolean.class))) // $NON-NLS-1$
 			options.add(Options.USE_PARALLELISM);
-		if (profile.getProperty(ProfileSettingsEnum.archives_and_chd_as_roms, Boolean.class)) // $NON-NLS-1$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.archives_and_chd_as_roms, Boolean.class))) // $NON-NLS-1$
 			options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
 		final var format = FormatOptions.valueOf(profile.getProperty(ProfileSettingsEnum.format, String.class)); // $NON-NLS-1$
 		if (FormatOptions.TZIP == format)
@@ -362,7 +362,7 @@ public final class DirScan extends PathAbstractor
 		/*
 		 * Loading scan cache
 		 */
-		if(!session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_nocache, Boolean.class)) //$NON-NLS-1$
+		if(Boolean.FALSE.equals(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.debug_nocache, Boolean.class))) //$NON-NLS-1$
 			containersByName = load(dir, soptions);
 		else
 			containersByName = Collections.synchronizedMap(new HashMap<>());
@@ -397,32 +397,28 @@ public final class DirScan extends PathAbstractor
 		handler.setInfos(options.nThreads,true);
 		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), getRelativePath(dir.toPath())) , -1); //$NON-NLS-1$
 		handler.setProgress2("", j.get(), max.get()); //$NON-NLS-1$
-		new MultiThreading<Container>(options.nThreads, c -> {
-			if(handler.isCancel())
+		try (final var mt = new MultiThreading<Container>(options.nThreads, c -> {
+			if (handler.isCancel())
 				return;
-			try
-			{
+			try {
 				scanContainer(c, handler, options);
 				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.getFile().getName())); //$NON-NLS-1$
-				handler.setProgress2(String.format("%d/%d (%d%%)", i.incrementAndGet(), containers.size(), (int)(j.addAndGet(1+(int)(c.getSize()>>20)) * 100.0 / max.get())), j.get()); //$NON-NLS-1$
-			}
-			catch(final IOException e)
-			{
+				handler.setProgress2(String.format("%d/%d (%d%%)", i.incrementAndGet(), containers.size(), //$NON-NLS-1$
+						(int) (j.addAndGet(1 + (int) (c.getSize() >> 20)) * 100.0 / max.get())), j.get());
+			} catch (final IOException e) {
 				c.setLoaded(0);
 				Log.err("IOException when scanning", e); //$NON-NLS-1$
-			}
-			catch(final BreakException e)
-			{
+			} catch (final BreakException e) {
 				c.setLoaded(0);
 				handler.doCancel();
-			}
-			catch(final Exception e)
-			{
+			} catch (final Exception e) {
 				c.setLoaded(0);
 				Log.err("Other Exception when listing", e); //$NON-NLS-1$
 			}
 			return;
-		}).start(containers.stream().sorted(Container.rcomparator()));
+		})) {
+			mt.start(containers.stream().sorted(Container.rcomparator()));
+		}
 
 		if(!handler.isCancel())
 			save(dir, soptions);
@@ -496,36 +492,32 @@ public final class DirScan extends PathAbstractor
 			handler.setProgress(null, -1);
 			handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles"), getRelativePath(dir.toPath())), 0, 100); //$NON-NLS-1$
 			
-			new MultiThreading<Path>(options.nThreads, p -> {
-				if(handler.isCancel())
+			try (final var mt = new MultiThreading<Path>(options.nThreads, p -> {
+				if (handler.isCancel())
 					return;
-				if(path.equals(p))
+				if (path.equals(p))
 					return;
 				final var file = p.toFile();
-				try
-				{
+				try {
 					final BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
-					if(options.isDest)
-					{
-						if(exclusions.stream().anyMatch(pm->pm.matches(p)))
+					if (options.isDest) {
+						if (exclusions.stream().anyMatch(pm -> pm.matches(p)))
 							return;
 						listFilesDest(file, attr);
-					}
-					else
+					} else
 						listFilesSrc(path, p, file, attr, options);
-					handler.setProgress(path.relativize(p).toString(), -1); //$NON-NLS-1$
-					handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), getRelativePath(dir.toPath()), i.incrementAndGet()), 0); //$NON-NLS-1$
-				}
-				catch(final IOException e)
-				{
-					Log.err(e.getMessage(),e);
-				}
-				catch(final BreakException e)
-				{
+					handler.setProgress(path.relativize(p).toString(), -1); // $NON-NLS-1$
+					handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), //$NON-NLS-1$
+							getRelativePath(dir.toPath()), i.incrementAndGet()), 0);
+				} catch (final IOException e) {
+					Log.err(e.getMessage(), e);
+				} catch (final BreakException e) {
 					handler.doCancel();
 				}
 				return;
-			}).start(stream);
+			})) {
+				mt.start(stream);
+			}
 			/*
 			 * Remove files from cache that are not in up2date state, because that mean that those files were removed from FS since the previous scan
 			 */

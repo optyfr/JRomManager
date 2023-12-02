@@ -218,11 +218,13 @@ public class BatchToolsPanelController extends BaseController
 				setInfos(nThreads <= 0 ? Runtime.getRuntime().availableProcessors() : nThreads, true);
 				tvBatchToolsCompressor.getItems().forEach(fr -> fr.setResult(""));
 
-				new MultiThreading<FileResult>(nThreads, fr -> {
+				try (final var mt = new MultiThreading<FileResult>(nThreads, fr -> {
 					if (isCancel())
 						return;
 					compress(cnt, compressor, fr);
-				}).start(tvBatchToolsCompressor.getItems().stream());
+				})) {
+					mt.start(tvBatchToolsCompressor.getItems().stream());
+				}
 				return null;
 			}
 			
@@ -787,12 +789,12 @@ public class BatchToolsPanelController extends BaseController
 
 	private void saveDat2DirDst()
 	{
-		session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, SrcDstResult.toJSON(tvBatchToolsDat2DirDst.getItems()));
+		session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(tvBatchToolsDat2DirDst.getItems()));
 	}
 	
 	private void saveTorrentDst()
 	{
-		session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, SrcDstResult.toJSON(tvBatchToolsTorrent.getItems()));
+		session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(tvBatchToolsTorrent.getItems()));
 	}
 	
 	private void saveDat2DirSrc()

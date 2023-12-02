@@ -250,9 +250,9 @@ public class KeywordFilter extends JDialog
 			for (int i = 0; i < importedData.length; i++)
 			{
 				final Object elem = importedData[i];
-				if (elem instanceof String)
+				if (elem instanceof String s)
 				{
-					listModel.add(dropIndex + i, (String) elem);
+					listModel.add(dropIndex + i, s);
 				}
 				else
 				{

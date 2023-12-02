@@ -131,7 +131,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 			return softwareListDefs.get(softwarelist).stream()
 					.filter(m -> m.isCompatible(softwarelist, compatibility) > 0)
 					.sorted((o1, o2) -> getComparator(softwarelist, compatibility, o1, o2))
-					.collect(Collectors.toList());
+					.toList();
 		}
 		return List.of();
 	}
@@ -190,7 +190,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException, IOException
 	{
-		final List<MachineList> lists = getFilteredStream().collect(Collectors.toList());
+		final List<MachineList> lists = getFilteredStream().toList();
 		if(lists.size() > 0)
 		{
 			writer.writeStartDocument(UTF_8,"1.0"); //$NON-NLS-1$ //$NON-NLS-2$

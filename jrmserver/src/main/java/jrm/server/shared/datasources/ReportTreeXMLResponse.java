@@ -109,11 +109,11 @@ public class ReportTreeXMLResponse extends XMLResponse
 				writer.writeAttribute(PARENT_ID, Integer.toString(0));
 				writer.writeAttribute("title", s.getDocument());
 				writer.writeAttribute("class", s.getClass().getSimpleName());
-				if (s instanceof SubjectSet)
+				if (s instanceof SubjectSet ss)
 				{
-					writer.writeAttribute(STATUS, ((SubjectSet) s).getStatus().toString());
-					writer.writeAttribute("hasNotes", Boolean.toString(((SubjectSet) s).hasNotes()));
-					writer.writeAttribute("isFixable", Boolean.toString(((SubjectSet) s).isFixable()));
+					writer.writeAttribute(STATUS, ss.getStatus().toString());
+					writer.writeAttribute("hasNotes", Boolean.toString(ss.hasNotes()));
+					writer.writeAttribute("isFixable", Boolean.toString(ss.isFixable()));
 				}
 				writer.writeAttribute("isFolder", Boolean.toString(!s.getNotes().isEmpty()));
 				writer.writeEndElement();

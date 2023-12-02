@@ -16,10 +16,10 @@ class FileCellRenderer extends DefaultTableCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
 		setBackground(Color.white);
-		if (value instanceof File)
+		if (value instanceof File f)
 		{
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			setText(trimmedStringCalculator(((File) value).getPath(), table, this, table.getColumnModel().getColumn(column).getWidth() - 10));
+			setText(trimmedStringCalculator(f.getPath(), table, this, table.getColumnModel().getColumn(column).getWidth() - 10));
 			return this;
 		}
 		return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

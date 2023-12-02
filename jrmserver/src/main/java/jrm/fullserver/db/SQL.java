@@ -404,7 +404,7 @@ public abstract class SQL implements SQLUtils, Closeable
 	}
 
 
-	public void insert(String table, String context, final LinkedHashMap<String, Object> toset) throws SQLException
+	public void insert(String table, String context, final Map<String, Object> toset) throws SQLException
 	{
 		qryRunner.update(db, "INSERT INTO " + getSQLTable(table, context) + " (" + makeCols(toset.keySet()) + ") VALUES(" + appendParam(toset.size()) + ")", toset.values().toArray());
 	}

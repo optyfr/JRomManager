@@ -362,14 +362,14 @@ public class Scan extends PathAbstractor
 		}
 		/* then add extra backup dir to that list */
 		final String workdir;
-		if (profile.getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class))
+		if (Boolean.TRUE.equals(profile.getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class)))
 			workdir = profile.getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir);
 		else
 			workdir = WORK_BACKUP;
 		if (!workdir.equals(WORK_BACKUP))
 			srcdirs.add(PathAbstractor.getAbsolutePath(profile.getSession(), workdir).toFile()); // $NON-NLS-1$
 		final String gworkdir;
-		if (profile.getSession().getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class))
+		if (Boolean.TRUE.equals(profile.getSession().getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class)))
 			gworkdir = profile.getSession().getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir);
 		else
 			gworkdir = WORK_BACKUP;
@@ -389,7 +389,7 @@ public class Scan extends PathAbstractor
 		/*
 		 * use samples dest dir if enabled and valid, otherwise it's null and not used
 		 */
-		if(profile.getProperty(ProfileSettingsEnum.samples_dest_dir_enabled, Boolean.class))
+		if(Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.samples_dest_dir_enabled, Boolean.class)))
 		{
 			final String samplesDstDirTxt = profile.getProperty(ProfileSettingsEnum.samples_dest_dir); //$NON-NLS-1$ //$NON-NLS-2$
 			if(samplesDstDirTxt.isEmpty())
@@ -415,7 +415,7 @@ public class Scan extends PathAbstractor
 		 * dest dir (which in turn can be the same than roms dest dir)
 		 */
 		final File swdisksDstDir;
-		if (profile.getProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, Boolean.class)) // $NON-NLS-1$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
 		{
 			final String swdisksDstDirTxt = profile.getProperty(ProfileSettingsEnum.swdisks_dest_dir); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swdisksDstDirTxt.isEmpty())
@@ -440,7 +440,7 @@ public class Scan extends PathAbstractor
 		 * dir
 		 */
 		final File swromsDstDir;
-		if (profile.getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class)) // $NON-NLS-1$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
 		{
 			final String swromsDstDirTxt = profile.getProperty(ProfileSettingsEnum.swroms_dest_dir); //$NON-NLS-1$ //$NON-NLS-2$
 			if (swromsDstDirTxt.isEmpty())
@@ -463,7 +463,7 @@ public class Scan extends PathAbstractor
 	private File initDisksDstDir(final Profile profile, final File romsDstDir) throws ScanException
 	{
 		final File disksDstDir;
-		if (profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class)) // $NON-NLS-1$
+		if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
 		{
 			final String disksDstDirTxt = profile.getProperty(ProfileSettingsEnum.disks_dest_dir); //$NON-NLS-1$ //$NON-NLS-2$
 			if (disksDstDirTxt.isEmpty())
@@ -561,7 +561,7 @@ public class Scan extends PathAbstractor
 			return;
 		final AtomicInteger j = new AtomicInteger();
 		handler.setProgress3(String.format("%d/%d", j.get(), profile.getMachineListList().getSoftwareListList().size()), j.get(), profile.getMachineListList().getSoftwareListList().size()); //$NON-NLS-1$
-		for (final SoftwareList sl : profile.getMachineListList().getSoftwareListList().getFilteredStream().collect(Collectors.toList()))
+		for (final SoftwareList sl : profile.getMachineListList().getSoftwareListList().getFilteredStream().toList())
 		{
 			sl.resetFilteredName();
 			File sldir = new File(swromsDstDir, sl.getName());
@@ -693,21 +693,25 @@ public class Scan extends PathAbstractor
 
 			/* Scan all samples */
 			handler.setProgress2(String.format("%s %d/%d", Messages.getString(MSG_SCAN_SEARCHING_FOR_FIXES), j.get(), profile.size()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
-			new MultiThreading<Samples>(nThreads, set -> {
+			try (final var mt = new MultiThreading<Samples>(nThreads, set -> {
 				if (handler.isCancel())
 					return;
 				handler.setProgress(set.getName(), i.getAndIncrement());
 				if (samplesDstScan != null)
 					scanSamples(set);
-			}).start(StreamSupport.stream(profile.getMachineListList().get(0).samplesets.spliterator(), false));
+			})) {
+				mt.start(StreamSupport.stream(profile.getMachineListList().get(0).samplesets.spliterator(), false));
+			}
 			/* scan all machines */
 			profile.getMachineListList().get(0).forEach(Machine::resetCollisionMode);
-			new MultiThreading<Machine>(nThreads, m -> {
+			try (final var mt = new MultiThreading<Machine>(nThreads, m -> {
 				if (handler.isCancel())
 					return;
 				handler.setProgress(m.getFullName(), i.getAndIncrement());
 				scanWare(m);
-			}).start(profile.getMachineListList().get(0).getFilteredStream());
+			})) {
+				mt.start(profile.getMachineListList().get(0).getFilteredStream());
+			}
 		}
 		if (!profile.getMachineListList().getSoftwareListList().isEmpty())
 		{
@@ -1090,7 +1094,7 @@ public class Scan extends PathAbstractor
 	{
 		if (!ignoreUnneededEntries)
 		{
-			final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(data.found)::contains)).collect(Collectors.toList());
+			final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(data.found)::contains)).toList();
 			for (final Entry unneeded_entry : unneeded)
 			{
 				reportSubject.add(new EntryUnneeded(unneeded_entry));
@@ -1377,7 +1381,7 @@ public class Scan extends PathAbstractor
 		if (!ignoreUnneededEntries)
 		{
 			// remove unneeded entries
-			final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(scanData.found)::contains)).collect(Collectors.toList());
+			final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(scanData.found)::contains)).toList();
 			for (final Entry unneeded_entry : unneeded)
 			{
 				reportSubject.add(new EntryUnneeded(unneeded_entry));
@@ -1720,7 +1724,7 @@ public class Scan extends PathAbstractor
 	{
 		if (!ignoreUnneededEntries)
 		{
-			final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(data.found)::contains)).collect(Collectors.toList());
+			final List<Entry> unneeded = container.getEntries().stream().filter(Scan.not(new HashSet<>(data.found)::contains)).toList();
 			for (final Entry unneededEntry : unneeded)
 			{
 				reportSubject.add(new EntryUnneeded(unneededEntry));

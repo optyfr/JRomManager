@@ -29,9 +29,7 @@ public class ProfileViewer extends Stage
 		initOwner(parent);
 		initModality(Modality.NONE);
 		getIcons().add(parent.getIcons().get(0));
-		setOnShowing(e -> {
-			Settings.fromJson(session.getUser().getSettings().getProperty("ProfileViewer.Bounds", null), this);
-		});
+		setOnShowing(e -> Settings.fromJson(session.getUser().getSettings().getProperty("ProfileViewer.Bounds", null), this));
 		setOnCloseRequest(e -> {
 			session.getUser().getSettings().setProperty("ProfileViewer.Bounds", Settings.toJson(this));
 			hide();

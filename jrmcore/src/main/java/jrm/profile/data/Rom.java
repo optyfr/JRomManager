@@ -16,7 +16,6 @@
  */
 package jrm.profile.data;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +116,7 @@ public class Rom extends Entity implements Serializable
 					return parent.name + "/" + name; //$NON-NLS-1$
 				}
 			}
-			else if (!parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class)) //$NON-NLS-1$
+			else if (Boolean.FALSE.equals(parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class))) //$NON-NLS-1$
 				return merge;
 		}
 		return name;

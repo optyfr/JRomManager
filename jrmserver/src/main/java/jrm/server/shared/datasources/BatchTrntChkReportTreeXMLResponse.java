@@ -92,7 +92,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse
 	 */
 	private void fetchRoot(Operation operation, TrntChkReport report, Boolean showok) throws XMLStreamException
 	{
-		List<Child> nodes = report.getNodes().stream().filter(n -> showok || n.getData().getStatus() != Status.OK).collect(Collectors.toList());
+		List<Child> nodes = report.getNodes().stream().filter(n -> showok || n.getData().getStatus() != Status.OK).toList();
 		int start;
 		int end;
 		var nodecount = nodes.size();

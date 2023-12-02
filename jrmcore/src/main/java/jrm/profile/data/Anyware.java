@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -254,9 +253,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 			else // otherwise...
 			{
 				// concatenate my disks and all my clones disks into a stream
-				final List<Disk> disksWithClones = Stream
-						.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream()))
-						.collect(Collectors.toList());
+				final List<Disk> disksWithClones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).toList();
 				// and mark for collision disks with same names but with
 				// different hash (this
 				// will change the way getName return disks names)
@@ -341,7 +338,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 			if (profile.getSettings().getMergeMode().equals(MergeOptions.SUPERFULLNOMERGE)) // also include
 																							// devices
 			{
-				if (profile.getProperty(ProfileSettingsEnum.exclude_games, Boolean.class)) {
+				if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.exclude_games, Boolean.class))) {
 					if (profile.getProperty(ProfileSettingsEnum.exclude_machines, Boolean.class)) // NOSONAR
 						stream = streamWithDevices(true, false, true); // bios-devices
 					else
@@ -366,9 +363,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		else // otherwise...
 		{
 			// concatenate my roms and all my clones roms into a stream
-			final List<Rom> romsWithClones = Stream
-					.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream()))
-					.collect(Collectors.toList());
+			final List<Rom> romsWithClones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).toList();
 			// and mark for collision roms with same names but with different
 			// hash (this
 			// will change the way getName return roms names)
@@ -638,8 +633,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Anyware)
-			return this.name.equals(((Anyware) obj).name);
+		if (obj instanceof Anyware aw)
+			return this.name.equals(aw.name);
 		return super.equals(obj);
 	}
 

@@ -44,10 +44,6 @@ class H2 extends DB
 		url.append(getDBPath(name));
 		if (ifexists)
 			url.append(";IFEXISTS=TRUE");
-/*		if (MV_STORE)
-			url.append(";MV_STORE=TRUE;MVCC=" + (MVCC ? "TRUE" : "FALSE"));
-		else
-			url.append(";MV_STORE=FALSE");*/
 		if (!safe)
 			url.append(";LOG=0;LOCK_MODE=0;UNDO_LOG=0");
 		url.append(";MODE=MYSQL");

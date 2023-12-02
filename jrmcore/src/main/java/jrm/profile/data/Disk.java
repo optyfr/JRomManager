@@ -16,7 +16,6 @@
  */
 package jrm.profile.data;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +81,7 @@ public class Disk extends Entity implements Serializable
 					return parent.name + "/" + name + ".chd"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
-			else if (!parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_disks, Boolean.class)) //$NON-NLS-1$
+			else if (Boolean.FALSE.equals(parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_disks, Boolean.class))) //$NON-NLS-1$
 				return merge + ".chd"; //$NON-NLS-1$
 		}
 		return name + ".chd"; //$NON-NLS-1$
@@ -91,12 +90,12 @@ public class Disk extends Entity implements Serializable
 	@Override
 	public boolean equals(final Object obj)
 	{
-		if (obj instanceof Disk)
+		if (obj instanceof Disk dsk)
 		{
-			if (((Disk) obj).sha1 != null && sha1 != null)
-				return ((Disk) obj).sha1.equals(sha1);
-			if (((Disk) obj).md5 != null && md5 != null)
-				return ((Disk) obj).md5.equals(md5);
+			if (dsk.sha1 != null && sha1 != null)
+				return dsk.sha1.equals(sha1);
+			if (dsk.md5 != null && md5 != null)
+				return dsk.md5.equals(md5);
 		}
 		return super.equals(obj);
 	}

@@ -135,7 +135,7 @@ public abstract class ContainerAction implements StatusRendererFactory, Comparab
 	
 	public static Comparator<ContainerAction> comparator()
 	{
-		return (o1, o2) -> o1.compareTo(o2);
+		return Comparable::compareTo;
 	}
 	
 	public static Comparator<ContainerAction> rcomparator()

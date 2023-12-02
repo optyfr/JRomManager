@@ -69,7 +69,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	 */
 	private boolean filterSampleOf(final String lsampleof, Anyware ware)
 	{
-		return lsampleof != null && ware instanceof Machine && (((Machine) ware).getSampleof() == null || !((Machine) ware).getSampleof().toLowerCase().contains(lsampleof));
+		return lsampleof != null && ware instanceof Machine m && (m.getSampleof() == null || !m.getSampleof().toLowerCase().contains(lsampleof));
 	}
 
 
@@ -80,7 +80,7 @@ public class AnywareListXMLResponse extends XMLResponse
 	 */
 	private boolean filterRomOf(final String lromof, Anyware ware)
 	{
-		return lromof != null && ware instanceof Machine && (((Machine) ware).getRomof() == null || !((Machine) ware).getRomof().toLowerCase().contains(lromof));
+		return lromof != null && ware instanceof Machine m && (m.getRomof() == null || !m.getRomof().toLowerCase().contains(lromof));
 	}
 
 
@@ -218,9 +218,8 @@ public class AnywareListXMLResponse extends XMLResponse
 				writer.writeAttribute(CLONEOF,  aw.getCloneof());
 				writer.writeAttribute("cloneof_status",  al.getByName(aw.getCloneof()).getStatus().toString());
 			}
-			if(aw instanceof Machine)
+			if(aw instanceof Machine m)
 			{
-				Machine m = (Machine)aw;
 				MachineList ml = (MachineList)al;
 				if(m.isIsbios())
 					writer.writeAttribute("type", "BIOS");

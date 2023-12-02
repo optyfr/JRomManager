@@ -249,7 +249,7 @@ public abstract class XMLResponse implements Closeable
 	{
 		final int start = operation.getStartRow();
 		final int end = operation.getEndRow();
-		final var range = Range.between(start, end);
+		final var range = Range.of(start, end);
 		final int[] count = { 0 };
 		writer.writeStartElement("data");
 		stream.filter(o -> range.contains(++count[0])).forEachOrdered(cb::apply);

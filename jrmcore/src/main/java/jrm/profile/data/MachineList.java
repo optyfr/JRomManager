@@ -291,7 +291,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			writer.writeStartElement("mame"); //$NON-NLS-1$
 		else
 			writer.writeStartElement("datafile"); //$NON-NLS-1$
-		final List<Machine> list = filtered ? getFilteredStream().collect(Collectors.toList()) : getList();
+		final List<Machine> list = filtered ? getFilteredStream().toList() : getList();
 		var i = 0;
 		progress.setProgress(profile.getSession().getMsgs().getString("MachineList.Exporting"), i, list.size()); //$NON-NLS-1$
 		for(final Machine m : list)

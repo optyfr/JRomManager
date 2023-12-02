@@ -95,8 +95,8 @@ public final class AnywareRenderer
 				final String val;
 				if(value != null)
 				{
-					if(value instanceof EntityBase)
-						val = ((EntityBase) value).getBaseName();
+					if(value instanceof EntityBase eb)
+						val = eb.getBaseName();
 					else
 						val = value.toString();
 				}
@@ -122,9 +122,9 @@ public final class AnywareRenderer
 				final String val;
 				if(value != null)
 				{
-					if(value instanceof Long)
+					if(value instanceof Long l)
 					{
-						if((Long) value > 0)
+						if(l > 0)
 							val = value.toString(); 
 						else
 							val = null;
@@ -163,9 +163,9 @@ public final class AnywareRenderer
 			{
 				setBackground(AnywareRenderer.getBackground(row, column));
 				super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
-				if (value instanceof Entity.Status)
+				if (value instanceof Entity.Status s)
 				{
-					switch ((Entity.Status) value)
+					switch (s)
 					{
 						case verified:
 							setIcon(verified);

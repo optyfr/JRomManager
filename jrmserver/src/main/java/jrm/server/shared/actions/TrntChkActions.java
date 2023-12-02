@@ -34,11 +34,11 @@ public class TrntChkActions
 			WebSession session = ws.getSession();
 			final var mode = TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode));
 			final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
-			if (session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, Boolean.class))
+			if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, Boolean.class)))
 				opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
-			if (session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, Boolean.class))
+			if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, Boolean.class)))
 				opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
-			if (session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, Boolean.class))
+			if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, Boolean.class)))
 				opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
 
 			session.getWorker().progress = new ProgressActions(ws);

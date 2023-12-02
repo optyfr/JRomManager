@@ -152,19 +152,11 @@ public interface SQLUtils
 	{
 		switch(type)
 		{
-			case VARCHAR:
-			case LONGNVARCHAR:
-			case LONGVARCHAR:
-			case CLOB:
-			case CHAR:
-			case NCHAR:
-			case NCLOB:
+			case VARCHAR,LONGNVARCHAR,LONGVARCHAR,CLOB,CHAR,NCHAR,NCLOB:
 				return getCharDefaultValue(value, notNull);
 			case BOOLEAN:
 				return getBoolDefaultValue(value, notNull);
-			case INTEGER:
-			case TINYINT:
-			case SMALLINT:
+			case INTEGER,TINYINT,SMALLINT:
 				return getIntDefaultValue(value, notNull);
 			default:
 				if(value == null || value.length()==0)

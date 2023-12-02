@@ -143,13 +143,13 @@ public class ReportView extends JScrollPane implements Popup
 		if(path!=null)
 		{
 			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode && Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+			if(node instanceof NoteNode nn && Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
 			{
 				try
 				{
-					val name = ((NoteNode)node).getNote().getName();
-					val crc = ((NoteNode)node).getNote().getCrc();
-					val sha1 = ((NoteNode)node).getNote().getSha1();
+					val name = nn.getNote().getName();
+					val crc = nn.getNote().getCrc();
+					val sha1 = nn.getNote().getSha1();
 					val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h).orElse("");
 					Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash));
 				}
@@ -170,9 +170,9 @@ public class ReportView extends JScrollPane implements Popup
 		if(path!=null)
 		{
 			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode)
+			if(node instanceof NoteNode nn)
 			{
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(((NoteNode)node).getNote().getName()), null);
+				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(nn.getNote().getName()), null);
 			}
 		}
 	}
@@ -186,9 +186,9 @@ public class ReportView extends JScrollPane implements Popup
 		if(path!=null)
 		{
 			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode)
+			if(node instanceof NoteNode nn)
 			{
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(((NoteNode)node).getNote().getSha1()), null);
+				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(nn.getNote().getSha1()), null);
 			}
 		}
 	}
@@ -202,9 +202,9 @@ public class ReportView extends JScrollPane implements Popup
 		if(path!=null)
 		{
 			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode)
+			if(node instanceof NoteNode nn)
 			{
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(((NoteNode)node).getNote().getCrc()), null);
+				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(nn.getNote().getCrc()), null);
 			}
 		}
 	}
@@ -218,9 +218,9 @@ public class ReportView extends JScrollPane implements Popup
 		if(path!=null)
 		{
 			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode)
+			if(node instanceof NoteNode nn)
 			{
-				val msg = ((NoteNode)node).getNote().getDetail();
+				val msg = nn.getNote().getDetail();
 				JOptionPane.showMessageDialog(this, new JTextArea(msg), "Details", JOptionPane.INFORMATION_MESSAGE);
 			}
 			else if(node instanceof SubjectNode)

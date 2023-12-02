@@ -80,23 +80,22 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
 		progress.setProgress2("", 0, 1); //$NON-NLS-1$
 		sdrl.stream().filter(AbstractSrcDstResult::isSelected).forEach(sdr -> updater.updateResult(sdrl.indexOf(sdr), ""));
 		final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, Boolean.class);
-		final var nThreads = use_parallelism ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
-		new MultiThreading<T>(nThreads, sdr -> {
+		final var nThreads = Boolean.TRUE.equals(use_parallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
+		try (final var mt = new MultiThreading<T>(nThreads, sdr -> {
 			if (progress.isCancel())
 				return;
-			try
-			{
+			try {
 				final int row = sdrl.indexOf(sdr);
 				updater.updateResult(row, "In progress...");
 				final String result = check(progress, sdr);
 				updater.updateResult(row, result);
 				progress.setProgress(null, -1, null, "");
-			}
-			catch (IOException e)
-			{
+			} catch (IOException e) {
 				Log.err(e.getMessage(), e);
 			}
-		}).start(sdrl.stream().filter(AbstractSrcDstResult::isSelected));
+		})) {
+			mt.start(sdrl.stream().filter(AbstractSrcDstResult::isSelected));
+		}
 	}
 
 	/**
@@ -201,7 +200,7 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
 			file = file.resolve(path);
 		data.paths.add(file.toAbsolutePath());
 		final var identity = Paths.get(".");
-		final Child node = report.add(tfile.getFileDirs().stream().map(Paths::get).reduce(identity, (r, e) -> r.resolve(e)).toString());
+		final Child node = report.add(tfile.getFileDirs().stream().map(Paths::get).reduce(identity, Path::resolve).toString());
 		progress.setProgress(toDocument(toPurple(src.getAbsolutePath())), -1, null, file.toString());
 		progress.setProgress2(current + "/" + processing, current.get(), processing.get()); //$NON-NLS-1$
 		if (Files.exists(file))
@@ -340,7 +339,7 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
 			file = file.resolve(path);
 		data.paths.add(file.toAbsolutePath());
 		final var identity = Paths.get(".");
-		data.node = data.block.add(tfile.getFileDirs().stream().map(Paths::get).reduce(identity, (r, e) -> r.resolve(e)).toString());
+		data.node = data.block.add(tfile.getFileDirs().stream().map(Paths::get).reduce(identity, Path::resolve).toString());
 		try (BufferedInputStream in = getFileStram(options, data.wrongSizedFiles, data.node, data.valid, tfile, file))
 		{
 			progress.setProgress(toDocument(toPurple(src.getAbsolutePath())), -1, null, file.toString());

@@ -196,17 +196,17 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	public void export(final EnhancedXMLStreamWriter writer, boolean filtered, final ProgressHandler progress) throws XMLStreamException
 	{
 		writer.writeStartElement("softwarelist", //$NON-NLS-1$
-				new SimpleAttribute("name",name), //$NON-NLS-1$
-				new SimpleAttribute("description",description) //$NON-NLS-1$
-				);
-		final List<Software> list = filtered?getFilteredStream().collect(Collectors.toList()):getList();
-		for(final Software s : list)
-		{
-			if(progress.isCancel())
+				new SimpleAttribute("name", name), //$NON-NLS-1$
+				new SimpleAttribute("description", description) //$NON-NLS-1$
+		);
+		final List<Software> list = filtered ? getFilteredStream().toList() : getList();
+		for (final Software s : list) {
+			if (progress.isCancel())
 				break;
-			progress.setProgress(String.format(profile.getSession().getMsgs().getString("SoftwareList.Exporting_%s"), s.getFullName()), progress.getCurrent()+1); //$NON-NLS-1$
-			if(!filtered || s.isSelected())
-				s.export(writer,null);
+			progress.setProgress(String.format(profile.getSession().getMsgs().getString("SoftwareList.Exporting_%s"), //$NON-NLS-1$
+					s.getFullName()), progress.getCurrent() + 1);
+			if (!filtered || s.isSelected())
+				s.export(writer, null);
 		}
 		writer.writeEndElement();
 	}

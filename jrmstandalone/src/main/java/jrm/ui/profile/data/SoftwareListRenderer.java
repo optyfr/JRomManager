@@ -61,9 +61,9 @@ public final class SoftwareListRenderer
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			if(value instanceof Anyware)
+			if(value instanceof Anyware aw)
 			{
-				return super.getTableCellRendererComponent(table, ((Anyware) value).getBaseName(), isSelected, hasFocus, row, column);
+				return super.getTableCellRendererComponent(table, aw.getBaseName(), isSelected, hasFocus, row, column);
 			}
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
@@ -89,9 +89,9 @@ public final class SoftwareListRenderer
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
 		{
-			if(value instanceof Software)
+			if(value instanceof Software sw)
 			{
-				super.getTableCellRendererComponent(table, withName?((Software)value).getBaseName():"", isSelected, hasFocus, row, column); //$NON-NLS-1$
+				super.getTableCellRendererComponent(table, withName?sw.getBaseName():"", isSelected, hasFocus, row, column); //$NON-NLS-1$
 				switch(((Software) value).getStatus())
 				{
 					case COMPLETE:

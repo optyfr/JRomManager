@@ -23,9 +23,7 @@ public class Progress extends Stage
 		getIcons().add(parent.getIcons().get(0));
 		setOnShowing(e -> {
 		});
-		setOnCloseRequest(e -> {
-			hide();
-		});
+		setOnCloseRequest(e -> hide());
 		final var loader = new FXMLLoader(getClass().getResource("Progress.fxml").toURI().toURL(), Messages.getBundle());
 		final var root = loader.<GridPane>load();
 		controller = loader.getController();
