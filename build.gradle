@@ -407,7 +407,7 @@ project(':jrmserver') {
 		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
 		implementation group: 'org.eclipse.jetty', name:'jetty-server', version:'11.+'
 		implementation group: 'org.eclipse.jetty', name:'jetty-servlet', version:'11.+'
-		implementation group: 'org.eclipse.jetty', name:'jetty-security', version:'11.+'
+		implementation group: 'org.eclipse.jetty', name:'jetty-security', version:'12.+'
 		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-server', version:'11.+'
 		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-conscrypt-server', version:'11.+'
 		implementation group: 'org.eclipse.jetty.http2', name:'http2-server', version:'11.+'
