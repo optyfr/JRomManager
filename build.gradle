@@ -423,7 +423,7 @@ project(':jrmserver') {
 		implementation group: 'ch.qos.logback', name:'logback-classic', version: 'latest.release'
 		implementation files(project(':WebClient').jar)
 
-		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version:'11.+'
+		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version:'12.+'
 		testImplementation group: 'org.eclipse.jetty', name: 'jetty-http', version:'11.+'
 		testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.+'
     		testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
