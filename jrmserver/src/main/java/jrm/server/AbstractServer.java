@@ -13,10 +13,13 @@ import java.util.Scanner;
 
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.lang3.SystemUtils;
+import org.eclipse.jetty.ee10.servlet.DefaultServlet;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.PathResourceFactory;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 
 import jrm.fullserver.FullServer;
 import jrm.misc.Log;
@@ -197,24 +200,27 @@ public abstract class AbstractServer implements Daemon
 		}
 	}
 
+	private static ResourceFactory prf = new PathResourceFactory();
+	private static ResourceFactory urf = new URLResourceFactory();
+	
 	protected static Resource getClientPath(String path) throws URISyntaxException
 	{
 		if (path != null)
-			return Resource.newResource(getPath(path));
+			return prf.newResource(getPath(path));
 		final var p = getPath("jrt:/jrm.merged.module/webclient/");
 		if (Files.exists(p))
-			return Resource.newResource(p);
-		return Resource.newResource(FullServer.class.getResource("/webclient/"));
+			return prf.newResource(p);
+		return urf.newResource(FullServer.class.getResource("/webclient/"));
 	}
 
 	protected static Resource getCertsPath(String path) throws URISyntaxException
 	{
 		if (path != null)
-			return Resource.newResource(getPath(path));
+			return prf.newResource(getPath(path));
 		final var p = getPath("jrt:/jrm.merged.module/certs/localhost.pfx");
 		if (Files.exists(p))
-			return Resource.newResource(p);
-		return Resource.newResource(FullServer.class.getResource("/certs/localhost.pfx"));
+			return prf.newResource(p);
+		return urf.newResource(FullServer.class.getResource("/certs/localhost.pfx"));
 	}
 
 	protected static Path getPath(String path)

@@ -16,11 +16,16 @@ import java.util.stream.Stream;
 import org.apache.commons.daemon.DaemonContext;
 import org.conscrypt.OpenSSLProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.security.ConstraintMapping;
+import org.eclipse.jetty.ee10.servlet.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.Constraint;
+import org.eclipse.jetty.security.Constraint.Authorization;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.AcceptRateLimit;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
@@ -31,10 +36,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
@@ -45,7 +47,6 @@ import com.beust.jcommander.Parameters;
 
 import jrm.fullserver.handlers.FullDataSourceServlet;
 import jrm.fullserver.handlers.SessionServlet;
-import jrm.fullserver.security.BasicAuthenticator;
 import jrm.fullserver.security.Login;
 import jrm.fullserver.security.SSLReload;
 import jrm.misc.DefaultEnvironmentProperties;
@@ -166,7 +167,7 @@ public class FullServer extends AbstractServer
 			keyStorePath = Optional.of(getCertsPath(jArgs.cert)).filter(p -> p.exists()).orElse(getCertsPath(null));
 			if (Files.exists(getPath(keyStorePath + ".pw")))
 				keyStorePWPath = keyStorePath + ".pw";
-			else if (keyStorePath != null && keyStorePath.getFile() != null && KEY_STORE_PATH_DEFAULT.equals(keyStorePath.getFile().getPath()) && Files.exists(getPath(KEY_STORE_PW_PATH_DEFAULT)))
+			else if (keyStorePath != null && keyStorePath.getPath() != null && KEY_STORE_PATH_DEFAULT.equals(keyStorePath.getPath()) && Files.exists(getPath(KEY_STORE_PW_PATH_DEFAULT)))
 				keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
 			else
 				keyStorePWPath = null;
@@ -322,10 +323,7 @@ public class FullServer extends AbstractServer
 		security.setAuthenticator(new BasicAuthenticator());
 		security.setLoginService(new Login());
 
-		final var constraint = new Constraint();
-		constraint.setName("auth");
-		constraint.setAuthenticate(true);
-		constraint.setRoles(new String[] { "admin", "user" });
+		final var constraint = Constraint.from("auth", Authorization.SPECIFIC_ROLE, "admin", "user");
 		final var constraintMapping = new ConstraintMapping();
 		constraintMapping.setConstraint(constraint);
 		constraintMapping.setPathSpec("/*");
@@ -365,6 +363,7 @@ public class FullServer extends AbstractServer
 		{
 			jettyserver = new Server(new QueuedThreadPool(maxThreads > 0?maxThreads:(connLimit * 4), minThreads > 0?minThreads:(connLimit / 4)));
 	
+			
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 			context.setBaseResource(clientPath);
 			context.setContextPath("/");
