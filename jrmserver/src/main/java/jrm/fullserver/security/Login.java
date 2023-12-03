@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import javax.security.auth.Subject;
-import javax.servlet.ServletRequest;
 
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.IdentityService;
@@ -15,6 +14,7 @@ import org.eclipse.jetty.security.UserPrincipal;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.UserIdentity;
 
+import jakarta.servlet.ServletRequest;
 import jrm.fullserver.ServerSettings;
 import jrm.fullserver.db.DB;
 import jrm.fullserver.db.SQL;
