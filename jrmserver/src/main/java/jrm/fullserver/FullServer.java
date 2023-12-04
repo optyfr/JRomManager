@@ -16,16 +16,15 @@ import java.util.stream.Stream;
 import org.apache.commons.daemon.DaemonContext;
 import org.conscrypt.OpenSSLProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.ee10.servlet.security.ConstraintMapping;
-import org.eclipse.jetty.ee10.servlet.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.ee9.nested.ServletConstraint;
+import org.eclipse.jetty.ee9.security.ConstraintMapping;
+import org.eclipse.jetty.ee9.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.ee9.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
-import org.eclipse.jetty.security.Constraint;
-import org.eclipse.jetty.security.Constraint.Authorization;
-import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.AcceptRateLimit;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
@@ -323,7 +322,11 @@ public class FullServer extends AbstractServer
 		security.setAuthenticator(new BasicAuthenticator());
 		security.setLoginService(new Login());
 
-		final var constraint = Constraint.from("auth", Authorization.SPECIFIC_ROLE, "admin", "user");
+		final var constraint = new ServletConstraint();
+		constraint.setName("auth");
+		constraint.setAuthenticate(true);
+		constraint.setRoles(new String[] {"admin","user"});
+		//Constraint.from("auth", Authorization.SPECIFIC_ROLE, "admin", "user");
 		final var constraintMapping = new ConstraintMapping();
 		constraintMapping.setConstraint(constraint);
 		constraintMapping.setPathSpec("/*");
@@ -363,12 +366,11 @@ public class FullServer extends AbstractServer
 		{
 			jettyserver = new Server(new QueuedThreadPool(maxThreads > 0?maxThreads:(connLimit * 4), minThreads > 0?minThreads:(connLimit / 4)));
 	
+			final var gh = gzipHandler();
 			
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 			context.setBaseResource(clientPath);
 			context.setContextPath("/");
-	
-			context.insertHandler(gzipHandler());
 	
 			context.addServlet(new ServletHolder("datasources", FullDataSourceServlet.class), "/datasources/*");
 			context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
@@ -386,7 +388,9 @@ public class FullServer extends AbstractServer
 			context.getSessionHandler().setMaxInactiveInterval(sessionTimeOut);
 			context.getSessionHandler().addEventListener(new SessionListener(true));
 	
-			jettyserver.setHandler(context);
+			gh.setHandler(context);
+			
+			jettyserver.setHandler(gh);
 			jettyserver.setStopAtShutdown(true);
 	
 			// LetsEncrypt certs with embedded Jetty on

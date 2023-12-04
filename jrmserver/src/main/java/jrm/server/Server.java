@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.daemon.DaemonContext;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
@@ -146,8 +146,9 @@ public class Server extends AbstractServer
 			gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
 			gzipHandler.setInflateBufferSize(2048);
 			gzipHandler.setMinGzipSize(2048);
-			context.insertHandler(gzipHandler);
-	
+			
+			gzipHandler.setHandler(context);
+				
 			context.addServlet(new ServletHolder("datasources", DataSourceServlet.class), "/datasources/*");
 			context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
 			context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
@@ -163,7 +164,7 @@ public class Server extends AbstractServer
 	
 			context.getSessionHandler().addEventListener(new SessionListener(false));
 	
-			jettyserver.setHandler(context);
+			jettyserver.setHandler(gzipHandler);
 			jettyserver.setStopAtShutdown(true);
 	
 			// Create the HTTP connection
