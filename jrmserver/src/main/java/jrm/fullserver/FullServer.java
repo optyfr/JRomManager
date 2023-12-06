@@ -166,7 +166,7 @@ public class FullServer extends AbstractServer
 			keyStorePath = Optional.of(getCertsPath(jArgs.cert)).filter(p -> p.exists()).orElse(getCertsPath(null));
 			if (Files.exists(getPath(keyStorePath + ".pw")))
 				keyStorePWPath = keyStorePath + ".pw";
-			else if (keyStorePath != null && keyStorePath.getPath() != null && KEY_STORE_PATH_DEFAULT.equals(keyStorePath.getPath()) && Files.exists(getPath(KEY_STORE_PW_PATH_DEFAULT)))
+			else if (keyStorePath != null && keyStorePath.getPath() != null && KEY_STORE_PATH_DEFAULT.equals(keyStorePath.getPath().toString()) && Files.exists(getPath(KEY_STORE_PW_PATH_DEFAULT)))
 				keyStorePWPath = KEY_STORE_PW_PATH_DEFAULT;
 			else
 				keyStorePWPath = null;
@@ -326,7 +326,6 @@ public class FullServer extends AbstractServer
 		constraint.setName("auth");
 		constraint.setAuthenticate(true);
 		constraint.setRoles(new String[] {"admin","user"});
-		//Constraint.from("auth", Authorization.SPECIFIC_ROLE, "admin", "user");
 		final var constraintMapping = new ConstraintMapping();
 		constraintMapping.setConstraint(constraint);
 		constraintMapping.setPathSpec("/*");
