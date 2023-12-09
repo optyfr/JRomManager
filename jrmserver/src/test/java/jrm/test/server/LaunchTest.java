@@ -38,7 +38,7 @@ class LauncherTest
 		{
 			FullServer.parseArgs(
 				"--client=" + Paths.get(System.getProperty("JRomManager.rootPath")).resolve("WebClient").resolve("war"),
-				"--cert=" + Paths.get(System.getProperty("JRomManager.rootPath")).resolve("JRomManager").resolve("certs").resolve("localhost.pfx"),
+				"--cert=" + Paths.get(System.getProperty("JRomManager.rootPath")).resolve("certs").resolve("localhost.pfx"),
 				"--debug"
 			);
 			FullServer.initialize();
