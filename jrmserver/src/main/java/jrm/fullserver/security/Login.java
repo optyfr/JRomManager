@@ -3,6 +3,7 @@ package jrm.fullserver.security;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.function.Function;
 
 import javax.security.auth.Subject;
 
@@ -10,11 +11,11 @@ import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.RolePrincipal;
+import org.eclipse.jetty.security.UserIdentity;
 import org.eclipse.jetty.security.UserPrincipal;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.UserIdentity;
+import org.eclipse.jetty.server.Session;
 
-import jakarta.servlet.ServletRequest;
 import jrm.fullserver.ServerSettings;
 import jrm.fullserver.db.DB;
 import jrm.fullserver.db.SQL;
@@ -49,13 +50,13 @@ public class Login extends SQL implements LoginService
 	private static long cachetime = System.currentTimeMillis();
 
 	@Override
-	public UserIdentity login(String username, Object credentials, ServletRequest request)
+	public UserIdentity login(String username, Object credentials, Request request,	Function<Boolean, Session> getOrCreateSession)
 	{
 		String sessionid = null;
 		WebSession sess = null;
 		if (request instanceof Request r)
 		{
-			val session = r.getSession();
+			val session = getOrCreateSession.apply(true);
 			if (session != null)
 			{
 				sessionid = session.getId();
