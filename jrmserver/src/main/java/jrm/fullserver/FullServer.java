@@ -163,7 +163,7 @@ public class FullServer extends AbstractServer
 			bind = jArgs.bind;
 			httpPort = jArgs.httpPort;
 			httpsPort = jArgs.httpsPort;
-			keyStorePath = Optional.of(getCertsPath(jArgs.cert)).filter(p -> p.exists()).orElse(getCertsPath(null));
+			keyStorePath = Optional.ofNullable(getCertsPath(jArgs.cert)).filter(p -> p.exists()).orElse(getCertsPath(null));
 			if (Files.exists(getPath(keyStorePath + ".pw")))
 				keyStorePWPath = keyStorePath + ".pw";
 			else if (keyStorePath != null && keyStorePath.getPath() != null && KEY_STORE_PATH_DEFAULT.equals(keyStorePath.getPath().toString()) && Files.exists(getPath(KEY_STORE_PW_PATH_DEFAULT)))
