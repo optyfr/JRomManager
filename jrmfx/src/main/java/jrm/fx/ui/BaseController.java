@@ -1,6 +1,7 @@
 package jrm.fx.ui;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +42,14 @@ abstract class BaseController implements Initializable
 	protected void chooseOpenFile(Control parent, String initialValue, File defdir, Collection<ExtensionFilter> filters, Callback cb)
 	{
 		final var chooser = new FileChooser();
-		Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> chooser.setInitialDirectory(defdir));
+		final var p = Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t)).orElse(defdir.toPath());
+		if(Files.isDirectory(p))
+			chooser.setInitialDirectory(p.toFile());
+		else
+		{
+			chooser.setInitialDirectory(p.getParent().toFile());
+			chooser.setInitialFileName(p.getFileName().toString());
+		}
 		if (filters != null)
 			chooser.getExtensionFilters().addAll(filters);
 		final var chosen = chooser.showOpenDialog(parent.getScene().getWindow());
@@ -52,7 +60,14 @@ abstract class BaseController implements Initializable
 	protected void chooseOpenFileMulti(Control parent, String initialValue, File defdir, Collection<ExtensionFilter> filters, CallbackMulti cb)
 	{
 		final var chooser = new FileChooser();
-		Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> chooser.setInitialDirectory(defdir));
+		final var p = Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t)).orElse(defdir.toPath());
+		if(Files.isDirectory(p))
+			chooser.setInitialDirectory(p.toFile());
+		else
+		{
+			chooser.setInitialDirectory(p.getParent().toFile());
+			chooser.setInitialFileName(p.getFileName().toString());
+		}
 		if (filters != null)
 			chooser.getExtensionFilters().addAll(filters);
 		final var chosen = chooser.showOpenMultipleDialog(parent.getScene().getWindow());
@@ -63,7 +78,14 @@ abstract class BaseController implements Initializable
 	protected void chooseSaveFile(Control parent, String initialValue, File defdir, Collection<ExtensionFilter> filters, Callback cb)
 	{
 		final var chooser = new FileChooser();
-		Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> chooser.setInitialDirectory(defdir));
+		final var p = Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t)).orElse(defdir.toPath());
+		if(Files.isDirectory(p))
+			chooser.setInitialDirectory(p.toFile());
+		else
+		{
+			chooser.setInitialDirectory(p.getParent().toFile());
+			chooser.setInitialFileName(p.getFileName().toString());
+		}
 		if (filters != null)
 			chooser.getExtensionFilters().addAll(filters);
 		final var chosen = chooser.showSaveDialog(parent.getScene().getWindow());

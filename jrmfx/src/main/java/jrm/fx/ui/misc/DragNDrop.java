@@ -53,6 +53,11 @@ public class DragNDrop
 		addFiltered(f -> Files.isRegularFile(f.toPath()), cb);
 	}
 
+	public void addNewFile(SetCallBack cb)
+	{
+		addFiltered(f -> (!Files.exists(f.toPath()))||Files.isRegularFile(f.toPath()), cb);
+	}
+
 	public void addAny(SetFilesCallBack cb)
 	{
 		addFiltered(f -> true, cb);

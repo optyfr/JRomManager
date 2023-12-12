@@ -80,20 +80,22 @@ public class Dir2DatController extends BaseController
 		includeEmptyDirs.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, Boolean.class)); //$NON-NLS-1$
 		includeEmptyDirs.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, newValue)); //$NON-NLS-1$
 		new DragNDrop(srcDir).addDir(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, txt));
+		srcDir.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir));
 		srcDirBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png")));
 		srcDirBtn.setOnAction(e -> {
 			final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
-			chooseDir(srcDirBtn, srcDir.getText(), new File(session.getUser().getSettings().getProperty("MainFrame.ChooseDatSrc", workdir.toString())), path -> {
+			chooseDir(srcDirBtn, srcDir.getText(), workdir.toFile(), path -> {
 				session.getUser().getSettings().setProperty("MainFrame.ChooseDatSrc", path.toString()); //$NON-NLS-1$
 				srcDir.setText(path.toString());
 				session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, srcDir.getText()); // $NON-NLS-1$
 			});
 		});
-		new DragNDrop(dstDat).addDir(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt));
+		new DragNDrop(dstDat).addNewFile(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt));
+		dstDat.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file));
 		dstDatBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png")));
 		dstDatBtn.setOnAction(e -> {
 			final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
-			chooseSaveFile(dstDatBtn, dstDat.getText(), new File(session.getUser().getSettings().getProperty("MainFrame.ChooseDatDst", workdir.toString())), Collections.singletonList(new FileChooser.ExtensionFilter("Dat file","*.xml","*.dat")), path -> {
+			chooseSaveFile(dstDatBtn, dstDat.getText(), workdir.toFile(), Collections.singletonList(new FileChooser.ExtensionFilter("Dat file","*.xml","*.dat")), path -> {
 				session.getUser().getSettings().setProperty("MainFrame.ChooseDatDst", path.toString()); //$NON-NLS-1$
 				dstDat.setText(path.toString());
 				session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, dstDat.getText()); // $NON-NLS-1$

@@ -1,3 +1,7 @@
+## Release v3.0.0 beta 13
+- Jetty 12
+- Fixes
+
 ## Release v3.0.0 beta 12
 - Fixes in CLI version
 - Switched to latest Java 21.0.1 LTS to :
