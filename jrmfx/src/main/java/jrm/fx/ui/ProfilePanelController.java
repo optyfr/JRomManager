@@ -494,7 +494,7 @@ public class ProfilePanelController implements Initializable
 		{
 			if(file.isFile())
 			{
-				if (FilenameUtils.isExtension(file.getName(), "xml", "dat") || (file.getName().toLowerCase().startsWith("mame") && (FilenameUtils.isExtension(file.getName(), "exe") || file.canExecute())))
+				if (FilenameUtils.isExtension(file.getName(), "xml", "dat") || (file.getName().toLowerCase().contains("mame") && (FilenameUtils.isExtension(file.getName(), "exe") || file.canExecute())))
 					files.add(file);
 			}
 			else if(file.isDirectory())

@@ -938,6 +938,7 @@ public class ProfileViewerController implements Initializable
 		}
 		filteredData = new FilteredList<>(list, searchPredicate(search.getText()));
 		tableW.setItems(filteredData);
+		tableW.getSelectionModel().select(0);
 	}
 
 	@FXML void diskMultipleFilter(ActionEvent e)
@@ -1030,10 +1031,10 @@ public class ProfileViewerController implements Initializable
 	
 	void clear()
 	{
-		tableWL.setItems(null);
+		tableEntity.setItems(FXCollections.observableArrayList());
+		tableW.setItems(FXCollections.observableArrayList());
+		tableWL.setItems(FXCollections.observableArrayList());
 		haveCache.clear();
-		tableW.setItems(null);
-		tableEntity.setItems(null);
 	}
 
 	void reload()
@@ -1057,8 +1058,15 @@ public class ProfileViewerController implements Initializable
 			wl.add(w);
 		tableWL.setItems(wl);
 		if (selected != null)
-			tableWL.getSelectionModel().select(selected);
-		tableWL.refresh();
+		{
+			int index = tableWL.getItems().indexOf(selected);
+			if(index>=0)
+				tableWL.getSelectionModel().select(index);
+		}
+		else
+			tableWL.getSelectionModel().select(0);
+	//	tableWL.refresh();
+	//	reloadW(tableWL.getSelectionModel().getSelectedItem());
 	}
 
 	private class KW extends jrm.profile.filter.Keywords

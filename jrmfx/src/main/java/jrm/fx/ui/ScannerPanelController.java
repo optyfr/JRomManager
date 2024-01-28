@@ -866,7 +866,11 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			}
 		}
 		if (MainFrame.getProfileViewer() != null)
+		{
 			MainFrame.getProfileViewer().show();
+			//MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			MainFrame.getProfileViewer().reload();
+		}
 	}
 	
 	@FXML
