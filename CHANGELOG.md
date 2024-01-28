@@ -1,3 +1,6 @@
+## Release v3.0.0 beta 15
+- Profile viewer hanging fixes
+
 ## Release v3.0.0 beta 14
 - Fixes
 
