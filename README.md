@@ -53,7 +53,7 @@ A Rom Manager entirely written in Java and released under GPL-2
 ## Technical
 _Minimal development requirements_:
 - Eclipse Oxygen for Java with WindowBuilder feature and Gradle Buildship
-- Java 17
+- Java 21
 - Gradle dependencies (via Maven repositories)
     - Apache Commons Codec 1.+ 
     - Apache Commons CLI 1.+ 
@@ -76,7 +76,7 @@ _Minimal development requirements_:
 
 _Minimal usage requirements_:
 - 1GB Free Ram (2GB or more with Software Lists, MultiCore feature, 7z ultra compression, ...)
-- Any OS with Java 17 runtime if not already bundled (a 64 bits version is required to get more than 1GB)
+- Any OS with Java 21 runtime if not already bundled (a 64 bits version is required to get more than 1GB)
 - ~~(optional) 7zip or p7zip cmdline program if you need 7z format and only if SevenZipJBinding doesn't work on your platform~~
 - ~~(optional) trrntzip cmdline program if you want to torrentzip your files~~ *(now integrated with Jtrrntzip)*
 
@@ -174,8 +174,8 @@ If you just want to recompile sources without using an IDE (Eclipse), here are t
 - "Single file" compression mode : to store single rom games without directories nor compression, this mode will work correctly only if:
     - There is only 1 rom per game and no relationship between games (parent/clone)
     - The name of the game is the same than the name of the rom (minus the rom file extension)
-- Java 17 as minimal (since 3.0.0)
-- JavaFX 17 for standalone interface (replace Swing since 3.0.0)
+- Java 21 as minimal (since 3.0.0)
+- JavaFX 21 for standalone interface (replace Swing since 3.0.0)
 - Use Zip4J which is faster for adding/removing files into existing zip archives (since 3.0.0)
 
 ## Short Term Planned Features

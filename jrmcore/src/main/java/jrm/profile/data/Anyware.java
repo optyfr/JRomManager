@@ -621,6 +621,28 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		return roms.size() + disks.size() + samples.size();
 	}
 
+	private transient HashMap<String,EntityStatus> clonesRomsStatus = null;
+	
+	public void resetClonesRomsStatus()
+	{
+		clonesRomsStatus = null;
+	}
+	
+	EntityStatus getCloneRomStatus(Rom rom)
+	{
+		if(clonesRomsStatus == null)
+		{
+			clonesRomsStatus = new HashMap<>();
+			if(clones.size()>0)
+			{
+				clones.values().stream().flatMap(aw -> aw.roms.stream()).filter(r -> r.ownStatus != EntityStatus.UNKNOWN).forEach(r -> {
+					clonesRomsStatus.put(r.hashString(), r.ownStatus);
+				});
+			}
+		}
+		return clonesRomsStatus.get(rom.hashString());
+	}
+	
 	@Override
 	public Anyware getParent() {
 		return getParent(Anyware.class);

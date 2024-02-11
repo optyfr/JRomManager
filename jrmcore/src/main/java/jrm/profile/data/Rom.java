@@ -234,23 +234,7 @@ public class Rom extends Entity implements Serializable
 	{
 		if (!getParent().profile.getSettings().getMergeMode().isMerge())
 			return null;
-		for (final Anyware clone : parent.getParent().clones.values())
-		{
-			if (clone != parent)
-			{
-				for (final Rom r : clone.getRoms())
-				{
-					if (rom.equals(r))
-					{
-						if(r.ownStatus != EntityStatus.UNKNOWN)
-							return r.ownStatus;
-						break;
-					}
-					
-				}
-			}
-		}
-		return null;
+		return parent.getParent().getCloneRomStatus(rom);
 	}
 
 	@Override

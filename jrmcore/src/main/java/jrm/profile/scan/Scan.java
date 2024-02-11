@@ -703,7 +703,10 @@ public class Scan extends PathAbstractor
 				mt.start(StreamSupport.stream(profile.getMachineListList().get(0).samplesets.spliterator(), false));
 			}
 			/* scan all machines */
-			profile.getMachineListList().get(0).forEach(Machine::resetCollisionMode);
+			profile.getMachineListList().get(0).forEach(m -> {
+				m.resetCollisionMode();
+				m.resetClonesRomsStatus();
+			});
 			try (final var mt = new MultiThreading<Machine>(nThreads, m -> {
 				if (handler.isCancel())
 					return;
