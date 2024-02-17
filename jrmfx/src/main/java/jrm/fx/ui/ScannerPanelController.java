@@ -356,7 +356,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
 			final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
 			chooseOpenFile(importBtn, null, presets.toFile(), filters, file -> {
-				session.getCurrProfile().loadSettings(file.toFile());
+				session.getCurrProfile().loadSettings(PathAbstractor.getAbsolutePath(session, file.toString()).toFile());
 				session.getCurrProfile().loadCatVer(null);
 				session.getCurrProfile().loadNPlayers(null);
 				initProfileSettings(session);
