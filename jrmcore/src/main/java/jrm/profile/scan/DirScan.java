@@ -373,13 +373,11 @@ public final class DirScan extends PathAbstractor
 		if(!Files.isDirectory(path))
 			return;
 		
-		
 		/*
 		 * Initialize progression
 		 */
 		handler.clearInfos();
 		handler.setInfos(options.nThreads,null);
-		
 
 		listFiles(dir, handler, path, options);
 		
@@ -484,28 +482,42 @@ public final class DirScan extends PathAbstractor
 		 * We go up to 100 subdirs for src dir but 1 level for dest dir type, and we follow links
 		 */
 
-		try(Stream<Path> stream = Files.walk(path, options.isDest ? 1 : 100, FileVisitOption.FOLLOW_LINKS))
-		{
+		handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles"), getRelativePath(dir.toPath())));
+
+		try {
 			final var i = new AtomicInteger();
-		//	handler.setProgress(String.format(Messages.getString("DirScan.ListingFiles"), getRelativePath(dir.toPath())), 0); //$NON-NLS-1$
-		//	handler.setProgress2("", null); //$NON-NLS-1$
-			handler.setProgress(null, -1);
-			handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles"), getRelativePath(dir.toPath())), 0, 100); //$NON-NLS-1$
-			
-			try (final var mt = new MultiThreading<Path>(options.nThreads, p -> {
+
+			Files.walkFileTree(path, Collections.singleton(FileVisitOption.FOLLOW_LINKS), options.isDest ? 1 : 100,	listFilesVisitor(dir, handler, path, options, i));
+			/*
+			 * Remove files from cache that are not in up2date state, because that mean that
+			 * those files were removed from FS since the previous scan
+			 */
+			containersByName.entrySet().removeIf(entry -> !entry.getValue().isUp2date());
+		} catch (IOException e) {
+			Log.err("IOException when listing", e); //$NON-NLS-1$
+		} catch (final Exception e) {
+			Log.err("Other Exception when listing", e); //$NON-NLS-1$
+		}
+
+	}
+
+	private SimpleFileVisitor<Path> listFilesVisitor(final File dir, final ProgressHandler handler, final Path path,
+			final ScanOptions options, final AtomicInteger i) {
+		return new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) throws IOException {
 				if (handler.isCancel())
-					return;
+					return FileVisitResult.TERMINATE;
 				if (path.equals(p))
-					return;
+					return FileVisitResult.CONTINUE;
 				final var file = p.toFile();
 				try {
-					final BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
 					if (options.isDest) {
 						if (exclusions.stream().anyMatch(pm -> pm.matches(p)))
-							return;
-						listFilesDest(file, attr);
+							return FileVisitResult.CONTINUE;
+						listFilesDest(file, attrs);
 					} else
-						listFilesSrc(path, p, file, attr, options);
+						listFilesSrc(path, p, file, attrs, options);
 					handler.setProgress(path.relativize(p).toString(), -1); // $NON-NLS-1$
 					handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), //$NON-NLS-1$
 							getRelativePath(dir.toPath()), i.incrementAndGet()), 0);
@@ -514,23 +526,13 @@ public final class DirScan extends PathAbstractor
 				} catch (final BreakException e) {
 					handler.doCancel();
 				}
-				return;
-			})) {
-				mt.start(stream);
+
+				handler.setProgress(path.relativize(p).toString(), -1); // $NON-NLS-1$
+				handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), //$NON-NLS-1$
+						getRelativePath(dir.toPath()), i.incrementAndGet()), 0);
+				return FileVisitResult.CONTINUE;
 			}
-			/*
-			 * Remove files from cache that are not in up2date state, because that mean that those files were removed from FS since the previous scan
-			 */
-			containersByName.entrySet().removeIf(entry -> !entry.getValue().isUp2date());
-		}
-		catch(final IOException e)
-		{
-			Log.err("IOException when listing", e); //$NON-NLS-1$
-		}
-		catch(final Exception e)
-		{
-			Log.err("Other Exception when listing", e); //$NON-NLS-1$
-		}
+		};
 	}
 
 	/**
