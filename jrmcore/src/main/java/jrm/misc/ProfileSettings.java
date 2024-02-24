@@ -58,6 +58,7 @@ public class ProfileSettings extends Settings
 		settings.setProperty(ProfileSettingsEnum.use_parallelism, true); //$NON-NLS-1$
 		settings.setProperty(ProfileSettingsEnum.create_mode, true); //$NON-NLS-1$
 		settings.setProperty(ProfileSettingsEnum.createfull_mode, false); //$NON-NLS-1$
+		settings.setProperty(ProfileSettingsEnum.zero_entry_matters, true); //$NON-NLS-1$
 		settings.setProperty(ProfileSettingsEnum.ignore_unneeded_containers, false); //$NON-NLS-1$
 		settings.setProperty(ProfileSettingsEnum.ignore_unneeded_entries, false); //$NON-NLS-1$
 		settings.setProperty(ProfileSettingsEnum.ignore_unknown_containers, true); //$NON-NLS-1$

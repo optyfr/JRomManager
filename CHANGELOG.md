@@ -1,3 +1,8 @@
+## Release v3.0.0 beta 17
+- Use of virtual threads. This means that *Max available* CPU setting can go up to 256 vThreads, and *Adaptive* CPU setting can go up to twice the avail processors on your machine. But even with other settings this should benefit a little.
+- Progress window auto extend dynamically as soon as there is more simultaneous threads
+- Internal setting zero_entry_matters which default to true and consider that a zero size entry (with CRC to 0) should not be ignored and be created. Creation still needs a zero file somewhere as source for the moment. Setting in GUI will come later
+
 ## Release v3.0.0 beta 16
 - Optimization when showing/filtering profile viewer machines in merge mode
 

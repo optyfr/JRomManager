@@ -292,8 +292,10 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 * @return
 	 */
 	private boolean getRomsFilter(Rom r) {
-		if (r.dumpStatus == Status.nodump || r.crc == null || "00000000".equals(r.crc) || r.name.isEmpty())
+		if (r.dumpStatus == Status.nodump || r.crc == null/* || "00000000".equals(r.crc)*/ || r.name.isEmpty())
 			return false; // exclude nodump, nocrc, empty name
+		if (Boolean.FALSE.equals(profile.getSettings().getProperty(ProfileSettingsEnum.zero_entry_matters, Boolean.class)) && "00000000".equals(r.crc) && r.size==0)
+			return false;
 		if (profile.getSettings().getMergeMode() == MergeOptions.SUPERFULLNOMERGE
 				|| profile.getSettings().getMergeMode() == MergeOptions.FULLNOMERGE
 				|| profile.getSettings().getMergeMode() == MergeOptions.FULLMERGE)
