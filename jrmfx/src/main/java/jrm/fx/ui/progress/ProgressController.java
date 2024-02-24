@@ -2,6 +2,7 @@ package jrm.fx.ui.progress;
 
 import java.net.URL;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -64,10 +65,14 @@ public class ProgressController implements Initializable
 	private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
 
 	/** The lbl info. */
-	private Pane[] lblInfo;
+	private Pane[] lblInfo = new Pane[0];
 
 	/** The lbl sub info. */
-	private Pane[] lblSubInfo;
+	private Pane[] lblSubInfo = new Pane[0];
+
+	private static final Color colorNormal = new Color(0.7, 0.7, 0.7, 1.0);
+	private static final Color colorLight = new Color(0.8, 0.8, 0.8, 1.0);
+	private static final Color colorLighter = new Color(0.9, 0.9, 0.9, 1.0);
 
 	void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
@@ -88,26 +93,54 @@ public class ProgressController implements Initializable
 		lblInfo = new Pane[threadCnt];
 		lblSubInfo = new Pane[lblSubInfoCnt];
 
-		final Color normal = new Color(0.7, 0.7, 0.7, 1.0);
-		final Color light = new Color(0.8, 0.8, 0.8, 1.0);
-		final Color lighter = new Color(0.9, 0.9, 0.9, 1.0);
-
 		for (int i = 0; i < threadCnt; i++)
 		{
-			lblInfo[i] = buildView((i % 2) != 0 ? normal : light);
+			lblInfo[i] = buildView(isOdd(i) ? colorNormal : colorLight);
 			panel.getChildren().add(lblInfo[i]);
 
 			if (Boolean.TRUE.equals(multipleSubInfos))
 			{
-				lblSubInfo[i] = buildView((i % 2) != 0 ? normal : light);
+				lblSubInfo[i] = buildView(isOdd(i) ? colorNormal : colorLight);
 				panel.getChildren().add(lblSubInfo[i]);
 			}
 		}
 		if (Boolean.FALSE.equals(multipleSubInfos))
 		{
-			lblSubInfo[0] = buildView(lighter);
+			lblSubInfo[0] = buildView(colorLighter);
 			panel.getChildren().add(lblSubInfo[0]);
 		}
+	}
+	
+	void extendInfos(int threadCnt, Boolean multipleSubInfos)
+	{
+		if(lblInfo == null || lblInfo.length == threadCnt)
+			return;
+
+		if(Boolean.TRUE.equals(multipleSubInfos) && lblSubInfo == null)
+			return;
+
+		final var oldThreadCnt = lblInfo.length;
+
+		lblInfo = Arrays.copyOf(lblInfo, threadCnt);
+		if (Boolean.TRUE.equals(multipleSubInfos))
+			lblSubInfo = Arrays.copyOf(lblSubInfo, threadCnt);
+
+		for (int i = oldThreadCnt; i < threadCnt; i++)
+		{
+			lblInfo[i] = buildView(isOdd(i) ? colorNormal : colorLight);
+			panel.getChildren().add(lblInfo[i]);
+
+			if (Boolean.TRUE.equals(multipleSubInfos))
+			{
+				lblSubInfo[i] = buildView(isOdd(i) ? colorNormal : colorLight);
+				panel.getChildren().add(lblSubInfo[i]);
+			}
+		}
+	}
+	
+	private boolean isOdd(int i)
+	{
+		return (i % 2) != 0;
 	}
 
 	private Deque<HBox> viewCache = new ArrayDeque<>(); 

@@ -27,7 +27,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import jrm.aui.progress.ProgressHandler;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.MultiThreading;
+import jrm.misc.MultiThreadingVirtual;
 import jrm.misc.ProfileSettingsEnum;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
@@ -79,8 +79,10 @@ public class Fix
 				final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
 				// resets progression parallelism (needed since thread IDs may change between two parallel streaming)
 				progress.setInfos(nThreads, useParallelism);
-				new MultiThreading<ContainerAction>(nThreads, action -> doAction(currProfile, progress, i, done, action))
-					.start(actions.stream().sorted(ContainerAction.rcomparator()));
+				try (final var mt = new MultiThreadingVirtual<ContainerAction>("fix", progress, nThreads, action -> doAction(currProfile, progress, i, done, action)))
+				{
+					mt.start(actions.stream().sorted(ContainerAction.rcomparator()));
+				}
 				// close all open FS from backup (if the last actions was backup)
 				if (!done.isEmpty() && done.get(0) instanceof BackupContainer)
 					BackupContainer.closeAllFS();

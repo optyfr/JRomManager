@@ -16,7 +16,7 @@ import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.MultiThreading;
+import jrm.misc.MultiThreadingVirtual;
 import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 import jrm.server.shared.WebSession;
@@ -51,7 +51,7 @@ public class CompressorActions
 				final var compressor = new Compressor(session, cnt, ws.getSession().getCachedCompressorList().size(), session.getWorker().progress);
 				List<FileResult> values = new ArrayList<>(ws.getSession().getCachedCompressorList().values());
 
-				try(final var mt = new MultiThreading<Compressor.FileResult>(nThreads, fr -> doCompress(session, format, force, cnt, compressor, values, fr))) {
+				try(final var mt = new MultiThreadingVirtual<Compressor.FileResult>("compressor", session.getWorker().progress, nThreads, fr -> doCompress(session, format, force, cnt, compressor, values, fr))) {
 					mt.start(ws.getSession().getCachedCompressorList().values().stream());
 				}
 

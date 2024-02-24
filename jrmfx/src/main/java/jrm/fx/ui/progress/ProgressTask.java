@@ -6,11 +6,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -20,6 +16,7 @@ import javafx.concurrent.Task;
 import javafx.stage.Stage;
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressInputStream;
+import jrm.misc.OffsetProvider;
 import lombok.Data;
 
 public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
@@ -32,9 +29,6 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 
 	private final List<String> errors = new ArrayList<>();
 	
-	/** The thread id offset. */
-	private Map<Long, Integer> threadIdOffset = new HashMap<>();
-	private ThreadGroup currentThreadGroup = null;	//NOSONAR
 
 	private boolean cancel = false;
 	private boolean canCancel = true;
@@ -114,7 +108,6 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	@Override
 	public synchronized void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
-		threadIdOffset.clear();
 		this.data.threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
 		this.data.multipleSubInfos = multipleSubInfos;
 		this.data.infos = new String[this.data.threadCnt];
@@ -123,6 +116,15 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 		else
 			this.data.subinfos = new String[multipleSubInfos.booleanValue() ? this.data.threadCnt : 1];
 		Platform.runLater(() -> progress.getController().setInfos(data.threadCnt, data.multipleSubInfos));
+	}
+
+	private synchronized void extendInfos(int threadCnt)
+	{
+		this.data.threadCnt = threadCnt;
+		this.data.infos = Arrays.copyOf(this.data.infos, this.data.threadCnt);
+		if(Boolean.TRUE.equals(data.multipleSubInfos))
+			this.data.subinfos = Arrays.copyOf(this.data.subinfos, this.data.threadCnt);
+		Platform.runLater(() -> progress.getController().extendInfos(data.threadCnt, data.multipleSubInfos));
 	}
 
 	@Override
@@ -138,24 +140,16 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 
 	private synchronized void cleanup()
 	{
-		final var ct = Thread.currentThread();
-		if (!threadIdOffset.containsKey(ct.threadId()))
-			return;
-		final var tg = Optional.ofNullable(currentThreadGroup).orElse(ct.getThreadGroup());	//NOSONAR
-		if (threadIdOffset.size() == tg.activeCount())
-			return;
-		final var tl = new Thread[tg.activeCount()];
-		final int tl_count = tg.enumerate(tl, false);
-		final var itr = threadIdOffset.entrySet().iterator();
-		while (itr.hasNext())
+		if (offsetProvider != null)
 		{
-			final var e = itr.next();
-			if (!isOffsetExist(e, tl, tl_count))
+			for(final var offset : offsetProvider.freeOffsets())
 			{
-				data.infos[e.getValue()] = "";
-				if (data.infos.length == data.subinfos.length)
-					data.subinfos[e.getValue()] = "";
-				itr.remove();
+				if(offset < data.infos.length)
+				{
+					data.infos[offset] = "";
+					if (data.infos.length == data.subinfos.length)
+						data.subinfos[offset] = "";
+				}
 			}
 		}
 	}
@@ -165,66 +159,16 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	 */
 	private synchronized int getOffset()
 	{
-		if(!Thread.currentThread().getThreadGroup().equals(currentThreadGroup))
+		if(offsetProvider != null)
 		{
-			threadIdOffset.clear();
-			currentThreadGroup = Thread.currentThread().getThreadGroup();
+			int offset = offsetProvider.getOffset();
+			if (offset < 0)
+				return 0;
+			if (offset >= data.threadCnt)
+				extendInfos(offset + 1);
+			return offset;
 		}
-		if (!threadIdOffset.containsKey(Thread.currentThread().threadId()))
-		{
-			if (threadIdOffset.size() < data.threadCnt)
-				threadIdOffset.put(Thread.currentThread().threadId(), threadIdOffset.size());
-			else
-			{
-				final var tg = Thread.currentThread().getThreadGroup();	//NOSONAR
-				final var tl = new Thread[tg.activeCount()];
-				final var tl_count = tg.enumerate(tl, false);
-				if (!isOffsetFound(tl, tl_count))
-					threadIdOffset.put(Thread.currentThread().threadId(), 0);
-			}
-		}
-		return threadIdOffset.get(Thread.currentThread().threadId());
-	}
-
-	/**
-	 * @param tl
-	 * @param tl_count
-	 * @return
-	 */
-	private boolean isOffsetFound(final Thread[] tl, final int tl_count)
-	{
-		var found = false;
-		for (final var entry : threadIdOffset.entrySet())
-		{
-			if (!isOffsetExist(entry, tl, tl_count))
-			{
-				threadIdOffset.remove(entry.getKey());
-				threadIdOffset.put(Thread.currentThread().threadId(), entry.getValue());
-				found = true;
-				break;
-			}
-		}
-		return found;
-	}
-
-	/**
-	 * @param entry
-	 * @param tl
-	 * @param tl_count
-	 * @return
-	 */
-	private boolean isOffsetExist(final Entry<Long, Integer> entry, final Thread[] tl, final int tl_count)
-	{
-		var exists = false;
-		for (var i = 0; i < tl_count; i++)
-		{
-			if (entry.getKey() == tl[i].threadId())
-			{
-				exists = true;
-				break;
-			}
-		}
-		return exists;
+		return 0;
 	}
 
 	@Override
@@ -434,5 +378,13 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 	{
 		options = EnumSet.of(first, rest);
 		
+	}
+
+	private OffsetProvider offsetProvider = null;
+	
+	@Override
+	public void setOffsetProvider(OffsetProvider offsetProvider)
+	{
+		this.offsetProvider = offsetProvider;
 	}
 }

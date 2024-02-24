@@ -33,7 +33,10 @@ abstract class BaseController implements Initializable
 	protected void chooseDir(Control parent, String initialValue, File defdir, Callback cb)
 	{
 		final var chooser = new DirectoryChooser();
-		Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> chooser.setInitialDirectory(defdir));
+		Optional.ofNullable(initialValue).filter(t -> !t.isBlank()).map(t -> PathAbstractor.getAbsolutePath(session, t).toFile()).filter(File::exists).filter(File::isDirectory).ifPresentOrElse(chooser::setInitialDirectory, () -> {
+			if (defdir.exists())
+				chooser.setInitialDirectory(defdir);
+		});
 		final var chosen = chooser.showDialog(parent.getScene().getWindow());
 		if (chosen != null)
 			cb.call(PathAbstractor.getRelativePath(session, chosen.toPath()));

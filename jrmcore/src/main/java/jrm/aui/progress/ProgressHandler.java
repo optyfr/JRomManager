@@ -18,6 +18,8 @@ package jrm.aui.progress;
 
 import java.io.InputStream;
 
+import jrm.misc.OffsetProvider;
+
 /**
  * The Interface ProgressHandler.
  *
@@ -191,4 +193,6 @@ public interface ProgressHandler
 	 * @param error
 	 */
 	public void addError(String error);
+	
+	public void setOffsetProvider(OffsetProvider offsetProvider);
 }

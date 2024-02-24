@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
 
@@ -66,9 +65,8 @@ import jrm.io.chd.CHDInfoReader;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.MultiThreading;
+import jrm.misc.MultiThreadingVirtual;
 import jrm.misc.ProfileSettingsEnum;
-import jrm.misc.Settings;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Archive;
@@ -395,26 +393,34 @@ public final class DirScan extends PathAbstractor
 		handler.setInfos(options.nThreads,true);
 		handler.setProgress(String.format(Messages.getString("DirScan.ScanningFiles"), getRelativePath(dir.toPath())) , -1); //$NON-NLS-1$
 		handler.setProgress2("", j.get(), max.get()); //$NON-NLS-1$
-		try (final var mt = new MultiThreading<Container>(options.nThreads, c -> {
+		try (final var mt = new MultiThreadingVirtual<Container>("dirscan", handler, options.nThreads, c -> {
 			if (handler.isCancel())
 				return;
-			try {
+			try
+			{
 				scanContainer(c, handler, options);
 				handler.setProgress(String.format(Messages.getString("DirScan.Scanned"), c.getFile().getName())); //$NON-NLS-1$
 				handler.setProgress2(String.format("%d/%d (%d%%)", i.incrementAndGet(), containers.size(), //$NON-NLS-1$
 						(int) (j.addAndGet(1 + (int) (c.getSize() >> 20)) * 100.0 / max.get())), j.get());
-			} catch (final IOException e) {
+			}
+			catch (final IOException e)
+			{
 				c.setLoaded(0);
 				Log.err("IOException when scanning", e); //$NON-NLS-1$
-			} catch (final BreakException e) {
+			}
+			catch (final BreakException e)
+			{
 				c.setLoaded(0);
 				handler.doCancel();
-			} catch (final Exception e) {
+			}
+			catch (final Exception e)
+			{
 				c.setLoaded(0);
 				Log.err("Other Exception when listing", e); //$NON-NLS-1$
 			}
 			return;
-		})) {
+		}))
+		{
 			mt.start(containers.stream().sorted(Container.rcomparator()));
 		}
 

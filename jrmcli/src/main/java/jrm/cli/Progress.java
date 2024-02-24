@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jrm.aui.progress.ProgressHandler;
+import jrm.misc.OffsetProvider;
 
 public class Progress implements ProgressHandler
 {
@@ -122,6 +123,12 @@ public class Progress implements ProgressHandler
 
 	@Override
 	public void setOptions(Option first, Option... rest)
+	{
+		// Do nothing
+	}
+
+	@Override
+	public void setOffsetProvider(OffsetProvider offset)
 	{
 		// Do nothing
 	}

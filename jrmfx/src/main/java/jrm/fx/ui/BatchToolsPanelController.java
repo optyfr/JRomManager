@@ -69,7 +69,7 @@ import jrm.io.torrent.options.TrntChkMode;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.MultiThreading;
+import jrm.misc.MultiThreadingVirtual;
 import jrm.misc.ProfileSettings;
 import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
@@ -218,7 +218,7 @@ public class BatchToolsPanelController extends BaseController
 				setInfos(nThreads <= 0 ? Runtime.getRuntime().availableProcessors() : nThreads, true);
 				tvBatchToolsCompressor.getItems().forEach(fr -> fr.setResult(""));
 
-				try (final var mt = new MultiThreading<FileResult>(nThreads, fr -> {
+				try (final var mt = new MultiThreadingVirtual<FileResult>("compressor", this, nThreads, fr -> {
 					if (isCancel())
 						return;
 					compress(cnt, compressor, fr);

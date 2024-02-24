@@ -3,6 +3,8 @@ package jrm.misc;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ThreadMXBean;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -11,8 +13,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
+import jrm.aui.progress.ProgressHandler;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -23,7 +27,7 @@ import lombok.RequiredArgsConstructor;
  * @param <T> the type of object to process
  * @author opty
  */
-public final class MultiThreading<T> extends ThreadPoolExecutor
+public final class MultiThreading<T> extends ThreadPoolExecutor implements OffsetProvider
 {
 	private static final ThreadMXBean tmxb = ManagementFactory.getThreadMXBean();
 	private static final OperatingSystemMXBean osmxb = ManagementFactory.getOperatingSystemMXBean();
@@ -32,6 +36,11 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 	private final long interval;
 	private long time = System.currentTimeMillis();
 
+	private final AtomicLong maxActive = new AtomicLong();
+	private final AtomicLong count = new AtomicLong();
+	private final HashMap<Long,Integer> activeThreads = new HashMap<>();
+	private final Deque<Integer> freeOffsets = new ArrayDeque<>();
+
 	private final CalledWith<T> calledWith;
 
 	/**
@@ -39,14 +48,15 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 	 * @param nThreads The requested number of thread, if negative adaptive mode will be used, if 0 all available processors will be used
 	 * @param cw the task code to handle each object
 	 */
-	public MultiThreading(final int nThreads, final CalledWith<T> cw)
+	public MultiThreading(final String name, final ProgressHandler progress, final int nThreads, final CalledWith<T> cw)
 	{
 		super(getNStartThreads(nThreads), getNStartThreads(nThreads), 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>()); 
 		this.nStartThreads = getNStartThreads(nThreads);
 		this.adaptive = isAdaptive(nThreads);
 		this.interval = 60_000;	// check interval for adaptive mode (expressed in milliseconds)
 		this.calledWith = cw;
-		setThreadFactory(new DefaultThreadFactory());
+		setThreadFactory(new DefaultThreadFactory(name));
+		progress.setOffsetProvider(this);
 	}
 
 	private static class DefaultThreadFactory implements ThreadFactory
@@ -56,9 +66,9 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 		private final AtomicInteger threadNumber = new AtomicInteger(1);
 		private final String namePrefix;
 
-		DefaultThreadFactory()
+		DefaultThreadFactory(String name)
 		{
-			group = new ThreadGroup("pool-" + poolNumber.getAndIncrement());
+			group = new ThreadGroup(name + "-" + poolNumber.getAndIncrement());
 			namePrefix = group.getName() + "-thread-";
 		}
 
@@ -240,23 +250,65 @@ public final class MultiThreading<T> extends ThreadPoolExecutor
 		else
 			Log.info(String.format("pools size of %d <> max pool size of %d...%n", getPoolSize(), getMaximumPoolSize()));
 	}
-
-	@FunctionalInterface
-	public interface CalledWith<T>
-	{
-		public void call(final T t) throws Exception;	//NOSONAR
-	}
 	
+	@Override
+	public int getOffset()
+	{
+		synchronized (activeThreads)
+		{
+			final var id = Thread.currentThread().threadId();
+			final var offset = activeThreads.get(id);
+			if(offset == null)
+				return -1;
+			return offset;
+		}
+	}
+
+	@Override
+	public int[] freeOffsets()
+	{
+		synchronized (activeThreads)
+		{
+			return freeOffsets.stream().mapToInt(i -> i).toArray();
+		}
+	}
+
 	@RequiredArgsConstructor
 	private class CallableWith implements Callable<Void>
 	{
 		private final T entry;
-		
+
+		private long allocOffset()
+		{
+			synchronized (activeThreads)
+			{
+				final var id = Thread.currentThread().threadId();
+				final var offset = freeOffsets.poll();
+				activeThreads.put(id, offset == null ? activeThreads.size() : offset);
+				final var currentCount = activeThreads.size();
+				if (maxActive.get() < currentCount)
+					maxActive.set(currentCount);
+				return id;
+			}
+		}
+
+		private void freeOffset(long id)
+		{
+			synchronized (activeThreads)
+			{
+				count.incrementAndGet();
+				freeOffsets.add(activeThreads.remove(id));
+			}
+		}
+
 		@Override
 		public Void call() throws Exception
 		{
+			final var id = allocOffset();
 			calledWith.call(entry);
+			freeOffset(id);
 			return null;
 		}
 	}
+
 }

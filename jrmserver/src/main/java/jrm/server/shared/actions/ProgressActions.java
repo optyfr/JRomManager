@@ -3,11 +3,8 @@ package jrm.server.shared.actions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
@@ -17,6 +14,7 @@ import com.google.gson.GsonBuilder;
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressInputStream;
 import jrm.misc.Log;
+import jrm.misc.OffsetProvider;
 import jrm.server.shared.actions.ProgressActions.SetFullProgress.Data.PB;
 
 public class ProgressActions implements ProgressHandler
@@ -26,10 +24,6 @@ public class ProgressActions implements ProgressHandler
 	private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
 	private ActionsMgr ws;
 	private final List<String> errors = new ArrayList<>();
-
-	/** The thread id offset. */
-	private final Map<Long, Integer> threadIdOffset = new HashMap<>();
-	private ThreadGroup currentThreadGroup = null;	// NOSONAR
 
 	/** The cancel. */
 	private boolean cancel = false;
@@ -98,6 +92,32 @@ public class ProgressActions implements ProgressHandler
 		}
 
 		SetInfos(Data data)
+		{
+			this.params = data;
+		}
+
+	}
+
+	static final class ExtendInfos
+	{
+		static final String cmd = "Progress.extendInfos";	//NOSONAR
+		final Data params;
+
+		static final class Data
+		{
+			/** Current thread cnt */
+			int threadCnt = 1;
+
+			Boolean multipleSubInfos = false;
+
+			Data(int threadCnt, Boolean multipleSubInfos)
+			{
+				this.threadCnt = threadCnt;
+				this.multipleSubInfos = multipleSubInfos;
+			}
+		}
+
+		ExtendInfos(Data data)
 		{
 			this.params = data;
 		}
@@ -199,24 +219,16 @@ public class ProgressActions implements ProgressHandler
 
 	private synchronized void cleanup()
 	{
-		final var ct = Thread.currentThread();
-		if (!threadIdOffset.containsKey(ct.threadId()))
-			return;
-		final var tg = Optional.ofNullable(currentThreadGroup).orElse(ct.getThreadGroup());	//NOSONAR
-		if (threadIdOffset.size() == tg.activeCount())
-			return;
-		final var tl = new Thread[tg.activeCount()];
-		final int tl_count = tg.enumerate(tl, false);
-		final var itr = threadIdOffset.entrySet().iterator();
-		while (itr.hasNext())
+		if (offsetProvider != null)
 		{
-			final var e = itr.next();
-			if (!isOffsetExist(e, tl, tl_count))
+			for(final var offset : offsetProvider.freeOffsets())
 			{
-				data.infos[e.getValue()] = "";
-				if (data.infos.length == data.subinfos.length)
-					data.subinfos[e.getValue()] = "";
-				itr.remove();
+				if(offset < data.infos.length)
+				{
+					data.infos[offset] = "";
+					if (data.infos.length == data.subinfos.length)
+						data.subinfos[offset] = "";
+				}
 			}
 		}
 	}
@@ -250,7 +262,6 @@ public class ProgressActions implements ProgressHandler
 	@Override
 	public synchronized void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
-		threadIdOffset.clear();
 		this.data.threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
 		this.data.multipleSubInfos = multipleSubInfos;
 		this.data.infos = new String[this.data.threadCnt];
@@ -268,6 +279,30 @@ public class ProgressActions implements ProgressHandler
 			if (ws.isOpen())
 			{
 				ws.send(gson.toJson(new SetInfos(new SetInfos.Data(data.threadCnt, data.multipleSubInfos))));
+			}
+		}
+		catch (IOException e)
+		{
+			Log.err(e.getMessage(), e);
+		}
+	}
+
+	private synchronized void extendInfos(int threadCnt)
+	{
+		this.data.threadCnt = threadCnt;
+		this.data.infos = Arrays.copyOf(this.data.infos, threadCnt);
+		if (Boolean.TRUE.equals(this.data.multipleSubInfos))
+			this.data.subinfos = Arrays.copyOf(this.data.subinfos, threadCnt);
+		sendExtendInfos();
+	}
+
+	private void sendExtendInfos()
+	{
+		try
+		{
+			if (ws.isOpen())
+			{
+				ws.send(gson.toJson(new ExtendInfos(new ExtendInfos.Data(data.threadCnt, data.multipleSubInfos))));
 			}
 		}
 		catch (IOException e)
@@ -398,67 +433,18 @@ public class ProgressActions implements ProgressHandler
 	 */
 	private synchronized int getOffset()
 	{
-		if(!Thread.currentThread().getThreadGroup().equals(currentThreadGroup))
+		if(offsetProvider != null)
 		{
-			threadIdOffset.clear();
-			currentThreadGroup = Thread.currentThread().getThreadGroup();
+			int offset = offsetProvider.getOffset();
+			if (offset < 0)
+				return 0;
+			if (offset >= data.threadCnt)
+				extendInfos(offset + 1);
+			return offset;
 		}
-		if (!threadIdOffset.containsKey(Thread.currentThread().threadId()))
-		{
-			if (threadIdOffset.size() < data.threadCnt)
-				threadIdOffset.put(Thread.currentThread().threadId(), threadIdOffset.size());
-			else
-			{
-				final var tg = Thread.currentThread().getThreadGroup();	//NOSONAR
-				final var tl = new Thread[tg.activeCount()];
-				final var tl_count = tg.enumerate(tl, false);
-				if (!isOffsetFound(tl, tl_count))
-					threadIdOffset.put(Thread.currentThread().threadId(), 0);
-			}
-		}
-		return threadIdOffset.get(Thread.currentThread().threadId());
+		return 0;
 	}
 
-	/**
-	 * @param tl
-	 * @param tl_count
-	 * @return
-	 */
-	private boolean isOffsetFound(final Thread[] tl, final int tl_count)
-	{
-		var found = false;
-		for (final var entry : threadIdOffset.entrySet())
-		{
-			if (!isOffsetExist(entry, tl, tl_count))
-			{
-				threadIdOffset.remove(entry.getKey());
-				threadIdOffset.put(Thread.currentThread().threadId(), entry.getValue());
-				found = true;
-				break;
-			}
-		}
-		return found;
-	}
-
-	/**
-	 * @param entry
-	 * @param tl
-	 * @param tl_count
-	 * @return
-	 */
-	private boolean isOffsetExist(final Entry<Long, Integer> entry, final Thread[] tl, final int tl_count)
-	{
-		var exists = false;
-		for (var i = 0; i < tl_count; i++)
-		{
-			if (entry.getKey() == tl[i].threadId())
-			{
-				exists = true;
-				break;
-			}
-		}
-		return exists;
-	}
 
 	/**
 	 * @param val
@@ -561,6 +547,15 @@ public class ProgressActions implements ProgressHandler
 	public void setOptions(Option first, Option... rest)
 	{
 		// do nothing
+		
+	}
+
+	private OffsetProvider offsetProvider = null;
+	
+	@Override
+	public void setOffsetProvider(OffsetProvider offsetProvider)
+	{
+		this.offsetProvider = offsetProvider;
 		
 	}
 	

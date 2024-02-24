@@ -5,10 +5,7 @@ import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
@@ -16,7 +13,7 @@ import javax.swing.SwingWorker;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.aui.progress.ProgressInputStream;
-
+import jrm.misc.OffsetProvider;
 import lombok.RequiredArgsConstructor;
 
 public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implements ProgressHandler
@@ -31,9 +28,6 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 
 	private final List<String> errors = new ArrayList<>();
 	
-	/** The thread id offset. */
-	private Map<Long, Integer> threadIdOffset = new HashMap<>();
-	private ThreadGroup currentThreadGroup = null;	// NOSONAR
 	private int threadCnt;
 
 	protected SwingWorkerProgress(final Window owner)
@@ -55,27 +49,23 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 		{
 			case SET_PROGRESS:
 				if (e.getNewValue() instanceof SetProgress props)
-				{
 					progress.setProgress(props.offset, props.msg, props.val, props.max, props.submsg);
-				}
 				break;
 			case SET_PROGRESS_2:
 				if (e.getNewValue() instanceof SetProgress2 props)
-				{
 					progress.setProgress2(props.msg, props.val, props.max);
-				}
 				break;
 			case SET_PROGRESS_3:
 				if (e.getNewValue() instanceof SetProgress3 props)
-				{
 					progress.setProgress3(props.msg, props.val, props.max);
-				}
 				break;
 			case "setInfos":
 				if (e.getNewValue() instanceof SetInfos props)
-				{
 					progress.setInfos(props.threadCnt, props.multipleSubInfos);
-				}
+				break;
+			case "extendInfos":
+				if (e.getNewValue() instanceof ExtendInfos props)
+					progress.extendInfos(props.threadCnt, props.multipleSubInfos);
 				break;
 			case "clearInfos":
 				progress.clearInfos();
@@ -103,18 +93,27 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 		private final Boolean multipleSubInfos;
 	}
 
+	@RequiredArgsConstructor
+	private static class ExtendInfos
+	{
+		private final int threadCnt;
+		private final Boolean multipleSubInfos;
+	}
+
 	private Boolean multipleSubInfos = null;
 
 	@Override
 	public void setInfos(int threadCnt, Boolean multipleSubInfos)
 	{
-		synchronized (threadIdOffset)
-		{
-			this.threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
-			threadIdOffset.clear();
-		}
+		this.threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
 		this.multipleSubInfos = multipleSubInfos;
 		firePropertyChange("setInfos", null, new SetInfos(this.threadCnt, this.multipleSubInfos));
+	}
+
+	public void extendInfos(int threadCnt)
+	{
+		this.threadCnt = threadCnt;
+		firePropertyChange("extendInfos", null, new ExtendInfos(this.threadCnt, this.multipleSubInfos));
 	}
 
 	@Override
@@ -135,24 +134,13 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 
 	private void cleanup()
 	{
-		synchronized (threadIdOffset)
+		if (offsetProvider != null)
 		{
-			final Thread ct = Thread.currentThread();
-			if (!threadIdOffset.containsKey(ct.threadId()))
-				return;
-			final var tg = Optional.ofNullable(currentThreadGroup).orElse(ct.getThreadGroup());	//NOSONAR
-			if (threadIdOffset.size() == tg.activeCount())
-				return;
-			final var tl = new Thread[tg.activeCount()];
-			final var tl_count = tg.enumerate(tl, false);
-			final var itr = threadIdOffset.entrySet().iterator();
-			while (itr.hasNext())
+			for(final var offset : offsetProvider.freeOffsets())
 			{
-				final var e = itr.next();
-				if (!isOffsetExist(e, tl, tl_count))
+				if(offset < threadCnt)
 				{
-					firePropertyChange(SET_PROGRESS, null, new SetProgress(e.getValue(), "", null, null, this.multipleSubInfos != null && this.multipleSubInfos ? "" : null));
-					itr.remove();
+					firePropertyChange(SET_PROGRESS, null, new SetProgress(offset, "", null, null, this.multipleSubInfos != null && this.multipleSubInfos ? "" : null));
 				}
 			}
 		}
@@ -171,71 +159,17 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 	 */
 	private int getOffset()
 	{
-		final int offset;
-		synchronized (threadIdOffset)
+		if(offsetProvider != null)
 		{
-			if(!Thread.currentThread().getThreadGroup().equals(currentThreadGroup))
-			{
-				threadIdOffset.clear();
-				currentThreadGroup = Thread.currentThread().getThreadGroup();
-			}
-			if (!threadIdOffset.containsKey(Thread.currentThread().threadId()))
-			{
-				if (threadIdOffset.size() < threadCnt)
-					threadIdOffset.put(Thread.currentThread().threadId(), threadIdOffset.size());
-				else
-				{
-					final var tg = Thread.currentThread().getThreadGroup();	//NOSONAR
-					final var tl = new Thread[tg.activeCount()];
-					final var tlCount = tg.enumerate(tl, false);
-					if (!isOffsetFound(tl, tlCount))
-						threadIdOffset.put(Thread.currentThread().threadId(), 0);
-				}
-			}
-			offset = threadIdOffset.get(Thread.currentThread().threadId());
+			int offset = offsetProvider.getOffset();
+			if (offset < 0)
+				return 0;
+			if (offset >= threadCnt)
+				extendInfos(offset + 1);
+			return offset;
 		}
-		return offset;
-	}
+		return 0;
 
-	/**
-	 * @param tl
-	 * @param tlCount
-	 * @return
-	 */
-	private boolean isOffsetFound(final Thread[] tl, final int tlCount)
-	{
-		var found = false;
-		for (Map.Entry<Long, Integer> e : threadIdOffset.entrySet())
-		{
-			if(!isOffsetExist(e, tl, tlCount))
-			{
-				threadIdOffset.remove(e.getKey());
-				threadIdOffset.put(Thread.currentThread().threadId(), e.getValue());
-				found = true;
-				break;
-			}
-		}
-		return found;
-	}
-
-	/**
-	 * @param entry
-	 * @param tl
-	 * @param tlCount
-	 * @return
-	 */
-	private boolean isOffsetExist(Map.Entry<Long, Integer> entry, Thread[] tl, int tlCount)
-	{
-		boolean exists = false;
-		for (int i = 0; i < tlCount; i++)
-		{
-			if (entry.getKey() == tl[i].threadId())
-			{
-				exists = true;
-				break;
-			}
-		}
-		return exists;
 	}
 
 	@RequiredArgsConstructor
@@ -329,5 +263,13 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
 	@Override
 	public void setOptions(Option first, Option... rest)
 	{
+	}
+	
+	private OffsetProvider offsetProvider = null;
+	
+	 @Override
+	public void setOffsetProvider(OffsetProvider offsetProvider)
+	{
+		this.offsetProvider = offsetProvider;
 	}
 }

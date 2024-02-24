@@ -38,7 +38,7 @@ import jrm.io.torrent.TorrentFile;
 import jrm.io.torrent.TorrentParser;
 import jrm.io.torrent.options.TrntChkMode;
 import jrm.misc.Log;
-import jrm.misc.MultiThreading;
+import jrm.misc.MultiThreadingVirtual;
 import jrm.misc.SettingsEnum;
 import jrm.misc.UnitRenderer;
 import jrm.security.PathAbstractor;
@@ -81,7 +81,7 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
 		sdrl.stream().filter(AbstractSrcDstResult::isSelected).forEach(sdr -> updater.updateResult(sdrl.indexOf(sdr), ""));
 		final var use_parallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, Boolean.class);
 		final var nThreads = Boolean.TRUE.equals(use_parallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
-		try (final var mt = new MultiThreading<T>(nThreads, sdr -> {
+		try (final var mt = new MultiThreadingVirtual<T>("torrent-checker", progress, nThreads, sdr -> {
 			if (progress.isCancel())
 				return;
 			try {

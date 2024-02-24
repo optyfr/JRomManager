@@ -44,7 +44,7 @@ import jrm.aui.progress.ProgressHandler;
 import jrm.locale.Messages;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
-import jrm.misc.MultiThreading;
+import jrm.misc.MultiThreadingVirtual;
 import jrm.misc.ProfileSettingsEnum;
 import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
@@ -693,7 +693,7 @@ public class Scan extends PathAbstractor
 
 			/* Scan all samples */
 			handler.setProgress2(String.format("%s %d/%d", Messages.getString(MSG_SCAN_SEARCHING_FOR_FIXES), j.get(), profile.size()), j.getAndIncrement(), profile.size()); //$NON-NLS-1$
-			try (final var mt = new MultiThreading<Samples>(nThreads, set -> {
+			try (final var mt = new MultiThreadingVirtual<Samples>("scan-samples", handler, nThreads, set -> {
 				if (handler.isCancel())
 					return;
 				handler.setProgress(set.getName(), i.getAndIncrement());
@@ -707,7 +707,7 @@ public class Scan extends PathAbstractor
 				m.resetCollisionMode();
 				m.resetClonesRomsStatus();
 			});
-			try (final var mt = new MultiThreading<Machine>(nThreads, m -> {
+			try (final var mt = new MultiThreadingVirtual<Machine>("scan-machines", handler, nThreads, m -> {
 				if (handler.isCancel())
 					return;
 				handler.setProgress(m.getFullName(), i.getAndIncrement());
@@ -725,12 +725,15 @@ public class Scan extends PathAbstractor
 				romsDstScan = swromsDstScans.get(sl.getName());
 				disksDstScan = swdisksDstScans.get(sl.getName());
 				sl.forEach(Software::resetCollisionMode);
-				new MultiThreading<Software>(nThreads, s -> {
+				try (final var mt = new MultiThreadingVirtual<Software>("scan-soft-"+sl.getName().toLowerCase(), handler, nThreads, s -> {
 					if (handler.isCancel())
 						return;
 					handler.setProgress(s.getFullName(), i.getAndIncrement());
 					scanWare(s);
-				}).start(sl.getFilteredStream());
+				}))
+				{
+					mt.start(sl.getFilteredStream());
+				}
 			});
 		}
 		handler.setProgress(null, i.get());

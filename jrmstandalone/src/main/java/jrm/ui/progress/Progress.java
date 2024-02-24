@@ -27,6 +27,7 @@ import java.awt.SystemColor;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 import java.util.Optional;
 
 import javax.swing.JButton;
@@ -59,6 +60,10 @@ public class Progress extends JDialog
 	private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
 
 	private static final String HH_MM_SS_NONE = "--:--:--";
+
+	private static final Color colorLighter = SystemColor.controlHighlight;
+	private static final Color colorLight = SystemColor.controlLtHighlight;
+	private static final Color colorNormal = SystemColor.control;
 
 	/** The panel. */
 	private JPanel panel;
@@ -242,30 +247,56 @@ public class Progress extends JDialog
 		lblInfo = new JLabel[threadCnt];
 		lblSubInfo = new JLabel[lblSubInfoCnt];
 		
-		final Color normal = SystemColor.control;
-		final Color light = SystemColor.controlLtHighlight;
-		final Color lighter = SystemColor.controlHighlight;
-		
 		for(int i = 0; i < threadCnt; i++)
 		{
-			lblInfo[i] = buildLabel((i%2)!=0?normal:light);
+			lblInfo[i] = buildLabel((i%2)!=0?colorNormal:colorLight);
 			panel.add(lblInfo[i]);
 	
 			if(Boolean.TRUE.equals(multipleSubInfos))
 			{
-				lblSubInfo[i] = buildLabel((i%2)!=0?normal:light);
+				lblSubInfo[i] = buildLabel((i%2)!=0?colorNormal:colorLight);
 				panel.add(lblSubInfo[i]);
 			}
 		}
 		if(Boolean.FALSE.equals(multipleSubInfos))
 		{
-			lblSubInfo[0] = buildLabel(lighter);
+			lblSubInfo[0] = buildLabel(colorLighter);
 			panel.add(lblSubInfo[0]);
 		}
 		
 		packHeight();
 	}
 	
+	void extendInfos(int threadCnt, Boolean multipleSubInfos)
+	{
+		if(lblInfo == null || lblInfo.length == threadCnt)
+			return;
+
+		if(Boolean.TRUE.equals(multipleSubInfos) && lblSubInfo == null)
+			return;
+
+		final var oldThreadCnt = lblInfo.length;
+
+		lblInfo = Arrays.copyOf(lblInfo, threadCnt);
+		if (Boolean.TRUE.equals(multipleSubInfos))
+			lblSubInfo = Arrays.copyOf(lblSubInfo, threadCnt);
+
+		
+		for(int i = oldThreadCnt; i < threadCnt; i++)
+		{
+			lblInfo[i] = buildLabel((i%2)!=0?colorNormal:colorLight);
+			panel.add(lblInfo[i]);
+	
+			if(Boolean.TRUE.equals(multipleSubInfos))
+			{
+				lblSubInfo[i] = buildLabel((i%2)!=0?colorNormal:colorLight);
+				panel.add(lblSubInfo[i]);
+			}
+		}
+		
+		packHeight();
+	}
+
 	@SuppressWarnings("exports")
 	public JLabel buildLabel(Color color)
 	{
@@ -383,7 +414,7 @@ public class Progress extends JDialog
 	}
 
 
-	/** The start time 2. */
+	/** The start time 3. */
 	private long startTime3 = System.currentTimeMillis();
 
 	public void setProgress3(final String msg, final Integer val, final Integer max)

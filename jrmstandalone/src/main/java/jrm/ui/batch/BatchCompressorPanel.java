@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -49,7 +48,7 @@ import jrm.batch.Compressor.FileResult;
 import jrm.batch.CompressorFormat;
 import jrm.locale.Messages;
 import jrm.misc.Log;
-import jrm.misc.MultiThreading;
+import jrm.misc.MultiThreadingVirtual;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
@@ -429,7 +428,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
 				final var compressor = new Compressor(session, cnt, table.getRowCount(), this);
 				final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, Boolean.class);
 				final var nThreads = Boolean.TRUE.equals(use_parallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
-				try(final var mt = new MultiThreading<FileResult>(nThreads, fr -> {
+				try(final var mt = new MultiThreadingVirtual<FileResult>("compressor", this, nThreads, fr -> {
 					if (isCancel())
 						return;
 					compress(cnt, compressor, fr);
