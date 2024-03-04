@@ -1,5 +1,6 @@
 ## Release v3.0.0 beta 18
 - Fix NULL Pointer Exception on file/dir chooser when there is no default directory
+- CatVer and NPlayers filters were not loading properly
 
 ## Release v3.0.0 beta 17
 - Use of virtual threads. This means that *Max available* CPU setting can go up to 256 vThreads, and *Adaptive* CPU setting can go up to twice the avail processors on your machine. But even with other settings this should benefit a little.

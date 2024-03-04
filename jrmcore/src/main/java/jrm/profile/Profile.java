@@ -1758,7 +1758,7 @@ public class Profile implements Serializable,StatusRendererFactory
 	{
 		try
 		{
-			final var file = PathAbstractor.getAbsolutePath(session, getProperty(ProfileSettingsEnum.filter_catver_ini, null)).toFile();
+			final var file = PathAbstractor.getAbsolutePath(session, getProperty(ProfileSettingsEnum.filter_catver_ini, String.class)).toFile();
 			if (!file.exists())
 			{
 				catver=null;
@@ -1795,7 +1795,7 @@ public class Profile implements Serializable,StatusRendererFactory
 	{
 		try
 		{
-			final var file = PathAbstractor.getAbsolutePath(session, getProperty(ProfileSettingsEnum.filter_nplayers_ini, null)).toFile();
+			final var file = PathAbstractor.getAbsolutePath(session, getProperty(ProfileSettingsEnum.filter_nplayers_ini, String.class)).toFile();
 			if (file.exists())
 			{
 				if (handler != null)
