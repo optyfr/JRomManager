@@ -10,12 +10,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -249,8 +254,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
 			observable.addListener((obs, wasSelected, isNowSelected) -> {
 				item.setSelected(session.getCurrProfile(), isNowSelected);
-				if (MainFrame.getProfileViewer() != null)
-					MainFrame.getProfileViewer().reset(session.getCurrProfile());
+				ProfileViewer.getResetCounter().incrementAndGet();
 			});
 			return observable;
 		}));
@@ -259,8 +263,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
 			observable.addListener((obs, wasSelected, isNowSelected) -> {
 				item.setSelected(session.getCurrProfile(), isNowSelected);
-				if (MainFrame.getProfileViewer() != null)
-					MainFrame.getProfileViewer().reset(session.getCurrProfile());
+				ProfileViewer.getResetCounter().incrementAndGet();
 			});
 			return observable;
 		}));
@@ -271,48 +274,39 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		cbbxSWMinSupportedLvl.setItems(FXCollections.observableArrayList(Supported.values()));
 		chckbxIncludeClones.setOnAction(e -> {
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclClones, chckbxIncludeClones.isSelected());
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			ProfileViewer.getResetCounter().incrementAndGet();
 		});
 		chckbxIncludeDisks.setOnAction(e -> {
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclDisks, chckbxIncludeDisks.isSelected());
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			ProfileViewer.getResetCounter().incrementAndGet();
 		});
 		chckbxIncludeSamples.setOnAction(e -> {
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclSamples, chckbxIncludeSamples.isSelected());
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			ProfileViewer.getResetCounter().incrementAndGet();
 		});
 		cbbxFilterCabinetType.setOnAction(e -> {
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_CabinetType, cbbxFilterCabinetType.getValue().toString());
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			ProfileViewer.getResetCounter().incrementAndGet();
 		});
 		cbbxFilterDisplayOrientation.setOnAction(e -> {
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DisplayOrientation, cbbxFilterDisplayOrientation.getValue().toString());
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			ProfileViewer.getResetCounter().incrementAndGet();
 		});
 		cbbxDriverStatus.setOnAction(e -> {
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DriverStatus, cbbxDriverStatus.getValue().toString());
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			ProfileViewer.getResetCounter().incrementAndGet();
 		});
 		cbbxSWMinSupportedLvl.setOnAction(e -> {
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, cbbxSWMinSupportedLvl.getValue().toString());
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			ProfileViewer.getResetCounter().incrementAndGet();
 		});
 		cbbxYearMin.setOnAction(e -> {
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMin, cbbxYearMin.getValue());
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			ProfileViewer.getResetCounter().incrementAndGet();
 		});
 		cbbxYearMax.setOnAction(e -> {
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMax, cbbxYearMax.getValue());
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
+			ProfileViewer.getResetCounter().incrementAndGet();
 		});
 		
 		new DragNDrop(tfNPlayers).addFile(this::selectNPlayersFile);
@@ -320,8 +314,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
 			observable.addListener((obs, wasSelected, isNowSelected) -> {
 				item.setSelected(session.getCurrProfile(), isNowSelected);
-				if (MainFrame.getProfileViewer() != null)
-					MainFrame.getProfileViewer().reset(session.getCurrProfile());
+				ProfileViewer.getResetCounter().incrementAndGet();
 			});
 			return observable;
 		}));
@@ -407,8 +400,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 						session.getReport().setProfile(session.getCurrProfile());
 						MainFrame.getReportFrame().setNeedUpdate(true);
 						
-						if (MainFrame.getProfileViewer() != null)
-							MainFrame.getProfileViewer().reset(session.getCurrProfile());
+						ProfileViewer.getResetCounter().incrementAndGet();
 
 						MainFrame.getController().getScannerPanelTab().setDisable(profile == null);
 						scanBtn.setDisable(profile == null);
@@ -756,7 +748,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 				cat.forEach(subcat -> catitem.getChildren().add(new CheckBoxTreeItem<>(subcat)));
 			});
 			treeCatVer.setRoot(rootitem);
-			
+					
 			rootitem.selectedProperty().addListener((observable, oldvalue, newvalue) -> root.setSelected(newvalue));
 			rootitem.getChildren().forEach(catitem -> {
 				((CheckBoxTreeItem<PropertyStub>) catitem).selectedProperty().addListener((observable, oldvalue, newvalue) -> ((Category) catitem.getValue()).setSelected(newvalue));
@@ -764,17 +756,19 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 					((CheckBoxTreeItem<PropertyStub>)subcatitem).selectedProperty().addListener((observable, oldvalue, newvalue) -> {
 						((SubCategory)subcatitem.getValue()).setSelected(newvalue);
 						treeCatVer.refresh();
-						if (MainFrame.getProfileViewer() != null)
-							MainFrame.getProfileViewer().reset(session.getCurrProfile());
+						ProfileViewer.getResetCounter().incrementAndGet();
 					});
 					((CheckBoxTreeItem<PropertyStub>)subcatitem).setSelected(((SubCategory)subcatitem.getValue()).isSelected());
 				});
 			});
+			
+					
 		}
 		else
 			treeCatVer.setRoot(null);
+		
 	}
-	
+
 	@FXML private void chooseRomsDest(ActionEvent e)
 	{
 		chooseAnyDest(romsDest, ProfileSettingsEnum.roms_dest_dir, "MainFrame.ChooseRomsDestination");
@@ -879,8 +873,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		for (final var systm : session.getCurrProfile().getSystems())
 			systm.setSelected(session.getCurrProfile(), true);
 		systemsFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML
@@ -890,8 +883,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			if (systm.getType() == Systm.Type.BIOS)
 				systm.setSelected(session.getCurrProfile(), true);
 		systemsFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML
@@ -901,8 +893,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			if (systm.getType() == Systm.Type.SOFTWARELIST)
 				systm.setSelected(session.getCurrProfile(), true);
 		systemsFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML
@@ -911,8 +902,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		for (final var systm : session.getCurrProfile().getSystems())
 			systm.setSelected(session.getCurrProfile(), false);
 		systemsFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML
@@ -922,8 +912,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			if (systm.getType() == Systm.Type.BIOS)
 				systm.setSelected(session.getCurrProfile(), false);
 		systemsFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML
@@ -933,8 +922,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			if (systm.getType() == Systm.Type.SOFTWARELIST)
 				systm.setSelected(session.getCurrProfile(), false);
 		systemsFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML
@@ -943,8 +931,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		for(final var systm : session.getCurrProfile().getSystems())
 			systm.setSelected(session.getCurrProfile(), !systm.isSelected(session.getCurrProfile()));
 		systemsFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML
@@ -953,8 +940,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		for (final var source : session.getCurrProfile().getSources())
 			source.setSelected(session.getCurrProfile(), true);
 		sourcesFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML
@@ -963,8 +949,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		for (final var source : session.getCurrProfile().getSources())
 			source.setSelected(session.getCurrProfile(), false);
 		sourcesFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML
@@ -973,8 +958,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		for (final var source : session.getCurrProfile().getSources())
 			source.setSelected(session.getCurrProfile(), !source.isSelected(session.getCurrProfile()));
 		sourcesFilter.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML void nPlayersListSelectAll()
@@ -982,8 +966,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		for (final var nplayer : session.getCurrProfile().getNplayers())
 			nplayer.setSelected(session.getCurrProfile(), true);
 		listNPlayers.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 	
 	@FXML void nPlayersListSelectNone()
@@ -991,8 +974,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		for (final var nplayer : session.getCurrProfile().getNplayers())
 			nplayer.setSelected(session.getCurrProfile(), false);
 		listNPlayers.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML void nPlayersListSelectInvert()
@@ -1000,8 +982,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		for (final var nplayer : session.getCurrProfile().getNplayers())
 			nplayer.setSelected(session.getCurrProfile(), !nplayer.isSelected(session.getCurrProfile()));
 		listNPlayers.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	@FXML void nPlayersListClear()
@@ -1023,16 +1004,14 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	{
 		streamSubCatItems().forEachOrdered(subcat -> subcat.setSelected(true));
 		treeCatVer.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 	
 	@FXML void catVerListUnselectAll()
 	{
 		streamSubCatItems().forEachOrdered(subcat -> subcat.setSelected(false));
-		listNPlayers.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		treeCatVer.refresh();
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 	private static final String MATURE = "* Mature *";
@@ -1046,16 +1025,14 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	{
 		streamMatureItems().forEachOrdered(subcat -> subcat.setSelected(true));
 		treeCatVer.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 	
 	@FXML void catVerListUnselectMature()
 	{
 		streamMatureItems().forEachOrdered(subcat -> subcat.setSelected(false));
-		listNPlayers.refresh();
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
+		treeCatVer.refresh();
+		ProfileViewer.getResetCounter().incrementAndGet();
 	}
 
 

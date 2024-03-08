@@ -2,11 +2,16 @@ package jrm.fx.ui.profile;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jrm.fx.ui.MainFrame;
 import jrm.fx.ui.misc.Settings;
 import jrm.locale.Messages;
 import jrm.profile.Profile;
@@ -20,7 +25,11 @@ public class ProfileViewer extends Stage
 	
 	private Session session;
 	
-	private @Getter Profile profile;
+	@Getter private Profile profile;
+
+	@Getter private static final AtomicInteger resetCounter = new AtomicInteger();
+
+	private Timer resetTimer = null;
 
 	public ProfileViewer(Stage parent) throws IOException, URISyntaxException
 	{
@@ -38,7 +47,27 @@ public class ProfileViewer extends Stage
 		final var root = loader.<Scene>load();
 		controller = loader.getController();
 		setScene(root);
-		reset(session.getCurrProfile());
+		resetCounter.incrementAndGet();
+
+		resetTimer = new Timer(true);
+		resetTimer.scheduleAtFixedRate(new TimerTask()
+		{
+			@Override
+			public void run()
+			{
+				if(resetCounter.get() > 0)
+				{
+					Platform.runLater(() -> {
+						if (MainFrame.getProfileViewer() != null)
+						{
+							resetCounter.set(0);
+							MainFrame.getProfileViewer().reset(session.getCurrProfile());
+						}
+					});
+					
+				}
+			}
+		}, 0, 1000);
 	}
 	
 	public void clear()

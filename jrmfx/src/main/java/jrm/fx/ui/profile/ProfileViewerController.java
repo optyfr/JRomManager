@@ -1065,7 +1065,7 @@ public class ProfileViewerController implements Initializable
 		}
 		else
 			tableWL.getSelectionModel().select(0);
-	//	tableWL.refresh();
+		tableWL.refresh();
 	//	reloadW(tableWL.getSelectionModel().getSelectedItem());
 	}
 
