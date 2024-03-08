@@ -1,3 +1,6 @@
+## Release v3.0.0 beta 19
+- Fix in getBaseName : can't use FileNameUtils.getBaseName(file) from Apache commons, it's way too basic and can remove extensions on names which contains some dots but are not really there for an extension (for ex : "Daisenryaku (1991)(Hiro Co.)(JP)[o4]" is becoming "Daisenryaku (1991)(Hiro Co"), so I made instead a regex pattern matching defining extension as only letters and digits and not more than 5 characters and not less than 1 (excluding .) at the end of file name. What's the purpose of this getBaseName normalizer ? It's all fault of some DAT for which games name have extension in name. If it still gives problem then the next step will be probably to set it optional per profile...
+
 ## Release v3.0.0 beta 18
 - Fix NULL Pointer Exception on file/dir chooser when there is no default directory
 - CatVer and NPlayers filters were not loading properly

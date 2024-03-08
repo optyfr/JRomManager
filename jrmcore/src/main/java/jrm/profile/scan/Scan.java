@@ -34,10 +34,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import jrm.aui.progress.ProgressHandler;
@@ -778,12 +780,14 @@ public class Scan extends PathAbstractor
 		return dstScan;
 	}
 
+	private static final Pattern baseNameMatch = Pattern.compile("^(.*?)(\\.\\w{1,5})?$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.UNICODE_CASE);
+	
 	private static String getBaseName(File file)
 	{
 		String name = file.getName();
-		final int last = name.lastIndexOf('.');
-		if (last > 0 && name.indexOf(' ', last) == -1)
-			name = name.substring(0, last);
+		final var matcher = baseNameMatch.matcher(name);
+		if (matcher.find() && matcher.groupCount() >0) 
+			return matcher.group(1);
 		return name;
 	}
 
