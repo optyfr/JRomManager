@@ -442,10 +442,21 @@ public class Machine extends Anyware implements Serializable
 		return machines.stream().flatMap(m->m.getRoms().stream());
 	}
 	
-	@Override
-	public String getPropertyName()
+	/**
+	 * get the selection state in profile properties according  {@link #getPropertyName()}
+	 * @return true if selected
+	 */
+	public boolean isSelected()
 	{
-		return "filter.machine." + getName();
+		return profile.getProperty("filter.machine." + getName(), true);
 	}
 
+	/**
+	 * set the selection state in profile properties according {@link #getPropertyName()}
+	 * @param selected the selection state to set
+	 */
+	public void setSelected(final boolean selected)
+	{
+		profile.setProperty("filter.machine." + getName(), selected);
+	}
 }

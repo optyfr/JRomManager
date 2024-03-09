@@ -51,6 +51,7 @@
 				<CheckBox fx:id="excludeGamesChkbx" mnemonicParsing="false" text="%MainFrame.chckbxExcludeGames.text" GridPane.columnIndex="1" GridPane.rowIndex="6" />
 				<CheckBox fx:id="excludeMachinesChkbx" mnemonicParsing="false" text="%MainFrame.chckbxExcludeMachines.text" GridPane.columnIndex="2" GridPane.rowIndex="6" />
 				<CheckBox fx:id="backupChkbx" mnemonicParsing="false" text="%MainFrame.chckbxBackup.text" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+				<CheckBox fx:id="zeroEntryMattersChkbx" mnemonicParsing="false" text="%MainFrame.chckbxZeroEntryMatters.text" GridPane.columnIndex="2" GridPane.rowIndex="7" />
 				<HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="25.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="8" GridPane.valignment="CENTER">
 					<children>
 						<Label maxHeight="1.7976931348623157E308" minWidth="-Infinity" text="%MainFrame.lblCompression.text">

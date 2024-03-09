@@ -119,11 +119,13 @@ public abstract class Settings extends SettingsImpl
 	{
 		final var jso = new JsonObject();
 		properties.forEach((k, v) -> {
+			if(((String)k).startsWith("filter.machine.") || ((String)k).startsWith("filter.swlist.") || ((String)k).startsWith("filter.cat.") || ((String)k).startsWith("filter.nplayer.") || ((String)k).startsWith("filter.sources.") || ((String)k).startsWith("filter.systems."))
+				return;
 			try
 			{
-				JsonValue value = Json.parse((String)v);
-				if(value.isObject() || value.isArray() || value.isBoolean())
-					jso.add((String)k, value);
+				JsonValue value = Json.parse((String) v);
+				if (value.isObject() || value.isArray() || value.isBoolean())
+					jso.add((String) k, value);
 				else
 					jso.add((String) k, (String) v);
 			}

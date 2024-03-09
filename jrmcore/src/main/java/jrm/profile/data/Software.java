@@ -311,10 +311,22 @@ public class Software extends Anyware implements Serializable
 		return super.hashCode();
 	}
 	
-	@Override
-	public String getPropertyName()
+	/**
+	 * get the selection state in profile properties according  {@link #getPropertyName()}
+	 * @return true if selected
+	 */
+	public boolean isSelected()
 	{
-		return "filter.swlist." + getSl().getName() + ".software." + getName();
+		return profile.getProperty("filter.swlist." + getSl().getName() + ".software." + getName(), true);
+	}
+
+	/**
+	 * set the selection state in profile properties according {@link #getPropertyName()}
+	 * @param selected the selection state to set
+	 */
+	public void setSelected(final boolean selected)
+	{
+		profile.setProperty("filter.swlist." + getSl().getName() + ".software." + getName(), selected);
 	}
 
 }

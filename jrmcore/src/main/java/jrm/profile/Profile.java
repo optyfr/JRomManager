@@ -1587,11 +1587,13 @@ public class Profile implements Serializable,StatusRendererFactory
 	 */
 	public void setProperty(final ProfileSettingsEnum property, final boolean value)
 	{
+		System.out.println("%s : %b".formatted(property, value));
 		settings.setProperty(property, Boolean.toString(value));
 	}
 
 	public void setProperty(final String property, final boolean value)
 	{
+		System.out.println("%s : %b".formatted(property, value));
 		settings.setProperty(property, Boolean.toString(value));
 	}
 

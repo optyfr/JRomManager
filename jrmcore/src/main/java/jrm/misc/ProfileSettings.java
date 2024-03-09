@@ -68,6 +68,7 @@ public class ProfileSettings extends Settings
 		settings.setProperty(ProfileSettingsEnum.exclude_games, false); //$NON-NLS-1$
 		settings.setProperty(ProfileSettingsEnum.exclude_machines, false); //$NON-NLS-1$
 		settings.setProperty(ProfileSettingsEnum.backup, true); //$NON-NLS-1$
+		settings.setProperty(ProfileSettingsEnum.zero_entry_matters, true); //$NON-NLS-1$
 		return settings;
 	}
 	

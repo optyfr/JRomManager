@@ -147,7 +147,7 @@ public final class DirScan extends PathAbstractor
 	 */
 	private final ProgressHandler handler;
 
-	private List<PathMatcher> exclusions = Collections.emptyList();
+	private List<Map.Entry<String, PathMatcher>> exclusions = Collections.emptyList();
 	
 	private class ScanOptions
 	{
@@ -286,6 +286,24 @@ public final class DirScan extends PathAbstractor
 		return options;
 	}
 	
+	static List<Map.Entry<String, PathMatcher>> initExclusions(Profile profile, final boolean is_dest)
+	{
+		if(is_dest)
+		{
+			final var fs = FileSystems.getDefault();
+			return Stream.of(StringUtils
+					.split(profile.getProperty(ProfileSettingsEnum.exclusion_glob_list.toString(), "|"), "|"))
+					.filter(s -> !s.isEmpty()).map(s -> {
+						if(!s.startsWith(GLOB) && !s.startsWith("regex:"))
+							s = GLOB + s;
+						if (s.startsWith(GLOB) && !s.contains("**/"))
+							s = GLOB + "**/" + s.substring(5);
+						return Map.entry(s, fs.getPathMatcher(s));
+					}).toList();
+		}
+		return List.of();
+	}
+	
 	/**
 	 * Test for suspicious crc (if information is available)
 	 * @param crc the crc to test
@@ -309,18 +327,7 @@ public final class DirScan extends PathAbstractor
 	 */
 	DirScan(final Profile profile, final File dir, final ProgressHandler handler, final boolean is_dest) throws BreakException
 	{
-		this(profile.getSession(), dir, handler, profile.getSuspiciousCRC(), getOptions(profile, is_dest));
-		final var fs = FileSystems.getDefault();
-		if(is_dest)
-			exclusions = Stream.of(StringUtils
-					.split(profile.getProperty(ProfileSettingsEnum.exclusion_glob_list.toString(), "|"), "|"))
-					.filter(s -> !s.isEmpty()).map(s -> {
-						if(!s.startsWith(GLOB) && !s.startsWith("regex:"))
-							s = GLOB + s;
-						if (s.startsWith(GLOB) && !s.contains("**/"))
-							s = GLOB + "**/" + s.substring(5);
-						return fs.getPathMatcher(s);
-					}).toList();
+		this(profile.getSession(), dir, handler, profile.getSuspiciousCRC(), getOptions(profile, is_dest), initExclusions(profile, is_dest));
 	}
 	
 	/**
@@ -332,7 +339,7 @@ public final class DirScan extends PathAbstractor
 	 */
 	DirScan(final Session session, final File dir, final ProgressHandler handler, Set<Options> options) throws BreakException
 	{
-		this(session, dir, handler, null, options);
+		this(session, dir, handler, null, options, List.of());
 	}
 	
 	/**
@@ -343,7 +350,7 @@ public final class DirScan extends PathAbstractor
 	 * @param options an {@link EnumSet} of {@link Options}
 	 * @throws BreakException in case user stopped processing thru {@link ProgressHandler}
 	 */
-	private DirScan(final Session session, final File dir, final ProgressHandler handler, final Set<String> suspiciousCrc, Set<Options> soptions) throws BreakException
+	private DirScan(final Session session, final File dir, final ProgressHandler handler, final Set<String> suspiciousCrc, Set<Options> soptions, List<Map.Entry<String, PathMatcher>> exclusions) throws BreakException
 	{
 		super(session);
 		this.session = session;
@@ -353,6 +360,7 @@ public final class DirScan extends PathAbstractor
 		this.dir = dir;
 		this.handler = handler;
 		this.suspiciousCrc = suspiciousCrc;
+		this.exclusions = exclusions;
 		
 		final var options = new ScanOptions(soptions);
 		final var path = Paths.get(dir.getAbsolutePath());
@@ -370,6 +378,7 @@ public final class DirScan extends PathAbstractor
 		 */
 		if(!Files.isDirectory(path))
 			return;
+
 		
 		/*
 		 * Initialize progression
@@ -510,6 +519,7 @@ public final class DirScan extends PathAbstractor
 	private SimpleFileVisitor<Path> listFilesVisitor(final File dir, final ProgressHandler handler, final Path path,
 			final ScanOptions options, final AtomicInteger i) {
 		return new SimpleFileVisitor<Path>() {
+			
 			@Override
 			public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) throws IOException {
 				if (handler.isCancel())
@@ -519,7 +529,12 @@ public final class DirScan extends PathAbstractor
 				final var file = p.toFile();
 				try {
 					if (options.isDest) {
-						if (exclusions.stream().anyMatch(pm -> pm.matches(p)))
+						if (exclusions.stream().anyMatch(pm -> {
+							final var match = pm.getValue().matches(p);
+							if(pm.getValue().matches(p))
+								Log.info(() -> "match for exclusion %s on %s, will skip...".formatted(pm.getKey(), p.toString()));
+							return match;
+						}))
 							return FileVisitResult.CONTINUE;
 						listFilesDest(file, attrs);
 					} else

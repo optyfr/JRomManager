@@ -24,11 +24,11 @@ public abstract class SettingsImpl
 		if(property instanceof Enum<?> e)
 		{
 			if (cls == Boolean.class)
-				return cls.cast(getProperty(e.name(), (Boolean) property.getDefault()));
+				return cls.cast(getProperty(e.toString(), (Boolean) property.getDefault()));
 			if (cls == Integer.class)
-				return cls.cast(getProperty(e.name(), ((Number) property.getDefault()).intValue()));
+				return cls.cast(getProperty(e.toString(), ((Number) property.getDefault()).intValue()));
 			if (cls == String.class)
-				return cls.cast(getProperty(e.name(), Optional.ofNullable(property.getDefault()).map(Object::toString).orElse("")));
+				return cls.cast(getProperty(e.toString(), Optional.ofNullable(property.getDefault()).map(Object::toString).orElse("")));
 		}
 		return null;
 	}
@@ -40,7 +40,7 @@ public abstract class SettingsImpl
 	
 	public <T extends Enum<T>> void setEnumProperty(final Enum<?> property, T value)
 	{
-		setProperty(property, value.name());
+		setProperty(property, value.toString());
 	}
 	
 	public String getProperty(final EnumWithDefault property)
@@ -93,7 +93,7 @@ public abstract class SettingsImpl
 
 	public void setProperty(final Enum<?> property, final boolean value)
 	{
-		setProperty(property.name(), value);
+		setProperty(property.toString(), value);
 	}
 	
 	/**
@@ -105,7 +105,7 @@ public abstract class SettingsImpl
 
 	public void setProperty(final Enum<?> property, final int value)
 	{
-		setProperty(property.name(), value);
+		setProperty(property.toString(), value);
 	}
 	
 	/**
@@ -117,7 +117,7 @@ public abstract class SettingsImpl
 	
 	public void setProperty(final Enum<?> property, final String value)
 	{
-		setProperty(property.name(), value);
+		setProperty(property.toString(), value);
 	}
 
 	/**
@@ -129,6 +129,6 @@ public abstract class SettingsImpl
 
 	public boolean hasProperty(final Enum<?> property)
 	{
-		return hasProperty(property.name());
+		return hasProperty(property.toString());
 	}
 }

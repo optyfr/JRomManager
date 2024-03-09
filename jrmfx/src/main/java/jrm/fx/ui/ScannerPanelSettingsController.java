@@ -48,6 +48,7 @@ public class ScannerPanelSettingsController implements Initializable
 	@FXML	private CheckBox excludeGamesChkbx;
 	@FXML	private CheckBox excludeMachinesChkbx;
 	@FXML	private CheckBox backupChkbx;
+	@FXML	private CheckBox zeroEntryMattersChkbx;
 	@FXML	private ComboBox<Descriptor> compressionCbx;
 	@FXML	private ComboBox<Descriptor> mergeModeCbx;
 	@FXML	private ComboBox<Descriptor> collisionModeCbx;
@@ -74,6 +75,7 @@ public class ScannerPanelSettingsController implements Initializable
 		excludeGamesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.exclude_games, newValue));
 		excludeMachinesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.exclude_machines, newValue));
 		backupChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.backup, newValue));
+		zeroEntryMattersChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.zero_entry_matters, newValue));
 		compressionCbx.setItems(FXCollections.observableArrayList(FormatOptions.values()));
 		compressionCbx.setCellFactory(cellFactory);
 		compressionCbx.setButtonCell(cellFactory.call(null));
@@ -123,6 +125,7 @@ public class ScannerPanelSettingsController implements Initializable
 		excludeGamesChkbx.setSelected(settings.getProperty(ProfileSettingsEnum.exclude_games, Boolean.class));
 		excludeMachinesChkbx.setSelected(settings.getProperty(ProfileSettingsEnum.exclude_machines, Boolean.class));
 		backupChkbx.setSelected(settings.getProperty(ProfileSettingsEnum.backup, Boolean.class));
+		zeroEntryMattersChkbx.setSelected(settings.getProperty(ProfileSettingsEnum.zero_entry_matters, Boolean.class));
 		compressionCbx.getSelectionModel().select(FormatOptions.valueOf(settings.getProperty(ProfileSettingsEnum.format)));
 		mergeModeCbx.getSelectionModel().select(MergeOptions.valueOf(settings.getProperty(ProfileSettingsEnum.merge_mode)));
 		collisionModeCbx.getSelectionModel().select(HashCollisionOptions.valueOf(settings.getProperty(ProfileSettingsEnum.hash_collision_mode)));
@@ -140,6 +143,7 @@ public class ScannerPanelSettingsController implements Initializable
 		useImplicitMergeChkbx.setSelected(true);
 		ignoreMergeNameDisksChkbx.setSelected(true); // Don't remove _ReadMe_.txt
 		ignoreMergeNameRomsChkbx.setSelected(false);
+		zeroEntryMattersChkbx.setSelected(false);
 		compressionCbx.getSelectionModel().select(FormatOptions.TZIP);
 		mergeModeCbx.getSelectionModel().select(MergeOptions.MERGE);
 		collisionModeCbx.getSelectionModel().select(HashCollisionOptions.HALFDUMB);
@@ -155,6 +159,7 @@ public class ScannerPanelSettingsController implements Initializable
 		useImplicitMergeChkbx.setSelected(true);
 		ignoreMergeNameDisksChkbx.setSelected(true);
 		ignoreMergeNameRomsChkbx.setSelected(false);
+		zeroEntryMattersChkbx.setSelected(false);
 		compressionCbx.getSelectionModel().select(FormatOptions.TZIP);
 		mergeModeCbx.getSelectionModel().select(MergeOptions.SUPERFULLNOMERGE);
 	}
@@ -171,6 +176,7 @@ public class ScannerPanelSettingsController implements Initializable
 		ignoreMergeNameRomsChkbx.setSelected(false);
 		compressionCbx.getSelectionModel().select(FormatOptions.TZIP);
 		mergeModeCbx.getSelectionModel().select(MergeOptions.SPLIT);
+		zeroEntryMattersChkbx.setSelected(false);
 	}
 	
 	@FXML private void addGlob()

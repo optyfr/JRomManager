@@ -675,21 +675,8 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		return getEntities().get(i);
 	}
 
-	/**
-	 * get the selection state in profile properties according  {@link #getPropertyName()}
-	 * @return true if selected
-	 */
-	public boolean isSelected()
-	{
-		return profile.getProperty(getPropertyName(), true);
-	}
+	public abstract boolean isSelected();
+	
+	public abstract void setSelected(final boolean selected);
 
-	/**
-	 * set the selection state in profile properties according {@link #getPropertyName()}
-	 * @param selected the selection state to set
-	 */
-	public void setSelected(final boolean selected)
-	{
-		profile.setProperty(getPropertyName(), selected);
-	}
 }

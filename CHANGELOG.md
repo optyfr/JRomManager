@@ -7,12 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Selection per machine/software in profile viewer is now saved in profile settings and so : can be exported/imported. This new feature will greatly increase .properties size (from a few KB to a few MB) and *may* impact a bit on profile loading/saving performance on small systems
+- Exclusion list for web interface
+- Checkbox for zero_entry_matters property
 
 ### Changed
 - Use keep a Changelog format for this document
+- Web server version only : avoid to send all filter settings (already implicitly sent thru lists data)
 
 ### Fixed
 - Performance problems on filters selection when ProfileViewer is open : its update is now asynchronous and done only once when doing successive selections/un-selections
+- Profile Viewer was not updating in web version when opened and nplayer/catver items were (de)selected
+- System filters were resetting to false in web version when changing of profile
+- Some mistakes in settings name, the fix implies that some settings may have been reset in filters, you have been warned
+- Exclusion list was not functional
 
 
 ## [3.0.0-beta.19]
