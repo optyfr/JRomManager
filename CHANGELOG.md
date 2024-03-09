@@ -5,11 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Fixed
-- Performance enhancement on filters selection when ProfileViewer is open : its update is asynchronous and done only once when doing successive selections/un-selections
+### Added
+- Selection per machine/software in profile viewer is now saved in profile settings and so : can be exported/imported. This new feature will greatly increase .properties size (from a few KB to a few MB) and *may* impact a bit on profile loading/saving performance on small systems
 
 ### Changed
 - Use keep a Changelog format for this document
+
+### Fixed
+- Performance problems on filters selection when ProfileViewer is open : its update is now asynchronous and done only once when doing successive selections/un-selections
 
 
 ## [3.0.0-beta.19]

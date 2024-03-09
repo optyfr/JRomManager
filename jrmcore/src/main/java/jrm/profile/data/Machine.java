@@ -442,5 +442,10 @@ public class Machine extends Anyware implements Serializable
 		return machines.stream().flatMap(m->m.getRoms().stream());
 	}
 	
+	@Override
+	public String getPropertyName()
+	{
+		return "filter.machine." + getName();
+	}
 
 }

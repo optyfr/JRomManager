@@ -311,4 +311,10 @@ public class Software extends Anyware implements Serializable
 		return super.hashCode();
 	}
 	
+	@Override
+	public String getPropertyName()
+	{
+		return "filter.swlist." + getSl().getName() + ".software." + getName();
+	}
+
 }

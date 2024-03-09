@@ -86,7 +86,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 * Is that machine/software is *individually* selected for inclusion in your set
 	 * ? (true by default)
 	 */
-	private @Getter @Setter boolean selected = true;
+//	private @Getter @Setter boolean selected = true;
 
 	/**
 	 * Do we have a collision?
@@ -242,11 +242,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		 * / Stream initialization
 		 */
 		Stream<Disk> stream;
-		if (!selected) // skip if not selected
+		if (!isSelected()) // skip if not selected
 			stream = Stream.empty();
 		else if (profile.getSettings().getMergeMode().isMerge()) // if merging
 		{
-			if (isClone() && getParent().selected) // skip if I'm a clone and my
+			if (isClone() && getParent().isSelected()) // skip if I'm a clone and my
 													// parent is selected for
 													// inclusion
 				stream = Stream.empty();
@@ -330,7 +330,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		 * Stream initialization
 		 */
 		Stream<Rom> stream;
-		if (!selected) // skip if not selected
+		if (!isSelected()) // skip if not selected
 			stream = Stream.empty();
 		else if (profile.getSettings().getMergeMode().isMerge()) // if merging
 		{
@@ -358,7 +358,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	private Stream<Rom> getFilterRomsMergingStream() {
 		Stream<Rom> stream;
-		if (isClone() && getParent().selected) // skip if I'm a clone and my
+		if (isClone() && getParent().isSelected()) // skip if I'm a clone and my
 												// parent is selected for
 												// inclusion
 			stream = Stream.empty();
@@ -430,7 +430,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 *         a selected parent
 	 */
 	public static boolean wouldMerge(final Anyware ware, final Entity e) {
-		return e.merge != null && ware.isRomOf() && ware.getParent() != null && ware.getParent().selected;
+		return e.merge != null && ware.isRomOf() && ware.getParent() != null && ware.getParent().isSelected();
 	}
 
 	/**
@@ -444,7 +444,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public boolean containsInParent(final Anyware ware, final Rom r, final boolean onlyBios) {
 		if ((r.merge != null || profile.getSettings().getImplicitMerge()) && ware.getParent() != null
-				&& ware.getParent().selected) {
+				&& ware.getParent().isSelected()) {
 			if ((!onlyBios || ware.getParent().isBios()) && ware.getParent().roms.contains(r))
 				return true;
 			return containsInParent(ware.getParent(), r, onlyBios);
@@ -462,7 +462,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	 */
 	public boolean containsInParent(final Anyware ware, final Disk d) {
 		if ((d.merge != null || profile.getSettings().getImplicitMerge()) && ware.getParent() != null
-				&& ware.getParent().selected) {
+				&& ware.getParent().isSelected()) {
 			if (ware.getParent().disks.contains(d))
 				return true;
 			return containsInParent(ware.getParent(), d);
@@ -673,5 +673,23 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 
 	public EntityBase getObject(int i) {
 		return getEntities().get(i);
+	}
+
+	/**
+	 * get the selection state in profile properties according  {@link #getPropertyName()}
+	 * @return true if selected
+	 */
+	public boolean isSelected()
+	{
+		return profile.getProperty(getPropertyName(), true);
+	}
+
+	/**
+	 * set the selection state in profile properties according {@link #getPropertyName()}
+	 * @param selected the selection state to set
+	 */
+	public void setSelected(final boolean selected)
+	{
+		profile.setProperty(getPropertyName(), selected);
 	}
 }
