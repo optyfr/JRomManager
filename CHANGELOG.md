@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+### Changed
+### Fixed
+
+## [3.0.0-beta.20]
+### Added
 - Selection per machine/software in profile viewer is now saved in profile settings and so : can be exported/imported. This new feature will greatly increase .properties size (from a few KB to a few MB) and *may* impact a bit on profile loading/saving performance on small systems
 - Exclusion list for web interface
 - Checkbox for zero_entry_matters property
@@ -484,7 +489,8 @@ dir but one is not present (should be green)
 Initial release
 
 
-[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.19...HEAD
+[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.20...HEAD
+[3.0.0-beta.20]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.19...3.0.0-beta.20
 [3.0.0-beta.19]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.18...3.0.0-beta.19
 [3.0.0-beta.18]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.17...3.0.0-beta.18
 [3.0.0-beta.17]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.16...3.0.0-beta.17
