@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import jrm.aui.progress.ProgressHandler;
@@ -1842,7 +1841,6 @@ public class Scan extends PathAbstractor
 		final var disks = ware.filterDisks();
 		if (!scanRoms(ware, roms, archive, reportSubject))
 			missingSet = false;
-		prepTZip(reportSubject, archive, ware, roms);
 		if (!scanDisks(ware, disks, directory, reportSubject))
 			missingSet = false;
 		if (roms.isEmpty() && disks.isEmpty())
@@ -1858,10 +1856,16 @@ public class Scan extends PathAbstractor
 		}
 		else if (createMode && reportSubject.getStatus() == Status.UNKNOWN)
 			reportSubject.setMissing();
+		prepTZip(reportSubject, archive, ware, roms);
 		if (!ignoreUnneededContainers)
 		{
 			removeUnneededClone(ware, disks, roms);
 			removeOtherFormats(ware);
+			if(reportSubject.isUnneeded())
+			{
+				backupActions.add(new BackupContainer(archive));
+				deleteActions.add(new DeleteContainer(archive, format));
+			}
 		}
 		if (missingSet)
 			report.getStats().incMissingSetCnt();
