@@ -5,6 +5,7 @@ import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -160,4 +161,15 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
 		return super.equals(o);
 	}
 
+
+	public static Comparator<Subject> getComparator()
+	{
+		return (s1,s2) -> {
+			if(s1.ware == null)
+				return -1;
+			else if(s2.ware == null)
+				return 1;
+			return s1.ware.getName().compareToIgnoreCase(s2.ware.getName());
+		};
+	}
 }

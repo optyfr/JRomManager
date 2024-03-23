@@ -112,13 +112,13 @@ public class SubjectSet extends Subject implements Serializable
 	 */
 	public List<Note> filter(final Set<FilterOptions> filterOptions)
 	{
-		return stream(filterOptions).collect(Collectors.toList());
+		return stream(filterOptions).sorted(Note.getComparator()).collect(Collectors.toList());
 	}
 	
 	@Override
 	public Stream<Note> stream(Set<FilterOptions> filterOptions)
 	{
-		return notes.stream().filter(n -> !(!filterOptions.contains(FilterOptions.SHOWOK) && n instanceof EntryOK));
+		return notes.stream().sorted(Note.getComparator()).filter(n -> !(!filterOptions.contains(FilterOptions.SHOWOK) && n instanceof EntryOK));
 	}
 
 	/**

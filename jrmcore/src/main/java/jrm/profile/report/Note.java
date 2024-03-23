@@ -1,6 +1,7 @@
 package jrm.profile.report;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 import jrm.aui.status.StatusRendererFactory;
 import jrm.profile.data.Entity;
@@ -84,4 +85,17 @@ public abstract class Note implements StatusRendererFactory, Serializable
 		return msg;
 	}
 
+	public static Comparator<Note> getComparator()
+	{
+		return (n1,n2) -> {
+			final var name1 = n1.getName();
+			final var name2 = n2.getName();
+			if(name1 == null)
+				return -1;
+			if(name2 == null)
+				return 1;
+			return name1.compareToIgnoreCase(name2);
+		};
+	}
+	
 }

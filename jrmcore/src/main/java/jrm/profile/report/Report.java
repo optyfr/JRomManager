@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -400,12 +401,12 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	public List<Subject> filter(final Set<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
-		return stream(filterOptions).map(s -> s.clone(filterOptions)).collect(Collectors.toList());
+		return stream(filterOptions).map(s -> s.clone(filterOptions)).sorted(Subject.getComparator()).collect(Collectors.toList());
 	}
 
 	public Stream<Subject> stream(final Set<FilterOptions> filterOptions)
 	{
-		return subjects.stream().filter(new FilterPredicate(filterOptions));
+		return subjects.stream().sorted(Subject.getComparator()).filter(new FilterPredicate(filterOptions));
 	}
 	
 	/**
