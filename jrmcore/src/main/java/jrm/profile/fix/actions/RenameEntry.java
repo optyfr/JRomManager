@@ -76,12 +76,18 @@ public class RenameEntry extends EntryAction
 		{
 			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(RENAME_ENTRY_RENAMING), entry.getRelFile(), newname))); //$NON-NLS-1$
 			
-			zipf.renameFile(ZipTools.toZipEntry(entry.getFile()), newname);
-			dstpath = Path.of(newname);
-			final var srcpath = entry.getFile();
-			entry.rename(newname, PathAbstractor.getRelativePath(session, dstpath).toString());
-			Log.debug(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), srcpath, parent.container.getFile().getName(), dstpath));
-			return true;
+			final var fh = zipf.getFileHeader(entry.getFile());
+			if(fh != null)
+			{
+				zipf.renameFile(fh, newname);
+				dstpath = Path.of(newname);
+				final var srcpath = entry.getFile();
+				entry.rename(newname, PathAbstractor.getRelativePath(session, dstpath).toString());
+				Log.debug(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), srcpath, parent.container.getFile().getName(), dstpath));
+				return true;
+			}
+			else
+				Log.err(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), newname));
 		}
 		catch(final Exception e)
 		{
