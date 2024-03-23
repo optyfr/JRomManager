@@ -516,30 +516,30 @@ public final class DirScan extends PathAbstractor
 
 	}
 
-	private SimpleFileVisitor<Path> listFilesVisitor(final File dir, final ProgressHandler handler, final Path path,
+	private SimpleFileVisitor<Path> listFilesVisitor(final File dir, final ProgressHandler handler, final Path rootPath,
 			final ScanOptions options, final AtomicInteger i) {
 		return new SimpleFileVisitor<Path>() {
 			
 			@Override
-			public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) throws IOException {
+			public FileVisitResult visitFile(Path entryPath, BasicFileAttributes entryAttrs) throws IOException {
 				if (handler.isCancel())
 					return FileVisitResult.TERMINATE;
-				if (path.equals(p))
+				if (rootPath.equals(entryPath))
 					return FileVisitResult.CONTINUE;
-				final var file = p.toFile();
+				final var entryFile = entryPath.toFile();
 				try {
 					if (options.isDest) {
 						if (exclusions.stream().anyMatch(pm -> {
-							final var match = pm.getValue().matches(p);
-							if(pm.getValue().matches(p))
-								Log.info(() -> "match for exclusion %s on %s, will skip...".formatted(pm.getKey(), p.toString()));
+							final var match = pm.getValue().matches(entryPath);
+							if(pm.getValue().matches(entryPath))
+								Log.info(() -> "match for exclusion %s on %s, will skip...".formatted(pm.getKey(), entryPath.toString()));
 							return match;
 						}))
 							return FileVisitResult.CONTINUE;
-						listFilesDest(file, attrs);
+						listFilesDest(entryFile, entryAttrs);
 					} else
-						listFilesSrc(path, p, file, attrs, options);
-					handler.setProgress(path.relativize(p).toString(), -1); // $NON-NLS-1$
+						listFilesSrc(rootPath, entryPath, entryFile, entryAttrs, options);
+					handler.setProgress(rootPath.relativize(entryPath).toString(), -1); // $NON-NLS-1$
 					handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), //$NON-NLS-1$
 							getRelativePath(dir.toPath()), i.incrementAndGet()), 0);
 				} catch (final IOException e) {
@@ -548,7 +548,7 @@ public final class DirScan extends PathAbstractor
 					handler.doCancel();
 				}
 
-				handler.setProgress(path.relativize(p).toString(), -1); // $NON-NLS-1$
+				handler.setProgress(rootPath.relativize(entryPath).toString(), -1); // $NON-NLS-1$
 				handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), //$NON-NLS-1$
 						getRelativePath(dir.toPath()), i.incrementAndGet()), 0);
 				return FileVisitResult.CONTINUE;
@@ -559,97 +559,107 @@ public final class DirScan extends PathAbstractor
 	/**
 	 * @param includeEmptyDirs
 	 * @param archivesAndChdAsRoms
-	 * @param path
-	 * @param p
-	 * @param file
-	 * @param attr
+	 * @param rootPath
+	 * @param entryPath
+	 * @param entryFile
+	 * @param entryAttr
 	 * @throws IOException
 	 */
-	private void listFilesSrc(final Path path, Path p, final File file, final BasicFileAttributes attr, ScanOptions options) throws IOException
+	private void listFilesSrc(final Path rootPath, Path entryPath, final File entryFile, final BasicFileAttributes entryAttr, ScanOptions options) throws IOException
 	{
 		/*
 		 * With src type dir, we need to find each potential container end points while walking into the entire hierarchy   
 		 */
-		if(attr.isRegularFile()) // We test only regular files even for directory containers (must contains at least 1 file)
+		if(entryAttr.isRegularFile()) // We test only regular files even for directory containers (must contains at least 1 file)
 		{
-			val type = Container.getType(file);
-			if(type == Type.UNK || options.archivesAndChdAsRoms)	// maybe we did found a potential directory container with unknown type files inside)
+			val entryType = Container.getType(entryFile);
+			if(entryType == Type.UNK || options.archivesAndChdAsRoms)	// maybe we did found a potential directory container with unknown type files inside)
 			{
-				if(path.equals(file.getParentFile().toPath()))	// skip if parent is the entry point
+				if(rootPath.equals(entryFile.getParentFile().toPath()))	// skip if parent is the entry point
 				{
-					listFilesSrcUnknown(file, attr, type);
+					listFilesSrcUnknown(entryFile, entryAttr, entryType);
 				}
 				else
 				{
-					listFilesSrcParentDir(path, p, file, attr);
+					listFilesSrcParentDir(rootPath, entryPath, entryFile, entryAttr);
 				}
 			}
 			else	// otherwise it's an archive file
 			{
-				listFilesSrcArchive(path, p, file, attr);
+				listFilesSrcArchive(rootPath, entryPath, entryFile, entryAttr);
 			}
 		}
 		else if(options.includeEmptyDirs)
 		{
-			listFilesSrcEmptyDir(path, p, file, attr);
+			listFilesSrcEmptyDir(rootPath, entryPath, entryFile, entryAttr);
 		}
 	}
 
 	/**
-	 * @param path
-	 * @param p
-	 * @param file
-	 * @param attr
+	 * @param rootPath
+	 * @param entryPath
+	 * @param entryFile
+	 * @param entryAttrs
 	 * @throws IOException
 	 */
-	private void listFilesSrcEmptyDir(final Path path, Path p, final File file, final BasicFileAttributes attr) throws IOException
+	private void listFilesSrcEmptyDir(final Path rootPath, Path entryPath, final File entryFile, final BasicFileAttributes entryAttrs) throws IOException
 	{
-		Container c;
-		try(DirectoryStream<Path> dirstream = Files.newDirectoryStream(p))
+		try(DirectoryStream<Path> dirstream = Files.newDirectoryStream(entryPath))
 		{
 			if(!dirstream.iterator().hasNext())
 			{
-				final var relative  = path.relativize(p);
-				if(null == (c = containersByName.get(relative.toString())) || (c.getModified() != attr.lastModifiedTime().toMillis() && !c.isUp2date()))
+				final Container existingContainer;
+				final var relativePath  = rootPath.relativize(entryPath);
+				if(null == (existingContainer = containersByName.get(relativePath.toString())) || (existingContainer.getModified() != entryAttrs.lastModifiedTime().toMillis() && !existingContainer.isUp2date()))
 				{
-					c = new Directory(file, getRelativePath(file), attr);
-					containers.add(c);
-					c.setUp2date(true);
-					containersByName.put(relative.toString(), c);
+					final var newContainer = new Directory(entryFile, getRelativePath(entryFile), entryAttrs);
+					newContainer.setUp2date(true);
+					containers.add(newContainer);
+					containersByName.put(relativePath.toString(), newContainer);
+					if (relativePath.getNameCount() > 1)	// case when parent dir is already in a subfolders of a scan directory root
+						containersByName.put(relativePath.getFileName().toString(), newContainer);
 				}
-				else if(!c.isUp2date())
+				else if(!existingContainer.isUp2date())
 				{
-					c.setUp2date(true);
-					containers.add(c);
+					existingContainer.setUp2date(true);
+					containers.add(existingContainer);
+					// case when parent dir is already in a subfolders of a scan directory root
+					if (relativePath.getNameCount() > 1)
+						containersByName.putIfAbsent(relativePath.getFileName().toString(), existingContainer); // we store the filename too for samples to be found
 				}
 			}
 		}
 	}
 
 	/**
-	 * @param path
-	 * @param p
-	 * @param file
-	 * @param attr
+	 * @param rootPath
+	 * @param entryPath
+	 * @param entryFile
+	 * @param entryAttrs
 	 * @throws IOException
 	 */
-	private void listFilesSrcParentDir(final Path path, Path p, final File file, final BasicFileAttributes attr) throws IOException
+	private void listFilesSrcParentDir(final Path rootPath, Path entryPath, final File entryFile, final BasicFileAttributes entryAttrs) throws IOException
 	{
-		Container c;
-		final var parentDir = file.getParentFile();
-		final var parentAttr = Files.readAttributes(p.getParent(), BasicFileAttributes.class);
-		final var relative  = path.relativize(p.getParent());
-		if(null == (c = containersByName.get(relative.toString())) || (c.getModified() != parentAttr.lastModifiedTime().toMillis() && !c.isUp2date()))
+		final Container existingContainer;
+		final var parentDir = entryFile.getParentFile();
+		final var parentAttr = Files.readAttributes(entryPath.getParent(), BasicFileAttributes.class);
+		final var relativePath  = rootPath.relativize(entryPath.getParent());
+		if(null == (existingContainer = containersByName.get(relativePath.toString())) || (existingContainer.getModified() != parentAttr.lastModifiedTime().toMillis() && !existingContainer.isUp2date()))
 		{
-			c = new Directory(parentDir, getRelativePath(parentDir), attr);
-			containers.add(c);
-			containersByName.put(relative.toString(), c);
-			c.setUp2date(true);
+			final var newContainer = new Directory(parentDir, getRelativePath(parentDir), entryAttrs);
+			newContainer.setUp2date(true);
+			containers.add(newContainer);
+			containersByName.put(relativePath.toString(), newContainer);
+			if (relativePath.getNameCount() > 1)	// case when parent dir is already in a subfolders of a scan directory root
+				containersByName.put(relativePath.getFileName().toString(), newContainer);
 		}
-		else if(!c.isUp2date())
+		else if(!existingContainer.isUp2date())
 		{
-			containers.add(c);
-			c.setUp2date(true);
+			existingContainer.setUp2date(true);
+			containers.add(existingContainer);
+			// case when parent dir is already in a subfolders of a scan directory root
+			if (relativePath.getNameCount() > 1)
+				containersByName.putIfAbsent(relativePath.getFileName().toString(), existingContainer); // we store the filename too for samples to be found
 		}
 	}
 
@@ -660,43 +670,48 @@ public final class DirScan extends PathAbstractor
 	 */
 	private void listFilesSrcUnknown(final File file, final BasicFileAttributes attr, final jrm.profile.data.Container.Type type)
 	{
-		Container c;
+		final Container existingContainer;
 		val fname = type == Type.UNK ? (FilenameUtils.getBaseName(file.getName()) + Ext.FAKE) : file.getName();
-		if(null == (c = containersByName.get(fname)) || (c.getModified() != attr.lastModifiedTime().toMillis() && !c.isUp2date()))
+		if(null == (existingContainer = containersByName.get(fname)) || (existingContainer.getModified() != attr.lastModifiedTime().toMillis() && !existingContainer.isUp2date()))
 		{
-			c = new FakeDirectory(file, getRelativePath(file), attr);
-			containers.add(c);
-			containersByName.put(fname, c);
-			c.setUp2date(true);
+			final var newContainer = new FakeDirectory(file, getRelativePath(file), attr);
+			newContainer.setUp2date(true);
+			containers.add(newContainer);
+			containersByName.put(fname, newContainer);
 		}
-		else if(!c.isUp2date())
+		else if(!existingContainer.isUp2date())
 		{
-			containers.add(c);
-			c.setUp2date(true);
+			existingContainer.setUp2date(true);
+			containers.add(existingContainer);
 		}
 	}
 
 	/**
-	 * @param path
-	 * @param p
+	 * @param rootPath
+	 * @param entryPath
 	 * @param file
 	 * @param attr
 	 */
-	private void listFilesSrcArchive(final Path path, Path p, final File file, final BasicFileAttributes attr)
+	private void listFilesSrcArchive(final Path rootPath, Path entryPath, final File file, final BasicFileAttributes attr)
 	{
-		Container c;
-		final var relative  = path.relativize(p);
-		if(null == (c = containersByName.get(relative.toString())) || ((c.getModified() != attr.lastModifiedTime().toMillis() || c.getSize() != attr.size()) && !c.isUp2date()))
+		final Container existingContainer;
+		final var relativePath  = rootPath.relativize(entryPath);
+		if(null == (existingContainer = containersByName.get(relativePath.toString())) || ((existingContainer.getModified() != attr.lastModifiedTime().toMillis() || existingContainer.getSize() != attr.size()) && !existingContainer.isUp2date()))
 		{
-			c = new Archive(file, getRelativePath(file), attr);
-			containers.add(c);
-			c.setUp2date(true);
-			containersByName.put(relative.toString(), c);
+			final var newContainer = new Archive(file, getRelativePath(file), attr);
+			newContainer.setUp2date(true);
+			containers.add(newContainer);
+			containersByName.put(relativePath.toString(), newContainer);
+			if (relativePath.getNameCount() > 1)	// case when archive is in a subfolders of a scan directory root
+				containersByName.put(relativePath.getFileName().toString(), newContainer);
 		}
-		else if(!c.isUp2date())
+		else if(!existingContainer.isUp2date())
 		{
-			c.setUp2date(true);
-			containers.add(c);
+			existingContainer.setUp2date(true);
+			containers.add(existingContainer);
+			// case when archive is in a subfolders of a scan directory root
+			if (relativePath.getNameCount() > 1)
+				containersByName.putIfAbsent(relativePath.getFileName().toString(), existingContainer); // we store the filename too for samples to be found
 		}
 	}
 
