@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.progress.ProgressTask;
 import jrm.misc.BreakException;
 import jrm.misc.Log;
+import jrm.misc.SettingsEnum;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.scan.Dir2Dat;
 import jrm.profile.scan.DirScan;
@@ -84,10 +86,12 @@ public class Dir2DatController extends BaseController
 		srcDirBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png")));
 		srcDirBtn.setOnAction(e -> {
 			final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
-			chooseDir(srcDirBtn, srcDir.getText(), workdir.toFile(), path -> {
+			final var lastsrcdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastsrcdir)).map(File::new).filter(File::exists).orElse(workdir.toFile());
+			chooseDir(srcDirBtn, srcDir.getText(), lastsrcdir, path -> {
 				session.getUser().getSettings().setProperty("MainFrame.ChooseDatSrc", path.toString()); //$NON-NLS-1$
 				srcDir.setText(path.toString());
 				session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, srcDir.getText()); // $NON-NLS-1$
+				session.getUser().getSettings().setProperty(SettingsEnum.dir2dat_lastsrcdir, Optional.ofNullable(path).map(Path::toFile).map(File::getParent).orElse(null));
 			});
 		});
 		new DragNDrop(dstDat).addNewFile(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt));
@@ -95,10 +99,12 @@ public class Dir2DatController extends BaseController
 		dstDatBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png")));
 		dstDatBtn.setOnAction(e -> {
 			final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
-			chooseSaveFile(dstDatBtn, dstDat.getText(), workdir.toFile(), Collections.singletonList(new FileChooser.ExtensionFilter("Dat file","*.xml","*.dat")), path -> {
+			final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastdstdir)).map(File::new).filter(File::exists).orElse(workdir.toFile());
+			chooseSaveFile(dstDatBtn, dstDat.getText(), lastdstdir, Collections.singletonList(new FileChooser.ExtensionFilter("Dat file","*.xml","*.dat")), path -> {
 				session.getUser().getSettings().setProperty("MainFrame.ChooseDatDst", path.toString()); //$NON-NLS-1$
 				dstDat.setText(path.toString());
 				session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, dstDat.getText()); // $NON-NLS-1$
+				session.getUser().getSettings().setProperty(SettingsEnum.dir2dat_lastdstdir, Optional.ofNullable(path).map(Path::toFile).map(File::getParent).orElse(null));
 			});
 		});
 		format.selectToggle(switch(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format)))

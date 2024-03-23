@@ -22,18 +22,26 @@ public enum SettingsEnum implements EnumWithDefault
 	sevenzip_threads(-1), // NOSONAR
 	debug_nocache(false), // NOSONAR
 	debug_level(Log.getLevel()), // NOSONAR
+	dat2dir_lastsrcdir(null, "dat2dir.lastsrcdir"), // NOSONAR
+	dat2dir_lastdstdatdir(null, "dat2dir.lastdstdatdir"), // NOSONAR
+	dat2dir_lastdstdir(null, "dat2dir.lastdstdir"), // NOSONAR
 	dat2dir_srcdirs("", "dat2dir.srcdirs"), // NOSONAR
 	dat2dir_sdr("[]", "dat2dir.sdr"), // NOSONAR
 	dat2dir_dry_run(false, "dat2dir.dry_run"), // NOSONAR
+	trntchk_lasttrntdir(null, "trntchk.lasttrntdir"), // NOSONAR
+	trntchk_lastdstdir(null, "trntchk.lastdstdir"), // NOSONAR
 	trntchk_sdr("[]", "trntchk.sdr"), // NOSONAR
 	trntchk_mode(TrntChkMode.FILENAME, "trntchk.mode"), // NOSONAR
 	trntchk_detect_archived_folders(false, "trntchk.detect_archived_folders"), // NOSONAR
 	trntchk_remove_unknown_files(false, "trntchk.remove_unknown_files"), // NOSONAR
 	trntchk_remove_wrong_sized_files(false, "trntchk.remove_wrong_sized_files"), // NOSONAR
+	compressor_lastdir(null, "compressor.lastdir"), // NOSONAR
 	compressor_format(CompressorFormat.TZIP, "compressor.format"), // NOSONAR
 	compressor_force(false, "compressor.force"), // NOSONAR
 	compressor_parallelism(true, "compressor.parallelism"), // NOSONAR
+	dir2dat_lastsrcdir(null, "dir2dat.lastsrcdir"), // NOSONAR
 	dir2dat_src_dir(null, "dir2dat.src_dir"), // NOSONAR
+	dir2dat_lastdstdir(null, "dir2dat.lastdstdir"), // NOSONAR
 	dir2dat_dst_file(null, "dir2dat.dst_file"), // NOSONAR
 	dir2dat_format("MAME", "dir2dat.format"), // NOSONAR
 	dir2dat_scan_subfolders(true, "dir2dat.scan_subfolders"), // NOSONAR

@@ -586,8 +586,10 @@ public class BatchToolsPanelController extends BaseController
 			tvBatchToolsDat2DirSrc.getItems().removeAll(tvBatchToolsDat2DirSrc.getSelectionModel().getSelectedItems());
 			saveDat2DirSrc();
 		});
-		mnDat2DirAddSrcDir.setOnAction(e -> chooseDir(tvBatchToolsDat2DirSrc, null, null, dir -> {
+		final var lastsrcdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastsrcdir)).map(File::new).filter(File::exists).orElse(null);
+		mnDat2DirAddSrcDir.setOnAction(e -> chooseDir(tvBatchToolsDat2DirSrc, null, lastsrcdir, dir -> {
 			tvBatchToolsDat2DirSrc.getItems().add(dir.toFile());
+			session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastsrcdir, dir.toFile().getParent());
 			saveDat2DirSrc();
 		}));
 	}
@@ -823,27 +825,33 @@ public class BatchToolsPanelController extends BaseController
 	
 	@FXML void onAddDat2DirDstDat(ActionEvent e)
 	{
-		chooseOpenFileMulti(tvBatchToolsDat2DirDst, null, null, Arrays.asList(new FileChooser.ExtensionFilter("DAT files", "*.dat", "*.xml")), paths -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
+		final var lastdstdatdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastdstdatdir)).map(File::new).filter(File::exists).filter(File::isDirectory).orElse(null);
+		chooseOpenFileMulti(tvBatchToolsDat2DirDst, null, lastdstdatdir, Arrays.asList(new FileChooser.ExtensionFilter("DAT files", "*.dat", "*.xml")), paths -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastdstdatdir, files.stream().map(File::getParent).findFirst().orElse(null));
 			saveDat2DirDst();
 		}));
 	}
 
 	@FXML void onAddDat2DirDstDatDir(ActionEvent e)
 	{
-		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
+		final var lastdstdatdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastdstdatdir)).map(File::new).filter(File::exists).filter(File::isDirectory).orElse(null);
+		chooseDir(tvBatchToolsDat2DirDst, null, lastdstdatdir, path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastdstdatdir, files.stream().map(File::getParent).findFirst().orElse(null));
 			saveDat2DirDst();
 		}));
 	}
 	
 	@FXML void onAddDat2DirDstDir(ActionEvent e)
 	{
-		chooseDir(tvBatchToolsDat2DirDst, null, null, path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
+		final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastdstdir)).map(File::new).filter(File::exists).filter(File::isDirectory).orElse(null);
+		chooseDir(tvBatchToolsDat2DirDst, null, lastdstdir, path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastdstdir, files.stream().map(File::getParent).findFirst().orElse(null));
 			saveDat2DirDst();
 		}));
 	}
@@ -862,18 +870,22 @@ public class BatchToolsPanelController extends BaseController
 	
 	@FXML void onAddTorrent(ActionEvent e)
 	{
-		chooseOpenFileMulti(tvBatchToolsTorrent, null, null, Arrays.asList(new FileChooser.ExtensionFilter("Torrent files", "*.torrent")), paths -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
+		final var lasttrntdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_lasttrntdir)).map(File::new).filter(File::exists).filter(File::isDirectory).orElse(null);
+		chooseOpenFileMulti(tvBatchToolsTorrent, null, lasttrntdir, Arrays.asList(new FileChooser.ExtensionFilter("Torrent files", "*.torrent")), paths -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			session.getUser().getSettings().setProperty(SettingsEnum.trntchk_lasttrntdir, files.stream().map(File::getParent).findFirst().orElse(null));
 			saveTorrentDst();
 		}));
 	}
 	
 	@FXML void onAddTorrentDstDir(ActionEvent e)
 	{
-		chooseDir(tvBatchToolsTorrent, null, null, path -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
+		final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_lastdstdir)).map(File::new).filter(File::exists).filter(File::isDirectory).orElse(null);
+		chooseDir(tvBatchToolsTorrent, null, lastdstdir, path -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
 				sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+			session.getUser().getSettings().setProperty(SettingsEnum.trntchk_lastdstdir, files.stream().map(File::getParent).findFirst().orElse(null));
 			saveTorrentDst();
 		}));
 	}
@@ -887,7 +899,11 @@ public class BatchToolsPanelController extends BaseController
 
 	@FXML void onAddArchive(ActionEvent e)
 	{
-		chooseOpenFileMulti(tvBatchToolsCompressor, null, null, Arrays.asList(new FileChooser.ExtensionFilter("Archive files", "*.zip", "*.7z", "*.rar", "*.arj", "*.tar", "*.lzh", "*.lha", "*.tgz", "*.tbz", "*.tbz2", "*.rpm", "*.iso", "*.deb", "*.cab")), paths -> paths.stream().map(FileResult::new).forEachOrdered(tvBatchToolsCompressor.getItems()::add));
+		final var lastdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.compressor_lastdir)).map(File::new).filter(File::exists).filter(File::isDirectory).orElse(null);
+		chooseOpenFileMulti(tvBatchToolsCompressor, null, lastdir, Arrays.asList(new FileChooser.ExtensionFilter("Archive files", "*.zip", "*.7z", "*.rar", "*.arj", "*.tar", "*.lzh", "*.lha", "*.tgz", "*.tbz", "*.tbz2", "*.rpm", "*.iso", "*.deb", "*.cab")), paths -> {
+			paths.stream().map(FileResult::new).forEachOrdered(tvBatchToolsCompressor.getItems()::add);
+			session.getUser().getSettings().setProperty(SettingsEnum.compressor_lastdir, paths.stream().map(Path::toFile).map(File::getParent).findFirst().orElse(null));
+		});
 	}
 	
 	@FXML void onDelArchive(ActionEvent e)

@@ -18,6 +18,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -317,7 +318,10 @@ public class ProfilePanelController implements Initializable
 		chooser.getExtensionFilters().addAll(filter, filter2);
 		chooser.setSelectedExtensionFilter(filter);
 		Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToImport", workdir.getAbsolutePath())).map(File::new).ifPresent(chooser::setInitialDirectory);
-		importDat(chooser.showOpenMultipleDialog(profilesList.getScene().getWindow()), sl);
+		final var files = chooser.showOpenMultipleDialog(profilesList.getScene().getWindow());
+		importDat(files, sl);
+		if (files != null)
+			session.getUser().getSettings().setProperty("MainFrame.ChooseExeOrDatToImport", files.stream().filter(File::exists).map(File::getParent).findFirst().orElse(null));
 	}
 	
 	private final class ImportDatTask extends ProgressTask<Void>

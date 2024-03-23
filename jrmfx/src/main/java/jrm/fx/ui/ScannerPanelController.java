@@ -802,10 +802,10 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	private void chooseAnyDest(TextField tf, ProfileSettingsEnum ppt, String defPptName)
 	{
 		final var workdir = session.getUser().getSettings().getWorkPath().toFile();
-		final var defdir = PathAbstractor.getAbsolutePath(session, session.getCurrProfile().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
+		final var defdir = PathAbstractor.getAbsolutePath(session, session.getUser().getSettings().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
 		chooseDir(tf, tf.getText(), defdir, dir -> {
 			tf.setText(dir.toString());
-			session.getCurrProfile().setProperty(defPptName, tf.getText()); // $NON-NLS-1$
+			session.getUser().getSettings().setProperty(defPptName, tf.getText()); // $NON-NLS-1$
 			session.getCurrProfile().setProperty(ppt, tf.getText()); // $NON-NLS-1$
 		});
 	}
@@ -813,7 +813,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	private void chooseSrc(File oldDir, ProfileSettingsEnum ppt, String defPptName)
 	{
 		final var workdir = session.getUser().getSettings().getWorkPath().toFile();
-		final var defdir = PathAbstractor.getAbsolutePath(session, session.getCurrProfile().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
+		final var defdir = PathAbstractor.getAbsolutePath(session, session.getUser().getSettings().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
 		chooseDir(srcList, oldDir!=null?oldDir.toString():null, defdir, dir -> {
 			var modified = false;
 			if(oldDir!=null)
@@ -836,7 +836,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			if(modified)
 			{
 				saveSrcList();
-				session.getCurrProfile().setProperty(defPptName, dir.toString()); // $NON-NLS-1$
+				session.getUser().getSettings().setProperty(defPptName, dir.toString()); // $NON-NLS-1$
 			}
 		});
 	}
