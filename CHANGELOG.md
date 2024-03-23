@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [3.0.0]
+### Added/Changed
+- See all previous 3.0.0 beta versions
+
+### Fixed
+- Save and load last used dir for each file chooser usage on javafx version
+- Mame samples were missed when in subfolders of src dirs (and there is no hash to retrieve them)
+- Occasional problem when renaming an entry in a zip archive
+- Some unneeded containers were not removed
+- Reports were not sorted
+
+
 ## [3.0.0-beta.20]
 ### Added
 - Selection per machine/software in profile viewer is now saved in profile settings and so : can be exported/imported. This new feature will greatly increase .properties size (from a few KB to a few MB) and *may* impact a bit on profile loading/saving performance on small systems
@@ -489,7 +501,8 @@ dir but one is not present (should be green)
 Initial release
 
 
-[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.20...HEAD
+[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.0...HEAD
+[3.0.0]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.20...3.0.0
 [3.0.0-beta.20]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.19...3.0.0-beta.20
 [3.0.0-beta.19]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.18...3.0.0-beta.19
 [3.0.0-beta.18]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.17...3.0.0-beta.18
