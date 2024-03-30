@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [3.0.1]
+### Fixed
+- Urgent fix for "Comparison method violates its general contract!" on Report entries sorting 
+
 ## [3.0.0]
 ### Added/Changed
 - See all previous 3.0.0 beta versions
@@ -501,7 +505,8 @@ dir but one is not present (should be green)
 Initial release
 
 
-[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.0...HEAD
+[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.1...HEAD
+[3.0.1]: https://github.com/optyfr/JRomManager/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.20...3.0.0
 [3.0.0-beta.20]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.19...3.0.0-beta.20
 [3.0.0-beta.19]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.18...3.0.0-beta.19

@@ -164,10 +164,14 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
 
 	public static Comparator<Subject> getComparator()
 	{
-		return (s1,s2) -> {
-			if(s1.ware == null)
+		return (s1, s2) -> {
+			if (s1.ware == null)
+			{
+				if (s2.ware == null)
+					return 0;
 				return -1;
-			else if(s2.ware == null)
+			}
+			if (s2.ware == null)
 				return 1;
 			return s1.ware.getName().compareToIgnoreCase(s2.ware.getName());
 		};
