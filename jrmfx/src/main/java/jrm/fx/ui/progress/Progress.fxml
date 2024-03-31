@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<GridPane hgap="2.0" prefHeight="300.0" prefWidth="600.0" vgap="2.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.progress.ProgressController">
+<GridPane hgap="2.0" prefHeight="300.0" prefWidth="600.0" stylesheets="@../MainFrame.css" vgap="2.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.progress.ProgressController">
    <rowConstraints>
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
       <RowConstraints />
@@ -33,11 +33,7 @@
       <AnchorPane maxWidth="1.7976931348623157E308" GridPane.rowIndex="1">
          <children>
             <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-            <Label fx:id="progressBarLbl" alignment="CENTER" maxWidth="1.7976931348623157E308" text="0%" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <font>
-                  <Font size="10.0" />
-               </font>
-            </Label>
+            <Label fx:id="progressBarLbl" alignment="CENTER" maxWidth="1.7976931348623157E308" text="0%" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
          </children>
       </AnchorPane>
       <Label fx:id="lblTimeleft" alignment="CENTER" text="--:--:--" GridPane.columnIndex="1" GridPane.rowIndex="1">
@@ -48,22 +44,14 @@
       <AnchorPane maxWidth="1.7976931348623157E308" GridPane.rowIndex="2">
          <children>
             <ProgressBar fx:id="progressBar2" maxWidth="1.7976931348623157E308" progress="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-            <Label fx:id="progressBarLbl2" alignment="CENTER" maxWidth="1.7976931348623157E308" text="0%" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <font>
-                  <Font size="10.0" />
-               </font>
-            </Label>
+            <Label fx:id="progressBarLbl2" alignment="CENTER" maxWidth="1.7976931348623157E308" text="0%" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
          </children>
       </AnchorPane>
       <Label fx:id="lblTimeleft2" alignment="CENTER" text="--:--:--" GridPane.columnIndex="1" GridPane.rowIndex="2" />
       <AnchorPane maxWidth="1.7976931348623157E308" GridPane.rowIndex="3">
          <children>
             <ProgressBar fx:id="progressBar3" maxWidth="1.7976931348623157E308" progress="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-            <Label fx:id="progressBarLbl3" alignment="CENTER" maxWidth="1.7976931348623157E308" text="0%" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <font>
-                  <Font size="10.0" />
-               </font>
-            </Label>
+            <Label fx:id="progressBarLbl3" alignment="CENTER" maxWidth="1.7976931348623157E308" text="0%" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
          </children>
       </AnchorPane>
       <Label fx:id="lblTimeleft3" alignment="CENTER" text="--:--:--" GridPane.columnIndex="1" GridPane.rowIndex="3" />

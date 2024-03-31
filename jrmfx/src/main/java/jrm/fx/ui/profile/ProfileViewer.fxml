@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 
-<Scene xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.ProfileViewerController">
+<Scene stylesheets="@../MainFrame.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.ProfileViewerController">
    <root>
       <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0">
          <items>
@@ -26,7 +26,7 @@
                           <columns>
                             <TableColumn fx:id="tableWLName" editable="false" prefWidth="70.0" sortable="false" text="%SoftwareListListRenderer.Name" />
                             <TableColumn fx:id="tableWLDesc" editable="false" prefWidth="150.0" sortable="false" text="%SoftwareListListRenderer.Description" />
-                              <TableColumn fx:id="tableWLHave" editable="false" maxWidth="80.0" minWidth="80.0" resizable="false" sortable="false" text="%SoftwareListListRenderer.Have" />
+                              <TableColumn fx:id="tableWLHave" editable="false" maxWidth="160.0" minWidth="80.0" sortable="false" text="%SoftwareListListRenderer.Have" />
                           </columns>
                           <contextMenu>
                             <ContextMenu fx:id="menuWL">
@@ -76,7 +76,7 @@
                   </BorderPane>
                   <BorderPane prefHeight="200.0" prefWidth="200.0">
                      <center>
-                        <TableView fx:id="tableW" prefHeight="200.0" prefWidth="200.0">
+                        <TableView fx:id="tableW" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true">
                           <contextMenu>
                             <ContextMenu fx:id="menuW">
                               <items>
@@ -87,6 +87,9 @@
                               </items>
                             </ContextMenu>
                           </contextMenu>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
                         </TableView>
                      </center>
                      <bottom>
@@ -97,7 +100,7 @@
                               <ToggleButton fx:id="toggleWPartial" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
                               <ToggleButton fx:id="toggleWComplete" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#folderFilter" selected="true" />
                               <Region maxHeight="-Infinity" minHeight="-Infinity" prefHeight="10.0" HBox.hgrow="ALWAYS" />
-                              <TextField fx:id="search" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="100.0" prefHeight="24.0" prefWidth="200.0" promptText="Search" HBox.hgrow="SOMETIMES" />
+                              <TextField fx:id="search" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="200.0" promptText="Search" HBox.hgrow="SOMETIMES" />
                            </children>
                            <padding>
                               <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
@@ -109,16 +112,16 @@
             </SplitPane>
             <BorderPane prefHeight="200.0" prefWidth="200.0">
                <center>
-                  <TableView fx:id="tableEntity" prefHeight="200.0" prefWidth="200.0">
+                  <TableView fx:id="tableEntity" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true">
                     <columns>
-                      <TableColumn fx:id="tableEntityStatus" editable="false" minWidth="20.0" prefWidth="20.0" resizable="false" sortable="false" text="%AnywareRenderer.Status" />
+                      <TableColumn fx:id="tableEntityStatus" editable="false" minWidth="24.0" prefWidth="24.0" resizable="false" sortable="false" text="%AnywareRenderer.Status" />
                       <TableColumn fx:id="tableEntityName" editable="false" minWidth="100.0" prefWidth="256.0" text="%AnywareRenderer.Name" />
-                        <TableColumn fx:id="tableEntitySize" editable="false" minWidth="72.0" prefWidth="72.0" resizable="false" text="%AnywareRenderer.Size" />
-                        <TableColumn fx:id="tableEntityCRC" editable="false" minWidth="60.0" prefWidth="60.0" resizable="false" text="%AnywareRenderer.CRC" />
-                        <TableColumn fx:id="tableEntityMD5" editable="false" minWidth="204.0" prefWidth="204.0" resizable="false" text="%AnywareRenderer.MD5" />
-                        <TableColumn fx:id="tableEntitySHA1" editable="false" minWidth="252.0" prefWidth="252.0" resizable="false" text="%AnywareRenderer.SHA-1" />
+                        <TableColumn fx:id="tableEntitySize" editable="false" minWidth="72.0" prefWidth="72.0" text="%AnywareRenderer.Size" />
+                        <TableColumn fx:id="tableEntityCRC" editable="false" minWidth="60.0" prefWidth="60.0" text="%AnywareRenderer.CRC" />
+                        <TableColumn fx:id="tableEntityMD5" editable="false" minWidth="204.0" prefWidth="204.0" text="%AnywareRenderer.MD5" />
+                        <TableColumn fx:id="tableEntitySHA1" editable="false" minWidth="252.0" prefWidth="252.0" text="%AnywareRenderer.SHA-1" />
                         <TableColumn fx:id="tableEntityMergeName" editable="false" minWidth="50.0" prefWidth="100.0" text="%AnywareRenderer.Merge" />
-                        <TableColumn fx:id="tableEntityDumpStatus" editable="false" minWidth="20.0" prefWidth="20.0" resizable="false" sortable="false" text="%AnywareRenderer.DumpStatus" />
+                        <TableColumn fx:id="tableEntityDumpStatus" editable="false" minWidth="24.0" prefWidth="24.0" resizable="false" sortable="false" text="%AnywareRenderer.DumpStatus" />
                     </columns>
                     <contextMenu>
                         <ContextMenu fx:id="menuEntity">
@@ -130,6 +133,9 @@
                           </items>
                         </ContextMenu>
                     </contextMenu>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
                   </TableView>
                </center>
                <bottom>

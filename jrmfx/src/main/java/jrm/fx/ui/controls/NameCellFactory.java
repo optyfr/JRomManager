@@ -1,5 +1,6 @@
 package jrm.fx.ui.controls;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.text.Font;
@@ -22,7 +23,6 @@ public class NameCellFactory<T> extends TextFieldTableCell<T, T>
 	@Override
 	public void updateItem(T item, boolean empty)
 	{
-		setFont(new Font(10));
 		super.updateItem(item, empty);
 		if (empty)
 			setText("");
@@ -32,6 +32,9 @@ public class NameCellFactory<T> extends TextFieldTableCell<T, T>
 			setTooltip(new Tooltip(item.toString()));
 		}
 		setGraphic(null);
+		styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
+	//	setStyle("");
+	//	setStyle("-fx-text-fill: #000000;-fx-font-size: .75em;");
 	//	setStyle("");
 	}
 }

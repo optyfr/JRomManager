@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValueBase;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -35,13 +36,11 @@ public class BatchDirUpd8rResultsController extends BaseController
 	@FXML private TableColumn<DirUpdaterResult, DirUpdaterResult> reportCol;
 	@FXML private Button ok;
 
-	private Font font = new Font(10);
-	
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		ok.setOnAction(e -> ok.getScene().getWindow().hide());
-		resultList.setFixedCellSize(18);
+		//resultList.setFixedCellSize(18);
 		resultList.setSelectionModel(null);
 		datCol.setCellFactory(param -> new TableCell<>() {
 			@Override
@@ -57,7 +56,7 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setTooltip(new Tooltip(item));
 				}
 				setMinHeight(15);
-				setFont(font);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -84,7 +83,7 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setTooltip(new Tooltip(item.toString()));
 				}
 				setMinHeight(15);
-				setFont(font);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -111,7 +110,7 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setTooltip(new Tooltip(item.toString()));
 				}
 				setMinHeight(15);
-				setFont(font);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -138,7 +137,7 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setTooltip(new Tooltip(item.toString()));
 				}
 				setMinHeight(15);
-				setFont(font);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -165,7 +164,7 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setTooltip(new Tooltip(item.toString()));
 				}
 				setMinHeight(15);
-				setFont(font);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -191,7 +190,7 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setTooltip(new Tooltip(item.toString()));
 				}
 				setMinHeight(15);
-				setFont(font);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});

@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ButtonType;
@@ -124,6 +125,7 @@ public class ReportViewController implements Initializable
 				setGraphic(null);
 				setText(item.toString());
 			}
+			styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 		}
 
 		/**
@@ -175,9 +177,9 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var en = new Text(s.getEntry().getName());
-			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			final var enn = new Text(s.getEntity().getNormalizedName());
-			enn.setFont(Font.font(enn.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, enn.getFont().getSize()));
+			enn.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			setGraphic(new HBox(i, new Text(ewrongname[0]), n, new Text(ewrongname[1]), en, new Text(ewrongname[2]), enn, new Text(ewrongname[3])));
 			setText(null);
 		}
@@ -191,7 +193,7 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var ef = new Text(s.getEntry().getRelFile());
-			ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
+			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			final String hashname;
 			final String ehash;
 			final String hash;
@@ -226,7 +228,7 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var ef = new Text(s.getEntry().getRelFile());
-			ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
+			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			final String hash;
 			if (s.getEntry().getSha1() != null)
 				hash = s.getEntry().getSha1();
@@ -247,7 +249,7 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var en = new Text(s.getEntity().getNormalizedName());
-			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			setGraphic(new HBox(i, new Text(eok[0]), n, new Text(eok[1]), en, new Text(eok[2])));
 			setText(null);
 		}
@@ -261,9 +263,9 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var ef = new Text(s.getEntry().getRelFile());
-			ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
+			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			final var en = new Text(s.getEntity().getName());
-			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			setGraphic(new HBox(i, new Text(emissingdup[0]), n, new Text(emissingdup[1]), ef, new Text(emissingdup[2]), en));
 			setText(null);
 		}
@@ -277,7 +279,7 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var en = new Text(s.getEntity().getName());
-			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			if (s.getEntity() instanceof Entity e)
 			{
 				final String hash;
@@ -303,11 +305,11 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var en = new Text(s.getEntity().getNormalizedName());
-			en.setFont(Font.font(en.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, en.getFont().getSize()));
+			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			final var ep = new Text(s.getEntry().getParent().getRelFile().toString());
-			ep.setFont(Font.font(ep.getFont().getFamily(), FontPosture.ITALIC, ep.getFont().getSize()));
+			ep.styleProperty().bind(new SimpleStringProperty("-fx-font-style: italic;"));
 			final var ef = new Text(s.getEntry().getRelFile());
-			ef.setFont(Font.font(ef.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, ef.getFont().getSize()));
+			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			setGraphic(new HBox(i, new Text(eadd[0]), n, new Text(eadd[1]), en, new Text(eadd[2]), ep, new Text(eadd[3]), ef));
 			setText(null);
 		}
@@ -414,7 +416,7 @@ public class ReportViewController implements Initializable
 			root.getChildren().add(sitem);
 		});
 		treeview.setShowRoot(false);
-		treeview.setFixedCellSize(20);
+		//treeview.setFixedCellSize(20);
 		treeview.setCellFactory(p -> new ReportTreeCell());
 		treeview.setRoot(root);
 	}

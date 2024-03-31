@@ -2,9 +2,8 @@
 
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.layout.AnchorPane?>
 
-<TabPane fx:id="tabPane" prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.MainFrameController">
+<TabPane fx:id="tabPane" prefHeight="400.0" prefWidth="800.0" stylesheets="@MainFrame.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.MainFrameController">
    <tabs>
       <Tab fx:id="profilePanelTab" closable="false" text="%MainFrame.Profiles">
          <content>

@@ -20,6 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -162,8 +163,6 @@ public class ProfileViewerController implements Initializable
 	
 	private Session session = Sessions.getSingleSession();
 	
-	private static final Font monospaced = Font.font("Monospaced", 10);
-
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -198,7 +197,8 @@ public class ProfileViewerController implements Initializable
 					}));
 				}
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-				setFont(new Font(10));
+				setAlignment(Pos.CENTER);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableEntityStatus.setCellValueFactory(p -> new ObservableValueBase<EntityBase>()
@@ -233,12 +233,14 @@ public class ProfileViewerController implements Initializable
 					else if(item instanceof Sample)
 						setGraphic(new ImageView(sound));
 				}
-				setFont(new Font(10));
+				setAlignment(Pos.CENTER_LEFT);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableEntityName.setCellValueFactory(tableEntityStatus.getCellValueFactory());
 		tableEntitySize.setMinWidth(getWidth(12));
 		tableEntitySize.setPrefWidth(tableEntitySize.getMinWidth());
+		tableEntitySize.setMaxWidth(tableEntitySize.getMinWidth()*2);
 		tableEntitySize.setCellFactory(p -> new TableCell<EntityBase, Long>()
 		{
 			@Override
@@ -248,7 +250,7 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item.toString());
-				setFont(new Font(10));
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setTextAlignment(TextAlignment.RIGHT);
 				setAlignment(Pos.CENTER_RIGHT);
 				setGraphic(null);
@@ -264,8 +266,9 @@ public class ProfileViewerController implements Initializable
 				return null;
 			}
 		});
-		tableEntityCRC.setMinWidth(getWidth(10, monospaced));
+		tableEntityCRC.setMinWidth(getWidth(10, "monospaced"));
 		tableEntityCRC.setPrefWidth(tableEntityCRC.getMinWidth());
+		tableEntityCRC.setMaxWidth(tableEntityCRC.getMinWidth()*2);
 		tableEntityCRC.setCellFactory(p -> new TableCell<EntityBase, String>()
 		{
 			@Override
@@ -275,7 +278,8 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item);
-				setFont(monospaced);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced; -fx-font-size: .75em;"));
+				setAlignment(Pos.CENTER_LEFT);
 				setGraphic(null);
 			}
 		});
@@ -291,8 +295,9 @@ public class ProfileViewerController implements Initializable
 				return null;
 			}
 		});
-		tableEntityMD5.setMinWidth(getWidth(34, monospaced));
+		tableEntityMD5.setMinWidth(getWidth(34, "monospaced"));
 		tableEntityMD5.setPrefWidth(tableEntityMD5.getMinWidth());
+		tableEntityMD5.setMaxWidth(tableEntityMD5.getMinWidth()*2);
 		tableEntityMD5.setCellFactory(p -> new TableCell<EntityBase, String>()
 		{
 			@Override
@@ -302,7 +307,8 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item);
-				setFont(monospaced);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced; -fx-font-size: .75em;"));
+				setAlignment(Pos.CENTER_LEFT);
 				setGraphic(null);
 			}
 		});
@@ -318,8 +324,9 @@ public class ProfileViewerController implements Initializable
 				return null;
 			}
 		});
-		tableEntitySHA1.setMinWidth(getWidth(42, monospaced));
+		tableEntitySHA1.setMinWidth(getWidth(42, "monospaced"));
 		tableEntitySHA1.setPrefWidth(tableEntitySHA1.getMinWidth());
+		tableEntitySHA1.setMaxWidth(tableEntitySHA1.getMinWidth()*2);
 		tableEntitySHA1.setCellFactory(p -> new TableCell<EntityBase, String>()
 		{
 			@Override
@@ -329,7 +336,8 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item);
-				setFont(monospaced);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced; -fx-font-size: .75em;"));
+				setAlignment(Pos.CENTER_LEFT);
 				setGraphic(null);
 			}
 		});
@@ -384,7 +392,8 @@ public class ProfileViewerController implements Initializable
 					}));
 				}
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-				setFont(new Font(10));
+				setAlignment(Pos.CENTER);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableEntityDumpStatus.setCellValueFactory(p -> new ObservableValueBase<Entity.Status>()
@@ -512,10 +521,10 @@ public class ProfileViewerController implements Initializable
 	 */
 	private void initTableW()
 	{
-		tableW.setFixedCellSize(18);
+		tableW.setFixedCellSize(-1);
 		tableWMStatus.setResizable(false);
 		tableWMStatus.setSortable(false);
-		tableWMStatus.setPrefWidth(20);
+		tableWMStatus.setPrefWidth(24);
 		tableWMStatus.setCellFactory(p -> new TableCell<Anyware, Anyware>()
 		{
 			@Override
@@ -525,8 +534,9 @@ public class ProfileViewerController implements Initializable
 					setGraphic(null);
 				else
 					setGraphic(new ImageView(getStatusIcon(item.getStatus())));
-				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+				setAlignment(Pos.CENTER);
 				setText("");
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableWMStatus.setCellValueFactory(p -> new ObservableValueBase<Anyware>()
@@ -539,6 +549,7 @@ public class ProfileViewerController implements Initializable
 		});
 		tableWMName.setMinWidth(50);
 		tableWMName.setPrefWidth(100);
+		tableWMName.setMaxWidth(200);
 		tableWMName.setCellFactory(p -> {
 			final var cell = new TableCell<Anyware, Machine>() {
 				private static final Image applicationOSXTerminal = MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"); //$NON-NLS-1$
@@ -564,7 +575,8 @@ public class ProfileViewerController implements Initializable
 						else
 							setGraphic(new ImageView(joystick));
 					}
-					setFont(new Font(10));
+					setAlignment(Pos.CENTER_LEFT);
+					styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				}
 			};
 			cell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
@@ -600,6 +612,7 @@ public class ProfileViewerController implements Initializable
 		tableWMName.setSortable(true);
 		tableWMDescription.setMinWidth(100);
 		tableWMDescription.setPrefWidth(200);
+		tableWMDescription.setMaxWidth(600);
 		tableWMDescription.setCellFactory(p -> new TableCell<Anyware, String>()
 		{
 			@Override
@@ -612,7 +625,8 @@ public class ProfileViewerController implements Initializable
 					setText(item);
 					setTooltip(new Tooltip(item));
 				}
-				setFont(new Font(10));
+				setAlignment(Pos.CENTER_LEFT);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -625,9 +639,10 @@ public class ProfileViewerController implements Initializable
 			}
 		});
 		tableWMDescription.setSortable(true);
-		tableWMHave.setResizable(false);
+		tableWMHave.setResizable(true);
 		tableWMHave.setSortable(false);
 		tableWMHave.setPrefWidth(45);
+		tableWMHave.setMaxWidth(90);
 		tableWMHave.setCellFactory(p -> new TableCell<Anyware, String>()
 		{
 			@Override
@@ -637,7 +652,7 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item);
-				setFont(new Font(10));
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setTextAlignment(TextAlignment.CENTER);
 				setAlignment(Pos.CENTER);
 				setGraphic(null);
@@ -656,6 +671,7 @@ public class ProfileViewerController implements Initializable
 		tableWMCloneOf.setSortable(false);
 		tableWMCloneOf.setMinWidth(50);
 		tableWMCloneOf.setPrefWidth(100);
+		tableWMCloneOf.setMaxWidth(200);
 		tableWMCloneOf.setCellFactory(p -> {
 			final var cell = new TableCell<Anyware, Object>()
 			{
@@ -681,7 +697,8 @@ public class ProfileViewerController implements Initializable
 							setText(item.toString());
 						}
 					}
-					setFont(new Font(10));
+					setAlignment(Pos.CENTER_LEFT);
+					styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				}
 			};
 			cell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
@@ -706,6 +723,7 @@ public class ProfileViewerController implements Initializable
 		tableWMRomOf.setSortable(false);
 		tableWMRomOf.setMinWidth(50);
 		tableWMRomOf.setPrefWidth(100);
+		tableWMRomOf.setMaxWidth(200);
 		tableWMRomOf.setCellFactory(tableWMCloneOf.getCellFactory());
 		tableWMRomOf.setCellValueFactory(p -> new ObservableValueBase<Object>()
 		{
@@ -723,6 +741,7 @@ public class ProfileViewerController implements Initializable
 		tableWMSampleOf.setSortable(false);
 		tableWMSampleOf.setMinWidth(50);
 		tableWMSampleOf.setPrefWidth(100);
+		tableWMSampleOf.setMaxWidth(200);
 		tableWMSampleOf.setCellFactory(p -> new TableCell<Anyware, Object>()
 		{
 			@Override
@@ -746,7 +765,8 @@ public class ProfileViewerController implements Initializable
 						setText(item.toString());
 					}
 				}
-				setFont(new Font(10));
+				setAlignment(Pos.CENTER_LEFT);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableWMSampleOf.setCellValueFactory(p -> new ObservableValueBase<Object>()
@@ -763,9 +783,10 @@ public class ProfileViewerController implements Initializable
 				return null;
 			}
 		});
-		tableWMSelected.setResizable(false);
+		tableWMSelected.setResizable(true);
 		tableWMSelected.setSortable(false);
-		tableWMSelected.setPrefWidth(20);
+		tableWMSelected.setPrefWidth(30);
+		tableWMSelected.setMaxWidth(60);
 		tableWMSelected.setCellValueFactory(p -> {
 			final var aw = p.getValue();
 			final var checkBox = new CheckBox();
@@ -824,7 +845,7 @@ public class ProfileViewerController implements Initializable
 		});
 		tableWSSelected.setResizable(false);
 		tableWSSelected.setSortable(false);
-		tableWSSelected.setPrefWidth(20);
+		tableWSSelected.setPrefWidth(30);
 		tableWSSelected.setCellValueFactory(tableWMSelected.getCellValueFactory());
 		tableW.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> reloadE(newValue));
 		toggleWUnknown.setGraphic(new ImageView(folderClosedGray));
@@ -856,7 +877,7 @@ public class ProfileViewerController implements Initializable
 	 */
 	private void initTableWL()
 	{
-		tableWL.setFixedCellSize(18);
+		tableWL.setFixedCellSize(-1);
 		tableWLName.setCellFactory(p -> new TableCellWLName());
 		tableWLName.setCellValueFactory(ValueWLName::new);
 		tableWLName.setSortable(true);
@@ -1020,11 +1041,14 @@ public class ProfileViewerController implements Initializable
 		return getWidth(digits, null);
 	}
 
-	private double getWidth(int digits, Font font)
+	private double getWidth(int digits, String font)
 	{
 		final var format = "%0" + digits + "d";
 		final var text = new Text(String.format(format, 0));
-		text.setFont(font==null?new Font(10):font);
+		if(font==null)
+			text.styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
+		else
+			text.styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em; -fx-font-family: %s;".formatted(font)));
 		return text.getBoundsInLocal().getWidth();
 	}
 
@@ -1237,7 +1261,7 @@ public class ProfileViewerController implements Initializable
 				setText("");
 			else
 				setText(item);
-			setFont(new Font(10));
+			styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			setTextAlignment(TextAlignment.CENTER);
 			setAlignment(Pos.CENTER);
 			setGraphic(null);
@@ -1272,7 +1296,8 @@ public class ProfileViewerController implements Initializable
 			else
 				setText(item);
 			setTooltip(new Tooltip(getText()));
-			setFont(new Font(10));
+			styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
+			setAlignment(Pos.CENTER_LEFT);
 			setGraphic(null);
 		}
 	}
@@ -1320,7 +1345,8 @@ public class ProfileViewerController implements Initializable
 					setText(Messages.getString("MachineListListRenderer.*"));
 			}
 			setTooltip(new Tooltip(getText()));
-			setFont(new Font(10));
+			setAlignment(Pos.CENTER_LEFT);
+			styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 		}
 	}
 

@@ -2,6 +2,8 @@ package jrm.fx.ui;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -27,9 +29,11 @@ import org.apache.commons.lang3.SystemUtils;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
@@ -43,6 +47,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.control.skin.TableColumnHeader;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -238,8 +243,30 @@ public class ProfilePanelController implements Initializable
 		});
 		profilesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> profilesList.refresh());
 		profilesList.setEditable(false);
-		profilesList.setFixedCellSize(18);
+	//	profilesList.setFixedCellSize(0);
 		new DragNDrop(profilesList).addAny(files -> importDat(files, true));
+	}
+	
+	public void resizeColumns()
+	{
+		Platform.runLater(()->{
+			final var columns = profilesList.getColumns();
+		    for (int i = 0 ; i < columns.size(); i++)
+		    {
+				try
+				{
+		        	final var th = (TableColumnHeader) profilesList.queryAccessibleAttribute(AccessibleAttribute.COLUMN_AT_INDEX, i);;
+					final var columnToFitMethod = TableColumnHeader.class.getDeclaredMethod("resizeColumnToFitContent", int.class);
+		            columnToFitMethod.setAccessible(true); // NOSONAR
+		            columnToFitMethod.invoke(th, -1);
+				}
+				catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
+				{
+					e.printStackTrace();
+				}
+	
+		    }
+		});
 	}
 
 	/**
@@ -290,6 +317,7 @@ public class ProfilePanelController implements Initializable
 		if(newValue==null)
 			return;
 		profilesList.setItems(FXCollections.observableArrayList(ProfileNFO.list(session, newValue.getValue().getFile())));
+		resizeColumns();
 	}
 
 	@FXML void actionLoad(ActionEvent e)

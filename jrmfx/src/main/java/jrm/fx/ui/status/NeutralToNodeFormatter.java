@@ -14,6 +14,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -63,8 +64,15 @@ public @UtilityClass class NeutralToNodeFormatter
 								break;
 						}
 					}
-					if(bold || italic)
-						current.setFont(Font.font(current.getFont().getFamily(), bold?FontWeight.BOLD:FontWeight.NORMAL, italic?FontPosture.ITALIC:FontPosture.REGULAR, current.getFont().getSize()));
+					if(bold)
+					{
+						if(italic)
+							current.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold; -fx-font-style: italic;"));
+						else
+							current.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+					}
+					else if(italic)
+						current.styleProperty().bind(new SimpleStringProperty("-fx-font-style: italic;"));
 					break;
 				}
 				case "progress":

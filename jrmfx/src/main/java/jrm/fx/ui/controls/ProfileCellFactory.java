@@ -40,22 +40,21 @@ public class ProfileCellFactory extends NameCellFactory<ProfileNFO>
 	@Override
 	public void updateItem(ProfileNFO item, boolean empty)
 	{
-		setFont(new Font(10));
 		super.updateItem(item, empty);
 		if (!empty)
 		{
 			styleProperty().bind(Bindings.when(getTableRow().selectedProperty()).then(new SimpleStringProperty(switch (item.getMame().getStatus())
 			{
-				case UPTODATE -> "-fx-text-fill: #aaffaa;";
-				case NEEDUPDATE -> "-fx-text-fill: #ffaa88;";
-				case NOTFOUND -> "-fx-text-fill: #ffaaaa;";
-				default -> "-fx-text-fill: #ffffff;";
+				case UPTODATE -> "-fx-text-fill: #aaffaa;-fx-font-size: .75em;";
+				case NEEDUPDATE -> "-fx-text-fill: #ffaa88;-fx-font-size: .75em;";
+				case NOTFOUND -> "-fx-text-fill: #ffaaaa;-fx-font-size: .75em;";
+				default -> "-fx-text-fill: #ffffff;-fx-font-size: .75em;";
 			})).otherwise(new SimpleStringProperty(switch (item.getMame().getStatus())
 			{
-				case UPTODATE -> "-fx-text-fill: #00aa00;";
-				case NEEDUPDATE -> "-fx-text-fill: #cc8800;";
-				case NOTFOUND -> "-fx-text-fill: #cc0000;";
-				default -> "-fx-text-fill: #000000;";
+				case UPTODATE -> "-fx-text-fill: #00aa00;-fx-font-size: .75em;";
+				case NEEDUPDATE -> "-fx-text-fill: #cc8800;-fx-font-size: .75em;";
+				case NOTFOUND -> "-fx-text-fill: #cc0000;-fx-font-size: .75em;";
+				default -> "-fx-text-fill: #000000;-fx-font-size: .75em;";
 			})));
 			setTooltip(new Tooltip(switch (item.getMame().getStatus())
 			{

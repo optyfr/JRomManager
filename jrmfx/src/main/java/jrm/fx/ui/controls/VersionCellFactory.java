@@ -1,5 +1,6 @@
 package jrm.fx.ui.controls;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
@@ -10,7 +11,6 @@ public final class VersionCellFactory<T> extends TableCell<T,String>
 	@Override
 	protected void updateItem(String item, boolean empty)
 	{
-		setFont(new Font(10));
 		if (empty)
 			setText("");
 		else if(item == null)
@@ -24,6 +24,6 @@ public final class VersionCellFactory<T> extends TableCell<T,String>
 			setTooltip(new Tooltip(item));
 		}
 		setGraphic(null);
-		setStyle("");
+		styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 	}
 }

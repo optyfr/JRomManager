@@ -28,13 +28,13 @@
             <TableView fx:id="profilesList" editable="true" prefHeight="200.0" prefWidth="200.0">
                <columns>
                   <TableColumn fx:id="profileCol" editable="false" prefWidth="200.0" text="%FileTableModel.Profile" />
-                  <TableColumn fx:id="profileVersionCol" editable="false" prefWidth="60.0" text="%FileTableModel.Version" />
-                  <TableColumn fx:id="profileHaveSetsCol" editable="false" prefWidth="90.0" text="%FileTableModel.HaveSets" />
-                  <TableColumn fx:id="profileHaveRomsCol" editable="false" prefWidth="90.0" text="%FileTableModel.HaveRoms" />
-                  <TableColumn fx:id="profileHaveDisksCol" editable="false" prefWidth="70.0" text="%FileTableModel.HaveDisks" />
-                  <TableColumn fx:id="profileCreatedCol" editable="false" prefWidth="95.0" text="%FileTableModel.Created" />
-                  <TableColumn fx:id="profileLastScanCol" editable="false" prefWidth="95.0" text="%FileTableModel.Scanned" />
-                  <TableColumn fx:id="profileLastFixCol" editable="false" prefWidth="95.0" text="%FileTableModel.Fixed" />
+                  <TableColumn fx:id="profileVersionCol" editable="false" prefWidth="70.0" text="%FileTableModel.Version" />
+                  <TableColumn fx:id="profileHaveSetsCol" editable="false" prefWidth="100.0" text="%FileTableModel.HaveSets" />
+                  <TableColumn fx:id="profileHaveRomsCol" editable="false" prefWidth="100.0" text="%FileTableModel.HaveRoms" />
+                  <TableColumn fx:id="profileHaveDisksCol" editable="false" prefWidth="80.0" text="%FileTableModel.HaveDisks" />
+                  <TableColumn fx:id="profileCreatedCol" editable="false" prefWidth="100.0" text="%FileTableModel.Created" />
+                  <TableColumn fx:id="profileLastScanCol" editable="false" prefWidth="100.0" text="%FileTableModel.Scanned" />
+                  <TableColumn fx:id="profileLastFixCol" editable="false" prefWidth="100.0" text="%FileTableModel.Fixed" />
                </columns>
                <contextMenu>
                   <ContextMenu fx:id="profileMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">

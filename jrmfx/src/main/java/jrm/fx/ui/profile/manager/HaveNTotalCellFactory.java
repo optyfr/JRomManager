@@ -17,7 +17,7 @@ public final class HaveNTotalCellFactory<T> extends TableCell<T,HaveNTotal>
 	{
 		setAlignment(Pos.CENTER);
 		setGraphic(null);
-		setStyle("");
+		setStyle("-fx-text-fill: #000000;-fx-font-size: .75em;");
 		if (hnt == null || empty)
 			setText("");
 		else if(hnt.getHave() == null)
@@ -39,7 +39,8 @@ public final class HaveNTotalCellFactory<T> extends TableCell<T,HaveNTotal>
 				tf.setMinWidth(USE_PREF_SIZE);
 				tf.setPrefWidth(USE_COMPUTED_SIZE);
 				tf.setTextAlignment(TextAlignment.CENTER);
-				tf.setPrefHeight(10);
+				//tf.setPrefHeight(USE_COMPUTED_SIZE);
+				//tf.setPrefHeight(USE_PREF_SIZE);
 				setGraphic(tf);
 			}
 		}
@@ -59,8 +60,10 @@ public final class HaveNTotalCellFactory<T> extends TableCell<T,HaveNTotal>
 			tf.setMinWidth(USE_PREF_SIZE);
 			tf.setPrefWidth(USE_COMPUTED_SIZE);
 			tf.setTextAlignment(TextAlignment.CENTER);
-			tf.setPrefHeight(10);
+		//	tf.setPrefHeight(10);
+		//	tf.setPrefHeight(USE_PREF_SIZE);
 			setGraphic(tf);
 		}
+		setPrefHeight(USE_PREF_SIZE);
 	}
 }

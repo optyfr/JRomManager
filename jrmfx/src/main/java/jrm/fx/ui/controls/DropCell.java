@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
@@ -24,7 +25,6 @@ public class DropCell extends TableCell<SrcDstResult, String>
 	public DropCell(TableView<SrcDstResult> view, DropCell.DropCellCallback cb, Predicate<File> filter)
 	{
 		final SetFilesCallBack drop = files -> process(view, getIndex(), files, cb);
-		setFont(new Font(10));
 		new DragNDrop(this).addFiltered(filter, drop);
 	}
 	
@@ -46,7 +46,6 @@ public class DropCell extends TableCell<SrcDstResult, String>
 	@Override
 	protected void updateItem(String item, boolean empty)
 	{
-		setFont(new Font(10));
 		super.updateItem(item, empty);
 		if(empty)
 			setText("");
@@ -57,5 +56,6 @@ public class DropCell extends TableCell<SrcDstResult, String>
 			setTooltip(new Tooltip(item));
 		}
 		setGraphic(null);
+		styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 	}
 }

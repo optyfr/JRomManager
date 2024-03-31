@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -44,6 +45,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -119,8 +121,6 @@ public class BatchToolsPanelController extends BaseController
 	@FXML private TableColumn<FileResult, Path> tvBatchToolsCompressorFileCol;
 	@FXML private TableColumn<FileResult, String> tvBatchToolsCompressorStatusCol;
 	
-	private Font font = new Font(10);
-	
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -136,7 +136,7 @@ public class BatchToolsPanelController extends BaseController
 	{
 		panelBatchToolsCompressor.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png")));
 
-		tvBatchToolsCompressor.setFixedCellSize(18);
+		//tvBatchToolsCompressor.setFixedCellSize(18);
 		new DragNDrop(tvBatchToolsCompressor).addAny(this::addFilesToCompressorList);
 		tvBatchToolsCompressorFileCol.setCellFactory(param -> new TableCell<FileResult, Path>()
 		{
@@ -144,7 +144,6 @@ public class BatchToolsPanelController extends BaseController
 			protected void updateItem(Path item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				setFont(font);
 				if(empty)
 					setText("");
 				else
@@ -152,6 +151,7 @@ public class BatchToolsPanelController extends BaseController
 					setText(item.toString());
 					setTooltip(new Tooltip(getText()));
 				}
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tvBatchToolsCompressorFileCol.setCellValueFactory(param -> param.getValue().fileProperty());
@@ -161,7 +161,6 @@ public class BatchToolsPanelController extends BaseController
 			protected void updateItem(String item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				setFont(font);
 				if(empty)
 					setText("");
 				else
@@ -169,6 +168,7 @@ public class BatchToolsPanelController extends BaseController
 					setText(item);
 					setTooltip(new Tooltip(item));
 				}
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tvBatchToolsCompressorStatusCol.setCellValueFactory(param -> param.getValue().resultProperty());
@@ -410,7 +410,7 @@ public class BatchToolsPanelController extends BaseController
 	 */
 	private void initTorrentList()
 	{
-		tvBatchToolsTorrent.setFixedCellSize(18);
+		//tvBatchToolsTorrent.setFixedCellSize(18);
 		tvBatchToolsTorrent.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr)));
 		tvBatchToolsTorrentFilesCol.setCellFactory(param -> new DropCell(tvBatchToolsTorrent, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
@@ -473,7 +473,7 @@ public class BatchToolsPanelController extends BaseController
 	 */
 	private void initDat2DirDst()
 	{
-		tvBatchToolsDat2DirDst.setFixedCellSize(18);
+		tvBatchToolsDat2DirDst.setFixedCellSize(Region.USE_COMPUTED_SIZE);
 		tvBatchToolsDat2DirDst.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr)));
 		tvBatchToolsDat2DirDstDatsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
@@ -506,7 +506,6 @@ public class BatchToolsPanelController extends BaseController
 			protected void updateItem(String item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				setFont(font);
 				if(empty)
 					setText("");
 				else
@@ -514,6 +513,7 @@ public class BatchToolsPanelController extends BaseController
 					setText(item);
 					setTooltip(new Tooltip(item));
 				}
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tvBatchToolsDat2DirDstResultCol.setCellValueFactory(param -> param.getValue().resultProperty());
@@ -561,7 +561,7 @@ public class BatchToolsPanelController extends BaseController
 			tvBatchToolsDat2DirSrc.getItems().addAll(dirs);
 			saveDat2DirSrc();
 		});
-		tvBatchToolsDat2DirSrc.setFixedCellSize(18);
+		tvBatchToolsDat2DirSrc.setFixedCellSize(Region.USE_COMPUTED_SIZE);
 		tvBatchToolsDat2DirSrc.getItems().setAll(Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|')).filter(s->!s.isBlank()).map(File::new).toList());
 		tvBatchToolsDat2DirSrcCol.setCellFactory(param -> new TableCell<File, File>()
 		{
@@ -569,7 +569,7 @@ public class BatchToolsPanelController extends BaseController
 			protected void updateItem(File item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				setFont(font);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setText(empty?"":item.toString());
 			}
 		});

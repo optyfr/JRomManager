@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,8 +34,6 @@ public class BatchTorrentResultsController implements Initializable
 	@FXML private CheckMenuItem showok;
 	@FXML private CheckMenuItem hidemissing;
 	
-	private Font font = new Font(10);
-	
 	private static final EnumSet<FilterOptions> filterOptions = EnumSet.noneOf(FilterOptions.class);
 	
 	private TrntChkReport report;
@@ -48,7 +47,7 @@ public class BatchTorrentResultsController implements Initializable
 			protected void updateItem(Child item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				setFont(font);
+				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				if (empty)
 					setText("");
 				else
