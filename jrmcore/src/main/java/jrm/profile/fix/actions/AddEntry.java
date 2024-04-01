@@ -18,9 +18,13 @@ package jrm.profile.fix.actions;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
+import java.util.Map;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
@@ -374,6 +378,121 @@ public class AddEntry extends EntryAction
 		catch (IOException e)
 		{
 			Log.err(String.format(ADD_FROM_S_TO_S_AT_S_FAILED, entry.getRelFile(), parent.container.getFile().getName(), entity.getName()), e);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
+	{
+		final var dstpath = dstfs.getPath(entity.getName());
+		handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(ADD_ENTRY_ADDING), entity.getName()))); //$NON-NLS-1$
+		switch(entry.getParent().getType())
+		{
+			case DIR:
+				return dir2FS(dstpath);
+			case FAKE:
+				return fake2FS(dstpath);
+			case ZIP:
+				return zip2FS(dstpath);
+			default:
+				return default2FS(session, dstpath);
+		}
+	}
+
+	/**
+	 * @param session
+	 * @param dstpath
+	 * @return
+	 */
+	private boolean default2FS(final Session session, final Path dstpath)
+	{
+		Path srcpath = null;
+		try(Archive srcarchive = new SevenZipArchive(session, entry.getParent().getFile()))
+		{
+			final File srcfile;
+			if((srcfile=srcarchive.extract(entry.getFile())) != null)
+			{
+				final var parentDstPath = dstpath.getParent(); 
+				if(parentDstPath != null)
+					Files.createDirectories(parentDstPath);
+				srcpath = srcfile.toPath();
+				Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+				return true;
+			}
+		}
+		catch (IOException e)
+		{
+			Log.err(String.format(ADD_FROM_S_AT_S_TO_S_AT_S_FAILED, entry.getParent().getRelFile(), srcpath, parent.container.getFile().getName(), dstpath), e);
+		}
+		return false;
+	}
+
+	/**
+	 * @param dstpath
+	 * @return
+	 */
+	private boolean zip2FS(final Path dstpath)
+	{
+		Path srcpath = null;
+		try(final var srcfs = FileSystems.newFileSystem(entry.getParent().getFile().toPath(), Collections.singletonMap("readOnly", true));)
+		{
+			final var parentDstPath = dstpath.getParent(); 
+			if(parentDstPath != null)
+				Files.createDirectories(parentDstPath);
+			srcpath = srcfs.getPath(entry.getFile());
+			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			return true;
+		}
+		catch (IOException e)
+		{
+			Log.err(String.format(ADD_FROM_S_AT_S_TO_S_AT_S_FAILED, entry.getParent().getRelFile(), srcpath, parent.container.getFile().getName(), dstpath), e);
+		}
+		return false;
+	}
+
+	/**
+	 * @param dstpath
+	 * @return
+	 */
+	private boolean fake2FS(final Path dstpath)
+	{
+		Path srcpath = null;
+		try
+		{
+			final var parentDstPath = dstpath.getParent(); 
+			if(parentDstPath != null)
+				Files.createDirectories(parentDstPath);
+			srcpath = entry.getParent().getFile().getParentFile().toPath().resolve(entry.getFile());
+			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			return true;
+		}
+		catch (IOException e)
+		{
+			Log.err(String.format(ADD_FROM_S_TO_S_AT_S_FAILED, srcpath, parent.container.getFile().getName(), dstpath), e);
+		}
+		return false;
+	}
+
+	/**
+	 * @param dstpath
+	 * @return
+	 */
+	private boolean dir2FS(final Path dstpath)
+	{
+		Path srcpath = null;
+		try
+		{
+			var parentDstPath = dstpath.getParent(); 
+			if(parentDstPath != null)
+				Files.createDirectories(parentDstPath);
+			srcpath = entry.getParent().getFile().toPath().resolve(entry.getFile());
+			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			return true;
+		}
+		catch (IOException e)
+		{
+			Log.err(String.format(ADD_FROM_S_TO_S_AT_S_FAILED, srcpath, parent.container.getFile().getName(), dstpath), e);
 		}
 		return false;
 	}

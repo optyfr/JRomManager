@@ -17,8 +17,10 @@
 package jrm.profile.fix.actions;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
@@ -53,6 +55,28 @@ public class DuplicateEntry extends EntryAction
 	{
 		super(entry);
 		this.newname = newname;
+	}
+
+	@Override
+	public boolean doAction(final Session session, final FileSystem fs, final ProgressHandler handler, int i, int max)
+	{
+		final var dstpath = fs.getPath(newname);
+		try
+		{
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DUPLICATE_ENTRY_DUPLICATING), entry.getRelFile(), newname))); //$NON-NLS-1$
+			final var srcpath = fs.getPath(entry.getFile());
+			final var parent2 = dstpath.getParent();
+			if(parent2 != null)
+				Files.createDirectories(parent2);
+			Files.copy(srcpath, dstpath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			return true;
+		}
+		catch(final Exception e)
+		{
+			Log.err(e.getMessage(),e);
+			Log.err(String.format(DUPLICATE_S_AT_S_TO_S_AT_S_FAILED, parent.container.getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), newname));
+		}
+		return false;
 	}
 
 	@SuppressWarnings("exports")

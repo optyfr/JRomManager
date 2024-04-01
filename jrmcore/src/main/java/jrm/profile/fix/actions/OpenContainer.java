@@ -18,8 +18,12 @@ package jrm.profile.fix.actions;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,6 +32,8 @@ import java.util.stream.Stream;
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipArchive;
+import jrm.compressors.ZipLevel;
+import jrm.compressors.ZipTempThreshold;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Container;
@@ -174,15 +180,37 @@ public class OpenContainer extends ContainerAction
 	 */
 	private boolean doActionZip(final Session session, final ProgressHandler handler)
 	{
-		try(final var zif = new ZipFile(container.getFile()))
+		if (!entryActions.isEmpty())
 		{
-			return zosAction(session, handler, zif);
+			if(entryActions.get(0) instanceof RenameEntry)
+			{
+				final Map<String, Object> env = new HashMap<>();
+				env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold)).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
+				env.put("compressionLevel", format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level)).getLevel()); //$NON-NLS-1$ //$NON-NLS-2$
+				try (final var fs = FileSystems.newFileSystem(URI.create("jar:" + container.getFile().toURI()), env);) //$NON-NLS-1$
+				{
+					if(!fsAction(session, handler, fs))
+						return false;
+					deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
+					return true;
+				}
+				catch (final Exception e)
+				{
+					Log.err(e.getMessage(),e);
+				}
+				
+			}
+			else try (final var zif = new ZipFile(container.getFile()))
+			{
+				return zosAction(session, handler, zif);
+			}
+			catch (final Exception e)
+			{
+				Log.err(e.getMessage(), e);
+			}
+			return false;
 		}
-		catch (final Exception e)
-		{
-			Log.err(e.getMessage(),e);
-		}
-		return false;
+		return true;
 	}
 
 	/**

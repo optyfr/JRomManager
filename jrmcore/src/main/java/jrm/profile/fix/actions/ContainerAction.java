@@ -17,6 +17,7 @@
 package jrm.profile.fix.actions;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -226,5 +227,27 @@ public abstract class ContainerAction implements StatusRendererFactory, Comparab
 		}
 		return true;
 	}
+	
+	/**
+	 * @param session
+	 * @param handler
+	 * @param fs
+	 * @return
+	 */
+	protected boolean fsAction(final Session session, final ProgressHandler handler, final FileSystem fs)
+	{
+		var i = 0;
+		for (final EntryAction action : entryActions)
+		{
+			i++;
+			if (!action.doAction(session, fs, handler, i, entryActions.size() ))
+			{
+				Log.err(()->String.format(ACTION_TO_S_AT_S_FAILED, container.getFile().getName(), action.entry.getRelFile()));
+				return false;
+			}
+		}
+		return true;
+	}
+
 
 }
