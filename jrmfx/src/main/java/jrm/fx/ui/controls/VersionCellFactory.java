@@ -1,10 +1,9 @@
 package jrm.fx.ui.controls;
 
-import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 public final class VersionCellFactory<T> extends TableCell<T,String>
 {
@@ -24,6 +23,6 @@ public final class VersionCellFactory<T> extends TableCell<T,String>
 			setTooltip(new Tooltip(item));
 		}
 		setGraphic(null);
-		styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
+		setAlignment(Pos.CENTER_LEFT);
 	}
 }

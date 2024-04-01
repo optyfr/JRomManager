@@ -136,7 +136,6 @@ public class BatchToolsPanelController extends BaseController
 	{
 		panelBatchToolsCompressor.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png")));
 
-		//tvBatchToolsCompressor.setFixedCellSize(18);
 		new DragNDrop(tvBatchToolsCompressor).addAny(this::addFilesToCompressorList);
 		tvBatchToolsCompressorFileCol.setCellFactory(param -> new TableCell<FileResult, Path>()
 		{
@@ -151,7 +150,6 @@ public class BatchToolsPanelController extends BaseController
 					setText(item.toString());
 					setTooltip(new Tooltip(getText()));
 				}
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tvBatchToolsCompressorFileCol.setCellValueFactory(param -> param.getValue().fileProperty());
@@ -168,7 +166,6 @@ public class BatchToolsPanelController extends BaseController
 					setText(item);
 					setTooltip(new Tooltip(item));
 				}
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tvBatchToolsCompressorStatusCol.setCellValueFactory(param -> param.getValue().resultProperty());
@@ -410,7 +407,6 @@ public class BatchToolsPanelController extends BaseController
 	 */
 	private void initTorrentList()
 	{
-		//tvBatchToolsTorrent.setFixedCellSize(18);
 		tvBatchToolsTorrent.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr)));
 		tvBatchToolsTorrentFilesCol.setCellFactory(param -> new DropCell(tvBatchToolsTorrent, (sdrlist, files) -> {
 			for (int i = 0; i < files.size(); i++)
@@ -513,7 +509,6 @@ public class BatchToolsPanelController extends BaseController
 					setText(item);
 					setTooltip(new Tooltip(item));
 				}
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tvBatchToolsDat2DirDstResultCol.setCellValueFactory(param -> param.getValue().resultProperty());
@@ -569,7 +564,6 @@ public class BatchToolsPanelController extends BaseController
 			protected void updateItem(File item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setText(empty?"":item.toString());
 			}
 		});

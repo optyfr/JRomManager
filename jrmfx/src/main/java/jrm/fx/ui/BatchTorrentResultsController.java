@@ -47,7 +47,6 @@ public class BatchTorrentResultsController implements Initializable
 			protected void updateItem(Child item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				if (empty)
 					setText("");
 				else

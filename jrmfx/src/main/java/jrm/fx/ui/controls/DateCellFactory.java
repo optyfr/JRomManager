@@ -3,11 +3,9 @@ package jrm.fx.ui.controls;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import jrm.profile.manager.ProfileNFO;
 
 public final class DateCellFactory extends TableCell<ProfileNFO, Date>
@@ -31,6 +29,5 @@ public final class DateCellFactory extends TableCell<ProfileNFO, Date>
 			setTooltip(new Tooltip(date));
 		}
 		setGraphic(null);
-		styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 	}
 }

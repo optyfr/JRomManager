@@ -55,8 +55,6 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setText(item);
 					setTooltip(new Tooltip(item));
 				}
-				setMinHeight(15);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -82,8 +80,6 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setText(item.toString());
 					setTooltip(new Tooltip(item.toString()));
 				}
-				setMinHeight(15);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -109,8 +105,6 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setText(item.toString());
 					setTooltip(new Tooltip(item.toString()));
 				}
-				setMinHeight(15);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -136,8 +130,6 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setText(item.toString());
 					setTooltip(new Tooltip(item.toString()));
 				}
-				setMinHeight(15);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -163,8 +155,6 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setText(item.toString());
 					setTooltip(new Tooltip(item.toString()));
 				}
-				setMinHeight(15);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -189,8 +179,6 @@ public class BatchDirUpd8rResultsController extends BaseController
 					setText(item.toString());
 					setTooltip(new Tooltip(item.toString()));
 				}
-				setMinHeight(15);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});

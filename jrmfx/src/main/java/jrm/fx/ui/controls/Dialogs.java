@@ -22,6 +22,7 @@ public @UtilityClass class Dialogs
 	public static void showError(Throwable e)
 	{
 		final var alert = new Alert(AlertType.ERROR);
+		alert.getDialogPane().getScene().getStylesheets().add(alert.getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
 		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
 		alert.setTitle("Error");
 		alert.setHeaderText(e.getMessage());
@@ -43,6 +44,7 @@ public @UtilityClass class Dialogs
 	public static void showAlert(String message)
 	{
 		Alert alert = new Alert(AlertType.WARNING);
+		alert.getDialogPane().getScene().getStylesheets().add(alert.getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
 		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
 		alert.setTitle("Warning");
 
@@ -56,6 +58,7 @@ public @UtilityClass class Dialogs
 	public static Optional<ButtonType> showConfirmation(String title, String message, ButtonType... buttons)
 	{
 		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.getDialogPane().getScene().getStylesheets().add(alert.getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
 		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
 		alert.setTitle(title);
 		alert.setHeaderText(null);
@@ -71,6 +74,7 @@ public @UtilityClass class Dialogs
 	public static Optional<ButtonType> showConfirmation(String title, Node message, ButtonType... buttons)
 	{
 		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.getDialogPane().getScene().getStylesheets().add(alert.getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
 		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
 		alert.setTitle(title);
 		alert.setHeaderText(null);

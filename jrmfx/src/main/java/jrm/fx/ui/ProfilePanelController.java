@@ -1,9 +1,9 @@
 package jrm.fx.ui;
 
+import java.awt.HeadlessException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -20,16 +20,15 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -49,6 +48,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.control.skin.TableColumnHeader;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -243,7 +243,7 @@ public class ProfilePanelController implements Initializable
 		});
 		profilesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> profilesList.refresh());
 		profilesList.setEditable(false);
-	//	profilesList.setFixedCellSize(0);
+		profilesList.setFixedCellSize(Region.USE_COMPUTED_SIZE);
 		new DragNDrop(profilesList).addAny(files -> importDat(files, true));
 	}
 	

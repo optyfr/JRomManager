@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
-import javafx.scene.text.Font;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.misc.DragNDrop.SetFilesCallBack;
 import jrm.fx.ui.misc.SrcDstResult;
@@ -56,6 +54,5 @@ public class DropCell extends TableCell<SrcDstResult, String>
 			setTooltip(new Tooltip(item));
 		}
 		setGraphic(null);
-		styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 	}
 }

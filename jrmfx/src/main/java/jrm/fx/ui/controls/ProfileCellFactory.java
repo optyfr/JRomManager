@@ -3,7 +3,6 @@ package jrm.fx.ui.controls;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Tooltip;
-import javafx.scene.text.Font;
 import javafx.util.StringConverter;
 import jrm.locale.Messages;
 import jrm.profile.manager.ProfileNFO;
@@ -45,16 +44,16 @@ public class ProfileCellFactory extends NameCellFactory<ProfileNFO>
 		{
 			styleProperty().bind(Bindings.when(getTableRow().selectedProperty()).then(new SimpleStringProperty(switch (item.getMame().getStatus())
 			{
-				case UPTODATE -> "-fx-text-fill: #aaffaa;-fx-font-size: .75em;";
-				case NEEDUPDATE -> "-fx-text-fill: #ffaa88;-fx-font-size: .75em;";
-				case NOTFOUND -> "-fx-text-fill: #ffaaaa;-fx-font-size: .75em;";
-				default -> "-fx-text-fill: #ffffff;-fx-font-size: .75em;";
+				case UPTODATE -> "-fx-text-fill: #aaffaa;";
+				case NEEDUPDATE -> "-fx-text-fill: #ffaa88;";
+				case NOTFOUND -> "-fx-text-fill: #ffaaaa;";
+				default -> "-fx-text-fill: #ffffff;";
 			})).otherwise(new SimpleStringProperty(switch (item.getMame().getStatus())
 			{
-				case UPTODATE -> "-fx-text-fill: #00aa00;-fx-font-size: .75em;";
-				case NEEDUPDATE -> "-fx-text-fill: #cc8800;-fx-font-size: .75em;";
-				case NOTFOUND -> "-fx-text-fill: #cc0000;-fx-font-size: .75em;";
-				default -> "-fx-text-fill: #000000;-fx-font-size: .75em;";
+				case UPTODATE -> "-fx-text-fill: #00aa00;";
+				case NEEDUPDATE -> "-fx-text-fill: #cc8800;";
+				case NOTFOUND -> "-fx-text-fill: #cc0000;";
+				default -> "-fx-text-fill: #000000;";
 			})));
 			setTooltip(new Tooltip(switch (item.getMame().getStatus())
 			{

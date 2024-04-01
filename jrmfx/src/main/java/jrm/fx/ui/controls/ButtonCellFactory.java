@@ -1,10 +1,8 @@
 package jrm.fx.ui.controls;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
-import javafx.scene.text.Font;
 
 public final class ButtonCellFactory<S, T> extends TableCell<S, T>
 {
@@ -31,6 +29,5 @@ public final class ButtonCellFactory<S, T> extends TableCell<S, T>
 	{
 		super.updateItem(item, empty);
 		setGraphic(empty ? null : btn);
-		styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 	}
 }

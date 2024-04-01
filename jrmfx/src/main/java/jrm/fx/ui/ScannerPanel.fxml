@@ -71,7 +71,7 @@
                      <content>
       						<GridPane vgap="3.0">
       							<columnConstraints>
-      								<ColumnConstraints hgrow="SOMETIMES" maxWidth="175.0" minWidth="10.0" prefWidth="100.0" />
+      								<ColumnConstraints hgrow="SOMETIMES" maxWidth="250.0" minWidth="10.0" prefWidth="100.0" />
       								<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
       								<ColumnConstraints hgrow="SOMETIMES" maxWidth="32.0" minWidth="28.0" prefWidth="32.0" />
       							</columnConstraints>

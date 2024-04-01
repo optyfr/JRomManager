@@ -24,10 +24,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
+import javafx.css.Stylesheet;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContentDisplay;
@@ -198,7 +201,6 @@ public class ProfileViewerController implements Initializable
 				}
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setAlignment(Pos.CENTER);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableEntityStatus.setCellValueFactory(p -> new ObservableValueBase<EntityBase>()
@@ -234,7 +236,6 @@ public class ProfileViewerController implements Initializable
 						setGraphic(new ImageView(sound));
 				}
 				setAlignment(Pos.CENTER_LEFT);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableEntityName.setCellValueFactory(tableEntityStatus.getCellValueFactory());
@@ -250,7 +251,6 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item.toString());
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setTextAlignment(TextAlignment.RIGHT);
 				setAlignment(Pos.CENTER_RIGHT);
 				setGraphic(null);
@@ -278,7 +278,7 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced; -fx-font-size: .75em;"));
+				styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced;"));
 				setAlignment(Pos.CENTER_LEFT);
 				setGraphic(null);
 			}
@@ -307,7 +307,7 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced; -fx-font-size: .75em;"));
+				styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced;"));
 				setAlignment(Pos.CENTER_LEFT);
 				setGraphic(null);
 			}
@@ -336,7 +336,7 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced; -fx-font-size: .75em;"));
+				styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced;"));
 				setAlignment(Pos.CENTER_LEFT);
 				setGraphic(null);
 			}
@@ -393,7 +393,6 @@ public class ProfileViewerController implements Initializable
 				}
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setAlignment(Pos.CENTER);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableEntityDumpStatus.setCellValueFactory(p -> new ObservableValueBase<Entity.Status>()
@@ -536,7 +535,6 @@ public class ProfileViewerController implements Initializable
 					setGraphic(new ImageView(getStatusIcon(item.getStatus())));
 				setAlignment(Pos.CENTER);
 				setText("");
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableWMStatus.setCellValueFactory(p -> new ObservableValueBase<Anyware>()
@@ -566,17 +564,18 @@ public class ProfileViewerController implements Initializable
 						setText(item.getBaseName());
 						setUserData(item);
 						setTooltip(new Tooltip(item.getName()));
+						final ImageView i;
 						if (item.isIsbios())
-							setGraphic(new ImageView(applicationOSXTerminal));
+							i = new ImageView(applicationOSXTerminal);
 						else if (item.isIsdevice())
-							setGraphic(new ImageView(computer));
+							i = new ImageView(computer);
 						else if (item.isIsmechanical())
-							setGraphic(new ImageView(wrench));
+							i = new ImageView(wrench);
 						else
-							setGraphic(new ImageView(joystick));
+							i = new ImageView(joystick);
+						setGraphic(i);
 					}
 					setAlignment(Pos.CENTER_LEFT);
-					styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				}
 			};
 			cell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
@@ -626,7 +625,6 @@ public class ProfileViewerController implements Initializable
 					setTooltip(new Tooltip(item));
 				}
 				setAlignment(Pos.CENTER_LEFT);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setGraphic(null);
 			}
 		});
@@ -652,7 +650,6 @@ public class ProfileViewerController implements Initializable
 					setText("");
 				else
 					setText(item);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				setTextAlignment(TextAlignment.CENTER);
 				setAlignment(Pos.CENTER);
 				setGraphic(null);
@@ -698,7 +695,6 @@ public class ProfileViewerController implements Initializable
 						}
 					}
 					setAlignment(Pos.CENTER_LEFT);
-					styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 				}
 			};
 			cell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
@@ -766,7 +762,6 @@ public class ProfileViewerController implements Initializable
 					}
 				}
 				setAlignment(Pos.CENTER_LEFT);
-				styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			}
 		});
 		tableWMSampleOf.setCellValueFactory(p -> new ObservableValueBase<Object>()
@@ -1043,12 +1038,13 @@ public class ProfileViewerController implements Initializable
 
 	private double getWidth(int digits, String font)
 	{
-		final var format = "%0" + digits + "d";
-		final var text = new Text(String.format(format, 0));
-		if(font==null)
-			text.styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
-		else
-			text.styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em; -fx-font-family: %s;".formatted(font)));
+		final var text = new Text(String.format("%%0%dd".formatted(digits), 0));
+		final var scn = new Scene(new Group(text));
+		scn.getStylesheets().add(getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
+		text.getStyleClass().add("table-view");
+		if (font != null)
+			text.styleProperty().bind(new SimpleStringProperty("-fx-font-family: %s;".formatted(font)));
+		text.applyCss();
 		return text.getBoundsInLocal().getWidth();
 	}
 
@@ -1261,7 +1257,6 @@ public class ProfileViewerController implements Initializable
 				setText("");
 			else
 				setText(item);
-			styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			setTextAlignment(TextAlignment.CENTER);
 			setAlignment(Pos.CENTER);
 			setGraphic(null);
@@ -1296,7 +1291,6 @@ public class ProfileViewerController implements Initializable
 			else
 				setText(item);
 			setTooltip(new Tooltip(getText()));
-			styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 			setAlignment(Pos.CENTER_LEFT);
 			setGraphic(null);
 		}
@@ -1346,7 +1340,6 @@ public class ProfileViewerController implements Initializable
 			}
 			setTooltip(new Tooltip(getText()));
 			setAlignment(Pos.CENTER_LEFT);
-			styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 		}
 	}
 

@@ -1,9 +1,7 @@
 package jrm.fx.ui.controls;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
-import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import jrm.fx.ui.status.NeutralToNodeFormatter;
@@ -29,6 +27,5 @@ public final class NodeCellFactory<T> extends TableCell<T,String>
 			tf.setPrefHeight(USE_PREF_SIZE);
 			setGraphic(tf);
 		}
-		styleProperty().bind(new SimpleStringProperty("-fx-font-size: .75em;"));
 	}
 }
