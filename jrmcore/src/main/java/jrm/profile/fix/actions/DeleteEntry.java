@@ -16,6 +16,7 @@
  */
 package jrm.profile.fix.actions;
 
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
@@ -48,6 +49,24 @@ public class DeleteEntry extends EntryAction
 	public DeleteEntry(final Entry entry)
 	{
 		super(entry);
+	}
+
+	@Override
+	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
+	{
+		Path path = null;
+		try
+		{
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); //$NON-NLS-1$
+			path = dstfs.getPath(entry.getFile());
+			Files.deleteIfExists(path);
+			return true;
+		}
+		catch(final Exception e)
+		{
+			Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		return false;
 	}
 
 	@SuppressWarnings("exports")

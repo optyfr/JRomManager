@@ -16,9 +16,11 @@
  */
 package jrm.profile.fix.actions;
 
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 import java.util.UUID;
 
 import jrm.aui.progress.ProgressHandler;
@@ -67,7 +69,6 @@ public class RenameEntry extends EntryAction
 		this.newname = newname;
 	}
 
-	@SuppressWarnings("exports")
 	@Override
 	public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max)
 	{
@@ -76,10 +77,18 @@ public class RenameEntry extends EntryAction
 		{
 			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(RENAME_ENTRY_RENAMING), entry.getRelFile(), newname))); //$NON-NLS-1$
 			
-			final var fh = zipf.getFileHeader(entry.getFile());
+			final var fh = Optional
+					.ofNullable(zipf.getFileHeader(ZipTools.toZipEntry(entry.getFile())))
+					.orElse(zipf.getFileHeader(entry.getFile()));
 			if(fh != null)
 			{
+				if(!fh.getFileName().equals(ZipTools.toZipEntry(entry.getFile())))
+					System.err.println("%s : selected the wrong FileHeader, should be %s, got %s".formatted(parent.container.getFile().getName(),ZipTools.toZipEntry(entry.getFile()),fh.getFileName()));
+				if(zipf.getFileHeader(newname)!=null)
+					System.err.println("%s : can't rename %s to %s because destination already exists".formatted(parent.container.getFile().getName(),entry.getFile(),newname));
 				zipf.renameFile(fh, newname);
+				if(!fh.getFileName().equals(newname))
+					System.err.println("%s : %s has been renamed to %s instead of %s".formatted(parent.container.getFile().getName(),entry.getFile(), fh.getFileName(),newname));
 				dstpath = Path.of(newname);
 				final var srcpath = entry.getFile();
 				entry.rename(newname, PathAbstractor.getRelativePath(session, dstpath).toString());
@@ -87,7 +96,10 @@ public class RenameEntry extends EntryAction
 				return true;
 			}
 			else
+			{
+				System.err.println("%s : can't find %s".formatted(parent.container.getFile().getName(),entry.getFile()));
 				Log.err(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), newname));
+			}
 		}
 		catch(final Exception e)
 		{
@@ -136,6 +148,33 @@ public class RenameEntry extends EntryAction
 		catch(final Exception e)
 		{
 			Log.err("rename " + parent.container.getFile().getName() + "@" + entry.getRelFile() + " to " + parent.container.getFile().getName() + "@" + newname + " failed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		}
+		return false;
+	}
+
+	@Override
+	public boolean doAction(final Session session, final FileSystem fs, final ProgressHandler handler, int i, int max)
+	{
+		Path dstpath = null;
+		try
+		{
+			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(RENAME_ENTRY_RENAMING), entry.getRelFile(), newname))); //$NON-NLS-1$
+			final var srcpath = fs.getPath(entry.getFile());
+			dstpath = fs.getPath(newname);
+			if(dstpath!=null)
+			{
+				final var parent = dstpath.getParent();
+				if(parent != null)
+					Files.createDirectories(parent);
+				Files.move(srcpath, dstpath, StandardCopyOption.REPLACE_EXISTING);
+				entry.rename(dstpath.toString(), PathAbstractor.getRelativePath(session, dstpath).toString());
+			}
+			Log.debug(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), srcpath, parent.container.getFile().getName(), dstpath));
+			return true;
+		}
+		catch(final Exception e)
+		{
+			Log.err(String.format(RENAME_S_AT_S_TO_S_AT_S, parent.container.getFile().getName(), entry.getRelFile(), parent.container.getFile().getName(), newname));
 		}
 		return false;
 	}

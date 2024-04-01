@@ -847,8 +847,11 @@ public final class DirScan extends PathAbstractor
 			{
 					for(final var hdr : zipf.getFileHeaders())
 					{
-						final var entry = c.add(new Entry(ZipTools.toEntry(hdr.getFileName()), ZipTools.toEntry(hdr.getFileName())));
-						updateEntry(entry, zipf, hdr, options);
+						if(!hdr.isDirectory())
+						{
+							final var entry = c.add(new Entry(ZipTools.toEntry(hdr.getFileName()), ZipTools.toEntry(hdr.getFileName())));
+							updateEntry(entry, zipf, hdr, options);
+						}
 					}
 					c.setLoaded(options.needSha1OrMd5 ? 2 : 1);
 				

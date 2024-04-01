@@ -87,6 +87,17 @@ public abstract class EntryAction implements StatusRendererFactory
 	@SuppressWarnings("exports")
 	public abstract boolean doAction(final Session session, final ZipFile zipf, final ZipParameters zipp, ProgressHandler handler, int i, int max);
 
+	/**
+	 * do action on entry on a {@link FileSystem}
+	 * @param session the current {@link Session}  
+	 * @param fs the {@link FileSystem} provided by {@link ContainerAction#doAction(Session, ProgressHandler)} in which we should apply entry action
+	 * @param handler handler the {@link ProgressHandler} to show progression state
+	 * @param i the progression level
+	 * @param max the progression maximum
+	 * @return true if successful, otherwise false
+	 */
+	public abstract boolean doAction(final Session session, FileSystem fs, ProgressHandler handler, int i, int max);
+
 	public long estimatedSize()
 	{
 		return ESTIMATED_SIZE;
