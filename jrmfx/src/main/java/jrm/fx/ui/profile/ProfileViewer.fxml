@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.Scene?>
+<?import jrm.fx.ui.JRMScene?>
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 
-<Scene stylesheets="@../MainFrame.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.ProfileViewerController">
+<JRMScene xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.ProfileViewerController">
    <root>
       <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0">
          <items>
@@ -154,4 +154,4 @@
          </items>
       </SplitPane>
    </root>
-</Scene>
+</JRMScene>

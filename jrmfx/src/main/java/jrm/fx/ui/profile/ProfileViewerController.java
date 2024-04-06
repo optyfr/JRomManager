@@ -24,7 +24,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
-import javafx.css.Stylesheet;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -48,7 +47,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
@@ -76,7 +74,6 @@ import jrm.profile.data.Sample;
 import jrm.profile.data.Samples;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
-import jrm.profile.filter.Keywords.KFCallBack;
 import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.manager.ProfileNFOMame;
@@ -1040,7 +1037,6 @@ public class ProfileViewerController implements Initializable
 	{
 		final var text = new Text(String.format("%%0%dd".formatted(digits), 0));
 		final var scn = new Scene(new Group(text));
-		scn.getStylesheets().add(getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
 		text.getStyleClass().add("table-view");
 		if (font != null)
 			text.styleProperty().bind(new SimpleStringProperty("-fx-font-family: %s;".formatted(font)));

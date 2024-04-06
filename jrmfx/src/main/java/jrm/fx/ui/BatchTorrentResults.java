@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -39,7 +38,7 @@ class BatchTorrentResults extends Stage
 		if (results != null)
 			controller.setResult(results);
 
-		setScene(new Scene(root));
+		setScene(new JRMScene(root));
 		sizeToScene();
 		show();
 	}

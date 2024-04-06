@@ -8,7 +8,6 @@ import java.util.Optional;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -54,7 +53,7 @@ public class MainFrame extends Application
 				});
 				primaryStage.getIcons().add(getIcon("/jrm/resicons/rom.png"));
 				primaryStage.setTitle(Messages.getString("MainFrame.Title") + " " + getVersion());
-				primaryStage.setScene(new Scene(loadMain()));
+				primaryStage.setScene(new JRMScene(loadMain()));
 				setReportFrame(new ReportFrame(primaryStage));
 				Settings.fromJson(session.getUser().getSettings().getProperty("MainFrame.Bounds", null), primaryStage);
 				primaryStage.show();
@@ -78,7 +77,6 @@ public class MainFrame extends Application
 		final var loader = new FXMLLoader(MainFrame.class.getResource("MainFrame.fxml").toURI().toURL(), Messages.getBundle());
 		final var root = loader.<TabPane>load();
 		controller = loader.getController();
-		root.getStylesheets().add(MainFrame.class.getResource("MainFrame.css").toExternalForm());
 		return root;
 	}
 	

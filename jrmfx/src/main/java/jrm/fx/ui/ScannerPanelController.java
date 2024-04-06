@@ -10,17 +10,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -856,6 +851,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 			}
 			catch (IOException | URISyntaxException e)
 			{
+				e.printStackTrace();
 				Log.err(e.getMessage(), e);
 			}
 		}

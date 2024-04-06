@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jrm.fx.ui.JRMScene;
 import jrm.fx.ui.misc.Settings;
 import jrm.fx.ui.profile.ProfileViewer;
 import jrm.locale.Messages;

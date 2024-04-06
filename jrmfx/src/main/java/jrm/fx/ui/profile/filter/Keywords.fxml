@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.Scene?>
+<?import jrm.fx.ui.JRMScene?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<Scene fx:id="sceneKW" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.filter.KeywordsController">
+<JRMScene fx:id="sceneKW" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.profile.filter.KeywordsController">
   <root>
       <BorderPane prefHeight="200.0" prefWidth="400.0">
          <center>
@@ -50,4 +50,4 @@
          </bottom>
       </BorderPane>
   </root>
-</Scene>
+</JRMScene>

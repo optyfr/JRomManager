@@ -11,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jrm.fx.ui.JRMScene;
 import jrm.fx.ui.MainFrame;
 import jrm.fx.ui.misc.Settings;
 import jrm.locale.Messages;
@@ -44,7 +45,7 @@ public class ProfileViewer extends Stage
 			hide();
 		});
 		final var loader = new FXMLLoader(getClass().getResource("ProfileViewer.fxml").toURI().toURL(), Messages.getBundle());
-		final var root = loader.<Scene>load();
+		final var root = loader.<JRMScene>load();
 		controller = loader.getController();
 		setScene(root);
 		resetCounter.incrementAndGet();

@@ -1,7 +1,7 @@
 package jrm.fx.ui;
 
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Border;
@@ -24,8 +24,10 @@ public class Loading extends Stage
 		final var root = new HBox();
 		root.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 		root.setPadding(new Insets(5));
-		root.getChildren().addAll(new ImageView(MainFrame.getIcon("/jrm/resicons/waiting.gif")), new Label("Loading..."));
-		setScene(new Scene(root));
+		final var iv = new ImageView(MainFrame.getIcon("/jrm/resicons/waiting.gif"));
+		root.getChildren().addAll(iv, new Label("Loading..."));
+		root.setAlignment(Pos.CENTER);
+		setScene(new JRMScene(root));
 		show();
 	}
 

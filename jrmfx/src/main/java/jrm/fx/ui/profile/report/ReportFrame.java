@@ -9,6 +9,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jrm.aui.progress.StatusHandler;
+import jrm.fx.ui.JRMScene;
 import jrm.fx.ui.misc.Settings;
 import jrm.fx.ui.status.NeutralToNodeFormatter;
 import jrm.locale.Messages;
@@ -36,7 +37,7 @@ public class ReportFrame extends Stage implements StatusHandler
 		final var loader = new FXMLLoader(getClass().getResource("ReportFrame.fxml").toURI().toURL(), Messages.getBundle());
 		final var root = loader.<BorderPane>load();
 		controller = loader.getController();
-		setScene(new Scene(root));
+		setScene(new JRMScene(root));
 		session.getReport().setStatusHandler(this);
 	}
 	

@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jrm.fx.ui.JRMScene;
 import jrm.locale.Messages;
 import lombok.Getter;
 
@@ -28,7 +29,7 @@ public class Progress extends Stage
 		final var root = loader.<GridPane>load();
 		controller = loader.getController();
 		controller.setTask(task);
-		setScene(new Scene(root));
+		setScene(new JRMScene(root));
 		sizeToScene();
 		show();
 	}

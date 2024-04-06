@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jrm.fx.ui.JRMScene;
 import jrm.fx.ui.misc.Settings;
 import jrm.locale.Messages;
 import jrm.profile.report.Report;
@@ -35,7 +36,7 @@ public class ReportLite extends Stage
 		final var loader = new FXMLLoader(getClass().getResource("ReportLite.fxml").toURI().toURL(), Messages.getBundle());
 		final var root = loader.<BorderPane>load();
 		controller = loader.getController();
-		setScene(new Scene(root));
+		setScene(new JRMScene(root));
 		controller.viewController.setReport(report);
 		show();
 	}

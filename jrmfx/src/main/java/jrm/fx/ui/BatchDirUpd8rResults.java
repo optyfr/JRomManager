@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -37,7 +36,7 @@ class BatchDirUpd8rResults extends Stage
 		controller = loader.getController();
 		if(results!=null && results.getResults()!=null)
 			controller.getResultList().getItems().setAll(results.getResults());
-		setScene(new Scene(root));
+		setScene(new JRMScene(root));
 		sizeToScene();
 		show();
 	}

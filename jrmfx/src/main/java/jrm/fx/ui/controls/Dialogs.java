@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import jrm.fx.ui.JRMScene;
 import jrm.fx.ui.MainFrame;
 import lombok.experimental.UtilityClass;
 
@@ -22,8 +23,8 @@ public @UtilityClass class Dialogs
 	public static void showError(Throwable e)
 	{
 		final var alert = new Alert(AlertType.ERROR);
-		alert.getDialogPane().getScene().getStylesheets().add(alert.getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
 		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
+		JRMScene.applySheet(alert.getDialogPane().getScene());
 		alert.setTitle("Error");
 		alert.setHeaderText(e.getMessage());
 
@@ -44,8 +45,8 @@ public @UtilityClass class Dialogs
 	public static void showAlert(String message)
 	{
 		Alert alert = new Alert(AlertType.WARNING);
-		alert.getDialogPane().getScene().getStylesheets().add(alert.getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
 		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
+		JRMScene.applySheet(alert.getDialogPane().getScene());
 		alert.setTitle("Warning");
 
 		// Header Text: null
@@ -58,8 +59,8 @@ public @UtilityClass class Dialogs
 	public static Optional<ButtonType> showConfirmation(String title, String message, ButtonType... buttons)
 	{
 		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.getDialogPane().getScene().getStylesheets().add(alert.getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
 		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
+		JRMScene.applySheet(alert.getDialogPane().getScene());
 		alert.setTitle(title);
 		alert.setHeaderText(null);
 		alert.setContentText(message);
@@ -74,8 +75,8 @@ public @UtilityClass class Dialogs
 	public static Optional<ButtonType> showConfirmation(String title, Node message, ButtonType... buttons)
 	{
 		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.getDialogPane().getScene().getStylesheets().add(alert.getClass().getResource("/jrm/fx/ui/MainFrame.css").toExternalForm());
 		((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
+		JRMScene.applySheet(alert.getDialogPane().getScene());
 		alert.setTitle(title);
 		alert.setHeaderText(null);
 		alert.getDialogPane().setContent(message);
