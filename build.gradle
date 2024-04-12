@@ -857,6 +857,7 @@ jlink {
 	//	requires 'com.google.gson'
 		requires 'ch.qos.logback.classic'
 	//	requires 'one.util.streamex'
+		requires 'jdk.zipfs'
 	}
 	launcher {
 		name = 'JRomManager'
