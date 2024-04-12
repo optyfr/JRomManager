@@ -1,6 +1,6 @@
 pluginManagement {
 	plugins {
-		id "org.sonarqube" version "4.+"
+		id "org.sonarqube" version "latest.release"
 	}
 }
 rootProject.name = 'JRomManager'
