@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+
+## [3.0.3]
+### Fixed
+- jdk.zipfs was missing in bundled JDK packages
+
+### Changed
+- update jdk to 21.0.2+13
+
+
 ## [3.0.2]
 ### Fixed
 - zip4j's rename is malfunctioning (it renames too much), switched back to jdk's ZipFileSystem for this operation while waiting our submitted PR to be merged and a new zip4j version released
@@ -509,7 +518,8 @@ dir but one is not present (should be green)
 Initial release
 
 
-[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.2...HEAD
+[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.3...HEAD
+[3.0.3]: https://github.com/optyfr/JRomManager/compare/3.0.2...3.0.3
 [3.0.2]: https://github.com/optyfr/JRomManager/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/optyfr/JRomManager/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/optyfr/JRomManager/compare/3.0.0-beta.20...3.0.0
