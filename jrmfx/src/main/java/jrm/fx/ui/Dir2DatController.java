@@ -83,7 +83,10 @@ public class Dir2DatController extends BaseController
 		includeEmptyDirs.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, newValue)); //$NON-NLS-1$
 		new DragNDrop(srcDir).addDir(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, txt));
 		srcDir.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir));
-		srcDirBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png")));
+		ImageView srciv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png"));
+		srciv.setPreserveRatio(true);
+		srciv.getStyleClass().add("icon");
+		srcDirBtn.setGraphic(srciv);
 		srcDirBtn.setOnAction(e -> {
 			final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
 			final var lastsrcdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastsrcdir)).map(File::new).filter(File::exists).orElse(workdir.toFile());
@@ -96,7 +99,10 @@ public class Dir2DatController extends BaseController
 		});
 		new DragNDrop(dstDat).addNewFile(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt));
 		dstDat.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file));
-		dstDatBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png")));
+		ImageView dstiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png"));
+		dstiv.setPreserveRatio(true);
+		dstiv.getStyleClass().add("icon");
+		dstDatBtn.setGraphic(dstiv);
 		dstDatBtn.setOnAction(e -> {
 			final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
 			final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastdstdir)).map(File::new).filter(File::exists).orElse(workdir.toFile());

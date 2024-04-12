@@ -12,11 +12,11 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ProfilePanelController">
+<BorderPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ProfilePanelController">
    <center>
       <SplitPane dividerPositions="0.1" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <items>
-            <TreeView fx:id="profilesTree" editable="true" prefHeight="200.0" prefWidth="200.0">
+            <TreeView fx:id="profilesTree" editable="true">
                <contextMenu>
                   <ContextMenu fx:id="folderMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
                     <items>
@@ -25,7 +25,7 @@
                     </items>
                   </ContextMenu>
                </contextMenu></TreeView>
-            <TableView fx:id="profilesList" editable="true" prefHeight="200.0" prefWidth="200.0">
+            <TableView fx:id="profilesList" editable="true">
                <columns>
                   <TableColumn fx:id="profileCol" editable="false" prefWidth="200.0" text="%FileTableModel.Profile" />
                   <TableColumn fx:id="profileVersionCol" editable="false" prefWidth="70.0" text="%FileTableModel.Version" />
@@ -52,9 +52,9 @@
       </SplitPane>
    </center>
    <bottom>
-      <HBox alignment="CENTER" prefHeight="40.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="btnLoad" disable="true" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#actionLoad" text="%MainFrame.btnLoadProfile.text" />
+            <Button fx:id="btnLoad" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#actionLoad" text="%MainFrame.btnLoadProfile.text" />
             <Button fx:id="btnImportDat" mnemonicParsing="false" onAction="#actionImportDat" text="%MainFrame.btnImportDat.text">
                <opaqueInsets>
                   <Insets />
@@ -68,6 +68,9 @@
          <BorderPane.margin>
             <Insets />
          </BorderPane.margin>
+         <padding>
+            <Insets bottom="4.0" top="4.0" />
+         </padding>
       </HBox>
    </bottom>
 </BorderPane>

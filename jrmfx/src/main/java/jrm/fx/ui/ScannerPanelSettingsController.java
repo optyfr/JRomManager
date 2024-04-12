@@ -100,8 +100,14 @@ public class ScannerPanelSettingsController implements Initializable
 			event.consume();
 		});
 		settingsPane.setOnMousePressed(e -> catVerMenu.hide());
-		addDstExcludeGlobMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/add.png")));
-		deleteDstExcludeGlobMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/delete.png")));
+		ImageView addiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/add.png"));
+		addiv.setPreserveRatio(true);
+		addiv.getStyleClass().add("icon");
+		addDstExcludeGlobMenu.setGraphic(addiv);
+		ImageView deliv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/delete.png"));
+		deliv.setPreserveRatio(true);
+		deliv.getStyleClass().add("icon");
+		deleteDstExcludeGlobMenu.setGraphic(deliv);
 	}
 
 	private @Getter ProfileSettings settings;

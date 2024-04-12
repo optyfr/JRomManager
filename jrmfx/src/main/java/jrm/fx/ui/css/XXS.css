@@ -1,0 +1,9 @@
+.root { -fx-font-size: 8px; }
+.context-menu { -fx-font-size: 8px; }
+.table-view { -fx-font-size: 1em; }
+.tree-view { -fx-font-size: 1em; }
+.list-view { -fx-font-size: 1em; }
+.choice-box { -fx-font-size: 1em; }
+.titled-pane { -fx-font-size: 1em; }
+.icon { -fx-fit-height: 8px; -fx-preserve-ratio: true; }
+.cell { -fx-cell-size: 18; -fx-graphic-text-gap: 1; }

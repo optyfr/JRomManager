@@ -1,7 +1,9 @@
-.root { -fx-font-size: 14pt; }
-.table-view { -fx-font-size: 0.8em; }
-.tree-view { -fx-font-size: 0.8em; }
-.list-view { -fx-font-size: 0.8em; }
-.choice-box { -fx-font-size: 0.8em; }
-.context-menu { -fx-font-size: 12pt; }
-.titled-pane { -fx-font-size: 0.8em; }
+.root { -fx-font-size: 14px; }
+.context-menu { -fx-font-size: 14px; }
+.table-view { -fx-font-size: 1em; }
+.tree-view { -fx-font-size: 1em; }
+.list-view { -fx-font-size: 1em; }
+.choice-box { -fx-font-size: 1em; }
+.titled-pane { -fx-font-size: 1em; }
+.icon { -fx-fit-height: 14px; -fx-preserve-ratio: true; }
+.cell { -fx-cell-size: 25; -fx-graphic-text-gap: 2; }

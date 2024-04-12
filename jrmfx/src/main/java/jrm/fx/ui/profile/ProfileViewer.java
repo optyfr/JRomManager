@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jrm.fx.ui.JRMScene;

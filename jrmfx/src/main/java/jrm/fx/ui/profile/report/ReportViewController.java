@@ -18,7 +18,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
@@ -28,19 +27,9 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import jrm.fx.ui.MainFrame;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.locale.Messages;
@@ -144,10 +133,9 @@ public class ReportViewController implements Initializable
 		private void updateContainerUnneeded(ContainerUnneeded s)
 		{
 			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/exclamation.png"));
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(s.toString()));
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -158,10 +146,9 @@ public class ReportViewController implements Initializable
 		private void updateContainerUnknown(ContainerUnknown s)
 		{
 			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/error.png"));
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(s.toString()));
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -172,10 +159,9 @@ public class ReportViewController implements Initializable
 		private void updateContainerTZip(ContainerTZip s)
 		{
 			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png"));
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(s.toString()));
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -186,10 +172,9 @@ public class ReportViewController implements Initializable
 		private void updateRomSuspiciousCRC(RomSuspiciousCRC s)
 		{
 			final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/information.png"));
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(s.toString()));
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -206,10 +191,9 @@ public class ReportViewController implements Initializable
 			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			final var enn = new Text(s.getEntity().getNormalizedName());
 			enn.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(ewrongname[0]), n, new Text(ewrongname[1]), en, new Text(ewrongname[2]), enn, new Text(ewrongname[3]));
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -245,10 +229,9 @@ public class ReportViewController implements Initializable
 				ehash = s.getEntry().getSha1();
 				hash = s.getSha1();
 			}
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(ewronghash[0]), n, new Text(ewronghash[1]), ef, new Text(ewronghash[2]), new Text(hashname), new Text(ewronghash[3]), new Text(ehash), new Text(ewronghash[4]), new Text(hash), new Text(ewronghash[5]));
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -270,10 +253,9 @@ public class ReportViewController implements Initializable
 				hash = s.getEntry().getMd5();
 			else
 				hash = s.getEntry().getCrc();
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(eunneeded[0]), n, new Text(eunneeded[1]), ef, new Text(eunneeded[2]), new Text(hash), new Text(eunneeded[3]));
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -288,10 +270,9 @@ public class ReportViewController implements Initializable
 			n.setFill(Color.BLUE);
 			final var en = new Text(s.getEntity().getNormalizedName());
 			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(eok[0]), n, new Text(eok[1]), en, new Text(eok[2]));
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -308,10 +289,9 @@ public class ReportViewController implements Initializable
 			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
 			final var en = new Text(s.getEntity().getName());
 			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(emissingdup[0]), n, new Text(emissingdup[1]), ef, new Text(emissingdup[2]), en);
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -335,18 +315,16 @@ public class ReportViewController implements Initializable
 					hash = e.getMd5();
 				else
 					hash = e.getCrc();
+				i.getStyleClass().add("icon");
 				HBox hBox = new HBox(i, new Text(emissing[0]), n, new Text(emissing[1]), en, new Text(emissing[2] + " (" + hash + ")"));
 				hBox.setAlignment(Pos.CENTER_LEFT);
-				i.fitHeightProperty().bind(hBox.heightProperty());
-				i.setPreserveRatio(true);
 				setGraphic(hBox);
 			}
 			else
 			{
+				i.getStyleClass().add("icon");
 				HBox hBox = new HBox(i, new Text(emissing[0]), n, new Text(emissing[1]), en, new Text(emissing[2]));
 				hBox.setAlignment(Pos.CENTER_LEFT);
-				i.fitHeightProperty().bind(hBox.heightProperty());
-				i.setPreserveRatio(true);
 				setGraphic(hBox);
 			}
 			setText(null);
@@ -366,10 +344,9 @@ public class ReportViewController implements Initializable
 			ep.styleProperty().bind(new SimpleStringProperty("-fx-font-style: italic;"));
 			final var ef = new Text(s.getEntry().getRelFile());
 			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(eadd[0]), n, new Text(eadd[1]), en, new Text(eadd[2]), ep, new Text(eadd[3]), ef);
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
 			setGraphic(hBox);
 			setText(null);
 		}
@@ -392,15 +369,14 @@ public class ReportViewController implements Initializable
 				i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"));
 			else
 				i = new ImageView(MainFrame.getIcon(getFolderIcon(s, false)));
+			i.getStyleClass().add("icon");
 			final var n = new Text(s.getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var d = new Text(s.getWare().getDescription().toString());
 			d.setFill(Color.PURPLE);
-			i.setPreserveRatio(true);
 			final var hBox = new HBox(i, new Text(t[0]), n, new Text(t[1]), d, new Text(t[2]));
 			hBox.setAlignment(Pos.CENTER_LEFT);
-			i.fitHeightProperty().bind(hBox.heightProperty());
-			i.setPreserveRatio(true);
+			HBox.setMargin(i, new Insets(0, 2, 0, 0));
 			setGraphic(hBox);
 			setText(null);
 		}

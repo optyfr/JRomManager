@@ -34,6 +34,7 @@ public class SettingsPanelController extends BaseController
 {
 	@FXML TitledPane paneGeneral;
 	@FXML ChoiceBox<ThreadCnt> cbThreading;
+	@FXML ChoiceBox<JRMScene.StyleSheet> cbStyleSheet;
 	@FXML CheckBox ckbBackupDst;
 	@FXML TextField tfBackupDst;
 	@FXML Button btBackupDst;
@@ -68,7 +69,10 @@ public class SettingsPanelController extends BaseController
 	 */
 	private void initGeneral()
 	{
-		paneGeneral.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/cog.png")));
+		ImageView generaliv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/cog.png"));
+		generaliv.setPreserveRatio(true);
+		generaliv.getStyleClass().add("icon");
+		paneGeneral.setGraphic(generaliv);
 		cbThreading.getItems().setAll(ThreadCnt.build());
 		cbThreading.getSelectionModel().select(new ThreadCnt(session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class)));
 		cbThreading.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.thread_count, newValue.getCnt()));
@@ -78,13 +82,22 @@ public class SettingsPanelController extends BaseController
 			session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, newValue); //$NON-NLS-1$
 		});
 		ckbBackupDst.setSelected(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class));
-		btBackupDst.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png")));
+		ImageView backupdstiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png"));
+		backupdstiv.setPreserveRatio(true);
+		backupdstiv.getStyleClass().add("icon");
+		btBackupDst.setGraphic(backupdstiv);
 		tfBackupDst.setText(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir)); //$NON-NLS-1$
 		new DragNDrop(btBackupDst).addDir(txt -> session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, txt));
 		btBackupDst.setOnAction(e -> chooseDir(btBackupDst, tfBackupDst.getText(), null, path -> {
 			session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, path.toString());
 			tfBackupDst.setText(path.toString());
 		}));
+		cbStyleSheet.getItems().setAll(JRMScene.StyleSheet.values());
+		cbStyleSheet.getSelectionModel().select(session.getUser().getSettings().getEnumProperty(JRMScene.ScenePrefs.style_sheet, JRMScene.StyleSheet.class));
+		cbStyleSheet.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			session.getUser().getSettings().setEnumProperty(JRMScene.ScenePrefs.style_sheet, newValue);
+			MainFrame.applyCSS();
+		});
 	}
 
 	/**
@@ -92,7 +105,10 @@ public class SettingsPanelController extends BaseController
 	 */
 	private void initCompressors()
 	{
-		paneCompressors.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png")));
+		ImageView compressoriv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png"));
+		compressoriv.setPreserveRatio(true);
+		compressoriv.getStyleClass().add("icon");
+		paneCompressors.setGraphic(compressoriv);
 		cbZipTempThreshold.getItems().setAll(ZipTempThreshold.values());
 		cbZipTempThreshold.setConverter(new StringConverter<>()
 		{
@@ -172,7 +188,10 @@ public class SettingsPanelController extends BaseController
 	 */
 	private void initDebug()
 	{
-		paneDebug.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bug.png")));
+		ImageView debugiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bug.png"));
+		debugiv.setPreserveRatio(true);
+		debugiv.getStyleClass().add("icon");
+		paneDebug.setGraphic(debugiv);
 		cbDbgLevel.getItems().setAll(levels);
 		cbDbgLevel.getSelectionModel().select(Level.parse(session.getUser().getSettings().getProperty(SettingsEnum.debug_level)));
 		cbDbgLevel.getSelectionModel().selectedItemProperty().addListener((ChangeListener<Level>) (observable, oldValue, newValue) -> {

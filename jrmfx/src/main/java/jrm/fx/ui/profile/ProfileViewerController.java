@@ -29,7 +29,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContentDisplay;
@@ -51,6 +50,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import jrm.fx.ui.JRMScene;
 import jrm.fx.ui.MainFrame;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.profile.filter.Keywords;
@@ -188,13 +188,16 @@ public class ProfileViewerController implements Initializable
 				}
 				else
 				{
-					setGraphic(new ImageView(switch(item.getStatus())
+					ImageView i = new ImageView(switch(item.getStatus())
 					{
 						case KO -> bulletRed;
 						case OK -> bulletGreen;
 						case UNKNOWN -> bulletBlack;
 						default -> bulletBlack;
-					}));
+					});
+					i.setPreserveRatio(true);
+					i.getStyleClass().add("icon");
+					setGraphic(i);
 				}
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setAlignment(Pos.CENTER);
@@ -225,12 +228,16 @@ public class ProfileViewerController implements Initializable
 				else
 				{
 					setText(item.getBaseName());
-					if(item instanceof Rom)
-						setGraphic(new ImageView(romSmall));
-					else if(item instanceof Disk)
-						setGraphic(new ImageView(drive));
-					else if(item instanceof Sample)
-						setGraphic(new ImageView(sound));
+					final var i = switch(item)
+					{
+						case Rom r -> new ImageView(romSmall);
+						case Disk d -> new ImageView(drive);
+						case Sample s -> new ImageView(sound);
+						default -> null;
+					};
+					i.setPreserveRatio(true);
+					i.getStyleClass().add("icon");
+					setGraphic(i);
 				}
 				setAlignment(Pos.CENTER_LEFT);
 			}
@@ -379,14 +386,17 @@ public class ProfileViewerController implements Initializable
 				}
 				else
 				{
-					setGraphic(new ImageView(switch(item)
+					ImageView i = new ImageView(switch(item)
 					{
 						case baddump -> baddump;
 						case good -> good;
 						case nodump -> nodump;
 						case verified -> verified;
 						default -> null;
-					}));
+					});
+					i.setPreserveRatio(true);
+					i.getStyleClass().add("icon");
+					setGraphic(i);
 				}
 				setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 				setAlignment(Pos.CENTER);
@@ -404,9 +414,18 @@ public class ProfileViewerController implements Initializable
 				return null;
 			}
 		});
-		toggleEntityUnknown.setGraphic(new ImageView(bulletBlack));
-		toggleEntityKO.setGraphic(new ImageView(bulletRed));
-		toggleEntityOK.setGraphic(new ImageView(bulletGreen));
+		ImageView ibb = new ImageView(bulletBlack);
+		ibb.setPreserveRatio(true);
+		ibb.getStyleClass().add("icon");
+		toggleEntityUnknown.setGraphic(ibb);
+		ImageView ibr = new ImageView(bulletRed);
+		ibr.setPreserveRatio(true);
+		ibr.getStyleClass().add("icon");
+		toggleEntityKO.setGraphic(ibr);
+		ImageView ibg = new ImageView(bulletGreen);
+		ibg.setPreserveRatio(true);
+		ibg.getStyleClass().add("icon");
+		toggleEntityOK.setGraphic(ibg);
 		menuEntity.setOnShowing(e -> {
 			final boolean has_selected_entity = tableEntity.getSelectionModel().getSelectedItem()!=null;
 			mntmCopyCrc.setDisable(!has_selected_entity);
@@ -529,7 +548,12 @@ public class ProfileViewerController implements Initializable
 				if (item==null || empty)
 					setGraphic(null);
 				else
-					setGraphic(new ImageView(getStatusIcon(item.getStatus())));
+				{
+					ImageView i = new ImageView(getStatusIcon(item.getStatus()));
+					setGraphic(i);
+					i.setPreserveRatio(true);
+					i.getStyleClass().add("icon");
+				}
 				setAlignment(Pos.CENTER);
 				setText("");
 			}
@@ -570,6 +594,8 @@ public class ProfileViewerController implements Initializable
 							i = new ImageView(wrench);
 						else
 							i = new ImageView(joystick);
+						i.setPreserveRatio(true);
+						i.getStyleClass().add("icon");
 						setGraphic(i);
 					}
 					setAlignment(Pos.CENTER_LEFT);
@@ -681,13 +707,19 @@ public class ProfileViewerController implements Initializable
 					{
 						if(item instanceof Anyware aw)
 						{
-							setGraphic(new ImageView(getStatusIcon(aw.getStatus())));
+							ImageView i = new ImageView(getStatusIcon(aw.getStatus()));
+							i.setPreserveRatio(true);
+							i.getStyleClass().add("icon");
+							setGraphic(i);
 							setUserData(aw);
 							setText(aw.getBaseName());
 						}
 						else
 						{
-							setGraphic(new ImageView(folderClosedGray));
+							ImageView i = new ImageView(folderClosedGray);
+							i.setPreserveRatio(true);
+							i.getStyleClass().add("icon");
+							setGraphic(i);
 							setText(item.toString());
 						}
 					}
@@ -749,12 +781,18 @@ public class ProfileViewerController implements Initializable
 				{
 					if(item instanceof Samples s)
 					{
-						setGraphic(new ImageView(getStatusIcon(s.getStatus())));
+						ImageView i = new ImageView(getStatusIcon(s.getStatus()));
+						i.setPreserveRatio(true);
+						i.getStyleClass().add("icon");
+						setGraphic(i);
 						setText(s.getBaseName());
 					}
 					else
 					{
-						setGraphic(new ImageView(folderClosedGray));
+						ImageView i = new ImageView(folderClosedGray);
+						i.setPreserveRatio(true);
+						i.getStyleClass().add("icon");
+						setGraphic(i);
 						setText(item.toString());
 					}
 				}
@@ -840,10 +878,22 @@ public class ProfileViewerController implements Initializable
 		tableWSSelected.setPrefWidth(30);
 		tableWSSelected.setCellValueFactory(tableWMSelected.getCellValueFactory());
 		tableW.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> reloadE(newValue));
-		toggleWUnknown.setGraphic(new ImageView(folderClosedGray));
-		toggleWMissing.setGraphic(new ImageView(folderClosedRed));
-		toggleWPartial.setGraphic(new ImageView(folderClosedOrange));
-		toggleWComplete.setGraphic(new ImageView(folderClosedGreen));
+		ImageView ifcgray = new ImageView(folderClosedGray);
+		ifcgray.setPreserveRatio(true);
+		ifcgray.getStyleClass().add("icon");
+		toggleWUnknown.setGraphic(ifcgray);
+		ImageView ifcred = new ImageView(folderClosedRed);
+		ifcred.setPreserveRatio(true);
+		ifcred.getStyleClass().add("icon");
+		toggleWMissing.setGraphic(ifcred);
+		ImageView ifcorange = new ImageView(folderClosedOrange);
+		ifcorange.setPreserveRatio(true);
+		ifcorange.getStyleClass().add("icon");
+		toggleWPartial.setGraphic(ifcorange);
+		ImageView ifcgreen = new ImageView(folderClosedGreen);
+		ifcgreen.setPreserveRatio(true);
+		ifcgreen.getStyleClass().add("icon");
+		toggleWComplete.setGraphic(ifcgreen);
 		
 		search.textProperty().addListener((observable, oldValue, newValue) -> filteredData.setPredicate(searchPredicate(newValue)));
 	}
@@ -878,10 +928,22 @@ public class ProfileViewerController implements Initializable
 		tableWLHave.setCellFactory(p -> new TableCellWLHave());
 		tableWLHave.setCellValueFactory(ValueWLHave::new);
 		tableWL.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> reloadW(newValue));
-		toggleWLUnknown.setGraphic(new ImageView(diskMultipleGray));
-		toggleWLMissing.setGraphic(new ImageView(diskMultipleRed));
-		toggleWLPartial.setGraphic(new ImageView(diskMultipleOrange));
-		toggleWLComplete.setGraphic(new ImageView(diskMultipleGreen));
+		ImageView idmgray = new ImageView(diskMultipleGray);
+		idmgray.setPreserveRatio(true);
+		idmgray.getStyleClass().add("icon");
+		toggleWLUnknown.setGraphic(idmgray);
+		ImageView idmred = new ImageView(diskMultipleRed);
+		idmred.setPreserveRatio(true);
+		idmred.getStyleClass().add("icon");
+		toggleWLMissing.setGraphic(idmred);
+		ImageView idmorange = new ImageView(diskMultipleOrange);
+		idmorange.setPreserveRatio(true);
+		idmorange.getStyleClass().add("icon");
+		toggleWLPartial.setGraphic(idmorange);
+		ImageView idmgreen = new ImageView(diskMultipleGreen);
+		idmgreen.setPreserveRatio(true);
+		idmgreen.getStyleClass().add("icon");
+		toggleWLComplete.setGraphic(idmgreen);
 		menuWL.setOnShowing(e -> {
 			final boolean has_machines = session.getCurrProfile().getMachineListList().getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
 			final boolean has_filtered_machines = session.getCurrProfile().getMachineListList().getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
@@ -1036,7 +1098,7 @@ public class ProfileViewerController implements Initializable
 	private double getWidth(int digits, String font)
 	{
 		final var text = new Text(String.format("%%0%dd".formatted(digits), 0));
-		final var scn = new Scene(new Group(text));
+		final var scn = new JRMScene(new Group(text));
 		text.getStyleClass().add("table-view");
 		if (font != null)
 			text.styleProperty().bind(new SimpleStringProperty("-fx-font-family: %s;".formatted(font)));
@@ -1320,7 +1382,7 @@ public class ProfileViewerController implements Initializable
 			}
 			else
 			{
-				setGraphic(new ImageView(switch (item.getStatus())
+				ImageView i = new ImageView(switch (item.getStatus())
 				{
 					case COMPLETE -> diskMultipleGreen;
 					case PARTIAL -> diskMultipleOrange;
@@ -1328,7 +1390,10 @@ public class ProfileViewerController implements Initializable
 					case UNKNOWN -> diskMultipleGray;
 					default -> diskMultipleGray;
 
-				}));
+				});
+				i.setPreserveRatio(true);
+				i.getStyleClass().add("icon");
+				setGraphic(i);
 				if (item instanceof SoftwareList sl)
 					setText(sl.getName());
 				else if (item instanceof MachineList)

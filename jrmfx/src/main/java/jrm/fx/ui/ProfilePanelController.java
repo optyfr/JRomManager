@@ -111,14 +111,38 @@ public class ProfilePanelController implements Initializable
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		btnLoad.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/add.png")));
-		btnImportDat.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_go.png")));
-		btnImportSL.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_go.png")));
-		createFolderMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/folder_add.png")));
-		deleteFolderMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/folder_delete.png")));
-		deleteProfileMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_delete.png")));
-		renameProfileMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_edit.png")));
-		dropCacheMenu.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bin.png")));
+		ImageView add = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/add.png"));
+		add.setPreserveRatio(true);
+		add.getStyleClass().add("icon");
+		btnLoad.setGraphic(add);
+		ImageView go = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_go.png"));
+		go.setPreserveRatio(true);
+		go.getStyleClass().add("icon");
+		btnImportDat.setGraphic(go);
+		ImageView appgo = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_go.png"));
+		appgo.setPreserveRatio(true);
+		appgo.getStyleClass().add("icon");
+		btnImportSL.setGraphic(appgo);
+		ImageView fadd = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/folder_add.png"));
+		fadd.setPreserveRatio(true);
+		fadd.getStyleClass().add("icon");
+		createFolderMenu.setGraphic(fadd);
+		ImageView fdel = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/folder_delete.png"));
+		fdel.setPreserveRatio(true);
+		fdel.getStyleClass().add("icon");
+		deleteFolderMenu.setGraphic(fdel);
+		ImageView sdel = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_delete.png"));
+		sdel.setPreserveRatio(true);
+		sdel.getStyleClass().add("icon");
+		deleteProfileMenu.setGraphic(sdel);
+		ImageView sedit = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script_edit.png"));
+		sedit.setPreserveRatio(true);
+		sedit.getStyleClass().add("icon");
+		renameProfileMenu.setGraphic(sedit);
+		ImageView bin = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bin.png"));
+		bin.setPreserveRatio(true);
+		bin.getStyleClass().add("icon");
+		dropCacheMenu.setGraphic(bin);
 		folderMenu.setOnShowing(e -> {
 			final var selected = profilesTree.getSelectionModel().getSelectedItem();
 			deleteFolderMenu.setDisable(selected == null);
@@ -254,7 +278,7 @@ public class ProfilePanelController implements Initializable
 		    {
 				try
 				{
-		        	final var th = (TableColumnHeader) profilesList.queryAccessibleAttribute(AccessibleAttribute.COLUMN_AT_INDEX, i);;
+		        	final var th = (TableColumnHeader) profilesList.queryAccessibleAttribute(AccessibleAttribute.COLUMN_AT_INDEX, i);
 					final var columnToFitMethod = TableColumnHeader.class.getDeclaredMethod("resizeColumnToFitContent", int.class);
 		            columnToFitMethod.setAccessible(true); // NOSONAR
 		            columnToFitMethod.invoke(th, -1);

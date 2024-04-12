@@ -34,12 +34,27 @@ public class MainFrameController implements Initializable
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		profilePanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script.png")));
-		scannerPanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_magnify.png")));
+		ImageView script = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script.png"));
+		script.setPreserveRatio(true);
+		script.getStyleClass().add("icon");
+		profilePanelTab.setGraphic(script);
+		ImageView magnify = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_magnify.png"));
+		magnify.setPreserveRatio(true);
+		magnify.getStyleClass().add("icon");
+		scannerPanelTab.setGraphic(magnify);
 		scannerPanelTab.setDisable(true);
-		dir2datPanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_go.png")));
-		batchtoolsPanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png")));
-		settingsPanelTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/cog.png")));
+		ImageView go = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_go.png"));
+		go.setPreserveRatio(true);
+		go.getStyleClass().add("icon");
+		dir2datPanelTab.setGraphic(go);
+		ImageView terminal = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"));
+		terminal.setPreserveRatio(true);
+		terminal.getStyleClass().add("icon");
+		batchtoolsPanelTab.setGraphic(terminal);
+		ImageView cog = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/cog.png"));
+		cog.setPreserveRatio(true);
+		cog.getStyleClass().add("icon");
+		settingsPanelTab.setGraphic(cog);
 		profilePanelController.setProfileLoader(scannerPanelController);
 	}
 

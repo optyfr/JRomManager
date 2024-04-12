@@ -5,6 +5,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.paint.Paint;
+import jrm.misc.EnumWithDefault;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ public class JRMScene extends Scene
 {
 	public enum StyleSheet
 	{
-		SYSTEM(null), XS("XS.css"), S("S.css"), M("M.css"), L("L.css"), XL("XL.css");
+		SYSTEM(null), XXS("XXS.css"), XS("XS.css"), S("S.css"), M("M.css"), L("L.css"), XL("XL.css"), XXL("XXL.css");
 
 		@Getter
 		private String fileName;
@@ -21,6 +22,25 @@ public class JRMScene extends Scene
 		{
 			this.fileName = fileName;
 		}
+	}
+	
+	public enum ScenePrefs implements EnumWithDefault
+	{
+		style_sheet(StyleSheet.SYSTEM); //NOSONAR
+
+		private Object deflt;
+		
+		private ScenePrefs(Object deflt)
+		{
+			this.deflt = deflt;
+		}
+		
+		@Override
+		public Object getDefault()
+		{
+			return deflt;
+		}
+		
 	}
 	
 	@Getter @Setter private static StyleSheet sheet = StyleSheet.XL;
@@ -70,12 +90,17 @@ public class JRMScene extends Scene
 		applySheet(sheet);
 	}
 
-	public void applySheet(StyleSheet ss)
+	public void applySheet()
 	{
 		getStylesheets().clear();
 		getStylesheets().addAll(orgSheets);
-		setSheet(ss);
 		applySheet(this);
+	}
+
+	public void applySheet(StyleSheet ss)
+	{
+		setSheet(ss);
+		applySheet();
 	}
 
 	public static void applySheet(Scene scene)

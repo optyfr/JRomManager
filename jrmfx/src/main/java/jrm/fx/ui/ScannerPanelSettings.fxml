@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ScannerPanelSettingsController">
+<ScrollPane fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jrm.fx.ui.ScannerPanelSettingsController">
 	<content>
 		<GridPane fx:id="settingsPane" alignment="CENTER" hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="400.0" vgap="5.0">
 			<columnConstraints>
@@ -25,17 +25,17 @@
 			</columnConstraints>
 			<rowConstraints>
 				<RowConstraints minHeight="0.0" prefHeight="30.0" vgrow="ALWAYS" />
-				<RowConstraints vgrow="SOMETIMES" />
-				<RowConstraints vgrow="SOMETIMES" />
-				<RowConstraints vgrow="SOMETIMES" />
-				<RowConstraints vgrow="SOMETIMES" />
-				<RowConstraints vgrow="SOMETIMES" />
-				<RowConstraints vgrow="SOMETIMES" />
-				<RowConstraints vgrow="SOMETIMES" />
-				<RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
-				<RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
-				<RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
-				<RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" vgrow="ALWAYS" />
+				<RowConstraints vgrow="NEVER" />
+				<RowConstraints vgrow="NEVER" />
+				<RowConstraints vgrow="NEVER" />
+				<RowConstraints vgrow="NEVER" />
+				<RowConstraints vgrow="NEVER" />
+				<RowConstraints vgrow="NEVER" />
+				<RowConstraints vgrow="NEVER" />
+				<RowConstraints vgrow="NEVER" />
+				<RowConstraints vgrow="NEVER" />
+				<RowConstraints percentHeight="0.0" vgrow="NEVER" />
+				<RowConstraints minHeight="0.0" prefHeight="30.0" vgrow="ALWAYS" />
 			</rowConstraints>
 			<children>
 				<CheckBox fx:id="needSHA1Chkbx" mnemonicParsing="false" text="%MainFrame.chckbxNeedSHA1.text" GridPane.columnIndex="1" GridPane.rowIndex="1" />
@@ -52,9 +52,9 @@
 				<CheckBox fx:id="excludeMachinesChkbx" mnemonicParsing="false" text="%MainFrame.chckbxExcludeMachines.text" GridPane.columnIndex="2" GridPane.rowIndex="6" />
 				<CheckBox fx:id="backupChkbx" mnemonicParsing="false" text="%MainFrame.chckbxBackup.text" GridPane.columnIndex="1" GridPane.rowIndex="7" />
 				<CheckBox fx:id="zeroEntryMattersChkbx" mnemonicParsing="false" text="%MainFrame.chckbxZeroEntryMatters.text" GridPane.columnIndex="2" GridPane.rowIndex="7" />
-				<HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="25.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="8" GridPane.valignment="CENTER">
+				<HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="8" GridPane.valignment="CENTER">
 					<children>
-						<Label maxHeight="1.7976931348623157E308" minWidth="-Infinity" text="%MainFrame.lblCompression.text">
+						<Label minWidth="-Infinity" text="%MainFrame.lblCompression.text">
 							<padding>
 								<Insets right="5.0" />
 							</padding>
@@ -62,9 +62,9 @@
 						<ComboBox fx:id="compressionCbx" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
 					</children>
 				</HBox>
-				<HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="25.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="9" GridPane.valignment="CENTER">
+				<HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="9" GridPane.valignment="CENTER">
 					<children>
-						<Label maxHeight="1.7976931348623157E308" minWidth="-Infinity" text="%MainFrame.lblMergeMode.text">
+						<Label minWidth="-Infinity" text="%MainFrame.lblMergeMode.text">
 							<padding>
 								<Insets right="5.0" />
 							</padding>
@@ -72,9 +72,9 @@
 						<ComboBox fx:id="mergeModeCbx" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
 					</children>
 				</HBox>
-				<HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="25.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="10" GridPane.valignment="CENTER">
+				<HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="10" GridPane.valignment="CENTER">
 					<children>
-						<Label maxHeight="1.7976931348623157E308" minWidth="-Infinity" text="%MainFrame.lblHashCollision.text">
+						<Label minWidth="-Infinity" text="%MainFrame.lblHashCollision.text">
 							<padding>
 								<Insets right="5.0" />
 							</padding>
@@ -82,7 +82,7 @@
 						<ComboBox fx:id="collisionModeCbx" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
 					</children>
 				</HBox>
-				<ListView fx:id="dstExcludeGlob" editable="true" maxWidth="1.7976931348623157E308" minWidth="100.0" onEditCommit="#commitGlob" prefWidth="100.0" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.rowSpan="9">
+				<ListView fx:id="dstExcludeGlob" editable="true" minWidth="100.0" onEditCommit="#commitGlob" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.rowSpan="9">
 					<contextMenu>
 						<ContextMenu fx:id="dstExcludeGlobMenu" anchorX="0.0" anchorY="0.0" x="0.0" y="0.0">
 							<items>

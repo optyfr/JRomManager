@@ -134,7 +134,10 @@ public class BatchToolsPanelController extends BaseController
 	 */
 	private void initCompressor()
 	{
-		panelBatchToolsCompressor.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png")));
+		ImageView compressoriv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png"));
+		compressoriv.setPreserveRatio(true);
+		compressoriv.getStyleClass().add("icon");
+		panelBatchToolsCompressor.setGraphic(compressoriv);
 
 		new DragNDrop(tvBatchToolsCompressor).addAny(this::addFilesToCompressorList);
 		tvBatchToolsCompressorFileCol.setCellFactory(param -> new TableCell<FileResult, Path>()
@@ -177,9 +180,15 @@ public class BatchToolsPanelController extends BaseController
 		cbBatchToolsCompressorForce.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, Boolean.class));
 		cbBatchToolsCompressorForce.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.compressor_force, newValue));
 
-		btnBatchToolsCompressorClear.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bin.png")));
+		ImageView compressorcleariv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bin.png"));
+		compressorcleariv.setPreserveRatio(true);
+		compressorcleariv.getStyleClass().add("icon");
+		btnBatchToolsCompressorClear.setGraphic(compressorcleariv);
 		
-		btnBatchToolsCompressorStart.setGraphic(new ImageView(MainFrame.getIcon(ICON_BULLET_GO)));
+		ImageView compressorgoiv = new ImageView(MainFrame.getIcon(ICON_BULLET_GO));
+		compressorgoiv.setPreserveRatio(true);
+		compressorgoiv.getStyleClass().add("icon");
+		btnBatchToolsCompressorStart.setGraphic(compressorgoiv);
 		btnBatchToolsCompressorStart.setOnAction(e -> {
 			try
 			{
@@ -378,7 +387,10 @@ public class BatchToolsPanelController extends BaseController
 	 */
 	private void initTorrent()
 	{
-		panelBatchToolsDir2Torrent.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_web.png")));
+		ImageView torrentiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_web.png"));
+		torrentiv.setPreserveRatio(true);
+		torrentiv.getStyleClass().add("icon");
+		panelBatchToolsDir2Torrent.setGraphic(torrentiv);
 		
 		initTorrentList();
 
@@ -399,7 +411,10 @@ public class BatchToolsPanelController extends BaseController
 		cbBatchToolsTrntChkRemoveUnknownFiles.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_unknown_files, newValue));
 
 		btnBatchToolsTrntChkStart.setOnAction(e -> startTorrent());
-		btnBatchToolsTrntChkStart.setGraphic(new ImageView(MainFrame.getIcon(ICON_BULLET_GO)));
+		ImageView torrentgoiv = new ImageView(MainFrame.getIcon(ICON_BULLET_GO));
+		torrentgoiv.setPreserveRatio(true);
+		torrentgoiv.getStyleClass().add("icon");
+		btnBatchToolsTrntChkStart.setGraphic(torrentgoiv);
 }
 
 	/**
@@ -455,12 +470,18 @@ public class BatchToolsPanelController extends BaseController
 	 */
 	private void initDat2Dir()
 	{
-		panelBatchToolsDat2Dir.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_cascade.png")));
+		ImageView dat2diriv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_cascade.png"));
+		dat2diriv.setPreserveRatio(true);
+		dat2diriv.getStyleClass().add("icon");
+		panelBatchToolsDat2Dir.setGraphic(dat2diriv);
 		initDat2DirSrc();
 		initDat2DirDst();
 		cbBatchToolsDat2DirDryRun.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, Boolean.class));
 		cbBatchToolsDat2DirDryRun.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, newValue));
-		btnBatchToolsDir2DatStart.setGraphic(new ImageView(MainFrame.getIcon(ICON_BULLET_GO)));
+		ImageView dat2dirgoiv = new ImageView(MainFrame.getIcon(ICON_BULLET_GO));
+		dat2dirgoiv.setPreserveRatio(true);
+		dat2dirgoiv.getStyleClass().add("icon");
+		btnBatchToolsDir2DatStart.setGraphic(dat2dirgoiv);
 		btnBatchToolsDir2DatStart.setOnAction(e -> startDir2Dat());
 	}
 

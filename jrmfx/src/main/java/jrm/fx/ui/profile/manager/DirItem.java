@@ -15,14 +15,20 @@ public class DirItem extends TreeItem<Dir>
 	{
 		super(new Dir(file, "/"));
 		setExpanded(true);
-		setGraphic(new ImageView((MainFrame.getIcon("/jrm/resicons/folder_open.png"))));
+		ImageView i = new ImageView((MainFrame.getIcon("/jrm/resicons/folder_open.png")));
+		i.setPreserveRatio(true);
+		i.getStyleClass().add("icon");
+		setGraphic(i);
 		buildDirTree(getValue(), this);
 	}
 
 	private DirItem(Dir dir)
 	{
 		super(dir);
-		setGraphic(new ImageView((MainFrame.getIcon("/jrm/resicons/folder_open.png"))));
+		ImageView i = new ImageView((MainFrame.getIcon("/jrm/resicons/folder_open.png")));
+		i.setPreserveRatio(true);
+		i.getStyleClass().add("icon");
+		setGraphic(i);
 	}
 	
 	/**

@@ -163,49 +163,100 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		dirTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/folder.png")));
-		settingsTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/cog.png")));
-		filterTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/arrow_join.png")));
-		advFilterTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/arrow_in.png")));
-		automationTab.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/link.png")));
+		ImageView diri = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/folder.png"));
+		diri.setPreserveRatio(true);
+		diri.getStyleClass().add("icon");
+		dirTab.setGraphic(diri);
+		ImageView settingsi = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/cog.png"));
+		settingsi.setPreserveRatio(true);
+		settingsi.getStyleClass().add("icon");
+		settingsTab.setGraphic(settingsi);
+		ImageView filteri = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/arrow_join.png"));
+		filteri.setPreserveRatio(true);
+		filteri.getStyleClass().add("icon");
+		filterTab.setGraphic(filteri);
+		ImageView advfilteri = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/arrow_in.png"));
+		advfilteri.setPreserveRatio(true);
+		advfilteri.getStyleClass().add("icon");
+		advFilterTab.setGraphic(advfilteri);
+		ImageView automationi = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/link.png"));
+		automationi.setPreserveRatio(true);
+		automationi.getStyleClass().add("icon");
+		automationTab.setGraphic(automationi);
 		
-		romsDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
-		disksDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		ImageView romsdstiv = new ImageView(MainFrame.getIcon(DISK_ICON));
+		romsdstiv.setPreserveRatio(true);
+		romsdstiv.getStyleClass().add("icon");
+		romsDestBtn.setGraphic(romsdstiv);
+		ImageView disksdstiv = new ImageView(MainFrame.getIcon(DISK_ICON));
+		disksdstiv.setPreserveRatio(true);
+		disksdstiv.getStyleClass().add("icon");
+		disksDestBtn.setGraphic(disksdstiv);
 		disksDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			disksDest.setDisable(!newValue);
 			disksDestBtn.setDisable(!newValue);
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.disks_dest_dir_enabled, newValue);
 		});
-		swDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		ImageView swdstiv = new ImageView(MainFrame.getIcon(DISK_ICON));
+		swdstiv.setPreserveRatio(true);
+		swdstiv.getStyleClass().add("icon");
+		swDestBtn.setGraphic(swdstiv);
 		swDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			swDest.setDisable(!newValue);
 			swDestBtn.setDisable(!newValue);
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, newValue);
 		});
-		swDisksDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		ImageView swdiskdstiv = new ImageView(MainFrame.getIcon(DISK_ICON));
+		swdiskdstiv.setPreserveRatio(true);
+		swdiskdstiv.getStyleClass().add("icon");
+		swDisksDestBtn.setGraphic(swdiskdstiv);
 		swDisksDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			swDisksDest.setDisable(!newValue);
 			swDisksDestBtn.setDisable(!newValue);
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, newValue);
 		});
-		samplesDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		ImageView samplesdstiv = new ImageView(MainFrame.getIcon(DISK_ICON));
+		samplesdstiv.setPreserveRatio(true);
+		samplesdstiv.getStyleClass().add("icon");
+		samplesDestBtn.setGraphic(samplesdstiv);
 		samplesDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			samplesDest.setDisable(!newValue);
 			samplesDestBtn.setDisable(!newValue);
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.samples_dest_dir_enabled, newValue);
 		});
-		backupDestBtn.setGraphic(new ImageView(MainFrame.getIcon(DISK_ICON)));
+		ImageView basckupdstiv = new ImageView(MainFrame.getIcon(DISK_ICON));
+		basckupdstiv.setPreserveRatio(true);
+		basckupdstiv.getStyleClass().add("icon");
+		backupDestBtn.setGraphic(basckupdstiv);
 		backupDestCB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			backupDest.setDisable(!newValue);
 			backupDestBtn.setDisable(!newValue);
 			session.getCurrProfile().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, newValue);
 		});
-		infosBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/information.png")));
-		scanBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/magnifier.png")));
-		reportBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/report.png")));
-		fixBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/tick.png")));
-		importBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/table_refresh.png")));
-		exportBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/table_save.png")));
+		ImageView infosiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/information.png"));
+		infosiv.setPreserveRatio(true);
+		infosiv.getStyleClass().add("icon");
+		infosBtn.setGraphic(infosiv);
+		ImageView scaniv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/magnifier.png"));
+		scaniv.setPreserveRatio(true);
+		scaniv.getStyleClass().add("icon");
+		scanBtn.setGraphic(scaniv);
+		ImageView reportiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/report.png"));
+		reportiv.setPreserveRatio(true);
+		reportiv.getStyleClass().add("icon");
+		reportBtn.setGraphic(reportiv);
+		ImageView fixiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/tick.png"));
+		fixiv.setPreserveRatio(true);
+		fixiv.getStyleClass().add("icon");
+		fixBtn.setGraphic(fixiv);
+		ImageView importiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/table_refresh.png"));
+		importiv.setPreserveRatio(true);
+		importiv.getStyleClass().add("icon");
+		importBtn.setGraphic(importiv);
+		ImageView exportiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/table_save.png"));
+		exportiv.setPreserveRatio(true);
+		exportiv.getStyleClass().add("icon");
+		exportBtn.setGraphic(exportiv);
 		
 		srcList.setCellFactory(param -> new ListCell<File>()
 		{
@@ -858,6 +909,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 		if (MainFrame.getProfileViewer() != null)
 		{
 			MainFrame.getProfileViewer().show();
+			MainFrame.applyCSS();
 			//MainFrame.getProfileViewer().reset(session.getCurrProfile());
 			MainFrame.getProfileViewer().reload();
 		}

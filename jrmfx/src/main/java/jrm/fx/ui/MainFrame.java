@@ -8,6 +8,7 @@ import java.util.Optional;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -15,12 +16,15 @@ import jrm.fx.ui.misc.Settings;
 import jrm.fx.ui.profile.ProfileViewer;
 import jrm.fx.ui.profile.report.ReportFrame;
 import jrm.locale.Messages;
+import jrm.misc.EnumWithDefault;
 import jrm.misc.Log;
 import jrm.security.Session;
 import jrm.security.Sessions;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(chain=true)
 public class MainFrame extends Application
 {
 	private static @Getter MainFrameController controller;
@@ -33,6 +37,8 @@ public class MainFrame extends Application
 	
 	private static @Getter Application application;
 	
+	private static @Getter @Setter JRMScene primaryScene;
+	
 	public static void launch()
 	{
 		Application.launch();
@@ -43,6 +49,8 @@ public class MainFrame extends Application
 	{
 		System.out.println("Starting...");
 		setApplication(this);
+		
+		JRMScene.setSheet(session.getUser().getSettings().getEnumProperty(JRMScene.ScenePrefs.style_sheet, JRMScene.StyleSheet.class));
 		final var loading = new Loading();
 		Platform.runLater(() -> {
 			try
@@ -53,7 +61,8 @@ public class MainFrame extends Application
 				});
 				primaryStage.getIcons().add(getIcon("/jrm/resicons/rom.png"));
 				primaryStage.setTitle(Messages.getString("MainFrame.Title") + " " + getVersion());
-				primaryStage.setScene(new JRMScene(loadMain()));
+				setPrimaryScene(new JRMScene(loadMain()));
+				primaryStage.setScene(primaryScene);
 				setReportFrame(new ReportFrame(primaryStage));
 				Settings.fromJson(session.getUser().getSettings().getProperty("MainFrame.Bounds", null), primaryStage);
 				primaryStage.show();
@@ -72,6 +81,16 @@ public class MainFrame extends Application
 		}));
 	}
 
+	public static void applyCSS()
+	{
+		JRMScene.setSheet(session.getUser().getSettings().getEnumProperty(JRMScene.ScenePrefs.style_sheet, JRMScene.StyleSheet.class));
+		getPrimaryScene().applySheet();
+		if(reportFrame != null && reportFrame.getScene() instanceof JRMScene s)
+			s.applySheet();
+		if(profileViewer != null && profileViewer.getScene() instanceof JRMScene s)
+			s.applySheet();
+	}
+	
 	private static synchronized TabPane loadMain() throws URISyntaxException, IOException
 	{
 		final var loader = new FXMLLoader(MainFrame.class.getResource("MainFrame.fxml").toURI().toURL(), Messages.getBundle());

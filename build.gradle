@@ -337,7 +337,7 @@ project(':jrmfx') {
 	apply plugin: "org.openjfx.javafxplugin"
 	
 	javafx {
-		version = '21'
+		version = '22'
 		modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web' ]
 	}
 
@@ -857,6 +857,7 @@ jlink {
 	//	requires 'com.google.gson'
 		requires 'ch.qos.logback.classic'
 	//	requires 'one.util.streamex'
+		requires 'jdk.zipfs'
 	}
 	launcher {
 		name = 'JRomManager'
