@@ -35,4 +35,10 @@ public class EntryMissingDuplicate extends EntryExtNote implements Serializable
 	{
 		return toDocument(String.format(escape(Messages.getString("EntryMissingDuplicate.MissingDuplicate")), toBlue(parent.ware.getFullName()), toBoldBlack(entry.getRelFile()), toBoldBlack(entity.getName()))); //$NON-NLS-1$
 	}
+
+	@Override
+	public String getAbbrv()
+	{
+		return "DUP";
+	}
 }

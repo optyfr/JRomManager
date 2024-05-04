@@ -184,11 +184,11 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
 	 * @param progress the {@link ProgressHandler} to show the current progress
 	 * @param is_mame is it mame (true) or logqix (false) format ?
-	 * @param filtered do we use the current machine filters of none
+	 * @param modes the export modes
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final Set<ExportMode> modes) throws XMLStreamException, IOException
 	{
 		final List<MachineList> lists = getFilteredStream().toList();
 		if(lists.size() > 0)
@@ -203,7 +203,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
 				writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
 			for(final MachineList list : lists)
-				list.export(writer, progress, is_mame, filtered);
+				list.export(writer, progress, is_mame, modes);
 			writer.writeEndDocument();
 		}
 	}

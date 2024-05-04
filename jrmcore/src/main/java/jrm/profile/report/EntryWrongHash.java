@@ -48,4 +48,10 @@ public class EntryWrongHash extends EntryExtNote implements Serializable
 			return toDocument(String.format(escape(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBoldBlack(entry.getRelFile()), "SHA-1", entry.getSha1(), getSha1())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
+	public String getAbbrv()
+	{
+		return "WHASH";
+	}
+
 }

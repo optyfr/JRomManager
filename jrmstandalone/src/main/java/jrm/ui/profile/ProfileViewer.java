@@ -44,6 +44,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.JDialog;
@@ -83,6 +84,7 @@ import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.EntityStatus;
+import jrm.profile.data.ExportMode;
 import jrm.profile.data.Machine;
 import jrm.profile.data.MachineList;
 import jrm.profile.data.Software;
@@ -319,30 +321,30 @@ public class ProfileViewer extends JDialog
 
 		final var mntmFilteredAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsLogiqxDat);
-		mntmFilteredAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, true, null));
+		mntmFilteredAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, EnumSet.of(ExportMode.FILTERED), null));
 
 		final var mntmFilteredAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsMameDat);
-		mntmFilteredAsMameDat.addActionListener(e -> export(session, ExportType.MAME, true, null));
+		mntmFilteredAsMameDat.addActionListener(e -> export(session, ExportType.MAME, EnumSet.of(ExportMode.FILTERED), null));
 
 		final var mntmFilteredAsSoftwareLists = new JMenuItem(Messages.getString(PROFILE_VIEWER_AS_SW_LISTS_DAT)); //$NON-NLS-1$
 		mnExportAllFiltered.add(mntmFilteredAsSoftwareLists);
-		mntmFilteredAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, true, null));
+		mntmFilteredAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null));
 
 		final var mntmAllAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
 		mntmAllAsLogiqxDat.setEnabled(false);
 		mnExportAll.add(mntmAllAsLogiqxDat);
-		mntmAllAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, false, null));
+		mntmAllAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, EnumSet.of(ExportMode.ALL), null));
 
 		final var mntmAllAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
 		mntmAllAsMameDat.setEnabled(false);
 		mnExportAll.add(mntmAllAsMameDat);
-		mntmAllAsMameDat.addActionListener(e -> export(session, ExportType.MAME, false, null));
+		mntmAllAsMameDat.addActionListener(e -> export(session, ExportType.MAME, EnumSet.of(ExportMode.ALL), null));
 
 		final var mntmAllAsSoftwareLists = new JMenuItem(Messages.getString(PROFILE_VIEWER_AS_SW_LISTS_DAT)); //$NON-NLS-1$
 		mntmAllAsSoftwareLists.setEnabled(false);
 		mnExportAll.add(mntmAllAsSoftwareLists);
-		mntmAllAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, false, null));
+		mntmAllAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), null));
 
 		final var mnExportSelected = new JMenu(Messages.getString("ProfileViewer.ExportSelected")); //$NON-NLS-1$
 		popupMenu.add(mnExportSelected);
@@ -352,12 +354,12 @@ public class ProfileViewer extends JDialog
 
 		final var mntmSelectedFilteredAsSoftwareList = new JMenuItem(Messages.getString("ProfileViewer.AsSWListDat")); //$NON-NLS-1$
 		mnExportSelectedFiltered.add(mntmSelectedFilteredAsSoftwareList);
-		mntmSelectedFilteredAsSoftwareList.addActionListener(e -> export(session, ExportType.SOFTWARELIST, true, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
+		mntmSelectedFilteredAsSoftwareList.addActionListener(e -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
 
 		final var mntmSelectedAsSoftwareLists = new JMenuItem(Messages.getString(PROFILE_VIEWER_AS_SW_LISTS_DAT)); //$NON-NLS-1$
 		mntmSelectedAsSoftwareLists.setEnabled(false);
 		mnExportSelected.add(mntmSelectedAsSoftwareLists);
-		mntmSelectedAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, false, (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
+		mntmSelectedAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
 
 		popupMenu.addPopupMenuListener(new PopupMenuListener()
 		{
@@ -832,7 +834,7 @@ public class ProfileViewer extends JDialog
 	 * @param filtered the filtered
 	 * @param selection the selection
 	 */
-	private void export(final Session session, final ExportType type, final boolean filtered, final SoftwareList selection)
+	private void export(final Session session, final ExportType type, final Set<ExportMode> modes, final SoftwareList selection)
 	{
 		final var fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY, Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).orElse(null), null, Arrays.asList(fnef), Messages.getString("ProfileViewer.ChooseDestinationFile"), false).show(ProfileViewer.this, chooser -> { //$NON-NLS-1$//$NON-NLS-2$
@@ -844,7 +846,7 @@ public class ProfileViewer extends JDialog
 				@Override
 				protected Void doInBackground() throws Exception
 				{
-					Export.export(session.getCurrProfile(), file, type, filtered, selection, this);
+					Export.export(session.getCurrProfile(), file, type, modes, selection, this);
 					return null;
 				}
 				

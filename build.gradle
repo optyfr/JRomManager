@@ -177,7 +177,7 @@ subprojects {
 				"Implementation-Version" : props.getProperty("Implementation-Version")
 			)
 		}
-		archiveFileName = 'jrm-' + base.archivesBaseName + '-' + project.version + '.jar'
+		archiveFileName = 'jrm-' + project.name + '-' + project.version + '.jar'
 	}
 }
 
@@ -526,7 +526,7 @@ jar {
 			"Main-Class"           : mainClassName,
 			"Class-Path"           : path
 		)
-		archiveFileName = base.archivesBaseName + '.jar'
+		archiveFileName = project.name + '.jar'
 	}
 }
 
@@ -780,7 +780,7 @@ task docZip(type: Zip, dependsOn: aggregatedJavadocs) {
 	archiveClassifier = 'javadocs'
 	from javadoc.outputs.files
 	into "docs"
-	archiveFileName = base.archivesBaseName + '-' + project.version + '-apidocs' + '.zip'
+	archiveFileName = project.name + '-' + project.version + '-apidocs' + '.zip'
 	destinationDirectory = file("$buildDir/distributions/")
 }
 

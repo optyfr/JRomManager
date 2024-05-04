@@ -116,41 +116,43 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
 	 * Export as dat
 	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
 	 * @param progress the {@link ProgressHandler} to show the current progress
-	 * @param filtered do we use the current machine filters of none
+	 * @param modes the export modes
 	 * @param selection the selected software list (null if none selected)
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean filtered, final SoftwareList selection) throws XMLStreamException, IOException
+	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final Set<ExportMode> modes, final SoftwareList selection) throws XMLStreamException, IOException
 	{
 		final List<SoftwareList> lists;
-		if(selection!=null)
+		if (selection != null)
 			lists = Collections.singletonList(selection);
 		else
 		{
-			if(filtered)
-				lists=getFilteredStream().toList();
+			if (modes.contains(ExportMode.FILTERED))
+				lists = getFilteredStream().toList();
 			else
-				lists=getList();
+				lists = getList();
 		}
-		if(lists.size() > 0)
+		if (lists.size() > 0)
 		{
-			writer.writeStartDocument("UTF-8","1.0"); //$NON-NLS-1$ //$NON-NLS-2$
-			if(lists.size() > 1)
+			writer.writeStartDocument("UTF-8", "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (lists.size() > 1)
 			{
-				writer.writeDTD("<!DOCTYPE softwarelists [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelists.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				writer.writeDTD("<!DOCTYPE softwarelists [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelists.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+																																																// //$NON-NLS-4$
 				writer.writeStartElement("softwarelists"); //$NON-NLS-1$
 			}
 			else
-				writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+																																																// //$NON-NLS-4$
 			progress.setProgress("Exporting", 0, lists.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
-			progress.setProgress2(String.format(N_OF_T, 0, lists.size()), 0, lists.size()); //$NON-NLS-1$
-			for(final SoftwareList list : lists)
+			progress.setProgress2(String.format(N_OF_T, 0, lists.size()), 0, lists.size()); // $NON-NLS-1$
+			for (final SoftwareList list : lists)
 			{
-				if(progress.isCancel())
+				if (progress.isCancel())
 					break;
-				list.export(writer, filtered, progress);
-				progress.setProgress2(String.format(N_OF_T, progress.getCurrent2()+1, lists.size()), progress.getCurrent2()+1); //$NON-NLS-1$
+				list.export(writer, modes, progress);
+				progress.setProgress2(String.format(N_OF_T, progress.getCurrent2() + 1, lists.size()), progress.getCurrent2() + 1); // $NON-NLS-1$
 			}
 			writer.writeEndDocument();
 		}

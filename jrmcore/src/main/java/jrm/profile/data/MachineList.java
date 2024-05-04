@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -282,16 +283,16 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
 	 * @param progress the {@link ProgressHandler} to show the current progress
 	 * @param is_mame is it mame (true) or logqix (false) format ?
-	 * @param filtered do we use the current machine filters of none
+	 * @param modes the export modes
 	 * @throws XMLStreamException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final boolean filtered) throws XMLStreamException
+	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final Set<ExportMode> modes) throws XMLStreamException
 	{
 		if(is_mame)
 			writer.writeStartElement("mame"); //$NON-NLS-1$
 		else
 			writer.writeStartElement("datafile"); //$NON-NLS-1$
-		final List<Machine> list = filtered ? getFilteredStream().toList() : getList();
+		final List<Machine> list = modes.contains(ExportMode.FILTERED) ? getFilteredStream().toList() : getList();
 		var i = 0;
 		progress.setProgress(profile.getSession().getMsgs().getString("MachineList.Exporting"), i, list.size()); //$NON-NLS-1$
 		for(final Machine m : list)
@@ -299,8 +300,12 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			if(progress.isCancel())
 				break;
 			progress.setProgress(String.format(profile.getSession().getMsgs().getString("MachineList.Exporting_%s"), m.name), ++i); //$NON-NLS-1$
-			if(!filtered || m.isSelected())
-				m.export(writer, is_mame);
+			if (modes.contains(ExportMode.ALL)
+				|| (modes.contains(ExportMode.FILTERED) && m.isSelected())
+				|| (modes.contains(ExportMode.MISSING) && m.getStatus() != AnywareStatus.COMPLETE && m.getStatus() != AnywareStatus.UNKNOWN)
+				|| (modes.contains(ExportMode.HAVE) && m.getStatus() != AnywareStatus.MISSING && m.getStatus() != AnywareStatus.UNKNOWN)
+			)
+				m.export(writer, is_mame, modes);
 		}
 		writer.writeEndElement();
 	}

@@ -51,7 +51,8 @@ public enum SettingsEnum implements EnumWithDefault
 	dir2dat_junk_folders(false, "dir2dat.junk_folders"), // NOSONAR
 	dir2dat_do_not_scan_archives(false, "dir2dat.do_not_scan_archives"), // NOSONAR
 	dir2dat_match_profile(false, "dir2dat.match_profile"), // NOSONAR
-	dir2dat_include_empty_dirs(false, "dir2dat.include_empty_dirs"); // NOSONAR
+	dir2dat_include_empty_dirs(false, "dir2dat.include_empty_dirs"), // NOSONAR
+	report_settings("[\"STATS\",\"COMPACT\"]","report.settings"); // NOSONAR
 	
 	private String name = null;
 	private Object dflt = null;

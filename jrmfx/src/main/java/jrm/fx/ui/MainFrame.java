@@ -1,9 +1,11 @@
 package jrm.fx.ui;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.Set;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -11,13 +13,22 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.misc.Settings;
 import jrm.fx.ui.profile.ProfileViewer;
 import jrm.fx.ui.profile.report.ReportFrame;
+import jrm.fx.ui.progress.ProgressTask;
 import jrm.locale.Messages;
+import jrm.misc.BreakException;
 import jrm.misc.EnumWithDefault;
 import jrm.misc.Log;
+import jrm.profile.data.ExportMode;
+import jrm.profile.data.SoftwareList;
+import jrm.profile.manager.Export;
+import jrm.profile.manager.Export.ExportType;
 import jrm.security.Session;
 import jrm.security.Sessions;
 import lombok.Getter;
@@ -152,5 +163,62 @@ public class MainFrame extends Application
 	private static synchronized void setApplication(Application application)
 	{
 		MainFrame.application = application;
+	}
+
+	public static void export(Window owner, final Session session, final ExportType type, final Set<ExportMode> modes, final SoftwareList selection)
+	{
+		final var chooser = new FileChooser();
+		Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).ifPresent(chooser::setInitialDirectory);
+		chooser.setTitle(Messages.getString("ProfileViewer.ChooseDestinationFile"));
+		final var fnef = new FileChooser.ExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		chooser.getExtensionFilters().add(fnef);
+		chooser.setSelectedExtensionFilter(fnef);
+		final var chosen = chooser.showSaveDialog(owner);
+		if (chosen != null)
+		{
+			try
+			{
+				final var thread = new Thread(new ProgressTask<Void>((Stage) owner)
+				{
+					@Override
+					protected Void call() throws Exception
+					{
+						Export.export(session.getCurrProfile(), chosen, type, modes, selection, this);
+						return null;
+					}
+					
+					@Override
+					protected void succeeded()
+					{
+						close();
+					}
+
+					@Override
+					protected void failed()
+					{
+						close();
+						if (getException() instanceof BreakException)
+							Dialogs.showAlert("Cancelled");
+						else
+						{
+							Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
+								Log.err(cause.getMessage(), cause);
+								Dialogs.showError(cause);
+							}, () -> {
+								Log.err(getException().getMessage(), getException());
+								Dialogs.showError(getException());
+							});
+						}
+					}
+				});
+				thread.setDaemon(true);
+				thread.start();
+			}
+			catch (IOException | URISyntaxException e)
+			{
+				Log.err(e.getMessage(), e);
+				Dialogs.showError(e);
+			}
+		}
 	}
 }

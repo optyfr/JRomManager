@@ -32,12 +32,12 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -45,12 +45,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.eclipsesource.json.Json;
+
 import jrm.aui.profile.report.ReportTreeDefaultHandler;
 import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.aui.progress.StatusHandler;
 import jrm.aui.status.StatusRendererFactory;
 import jrm.locale.Messages;
 import jrm.misc.Log;
+import jrm.misc.SettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.security.Session;
@@ -65,15 +68,17 @@ import one.util.streamex.IntStreamEx;
  */
 public class Report extends AbstractList<Subject> implements StatusRendererFactory, Serializable, ReportIntf<Report>
 {
+	private static final String REPORT_FILE_STR = "reportFile";
 	private static final String STATS_STR = "stats";
 	private static final String SUBJECTS_STR = "subjects";
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 3L;
 	/**
 	 * the related {@link Profile}
 	 */
-	private transient Profile profile = null;
+	@Getter private transient Profile profile = null;
 	private transient File file = null;
 	private transient long fileModified = 0L;
+	@Getter private File reportFile = null;
 	/**
 	 * the {@link List} of {@link Subject} nodes
 	 */
@@ -102,7 +107,8 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	
 	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
 		new ObjectStreamField(SUBJECTS_STR, List.class),
-		new ObjectStreamField(STATS_STR, Stats.class)
+		new ObjectStreamField(STATS_STR, Stats.class),
+		new ObjectStreamField(REPORT_FILE_STR, File.class)
 	};
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
@@ -110,6 +116,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		final ObjectOutputStream.PutField fields = stream.putFields();
 		fields.put(SUBJECTS_STR, subjects); //$NON-NLS-1$
 		fields.put(STATS_STR, stats); //$NON-NLS-1$
+		fields.put(REPORT_FILE_STR, reportFile); //$NON-NLS-1$
 		stream.writeFields();
 	}
 
@@ -119,6 +126,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		final ObjectInputStream.GetField fields = stream.readFields();
 		subjects = (List<Subject>) fields.get(SUBJECTS_STR, Collections.synchronizedList(new ArrayList<>())); //$NON-NLS-1$
 		stats = (Stats) fields.get(STATS_STR, new Stats()); //$NON-NLS-1$
+		reportFile = (File)fields.get(REPORT_FILE_STR, (File)null);
 		subjectHash = subjects.stream()
 				.peek(s -> s.parent = this)	//NOSONAR
 				.collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
@@ -379,6 +387,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		subjectHash = subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
 		stats = report.stats;
 		file = report.file;
+		reportFile = report.file;
 		fileModified = report.fileModified;
 	}
 
@@ -401,7 +410,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	public List<Subject> filter(final Set<FilterOptions> filterOptions)
 	{
 		filterPredicate = new FilterPredicate(filterOptions);
-		return stream(filterOptions).map(s -> s.clone(filterOptions)).sorted(Subject.getComparator()).collect(Collectors.toList());
+		return stream(filterOptions).map(s -> s.clone(filterOptions)).sorted(Subject.getComparator()).collect(Collectors.toList()); //NOSONAR list must be mutable
 	}
 
 	public Stream<Subject> stream(final Set<FilterOptions> filterOptions)
@@ -505,7 +514,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	/**
 	 * cache made to trigger ui notification events as few as possible
 	 */
-	private final transient Map<Integer, Subject> insertObjectCache = Collections.synchronizedMap(new LinkedHashMap<>(250));
+	private final transient Map<Integer, Subject> insertObjectCache = Collections.synchronizedMap(LinkedHashMap.newLinkedHashMap(250));
 
 	/**
 	 * add a {@link Subject} to the Report
@@ -556,43 +565,112 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 			insertObjectCache.clear();
 		}
 	}
+	
+	enum ReportMode
+	{
+		SETTINGS,
+		STATS,
+		OK,
+		FIXABLE,
+		OTHERS,
+		COMPACT
+	}
 
 	/**
 	 * write a textual report to reports/report.log
 	 */
 	public void write(final Session session)
 	{
+		final var jsondata = session.getUser().getSettings().getProperty(SettingsEnum.report_settings);
+		final var jsonarray = Json.parse(jsondata);
+		final var modes = EnumSet.noneOf(ReportMode.class);
+		if (jsonarray.isArray())
+			for (final var jsonvalue : jsonarray.asArray())
+				if (jsonvalue.isString())
+					modes.add(ReportMode.valueOf(jsonvalue.asString()));		
+		
 		final File workdir = session.getUser().getSettings().getWorkPath().toFile(); //$NON-NLS-1$
 		final File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
 		reportdir.mkdirs();
-		final File reportFile = new File(reportdir, "report-"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".log"); //$NON-NLS-1$
+		reportFile = new File(reportdir, "report-"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".log"); //$NON-NLS-1$
 		try(PrintWriter reportWriter = new PrintWriter(reportFile))
 		{
 			reportWriter.println("=== Scanned Profile ===");
 			reportWriter.println(profile.getNfo().getFile());
 			reportWriter.println();
-			reportWriter.println("=== Used Profile Properties ===");
-			profile.getSettings().getProperties().store(reportWriter, null);
-			reportWriter.println();
+			if(modes.contains(ReportMode.SETTINGS))
+			{
+				reportWriter.println("=== Used Profile Properties ===");
+				profile.getSettings().getProperties().store(reportWriter, null);
+				reportWriter.println();
+			}
+			if(modes.contains(ReportMode.STATS))
+			{
+				reportWriter.println("=== Statistics ===");
+				reportWriter.println(String.format(Messages.getString("Report.MissingSets"), stats.missingSetCnt, profile.getMachinesCnt())); //$NON-NLS-1$
+				reportWriter.println(String.format(Messages.getString("Report.MissingRoms"), stats.missingRomsCnt, profile.getRomsCnt())); //$NON-NLS-1$
+				reportWriter.println(String.format(Messages.getString("Report.MissingDisks"), stats.missingDisksCnt, profile.getDisksCnt())); //$NON-NLS-1$
+				int total = stats.setCreate + stats.setFound + stats.setMissing;
+				int ok = stats.setCreateComplete + stats.setFoundFixComplete + stats.setFoundOk;
+				reportWriter.println(String.format("Missing sets after Fix : %d%n", total - ok)); //$NON-NLS-1$
+				reportWriter.println();
+			}
 			reportWriter.println("=== Scanner Report ===");
 			subjects.forEach(subject -> {
-				reportWriter.println(subject);
-				subject.notes.forEach(note -> reportWriter.println("\t" + note));	//$NON-NLS-1$
+				if(subject instanceof SubjectSet ss)
+				{
+					if(ss.isOK() && modes.contains(ReportMode.OK))
+					{
+						if (!modes.contains(ReportMode.COMPACT))
+							reportWriter.println(ss);
+						subject.notes.forEach(note -> writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT)));	//$NON-NLS-1$
+					}
+					else if(ss.isMissing())
+					{
+						if (!modes.contains(ReportMode.COMPACT))
+							reportWriter.println(subject);
+						subject.notes.forEach(note -> writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT)));	//$NON-NLS-1$
+					}
+					else if(ss.isFixable() && modes.contains(ReportMode.FIXABLE))
+					{
+						if (!modes.contains(ReportMode.COMPACT))
+							reportWriter.println(subject);
+						subject.notes.forEach(note -> {
+							if (modes.contains(ReportMode.OK) && note instanceof EntryOK)
+								writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT));
+							if (modes.contains(ReportMode.FIXABLE) && (note instanceof EntryAdd || note instanceof EntryMissingDuplicate || note instanceof EntryUnneeded || note instanceof EntryWrongName))
+								writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT));
+							if (note instanceof EntryWrongHash || note instanceof EntryMissing)
+								writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT));
+						});
+					}
+				}
+				else if(modes.contains(ReportMode.OTHERS))
+				{
+					if (!modes.contains(ReportMode.COMPACT))
+						reportWriter.println(subject);
+					subject.notes.forEach(note -> writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT)));	//$NON-NLS-1$
+				}
 			});
 			reportWriter.println();
-			reportWriter.println("=== Statistics ===");
-			reportWriter.println(String.format(Messages.getString("Report.MissingSets"), stats.missingSetCnt, profile.getMachinesCnt())); //$NON-NLS-1$
-			reportWriter.println(String.format(Messages.getString("Report.MissingRoms"), stats.missingRomsCnt, profile.getRomsCnt())); //$NON-NLS-1$
-			reportWriter.println(String.format(Messages.getString("Report.MissingDisks"), stats.missingDisksCnt, profile.getDisksCnt())); //$NON-NLS-1$
-			int total = stats.setCreate + stats.setFound + stats.setMissing;
-			int ok = stats.setCreateComplete + stats.setFoundFixComplete + stats.setFoundOk;
-			reportWriter.println(String.format("Missing sets after Fix : %d%n", total - ok)); //$NON-NLS-1$
 		}
 		catch(final IOException e)
 		{
 			Log.err(e.getMessage(),e);
 		}
-
+	}
+	
+	private void writeReport(PrintWriter reportWriter, Note note, boolean compact)
+	{
+		if(compact)
+		{
+			if (note.parent != null)
+				reportWriter.println(note.getAbbrv()+" :\t[" + note.parent.getWare().getBaseName() + "]\t" + note.getName() + "\t(" + note.getSha1() + ")");
+			else
+				reportWriter.println(note.getName() + " (" + note.getSha1() + ")");
+		}
+		else
+			reportWriter.println("\t" + note);
 	}
 
 	@Override

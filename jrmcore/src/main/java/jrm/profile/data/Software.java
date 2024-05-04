@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
@@ -216,13 +217,13 @@ public class Software extends Anyware implements Serializable
 	 * @param entries can be null, if specified, will filter according this entries list
 	 * @throws XMLStreamException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries) throws XMLStreamException
+	public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, Set<ExportMode> modes) throws XMLStreamException
 	{
 		writer.writeStartElement("software", //$NON-NLS-1$
-				new SimpleAttribute("name", name), //$NON-NLS-1$
-				new SimpleAttribute("cloneof", cloneof), //$NON-NLS-1$
-				new SimpleAttribute("supported", supported.getXML()) //$NON-NLS-1$
-				);
+			new SimpleAttribute("name", name), //$NON-NLS-1$
+			new SimpleAttribute("cloneof", cloneof), //$NON-NLS-1$
+			new SimpleAttribute("supported", supported.getXML()) //$NON-NLS-1$
+		);
 		writer.writeElement("description", description); //$NON-NLS-1$
 		if (year.length() > 0)
 			writer.writeElement("year", year); //$NON-NLS-1$
@@ -231,11 +232,11 @@ public class Software extends Anyware implements Serializable
 		for(final Part part : parts)
 		{
 			writer.writeStartElement("part", //$NON-NLS-1$
-					new SimpleAttribute("name", part.name), //$NON-NLS-1$
-					new SimpleAttribute("interface", part.intrface) //$NON-NLS-1$
-					);
-			exportRoms(writer, entries, part);
-			exportDisks(writer, entries, part);
+				new SimpleAttribute("name", part.name), //$NON-NLS-1$
+				new SimpleAttribute("interface", part.intrface) //$NON-NLS-1$
+			);
+			exportRoms(writer, entries, part, modes);
+			exportDisks(writer, entries, part, modes);
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
@@ -249,8 +250,11 @@ public class Software extends Anyware implements Serializable
 	 * @throws XMLStreamException
 	 */
 	@SuppressWarnings("unlikely-arg-type")
-	private void exportRoms(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part) throws XMLStreamException
+	private void exportRoms(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part, Set<ExportMode> modes) throws XMLStreamException
 	{
+		final var missing = modes.contains(ExportMode.MISSING);
+		final var have = modes.contains(ExportMode.HAVE);
+		final var all = modes.contains(ExportMode.ALL) || modes.contains(ExportMode.FILTERED);
 		for(final DataArea dataarea : part.dataareas)
 		{
 			writer.writeStartElement("dataarea", //$NON-NLS-1$
@@ -261,7 +265,8 @@ public class Software extends Anyware implements Serializable
 					);
 			for(final Rom r : dataarea.roms)
 				if(entries==null || entries.contains(r))	//NOSONAR
-					r.export(writer,true);
+					if(all || (missing && r.getStatus()==EntityStatus.KO) || (have && r.getStatus()==EntityStatus.OK))
+						r.export(writer,true);
 			writer.writeEndElement();
 		}
 	}
@@ -273,8 +278,11 @@ public class Software extends Anyware implements Serializable
 	 * @throws XMLStreamException
 	 */
 	@SuppressWarnings("unlikely-arg-type")
-	private void exportDisks(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part) throws XMLStreamException
+	private void exportDisks(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part, Set<ExportMode> modes) throws XMLStreamException
 	{
+		final var missing = modes.contains(ExportMode.MISSING);
+		final var have = modes.contains(ExportMode.HAVE);
+		final var all = modes.contains(ExportMode.ALL) || modes.contains(ExportMode.FILTERED);
 		for(final DiskArea diskarea : part.diskareas)
 		{
 			writer.writeStartElement("diskarea", //$NON-NLS-1$
@@ -282,7 +290,8 @@ public class Software extends Anyware implements Serializable
 					);
 			for(final Disk d : diskarea.disks)
 				if(entries==null || entries.contains(d))	//NOSONAR
-					d.export(writer,true);
+					if(all || (missing && d.getStatus()==EntityStatus.KO) || (have && d.getStatus()==EntityStatus.OK))
+						d.export(writer,true);
 			writer.writeEndElement();
 		}
 	}

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -189,24 +190,28 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
 	/**
 	 * Export as dat
 	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
-	 * @param filtered do we use the current machine filters of none
+	 * @param modes the export modes
 	 * @param progress the {@link ProgressHandler} to show the current progress
 	 * @throws XMLStreamException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, boolean filtered, final ProgressHandler progress) throws XMLStreamException
+	public void export(final EnhancedXMLStreamWriter writer, Set<ExportMode> modes, final ProgressHandler progress) throws XMLStreamException
 	{
 		writer.writeStartElement("softwarelist", //$NON-NLS-1$
 				new SimpleAttribute("name", name), //$NON-NLS-1$
 				new SimpleAttribute("description", description) //$NON-NLS-1$
 		);
-		final List<Software> list = filtered ? getFilteredStream().toList() : getList();
+		final List<Software> list = modes.contains(ExportMode.FILTERED) ? getFilteredStream().toList() : getList();
 		for (final Software s : list) {
 			if (progress.isCancel())
 				break;
 			progress.setProgress(String.format(profile.getSession().getMsgs().getString("SoftwareList.Exporting_%s"), //$NON-NLS-1$
 					s.getFullName()), progress.getCurrent() + 1);
-			if (!filtered || s.isSelected())
-				s.export(writer, null);
+			if (modes.contains(ExportMode.ALL)
+				|| (modes.contains(ExportMode.FILTERED) && s.isSelected())
+				|| (modes.contains(ExportMode.MISSING) && s.getStatus() != AnywareStatus.COMPLETE && s.getStatus() != AnywareStatus.UNKNOWN)
+				|| (modes.contains(ExportMode.HAVE) && s.getStatus() != AnywareStatus.MISSING && s.getStatus() != AnywareStatus.UNKNOWN)
+			)
+				s.export(writer, null, modes);
 		}
 		writer.writeEndElement();
 	}

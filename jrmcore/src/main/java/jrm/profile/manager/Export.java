@@ -19,6 +19,7 @@ package jrm.profile.manager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
@@ -27,6 +28,7 @@ import javax.xml.stream.XMLStreamException;
 import jrm.aui.progress.ProgressHandler;
 import jrm.misc.Log;
 import jrm.profile.Profile;
+import jrm.profile.data.ExportMode;
 import jrm.profile.data.SoftwareList;
 import jrm.xml.EnhancedXMLStreamWriter;
 
@@ -61,11 +63,11 @@ public class Export
 	 * @param profile the {@link Profile} to export
 	 * @param file the destination {@link File}
 	 * @param type the {@link ExportType} format
-	 * @param filtered whether we should use selected filter or not
+	 * @param modes export mode (see {@link ExportMode}
 	 * @param selection if {@link ExportType#SOFTWARELIST} type, will export only the selected {@link SoftwareList}, null to export all software lists in a single file
 	 * @param progress optional {@link ProgressHandler} to show export progression
 	 */
-	public static void export(final Profile profile, final File file, final ExportType type, final boolean filtered, final SoftwareList selection, final ProgressHandler progress)
+	public static void export(final Profile profile, final File file, final ExportType type, final Set<ExportMode> modes, final SoftwareList selection, final ProgressHandler progress)
 	{
 		EnhancedXMLStreamWriter writer = null;
 		try(FileOutputStream fos = new FileOutputStream(file))
@@ -74,13 +76,13 @@ public class Export
 			switch(type)
 			{
 				case MAME:
-					profile.getMachineListList().export(writer, progress, true, filtered);
+					profile.getMachineListList().export(writer, progress, true, modes);
 					break;
 				case DATAFILE:
-					profile.getMachineListList().export(writer, progress, false, filtered);
+					profile.getMachineListList().export(writer, progress, false, modes);
 					break;
 				case SOFTWARELIST:
-					profile.getMachineListList().getSoftwareListList().export(writer, progress, filtered, selection);
+					profile.getMachineListList().getSoftwareListList().export(writer, progress, modes, selection);
 					break;
 			}
 			writer.close();

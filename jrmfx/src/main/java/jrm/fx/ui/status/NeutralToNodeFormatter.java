@@ -19,9 +19,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import lombok.experimental.UtilityClass;
 
 public @UtilityClass class NeutralToNodeFormatter
@@ -94,6 +91,8 @@ public @UtilityClass class NeutralToNodeFormatter
 							case "max":
 								max = Integer.parseInt(attributes.getValue(i));
 								break;
+							default:
+								break;
 						}
 					}
 					final var progress = new ProgressBar();
@@ -111,7 +110,7 @@ public @UtilityClass class NeutralToNodeFormatter
 		@Override
 		public void endElement(String uri, String localName, String qName) throws SAXException
 		{
-			switch(qName)
+			switch(qName) //NOSONAR
 			{
 				case "document", "label":
 					flush();

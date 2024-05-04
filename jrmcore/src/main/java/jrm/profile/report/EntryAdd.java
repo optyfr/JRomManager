@@ -35,4 +35,10 @@ public class EntryAdd extends EntryExtNote implements Serializable
 	{
 		return toDocument(String.format(escape(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBoldBlack(entity.getNormalizedName()), toItalicBlack(entry.getParent().getRelFile().getName()), toBoldBlack(entry.getRelFile()))); //$NON-NLS-1$
 	}
+
+	@Override
+	public String getAbbrv()
+	{
+		return "ADD";
+	}
 }

@@ -50,4 +50,10 @@ public class EntryMissing extends EntryNote implements Serializable
 		return toDocument(String.format(escape(Messages.getString(ENTRY_MISSING_MISSING)), toBlue(parent.ware.getFullName()), toBoldBlack(entity.getName()))); //$NON-NLS-1$
 	}
 
+	@Override
+	public String getAbbrv()
+	{
+		return "MISS";
+	}
+
 }

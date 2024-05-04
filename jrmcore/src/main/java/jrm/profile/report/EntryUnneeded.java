@@ -48,4 +48,10 @@ public class EntryUnneeded extends EntryExtNote implements Serializable
 		return toDocument(String.format(escape(Messages.getString("EntryUnneeded.Unneeded")), toBoldBlack(parent.ware.getFullName()), toBoldBlack(entry.getRelFile()), hash)); //$NON-NLS-1$
 	}
 
+	@Override
+	public String getAbbrv()
+	{
+		return "UNNEED";
+	}
+
 }

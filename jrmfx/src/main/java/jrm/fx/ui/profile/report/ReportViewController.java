@@ -1,10 +1,13 @@
 package jrm.fx.ui.profile.report;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -16,9 +19,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeCell;
@@ -35,6 +40,8 @@ import jrm.fx.ui.controls.Dialogs;
 import jrm.locale.Messages;
 import jrm.misc.Log;
 import jrm.profile.data.Entity;
+import jrm.profile.data.ExportMode;
+import jrm.profile.manager.Export.ExportType;
 import jrm.profile.report.ContainerTZip;
 import jrm.profile.report.ContainerUnknown;
 import jrm.profile.report.ContainerUnneeded;
@@ -54,8 +61,228 @@ import lombok.val;
 
 public class ReportViewController implements Initializable
 {
+	@FXML protected TreeView<Object> treeview;
+	@FXML private ContextMenu menu;
+	@FXML private MenuItem openAllNodes;
+	@FXML private MenuItem closeAllNodes;
+	@FXML private CheckMenuItem showok;
+	@FXML private CheckMenuItem hidemissing;
+	@FXML private MenuItem detail;
+	@FXML private MenuItem copyCrc;
+	@FXML private MenuItem copySha1;
+	@FXML private MenuItem copyName;
+	@FXML private MenuItem searchWeb;
+	@FXML private Button download;
+	@FXML private MenuButton exportAs;
+	
+	private static final Set<FilterOptions> filterOptions = new HashSet<>();
+
+	private Report report; 
+
+	@Override
+	public void initialize(URL location, ResourceBundle resources)
+	{
+		openAllNodes.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_open.png")));
+		closeAllNodes.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_closed.png")));
+		showok.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_closed_green.png")));
+		hidemissing.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_closed_red.png")));
+		menu.setOnShowing(e -> {
+			final var item = treeview.getSelectionModel().getSelectedItem();
+			final var disabled = !(item!=null && item.getValue() instanceof Note);
+			detail.setDisable(disabled);
+			copyCrc.setDisable(disabled);
+			copySha1.setDisable(disabled);
+			copyName.setDisable(disabled);
+			searchWeb.setDisable(disabled);
+		});
+	}
+
+	public void setReport(Report report)
+	{
+		this.report = report;
+		build();
+	}
+	
+	private void build()
+	{
+		final var root = new TreeItem<Object>(report);
+		if(report!=null)
+		{
+			report.stream(filterOptions).forEachOrdered(s -> {
+				final var sitem = new TreeItem<Object>(s);
+				s.stream(filterOptions).forEach(n -> sitem.getChildren().add(new TreeItem<>(n)));
+				root.getChildren().add(sitem);
+			});
+			download.setDisable(!Optional.ofNullable(report.getReportFile()).map(File::exists).orElse(false));
+			exportAs.setDisable(report.getProfile()==null);
+		}
+		else
+		{
+			download.setDisable(true);
+			exportAs.setDisable(true);
+		}
+		treeview.setShowRoot(false);
+		treeview.setCellFactory(p -> new ReportTreeCell());
+		treeview.setRoot(root);
+	}
+
+	@FXML private void detail(javafx.event.ActionEvent e)
+	{
+		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
+			detail(note);
+	}
+	
+	private static void detail(Note note)
+	{
+		final var node = new TextArea(note.getDetail());
+		node.setEditable(false);
+		Dialogs.showConfirmation("Detail", node, ButtonType.OK);
+	}
+	
+	@FXML private void copyCrc(javafx.event.ActionEvent e)
+	{
+		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
+		{
+			final var content = new ClipboardContent();
+			content.putString(note.getCrc());
+			Clipboard.getSystemClipboard().setContent(content);
+		}
+	}
+	
+	@FXML private void copySha1(javafx.event.ActionEvent e)
+	{
+		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
+		{
+			final var content = new ClipboardContent();
+			content.putString(note.getSha1());
+			Clipboard.getSystemClipboard().setContent(content);
+		}
+	}
+	
+	@FXML private void copyName(javafx.event.ActionEvent e)
+	{
+		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
+		{
+			final var content = new ClipboardContent();
+			content.putString(note.getName());
+			Clipboard.getSystemClipboard().setContent(content);
+		}
+	}
+
+	@FXML private void searchWeb(javafx.event.ActionEvent e)
+	{
+		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
+		{
+			try
+			{
+				val name = note.getName();
+				val crc = note.getCrc();
+				val sha1 = note.getSha1();
+				val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h).orElse("");
+				MainFrame.getApplication().getHostServices().showDocument(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash).toString());
+			}
+			catch (IOException | URISyntaxException e1)
+			{
+				Log.err(e1.getMessage(), e1);
+			}
+		}		
+	}
+
+	@FXML private void showok(javafx.event.ActionEvent e)
+	{
+		if(showok.isSelected())
+			filterOptions.add(FilterOptions.SHOWOK);
+		else
+			filterOptions.remove(FilterOptions.SHOWOK);
+		build();
+	}
+
+	@FXML private void hidemissing(javafx.event.ActionEvent e)
+	{
+		if(hidemissing.isSelected())
+			filterOptions.add(FilterOptions.HIDEMISSING);
+		else
+			filterOptions.remove(FilterOptions.HIDEMISSING);
+		build();
+	}
+
+	@FXML
+	private void openAllNodes(javafx.event.ActionEvent e)
+	{
+		final var root = treeview.getRoot();
+		treeview.setRoot(null);
+		for (TreeItem<?> child : root.getChildren())
+			if (!child.isLeaf())
+				child.setExpanded(true);
+		treeview.setRoot(root);
+	}
+
+	@FXML
+	private void closeAllNodes(javafx.event.ActionEvent e)
+	{
+		final var root = treeview.getRoot();
+		treeview.setRoot(null);
+		for (TreeItem<?> child : root.getChildren())
+			if (!child.isLeaf())
+				child.setExpanded(false);
+		treeview.setRoot(root);
+	}
+
+	@FXML
+	private void download(javafx.event.ActionEvent e)
+	{
+		if (report == null)
+			return;
+		try
+		{
+			Desktop.getDesktop().open(report.getReportFile());
+		}
+		catch (IOException e1)
+		{
+			Log.err(e1.getMessage(), e1);
+		}
+	}
+
+	@FXML
+	private void exportFilteredAsLogiqxDat(javafx.event.ActionEvent e)
+	{
+		MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.DATAFILE, EnumSet.of(ExportMode.FILTERED), null);
+	}
+	
+	@FXML
+	private void exportFilteredAsMameDat(javafx.event.ActionEvent e)
+	{
+		MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.MAME, EnumSet.of(ExportMode.FILTERED), null);
+	}
+	
+	@FXML
+	private void exportFilteredAsSoftwareLists(javafx.event.ActionEvent e)
+	{
+		MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null);
+	}
+	
+	@FXML
+	private void exportAllAsLogiqxDat(javafx.event.ActionEvent e)
+	{
+		MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.DATAFILE, EnumSet.of(ExportMode.ALL), null);
+	}
+	
+	@FXML
+	private void exportAllAsMameDat(javafx.event.ActionEvent e)
+	{
+		MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.MAME, EnumSet.of(ExportMode.ALL), null);
+	}
+	
+	@FXML
+	private void exportAllAsSoftwareLists(javafx.event.ActionEvent e)
+	{
+		MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), null);
+	}
+	
 	private static final class ReportTreeCell extends TreeCell<Object>
 	{
+		private static final String FX_FONT_WEIGHT_BOLD = "-fx-font-weight: bold;";
+
 		private static final Pattern regex = Pattern.compile("%s");
 		
 		private static final String[] missing = regex.split(Messages.getString("SubjectSet.Missing"));
@@ -188,9 +415,9 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var en = new Text(s.getEntry().getName());
-			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			en.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			final var enn = new Text(s.getEntity().getNormalizedName());
-			enn.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			enn.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(ewrongname[0]), n, new Text(ewrongname[1]), en, new Text(ewrongname[2]), enn, new Text(ewrongname[3]));
 			hBox.setAlignment(Pos.CENTER_LEFT);
@@ -207,7 +434,7 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var ef = new Text(s.getEntry().getRelFile());
-			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			ef.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			final String hashname;
 			final String ehash;
 			final String hash;
@@ -245,7 +472,7 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var ef = new Text(s.getEntry().getRelFile());
-			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			ef.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			final String hash;
 			if (s.getEntry().getSha1() != null)
 				hash = s.getEntry().getSha1();
@@ -269,7 +496,7 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var en = new Text(s.getEntity().getNormalizedName());
-			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			en.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(eok[0]), n, new Text(eok[1]), en, new Text(eok[2]));
 			hBox.setAlignment(Pos.CENTER_LEFT);
@@ -286,9 +513,9 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var ef = new Text(s.getEntry().getRelFile());
-			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			ef.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			final var en = new Text(s.getEntity().getName());
-			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			en.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(emissingdup[0]), n, new Text(emissingdup[1]), ef, new Text(emissingdup[2]), en);
 			hBox.setAlignment(Pos.CENTER_LEFT);
@@ -305,7 +532,7 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var en = new Text(s.getEntity().getName());
-			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			en.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			if (s.getEntity() instanceof Entity e)
 			{
 				final String hash;
@@ -339,11 +566,11 @@ public class ReportViewController implements Initializable
 			final var n = new Text(s.getParent().getWare().getFullName());
 			n.setFill(Color.BLUE);
 			final var en = new Text(s.getEntity().getNormalizedName());
-			en.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			en.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			final var ep = new Text(s.getEntry().getParent().getRelFile().toString());
 			ep.styleProperty().bind(new SimpleStringProperty("-fx-font-style: italic;"));
 			final var ef = new Text(s.getEntry().getRelFile());
-			ef.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+			ef.styleProperty().bind(new SimpleStringProperty(FX_FONT_WEIGHT_BOLD));
 			i.getStyleClass().add("icon");
 			HBox hBox = new HBox(i, new Text(eadd[0]), n, new Text(eadd[1]), en, new Text(eadd[2]), ep, new Text(eadd[3]), ef);
 			hBox.setAlignment(Pos.CENTER_LEFT);
@@ -407,160 +634,4 @@ public class ReportViewController implements Initializable
 
 	}
 
-	@FXML protected TreeView<Object> treeview;
-	@FXML private ContextMenu menu;
-	@FXML private MenuItem openAllNodes;
-	@FXML private MenuItem closeAllNodes;
-	@FXML private CheckMenuItem showok;
-	@FXML private CheckMenuItem hidemissing;
-	@FXML private MenuItem detail;
-	@FXML private MenuItem copyCrc;
-	@FXML private MenuItem copySha1;
-	@FXML private MenuItem copyName;
-	@FXML private MenuItem searchWeb;
-	
-	private static final Set<FilterOptions> filterOptions = new HashSet<>();
-
-	private Report report; 
-
-	@Override
-	public void initialize(URL location, ResourceBundle resources)
-	{
-		openAllNodes.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_open.png")));
-		closeAllNodes.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_closed.png")));
-		showok.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_closed_green.png")));
-		hidemissing.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_closed_red.png")));
-		menu.setOnShowing(e -> {
-			final var item = treeview.getSelectionModel().getSelectedItem();
-			final var disabled = !(item!=null && item.getValue() instanceof Note);
-			detail.setDisable(disabled);
-			copyCrc.setDisable(disabled);
-			copySha1.setDisable(disabled);
-			copyName.setDisable(disabled);
-			searchWeb.setDisable(disabled);
-		});
-	}
-
-	public void setReport(Report report)
-	{
-		this.report = report;
-		build();
-	}
-	
-	private void build()
-	{
-		final var root = new TreeItem<Object>(report);
-		report.stream(filterOptions).forEachOrdered(s ->
-		{
-			final var sitem = new TreeItem<Object>(s);
-			s.stream(filterOptions).forEach(n -> sitem.getChildren().add(new TreeItem<>(n)));
-			root.getChildren().add(sitem);
-		});
-		treeview.setShowRoot(false);
-		//treeview.setFixedCellSize(20);
-		treeview.setCellFactory(p -> new ReportTreeCell());
-		treeview.setRoot(root);
-	}
-
-	@FXML private void detail(javafx.event.ActionEvent e)
-	{
-		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
-			detail(note);
-	}
-	
-	private static void detail(Note note)
-	{
-		final var node = new TextArea(note.getDetail());
-		node.setEditable(false);
-		Dialogs.showConfirmation("Detail", node, ButtonType.OK);
-	}
-	
-	@FXML private void copyCrc(javafx.event.ActionEvent e)
-	{
-		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
-		{
-			final var content = new ClipboardContent();
-			content.putString(note.getCrc());
-			Clipboard.getSystemClipboard().setContent(content);
-		}
-	}
-	
-	@FXML private void copySha1(javafx.event.ActionEvent e)
-	{
-		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
-		{
-			final var content = new ClipboardContent();
-			content.putString(note.getSha1());
-			Clipboard.getSystemClipboard().setContent(content);
-		}
-	}
-	
-	@FXML private void copyName(javafx.event.ActionEvent e)
-	{
-		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
-		{
-			final var content = new ClipboardContent();
-			content.putString(note.getName());
-			Clipboard.getSystemClipboard().setContent(content);
-		}
-	}
-
-	@FXML private void searchWeb(javafx.event.ActionEvent e)
-	{
-		if(treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
-		{
-			try
-			{
-				val name = note.getName();
-				val crc = note.getCrc();
-				val sha1 = note.getSha1();
-				val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h).orElse("");
-				MainFrame.getApplication().getHostServices().showDocument(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash).toString());
-			}
-			catch (IOException | URISyntaxException e1)
-			{
-				Log.err(e1.getMessage(), e1);
-			}
-		}		
-	}
-
-	@FXML private void showok(javafx.event.ActionEvent e)
-	{
-		if(showok.isSelected())
-			filterOptions.add(FilterOptions.SHOWOK);
-		else
-			filterOptions.remove(FilterOptions.SHOWOK);
-		build();
-	}
-
-	@FXML private void hidemissing(javafx.event.ActionEvent e)
-	{
-		if(hidemissing.isSelected())
-			filterOptions.add(FilterOptions.HIDEMISSING);
-		else
-			filterOptions.remove(FilterOptions.HIDEMISSING);
-		build();
-	}
-
-	@FXML
-	private void openAllNodes(javafx.event.ActionEvent e)
-	{
-		final var root = treeview.getRoot();
-		treeview.setRoot(null);
-		for (TreeItem<?> child : root.getChildren())
-			if (!child.isLeaf())
-				child.setExpanded(true);
-		treeview.setRoot(root);
-	}
-
-	@FXML
-	private void closeAllNodes(javafx.event.ActionEvent e)
-	{
-		final var root = treeview.getRoot();
-		treeview.setRoot(null);
-		for (TreeItem<?> child : root.getChildren())
-			if (!child.isLeaf())
-				child.setExpanded(false);
-		treeview.setRoot(root);
-	}
 }

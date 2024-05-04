@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -48,15 +49,11 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import jrm.fx.ui.JRMScene;
 import jrm.fx.ui.MainFrame;
 import jrm.fx.ui.controls.Dialogs;
 import jrm.fx.ui.profile.filter.Keywords;
-import jrm.fx.ui.progress.ProgressTask;
 import jrm.locale.Messages;
-import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
@@ -67,6 +64,7 @@ import jrm.profile.data.Disk;
 import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.EntityStatus;
+import jrm.profile.data.ExportMode;
 import jrm.profile.data.Machine;
 import jrm.profile.data.MachineList;
 import jrm.profile.data.Rom;
@@ -74,7 +72,6 @@ import jrm.profile.data.Sample;
 import jrm.profile.data.Samples;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
-import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.profile.manager.ProfileNFOMame;
 import jrm.profile.manager.ProfileNFOMame.MameStatus;
@@ -235,9 +232,12 @@ public class ProfileViewerController implements Initializable
 						case Sample s -> new ImageView(sound);
 						default -> null;
 					};
-					i.setPreserveRatio(true);
-					i.getStyleClass().add("icon");
-					setGraphic(i);
+					if(i != null)
+					{
+						i.setPreserveRatio(true);
+						i.getStyleClass().add("icon");
+						setGraphic(i);
+					}
 				}
 				setAlignment(Pos.CENTER_LEFT);
 			}
@@ -1242,44 +1242,44 @@ public class ProfileViewerController implements Initializable
 
 	@FXML private void exportFilteredAsLogiqxDat(ActionEvent e)
 	{
-		export(ExportType.DATAFILE, true, null);
+		export(ExportType.DATAFILE, EnumSet.of(ExportMode.FILTERED), null);
 	}
 
 	@FXML private void exportFilteredAsMameDat(ActionEvent e)
 	{
-		export(ExportType.MAME, true, null);
+		export(ExportType.MAME, EnumSet.of(ExportMode.FILTERED), null);
 	}
 
 	@FXML private void exportFilteredAsSoftwareLists(ActionEvent e)
 	{
-		export(ExportType.SOFTWARELIST, true, null);
+		export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null);
 	}
 
 	@FXML private void exportAllAsLogiqxDat(ActionEvent e)
 	{
-		export(ExportType.DATAFILE, false, null);
+		export(ExportType.DATAFILE, EnumSet.of(ExportMode.ALL), null);
 	}
 
 	@FXML private void exportAllAsMameDat(ActionEvent e)
 	{
-		export(ExportType.MAME, false, null);
+		export(ExportType.MAME, EnumSet.of(ExportMode.ALL), null);
 	}
 
 	@FXML private void exportAllAsSoftwareLists(ActionEvent e)
 	{
-		export(ExportType.SOFTWARELIST, false, null);
+		export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), null);
 	}
 
 	@FXML private void exportSelectedFilteredAsSoftwareLists(ActionEvent e)
 	{
 		if(tableWL.getSelectionModel().getSelectedItem() instanceof SoftwareList sl)
-			export(ExportType.SOFTWARELIST, true, sl);
+			export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), sl);
 	}
 
 	@FXML private void exportSelectedAsSoftwareLists(ActionEvent e)
 	{
 		if(tableWL.getSelectionModel().getSelectedItem() instanceof SoftwareList sl)
-			export(ExportType.SOFTWARELIST, false, sl);
+			export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), sl);
 	}
 
 	private final class ValueWLHave extends ObservableValueBase<String>
@@ -1404,60 +1404,9 @@ public class ProfileViewerController implements Initializable
 		}
 	}
 
-	private void export(final ExportType type, final boolean filtered, final SoftwareList selection)
+	private void export(final ExportType type, final Set<ExportMode> modes, final SoftwareList selection)
 	{
-		final var chooser = new FileChooser();
-		Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToExport", (String) null)).map(File::new).ifPresent(chooser::setInitialDirectory);
-		chooser.setTitle(Messages.getString("ProfileViewer.ChooseDestinationFile"));
-		final var fnef = new FileChooser.ExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		chooser.getExtensionFilters().add(fnef);
-		chooser.setSelectedExtensionFilter(fnef);
-		final var chosen = chooser.showSaveDialog(tableWL.getScene().getWindow());
-		if (chosen != null)
-		{
-			try
-			{
-				final var thread = new Thread(new ProgressTask<Void>((Stage) tableWL.getScene().getWindow())
-				{
-					@Override
-					protected Void call() throws Exception
-					{
-						Export.export(session.getCurrProfile(), chosen, type, filtered, selection, this);
-						return null;
-					}
-					
-					@Override
-					protected void succeeded()
-					{
-						close();
-					}
-
-					@Override
-					protected void failed()
-					{
-						close();
-						if (getException() instanceof BreakException)
-							Dialogs.showAlert("Cancelled");
-						else
-						{
-							Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
-								Log.err(cause.getMessage(), cause);
-								Dialogs.showError(cause);
-							}, () -> {
-								Log.err(getException().getMessage(), getException());
-								Dialogs.showError(getException());
-							});
-						}
-					}
-				});
-				thread.setDaemon(true);
-				thread.start();
-			}
-			catch (IOException | URISyntaxException e)
-			{
-				Log.err(e.getMessage(), e);
-				Dialogs.showError(e);
-			}
-		}
+		MainFrame.export(tableWL.getScene().getWindow(), session, type, modes, selection);
 	}
+	
 }

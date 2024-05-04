@@ -36,4 +36,10 @@ public class EntryWrongName extends EntryExtNote implements Serializable
 		return toDocument(String.format(escape(Messages.getString("EntryWrongName.Wrong")), toBlue(parent.ware.getFullName()), toBoldBlack(entry.getName()), toBoldBlack(entity.getNormalizedName()))); //$NON-NLS-1$
 	}
 
+	@Override
+	public String getAbbrv()
+	{
+		return "WNAME";
+	}
+
 }

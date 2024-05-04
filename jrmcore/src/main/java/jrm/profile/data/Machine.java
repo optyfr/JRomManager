@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
@@ -303,46 +304,16 @@ public class Machine extends Anyware implements Serializable
 	 * @param is_mame is it mame (true) or logqix (false) format ?
 	 * @throws XMLStreamException
 	 */
-	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException
+	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame, final Set<ExportMode> modes) throws XMLStreamException
 	{
 		if(is_mame)
 		{
-			exportMame(writer);
+			exportMame(writer, modes);
+			return;
 		}
-		else
-		{
-			writer.writeStartElement("game", //$NON-NLS-1$
-					new SimpleAttribute("name", name), //$NON-NLS-1$
-					new SimpleAttribute("isbios", isbios?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
-					new SimpleAttribute("cloneof", cloneof), //$NON-NLS-1$
-					new SimpleAttribute("romof", romof), //$NON-NLS-1$
-					new SimpleAttribute("sampleof", sampleof) //$NON-NLS-1$
-					);
-			writer.writeElement("description", description); //$NON-NLS-1$
-			if(year!=null && year.length()>0)
-				writer.writeElement("year", year); //$NON-NLS-1$
-			if(manufacturer.length()>0)
-				writer.writeElement("manufacturer", manufacturer); //$NON-NLS-1$
-			for(final Rom r : getRoms())
-				r.export(writer, is_mame);
-			for(final Disk d : getDisks())
-				d.export(writer, is_mame);
-			writer.writeEndElement();
-		}
-
-	}
-
-	/**
-	 * @param writer
-	 * @throws XMLStreamException
-	 */
-	private void exportMame(final EnhancedXMLStreamWriter writer) throws XMLStreamException
-	{
-		writer.writeStartElement("machine", //$NON-NLS-1$
+		writer.writeStartElement("game", //$NON-NLS-1$
 				new SimpleAttribute("name", name), //$NON-NLS-1$
 				new SimpleAttribute("isbios", isbios?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
-				new SimpleAttribute("isdevice", isdevice?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
-				new SimpleAttribute("ismechanical", ismechanical?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
 				new SimpleAttribute("cloneof", cloneof), //$NON-NLS-1$
 				new SimpleAttribute("romof", romof), //$NON-NLS-1$
 				new SimpleAttribute("sampleof", sampleof) //$NON-NLS-1$
@@ -350,31 +321,63 @@ public class Machine extends Anyware implements Serializable
 		writer.writeElement("description", description); //$NON-NLS-1$
 		if(year!=null && year.length()>0)
 			writer.writeElement("year", year); //$NON-NLS-1$
-		if(manufacturer!=null && manufacturer.length()>0)
+		if(manufacturer.length()>0)
 			writer.writeElement("manufacturer", manufacturer); //$NON-NLS-1$
-		for(final Rom r : getRoms())
-			r.export(writer, true);
+		final var missing = modes.contains(ExportMode.MISSING);
+		final var have = modes.contains(ExportMode.HAVE);
+		final var all = modes.contains(ExportMode.ALL) || modes.contains(ExportMode.FILTERED);
+		for(final var r : getRoms())
+			if(all || (missing && r.getStatus()==EntityStatus.KO) || (have && r.getStatus()==EntityStatus.OK))
+				r.export(writer, is_mame);
 		for(final Disk d : getDisks())
-			d.export(writer, true);
+			if(all || (missing && d.getStatus()==EntityStatus.KO) || (have && d.getStatus()==EntityStatus.OK))
+				d.export(writer, is_mame);
+		writer.writeEndElement();
+	}
+
+	/**
+	 * @param writer
+	 * @throws XMLStreamException
+	 */
+	private void exportMame(final EnhancedXMLStreamWriter writer, final Set<ExportMode> modes) throws XMLStreamException
+	{
+		writer.writeStartElement("machine", //$NON-NLS-1$
+			new SimpleAttribute("name", name), //$NON-NLS-1$
+			new SimpleAttribute("isbios", isbios?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+			new SimpleAttribute("isdevice", isdevice?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+			new SimpleAttribute("ismechanical", ismechanical?"yes":null), //$NON-NLS-1$ //$NON-NLS-2$
+			new SimpleAttribute("cloneof", cloneof), //$NON-NLS-1$
+			new SimpleAttribute("romof", romof), //$NON-NLS-1$
+			new SimpleAttribute("sampleof", sampleof) //$NON-NLS-1$
+		);
+		writer.writeElement("description", description); //$NON-NLS-1$
+		if(year!=null && year.length()>0)
+			writer.writeElement("year", year); //$NON-NLS-1$
+		if (manufacturer.length() > 0)
+			writer.writeElement("manufacturer", manufacturer); //$NON-NLS-1$
+		final var missing = modes.contains(ExportMode.MISSING);
+		final var have = modes.contains(ExportMode.HAVE);
+		final var all = modes.contains(ExportMode.ALL) || modes.contains(ExportMode.FILTERED);
+		for(final Rom r : getRoms())
+			if(all || (missing && r.getStatus()==EntityStatus.KO) || (have && r.getStatus()==EntityStatus.OK))
+				r.export(writer, true);
+		for(final Disk d : getDisks())
+			if(all || (missing && d.getStatus()==EntityStatus.KO) || (have && d.getStatus()==EntityStatus.OK))
+				d.export(writer, true);
 		for(final SWList swlist : swlists.values())
 		{
 			writer.writeElement("softwarelist", //$NON-NLS-1$
-					new SimpleAttribute("name", swlist.name), //$NON-NLS-1$
-					new SimpleAttribute("status", swlist.status), //$NON-NLS-1$
-					new SimpleAttribute("filter", swlist.filter) //$NON-NLS-1$
-					);
-
+				new SimpleAttribute("name", swlist.name), //$NON-NLS-1$
+				new SimpleAttribute("status", swlist.status), //$NON-NLS-1$
+				new SimpleAttribute("filter", swlist.filter) //$NON-NLS-1$
+			);
 		}
-		if(driver!=null)
-		{
-			writer.writeElement("driver", //$NON-NLS-1$
-					new SimpleAttribute("status", driver.getStatus()), //$NON-NLS-1$
-					new SimpleAttribute("emulation", driver.getEmulation()), //$NON-NLS-1$
-					new SimpleAttribute("cocktail", driver.getCocktail()), //$NON-NLS-1$
-					new SimpleAttribute("savestate", driver.getSaveState()) //$NON-NLS-1$
-					);
-
-		}
+		writer.writeElement("driver", //$NON-NLS-1$
+			new SimpleAttribute("status", driver.getStatus()), //$NON-NLS-1$
+			new SimpleAttribute("emulation", driver.getEmulation()), //$NON-NLS-1$
+			new SimpleAttribute("cocktail", driver.getCocktail()), //$NON-NLS-1$
+			new SimpleAttribute("savestate", driver.getSaveState()) //$NON-NLS-1$
+		);
 		writer.writeEndElement();
 	}
 

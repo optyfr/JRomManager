@@ -24,6 +24,8 @@ public abstract class Note implements StatusRendererFactory, Serializable
 	
 	transient int id = -1;
 
+	public abstract String getAbbrv();
+	
 	@Override
 	public abstract String toString();
 	

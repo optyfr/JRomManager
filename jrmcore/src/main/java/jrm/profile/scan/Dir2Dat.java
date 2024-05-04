@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +27,7 @@ import jrm.misc.Log;
 import jrm.profile.data.Container;
 import jrm.profile.data.Entry;
 import jrm.profile.data.Entry.Type;
+import jrm.profile.data.ExportMode;
 import jrm.profile.data.Machine;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
@@ -131,7 +133,7 @@ public class Dir2Dat
 		for (final var ee : sl.getValue().sw.entrySet())
 		{
 			if (ee.getValue().software != null)
-				ee.getValue().software.export(writer, ee.getValue().container.getEntries());
+				ee.getValue().software.export(writer, ee.getValue().container.getEntries(), EnumSet.of(ExportMode.ALL));
 			else
 			{
 				writer.writeStartElement("software", new SimpleAttribute("name", ee.getValue().name)); //$NON-NLS-1$ //$NON-NLS-2$
