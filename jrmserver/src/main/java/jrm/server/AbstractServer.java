@@ -1,8 +1,10 @@
 package jrm.server;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -16,10 +18,10 @@ import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jetty.ee9.servlet.DefaultServlet;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.resource.PathResourceFactory;
+import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
-import org.eclipse.jetty.util.resource.URLResourceFactory;
+import org.eclipse.jetty.util.resource.Resources;
 
 import jrm.fullserver.FullServer;
 import jrm.misc.Log;
@@ -35,7 +37,7 @@ public abstract class AbstractServer implements Daemon
 	private static final String TRUE = "true";
 	private static final String FALSE = "false";
 
-	protected static Resource clientPath;
+	protected static String clientPath;
 	protected static Server jettyserver = null;
 	protected static boolean debug;
 
@@ -200,27 +202,57 @@ public abstract class AbstractServer implements Daemon
 		}
 	}
 
-	private static ResourceFactory prf = new PathResourceFactory();
-	private static ResourceFactory urf = new URLResourceFactory();
-	
-	protected static Resource getClientPath(String path) throws URISyntaxException
+	protected static Resource getClientPath(ResourceFactory resourceFactory, String path) throws IOException, URISyntaxException
 	{
-		if (path != null)
-			return prf.newResource(getPath(path));
-		final var p = getPath("jrt:/jrm.merged.module/webclient/");
-		if (Files.exists(p))
-			return prf.newResource(p);
-		return urf.newResource(FullServer.class.getResource("/webclient/"));
+        Resource resource;
+
+        if (path != null)
+        {
+            resource = resourceFactory.newResource(path);
+            if (Resources.exists(resource))
+                return resource;
+            resource = resourceFactory.newClassLoaderResource(path, true);
+            if (Resources.exists(resource))
+                return resource;
+        }
+
+        resource = resourceFactory.newResource("jrt:/jrm.merged.module/webclient/");
+        if (Resources.exists(resource))
+            return resource;
+        URL url = FullServer.class.getResource("/webclient/");
+        if (url != null)
+        {
+        	resource = resourceFactory.newResource(URIUtil.correctURI(url.toURI()));
+            if (Resources.exists(resource))
+                return resource;
+        }
+        throw new FileNotFoundException("Unable to find webclient path");
 	}
 
-	protected static Resource getCertsPath(String path) throws URISyntaxException
+	protected static Resource getCertsPath(String path) throws URISyntaxException, IOException
 	{
-		if (path != null)
-			return prf.newResource(getPath(path));
-		final var p = getPath("jrt:/jrm.merged.module/certs/localhost.pfx");
-		if (Files.exists(p))
-			return prf.newResource(p);
-		return urf.newResource(FullServer.class.getResource("/certs/localhost.pfx"));
+        Resource resource;
+		final var resourceFactory = ResourceFactory.root();
+        if (path != null)
+        {
+            resource = resourceFactory.newResource(path);
+            if (Resources.exists(resource))
+                return resource;
+            resource = resourceFactory.newClassLoaderResource(path, true);
+            if (Resources.exists(resource))
+                return resource;
+        }
+        resource = resourceFactory.newResource("jrt:/jrm.merged.module/certs/localhost.pfx");
+        if (Resources.exists(resource))
+            return resource;
+        URL url = FullServer.class.getResource("/certs/localhost.pfx");
+        if (url != null)
+        {
+        	resource = resourceFactory.newResource(URIUtil.correctURI(url.toURI()));
+            if (Resources.exists(resource))
+                return resource;
+        }
+        throw new FileNotFoundException("Unable to find webclient path");
 	}
 
 	protected static Path getPath(String path)

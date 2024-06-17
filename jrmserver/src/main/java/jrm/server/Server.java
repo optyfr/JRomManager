@@ -17,6 +17,7 @@ import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -86,7 +87,7 @@ public class Server extends AbstractServer
 			
 			cmd.parse(args);
 			debug = jArgs.debug;
-			clientPath = getClientPath(jArgs.clientPath);
+			clientPath = jArgs.clientPath;
 			bind = jArgs.bind;
 			httpPort = jArgs.httpPort;
 			Optional.ofNullable(jArgs.workPath).map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
@@ -138,7 +139,8 @@ public class Server extends AbstractServer
 			jettyserver = new org.eclipse.jetty.server.Server();
 	
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-			context.setBaseResource(clientPath);
+			final var resourceFactory = ResourceFactory.of(context);
+			context.setBaseResource(getClientPath(resourceFactory, clientPath));
 			context.setContextPath("/");
 	
 			final var gzipHandler = new GzipHandler();
