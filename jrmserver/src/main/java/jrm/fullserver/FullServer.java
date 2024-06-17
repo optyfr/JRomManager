@@ -36,6 +36,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
@@ -159,7 +160,7 @@ public class FullServer extends AbstractServer
 			
 			cmd.parse(args);
 			debug = jArgs.debug;
-			clientPath = getClientPath(jArgs.clientPath);
+			clientPath = jArgs.clientPath;
 			bind = jArgs.bind;
 			httpPort = jArgs.httpPort;
 			httpsPort = jArgs.httpsPort;
@@ -368,7 +369,8 @@ public class FullServer extends AbstractServer
 			final var gh = gzipHandler();
 			
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-			context.setBaseResource(clientPath);
+			final var resourceFactory = ResourceFactory.of(context);
+			context.setBaseResource(getClientPath(resourceFactory, clientPath));
 			context.setContextPath("/");
 	
 			context.addServlet(new ServletHolder("datasources", FullDataSourceServlet.class), "/datasources/*");
@@ -419,7 +421,7 @@ public class FullServer extends AbstractServer
 			Log.config("Start server");
 			for (final var connector : jettyserver.getConnectors())
 				Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to " + ((ServerConnector) connector).getHost());
-			Log.config("clientPath: " + clientPath);
+			Log.config("clientPath: " + context.getBaseResource());
 			Log.config("workPath: " + getWorkPath());
 		}
 		else

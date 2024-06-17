@@ -3,6 +3,7 @@ package jrm.server;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -11,18 +12,23 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.daemon.DaemonContext;
+import org.eclipse.jetty.ee9.servlet.FilterHolder;
 import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jrm.misc.DefaultEnvironmentProperties;
 import jrm.misc.Log;
 import jrm.server.handlers.SessionServlet;
@@ -86,7 +92,7 @@ public class Server extends AbstractServer
 			
 			cmd.parse(args);
 			debug = jArgs.debug;
-			clientPath = getClientPath(jArgs.clientPath);
+			clientPath = jArgs.clientPath;
 			bind = jArgs.bind;
 			httpPort = jArgs.httpPort;
 			Optional.ofNullable(jArgs.workPath).map(s -> s.replace("%HOMEPATH%", System.getProperty("user.home"))).ifPresent(s -> System.setProperty("jrommanager.dir", s));
@@ -138,7 +144,8 @@ public class Server extends AbstractServer
 			jettyserver = new org.eclipse.jetty.server.Server();
 	
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-			context.setBaseResource(clientPath);
+			final var  resourceFactory = ResourceFactory.of(jettyserver);
+			context.setBaseResource(getClientPath(resourceFactory, clientPath));
 			context.setContextPath("/");
 	
 			final var gzipHandler = new GzipHandler();
@@ -155,9 +162,18 @@ public class Server extends AbstractServer
 			context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
 			context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
 			context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
-			context.addServlet(holderStaticNoCache(), "*.nocache.js");
-			context.addServlet(holderStaticCache(), "*.cache.js");
-			context.addServlet(holderStaticJS(), "*.js");
+
+			context.addFilter(new FilterHolder((request, response, chain) -> {
+				if (request instanceof HttpServletRequest httprequest && response instanceof HttpServletResponse httpresponse)
+				{
+					if(httprequest.getRequestURI().endsWith(".nocache.js"))
+						httpresponse.setHeader("cache-control", "no-store");
+					else if(!httprequest.getRequestURI().endsWith(".cache.js"))
+						httpresponse.setHeader("cache-control", "public, max-age=0, must-revalidate");
+				}
+				chain.doFilter(request, response);
+			}), "*.js", EnumSet.of(DispatcherType.REQUEST));
+			
 			context.addServlet(holderStatic(), "/");
 	
 			context.getSessionHandler().setMaxInactiveInterval(300);
@@ -181,7 +197,7 @@ public class Server extends AbstractServer
 			Log.config("Start server");
 			for (final var connector : jettyserver.getConnectors())
 				Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort()+ " binded to " +((ServerConnector) connector).getHost());
-			Log.config("clientPath: " + clientPath);
+			Log.config("clientPath: " + context.getBaseResource());
 			Log.config("workPath: " + getWorkPath());
 		}
 		else
