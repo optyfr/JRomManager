@@ -1,5 +1,7 @@
 package jrm.profile.report;
 
+import java.util.Optional;
+
 import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
 import lombok.Getter;
@@ -48,6 +50,16 @@ abstract class EntryNote extends Note
 	{
 		if(entity instanceof Entity e)
 			return e.getSha1();
+		return null;
+	}
+	
+	@Override
+	public String getHash()
+	{
+		if(entity instanceof Entity e)
+		{
+			return Optional.ofNullable(e.getSha1()).or(() -> Optional.ofNullable(e.getMd5())).or(() -> Optional.ofNullable(e.getCrc())).orElse(null);
+		}
 		return null;
 	}
 	

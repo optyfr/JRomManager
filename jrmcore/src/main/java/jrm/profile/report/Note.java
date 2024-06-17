@@ -38,6 +38,8 @@ public abstract class Note implements StatusRendererFactory, Serializable
 	public abstract String getMd5();
 
 	public abstract String getSha1();
+	
+	public abstract String getHash();
 
 	public int getId()
 	{

@@ -979,6 +979,7 @@ public class Scan extends PathAbstractor
 			Entry foundEntry = searchDiskInAllScans(disk);
 			if (foundEntry != null)
 			{
+				report.getStats().incFixableDisksCnt();
 				reportSubject.add(new EntryAdd(disk, foundEntry));
 				CreateContainer.getInstance(createSet, directory, format, 0L).addAction(new AddEntry(disk, foundEntry));
 				disksFound++;
@@ -1038,11 +1039,12 @@ public class Scan extends PathAbstractor
 			
 			if (foundEntry == null) // did not find rom in container
 			{
-				report.getStats().incMissingRomsCnt();
+				report.getStats().incMissingDisksCnt();
 				
 				foundEntry = searchDiskInAllScans(disk);
 				if (foundEntry != null)	// found an entry
 				{
+					report.getStats().incFixableDisksCnt();
 					reportSubject.add(new EntryAdd(disk, foundEntry));
 					OpenContainer.getInstance(scanData.addSet, directory, format, 0L).addAction(new AddEntry(disk, foundEntry));
 				}
@@ -1320,6 +1322,7 @@ public class Scan extends PathAbstractor
 				foundEntry = searchRomInAllScans(rom);
 				if (foundEntry != null)	// found an entry
 				{
+					report.getStats().incFixableRomsCnt();
 					reportSubject.add(new EntryAdd(rom, foundEntry));
 					OpenContainer.getInstance(scanData.addSet, archive, format, estimatedRomsSize).addAction(new AddEntry(rom, foundEntry));
 				}
@@ -1547,6 +1550,7 @@ public class Scan extends PathAbstractor
 			final Entry entryFound = searchRomInAllScans(rom);
 			if (null != entryFound)
 			{
+				report.getStats().incFixableRomsCnt();
 				reportSubject.add(new EntryAdd(rom, entryFound));
 				CreateContainer.getInstance(createSet, archive, format, estimatedRomsSize).addAction(new AddEntry(rom, entryFound));
 				romsFound++;

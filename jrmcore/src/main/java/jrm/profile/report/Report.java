@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -58,8 +59,8 @@ import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.security.Session;
 import lombok.Getter;
-import lombok.Setter;
 import one.util.streamex.IntStreamEx;
+import one.util.streamex.StreamEx;
 
 /**
  * The report node root
@@ -138,20 +139,23 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	{
 		private static final long serialVersionUID = 2L;
 		
-		private @Getter @Setter int missingSetCnt = 0;
-		private @Getter @Setter int missingRomsCnt = 0;
-		private @Getter @Setter int missingDisksCnt = 0;
-		private @Getter @Setter int missingSamplesCnt = 0;
+		private @Getter int missingSetCnt = 0;
+		private @Getter int missingRomsCnt = 0;
+		private @Getter int missingDisksCnt = 0;
+		private @Getter int missingSamplesCnt = 0;
 
-		private @Getter @Setter int setUnneeded = 0;
-		private @Getter @Setter int setMissing = 0;
-		private @Getter @Setter int setFound = 0;
-		private @Getter @Setter int setFoundOk = 0;
-		private @Getter @Setter int setFoundFixPartial = 0;
-		private @Getter @Setter int setFoundFixComplete = 0;
-		private @Getter @Setter int setCreate = 0;
-		private @Getter @Setter int setCreatePartial = 0;
-		private @Getter @Setter int setCreateComplete = 0;
+		private @Getter int fixableRomsCnt = 0;
+		private @Getter int fixableDisksCnt = 0;
+
+		private @Getter int setUnneeded = 0;
+		private @Getter int setMissing = 0;
+		private @Getter int setFound = 0;
+		private @Getter int setFoundOk = 0;
+		private @Getter int setFoundFixPartial = 0;
+		private @Getter int setFoundFixComplete = 0;
+		private @Getter int setCreate = 0;
+		private @Getter int setCreatePartial = 0;
+		private @Getter int setCreateComplete = 0;
 
 		public Stats(Stats org)
 		{
@@ -159,6 +163,10 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 			this.missingRomsCnt = org.missingRomsCnt;
 			this.missingDisksCnt = org.missingDisksCnt;
 			this.missingSamplesCnt = org.missingSamplesCnt;
+			
+			this.fixableRomsCnt = org.fixableRomsCnt;
+			this.fixableDisksCnt = org.fixableDisksCnt;
+			
 			this.setUnneeded = org.setUnneeded;
 			this.setMissing = org.setMissing;
 			this.setFound = org.setFound;
@@ -193,6 +201,16 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		public void incMissingSamplesCnt()
 		{
 			++missingSamplesCnt;
+		}
+		
+		public void incFixableRomsCnt()
+		{
+			++fixableRomsCnt;
+		}
+		
+		public void incFixableDisksCnt()
+		{
+			++fixableDisksCnt;
 		}
 		
 		public void incSetUnneeded()
@@ -261,6 +279,15 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 			 * number of missing samples
 			 */
 			missingSamplesCnt = 0;
+
+			/**
+			 * number of fixable roms
+			 */
+			fixableRomsCnt = 0;
+			/**
+			 * number of fixable disks
+			 */
+			fixableDisksCnt = 0;
 
 			/**
 			 * number of unneeded set
@@ -572,8 +599,11 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		STATS,
 		OK,
 		FIXABLE,
+		MISSING,
 		OTHERS,
-		COMPACT
+		COMPACT,
+		NO_ENTRIES,
+		GROUP_BY_TYPE_AND_STATUS
 	}
 
 	/**
@@ -607,51 +637,54 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 			if(modes.contains(ReportMode.STATS))
 			{
 				reportWriter.println("=== Statistics ===");
-				reportWriter.println(String.format(Messages.getString("Report.MissingSets"), stats.missingSetCnt, profile.getMachinesCnt())); //$NON-NLS-1$
-				reportWriter.println(String.format(Messages.getString("Report.MissingRoms"), stats.missingRomsCnt, profile.getRomsCnt())); //$NON-NLS-1$
-				reportWriter.println(String.format(Messages.getString("Report.MissingDisks"), stats.missingDisksCnt, profile.getDisksCnt())); //$NON-NLS-1$
-				int total = stats.setCreate + stats.setFound + stats.setMissing;
-				int ok = stats.setCreateComplete + stats.setFoundFixComplete + stats.setFoundOk;
-				reportWriter.println(String.format("Missing sets after Fix : %d%n", total - ok)); //$NON-NLS-1$
+				reportWriter.println(String.format(Messages.getString("Report.MissingRoms"), stats.missingRomsCnt, stats.missingRomsCnt - stats.fixableRomsCnt, profile.getRomsCnt())); //$NON-NLS-1$
+				reportWriter.println(String.format(Messages.getString("Report.MissingDisks"), stats.missingDisksCnt, stats.missingDisksCnt - stats.fixableDisksCnt, profile.getDisksCnt())); //$NON-NLS-1$
+				reportWriter.println(String.format(Messages.getString("Report.MissingSets"), profile.getMachinesCnt() - stats.setFoundOk, profile.getMachinesCnt() - stats.setFoundOk - stats.setFoundFixComplete, profile.getMachinesCnt())); //$NON-NLS-1$
 				reportWriter.println();
 			}
 			reportWriter.println("=== Scanner Report ===");
-			subjects.forEach(subject -> {
-				if(subject instanceof SubjectSet ss)
+			if(modes.contains(ReportMode.GROUP_BY_TYPE_AND_STATUS))
+			{
+				if(modes.contains(ReportMode.NO_ENTRIES))
 				{
-					if(ss.isOK() && modes.contains(ReportMode.OK))
-					{
-						if (!modes.contains(ReportMode.COMPACT))
-							reportWriter.println(ss);
-						subject.notes.forEach(note -> writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT)));	//$NON-NLS-1$
-					}
-					else if(ss.isMissing())
-					{
-						if (!modes.contains(ReportMode.COMPACT))
-							reportWriter.println(subject);
-						subject.notes.forEach(note -> writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT)));	//$NON-NLS-1$
-					}
-					else if(ss.isFixable() && modes.contains(ReportMode.FIXABLE))
-					{
-						if (!modes.contains(ReportMode.COMPACT))
-							reportWriter.println(subject);
-						subject.notes.forEach(note -> {
-							if (modes.contains(ReportMode.OK) && note instanceof EntryOK)
-								writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT));
-							if (modes.contains(ReportMode.FIXABLE) && (note instanceof EntryAdd || note instanceof EntryMissingDuplicate || note instanceof EntryUnneeded || note instanceof EntryWrongName))
-								writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT));
-							if (note instanceof EntryWrongHash || note instanceof EntryMissing)
-								writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT));
-						});
-					}
+					final Map<ReportMode, List<Subject>> grouped = subjects.stream().collect(Collectors.groupingBy(s -> {
+						if(s instanceof SubjectSet ss)
+						{
+							if(ss.isFixable())
+								return ReportMode.FIXABLE;
+							if(ss.isMissing())
+								return ReportMode.MISSING;
+							return ReportMode.OK;
+						}
+						return ReportMode.OTHERS;
+					}));
+					grouped.forEach((mode, list) -> {
+						reportWriter.println();
+						reportWriter.println("== %s ==".formatted(mode));
+						list.stream().sorted(Subject.getComparator()).forEachOrdered(n -> writeReport(reportWriter, n, modes));
+						reportWriter.println();
+					});
 				}
-				else if(modes.contains(ReportMode.OTHERS))
+				else
 				{
-					if (!modes.contains(ReportMode.COMPACT))
-						reportWriter.println(subject);
-					subject.notes.forEach(note -> writeReport(reportWriter, note, modes.contains(ReportMode.COMPACT)));	//$NON-NLS-1$
+					final Map<String, List<Note>> grouped = subjects.stream().flatMap(s -> s.stream()).collect(Collectors.groupingBy(Note::getAbbrv));
+					grouped.forEach((abbrv, list) -> {
+						reportWriter.println();
+						reportWriter.println("== %s ==".formatted(abbrv));
+						list.stream().sorted((n1,n2) -> {
+							int ret = n1.parent != null && n2.parent != null ? Subject.getComparator().compare(n1.parent, n2.parent) : 0;
+							if(ret == 0)
+								return n1.getName().compareToIgnoreCase(n2.getName());
+							return ret;
+						}).forEachOrdered(n -> writeReport(reportWriter, n, modes));
+						reportWriter.println();
+					});
 				}
-			});
+			}
+			else
+			{
+				subjects.stream().filter(new ReportSubjectFilter(modes)).sorted(Subject.getComparator()).forEachOrdered(subject -> writeReport(reportWriter, subject, modes));
+			}
 			reportWriter.println();
 		}
 		catch(final IOException e)
@@ -659,15 +692,86 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 			Log.err(e.getMessage(),e);
 		}
 	}
-	
-	private void writeReport(PrintWriter reportWriter, Note note, boolean compact)
+
+
+	class ReportSubjectFilter implements Predicate<Subject>
 	{
-		if(compact)
+		private final Set<ReportMode> modes;
+		
+		public ReportSubjectFilter(Set<ReportMode> modes)
+		{
+			this.modes = modes;
+		}
+		
+		@Override
+		public boolean test(Subject subject)
+		{
+			if(subject instanceof SubjectSet ss)
+			{
+				if(ss.isOK() && modes.contains(ReportMode.OK))
+					return true;
+				if(ss.isFixable() && modes.contains(ReportMode.FIXABLE))
+					return true;
+				if(ss.isMissing()) // NOSONAR
+					return true;
+				return false;
+			}
+			else if(modes.contains(ReportMode.OTHERS))
+				return true;
+			return false;
+		}
+		
+	}
+
+	
+	private void writeReport(PrintWriter reportWriter, Subject subject, final EnumSet<ReportMode> modes)
+	{
+		if(modes.contains(ReportMode.NO_ENTRIES))
+			reportWriter.println(subject);
+		else
+		{
+			if (!modes.contains(ReportMode.COMPACT))
+				reportWriter.println(subject);
+			subject.notes.stream().filter(new ReportNoteFilter(modes)).forEach(note -> writeReport(reportWriter, note, modes));
+		}
+	}
+
+	class ReportNoteFilter implements Predicate<Note>
+	{
+		private final Set<ReportMode> modes;
+		
+		public ReportNoteFilter(Set<ReportMode> modes)
+		{
+			this.modes = modes;
+		}
+		
+		@Override
+		public boolean test(Note note)
+		{
+			if (modes.contains(ReportMode.OK) && note instanceof EntryOK)
+				return true;
+			if (modes.contains(ReportMode.FIXABLE) && (note instanceof EntryAdd || note instanceof EntryMissingDuplicate || note instanceof EntryUnneeded || note instanceof EntryWrongName))
+				return true;
+			if (note instanceof EntryWrongHash || note instanceof EntryMissing) //NOSONAR
+				return true;
+			return false;
+		}
+		
+	}
+	
+	private void writeReport(PrintWriter reportWriter, Note note, final EnumSet<ReportMode> modes)
+	{
+		if (modes.contains(ReportMode.COMPACT))
 		{
 			if (note.parent != null)
-				reportWriter.println(note.getAbbrv()+" :\t[" + note.parent.getWare().getBaseName() + "]\t" + note.getName() + "\t(" + note.getSha1() + ")");
+			{
+				if(modes.contains(ReportMode.GROUP_BY_TYPE_AND_STATUS))
+					reportWriter.println("[" + note.parent.getWare().getBaseName() + "]\t" + note.getName() + "\t(" + note.getHash() + ")");
+				else
+					reportWriter.println(note.getAbbrv() + " :\t[" + note.parent.getWare().getBaseName() + "]\t" + note.getName() + "\t(" + note.getHash() + ")");
+			}
 			else
-				reportWriter.println(note.getName() + " (" + note.getSha1() + ")");
+				reportWriter.println(note.getName() + " (" + note.getHash() + ")");
 		}
 		else
 			reportWriter.println("\t" + note);
