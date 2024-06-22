@@ -52,6 +52,7 @@ public class Session
 	{
 		this.server = true;
 		this.sessionId = sessionId;
+		msgs = Messages.getBundle();
 	}
 
 	public Session(String sessionId, String user, String[] roles)
@@ -60,6 +61,7 @@ public class Session
 		this.server = true;
 		this.sessionId = sessionId;
 		this.user = new User(this, user==null?"server":user, roles==null?new String[] {ADMIN}:roles);
+		msgs = Messages.getBundle();
 	}
 
 	public User getUser()
