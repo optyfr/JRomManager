@@ -7,6 +7,7 @@ import java.security.Security;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +21,7 @@ import org.eclipse.jetty.ee9.nested.ServletConstraint;
 import org.eclipse.jetty.ee9.security.ConstraintMapping;
 import org.eclipse.jetty.ee9.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.ee9.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.ee9.servlet.FilterHolder;
 import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.http.HttpVersion;
@@ -34,7 +36,6 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -45,6 +46,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jrm.fullserver.handlers.FullDataSourceServlet;
 import jrm.fullserver.handlers.SessionServlet;
 import jrm.fullserver.security.Login;
@@ -298,18 +302,6 @@ public class FullServer extends AbstractServer
 		return httpConnector;
 	}
 
-	/**
-	 * @return
-	 */
-	private static GzipHandler gzipHandler()
-	{
-		final var gzipHandler = new GzipHandler();
-		gzipHandler.setIncludedMethods("POST", "GET");
-		gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
-		gzipHandler.setInflateBufferSize(2048);
-		gzipHandler.setMinGzipSize(2048);
-		return gzipHandler;
-	}
 
 	/**
 	 * @param context
@@ -366,8 +358,6 @@ public class FullServer extends AbstractServer
 		{
 			jettyserver = new Server(new QueuedThreadPool(maxThreads > 0?maxThreads:(connLimit * 4), minThreads > 0?minThreads:(connLimit / 4)));
 	
-			final var gh = gzipHandler();
-			
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 			final var resourceFactory = ResourceFactory.of(context);
 			context.setBaseResource(getClientPath(resourceFactory, clientPath));
@@ -379,9 +369,18 @@ public class FullServer extends AbstractServer
 			context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
 			context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
 			context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
-			context.addServlet(holderStaticNoCache(), "*.nocache.js");
-			context.addServlet(holderStaticCache(), "*.cache.js");
-			context.addServlet(holderStaticJS(), "*.js");
+			
+			context.addFilter(new FilterHolder((request, response, chain) -> {
+				if (request instanceof HttpServletRequest httprequest && response instanceof HttpServletResponse httpresponse)
+				{
+					if(httprequest.getRequestURI().endsWith(".nocache.js"))
+						httpresponse.setHeader("cache-control", "no-store");
+					else if(!httprequest.getRequestURI().endsWith(".cache.js"))
+						httpresponse.setHeader("cache-control", "public, max-age=0, must-revalidate");
+				}
+				chain.doFilter(request, response);
+			}), "*.js", EnumSet.of(DispatcherType.REQUEST));
+			
 			context.addServlet(holderStatic(), "/");
 	
 			setSecurity(context);
@@ -389,8 +388,8 @@ public class FullServer extends AbstractServer
 			context.getSessionHandler().setMaxInactiveInterval(sessionTimeOut);
 			context.getSessionHandler().addEventListener(new SessionListener(true));
 	
+			final var gh = gzipHandler();
 			gh.setHandler(context);
-			
 			jettyserver.setHandler(gh);
 			jettyserver.setStopAtShutdown(true);
 	

@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Scanner;
 
 import org.apache.commons.daemon.Daemon;
@@ -19,6 +18,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jetty.ee9.servlet.DefaultServlet;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
@@ -31,7 +31,6 @@ import jrm.server.shared.WebSession;
 public abstract class AbstractServer implements Daemon
 {
 
-	private static final String CACHE_CONTROL = "cacheControl";
 	private static final String PRECOMPRESSED = "precompressed";
 	private static final String ACCEPT_RANGES = "acceptRanges";
 	private static final String DIR_ALLOWED = "dirAllowed";
@@ -61,41 +60,17 @@ public abstract class AbstractServer implements Daemon
 	/**
 	 * @return
 	 */
-	protected static ServletHolder holderStaticJS()
+	protected static GzipHandler gzipHandler()
 	{
-		final var holderStaticJS = new ServletHolder("static_js", DefaultServlet.class);
-		holderStaticJS.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticJS.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticJS.setInitParameter(PRECOMPRESSED, TRUE);
-		holderStaticJS.setInitParameter(CACHE_CONTROL, "public, max-age=0, must-revalidate");
-		return holderStaticJS;
+		final var gzipHandler = new GzipHandler();
+		gzipHandler.setIncludedMethods("POST", "GET");
+		gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
+		gzipHandler.setInflateBufferSize(2048);
+		gzipHandler.setMinGzipSize(2048);
+		return gzipHandler;
 	}
 
-	/**
-	 * @return
-	 */
-	protected static ServletHolder holderStaticCache()
-	{
-		final var holderStaticCache = new ServletHolder("static_cache", DefaultServlet.class);
-		holderStaticCache.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticCache.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticCache.setInitParameter(PRECOMPRESSED, TRUE);
-		return holderStaticCache;
-	}
-
-	/**
-	 * @return
-	 */
-	protected static ServletHolder holderStaticNoCache()
-	{
-		final var holderStaticNoCache = new ServletHolder("static_nocache", DefaultServlet.class);
-		holderStaticNoCache.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStaticNoCache.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStaticNoCache.setInitParameter(PRECOMPRESSED, FALSE);
-		holderStaticNoCache.setInitParameter(CACHE_CONTROL, "no-store");
-		return holderStaticNoCache;
-	}
-
+	
 	protected static Path getWorkPath()
 	{
 		String base = System.getProperty("jrommanager.dir");

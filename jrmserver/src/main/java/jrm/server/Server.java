@@ -18,7 +18,6 @@ import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 
 import com.beust.jcommander.JCommander;
@@ -82,7 +81,7 @@ public class Server extends AbstractServer
 	 * @throws IOException
 	 * @throws URISyntaxException 
 	 */
-	public static void parseArgs(String... args) throws NumberFormatException, IOException, URISyntaxException
+	public static void parseArgs(String... args) throws NumberFormatException, IOException
 	{
 		final var jArgs = new Args();
 		final var cmd = JCommander.newBuilder().addObject(jArgs).build();
@@ -144,18 +143,10 @@ public class Server extends AbstractServer
 			jettyserver = new org.eclipse.jetty.server.Server();
 	
 			final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-			final var  resourceFactory = ResourceFactory.of(jettyserver);
+			final var  resourceFactory = ResourceFactory.of(context);
 			context.setBaseResource(getClientPath(resourceFactory, clientPath));
 			context.setContextPath("/");
 	
-			final var gzipHandler = new GzipHandler();
-			gzipHandler.setIncludedMethods("POST", "GET");
-			gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
-			gzipHandler.setInflateBufferSize(2048);
-			gzipHandler.setMinGzipSize(2048);
-			
-			gzipHandler.setHandler(context);
-				
 			context.addServlet(new ServletHolder("datasources", DataSourceServlet.class), "/datasources/*");
 			context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
 			context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
@@ -177,10 +168,11 @@ public class Server extends AbstractServer
 			context.addServlet(holderStatic(), "/");
 	
 			context.getSessionHandler().setMaxInactiveInterval(300);
-	
 			context.getSessionHandler().addEventListener(new SessionListener(false));
 	
-			jettyserver.setHandler(gzipHandler);
+			final var gh = gzipHandler();
+			gh.setHandler(context);
+			jettyserver.setHandler(gh);
 			jettyserver.setStopAtShutdown(true);
 	
 			// Create the HTTP connection
