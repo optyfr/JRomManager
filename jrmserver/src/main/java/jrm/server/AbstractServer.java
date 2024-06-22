@@ -18,6 +18,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jetty.ee9.servlet.DefaultServlet;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
@@ -93,6 +94,19 @@ public abstract class AbstractServer implements Daemon
 		holderStaticNoCache.setInitParameter(PRECOMPRESSED, FALSE);
 		holderStaticNoCache.setInitParameter(CACHE_CONTROL, "no-store");
 		return holderStaticNoCache;
+	}
+
+	/**
+	 * @return
+	 */
+	protected static GzipHandler gzipHandler()
+	{
+		final var gzipHandler = new GzipHandler();
+		gzipHandler.setIncludedMethods("POST", "GET");
+		gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
+		gzipHandler.setInflateBufferSize(2048);
+		gzipHandler.setMinGzipSize(2048);
+		return gzipHandler;
 	}
 
 	protected static Path getWorkPath()
