@@ -317,7 +317,7 @@ public class ProfilePanelController implements Initializable
 		final var filter2 = new ExtensionFilter(Messages.getString("MainFrame.MameExecutable"), SystemUtils.IS_OS_WINDOWS?"*mame*.exe":"*mame*");
 		chooser.getExtensionFilters().addAll(filter, filter2);
 		chooser.setSelectedExtensionFilter(filter);
-		Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToImport", workdir.getAbsolutePath())).map(File::new).ifPresent(chooser::setInitialDirectory);
+		Optional.ofNullable(session.getUser().getSettings().getProperty("MainFrame.ChooseExeOrDatToImport", workdir.getAbsolutePath())).map(File::new).filter(File::isDirectory).ifPresent(chooser::setInitialDirectory);
 		final var files = chooser.showOpenMultipleDialog(profilesList.getScene().getWindow());
 		importDat(files, sl);
 		if (files != null)
