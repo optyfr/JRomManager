@@ -148,7 +148,7 @@ jobs:
         java-version: '21.0.4'
         
     - name: JPackage MSI with Gradle
-      run: ./gradlew build jpackage -PtargetPlatform=win -PinstallerType=msi
+      run: ./gradlew build jpackage -PtargetPlatform=win-x64 -PinstallerType=msi
         
     - name: Releasing
       uses: ncipollo/release-action@v1

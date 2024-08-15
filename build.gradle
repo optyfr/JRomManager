@@ -900,7 +900,7 @@ jlink {
 		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
 		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
-	targetPlatform("win") {
+	targetPlatform("win-x64") {
 		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.zip")
 	}
 	targetPlatform("linux-x64") {
@@ -923,6 +923,7 @@ jlink {
 			installerOptions += [
 				'--win-dir-chooser', '--win-menu', '--win-shortcut'
 			]
+			installerName = 'JRomManager-' + targetPlatformName
 		}
 		if (installerType == 'deb' || installerType=='rpm') {
 			imageOptions += ['--icon', 'dist/JRomManager.png']
@@ -936,9 +937,10 @@ jlink {
 			]
 		}
 		if (installerType == 'dmg') {
-/*			imageOptions += ['--icon', 'dist/JRomManager.png']
+	/*		imageOptions += ['--icon', 'dist/JRomManager.png']
 			installerOptions += [
 			]*/
+			installerName = 'JRomManager-' + targetPlatformName
 		}
 	}	
 }
