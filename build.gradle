@@ -605,8 +605,8 @@ def arch = DefaultNativePlatform.currentArchitecture
 
 distributions {
 	main {
-        distributionBaseName = 'JRomManager'
-       	distributionClassifier = 'nogui-noarch'
+	        distributionBaseName = 'JRomManager'
+	       	distributionClassifier = 'nogui-noarch'
 		contents {
 			from (configurations.noarchConfig) {
 				into('lib')
@@ -636,17 +636,17 @@ distributions {
 		}
 	}
 	win {
-        distributionBaseName = 'JRomManager'
-        if(arch.isI386())
-        	distributionClassifier = 'win-x32'
-        else if(arch.isAmd64())
-        	distributionClassifier = 'win-x64'
-        else if(arch.isArm32())
-        	distributionClassifier = 'win-arm32'
-        else if(arch.isArm64())
-        	distributionClassifier = 'win-arm64'
-        else
-        	distributionClassifier = 'win-'+arch.getName()
+	        distributionBaseName = 'JRomManager'
+	        if(arch.isI386())
+	        	distributionClassifier = 'win-x32'
+	        else if(arch.isAmd64())
+	        	distributionClassifier = 'win-x64'
+	        else if(arch.isArm32())
+	        	distributionClassifier = 'win-arm32'
+	        else if(arch.isArm64())
+	        	distributionClassifier = 'win-arm64'
+	        else
+	        	distributionClassifier = 'win-'+arch.getName()
 		contents {
 			from (configurations.jlinkConfig) {
 				into('lib')
@@ -673,17 +673,17 @@ distributions {
 		}
 	}
 	linux {
-        distributionBaseName = 'JRomManager'
-        if(arch.isI386())
-        	distributionClassifier = 'linux-x32'
-        else if(arch.isAmd64())
-        	distributionClassifier = 'linux-x64'
-        else if(arch.isArm32())
-        	distributionClassifier = 'linux-arm32'
-        else if(arch.isArm64())
-        	distributionClassifier = 'linux-arm64'
-        else
-        	distributionClassifier = 'linux-'+arch.getName()
+	        distributionBaseName = 'JRomManager'
+	        if(arch.isI386())
+	        	distributionClassifier = 'linux-x32'
+	        else if(arch.isAmd64())
+	        	distributionClassifier = 'linux-x64'
+	        else if(arch.isArm32())
+	        	distributionClassifier = 'linux-arm32'
+	        else if(arch.isArm64())
+	        	distributionClassifier = 'linux-arm64'
+	        else
+	        	distributionClassifier = 'linux-'+arch.getName()
 		contents {
 			from (configurations.jlinkConfig) {
 				into('lib')
@@ -750,6 +750,12 @@ else if (os.isWindows()) {
 	winDistZip.dependsOn ':WebClient:build'
 	winDistZip.dependsOn extractDaemonWin
 	build.dependsOn winDistZip
+}
+else {
+	linuxDistTar.enabled = false
+	linuxDistZip.enabled = false
+	winDistZip.enabled = false
+	winDistTar.enabled = false
 }
 
 task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
@@ -895,13 +901,16 @@ jlink {
 		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
 	targetPlatform("win") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.3%2B9/OpenJDK21U-jdk_x64_windows_hotspot_21.0.3_9.zip")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.zip")
 	}
 	targetPlatform("linux-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.3%2B9/OpenJDK21U-jdk_x64_linux_hotspot_21.0.3_9.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_linux_hotspot_21.0.4_7.tar.gz")
 	}
 	targetPlatform("macos-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.3%2B9/OpenJDK21U-jdk_x64_mac_hotspot_21.0.3_9.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_mac_hotspot_21.0.4_7.tar.gz")
+	}
+	targetPlatform("macos-aarch64") {
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.4_7.tar.gz")
 	}
 	jpackage {
 		installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
