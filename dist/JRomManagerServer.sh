@@ -12,4 +12,4 @@ if [ $? -eq 0 ]; then
 		if [ $? -eq 0 ]; then OPT=-xmx2g; fi
 	fi
 fi
-java $OPT -cp "JRomManager.jar;lib/*"  jrm.server.Server
+java $OPT -cp "JRomManager.jar:lib/*"  jrm.server.Server
