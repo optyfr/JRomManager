@@ -207,6 +207,7 @@ project(':jrmcore') {
 	
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
+		testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
 	}
 	jar {
 		manifest {
@@ -249,6 +250,7 @@ project(':jrmcli') {
 	
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
 	}
 	apply plugin: 'application'
 	application.mainClass='jrm.cli.JRomManagerCLI'
@@ -317,6 +319,7 @@ project(':jrmstandalone') {
 	
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
 		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
 	}
 	apply plugin: 'application'
 	application.mainClass='jrm.JRomManager'
@@ -427,8 +430,8 @@ project(':jrmserver') {
 		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version:'12.+'
 		testImplementation group: 'org.eclipse.jetty', name: 'jetty-http', version:'12.+'
 		testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.+'
-    		testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
-    		testRuntimeOnly("org.junit.platform:junit-platform-launcher:latest.release")
+    	testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
+    	testRuntimeOnly("org.junit.platform:junit-platform-launcher:latest.release")
 //		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
 //		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
 	}
@@ -751,6 +754,12 @@ else if (os.isWindows()) {
 	winDistZip.dependsOn extractDaemonWin
 	build.dependsOn winDistZip
 }
+else {
+	linuxDistTar.enabled = false
+	linuxDistZip.enabled = false
+	winDistZip.enabled = false
+	winDistTar.enabled = false
+}
 
 task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
 	destinationDir = file("$buildDir/docs/javadoc")
@@ -894,14 +903,17 @@ jlink {
 		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
 		args = ['--workpath','%HOMEPATH%/.jrommanager']
 	}
-	targetPlatform("win") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.3%2B9/OpenJDK21U-jdk_x64_windows_hotspot_21.0.3_9.zip")
+	targetPlatform("win-x64") {
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.zip")
 	}
 	targetPlatform("linux-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.3%2B9/OpenJDK21U-jdk_x64_linux_hotspot_21.0.3_9.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_linux_hotspot_21.0.4_7.tar.gz")
 	}
 	targetPlatform("macos-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.3%2B9/OpenJDK21U-jdk_x64_mac_hotspot_21.0.3_9.tar.gz")
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_mac_hotspot_21.0.4_7.tar.gz")
+	}
+	targetPlatform("macos-aarch64") {
+		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.4_7.tar.gz")
 	}
 	jpackage {
 		installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
@@ -914,6 +926,7 @@ jlink {
 			installerOptions += [
 				'--win-dir-chooser', '--win-menu', '--win-shortcut'
 			]
+			installerName = 'JRomManager-' + targetPlatformName
 		}
 		if (installerType == 'deb' || installerType=='rpm') {
 			imageOptions += ['--icon', 'dist/JRomManager.png']
@@ -930,6 +943,7 @@ jlink {
 /*			imageOptions += ['--icon', 'dist/JRomManager.png']
 			installerOptions += [
 			]*/
+			installerName = 'JRomManager-' + targetPlatformName
 		}
 	}	
 }

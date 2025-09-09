@@ -24,7 +24,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '21.0.3'
+        java-version: '21.0.4'
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -62,8 +62,6 @@ jobs:
         
     - name: JPackage RPM with Gradle
       run: ./gradlew jpackage -PtargetPlatform=linux-x64 -PinstallerType=rpm
-      env:
-        JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
         
     - name: Releasing RPM
       uses: ncipollo/release-action@v1
@@ -147,10 +145,10 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '21.0.3'
+        java-version: '21.0.4'
         
     - name: JPackage MSI with Gradle
-      run: ./gradlew build jpackage -PtargetPlatform=win -PinstallerType=msi
+      run: ./gradlew build jpackage -PtargetPlatform=win-x64 -PinstallerType=msi
         
     - name: Releasing
       uses: ncipollo/release-action@v1
@@ -176,7 +174,44 @@ jobs:
         replacesArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
         
-  build_macos:
+  build_macos_x64:
+    env:
+      beta: ${{contains(github.ref, 'beta')}}
+    needs: build_windows
+    runs-on: macos-13
+    steps:
+    
+    - id: get_version
+      uses: battila7/get-version-action@v2
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      with:
+        submodules: true
+        
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21.0.4'
+        
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: JPackage DMG with Gradle
+      run: ./gradlew jpackage -PtargetPlatform=macos-x64 -PinstallerType=dmg
+        
+    - name: Releasing DMG
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "build/installer/*"
+        draft: false
+        prerelease: ${{ env.beta }}
+        allowUpdates: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        replacesArtifacts: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+  build_macos_aarch64:
     env:
       beta: ${{contains(github.ref, 'beta')}}
     needs: build_windows
@@ -193,15 +228,13 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '21.0.3'
+        java-version: '21.0.4'
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
     - name: JPackage DMG with Gradle
-      run: ./gradlew jpackage -PtargetPlatform=macos-x64 -PinstallerType=dmg
-      env:
-        JAVA_OPTS: -Dbadass.jlink.jpackage.home=${{env.JDK14}}
+      run: ./gradlew jpackage -PtargetPlatform=macos-aarch64 -PinstallerType=dmg
         
     - name: Releasing DMG
       uses: ncipollo/release-action@v1
@@ -214,4 +247,5 @@ jobs:
         omitNameDuringUpdate: true
         replacesArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
+        
         

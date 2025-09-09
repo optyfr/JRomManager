@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [3.0.5]
+### Added/Changed
+- macos arm (aarch64) build
+
+### Fixed
+- add extra check for valid folder setting when importing dat
+- fix macos intel (x64) build
+- generate right version for assets
+
+### Changed
+- update jdk to 21.0.4+7
+
 
 ## [3.0.4]
 ### Fixed
@@ -31,9 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - zip4j's rename is malfunctioning (it renames too much), switched back to jdk's ZipFileSystem for this operation while waiting our submitted PR to be merged and a new zip4j version released
 
+
 ## [3.0.1]
 ### Fixed
 - Urgent fix for "Comparison method violates its general contract!" on Report entries sorting 
+
 
 ## [3.0.0]
 ### Added/Changed
@@ -527,7 +541,8 @@ dir but one is not present (should be green)
 Initial release
 
 
-[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.4...HEAD
+[Unreleased]: https://github.com/optyfr/JRomManager/compare/3.0.5...HEAD
+[3.0.5]: https://github.com/optyfr/JRomManager/compare/3.0.4...3.0.5
 [3.0.4]: https://github.com/optyfr/JRomManager/compare/3.0.3...3.0.4
 [3.0.3]: https://github.com/optyfr/JRomManager/compare/3.0.2...3.0.3
 [3.0.2]: https://github.com/optyfr/JRomManager/compare/3.0.1...3.0.2
