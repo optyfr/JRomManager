@@ -178,7 +178,7 @@ jobs:
     env:
       beta: ${{contains(github.ref, 'beta')}}
     needs: build_windows
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
     
     - id: get_version
