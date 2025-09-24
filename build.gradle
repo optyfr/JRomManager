@@ -419,7 +419,7 @@ project(':jrmserver') {
 		implementation group: 'com.google.code.gson', name: 'gson', version: 'latest.release'
 		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
 		implementation group: 'commons-dbutils', name:'commons-dbutils', version: 'latest.release'
-		implementation group: 'com.h2database', name:'h2', version: '2.2.+'
+		implementation group: 'com.h2database', name:'h2', version: '2.4.+'
 		implementation group: 'org.mindrot', name:'jbcrypt', version:'0.4'
 		implementation group: 'net.java.dev.jna', name:'jna', version: 'latest.release'
 		implementation group: 'de.mkammerer', name:'argon2-jvm', version: 'latest.release'
