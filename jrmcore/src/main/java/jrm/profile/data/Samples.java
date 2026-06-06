@@ -25,21 +25,25 @@ import jrm.profile.Profile;
 import lombok.Getter;
 
 /**
- * Samples is a set of unique {@link Samples}
+ * Samples is a set of unique {@link Sample} instances representing an audio sample set.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public final class Samples extends AnywareBase implements Serializable, Iterable<Sample>
 {
 	/**
-	 * the {@link HashMap} of {@link Sample} with {@link NameBase#name} as key
+	 * The internal map of {@link Sample} instances with {@link NameBase#name} as key.
+	 * 
+	 * @return the map of samples indexed by their names
 	 */
 	private @Getter Map<String, Sample> samplesMap = new HashMap<>();
 
 	/**
-	 * The constructor
-	 * @param name the set name
+	 * Constructor for the Samples set.
+	 * 
+	 * @param name the sample set name
 	 */
 	public Samples(String name)
 	{
@@ -47,9 +51,10 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 	}
 
 	/**
-	 * add a unique sample, only add if not already existing
+	 * Adds a unique sample to the set, only adding it if it does not already exist.
+	 * 
 	 * @param sample the {@link Sample} to add
-	 * @return return the added {@link Sample}, or the already existing one
+	 * @return the added {@link Sample}, or the already existing one if present
 	 */
 	public Sample add(Sample sample)
 	{
@@ -61,42 +66,78 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 		return samplesMap.get(sample.name);
 	}
 
+	/**
+	 * Get the parent anyware container of the sample set.
+	 * 
+	 * @return the parent container base
+	 */
 	@Override
 	public AnywareBase getParent()
 	{
 		return parent;
 	}
 
+	/**
+	 * Get the name of this sample set.
+	 * 
+	 * @return the name of the set
+	 */
 	@Override
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * Get the full name of this sample set.
+	 * 
+	 * @return the full name
+	 */
 	@Override
 	public String getFullName()
 	{
 		return name;
 	}
 
+	/**
+	 * Get the full name with a specific filename appended or resolved.
+	 * 
+	 * @param filename the file name to format
+	 * @return the full path or filename
+	 */
 	@Override
 	public String getFullName(String filename)
 	{
 		return filename;
 	}
 
+	/**
+	 * Get the description of the samples.
+	 * 
+	 * @return an empty description or CharSequence
+	 */
 	@Override
 	public CharSequence getDescription()
 	{
 		return ""; //$NON-NLS-1$
 	}
 
+	/**
+	 * Returns an iterator over the samples in this set.
+	 * 
+	 * @return an iterator over {@link Sample}
+	 */
 	@Override
 	public Iterator<Sample> iterator()
 	{
 		return samplesMap.values().iterator();
 	}
 
+	/**
+	 * Evaluates and returns the aggregated status of the sample set based on its individual samples.
+	 * 
+	 * @return the evaluated {@link AnywareStatus}
+	 */
 	@Override
 	public AnywareStatus getStatus()
 	{
@@ -120,18 +161,34 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
 		return status;
 	}
 
+	/**
+	 * Get the profile associated with this set.
+	 * 
+	 * @return always null as sample sets do not have a direct profile association
+	 */
 	@Override
 	public Profile getProfile()
 	{
 		return null;
 	}
 	
+	/**
+	 * Compares the specified object with this samples set for equality.
+	 * 
+	 * @param obj the reference object to compare with
+	 * @return true if equivalent, false otherwise
+	 */
 	@Override
 	public boolean equals(Object obj)
 	{
 		return super.equals(obj);
 	}
 
+	/**
+	 * Returns the hash code value for this samples set.
+	 * 
+	 * @return the hash code
+	 */
 	@Override
 	public int hashCode()
 	{

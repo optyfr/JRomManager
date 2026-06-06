@@ -11,44 +11,78 @@ import java.util.regex.Pattern;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
 
+/**
+ * An abstract base class for analyzing game descriptions, extracting bracketed keywords,
+ * and performing tag-based and keyword-based filtering on items in an {@link AnywareList}.
+ * <p>
+ * This class parses parentheses and brackets in game descriptions to discover tags
+ * (e.g., "M92", "En,Fr,De", "Bootleg") and supports filtering game lists based on user selections.
+ * </p>
+ * 
+ * @author optyfr
+ * @since 1.0
+ */
 public abstract class Keywords {
+	/**
+	 * Regex pattern to match the base name and subsequent parentheses-enclosed tags in descriptions.
+	 */
 	final Pattern pattern = Pattern.compile("^(.*?)(\\(.*\\))++"); //$NON-NLS-1$
+	
+	/**
+	 * Regex pattern to capture the text contents inside a single set of parentheses.
+	 */
 	final Pattern patternParenthesis = Pattern.compile("\\((.*?)\\)"); //$NON-NLS-1$
+	
+	/**
+	 * Regex pattern to split tags within parentheses by commas.
+	 */
 	final Pattern patternSplit = Pattern.compile(","); //$NON-NLS-1$
+	
+	/**
+	 * Regex pattern to restrict keywords to alphabetical characters only.
+	 */
 	final Pattern patternAlpha = Pattern.compile("^[a-zA-Z]*$"); //$NON-NLS-1$
+	
+	/**
+	 * Temporary set used to aggregate extracted keywords during analysis.
+	 */
 	final HashSet<String> keywordSet = new HashSet<>();
 
 	/**
-	 * The Interface CallBack.
+	 * Functional callback interface triggered after keyword selections are confirmed.
 	 */
 	public interface KFCallBack
 	{
-		
 		/**
-		 * Call.
+		 * Callback method containing the list to update and the active filters.
 		 *
-		 * @param filter the filter
+		 * @param list the targeted {@link AnywareList} being filtered
+		 * @param filter the list of confirmed keyword tags to keep
 		 */
 		public void call(AnywareList<? extends Anyware> list, List<String> filter);
 	}
 
 	/**
-	 * The Class keypref.
+	 * Internal class representing keyword matching priority preferences
+	 * for grouping matched ROMs and retaining those of the highest-ranked filter order.
 	 */
 	private class KeyPref
 	{
-		
-		/** The order. */
+		/**
+		 * The matching priority index from the active filter list (lower values indicate higher preference).
+		 */
 		int order;
 		
-		/** The wares. */
+		/**
+		 * The list of associated matched {@link Anyware} game entries.
+		 */
 		List<Anyware> wares = new ArrayList<>();
 
 		/**
-		 * Instantiates a new keypref.
+		 * Constructs a new {@code KeyPref} instance with the specified order and an initial game entry.
 		 *
-		 * @param order the order
-		 * @param ware the ware
+		 * @param order the priority order index
+		 * @param ware the initial {@link Anyware} entry
 		 */
 		private KeyPref(int order, Anyware ware)
 		{
@@ -57,9 +91,9 @@ public abstract class Keywords {
 		}
 		
 		/**
-		 * Adds the.
+		 * Associates an additional matched game entry with this priority tier and marks it as selected.
 		 *
-		 * @param ware the ware
+		 * @param ware the matched {@link Anyware} entry to add
 		 */
 		private void add(Anyware ware)
 		{
@@ -68,7 +102,7 @@ public abstract class Keywords {
 		}
 		
 		/**
-		 * Clear.
+		 * Unselects all accumulated game entries and clears the internal reference list.
 		 */
 		private void clear()
 		{
@@ -78,7 +112,10 @@ public abstract class Keywords {
 	}
 
 	/**
+	 * Scans description metadata across the provided list to extract all alphabetical keywords,
+	 * then prompts the user via the implementation of {@link #showFilter(String[], KFCallBack)}.
 	 * 
+	 * @param list the {@link AnywareList} to extract keywords from and filter
 	 */
 	public void filter(AnywareList<? extends Anyware> list)
 	{
@@ -96,14 +133,27 @@ public abstract class Keywords {
 		showFilter(keywordSet.stream().sorted(String::compareToIgnoreCase).toArray(String[]::new), this::filterCallBack);
 	}
 
+	/**
+	 * Abstract method implemented by platform UI modules to render the keywords
+	 * filtering checklist dialog to the user.
+	 * 
+	 * @param keywords the sorted unique alphabetical tags discovered in descriptions
+	 * @param callback the {@link KFCallBack} instance to invoke with the user's selections
+	 */
 	protected abstract void showFilter(String[] keywords, KFCallBack callback);
 	
+	/**
+	 * Abstract callback method implemented by UI views to request components
+	 * reload and refresh lists to present newly applied selection filters.
+	 */
 	protected abstract void updateList();
 
 	/**
+	 * Receives selected keywords from the dialog, analyzes the description of each game,
+	 * and determines which entities remain selected using a preference map hierarchy.
 	 * 
-	 * @param list
-	 * @param filter
+	 * @param list the targeted {@link AnywareList} being filtered
+	 * @param filter the confirmed list of keywords selected by the user
 	 */
 	public void filterCallBack(AnywareList<? extends Anyware> list, List<String> filter)
 	{
@@ -121,24 +171,20 @@ public abstract class Keywords {
 						Arrays.asList(patternSplit.split(matcherParenthesis.group(1))).stream().map(s -> s.trim().toLowerCase()).filter(patternAlpha.asPredicate()).forEach(keywordSet::add);
 					}
 				}
-//				ware.setSelected(false);
 				selectFromKeywords(filter, prefmap, ware, matcher);
-			}
-			else
-			{
-//				prefmap.computeIfAbsent(ware.getDescription().toString(), k -> new KeyPref(Integer.MAX_VALUE, ware));
 			}
 		});
 		
 		updateList();
-		//list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
 	}
 
 	/**
-	 * @param filter
-	 * @param prefmap
-	 * @param ware
-	 * @param matcher
+	 * Performs fine-grained priority selections on matched games according to user keyword priorities.
+	 *
+	 * @param filter the confirmed list of keywords selected by the user
+	 * @param prefmap the active preference-ranking storage map
+	 * @param ware the current {@link Anyware} game entry being analyzed
+	 * @param matcher the regular expression matcher mapping details for the game
 	 */
 	private void selectFromKeywords(final List<String> filter, HashMap<String, KeyPref> prefmap, Anyware ware, final Matcher matcher)
 	{

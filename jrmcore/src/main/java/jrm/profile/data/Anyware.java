@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import jrm.misc.ProfileSettings;
 import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.data.Entity.Status;
@@ -41,65 +40,86 @@ import lombok.Setter;
 import one.util.streamex.StreamEx;
 
 /**
- * This class is the common class for machines and softwares sets
+ * Common abstract base class for emulator/retro-gaming systems, machines, and software sets.
+ * 
+ * <p>
+ * This class provides state tracking, relationship models, and stream-filtering logic
+ * to accommodate various merging strategies (split, merge, no-merge, full-merge, etc.)
+ * when scanning, validating, or rebuilding gaming romsets.
+ * </p>
  * 
  * @author optyfr
- * 
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public abstract class Anyware extends AnywareBase implements Serializable, Systm {
+	
+	/**
+	 * The active execution profile configuration containing settings and filter rules.
+	 */
 	Profile profile;
 
 	/**
-	 * the name of the parent from which this instance is a clone, null if the
-	 * instance is not a clone
+	 * The name of the parent from which this instance is a clone, or {@code null} if the
+	 * instance is not a clone.
+	 * 
+	 * @return the name of the parent from which this instance is a clone, or {@code null}
+	 * @param cloneof the new name of the parent from which this instance is a clone
 	 */
 	protected @Getter @Setter String cloneof = null;
+	
 	/**
-	 * The description field, generally the complete name of the game
+	 * The description field, generally representing the complete display name of the game/system.
 	 */
 	public final StringBuilder description = new StringBuilder();
+	
 	/**
-	 * The release year (may contain non numeric chars like question mark [?])
+	 * The release year of this game or system (may contain non-numeric characters like a question mark '?').
 	 */
 	public final StringBuilder year = new StringBuilder();
 
 	/**
-	 * The list of {@link Rom} entities related to this object
+	 * The collection of {@link Rom} entities related to this object.
+	 * 
+	 * @return the collection of {@link Rom} entities
 	 */
 	private final @Getter Collection<Rom> roms = new ArrayList<>();
+	
 	/**
-	 * The list of {@link Disk} entities related to this object
+	 * The collection of {@link Disk} entities related to this object.
+	 * 
+	 * @return the collection of {@link Disk} entities
 	 */
 	private final @Getter Collection<Disk> disks = new ArrayList<>();
+	
 	/**
-	 * The list of {@link Sample} entities related to this object
+	 * The collection of audio {@link Sample} entities related to this object.
+	 * 
+	 * @return the collection of {@link Sample} entities
 	 */
 	private final @Getter Collection<Sample> samples = new ArrayList<>();
 
 	/**
-	 * A hash table of clones if this object has clones
+	 * A hash table mapping unique names to their respective {@link Anyware} clone instances.
+	 * 
+	 * @return the map of clones by their name keys
 	 */
 	protected transient @Getter Map<String, Anyware> clones = new HashMap<>();
 
 	/**
-	 * Is that machine/software is *individually* selected for inclusion in your set
-	 * ? (true by default)
-	 */
-//	private @Getter @Setter boolean selected = true;
-
-	/**
-	 * Do we have a collision?
+	 * Indicates whether a name/hash collision has occurred for this system or game.
 	 */
 	protected transient boolean collision;
 
 	/**
-	 * entities list cache (according current {@link Profile#filterEntities})
+	 * Cached list of entities, filtered and formatted according to the current profile configurations.
 	 */
 	private transient List<EntityBase> tableEntities;
 
 	/**
-	 * The constructor, will initialize transients fields
+	 * Constructs an {@code Anyware} instance and initializes transient fields.
+	 * 
+	 * @param profile the active execution profile
 	 */
 	protected Anyware(Profile profile) {
 		this.profile = profile;
@@ -107,12 +127,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * the Serializable method for special serialization handling (in that case :
-	 * initialize transient default values)
+	 * Handles custom deserialization by executing default read operations and resetting transient states.
 	 * 
-	 * @param in the serialization inputstream
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * @param in the object input stream to read from
+	 * @throws IOException if an I/O error occurs during serialization
+	 * @throws ClassNotFoundException if the class of a serialized object cannot be found
 	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
@@ -120,7 +139,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * The method called to initialize transient and static fields
+	 * Initializes transient, static, and relational parent fields to their default starting states.
 	 */
 	protected void initTransient() {
 		collision = false;
@@ -132,18 +151,18 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * is collision enabled
+	 * Checks if the collision mode is active for this instance.
 	 * 
-	 * @return true if collision mode is enabled
+	 * @return {@code true} if collision mode is enabled, {@code false} otherwise
 	 */
 	public boolean isCollisionMode() {
 		return collision;
 	}
 
 	/**
-	 * Enable collision
+	 * Enables or disables collision mode.
 	 * 
-	 * @param parent if true will also propagate to clones from parent
+	 * @param parent if {@code true}, propagates the collision mode setting to all registered clones
 	 */
 	public void setCollisionMode(final boolean parent) {
 		if (parent)
@@ -152,7 +171,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * Reset collision, including for all roms and disks entities
+	 * Resets collision mode for this instance as well as all associated ROM and Disk entities.
 	 */
 	public void resetCollisionMode() {
 		collision = false;
@@ -161,22 +180,23 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * is this object a clone? A clone as a parent and that parent is not a bios
+	 * Checks if this instance represents a clone of another system.
 	 * 
-	 * @return true is that object is effectively a clone
+	 * @return {@code true} if this instance is a clone (i.e. has a non-null parent which is not a BIOS), {@code false} otherwise
 	 */
 	public boolean isClone() {
 		return (parent != null && !getParent().isBios());
 	}
 
 	/**
-	 * get the destination object according the {@link ProfileSettings#mergeMode}
-	 * and {@link #isClone()} - if we are merging ({@link MergeOptions#isMerge()}),
-	 * then return a parent that is not a clone by returning the call from
-	 * {@link #getParent()}.{@link #getDest()} - otherwise return {@code this}
+	 * Resolves the destination game/system instance based on the active merge configuration.
 	 * 
-	 * @return the {@link Anyware} destination object (can be this instance or a
-	 *         parent)
+	 * <p>
+	 * If merging is enabled and this instance is a clone, this method will recursively delegate to the
+	 * parent's destination; otherwise, it returns {@code this}.
+	 * </p>
+	 * 
+	 * @return the resolved destination {@link Anyware} instance
 	 */
 	public Anyware getDest() {
 		if (profile.getSettings() != null && profile.getSettings().getMergeMode().isMerge() && isClone())
@@ -185,26 +205,23 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * Is this object a bios
+	 * Abstract check to determine if this instance represents a BIOS system.
 	 * 
-	 * @return true if it's a bios (can be always false depending of extending
-	 *         class)
+	 * @return {@code true} if this is a BIOS system, {@code false} otherwise
 	 */
 	public abstract boolean isBios();
 
 	/**
-	 * Is this object depends of roms from another object?
+	 * Abstract check to determine if this instance relies on ROMs from another system.
 	 * 
-	 * @return true if it needs roms from another object (can be always false
-	 *         depending of extending class)
+	 * @return {@code true} if this system depends on another system's ROM files, {@code false} otherwise
 	 */
 	public abstract boolean isRomOf();
 
 	/**
-	 * return filtered list of disks according various flags and status
+	 * Filters and returns the list of {@link Disk} entities based on active profile settings and parent associations.
 	 * 
-	 * @return the filtered list of disks
-	 * @see "Source code for more explanations"
+	 * @return the filtered {@link List} of disks
 	 */
 	public List<Disk> filterDisks() {
 		Stream<Disk> stream = getFilterDisksStream();
@@ -235,7 +252,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * @return
+	 * Generates a stream of {@link Disk} entities preparing for filter evaluations.
+	 * 
+	 * @return a {@link Stream} of disk entities
 	 */
 	private Stream<Disk> getFilterDisksStream() {
 		/*
@@ -271,10 +290,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * return filtered list of roms according various flags and status
+	 * Filters and returns the list of {@link Rom} entities based on active profile settings, merge rules, and BIOS properties.
 	 * 
-	 * @return the filtered list of roms
-	 * @see "Source code for more explanations"
+	 * @return the filtered {@link List} of ROMs
 	 */
 	public List<Rom> filterRoms() {
 		final var list = getFilterRomsStream().filter(this::getRomsFilter)
@@ -288,8 +306,10 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * @param r
-	 * @return
+	 * Evaluates individual {@link Rom} criteria during stream filtering.
+	 * 
+	 * @param r the ROM entity to test
+	 * @return {@code true} if the ROM should be included under current filter schemes, {@code false} otherwise
 	 */
 	private boolean getRomsFilter(Rom r) {
 		if (r.dumpStatus == Status.nodump || r.crc == null/* || "00000000".equals(r.crc)*/ || r.name.isEmpty())
@@ -323,7 +343,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * @return
+	 * Generates a stream of {@link Rom} entities preparing for filter evaluations.
+	 * 
+	 * @return a {@link Stream} of ROM entities
 	 */
 	private Stream<Rom> getFilterRomsStream() {
 		/*
@@ -354,7 +376,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * @return
+	 * Specialized ROM stream setup when the active merge configuration calls for merge/split processing.
+	 * 
+	 * @return a {@link Stream} of merged ROM entities
 	 */
 	private Stream<Rom> getFilterRomsMergingStream() {
 		Stream<Rom> stream;
@@ -396,51 +420,44 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * get a stream of roms for this current machine optionally including related
-	 * bios and devices
+	 * Retrieves a stream of ROMs for this instance, optionally expanding references to related BIOS systems and physical hardware devices.
 	 * 
-	 * @param excludeBios if true do not include bios
-	 * @param partial     if true exclude device references
-	 * @param recurse     if true will also get devices of devices
-	 * @return a stream of roms
+	 * @param excludeBios if {@code true}, bios roms will be omitted
+	 * @param partial if {@code true}, hardware device references are excluded
+	 * @param recurse if {@code true}, nested devices of devices will also be fetched
+	 * @return a {@link Stream} of ROM entities
 	 */
 	abstract Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse);
 
 	/**
-	 * get a reversed order stream of a list of type {@link T}
+	 * Utility method returning a reversed order stream of a given list.
 	 * 
-	 * @param <T>   any object type
-	 * @param input a {@link List}{@literal <}{@link T}{@literal >} with {@link T}
-	 *              any class type
-	 * @return return a {@link Stream}{@literal <}{@link T}{@literal >} where
-	 *         objects are starting from the end of the list
+	 * @param <T> any object type
+	 * @param input the backing list to reverse
+	 * @return a {@link Stream} traversing the list elements from last to first
 	 */
 	public static <T> Stream<T> streamInReverse(List<T> input) {
 		return IntStream.range(1, input.size() + 1).mapToObj(i -> input.get(input.size() - i));
 	}
 
 	/**
-	 * Tell if an {@link Entity} (a rom or a disk) would be explicitly merged when
-	 * in merge mode
+	 * Evaluates if a given {@link Entity} (ROM or Disk) is eligible for merging.
 	 * 
-	 * @param ware the {@link Anyware} (a Machine or Software) for which the entity
-	 *             is compared (it is not necessarily its direct parent)
-	 * @param e    the entity to test
-	 * @return true, if the {@link Entity} as merge flag and the {@link Anyware} as
-	 *         a selected parent
+	 * @param ware the reference system/software being evaluated
+	 * @param e the specific entity to check
+	 * @return {@code true} if the entity should be merged, {@code false} otherwise
 	 */
 	public static boolean wouldMerge(final Anyware ware, final Entity e) {
 		return e.merge != null && ware.isRomOf() && ware.getParent() != null && ware.getParent().isSelected();
 	}
 
 	/**
-	 * Tell whether a {@link Rom} is contained in the given {@link Anyware}'s
-	 * ancestors This method is recursive and take care about implicit_merge option
+	 * Recursively evaluates whether a {@link Rom} is declared in the parent lineages of this system.
 	 * 
-	 * @param ware     the {@link Anyware} to test against
-	 * @param r        the {@link Rom} to find in the ware's ancestors
-	 * @param onlyBios if true test only if ware's parent is a bios
-	 * @return true if rom was found in one of the ware's ancestors
+	 * @param ware the start system to check against
+	 * @param r the ROM entity to locate
+	 * @param onlyBios if {@code true}, searches only within parents categorized as a BIOS
+	 * @return {@code true} if the ROM exists in parent lines, {@code false} otherwise
 	 */
 	public boolean containsInParent(final Anyware ware, final Rom r, final boolean onlyBios) {
 		if ((r.merge != null || profile.getSettings().getImplicitMerge()) && ware.getParent() != null
@@ -453,12 +470,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * Tell whether a {@link Disk} is contained in the given {@link Anyware}'s
-	 * ancestors This method is recursive and take care about implicit_merge option
+	 * Recursively evaluates whether a {@link Disk} is declared in the parent lineages of this system.
 	 * 
-	 * @param ware the {@link Anyware} to test against
-	 * @param d    the {@link Disk} to find in the ware's ancestors
-	 * @return true if disk was found in one of the ware's ancestors
+	 * @param ware the start system to check against
+	 * @param d the Disk entity to locate
+	 * @return {@code true} if the Disk exists in parent lines, {@code false} otherwise
 	 */
 	public boolean containsInParent(final Anyware ware, final Disk d) {
 		if ((d.merge != null || profile.getSettings().getImplicitMerge()) && ware.getParent() != null
@@ -471,25 +487,25 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * resets entities list cache and fire a TableChanged event to listeners
+	 * Clears the internal cached list of entities, prompting recalculation upon the next fetch.
 	 */
 	public void resetCache() {
 		tableEntities = null;
 	}
 
 	/**
-	 * Set a new Entity status set filter and reset list cache
+	 * Updates the active entity status filters and triggers a cache invalidation.
 	 * 
-	 * @param filter the new entity status set filter to apply
+	 * @param filter the set of allowed entity statuses
 	 */
 	public void setFilterCache(final Set<EntityStatus> filter) {
 		profile.setFilterEntities(filter);
 	}
 
 	/**
-	 * get the entities current list cache
+	 * Retrieves the cached collection of entities, evaluating and rebuilding the cache if empty.
 	 * 
-	 * @return a {@link List}{@literal <}{@link EntityBase}{@literal >}
+	 * @return the filtered and sorted {@link List} of child entities
 	 */
 	public List<EntityBase> getEntities() {
 		if (tableEntities == null)
@@ -500,10 +516,9 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * get the ware current status according the status of its attached entities
-	 * (roms, disks, ...)
+	 * Evaluates the absolute status of this system based on status aggregates of its child entities.
 	 * 
-	 * @return an {@link AnywareStatus}
+	 * @return the computed {@link AnywareStatus}
 	 */
 	@Override
 	public AnywareStatus getStatus() {
@@ -518,9 +533,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * @param status
-	 * @param ok
-	 * @return
+	 * Analyzes audio samples status to determine system level status updates.
+	 * 
+	 * @param status the existing status level
+	 * @param ok tracks if at least one valid entity is resolved
+	 * @return the updated system status
 	 */
 	private AnywareStatus getSamplesStatus(AnywareStatus status, final AtomicBoolean ok) {
 		for (final Sample sample : samples) {
@@ -538,9 +555,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * @param status
-	 * @param ok
-	 * @return
+	 * Analyzes ROM status to determine system level status updates.
+	 * 
+	 * @param status the existing status level
+	 * @param ok tracks if at least one valid entity is resolved
+	 * @return the updated system status
 	 */
 	private AnywareStatus getRomsStatus(AnywareStatus status, final AtomicBoolean ok) {
 		for (final Rom rom : roms) {
@@ -558,9 +577,11 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * @param status
-	 * @param ok
-	 * @return
+	 * Analyzes Disk status to determine system level status updates.
+	 * 
+	 * @param status the existing status level
+	 * @param ok tracks if at least one valid entity is resolved
+	 * @return the updated system status
 	 */
 	private AnywareStatus getDisksStatus(AnywareStatus status, final AtomicBoolean ok) {
 		for (final Disk disk : disks) {
@@ -578,58 +599,69 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 	}
 
 	/**
-	 * count the number of correct entities we have in this ware
+	 * Calculates the total number of successfully resolved child entities in this system.
 	 * 
-	 * @return an int which is the total counted
+	 * @return the count of successful entities
 	 */
 	public int countHave() {
 		return countHaveRoms() + countHaveDisks() + countHaveSamples();
 	}
 
 	/**
-	 * count the number of correct ROMs we have in this ware
+	 * Calculates the number of successfully resolved ROM entities.
 	 * 
-	 * @return an int which is the counted ROMs
+	 * @return the count of successful ROMs
 	 */
 	public int countHaveRoms() {
 		return roms.stream().mapToInt(r -> r.getStatus() == EntityStatus.OK ? 1 : 0).sum();
 	}
 
 	/**
-	 * count the number of correct disks we have in this ware
+	 * Calculates the number of successfully resolved Disk entities.
 	 * 
-	 * @return an int which is the counted disks
+	 * @return the count of successful Disks
 	 */
 	public int countHaveDisks() {
 		return disks.stream().mapToInt(d -> d.getStatus() == EntityStatus.OK ? 1 : 0).sum();
 	}
 
 	/**
-	 * count the number of correct samples we have in this ware
+	 * Calculates the number of successfully resolved audio Sample entities.
 	 * 
-	 * @return an int which is the counted samples
+	 * @return the count of successful Samples
 	 */
 	public int countHaveSamples() {
 		return samples.stream().mapToInt(s -> s.getStatus() == EntityStatus.OK ? 1 : 0).sum();
 	}
 
 	/**
-	 * count the number of entities contained in this ware, whether they are OK or
-	 * not
+	 * Counts all child entities regardless of physical presence status.
 	 * 
-	 * @return an int which is the sum of all the entities
+	 * @return the total count of ROMs, Disks, and Samples
 	 */
 	public int countAll() {
 		return roms.size() + disks.size() + samples.size();
 	}
 
+	/**
+	 * Cached map tracking status of clone ROMs to bypass redundant processing passes.
+	 */
 	private transient HashMap<String,EntityStatus> clonesRomsStatus = null;
 	
+	/**
+	 * Resets the transient clones ROMs status map.
+	 */
 	public void resetClonesRomsStatus()
 	{
 		clonesRomsStatus = null;
 	}
 	
+	/**
+	 * Resolves or populates the status tracker for a specific clone ROM.
+	 * 
+	 * @param rom the target clone ROM to check
+	 * @return the resolved {@link EntityStatus} of the clone ROM
+	 */
 	EntityStatus getCloneRomStatus(Rom rom)
 	{
 		if(clonesRomsStatus == null)
@@ -645,16 +677,32 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		return clonesRomsStatus.get(rom.hashString());
 	}
 	
+	/**
+	 * Retrieves the parent system context associated with this instance.
+	 * 
+	 * @return the parent {@link Anyware} instance
+	 */
 	@Override
 	public Anyware getParent() {
 		return getParent(Anyware.class);
 	}
 
+	/**
+	 * Calculates the hash code for this instance.
+	 * 
+	 * @return the computed hash code
+	 */
 	@Override
 	public int hashCode() {
 		return super.hashCode();
 	}
 
+	/**
+	 * Evaluates equality with another object based on unique names.
+	 * 
+	 * @param obj the reference object to compare with
+	 * @return {@code true} if equal, {@code false} otherwise
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Anyware aw)
@@ -662,21 +710,47 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
 		return super.equals(obj);
 	}
 
+	/**
+	 * Retrieves the associated active profile containing configuration states.
+	 * 
+	 * @return the associated {@link Profile}
+	 */
 	@Override
 	public Profile getProfile() {
 		return profile;
 	}
 
+	/**
+	 * Returns the size of the cached, filtered entities collection.
+	 * 
+	 * @return the number of cached entities
+	 */
 	public int count() {
 		return getEntities().size();
 	}
 
+	/**
+	 * Retrieves a specific entity by its index within the cached list.
+	 * 
+	 * @param i the index of the entity
+	 * @return the resolved {@link EntityBase}
+	 */
 	public EntityBase getObject(int i) {
 		return getEntities().get(i);
 	}
 
+	/**
+	 * Abstract check to see if this system is selected for inclusion.
+	 * 
+	 * @return {@code true} if selected, {@code false} otherwise
+	 */
 	public abstract boolean isSelected();
 	
+	/**
+	 * Abstract setter to update the selection status for inclusion.
+	 * 
+	 * @param selected the new selection state
+	 */
 	public abstract void setSelected(final boolean selected);
 
 }

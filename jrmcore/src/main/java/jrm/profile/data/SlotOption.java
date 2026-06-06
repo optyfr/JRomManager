@@ -22,34 +22,68 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A slot option with a device name and a default flags
+ * A SlotOption defines a specific configuration option available within a {@link Slot}.
+ * It maps to a specific emulator device name and includes a default setting flag.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class SlotOption extends NameBase implements Serializable
 {
 	/**
-	 * name of the used device
+	 * Name of the used device.
+	 * 
+	 * @param devName the device name to set
+	 * @return the device name
 	 */
 	private @Setter @Getter String devName;
+	
 	/**
-	 * is this the default slot option
+	 * Is this the default slot option.
+	 * 
+	 * @param def true if this is the default slot option, false otherwise
 	 */
 	private @Setter boolean def = false;
 	
+	/**
+	 * Retrieves the slot option name.
+	 * 
+	 * @return the name of the slot option
+	 */
 	@Override
 	public String getName()
 	{
 		return name;
 	}
 	
+	/**
+	 * Checks if this slot option is the default one.
+	 * 
+	 * @return true if default, false otherwise
+	 */
+	public boolean isDef()
+	{
+		return def;
+	}
+	
+	/**
+	 * Compares the specified object with this slot option for equality.
+	 * 
+	 * @param obj the reference object to compare with
+	 * @return true if the objects are equal, false otherwise
+	 */
 	@Override
 	public boolean equals(Object obj)
 	{
 		return super.equals(obj);
 	}
 	
+	/**
+	 * Returns the hash code value for this slot option.
+	 * 
+	 * @return the hash code value
+	 */
 	@Override
 	public int hashCode()
 	{

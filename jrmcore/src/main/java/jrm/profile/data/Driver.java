@@ -18,98 +18,171 @@ package jrm.profile.data;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang3.EnumUtils;
-
 import lombok.Getter;
 
 /**
- * Describe a machine Driver (used for filtering)
- * @author optyfr
+ * Describes a machine driver containing status, emulation flags, cocktail mode support,
+ * and save state details. This is commonly used for filtering games.
  *
+ * @author optyfr
  */
 @SuppressWarnings("serial")
 public class Driver implements Serializable
 {
 	/**
-	 * global {@link StatusType} of the machine (default to preliminary)
+	 * The global status of the machine driver. Defaults to {@link StatusType#preliminary}.
+	 *
+	 * @return the status type
 	 */
 	private @Getter StatusType status = StatusType.preliminary;
+
 	/**
-	 * emulation {@link StatusType} of the machine (default to preliminary)
+	 * The emulation status of the machine driver. Defaults to {@link StatusType#preliminary}.
+	 *
+	 * @return the emulation status type
 	 */
 	private @Getter StatusType emulation = StatusType.preliminary;
+
 	/**
-	 * cocktail mode {@link StatusType} of the machine  (default to preliminary)
+	 * The cocktail mode status of the machine driver. Defaults to {@link StatusType#preliminary}.
+	 *
+	 * @return the cocktail status type
 	 */
 	private @Getter StatusType cocktail = StatusType.preliminary;
+
 	/**
-	 * save state as {@link SaveStateType} (default to unsupported)
+	 * The save state support of the machine driver. Defaults to {@link SaveStateType#unsupported}.
+	 *
+	 * @return the save state support type
 	 */
 	private @Getter SaveStateType saveState = SaveStateType.unsupported;
 
 	/**
-	 * Enumerate the various status type of a machine driver
+	 * Enumerates the various status types of a machine driver.
 	 */
 	public enum StatusType
 	{
+		/**
+		 * Driver status is considered good.
+		 */
 		good,	//NOSONAR
+		/**
+		 * Driver status is imperfect (has minor emulation glitches).
+		 */
 		imperfect,	//NOSONAR
+		/**
+		 * Driver status is preliminary (not fully working or barely booting).
+		 */
 		preliminary	//NOSONAR
 	}
 
 	/**
-	 * Enumerate the save state types of a machine driver
+	 * Enumerates the save state types of a machine driver.
 	 */
 	public enum SaveStateType
 	{
+		/**
+		 * Save states are supported.
+		 */
 		supported,	//NOSONAR
+		/**
+		 * Save states are unsupported.
+		 */
 		unsupported	//NOSONAR
 	}
 
 	/**
-	 * Constructor is only authorized in package
+	 * Package-private constructor for Driver.
 	 */
 	Driver()
 	{
 	}
 
 	/**
-	 * set the global status from a string
-	 * @param status the status as a {@link String}, must match a {@link StatusType} value name
+	 * Sets the global driver status from a string representation.
+	 * Supports trim and case-insensitive resolution.
+	 *
+	 * @param status the status string matching a {@link StatusType} value name
 	 */
 	public void setStatus(final String status)
 	{
-		if(EnumUtils.isValidEnum(StatusType.class, status))
-			this.status = StatusType.valueOf(status);
+		if (status != null)
+		{
+			final String cleaned = status.trim().toLowerCase();
+			for (StatusType type : StatusType.values())
+			{
+				if (type.name().equalsIgnoreCase(cleaned))
+				{
+					this.status = type;
+					break;
+				}
+			}
+		}
 	}
 
 	/**
-	 * set the emulation status from a string
-	 * @param status the status as a {@link String}, must match a {@link StatusType} value name
+	 * Sets the emulation status from a string representation.
+	 * Supports trim and case-insensitive resolution.
+	 *
+	 * @param status the emulation status string matching a {@link StatusType} value name
 	 */
 	public void setEmulation(final String status)
 	{
-		if(EnumUtils.isValidEnum(StatusType.class, status))
-			emulation = StatusType.valueOf(status);
+		if (status != null)
+		{
+			final String cleaned = status.trim().toLowerCase();
+			for (StatusType type : StatusType.values())
+			{
+				if (type.name().equalsIgnoreCase(cleaned))
+				{
+					emulation = type;
+					break;
+				}
+			}
+		}
 	}
 
 	/**
-	 * set the cocktail status from a string
-	 * @param status the status as a {@link String}, must match a {@link StatusType} value name
+	 * Sets the cocktail mode status from a string representation.
+	 * Supports trim and case-insensitive resolution.
+	 *
+	 * @param status the cocktail status string matching a {@link StatusType} value name
 	 */
 	public void setCocktail(final String status)
 	{
-		if(EnumUtils.isValidEnum(StatusType.class, status))
-			cocktail = StatusType.valueOf(status);
+		if (status != null)
+		{
+			final String cleaned = status.trim().toLowerCase();
+			for (StatusType type : StatusType.values())
+			{
+				if (type.name().equalsIgnoreCase(cleaned))
+				{
+					cocktail = type;
+					break;
+				}
+			}
+		}
 	}
 
 	/**
-	 * set the save state from a string
-	 * @param status the save state as a {@link String}, must match a {@link SaveStateType} value name
+	 * Sets the save state support type from a string representation.
+	 * Supports trim and case-insensitive resolution.
+	 *
+	 * @param status the save state support string matching a {@link SaveStateType} value name
 	 */
 	public void setSaveState(final String status)
 	{
-		if(EnumUtils.isValidEnum(SaveStateType.class, status))
-			saveState = SaveStateType.valueOf(status);
+		if (status != null)
+		{
+			final String cleaned = status.trim().toLowerCase();
+			for (SaveStateType type : SaveStateType.values())
+			{
+				if (type.name().equalsIgnoreCase(cleaned))
+				{
+					saveState = type;
+					break;
+				}
+			}
+		}
 	}
 }

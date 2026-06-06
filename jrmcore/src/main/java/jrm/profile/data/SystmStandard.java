@@ -19,35 +19,58 @@ package jrm.profile.data;
 import java.io.Serializable;
 
 /**
- * Standard system
+ * Standard system.
+ * Represents system options mapped under the Type.STANDARD classification.
+ * 
  * @author optyfr
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class SystmStandard implements Systm, Serializable
 {
 	/**
-	 * the static STANDARD object
+	 * The static STANDARD instance.
 	 */
 	public static final SystmStandard STANDARD = new SystmStandard();
 
+	/**
+	 * Retrieves the system type.
+	 * 
+	 * @return Type.STANDARD
+	 */
 	@Override
 	public Type getType()
 	{
 		return Type.STANDARD;
 	}
 
+	/**
+	 * Retrieves the system reference.
+	 * 
+	 * @return standard static instance
+	 */
 	@Override
 	public Systm getSystem()
 	{
 		return SystmStandard.STANDARD;
 	}
 
+	/**
+	 * Formats standard system into a descriptive string.
+	 * 
+	 * @return formatted type string
+	 */
 	@Override
 	public String toString()
 	{
 		return "["+getType()+"]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * Retrieves the system name.
+	 * 
+	 * @return "standard"
+	 */
 	@Override
 	public String getName()
 	{

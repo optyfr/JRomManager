@@ -58,58 +58,111 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * The Profile NFO file managing class with tolerant manual (de)serialization
+ * Handles the profile .nfo file lifecycle, storing stats, mame references,
+ * profile name, and file connections. Supports custom serialization.
  * 
  * @author optyfr
  */
 public final class ProfileNFO implements Serializable, StatusRendererFactory
 {
+	/**
+	 * Field name constant for MAME info serialization.
+	 */
 	private static final String MAME_STR = "mame";
+
+	/**
+	 * Field name constant for profile statistics serialization.
+	 */
 	private static final String STATS_STR = "stats";
+
+	/**
+	 * Field name constant for profile name serialization.
+	 */
 	private static final String NAME_STR = "name";
+
+	/**
+	 * Field name constant for associated file serialization.
+	 */
 	private static final String FILE_STR = "file";
+
+	/**
+	 * Undefined status placeholder.
+	 */
 	private static final String U = "?";
+
+	/**
+	 * Double undefined status placeholder.
+	 */
 	private static final String U_OF_U = "?/?";
+
+	/**
+	 * Fraction formatting template.
+	 */
 	private static final String N_OF_T = "%s/%d";
+
+	/**
+	 * JRomManager identifier string.
+	 */
 	private static final String JROMMANAGER_STR = "JRomManager";
+
+	/**
+	 * Standard date-time format template.
+	 */
 	private static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+
+	/**
+	 * Unknown date-time formatted placeholder.
+	 */
 	private static final String UNKNOWN_DATE = "????-??-?? ??:??:??";
 
+	/**
+	 * Serial version UID for maintaining serialization compatibility.
+	 */
 	private static final long serialVersionUID = 3L;
 
 	/**
-	 * The Profile {@link File} (can be a jrm, a dat, or an xml file)
+	 * The profile's physical database file path (e.g. .jrm, .dat, .xml).
+	 * 
+	 * @return the associated profile database {@link File}
 	 */
 	private @Getter File file = null;
+
 	/**
-	 * The name to show in GUI (equals to file name by default)
+	 * The descriptive profile name to be rendered in the user interface.
+	 * 
+	 * @return the profile's display name
 	 */
 	private @Getter String name = null;
+
 	/**
-	 * The {@link ProfileNFOStats} stats sub class
+	 * The profile completion stats and event logs container.
+	 * 
+	 * @return the profile statistics tracker
 	 */
 	private @Getter ProfileNFOStats stats = new ProfileNFOStats();
+
 	/**
-	 * The {@link ProfileNFOMame} mame sub class
+	 * The linked MAME configuration status and paths tracker.
+	 * 
+	 * @return the MAME configuration manager
 	 */
 	private @Getter ProfileNFOMame mame = new ProfileNFOMame();
 	
 	/**
-	 * Temporary new name
+	 * Temporary placeholder for profile renaming transactions.
+	 * 
+	 * @param newName the tentative new profile name
+	 * @return the temporary new name
 	 */
 	private transient @Getter @Setter String newName = null;
 
 	/**
-	 * fields declaration for manual serialization
+	 * Declares persistent serialization fields for compliant manual object serialization.
 	 * 
-	 * @serialField file
-	 *                  File the file linked to this profile info
-	 * @serialField name
-	 *                  String the name of the profile
-	 * @serialField stats
-	 *                  ProfileNFOStats the stats related to the profile
-	 * @serialField mame
-	 *                  ProfileNFOMame the mame infos relates to the profile
+	 * @serialField file File the associated profile file location
+	 * @serialField name String display name of this profile
+	 * @serialField stats ProfileNFOStats completion statistics
+	 * @serialField mame ProfileNFOMame MAME executable configurations
 	 */
 	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR 
 		new ObjectStreamField(FILE_STR, File.class),
@@ -119,14 +172,10 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	};
 
 	/**
-	 * Manually write serialization
+	 * Manually serializes the state of this profile NFO instance to the destination stream.
 	 * 
-	 * @serialData Use {@link ObjectOutputStream.PutField} object to add to
-	 *             persistent fields buffer, then
-	 *             {@link ObjectOutputStream#writeFields()}
-	 * @param stream
-	 *            the destination {@link ObjectOutputStream}
-	 * @throws IOException
+	 * @param stream the target {@link ObjectOutputStream}
+	 * @throws IOException if a physical write error occurs
 	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
@@ -139,12 +188,11 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * Manually read serialization
+	 * Manually deserializes the state of this profile NFO instance from the source stream.
 	 * 
-	 * @param stream
-	 *            the destination {@link ObjectInputStream}
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * @param stream the source {@link ObjectInputStream}
+	 * @throws IOException if a physical read error occurs
+	 * @throws ClassNotFoundException if any serialized class representation cannot be resolved
 	 */
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
@@ -156,10 +204,10 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * internal constructor
+	 * Private internal constructor associating a profile NFO with its main database file.
+	 * Sets the creation date and loads metadata properties from JRM configuration file if possible.
 	 * 
-	 * @param file
-	 *            the file to attach
+	 * @param file the associated database file
 	 */
 	private ProfileNFO(final File file)
 	{
@@ -171,11 +219,11 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * return the nfo file derived from the attached file
+	 * Resolves the absolute path where the .nfo metadata file for a profile is stored.
 	 * 
-	 * @param file
-	 *            the attached file candidate
-	 * @return the nfo {@link File}
+	 * @param session the current active security session
+	 * @param file the associated profile database file
+	 * @return the resolved physical .nfo {@link File} on disk
 	 */
 	private static File getFileNfo(final Session session, final File file)
 	{
@@ -183,10 +231,11 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * Delete NFO old location, change attached file, then save to new location
+	 * Safely migrates this profile and its metadata to point to a new database file location.
+	 * Deletes the legacy .nfo metadata file, updates internal files references, and re-saves.
 	 * 
-	 * @param file
-	 *            new file to attach
+	 * @param session the current active security session
+	 * @param file the new target physical folder or file path on disk
 	 */
 	public void relocate(final Session session, final File file)
 	{
@@ -204,11 +253,12 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * Load or create a ProfileNFO from an attached file
+	 * Loads metadata properties from an existing .nfo file if present and fresh,
+	 * otherwise instantiates a new empty ProfileNFO for the supplied profile file.
 	 * 
-	 * @param file
-	 *            the attached file from which to derive NFO file
-	 * @return the {@link ProfileNFO}
+	 * @param session the current active security session
+	 * @param file the profile database file
+	 * @return the loaded or newly created {@link ProfileNFO}
 	 */
 	public static ProfileNFO load(final Session session, final File file)
 	{
@@ -230,7 +280,10 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * Save this ProfileNFO, and save JRM if the attached file is a JRM type file
+	 * Persists this ProfileNFO statistics to disk. If this profile is linked to a JRM file,
+	 * it also updates and saves the JRM XML configuration properties file first.
+	 * 
+	 * @param session the current active security session
 	 */
 	public void save(final Session session)
 	{
@@ -256,9 +309,9 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * Does the attached file is a JRM file
+	 * Evaluates whether the associated database file is a custom JRomManager profile package (.jrm).
 	 * 
-	 * @return true if it's a JRM file
+	 * @return {@code true} if the extension is "jrm"; {@code false} otherwise
 	 */
 	public boolean isJRM()
 	{
@@ -266,10 +319,10 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * Load JRM file and fill up {@link #mame}
+	 * Parses a standard XML JRM file to extract database paths and updates
+	 * the internal MAME reference paths accordingly.
 	 * 
-	 * @param jrmfile
-	 *            the JRM file to load
+	 * @param jrmfile the physical JRM configuration file on disk
 	 */
 	public void loadJrm(final File jrmfile)
 	{
@@ -328,17 +381,14 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * save mame infos in JRM file
+	 * Creates and populates a new JRM XML configuration file linking physical ROM and software list DATs.
 	 * 
-	 * @param jrmFile
-	 *            the JRM file to save
-	 * @param romsFile
-	 *            the mame roms file
-	 * @param slFile
-	 *            the software list file
-	 * @return return the {@code JrmFile}
-	 * @throws ParserConfigurationException
-	 * @throws TransformerException
+	 * @param jrmFile the destination JRM file path
+	 * @param romsFile the associated ROMs list DAT file
+	 * @param slFile the optional associated software lists DAT file
+	 * @return the saved JRM file
+	 * @throws ParserConfigurationException if the XML document builder cannot be configured
+	 * @throws TransformerException if the XML document cannot be transformed to a file
 	 */
 	public static File saveJrm(final File jrmFile, final File romsFile, final File slFile) throws ParserConfigurationException, TransformerException
 	{
@@ -363,9 +413,10 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 	}
 
 	/**
-	 * Delete all related files to
+	 * Cleans up and deletes all metadata, cache, and properties files
+	 * associated with this profile on disk.
 	 * 
-	 * @return true on success
+	 * @return {@code true} if deletion of the main file succeeded; {@code false} otherwise
 	 */
 	public boolean delete()
 	{
@@ -387,11 +438,21 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 		return false;
 	}
 
+	/**
+	 * Generates HTML formatted representation of the current catalog database version.
+	 * 
+	 * @return the HTML formatted version string
+	 */
 	public String getHTMLVersion()
 	{
 		return toDocument(Optional.ofNullable(stats.getVersion()).map(this::toNoBR).orElse(toGray("???"))); //$NON-NLS-1$
 	}
 
+	/**
+	 * Generates HTML formatted representation of owned game sets versus total sets.
+	 * 
+	 * @return the HTML formatted sets count string
+	 */
 	public String getHTMLHaveSets()
 	{
 		final String have;
@@ -416,6 +477,11 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 		return toDocument(have);
 	}
 
+	/**
+	 * Generates HTML formatted representation of owned ROM files versus total ROMs.
+	 * 
+	 * @return the HTML formatted ROMs count string
+	 */
 	public String getHTMLHaveRoms()
 	{
 		final String have;
@@ -440,6 +506,11 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 		return toDocument(have);
 	}
 
+	/**
+	 * Generates HTML formatted representation of owned CHD/disk files versus total disks.
+	 * 
+	 * @return the HTML formatted disks count string
+	 */
 	public String getHTMLHaveDisks()
 	{
 		final String have;
@@ -464,21 +535,44 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 		return toDocument(have);
 	}
 
+	/**
+	 * Generates HTML formatted representation of profile creation timestamp.
+	 * 
+	 * @return the HTML formatted creation timestamp string
+	 */
 	public String getHTMLCreated()
 	{
 		return toDocument(stats.getCreated() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getCreated())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * Generates HTML formatted representation of last scanned timestamp.
+	 * 
+	 * @return the HTML formatted scanned timestamp string
+	 */
 	public String getHTMLScanned()
 	{
 		return toDocument(stats.getScanned() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getScanned())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * Generates HTML formatted representation of last repair timestamp.
+	 * 
+	 * @return the HTML formatted repaired timestamp string
+	 */
 	public String getHTMLFixed()
 	{
 		return toDocument(stats.getFixed() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getFixed())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * Scans the provided directory on disk and loads the metadata profile information
+	 * of any matching catalog files found inside.
+	 * 
+	 * @param session the current active security session
+	 * @param dir the physical directory to explore
+	 * @return the list of discovered and loaded {@link ProfileNFO} files
+	 */
 	public static List<ProfileNFO> list(Session session, File dir)
 	{
 		List<ProfileNFO> rows = new ArrayList<>();
@@ -497,6 +591,11 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory
 		return rows;
 	}
 	
+	/**
+	 * Returns the profile display name.
+	 * 
+	 * @return the name string
+	 */
 	@Override
 	public String toString()
 	{

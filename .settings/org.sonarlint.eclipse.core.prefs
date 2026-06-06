@@ -1,3 +1,7 @@
 autoEnabled=true
+bindingSuggestionsDisabled=true
 eclipse.preferences.version=1
 fileExclusions=DIRECTORY\:JRomManager/src/jrm/compressors/zipfs
+indexingBasedOnEclipsePlugIns=true
+projectKey=optyfr_JRomManager
+serverId=SonarQube_Cloud/optyfr

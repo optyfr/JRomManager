@@ -21,21 +21,27 @@ import java.io.Serializable;
 import jrm.profile.Profile;
 
 /**
- * interface definition for linking selectable data classes with profile properties getter/setter
+ * Interface definition for linking selectable data classes with profile properties getter/setter.
+ * Provides a standardized mechanism to query and mutate boolean preferences associated with specific
+ * profiles.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 public interface PropertyStub extends Serializable
 {
 	/**
-	 * get the defined property name of the current class
-	 * @return the name of the property
+	 * Get the defined property name of the current class.
+	 * 
+	 * @return the name of the property as a String
 	 */
 	public String getPropertyName();
 
 	/**
-	 * get the selection state in profile properties according  {@link #getPropertyName()}
-	 * @return true if selected
+	 * Get the selection state in profile properties according to {@link #getPropertyName()}.
+	 * 
+	 * @param profile the profile to read the property from
+	 * @return true if selected, false otherwise
 	 */
 	public default boolean isSelected(final Profile profile)
 	{
@@ -43,7 +49,9 @@ public interface PropertyStub extends Serializable
 	}
 
 	/**
-	 * set the selection state in profile properties according {@link #getPropertyName()}
+	 * Set the selection state in profile properties according to {@link #getPropertyName()}.
+	 * 
+	 * @param profile the profile to set the property in
 	 * @param selected the selection state to set
 	 */
 	public default void setSelected(final Profile profile, final boolean selected)

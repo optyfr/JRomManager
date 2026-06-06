@@ -25,62 +25,73 @@ import lombok.RequiredArgsConstructor;
 import net.lingala.zip4j.ZipFile;
 
 /**
- * The supported format options
+ * Enumeration of supported file container format options used during scanning and rebuilding.
+ * These format options specify whether romsets are stored as standard zip files, seven-zip files,
+ * torrentzipped files, raw directories, or single files.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 public @RequiredArgsConstructor enum FormatOptions implements Descriptor
 {
 	/**
-	 * Zip (internally handled via {@link ZipFile})
+	 * Zip format internally handled via {@link ZipFile}.
 	 */
 	ZIP(Messages.getString("FormatOptions.Zip"), Ext.ZIP), //$NON-NLS-1$
 	/**
-	 * Zip (either handled by SevenzipJBinding or by an external program)
+	 * Zip format either handled by SevenzipJBinding or by an external tool.
 	 */
 	ZIPE(Messages.getString("FormatOptions.ZipExternal"), Ext.ZIP), //$NON-NLS-1$
 	/**
-	 * SevenZip (either handled by SevenzipJBinding or by an external program)
+	 * SevenZip format either handled by SevenzipJBinding or by an external tool.
 	 */
 	SEVENZIP(Messages.getString("FormatOptions.SevenZip"), Ext.SEVENZIP), //$NON-NLS-1$
 	/**
-	 * Zip (torrentzipped by jtrrntzip)
+	 * Torrentzip format (standard zip containing files sorted and compressed deterministically by jtrrntzip).
 	 */
 	TZIP(Messages.getString("FormatOptions.TorrentZip"), Ext.ZIP), //$NON-NLS-1$
 	/**
-	 * Standard folder
+	 * Standard file directory folder format.
 	 */
 	DIR(Messages.getString("FormatOptions.Directories"), Ext.DIR), //$NON-NLS-1$
 	/**
-	 * Single file (fake folder)
+	 * Single file format representing a fake directory.
 	 */
 	FAKE(Messages.getString("FormatOptions.SingleFile"), Ext.FAKE); //$NON-NLS-1$
 
 
 	/**
-	 * Supported file container extensions
+	 * Nested enumeration of standard file container extensions associated with format options.
 	 */
 	public @RequiredArgsConstructor enum Ext
 	{
 		/**
-		 * folder (no extension)
+		 * Directory extension representing no extension.
 		 */
 		DIR(""), //$NON-NLS-1$
 		/**
-		 * .zip for zip format
+		 * ZIP file extension.
 		 */
 		ZIP(".zip"), //$NON-NLS-1$
 		/**
-		 * .7z for sevenzip format
+		 * Seven-zip file extension.
 		 */
 		SEVENZIP(".7z"), //$NON-NLS-1$
 		/**
-		 * fake folder (fake extension)
+		 * Fake directory file extension.
 		 */
 		FAKE(".$$$"); //$NON-NLS-1$
 
+		/**
+		 * The literal string file extension value.
+		 */
 		private final String value;
 
+		/**
+		 * Returns the string representation of this file extension.
+		 * 
+		 * @return a {@link String} representation of the extension.
+		 */
 		@Override
 		public String toString()
 		{
@@ -88,8 +99,9 @@ public @RequiredArgsConstructor enum FormatOptions implements Descriptor
 		}
 
 		/**
-		 * get all extensions except the current one (and {@link #DIR})
-		 * @return an {@link EnumSet} of {@link Ext}
+		 * Returns all file extensions except this current one and the directory format.
+		 * 
+		 * @return a {@link Set} of {@link Ext} representing complementary formats.
 		 */
 		public Set<Ext> allExcept()
 		{
@@ -97,8 +109,9 @@ public @RequiredArgsConstructor enum FormatOptions implements Descriptor
 		}
 
 		/**
-		 * is it a directory
-		 * @return true if it's a directory
+		 * Checks if this extension represents a standard directory format.
+		 * 
+		 * @return {@code true} if this is the directory format, {@code false} otherwise.
 		 */
 		public boolean isDir()
 		{
@@ -107,17 +120,22 @@ public @RequiredArgsConstructor enum FormatOptions implements Descriptor
 	}
 
 	/**
-	 * Format description 
+	 * Localized text description of the format option.
+	 * 
+	 * @return theLocalized description string.
 	 */
 	private final @Getter String desc;
 	/**
-	 * Format extension
+	 * File container extension associated with this format option.
+	 * 
+	 * @return the corresponding {@link Ext} extension instance.
 	 */
 	private final @Getter Ext ext;
 
 	/**
-	 * get all formats except current one (and {@link #DIR})
-	 * @return an {@link EnumSet} of {@link FormatOptions}
+	 * Returns all format options except this current format option and the directory format.
+	 * 
+	 * @return a {@link Set} of {@link FormatOptions} representing alternative target formats.
 	 */
 	public Set<FormatOptions> allExcept()
 	{

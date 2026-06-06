@@ -21,44 +21,44 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * All possible hash collision options
+ * Enumeration of available hash collision management options.
+ * These options define the behavior of the rebuilder when identical checksums (hash collisions)
+ * are detected between different romsets or parent/clone relationships.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 public @RequiredArgsConstructor enum HashCollisionOptions implements Descriptor
 {
 	/**
-	 * only collisioned entries in clone subfolder
+	 * Only the collisioned entry is placed in the clone's subfolder.
 	 */
 	SINGLEFILE(Messages.getString("HashCollisionOptions.SingleFile")), //$NON-NLS-1$
 	/**
-	 * all entries in collisioning clones subfolder
+	 * All entries in the collisioning clone are placed in the clone's subfolder.
 	 */
 	SINGLECLONE(Messages.getString("HashCollisionOptions.SingleClone")), //$NON-NLS-1$
 	/**
-	 * all clones in subfolder as soon there is a collision
+	 * All clones are placed in their respective subfolders as soon as a single collision occurs.
 	 */
 	ALLCLONES(Messages.getString("HashCollisionOptions.AllClones")), //$NON-NLS-1$
 	/**
-	 * all clones in subfolder as soon there is a collision, with some optimisations
+	 * All clones are placed in their subfolders as soon as a collision is detected, with specific optimization rules.
 	 */
 	HALFDUMB(Messages.getString("HashCollisionOptions.AllClonesHalfDumb")), //$NON-NLS-1$
 	/**
-	 * all clones in subfolder even if there is no hash collision
+	 * All clones are placed in subfolders unconditionally, regardless of whether a hash collision actually exists.
 	 */
 	DUMB(Messages.getString("HashCollisionOptions.AllClonesDumb")), //$NON-NLS-1$
 	/**
-	 * all clones in subfolder even if there is no hash collision (disk included)
+	 * All clones are unconditionally placed in subfolders, including disk images (CHDs).
 	 */
 	DUMBER(Messages.getString("HashCollisionOptions.AllClonesDumber")); //$NON-NLS-1$
 
 	/**
-	 * The name of the option
+	 * The descriptive name of the collision management option.
+	 * 
+	 * @return the localized description string.
 	 */
-	private final
-	/**
-	 * internal constructor
-	 * @param desc the name of the option
-	 */
-	@Getter String desc;
+	private final @Getter String desc;
 }

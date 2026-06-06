@@ -7,25 +7,36 @@ import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
 
 /**
- * This {@link Entry} is present but has wrong hash when compared to its related {@link Entity}
- * @author optyfr
+ * Report note indicating that a physical entry is present in the container but has a wrong or mismatched hash code
+ * when compared against its expected database ROM or file entity.
  *
+ * @author optyfr
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class EntryWrongHash extends EntryExtNote implements Serializable
 {
+	/**
+	 * Resource bundle key for wrong hash entries localization messages.
+	 */
 	private static final String ENTRY_WRONG_HASH_WRONG = "EntryWrongHash.Wrong";
 
 	/**
-	 * The constructor
-	 * @param entity related {@link Entity}
-	 * @param entry  Wrong hash {@link Entry}
+	 * Constructs a new EntryWrongHash note mapping the mismatched entity to the physical entry.
+	 *
+	 * @param entity the expected entity definition
+	 * @param entry the physical file entry with mismatched hash
 	 */
 	public EntryWrongHash(final Entity entity, final Entry entry)
 	{
 		super(entity, entry);
 	}
 
+	/**
+	 * Returns a localized string summarizing that the entry has a wrong hash.
+	 *
+	 * @return the localized message string
+	 */
 	@Override
 	public String toString()
 	{
@@ -37,6 +48,11 @@ public class EntryWrongHash extends EntryExtNote implements Serializable
 			return String.format(Messages.getString(ENTRY_WRONG_HASH_WRONG), parent.ware.getFullName(), entry.getRelFile(), "SHA-1", entry.getSha1(), getSha1()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * Renders an HTML-styled diagnostic document summarizing this note.
+	 *
+	 * @return the styled HTML diagnostic document string
+	 */
 	@Override
 	public String getDocument()
 	{
@@ -48,6 +64,11 @@ public class EntryWrongHash extends EntryExtNote implements Serializable
 			return toDocument(String.format(escape(Messages.getString(ENTRY_WRONG_HASH_WRONG)), toBlue(parent.ware.getFullName()), toBoldBlack(entry.getRelFile()), "SHA-1", entry.getSha1(), getSha1())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * Gets the abbreviation code representing this note type.
+	 *
+	 * @return the abbreviation "WHASH"
+	 */
 	@Override
 	public String getAbbrv()
 	{

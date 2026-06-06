@@ -19,45 +19,57 @@ package jrm.profile.data;
 import java.io.Serializable;
 
 /**
- * Interface describing methods related to entity name manipulation
- * @author optyfr
+ * Interface describing operations related to entity name manipulation and name-based caches.
+ * It provides methods for resetting, checking, and retrieving elements of type {@code T}
+ * from both filtered and non-filtered caches based on their names.
  *
+ * @author optyfr
  * @param <T> any class that extends {@link NameBase}
  */
 public interface ByName<T extends NameBase> extends Serializable
 {
 	/**
-	 * tells reevaluate the named map filtered cache
+	 * Requests the re-evaluation and reset of the filtered name map cache.
 	 */
 	public void resetFilteredName();
+
 	/**
-	 * Ask if this name is contained in the named map filtered cache
-	 * @param name the name to search
-	 * @return true if it was found
+	 * Checks if the specified name exists in the filtered name map cache.
+	 *
+	 * @param name the entity name to search for
+	 * @return {@code true} if the name is found in the filtered cache, {@code false} otherwise
 	 */
 	public boolean containsFilteredName(String name);
+
 	/**
-	 * Ask if this name is contained in the named map non-filtered cache
-	 * @param name the name to search
-	 * @return true if it was found
+	 * Checks if the specified name exists in the non-filtered name map cache.
+	 *
+	 * @param name the entity name to search for
+	 * @return {@code true} if the name is found in the non-filtered cache, {@code false} otherwise
 	 */
 	public boolean containsName(String name);
+
 	/**
-	 * get the {@link T} by its name from the named map filtered cache
-	 * @param name the name to search
-	 * @return {@link T} or null
+	 * Retrieves the entity of type {@code T} by its name from the filtered name map cache.
+	 *
+	 * @param name the entity name to retrieve
+	 * @return the entity of type {@code T} associated with the name, or {@code null} if not found
 	 */
 	public T getFilteredByName(String name);
+
 	/**
-	 * get the {@link T} by its name from the named map non-filtered cache
-	 * @param name the name to search
-	 * @return {@link T} or null
+	 * Retrieves the entity of type {@code T} by its name from the non-filtered name map cache.
+	 *
+	 * @param name the entity name to retrieve
+	 * @return the entity of type {@code T} associated with the name, or {@code null} if not found
 	 */
 	public T getByName(String name);
+
 	/**
-	 * add {@link T} to the named map non-filtered cache
-	 * @param t the {@link T} to add
-	 * @return the previous {@link T} value stored with this name or null
+	 * Associates the specified entity of type {@code T} with its name in the non-filtered name map cache.
+	 *
+	 * @param t the entity of type {@code T} to add to the cache
+	 * @return the previous entity of type {@code T} associated with the name, or {@code null} if there was no mapping
 	 */
 	public abstract T putByName(T t);
 }

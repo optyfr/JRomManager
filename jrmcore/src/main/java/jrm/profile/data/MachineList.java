@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -64,6 +63,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 
 	/**
 	 * The constructor, will initialize transients fields
+	 *
+	 * @param profile the associated profile database
 	 */
 	public MachineList(Profile profile)
 	{
@@ -74,8 +75,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	/**
 	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
 	 * @param in the serialization inputstream
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * @throws IOException if an I/O error occurs
+	 * @throws ClassNotFoundException if the class definition is missing
 	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
@@ -91,6 +92,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 		return mList;
 	}
 
+	/**
+	 * Bundles the various filtering option values retrieved from the current profile configurations.
+	 */
 	private class FilterOptions
 	{
 		final boolean excludeGames = profile.getProperty(ProfileSettingsEnum.exclude_games, Boolean.class); //$NON-NLS-1$
@@ -138,7 +142,10 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	/**
-	 * @param t
+	 * Applies more complex/advanced filters (like subcategory and player counts).
+	 *
+	 * @param t the machine to evaluate
+	 * @return {@code true} if the machine passes advanced filters, {@code false} otherwise
 	 */
 	private boolean getAdvancedFilters(Machine t)
 	{
@@ -150,8 +157,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	/**
-	 * @param options
-	 * @param t
+	 * Applies standard simple filters (like clones exclusion, mechanical state, and active disk/samples criteria).
+	 *
+	 * @param options the retrieved filter options
+	 * @param t the machine to evaluate
+	 * @return {@code true} if the machine passes simple filters, {@code false} otherwise
 	 */
 	private boolean getSimpleFilters(final FilterOptions options, Machine t)
 	{
@@ -167,15 +177,17 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 			return false;
 		if(!t.getSystem().isSelected(profile))	// exclude machines for which their BIOS system were not selected
 			return false;
-		if(Optional.ofNullable(t.getSource()).map(s->!s.isSelected(profile)).orElse(false)) //NOSONAR exclude machines for which their source file were not selected
+		if(t.getSource() != null && !t.getSource().isSelected(profile)) // exclude machines for which their source file were not selected
 			return false;
 		return true;
 	}
 
 	/**
-	 * @param filterYearMin
-	 * @param filterYearMax
-	 * @param t
+	 * Filters machines based on their release years range.
+	 *
+	 * @param options the active filter configurations
+	 * @param t the machine to evaluate
+	 * @return {@code true} if the machine's release year is within the bounds, {@code false} otherwise
 	 */
 	private boolean getYearFilter(final FilterOptions options, Machine t)
 	{
@@ -190,7 +202,9 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	/**
-	 * @return
+	 * Resolves a special MESS filter stream retaining console/computers devices but omitting pure arcade machines.
+	 *
+	 * @return a filtered {@link Stream} of machines
 	 */
 	private Stream<Machine> getMessFilteredStream()
 	{
@@ -204,10 +218,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	/**
-	 * @param filterMinDriverStatus
-	 * @param filterDisplayOrientation
-	 * @param filterCabinetType
-	 * @param t
+	 * Filters non-device machines based on driver support status levels.
+	 *
+	 * @param options the filter configurations
+	 * @param t the machine to evaluate
+	 * @return {@code true} if the non-device machine is accepted, {@code false} otherwise
 	 */
 	private boolean getNonDeviceFilter(final FilterOptions options, Machine t)
 	{
@@ -224,17 +239,19 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	/**
-	 * @param filterDisplayOrientation
-	 * @param filterCabinetType
-	 * @param t
+	 * Filters non-mechanical machines based on display orientations.
+	 *
+	 * @param options the filter configurations
+	 * @param t the machine to evaluate
+	 * @return {@code true} if accepted, {@code false} otherwise
 	 */
 	private boolean getNonMechanicalFilter(final FilterOptions options, Machine t)
 	{
 		if(!t.ismechanical)	// exception on mechanical
 		{
-			if(options.filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical)	// exclude "vertical only" when display filter is "horizontal only"
-				return false;
 			if(options.filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal)	// exclude "horizontal only" when display filter is "vertical only"
+				return false;
+			if(options.filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical)	// exclude "vertical only" when display filter is "horizontal only"
 				return false;
 			if(!getNonBiosFilter(options, t))
 				return false;
@@ -243,8 +260,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	}
 
 	/**
-	 * @param filterCabinetType
-	 * @param t
+	 * Filters non-BIOS machines based on cabinet types.
+	 *
+	 * @param options the filter configurations
+	 * @param t the machine to evaluate
+	 * @return {@code true} if accepted, {@code false} otherwise
 	 */
 	private boolean getNonBiosFilter(final FilterOptions options, Machine t)
 	{
@@ -284,7 +304,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
 	 * @param progress the {@link ProgressHandler} to show the current progress
 	 * @param is_mame is it mame (true) or logqix (false) format ?
 	 * @param modes the export modes
-	 * @throws XMLStreamException
+	 * @throws XMLStreamException if an XML writing error occurs
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final Set<ExportMode> modes) throws XMLStreamException
 	{

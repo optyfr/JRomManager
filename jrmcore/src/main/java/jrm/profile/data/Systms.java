@@ -24,28 +24,38 @@ import java.util.List;
 import lombok.Getter;
 
 /**
- * ListModel of systems
+ * ListModel of systems.
+ * Holds multiple {@link Systm} elements and supports standard iteration.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public final class Systms implements Serializable, Iterable<Systm>
 {
 	/**
-	 * The internal {@link ArrayList} of {@link Systm}s
+	 * The internal {@link ArrayList} of {@link Systm}s.
+	 * 
+	 * @return the list of systems
 	 */
 	private final @Getter List<Systm> systems = new ArrayList<>();
 
 	/**
-	 * add a {@link Systm} to the list
+	 * Add a {@link Systm} to the list.
+	 * 
 	 * @param system the {@link Systm} to add
-	 * @return return true if successful
+	 * @return true if successful, false otherwise
 	 */
 	public boolean add(final Systm system)
 	{
 		return systems.add(system);
 	}
 
+	/**
+	 * Returns an iterator over the registered systems.
+	 * 
+	 * @return an iterator of {@link Systm}
+	 */
 	@Override
 	public Iterator<Systm> iterator()
 	{

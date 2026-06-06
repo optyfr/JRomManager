@@ -21,37 +21,45 @@ import java.io.Serializable;
 import org.apache.commons.lang3.BooleanUtils;
 
 /**
- * Describe the input of a machine (used for filtering)
- * @author optyfr
+ * Describes the input controls of a machine (such as players, coins, service mode, or tilt)
+ * used primarily for ROM listing and driver status filtering.
  *
+ * @author optyfr
  */
 @SuppressWarnings("serial")
 public final class Input implements Serializable
 {
 	/**
-	 * Number of supported players
+	 * Number of supported players.
 	 */
 	protected int players = 0;
+	
 	/**
-	 * Number of coin slots
+	 * Number of coin slots.
 	 */
 	protected int coins = 0;
+	
 	/**
-	 * does it have service mode
+	 * Indicates whether the machine supports a service mode.
 	 */
 	protected boolean service = false;
+	
 	/**
-	 * does it support tilt
+	 * Indicates whether the machine supports tilt controls.
 	 */
 	protected boolean tilt = false;
 
+	/**
+	 * Package-private default constructor for Input.
+	 */
 	Input()
 	{
 	}
 
 	/**
-	 * set number of players
-	 * @param players the player string value that will be converted to int
+	 * Sets the number of supported players.
+	 *
+	 * @param players the player string value that will be converted to an integer
 	 */
 	public void setPlayers(final String players)
 	{
@@ -59,8 +67,9 @@ public final class Input implements Serializable
 	}
 
 	/**
-	 * set number of coins slots
-	 * @param coins the coins string value that will be converted to int
+	 * Sets the number of coin slots.
+	 *
+	 * @param coins the coins string value that will be converted to an integer
 	 */
 	public void setCoins(final String coins)
 	{
@@ -68,8 +77,9 @@ public final class Input implements Serializable
 	}
 
 	/**
-	 * set the service support
-	 * @param service the service boolean yes/no string representation 
+	 * Sets the service mode support flag.
+	 *
+	 * @param service the service boolean yes/no string representation
 	 */
 	public void setService(final String service)
 	{
@@ -77,8 +87,9 @@ public final class Input implements Serializable
 	}
 
 	/**
-	 * set the tilt support
-	 * @param tilt the tilt boolean yes/no string representation 
+	 * Sets the tilt support flag.
+	 *
+	 * @param tilt the tilt boolean yes/no string representation
 	 */
 	public void setTilt(final String tilt)
 	{

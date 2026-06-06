@@ -41,143 +41,256 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Represent a complete Machine (or a game set in Logiqx terminology)
+ * Represents a complete Machine (or a game set in Logiqx terminology) within a Profile.
+ * Manages ROM sharing properties, BIOS properties, device attributes, emulator configurations,
+ * and integration with software lists.
+ *
  * @author optyfr
  */
 public class Machine extends Anyware implements Serializable
 {
 	/**
-	 * 
+	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * if defined, romof will tell that this machine will share rom with another machine named in that romof field
+	 * If defined, romof will tell that this machine will share rom with another machine named in that romof field.
+	 *
+	 * @param romof the parent ROM set name to set
+	 * @return the parent ROM set name
 	 */
 	protected @Getter @Setter String romof = null;
+
 	/**
-	 * if defined, sampleof will tell that this machine will have samples contained within a sampleset ({@link Samples}) named by that sampleof field
+	 * If defined, sampleof will tell that this machine will have samples contained within a sampleset named by that sampleof field.
+	 *
+	 * @param sampleof the sample set name to set
+	 * @return the sample set name
 	 */
 	protected @Getter @Setter String sampleof = null;
+
 	/**
-	 * is that machine a system bios?
+	 * Is that machine a system bios?
+	 *
+	 * @param isbios {@code true} if this machine is a BIOS system, {@code false} otherwise
+	 * @return {@code true} if this machine is a BIOS system, {@code false} otherwise
 	 */
 	protected @Getter @Setter boolean isbios = false;
+
 	/**
-	 * is that machine electro-mechanical (fruit machines, pinballs, etc ...)
+	 * Is that machine electro-mechanical (fruit machines, pinballs, etc.)?
+	 *
+	 * @param ismechanical {@code true} if mechanical, {@code false} otherwise
+	 * @return {@code true} if mechanical, {@code false} otherwise
 	 */
 	protected @Getter @Setter boolean ismechanical = false;
+
 	/**
-	 * is that machine a device (serial interface, disk controller, etc ...)
+	 * Is that machine a device (serial interface, disk controller, etc.)?
+	 *
+	 * @param isdevice {@code true} if a device, {@code false} otherwise
+	 * @return {@code true} if a device, {@code false} otherwise
 	 */
 	protected @Getter @Setter boolean isdevice = false;
 
+	/**
+	 * The source file path defining this machine.
+	 *
+	 * @param sourcefile the source file path to set
+	 * @return the source file path
+	 */
 	protected @Getter @Setter String sourcefile = null;
 	
 	/**
-	 * the manufacturer, if known
+	 * The manufacturer, if known.
 	 */
 	public final StringBuilder manufacturer = new StringBuilder();
+
 	/**
-	 * the {@link Driver} informations
+	 * The {@link Driver} informations.
 	 */
 	public final Driver driver = new Driver();
+
 	/**
-	 * The {@link Input} informations
+	 * The {@link Input} informations.
 	 */
 	public final Input input = new Input();
+
 	/**
-	 * The {@link DisplayOrientation} informations
+	 * The {@link DisplayOrientation} informations.
+	 *
+	 * @param orientation the display orientation to set
+	 * @return the display orientation
 	 */
 	protected @Getter @Setter DisplayOrientation orientation = DisplayOrientation.any;
+
 	/**
-	 * The {@link CabinetType} informations
+	 * The {@link CabinetType} informations.
+	 *
+	 * @param cabinetType the cabinet type to set
+	 * @return the cabinet type
 	 */
 	protected @Getter @Setter CabinetType cabinetType = CabinetType.upright;
 	
 	/**
-	 * the software lists that this machine is linked to (if this machine is a computer or a home console) 
+	 * The software lists that this machine is linked to (if this machine is a computer or a home console).
+	 *
+	 * @return the map of software lists
 	 */
 	private final @Getter Map<String, SWList> swlists = new HashMap<>();
 	
 	/**
-	 * A "machine device" references list
+	 * A "machine device" references list.
+	 *
+	 * @return the list of device reference names
 	 */
 	private final @Getter List<String> deviceRef = new ArrayList<>();
+
 	/**
-	 * The mapping between each device_ref string and a {@link Machine} (with flag {@link #isdevice})
+	 * The mapping between each device_ref string and a {@link Machine} (with flag {@link #isdevice}).
+	 *
+	 * @return the map of device machines indexed by their name
 	 */
 	protected transient @Getter Map<String, Machine> deviceMachines = new HashMap<>();
+
 	/**
-	 * an I/O device list
+	 * An I/O device list.
+	 *
+	 * @return the list of devices
 	 */
 	private final @Getter List<Device> devices = new ArrayList<>();
 	
 	/**
-	 * a slot group of optional devices slots
+	 * A slot group of optional devices slots.
+	 *
+	 * @return the map of slots
 	 */
 	private final @Getter Map<String, Slot> slots = new HashMap<>();
 
 	/**
-	 * category/subcategory as defined by catver.ini
+	 * Category/subcategory as defined by catver.ini.
+	 *
+	 * @param subcat the category / subcategory to set
+	 * @return the category / subcategory
 	 */
 	protected transient @Getter @Setter SubCategory subcat = null;
 
 	/**
-	 * nplayer as defined by nplayers.ini
+	 * Nplayer as defined by nplayers.ini.
+	 *
+	 * @param nplayer the multiplayer info to set
+	 * @return the multiplayer info
 	 */
 	protected transient @Getter @Setter NPlayer nplayer = null;
 	
 	/**
-	 * source as defined by sourcefile property
+	 * Source as defined by sourcefile property.
+	 *
+	 * @param source the source DAT reference to set
+	 * @return the source DAT reference
 	 */
 	protected transient @Getter @Setter Source source  = null;
 	
 	/**
-	 * SWList link reference with support status and filter option 
+	 * SWList link reference with support status and filter option.
 	 */
 	@SuppressWarnings("serial")
 	public @Data class SWList implements Serializable
 	{
+		/**
+		 * The name of the software list.
+		 *
+		 * @param name the name of the software list to set
+		 * @return the name of the software list
+		 */
 		private String name;
+
+		/**
+		 * The support status of the software list.
+		 *
+		 * @param status the status of the software list to set
+		 * @return the status of the software list
+		 */
 		private SWStatus status;
+
+		/**
+		 * The filter category tag.
+		 *
+		 * @param filter the filter string to set
+		 * @return the filter string
+		 */
 		private String filter;
 	}
 
 	/**
-	 * is this swlist is a compatible list or an original list of softwares for this computer/console 
+	 * Is this swlist is a compatible list or an original list of softwares for this computer/console.
 	 */
 	public enum SWStatus
 	{
+		/**
+		 * Original software list natively intended for this hardware.
+		 */
 		original,	//NOSONAR
+		/**
+		 * Compatible software list containing software runnable on this hardware.
+		 */
 		compatible	//NOSONAR
 	}
 
 	/**
-	 * The display orientation possibilities 
+	 * The display orientation possibilities.
 	 */
 	public enum DisplayOrientation
 	{
+		/**
+		 * Any display orientation (default).
+		 */
 		any,	//NOSONAR
+		/**
+		 * Horizontal screen orientation.
+		 */
 		horizontal,	//NOSONAR
+		/**
+		 * Vertical screen orientation.
+		 */
 		vertical	//NOSONAR
 	}
 
 	/**
-	 * The supported cabinet type 
+	 * The supported cabinet type.
 	 */
 	public enum CabinetType
 	{
+		/**
+		 * Any cabinet type.
+		 */
 		any,	//NOSONAR
+		/**
+		 * Upright cabinet layout.
+		 */
 		upright,	//NOSONAR
+		/**
+		 * Cocktail table cabinet layout.
+		 */
 		cocktail	//NOSONAR
 	}
 
+	/**
+	 * Constructor for Machine.
+	 *
+	 * @param profile the associated profile database
+	 */
 	public Machine(Profile profile)
 	{
 		super(profile);
 	}
 
+	/**
+	 * Retrieves the parent machine casted.
+	 *
+	 * @return the parent Machine
+	 */
 	@Override
 	public Machine getParent()
 	{
@@ -185,10 +298,11 @@ public class Machine extends Anyware implements Serializable
 	}
 
 	/**
-	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
+	 * The Serializable method for special serialization handling (in that case : initialize transient default values).
+	 *
 	 * @param in the serialization inputstream 
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * @throws IOException if an I/O error occurs
+	 * @throws ClassNotFoundException if class definition is missing
 	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
@@ -197,7 +311,7 @@ public class Machine extends Anyware implements Serializable
 	}
 
 	/**
-	 * The method called to initialize transient and static fields
+	 * The method called to initialize transient and static fields.
 	 */
 	@Override
 	protected void initTransient()
@@ -206,30 +320,56 @@ public class Machine extends Anyware implements Serializable
 		deviceMachines = new HashMap<>();
 	}
 	
+	/**
+	 * Retrieves the machine base name.
+	 *
+	 * @return the machine name
+	 */
 	@Override
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * Retrieves the machine full name.
+	 *
+	 * @return the machine name
+	 */
 	@Override
 	public String getFullName()
 	{
 		return name;
 	}
 
+	/**
+	 * Retrieves the machine full name under a given filename.
+	 *
+	 * @param filename the relative file name
+	 * @return the name representation
+	 */
 	@Override
 	public String getFullName(final String filename)
 	{
 		return filename;
 	}
 
+	/**
+	 * Indicates if this machine is a system BIOS.
+	 *
+	 * @return {@code true} if this machine is a system BIOS, {@code false} otherwise
+	 */
 	@Override
 	public boolean isBios()
 	{
 		return isbios;
 	}
 
+	/**
+	 * Indicates if this machine is a ROM share parent.
+	 *
+	 * @return {@code true} if it has a non-null romof field, {@code false} otherwise
+	 */
 	@Override
 	public boolean isRomOf()
 	{
@@ -238,14 +378,20 @@ public class Machine extends Anyware implements Serializable
 
 	/**
 	 * Is this machine a machine with a software list?<br>
-	 * This is not 100% accurate since lot of unsupported but defined machines does not have yet software lists defined
-	 * @return true if it's a software machine
+	 * This is not 100% accurate since lot of unsupported but defined machines does not have yet software lists defined.
+	 *
+	 * @return {@code true} if it's a software machine
 	 */
 	public boolean isSoftMachine()
 	{
 		return swlists.size()>0 || (isClone() && getParent().swlists.size()>0);
 	}
 	
+	/**
+	 * Resolves and returns the structural hardware {@link Type} of this machine.
+	 *
+	 * @return the machine structural type
+	 */
 	@Override
 	public Type getType()
 	{
@@ -260,6 +406,11 @@ public class Machine extends Anyware implements Serializable
 		return Type.STANDARD;
 	}
 
+	/**
+	 * Retrieves the generic {@link Systm} category representing this machine's target group.
+	 *
+	 * @return the target Systm category
+	 */
 	@Override
 	public Systm getSystem()
 	{
@@ -279,6 +430,11 @@ public class Machine extends Anyware implements Serializable
 		}
 	}
 
+	/**
+	 * Returns a string representation of this machine.
+	 *
+	 * @return string representing the machine type and description
+	 */
 	@Override
 	public String toString()
 	{
@@ -286,7 +442,8 @@ public class Machine extends Anyware implements Serializable
 	}
 
 	/**
-	 * get the machine compatibility level with a software list according its filter tag versus an optional software compatibility value
+	 * Gets the machine compatibility level with a software list according its filter tag versus an optional software compatibility value.
+	 *
 	 * @param softwarelist a software list name
 	 * @param compatibility the compatibility string (if any) declared for a software in the software list
 	 * @return higher is the returned int value, higher will be the level of compatibility
@@ -299,10 +456,12 @@ public class Machine extends Anyware implements Serializable
 	}
 
 	/**
-	 * Export as dat
+	 * Export as dat.
+	 *
 	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
 	 * @param is_mame is it mame (true) or logqix (false) format ?
-	 * @throws XMLStreamException
+	 * @param modes the active export modes
+	 * @throws XMLStreamException if an XML stream error occurs
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame, final Set<ExportMode> modes) throws XMLStreamException
 	{
@@ -336,8 +495,11 @@ public class Machine extends Anyware implements Serializable
 	}
 
 	/**
-	 * @param writer
-	 * @throws XMLStreamException
+	 * Internal helper to write MAME compatible elements.
+	 *
+	 * @param writer the XML writer
+	 * @param modes the export modes
+	 * @throws XMLStreamException if an error occurs
 	 */
 	private void exportMame(final EnhancedXMLStreamWriter writer, final Set<ExportMode> modes) throws XMLStreamException
 	{
@@ -381,6 +543,12 @@ public class Machine extends Anyware implements Serializable
 		writer.writeEndElement();
 	}
 
+	/**
+	 * Indicates whether some other object is "equal to" this machine.
+	 *
+	 * @param obj the reference object to compare with
+	 * @return {@code true} if machines are identical by name, {@code false} otherwise
+	 */
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -389,12 +557,22 @@ public class Machine extends Anyware implements Serializable
 		return super.equals(obj);
 	}
 	
+	/**
+	 * Returns a hash code value for this machine.
+	 *
+	 * @return the name-based hash code
+	 */
 	@Override
 	public int hashCode()
 	{
 		return super.hashCode();
 	}
 
+	/**
+	 * Retrieves the text description of the machine.
+	 *
+	 * @return the description char sequence
+	 */
 	@Override
 	public CharSequence getDescription()
 	{
@@ -402,7 +580,8 @@ public class Machine extends Anyware implements Serializable
 	}
 	
 	/**
-	 * build the list of associated machine devices
+	 * Build the list of associated machine devices recursively.
+	 *
 	 * @param machines the set of machine to fill up with
 	 * @param excludeBios exclude any bios devices
 	 * @param partial exclude devices from slots that are not defined in device_ref
@@ -426,7 +605,8 @@ public class Machine extends Anyware implements Serializable
 	}
 	
 	/**
-	 * Stream associated machine devices
+	 * Stream associated machine devices.
+	 *
 	 * @param partial exclude machines devices from slots that are not defined in device_ref
 	 * @return a {@link Stream}&lt;{@link Machine}&gt;
 	 */
@@ -437,6 +617,14 @@ public class Machine extends Anyware implements Serializable
 		return deviceMachines.values().stream();
 	}
 	
+	/**
+	 * Streams ROMs associated with this machine, including devices recursively.
+	 *
+	 * @param excludeBios exclude BIOS rom files
+	 * @param partial exclude rom files from optional devices slots not defined in device_ref
+	 * @param recurse search devices recursively
+	 * @return a stream of associated ROMs
+	 */
 	@Override
 	protected Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse)
 	{
@@ -446,7 +634,8 @@ public class Machine extends Anyware implements Serializable
 	}
 	
 	/**
-	 * get the selection state in profile properties according  {@link #getPropertyName()}
+	 * Get the selection state in profile properties according {@link #getName()}.
+	 *
 	 * @return true if selected
 	 */
 	public boolean isSelected()
@@ -455,7 +644,8 @@ public class Machine extends Anyware implements Serializable
 	}
 
 	/**
-	 * set the selection state in profile properties according {@link #getPropertyName()}
+	 * Set the selection state in profile properties according {@link #getName()}.
+	 *
 	 * @param selected the selection state to set
 	 */
 	public void setSelected(final boolean selected)

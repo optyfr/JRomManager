@@ -19,35 +19,58 @@ package jrm.profile.data;
 import java.io.Serializable;
 
 /**
- * Device system
+ * Device system.
+ * Represents system options mapped under the Type.DEVICE classification.
+ * 
  * @author optyfr
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class SystmDevice implements Systm, Serializable
 {
 	/**
-	 * the static DEVICE object
+	 * The static DEVICE instance.
 	 */
 	public static final SystmDevice DEVICE = new SystmDevice();
 
+	/**
+	 * Retrieves the system type.
+	 * 
+	 * @return Type.DEVICE
+	 */
 	@Override
 	public Type getType()
 	{
 		return Type.DEVICE;
 	}
 
+	/**
+	 * Retrieves the system reference.
+	 * 
+	 * @return the static DEVICE instance
+	 */
 	@Override
 	public Systm getSystem()
 	{
 		return SystmDevice.DEVICE;
 	}
 
+	/**
+	 * Formats the system to its string representation.
+	 * 
+	 * @return formatted type string
+	 */
 	@Override
 	public String toString()
 	{
 		return "["+getType()+"]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * Retrieves the system name.
+	 * 
+	 * @return "device"
+	 */
 	@Override
 	public String getName()
 	{

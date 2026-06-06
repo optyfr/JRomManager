@@ -23,14 +23,26 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 
 /**
- * Gatter CHD header informations
+ * A reader class that gathers metadata and cryptographic checksum information
+ * from the headers of CHD (Compressed Hunks of Data) files.
+ * It memory-maps the first 1KB of the target file to determine the header version (1-5)
+ * and delegates properties extraction to the corresponding concrete header implementation.
+ * 
  * @author optyfr
- *
  */
 public class CHDInfoReader implements CHDHeaderIntf
 {
-	CHDHeaderIntf header;
+	/**
+	 * The delegated version-specific CHD header implementation.
+	 */
+	private CHDHeaderIntf header;
 
+	/**
+	 * Constructs a new {@code CHDInfoReader} for the specified file and parses its header.
+	 *
+	 * @param chdfile the target CHD file to read and analyze
+	 * @throws IOException if an I/O error occurs while opening or mapping the file
+	 */
 	public CHDInfoReader(final File chdfile) throws IOException
 	{
 		try(final var is = new FileInputStream(chdfile))
@@ -66,30 +78,57 @@ public class CHDInfoReader implements CHDHeaderIntf
 		}
 	}
 
+	/**
+	 * Retrieves the SHA-1 digest of the raw, uncompressed data represented by this CHD,
+	 * as specified in the header.
+	 * 
+	 * @return the SHA-1 hexadecimal string or {@code null} if not reported by this header version
+	 */
 	@Override
 	public String getSHA1()
 	{
 		return header.getSHA1();
 	}
 
+	/**
+	 * Retrieves the MD5 digest of the raw, uncompressed data represented by this CHD,
+	 * as specified in the header.
+	 * 
+	 * @return the MD5 hexadecimal string or {@code null} if not reported by this header version
+	 */
 	@Override
 	public String getMD5()
 	{
 		return header.getMD5();
 	}
 
+	/**
+	 * Determines if the file has a valid CHD tag signature (i.e. 'MComprHD').
+	 * 
+	 * @return {@code true} if the header tag is valid, otherwise {@code false}
+	 */
 	@Override
 	public boolean isValidTag()
 	{
 		return header.isValidTag();
 	}
 
+	/**
+	 * Gets the length of the CHD header in bytes.
+	 * 
+	 * @return header length in bytes
+	 */
 	@Override
 	public int getLen()
 	{
 		return header.getLen();
 	}
 
+	/**
+	 * Gets the version number of the CHD file format.
+	 * 
+	 * @return CHD version number (e.g., 1, 2, 3, 4, 5)
+	 */
 	@Override
 	public int getVersion()
 	{

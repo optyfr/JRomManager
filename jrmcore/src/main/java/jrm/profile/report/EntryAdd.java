@@ -7,35 +7,55 @@ import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 
 /**
- * Entry can be added
- * @author optyfr
+ * Report note indicating that a physical file entry can be added to the target container.
+ * <p>
+ * This status occurs when a matching ROM or file is found in another local location or archive,
+ * and can be copied or imported to resolve a missing dependency.
  *
+ * @author optyfr
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class EntryAdd extends EntryExtNote implements Serializable
 {
 	/**
-	 * The constructor for this entry report
-	 * @param entity the related {@link EntityBase} (a Rom, a Disk, or a Sample)
-	 * @param entry the {@link Entry} to add
+	 * Constructs a new EntryAdd note mapping an expected entity to an actual available entry.
+	 *
+	 * @param entity the expected rom, disk, or sample metadata
+	 * @param entry the actual scanned file entry that is available for copy/add
 	 */
 	public EntryAdd(final EntityBase entity, final Entry entry)
 	{
 		super(entity, entry);
 	}
 
+	/**
+	 * Returns a localized string summarizing that the entry can be added.
+	 *
+	 * @return the localized message string
+	 */
 	@Override
 	public String toString()
 	{
 		return String.format(Messages.getString("EntryAddAdd"), parent.ware.getFullName(), entity.getNormalizedName(), entry.getParent().getRelFile().getName(), entry.getRelFile()); //$NON-NLS-1$
 	}
 
+	/**
+	 * Renders an HTML-styled diagnostic document summarizing this note.
+	 *
+	 * @return the styled HTML diagnostic document string
+	 */
 	@Override
 	public String getDocument()
 	{
 		return toDocument(String.format(escape(Messages.getString("EntryAddAdd")), toBlue(parent.ware.getFullName()), toBoldBlack(entity.getNormalizedName()), toItalicBlack(entry.getParent().getRelFile().getName()), toBoldBlack(entry.getRelFile()))); //$NON-NLS-1$
 	}
 
+	/**
+	 * Gets the abbreviation code representing this note type.
+	 *
+	 * @return the abbreviation "ADD"
+	 */
 	@Override
 	public String getAbbrv()
 	{

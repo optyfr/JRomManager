@@ -33,39 +33,51 @@ import jrm.profile.data.SoftwareList;
 import jrm.xml.EnhancedXMLStreamWriter;
 
 /**
- * Export a profile into one of the {@link ExportType}
+ * Utility class for exporting profiles into various external formats.
+ * Supports exporting to standard MAME XML format, standard Datafile/Logiqx XML format,
+ * or MAME Software List formats.
+ * 
  * @author optyfr
- *
  */
-public class Export
+public final class Export
 {
 	/**
-	 * The supported export types enum
+	 * Default private constructor to prevent instantiation of this utility class.
+	 */
+	private Export()
+	{
+		throw new UnsupportedOperationException("Utility class should not be instantiated");
+	}
+
+	/**
+	 * The supported export target formats.
 	 */
 	public enum ExportType
 	{
 		/**
-		 * Export into latest Mame format
+		 * Export into the latest standard MAME XML database format.
 		 */
 		MAME,
 		/**
-		 * Export into Logiqx datfile format
+		 * Export into Logiqx/Datafile XML format.
 		 */
 		DATAFILE,
 		/**
-		 * Export Software list(s) using Mame software list format
+		 * Export Software List database files using MAME software list layout.
 		 */
 		SOFTWARELIST
 	}
 
 	/**
-	 * Will export a {@code profile} to a {@code file} in the {@code type} format, {@code filtered} (or not), only a {@code selection} SoftwareList (or none), and show a {@code progress} bar
-	 * @param profile the {@link Profile} to export
-	 * @param file the destination {@link File}
-	 * @param type the {@link ExportType} format
-	 * @param modes export mode (see {@link ExportMode}
-	 * @param selection if {@link ExportType#SOFTWARELIST} type, will export only the selected {@link SoftwareList}, null to export all software lists in a single file
-	 * @param progress optional {@link ProgressHandler} to show export progression
+	 * Exports a profile to a physical file on disk in the specified format, applying any chosen filters and configurations.
+	 * 
+	 * @param profile the {@link Profile} metadata containing romset structures to export
+	 * @param file the destination {@link File} on disk
+	 * @param type the target format defined in {@link ExportType}
+	 * @param modes the set of active filtering and exporting options defined in {@link ExportMode}
+	 * @param selection when exporting in {@link ExportType#SOFTWARELIST} mode, specifies a single {@link SoftwareList} to export,
+	 *                  or {@code null} to export all of them into a single file
+	 * @param progress an optional {@link ProgressHandler} to monitor and render export progress
 	 */
 	public static void export(final Profile profile, final File file, final ExportType type, final Set<ExportMode> modes, final SoftwareList selection, final ProgressHandler progress)
 	{

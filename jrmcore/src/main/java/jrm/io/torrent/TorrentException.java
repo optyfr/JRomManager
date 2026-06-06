@@ -1,10 +1,25 @@
 package jrm.io.torrent;
 
-@SuppressWarnings("serial")
+/**
+ * Custom exception class indicating errors or failures encountered during
+ * torrent file parsing, validating, or processing.
+ * 
+ * @author optyfr
+ */
 public class TorrentException extends Exception
 {
-	public TorrentException(String msg)
+	/**
+	 * Unique identifier for class serialization.
+	 */
+	private static final long serialVersionUID = 6735232930219484803L;
+
+	/**
+	 * Constructs a new TorrentException with the specified detail message.
+	 *
+	 * @param message the detail error message
+	 */
+	public TorrentException(String message)
 	{
-		super(msg);
+		super(message);
 	}
 }

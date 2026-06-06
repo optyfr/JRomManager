@@ -17,33 +17,39 @@
 package jrm.io.chd;
 
 /**
- * Interface to get informations from CHD headers
+ * Unified interface for accessing metadata, structural details, and cryptographic checksums
+ * extracted from different versions of CHD (Compressed Hunks of Data) file headers.
+ * 
  * @author optyfr
- *
  */
 interface CHDHeaderIntf
 {
 	/**
-	 * Does the file has a valid CHD header?
-	 * @return true for valid, otherwise false
+	 * Determines if the file has a valid CHD tag signature (i.e. 'MComprHD').
+	 * 
+	 * @return {@code true} if the header tag is valid, otherwise {@code false}
 	 */
 	boolean isValidTag();
 	
 	/**
-	 * Header length
-	 * @return length in bytes
+	 * Gets the length of the CHD header in bytes.
+	 * 
+	 * @return header length in bytes
 	 */
 	int getLen();
 	
 	/**
-	 * Header version
-	 * @return version number
+	 * Gets the version number of the CHD file format.
+	 * 
+	 * @return CHD version number (e.g., 1, 2, 3, 4, 5)
 	 */
 	int getVersion();
 	
 	/**
-	 * get the SHA1 (for uncompressed data), null if not reported by header
-	 * @return the SHA1 string or null
+	 * Retrieves the SHA-1 digest of the raw, uncompressed data represented by this CHD,
+	 * as specified in the header.
+	 * 
+	 * @return the SHA-1 hexadecimal string or {@code null} if not reported by this header version
 	 */
 	public default String getSHA1()
 	{
@@ -51,8 +57,10 @@ interface CHDHeaderIntf
 	}
 
 	/**
-	 * get the MD5 (for uncompressed data), null if not reported by header
-	 * @return the MD5 string or null
+	 * Retrieves the MD5 digest of the raw, uncompressed data represented by this CHD,
+	 * as specified in the header.
+	 * 
+	 * @return the MD5 hexadecimal string or {@code null} if not reported by this header version
 	 */
 	public default String getMD5()
 	{

@@ -14,55 +14,74 @@ import jrm.locale.Messages;
 import jrm.profile.data.AnywareBase;
 
 /**
- * Container report subject with status
- * @author optyfr
+ * Represents a standard retro-gaming system romset validation subject within a profile scan report.
+ * <p>
+ * This subject manages an active set status (such as missing, found, or repairable) and compiles associated notes
+ * detailing file-level discrepancies.
  *
+ * @author optyfr
+ * @since 1.0
  */
 public class SubjectSet extends Subject implements Serializable
 {
-	private static final String STATUS_STR = "status";
-	private static final long serialVersionUID = 1L;
 	/**
-	 * The current {@link Status}
+	 * Field serialization key for the validation status.
+	 */
+	private static final String STATUS_STR = "status";
+
+	/**
+	 * Serial version identifier for object serialization compatibility.
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * The current validation status of the target romset.
 	 */
 	private Status status = Status.UNKNOWN;
 
 	/**
-	 * All possible status
-	 * @author optyfr
-	 *
+	 * Enumerates all possible romset validation status levels.
 	 */
 	public enum Status {
 		/**
-		 * Unknown status
+		 * Unknown validation status.
 		 */
 		UNKNOWN,
 		/**
-		 * Found OK
+		 * The romset is present on disk.
 		 */
 		FOUND,
 		/**
-		 * Can be partially created
+		 * The romset is missing but can be partially assembled or created from local resources.
 		 */
 		CREATE,
 		/**
-		 * Can be fully created
+		 * The romset is missing but can be fully assembled or created from local resources.
 		 */
 		CREATEFULL,
 		/**
-		 * set is present but unneeded
+		 * The romset is present but is not needed by the active profile database.
 		 */
 		UNNEEDED,
 		/**
-		 * set is totally missing
+		 * The romset is completely missing and cannot be built from local resources.
 		 */
 		MISSING;
 	}
 
+	/**
+	 * Defines the persistent Java serialization fields for this subject set.
+	 */
 	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
 		new ObjectStreamField(STATUS_STR, Status.class)
 	};
 
+	/**
+	 * Serializes the status of this subject set.
+	 *
+	 * @param stream the destination ObjectOutputStream
+	 * @throws IOException if an I/O error occurs
+	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
@@ -70,16 +89,23 @@ public class SubjectSet extends Subject implements Serializable
 		stream.writeFields();
 	}
 
+	/**
+	 * Deserializes the status of this subject set.
+	 *
+	 * @param stream the source ObjectInputStream
+	 * @throws IOException if an I/O error occurs
+	 * @throws ClassNotFoundException if the target class cannot be loaded
+	 */
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final ObjectInputStream.GetField fields = stream.readFields();
 		status = (Status)fields.get(STATUS_STR, Status.UNKNOWN);
 	}
 
-	
 	/**
-	 * the public constructor with emptied {@link List}&lt;{@link Note}&gt;
-	 * @param machine The related {@link AnywareBase}
+	 * Constructs a new SubjectSet for the given retro-gaming machine.
+	 *
+	 * @param machine the target retro-gaming system or romset model
 	 */
 	public SubjectSet(final AnywareBase machine)
 	{
@@ -87,15 +113,22 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * The internal constructor
-	 * @param org The originating {@link SubjectSet}
-	 * @param notes a {@link List}&lt;{@link Note}&gt;
+	 * Clones a SubjectSet from an originating instance, applying a filtered list of notes.
+	 *
+	 * @param org the originating SubjectSet to replicate
+	 * @param notes the list of filtered Note instances
 	 */
 	private SubjectSet(final SubjectSet org, final List<Note> notes)
 	{
 		super(org, notes);
 	}
 
+	/**
+	 * Clones this SubjectSet according to the active filtering options.
+	 *
+	 * @param filterOptions the active filtering options
+	 * @return the cloned, filtered SubjectSet instance
+	 */
 	@Override
 	public Subject clone(final Set<FilterOptions> filterOptions)
 	{
@@ -106,15 +139,22 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * Filter notes according a {@link List} of {@link FilterOptions}
-	 * @param filterOptions {@link List}&lt;{@link FilterOptions}&gt; to apply while filtering
-	 * @return a filtered {@link List}&lt;{@link FilterOptions}&gt;
+	 * Filters and sorts notes belonging to this subject based on the active filtering options.
+	 *
+	 * @param filterOptions the active filtering options to apply
+	 * @return a sorted, filtered list of Note instances
 	 */
 	public List<Note> filter(final Set<FilterOptions> filterOptions)
 	{
 		return stream(filterOptions).sorted(Note.getComparator()).collect(Collectors.toList());
 	}
 	
+	/**
+	 * Streams notes belonging to this subject, filtering out perfect matches unless showing OK items is enabled.
+	 *
+	 * @param filterOptions the active filtering options
+	 * @return a filtered stream of Note instances
+	 */
 	@Override
 	public Stream<Note> stream(Set<FilterOptions> filterOptions)
 	{
@@ -122,7 +162,7 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * set status to {@link Status#MISSING}
+	 * Configures this subject set's status to {@link Status#MISSING}.
 	 */
 	public void setMissing()
 	{
@@ -130,7 +170,7 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * set status to {@link Status#FOUND}
+	 * Configures this subject set's status to {@link Status#FOUND}.
 	 */
 	public void setFound()
 	{
@@ -138,7 +178,7 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * set status to {@link Status#UNNEEDED}
+	 * Configures this subject set's status to {@link Status#UNNEEDED}.
 	 */
 	public void setUnneeded()
 	{
@@ -146,7 +186,7 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * set status to {@link Status#CREATE}
+	 * Configures this subject set's status to {@link Status#CREATE}.
 	 */
 	public void setCreate()
 	{
@@ -154,7 +194,7 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * set status to {@link Status#CREATEFULL}
+	 * Configures this subject set's status to {@link Status#CREATEFULL}.
 	 */
 	public void setCreateFull()
 	{
@@ -162,8 +202,9 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * get current status
-	 * @return {@link #status}
+	 * Gets the current validation status of this subject set.
+	 *
+	 * @return the active Status enum value
 	 */
 	public Status getStatus()
 	{
@@ -171,8 +212,9 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * does this {@link SubjectSet} have notes (excepted {@link EntryOK})
-	 * @return true if it has notes
+	 * Checks if this subject set contains any status notes other than standard successful matches.
+	 *
+	 * @return {@code true} if there is at least one non-OK validation note; {@code false} otherwise
 	 */
 	public boolean hasNotes()
 	{
@@ -180,8 +222,11 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * does this {@link SubjectSet} is totally fixable
-	 * @return true if it is fixable, false not totally
+	 * Checks if all issues within this subject set can be fully repaired.
+	 * <p>
+	 * A set is fully repairable if it does not contain any completely missing or mismatched hash files.
+	 *
+	 * @return {@code true} if the romset is fully repairable; {@code false} otherwise
 	 */
 	public boolean isFixable()
 	{
@@ -189,8 +234,9 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * does this {@link SubjectSet} is at least partially fixable
-	 * @return true if it is fixable, false not at all (or does not need to be fixed)
+	 * Checks if this subject set contains at least one repairable issue.
+	 *
+	 * @return {@code true} if there are repairable discrepancies; {@code false} otherwise
 	 */
 	public boolean hasFix()
 	{
@@ -198,8 +244,9 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * does this {@link SubjectSet} have been {@link Status#FOUND}
-	 * @return true if {@link #status} is {@link Status#FOUND}
+	 * Checks if the validation status is currently configured to {@link Status#FOUND}.
+	 *
+	 * @return {@code true} if found; {@code false} otherwise
 	 */
 	public boolean isFound()
 	{
@@ -207,8 +254,9 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * does this {@link SubjectSet} is {@link Status#MISSING}
-	 * @return true if {@link #status} is {@link Status#MISSING}
+	 * Checks if the validation status is currently configured to {@link Status#MISSING}.
+	 *
+	 * @return {@code true} if missing; {@code false} otherwise
 	 */
 	public boolean isMissing()
 	{
@@ -216,8 +264,9 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * does this {@link SubjectSet} is {@link Status#UNNEEDED}
-	 * @return true if {@link #status} is {@link Status#UNNEEDED}
+	 * Checks if the validation status is currently configured to {@link Status#UNNEEDED}.
+	 *
+	 * @return {@code true} if unneeded; {@code false} otherwise
 	 */
 	public boolean isUnneeded()
 	{
@@ -225,14 +274,20 @@ public class SubjectSet extends Subject implements Serializable
 	}
 
 	/**
-	 * does this {@link SubjectSet} is OK
-	 * @return true if {@link #isFound()} and not {@link #hasNotes()}
+	 * Checks if the romset is perfectly OK on disk with no validation discrepancies.
+	 *
+	 * @return {@code true} if found and free of issues; {@code false} otherwise
 	 */
 	public boolean isOK()
 	{
 		return isFound() && !hasNotes();
 	}
 
+	/**
+	 * Formats a localized text summary of the status of this subject set.
+	 *
+	 * @return the localized string summary
+	 */
 	@Override
 	public String toString()
 	{
@@ -259,6 +314,11 @@ public class SubjectSet extends Subject implements Serializable
 		}
 	}
 
+	/**
+	 * Renders an HTML-styled diagnostic document summarizing this subject set.
+	 *
+	 * @return the styled HTML diagnostic document string
+	 */
 	@Override
 	public String getDocument()
 	{
@@ -287,6 +347,9 @@ public class SubjectSet extends Subject implements Serializable
 		}
 	}
 
+	/**
+	 * Increments the appropriate summary validation metrics in the parent report depending on the active status.
+	 */
 	@Override
 	public void updateStats()
 	{

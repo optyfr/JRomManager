@@ -38,7 +38,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -60,58 +59,115 @@ import jrm.profile.data.Anyware;
 import jrm.security.Session;
 import lombok.Getter;
 import one.util.streamex.IntStreamEx;
-import one.util.streamex.StreamEx;
 
 /**
- * The report node root
- * @author optyfr
+ * The root node of a report hierarchy, managing a list of {@link Subject}s and tracking overall profile validation metrics.
+ * <p>
+ * This class coordinates the dynamic UI filtering model, supports serialization of validation state caches, and outputs text-formatted reports.
  *
+ * @author optyfr
+ * @since 1.0
  */
 public class Report extends AbstractList<Subject> implements StatusRendererFactory, Serializable, ReportIntf<Report>
 {
-	private static final String REPORT_FILE_STR = "reportFile";
-	private static final String STATS_STR = "stats";
-	private static final String SUBJECTS_STR = "subjects";
-	private static final long serialVersionUID = 3L;
 	/**
-	 * the related {@link Profile}
+	 * Field serialization key for the report file destination.
+	 */
+	private static final String REPORT_FILE_STR = "reportFile";
+
+	/**
+	 * Field serialization key for the scanning statistics.
+	 */
+	private static final String STATS_STR = "stats";
+
+	/**
+	 * Field serialization key for the list of subjects.
+	 */
+	private static final String SUBJECTS_STR = "subjects";
+
+	/**
+	 * Serial version identifier for object serialization compatibility.
+	 */
+	private static final long serialVersionUID = 3L;
+
+	/**
+	 * The related profile associated with this report.
+	 *
+	 * @return the Profile instance
 	 */
 	@Getter private transient Profile profile = null;
-	private transient File file = null;
-	private transient long fileModified = 0L;
-	@Getter private File reportFile = null;
+
 	/**
-	 * the {@link List} of {@link Subject} nodes
+	 * The physical file location of the original profile catalog.
+	 */
+	private transient File file = null;
+
+	/**
+	 * The timestamp indicating when the profile file was last modified.
+	 */
+	private transient long fileModified = 0L;
+
+	/**
+	 * The physical file destination where the compiled report log is saved.
+	 *
+	 * @return the report log File
+	 */
+	@Getter private File reportFile = null;
+
+	/**
+	 * The logical collection of scanned report subjects managed by this report.
+	 *
+	 * @return the list of Subject instances
 	 */
 	private @Getter List<Subject> subjects;
 
 	/**
-	 * a {@link Map} of {@link Subject} by fullname {@link String}
+	 * Map indexing scanned report subjects by their case-insensitive full names for fast retrieval.
 	 */
 	private transient Map<String, Subject> subjectHash;
 
-
+	/**
+	 * The runtime identity code assigned to this report.
+	 */
 	private transient int id;
+
+	/**
+	 * Atomic counter providing auto-incrementing ID sequences for subjects and notes in the active session.
+	 */
 	private transient AtomicInteger idCnt;
-	private transient Map<Integer,Object> all;
+
+	/**
+	 * Flat lookup directory storing all subjects and notes indexed by their unique integer identifiers.
+	 */
+	private transient Map<Integer, Object> all;
 	
 	/**
-	 * The {@link Stats} object
+	 * The aggregated validation statistics tracked during directory and ROM scanning.
+	 *
+	 * @return the compiled Stats metrics
 	 */
 	private @Getter Stats stats;
 
 	/**
-	 * the linked UI tree model
+	 * The linked UI presentation tree handler responsible for notifying components of structural changes.
 	 */
 	private transient ReportTreeHandler<Report> handler = null;
 
-	
+	/**
+	 * Declares the persistent Java serialization fields.
+	 */
 	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
 		new ObjectStreamField(SUBJECTS_STR, List.class),
 		new ObjectStreamField(STATS_STR, Stats.class),
 		new ObjectStreamField(REPORT_FILE_STR, File.class)
 	};
 
+	/**
+	 * Writes the persistent report state parameters to a Java serialization stream.
+	 *
+	 * @param stream the target ObjectOutputStream
+	 * @throws IOException if an input/output exception occurs during serialization
+	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final ObjectOutputStream.PutField fields = stream.putFields();
@@ -121,6 +177,13 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		stream.writeFields();
 	}
 
+	/**
+	 * Restores the persistent report state parameters from a Java serialization stream.
+	 *
+	 * @param stream the source ObjectInputStream
+	 * @throws IOException if an input/output exception occurs during deserialization
+	 * @throws ClassNotFoundException if the target serializable class cannot be loaded
+	 */
 	@SuppressWarnings("unchecked")
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
@@ -135,28 +198,123 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		handler = new ReportTreeDefaultHandler(this);
 	}
 
+	/**
+	 * Aggregates summary statistics, missing counts, and repair indicators resolved during ROM scanning.
+	 */
 	public static class Stats implements Serializable
 	{
 		private static final long serialVersionUID = 2L;
 		
+		/**
+		 * Counts total missing retro-gaming sets.
+		 *
+		 * @return the missing sets count
+		 */
 		private @Getter int missingSetCnt = 0;
+
+		/**
+		 * Counts total missing ROM files.
+		 *
+		 * @return the missing ROMs count
+		 */
 		private @Getter int missingRomsCnt = 0;
+
+		/**
+		 * Counts total missing CHD disks.
+		 *
+		 * @return the missing disks count
+		 */
 		private @Getter int missingDisksCnt = 0;
+
+		/**
+		 * Counts total missing synthesized audio samples.
+		 *
+		 * @return the missing samples count
+		 */
 		private @Getter int missingSamplesCnt = 0;
 
+		/**
+		 * Counts total missing ROM files that are fixable using local resources.
+		 *
+		 * @return the fixable ROMs count
+		 */
 		private @Getter int fixableRomsCnt = 0;
+
+		/**
+		 * Counts total missing CHD disks that are fixable using local resources.
+		 *
+		 * @return the fixable disks count
+		 */
 		private @Getter int fixableDisksCnt = 0;
 
+		/**
+		 * Counts total unneeded sets found locally.
+		 *
+		 * @return the unneeded sets count
+		 */
 		private @Getter int setUnneeded = 0;
+
+		/**
+		 * Counts total missing sets.
+		 *
+		 * @return the missing sets count
+		 */
 		private @Getter int setMissing = 0;
+
+		/**
+		 * Counts total sets found locally in any condition.
+		 *
+		 * @return the found sets count
+		 */
 		private @Getter int setFound = 0;
+
+		/**
+		 * Counts total sets that perfectly match expectations and are 100% OK.
+		 *
+		 * @return the OK sets count
+		 */
 		private @Getter int setFoundOk = 0;
+
+		/**
+		 * Counts total sets found that can be partially repaired.
+		 *
+		 * @return the partially fixable found sets count
+		 */
 		private @Getter int setFoundFixPartial = 0;
+
+		/**
+		 * Counts total sets found that can be fully repaired.
+		 *
+		 * @return the fully fixable found sets count
+		 */
 		private @Getter int setFoundFixComplete = 0;
+
+		/**
+		 * Counts total sets that do not exist locally but can be newly created.
+		 *
+		 * @return the sets to create count
+		 */
 		private @Getter int setCreate = 0;
+
+		/**
+		 * Counts total sets that do not exist locally but can be partially created.
+		 *
+		 * @return the partially constructible sets count
+		 */
 		private @Getter int setCreatePartial = 0;
+
+		/**
+		 * Counts total sets that do not exist locally but can be fully created.
+		 *
+		 * @return the fully constructible sets count
+		 */
 		private @Getter int setCreateComplete = 0;
 
+		/**
+		 * Copy constructor creating a duplicate Stats instance.
+		 *
+		 * @param org the original Stats instance to replicate
+		 */
 		public Stats(Stats org)
 		{
 			this.missingSetCnt = org.missingSetCnt;
@@ -178,158 +336,162 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 			this.setCreateComplete = org.setCreateComplete;
 		}
 		
+		/**
+		 * Default constructor initializing all stats to zero.
+		 */
 		public Stats()
 		{
-			
+			// Default empty constructor
 		}
 
+		/**
+		 * Increments the counter of totally missing sets.
+		 */
 		public void incMissingSetCnt()
 		{
 			++missingSetCnt;
 		}
 		
+		/**
+		 * Increments the counter of missing ROMs.
+		 */
 		public void incMissingRomsCnt()
 		{
 			++missingRomsCnt;
 		}
 		
+		/**
+		 * Increments the counter of missing CHD disks.
+		 */
 		public void incMissingDisksCnt()
 		{
 			++missingDisksCnt;
 		}
 		
+		/**
+		 * Increments the counter of missing audio samples.
+		 */
 		public void incMissingSamplesCnt()
 		{
 			++missingSamplesCnt;
 		}
 		
+		/**
+		 * Increments the counter of fixable ROMs.
+		 */
 		public void incFixableRomsCnt()
 		{
 			++fixableRomsCnt;
 		}
 		
+		/**
+		 * Increments the counter of fixable CHD disks.
+		 */
 		public void incFixableDisksCnt()
 		{
 			++fixableDisksCnt;
 		}
 		
+		/**
+		 * Increments the counter of unneeded sets.
+		 */
 		public void incSetUnneeded()
 		{
 			++setUnneeded;
 		}
 		
+		/**
+		 * Increments the counter of missing sets.
+		 */
 		public void incSetMissing()
 		{
 			++setMissing;
 		}
 		
+		/**
+		 * Increments the counter of sets found.
+		 */
 		public void incSetFound()
 		{
 			++setFound;
 		}
 		
+		/**
+		 * Increments the counter of perfectly matching sets.
+		 */
 		public void incSetFoundOk()
 		{
 			++setFoundOk;
 		}
 		
+		/**
+		 * Increments the counter of partially fixable found sets.
+		 */
 		public void incSetFoundFixPartial()
 		{
 			++setFoundFixPartial;
 		}
 		
+		/**
+		 * Increments the counter of fully fixable found sets.
+		 */
 		public void incSetFoundFixComplete()
 		{
 			++setFoundFixComplete;
 		}
 		
+		/**
+		 * Increments the counter of sets to create.
+		 */
 		public void incSetCreate()
 		{
 			++setCreate;
 		}
 		
+		/**
+		 * Increments the counter of partially constructible sets.
+		 */
 		public void incSetCreatePartial()
 		{
 			++setCreatePartial;
 		}
 		
+		/**
+		 * Increments the counter of fully constructible sets.
+		 */
 		public void incSetCreateComplete()
 		{
 			++setCreateComplete;
 		}
 		
 		/**
-		 * clear stats
+		 * Resets all accumulated validation statistics and counters back to zero.
 		 */
 		public void clear()
 		{
-			/**
-			 * number of missing sets
-			 */
 			missingSetCnt = 0;
-			/**
-			 * number of missing roms
-			 */
 			missingRomsCnt = 0;
-			/**
-			 * number of missing disks
-			 */
 			missingDisksCnt = 0;
-			/**
-			 * number of missing samples
-			 */
 			missingSamplesCnt = 0;
 
-			/**
-			 * number of fixable roms
-			 */
 			fixableRomsCnt = 0;
-			/**
-			 * number of fixable disks
-			 */
 			fixableDisksCnt = 0;
 
-			/**
-			 * number of unneeded set
-			 */
 			setUnneeded = 0;
-			/**
-			 * number of missing set
-			 */
 			setMissing = 0;
-			/**
-			 * number of set found
-			 */
 			setFound = 0;
-			/**
-			 * number of set found ok
-			 */
 			setFoundOk = 0;
-			/**
-			 * number of set found with partial fix
-			 */
 			setFoundFixPartial = 0;
-			/**
-			 * number of set found with complete fix
-			 */
 			setFoundFixComplete = 0;
-			/**
-			 * number of set that will be created
-			 */
 			setCreate = 0;
-			/**
-			 * number of set that will be created partially
-			 */
 			setCreatePartial = 0;
-			/**
-			 * number of set that will be fully created
-			 */
 			setCreateComplete = 0;
 		}
 
 		/**
-		 * get a {@link String} status with all stats to be show in a status bar
-		 * @return a {@link String} containing all stats
+		 * Formats a localized text description summarizing all accumulated statistics.
+		 *
+		 * @return the status description string
 		 */
 		public String getStatus()
 		{
@@ -338,7 +500,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * The constructor (init data)
+	 * Default constructor initializing an empty Report instance.
 	 */
 	public Report()
 	{
@@ -349,26 +511,31 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * A class that is a filter {@link Predicate} for {@link Subject}
-	 * @author optyfr
-	 *
+	 * Internal predicate implementation verifying if a Subject passes active filtering options.
 	 */
 	class FilterPredicate implements Predicate<Subject>
 	{
 		/**
-		 * {@link List} of {@link FilterOptions}
+		 * Active filtering options applied by this predicate.
 		 */
 		Set<FilterOptions> filterOptions;
 
 		/**
-		 * The predicate constructor
-		 * @param filterOptions {@link List} of {@link FilterOptions} to test against
+		 * Constructs a new FilterPredicate with the specified options.
+		 *
+		 * @param filterOptions the filtering options to apply
 		 */
 		public FilterPredicate(final Set<FilterOptions> filterOptions)
 		{
 			this.filterOptions = filterOptions;
 		}
 
+		/**
+		 * Evaluates the predicate on the given subject.
+		 *
+		 * @param t the input subject to test
+		 * @return {@code true} if the subject should remain visible, {@code false} otherwise
+		 */
 		@Override
 		public boolean test(final Subject t)
 		{
@@ -382,14 +549,15 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * the current filter predicate (initialized with an empty {@link List} of {@link FilterOptions})
+	 * The active visibility filter predicate applied to subjects.
 	 */
 	private transient FilterPredicate filterPredicate = new FilterPredicate(new HashSet<>());
 
 	/**
-	 * The internal constructor aimed for cloning
-	 * @param report The {@link Report} to copy
-	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
+	 * Clones an existing report, applying the specified filtering configuration during structural extraction.
+	 *
+	 * @param report the source Report instance to copy
+	 * @param filterOptions the filtering options configured for the clone
 	 */
 	private Report(final Report report, final Set<FilterOptions> filterOptions)
 	{
@@ -419,9 +587,10 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * Clone this {@link Report} according a {@link List} of {@link FilterOptions}
-	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
-	 * @return the cloned {@link Report}
+	 * Clones this report under the designated filtering conditions.
+	 *
+	 * @param filterOptions the active filtering options
+	 * @return the cloned Report instance
 	 */
 	@Override
 	public Report clone(final Set<FilterOptions> filterOptions)
@@ -430,9 +599,10 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * Filter subjects using current {@link FilterPredicate}
-	 * @param filterOptions the {@link FilterOptions} {@link List} to apply
-	 * @return a {@link List} of {@link Subject}
+	 * Filters and copies subjects into a sorted list using the current filtering options.
+	 *
+	 * @param filterOptions the filtering options to apply
+	 * @return a mutable, sorted, and filtered list of Subject instances
 	 */
 	public List<Subject> filter(final Set<FilterOptions> filterOptions)
 	{
@@ -440,14 +610,21 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		return stream(filterOptions).map(s -> s.clone(filterOptions)).sorted(Subject.getComparator()).collect(Collectors.toList()); //NOSONAR list must be mutable
 	}
 
+	/**
+	 * Streams subjects passing active filtering constraints sorted alphabetically by associated ware name.
+	 *
+	 * @param filterOptions the active filtering options to evaluate
+	 * @return a sorted stream of filtered Subject instances
+	 */
 	public Stream<Subject> stream(final Set<FilterOptions> filterOptions)
 	{
 		return subjects.stream().sorted(Subject.getComparator()).filter(new FilterPredicate(filterOptions));
 	}
 	
 	/**
-	 * Set the current profile
-	 * @param profile {@link Profile}
+	 * Links a scanning profile configuration to this report, clearing any existing state.
+	 *
+	 * @param profile the Profile catalog to assign
 	 */
 	public void setProfile(final Profile profile)
 	{
@@ -456,7 +633,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * Reset the report
+	 * Resets this report to its initial state, clearing all compiled statistics, subjects, and caches.
 	 */
 	public void reset()
 	{
@@ -470,13 +647,14 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * the link to UI status handler
+	 * The linked progress and status updater hook.
 	 */
 	private StatusHandler statusHandler = null;
 
 	/**
-	 * Set the {@link StatusHandler}
-	 * @param handler the {@link StatusHandler} that will be used
+	 * Registers a status updater hook to output live scanner updates.
+	 *
+	 * @param handler the StatusHandler implementation to bind
 	 */
 	public void setStatusHandler(final StatusHandler handler)
 	{
@@ -484,23 +662,30 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * get the current {@link ReportTreeHandler}
-	 * @return a {@link ReportTreeHandler}
+	 * Retrieves the active report tree model synchronization handler.
+	 *
+	 * @return the registered tree handler instance
 	 */
 	public ReportTreeHandler<Report> getHandler()
 	{
 		return handler;
 	}
 
+	/**
+	 * Binds a report tree model handler to sync status changes with UI tree controls.
+	 *
+	 * @param handler the active UI tree handler
+	 */
 	public void setHandler(ReportTreeHandler<Report> handler)
 	{
 		this.handler = handler;
 	}
 	
 	/**
-	 * find {@link Subject} from an id
-	 * @param id the id to find {@link Subject}
-	 * @return the found {@link Subject} or null
+	 * Locates a subject instance within the flat registry map by its unique integer identifier.
+	 *
+	 * @param id the unique subject ID
+	 * @return the matching Subject, or {@code null} if not found or the ID refers to a Note
 	 */
 	public Subject findSubject(final Integer id)
 	{
@@ -511,9 +696,10 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * find {@link Subject} from an {@link Anyware}
-	 * @param ware the {@link Anyware} to find {@link Subject}
-	 * @return the found {@link Subject} or null
+	 * Locates a subject using its associated gaming system model.
+	 *
+	 * @param ware the target Anyware retro-gaming machine metadata
+	 * @return the matching Subject, or {@code null} if none is found
 	 */
 	public Subject findSubject(final Anyware ware)
 	{
@@ -521,10 +707,11 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * find {@link Subject} from an {@link Anyware} or return a default {@link Subject}
-	 * @param ware the {@link Anyware} to find {@link Subject}
-	 * @param def a default {@link Subject} to return in case there is no {@link Subject} for this {@link Anyware}
-	 * @return a {@link Subject} or null if ware is null
+	 * Resolves a subject from the index by its metadata model, registering a default fallback if none is mapped.
+	 *
+	 * @param ware the target Anyware machine definition
+	 * @param def the default fallback Subject to register if none is currently indexed
+	 * @return the existing Subject matching the ware, or the newly registered default instance
 	 */
 	public Subject findSubject(final Anyware ware, final Subject def)
 	{
@@ -539,14 +726,15 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * cache made to trigger ui notification events as few as possible
+	 * Thread-safe insertion event cache to throttle and batch UI update events.
 	 */
 	private final transient Map<Integer, Subject> insertObjectCache = Collections.synchronizedMap(LinkedHashMap.newLinkedHashMap(250));
 
 	/**
-	 * add a {@link Subject} to the Report
-	 * @param subject the {@link Subject} to add
-	 * @return true if success
+	 * Appends a report subject logically, synchronizing statistics and propagating batch updates to listeners.
+	 *
+	 * @param subject the Subject to add
+	 * @return {@code true} if successful, {@code false} otherwise
 	 */
 	@Override
 	public synchronized boolean add(final Subject subject)
@@ -579,7 +767,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 	}
 
 	/**
-	 * flush the current object cache by generating a ui insertion event to send to all listeners available
+	 * Flushes the insertion batch cache, triggering a single structural insertion event to all UI tree listeners.
 	 */
 	public synchronized void flush()
 	{
@@ -593,21 +781,35 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		}
 	}
 	
+	/**
+	 * Enumerates active output components and diagnostic groupings supported during text report exporting.
+	 */
 	enum ReportMode
 	{
+		/** Include active configuration parameters. */
 		SETTINGS,
+		/** Output general audit and validation summary statistics. */
 		STATS,
+		/** Include perfectly matching items. */
 		OK,
+		/** Include items containing fixable structural issues. */
 		FIXABLE,
+		/** Include elements that are completely missing. */
 		MISSING,
+		/** Include non-standard categories (e.g., unknown files). */
 		OTHERS,
+		/** Render using a tab-delimited flat line presentation. */
 		COMPACT,
+		/** Restrict subjects listing, omitting child entry notes. */
 		NO_ENTRIES,
+		/** Group exported diagnostics by status codes. */
 		GROUP_BY_TYPE_AND_STATUS
 	}
 
 	/**
-	 * write a textual report to reports/report.log
+	 * Formats and writes diagnostic validation logs to the user's workspace reports folder.
+	 *
+	 * @param session the user session containing workspace context and active profile settings
 	 */
 	public void write(final Session session)
 	{
@@ -693,11 +895,18 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		}
 	}
 
-
+	/**
+	 * Filters subjects matching selected export modes during file writing.
+	 */
 	class ReportSubjectFilter implements Predicate<Subject>
 	{
 		private final Set<ReportMode> modes;
 		
+		/**
+		 * Constructs a filter with active export modes.
+		 *
+		 * @param modes the configuration modes
+		 */
 		public ReportSubjectFilter(Set<ReportMode> modes)
 		{
 			this.modes = modes;
@@ -712,7 +921,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 					return true;
 				if(ss.isFixable() && modes.contains(ReportMode.FIXABLE))
 					return true;
-				if(ss.isMissing()) // NOSONAR
+				if(ss.isMissing()) // Mapped by default
 					return true;
 				return false;
 			}
@@ -723,7 +932,13 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		
 	}
 
-	
+	/**
+	 * Formats and outputs structural subject notes to a text print writer.
+	 *
+	 * @param reportWriter the target writer
+	 * @param subject the subject context
+	 * @param modes the active configuration options
+	 */
 	private void writeReport(PrintWriter reportWriter, Subject subject, final EnumSet<ReportMode> modes)
 	{
 		if(modes.contains(ReportMode.NO_ENTRIES))
@@ -736,10 +951,18 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		}
 	}
 
+	/**
+	 * Filters individual notes matching chosen report configuration modes.
+	 */
 	class ReportNoteFilter implements Predicate<Note>
 	{
 		private final Set<ReportMode> modes;
 		
+		/**
+		 * Constructs a note filter using the provided modes.
+		 *
+		 * @param modes the configuration modes
+		 */
 		public ReportNoteFilter(Set<ReportMode> modes)
 		{
 			this.modes = modes;
@@ -752,13 +975,20 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 				return true;
 			if (modes.contains(ReportMode.FIXABLE) && (note instanceof EntryAdd || note instanceof EntryMissingDuplicate || note instanceof EntryUnneeded || note instanceof EntryWrongName))
 				return true;
-			if (note instanceof EntryWrongHash || note instanceof EntryMissing) //NOSONAR
+			if (note instanceof EntryWrongHash || note instanceof EntryMissing) // Mapped by default
 				return true;
 			return false;
 		}
 		
 	}
 	
+	/**
+	 * Formats and writes a single status note to the diagnostic output stream.
+	 *
+	 * @param reportWriter the destination writer
+	 * @param note the note to output
+	 * @param modes the configured export formats
+	 */
 	private void writeReport(PrintWriter reportWriter, Note note, final EnumSet<ReportMode> modes)
 	{
 		if (modes.contains(ReportMode.COMPACT))
@@ -777,23 +1007,43 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 			reportWriter.println("\t" + note);
 	}
 
+	/**
+	 * Resolves the configuration profile catalog file location associated with this report.
+	 *
+	 * @return the catalog file, or {@code null} if uninitialized
+	 */
 	@Override
 	public File getFile()
 	{
 		return this.profile!=null?this.profile.getNfo().getFile():this.file;
 	}
 	
+	/**
+	 * Gets the modification timestamp of the associated configuration profile catalog.
+	 *
+	 * @return the timestamp in milliseconds
+	 */
 	@Override
 	public long getFileModified()
 	{
 		return fileModified;
 	}
 
+	/**
+	 * Serializes the current report status and catalog structure to the default work directory path.
+	 *
+	 * @param session the target user execution session context
+	 */
 	public void save(final Session session)
 	{
 		save(getReportFile(session));
 	}
 	
+	/**
+	 * Serializes the current report state data to a specific file destination.
+	 *
+	 * @param file the destination File path
+	 */
 	public void save(File file)
 	{
 		try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file))))
@@ -802,10 +1052,17 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		}
 		catch (final Exception e)
 		{
-			// do nothing
+			// Silently fail to maintain stability on faulty file systems
 		}
 	}
 	
+	/**
+	 * Restores a serialized report database instance from file storage.
+	 *
+	 * @param session the user execution context
+	 * @param file the original catalog metadata target path
+	 * @return the restored Report instance, or {@code null} if restoration fails
+	 */
 	public static Report load(final Session session, final File file)
 	{
 		try (final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(ReportIntf.getReportFile(session, file)))))
@@ -818,28 +1075,49 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
 		}
 		catch (final Exception e)
 		{
-			// may fail to load because serialized classes did change since last cache save 
+			// Returns null when serialized compatibility fails after structural codebase updates
 		}
 		return null;	//NOSONAR
 	}
 
+	/**
+	 * Retrieves the runtime identifier assigned to this report.
+	 *
+	 * @return the unique integer ID
+	 */
 	public int getId()
 	{
 		return id;
 	}
 
+	/**
+	 * Gets the report subject located at the designated index.
+	 *
+	 * @param index the target position index
+	 * @return the Subject instance
+	 */
 	@Override
 	public Subject get(int index)
 	{
 		return subjects.get(index);
 	}
 
+	/**
+	 * Returns the total number of subjects tracked by this report.
+	 *
+	 * @return the subject list count
+	 */
 	@Override
 	public int size()
 	{
 		return subjects.size();
 	}
 	
+	/**
+	 * Gets a standardized representation string for this report.
+	 *
+	 * @return the string "Report"
+	 */
 	@Override
 	public String toString()
 	{

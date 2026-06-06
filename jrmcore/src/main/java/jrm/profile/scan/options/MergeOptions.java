@@ -16,57 +16,55 @@
  */
 package jrm.profile.scan.options;
 
-import java.util.EnumSet;
-
 import jrm.locale.Messages;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * All possible merge options
+ * All possible merge options governing how parent/clone relations, BIOS systems,
+ * and device resources are grouped together in file containers during scanning and rebuilding.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 public @RequiredArgsConstructor enum MergeOptions implements Descriptor
 {
 	/**
-	 * merge clones and bioses into parent
+	 * Merge clones and BIOS roms into the parent romset's archive container.
 	 */
 	FULLMERGE(Messages.getString("MergeOptions.FullMerge")), //$NON-NLS-1$
 	/**
-	 * merge clones into parent
+	 * Merge clone roms into parent romset's container, but keep BIOS files separated.
 	 */
 	MERGE(Messages.getString("MergeOptions.Merge")), //$NON-NLS-1$
 	/**
-	 * no merge (keep individual), and include bios + devices
+	 * No merge (keep romsets separate), and include BIOS + device files.
 	 */
 	SUPERFULLNOMERGE(Messages.getString("MergeOptions.NoMergeInclBiosAndDevices")), //$NON-NLS-1$
 	/**
-	 * no merge (keep individual), and include bios but not devices
+	 * No merge (keep romsets separate), and include BIOS files but not device resources.
 	 */
 	FULLNOMERGE(Messages.getString("MergeOptions.NoMergeInclBios")), //$NON-NLS-1$
 	/**
-	 * no merge (keep individual), excluding bios and devices
+	 * No merge (keep romsets separate), excluding BIOS and device files entirely.
 	 */
 	NOMERGE(Messages.getString("MergeOptions.NoMerge")), //$NON-NLS-1$
 	/**
-	 * split all
+	 * Split all files (each ROM remains stored in its respective target clone or parent container specifically).
 	 */
 	SPLIT(Messages.getString("MergeOptions.Split")); //$NON-NLS-1$
 
 	/**
-	 * the name of the option
+	 * Localized name and description of the merge option.
+	 * 
+	 * @return a {@link String} with the localized option description.
 	 */
-	private final 
-	/**
-	 * internal constructor
-	 * @param desc the name of the option
-	 */
-	@Getter String desc;
+	private final @Getter String desc;
 
 	/**
-	 * Is is a merge option?
-	 * @return true if current option is either {@link #MERGE} or {@link #FULLMERGE}
+	 * Determines whether the current option indicates a merged storage style.
+	 * 
+	 * @return {@code true} if current option is either {@link #MERGE} or {@link #FULLMERGE}, otherwise {@code false}.
 	 */
 	public boolean isMerge()
 	{

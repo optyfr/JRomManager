@@ -13,17 +13,9 @@
  * 
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package jrm.io.torrent.bencoding;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.io.IOUtils;
 
 import jrm.io.torrent.TorrentException;
 import jrm.io.torrent.bencoding.types.BByteString;
@@ -32,172 +24,148 @@ import jrm.io.torrent.bencoding.types.BInt;
 import jrm.io.torrent.bencoding.types.BList;
 import jrm.io.torrent.bencoding.types.IBencodable;
 
+/**
+ * Parser utility that decodes a raw bencoded byte array stream into structured,
+ * strongly-typed {@link IBencodable} objects.
+ * 
+ * @author Christophe De Troyer
+ * @author Optyfr
+ */
 public class Reader
 {
-	private int currentByteIndex;
-	private byte[] datablob;
-
-	////////////////////////////////////////////////////////////////////////////
-	//// CONSTRUCTORS //////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
-	public Reader(File file) throws IOException
-	{
-		datablob = IOUtils.toByteArray(new FileInputStream(file));
-	}
-
-	public Reader(String s)
-	{
-		datablob = s.getBytes();
-	}
-
-	////////////////////////////////////////////////////////////////////////////
-	//// PARSER ////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
-
 	/**
-	 * Starts reading from the beginning of the file. Keeps reading single types and
-	 * adds them to the list to finally return them.
-	 *
-	 * @return {@link List} of {@link IBencodable} containing all the parsed
-	 *         bencoded objects.
-	 * @throws TorrentException 
+	 * The raw byte buffer being parsed.
 	 */
-	public synchronized List<IBencodable> read() throws TorrentException
+	private final byte[] datablob;
+
+	/**
+	 * The current reading pointer/index in the byte array.
+	 */
+	private int currentByteIndex;
+
+	/**
+	 * Constructs a new bencoded reader for the specified byte array.
+	 *
+	 * @param datablob the raw bencoded byte array to parse
+	 */
+	public Reader(byte[] datablob)
 	{
+		this.datablob = datablob;
 		this.currentByteIndex = 0;
-		long fileSize = datablob.length;
+	}
 
-		final var dataTypes = new ArrayList<IBencodable>();
-		while (currentByteIndex < fileSize)
-			dataTypes.add(readSingleType());
+	// Logic methods
 
-		return dataTypes;
+	/**
+	 * Reads and decodes the root bencoded object from the byte buffer.
+	 *
+	 * @return the decoded {@link IBencodable} object (dictionary, list, string, or integer)
+	 * @throws TorrentException if the bencoded structure is corrupt or incomplete
+	 */
+	public IBencodable read() throws TorrentException
+	{
+		return readSingleType();
 	}
 
 	/**
-	 * Tries to read in an object starting at the current byte index. If not
-	 * possible throws an exception.
+	 * Identifies and delegates decoding to the appropriate type-specific parser
+	 * based on the prefix byte at the current index.
 	 *
-	 * @return Returns an Object that represents either BByteString, BDictionary,
-	 *         BInt or BList.
-	 * @throws TorrentException 
+	 * @return the decoded {@link IBencodable} object
+	 * @throws TorrentException if an unsupported prefix byte is encountered
 	 */
 	private IBencodable readSingleType() throws TorrentException
 	{
-		// Read in the byte at current position and dispatch over it.
-		byte current = datablob[currentByteIndex];
-		switch (current)
+		final var currentByte = readCurrentByte();
+
+		switch (currentByte)
 		{
-			case '0','1','2','3','4','5','6','7','8','9':
-				return readByteString();
-			case 'd':
-				return readDictionary();
 			case 'i':
 				return readInteger();
 			case 'l':
 				return readList();
+			case 'd':
+				return readDictionary();
 			default:
-				break;
+				// Assume a byte string
+				if (currentByte >= 48 && currentByte <= 57)
+					return readString();
+				throw new TorrentException("Unrecognized Bencoding type. Starting with " + Character.toString((char) currentByte)); //$NON-NLS-1$
 		}
-		throw new TorrentException("Parser in invalid state at byte " + currentByteIndex); //$NON-NLS-1$
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-	//// BENCODING READ TYPES //////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Parses a bencoded byte string from the current index.
+	 * Format: {@code <length>:<data>} (e.g., {@code 4:spam})
+	 *
+	 * @return a {@link BByteString} representing the parsed byte string
+	 * @throws TorrentException if the length is invalid or the data does not match the length
+	 */
+	private BByteString readString() throws TorrentException
+	{
+		var stringLengthAsAscii = new StringBuilder(); //$NON-NLS-1$
+		var current = readCurrentByte();
+
+		// Read the length first
+		while (current >= 48 && current <= 57)
+		{
+			stringLengthAsAscii.append(Character.toString((char) current));
+			currentByteIndex++;
+			current = readCurrentByte();
+		}
+
+		if (readCurrentByte() != ':')
+			throw new TorrentException("Error parsing string. Was expecting ':' but got " + Character.toString((char) readCurrentByte())); //$NON-NLS-1$
+		currentByteIndex++; // Skip the ':'
+
+		int dataLength = Integer.parseInt(stringLengthAsAscii.toString());
+		final var data = new byte[dataLength];
+
+		// Read actual data bytes
+		for (var i = 0; i < dataLength; i++)
+		{
+			data[i] = readCurrentByte();
+			currentByteIndex++;
+		}
+
+		return new BByteString(data);
+	}
 
 	/**
-	 * Reads in a list starting from the current byte index. Throws an error if not
-	 * called on an appropriate index. A list of values is encoded as
-	 * l&lt;contents&gt;e . The contents consist of the bencoded elements of the
-	 * list, in order, concatenated. A list consisting of the string "spam" and the
-	 * number 42 would be encoded as: l4:spami42ee. Note the absence of separators
-	 * between elements.
+	 * Parses a bencoded list from the current index.
+	 * Format: {@code l<elements>e}
 	 *
-	 * @return BList object.
-	 * @throws TorrentException 
+	 * @return a {@link BList} containing the decoded elements
+	 * @throws TorrentException if the list does not end with 'e'
 	 */
 	private BList readList() throws TorrentException
 	{
 		// If we got here, the current byte is an 'l'.
 		if (readCurrentByte() != 'l')
-			throw new TorrentException("Error parsing list. Was expecting a 'l' but got " + readCurrentByte()); //$NON-NLS-1$
-		currentByteIndex++; // Skip over the 'l'
+			throw new TorrentException("Error parsing list. Was expecting 'l' but got " + Character.toString((char) readCurrentByte())); //$NON-NLS-1$
+		currentByteIndex++; // Skip the 'l'
 
 		final var list = new BList();
 		while (readCurrentByte() != 'e')
 			list.add(readSingleType());
-
 		currentByteIndex++; // Skip the 'e'
+
 		return list;
 	}
 
 	/**
-	 * Reads in a bytestring strating at the current position. Throws an error if
-	 * not possible. A byte string (a sequence of bytes, not necessarily characters)
-	 * is encoded as &lt;length&gt;:&lt;contents&gt;. The length is encoded in base
-	 * 10, like integers, but must be non-negative (zero is allowed); the contents
-	 * are just the bytes that make up the string. The string "spam" would be
-	 * encoded as 4:spam. The specification does not deal with encoding of
-	 * characters outside the ASCII set; to mitigate this, some BitTorrent
-	 * applications explicitly communicate the encoding (most commonly UTF-8) in
-	 * various non-standard ways. This is identical to how netstrings work, except
-	 * that netstrings additionally append a comma suffix after the byte sequence.
+	 * Parses a bencoded dictionary from the current index.
+	 * Format: {@code d<key><value>e} where keys must be byte strings.
 	 *
-	 * @return BByteString
-	 * @throws TorrentException 
-	 */
-	private BByteString readByteString() throws TorrentException
-	{
-		var lengthAsString = new StringBuilder(); //$NON-NLS-1$
-		int lengthAsInt;
-		byte[] bsData;
-
-		// Build up a string of ascii chars representing the size.
-		var current = readCurrentByte();
-		while (current >= 48 && current <= 57)
-		{
-			lengthAsString.append(Character.toString((char) current));
-			currentByteIndex++;
-			current = readCurrentByte();
-		}
-		lengthAsInt = Integer.parseInt(lengthAsString.toString());
-
-		if (readCurrentByte() != ':')
-			throw new TorrentException("Read length of byte string and was expecting ':' but got " + readCurrentByte()); //$NON-NLS-1$
-		currentByteIndex++; // Skip over the ':'.
-
-		// Read the actual data
-		bsData = new byte[lengthAsInt];
-		for (var i = 0; i < lengthAsInt; i++)
-		{
-			bsData[i] = readCurrentByte();
-			currentByteIndex++;
-		}
-
-		return new BByteString(bsData);
-	}
-
-	/**
-	 * Reads in a dictionary. Each dictionary consists of N bytestrings mapped to
-	 * any other value. Example: d3:foo3:bare == ({foo, bar}) A dictionary is
-	 * encoded as d&lt;contents&gt;e. The elements of the dictionary are encoded
-	 * each key immediately followed by its value. All keys must be byte strings and
-	 * must appear in lexicographical order. A dictionary that associates the values
-	 * 42 and "spam" with the keys "foo" and "bar", respectively (in other words,
-	 * {"bar": "spam", "foo": 42}), would be encoded as follows:
-	 * d3:bar4:spam3:fooi42ee. (This might be easier to read by inserting some
-	 * spaces: d 3:bar 4:spam 3:foo i42e e.)
-	 *
-	 * @return BDictionary representing the dictionary.
-	 * @throws TorrentException 
+	 * @return a {@link BDictionary} representing the key-value map
+	 * @throws TorrentException if keys are not strings or the dictionary does not end with 'e'
 	 */
 	private BDictionary readDictionary() throws TorrentException
 	{
-		// If we got here, the current byte is an 'd'.
+		// If we got here, the current byte is a 'd'.
 		if (readCurrentByte() != 'd')
-			throw new TorrentException("Error parsing dictionary. Was expecting a 'd' but got " + readCurrentByte()); //$NON-NLS-1$
-		currentByteIndex++; // Skip over the 'd'
+			throw new TorrentException("Error parsing dictionary. Was expecting 'd' but got " + Character.toString((char) readCurrentByte())); //$NON-NLS-1$
+		currentByteIndex++; // Skip the 'd'
 
 		final var dict = new BDictionary();
 		while (readCurrentByte() != 'e')
@@ -214,15 +182,13 @@ public class Reader
 	}
 
 	/**
-	 * Parses an integer in Bencode fromat. Example: 123 == i123e An integer is
-	 * encoded as i&lt;integer encoded in base ten ASCII&gt;e. Leading zeros are not
-	 * allowed (although the number zero is still represented as "0"). Negative
-	 * values are encoded by prefixing the number with a minus sign. The number 42
-	 * would thus be encoded as i42e, 0 as i0e, and -42 as i-42e. Negative zero is
-	 * not permitted.
+	 * Parses an integer in Bencode format. Example: 123 == i123e.
+	 * An integer is encoded as i&lt;integer encoded in base ten ASCII&gt;e.
+	 * Leading zeros are not allowed. Negative values are prefixed with a minus sign.
+	 * Negative zero is not permitted.
 	 *
 	 * @return BInt representing the value of the parsed integer.
-	 * @throws TorrentException 
+	 * @throws TorrentException if the integer formatting is invalid or does not end with 'e'
 	 */
 	private BInt readInteger() throws TorrentException
 	{
@@ -250,9 +216,7 @@ public class Reader
 		return new BInt(Long.parseLong(intString.toString()));
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-	//// HELPERS ///////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
+	// Helpers
 
 	/**
 	 * Returns the byte in the current position of the file.

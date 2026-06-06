@@ -26,7 +26,9 @@ import java.util.Set;
 import jrm.profile.Profile;
 
 /**
- * A list of {@link Anyware} objects
+ * A list of {@link Anyware} objects.
+ * This class serves as an abstract base for specialized collections of arcade machines or software systems.
+ * 
  * @author optyfr
  *
  * @param <T> extends {@link Anyware} (generally a {@link Machine} or a {@link Software})
@@ -34,6 +36,10 @@ import jrm.profile.Profile;
 @SuppressWarnings("serial")
 public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, AWList<T>, ByName<T>
 {
+	/**
+	 * The profile associated with this list.
+	 * Used to retrieve filter and configuration options.
+	 */
 	Profile profile;
 
 	/**
@@ -42,7 +48,9 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	protected transient List<T> filteredList;
 
 	/**
-	 * The constructor, will initialize transients fields
+	 * The constructor, will initialize transients fields.
+	 * 
+	 * @param profile the {@link Profile} to associate with this list
 	 */
 	protected AnywareList(Profile profile)
 	{
@@ -53,8 +61,8 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	/**
 	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
 	 * @param in the serialization inputstream
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * @throws IOException if an I/O error occurs
+	 * @throws ClassNotFoundException if the class of a serialized object cannot be found
 	 */
 	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
@@ -63,7 +71,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	}
 
 	/**
-	 * The method called to initialize transient and static fields
+	 * The method called to initialize transient and static fields.
 	 */
 	protected void initTransient()
 	{
@@ -71,7 +79,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	}
 
 	/**
-	 * resets {@link T} list cache and fire a TableChanged event to listeners
+	 * resets {@link T} list cache and fire a TableChanged event to listeners.
 	 */
 	public void resetCache()
 	{
@@ -79,7 +87,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	}
 
 	/**
-	 * resets {@link T} list cache and fire a TableChanged event to listeners
+	 * resets {@link T} list cache and fire a TableChanged event to listeners.
 	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
 	 */
 	public void setFilterCache(final Set<AnywareStatus> filter)
@@ -87,14 +95,19 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 		profile.setFilterList(filter);
 	}
 	
+	/**
+	 * Gets the current filters applied to this list.
+	 * 
+	 * @return a {@link Set} of {@link AnywareStatus} representing the active filters
+	 */
 	public Set<AnywareStatus> getFilter()
 	{
 		return profile.getFilterList();
 	}
 
 	/**
-	 * get the overall current status according the status of all its currently filtered {@link Anyware}s
-	 * @return an {@link AnywareStatus}
+	 * get the overall current status according the status of all its currently filtered {@link Anyware}s.
+	 * @return an {@link AnywareStatus} representing the combined status of all items in this list
 	 */
 	public AnywareStatus getStatus()
 	{
@@ -119,19 +132,19 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	}
 
 	/**
-	 * count the number of correct wares we have in this list
-	 * @return an int which is the total counted
+	 * count the number of correct wares we have in this list.
+	 * @return a long which is the total counted
 	 */
 	public abstract long countHave();
 
 	/**
-	 * count the number of wares contained in this list, whether they are OK or not
-	 * @return an int which is the sum of all the wares
+	 * count the number of wares contained in this list, whether they are OK or not.
+	 * @return a long which is the sum of all the wares
 	 */
 	public abstract long countAll();
 
 	/**
-	 * Find the index of a given {@link Anyware} in the filetered list 
+	 * Find the index of a given {@link Anyware} in the filtered list.
 	 * @param anyware the given {@link Anyware}
 	 * @return the int index or -1 if not found
 	 */
@@ -141,7 +154,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 	}
 
 	/**
-	 * Find the first index of the {@link Anyware} for which its name starts with the search string
+	 * Find the first index of the {@link Anyware} for which its name starts with the search string.
 	 * @param search the {@link String} to search for
 	 * @return the int index or -1 if not found
 	 */
@@ -150,12 +163,23 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
 		return find(getFilteredStream().filter(s -> s.getName().toLowerCase().startsWith(search.toLowerCase())).findFirst().orElse(null));
 	}
 	
+	/**
+	 * Compares the specified object with this list for equality.
+	 * 
+	 * @param obj the object to compare with
+	 * @return {@code true} if the objects are equal, {@code false} otherwise
+	 */
 	@Override
 	public boolean equals(Object obj)
 	{
 		return super.equals(obj);
 	}
 	
+	/**
+	 * Returns the hash code value for this list.
+	 * 
+	 * @return the hash code value of this list
+	 */
 	@Override
 	public int hashCode()
 	{

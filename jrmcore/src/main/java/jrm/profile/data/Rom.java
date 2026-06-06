@@ -30,52 +30,165 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Rom entity definition
+ * Rom entity definition representing a read-only memory chip file inside a retro-gaming system or software list.
+ * This class extends {@link Entity} and encapsulates ROM-specific attributes like offsets, bios associations, and loading flags.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class Rom extends Entity implements Serializable
 {
-	private static final String OFFSET_STR = "offset";
-	private static final String NAME_STR = "name";
-	private static final String ROM_STR = "rom";
 	/**
-	 * the bios name otherwise null
+	 * XML attribute name for memory offset.
+	 */
+	private static final String OFFSET_STR = "offset";
+	
+	/**
+	 * XML attribute name for ROM name.
+	 */
+	private static final String NAME_STR = "name";
+	
+	/**
+	 * XML element name for ROM entries.
+	 */
+	private static final String ROM_STR = "rom";
+	
+	/**
+	 * The name of the BIOS, otherwise null if the ROM is not associated with a BIOS.
+	 * 
+	 * @param bios the BIOS name to set
+	 * @return the BIOS name
 	 */
 	protected @Getter @Setter String bios = null;
+	
 	/**
-	 * the in memory offset (kept for export)
+	 * The in-memory offset, kept for XML export.
+	 * 
+	 * @param offset the in-memory offset to set
+	 * @return the in-memory offset
 	 */
 	protected @Getter @Setter Long offset = null;
+	
 	/**
-	 * the in memory load flag (kept for export)
+	 * The in-memory load flag, kept for XML export.
+	 * 
+	 * @param loadflag the load flag to set
+	 * @return the load flag
 	 */
 	protected @Getter @Setter LoadFlag loadflag = null;
+	
 	/**
-	 * the value to fill according load flag (only software rom, kept for export)
+	 * The value to fill according to the load flag (software ROM only, kept for XML export).
+	 * 
+	 * @param value the fill value to set
+	 * @return the fill value
 	 */
 	protected @Getter @Setter String value = null;
+	
 	/**
-	 * is this rom is optional?
+	 * Indicates whether this ROM is optional.
+	 * 
+	 * @param optional true if the ROM is optional, false otherwise
+	 * @return true if the ROM is optional, false otherwise
 	 */
 	protected @Getter @Setter boolean optional = false;
+	
 	/**
-	 * the memory region (kept for export)
+	 * The memory region where this ROM belongs, kept for XML export.
+	 * 
+	 * @param region the memory region to set
+	 * @return the memory region
 	 */
 	protected @Getter @Setter String region = null;
+	
 	/**
-	 * the dump date (kept for export)
+	 * The dump date of this ROM, kept for XML export.
+	 * 
+	 * @param date the dump date to set
+	 * @return the dump date
 	 */
 	protected @Getter @Setter String date = null;
 
 	/**
-	 * Possibles Load Flags definitions
-	 * Definitions here are all uppercase because there would be collision with java keywords otherwise... but in fact, this should be lowercase
+	 * Possible Load Flags definitions.
+	 * Definitions are uppercase to avoid java keyword collisions (e.g., continue),
+	 * but are serialized as lowercase strings.
+	 * 
+	 * @author optyfr
+	 * @since 1.0
 	 */
 	public enum LoadFlag implements Serializable
 	{
-		LOAD16_BYTE, LOAD16_WORD, LOAD16_WORD_SWAP, LOAD32_BYTE, LOAD32_WORD, LOAD32_WORD_SWAP, LOAD32_DWORD, LOAD64_WORD, LOAD64_WORD_SWAP, RELOAD, FILL, CONTINUE, RELOAD_PLAIN, IGNORE;
+		/**
+		 * Load 16-bit byte.
+		 */
+		LOAD16_BYTE,
+		
+		/**
+		 * Load 16-bit word.
+		 */
+		LOAD16_WORD,
+		
+		/**
+		 * Load 16-bit word with swapped bytes.
+		 */
+		LOAD16_WORD_SWAP,
+		
+		/**
+		 * Load 32-bit byte.
+		 */
+		LOAD32_BYTE,
+		
+		/**
+		 * Load 32-bit word.
+		 */
+		LOAD32_WORD,
+		
+		/**
+		 * Load 32-bit word with swapped bytes.
+		 */
+		LOAD32_WORD_SWAP,
+		
+		/**
+		 * Load 32-bit double-word.
+		 */
+		LOAD32_DWORD,
+		
+		/**
+		 * Load 64-bit word.
+		 */
+		LOAD64_WORD,
+		
+		/**
+		 * Load 64-bit word with swapped bytes.
+		 */
+		LOAD64_WORD_SWAP,
+		
+		/**
+		 * Reload action.
+		 */
+		RELOAD,
+		
+		/**
+		 * Fill action.
+		 */
+		FILL,
+		
+		/**
+		 * Continue action.
+		 */
+		CONTINUE,
+		
+		/**
+		 * Reload plain action.
+		 */
+		RELOAD_PLAIN,
+		
+		/**
+		 * Ignore action.
+		 */
+		IGNORE;
 
 		@Override
 		public String toString()
@@ -83,6 +196,13 @@ public class Rom extends Entity implements Serializable
 			return name().toLowerCase();
 		}
 
+		/**
+		 * Resolves the given string value into its matching LoadFlag.
+		 * 
+		 * @param value the string value to match
+		 * @return the matching LoadFlag enum element
+		 * @throws IllegalArgumentException if no match is found
+		 */
 		public static LoadFlag getEnum(final String value)
 		{
 			for (final LoadFlag v : LoadFlag.values())
@@ -93,8 +213,9 @@ public class Rom extends Entity implements Serializable
 	}
 
 	/**
-	 * The constructor
-	 * @param parent a required {@link Anyware} parent
+	 * Constructor for Rom with its associated parent Anyware.
+	 * 
+	 * @param parent the non-null parent system or game
 	 */
 	public Rom(final Anyware parent)
 	{
@@ -102,7 +223,10 @@ public class Rom extends Entity implements Serializable
 	}
 
 	/**
-	 * get the rom name, will include the parent name if we are using a merge mode and we are a clone collisioning with its parent
+	 * Get the ROM name. Includes the parent name if using merge mode and the ROM represents
+	 * a clone colliding with its parent.
+	 * 
+	 * @return the name of the ROM
 	 */
 	@Override
 	public String getName()
@@ -123,8 +247,9 @@ public class Rom extends Entity implements Serializable
 	}
 
 	/**
-	 * get the full rom name, will include the parent name if we are using a merge mode, even if there is no collision
-	 * @return the full name of the entity
+	 * Get the full ROM name. Includes the parent name if merge mode is enabled, regardless of collisions.
+	 * 
+	 * @return the full hierarchical path/name of the ROM
 	 */
 	public String getFullName()
 	{
@@ -137,6 +262,13 @@ public class Rom extends Entity implements Serializable
 		return name;
 	}
 
+	/**
+	 * Evaluates whether this ROM is equivalent to another object based on checksums (SHA1, MD5, or CRC and size).
+	 * Falls back to reference equality checks.
+	 * 
+	 * @param obj the reference object to compare with
+	 * @return true if equivalent, false otherwise
+	 */
 	@Override
 	public boolean equals(final Object obj)
 	{
@@ -152,6 +284,11 @@ public class Rom extends Entity implements Serializable
 		return super.equals(obj);
 	}
 
+	/**
+	 * Returns the hash code based on the best available checksum.
+	 * 
+	 * @return the hash code
+	 */
 	@Override
 	public int hashCode()
 	{
@@ -165,8 +302,9 @@ public class Rom extends Entity implements Serializable
 	}
 
 	/**
-	 * get the latest available hash string value for this ROM
-	 * @return the hash {@link String} value
+	 * Get the latest available hash string value for this ROM.
+	 * 
+	 * @return the hash string (SHA1, MD5, or CRC) or name if no checksums are available
 	 */
 	public String hashString()
 	{
@@ -180,9 +318,10 @@ public class Rom extends Entity implements Serializable
 	}
 
 	/**
-	 * convert a {@link List} of {@link Rom}s to a {@link Map} of {@link Rom} with {@link Rom#getName()} as keys
-	 * @param roms the {@link List}&lt;{@link Rom}&gt; to convert
-	 * @return a {@link Map}&lt;{@link String}, {@link Rom}&gt;
+	 * Converts a list of ROMs into a map indexed by their normalized names.
+	 * 
+	 * @param roms the list of ROMs to map
+	 * @return a map of ROMs by name
 	 */
 	public static Map<String, Rom> getRomsByName(final List<Rom> roms)
 	{
@@ -190,10 +329,11 @@ public class Rom extends Entity implements Serializable
 	}
 
 	/**
-	 * Try to find the {@link Rom} status recursively across parents and also in clones (only if we are in merged mode)
-	 * @param parent the {@link Anyware} parent 
-	 * @param rom the {@link Rom} to test
-	 * @return the {@link EntityStatus} found for this disk
+	 * Tries to find the ROM status recursively across parents and also in clones (if in merged mode).
+	 * 
+	 * @param parent the Anyware parent of the ROM
+	 * @param rom the Rom whose status is to be resolved
+	 * @return the resolved EntityStatus, or null if not found
 	 */
 	private EntityStatus findRomStatus(final Anyware parent, final Rom rom)
 	{
@@ -227,8 +367,11 @@ public class Rom extends Entity implements Serializable
 	}
 
 	/**
-	 * @param parent
-	 * @param rom
+	 * Resolves ROM status across clones in merged mode.
+	 * 
+	 * @param parent the parent Anyware system
+	 * @param rom the Rom whose status is to be resolved
+	 * @return the clone status or null if not in merge mode or not resolved
 	 */
 	private EntityStatus findRomStatusMerge(final Anyware parent, final Rom rom)
 	{
@@ -237,6 +380,11 @@ public class Rom extends Entity implements Serializable
 		return parent.getParent().getCloneRomStatus(rom);
 	}
 
+	/**
+	 * Returns the final status of this ROM, resolving it dynamically from parent/clones if necessary.
+	 * 
+	 * @return the resolved EntityStatus
+	 */
 	@Override
 	public EntityStatus getStatus()
 	{
@@ -254,10 +402,11 @@ public class Rom extends Entity implements Serializable
 	}
 
 	/**
-	 * Export as dat
-	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
-	 * @param is_mame is it mame (true) or logqix (false) format ?
-	 * @throws XMLStreamException
+	 * Export the ROM definition as a XML element inside a DAT file structure.
+	 * 
+	 * @param writer the EnhancedXMLStreamWriter used to write the XML output
+	 * @param is_mame true if writing MAME-compatible XML format, false for Logiqx format
+	 * @throws XMLStreamException if an XML stream error occurs
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException
 	{

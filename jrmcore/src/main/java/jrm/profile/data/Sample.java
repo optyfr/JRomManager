@@ -19,16 +19,19 @@ package jrm.profile.data;
 import java.io.Serializable;
 
 /**
- * A Sample as defined in Machines sets
+ * A Sample entity defined in system machine audio sets.
+ * Represents an audio wave file required by certain arcade games for sound emulation.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public final class Sample extends EntityBase implements Serializable
 {
 	/**
-	 * The Sample constructor
-	 * @param parent the {@link Samples} parent
+	 * The Sample constructor.
+	 * 
+	 * @param parent the {@link Samples} parent list container
 	 * @param name the name of the sample (with or without .wav extension)
 	 */
 	public Sample(AnywareBase parent, String name)
@@ -37,6 +40,11 @@ public final class Sample extends EntityBase implements Serializable
 		setName(name);
 	}
 
+	/**
+	 * Retrieves the normalized name of the sample. Guarantees a ".wav" file extension suffix.
+	 * 
+	 * @return the sample filename with a .wav extension
+	 */
 	@Override
 	public String getName()
 	{
@@ -45,12 +53,23 @@ public final class Sample extends EntityBase implements Serializable
 		return name;
 	}
 
+	/**
+	 * Retrieves the current status of the sample.
+	 * 
+	 * @return the entity status
+	 */
 	@Override
 	public EntityStatus getStatus()
 	{
 		return ownStatus;
 	}
 
+	/**
+	 * Checks equality between this Sample and another object by comparing their string representations.
+	 * 
+	 * @param obj the reference object to compare with
+	 * @return true if the string representations are equal, false otherwise
+	 */
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -59,12 +78,22 @@ public final class Sample extends EntityBase implements Serializable
 		return this.toString().equals(obj.toString());
 	}
 
+	/**
+	 * Returns the hash code value for the sample.
+	 * 
+	 * @return the hash code based on the base entity implementation
+	 */
 	@Override
 	public int hashCode()
 	{
 		return super.hashCode();
 	}
 	
+	/**
+	 * Retrieves the parent container of the sample.
+	 * 
+	 * @return the parent anyware container base
+	 */
 	@Override
 	public AnywareBase getParent()
 	{

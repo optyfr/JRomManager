@@ -31,7 +31,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Describe a disk entity 
+ * Describes a disk entity (such as a MAME CHD) associated with a machine or software.
+ * Tracks storage flags, placement, optional flags, and status resolutions.
+ *
  * @author optyfr
  */
 @SuppressWarnings("serial")
@@ -43,25 +45,42 @@ public class Disk extends Entity implements Serializable
 	private static final String SHA1_STR = "sha1";
 	private static final String NAME_STR = "name";
 	private static final String DISK_STR = "disk";
+
 	/**
-	 * is the disk writable? default to false
+	 * Is the disk writable? Defaults to {@code false}.
+	 *
+	 * @param writeable {@code true} if the disk is writable, {@code false} otherwise
+	 * @return {@code true} if the disk is writable, {@code false} otherwise
 	 */
 	protected @Getter @Setter boolean writeable = false;
+
 	/**
-	 * what's the disk index? default to null
+	 * What's the disk index? Defaults to {@code null}.
+	 *
+	 * @param index the disk index integer
+	 * @return the disk index integer
 	 */
 	protected @Getter @Setter Integer index = null;
+
 	/**
-	 * Is the disk optional? default to false
+	 * Is the disk optional? Defaults to {@code false}.
+	 *
+	 * @param optional {@code true} if the disk is optional, {@code false} otherwise
+	 * @return {@code true} if the disk is optional, {@code false} otherwise
 	 */
 	protected @Getter @Setter boolean optional = false;
+
 	/**
 	 * What's the disk region?
+	 *
+	 * @param region the disk region string
+	 * @return the disk region string
 	 */
 	protected @Getter @Setter String region = null;
 
 	/**
-	 * Constructor 
+	 * Constructor for Disk.
+	 *
 	 * @param parent the {@link Anyware} parent containing the disk
 	 */
 	public Disk(final Anyware parent)
@@ -69,6 +88,11 @@ public class Disk extends Entity implements Serializable
 		super(parent);
 	}
 
+	/**
+	 * Retrieves the forged disk file name, applying merge mode naming conventions if applicable.
+	 *
+	 * @return the disk file name with ".chd" extension
+	 */
 	@Override
 	public String getName()
 	{
@@ -87,6 +111,13 @@ public class Disk extends Entity implements Serializable
 		return name + ".chd"; //$NON-NLS-1$
 	}
 
+	/**
+	 * Indicates whether some other object is "equal to" this one.
+	 * Disks are compared first using their SHA-1 checksums, then MD5 checksums, and falling back to super equality.
+	 *
+	 * @param obj the reference object with which to compare
+	 * @return {@code true} if this disk is the same as the obj argument; {@code false} otherwise
+	 */
 	@Override
 	public boolean equals(final Object obj)
 	{
@@ -100,6 +131,11 @@ public class Disk extends Entity implements Serializable
 		return super.equals(obj);
 	}
 
+	/**
+	 * Returns a hash code value for the disk.
+	 *
+	 * @return a hash code value for this disk
+	 */
 	@Override
 	public int hashCode()
 	{
@@ -111,8 +147,9 @@ public class Disk extends Entity implements Serializable
 	}
 
 	/**
-	 * the disk hash value ({@link Entity#sha1} or {@link Entity#md5} ) as a {@link String}, or {@link #getName()} if no hash available
-	 * @return the hash value as a {@link String} 
+	 * Retrieves the disk hash value (SHA-1 or MD5) as a string, or the forged disk name if no hash is available.
+	 *
+	 * @return the hash value as a string, or name as a fallback
 	 */
 	public String hashString()
 	{
@@ -124,9 +161,10 @@ public class Disk extends Entity implements Serializable
 	}
 
 	/**
-	 * convert a {@link List} of {@link Disk}s to a {@link Map} of {@link Disk} with {@link Disk#getName()} as keys
-	 * @param disks the {@link List}&lt;{@link Disk}&gt; to convert
-	 * @return a {@link Map}&lt;{@link String}, {@link Disk}&gt;
+	 * Converts a list of disks into a map of disks indexed by their normalized names.
+	 *
+	 * @param disks the list of disks to convert
+	 * @return a map of disks with normalized names as keys
 	 */
 	public static Map<String, Disk> getDisksByName(final List<Disk> disks)
 	{
@@ -134,10 +172,11 @@ public class Disk extends Entity implements Serializable
 	}
 
 	/**
-	 * Try to find the {@link Disk} status recursively across parents and also in clones (only if we are in merged mode)
-	 * @param parent the {@link Anyware} parent 
-	 * @param disk the {@link Disk} to test
-	 * @return the {@link EntityStatus} found for this disk
+	 * Tries to find the disk status recursively across parent clones and systems (valid in merged mode).
+	 *
+	 * @param parent the parent machine or software
+	 * @param disk the disk to search for
+	 * @return the matched {@link EntityStatus} or {@code null} if not found
 	 */
 	private static EntityStatus findDiskStatus(final Anyware parent, final Disk disk)
 	{
@@ -165,8 +204,11 @@ public class Disk extends Entity implements Serializable
 	}
 
 	/**
-	 * @param parent
-	 * @param disk
+	 * Tries to find the disk status specifically inside sibling clone sets.
+	 *
+	 * @param parent the parent machine or software
+	 * @param disk the disk to search for
+	 * @return the matched {@link EntityStatus} or {@code null} if not found
 	 */
 	private static EntityStatus findDiskStatusInClones(final Anyware parent, final Disk disk)
 	{
@@ -184,6 +226,11 @@ public class Disk extends Entity implements Serializable
 		return null;
 	}
 
+	/**
+	 * Retrieves the status of this disk, falling back to parent clone resolution if unknown.
+	 *
+	 * @return the status of the disk
+	 */
 	@Override
 	public EntityStatus getStatus()
 	{
@@ -199,10 +246,11 @@ public class Disk extends Entity implements Serializable
 	}
 
 	/**
-	 * Export as dat
-	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
-	 * @param is_mame is it mame (true) or logqix (false) format ?
-	 * @throws XMLStreamException
+	 * Exports the disk metadata into an XML format.
+	 *
+	 * @param writer the enhanced XML stream writer to output to
+	 * @param is_mame {@code true} if exporting in MAME format, {@code false} for logiqx format
+	 * @throws XMLStreamException if an error occurs during XML writing
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException
 	{

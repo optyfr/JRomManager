@@ -19,35 +19,58 @@ package jrm.profile.data;
 import java.io.Serializable;
 
 /**
- * Mechanical system
+ * Mechanical system.
+ * Represents system options mapped under the Type.MECHANICAL classification.
+ * 
  * @author optyfr
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class SystmMechanical implements Systm, Serializable
 {
 	/**
-	 * the static MECHANICAL object
+	 * The static MECHANICAL instance.
 	 */
 	public static final SystmMechanical MECHANICAL = new SystmMechanical();
 
+	/**
+	 * Retrieves the system type.
+	 * 
+	 * @return Type.MECHANICAL
+	 */
 	@Override
 	public Type getType()
 	{
 		return Type.MECHANICAL;
 	}
 
+	/**
+	 * Retrieves the system reference.
+	 * 
+	 * @return the static MECHANICAL instance
+	 */
 	@Override
 	public Systm getSystem()
 	{
 		return SystmMechanical.MECHANICAL;
 	}
 
+	/**
+	 * Formats the system to its string representation.
+	 * 
+	 * @return formatted type string
+	 */
 	@Override
 	public String toString()
 	{
 		return "["+getType()+"]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * Retrieves the system name.
+	 * 
+	 * @return "mechanical"
+	 */
 	@Override
 	public String getName()
 	{

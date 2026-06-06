@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
-import java.util.Map;
 
 import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
@@ -42,23 +41,42 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.InternalZipConstants;
 
 /**
- * Add an entry to a container
+ * Concrete action for copying and adding a files/ROM entry to a targeted game package container.
+ * <p>
+ * This supports multi-formatted sources and destinations such as standard directories,
+ * standalone ZIP/7Z archives, and virtual zip file systems.
+ * </p>
+ * 
  * @author optyfr
+ * @since 1.0
  */
 public class AddEntry extends EntryAction
 {
-	private static final String ADD_FROM_S_AT_S_TO_S_AT_S_FAILED = "add from %s@%s to %s@%s failed";
-	private static final String ADD_FROM_S_TO_S_AT_S_FAILED = "add from %s to %s@%s failed";
-	private static final String ADD_ENTRY_ADDING = "AddEntry.Adding";
 	/**
-	 * the related entity
+	 * Log error template when adding from archive to another archive fails.
+	 */
+	private static final String ADD_FROM_S_AT_S_TO_S_AT_S_FAILED = "add from %s@%s to %s@%s failed";
+	
+	/**
+	 * Log error template when adding from file system to archive fails.
+	 */
+	private static final String ADD_FROM_S_TO_S_AT_S_FAILED = "add from %s to %s@%s failed";
+	
+	/**
+	 * Localized progress message key indicating that an entry is being added.
+	 */
+	private static final String ADD_ENTRY_ADDING = "AddEntry.Adding";
+	
+	/**
+	 * The related entity (e.g., a {@link Rom}) being targeted.
 	 */
 	private final EntityBase entity;
 
 	/**
-	 * constructor
-	 * @param entity the related {@link EntityBase} (a {@link Rom} for example) 
-	 * @param entry the {@link Entry} to add
+	 * Constructs a new {@code AddEntry} action.
+	 * 
+	 * @param entity the related {@link EntityBase} target
+	 * @param entry the source {@link Entry} details to add
 	 */
 	public AddEntry(final EntityBase entity, final Entry entry)
 	{
@@ -66,6 +84,16 @@ public class AddEntry extends EntryAction
 		this.entity = entity;
 	}
 
+	/**
+	 * Performs the add entry operation inside a target file system directory on disk.
+	 * 
+	 * @param session the current active user session
+	 * @param target the target parent folder path on disk
+	 * @param handler the visual UI progress bar status handler
+	 * @param i the current progression index
+	 * @param max the total progression maximum
+	 * @return {@code true} if the add action succeeded, otherwise {@code false}
+	 */
 	@Override
 	public boolean doAction(final Session session, final Path target, final ProgressHandler handler, int i, int max)
 	{
@@ -84,8 +112,17 @@ public class AddEntry extends EntryAction
 		}
 	}
 
-
-	@SuppressWarnings("exports")
+	/**
+	 * Performs the add entry operation inside a target standalone Zip file using ZipFile.
+	 * 
+	 * @param session the current active user session
+	 * @param zipf the target ZipFile package
+	 * @param zipp the zip file parameters
+	 * @param handler the visual UI progress bar status handler
+	 * @param i the current progression index
+	 * @param max the total progression maximum
+	 * @return {@code true} if the add action succeeded, otherwise {@code false}
+	 */
 	@Override
 	public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max)
 	{
@@ -104,9 +141,11 @@ public class AddEntry extends EntryAction
 	}
 	
 	/**
-	 * @param session
-	 * @param dstpath
-	 * @return
+	 * Extracts the entry from a default 7z/RAR compressed archive source and saves it to a path.
+	 * 
+	 * @param session the current active session
+	 * @param dstpath the destination path on disk
+	 * @return {@code true} if the operation succeeded, otherwise {@code false}
 	 */
 	private boolean default2Path(final Session session, final Path dstpath)
 	{
@@ -132,10 +171,13 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param session
-	 * @param zos
-	 * @param zentry
-	 * @return
+	 * Extracts the entry from a default 7z/RAR compressed archive source and adds it to a zip file.
+	 * 
+	 * @param session the current active session
+	 * @param zipf the target ZipFile
+	 * @param zipp the configuration zip parameters
+	 * @param zentry the zip entry name
+	 * @return {@code true} if the operation succeeded, otherwise {@code false}
 	 */
 	private boolean default2zos(final Session session, final ZipFile zipf, final ZipParameters zipp, String zentry)
 	{
@@ -155,9 +197,12 @@ public class AddEntry extends EntryAction
 		}
 		return false;
 	}
+
 	/**
-	 * @param dstpath
-	 * @return
+	 * Extracts the entry from a zip source and copies it directly to a path.
+	 * 
+	 * @param dstpath the destination path
+	 * @return {@code true} if the copy succeeded, otherwise {@code false}
 	 */
 	private boolean zip2Path(final Path dstpath)
 	{
@@ -177,9 +222,12 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param zos
-	 * @param zentry
-	 * @return
+	 * Extracts the entry from a zip source and copies it to a target zip archive.
+	 * 
+	 * @param zipf the target ZipFile
+	 * @param zipp the zip parameters
+	 * @param zentry the name of the entry inside the zip
+	 * @return {@code true} if the add succeeded, otherwise {@code false}
 	 */
 	private boolean zip2zos(final ZipFile zipf, final ZipParameters zipp, String zentry)
 	{
@@ -200,8 +248,10 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param dstpath
-	 * @return
+	 * Resolves fake uncompressed sources and copies them to a path.
+	 * 
+	 * @param dstpath the target path
+	 * @return {@code true} if copy succeeded, otherwise {@code false}
 	 */
 	private boolean fake2Path(final Path dstpath)
 	{
@@ -223,9 +273,12 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param zos
-	 * @param zentry
-	 * @return
+	 * Resolves fake uncompressed sources and copies them to a target zip.
+	 * 
+	 * @param zipf the target ZipFile
+	 * @param zipp the zip parameters
+	 * @param zentry the name of the entry in the zip
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean fake2zos(final ZipFile zipf, final ZipParameters zipp, String zentry)
 	{
@@ -245,8 +298,10 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param dstpath
-	 * @return
+	 * Resolves uncompressed directory sources and copies them to a path.
+	 * 
+	 * @param dstpath the destination path
+	 * @return {@code true} if copy succeeded, otherwise {@code false}
 	 */
 	private boolean dir2Path(final Path dstpath)
 	{
@@ -268,9 +323,12 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param zos
-	 * @param zentry
-	 * @return
+	 * Resolves uncompressed directory sources and adds them to a target zip file.
+	 * 
+	 * @param zipf the target ZipFile
+	 * @param zipp the zip parameters
+	 * @param zentry the entry name
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean dir2zos(final ZipFile zipf, final ZipParameters zipp, String zentry)
 	{
@@ -289,6 +347,16 @@ public class AddEntry extends EntryAction
 		return false;
 	}
 
+	/**
+	 * Performs the add entry operation inside a target compressed general archive wrapper.
+	 * 
+	 * @param session the current active session
+	 * @param dstarchive the destination archive wrapper
+	 * @param handler the progress visual status tracker
+	 * @param i the progression index
+	 * @param max the progression maximum limits
+	 * @return {@code true} if the add operation succeeded, otherwise {@code false}
+	 */
 	@Override
 	public boolean doAction(final Session session, final Archive dstarchive, final ProgressHandler handler, int i, int max)
 	{
@@ -307,9 +375,11 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param session
-	 * @param dstarchive
-	 * @return
+	 * Copies default compressed source entries into a general archive wrapper.
+	 * 
+	 * @param session the current active session
+	 * @param dstarchive the destination archive
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean default2Archive(final Session session, final Archive dstarchive)
 	{
@@ -327,8 +397,10 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param dstarchive
-	 * @return
+	 * Copies zip source entries into a general archive wrapper.
+	 * 
+	 * @param dstarchive the destination archive wrapper
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean zip2Archive(final Archive dstarchive)
 	{
@@ -347,8 +419,10 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param dstarchive
-	 * @return
+	 * Copies fake source files into a general archive wrapper.
+	 * 
+	 * @param dstarchive the destination archive wrapper
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean fake2Archive(final Archive dstarchive)
 	{
@@ -365,8 +439,10 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param dstarchive
-	 * @return
+	 * Copies uncompressed folder source files into a general archive wrapper.
+	 * 
+	 * @param dstarchive the destination archive wrapper
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean dir2Archive(final Archive dstarchive)
 	{
@@ -382,6 +458,16 @@ public class AddEntry extends EntryAction
 		return false;
 	}
 
+	/**
+	 * Performs the add entry operation inside a virtual zip FileSystem.
+	 * 
+	 * @param session the current active user session
+	 * @param dstfs the target virtual zip FileSystem
+	 * @param handler the progress visual status tracker
+	 * @param i the progression index
+	 * @param max the progression maximum limits
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
+	 */
 	@Override
 	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
 	{
@@ -401,9 +487,11 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param session
-	 * @param dstpath
-	 * @return
+	 * Copies default compressed archive entries into a virtual zip FileSystem.
+	 * 
+	 * @param session the current active session
+	 * @param dstpath the destination path inside the FileSystem
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean default2FS(final Session session, final Path dstpath)
 	{
@@ -429,8 +517,10 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param dstpath
-	 * @return
+	 * Copies zip source entries into a virtual zip FileSystem.
+	 * 
+	 * @param dstpath the destination path inside the FileSystem
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean zip2FS(final Path dstpath)
 	{
@@ -452,8 +542,10 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param dstpath
-	 * @return
+	 * Copies fake source files into a virtual zip FileSystem.
+	 * 
+	 * @param dstpath the destination path inside the FileSystem
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean fake2FS(final Path dstpath)
 	{
@@ -475,8 +567,10 @@ public class AddEntry extends EntryAction
 	}
 
 	/**
-	 * @param dstpath
-	 * @return
+	 * Copies uncompressed directory source files into a virtual zip FileSystem.
+	 * 
+	 * @param dstpath the destination path inside the FileSystem
+	 * @return {@code true} if addition succeeded, otherwise {@code false}
 	 */
 	private boolean dir2FS(final Path dstpath)
 	{
@@ -497,12 +591,22 @@ public class AddEntry extends EntryAction
 		return false;
 	}
 
+	/**
+	 * Returns a localized string representation describing the addition operation.
+	 * 
+	 * @return standard descriptive text
+	 */
 	@Override
 	public String toString()
 	{
 		return String.format(Messages.getString("AddEntry.Add"), entry, entity); //$NON-NLS-1$
 	}
 	
+	/**
+	 * Estimates the uncompressed size of the entity being added.
+	 * 
+	 * @return estimated size in bytes
+	 */
 	@Override
 	public long estimatedSize()
 	{

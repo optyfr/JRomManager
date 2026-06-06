@@ -37,20 +37,29 @@ import jrm.profile.scan.Scan;
 import lombok.val;
 
 /**
- * The class that fix apply all the fixes on your set
+ * Orchestrates the application of fixes, repairs, and container actions
+ * determined by a prior scan across the user's ROM and game sets.
+ * <p>
+ * This class coordinates virtual multi-threaded execution pools to perform parallel processing of queued actions,
+ * updates visual progress bars, backups altered data, and stores session timing statistics.
+ * </p>
+ * 
+ * @author optyfr
+ * @since 1.0
  */
 public class Fix
 {
 	/**
-	 * Retain the scan result from which this class will apply fixes from defined actions
+	 * Retain the scan result from which this class will apply fixes from defined actions.
 	 */
 	private final Scan currScan;
 
 	/**
-	 * The Fix constructor
-	 * @param currProfile the current {@link Profile} from which we will get some options and return stats 
-	 * @param currScan the current {@link Scan} containing actions to do
-	 * @param progress the {@link ProgressHandler} in which we will show fixing progression
+	 * Constructs a new {@code Fix} coordinator and immediately launches the fixing pipeline.
+	 * 
+	 * @param currProfile the active {@link Profile} from which settings are read and updated
+	 * @param currScan the active {@link Scan} containing action definitions to process
+	 * @param progress the UI progress feedback visual handler
 	 */
 	public Fix(final Profile currProfile, final Scan currScan, final ProgressHandler progress)
 	{
@@ -104,13 +113,14 @@ public class Fix
 		Log.info(() -> "Fix total duration for " + currProfile.getNfo().getName() + " : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
 	}
 
-
 	/**
-	 * @param currProfile
-	 * @param progress
-	 * @param i
-	 * @param done
-	 * @param action
+	 * Internal worker method executing a single container action in the multi-threading pool context.
+	 * 
+	 * @param currProfile the active {@link Profile} context
+	 * @param progress the active UI progress status tracker
+	 * @param i global task progression counter
+	 * @param done thread-safe list storing successfully processed actions
+	 * @param action the actual container repair task to apply
 	 */
 	private void doAction(final Profile currProfile, final ProgressHandler progress, final AtomicInteger i, final List<ContainerAction> done, ContainerAction action)
 	{
@@ -138,10 +148,10 @@ public class Fix
 		}
 	}
 
-	
 	/**
-	 * get remaining actions if any
-	 * @return the number of actions remaining, or 0 if all successfully done without canceling
+	 * Returns the count of remaining actions that have not yet been executed.
+	 * 
+	 * @return the number of pending actions, or 0 if all were processed successfully
 	 */
 	public int getActionsRemain()
 	{

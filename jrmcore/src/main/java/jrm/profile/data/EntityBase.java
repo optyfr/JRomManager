@@ -19,23 +19,29 @@ package jrm.profile.data;
 import java.io.IOException;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import jrm.misc.Log;
 
 /**
- * The abstract base class for {@link Entity} and {@link Sample}, main purpose is to define parent relationship and scan status
+ * The abstract base class for {@link Entity} and {@link Sample}.
+ * Its main purpose is to define parent relationships and scan status tracking.
+ *
  * @author optyfr
  */
 public abstract class EntityBase extends NameBase implements Serializable
 {
 	private static final String OWN_STATUS = "own_status";
 	private static final long serialVersionUID = 1L;
+	
 	/**
-	 * The scan status, defaulting to {@link EntityStatus#UNKNOWN}
+	 * The scan status, defaulting to {@link EntityStatus#UNKNOWN}.
 	 */
 	protected EntityStatus ownStatus = EntityStatus.UNKNOWN;
+	
 	/**
-	 * The parent {@link AnywareBase}
+	 * The parent {@link AnywareBase} reference.
 	 */
 	protected transient AnywareBase parent;
 
@@ -43,6 +49,12 @@ public abstract class EntityBase extends NameBase implements Serializable
 		new ObjectStreamField(OWN_STATUS, EntityStatus.class)
 	};
 
+	/**
+	 * Custom serialization writer.
+	 *
+	 * @param stream the object output stream
+	 * @throws IOException if an I/O error occurs
+	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final var fields = stream.putFields();
@@ -50,6 +62,13 @@ public abstract class EntityBase extends NameBase implements Serializable
 		stream.writeFields();
 	}
 
+	/**
+	 * Custom serialization reader.
+	 *
+	 * @param stream the object input stream
+	 * @throws IOException if an I/O error occurs
+	 * @throws ClassNotFoundException if the class cannot be located
+	 */
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final var fields = stream.readFields();
@@ -57,7 +76,8 @@ public abstract class EntityBase extends NameBase implements Serializable
 	}
 
 	/**
-	 * The constructor with its required parent
+	 * The constructor with its required parent.
+	 *
 	 * @param parent the required {@link AnywareBase} parent 
 	 */
 	protected EntityBase(AnywareBase parent)
@@ -66,13 +86,15 @@ public abstract class EntityBase extends NameBase implements Serializable
 	}
 
 	/**
-	 * get the entity status
+	 * Retrieves the entity status.
+	 *
 	 * @return an {@link EntityStatus} value
 	 */
 	public abstract EntityStatus getStatus();
 
 	/**
-	 * set the {@link Entity} status
+	 * Sets the {@link Entity} status.
+	 *
 	 * @param status the {@link EntityStatus} to set
 	 */
 	public void setStatus(EntityStatus status)
@@ -81,10 +103,11 @@ public abstract class EntityBase extends NameBase implements Serializable
 	}
 
 	/**
-	 * get the parent casted according the given class
-	 * @param type the class to cast, must extends {@link AnywareBase}
+	 * Retrieves the parent casted according to the given class.
+	 *
+	 * @param type the class to cast, must extend {@link AnywareBase}
 	 * @param <T> a class which extends {@link AnywareBase}
-	 * @return the type casted parent
+	 * @return the type-casted parent
 	 */
 	protected <T extends AnywareBase> T getParent(final Class<T> type)
 	{
@@ -92,42 +115,86 @@ public abstract class EntityBase extends NameBase implements Serializable
 	}
 
 	/**
-	 * get the parent
-	 * @return the parent (can't be null)
+	 * Retrieves the parent object.
+	 *
+	 * @return the parent (cannot be null)
 	 */
 	public abstract AnywareBase getParent();
 
 	/**
-	 * special method to get the value of a field outside its scope<br>
+	 * Special method to get the value of a field outside its scope using reflection.
+	 * <br>
+	 * Checks public getters first, then falls back to recursive field traversal.
 	 * <b style='color:red'>*** USE WITH CAUTION ***</b> 
+	 *
 	 * @param name the property name as a string (case sensitive)
-	 * @return the value as an {@link Object} or null;
+	 * @return the value as an {@link Object}, or {@code null} if the field does not exist or cannot be accessed
 	 */
 	public Object getProperty(String name)
 	{
+		if (name == null || name.isEmpty())
+			return null;
+
+		// Try public getters first to support virtual properties and clean access
+		final String titleName = Character.toUpperCase(name.charAt(0)) + name.substring(1);
 		try
 		{
-			final var field  = this.getClass().getField(name);
-			field.setAccessible(true);	//NOSONAR
-			return field.get(this);
+			final Method method = this.getClass().getMethod("get" + titleName);
+			return method.invoke(this);
 		}
-		catch(NoSuchFieldException e)
+		catch (Exception e)
 		{
-			return null;
+			try
+			{
+				final Method method = this.getClass().getMethod("is" + titleName);
+				return method.invoke(this);
+			}
+			catch (Exception ex)
+			{
+				// Ignore getter failure, fall back to direct field retrieval
+			}
 		}
-		catch (SecurityException | IllegalArgumentException | IllegalAccessException e)
+
+		// Traversal of superclasses to find declared fields (public, protected, or private)
+		Class<?> current = this.getClass();
+		while (current != null && current != Object.class)
 		{
-			Log.err(e.getMessage(),e);
+			try
+			{
+				final Field field = current.getDeclaredField(name);
+				field.setAccessible(true); //NOSONAR
+				return field.get(this);
+			}
+			catch (NoSuchFieldException e)
+			{
+				current = current.getSuperclass();
+			}
+			catch (SecurityException | IllegalArgumentException | IllegalAccessException e)
+			{
+				Log.err(e.getMessage(), e);
+				break;
+			}
 		}
 		return null;
 	}
 	
+	/**
+	 * Indicates whether some other object is "equal to" this one.
+	 *
+	 * @param obj the reference object with which to compare
+	 * @return {@code true} if this object is equal to the obj argument; {@code false} otherwise
+	 */
 	@Override
 	public boolean equals(Object obj)
 	{
 		return super.equals(obj);
 	}
 
+	/**
+	 * Returns a hash code value for the entity.
+	 *
+	 * @return a hash code value for this entity
+	 */
 	@Override
 	public int hashCode()
 	{

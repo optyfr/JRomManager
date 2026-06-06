@@ -35,48 +35,83 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * This define a MESS software
+ * Defines a MESS or MAME software list software item.
+ * Encapsulates publisher, release year, compatibility flags, and underlying parts like roms/disks.
+ * 
  * @author optyfr
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class Software extends Anyware implements Serializable
 {
+	/**
+	 * Constructor for Software.
+	 * 
+	 * @param profile the associated profile
+	 */
 	public Software(Profile profile)
 	{
 		super(profile);
 	}
 
 	/**
-	 * The publisher name
+	 * The publisher name.
+	 * 
+	 * @return the publisher name builder
 	 */
 	private final @Getter StringBuilder publisher = new StringBuilder();
+	
 	/**
-	 * Is this software supported, default to yes
+	 * Is this software supported (defaults to yes).
+	 * 
+	 * @param supported the support status to set
+	 * @return the support status
 	 */
 	private @Getter @Setter Supported supported = Supported.yes;
+	
 	/**
-	 * The software compatibility string (a list of machine dependents tags separated with commas)
+	 * The software compatibility string (a list of machine dependent tags separated by commas).
+	 * 
+	 * @param compatibility the compatibility string to set
+	 * @return the compatibility string
 	 */
 	private @Getter @Setter String compatibility = null;
+	
 	/**
-	 * The {@link Part}s list associated with the software
+	 * The {@link Part}s list associated with the software.
+	 * 
+	 * @return the list of parts
 	 */
 	private final @Getter List<Part> parts = new ArrayList<>();
 
 	/**
-	 * The software list from which came this software
+	 * The software list from which this software originated.
+	 * 
+	 * @param sl the software list to set
+	 * @return the software list
 	 */
 	private @Getter @Setter SoftwareList sl = null;
 
 	/**
-	 * The Supported values definition
+	 * The Supported values definition.
+	 * 
+	 * @author optyfr
+	 * @since 1.0
 	 */
 	public enum Supported implements Serializable
 	{
-		no,	//NOSONAR
-		partial,	//NOSONAR
-		yes;	//NOSONAR	// default value
+		/** Not supported. */
+		no,
+		/** Partially supported. */
+		partial,
+		/** Fully supported. */
+		yes;
 
+		/**
+		 * Retrieves the XML-ready value representation.
+		 * 
+		 * @return the enum value, or null if default ('yes')
+		 */
 		public Supported getXML()
 		{
 			return this==yes?null:this;
@@ -84,23 +119,39 @@ public class Software extends Anyware implements Serializable
 	}
 
 	/**
-	 * Part of Data/Disk areas
+	 * Part of Data/Disk areas inside a software.
+	 * 
+	 * @author optyfr
+	 * @since 1.0
 	 */
 	public static class Part implements Serializable
 	{
 		/**
-		 * Data area containing {@link Rom}s and various defs of the area
+		 * Data area containing {@link Rom}s and various definitions of the area.
+		 * 
+		 * @author optyfr
+		 * @since 1.0
 		 */
 		public static class DataArea implements Serializable
 		{
 			/**
-			 * words indianness
+			 * Words endianness.
+			 * 
+			 * @author optyfr
+			 * @since 1.0
 			 */
 			public enum Endianness implements Serializable
 			{
-				big,	//NOSONAR
-				little;	//NOSONAR	// default value
+				/** Big endian ordering. */
+				big,
+				/** Little endian ordering. */
+				little;
 
+				/**
+				 * Retrieves the XML representation of endianness.
+				 * 
+				 * @return the XML-ready value, or null if little-endian (default)
+				 */
 				public Endianness getXML()
 				{
 					return this==little?null:this;
@@ -109,102 +160,177 @@ public class Software extends Anyware implements Serializable
 			}
 
 			/**
-			 * name of this data area
+			 * Name of this data area.
+			 * 
+			 * @param name the data area name to set
 			 */
 			private @Setter String name;
+			
 			/**
-			 * total rom size in this data area
+			 * Total rom size in this data area.
+			 * 
+			 * @param size the data area size to set
 			 */
 			private @Setter  int size;
+			
 			/**
-			 * number of bits for ??? (not documented and not used by mame)
+			 * Number of bits for the data bus.
+			 * 
+			 * @param databits the databits count to set
 			 */
 			private @Setter  int databits = 8;
+			
 			/**
-			 * byte ordering
+			 * Byte ordering format.
+			 * 
+			 * @param endianness the endianness to set
 			 */
 			private @Setter  Endianness endianness = Endianness.little;
+			
 			/**
-			 * list of roms
+			 * List of ROMs inside this data area.
+			 * 
+			 * @return the list of ROMs
 			 */
 			private @Getter List<Rom> roms = new ArrayList<>();
 		}
 
 		/**
-		 * Disk area containing {@link Disk}s
+		 * Disk area containing {@link Disk}s.
+		 * 
+		 * @author optyfr
+		 * @since 1.0
 		 */
 		public static class DiskArea implements Serializable
 		{
 			/**
-			 * name of this disk area
+			 * Name of this disk area.
+			 * 
+			 * @param name the disk area name to set
 			 */
 			private @Setter String name;
+			
 			/**
-			 * list of disks
+			 * List of disks in this area.
+			 * 
+			 * @return the list of disks
 			 */
 			private @Getter List<Disk> disks = new ArrayList<>();
 		}
 
 		/**
-		 * name of the part
+		 * Name of the part.
+		 * 
+		 * @param name the part name to set
 		 */
 		private @Setter String name;
+		
 		/**
-		 * the interface used to load this part 
+		 * The interface used to load this part.
+		 * 
+		 * @param intrface the interface to set
+		 * @return the interface string
 		 */
 		private @Getter @Setter String intrface;
+		
 		/**
-		 * The {@link List} of {@link DataArea}s
+		 * The {@link List} of {@link DataArea}s.
+		 * 
+		 * @return the list of data areas
 		 */
 		private @Getter List<DataArea> dataareas = new ArrayList<>();
+		
 		/**
-		 * The {@link List} of {@link DiskArea}s
+		 * The {@link List} of {@link DiskArea}s.
+		 * 
+		 * @return the list of disk areas
 		 */
 		private @Getter List<DiskArea> diskareas = new ArrayList<>();
 	}
 
+	/**
+	 * Retrieves the parent software.
+	 * 
+	 * @return the parent software item
+	 */
 	@Override
 	public Software getParent()
 	{
 		return getParent(Software.class);
 	}
 
+	/**
+	 * Retrieves the name of the software.
+	 * 
+	 * @return the software name
+	 */
 	@Override
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * Retrieves the full name, which includes the parent software list name.
+	 * 
+	 * @return the full name
+	 */
 	@Override
 	public String getFullName()
 	{
 		return sl.name + File.separator + name;
 	}
 
+	/**
+	 * Retrieves the full name for a specific filename within this software.
+	 * 
+	 * @param filename the relative filename
+	 * @return the full resolved path/filename
+	 */
 	@Override
 	public String getFullName(final String filename)
 	{
 		return sl.name + File.separator + filename;
 	}
 
+	/**
+	 * Returns whether this software is a BIOS.
+	 * 
+	 * @return false always for standard software lists
+	 */
 	@Override
 	public boolean isBios()
 	{
 		return false;
 	}
 
+	/**
+	 * Returns whether this software is rom-of.
+	 * 
+	 * @return false always
+	 */
 	@Override
 	public boolean isRomOf()
 	{
 		return false;
 	}
 
+	/**
+	 * Retrieves the type of system.
+	 * 
+	 * @return standard Type.SOFTWARELIST
+	 */
 	@Override
 	public Type getType()
 	{
 		return Type.SOFTWARELIST;
 	}
 
+	/**
+	 * Retrieves the associated system structure.
+	 * 
+	 * @return the software list system
+	 */
 	@Override
 	public Systm getSystem()
 	{
@@ -212,10 +338,12 @@ public class Software extends Anyware implements Serializable
 	}
 
 	/**
-	 * Export as dat
-	 * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
-	 * @param entries can be null, if specified, will filter according this entries list
-	 * @throws XMLStreamException
+	 * Export as dat entry.
+	 * 
+	 * @param writer the {@link EnhancedXMLStreamWriter} used to write the output file
+	 * @param entries filtered entries list (can be null)
+	 * @param modes active export modes
+	 * @throws XMLStreamException if an XML writing error occurs
 	 */
 	public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, Set<ExportMode> modes) throws XMLStreamException
 	{
@@ -244,10 +372,13 @@ public class Software extends Anyware implements Serializable
 	}
 
 	/**
-	 * @param writer
-	 * @param entries
-	 * @param part
-	 * @throws XMLStreamException
+	 * Internal helper to export ROMs inside a software part.
+	 * 
+	 * @param writer the XML writer
+	 * @param entries active entries collection
+	 * @param part the target part
+	 * @param modes active export modes
+	 * @throws XMLStreamException if an XML writing error occurs
 	 */
 	@SuppressWarnings("unlikely-arg-type")
 	private void exportRoms(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part, Set<ExportMode> modes) throws XMLStreamException
@@ -272,10 +403,13 @@ public class Software extends Anyware implements Serializable
 	}
 
 	/**
-	 * @param writer
-	 * @param entries
-	 * @param part
-	 * @throws XMLStreamException
+	 * Internal helper to export Disks inside a software part.
+	 * 
+	 * @param writer the XML writer
+	 * @param entries active entries collection
+	 * @param part the target part
+	 * @param modes active export modes
+	 * @throws XMLStreamException if an XML writing error occurs
 	 */
 	@SuppressWarnings("unlikely-arg-type")
 	private void exportDisks(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part, Set<ExportMode> modes) throws XMLStreamException
@@ -296,24 +430,49 @@ public class Software extends Anyware implements Serializable
 		}
 	}
 
+	/**
+	 * Retrieves the description text.
+	 * 
+	 * @return the software description
+	 */
 	@Override
 	public CharSequence getDescription()
 	{
 		return description;
 	}
 
+	/**
+	 * Internal streaming provider. Excludes devices because software lists are treated
+	 * separately from main emulator bios/devices.
+	 * 
+	 * @param excludeBios exclude bios flag
+	 * @param partial partial flag
+	 * @param recurse recurse flag
+	 * @return ROMs stream
+	 */
 	@Override
 	Stream<Rom> streamWithDevices(boolean excludeBios, boolean partial, boolean recurse)
 	{
 		return getRoms().stream();
 	}
 
+	/**
+	 * Compares the specified object with this software for equality.
+	 * 
+	 * @param obj the reference object
+	 * @return true if equivalent, false otherwise
+	 */
 	@Override
 	public boolean equals(Object obj)
 	{
 		return super.equals(obj);
 	}
 	
+	/**
+	 * Returns the hash code.
+	 * 
+	 * @return the hash code value
+	 */
 	@Override
 	public int hashCode()
 	{
@@ -321,8 +480,9 @@ public class Software extends Anyware implements Serializable
 	}
 	
 	/**
-	 * get the selection state in profile properties according  {@link #getPropertyName()}
-	 * @return true if selected
+	 * Checks the selection state of this software in profile properties.
+	 * 
+	 * @return true if selected, false otherwise
 	 */
 	public boolean isSelected()
 	{
@@ -330,8 +490,9 @@ public class Software extends Anyware implements Serializable
 	}
 
 	/**
-	 * set the selection state in profile properties according {@link #getPropertyName()}
-	 * @param selected the selection state to set
+	 * Sets the selection state of this software in profile properties.
+	 * 
+	 * @param selected true to select, false to deselect
 	 */
 	public void setSelected(final boolean selected)
 	{

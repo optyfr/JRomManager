@@ -21,16 +21,19 @@ import java.io.Serializable;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
- * Describe an directory that can eventually be linked to an {@link AnywareBase} set
- * @author optyfr
+ * Describes a virtual/fake directory that can eventually be linked to an {@link AnywareBase} set.
+ * This class inherits from {@link Container} and represents virtual directories used during dry-runs or simulated scans.
  *
+ * @author optyfr
  */
 @SuppressWarnings("serial")
 public class FakeDirectory extends Container implements Serializable
 {
 	/**
-	 * Construct a directory where set is known
-	 * @param file the directory {@link File}
+	 * Constructs a virtual directory where the related database set is known.
+	 *
+	 * @param file the directory {@link File} object
+	 * @param relfile the relativized/relative directory path reference to show to the user
 	 * @param m the corresponding {@link AnywareBase} set
 	 */
 	public FakeDirectory(final File file, final File relfile, final AnywareBase m)
@@ -39,9 +42,11 @@ public class FakeDirectory extends Container implements Serializable
 	}
 
 	/**
-	 * Construct a directory with no related set
-	 * @param file the directory {@link File}
-	 * @param attr the directory attributes
+	 * Constructs a virtual directory with no related database set.
+	 *
+	 * @param file the directory {@link File} object
+	 * @param relfile the relativized/relative directory path reference to show to the user
+	 * @param attr the virtual directory physical attributes
 	 */
 	public FakeDirectory(final File file, final File relfile, final BasicFileAttributes attr)
 	{

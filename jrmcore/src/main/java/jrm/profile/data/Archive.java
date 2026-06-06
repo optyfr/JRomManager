@@ -21,16 +21,19 @@ import java.io.Serializable;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
- * Describe an archive file that can eventually be linked to an {@link AnywareBase} set
- * @author optyfr
+ * Describes an archive file that can eventually be linked to an {@link AnywareBase} set.
+ * This class inherits from {@link Container} and represents compressed collections (e.g. ZIP, 7Z).
  *
+ * @author optyfr
  */
 @SuppressWarnings("serial")
 public class Archive extends Container implements Serializable
 {
 	/**
-	 * Construct an archive where set is known
-	 * @param file the archive {@link File}
+	 * Constructs an archive where the related database set is known.
+	 *
+	 * @param file the archive {@link File} object
+	 * @param relfile the relativized/relative archive file reference to show to the user
 	 * @param m the corresponding {@link AnywareBase} set
 	 */
 	public Archive(final File file, final File relfile, final AnywareBase m)
@@ -39,9 +42,11 @@ public class Archive extends Container implements Serializable
 	}
 
 	/**
-	 * Construct an archive file with no related set
-	 * @param file the archive {@link File}
-	 * @param attr the file attributes
+	 * Constructs an archive file with no related database set.
+	 *
+	 * @param file the archive {@link File} object
+	 * @param relfile the relativized/relative archive file reference to show to the user
+	 * @param attr the physical file attributes
 	 */
 	public Archive(final File file, final File relfile, final BasicFileAttributes attr)
 	{

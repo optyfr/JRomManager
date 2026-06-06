@@ -1,18 +1,19 @@
-/* Copyright (C) 2018  optyfr
+/*
+ * Copyright (C) 2018 optyfr
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.misc;
 
@@ -21,99 +22,122 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Merge overlapping intervals
- * Original idea came from <a href="https://stackoverflow.com/questions/31670849/merge-overlapping-intervals">here</a>
+ * Utility class to merge overlapping integer intervals.
+ * <p>
+ * This handles sorting and condensing a list of overlapping intervals into a
+ * list of contiguous, non-overlapping intervals.
+ * </p>
+ * 
  * @author Gosu
- *
  */
-public final class Ideone
-{
-	private final ArrayList<Interval> list = new ArrayList<>();
-	
-	/**
-	 * Interval with a {@link #start} and an {@link #end}
-	 */
-	public static final class Interval
-	{
-		private final int start;
-		private final int end;
+public final class Ideone {
+    /**
+     * Internal list storing intervals to be merged.
+     */
+    private final ArrayList<Interval> list = new ArrayList<>();
 
-		Interval()
-		{
-			start = 0;
-			end = 0;
-		}
+    /**
+     * Represents an integer interval with a start and an end point.
+     */
+    public static final class Interval {
+        /**
+         * The start point of the interval.
+         */
+        private final int start;
 
-		Interval(final int s, final int e)
-		{
-			start = s;
-			end = e;
-		}
+        /**
+         * The end point of the interval.
+         */
+        private final int end;
 
-		public int getStart()
-		{
-			return start;
-		}
+        /**
+         * Constructs a default interval starting and ending at zero.
+         */
+        Interval() {
+            start = 0;
+            end = 0;
+        }
 
-		public int getEnd()
-		{
-			return end;
-		}
-	}
+        /**
+         * Constructs an interval with the specified start and end points.
+         * 
+         * @param s the start of the interval
+         * @param e the end of the interval
+         */
+        Interval(final int s, final int e) {
+            start = s;
+            end = e;
+        }
 
-	/**
-	 * And an Interval
-	 * @param start the starting index for this interval
-	 * @param end the ending index for this interval
-	 */
-	public void add(final int start, final int end)
-	{
-		list.add(new Interval(start, end));
-	}
-	
-	/**
-	 * Merge all added intervals into a list of non overlapped intervals
-	 * @return an {@link ArrayList} of non overlapped intervals
-	 */
-	public List<Interval> merge()
-	{
-		return merge(list);
-	}
-	
-	/**
-	 * Merge all provided intervals into a list of non overlapped intervals
-	 * @param intervals to merge
-	 * @return an {@link ArrayList} of non overlapped intervals
-	 */
-	public static List<Interval> merge(final List<Interval> intervals)
-	{
-		if (intervals.size() <= 1)
-			return intervals;
+        /**
+         * Returns the start point of this interval.
+         * 
+         * @return the start coordinate
+         */
+        public int getStart() {
+            return start;
+        }
 
-		Collections.sort(intervals, (i1, i2) -> i1.getStart() - i2.getStart());
+        /**
+         * Returns the end point of this interval.
+         * 
+         * @return the end coordinate
+         */
+        public int getEnd() {
+            return end;
+        }
+    }
 
-		final var first = intervals.get(0);
-		int start = first.getStart();
-		int end = first.getEnd();
+    /**
+     * Adds a new interval to the list of intervals to be merged.
+     * 
+     * @param start the starting index of the interval
+     * @param end   the ending index of the interval
+     */
+    public void add(final int start, final int end) {
+        list.add(new Interval(start, end));
+    }
 
-		final ArrayList<Interval> result = new ArrayList<>();
+    /**
+     * Merges all intervals added to this instance.
+     * 
+     * @return a list of merged, non-overlapping intervals
+     */
+    public List<Interval> merge() {
+        return merge(list);
+    }
 
-		for (var i = 1; i < intervals.size(); i++)
-		{
-			final var current = intervals.get(i);
-			if (current.getStart() <= end)
-			{
-				end = Math.max(current.getEnd(), end);
-			}
-			else
-			{
-				result.add(new Interval(start, end));
-				start = current.getStart();
-				end = current.getEnd();
-			}
-		}
+    /**
+     * Merges a list of arbitrary intervals into a new list of non-overlapping
+     * intervals.
+     * 
+     * @param intervals the list of intervals to merge
+     * @return a new list of sorted, non-overlapping intervals
+     */
+    public static List<Interval> merge(final List<Interval> intervals) {
+        if (intervals.size() <= 1)
+            return intervals;
 
-		result.add(new Interval(start, end));
-		return result;
-	}
+        Collections.sort(intervals, (i1, i2) -> i1.getStart() - i2.getStart());
+
+        final var first = intervals.get(0);
+        int start = first.getStart();
+        int end = first.getEnd();
+
+        final ArrayList<Interval> result = new ArrayList<>();
+
+        for (var i = 1; i < intervals.size(); i++) {
+            final var current = intervals.get(i);
+            if (current.getStart() <= end) {
+                end = Math.max(current.getEnd(), end);
+            } else {
+                result.add(new Interval(start, end));
+                start = current.getStart();
+                end = current.getEnd();
+            }
+        }
+
+        result.add(new Interval(start, end));
+        return result;
+    }
 }

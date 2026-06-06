@@ -69,7 +69,6 @@ public class DeleteEntry extends EntryAction
 		return false;
 	}
 
-	@SuppressWarnings("exports")
 	@Override
 	public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max)
 	{

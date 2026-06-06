@@ -13,12 +13,16 @@
  * 
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package jrm.io.torrent.bencoding.types;
 
 /**
- * Created by christophe on 16.01.15.
+ * Interface representing any data type that can be bencoded (serialized into
+ * BitTorrent's standard bencoding format).
+ * 
+ * @author Christophe De Troyer
+ * @author Optyfr
  */
 public interface IBencodable
 {

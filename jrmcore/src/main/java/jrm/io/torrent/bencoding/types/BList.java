@@ -13,7 +13,7 @@
  * 
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package jrm.io.torrent.bencoding.types;
 
@@ -23,34 +23,57 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by christophe on 15.01.15.
+ * Representation of a bencoded list.
+ * Stores a list of {@link IBencodable} objects, preserving order.
+ * 
+ * @author Christophe De Troyer
+ * @author Optyfr
  */
 public class BList implements IBencodable
 {
+	/**
+	 * The internal backing list of bencodable objects.
+	 */
 	private final List<IBencodable> list;
 
+	/**
+	 * Constructs a new, empty bencoded list.
+	 */
 	public BList()
 	{
 		this.list = new LinkedList<>();
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-	//// LOGIC METHODS /////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
+	// Logic methods
 
+	/**
+	 * Returns an iterator over the elements in this list.
+	 *
+	 * @return an iterator of {@link IBencodable} elements
+	 */
 	public Iterator<IBencodable> getIterator()
 	{
 		return list.iterator();
 	}
 
+	/**
+	 * Adds a bencodable element to the end of this list.
+	 *
+	 * @param o the bencodable element to add
+	 */
 	public void add(IBencodable o)
 	{
 		this.list.add(o);
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-	//// BENCODING /////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
+	// Bencoding
+
+	/**
+	 * Returns the bencoded string format of this list.
+	 * Format: {@code l<elements>e}.
+	 *
+	 * @return the standard bencoded string representation
+	 */
 	public String bencodedString()
 	{
 		final var sb = new StringBuilder();
@@ -65,6 +88,12 @@ public class BList implements IBencodable
 		return sb.toString();
 	}
 
+	/**
+	 * Encodes this list into the standard bencoded byte array format.
+	 * Begins with 'l', followed by the concatenated bencoded elements, ending with 'e'.
+	 *
+	 * @return the bencoded byte array
+	 */
 	public byte[] bencode()
 	{
 		// Get the total size of the keys and values.
@@ -82,10 +111,13 @@ public class BList implements IBencodable
 
 		return bencoded;
 	}
-	////////////////////////////////////////////////////////////////////////////
-	//// OVERRIDDEN METHODS ////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
+	// Overridden methods
 
+	/**
+	 * Returns a readable string representation of this list.
+	 *
+	 * @return the formatted list string
+	 */
 	@Override
 	public String toString()
 	{
@@ -99,5 +131,4 @@ public class BList implements IBencodable
 
 		return sb.toString();
 	}
-
 }

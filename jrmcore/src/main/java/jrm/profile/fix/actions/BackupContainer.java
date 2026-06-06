@@ -38,14 +38,20 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 
 /**
- * Special class aimed to backup some or all entries from a container
+ * Special container action aimed at backing up some or all file entries from a target container.
+ * <p>
+ * This class coordinates the creation and caching of backup archive targets, ensuring that
+ * original content is preserved before any modifications or deletes are applied.
+ * </p>
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 public class BackupContainer extends ContainerAction
 {
 	/**
-	 * constructor
+	 * Constructs a new {@code BackupContainer} for the specified container.
+	 * 
 	 * @param container the container to backup
 	 */
 	public BackupContainer(Container container)
@@ -54,10 +60,11 @@ public class BackupContainer extends ContainerAction
 	}
 
 	/**
-	 * shortcut static method to get an instance of {@link BackupContainer}
-	 * @param action the potentially already existing {@link BackupContainer} 
-	 * @param container the container to backup
-	 * @return a new {@link BackupContainer}, or the already existing {@code container} parameter
+	 * Factory method to obtain or initialize a {@code BackupContainer} instance.
+	 * 
+	 * @param action the existing backup container action reference (can be null)
+	 * @param container the target container to backup
+	 * @return the initialized backup container action
 	 */
 	public static BackupContainer getInstance(BackupContainer action, final Container container)
 	{
@@ -67,10 +74,12 @@ public class BackupContainer extends ContainerAction
 	}
 
 	/**
-	 * shortcut static method to get an instance of {@link BackupContainer}
-	 * @param action the potentially already existing {@link BackupContainer} 
-	 * @param container the container to backup
-	 * @return a new {@link BackupContainer}, or the already existing {@code container} parameter
+	 * Factory method to obtain or initialize a {@code BackupContainer} instance
+	 * stored within an {@link AtomicReference}.
+	 * 
+	 * @param action the atomic reference enclosing the backup container action
+	 * @param container the target container to backup
+	 * @return the initialized backup container action
 	 */
 	public static BackupContainer getInstance(AtomicReference<BackupContainer> action, final Container container)
 	{
@@ -80,17 +89,18 @@ public class BackupContainer extends ContainerAction
 	}
 
 	/**
-	 * a maintained list of opened Zip {@link FileSystem}s
+	 * A thread-safe registry of currently opened backup Zip file instances.
 	 */
 	private static final Map<String, ZipFile> zipfiles = new HashMap<>();
 
 	/**
-	 * get a {@link FileSystem} to backup {@link EntryAction} file from {@link Container}
-	 * @param container the originating entry's {@link Container}
-	 * @param action the {@link EntryAction} describing the entry 
-	 * @return a valid Zip {@link FileSystem} for which to save the entry, {@link FileSystem} archive will be created if not already existing, otherwise it will be opened for writing or reused if has already be returned for another entry 
+	 * Retrieves or creates a Zip backup file destination corresponding to the entry actions.
+	 * 
+	 * @param session the current active session
+	 * @param container the originating entry's container
+	 * @param action the entry action being backed up
+	 * @return the cached or newly instantiated {@link ZipFile} target
 	 */
-	@SuppressWarnings("exports")
 	public static synchronized ZipFile getZipFile(final Session session, Container container, EntryAction action)
 	{
 		Log.info(action.entry.getFile());
@@ -115,7 +125,7 @@ public class BackupContainer extends ContainerAction
 	}
 
 	/**
-	 * close all opened zip archive {@link FileSystem}s (when all backup actions are finished)
+	 * Closes all opened backup zip archive {@link FileSystem}s when all backup tasks are completed.
 	 */
 	public static void closeAllFS()
 	{
@@ -136,6 +146,13 @@ public class BackupContainer extends ContainerAction
 		zipfiles.clear();
 	}
 
+	/**
+	 * Executes the backup action on the registered entries.
+	 * 
+	 * @param session the active session
+	 * @param handler the visual progress handler
+	 * @return {@code true} if all entries were successfully backed up, otherwise {@code false}
+	 */
 	@Override
 	public boolean doAction(final Session session, ProgressHandler handler)
 	{

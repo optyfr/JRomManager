@@ -13,7 +13,7 @@
  * 
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package jrm.profile.fix.actions;
 
@@ -48,6 +48,8 @@ public class TZipContainer extends ContainerAction
 	 * @param format
 	 *            the desired format (should be always {@link FormatOptions#TZIP}
 	 *            otherwise nothing will happen)
+	 * @param dataSize
+	 *            the uncompressed data size of all entries to process
 	 */
 	public TZipContainer(final Container container, final FormatOptions format, final long dataSize)
 	{

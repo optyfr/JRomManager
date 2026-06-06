@@ -15,39 +15,66 @@ import jrm.profile.data.AnywareBase;
 import lombok.Getter;
 
 /**
- * A Subject is generally a report node about a container
- * @author optyfr
+ * Represents a logical report subject, typically a container file (such as a zip file) or a retro-gaming system romset.
+ * <p>
+ * A Subject acts as an intermediate group in the reporting hierarchy, extending {@link AbstractList} of {@link Note}s
+ * to manage and filter individual leaf status notes associated with the target metadata.
  *
+ * @author optyfr
+ * @since 1.0
  */
 public abstract class Subject extends AbstractList<Note> implements StatusRendererFactory, Serializable
 {
+	/**
+	 * Field serialization key for the associated gaming ware model.
+	 */
 	private static final String WARE_STR = "ware";
+
+	/**
+	 * Field serialization key for the underlying list of status notes.
+	 */
 	private static final String NOTES_STR = "notes";
 
 	private static final long serialVersionUID = 2L;
 
 	/**
-	 * The related {@link AnywareBase}
+	 * The retro-gaming system or romset model associated with this subject.
+	 *
+	 * @return the associated AnywareBase ware
 	 */
 	protected @Getter AnywareBase ware;
 
 	/**
-	 * the {@link List} of {@link Note}s
+	 * The underlying collection of leaf notes describing detailed validation issues or statuses.
+	 *
+	 * @return the list of Note instances
 	 */
 	protected @Getter List<Note> notes;
 
 	/**
-	 * The {@link Report} root as parent
+	 * The root report containing this subject.
 	 */
 	protected transient Report parent;
 	
+	/**
+	 * The transient index identifier assigned to this subject.
+	 */
 	protected transient int id = -1;
 
+	/**
+	 * List of persistent serializable fields for standard Java Object streams.
+	 */
 	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
 		new ObjectStreamField(WARE_STR, AnywareBase.class),
 		new ObjectStreamField(NOTES_STR, List.class)
 	};
 
+	/**
+	 * Serializes the state of this subject to an object output stream.
+	 *
+	 * @param stream the object output stream to write to
+	 * @throws IOException if an I/O error occurs during serialization
+	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final var fields = stream.putFields();
@@ -56,6 +83,13 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
 		stream.writeFields();
 	}
 
+	/**
+	 * Deserializes the state of this subject from an object input stream.
+	 *
+	 * @param stream the object input stream to read from
+	 * @throws IOException if an I/O error occurs
+	 * @throws ClassNotFoundException if the class of a serialized object cannot be found
+	 */
 	@SuppressWarnings("unchecked")
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
@@ -64,9 +98,11 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
 		notes = (List<Note>) fields.get(NOTES_STR, new ArrayList<>()); //$NON-NLS-1$
 		notes.forEach(n -> n.parent = this);
 	}
+
 	/**
-	 * the public constructor with emptied {@link List}&lt;{@link Note}&gt;
-	 * @param machine The related {@link AnywareBase}
+	 * Constructs a new Subject associated with the specified gaming system model.
+	 *
+	 * @param machine the gaming system or romset model to associate
 	 */
 	protected Subject(final AnywareBase machine)
 	{
@@ -75,9 +111,10 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
 	}
 
 	/**
-	 * The internal constructor
-	 * @param org the originating {@link Subject}
-	 * @param notes a {@link List}&lt;{@link Note}&gt;
+	 * Constructs a cloned Subject from an originating instance, applying a new filtered collection of notes.
+	 *
+	 * @param org the originating Subject instance to copy
+	 * @param notes the list of filtered Note instances to populate in the clone
 	 */
 	protected Subject(Subject org, final List<Note> notes)
 	{
@@ -87,24 +124,26 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
 	}
 
 	/**
-	 * Clone this subject according a {@link List}&lt;{@link FilterOptions}&gt;
-	 * @param filterOptions {@link List}&lt;{@link FilterOptions}&gt; to apply while cloning
-	 * @return the cloned {@link Subject}
+	 * Clones this subject based on the specified set of active filtering options.
+	 *
+	 * @param filterOptions the set of active filtering options to apply
+	 * @return the cloned, filtered Subject instance
 	 */
 	public abstract Subject clone(Set<FilterOptions> filterOptions);
 
-	
 	/**
-	 * Stream this subject according a {@link List}&lt;{@link FilterOptions}&gt;
-	 * @param filterOptions {@link List}&lt;{@link FilterOptions}&gt; to apply while cloning
-	 * @return the streamed {@link Subject}
+	 * Returns a stream of leaf notes belonging to this subject, filtered according to the active options.
+	 *
+	 * @param filterOptions the active filtering options to apply
+	 * @return a stream of filtered Note instances
 	 */
 	public abstract Stream<Note> stream(Set<FilterOptions> filterOptions);
 
 	/**
-	 * add a {@link Note} to this {@link Subject}
-	 * @param note the {@link Note} to add
-	 * @return true on success
+	 * Appends a status note to this subject's collection and configures its parent reference.
+	 *
+	 * @param note the status note to add
+	 * @return {@code true} if the note was successfully appended; {@code false} otherwise
 	 */
 	@Override
 	public boolean add(final Note note)
@@ -114,8 +153,9 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
 	}
 
 	/**
-	 * get the Ware Name
-	 * @return the {@link AnywareBase#getFullName()} of {@link #ware} if not null, otherwise an empty {@link String}
+	 * Gets the full display name of the gaming system model or ware, if available.
+	 *
+	 * @return the full name string of the ware, or an empty string if the ware is {@code null}
 	 */
 	public String getWareName()
 	{
@@ -125,43 +165,80 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
 	}
 
 	/**
-	 * update Report Statistics
+	 * Increments or updates the summary metrics in the parent report based on this subject's state.
 	 */
 	public abstract void updateStats();
 
+	/**
+	 * Returns a localized text summary of this subject's overall status.
+	 *
+	 * @return the localized string summary
+	 */
 	@Override
 	public abstract String toString();
 
+	/**
+	 * Gets the unique identifier assigned to this subject.
+	 *
+	 * @return the integer identifier, or {@code -1} if uninitialized
+	 */
 	public int getId()
 	{
 		return id;
 	}
 
+	/**
+	 * Returns the total number of notes contained in this subject.
+	 *
+	 * @return the note list size
+	 */
 	@Override
 	public int size()
 	{
 		return notes.size();
 	}
 	
+	/**
+	 * Retrieves the note located at the specified index position.
+	 *
+	 * @param index the 0-based position index to query
+	 * @return the Note instance at the specified index
+	 * @throws IndexOutOfBoundsException if the index is out of range
+	 */
 	@Override
 	public Note get(int index)
 	{
 		return notes.get(index);
 	}
 	
+	/**
+	 * Returns the identity-based hash code of this instance.
+	 *
+	 * @return the identity hash code
+	 */
 	@Override
 	public int hashCode()
 	{
 		return System.identityHashCode(this);
 	}
 	
+	/**
+	 * Compares this subject with another object for equality.
+	 *
+	 * @param o the reference object with which to compare
+	 * @return {@code true} if this object is equal to the specified argument; {@code false} otherwise
+	 */
 	@Override
 	public boolean equals(Object o)
 	{
 		return super.equals(o);
 	}
 
-
+	/**
+	 * Returns a comparator for sorting subjects alphabetically by their associated ware name case-insensitively.
+	 *
+	 * @return the subject sorting comparator
+	 */
 	public static Comparator<Subject> getComparator()
 	{
 		return (s1, s2) -> {

@@ -10,54 +10,126 @@ import jrm.profile.data.Entry;
 import lombok.Getter;
 
 /**
- * A Subject is a report node about an entry of a container
- * @author optyfr
+ * Represents an individual report note (leaf node) within a container subject.
+ * <p>
+ * A Note describes specific structural states, details, and differences discovered
+ * during the ROM scanning process, such as wrong hash values, missing items, unneeded files, or successful matches.
  *
+ * @author optyfr
+ * @since 1.0
  */
 public abstract class Note implements StatusRendererFactory, Serializable
 {
 	private static final long serialVersionUID = 2L;
+
 	/**
-	 * The parent {@link Subject}
+	 * The parent subject containing this note.
+	 *
+	 * @return the parent subject
 	 */
 	transient @Getter Subject parent;
 	
+	/**
+	 * The transient identifier of this note, used to map tree selections in the UI.
+	 */
 	transient int id = -1;
 
+	/**
+	 * Gets a short abbreviation code representing the type of this note (e.g., "OK", "MISS", "UNNEED", "ADD").
+	 *
+	 * @return the abbreviation code string
+	 */
 	public abstract String getAbbrv();
 	
+	/**
+	 * Returns a localized text representation of this note's status message.
+	 *
+	 * @return the localized status string
+	 */
 	@Override
 	public abstract String toString();
 	
+	/**
+	 * Gets a detailed diagnostic report mapping expected metadata against current physical state attributes.
+	 *
+	 * @return the detailed diagnostic text
+	 */
 	public abstract String getDetail(); 
 	
+	/**
+	 * Gets the name of the file or rom entity referenced by this note.
+	 *
+	 * @return the name string
+	 */
 	public abstract String getName();
 
+	/**
+	 * Gets the expected or current CRC32 checksum string value.
+	 *
+	 * @return the CRC32 hexadecimal string, or {@code null} if not applicable or available
+	 */
 	public abstract String getCrc();
 
+	/**
+	 * Gets the expected or current MD5 hash string value.
+	 *
+	 * @return the MD5 hexadecimal string, or {@code null} if not applicable or available
+	 */
 	public abstract String getMd5();
 
+	/**
+	 * Gets the expected or current SHA-1 hash string value.
+	 *
+	 * @return the SHA-1 hexadecimal string, or {@code null} if not applicable or available
+	 */
 	public abstract String getSha1();
 	
+	/**
+	 * Gets the primary checksum or hash identifying this note, selected in priority order: SHA-1, MD5, CRC32.
+	 *
+	 * @return the hexadecimal hash string, or {@code null} if none is defined
+	 */
 	public abstract String getHash();
 
+	/**
+	 * Gets the identifier of this note.
+	 *
+	 * @return the integer ID, or {@code -1} if uninitialized
+	 */
 	public int getId()
 	{
 		return id;
 	}
 	
+	/**
+	 * Computes the identity hash code of this instance.
+	 *
+	 * @return the identity hash code
+	 */
 	@Override
 	public int hashCode()
 	{
 		return System.identityHashCode(this);
 	}
 	
+	/**
+	 * Compares this note with another object for equality.
+	 *
+	 * @param obj the reference object with which to compare
+	 * @return {@code true} if this object is equal to the obj argument; {@code false} otherwise
+	 */
 	@Override
 	public boolean equals(Object obj)
 	{
 		return super.equals(obj);
 	}
 	
+	/**
+	 * Formats a diagnostic text block summarizing the expected attributes of the target entity.
+	 *
+	 * @param entity the expected entity definition
+	 * @return the formatted diagnostic string, or an empty string if entity is {@code null}
+	 */
 	protected String getExpectedEntity(EntityBase entity)
 	{
 		if (entity == null)
@@ -75,6 +147,12 @@ public abstract class Note implements StatusRendererFactory, Serializable
 		return msg;
 	}
 
+	/**
+	 * Formats a diagnostic text block summarizing the actual attributes of the physical file entry.
+	 *
+	 * @param entry the actual scanned file entry
+	 * @return the formatted diagnostic string, or an empty string if entry is {@code null}
+	 */
 	protected String getCurrentEntry(Entry entry)
 	{
 		if (entry == null)
@@ -89,6 +167,11 @@ public abstract class Note implements StatusRendererFactory, Serializable
 		return msg;
 	}
 
+	/**
+	 * Gets a comparator for sorting notes alphabetically by their name case-insensitively.
+	 *
+	 * @return the sorting comparator
+	 */
 	public static Comparator<Note> getComparator()
 	{
 		return (n1, n2) -> {

@@ -26,72 +26,121 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * the common class for {@link Rom} and {@link Disk}
- * @author optyfr
+ * The abstract common base class for {@link Rom} and {@link Disk}.
+ * This class extends {@link EntityBase} and manages standard retro game files properties,
+ * such as file sizes, CRC, MD5, and SHA-1 checksums, dump status, and merge behaviors.
  *
+ * @author optyfr
  */
 public abstract class Entity extends EntityBase implements Serializable
 {
+	/**
+	 * Serialization field name for dump status.
+	 */
 	protected static final String STATUS_STR = "status";
+
+	/**
+	 * Serialization field name for merge target name.
+	 */
 	protected static final String MERGE_STR = "merge";
+
+	/**
+	 * Serialization field name for MD5 checksum.
+	 */
 	protected static final String MD5_STR = "md5";
+
+	/**
+	 * Serialization field name for SHA-1 checksum.
+	 */
 	protected static final String SHA1_STR = "sha1";
+
+	/**
+	 * Serialization field name for CRC32 checksum.
+	 */
 	protected static final String CRC_STR = "crc";
+
+	/**
+	 * Serialization field name for file size.
+	 */
 	protected static final String SIZE_STR = "size";
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * the date size in bytes, 0 by default (always 0 for disks)
+	 * The file size in bytes, defaults to 0 (always 0 for disks).
+	 *
+	 * @param size the file size in bytes to set
+	 * @return the file size in bytes
 	 */
 	protected @Getter @Setter long size = 0;
+
 	/**
-	 * the crc value as a lowercase hex {@link String}, null if none defined (disks case)
+	 * The CRC32 value as a lowercase hexadecimal {@link String}, or null if none is defined (e.g. for disks).
+	 *
+	 * @param crc the CRC32 hexadecimal string to set
+	 * @return the CRC32 hexadecimal string
 	 */
 	protected @Getter @Setter String crc = null;
+
 	/**
-	 * the sha1 value as a lowercase hex {@link String}, null if none defined
+	 * The SHA-1 checksum value as a lowercase hexadecimal {@link String}, or null if none is defined.
+	 *
+	 * @param sha1 the SHA-1 hexadecimal string to set
+	 * @return the SHA-1 hexadecimal string
 	 */
 	protected @Getter @Setter String sha1 = null;
+
 	/**
-	 * the md5 value as a lowercase hex {@link String}, null if none defined
+	 * The MD5 checksum value as a lowercase hexadecimal {@link String}, or null if none is defined.
+	 *
+	 * @param md5 the MD5 hexadecimal string to set
+	 * @return the MD5 hexadecimal string
 	 */
 	protected @Getter @Setter String md5 = null;
+
 	/**
-	 * the merge name of this Entity, null if no explicit merge defined
+	 * The merge name target of this entity, or null if no explicit merge is defined.
+	 *
+	 * @param merge the merge target name to set
+	 * @return the merge target name
 	 */
 	protected @Getter @Setter String merge = null;
+
 	/**
-	 * the dump status, default to good when not defined
+	 * The dump status of this entity, defaulting to {@link Status#good} when not defined.
+	 *
+	 * @param dumpStatus the dump status to set
+	 * @return the dump status of the entity
 	 */
 	protected @Getter @Setter Status dumpStatus = Status.good;
 
 	/**
-	 * the dump status definition
+	 * Enumeration defining the dump status of a game rom or disk.
 	 */
 	public enum Status implements Serializable
 	{
 		/**
-		 * bad dump
+		 * Bad dump (faulty, incomplete, or corrupted dump).
 		 */
 		baddump,	//NOSONAR
 		/**
-		 * no dump known
+		 * No dump is known to exist yet.
 		 */
 		nodump,	//NOSONAR
 		/**
-		 * dump is good
+		 * The dump is verified as good.
 		 */
 		good,	//NOSONAR
 		/**
-		 * dump is good and has been verified (only logiqx)
+		 * The dump is good and has been verified (applicable only in logiqx formats).
 		 */
 		verified;	//NOSONAR
 
 		/**
-		 * status mapping according export format needed
-		 * @param is_mame format is mame
-		 * @return the mapped {@link Status}
+		 * Maps the status value for XML output according to the requested export format.
+		 *
+		 * @param is_mame {@code true} if the export format is MAME XML, {@code false} for other formats
+		 * @return the mapped {@link Status}, or {@code null} if good / default status should be skipped in the XML output
 		 */
 		public Status getXML(final boolean is_mame)
 		{
@@ -108,6 +157,12 @@ public abstract class Entity extends EntityBase implements Serializable
 		new ObjectStreamField(STATUS_STR, Status.class)
 	};
 
+	/**
+	 * Custom serialization writer.
+	 *
+	 * @param stream the object output stream
+	 * @throws IOException if an I/O error occurs
+	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
 		final var fields = stream.putFields();
@@ -120,6 +175,13 @@ public abstract class Entity extends EntityBase implements Serializable
 		stream.writeFields();
 	}
 
+	/**
+	 * Custom serialization reader.
+	 *
+	 * @param stream the object input stream
+	 * @throws IOException if an I/O error occurs
+	 * @throws ClassNotFoundException if the class cannot be located
+	 */
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		final var fields = stream.readFields();
@@ -131,15 +193,15 @@ public abstract class Entity extends EntityBase implements Serializable
 		dumpStatus = (Status)fields.get(STATUS_STR, Status.good);
 	}
 
-	
 	/**
-	 * collision state
+	 * Collision mode status.
 	 */
 	private transient boolean collision = false;
 
 	/**
-	 * The only one supported constructor
-	 * @param parent the required {@link Anyware} parent (a Machine or a Software)
+	 * Single supported constructor for Entity subclasses.
+	 *
+	 * @param parent the required {@link Anyware} parent set (Machine or Software)
 	 */
 	protected Entity(final Anyware parent)
 	{
@@ -147,8 +209,8 @@ public abstract class Entity extends EntityBase implements Serializable
 	}
 
 	/**
-	 * Enable collision mode
-	 * Depending on the {@link ProfileSettings#hashCollisionMode}, this may affect only parent, or all parent clones
+	 * Enables collision mode for this entity and propagates it to parents or clone families
+	 * depending on the configured {@link ProfileSettings#getHashCollisionMode()}.
 	 */
 	public void setCollisionMode()
 	{
@@ -160,9 +222,10 @@ public abstract class Entity extends EntityBase implements Serializable
 	}
 
 	/**
-	 * are we in collision mode
-	 * @param dumber special case for the dumb mode (always assume collision)
-	 * @return true if we are in collision mode
+	 * Checks if collision mode is currently active for this entity.
+	 *
+	 * @param dumber {@code true} to assume collision mode for very dumb strategies, {@code false} otherwise
+	 * @return {@code true} if collision mode is active, {@code false} otherwise
 	 */
 	public boolean isCollisionMode(boolean dumber)
 	{
@@ -186,7 +249,7 @@ public abstract class Entity extends EntityBase implements Serializable
 	}
 
 	/**
-	 * reset {@link #collision} mode and {@link EntityBase#ownStatus}
+	 * Resets both the {@link #collision} status flag and the internal {@link EntityBase#ownStatus}.
 	 */
 	void resetCollisionMode()
 	{
@@ -194,18 +257,34 @@ public abstract class Entity extends EntityBase implements Serializable
 		ownStatus = EntityStatus.UNKNOWN;
 	}
 
+	/**
+	 * Retrieves the Anyware parent of this entity.
+	 *
+	 * @return the parent {@link Anyware}
+	 */
 	@Override
 	public Anyware getParent()
 	{
 		return getParent(Anyware.class);
 	}
 
+	/**
+	 * Indicates whether some other object is "equal to" this one.
+	 *
+	 * @param obj the reference object with which to compare
+	 * @return {@code true} if this object is equal to the obj argument; {@code false} otherwise
+	 */
 	@Override
 	public boolean equals(Object obj)
 	{
 		return super.equals(obj);
 	}
 
+	/**
+	 * Returns a hash code value for the entity.
+	 *
+	 * @return a hash code value for this entity
+	 */
 	@Override
 	public int hashCode()
 	{

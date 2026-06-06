@@ -68,7 +68,6 @@ public class BackupEntry extends EntryAction
 		return String.format("Backup of %s", entry); //$NON-NLS-1$
 	}
 
-	@SuppressWarnings("exports")
 	@Override
 	public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max)
 	{

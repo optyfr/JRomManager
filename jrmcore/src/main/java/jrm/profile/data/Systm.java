@@ -19,56 +19,74 @@ package jrm.profile.data;
 import java.io.Serializable;
 
 /**
- * This interface define System types
+ * Interface defining supported System types inside a profile workspace.
+ * Linked selectable systems expose a unique property mapping to properties stores.
+ * 
  * @author optyfr
+ * @since 1.0
  */
 public interface Systm extends Serializable, PropertyStub
 {
 	/**
-	 * The types definitions 
+	 * System classification types.
+	 * 
+	 * @author optyfr
+	 * @since 1.0
 	 */
 	public enum Type
 	{
 		/**
-		 * Standard machine
+		 * Standard arcade or console machine.
 		 */
 		STANDARD,
+		
 		/**
-		 * Electro-Mechanical machine
+		 * Electro-Mechanical machine.
 		 */
 		MECHANICAL,
+		
 		/**
-		 * Device pseudo-machine
+		 * Device pseudo-machine (such as controllers, floppy disk controllers, memory card units).
 		 */
 		DEVICE,
+		
 		/**
-		 * BIOS
+		 * Basic Input/Output System image.
 		 */
 		BIOS,
+		
 		/**
-		 * Software list
+		 * MESS or MAME Software list collections.
 		 */
 		SOFTWARELIST
 	}
 
 	/**
-	 * get the type of system
-	 * @return return {@link Type}
+	 * Get the type of the system.
+	 * 
+	 * @return the system {@link Type} representation
 	 */
 	public Type getType();
 
 	/**
-	 * get the System
-	 * @return {@link Systm}
+	 * Get the system self-reference.
+	 * 
+	 * @return the resolved {@link Systm} instance
 	 */
 	public Systm getSystem();
 
 	/**
-	 * get the name of the system
-	 * @return the name of the system
+	 * Get the name of the system.
+	 * 
+	 * @return the system name as a String
 	 */
 	public String getName();
 
+	/**
+	 * Get the default unique preference property key according to its type and name.
+	 * 
+	 * @return the preference properties key String
+	 */
 	@Override
 	public default String getPropertyName()
 	{

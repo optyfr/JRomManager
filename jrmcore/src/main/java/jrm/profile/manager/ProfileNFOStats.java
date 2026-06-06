@@ -26,86 +26,163 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * Contains statistics data to be (manually) serialized 
+ * Contains comprehensive statistics and audit tracking metadata for a ROM profile.
+ * Stores information regarding owned versus total counts of sets, ROMs, and disks,
+ * as well as timestamps of profile lifecycle events like creation, scanning, and fixing.
+ * Fully supports compliant and custom manual serialization.
+ * 
  * @author optyfr
  */
 public final @Data class ProfileNFOStats implements Serializable
 {
+	/**
+	 * Serialization key constant for the last fix/repair timestamp.
+	 */
 	private static final String FIXED_STR = "fixed";
 
+	/**
+	 * Serialization key constant for the last filesystem scan timestamp.
+	 */
 	private static final String SCANNED_STR = "scanned";
 
+	/**
+	 * Serialization key constant for the profile creation timestamp.
+	 */
 	private static final String CREATED_STR = "created";
 
+	/**
+	 * Serialization key constant for the total number of disks defined.
+	 */
 	private static final String TOTAL_DISKS_STR = "totalDisks";
 
+	/**
+	 * Serialization key constant for the number of owned disks.
+	 */
 	private static final String HAVE_DISKS_STR = "haveDisks";
 
+	/**
+	 * Serialization key constant for the total number of ROMs defined.
+	 */
 	private static final String TOTAL_ROMS_STR = "totalRoms";
 
+	/**
+	 * Serialization key constant for the number of owned ROMs.
+	 */
 	private static final String HAVE_ROMS_STR = "haveRoms";
 
+	/**
+	 * Serialization key constant for the total number of game sets defined.
+	 */
 	private static final String TOTAL_SETS_STR = "totalSets";
 
+	/**
+	 * Serialization key constant for the number of owned game sets.
+	 */
 	private static final String HAVE_SETS_STR = "haveSets";
 
+	/**
+	 * Serialization key constant for the MAME or database version string.
+	 */
 	private static final String VERSION_STR = "version";
 
+	/**
+	 * Serial version UID for maintaining serialization compatibility across releases.
+	 */
 	private static final long serialVersionUID = 2L;
 
 	/**
-	 * The Mame current version
+	 * The MAME or metadata catalog database version string.
+	 * 
+	 * @param version the catalog database version to set
+	 * @return the catalog database version
 	 */
 	private String version = null;
+
 	/**
-	 * Number of Sets we own
+	 * The total count of game sets owned in the user's collection.
+	 * 
+	 * @param haveSets the count of owned game sets to set
+	 * @return the count of owned game sets
 	 */
 	private Long haveSets = null;
+
 	/**
-	 * Number of Sets in the profile
+	 * The total count of game sets defined in the metadata profile.
+	 * 
+	 * @param totalSets the total count of defined game sets to set
+	 * @return the total count of defined game sets
 	 */
 	private Long totalSets = null;
+
 	/**
-	 * Number of Roms we own
+	 * The total count of ROM files owned in the user's collection.
+	 * 
+	 * @param haveRoms the count of owned ROMs to set
+	 * @return the count of owned ROMs
 	 */
 	private Long haveRoms = null;
+
 	/**
-	 * Number of Roms in the profile
+	 * The total count of ROM files defined in the metadata profile.
+	 * 
+	 * @param totalRoms the total count of defined ROMs to set
+	 * @return the total count of defined ROMs
 	 */
 	private Long totalRoms = null;
+
 	/**
-	 * Number of Disks we own
+	 * The total count of CHD or disk files owned in the user's collection.
+	 * 
+	 * @param haveDisks the count of owned disks to set
+	 * @return the count of owned disks
 	 */
 	private Long haveDisks = null;
+
 	/**
-	 * Number of Disks in the profile
+	 * The total count of CHD or disk files defined in the metadata profile.
+	 * 
+	 * @param totalDisks the total count of defined disks to set
+	 * @return the total count of defined disks
 	 */
 	private Long totalDisks = null;
+
 	/**
-	 * Profile creation date
+	 * The timestamp of when this profile NFO metadata was originally created.
+	 * 
+	 * @param created the creation date to set
+	 * @return the creation date
 	 */
 	private Date created = null;
+
 	/**
-	 * Profile last scan date
+	 * The timestamp of the last complete directory or filesystem scan.
+	 * 
+	 * @param scanned the last scan date to set
+	 * @return the last scan date
 	 */
 	private Date scanned = null;
+
 	/**
-	 * Profile last fix date
+	 * The timestamp of when the last repair or repair-fix operation occurred.
+	 * 
+	 * @param fixed the last fix date to set
+	 * @return the last fix date
 	 */
 	private Date fixed = null;
 
 	/**
-	 * fields declaration for manual serialization
-	 * @serialField version String version returned from main dat
-	 * @serialField haveSets Long number of sets we own
-	 * @serialField totalsSets Long number of sets in dats
-	 * @serialField haveRoms Long number of roms we own
-	 * @serialField totalRoms Long number of roms in dats
-	 * @serialField haveDisks Long number of disks we own
-	 * @serialField totalDisks Long number of disks in dats
-	 * @serialField created Date when this profile was created
-	 * @serialField scanned Date when this profile was last scanned 
-	 * @serialField fixed Date when this profile was last fixed
+	 * Declares persistent serialization fields for compliant and predictable manual object serialization.
+	 * 
+	 * @serialField version String catalog database version
+	 * @serialField haveSets Long count of owned game sets
+	 * @serialField totalSets Long total count of defined game sets
+	 * @serialField haveRoms Long count of owned ROM files
+	 * @serialField totalRoms Long total count of defined ROM files
+	 * @serialField haveDisks Long count of owned disks
+	 * @serialField totalDisks Long total count of defined disks
+	 * @serialField created Date creation date of this metadata
+	 * @serialField scanned Date last filesystem scan date
+	 * @serialField fixed Date last fix/repair operation date
 	 */
 	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
 			new ObjectStreamField(VERSION_STR, String.class), //$NON-NLS-1$
@@ -121,9 +198,18 @@ public final @Data class ProfileNFOStats implements Serializable
 	};
 
 	/**
-	 * Manually write serialization
-	 * @param stream the destination {@link ObjectOutputStream}
-	 * @throws IOException
+	 * Default zero-argument constructor initializing an empty profile statistics container.
+	 */
+	public ProfileNFOStats()
+	{
+		// Default constructor
+	}
+
+	/**
+	 * Manually serializes the state of this statistics instance to the destination stream.
+	 * 
+	 * @param stream the target {@link ObjectOutputStream}
+	 * @throws IOException if a physical write error occurs
 	 */
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
 	{
@@ -142,10 +228,11 @@ public final @Data class ProfileNFOStats implements Serializable
 	}
 
 	/**
-	 * Manually read serialization
-	 * @param stream the destination {@link ObjectInputStream}
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * Manually deserializes the state of this statistics instance from the source stream.
+	 * 
+	 * @param stream the source {@link ObjectInputStream}
+	 * @throws IOException if a physical read error occurs
+	 * @throws ClassNotFoundException if any serialized class representation cannot be resolved
 	 */
 	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
@@ -163,7 +250,8 @@ public final @Data class ProfileNFOStats implements Serializable
 	}
 
 	/**
-	 * Resets stats data
+	 * Resets all statistics values, clearing counts and timestamps and setting
+	 * the profile creation timestamp to the current system date.
 	 */
 	public void reset()
 	{
@@ -179,22 +267,56 @@ public final @Data class ProfileNFOStats implements Serializable
 		fixed = null;
 	}
 	
+	/**
+	 * Nested immutable record-like structure pairing the number of owned items ("have")
+	 * with the total expected items ("total").
+	 * 
+	 * @author optyfr
+	 */
 	public static @Data class HaveNTotal
 	{
+		/**
+		 * The count of successfully acquired/owned physical elements.
+		 * 
+		 * @param have the count of owned items
+		 * @return the count of owned items
+		 */
 		private final Long have;
+
+		/**
+		 * The total target count of expected elements in the profile.
+		 * 
+		 * @param total the total count of items
+		 * @return the total count of items
+		 */
 		private final Long total;
 	}
 	
+	/**
+	 * Returns the game sets completion statistics container.
+	 * 
+	 * @return a {@link HaveNTotal} instance representing owned sets vs total sets
+	 */
 	public HaveNTotal getSets()
 	{
 		return new HaveNTotal(haveSets, totalSets);
 	}
 	
+	/**
+	 * Returns the ROM files completion statistics container.
+	 * 
+	 * @return a {@link HaveNTotal} instance representing owned ROMs vs total ROMs
+	 */
 	public HaveNTotal getRoms()
 	{
 		return new HaveNTotal(haveRoms, totalRoms);
 	}
 	
+	/**
+	 * Returns the CHD/disk files completion statistics container.
+	 * 
+	 * @return a {@link HaveNTotal} instance representing owned disks vs total disks
+	 */
 	public HaveNTotal getDisks()
 	{
 		return new HaveNTotal(haveDisks, totalDisks);

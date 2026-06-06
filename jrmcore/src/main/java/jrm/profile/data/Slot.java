@@ -23,24 +23,41 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * a Slot of {@link SlotOption}s with {@link Device}s
+ * A Slot representation which holds multiple {@link SlotOption} options, typically referencing
+ * {@link Device} entities for software loading and configuration.
+ * Extends {@link ArrayList} of {@link SlotOption}.
+ * 
  * @author optyfr
- *
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class Slot extends ArrayList<SlotOption> implements Serializable
 {
 	/**
-	 * the name of the Slot
+	 * The name of the Slot.
+	 * 
+	 * @param name the slot name to set
+	 * @return the slot name
 	 */
 	private @Setter @Getter String name;
 	
+	/**
+	 * Compares the specified object with this slot for equality.
+	 * 
+	 * @param o the reference object to compare with
+	 * @return true if the objects are equal, false otherwise
+	 */
 	@Override
 	public boolean equals(Object o)
 	{
 		return super.equals(o);
 	}
 	
+	/**
+	 * Returns the hash code value for this slot.
+	 * 
+	 * @return the hash code value
+	 */
 	@Override
 	public int hashCode()
 	{

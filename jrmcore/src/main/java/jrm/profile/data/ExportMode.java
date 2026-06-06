@@ -1,21 +1,26 @@
 package jrm.profile.data;
 
+/**
+ * Enumerates the available export modes supported when exporting profile databases or DAT lists.
+ *
+ * @author optyfr
+ */
 public enum ExportMode
 {
 	/**
-	 * export all
+	 * Export all entries without any filtering.
 	 */
 	ALL,
 	/**
-	 * export filtered items
+	 * Export only filtered or active selected items.
 	 */
 	FILTERED,
 	/**
-	 * export missing items
+	 * Export only missing items (gaps/requirements that are not present).
 	 */
 	MISSING,
 	/**
-	 * export have items
+	 * Export only owned/present items that are completely validated.
 	 */
 	HAVE
 }

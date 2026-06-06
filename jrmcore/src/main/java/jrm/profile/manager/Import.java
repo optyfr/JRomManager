@@ -41,22 +41,59 @@ import jrm.security.Session;
 import lombok.Getter;
 
 /**
- * Import from Mame (and variants)
+ * Manages the import process for retro-gaming XML and DAT metadata.
+ * Supports direct database files as well as automated query extraction
+ * from MAME/MESS executables to produce JRomManager profiles (.jrm).
+ * 
  * @author optyfr
- *
  */
 public class Import implements UnitRenderer
 {
+	/**
+	 * The original user-supplied file before any processing or extraction.
+	 * 
+	 * @return the original configuration file on disk
+	 */
 	private final @Getter File orgFile;
+
+	/**
+	 * The imported profile configuration file (typically a JRM file if imported
+	 * from an executable, or the original file if already in a standard DAT/XML format).
+	 * 
+	 * @return the ready-to-use profile database file reference
+	 */
 	private @Getter File file;
+
+	/**
+	 * The temporary ROM definitions XML file extracted from the MAME/MESS executable.
+	 * 
+	 * @return the temporary file holding the XML ROMs database
+	 */
 	private @Getter File romsFile;
+
+	/**
+	 * The temporary Software List definitions XML file extracted from the MAME/MESS executable.
+	 * 
+	 * @return the temporary file holding the XML Software List database, or {@code null} if not queried
+	 */
 	private @Getter File slFile;
+
+	/**
+	 * Flag indicating whether this import was initiated from an executable MAME/MESS instance.
+	 * 
+	 * @return {@code true} if this import queries an executable; {@code false} if a database file was supplied directly
+	 */
 	private @Getter boolean isMame = false;
 
 	/**
-	 * Will import from a file, it will be autodetected if it's mame or just a dat file, optionally also import software lists in case of a mame import
-	 * @param file the file to analyze, and eventually extract from
-	 * @param sl do we need to load software lists
+	 * Initiates the import workflow from a physical file or executable.
+	 * If the file is an executable, it automatically invokes standard command-line flags
+	 * to generate the appropriate XML DAT databases, wrapping them inside a JRomManager profile.
+	 * 
+	 * @param session the active security user session
+	 * @param file the user-selected file or MAME executable
+	 * @param sl {@code true} to enable Software Lists extraction from the executable
+	 * @param progress the UI progress listener to report ongoing status
 	 */
 	public Import(final Session session, final File file, final boolean sl, ProgressHandler progress)
 	{
@@ -90,10 +127,14 @@ public class Import implements UnitRenderer
 	}
 
 	/**
-	 * Will import from mame, must be called only if we are sure that it's an import from mame
-	 * @param file the mame exe file
-	 * @param sl if true, will return software list imported file (.jrm2), otherwise will return roms list file (.jrm1}
-	 * @return an existing temporary {@link File}, or null if failed
+	 * Executes the MAME process to query and write the internal XML definitions directly to a temporary file.
+	 * Updates the graphical progress bar continuously with the parsed line and byte counts.
+	 * 
+	 * @param file the MAME executable file
+	 * @param sl {@code true} to query software list data via {@code -listsoftware},
+	 *           {@code false} to query primary ROM set data via {@code -listxml}
+	 * @param progress the active progress monitor
+	 * @return the temporary file on disk containing the full XML printout, or {@code null} if an error occurred
 	 */
 	public File importMame(final File file, final boolean sl, ProgressHandler progress)
 	{
