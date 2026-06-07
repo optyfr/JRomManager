@@ -7,16 +7,16 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.HBox;
 
-public class ReportFrameController implements Initializable
-{
-	@FXML ReportViewController viewController;
-	@FXML HBox status;
+public class ReportFrameController implements Initializable {
+    @FXML
+    ReportViewController viewController;
+    @FXML
+    HBox status;
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        // TODO Auto-generated method stub
+
+    }
 
 }

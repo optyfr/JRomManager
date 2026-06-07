@@ -27,60 +27,63 @@ import jrm.security.Sessions;
 
 public class KeywordsController implements Initializable {
 
-	@FXML Scene sceneKW;
-	@FXML ListView<String> listAvailKW;
-	@FXML ListView<String> listUsedKW;
-	
-	private Session session;
-	KFCallBack callback;
-	AnywareList<? extends Anyware> awlist;
-	
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-		session = Sessions.getSingleSession();
+    @FXML
+    Scene sceneKW;
+    @FXML
+    ListView<String> listAvailKW;
+    @FXML
+    ListView<String> listUsedKW;
+
+    private Session session;
+    KFCallBack callback;
+    AnywareList<? extends Anyware> awlist;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        session = Sessions.getSingleSession();
 
         EventHandler<MouseEvent> dragDetected = event -> {
-			@SuppressWarnings("unchecked")
-			ListView<String> list = (ListView<String>) event.getSource();
-		    Dragboard db = list.startDragAndDrop(TransferMode.ANY);
+            @SuppressWarnings("unchecked")
+            ListView<String> list = (ListView<String>) event.getSource();
+            Dragboard db = list.startDragAndDrop(TransferMode.ANY);
 
-		    ClipboardContent content = new ClipboardContent();
-		    content.putString(list.getSelectionModel().getSelectedItem());
-		    db.setContent(content);
+            ClipboardContent content = new ClipboardContent();
+            content.putString(list.getSelectionModel().getSelectedItem());
+            db.setContent(content);
 
-		    event.consume();
-		};
-		
+            event.consume();
+        };
+
         EventHandler<DragEvent> dragOver = event -> {
-		    if (event.getGestureSource() != event.getTarget() && event.getDragboard().hasString()) {
-		        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-		    }
+            if (event.getGestureSource() != event.getTarget() && event.getDragboard().hasString()) {
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            }
 
-		    event.consume();
-		};
-        
+            event.consume();
+        };
+
         EventHandler<DragEvent> dragDropped = event -> {
-		    @SuppressWarnings("unchecked")
-			ListView<String> list = (ListView<String>) event.getGestureTarget();
+            @SuppressWarnings("unchecked")
+            ListView<String> list = (ListView<String>) event.getGestureTarget();
 
-		    Dragboard db = event.getDragboard();
-		    boolean success = false;
-		    if (db.hasString()) {
-		        list.getItems().add(db.getString());
-		        success = true;
-		    }
-		    event.setDropCompleted(success);
-		    event.consume();
-		};
-		
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+            if (db.hasString()) {
+                list.getItems().add(db.getString());
+                success = true;
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        };
+
         EventHandler<DragEvent> dragDone = event -> {
-		    if (event.getTransferMode() == TransferMode.MOVE) {
-		        @SuppressWarnings("unchecked")
-				ListView<String> list = (ListView<String>) event.getGestureSource();
-		        list.getItems().remove(event.getDragboard().getString());
-		    }
-		    event.consume();
-		};		
+            if (event.getTransferMode() == TransferMode.MOVE) {
+                @SuppressWarnings("unchecked")
+                ListView<String> list = (ListView<String>) event.getGestureSource();
+                list.getItems().remove(event.getDragboard().getString());
+            }
+            event.consume();
+        };
 
         listAvailKW.setOnDragDetected(dragDetected);
         listAvailKW.setOnDragOver(dragOver);
@@ -92,26 +95,26 @@ public class KeywordsController implements Initializable {
         listUsedKW.setOnDragDropped(dragDropped);
         listUsedKW.setOnDragDone(dragDone);
 
-	}
+    }
 
-	@FXML public void onClose()
-	{
-		final var stage = (Stage)sceneKW.getWindow();
-		session.getUser().getSettings().setProperty("Keywords.Bounds", Settings.toJson(stage));
-		stage.hide();
-	}
-	
-	@FXML public void onFilter()
-	{
-		callback.call(awlist, listUsedKW.getItems());
-		sceneKW.getWindow().hide();
-	}
-	
-	void initKeywords(String[] keywords)
-	{
-		listAvailKW.setItems(FXCollections.observableArrayList(keywords));
-	}
-	
-	private final ObjectProperty<ListCell<String>> dragSource = new SimpleObjectProperty<>();
-	
+    @FXML
+    public void onClose() {
+        final var stage = (Stage) sceneKW.getWindow();
+        session.getUser().getSettings().setProperty("Keywords.Bounds", Settings.toJson(stage));
+        stage.hide();
+    }
+
+    @FXML
+    public void onFilter() {
+        callback.call(awlist, listUsedKW.getItems());
+        sceneKW.getWindow().hide();
+    }
+
+    void initKeywords(String[] keywords) {
+        listAvailKW.setItems(FXCollections.observableArrayList(keywords));
+    }
+
+    @SuppressWarnings("unused")
+    private final ObjectProperty<ListCell<String>> dragSource = new SimpleObjectProperty<>();
+
 }

@@ -6,26 +6,23 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import jrm.fx.ui.status.NeutralToNodeFormatter;
 
-public final class NodeCellFactory<T> extends TableCell<T,String>
-{
-	@Override
-	protected void updateItem(String item, boolean empty)
-	{
-		setGraphic(null);
-		if (empty || item == null)
-			setText("");
-		else
-		{
-			setAlignment(Pos.CENTER);
-			setGraphic(null);
-			setStyle("");
-			final var tf = new TextFlow();
-			tf.getChildren().addAll(NeutralToNodeFormatter.toNodes(item));
-			tf.setMinWidth(USE_PREF_SIZE);
-			tf.setPrefWidth(USE_COMPUTED_SIZE);
-			tf.setTextAlignment(TextAlignment.LEFT);
-			tf.setPrefHeight(USE_PREF_SIZE);
-			setGraphic(tf);
-		}
-	}
+public final class NodeCellFactory<T> extends TableCell<T, String> {
+    @Override
+    protected void updateItem(String item, boolean empty) {
+        setGraphic(null);
+        if (empty || item == null)
+            setText("");
+        else {
+            setAlignment(Pos.CENTER);
+            setGraphic(null);
+            setStyle("");
+            final var tf = new TextFlow();
+            tf.getChildren().addAll(NeutralToNodeFormatter.toNodes(item));
+            tf.setMinWidth(USE_PREF_SIZE);
+            tf.setPrefWidth(USE_COMPUTED_SIZE);
+            tf.setTextAlignment(TextAlignment.LEFT);
+            tf.setPrefHeight(USE_PREF_SIZE);
+            setGraphic(tf);
+        }
+    }
 }
