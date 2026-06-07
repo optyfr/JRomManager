@@ -17,77 +17,66 @@ import jrm.security.Session;
 import lombok.Getter;
 import lombok.Setter;
 
-public class WebSession extends Session implements Closeable, Serializable
-{
-	private static final long serialVersionUID = 1L;
-	
-	private static Map<String, WebSession> allSessions = new ConcurrentHashMap<>();
-	private static @Getter boolean terminate = false;
-	private @Getter BlockingDeque<String> lprMsg = new LinkedBlockingDeque<>();
+public class WebSession extends Session implements Closeable, Serializable {
+    private static final long serialVersionUID = 1L;
 
-	private transient @Getter Worker worker = null;
-	
-	public Worker setWorker(Worker worker)
-	{
-		this.worker = worker;
-		return this.worker;
-	}
-	
-	private @Getter @Setter Date lastAction = new Date();
+    private static Map<String, WebSession> allSessions = new ConcurrentHashMap<>();
+    private static @Getter boolean terminate = false;
+    private @Getter BlockingDeque<String> lprMsg = new LinkedBlockingDeque<>();
 
-	private transient @Getter @Setter Report tmpReport = null;
-	private transient @Getter @Setter TrntChkReport tmpTCReport = null;
-	private transient TreeMap<Integer, Path> cachedProfileList = null;
-	private transient @Getter TreeMap<String, FileResult> cachedCompressorList = new TreeMap<>();
+    private transient @Getter Worker worker = null;
 
-	public WebSession(String sessionId)
-	{
-		super(sessionId);
-		allSessions.put(sessionId, this);
-	}
+    public Worker setWorker(Worker worker) {
+        this.worker = worker;
+        return this.worker;
+    }
 
-	public WebSession(String sessionId, String user, String[] roles)
-	{
-		super(sessionId, user, roles);
-		allSessions.put(sessionId, this);
-	}
+    private @Getter @Setter Date lastAction = new Date();
 
-	@Override
-	public void close()
-	{
-		if (lprMsg.isEmpty())
-			lprMsg.add("");
-		allSessions.remove(getSessionId());
-	}
+    private transient @Getter @Setter Report tmpReport = null;
+    private transient @Getter @Setter TrntChkReport tmpTCReport = null;
+    private transient TreeMap<Integer, Path> cachedProfileList = null;
+    private transient @Getter TreeMap<String, FileResult> cachedCompressorList = new TreeMap<>();
 
-	public static void closeAll()
-	{
-		terminate = true;
-		allSessions.forEach((k, s) -> s.close());
-	}
+    public WebSession(String sessionId) {
+        super(sessionId);
+        allSessions.put(sessionId, this);
+    }
 
-	public void putProfileList(Integer id, Path path)
-	{
-		cachedProfileList.put(id, path);
-	}
+    public WebSession(String sessionId, String user, String[] roles) {
+        super(sessionId, user, roles);
+        allSessions.put(sessionId, this);
+    }
 
-	public void removeProfileList(Integer id)
-	{
-		cachedProfileList.remove(id);
-	}
+    @Override
+    public void close() {
+        if (lprMsg.isEmpty())
+            lprMsg.add("");
+        allSessions.remove(getSessionId());
+    }
 
-	public void newProfileList()
-	{
-		cachedProfileList = new TreeMap<>();
-	}
+    public static void closeAll() {
+        terminate = true;
+        allSessions.forEach((k, s) -> s.close());
+    }
 
-	public Integer getLastProfileListKey()
-	{
-		return cachedProfileList != null && !cachedProfileList.isEmpty() ? cachedProfileList.lastKey() : 0;
-	}
+    public void putProfileList(Integer id, Path path) {
+        cachedProfileList.put(id, path);
+    }
 
-	public Path getProfileList(Integer id)
-	{
-		return cachedProfileList.get(id);
-	}
+    public void removeProfileList(Integer id) {
+        cachedProfileList.remove(id);
+    }
+
+    public void newProfileList() {
+        cachedProfileList = new TreeMap<>();
+    }
+
+    public Integer getLastProfileListKey() {
+        return cachedProfileList != null && !cachedProfileList.isEmpty() ? cachedProfileList.lastKey() : 0;
+    }
+
+    public Path getProfileList(Integer id) {
+        return cachedProfileList.get(id);
+    }
 }

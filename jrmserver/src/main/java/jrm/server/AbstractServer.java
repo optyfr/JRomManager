@@ -28,162 +28,133 @@ import jrm.fullserver.FullServer;
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 
-public abstract class AbstractServer implements Daemon
-{
+public abstract class AbstractServer implements Daemon {
 
-	private static final String PRECOMPRESSED = "precompressed";
-	private static final String ACCEPT_RANGES = "acceptRanges";
-	private static final String DIR_ALLOWED = "dirAllowed";
-	private static final String TRUE = "true";
-	private static final String FALSE = "false";
+    private static final String PRECOMPRESSED = "precompressed";
+    private static final String ACCEPT_RANGES = "acceptRanges";
+    private static final String DIR_ALLOWED = "dirAllowed";
+    private static final String TRUE = "true";
+    private static final String FALSE = "false";
 
-	protected static String clientPath;
-	protected static Server jettyserver = null;
-	protected static boolean debug;
+    protected static String clientPath;
+    protected static Server jettyserver = null;
+    protected static boolean debug;
 
-	protected AbstractServer()
-	{
-	}
+    protected AbstractServer() {
+    }
 
-	/**
-	 * @return
-	 */
-	protected static ServletHolder holderStatic()
-	{
-		final var holderStatic = new ServletHolder("static", DefaultServlet.class);
-		holderStatic.setInitParameter(DIR_ALLOWED, FALSE);
-		holderStatic.setInitParameter(ACCEPT_RANGES, TRUE);
-		holderStatic.setInitParameter(PRECOMPRESSED, TRUE);
-		return holderStatic;
-	}
+    /**
+     * @return
+     */
+    protected static ServletHolder holderStatic() {
+        final var holderStatic = new ServletHolder("static", DefaultServlet.class);
+        holderStatic.setInitParameter(DIR_ALLOWED, FALSE);
+        holderStatic.setInitParameter(ACCEPT_RANGES, TRUE);
+        holderStatic.setInitParameter(PRECOMPRESSED, TRUE);
+        return holderStatic;
+    }
 
-	/**
-	 * @return
-	 */
-	protected static GzipHandler gzipHandler()
-	{
-		final var gzipHandler = new GzipHandler();
-		gzipHandler.setIncludedMethods("POST", "GET");
-		gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
-		gzipHandler.setInflateBufferSize(2048);
-		gzipHandler.setMinGzipSize(2048);
-		return gzipHandler;
-	}
+    /**
+     * @return
+     */
+    @SuppressWarnings("removal")
+    protected static GzipHandler gzipHandler() {
+        final var gzipHandler = new GzipHandler();
+        gzipHandler.setIncludedMethods("POST", "GET");
+        gzipHandler.setIncludedMimeTypes("text/html", "text/plain", "text/xml", "text/css", "application/javascript", "text/javascript", "application/json");
+        gzipHandler.setInflateBufferSize(2048);
+        gzipHandler.setMinGzipSize(2048);
+        return gzipHandler;
+    }
 
-	
-	protected static Path getWorkPath()
-	{
-		String base = System.getProperty("jrommanager.dir");
-		if (base == null)
-			base = System.getProperty("user.dir");
-		return Paths.get(base);
-	}
+    protected static Path getWorkPath() {
+        String base = System.getProperty("jrommanager.dir");
+        if (base == null)
+            base = System.getProperty("user.dir");
+        return Paths.get(base);
+    }
 
-	protected static String getLogPath() throws IOException
-	{
-		final var path = getWorkPath().resolve("logs");
-		Files.createDirectories(path);
-		return path.toString();
-	}
+    protected static String getLogPath() throws IOException {
+        final var path = getWorkPath().resolve("logs");
+        Files.createDirectories(path);
+        return path.toString();
+    }
 
-	/**
-	 * @throws InterruptedException
-	 * @throws JettyException
-	 */
-	protected static void waitStop() throws InterruptedException, JettyException
-	{
-		try
-		{
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				if (isStarted())
-				{
-					try
-					{
-						terminate();
-						Log.info("Server stopped.");
-					}
-					catch (Exception e)
-					{
-						// ignore
-					}
-				}
-			}));
-			if (debug || SystemUtils.IS_OS_WINDOWS)
-			{
-				try (final var sc = new Scanner(System.in))
-				{
-					// wait until receive stop command from keyboard
-					System.out.println("Enter 'stop' to halt: "); // NOSONAR
-					while (!sc.nextLine().equalsIgnoreCase("stop"))
-						Thread.sleep(1000);
-					System.exit(0);
-				}
-			}
-			else if (isStarted())
-				jettyserver.join();
-		}
-		catch (InterruptedException e)
-		{
-			throw e;
-		}
-		catch (Exception e)
-		{
-			throw new JettyException(e.getMessage(), e);
-		}
-	}
+    /**
+     * @throws InterruptedException
+     * @throws JettyException
+     */
+    protected static void waitStop() throws InterruptedException, JettyException {
+        try {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                if (isStarted()) {
+                    try {
+                        terminate();
+                        Log.info("Server stopped.");
+                    } catch (Exception e) {
+                        // ignore
+                    }
+                }
+            }));
+            if (debug || SystemUtils.IS_OS_WINDOWS) {
+                try (final var sc = new Scanner(System.in)) {
+                    // wait until receive stop command from keyboard
+                    System.out.println("Enter 'stop' to halt: "); // NOSONAR
+                    while (!sc.nextLine().equalsIgnoreCase("stop"))
+                        Thread.sleep(1000);
+                    System.exit(0);
+                }
+            } else if (isStarted())
+                jettyserver.join();
+        } catch (InterruptedException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new JettyException(e.getMessage(), e);
+        }
+    }
 
-	/**
-	 * @throws Exception
-	 */
-	public static synchronized void terminate() throws Exception
-	{
-		WebSession.closeAll();
-		if (jettyserver != null)
-		{
-			if (jettyserver.isStarted())
-				jettyserver.stop();
-			jettyserver = null;
-		}
-	}
+    /**
+     * @throws Exception
+     */
+    public static synchronized void terminate() throws Exception {
+        WebSession.closeAll();
+        if (jettyserver != null) {
+            if (jettyserver.isStarted())
+                jettyserver.stop();
+            jettyserver = null;
+        }
+    }
 
-	public static final synchronized boolean isStarted()
-	{
-		return jettyserver != null && jettyserver.isStarted();
+    public static final synchronized boolean isStarted() {
+        return jettyserver != null && jettyserver.isStarted();
 
-	}
+    }
 
-	public static final synchronized boolean isStopped()
-	{
-		return jettyserver == null;
+    public static final synchronized boolean isStopped() {
+        return jettyserver == null;
 
-	}
+    }
 
-	@SuppressWarnings("serial")
-	protected static class JettyException extends Exception
-	{
-		@SuppressWarnings("unused")
-		public JettyException()
-		{
-			super();
-		}
+    @SuppressWarnings("serial")
+    protected static class JettyException extends Exception {
+        @SuppressWarnings("unused")
+        public JettyException() {
+            super();
+        }
 
-		public JettyException(String message)
-		{
-			super(message);
-		}
+        public JettyException(String message) {
+            super(message);
+        }
 
-		public JettyException(String message, Throwable cause)
-		{
-			super(message, cause);
-		}
-	}
+        public JettyException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 
-	protected static Resource getClientPath(ResourceFactory resourceFactory, String path) throws IOException, URISyntaxException
-	{
+    protected static Resource getClientPath(ResourceFactory resourceFactory, String path) throws IOException, URISyntaxException {
         Resource resource;
 
-        if (path != null)
-        {
+        if (path != null) {
             resource = resourceFactory.newResource(path);
             if (Resources.exists(resource))
                 return resource;
@@ -196,21 +167,18 @@ public abstract class AbstractServer implements Daemon
         if (Resources.exists(resource))
             return resource;
         URL url = FullServer.class.getResource("/webclient/");
-        if (url != null)
-        {
-        	resource = resourceFactory.newResource(URIUtil.correctURI(url.toURI()));
+        if (url != null) {
+            resource = resourceFactory.newResource(URIUtil.correctURI(url.toURI()));
             if (Resources.exists(resource))
                 return resource;
         }
         throw new FileNotFoundException("Unable to find webclient path");
-	}
+    }
 
-	protected static Resource getCertsPath(String path) throws URISyntaxException, IOException
-	{
+    protected static Resource getCertsPath(String path) throws URISyntaxException, IOException {
         Resource resource;
-		final var resourceFactory = ResourceFactory.root();
-        if (path != null)
-        {
+        final var resourceFactory = ResourceFactory.root();
+        if (path != null) {
             resource = resourceFactory.newResource(path);
             if (Resources.exists(resource))
                 return resource;
@@ -222,34 +190,26 @@ public abstract class AbstractServer implements Daemon
         if (Resources.exists(resource))
             return resource;
         URL url = FullServer.class.getResource("/certs/localhost.pfx");
-        if (url != null)
-        {
-        	resource = resourceFactory.newResource(URIUtil.correctURI(url.toURI()));
+        if (url != null) {
+            resource = resourceFactory.newResource(URIUtil.correctURI(url.toURI()));
             if (Resources.exists(resource))
                 return resource;
         }
         throw new FileNotFoundException("Unable to find webclient path");
-	}
+    }
 
-	protected static Path getPath(String path)
-	{
-		try
-		{
-			return path.startsWith("jrt:") || path.startsWith("file:") || path.startsWith("jar:") ? Path.of(URI.create(path)) : Paths.get(path);
-		}
-		catch (FileSystemNotFoundException e)
-		{
-			final var uri = URI.create(path);
-			try
-			{
-				FileSystems.newFileSystem(uri, Collections.emptyMap());
-				return Path.of(uri);
-			}
-			catch (IOException e1)
-			{
-				return null;
-			}
-		}
-	}
+    protected static Path getPath(String path) {
+        try {
+            return path.startsWith("jrt:") || path.startsWith("file:") || path.startsWith("jar:") ? Path.of(URI.create(path)) : Paths.get(path);
+        } catch (FileSystemNotFoundException e) {
+            final var uri = URI.create(path);
+            try {
+                FileSystems.newFileSystem(uri, Collections.emptyMap());
+                return Path.of(uri);
+            } catch (IOException e1) {
+                return null;
+            }
+        }
+    }
 
 }
