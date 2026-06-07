@@ -30,155 +30,123 @@ import javax.swing.table.TableCellRenderer;
  * the License.
  */
 @SuppressWarnings("serial")
-public class JTableButton extends AbstractCellEditor implements TableCellEditor, TableCellRenderer
-{
-	public interface TableButtonPressedHandler
-	{
-		/**
-		 * Called when the button is pressed.
-		 * 
-		 * @param row
-		 *            The row in which the button is in the table.
-		 * @param column
-		 *            The column the button is in in the table.
-		 */
-		void onButtonPress(int row, int column);
-	}
+public class JTableButton extends AbstractCellEditor implements TableCellEditor, TableCellRenderer {
+    public interface TableButtonPressedHandler {
+        /**
+         * Called when the button is pressed.
+         * 
+         * @param row    The row in which the button is in the table.
+         * @param column The column the button is in in the table.
+         */
+        void onButtonPress(int row, int column);
+    }
 
-	private transient List<TableButtonPressedHandler> handlers;
-	private Map<Integer, JButton> buttons;
+    private transient List<TableButtonPressedHandler> handlers;
+    private Map<Integer, JButton> buttons;
 
-	public JTableButton()
-	{
-		handlers = new ArrayList<>();
-		buttons = new HashMap<>();
-	}
+    public JTableButton() {
+        handlers = new ArrayList<>();
+        buttons = new HashMap<>();
+    }
 
-	/**
-	 * Add a slide callback handler
-	 * 
-	 * @param handler
-	 */
-	public void addHandler(TableButtonPressedHandler handler)
-	{
-		if (handlers != null)
-		{
-			handlers.add(handler);
-		}
-	}
+    /**
+     * Add a slide callback handler
+     * 
+     * @param handler
+     */
+    public void addHandler(TableButtonPressedHandler handler) {
+        if (handlers != null) {
+            handlers.add(handler);
+        }
+    }
 
-	/**
-	 * Remove a slide callback handler
-	 * 
-	 * @param handler
-	 */
-	public void removeHandler(TableButtonPressedHandler handler)
-	{
-		if (handlers != null)
-		{
-			handlers.remove(handler);
-		}
-	}
+    /**
+     * Remove a slide callback handler
+     * 
+     * @param handler
+     */
+    public void removeHandler(TableButtonPressedHandler handler) {
+        if (handlers != null) {
+            handlers.remove(handler);
+        }
+    }
 
-	/**
-	 * Removes the component at that row index
-	 * 
-	 * @param row
-	 *            The row index which was just removed
-	 */
-	public void removeRow(int row)
-	{
-		if (buttons.containsKey(row))
-		{
-			buttons.remove(row);
-		}
-	}
+    /**
+     * Removes the component at that row index
+     * 
+     * @param row The row index which was just removed
+     */
+    public void removeRow(int row) {
+        if (buttons.containsKey(row)) {
+            buttons.remove(row);
+        }
+    }
 
-	/**
-	 * Moves the component at oldRow index to newRow index
-	 * 
-	 * @param oldRow
-	 *            The old row index
-	 * @param newRow
-	 *            THe new row index
-	 */
-	public void moveRow(int oldRow, int newRow)
-	{
-		if (buttons.containsKey(oldRow))
-		{
-			JButton button = buttons.remove(oldRow);
-			buttons.put(newRow, button);
-		}
-	}
+    /**
+     * Moves the component at oldRow index to newRow index
+     * 
+     * @param oldRow The old row index
+     * @param newRow THe new row index
+     */
+    public void moveRow(int oldRow, int newRow) {
+        if (buttons.containsKey(oldRow)) {
+            JButton button = buttons.remove(oldRow);
+            buttons.put(newRow, button);
+        }
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus, final int row, final int column)
-	{
-		JButton button = null;
-		if (buttons.containsKey(row))
-		{
-			button = buttons.get(row);
-		}
-		else
-		{
-			button = new JButton();
-			if (value instanceof String s)
-			{
-				button.setText(s);
-			}
-			button.addActionListener(e -> {
-				if (handlers != null)
-					for (TableButtonPressedHandler handler : handlers)
-						handler.onButtonPress(row, column);
-			});
-			buttons.put(row, button);
-		}
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus, final int row, final int column) {
+        JButton button = null;
+        if (buttons.containsKey(row)) {
+            button = buttons.get(row);
+        } else {
+            button = new JButton();
+            if (value instanceof String s) {
+                button.setText(s);
+            }
+            button.addActionListener(e -> {
+                if (handlers != null)
+                    for (TableButtonPressedHandler handler : handlers)
+                        handler.onButtonPress(row, column);
+            });
+            buttons.put(row, button);
+        }
 
-		return button;
-	}
+        return button;
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public Component getTableCellEditorComponent(JTable table, Object value, boolean selected, int row, int column)
-	{
-		JButton button = null;
-		if (buttons.containsKey(row))
-		{
-			button = buttons.get(row);
-		}
-		else
-		{
-			button = new JButton();
-			if (value instanceof String s)
-				button.setText(s);
-			buttons.put(row, button);
-		}
+    @Override
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean selected, int row, int column) {
+        JButton button = null;
+        if (buttons.containsKey(row)) {
+            button = buttons.get(row);
+        } else {
+            button = new JButton();
+            if (value instanceof String s)
+                button.setText(s);
+            buttons.put(row, button);
+        }
 
-		return button;
-	}
+        return button;
+    }
 
-	public void setButtonText(int row, String text)
-	{
-		JButton button = null;
-		if (buttons.containsKey(row))
-		{
-			button = buttons.get(row);
-			button.setText(text);
-		}
-	}
+    public void setButtonText(int row, String text) {
+        JButton button = null;
+        if (buttons.containsKey(row)) {
+            button = buttons.get(row);
+            button.setText(text);
+        }
+    }
 
-	@Override
-	public Object getCellEditorValue()
-	{
-		return null;
-	}
+    @Override
+    public Object getCellEditorValue() {
+        return null;
+    }
 
-	public void dispose()
-	{
-		if (handlers != null)
-		{
-			handlers.clear();
-		}
-	}
+    public void dispose() {
+        if (handlers != null) {
+            handlers.clear();
+        }
+    }
 }

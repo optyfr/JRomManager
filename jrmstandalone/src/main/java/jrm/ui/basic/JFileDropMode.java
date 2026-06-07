@@ -19,15 +19,14 @@ package jrm.ui.basic;
 /**
  * The Enum JFileDropMode.
  */
-public enum JFileDropMode
-{
-	
-	/** The any. */
-	ANY,
-	
-	/** The directory. */
-	DIRECTORY,
-	
-	/** The file. */
-	FILE
+public enum JFileDropMode {
+
+    /** The any. */
+    ANY,
+
+    /** The directory. */
+    DIRECTORY,
+
+    /** The file. */
+    FILE
 }

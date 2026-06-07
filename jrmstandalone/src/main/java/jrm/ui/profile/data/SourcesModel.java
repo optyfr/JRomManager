@@ -6,26 +6,22 @@ import jrm.profile.data.Source;
 import jrm.profile.data.Sources;
 
 @SuppressWarnings("serial")
-public class SourcesModel extends AbstractListModel<Source>
-{
+public class SourcesModel extends AbstractListModel<Source> {
 
-	private final Sources sources;
-	
-	public SourcesModel(final Sources sources)
-	{
-		this.sources = sources;
-	}
+    private final Sources sources;
 
-	@Override
-	public int getSize()
-	{
-		return sources.getSrces().size();
-	}
+    public SourcesModel(final Sources sources) {
+        this.sources = sources;
+    }
 
-	@Override
-	public Source getElementAt(int index)
-	{
-		return sources.getSrces().get(index);
-	}
+    @Override
+    public int getSize() {
+        return sources.getSrces().size();
+    }
+
+    @Override
+    public Source getElementAt(int index) {
+        return sources.getSrces().get(index);
+    }
 
 }

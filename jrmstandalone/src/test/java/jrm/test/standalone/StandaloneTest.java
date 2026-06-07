@@ -1,5 +1,5 @@
 package jrm.test.standalone;
 
-class StandaloneTest	//NOSONAR
+class StandaloneTest // NOSONAR
 {
 }

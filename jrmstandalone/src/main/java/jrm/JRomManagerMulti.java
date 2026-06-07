@@ -18,14 +18,13 @@ package jrm;
 
 /**
  * Main class
+ * 
  * @author optyfr
  * @version %I%, %G%
  * @since 1.0
  */
-public final class JRomManagerMulti
-{
-	public static void main(final String[] args)
-	{
-		JRomManager.main(new String[] {"--multiuser","--noupdate"});
-	}
+public final class JRomManagerMulti {
+    public static void main(final String[] args) {
+        JRomManager.main(new String[] { "--multiuser", "--noupdate" });
+    }
 }

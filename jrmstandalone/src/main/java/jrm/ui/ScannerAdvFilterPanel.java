@@ -41,292 +41,272 @@ import jrm.ui.profile.filter.CatVerNode.CategoryNode;
 import jrm.ui.profile.filter.NPlayersModel;
 
 @SuppressWarnings("serial")
-public class ScannerAdvFilterPanel extends JPanel
-{
-	private final class CatVerPopupMenuListener implements PopupMenuListener
-	{
-		@Override
-		public void popupMenuCanceled(final PopupMenuEvent e)
-		{
-			// do nothing
-		}
+public class ScannerAdvFilterPanel extends JPanel {
+    private final class CatVerPopupMenuListener implements PopupMenuListener {
+        @Override
+        public void popupMenuCanceled(final PopupMenuEvent e) {
+            // do nothing
+        }
 
-		@Override
-		public void popupMenuWillBecomeInvisible(final PopupMenuEvent e)
-		{
-			// do nothing
-		}
+        @Override
+        public void popupMenuWillBecomeInvisible(final PopupMenuEvent e) {
+            // do nothing
+        }
 
-		@Override
-		public void popupMenuWillBecomeVisible(final PopupMenuEvent e)
-		{
-			// do nothing
-		}
-	}
+        @Override
+        public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
+            // do nothing
+        }
+    }
 
-	private static final String MATURE = "* Mature *";
+    private static final String MATURE = "* Mature *";
 
-	/** The list N players. */
-	private JCheckBoxList<NPlayer> listNPlayers;
+    /** The list N players. */
+    private JCheckBoxList<NPlayer> listNPlayers;
 
-	/** The tf cat ver. */
-	private JFileDropTextField tfCatVer;
+    /** The tf cat ver. */
+    private JFileDropTextField tfCatVer;
 
-	/** The tf N players. */
-	private JFileDropTextField tfNPlayers;
+    /** The tf N players. */
+    private JFileDropTextField tfNPlayers;
 
-	/** The tree cat ver. */
-	private JCheckBoxTree treeCatVer;
+    /** The tree cat ver. */
+    private JCheckBoxTree treeCatVer;
 
+    /**
+     * Create the panel.
+     */
+    public ScannerAdvFilterPanel(final Session session) {
+        final GridBagLayout gblScannerAdvFilters = new GridBagLayout();
+        gblScannerAdvFilters.columnWidths = new int[] { 0, 0, 0 };
+        gblScannerAdvFilters.rowHeights = new int[] { 0, 0, 0 };
+        gblScannerAdvFilters.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+        gblScannerAdvFilters.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
+        this.setLayout(gblScannerAdvFilters);
 
-	/**
-	 * Create the panel.
-	 */
-	public ScannerAdvFilterPanel(@SuppressWarnings("exports") final Session session)
-	{
-		final GridBagLayout gblScannerAdvFilters = new GridBagLayout();
-		gblScannerAdvFilters.columnWidths = new int[] { 0, 0, 0 };
-		gblScannerAdvFilters.rowHeights = new int[] { 0, 0, 0 };
-		gblScannerAdvFilters.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gblScannerAdvFilters.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
-		this.setLayout(gblScannerAdvFilters);
+        tfNPlayers = new JFileDropTextField(txt -> dropNPLayersIni(session, txt));
+        tfNPlayers.setMode(JFileDropMode.FILE);
+        tfNPlayers.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropNPlayersIniHere"), Color.gray)); //$NON-NLS-1$
+        tfNPlayers.setEditable(false);
+        final GridBagConstraints gbcTFNPlayers = new GridBagConstraints();
+        gbcTFNPlayers.insets = new Insets(0, 0, 5, 5);
+        gbcTFNPlayers.fill = GridBagConstraints.HORIZONTAL;
+        gbcTFNPlayers.gridx = 0;
+        gbcTFNPlayers.gridy = 0;
+        this.add(tfNPlayers, gbcTFNPlayers);
 
-		tfNPlayers = new JFileDropTextField(txt -> dropNPLayersIni(session, txt));
-		tfNPlayers.setMode(JFileDropMode.FILE);
-		tfNPlayers.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropNPlayersIniHere"), Color.gray)); //$NON-NLS-1$
-		tfNPlayers.setEditable(false);
-		final GridBagConstraints gbcTFNPlayers = new GridBagConstraints();
-		gbcTFNPlayers.insets = new Insets(0, 0, 5, 5);
-		gbcTFNPlayers.fill = GridBagConstraints.HORIZONTAL;
-		gbcTFNPlayers.gridx = 0;
-		gbcTFNPlayers.gridy = 0;
-		this.add(tfNPlayers, gbcTFNPlayers);
+        tfCatVer = new JFileDropTextField(txt -> dropCatVerIni(session, txt));
+        tfCatVer.setMode(JFileDropMode.FILE);
+        tfCatVer.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropCatVerIniHere"), Color.gray)); //$NON-NLS-1$
+        tfCatVer.setEditable(false);
+        final GridBagConstraints gbcTFCatVer = new GridBagConstraints();
+        gbcTFCatVer.insets = new Insets(0, 0, 5, 0);
+        gbcTFCatVer.fill = GridBagConstraints.HORIZONTAL;
+        gbcTFCatVer.gridx = 1;
+        gbcTFCatVer.gridy = 0;
+        this.add(tfCatVer, gbcTFCatVer);
 
-		tfCatVer = new JFileDropTextField(txt -> dropCatVerIni(session, txt));
-		tfCatVer.setMode(JFileDropMode.FILE);
-		tfCatVer.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropCatVerIniHere"), Color.gray)); //$NON-NLS-1$
-		tfCatVer.setEditable(false);
-		final GridBagConstraints gbcTFCatVer = new GridBagConstraints();
-		gbcTFCatVer.insets = new Insets(0, 0, 5, 0);
-		gbcTFCatVer.fill = GridBagConstraints.HORIZONTAL;
-		gbcTFCatVer.gridx = 1;
-		gbcTFCatVer.gridy = 0;
-		this.add(tfCatVer, gbcTFCatVer);
+        JScrollPane scrollPaneNPlayers = new JScrollPane();
+        scrollPaneNPlayers.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.NPlayers"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
+        final GridBagConstraints gbcScrollPaneNPlayers = new GridBagConstraints();
+        gbcScrollPaneNPlayers.insets = new Insets(0, 0, 0, 5);
+        gbcScrollPaneNPlayers.fill = GridBagConstraints.BOTH;
+        gbcScrollPaneNPlayers.gridx = 0;
+        gbcScrollPaneNPlayers.gridy = 1;
+        this.add(scrollPaneNPlayers, gbcScrollPaneNPlayers);
 
-		JScrollPane scrollPaneNPlayers = new JScrollPane();
-		scrollPaneNPlayers.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.NPlayers"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
-		final GridBagConstraints gbcScrollPaneNPlayers = new GridBagConstraints();
-		gbcScrollPaneNPlayers.insets = new Insets(0, 0, 0, 5);
-		gbcScrollPaneNPlayers.fill = GridBagConstraints.BOTH;
-		gbcScrollPaneNPlayers.gridx = 0;
-		gbcScrollPaneNPlayers.gridy = 1;
-		this.add(scrollPaneNPlayers, gbcScrollPaneNPlayers);
+        listNPlayers = new JCheckBoxList<>();
+        listNPlayers.setCellRenderer(getNPlayersCellRenderer(session));
+        listNPlayers.addListSelectionListener(e -> listNPLayersValueChanged(session, e));
+        listNPlayers.setEnabled(false);
+        scrollPaneNPlayers.setViewportView(listNPlayers);
 
-		listNPlayers = new JCheckBoxList<>();
-		listNPlayers.setCellRenderer(getNPlayersCellRenderer(session));
-		listNPlayers.addListSelectionListener(e -> listNPLayersValueChanged(session, e));
-		listNPlayers.setEnabled(false);
-		scrollPaneNPlayers.setViewportView(listNPlayers);
+        JPopupMenu popupMenuNPlay = new JPopupMenu();
+        Popup.addPopup(listNPlayers, popupMenuNPlay);
 
-		JPopupMenu popupMenuNPlay = new JPopupMenu();
-		Popup.addPopup(listNPlayers, popupMenuNPlay);
+        JMenuItem mntmSelectAllNPlay = new JMenuItem(Messages.getString("MainFrame.SelectAll")); //$NON-NLS-1$
+        mntmSelectAllNPlay.addActionListener(e -> listNPlayers.selectAll());
+        popupMenuNPlay.add(mntmSelectAllNPlay);
 
-		JMenuItem mntmSelectAllNPlay = new JMenuItem(Messages.getString("MainFrame.SelectAll")); //$NON-NLS-1$
-		mntmSelectAllNPlay.addActionListener(e -> listNPlayers.selectAll());
-		popupMenuNPlay.add(mntmSelectAllNPlay);
+        JMenuItem mntmSelectNoneNPlay = new JMenuItem(Messages.getString("MainFrame.SelectNone")); //$NON-NLS-1$
+        mntmSelectNoneNPlay.addActionListener(e -> listNPlayers.selectNone());
+        popupMenuNPlay.add(mntmSelectNoneNPlay);
 
-		JMenuItem mntmSelectNoneNPlay = new JMenuItem(Messages.getString("MainFrame.SelectNone")); //$NON-NLS-1$
-		mntmSelectNoneNPlay.addActionListener(e -> listNPlayers.selectNone());
-		popupMenuNPlay.add(mntmSelectNoneNPlay);
+        JMenuItem mntmInvertSelectionNPlay = new JMenuItem(Messages.getString("MainFrame.InvertSelection")); //$NON-NLS-1$
+        mntmInvertSelectionNPlay.addActionListener(e -> listNPlayers.selectInvert());
+        popupMenuNPlay.add(mntmInvertSelectionNPlay);
 
-		JMenuItem mntmInvertSelectionNPlay = new JMenuItem(Messages.getString("MainFrame.InvertSelection")); //$NON-NLS-1$
-		mntmInvertSelectionNPlay.addActionListener(e -> listNPlayers.selectInvert());
-		popupMenuNPlay.add(mntmInvertSelectionNPlay);
-		
-		JSeparator separator1 = new JSeparator();
-		popupMenuNPlay.add(separator1);
-		
-		JMenuItem mntmClearNPlayers = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear_1.text")); //$NON-NLS-1$
-		mntmClearNPlayers.addActionListener(e -> listNPlayersClear(session));
-		popupMenuNPlay.add(mntmClearNPlayers);
+        JSeparator separator1 = new JSeparator();
+        popupMenuNPlay.add(separator1);
 
-		JScrollPane scrollPaneCatVer = new JScrollPane();
-		scrollPaneCatVer.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.Categories"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
-		final GridBagConstraints gbcScrollPaneCatVer = new GridBagConstraints();
-		gbcScrollPaneCatVer.fill = GridBagConstraints.BOTH;
-		gbcScrollPaneCatVer.gridx = 1;
-		gbcScrollPaneCatVer.gridy = 1;
-		this.add(scrollPaneCatVer, gbcScrollPaneCatVer);
+        JMenuItem mntmClearNPlayers = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear_1.text")); //$NON-NLS-1$
+        mntmClearNPlayers.addActionListener(e -> listNPlayersClear(session));
+        popupMenuNPlay.add(mntmClearNPlayers);
 
-		treeCatVer = new JCheckBoxTree(new CatVerModel());
-		treeCatVer.addCheckChangeEventListener(event -> {
-			session.getCurrProfile().saveSettings();
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		});
-		treeCatVer.setEnabled(false);
-		scrollPaneCatVer.setViewportView(treeCatVer);
+        JScrollPane scrollPaneCatVer = new JScrollPane();
+        scrollPaneCatVer.setViewportBorder(new TitledBorder(null, Messages.getString("MainFrame.Categories"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$
+        final GridBagConstraints gbcScrollPaneCatVer = new GridBagConstraints();
+        gbcScrollPaneCatVer.fill = GridBagConstraints.BOTH;
+        gbcScrollPaneCatVer.gridx = 1;
+        gbcScrollPaneCatVer.gridy = 1;
+        this.add(scrollPaneCatVer, gbcScrollPaneCatVer);
 
-		JPopupMenu popupMenuCat = new JPopupMenu();
-		popupMenuCat.addPopupMenuListener(new CatVerPopupMenuListener());
-		Popup.addPopup(treeCatVer, popupMenuCat);
+        treeCatVer = new JCheckBoxTree(new CatVerModel());
+        treeCatVer.addCheckChangeEventListener(event -> {
+            session.getCurrProfile().saveSettings();
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        });
+        treeCatVer.setEnabled(false);
+        scrollPaneCatVer.setViewportView(treeCatVer);
 
-		JMenu mnSelectCat = new JMenu(Messages.getString("MainFrame.Select")); //$NON-NLS-1$
-		popupMenuCat.add(mnSelectCat);
+        JPopupMenu popupMenuCat = new JPopupMenu();
+        popupMenuCat.addPopupMenuListener(new CatVerPopupMenuListener());
+        Popup.addPopup(treeCatVer, popupMenuCat);
 
-		JMenuItem mntmSelectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
-		mntmSelectAllCat.addActionListener(e -> treeCatVer.selectAll());
-		mnSelectCat.add(mntmSelectAllCat);
+        JMenu mnSelectCat = new JMenu(Messages.getString("MainFrame.Select")); //$NON-NLS-1$
+        popupMenuCat.add(mnSelectCat);
 
-		JMenuItem mntmSelectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
-		mntmSelectMatureCat.addActionListener(e -> catVerMatureSelect(session));
-		mnSelectCat.add(mntmSelectMatureCat);
+        JMenuItem mntmSelectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
+        mntmSelectAllCat.addActionListener(e -> treeCatVer.selectAll());
+        mnSelectCat.add(mntmSelectAllCat);
 
-		JMenu mnUnselectCat = new JMenu(Messages.getString("MainFrame.Unselect")); //$NON-NLS-1$
-		popupMenuCat.add(mnUnselectCat);
+        JMenuItem mntmSelectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
+        mntmSelectMatureCat.addActionListener(e -> catVerMatureSelect(session));
+        mnSelectCat.add(mntmSelectMatureCat);
 
-		JMenuItem mntmUnselectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
-		mntmUnselectAllCat.addActionListener(e -> treeCatVer.selectNone());
-		mnUnselectCat.add(mntmUnselectAllCat);
+        JMenu mnUnselectCat = new JMenu(Messages.getString("MainFrame.Unselect")); //$NON-NLS-1$
+        popupMenuCat.add(mnUnselectCat);
 
-		JMenuItem mntmUnselectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
-		mntmUnselectMatureCat.addActionListener(e -> catVerMatureUnselect(session));
-		mnUnselectCat.add(mntmUnselectMatureCat);
-		
-		JSeparator separator = new JSeparator();
-		popupMenuCat.add(separator);
-		
-		JMenuItem mntmClearCat = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear.text")); //$NON-NLS-1$
-		mntmClearCat.addActionListener(e -> catVerClear(session));
-		popupMenuCat.add(mntmClearCat);
+        JMenuItem mntmUnselectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
+        mntmUnselectAllCat.addActionListener(e -> treeCatVer.selectNone());
+        mnUnselectCat.add(mntmUnselectAllCat);
 
-	}
+        JMenuItem mntmUnselectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
+        mntmUnselectMatureCat.addActionListener(e -> catVerMatureUnselect(session));
+        mnUnselectCat.add(mntmUnselectMatureCat);
 
-	/**
-	 * @param session
-	 */
-	private void catVerClear(final Session session)
-	{
-		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_catver_ini, null); //$NON-NLS-1$
-		session.getCurrProfile().setCatver(null);
-		session.getCurrProfile().saveSettings();
-		tfCatVer.setText(null);
-		treeCatVer.setModel(new CatVerModel());
-	}
+        JSeparator separator = new JSeparator();
+        popupMenuCat.add(separator);
 
-	/**
-	 * @param session
-	 */
-	private void catVerMatureUnselect(final Session session)
-	{
-		final List<NGTreeNode> matureNodes = getMatures(session);
-		treeCatVer.unselect(matureNodes.toArray(new NGTreeNode[0]));
-	}
+        JMenuItem mntmClearCat = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear.text")); //$NON-NLS-1$
+        mntmClearCat.addActionListener(e -> catVerClear(session));
+        popupMenuCat.add(mntmClearCat);
 
-	/**
-	 * @param session
-	 * @return
-	 */
-	protected List<NGTreeNode> getMatures(final Session session)
-	{
-		final List<NGTreeNode> matureNodes = new ArrayList<>();
-		for (final Category cat : session.getCurrProfile().getCatver())
-		{
-			final CatVerModel catvermodel = (CatVerModel)treeCatVer.getModel();
-			final CategoryNode catnode = ((CatVerNode)catvermodel.getRoot()).getNode(cat);
-			if (cat.name.endsWith(MATURE)) //$NON-NLS-1$
-				matureNodes.add(catnode);
-			else
-				for (final SubCategory subcat : cat)
-					if (subcat.name.endsWith(MATURE)) //$NON-NLS-1$
-						matureNodes.add(catnode.getNode(subcat));
-		}
-		return matureNodes;
-	}
+    }
 
-	/**
-	 * @param session
-	 */
-	private void catVerMatureSelect(final Session session)
-	{
-		final List<NGTreeNode> matureNodes = getMatures(session);
-		treeCatVer.select(matureNodes.toArray(new NGTreeNode[0]));
-	}
+    /**
+     * @param session
+     */
+    private void catVerClear(final Session session) {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_catver_ini, null); // $NON-NLS-1$
+        session.getCurrProfile().setCatver(null);
+        session.getCurrProfile().saveSettings();
+        tfCatVer.setText(null);
+        treeCatVer.setModel(new CatVerModel());
+    }
 
-	/**
-	 * @param session
-	 */
-	private void listNPlayersClear(final Session session)
-	{
-		session.getCurrProfile().saveSettings();
-		session.getCurrProfile().setNplayers(null);
-		session.getCurrProfile().saveSettings();
-		tfNPlayers.setText(null);
-		listNPlayers.setModel(new DefaultListModel<>());
-	}
+    /**
+     * @param session
+     */
+    private void catVerMatureUnselect(final Session session) {
+        final List<NGTreeNode> matureNodes = getMatures(session);
+        treeCatVer.unselect(matureNodes.toArray(new NGTreeNode[0]));
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void listNPLayersValueChanged(final Session session, ListSelectionEvent e)
-	{
-		if (!e.getValueIsAdjusting() && e.getFirstIndex() != -1)
-		{
-			for (int index = e.getFirstIndex(); index <= e.getLastIndex() && index < listNPlayers.getModel().getSize(); index++)
-				listNPlayers.getModel().getElementAt(index).setSelected(session.getCurrProfile(), listNPlayers.isSelectedIndex(index));
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		}
-	}
+    /**
+     * @param session
+     * @return
+     */
+    protected List<NGTreeNode> getMatures(final Session session) {
+        final List<NGTreeNode> matureNodes = new ArrayList<>();
+        for (final Category cat : session.getCurrProfile().getCatver()) {
+            final CatVerModel catvermodel = (CatVerModel) treeCatVer.getModel();
+            final CategoryNode catnode = ((CatVerNode) catvermodel.getRoot()).getNode(cat);
+            if (cat.name.endsWith(MATURE)) // $NON-NLS-1$
+                matureNodes.add(catnode);
+            else
+                for (final SubCategory subcat : cat)
+                    if (subcat.name.endsWith(MATURE)) // $NON-NLS-1$
+                        matureNodes.add(catnode.getNode(subcat));
+        }
+        return matureNodes;
+    }
 
-	/**
-	 * @param session
-	 * @return
-	 */
-	private JCheckBoxList<NPlayer>.CellRenderer getNPlayersCellRenderer(final Session session)
-	{
-		return listNPlayers.new CellRenderer()
-		{
-			@Override
-			public Component getListCellRendererComponent(final JList<? extends NPlayer> list, final NPlayer value, final int index, final boolean isSelected, final boolean cellHasFocus)
-			{
-				final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				checkbox.setSelected(value.isSelected(session.getCurrProfile()));
-				return checkbox;
-			}
-		};
-	}
+    /**
+     * @param session
+     */
+    private void catVerMatureSelect(final Session session) {
+        final List<NGTreeNode> matureNodes = getMatures(session);
+        treeCatVer.select(matureNodes.toArray(new NGTreeNode[0]));
+    }
 
-	/**
-	 * @param session
-	 * @param txt
-	 */
-	private void dropCatVerIni(final Session session, String txt)
-	{
-		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_catver_ini, txt); //$NON-NLS-1$
-		session.getCurrProfile().loadCatVer(null);
-		session.getCurrProfile().saveSettings();
-		treeCatVer.setModel(session.getCurrProfile().getCatver() != null ? new CatVerModel(new CatVerNode(session.getCurrProfile().getCatver())) : new CatVerModel());
-	}
+    /**
+     * @param session
+     */
+    private void listNPlayersClear(final Session session) {
+        session.getCurrProfile().saveSettings();
+        session.getCurrProfile().setNplayers(null);
+        session.getCurrProfile().saveSettings();
+        tfNPlayers.setText(null);
+        listNPlayers.setModel(new DefaultListModel<>());
+    }
 
-	/**
-	 * @param session
-	 * @param txt
-	 */
-	private void dropNPLayersIni(final Session session, String txt)
-	{
-		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_nplayers_ini, txt); //$NON-NLS-1$
-		session.getCurrProfile().loadNPlayers(null);
-		session.getCurrProfile().saveSettings();
-		listNPlayers.setModel(new NPlayersModel(session.getCurrProfile().getNplayers()));
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void listNPLayersValueChanged(final Session session, ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting() && e.getFirstIndex() != -1) {
+            for (int index = e.getFirstIndex(); index <= e.getLastIndex() && index < listNPlayers.getModel().getSize(); index++)
+                listNPlayers.getModel().getElementAt(index).setSelected(session.getCurrProfile(), listNPlayers.isSelectedIndex(index));
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        }
+    }
 
-	public void initProfileSettings(@SuppressWarnings("exports") final Session session)
-	{
-		tfNPlayers.setText(session.getCurrProfile().getNplayers() != null ? session.getCurrProfile().getNplayers().file.getAbsolutePath() : null);
-		listNPlayers.setModel(new NPlayersModel(session.getCurrProfile().getNplayers()));
-		tfCatVer.setText(session.getCurrProfile().getCatver() != null ? session.getCurrProfile().getCatver().file.getAbsolutePath() : null);
-		treeCatVer.setModel(session.getCurrProfile().getCatver() != null ? new CatVerModel(new CatVerNode(session.getCurrProfile().getCatver())) : new CatVerModel());		
-	}
+    /**
+     * @param session
+     * @return
+     */
+    private JCheckBoxList<NPlayer>.CellRenderer getNPlayersCellRenderer(final Session session) {
+        return listNPlayers.new CellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(final JList<? extends NPlayer> list, final NPlayer value, final int index, final boolean isSelected,
+                    final boolean cellHasFocus) {
+                final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                checkbox.setSelected(value.isSelected(session.getCurrProfile()));
+                return checkbox;
+            }
+        };
+    }
+
+    /**
+     * @param session
+     * @param txt
+     */
+    private void dropCatVerIni(final Session session, String txt) {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_catver_ini, txt); // $NON-NLS-1$
+        session.getCurrProfile().loadCatVer(null);
+        session.getCurrProfile().saveSettings();
+        treeCatVer.setModel(session.getCurrProfile().getCatver() != null ? new CatVerModel(new CatVerNode(session.getCurrProfile().getCatver())) : new CatVerModel());
+    }
+
+    /**
+     * @param session
+     * @param txt
+     */
+    private void dropNPLayersIni(final Session session, String txt) {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_nplayers_ini, txt); // $NON-NLS-1$
+        session.getCurrProfile().loadNPlayers(null);
+        session.getCurrProfile().saveSettings();
+        listNPlayers.setModel(new NPlayersModel(session.getCurrProfile().getNplayers()));
+    }
+
+    public void initProfileSettings(final Session session) {
+        tfNPlayers.setText(session.getCurrProfile().getNplayers() != null ? session.getCurrProfile().getNplayers().file.getAbsolutePath() : null);
+        listNPlayers.setModel(new NPlayersModel(session.getCurrProfile().getNplayers()));
+        tfCatVer.setText(session.getCurrProfile().getCatver() != null ? session.getCurrProfile().getCatver().file.getAbsolutePath() : null);
+        treeCatVer.setModel(session.getCurrProfile().getCatver() != null ? new CatVerModel(new CatVerNode(session.getCurrProfile().getCatver())) : new CatVerModel());
+    }
 }

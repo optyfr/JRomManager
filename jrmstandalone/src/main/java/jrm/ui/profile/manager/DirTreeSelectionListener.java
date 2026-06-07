@@ -27,35 +27,31 @@ import jrm.security.Session;
 /**
  * The listener interface for receiving dirTreeSelection events.
  */
-public class DirTreeSelectionListener implements TreeSelectionListener
-{
-	
-	/** The profiles list. */
-	JTable profilesList;
+public class DirTreeSelectionListener implements TreeSelectionListener {
 
-	private Session session;
-	
-	/**
-	 * Instantiates a new dir tree selection listener.
-	 *
-	 * @param profilesList the profiles list
-	 */
-	public DirTreeSelectionListener(final Session session, final JTable profilesList)
-	{
-		this.session = session;
-		this.profilesList = profilesList;
-	}
+    /** The profiles list. */
+    JTable profilesList;
 
-	@Override
-	public void valueChanged(final TreeSelectionEvent e)
-	{
-		final JTree tree = (JTree) e.getSource();
-		final DirNode selectedNode = (DirNode) tree.getLastSelectedPathComponent();
-		if(selectedNode != null)
-		{
-			((FileTableModel) profilesList.getModel()).populate(session, (Dir) selectedNode.getUserObject());
-			profilesList.getColumn(profilesList.getColumnName(0)).setCellRenderer(new FileTableCellRenderer());
-		}
-	}
+    private Session session;
+
+    /**
+     * Instantiates a new dir tree selection listener.
+     *
+     * @param profilesList the profiles list
+     */
+    public DirTreeSelectionListener(final Session session, final JTable profilesList) {
+        this.session = session;
+        this.profilesList = profilesList;
+    }
+
+    @Override
+    public void valueChanged(final TreeSelectionEvent e) {
+        final JTree tree = (JTree) e.getSource();
+        final DirNode selectedNode = (DirNode) tree.getLastSelectedPathComponent();
+        if (selectedNode != null) {
+            ((FileTableModel) profilesList.getModel()).populate(session, (Dir) selectedNode.getUserObject());
+            profilesList.getColumn(profilesList.getColumnName(0)).setCellRenderer(new FileTableCellRenderer());
+        }
+    }
 
 }

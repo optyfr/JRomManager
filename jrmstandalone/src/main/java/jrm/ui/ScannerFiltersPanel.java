@@ -37,490 +37,463 @@ import jrm.ui.basic.Popup;
 import jrm.ui.profile.data.YearsModel;
 
 @SuppressWarnings("serial")
-public class ScannerFiltersPanel extends JSplitPane
-{
-	/** The cbbx driver status. */
-	private JComboBox<Driver.StatusType> cbbxDriverStatus;
+public class ScannerFiltersPanel extends JSplitPane {
+    /** The cbbx driver status. */
+    private JComboBox<Driver.StatusType> cbbxDriverStatus;
 
-	/** The cbbx filter cabinet type. */
-	private JComboBox<CabinetType> cbbxFilterCabinetType;
+    /** The cbbx filter cabinet type. */
+    private JComboBox<CabinetType> cbbxFilterCabinetType;
 
-	/** The cbbx filter display orientation. */
-	private JComboBox<DisplayOrientation> cbbxFilterDisplayOrientation;
+    /** The cbbx filter display orientation. */
+    private JComboBox<DisplayOrientation> cbbxFilterDisplayOrientation;
 
-	/** The cbbx SW min supported lvl. */
-	private JComboBox<Supported> cbbxSWMinSupportedLvl;
+    /** The cbbx SW min supported lvl. */
+    private JComboBox<Supported> cbbxSWMinSupportedLvl;
 
-	/** The cbbx year max. */
-	private JComboBox<String> cbbxYearMax;
+    /** The cbbx year max. */
+    private JComboBox<String> cbbxYearMax;
 
-	/** The cbbx year min. */
-	private JComboBox<String> cbbxYearMin;
+    /** The cbbx year min. */
+    private JComboBox<String> cbbxYearMin;
 
-	/** The chckbx include clones. */
-	private JCheckBox chckbxIncludeClones;
+    /** The chckbx include clones. */
+    private JCheckBox chckbxIncludeClones;
 
-	/** The chckbx include disks. */
-	private JCheckBox chckbxIncludeDisks;
+    /** The chckbx include disks. */
+    private JCheckBox chckbxIncludeDisks;
 
-	/** The chckbx include samples. */
-	private JCheckBox chckbxIncludeSamples;
+    /** The chckbx include samples. */
+    private JCheckBox chckbxIncludeSamples;
 
-	/** The check box list systems. */
-	JCheckBoxList<Systm> checkBoxListSystems;
+    /** The check box list systems. */
+    JCheckBoxList<Systm> checkBoxListSystems;
 
-	/** The check box list systems. */
-	JCheckBoxList<Source> checkBoxListSources;
+    /** The check box list systems. */
+    JCheckBoxList<Source> checkBoxListSources;
 
+    /**
+     * Create the panel.
+     */
+    public ScannerFiltersPanel(final Session session) {
+        this.setResizeWeight(0.5);
+        this.setOneTouchExpandable(true);
+        this.setContinuousLayout(true);
 
-	/**
-	 * Create the panel.
-	 */
-	public ScannerFiltersPanel(@SuppressWarnings("exports") final Session session)
-	{
-		this.setResizeWeight(0.5);
-		this.setOneTouchExpandable(true);
-		this.setContinuousLayout(true);
-		
-		JSplitPane rightsplit = new JSplitPane();
-		rightsplit.setOrientation(VERTICAL_SPLIT);
-		rightsplit.setResizeWeight(0.5);
-		rightsplit.setOneTouchExpandable(true);
-		rightsplit.setContinuousLayout(true);
-		this.setRightComponent(rightsplit);
-		
-		JScrollPane systemsFilterScrollPane = new JScrollPane();
-		rightsplit.setTopComponent(systemsFilterScrollPane);
-		systemsFilterScrollPane.setViewportBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), Messages.getString("MainFrame.systemsFilter.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
+        JSplitPane rightsplit = new JSplitPane();
+        rightsplit.setOrientation(VERTICAL_SPLIT);
+        rightsplit.setResizeWeight(0.5);
+        rightsplit.setOneTouchExpandable(true);
+        rightsplit.setContinuousLayout(true);
+        this.setRightComponent(rightsplit);
 
-		checkBoxListSystems = new JCheckBoxList<>();
-		checkBoxListSystems.setCellRenderer(getCheckBoxListSystemsCellRenderer(session));
-		checkBoxListSystems.addListSelectionListener(e -> checkBoxListSystemsValueChanged(session, e));
-		systemsFilterScrollPane.setViewportView(checkBoxListSystems);
+        JScrollPane systemsFilterScrollPane = new JScrollPane();
+        rightsplit.setTopComponent(systemsFilterScrollPane);
+        systemsFilterScrollPane.setViewportBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), Messages.getString("MainFrame.systemsFilter.viewportBorderTitle"), //$NON-NLS-1$
+                TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 
-		buildSystemsMenu();
-		
-		JScrollPane sourcesFilterScrollPane = new JScrollPane();
-		rightsplit.setBottomComponent(sourcesFilterScrollPane);
-		sourcesFilterScrollPane.setViewportBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), Messages.getString("MainFrame.sourcesFilter.viewportBorderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
+        checkBoxListSystems = new JCheckBoxList<>();
+        checkBoxListSystems.setCellRenderer(getCheckBoxListSystemsCellRenderer(session));
+        checkBoxListSystems.addListSelectionListener(e -> checkBoxListSystemsValueChanged(session, e));
+        systemsFilterScrollPane.setViewportView(checkBoxListSystems);
 
-		checkBoxListSources = new JCheckBoxList<>();
-		checkBoxListSources.setCellRenderer(getCheckBoxListSourcesCellRenderer(session));
-		checkBoxListSources.addListSelectionListener(e -> checkBoxListSourcesValueChanged(session, e));
-		sourcesFilterScrollPane.setViewportView(checkBoxListSources);
+        buildSystemsMenu();
 
-		buildSourcesMenu();
+        JScrollPane sourcesFilterScrollPane = new JScrollPane();
+        rightsplit.setBottomComponent(sourcesFilterScrollPane);
+        sourcesFilterScrollPane.setViewportBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), Messages.getString("MainFrame.sourcesFilter.viewportBorderTitle"), //$NON-NLS-1$
+                TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 
-		JPanel panel = new JPanel();
-		this.setLeftComponent(panel);
-		final GridBagLayout gblPanel = new GridBagLayout();
-		gblPanel.columnWidths = new int[] { 20, 100, 0, 100, 20, 0 };
-		gblPanel.rowHeights = new int[] { 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gblPanel.columnWeights = new double[] { 1.0, 1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE };
-		gblPanel.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		panel.setLayout(gblPanel);
+        checkBoxListSources = new JCheckBoxList<>();
+        checkBoxListSources.setCellRenderer(getCheckBoxListSourcesCellRenderer(session));
+        checkBoxListSources.addListSelectionListener(e -> checkBoxListSourcesValueChanged(session, e));
+        sourcesFilterScrollPane.setViewportView(checkBoxListSources);
 
-		chckbxIncludeClones = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeClones.text")); //$NON-NLS-1$
-		final GridBagConstraints gbcChckbxIncludeClones = new GridBagConstraints();
-		gbcChckbxIncludeClones.gridwidth = 3;
-		gbcChckbxIncludeClones.fill = GridBagConstraints.HORIZONTAL;
-		gbcChckbxIncludeClones.insets = new Insets(0, 0, 5, 5);
-		gbcChckbxIncludeClones.anchor = GridBagConstraints.NORTH;
-		gbcChckbxIncludeClones.gridx = 1;
-		gbcChckbxIncludeClones.gridy = 1;
-		panel.add(chckbxIncludeClones, gbcChckbxIncludeClones);
+        buildSourcesMenu();
 
-		chckbxIncludeDisks = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeDisks.text")); //$NON-NLS-1$
-		final GridBagConstraints gbcChckbxIncludeDisks = new GridBagConstraints();
-		gbcChckbxIncludeDisks.gridwidth = 3;
-		gbcChckbxIncludeDisks.fill = GridBagConstraints.HORIZONTAL;
-		gbcChckbxIncludeDisks.insets = new Insets(0, 0, 5, 5);
-		gbcChckbxIncludeDisks.gridx = 1;
-		gbcChckbxIncludeDisks.gridy = 2;
-		panel.add(chckbxIncludeDisks, gbcChckbxIncludeDisks);
+        JPanel panel = new JPanel();
+        this.setLeftComponent(panel);
+        final GridBagLayout gblPanel = new GridBagLayout();
+        gblPanel.columnWidths = new int[] { 20, 100, 0, 100, 20, 0 };
+        gblPanel.rowHeights = new int[] { 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        gblPanel.columnWeights = new double[] { 1.0, 1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE };
+        gblPanel.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+        panel.setLayout(gblPanel);
 
-		chckbxIncludeSamples = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeSamples.text")); //$NON-NLS-1$
-		final GridBagConstraints gbcChckbxIncludeSamples = new GridBagConstraints();
-		gbcChckbxIncludeSamples.gridwidth = 3;
-		gbcChckbxIncludeSamples.fill = GridBagConstraints.HORIZONTAL;
-		gbcChckbxIncludeSamples.insets = new Insets(0, 0, 5, 5);
-		gbcChckbxIncludeSamples.gridx = 1;
-		gbcChckbxIncludeSamples.gridy = 3;
-		panel.add(chckbxIncludeSamples, gbcChckbxIncludeSamples);
-		chckbxIncludeSamples.setSelected(true);
+        chckbxIncludeClones = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeClones.text")); //$NON-NLS-1$
+        final GridBagConstraints gbcChckbxIncludeClones = new GridBagConstraints();
+        gbcChckbxIncludeClones.gridwidth = 3;
+        gbcChckbxIncludeClones.fill = GridBagConstraints.HORIZONTAL;
+        gbcChckbxIncludeClones.insets = new Insets(0, 0, 5, 5);
+        gbcChckbxIncludeClones.anchor = GridBagConstraints.NORTH;
+        gbcChckbxIncludeClones.gridx = 1;
+        gbcChckbxIncludeClones.gridy = 1;
+        panel.add(chckbxIncludeClones, gbcChckbxIncludeClones);
 
-		JLabel lblCabinetType = new JLabel(Messages.getString("MainFrame.lblMachineType.text")); //$NON-NLS-1$
-		final GridBagConstraints gbcLblCabinetType = new GridBagConstraints();
-		gbcLblCabinetType.gridwidth = 2;
-		gbcLblCabinetType.fill = GridBagConstraints.HORIZONTAL;
-		gbcLblCabinetType.insets = new Insets(0, 0, 5, 5);
-		gbcLblCabinetType.gridx = 1;
-		gbcLblCabinetType.gridy = 4;
-		panel.add(lblCabinetType, gbcLblCabinetType);
-		lblCabinetType.setHorizontalAlignment(SwingConstants.TRAILING);
+        chckbxIncludeDisks = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeDisks.text")); //$NON-NLS-1$
+        final GridBagConstraints gbcChckbxIncludeDisks = new GridBagConstraints();
+        gbcChckbxIncludeDisks.gridwidth = 3;
+        gbcChckbxIncludeDisks.fill = GridBagConstraints.HORIZONTAL;
+        gbcChckbxIncludeDisks.insets = new Insets(0, 0, 5, 5);
+        gbcChckbxIncludeDisks.gridx = 1;
+        gbcChckbxIncludeDisks.gridy = 2;
+        panel.add(chckbxIncludeDisks, gbcChckbxIncludeDisks);
 
-		cbbxFilterCabinetType = new JComboBox<>();
-		final GridBagConstraints gbcCbbxFilterCabinetType = new GridBagConstraints();
-		gbcCbbxFilterCabinetType.fill = GridBagConstraints.HORIZONTAL;
-		gbcCbbxFilterCabinetType.insets = new Insets(0, 0, 5, 5);
-		gbcCbbxFilterCabinetType.gridx = 3;
-		gbcCbbxFilterCabinetType.gridy = 4;
-		panel.add(cbbxFilterCabinetType, gbcCbbxFilterCabinetType);
-		cbbxFilterCabinetType.addItemListener(e -> cbbxFilterCabinetTypeValueChanged(session, e));
-		cbbxFilterCabinetType.setModel(new DefaultComboBoxModel<>(CabinetType.values()));
+        chckbxIncludeSamples = new JCheckBox(Messages.getString("MainFrame.chckbxIncludeSamples.text")); //$NON-NLS-1$
+        final GridBagConstraints gbcChckbxIncludeSamples = new GridBagConstraints();
+        gbcChckbxIncludeSamples.gridwidth = 3;
+        gbcChckbxIncludeSamples.fill = GridBagConstraints.HORIZONTAL;
+        gbcChckbxIncludeSamples.insets = new Insets(0, 0, 5, 5);
+        gbcChckbxIncludeSamples.gridx = 1;
+        gbcChckbxIncludeSamples.gridy = 3;
+        panel.add(chckbxIncludeSamples, gbcChckbxIncludeSamples);
+        chckbxIncludeSamples.setSelected(true);
 
-		JLabel lblDisplayOrientation = new JLabel(Messages.getString("MainFrame.lblOrientation.text")); //$NON-NLS-1$
-		final GridBagConstraints gbcLblDisplayOrientation = new GridBagConstraints();
-		gbcLblDisplayOrientation.gridwidth = 2;
-		gbcLblDisplayOrientation.fill = GridBagConstraints.HORIZONTAL;
-		gbcLblDisplayOrientation.insets = new Insets(0, 0, 5, 5);
-		gbcLblDisplayOrientation.gridx = 1;
-		gbcLblDisplayOrientation.gridy = 5;
-		panel.add(lblDisplayOrientation, gbcLblDisplayOrientation);
-		lblDisplayOrientation.setHorizontalAlignment(SwingConstants.TRAILING);
+        JLabel lblCabinetType = new JLabel(Messages.getString("MainFrame.lblMachineType.text")); //$NON-NLS-1$
+        final GridBagConstraints gbcLblCabinetType = new GridBagConstraints();
+        gbcLblCabinetType.gridwidth = 2;
+        gbcLblCabinetType.fill = GridBagConstraints.HORIZONTAL;
+        gbcLblCabinetType.insets = new Insets(0, 0, 5, 5);
+        gbcLblCabinetType.gridx = 1;
+        gbcLblCabinetType.gridy = 4;
+        panel.add(lblCabinetType, gbcLblCabinetType);
+        lblCabinetType.setHorizontalAlignment(SwingConstants.TRAILING);
 
-		cbbxFilterDisplayOrientation = new JComboBox<>();
-		final GridBagConstraints gbcCbbxFilterDisplayOrientation = new GridBagConstraints();
-		gbcCbbxFilterDisplayOrientation.fill = GridBagConstraints.HORIZONTAL;
-		gbcCbbxFilterDisplayOrientation.insets = new Insets(0, 0, 5, 5);
-		gbcCbbxFilterDisplayOrientation.gridx = 3;
-		gbcCbbxFilterDisplayOrientation.gridy = 5;
-		panel.add(cbbxFilterDisplayOrientation, gbcCbbxFilterDisplayOrientation);
-		cbbxFilterDisplayOrientation.addItemListener(e -> cbbxFilterDisplayOrientationValueChanged(session, e));
-		cbbxFilterDisplayOrientation.setModel(new DefaultComboBoxModel<>(DisplayOrientation.values()));
+        cbbxFilterCabinetType = new JComboBox<>();
+        final GridBagConstraints gbcCbbxFilterCabinetType = new GridBagConstraints();
+        gbcCbbxFilterCabinetType.fill = GridBagConstraints.HORIZONTAL;
+        gbcCbbxFilterCabinetType.insets = new Insets(0, 0, 5, 5);
+        gbcCbbxFilterCabinetType.gridx = 3;
+        gbcCbbxFilterCabinetType.gridy = 4;
+        panel.add(cbbxFilterCabinetType, gbcCbbxFilterCabinetType);
+        cbbxFilterCabinetType.addItemListener(e -> cbbxFilterCabinetTypeValueChanged(session, e));
+        cbbxFilterCabinetType.setModel(new DefaultComboBoxModel<>(CabinetType.values()));
 
-		JLabel lblDriverStatus = new JLabel(Messages.getString("MainFrame.lblDriverStatus.text")); //$NON-NLS-1$
-		final GridBagConstraints gbcLblDriverStatus = new GridBagConstraints();
-		gbcLblDriverStatus.gridwidth = 2;
-		gbcLblDriverStatus.fill = GridBagConstraints.HORIZONTAL;
-		gbcLblDriverStatus.insets = new Insets(0, 0, 5, 5);
-		gbcLblDriverStatus.gridx = 1;
-		gbcLblDriverStatus.gridy = 6;
-		panel.add(lblDriverStatus, gbcLblDriverStatus);
-		lblDriverStatus.setHorizontalAlignment(SwingConstants.TRAILING);
+        JLabel lblDisplayOrientation = new JLabel(Messages.getString("MainFrame.lblOrientation.text")); //$NON-NLS-1$
+        final GridBagConstraints gbcLblDisplayOrientation = new GridBagConstraints();
+        gbcLblDisplayOrientation.gridwidth = 2;
+        gbcLblDisplayOrientation.fill = GridBagConstraints.HORIZONTAL;
+        gbcLblDisplayOrientation.insets = new Insets(0, 0, 5, 5);
+        gbcLblDisplayOrientation.gridx = 1;
+        gbcLblDisplayOrientation.gridy = 5;
+        panel.add(lblDisplayOrientation, gbcLblDisplayOrientation);
+        lblDisplayOrientation.setHorizontalAlignment(SwingConstants.TRAILING);
 
-		cbbxDriverStatus = new JComboBox<>();
-		final GridBagConstraints gbcCbbxDriverStatus = new GridBagConstraints();
-		gbcCbbxDriverStatus.fill = GridBagConstraints.HORIZONTAL;
-		gbcCbbxDriverStatus.insets = new Insets(0, 0, 5, 5);
-		gbcCbbxDriverStatus.gridx = 3;
-		gbcCbbxDriverStatus.gridy = 6;
-		panel.add(cbbxDriverStatus, gbcCbbxDriverStatus);
-		cbbxDriverStatus.setModel(new DefaultComboBoxModel<>(Driver.StatusType.values()));
+        cbbxFilterDisplayOrientation = new JComboBox<>();
+        final GridBagConstraints gbcCbbxFilterDisplayOrientation = new GridBagConstraints();
+        gbcCbbxFilterDisplayOrientation.fill = GridBagConstraints.HORIZONTAL;
+        gbcCbbxFilterDisplayOrientation.insets = new Insets(0, 0, 5, 5);
+        gbcCbbxFilterDisplayOrientation.gridx = 3;
+        gbcCbbxFilterDisplayOrientation.gridy = 5;
+        panel.add(cbbxFilterDisplayOrientation, gbcCbbxFilterDisplayOrientation);
+        cbbxFilterDisplayOrientation.addItemListener(e -> cbbxFilterDisplayOrientationValueChanged(session, e));
+        cbbxFilterDisplayOrientation.setModel(new DefaultComboBoxModel<>(DisplayOrientation.values()));
 
-		JLabel lblSwMinSupportedLvl = new JLabel(Messages.getString("MainFrame.lblSwMinSupport.text")); //$NON-NLS-1$
-		final GridBagConstraints gbcLblSwMinSupportedLvl = new GridBagConstraints();
-		gbcLblSwMinSupportedLvl.gridwidth = 2;
-		gbcLblSwMinSupportedLvl.fill = GridBagConstraints.HORIZONTAL;
-		gbcLblSwMinSupportedLvl.insets = new Insets(0, 0, 5, 5);
-		gbcLblSwMinSupportedLvl.gridx = 1;
-		gbcLblSwMinSupportedLvl.gridy = 7;
-		panel.add(lblSwMinSupportedLvl, gbcLblSwMinSupportedLvl);
-		lblSwMinSupportedLvl.setHorizontalAlignment(SwingConstants.TRAILING);
+        JLabel lblDriverStatus = new JLabel(Messages.getString("MainFrame.lblDriverStatus.text")); //$NON-NLS-1$
+        final GridBagConstraints gbcLblDriverStatus = new GridBagConstraints();
+        gbcLblDriverStatus.gridwidth = 2;
+        gbcLblDriverStatus.fill = GridBagConstraints.HORIZONTAL;
+        gbcLblDriverStatus.insets = new Insets(0, 0, 5, 5);
+        gbcLblDriverStatus.gridx = 1;
+        gbcLblDriverStatus.gridy = 6;
+        panel.add(lblDriverStatus, gbcLblDriverStatus);
+        lblDriverStatus.setHorizontalAlignment(SwingConstants.TRAILING);
 
-		cbbxSWMinSupportedLvl = new JComboBox<>();
-		final GridBagConstraints gbcCbbxSWMinSupportedLvl = new GridBagConstraints();
-		gbcCbbxSWMinSupportedLvl.fill = GridBagConstraints.HORIZONTAL;
-		gbcCbbxSWMinSupportedLvl.insets = new Insets(0, 0, 5, 5);
-		gbcCbbxSWMinSupportedLvl.gridx = 3;
-		gbcCbbxSWMinSupportedLvl.gridy = 7;
-		panel.add(cbbxSWMinSupportedLvl, gbcCbbxSWMinSupportedLvl);
-		cbbxSWMinSupportedLvl.addItemListener(e -> cbbxSWMinSupportedLvlValueChanged(session, e));
-		cbbxSWMinSupportedLvl.setModel(new DefaultComboBoxModel<>(Supported.values()));
-		cbbxSWMinSupportedLvl.setSelectedIndex(0);
+        cbbxDriverStatus = new JComboBox<>();
+        final GridBagConstraints gbcCbbxDriverStatus = new GridBagConstraints();
+        gbcCbbxDriverStatus.fill = GridBagConstraints.HORIZONTAL;
+        gbcCbbxDriverStatus.insets = new Insets(0, 0, 5, 5);
+        gbcCbbxDriverStatus.gridx = 3;
+        gbcCbbxDriverStatus.gridy = 6;
+        panel.add(cbbxDriverStatus, gbcCbbxDriverStatus);
+        cbbxDriverStatus.setModel(new DefaultComboBoxModel<>(Driver.StatusType.values()));
 
-		cbbxYearMin = new JComboBox<>();
-		cbbxYearMin.addItemListener(e -> cbbxYearMinValueChanged(session, e));
-		final GridBagConstraints gbcCbbxYearMin = new GridBagConstraints();
-		gbcCbbxYearMin.fill = GridBagConstraints.HORIZONTAL;
-		gbcCbbxYearMin.insets = new Insets(0, 0, 5, 5);
-		gbcCbbxYearMin.gridx = 1;
-		gbcCbbxYearMin.gridy = 8;
-		panel.add(cbbxYearMin, gbcCbbxYearMin);
+        JLabel lblSwMinSupportedLvl = new JLabel(Messages.getString("MainFrame.lblSwMinSupport.text")); //$NON-NLS-1$
+        final GridBagConstraints gbcLblSwMinSupportedLvl = new GridBagConstraints();
+        gbcLblSwMinSupportedLvl.gridwidth = 2;
+        gbcLblSwMinSupportedLvl.fill = GridBagConstraints.HORIZONTAL;
+        gbcLblSwMinSupportedLvl.insets = new Insets(0, 0, 5, 5);
+        gbcLblSwMinSupportedLvl.gridx = 1;
+        gbcLblSwMinSupportedLvl.gridy = 7;
+        panel.add(lblSwMinSupportedLvl, gbcLblSwMinSupportedLvl);
+        lblSwMinSupportedLvl.setHorizontalAlignment(SwingConstants.TRAILING);
 
-		JLabel lblYear = new JLabel(Messages.getString("MainFrame.lblYear.text")); //$NON-NLS-1$
-		final GridBagConstraints gbcLblYear = new GridBagConstraints();
-		gbcLblYear.insets = new Insets(0, 0, 5, 5);
-		gbcLblYear.gridx = 2;
-		gbcLblYear.gridy = 8;
-		panel.add(lblYear, gbcLblYear);
-		lblYear.setHorizontalAlignment(SwingConstants.CENTER);
+        cbbxSWMinSupportedLvl = new JComboBox<>();
+        final GridBagConstraints gbcCbbxSWMinSupportedLvl = new GridBagConstraints();
+        gbcCbbxSWMinSupportedLvl.fill = GridBagConstraints.HORIZONTAL;
+        gbcCbbxSWMinSupportedLvl.insets = new Insets(0, 0, 5, 5);
+        gbcCbbxSWMinSupportedLvl.gridx = 3;
+        gbcCbbxSWMinSupportedLvl.gridy = 7;
+        panel.add(cbbxSWMinSupportedLvl, gbcCbbxSWMinSupportedLvl);
+        cbbxSWMinSupportedLvl.addItemListener(e -> cbbxSWMinSupportedLvlValueChanged(session, e));
+        cbbxSWMinSupportedLvl.setModel(new DefaultComboBoxModel<>(Supported.values()));
+        cbbxSWMinSupportedLvl.setSelectedIndex(0);
 
-		cbbxYearMax = new JComboBox<>();
-		cbbxYearMax.addItemListener(e -> cbbxYearMaxValueChanged(session, e));
-		final GridBagConstraints gbcCbbxYearMax = new GridBagConstraints();
-		gbcCbbxYearMax.fill = GridBagConstraints.HORIZONTAL;
-		gbcCbbxYearMax.insets = new Insets(0, 0, 5, 5);
-		gbcCbbxYearMax.gridx = 3;
-		gbcCbbxYearMax.gridy = 8;
-		panel.add(cbbxYearMax, gbcCbbxYearMax);
-		cbbxDriverStatus.addItemListener(e -> cbbxDriverStatusValueChanged(session, e));
-		chckbxIncludeDisks.addItemListener(e -> chckbxIncludeDisksStateChanged(session, e));
-		chckbxIncludeClones.addItemListener(e -> chckbxIncludeClonesStateChanged(session, e));
-		chckbxIncludeSamples.addItemListener(e -> chckbxIncludeSamplesStateChanged(session, e));
-	}
+        cbbxYearMin = new JComboBox<>();
+        cbbxYearMin.addItemListener(e -> cbbxYearMinValueChanged(session, e));
+        final GridBagConstraints gbcCbbxYearMin = new GridBagConstraints();
+        gbcCbbxYearMin.fill = GridBagConstraints.HORIZONTAL;
+        gbcCbbxYearMin.insets = new Insets(0, 0, 5, 5);
+        gbcCbbxYearMin.gridx = 1;
+        gbcCbbxYearMin.gridy = 8;
+        panel.add(cbbxYearMin, gbcCbbxYearMin);
 
-	/**
-	 * 
-	 */
-	private void buildSystemsMenu()
-	{
-		JPopupMenu popupMenu = new JPopupMenu();
-		Popup.addPopup(checkBoxListSystems, popupMenu);
+        JLabel lblYear = new JLabel(Messages.getString("MainFrame.lblYear.text")); //$NON-NLS-1$
+        final GridBagConstraints gbcLblYear = new GridBagConstraints();
+        gbcLblYear.insets = new Insets(0, 0, 5, 5);
+        gbcLblYear.gridx = 2;
+        gbcLblYear.gridy = 8;
+        panel.add(lblYear, gbcLblYear);
+        lblYear.setHorizontalAlignment(SwingConstants.CENTER);
 
-		JMenu mnSelect = new JMenu(Messages.getString("MainFrame.mnSelect.text")); //$NON-NLS-1$
-		popupMenu.add(mnSelect);
+        cbbxYearMax = new JComboBox<>();
+        cbbxYearMax.addItemListener(e -> cbbxYearMaxValueChanged(session, e));
+        final GridBagConstraints gbcCbbxYearMax = new GridBagConstraints();
+        gbcCbbxYearMax.fill = GridBagConstraints.HORIZONTAL;
+        gbcCbbxYearMax.insets = new Insets(0, 0, 5, 5);
+        gbcCbbxYearMax.gridx = 3;
+        gbcCbbxYearMax.gridy = 8;
+        panel.add(cbbxYearMax, gbcCbbxYearMax);
+        cbbxDriverStatus.addItemListener(e -> cbbxDriverStatusValueChanged(session, e));
+        chckbxIncludeDisks.addItemListener(e -> chckbxIncludeDisksStateChanged(session, e));
+        chckbxIncludeClones.addItemListener(e -> chckbxIncludeClonesStateChanged(session, e));
+        chckbxIncludeSamples.addItemListener(e -> chckbxIncludeSamplesStateChanged(session, e));
+    }
 
-		JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
-		mntmSelectAll.addActionListener(e -> checkBoxListSystems.selectAll());
-		mnSelect.add(mntmSelectAll);
+    /**
+     * 
+     */
+    private void buildSystemsMenu() {
+        JPopupMenu popupMenu = new JPopupMenu();
+        Popup.addPopup(checkBoxListSystems, popupMenu);
 
-		JMenuItem mntmSelectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
-		mntmSelectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, true));
-		mnSelect.add(mntmSelectAllBios);
+        JMenu mnSelect = new JMenu(Messages.getString("MainFrame.mnSelect.text")); //$NON-NLS-1$
+        popupMenu.add(mnSelect);
 
-		JMenuItem mntmSelectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
-		mntmSelectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, true));
-		mnSelect.add(mntmSelectAllSoftwares);
+        JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
+        mntmSelectAll.addActionListener(e -> checkBoxListSystems.selectAll());
+        mnSelect.add(mntmSelectAll);
 
-		JMenu mnUnselect = new JMenu(Messages.getString("MainFrame.mnUnselect.text")); //$NON-NLS-1$
-		popupMenu.add(mnUnselect);
+        JMenuItem mntmSelectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
+        mntmSelectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, true));
+        mnSelect.add(mntmSelectAllBios);
 
-		JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
-		mntmUnselectAll.addActionListener(e -> checkBoxListSystems.selectNone());
-		mnUnselect.add(mntmUnselectAll);
+        JMenuItem mntmSelectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
+        mntmSelectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, true));
+        mnSelect.add(mntmSelectAllSoftwares);
 
-		JMenuItem mntmUnselectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
-		mntmUnselectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, false));
-		mnUnselect.add(mntmUnselectAllBios);
+        JMenu mnUnselect = new JMenu(Messages.getString("MainFrame.mnUnselect.text")); //$NON-NLS-1$
+        popupMenu.add(mnUnselect);
 
-		JMenuItem mntmUnselectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
-		mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, false));
-		mnUnselect.add(mntmUnselectAllSoftwares);
+        JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
+        mntmUnselectAll.addActionListener(e -> checkBoxListSystems.selectNone());
+        mnUnselect.add(mntmUnselectAll);
 
-		JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
-		mntmInvertSelection.addActionListener(e -> checkBoxListSystems.selectInvert());
-		popupMenu.add(mntmInvertSelection);
-	}
+        JMenuItem mntmUnselectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
+        mntmUnselectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, false));
+        mnUnselect.add(mntmUnselectAllBios);
 
-	/**
-	 * 
-	 */
-	private void buildSourcesMenu()
-	{
-		JPopupMenu popupMenu = new JPopupMenu();
-		Popup.addPopup(checkBoxListSources, popupMenu);
+        JMenuItem mntmUnselectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
+        mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, false));
+        mnUnselect.add(mntmUnselectAllSoftwares);
 
-		JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
-		mntmSelectAll.addActionListener(e -> checkBoxListSources.selectAll());
-		popupMenu.add(mntmSelectAll);
+        JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
+        mntmInvertSelection.addActionListener(e -> checkBoxListSystems.selectInvert());
+        popupMenu.add(mntmInvertSelection);
+    }
 
-		JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
-		mntmUnselectAll.addActionListener(e -> checkBoxListSources.selectNone());
-		popupMenu.add(mntmUnselectAll);
+    /**
+     * 
+     */
+    private void buildSourcesMenu() {
+        JPopupMenu popupMenu = new JPopupMenu();
+        Popup.addPopup(checkBoxListSources, popupMenu);
 
-		JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
-		mntmInvertSelection.addActionListener(e -> checkBoxListSources.selectInvert());
-		popupMenu.add(mntmInvertSelection);
-	}
+        JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
+        mntmSelectAll.addActionListener(e -> checkBoxListSources.selectAll());
+        popupMenu.add(mntmSelectAll);
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void chckbxIncludeSamplesStateChanged(final Session session, ItemEvent e)
-	{
-		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclSamples, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
-	}
+        JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
+        mntmUnselectAll.addActionListener(e -> checkBoxListSources.selectNone());
+        popupMenu.add(mntmUnselectAll);
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void chckbxIncludeClonesStateChanged(final Session session, ItemEvent e)
-	{
-		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclClones, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
-	}
+        JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
+        mntmInvertSelection.addActionListener(e -> checkBoxListSources.selectInvert());
+        popupMenu.add(mntmInvertSelection);
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void chckbxIncludeDisksStateChanged(final Session session, ItemEvent e)
-	{
-		session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclDisks, e.getStateChange() == ItemEvent.SELECTED); //$NON-NLS-1$
-		if (MainFrame.getProfileViewer() != null)
-			MainFrame.getProfileViewer().reset(session.getCurrProfile());
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void chckbxIncludeSamplesStateChanged(final Session session, ItemEvent e) {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclSamples, e.getStateChange() == ItemEvent.SELECTED); // $NON-NLS-1$
+        if (MainFrame.getProfileViewer() != null)
+            MainFrame.getProfileViewer().reset(session.getCurrProfile());
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void cbbxDriverStatusValueChanged(final Session session, ItemEvent e)
-	{
-		if (e.getStateChange() == ItemEvent.SELECTED)
-		{
-			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DriverStatus, e.getItem().toString()); //$NON-NLS-1$
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		}
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void chckbxIncludeClonesStateChanged(final Session session, ItemEvent e) {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclClones, e.getStateChange() == ItemEvent.SELECTED); // $NON-NLS-1$
+        if (MainFrame.getProfileViewer() != null)
+            MainFrame.getProfileViewer().reset(session.getCurrProfile());
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void cbbxYearMaxValueChanged(final Session session, ItemEvent e)
-	{
-		if (e.getStateChange() == ItemEvent.SELECTED)
-		{
-			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMax, e.getItem().toString()); //$NON-NLS-1$
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		}
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void chckbxIncludeDisksStateChanged(final Session session, ItemEvent e) {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclDisks, e.getStateChange() == ItemEvent.SELECTED); // $NON-NLS-1$
+        if (MainFrame.getProfileViewer() != null)
+            MainFrame.getProfileViewer().reset(session.getCurrProfile());
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void cbbxYearMinValueChanged(final Session session, ItemEvent e)
-	{
-		if (e.getStateChange() == ItemEvent.SELECTED)
-		{
-			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMin, e.getItem().toString()); //$NON-NLS-1$
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		}
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void cbbxDriverStatusValueChanged(final Session session, ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DriverStatus, e.getItem().toString()); // $NON-NLS-1$
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        }
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void cbbxSWMinSupportedLvlValueChanged(final Session session, ItemEvent e)
-	{
-		if (e.getStateChange() == ItemEvent.SELECTED)
-		{
-			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, e.getItem().toString()); //$NON-NLS-1$
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		}
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void cbbxYearMaxValueChanged(final Session session, ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMax, e.getItem().toString()); // $NON-NLS-1$
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        }
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void cbbxFilterDisplayOrientationValueChanged(final Session session, ItemEvent e)
-	{
-		if (e.getStateChange() == ItemEvent.SELECTED)
-		{
-			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DisplayOrientation, e.getItem().toString()); //$NON-NLS-1$
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		}
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void cbbxYearMinValueChanged(final Session session, ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMin, e.getItem().toString()); // $NON-NLS-1$
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        }
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void cbbxFilterCabinetTypeValueChanged(final Session session, ItemEvent e)
-	{
-		if (e.getStateChange() == ItemEvent.SELECTED)
-		{
-			session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_CabinetType, e.getItem().toString()); //$NON-NLS-1$
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		}
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void cbbxSWMinSupportedLvlValueChanged(final Session session, ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, e.getItem().toString()); // $NON-NLS-1$
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        }
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void checkBoxListSystemsValueChanged(final Session session, ListSelectionEvent e)
-	{
-		if (!e.getValueIsAdjusting() && e.getFirstIndex() != -1)
-		{
-			for (int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
-				checkBoxListSystems.getModel().getElementAt(index).setSelected(session.getCurrProfile(), checkBoxListSystems.isSelectedIndex(index));
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		}
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void cbbxFilterDisplayOrientationValueChanged(final Session session, ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DisplayOrientation, e.getItem().toString()); // $NON-NLS-1$
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        }
+    }
 
-	/**
-	 * @param session
-	 * @param e
-	 */
-	private void checkBoxListSourcesValueChanged(final Session session, ListSelectionEvent e)
-	{
-		if (!e.getValueIsAdjusting() && e.getFirstIndex() != -1)
-		{
-			for (int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
-				checkBoxListSources.getModel().getElementAt(index).setSelected(session.getCurrProfile(), checkBoxListSources.isSelectedIndex(index));
-			if (MainFrame.getProfileViewer() != null)
-				MainFrame.getProfileViewer().reset(session.getCurrProfile());
-		}
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void cbbxFilterCabinetTypeValueChanged(final Session session, ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_CabinetType, e.getItem().toString()); // $NON-NLS-1$
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        }
+    }
 
-	/**
-	 * @param session
-	 * @return
-	 */
-	private JCheckBoxList<Systm>.CellRenderer getCheckBoxListSystemsCellRenderer(final Session session)
-	{
-		return checkBoxListSystems.new CellRenderer()
-		{
-			@Override
-			public Component getListCellRendererComponent(final JList<? extends Systm> list, final Systm value, final int index, final boolean isSelected, final boolean cellHasFocus)
-			{
-				final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				checkbox.setSelected(value.isSelected(session.getCurrProfile()));
-				return checkbox;
-			}
-		};
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void checkBoxListSystemsValueChanged(final Session session, ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting() && e.getFirstIndex() != -1) {
+            for (int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
+                checkBoxListSystems.getModel().getElementAt(index).setSelected(session.getCurrProfile(), checkBoxListSystems.isSelectedIndex(index));
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        }
+    }
 
-	/**
-	 * @param session
-	 * @return
-	 */
-	private JCheckBoxList<Source>.CellRenderer getCheckBoxListSourcesCellRenderer(final Session session)
-	{
-		return checkBoxListSources.new CellRenderer()
-		{
-			@Override
-			public Component getListCellRendererComponent(final JList<? extends Source> list, final Source value, final int index, final boolean isSelected, final boolean cellHasFocus)
-			{
-				final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				checkbox.setSelected(value.isSelected(session.getCurrProfile()));
-				return checkbox;
-			}
-		};
-	}
+    /**
+     * @param session
+     * @param e
+     */
+    private void checkBoxListSourcesValueChanged(final Session session, ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting() && e.getFirstIndex() != -1) {
+            for (int index = e.getFirstIndex(); index <= e.getLastIndex(); index++)
+                checkBoxListSources.getModel().getElementAt(index).setSelected(session.getCurrProfile(), checkBoxListSources.isSelectedIndex(index));
+            if (MainFrame.getProfileViewer() != null)
+                MainFrame.getProfileViewer().reset(session.getCurrProfile());
+        }
+    }
 
-	public void initProfileSettings(@SuppressWarnings("exports") final Session session)
-	{
-		chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class)); //$NON-NLS-1$
-		chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class)); //$NON-NLS-1$
-		chckbxIncludeSamples.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclSamples, Boolean.class)); //$NON-NLS-1$
-		cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_DriverStatus))); //$NON-NLS-1$
-		cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_CabinetType))); //$NON-NLS-1$
-		cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_DisplayOrientation))); //$NON-NLS-1$
-		cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel))); //$NON-NLS-1$
-		cbbxYearMin.setModel(new YearsModel(session.getCurrProfile().getYears()));
-		cbbxYearMin.setSelectedItem(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMin)); //$NON-NLS-1$
-		cbbxYearMax.setModel(new YearsModel(session.getCurrProfile().getYears()));
-		cbbxYearMax.setSelectedItem(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMax)); //$NON-NLS-1$
-		
-	}
-	
+    /**
+     * @param session
+     * @return
+     */
+    private JCheckBoxList<Systm>.CellRenderer getCheckBoxListSystemsCellRenderer(final Session session) {
+        return checkBoxListSystems.new CellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(final JList<? extends Systm> list, final Systm value, final int index, final boolean isSelected,
+                    final boolean cellHasFocus) {
+                final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                checkbox.setSelected(value.isSelected(session.getCurrProfile()));
+                return checkbox;
+            }
+        };
+    }
+
+    /**
+     * @param session
+     * @return
+     */
+    private JCheckBoxList<Source>.CellRenderer getCheckBoxListSourcesCellRenderer(final Session session) {
+        return checkBoxListSources.new CellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(final JList<? extends Source> list, final Source value, final int index, final boolean isSelected,
+                    final boolean cellHasFocus) {
+                final JCheckBox checkbox = (JCheckBox) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                checkbox.setSelected(value.isSelected(session.getCurrProfile()));
+                return checkbox;
+            }
+        };
+    }
+
+    public void initProfileSettings(final Session session) {
+        chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class)); // $NON-NLS-1$
+        chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class)); // $NON-NLS-1$
+        chckbxIncludeSamples.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclSamples, Boolean.class)); // $NON-NLS-1$
+        cbbxDriverStatus.setSelectedItem(Driver.StatusType.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_DriverStatus))); // $NON-NLS-1$
+        cbbxFilterCabinetType.setSelectedItem(CabinetType.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_CabinetType))); // $NON-NLS-1$
+        cbbxFilterDisplayOrientation.setSelectedItem(DisplayOrientation.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_DisplayOrientation))); // $NON-NLS-1$
+        cbbxSWMinSupportedLvl.setSelectedItem(Supported.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel))); // $NON-NLS-1$
+        cbbxYearMin.setModel(new YearsModel(session.getCurrProfile().getYears()));
+        cbbxYearMin.setSelectedItem(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMin)); // $NON-NLS-1$
+        cbbxYearMax.setModel(new YearsModel(session.getCurrProfile().getYears()));
+        cbbxYearMax.setSelectedItem(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMax)); // $NON-NLS-1$
+
+    }
+
 }

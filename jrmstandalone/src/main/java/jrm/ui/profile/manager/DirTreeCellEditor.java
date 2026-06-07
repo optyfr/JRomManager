@@ -29,38 +29,34 @@ import javax.swing.tree.TreePath;
  *
  * @author optyfr
  */
-public class DirTreeCellEditor extends DefaultTreeCellEditor
-{
-	
-	/**
-	 * Instantiates a new dir tree cell editor.
-	 *
-	 * @param tree the tree
-	 * @param renderer the renderer
-	 */
-	public DirTreeCellEditor(final JTree tree, final DefaultTreeCellRenderer renderer)
-	{
-		super(tree, renderer);
-	}
+public class DirTreeCellEditor extends DefaultTreeCellEditor {
 
-	/**
-	 * Instantiates a new dir tree cell editor.
-	 *
-	 * @param tree the tree
-	 * @param renderer the renderer
-	 * @param editor the editor
-	 */
-	public DirTreeCellEditor(final JTree tree, final DefaultTreeCellRenderer renderer, final TreeCellEditor editor)
-	{
-		super(tree, renderer, editor);
-	}
+    /**
+     * Instantiates a new dir tree cell editor.
+     *
+     * @param tree     the tree
+     * @param renderer the renderer
+     */
+    public DirTreeCellEditor(final JTree tree, final DefaultTreeCellRenderer renderer) {
+        super(tree, renderer);
+    }
 
-	@Override
-	public Component getTreeCellEditorComponent(final JTree tree, final Object value, final boolean isSelected, final boolean expanded, final boolean leaf, final int row)
-	{
-		final TreePath path = tree.getPathForRow(row);
-		if(path.getPathCount() > 1)
-			return super.getTreeCellEditorComponent(tree, value, isSelected, expanded, leaf, row);
-		return renderer.getTreeCellRendererComponent(tree, value, isSelected, expanded, leaf, row, /* hasFocus */true);
-	}
+    /**
+     * Instantiates a new dir tree cell editor.
+     *
+     * @param tree     the tree
+     * @param renderer the renderer
+     * @param editor   the editor
+     */
+    public DirTreeCellEditor(final JTree tree, final DefaultTreeCellRenderer renderer, final TreeCellEditor editor) {
+        super(tree, renderer, editor);
+    }
+
+    @Override
+    public Component getTreeCellEditorComponent(final JTree tree, final Object value, final boolean isSelected, final boolean expanded, final boolean leaf, final int row) {
+        final TreePath path = tree.getPathForRow(row);
+        if (path.getPathCount() > 1)
+            return super.getTreeCellEditorComponent(tree, value, isSelected, expanded, leaf, row);
+        return renderer.getTreeCellRendererComponent(tree, value, isSelected, expanded, leaf, row, /* hasFocus */true);
+    }
 }

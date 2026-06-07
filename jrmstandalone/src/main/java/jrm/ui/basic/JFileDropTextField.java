@@ -38,198 +38,170 @@ import javax.swing.text.Document;
  * The Class JFileDropTextField.
  */
 @SuppressWarnings("serial")
-public class JFileDropTextField extends JTextField implements FocusListener, JFileDrop
-{
-	
-	/** The color. */
-	private final Color color;
-	
-	/** The callback. */
-	private final transient SetCallBack callback;
-	
-	/** The mode. */
-	private JFileDropMode mode = JFileDropMode.FILE;
-	
-	/** The filter */
-	private transient FilenameFilter filter = null;
+public class JFileDropTextField extends JTextField implements FocusListener, JFileDrop {
 
-	/**
-	 * The Interface SetCallBack.
-	 */
-	@FunctionalInterface
-	public interface SetCallBack
-	{
-		
-		/**
-		 * Call.
-		 *
-		 * @param txt the txt
-		 */
-		public void call(String txt);
-	}
+    /** The color. */
+    private final Color color;
 
-	/**
-	 * Instantiates a new j file drop text field.
-	 *
-	 * @param callback the callback
-	 * @throws HeadlessException the headless exception
-	 */
-	public JFileDropTextField(final SetCallBack callback) throws HeadlessException
-	{
-		this(null, "", 0, callback); //$NON-NLS-1$
-	}
+    /** The callback. */
+    private final transient SetCallBack callback;
 
-	/**
-	 * Instantiates a new j file drop text field.
-	 *
-	 * @param text the text
-	 * @param callback the callback
-	 * @throws HeadlessException the headless exception
-	 */
-	public JFileDropTextField(final String text, final SetCallBack callback) throws HeadlessException
-	{
-		this(null, text, 0, callback);
-	}
+    /** The mode. */
+    private JFileDropMode mode = JFileDropMode.FILE;
 
-	/**
-	 * Instantiates a new j file drop text field.
-	 *
-	 * @param columns the columns
-	 * @param callback the callback
-	 * @throws HeadlessException the headless exception
-	 */
-	public JFileDropTextField(final int columns, final SetCallBack callback) throws HeadlessException
-	{
-		this(null, "", columns, callback); //$NON-NLS-1$
-	}
+    /** The filter */
+    private transient FilenameFilter filter = null;
 
-	/**
-	 * Instantiates a new j file drop text field.
-	 *
-	 * @param text the text
-	 * @param columns the columns
-	 * @param callback the callback
-	 * @throws HeadlessException the headless exception
-	 */
-	public JFileDropTextField(final String text, final int columns, final SetCallBack callback) throws HeadlessException
-	{
-		this(null, "", columns, callback); //$NON-NLS-1$
-	}
+    /**
+     * The Interface SetCallBack.
+     */
+    @FunctionalInterface
+    public interface SetCallBack {
 
-	/**
-	 * Instantiates a new j file drop text field.
-	 *
-	 * @param doc the doc
-	 * @param text the text
-	 * @param columns the columns
-	 * @param callback the callback
-	 */
-	@SuppressWarnings("exports")
-	public JFileDropTextField(final Document doc, final String text, final int columns, final SetCallBack callback)
-	{
-		super(doc, text, columns);
-		this.callback = callback;
-		color = JFileDropTextField.this.getBackground();
-		addFocusListener(this);
-		new DropTarget(this, this);
-	}
+        /**
+         * Call.
+         *
+         * @param txt the txt
+         */
+        public void call(String txt);
+    }
 
-	/**
-	 * Sets the mode.
-	 *
-	 * @param mode the new mode
-	 */
-	public void setMode(JFileDropMode mode)
-	{
-		this.mode = mode;
-	}
+    /**
+     * Instantiates a new j file drop text field.
+     *
+     * @param callback the callback
+     * @throws HeadlessException the headless exception
+     */
+    public JFileDropTextField(final SetCallBack callback) throws HeadlessException {
+        this(null, "", 0, callback); //$NON-NLS-1$
+    }
 
-	public void setFilter(FilenameFilter filter)
-	{
-		this.filter = filter;
-	}
+    /**
+     * Instantiates a new j file drop text field.
+     *
+     * @param text     the text
+     * @param callback the callback
+     * @throws HeadlessException the headless exception
+     */
+    public JFileDropTextField(final String text, final SetCallBack callback) throws HeadlessException {
+        this(null, text, 0, callback);
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public void focusGained(final FocusEvent e)
-	{
-		// do nothing
-	}
+    /**
+     * Instantiates a new j file drop text field.
+     *
+     * @param columns  the columns
+     * @param callback the callback
+     * @throws HeadlessException the headless exception
+     */
+    public JFileDropTextField(final int columns, final SetCallBack callback) throws HeadlessException {
+        this(null, "", columns, callback); //$NON-NLS-1$
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public void focusLost(final FocusEvent e)
-	{
-		if (callback != null)
-			callback.call(JFileDropTextField.this.getText());
-	}
+    /**
+     * Instantiates a new j file drop text field.
+     *
+     * @param text     the text
+     * @param columns  the columns
+     * @param callback the callback
+     * @throws HeadlessException the headless exception
+     */
+    public JFileDropTextField(final String text, final int columns, final SetCallBack callback) throws HeadlessException {
+        this(null, "", columns, callback); //$NON-NLS-1$
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public void dragEnter(final DropTargetDragEvent dtde)
-	{
-		final Transferable transferable = dtde.getTransferable();
-		if (isFlavorSupported(transferable))
-		{
-			JFileDropTextField.this.setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
-			dtde.acceptDrag(DnDConstants.ACTION_COPY);
-		}
-		else
-		{
-			JFileDropTextField.this.setBackground(Color.decode("#FFDDDD")); //$NON-NLS-1$
-			dtde.rejectDrag();
-		}
-	}
+    /**
+     * Instantiates a new j file drop text field.
+     *
+     * @param doc      the doc
+     * @param text     the text
+     * @param columns  the columns
+     * @param callback the callback
+     */
+    public JFileDropTextField(final Document doc, final String text, final int columns, final SetCallBack callback) {
+        super(doc, text, columns);
+        this.callback = callback;
+        color = JFileDropTextField.this.getBackground();
+        addFocusListener(this);
+        new DropTarget(this, this);
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public void dragExit(final DropTargetEvent dte)
-	{
-		JFileDropTextField.this.setBackground(color);
-	}
+    /**
+     * Sets the mode.
+     *
+     * @param mode the new mode
+     */
+    public void setMode(JFileDropMode mode) {
+        this.mode = mode;
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public void drop(final DropTargetDropEvent dtde)
-	{
-		JFileDropTextField.this.setBackground(color);
-		drop(dtde, files -> {
-			JFileDropTextField.this.setText(files.get(0).getAbsolutePath());
-			callback.call(JFileDropTextField.this.getText());
-		});
-	}
+    public void setFilter(FilenameFilter filter) {
+        this.filter = filter;
+    }
 
-	/**
-	 * @param files
-	 * @return
-	 */
-	@Override
-	public boolean checkValid(final List<File> files)
-	{
-		return files.size() == 1;
-	}
+    @Override
+    public void focusGained(final FocusEvent e) {
+        // do nothing
+    }
 
-	/**
-	 * @param transferable
-	 * @return
-	 */
-	@Override
-	public boolean isFlavorSupported(final Transferable transferable)
-	{
-		return JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
-	}
+    @Override
+    public void focusLost(final FocusEvent e) {
+        if (callback != null)
+            callback.call(JFileDropTextField.this.getText());
+    }
 
-	@Override
-	public JFileDropMode getMode()
-	{
-		return mode;
-	}
+    @Override
+    public void dragEnter(final DropTargetDragEvent dtde) {
+        final Transferable transferable = dtde.getTransferable();
+        if (isFlavorSupported(transferable)) {
+            JFileDropTextField.this.setBackground(Color.decode("#DDFFDD")); //$NON-NLS-1$
+            dtde.acceptDrag(DnDConstants.ACTION_COPY);
+        } else {
+            JFileDropTextField.this.setBackground(Color.decode("#FFDDDD")); //$NON-NLS-1$
+            dtde.rejectDrag();
+        }
+    }
 
-	@Override
-	public FilenameFilter getFilter()
-	{
-		return filter;
-	}
+    @Override
+    public void dragExit(final DropTargetEvent dte) {
+        JFileDropTextField.this.setBackground(color);
+    }
 
+    @Override
+    public void drop(final DropTargetDropEvent dtde) {
+        JFileDropTextField.this.setBackground(color);
+        drop(dtde, files -> {
+            JFileDropTextField.this.setText(files.get(0).getAbsolutePath());
+            callback.call(JFileDropTextField.this.getText());
+        });
+    }
+
+    /**
+     * @param files
+     * @return
+     */
+    @Override
+    public boolean checkValid(final List<File> files) {
+        return files.size() == 1;
+    }
+
+    /**
+     * @param transferable
+     * @return
+     */
+    @Override
+    public boolean isFlavorSupported(final Transferable transferable) {
+        return JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+    }
+
+    @Override
+    public JFileDropMode getMode() {
+        return mode;
+    }
+
+    @Override
+    public FilenameFilter getFilter() {
+        return filter;
+    }
 
 }

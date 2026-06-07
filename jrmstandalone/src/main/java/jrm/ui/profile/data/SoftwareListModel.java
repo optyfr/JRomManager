@@ -9,119 +9,100 @@ import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
 
-public class SoftwareListModel extends AnywareListModel<Software>
-{
-	private SoftwareList softwareList;
-	
-	public SoftwareListModel(SoftwareList softwareList)
-	{
-		this.softwareList = softwareList;
-	}
+public class SoftwareListModel extends AnywareListModel<Software> {
+    private SoftwareList softwareList;
 
-	@Override
-	public TableCellRenderer[] getCellRenderers()
-	{
-		return SoftwareListRenderer.columnsRenderers;
-	}
+    public SoftwareListModel(SoftwareList softwareList) {
+        this.softwareList = softwareList;
+    }
 
-	@Override
-	public int getColumnWidth(int columnIndex)
-	{
-		return SoftwareListRenderer.columnsWidths[columnIndex];
-	}
+    @Override
+    public TableCellRenderer[] getCellRenderers() {
+        return SoftwareListRenderer.columnsRenderers;
+    }
 
-	@Override
-	public String getColumnTT(int columnIndex)
-	{
-		return SoftwareListRenderer.columns[columnIndex];
-	}
+    @Override
+    public int getColumnWidth(int columnIndex) {
+        return SoftwareListRenderer.columnsWidths[columnIndex];
+    }
 
-	@Override
-	public int getRowCount()
-	{
-		return softwareList.getFilteredList().size();
-	}
+    @Override
+    public String getColumnTT(int columnIndex) {
+        return SoftwareListRenderer.columns[columnIndex];
+    }
 
-	@Override
-	public int getColumnCount()
-	{
-		return SoftwareListRenderer.columns.length;
-	}
+    @Override
+    public int getRowCount() {
+        return softwareList.getFilteredList().size();
+    }
 
-	@Override
-	public String getColumnName(int columnIndex)
-	{
-		return SoftwareListRenderer.columns[columnIndex];
-	}
+    @Override
+    public int getColumnCount() {
+        return SoftwareListRenderer.columns.length;
+    }
 
-	@Override
-	public Class<?> getColumnClass(int columnIndex)
-	{
-		return SoftwareListRenderer.columnsTypes[columnIndex];
-	}
+    @Override
+    public String getColumnName(int columnIndex) {
+        return SoftwareListRenderer.columns[columnIndex];
+    }
 
-	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex)
-	{
-		return columnIndex==5;
-	}
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        return SoftwareListRenderer.columnsTypes[columnIndex];
+    }
 
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex)
-	{
-		final Software software = softwareList.getFilteredList().get(rowIndex);
-		switch(columnIndex)
-		{
-			case 0:
-				return software;
-			case 1:
-				return software;
-			case 2:
-				return software.description.toString();
-			case 3:
-				return String.format("%d/%d", software.countHave(), software.getRoms().size() + software.getDisks().size()); //$NON-NLS-1$
-			case 4:
-				return software.getCloneof() != null ? softwareList.getByName(software.getCloneof()) : null;
-			case 5:
-				return software.isSelected();
-			default:
-				return null;
-		}
-	}
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return columnIndex == 5;
+    }
 
-	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
-	{
-		if(columnIndex==5 && aValue instanceof Boolean b)
-		{
-			final Software software = softwareList.getFilteredList().get(rowIndex);
-			software.setSelected(b);
-		}
-	}
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        final Software software = softwareList.getFilteredList().get(rowIndex);
+        switch (columnIndex) {
+            case 0:
+                return software;
+            case 1:
+                return software;
+            case 2:
+                return software.description.toString();
+            case 3:
+                return String.format("%d/%d", software.countHave(), software.getRoms().size() + software.getDisks().size()); //$NON-NLS-1$
+            case 4:
+                return software.getCloneof() != null ? softwareList.getByName(software.getCloneof()) : null;
+            case 5:
+                return software.isSelected();
+            default:
+                return null;
+        }
+    }
 
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        if (columnIndex == 5 && aValue instanceof Boolean b) {
+            final Software software = softwareList.getFilteredList().get(rowIndex);
+            software.setSelected(b);
+        }
+    }
 
-	public void reset()
-	{
-		softwareList.resetCache();
-		fireTableChanged(new TableModelEvent(this));
-	}
+    public void reset() {
+        softwareList.resetCache();
+        fireTableChanged(new TableModelEvent(this));
+    }
 
-	@Override
-	public TableCellRenderer getColumnRenderer(int columnIndex)
-	{
-		return SoftwareListRenderer.columnsRenderers[columnIndex];
-	}
+    @Override
+    public TableCellRenderer getColumnRenderer(int columnIndex) {
+        return SoftwareListRenderer.columnsRenderers[columnIndex];
+    }
 
-	@Override
-	public SoftwareList getList()
-	{
-		return softwareList;
-	}
+    @Override
+    public SoftwareList getList() {
+        return softwareList;
+    }
 
-	@Override
-	public void setFilter(Set<AnywareStatus> filter)
-	{
-		softwareList.setFilterCache(filter);
-		reset();
-	}
+    @Override
+    public void setFilter(Set<AnywareStatus> filter) {
+        softwareList.setFilterCache(filter);
+        reset();
+    }
 }

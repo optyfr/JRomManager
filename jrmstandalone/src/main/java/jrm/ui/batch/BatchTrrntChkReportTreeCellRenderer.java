@@ -34,68 +34,59 @@ import jrm.ui.batch.BatchTrrntChkReportNode.ChildNode;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
-{
+public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer {
 
-	/**
-	 * Instantiates a new report tree cell renderer.
-	 */
-	public BatchTrrntChkReportTreeCellRenderer()
-	{
-		super();
-	}
+    /**
+     * Instantiates a new report tree cell renderer.
+     */
+    public BatchTrrntChkReportTreeCellRenderer() {
+        super();
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean sel, final boolean expanded, final boolean leaf, final int row, final boolean hasFocus)
-	{
-		try
-		{
-			if (!(value instanceof ChildNode))
-			{
-				super.getTreeCellRendererComponent(tree, "Root", sel, expanded, leaf, row, hasFocus);
-				return this;
-			}
-			Child node = ((ChildNode) value).getChild();
-			String title = node.getData().getTitle();
-			if (node.getData().getLength() != null)
-				title += " (" + node.getData().getLength() + ")";
-			title += " [" + node.getData().getStatus() + "]";
-			super.getTreeCellRendererComponent(tree, title, sel, expanded, leaf, row, hasFocus);
-			if (!leaf)
-				setIcon(MainFrame.getIcon("/jrm/resicons/folder" + (expanded ? "_open" : "_closed") + statusColor(node.getData().getStatus()) + ".png"));
-			else
-				setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet" + statusColor(node.getData().getStatus()) + ".png"));
-		}
-		catch (Exception e)
-		{
-			Log.err(e.getMessage(), e);
-		}
-		return this;
-	}
+    @Override
+    public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean sel, final boolean expanded, final boolean leaf, final int row,
+            final boolean hasFocus) {
+        try {
+            if (!(value instanceof ChildNode)) {
+                super.getTreeCellRendererComponent(tree, "Root", sel, expanded, leaf, row, hasFocus);
+                return this;
+            }
+            Child node = ((ChildNode) value).getChild();
+            String title = node.getData().getTitle();
+            if (node.getData().getLength() != null)
+                title += " (" + node.getData().getLength() + ")";
+            title += " [" + node.getData().getStatus() + "]";
+            super.getTreeCellRendererComponent(tree, title, sel, expanded, leaf, row, hasFocus);
+            if (!leaf)
+                setIcon(MainFrame.getIcon("/jrm/resicons/folder" + (expanded ? "_open" : "_closed") + statusColor(node.getData().getStatus()) + ".png"));
+            else
+                setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet" + statusColor(node.getData().getStatus()) + ".png"));
+        } catch (Exception e) {
+            Log.err(e.getMessage(), e);
+        }
+        return this;
+    }
 
-	/**
-	 * @param status
-	 * @return
-	 */
-	protected String statusColor(final Status status)
-	{
-		switch (status)
-		{
-			case OK:
-				return "_green";
-			case MISSING:
-				return "_red";
-			case SHA1:
-				return "_purple";
-			case SIZE:
-				return "_blue";
-			case SKIPPED:
-				return "_orange";
-			case UNKNOWN:
-				return "_gray";
-			default:
-				return "";
-		}
-	}
+    /**
+     * @param status
+     * @return
+     */
+    protected String statusColor(final Status status) {
+        switch (status) {
+            case OK:
+                return "_green";
+            case MISSING:
+                return "_red";
+            case SHA1:
+                return "_purple";
+            case SIZE:
+                return "_blue";
+            case SKIPPED:
+                return "_orange";
+            case UNKNOWN:
+                return "_gray";
+            default:
+                return "";
+        }
+    }
 }

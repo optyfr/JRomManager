@@ -29,93 +29,78 @@ import jrm.ui.basic.NGTreeNode;
  * The Class CatVerModel.
  */
 @SuppressWarnings("serial")
-public class CatVerModel extends DefaultTreeModel
-{
+public class CatVerModel extends DefaultTreeModel {
 
-	/**
-	 * Instantiates a new cat ver model.
-	 *
-	 * @param root the root
-	 */
-	public CatVerModel(final NGTreeNode root)
-	{
-		super(root);
-	}
+    /**
+     * Instantiates a new cat ver model.
+     *
+     * @param root the root
+     */
+    public CatVerModel(final NGTreeNode root) {
+        super(root);
+    }
 
-	@Override
-	public NGTreeNode getRoot()
-	{
-		return (NGTreeNode)super.getRoot();
-	}
-	
-	/**
-	 * Instantiates a new cat ver model.
-	 */
-	public CatVerModel()
-	{
-		super(new AbstractNGTreeNode()
-		{
+    @Override
+    public NGTreeNode getRoot() {
+        return (NGTreeNode) super.getRoot();
+    }
 
-			@Override
-			public boolean isLeaf()
-			{
-				return true;
-			}
+    /**
+     * Instantiates a new cat ver model.
+     */
+    public CatVerModel() {
+        super(new AbstractNGTreeNode() {
 
-			@Override
-			public TreeNode getParent()
-			{
-				return null;
-			}
+            @Override
+            public boolean isLeaf() {
+                return true;
+            }
 
-			@Override
-			public int getIndex(final TreeNode node)
-			{
-				return 0;
-			}
+            @Override
+            public TreeNode getParent() {
+                return null;
+            }
 
-			@Override
-			public int getChildCount()
-			{
-				return 0;
-			}
+            @Override
+            public int getIndex(final TreeNode node) {
+                return 0;
+            }
 
-			@Override
-			public TreeNode getChildAt(final int childIndex)
-			{
-				return null;
-			}
+            @Override
+            public int getChildCount() {
+                return 0;
+            }
 
-			@Override
-			public boolean getAllowsChildren()
-			{
-				return false;
-			}
+            @Override
+            public TreeNode getChildAt(final int childIndex) {
+                return null;
+            }
 
-			@Override
-			public Enumeration<? extends TreeNode> children()
-			{
-				return null;
-			}
+            @Override
+            public boolean getAllowsChildren() {
+                return false;
+            }
 
-			@Override
-			public Object getUserObject()
-			{
-				return Messages.getString("CatVerModel.AddCatVerIniFirst"); //$NON-NLS-1$
-			}
+            @Override
+            public Enumeration<? extends TreeNode> children() {
+                return null;
+            }
 
-			@Override
-			public boolean isSelected()
-			{
-				return false;
-			}
+            @Override
+            public Object getUserObject() {
+                return Messages.getString("CatVerModel.AddCatVerIniFirst"); //$NON-NLS-1$
+            }
 
-			@Override
-			public void setSelected(final boolean selected)
-			{
-				// not selectable
-			}
-		});
-	}
+            @Override
+            public boolean isSelected() {
+                return false;
+            }
+
+            @Override
+            public void setSelected(final boolean selected) {
+                // not selectable
+            }
+        });
+    }
 
 }

@@ -34,72 +34,55 @@ import jrm.profile.manager.Dir;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public class DirTreeModel extends DefaultTreeModel implements TreeModelListener
-{
-	
-	/**
-	 * Instantiates a new dir tree model.
-	 *
-	 * @param root the root
-	 */
-	public DirTreeModel(final DirNode root)
-	{
-		super(root);
-		addTreeModelListener(this);
-	}
+public class DirTreeModel extends DefaultTreeModel implements TreeModelListener {
 
-	@SuppressWarnings("exports")
-	@Override
-	public void treeNodesChanged(final TreeModelEvent e)
-	{
-		final DirNode node = (DirNode)e.getTreePath().getLastPathComponent();
-		try
-		{
-			final int index = e.getChildIndices()[0];
-			final DirNode childNode = (DirNode) node.getChildAt(index);
-			if(childNode.getUserObject() instanceof String)
-			{
-				final File newdir = new File(node.getDir().getFile(), childNode.getUserObject().toString());
-				final File olddir = childNode.getDir().getFile();
-				if(olddir.renameTo(newdir))
-					childNode.setDir(new Dir(newdir));
-				childNode.setUserObject(childNode.getDir());
-			}
-		}
-		catch(final NullPointerException exc)
-		{
-			Log.err(exc.getMessage(), exc);
-		}
-	}
+    /**
+     * Instantiates a new dir tree model.
+     *
+     * @param root the root
+     */
+    public DirTreeModel(final DirNode root) {
+        super(root);
+        addTreeModelListener(this);
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public void treeNodesInserted(final TreeModelEvent e)
-	{
-		// do nothing
-	}
+    @Override
+    public void treeNodesChanged(final TreeModelEvent e) {
+        final DirNode node = (DirNode) e.getTreePath().getLastPathComponent();
+        try {
+            final int index = e.getChildIndices()[0];
+            final DirNode childNode = (DirNode) node.getChildAt(index);
+            if (childNode.getUserObject() instanceof String) {
+                final File newdir = new File(node.getDir().getFile(), childNode.getUserObject().toString());
+                final File olddir = childNode.getDir().getFile();
+                if (olddir.renameTo(newdir))
+                    childNode.setDir(new Dir(newdir));
+                childNode.setUserObject(childNode.getDir());
+            }
+        } catch (final NullPointerException exc) {
+            Log.err(exc.getMessage(), exc);
+        }
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public void treeNodesRemoved(final TreeModelEvent e)
-	{
-		try
-		{
-			final int index = e.getChildIndices()[0];
-			final Object[] children = e.getChildren();
-			final DirNode child = (DirNode)children[index];
-			FileUtils.deleteDirectory(child.getDir().getFile());
-		}
-		catch(NullPointerException | IOException exc)
-		{
-			Log.err(exc.getMessage(), exc);
-		}
-	}
+    @Override
+    public void treeNodesInserted(final TreeModelEvent e) {
+        // do nothing
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public void treeStructureChanged(final TreeModelEvent e)
-	{
-		// do nothing
-	}
+    @Override
+    public void treeNodesRemoved(final TreeModelEvent e) {
+        try {
+            final int index = e.getChildIndices()[0];
+            final Object[] children = e.getChildren();
+            final DirNode child = (DirNode) children[index];
+            FileUtils.deleteDirectory(child.getDir().getFile());
+        } catch (NullPointerException | IOException exc) {
+            Log.err(exc.getMessage(), exc);
+        }
+    }
+
+    @Override
+    public void treeStructureChanged(final TreeModelEvent e) {
+        // do nothing
+    }
 }

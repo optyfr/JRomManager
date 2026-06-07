@@ -26,41 +26,35 @@ import javax.swing.plaf.basic.BasicTableUI;
 /**
  * The Class JListHintUI.
  */
-public class JTableHintUI extends BasicTableUI
-{
-	
-	/** The hint. */
-	private final String hint;
-	
-	/** The hint color. */
-	private final Color hintColor;
+public class JTableHintUI extends BasicTableUI {
 
-	/**
-	 * Instantiates a new j list hint UI.
-	 *
-	 * @param hint the hint
-	 * @param hintColor the hint color
-	 */
-	@SuppressWarnings("exports")
-	public JTableHintUI(final String hint, final Color hintColor)
-	{
-		this.hint = hint;
-		this.hintColor = hintColor;
-	}
+    /** The hint. */
+    private final String hint;
 
-	@SuppressWarnings("exports")
-	@Override
-	public void paint(final Graphics g, final JComponent c)
-	{
-		super.paint(g, c);
-		if(table.getModel().getRowCount() == 0 && c.isEnabled())
-		{
-			g.setColor(hintColor);
-			g.setFont(c.getFont().deriveFont(Font.ITALIC));
-			final int paddingw = (c.getWidth() - g.getFontMetrics().stringWidth(hint)) / 2;
-			final int paddingh = (c.getHeight() - c.getFont().getSize()) / 2;
-			final int inset = 3;
-			g.drawString(hint, paddingw + inset, c.getHeight() - paddingh - inset);
-		}
-	}
+    /** The hint color. */
+    private final Color hintColor;
+
+    /**
+     * Instantiates a new j list hint UI.
+     *
+     * @param hint      the hint
+     * @param hintColor the hint color
+     */
+    public JTableHintUI(final String hint, final Color hintColor) {
+        this.hint = hint;
+        this.hintColor = hintColor;
+    }
+
+    @Override
+    public void paint(final Graphics g, final JComponent c) {
+        super.paint(g, c);
+        if (table.getModel().getRowCount() == 0 && c.isEnabled()) {
+            g.setColor(hintColor);
+            g.setFont(c.getFont().deriveFont(Font.ITALIC));
+            final int paddingw = (c.getWidth() - g.getFontMetrics().stringWidth(hint)) / 2;
+            final int paddingh = (c.getHeight() - c.getFont().getSize()) / 2;
+            final int inset = 3;
+            g.drawString(hint, paddingw + inset, c.getHeight() - paddingh - inset);
+        }
+    }
 }

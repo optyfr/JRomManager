@@ -12,234 +12,187 @@ import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.Category.SubCategory;
 import jrm.ui.basic.AbstractNGTreeNode;
 
-public class CatVerNode extends AbstractNGTreeNode
-{
+public class CatVerNode extends AbstractNGTreeNode {
 
-	private final CatVer catver;
-	
-	private final Map<String,CategoryNode> categoryNodeCache = new HashMap<>();
-	
-	@SuppressWarnings("exports")
-	public CatVerNode(final CatVer catver)
-	{
-		this.catver = catver;
-	}
+    private final CatVer catver;
 
-	@SuppressWarnings("exports")
-	public CategoryNode getNode(Category cat)
-	{
-		return categoryNodeCache.computeIfAbsent(cat.getPropertyName(), pptname -> new CategoryNode(cat));
-	}
-	
-	@Override
-	public Object getUserObject()
-	{
-		return catver.getUserObject();
-	}
+    private final Map<String, CategoryNode> categoryNodeCache = new HashMap<>();
 
-	@Override
-	public boolean isSelected()
-	{
-		return catver.isSelected();
-	}
+    public CatVerNode(final CatVer catver) {
+        this.catver = catver;
+    }
 
-	@Override
-	public void setSelected(boolean selected)
-	{
-		catver.setSelected(selected);
-	}
+    public CategoryNode getNode(Category cat) {
+        return categoryNodeCache.computeIfAbsent(cat.getPropertyName(), pptname -> new CategoryNode(cat));
+    }
 
-	@Override
-	public CategoryNode getChildAt(int childIndex)
-	{
-		return getNode(catver.getListCategories().get(childIndex));
-	}
+    @Override
+    public Object getUserObject() {
+        return catver.getUserObject();
+    }
 
-	@Override
-	public int getChildCount()
-	{
-		return catver.getListCategories().size();
-	}
+    @Override
+    public boolean isSelected() {
+        return catver.isSelected();
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public TreeNode getParent()
-	{
-		return null;
-	}
+    @Override
+    public void setSelected(boolean selected) {
+        catver.setSelected(selected);
+    }
 
-	@SuppressWarnings("exports")
-	@Override
-	public int getIndex(TreeNode node)
-	{
-		return catver.getListCategories().indexOf(((CategoryNode)node).category);
-	}
+    @Override
+    public CategoryNode getChildAt(int childIndex) {
+        return getNode(catver.getListCategories().get(childIndex));
+    }
 
-	@Override
-	public boolean getAllowsChildren()
-	{
-		return true;
-	}
+    @Override
+    public int getChildCount() {
+        return catver.getListCategories().size();
+    }
 
-	@Override
-	public boolean isLeaf()
-	{
-		return catver.getListCategories().isEmpty();
-	}
+    @Override
+    public TreeNode getParent() {
+        return null;
+    }
 
-	@Override
-	public Enumeration<CategoryNode> children()
-	{
-		return new Enumeration<CategoryNode>()
-		{
-			private Iterator<Category> iterator = catver.getListCategories().iterator();
+    @Override
+    public int getIndex(TreeNode node) {
+        return catver.getListCategories().indexOf(((CategoryNode) node).category);
+    }
 
-			@Override
-			public boolean hasMoreElements()
-			{
-				return iterator.hasNext();
-			}
+    @Override
+    public boolean getAllowsChildren() {
+        return true;
+    }
 
-			@Override
-			public CategoryNode nextElement()
-			{
-				return getNode(iterator.next());
-			}
-		};
-	}
-	
-	public final class CategoryNode extends AbstractNGTreeNode
-	{
-		private final Category category;
-		
-		private final Map<String,SubCategoryNode> subcategoryNodeCache = new HashMap<>();
-		
-		@SuppressWarnings("exports")
-		public CategoryNode(final Category category)
-		{
-			this.category = category;
-		}
+    @Override
+    public boolean isLeaf() {
+        return catver.getListCategories().isEmpty();
+    }
 
-		@SuppressWarnings("exports")
-		public SubCategoryNode getNode(SubCategory subcat)
-		{
-			return subcategoryNodeCache.computeIfAbsent(subcat.getPropertyName(), pptname -> new SubCategoryNode(subcat));
-		}
+    @Override
+    public Enumeration<CategoryNode> children() {
+        return new Enumeration<CategoryNode>() {
+            private Iterator<Category> iterator = catver.getListCategories().iterator();
 
-		@Override
-		public Object getUserObject()
-		{
-			return category.getUserObject();
-		}
+            @Override
+            public boolean hasMoreElements() {
+                return iterator.hasNext();
+            }
 
-		@Override
-		public boolean isSelected()
-		{
-			return category.isSelected();
-		}
+            @Override
+            public CategoryNode nextElement() {
+                return getNode(iterator.next());
+            }
+        };
+    }
 
-		@Override
-		public void setSelected(boolean selected)
-		{
-			category.setSelected(selected);
-			
-		}
+    public final class CategoryNode extends AbstractNGTreeNode {
+        private final Category category;
 
-		@Override
-		public SubCategoryNode getChildAt(int childIndex)
-		{
-			return getNode(category.getListSubCategories().get(childIndex));
-		}
+        private final Map<String, SubCategoryNode> subcategoryNodeCache = new HashMap<>();
 
-		@Override
-		public int getChildCount()
-		{
-			return category.getListSubCategories().size();
-		}
+        public CategoryNode(final Category category) {
+            this.category = category;
+        }
 
-		@Override
-		public CatVerNode getParent()
-		{
-			return CatVerNode.this;
-		}
+        public SubCategoryNode getNode(SubCategory subcat) {
+            return subcategoryNodeCache.computeIfAbsent(subcat.getPropertyName(), pptname -> new SubCategoryNode(subcat));
+        }
 
-		@SuppressWarnings("exports")
-		@Override
-		public int getIndex(TreeNode node)
-		{
-			return category.getListSubCategories().indexOf(((SubCategoryNode)node).subcategory);
-		}
+        @Override
+        public Object getUserObject() {
+            return category.getUserObject();
+        }
 
-		@Override
-		public boolean getAllowsChildren()
-		{
-			return true;
-		}
+        @Override
+        public boolean isSelected() {
+            return category.isSelected();
+        }
 
-		@Override
-		public boolean isLeaf()
-		{
-			return category.getListSubCategories().isEmpty();
-		}
+        @Override
+        public void setSelected(boolean selected) {
+            category.setSelected(selected);
 
-		@Override
-		public Enumeration<SubCategoryNode> children()
-		{
-			return new Enumeration<SubCategoryNode>()
-			{
-				private Iterator<SubCategory> iterator = category.getListSubCategories().iterator();
-				
-				@Override
-				public SubCategoryNode nextElement()
-				{
-					return getNode(iterator.next());
-				}
-				
-				@Override
-				public boolean hasMoreElements()
-				{
-					return iterator.hasNext();
-				}
-			};
-		}
-		
-		public final class SubCategoryNode extends AbstractNGTreeNode
-		{
-			private final SubCategory subcategory;
-			
-			@SuppressWarnings("exports")
-			public SubCategoryNode(final SubCategory subcategory)
-			{
-				this.subcategory = subcategory;
-			}
+        }
 
-			@Override
-			public Object getUserObject()
-			{
-				return subcategory.getUserObject();
-			}
+        @Override
+        public SubCategoryNode getChildAt(int childIndex) {
+            return getNode(category.getListSubCategories().get(childIndex));
+        }
 
-			@Override
-			public boolean isSelected()
-			{
-				return subcategory.isSelected();
-			}
+        @Override
+        public int getChildCount() {
+            return category.getListSubCategories().size();
+        }
 
-			@Override
-			public void setSelected(boolean selected)
-			{
-				subcategory.setSelected(selected);
-			}
+        @Override
+        public CatVerNode getParent() {
+            return CatVerNode.this;
+        }
 
-			@Override
-			public CategoryNode getParent()
-			{
-				return CategoryNode.this;
-			}
+        @Override
+        public int getIndex(TreeNode node) {
+            return category.getListSubCategories().indexOf(((SubCategoryNode) node).subcategory);
+        }
 
-		}
+        @Override
+        public boolean getAllowsChildren() {
+            return true;
+        }
 
-	}
-	
+        @Override
+        public boolean isLeaf() {
+            return category.getListSubCategories().isEmpty();
+        }
+
+        @Override
+        public Enumeration<SubCategoryNode> children() {
+            return new Enumeration<SubCategoryNode>() {
+                private Iterator<SubCategory> iterator = category.getListSubCategories().iterator();
+
+                @Override
+                public SubCategoryNode nextElement() {
+                    return getNode(iterator.next());
+                }
+
+                @Override
+                public boolean hasMoreElements() {
+                    return iterator.hasNext();
+                }
+            };
+        }
+
+        public final class SubCategoryNode extends AbstractNGTreeNode {
+            private final SubCategory subcategory;
+
+            public SubCategoryNode(final SubCategory subcategory) {
+                this.subcategory = subcategory;
+            }
+
+            @Override
+            public Object getUserObject() {
+                return subcategory.getUserObject();
+            }
+
+            @Override
+            public boolean isSelected() {
+                return subcategory.isSelected();
+            }
+
+            @Override
+            public void setSelected(boolean selected) {
+                subcategory.setSelected(selected);
+            }
+
+            @Override
+            public CategoryNode getParent() {
+                return CategoryNode.this;
+            }
+
+        }
+
+    }
 
 }

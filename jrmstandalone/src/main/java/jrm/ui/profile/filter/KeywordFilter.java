@@ -55,262 +55,234 @@ import jrm.ui.MainFrame;
  * The Class KeywordFilter.
  */
 @SuppressWarnings("serial")
-public class KeywordFilter extends JDialog
-{
-	
-	/** The KW src. */
-	private JList<String> keywordSrc;
-	
-	/** The KW dst. */
-	private JList<String> keywordDst;
-	
-	/** The dstmodel. */
-	private DefaultListModel<String> dstmodel = new DefaultListModel<>();
+public class KeywordFilter extends JDialog {
 
-	/**
-	 * Instantiates a new keyword filter.
-	 *
-	 * @param owner the owner
-	 * @param src the src
-	 * @param callback the callback
-	 */
-	@SuppressWarnings("exports")
-	public KeywordFilter(Window owner, String[] src, AnywareList<Anyware> list, KFCallBack callback)
-	{
-		super(owner, Messages.getString("KeywordFilter.Title"), ModalityType.APPLICATION_MODAL); //$NON-NLS-1$
-		setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
+    /** The KW src. */
+    private JList<String> keywordSrc;
 
-		JPanel panel = new JPanel();
-		getContentPane().add(panel, BorderLayout.SOUTH);
-		GridBagLayout gblPanel = new GridBagLayout();
-		gblPanel.columnWidths = new int[] { 217, 217, 0 };
-		gblPanel.rowHeights = new int[] { 23, 0 };
-		gblPanel.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gblPanel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
-		panel.setLayout(gblPanel);
+    /** The KW dst. */
+    private JList<String> keywordDst;
 
-		JButton btnCancel = new JButton(Messages.getString("KeywordFilter.Cancel")); //$NON-NLS-1$
-		btnCancel.addActionListener(e -> dispose());
-		btnCancel.setHorizontalAlignment(SwingConstants.LEADING);
-		GridBagConstraints gbcBtnCancel = new GridBagConstraints();
-		gbcBtnCancel.anchor = GridBagConstraints.WEST;
-		gbcBtnCancel.fill = GridBagConstraints.VERTICAL;
-		gbcBtnCancel.insets = new Insets(5, 5, 5, 5);
-		gbcBtnCancel.gridx = 0;
-		gbcBtnCancel.gridy = 0;
-		panel.add(btnCancel, gbcBtnCancel);
+    /** The dstmodel. */
+    private DefaultListModel<String> dstmodel = new DefaultListModel<>();
 
-		JButton btnFilter = new JButton(Messages.getString("KeywordFilter.Filter")); //$NON-NLS-1$
-		btnFilter.addActionListener(e -> {
-			callback.call(list, getFilter());
-			dispose();
-		});
-		btnFilter.setHorizontalAlignment(SwingConstants.TRAILING);
-		GridBagConstraints gbcBtnFilter = new GridBagConstraints();
-		gbcBtnFilter.insets = new Insets(5, 5, 5, 5);
-		gbcBtnFilter.anchor = GridBagConstraints.EAST;
-		gbcBtnFilter.fill = GridBagConstraints.VERTICAL;
-		gbcBtnFilter.gridx = 1;
-		gbcBtnFilter.gridy = 0;
-		panel.add(btnFilter, gbcBtnFilter);
+    /**
+     * Instantiates a new keyword filter.
+     *
+     * @param owner    the owner
+     * @param src      the src
+     * @param callback the callback
+     */
+    public KeywordFilter(Window owner, String[] src, AnywareList<Anyware> list, KFCallBack callback) {
+        super(owner, Messages.getString("KeywordFilter.Title"), ModalityType.APPLICATION_MODAL); //$NON-NLS-1$
+        setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
 
-		JSplitPane keywordSplitPane = new JSplitPane();
-		keywordSplitPane.setResizeWeight(0.5);
-		keywordSplitPane.setOneTouchExpandable(true);
-		keywordSplitPane.setContinuousLayout(true);
-		getContentPane().add(keywordSplitPane, BorderLayout.CENTER);
+        JPanel panel = new JPanel();
+        getContentPane().add(panel, BorderLayout.SOUTH);
+        GridBagLayout gblPanel = new GridBagLayout();
+        gblPanel.columnWidths = new int[] { 217, 217, 0 };
+        gblPanel.rowHeights = new int[] { 23, 0 };
+        gblPanel.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+        gblPanel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        panel.setLayout(gblPanel);
 
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBorder(new TitledBorder(null, Messages.getString("KeywordFilter.Available"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
-		keywordSplitPane.setLeftComponent(scrollPane);
+        JButton btnCancel = new JButton(Messages.getString("KeywordFilter.Cancel")); //$NON-NLS-1$
+        btnCancel.addActionListener(e -> dispose());
+        btnCancel.setHorizontalAlignment(SwingConstants.LEADING);
+        GridBagConstraints gbcBtnCancel = new GridBagConstraints();
+        gbcBtnCancel.anchor = GridBagConstraints.WEST;
+        gbcBtnCancel.fill = GridBagConstraints.VERTICAL;
+        gbcBtnCancel.insets = new Insets(5, 5, 5, 5);
+        gbcBtnCancel.gridx = 0;
+        gbcBtnCancel.gridy = 0;
+        panel.add(btnCancel, gbcBtnCancel);
 
-		keywordSrc = new JList<>();
-		keywordSrc.setVisibleRowCount(16);
-		scrollPane.setViewportView(keywordSrc);
-		keywordSrc.setDragEnabled(true);
-		keywordSrc.setDropMode(DropMode.INSERT);
-		StringMoveHandler.createFor(keywordSrc);
-		DefaultListModel<String> model = new DefaultListModel<>();
-		for(String s : src)
-			model.addElement(s);
-		keywordSrc.setModel(model);
+        JButton btnFilter = new JButton(Messages.getString("KeywordFilter.Filter")); //$NON-NLS-1$
+        btnFilter.addActionListener(e -> {
+            callback.call(list, getFilter());
+            dispose();
+        });
+        btnFilter.setHorizontalAlignment(SwingConstants.TRAILING);
+        GridBagConstraints gbcBtnFilter = new GridBagConstraints();
+        gbcBtnFilter.insets = new Insets(5, 5, 5, 5);
+        gbcBtnFilter.anchor = GridBagConstraints.EAST;
+        gbcBtnFilter.fill = GridBagConstraints.VERTICAL;
+        gbcBtnFilter.gridx = 1;
+        gbcBtnFilter.gridy = 0;
+        panel.add(btnFilter, gbcBtnFilter);
 
-		JScrollPane scrollPane1 = new JScrollPane();
-		scrollPane1.setBorder(new TitledBorder(null, Messages.getString("KeywordFilter.Used"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
-		keywordSplitPane.setRightComponent(scrollPane1);
+        JSplitPane keywordSplitPane = new JSplitPane();
+        keywordSplitPane.setResizeWeight(0.5);
+        keywordSplitPane.setOneTouchExpandable(true);
+        keywordSplitPane.setContinuousLayout(true);
+        getContentPane().add(keywordSplitPane, BorderLayout.CENTER);
 
-		keywordDst = new JList<>();
-		keywordDst.setVisibleRowCount(16);
-		scrollPane1.setViewportView(keywordDst);
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBorder(new TitledBorder(null, Messages.getString("KeywordFilter.Available"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
+        keywordSplitPane.setLeftComponent(scrollPane);
 
-		keywordDst.setDragEnabled(true);
-		keywordDst.setDropMode(DropMode.INSERT);
-		StringMoveHandler.createFor(keywordDst);
-		keywordDst.setModel(dstmodel);
-		
-		pack();
-		setLocationRelativeTo(owner);
-		setVisible(true);
-	}
+        keywordSrc = new JList<>();
+        keywordSrc.setVisibleRowCount(16);
+        scrollPane.setViewportView(keywordSrc);
+        keywordSrc.setDragEnabled(true);
+        keywordSrc.setDropMode(DropMode.INSERT);
+        StringMoveHandler.createFor(keywordSrc);
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (String s : src)
+            model.addElement(s);
+        keywordSrc.setModel(model);
 
-	/**
-	 * Gets the filter.
-	 *
-	 * @return the filter
-	 */
-	public List<String> getFilter()
-	{
-		return Collections.list(dstmodel.elements());
-	}
-	
-	/**
-	 * The Interface CallBack.
-	 */
-	public interface CallBack
-	{
-		
-		/**
-		 * Call.
-		 *
-		 * @param filter the filter
-		 */
-		public void call(KeywordFilter filter);
-	}
-	
-	/**
-	 * The Class StringMoveHandler.
-	 */
-	private static class StringMoveHandler extends TransferHandler
-	{
-		
-		/** The object array flavor. */
-		private DataFlavor objectArrayFlavor = new ActivationDataFlavor(Object[].class, DataFlavor.javaJVMLocalObjectMimeType, "Array of items"); //$NON-NLS-1$
-		
-		/** The list. */
-		// We'll be moving the strings of this list
-		private JList<String> list;
+        JScrollPane scrollPane1 = new JScrollPane();
+        scrollPane1.setBorder(new TitledBorder(null, Messages.getString("KeywordFilter.Used"), TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))); //$NON-NLS-1$
+        keywordSplitPane.setRightComponent(scrollPane1);
 
-		/**
-		 * Instantiates a new string move handler.
-		 */
-		// Clients should use a static factory method to instantiate the handler
-		private StringMoveHandler()
-		{
-		}
+        keywordDst = new JList<>();
+        keywordDst.setVisibleRowCount(16);
+        scrollPane1.setViewportView(keywordDst);
 
-		/**
-		 * Creates the for.
-		 *
-		 * @param list the list
-		 * @return the string move handler
-		 */
-		public static StringMoveHandler createFor(JList<String> list)
-		{
-			StringMoveHandler handler = new StringMoveHandler();
-			list.setTransferHandler(handler);
-			handler.list = list;
-			return handler;
-		}
+        keywordDst.setDragEnabled(true);
+        keywordDst.setDropMode(DropMode.INSERT);
+        StringMoveHandler.createFor(keywordDst);
+        keywordDst.setModel(dstmodel);
 
-		@Override
-		public boolean canImport(TransferSupport info)
-		{
-			return info.isDataFlavorSupported(objectArrayFlavor);
-		}
+        pack();
+        setLocationRelativeTo(owner);
+        setVisible(true);
+    }
 
-		@Override
-		public boolean importData(TransferSupport transferSupport)
-		{
-			Transferable t = transferSupport.getTransferable();
-			boolean success = false;
-			try
-			{
-				Object[] importedData = (Object[]) t.getTransferData(objectArrayFlavor);
-				addToListModel(importedData);
-				success = true;
-			}
-			catch (UnsupportedFlavorException | IOException e)
-			{
-				Log.err(e.getMessage(),e);
-			}
-			return success;
-		}
+    /**
+     * Gets the filter.
+     *
+     * @return the filter
+     */
+    public List<String> getFilter() {
+        return Collections.list(dstmodel.elements());
+    }
 
-		/**
-		 * Adds the to list model.
-		 *
-		 * @param importedData the imported data
-		 */
-		private void addToListModel(Object[] importedData)
-		{
-			JList.DropLocation loc = list.getDropLocation();
-			int dropIndex = loc.getIndex();
+    /**
+     * The Interface CallBack.
+     */
+    public interface CallBack {
 
-			DefaultListModel<String> listModel = (DefaultListModel<String>) list.getModel();
-			for (int i = 0; i < importedData.length; i++)
-			{
-				final Object elem = importedData[i];
-				if (elem instanceof String s)
-				{
-					listModel.add(dropIndex + i, s);
-				}
-				else
-				{
-					Log.err(() -> "Imported data contained something else than strings: " + elem); //$NON-NLS-1$
-				}
-			}
-		}
+        /**
+         * Call.
+         *
+         * @param filter the filter
+         */
+        public void call(KeywordFilter filter);
+    }
 
-		@Override
-		public int getSourceActions(JComponent c)
-		{
-			return TransferHandler.MOVE;
-		}
+    /**
+     * The Class StringMoveHandler.
+     */
+    private static class StringMoveHandler extends TransferHandler {
 
-		@Override
-		public Transferable createTransferable(JComponent source)
-		{
-			// We need the values from the list as an object array, otherwise the data
-			// flavor won't match in importData
-			@SuppressWarnings("deprecation")
-			Object[] valuesToTransfer = list.getSelectedValues();
-			return new DataHandler(valuesToTransfer, objectArrayFlavor.getMimeType());
-		}
+        /** The object array flavor. */
+        private DataFlavor objectArrayFlavor = new ActivationDataFlavor(Object[].class, DataFlavor.javaJVMLocalObjectMimeType, "Array of items"); //$NON-NLS-1$
 
-		@Override
-		protected void exportDone(JComponent source, Transferable data, int action)
-		{
-			if (action == TransferHandler.MOVE)
-			{
-				try
-				{
-					Object[] exportedData = (Object[]) data.getTransferData(objectArrayFlavor);
-					removeFromListModel(exportedData);
-				}
-				catch (UnsupportedFlavorException | IOException e)
-				{
-					Log.err(e.getMessage(),e);
-				}
-			}
-		}
+        /** The list. */
+        // We'll be moving the strings of this list
+        private JList<String> list;
 
-		/**
-		 * Removes the from list model.
-		 *
-		 * @param dataToRemove the data to remove
-		 */
-		private void removeFromListModel(Object[] dataToRemove)
-		{
-			DefaultListModel<String> listModel = (DefaultListModel<String>) list.getModel();
-			for (Object elemToRemove : dataToRemove)
-			{
-				boolean removedSuccessfully = listModel.removeElement(elemToRemove);
-				if (!removedSuccessfully)
-				{
-					Log.err("Source model did not contain exported data"); //$NON-NLS-1$
-				}
-			}
-		}
-	}
+        /**
+         * Instantiates a new string move handler.
+         */
+        // Clients should use a static factory method to instantiate the handler
+        private StringMoveHandler() {
+        }
+
+        /**
+         * Creates the for.
+         *
+         * @param list the list
+         * @return the string move handler
+         */
+        public static StringMoveHandler createFor(JList<String> list) {
+            StringMoveHandler handler = new StringMoveHandler();
+            list.setTransferHandler(handler);
+            handler.list = list;
+            return handler;
+        }
+
+        @Override
+        public boolean canImport(TransferSupport info) {
+            return info.isDataFlavorSupported(objectArrayFlavor);
+        }
+
+        @Override
+        public boolean importData(TransferSupport transferSupport) {
+            Transferable t = transferSupport.getTransferable();
+            boolean success = false;
+            try {
+                Object[] importedData = (Object[]) t.getTransferData(objectArrayFlavor);
+                addToListModel(importedData);
+                success = true;
+            } catch (UnsupportedFlavorException | IOException e) {
+                Log.err(e.getMessage(), e);
+            }
+            return success;
+        }
+
+        /**
+         * Adds the to list model.
+         *
+         * @param importedData the imported data
+         */
+        private void addToListModel(Object[] importedData) {
+            JList.DropLocation loc = list.getDropLocation();
+            int dropIndex = loc.getIndex();
+
+            DefaultListModel<String> listModel = (DefaultListModel<String>) list.getModel();
+            for (int i = 0; i < importedData.length; i++) {
+                final Object elem = importedData[i];
+                if (elem instanceof String s) {
+                    listModel.add(dropIndex + i, s);
+                } else {
+                    Log.err(() -> "Imported data contained something else than strings: " + elem); //$NON-NLS-1$
+                }
+            }
+        }
+
+        @Override
+        public int getSourceActions(JComponent c) {
+            return TransferHandler.MOVE;
+        }
+
+        @Override
+        public Transferable createTransferable(JComponent source) {
+            // We need the values from the list as an object array, otherwise the data
+            // flavor won't match in importData
+            @SuppressWarnings("deprecation")
+            Object[] valuesToTransfer = list.getSelectedValues();
+            return new DataHandler(valuesToTransfer, objectArrayFlavor.getMimeType());
+        }
+
+        @Override
+        protected void exportDone(JComponent source, Transferable data, int action) {
+            if (action == TransferHandler.MOVE) {
+                try {
+                    Object[] exportedData = (Object[]) data.getTransferData(objectArrayFlavor);
+                    removeFromListModel(exportedData);
+                } catch (UnsupportedFlavorException | IOException e) {
+                    Log.err(e.getMessage(), e);
+                }
+            }
+        }
+
+        /**
+         * Removes the from list model.
+         *
+         * @param dataToRemove the data to remove
+         */
+        private void removeFromListModel(Object[] dataToRemove) {
+            DefaultListModel<String> listModel = (DefaultListModel<String>) list.getModel();
+            for (Object elemToRemove : dataToRemove) {
+                boolean removedSuccessfully = listModel.removeElement(elemToRemove);
+                if (!removedSuccessfully) {
+                    Log.err("Source model did not contain exported data"); //$NON-NLS-1$
+                }
+            }
+        }
+    }
 
 }

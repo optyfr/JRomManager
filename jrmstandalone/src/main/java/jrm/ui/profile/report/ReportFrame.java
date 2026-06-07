@@ -47,107 +47,95 @@ import jrm.ui.MainFrame;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public class ReportFrame extends JDialog implements StatusHandler
-{
-	
-	/** The lbl status. */
-	private final JLabel lblStatus = new JLabel(""); //$NON-NLS-1$
-	
-	private final ReportView view;
+public class ReportFrame extends JDialog implements StatusHandler {
 
-	/**
-	 * Instantiates a new report frame.
-	 *
-	 * @param owner the owner
-	 * @throws HeadlessException the headless exception
-	 */
-	@SuppressWarnings("exports")
-	public ReportFrame(final Session session, final Window owner) throws HeadlessException
-	{
-		super(); //$NON-NLS-1$
-		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(final WindowEvent e) {
-				session.getUser().getSettings().setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
-			}
-			@Override
-			public void windowOpened(WindowEvent e)
-			{
-				session.getReport().getHandler().filter(session.getReport().getHandler().getFilterOptions().toArray(new FilterOptions[0]));
-			}
-		});
-		setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
-		setPreferredSize(new Dimension(800, 600));
-		setMinimumSize(new Dimension(400, 300));
-		setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
-		final GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 784, 0 };
-		gridBagLayout.rowHeights = new int[] { 280, 24, 0 };
-		gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		getContentPane().setLayout(gridBagLayout);
+    /** The lbl status. */
+    private final JLabel lblStatus = new JLabel(""); //$NON-NLS-1$
 
-		view = new ReportView(session.getReport());
-		final GridBagConstraints gbcScrollPane = new GridBagConstraints();
-		gbcScrollPane.fill = GridBagConstraints.BOTH;
-		gbcScrollPane.gridx = 0;
-		gbcScrollPane.gridy = 0;
-		getContentPane().add(view, gbcScrollPane);
+    private final ReportView view;
 
-		session.getReport().setStatusHandler(this);
+    /**
+     * Instantiates a new report frame.
+     *
+     * @param owner the owner
+     * @throws HeadlessException the headless exception
+     */
+    public ReportFrame(final Session session, final Window owner) throws HeadlessException {
+        super(); // $NON-NLS-1$
+        setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(final WindowEvent e) {
+                session.getUser().getSettings().setProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(getBounds()))); //$NON-NLS-1$
+            }
 
-		
-		final GridBagConstraints gbcLblStatus = new GridBagConstraints();
-		gbcLblStatus.ipadx = 2;
-		gbcLblStatus.insets = new Insets(2, 2, 2, 2);
-		gbcLblStatus.fill = GridBagConstraints.BOTH;
-		gbcLblStatus.gridx = 0;
-		gbcLblStatus.gridy = 1;
-		lblStatus.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		getContentPane().add(lblStatus, gbcLblStatus);
+            @Override
+            public void windowOpened(WindowEvent e) {
+                session.getReport().getHandler().filter(session.getReport().getHandler().getFilterOptions().toArray(new FilterOptions[0]));
+            }
+        });
+        setTitle(Messages.getString("ReportFrame.Title")); //$NON-NLS-1$
+        setPreferredSize(new Dimension(800, 600));
+        setMinimumSize(new Dimension(400, 300));
+        setIconImage(MainFrame.getIcon("/jrm/resicons/rom.png").getImage()); //$NON-NLS-1$
+        final GridBagLayout gridBagLayout = new GridBagLayout();
+        gridBagLayout.columnWidths = new int[] { 784, 0 };
+        gridBagLayout.rowHeights = new int[] { 280, 24, 0 };
+        gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+        gridBagLayout.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+        getContentPane().setLayout(gridBagLayout);
 
-		pack();
+        view = new ReportView(session.getReport());
+        final GridBagConstraints gbcScrollPane = new GridBagConstraints();
+        gbcScrollPane.fill = GridBagConstraints.BOTH;
+        gbcScrollPane.gridx = 0;
+        gbcScrollPane.gridy = 0;
+        getContentPane().add(view, gbcScrollPane);
 
+        session.getReport().setStatusHandler(this);
 
-		try
-		{
-			setBounds(SerializationUtils.deserialize(Hex.decodeHex(session.getUser().getSettings().getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10,10,800,600))))))); //$NON-NLS-1$
-		}
-		catch(final DecoderException e1)
-		{
-			Log.err(e1.getMessage(),e1);
-		}
-	}
+        final GridBagConstraints gbcLblStatus = new GridBagConstraints();
+        gbcLblStatus.ipadx = 2;
+        gbcLblStatus.insets = new Insets(2, 2, 2, 2);
+        gbcLblStatus.fill = GridBagConstraints.BOTH;
+        gbcLblStatus.gridx = 0;
+        gbcLblStatus.gridy = 1;
+        lblStatus.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+        getContentPane().add(lblStatus, gbcLblStatus);
 
-	@Override
-	public void setStatus(final String text)
-	{
-		lblStatus.setText(text);
-	}
-	
-	private boolean needUpdate = false;
-	
-	public void setNeedUpdate(boolean needUpdate)
-	{
-		this.needUpdate = needUpdate;
-		if(isVisible())
-			update();
-	}
+        pack();
 
-	private void update()
-	{
-		if(needUpdate)
-		{
-			view.update();
-			needUpdate = false;
-		}
-	}
-	
-	@Override
-	public void setVisible(boolean b)
-	{
-		update();
-		super.setVisible(b);
-	}
+        try {
+            setBounds(SerializationUtils.deserialize(Hex.decodeHex(
+                    session.getUser().getSettings().getProperty("ReportFrame.Bounds", Hex.encodeHexString(SerializationUtils.serialize(new Rectangle(10, 10, 800, 600))))))); //$NON-NLS-1$
+        } catch (final DecoderException e1) {
+            Log.err(e1.getMessage(), e1);
+        }
+    }
+
+    @Override
+    public void setStatus(final String text) {
+        lblStatus.setText(text);
+    }
+
+    private boolean needUpdate = false;
+
+    public void setNeedUpdate(boolean needUpdate) {
+        this.needUpdate = needUpdate;
+        if (isVisible())
+            update();
+    }
+
+    private void update() {
+        if (needUpdate) {
+            view.update();
+            needUpdate = false;
+        }
+    }
+
+    @Override
+    public void setVisible(boolean b) {
+        update();
+        super.setVisible(b);
+    }
 }

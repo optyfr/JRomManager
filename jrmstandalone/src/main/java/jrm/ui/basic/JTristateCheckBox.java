@@ -27,69 +27,60 @@ import jrm.ui.MainFrame;
  * The Class JTristateCheckBox.
  */
 @SuppressWarnings("serial")
-public class JTristateCheckBox extends JCheckBox
-{
-	
-	/** The half state. */
-	private boolean halfState;
-	
-	/** The selected. */
-	private static Icon selected = MainFrame.getIcon("/jrm/resicons/selected.png"); //$NON-NLS-1$
-	
-	/** The unselected. */
-	private static Icon unselected = MainFrame.getIcon("/jrm/resicons/unselected.png"); //$NON-NLS-1$
-	
-	/** The halfselected. */
-	private static Icon halfselected = MainFrame.getIcon("/jrm/resicons/halfselected.png"); //$NON-NLS-1$
+public class JTristateCheckBox extends JCheckBox {
 
-	/**
-	 * Instantiates a new j tristate check box.
-	 */
-	public JTristateCheckBox()
-	{
-		super();
-	}
+    /** The half state. */
+    private boolean halfState;
 
-	@SuppressWarnings("exports")
-	@Override
-	public void paint(final Graphics g)
-	{
-		final Icon icon;
-		if(isSelected())
-		{
-			halfState = false;
-			icon = JTristateCheckBox.selected;
-		}
-		else if(halfState)
-			icon = JTristateCheckBox.halfselected;
-		else
-			icon = JTristateCheckBox.unselected;
-		setIcon(icon);
-		super.paint(g);
-	}
+    /** The selected. */
+    private static Icon selected = MainFrame.getIcon("/jrm/resicons/selected.png"); //$NON-NLS-1$
 
-	/**
-	 * Checks if is half selected.
-	 *
-	 * @return true, if is half selected
-	 */
-	public boolean isHalfSelected()
-	{
-		return halfState;
-	}
+    /** The unselected. */
+    private static Icon unselected = MainFrame.getIcon("/jrm/resicons/unselected.png"); //$NON-NLS-1$
 
-	/**
-	 * Sets the half selected.
-	 *
-	 * @param halfState the new half selected
-	 */
-	public void setHalfSelected(final boolean halfState)
-	{
-		this.halfState = halfState;
-		if(halfState)
-		{
-			setSelected(false);
-			repaint();
-		}
-	}
+    /** The halfselected. */
+    private static Icon halfselected = MainFrame.getIcon("/jrm/resicons/halfselected.png"); //$NON-NLS-1$
+
+    /**
+     * Instantiates a new j tristate check box.
+     */
+    public JTristateCheckBox() {
+        super();
+    }
+
+    @Override
+    public void paint(final Graphics g) {
+        final Icon icon;
+        if (isSelected()) {
+            halfState = false;
+            icon = JTristateCheckBox.selected;
+        } else if (halfState)
+            icon = JTristateCheckBox.halfselected;
+        else
+            icon = JTristateCheckBox.unselected;
+        setIcon(icon);
+        super.paint(g);
+    }
+
+    /**
+     * Checks if is half selected.
+     *
+     * @return true, if is half selected
+     */
+    public boolean isHalfSelected() {
+        return halfState;
+    }
+
+    /**
+     * Sets the half selected.
+     *
+     * @param halfState the new half selected
+     */
+    public void setHalfSelected(final boolean halfState) {
+        this.halfState = halfState;
+        if (halfState) {
+            setSelected(false);
+            repaint();
+        }
+    }
 }

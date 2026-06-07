@@ -39,334 +39,283 @@ import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 import lombok.val;
 
 @SuppressWarnings("serial")
-public class ReportView extends JScrollPane implements Popup
-{
-	private final Report report;
-	private final JLabel wait;
-	private final JTree tree;
-	
-	@SuppressWarnings("exports")
-	public ReportView(Report report) {
-		this.report = report;
-		tree = new JTree();
-		tree.setShowsRootHandles(true);
-		tree.setRootVisible(false);
-		TreeSelectionModel selmodel = new DefaultTreeSelectionModel();
-		selmodel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.setSelectionModel(selmodel);
-		wait = new JLabel("Building tree...");
-		wait.setFont(getFont().deriveFont(14.0f));
-		wait.setHorizontalAlignment(SwingConstants.CENTER);
-		wait.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setViewportView(wait);
-		
-		build(report);
+public class ReportView extends JScrollPane implements Popup {
+    private final Report report;
+    private final JLabel wait;
+    private final JTree tree;
 
-		final JPopupMenu popupMenu = new JPopupMenu();
-		Popup.addPopup(tree, popupMenu);
+    public ReportView(Report report) {
+        this.report = report;
+        tree = new JTree();
+        tree.setShowsRootHandles(true);
+        tree.setRootVisible(false);
+        TreeSelectionModel selmodel = new DefaultTreeSelectionModel();
+        selmodel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.setSelectionModel(selmodel);
+        wait = new JLabel("Building tree...");
+        wait.setFont(getFont().deriveFont(14.0f));
+        wait.setHorizontalAlignment(SwingConstants.CENTER);
+        wait.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setViewportView(wait);
 
-		final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
-		mntmOpenAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_open.png")); //$NON-NLS-1$
-		mntmOpenAllNodes.addActionListener(e -> openAllNodes());
-		popupMenu.add(mntmOpenAllNodes);
+        build(report);
 
-		final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
-		chckbxmntmShowOkEntries.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_green.png")); //$NON-NLS-1$
-		chckbxmntmShowOkEntries.addItemListener(e -> showOKEntries(report, e));
+        final JPopupMenu popupMenu = new JPopupMenu();
+        Popup.addPopup(tree, popupMenu);
 
-		final JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
-		mntmCloseAllNodes.addActionListener(e -> closeAllNodes());
-		mntmCloseAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed.png")); //$NON-NLS-1$
-		popupMenu.add(mntmCloseAllNodes);
-		popupMenu.add(chckbxmntmShowOkEntries);
+        final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
+        mntmOpenAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_open.png")); //$NON-NLS-1$
+        mntmOpenAllNodes.addActionListener(e -> openAllNodes());
+        popupMenu.add(mntmOpenAllNodes);
 
-		final JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
-		chckbxmntmHideFullyMissing.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_red.png")); //$NON-NLS-1$
-		chckbxmntmHideFullyMissing.addItemListener(e -> hideFullyMissing(report, e));
-		popupMenu.add(chckbxmntmHideFullyMissing);
-		
-		popupMenu.addSeparator();
-		
-		JMenuItem mntmDetail = new JMenuItem(Messages.getString("ReportView.mntmDetail.text")); //$NON-NLS-1$
-		mntmDetail.addActionListener(e -> showDetail());
-		mntmDetail.setEnabled(false);
-		popupMenu.add(mntmDetail);
-		
-		JMenuItem mntmCopyCRC = new JMenuItem("Copy CRC");
-		mntmCopyCRC.setEnabled(false);
-		mntmCopyCRC.addActionListener(e -> copyCRC());
-		popupMenu.add(mntmCopyCRC);
-		
-		JMenuItem mntmCopySHA1 = new JMenuItem("Copy SHA1");
-		mntmCopySHA1.setEnabled(false);
-		mntmCopySHA1.addActionListener(e -> copySHA1());
-		popupMenu.add(mntmCopySHA1);
-		
-		JMenuItem mntmCopyName = new JMenuItem("Copy Name");
-		mntmCopyName.setEnabled(false);
-		mntmCopyName.addActionListener(e -> copyName());
-		popupMenu.add(mntmCopyName);
-		
-		JMenuItem mntmSearchWeb = new JMenuItem("Search on the Web");
-		mntmSearchWeb.setEnabled(false);
-		mntmSearchWeb.addActionListener(e -> searchOnTheWeb());
-		popupMenu.add(mntmSearchWeb);
+        final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
+        chckbxmntmShowOkEntries.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_green.png")); //$NON-NLS-1$
+        chckbxmntmShowOkEntries.addItemListener(e -> showOKEntries(report, e));
 
-		tree.addTreeSelectionListener(e->{
-			val path  = e.getNewLeadSelectionPath();
-			if(path!=null)
-			{
-				val node = path.getLastPathComponent();
-				mntmDetail.setEnabled(node instanceof NoteNode);
-				mntmCopyCRC.setEnabled(node instanceof NoteNode);
-				mntmCopySHA1.setEnabled(node instanceof NoteNode);
-				mntmCopyName.setEnabled(node instanceof NoteNode);
-				mntmSearchWeb.setEnabled(node instanceof NoteNode);
-			}
-			else
-			{
-				mntmDetail.setEnabled(false);
-				mntmCopyCRC.setEnabled(false);
-				mntmCopySHA1.setEnabled(false);
-				mntmCopyName.setEnabled(false);
-				mntmSearchWeb.setEnabled(false);
-			}
-		});
-	}
+        final JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
+        mntmCloseAllNodes.addActionListener(e -> closeAllNodes());
+        mntmCloseAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed.png")); //$NON-NLS-1$
+        popupMenu.add(mntmCloseAllNodes);
+        popupMenu.add(chckbxmntmShowOkEntries);
 
-	/**
-	 * 
-	 */
-	private void searchOnTheWeb()
-	{
-		val path = tree.getSelectionPath();
-		if(path!=null)
-		{
-			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode nn && Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
-			{
-				try
-				{
-					val name = nn.getNote().getName();
-					val crc = nn.getNote().getCrc();
-					val sha1 = nn.getNote().getSha1();
-					val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h).orElse("");
-					Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash));
-				}
-				catch (IOException | URISyntaxException e1)
-				{
-					Log.err(e1.getMessage(), e1);
-				}
-			}
-		}
-	}
+        final JCheckBoxMenuItem chckbxmntmHideFullyMissing = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmHideFullyMissing.text")); //$NON-NLS-1$
+        chckbxmntmHideFullyMissing.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed_red.png")); //$NON-NLS-1$
+        chckbxmntmHideFullyMissing.addItemListener(e -> hideFullyMissing(report, e));
+        popupMenu.add(chckbxmntmHideFullyMissing);
 
-	/**
-	 * @throws HeadlessException
-	 */
-	private void copyName() throws HeadlessException
-	{
-		val path = tree.getSelectionPath();
-		if(path!=null)
-		{
-			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode nn)
-			{
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(nn.getNote().getName()), null);
-			}
-		}
-	}
+        popupMenu.addSeparator();
 
-	/**
-	 * @throws HeadlessException
-	 */
-	private void copySHA1() throws HeadlessException
-	{
-		val path = tree.getSelectionPath();
-		if(path!=null)
-		{
-			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode nn)
-			{
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(nn.getNote().getSha1()), null);
-			}
-		}
-	}
+        JMenuItem mntmDetail = new JMenuItem(Messages.getString("ReportView.mntmDetail.text")); //$NON-NLS-1$
+        mntmDetail.addActionListener(e -> showDetail());
+        mntmDetail.setEnabled(false);
+        popupMenu.add(mntmDetail);
 
-	/**
-	 * @throws HeadlessException
-	 */
-	private void copyCRC() throws HeadlessException
-	{
-		val path = tree.getSelectionPath();
-		if(path!=null)
-		{
-			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode nn)
-			{
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(nn.getNote().getCrc()), null);
-			}
-		}
-	}
+        JMenuItem mntmCopyCRC = new JMenuItem("Copy CRC");
+        mntmCopyCRC.setEnabled(false);
+        mntmCopyCRC.addActionListener(e -> copyCRC());
+        popupMenu.add(mntmCopyCRC);
 
-	/**
-	 * @throws HeadlessException
-	 */
-	private void showDetail() throws HeadlessException
-	{
-		val path = tree.getSelectionPath();
-		if(path!=null)
-		{
-			Object node = path.getLastPathComponent();
-			if(node instanceof NoteNode nn)
-			{
-				val msg = nn.getNote().getDetail();
-				JOptionPane.showMessageDialog(this, new JTextArea(msg), "Details", JOptionPane.INFORMATION_MESSAGE);
-			}
-			else if(node instanceof SubjectNode)
-			{
-				// not supported
-			}
-		}
-	}
+        JMenuItem mntmCopySHA1 = new JMenuItem("Copy SHA1");
+        mntmCopySHA1.setEnabled(false);
+        mntmCopySHA1.addActionListener(e -> copySHA1());
+        popupMenu.add(mntmCopySHA1);
 
-	/**
-	 * @param report
-	 * @param e
-	 */
-	private void hideFullyMissing(Report report, ItemEvent e)
-	{
-		final Set<FilterOptions> options = report.getHandler().getFilterOptions();
-		if(e.getStateChange() == ItemEvent.SELECTED)
-			options.add(FilterOptions.HIDEMISSING);
-		else
-			options.remove(FilterOptions.HIDEMISSING);
-		update(options.toArray(FilterOptions[]::new));
-	}
+        JMenuItem mntmCopyName = new JMenuItem("Copy Name");
+        mntmCopyName.setEnabled(false);
+        mntmCopyName.addActionListener(e -> copyName());
+        popupMenu.add(mntmCopyName);
 
-	/**
-	 * 
-	 */
-	private void closeAllNodes()
-	{
-		tree.invalidate();
-		int j = tree.getRowCount();
-		int i = 0;
-		while(i < j)
-		{
-			tree.collapseRow(i);
-			i += 1;
-			j = tree.getRowCount();
-		}
-		tree.validate();
-	}
+        JMenuItem mntmSearchWeb = new JMenuItem("Search on the Web");
+        mntmSearchWeb.setEnabled(false);
+        mntmSearchWeb.addActionListener(e -> searchOnTheWeb());
+        popupMenu.add(mntmSearchWeb);
 
-	/**
-	 * @param report
-	 * @param e
-	 */
-	private void showOKEntries(Report report, ItemEvent e)
-	{
-		final Set<FilterOptions> options = report.getHandler().getFilterOptions();
-		if(e.getStateChange() == ItemEvent.SELECTED)
-			options.add(FilterOptions.SHOWOK);
-		else
-			options.remove(FilterOptions.SHOWOK);
-		update(options.toArray(FilterOptions[]::new));
-	}
+        tree.addTreeSelectionListener(e -> {
+            val path = e.getNewLeadSelectionPath();
+            if (path != null) {
+                val node = path.getLastPathComponent();
+                mntmDetail.setEnabled(node instanceof NoteNode);
+                mntmCopyCRC.setEnabled(node instanceof NoteNode);
+                mntmCopySHA1.setEnabled(node instanceof NoteNode);
+                mntmCopyName.setEnabled(node instanceof NoteNode);
+                mntmSearchWeb.setEnabled(node instanceof NoteNode);
+            } else {
+                mntmDetail.setEnabled(false);
+                mntmCopyCRC.setEnabled(false);
+                mntmCopySHA1.setEnabled(false);
+                mntmCopyName.setEnabled(false);
+                mntmSearchWeb.setEnabled(false);
+            }
+        });
+    }
 
-	/**
-	 * 
-	 */
-	private void openAllNodes()
-	{
-		tree.invalidate();
-		int j = tree.getRowCount();
-		int i = 0;
-		while(i < j)
-		{
-			tree.expandRow(i);
-			i += 1;
-			j = tree.getRowCount();
-		}
-		tree.validate();
-	}
+    /**
+     * 
+     */
+    private void searchOnTheWeb() {
+        val path = tree.getSelectionPath();
+        if (path != null) {
+            Object node = path.getLastPathComponent();
+            if (node instanceof NoteNode nn && Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    val name = nn.getNote().getName();
+                    val crc = nn.getNote().getCrc();
+                    val sha1 = nn.getNote().getSha1();
+                    val hash = Optional.ofNullable(Optional.ofNullable(crc).orElse(sha1)).map(h -> '+' + h).orElse("");
+                    Desktop.getDesktop().browse(new URI("https://www.google.com/search?q=" + URLEncoder.encode('"' + name + '"', "UTF-8") + hash));
+                } catch (IOException | URISyntaxException e1) {
+                    Log.err(e1.getMessage(), e1);
+                }
+            }
+        }
+    }
 
-	/**
-	 * @param report
-	 */
-	private void build(Report report)
-	{
-		new SwingWorker<TreeModel, Void>()
-		{
-			@Override
-			protected TreeModel doInBackground() throws Exception
-			{
-				return new ReportTreeModel(report.getHandler());
-			}
-			
-			@Override
-			protected void done()
-			{
-				try
-				{
-					tree.setModel(get());
-					tree.setCellRenderer(new ReportTreeCellRenderer());
-					ReportView.this.setViewportView(tree);
-				}
-				catch (InterruptedException e)
-				{
-					Log.err(e.getMessage(), e);
-					Thread.currentThread().interrupt();
-				}
-				catch (ExecutionException e)
-				{
-					Log.err(e.getMessage(), e);
-				}
-				finally
-				{
-					setEnabled(true);
-				}
-			}
-		}.execute();
-	}
+    /**
+     * @throws HeadlessException
+     */
+    private void copyName() throws HeadlessException {
+        val path = tree.getSelectionPath();
+        if (path != null) {
+            Object node = path.getLastPathComponent();
+            if (node instanceof NoteNode nn) {
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(nn.getNote().getName()), null);
+            }
+        }
+    }
 
-	public void update()
-	{
-		update(new FilterOptions[0]);
-	}
+    /**
+     * @throws HeadlessException
+     */
+    private void copySHA1() throws HeadlessException {
+        val path = tree.getSelectionPath();
+        if (path != null) {
+            Object node = path.getLastPathComponent();
+            if (node instanceof NoteNode nn) {
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(nn.getNote().getSha1()), null);
+            }
+        }
+    }
 
-	private void update(FilterOptions[] options)
-	{
-		setViewportView(wait);
-		new SwingWorker<FilterOptions[], Void>(){
+    /**
+     * @throws HeadlessException
+     */
+    private void copyCRC() throws HeadlessException {
+        val path = tree.getSelectionPath();
+        if (path != null) {
+            Object node = path.getLastPathComponent();
+            if (node instanceof NoteNode nn) {
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(nn.getNote().getCrc()), null);
+            }
+        }
+    }
 
-			@Override
-			protected FilterOptions[] doInBackground() throws Exception
-			{
-				return options;
-			}
+    /**
+     * @throws HeadlessException
+     */
+    private void showDetail() throws HeadlessException {
+        val path = tree.getSelectionPath();
+        if (path != null) {
+            Object node = path.getLastPathComponent();
+            if (node instanceof NoteNode nn) {
+                val msg = nn.getNote().getDetail();
+                JOptionPane.showMessageDialog(this, new JTextArea(msg), "Details", JOptionPane.INFORMATION_MESSAGE);
+            } else if (node instanceof SubjectNode) {
+                // not supported
+            }
+        }
+    }
 
-			@Override
-			protected void done()
-			{
-				try
-				{
-					setViewportView(tree);
-					report.getHandler().filter(get());
-				}
-				catch (InterruptedException e)
-				{
-					Log.err(e.getMessage(), e);
-					Thread.currentThread().interrupt();
-				}
-				catch (ExecutionException e)
-				{
-					Log.err(e.getMessage(), e);
-				}
-			}
-		}.execute();
-		
-	}
-	
+    /**
+     * @param report
+     * @param e
+     */
+    private void hideFullyMissing(Report report, ItemEvent e) {
+        final Set<FilterOptions> options = report.getHandler().getFilterOptions();
+        if (e.getStateChange() == ItemEvent.SELECTED)
+            options.add(FilterOptions.HIDEMISSING);
+        else
+            options.remove(FilterOptions.HIDEMISSING);
+        update(options.toArray(FilterOptions[]::new));
+    }
+
+    /**
+     * 
+     */
+    private void closeAllNodes() {
+        tree.invalidate();
+        int j = tree.getRowCount();
+        int i = 0;
+        while (i < j) {
+            tree.collapseRow(i);
+            i += 1;
+            j = tree.getRowCount();
+        }
+        tree.validate();
+    }
+
+    /**
+     * @param report
+     * @param e
+     */
+    private void showOKEntries(Report report, ItemEvent e) {
+        final Set<FilterOptions> options = report.getHandler().getFilterOptions();
+        if (e.getStateChange() == ItemEvent.SELECTED)
+            options.add(FilterOptions.SHOWOK);
+        else
+            options.remove(FilterOptions.SHOWOK);
+        update(options.toArray(FilterOptions[]::new));
+    }
+
+    /**
+     * 
+     */
+    private void openAllNodes() {
+        tree.invalidate();
+        int j = tree.getRowCount();
+        int i = 0;
+        while (i < j) {
+            tree.expandRow(i);
+            i += 1;
+            j = tree.getRowCount();
+        }
+        tree.validate();
+    }
+
+    /**
+     * @param report
+     */
+    private void build(Report report) {
+        new SwingWorker<TreeModel, Void>() {
+            @Override
+            protected TreeModel doInBackground() throws Exception {
+                return new ReportTreeModel(report.getHandler());
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    tree.setModel(get());
+                    tree.setCellRenderer(new ReportTreeCellRenderer());
+                    ReportView.this.setViewportView(tree);
+                } catch (InterruptedException e) {
+                    Log.err(e.getMessage(), e);
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException e) {
+                    Log.err(e.getMessage(), e);
+                } finally {
+                    setEnabled(true);
+                }
+            }
+        }.execute();
+    }
+
+    public void update() {
+        update(new FilterOptions[0]);
+    }
+
+    private void update(FilterOptions[] options) {
+        setViewportView(wait);
+        new SwingWorker<FilterOptions[], Void>() {
+
+            @Override
+            protected FilterOptions[] doInBackground() throws Exception {
+                return options;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    setViewportView(tree);
+                    report.getHandler().filter(get());
+                } catch (InterruptedException e) {
+                    Log.err(e.getMessage(), e);
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException e) {
+                    Log.err(e.getMessage(), e);
+                }
+            }
+        }.execute();
+
+    }
+
 }

@@ -30,135 +30,111 @@ import jrm.profile.manager.Dir;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public class DirNode extends DefaultMutableTreeNode
-{
+public class DirNode extends DefaultMutableTreeNode {
 
-	/** The dir. */
-	private transient Dir dir;
+    /** The dir. */
+    private transient Dir dir;
 
-	/**
-	 * Instantiates a new dir node.
-	 *
-	 * @param root
-	 *            the root
-	 */
-	public DirNode(final File root)
-	{
-		super(new Dir(root, "/"), true); //$NON-NLS-1$
-		buildDirTree(setDir((Dir) getUserObject()), this);
-	}
+    /**
+     * Instantiates a new dir node.
+     *
+     * @param root the root
+     */
+    public DirNode(final File root) {
+        super(new Dir(root, "/"), true); //$NON-NLS-1$
+        buildDirTree(setDir((Dir) getUserObject()), this);
+    }
 
-	/**
-	 * Instantiates a new dir node.
-	 *
-	 * @param dir
-	 *            the dir
-	 */
-	@SuppressWarnings("exports")
-	public DirNode(final Dir dir)
-	{
-		super(dir);
-		this.setDir(dir);
-	}
+    /**
+     * Instantiates a new dir node.
+     *
+     * @param dir the dir
+     */
+    public DirNode(final Dir dir) {
+        super(dir);
+        this.setDir(dir);
+    }
 
-	/**
-	 * Builds the dir tree.
-	 *
-	 * @param dir
-	 *            the dir
-	 * @param node
-	 *            the node
-	 */
-	private void buildDirTree(final Dir dir, final DefaultMutableTreeNode node)
-	{
-		if (dir == null)
-			return;
-		File dirfile = dir.getFile();
-		if (dirfile != null && dirfile.isDirectory())
-		{
-			File[] listFiles = dirfile.listFiles();
-			if (listFiles != null)
-			{
-				for (final File file : listFiles)
-				{
-					if (file != null && file.isDirectory())
-					{
-						final DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
-						node.add(newdir);
-						buildDirTree(new Dir(file), newdir);
-					}
+    /**
+     * Builds the dir tree.
+     *
+     * @param dir  the dir
+     * @param node the node
+     */
+    private void buildDirTree(final Dir dir, final DefaultMutableTreeNode node) {
+        if (dir == null)
+            return;
+        File dirfile = dir.getFile();
+        if (dirfile != null && dirfile.isDirectory()) {
+            File[] listFiles = dirfile.listFiles();
+            if (listFiles != null) {
+                for (final File file : listFiles) {
+                    if (file != null && file.isDirectory()) {
+                        final DefaultMutableTreeNode newdir = new DirNode(new Dir(file));
+                        node.add(newdir);
+                        buildDirTree(new Dir(file), newdir);
+                    }
 
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
-	/**
-	 * Reload.
-	 */
-	public void reload()
-	{
-		removeAllChildren();
-		buildDirTree(getDir(), this);
-	}
+    /**
+     * Reload.
+     */
+    public void reload() {
+        removeAllChildren();
+        buildDirTree(getDir(), this);
+    }
 
-	/**
-	 * Find.
-	 *
-	 * @param file
-	 *            the file
-	 * @return the dir node
-	 */
-	public DirNode find(final File file)
-	{
-		return DirNode.find(this, file);
-	}
+    /**
+     * Find.
+     *
+     * @param file the file
+     * @return the dir node
+     */
+    public DirNode find(final File file) {
+        return DirNode.find(this, file);
+    }
 
-	/**
-	 * Find.
-	 *
-	 * @param root
-	 *            the root
-	 * @param file
-	 *            the file
-	 * @return the dir node
-	 */
-	public static DirNode find(final DirNode root, final File file)
-	{
-		final File parent = file.isFile() ? file.getParentFile() : file;
-		if (parent != null)
-		{
-			for (final Enumeration<?> e = root.depthFirstEnumeration(); e.hasMoreElements();)
-			{
-				final DirNode node = (DirNode) e.nextElement();
-				if (((Dir) node.getUserObject()).getFile().equals(parent))
-					return node;
-			}
-			return DirNode.find(root, parent.getParentFile());
-		}
-		return null;
-	}
+    /**
+     * Find.
+     *
+     * @param root the root
+     * @param file the file
+     * @return the dir node
+     */
+    public static DirNode find(final DirNode root, final File file) {
+        final File parent = file.isFile() ? file.getParentFile() : file;
+        if (parent != null) {
+            for (final Enumeration<?> e = root.depthFirstEnumeration(); e.hasMoreElements();) {
+                final DirNode node = (DirNode) e.nextElement();
+                if (((Dir) node.getUserObject()).getFile().equals(parent))
+                    return node;
+            }
+            return DirNode.find(root, parent.getParentFile());
+        }
+        return null;
+    }
 
-	/**
-	 * Gets the dir.
-	 *
-	 * @return the dir
-	 */
-	public Dir getDir()
-	{
-		return dir;
-	}
+    /**
+     * Gets the dir.
+     *
+     * @return the dir
+     */
+    public Dir getDir() {
+        return dir;
+    }
 
-	/**
-	 * Sets the dir.
-	 *
-	 * @param dir
-	 *            the dir to set
-	 * @return the dir
-	 */
-	public Dir setDir(Dir dir)
-	{
-		this.dir = dir;
-		return dir;
-	}
+    /**
+     * Sets the dir.
+     *
+     * @param dir the dir to set
+     * @return the dir
+     */
+    public Dir setDir(Dir dir) {
+        this.dir = dir;
+        return dir;
+    }
 }

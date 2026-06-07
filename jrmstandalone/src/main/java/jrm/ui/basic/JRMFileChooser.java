@@ -36,229 +36,200 @@ import jrm.misc.Log;
  * @param <V> the value type
  */
 @SuppressWarnings("serial")
-public class JRMFileChooser<V> extends JFileChooser
-{
-	
-	/**
-	 * The Class OneRootFileSystemView.
-	 */
-	public static class OneRootFileSystemView extends FileSystemView
-	{
-		
-		/** The root. */
-		File root;
-		
-		/** The roots. */
-		File[] roots = new File[1];
+public class JRMFileChooser<V> extends JFileChooser {
 
-		/**
-		 * Instantiates a new one root file system view.
-		 *
-		 * @param root the root
-		 */
-		public OneRootFileSystemView(final File root)
-		{
-			try
-			{
-				this.root = root.getCanonicalFile();
-				roots[0] = this.root;
-			}
-			catch(final IOException e1)
-			{
-				JOptionPane.showMessageDialog(null, e1, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-				Log.err(e1.getMessage(),e1);
-			}
-		}
+    /**
+     * The Class OneRootFileSystemView.
+     */
+    public static class OneRootFileSystemView extends FileSystemView {
 
-		@Override
-		public File createNewFolder(final File containingDir) throws IOException
-		{
-			final File folder = new File(containingDir, Messages.getString("JRMFileChooser.NewFolder")); //$NON-NLS-1$
-			folder.mkdir();
-			return folder;
-		}
+        /** The root. */
+        File root;
 
-		@Override
-		public File getDefaultDirectory()
-		{
-			return root;
-		}
+        /** The roots. */
+        File[] roots = new File[1];
 
-		@Override
-		public File getHomeDirectory()
-		{
-			return root;
-		}
+        /**
+         * Instantiates a new one root file system view.
+         *
+         * @param root the root
+         */
+        public OneRootFileSystemView(final File root) {
+            try {
+                this.root = root.getCanonicalFile();
+                roots[0] = this.root;
+            } catch (final IOException e1) {
+                JOptionPane.showMessageDialog(null, e1, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+                Log.err(e1.getMessage(), e1);
+            }
+        }
 
-		@Override
-		public File[] getRoots()
-		{
-			return roots;
-		}
-	}
+        @Override
+        public File createNewFolder(final File containingDir) throws IOException {
+            final File folder = new File(containingDir, Messages.getString("JRMFileChooser.NewFolder")); //$NON-NLS-1$
+            folder.mkdir();
+            return folder;
+        }
 
-	/**
-	 * The Interface CallBack.
-	 *
-	 * @param <V> the value type
-	 */
-	public interface CallBack<V>
-	{
-		
-		/**
-		 * Call.
-		 *
-		 * @param chooser the chooser
-		 * @return the v
-		 */
-		public V call(JRMFileChooser<V> chooser);
-	}
+        @Override
+        public File getDefaultDirectory() {
+            return root;
+        }
 
-	/**
-	 * Instantiates a new JRM file chooser.
-	 */
-	public JRMFileChooser()
-	{
-		this(null, null, null, null, null, null, false);
-	}
+        @Override
+        public File getHomeDirectory() {
+            return root;
+        }
 
-	/**
-	 * Instantiates a new JRM file chooser.
-	 *
-	 * @param type the type
-	 * @param mode the mode
-	 */
-	public JRMFileChooser(final int type, final int mode)
-	{
-		this(type, mode, null, null, null, null, false);
-	}
+        @Override
+        public File[] getRoots() {
+            return roots;
+        }
+    }
 
-	/**
-	 * Instantiates a new JRM file chooser.
-	 *
-	 * @param type the type
-	 * @param mode the mode
-	 * @param currdir the currdir
-	 */
-	public JRMFileChooser(final int type, final int mode, final File currdir)
-	{
-		this(type, mode, currdir, null, null, null, false);
-	}
+    /**
+     * The Interface CallBack.
+     *
+     * @param <V> the value type
+     */
+    public interface CallBack<V> {
 
-	/**
-	 * Instantiates a new JRM file chooser.
-	 *
-	 * @param type the type
-	 * @param mode the mode
-	 * @param currdir the currdir
-	 * @param selected the selected
-	 * @param filters the filters
-	 * @param title the title
-	 * @param multi the multi
-	 */
-	@SuppressWarnings("exports")
-	public JRMFileChooser(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title, final boolean multi)
-	{
-		super();
-		setup(type, mode, currdir, selected, filters, title, multi);
-	}
+        /**
+         * Call.
+         *
+         * @param chooser the chooser
+         * @return the v
+         */
+        public V call(JRMFileChooser<V> chooser);
+    }
 
-	/**
-	 * Setup.
-	 *
-	 * @param type the type
-	 * @param mode the mode
-	 * @param currdir the currdir
-	 * @param selected the selected
-	 * @param filters the filters
-	 * @param title the title
-	 * @param multi the multi
-	 * @return the JRM file chooser
-	 */
-	@SuppressWarnings("exports")
-	public JRMFileChooser<V> setup(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title, final boolean multi)
-	{
-		Optional.ofNullable(type).ifPresent(this::setDialogType);
-		Optional.ofNullable(mode).ifPresent(this::setFileSelectionMode);
-		Optional.ofNullable(selected).ifPresent(this::setSelectedFile);
-		if(currdir != null && currdir.exists())
-		{
-			if(currdir.isFile())
-				setSelectedFile(currdir);
-			else
-				setCurrentDirectory(currdir);
-		}
-		if(filters != null)
-		{
-			if(filters.size() == 1)
-			{
-				setFileFilter(filters.get(0));
-				setAcceptAllFileFilterUsed(false);
-			}
-			else
-				for(final FileFilter filter : filters)
-				{
-					addChoosableFileFilter(filter);
-					setAcceptAllFileFilterUsed(false);
-				}
-		}
-		Optional.ofNullable(title).ifPresent(this::setDialogTitle);
-		if(multi)
-			setMultiSelectionEnabled(multi);
-		return this;
-	}
+    /**
+     * Instantiates a new JRM file chooser.
+     */
+    public JRMFileChooser() {
+        this(null, null, null, null, null, null, false);
+    }
 
-	/**
-	 * Instantiates a new JRM file chooser.
-	 *
-	 * @param fsv the fsv
-	 */
-	@SuppressWarnings("exports")
-	public JRMFileChooser(final FileSystemView fsv)
-	{
-		super(fsv);
-	}
+    /**
+     * Instantiates a new JRM file chooser.
+     *
+     * @param type the type
+     * @param mode the mode
+     */
+    public JRMFileChooser(final int type, final int mode) {
+        this(type, mode, null, null, null, null, false);
+    }
 
-	/**
-	 * Show.
-	 *
-	 * @param parent the parent
-	 * @param callback the callback
-	 * @return the v
-	 */
-	@SuppressWarnings("exports")
-	public V show(final Component parent, final CallBack<V> callback)
-	{
-		if(showOpenDialog(parent) == JFileChooser.APPROVE_OPTION)
-			return callback.call(this);
-		return null;
-	}
+    /**
+     * Instantiates a new JRM file chooser.
+     *
+     * @param type    the type
+     * @param mode    the mode
+     * @param currdir the currdir
+     */
+    public JRMFileChooser(final int type, final int mode, final File currdir) {
+        this(type, mode, currdir, null, null, null, false);
+    }
 
-	/**
-	 * Show open.
-	 *
-	 * @param parent the parent
-	 * @param callback the callback
-	 * @return the v
-	 */
-	@SuppressWarnings("exports")
-	public V showOpen(final Component parent, final CallBack<V> callback)
-	{
-		setDialogType(JFileChooser.OPEN_DIALOG);
-		return show(parent, callback);
-	}
+    /**
+     * Instantiates a new JRM file chooser.
+     *
+     * @param type     the type
+     * @param mode     the mode
+     * @param currdir  the currdir
+     * @param selected the selected
+     * @param filters  the filters
+     * @param title    the title
+     * @param multi    the multi
+     */
+    public JRMFileChooser(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title,
+            final boolean multi) {
+        super();
+        setup(type, mode, currdir, selected, filters, title, multi);
+    }
 
-	/**
-	 * Show save.
-	 *
-	 * @param parent the parent
-	 * @param callback the callback
-	 * @return the v
-	 */
-	@SuppressWarnings("exports")
-	public V showSave(final Component parent, final CallBack<V> callback)
-	{
-		setDialogType(JFileChooser.SAVE_DIALOG);
-		return show(parent, callback);
-	}
+    /**
+     * Setup.
+     *
+     * @param type     the type
+     * @param mode     the mode
+     * @param currdir  the currdir
+     * @param selected the selected
+     * @param filters  the filters
+     * @param title    the title
+     * @param multi    the multi
+     * @return the JRM file chooser
+     */
+    public JRMFileChooser<V> setup(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title,
+            final boolean multi) {
+        Optional.ofNullable(type).ifPresent(this::setDialogType);
+        Optional.ofNullable(mode).ifPresent(this::setFileSelectionMode);
+        Optional.ofNullable(selected).ifPresent(this::setSelectedFile);
+        if (currdir != null && currdir.exists()) {
+            if (currdir.isFile())
+                setSelectedFile(currdir);
+            else
+                setCurrentDirectory(currdir);
+        }
+        if (filters != null) {
+            if (filters.size() == 1) {
+                setFileFilter(filters.get(0));
+                setAcceptAllFileFilterUsed(false);
+            } else
+                for (final FileFilter filter : filters) {
+                    addChoosableFileFilter(filter);
+                    setAcceptAllFileFilterUsed(false);
+                }
+        }
+        Optional.ofNullable(title).ifPresent(this::setDialogTitle);
+        if (multi)
+            setMultiSelectionEnabled(multi);
+        return this;
+    }
+
+    /**
+     * Instantiates a new JRM file chooser.
+     *
+     * @param fsv the fsv
+     */
+    public JRMFileChooser(final FileSystemView fsv) {
+        super(fsv);
+    }
+
+    /**
+     * Show.
+     *
+     * @param parent   the parent
+     * @param callback the callback
+     * @return the v
+     */
+    public V show(final Component parent, final CallBack<V> callback) {
+        if (showOpenDialog(parent) == JFileChooser.APPROVE_OPTION)
+            return callback.call(this);
+        return null;
+    }
+
+    /**
+     * Show open.
+     *
+     * @param parent   the parent
+     * @param callback the callback
+     * @return the v
+     */
+    public V showOpen(final Component parent, final CallBack<V> callback) {
+        setDialogType(JFileChooser.OPEN_DIALOG);
+        return show(parent, callback);
+    }
+
+    /**
+     * Show save.
+     *
+     * @param parent   the parent
+     * @param callback the callback
+     * @return the v
+     */
+    public V showSave(final Component parent, final CallBack<V> callback) {
+        setDialogType(JFileChooser.SAVE_DIALOG);
+        return show(parent, callback);
+    }
 }

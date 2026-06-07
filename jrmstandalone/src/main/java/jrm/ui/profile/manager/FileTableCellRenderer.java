@@ -32,54 +32,47 @@ import jrm.profile.manager.ProfileNFO;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public class FileTableCellRenderer extends DefaultTableCellRenderer
-{
+public class FileTableCellRenderer extends DefaultTableCellRenderer {
 
-	/**
-	 * Instantiates a new file table cell renderer.
-	 */
-	public FileTableCellRenderer()
-	{
-		super();
-	}
+    /**
+     * Instantiates a new file table cell renderer.
+     */
+    public FileTableCellRenderer() {
+        super();
+    }
 
-	@Override
-	public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-	{
-		if(column==0 && table.getModel() instanceof FileTableModel ftm)
-		{
-			final ProfileNFO nfo = ftm.getNfoAt(row);
-			super.getTableCellRendererComponent(table, nfo.getName(), isSelected, hasFocus, row, column);
-			switch(nfo.getMame().getStatus())
-			{
-				case UPTODATE:
-					setForeground(Color.decode("0x00aa00")); //$NON-NLS-1$
-					setToolTipText(String.format(Messages.getString("FileTableCellRenderer.IsUpToDate"),nfo.getName())); //$NON-NLS-1$
-					break;
-				case NEEDUPDATE:
-					setForeground(Color.decode("0xcc8800")); //$NON-NLS-1$
-					setToolTipText(String.format(Messages.getString("FileTableCellRenderer.NeedUpdateFromMame"),nfo.getName())); //$NON-NLS-1$
-					break;
-				case NOTFOUND:
-					setForeground(Color.decode("0xcc0000")); //$NON-NLS-1$
-					setToolTipText(String.format(Messages.getString("FileTableCellRenderer.StatusUnknownMameNotFound"),nfo.getName())); //$NON-NLS-1$
-					break;
-				default:
-					setForeground(Color.black);
-					setToolTipText(getText());
-					break;
-			}
-		}
-		else
-		{
-			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			setForeground(Color.black);
-			if(column>1)
-				setHorizontalAlignment(SwingConstants.CENTER);
-			else
-				setToolTipText(getText());
-		}
-		setBackground(isSelected?Color.decode("0xBBBBDD"):Color.white); //$NON-NLS-1$
-		return this;
-	}
+    @Override
+    public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+        if (column == 0 && table.getModel() instanceof FileTableModel ftm) {
+            final ProfileNFO nfo = ftm.getNfoAt(row);
+            super.getTableCellRendererComponent(table, nfo.getName(), isSelected, hasFocus, row, column);
+            switch (nfo.getMame().getStatus()) {
+                case UPTODATE:
+                    setForeground(Color.decode("0x00aa00")); //$NON-NLS-1$
+                    setToolTipText(String.format(Messages.getString("FileTableCellRenderer.IsUpToDate"), nfo.getName())); //$NON-NLS-1$
+                    break;
+                case NEEDUPDATE:
+                    setForeground(Color.decode("0xcc8800")); //$NON-NLS-1$
+                    setToolTipText(String.format(Messages.getString("FileTableCellRenderer.NeedUpdateFromMame"), nfo.getName())); //$NON-NLS-1$
+                    break;
+                case NOTFOUND:
+                    setForeground(Color.decode("0xcc0000")); //$NON-NLS-1$
+                    setToolTipText(String.format(Messages.getString("FileTableCellRenderer.StatusUnknownMameNotFound"), nfo.getName())); //$NON-NLS-1$
+                    break;
+                default:
+                    setForeground(Color.black);
+                    setToolTipText(getText());
+                    break;
+            }
+        } else {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setForeground(Color.black);
+            if (column > 1)
+                setHorizontalAlignment(SwingConstants.CENTER);
+            else
+                setToolTipText(getText());
+        }
+        setBackground(isSelected ? Color.decode("0xBBBBDD") : Color.white); //$NON-NLS-1$
+        return this;
+    }
 }

@@ -25,35 +25,30 @@ import jrm.profile.report.Report;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public final class ReportTreeModel extends ReportTreeModelGeneric<Report>
-{
-	/**
-	 * Instantiates a new report tree model.
-	 *
-	 * @param root the root
-	 */
-	private ReportTreeModel(final Report root)	//NOSONAR
-	{
-		super(new ReportNode(root));
-		orgRoot = root;
-		root.setHandler(this);
-		initClone();
-	}
+public final class ReportTreeModel extends ReportTreeModelGeneric<Report> {
+    /**
+     * Instantiates a new report tree model.
+     *
+     * @param root the root
+     */
+    private ReportTreeModel(final Report root) // NOSONAR
+    {
+        super(new ReportNode(root));
+        orgRoot = root;
+        root.setHandler(this);
+        initClone();
+    }
 
-	@SuppressWarnings("exports")
-	public ReportTreeModel(final ReportTreeHandler<Report> handler)
-	{
-		super(new ReportNode(handler.getFilteredReport()));
-		getFilteredReport().setHandler(this);
-		orgRoot = handler.getOriginalReport();
-		orgRoot.setHandler(this);
-	}
-	
-	@Override
-	public ReportNode getNodeInstance(Report report)
-	{
-		return new ReportNode(report);
-	}
-	
+    public ReportTreeModel(final ReportTreeHandler<Report> handler) {
+        super(new ReportNode(handler.getFilteredReport()));
+        getFilteredReport().setHandler(this);
+        orgRoot = handler.getOriginalReport();
+        orgRoot.setHandler(this);
+    }
+
+    @Override
+    public ReportNode getNodeInstance(Report report) {
+        return new ReportNode(report);
+    }
 
 }

@@ -34,85 +34,78 @@ import lombok.RequiredArgsConstructor;
  * The Class SoftwareListRenderer.
  */
 @SuppressWarnings("serial")
-public final class SoftwareListRenderer
-{
-	/** The Constant columns. */
-	protected static final String[] columns = new String[] { Messages.getString("SoftwareListRenderer.Status"), Messages.getString("SoftwareListRenderer.Name"), Messages.getString("SoftwareListRenderer.Description"), Messages.getString("SoftwareListRenderer.Have"), Messages.getString("SoftwareListRenderer.CloneOf"), Messages.getString("SoftwareListRenderer.Selected") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-	
-	/** The Constant columnsTypes. */
-	protected static final Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Boolean.class };
-	
-	/** The Constant columnsWidths. */
-	protected static final int[] columnsWidths = new int[] { -20, 40, 200, -45, 40, -20 };
-	
-	/** The Constant columnsRenderers. */
-	protected static final TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new SoftwareCellRenderer(false), new AnywareCellRenderer(), null, new CenteredTableCellRenderer(), new SoftwareCellRenderer(true), null};
+public final class SoftwareListRenderer {
+    /** The Constant columns. */
+    protected static final String[] columns = new String[] { Messages.getString("SoftwareListRenderer.Status"), Messages.getString("SoftwareListRenderer.Name"), //$NON-NLS-1$ //$NON-NLS-2$
+            Messages.getString("SoftwareListRenderer.Description"), Messages.getString("SoftwareListRenderer.Have"), Messages.getString("SoftwareListRenderer.CloneOf"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            Messages.getString("SoftwareListRenderer.Selected") }; //$NON-NLS-1$
 
-	/**
-	 * Instantiates a new software list renderer.
-	 */
-	private SoftwareListRenderer()
-	{
-	}
+    /** The Constant columnsTypes. */
+    protected static final Class<?>[] columnsTypes = new Class<?>[] { Object.class, Object.class, String.class, String.class, Object.class, Boolean.class };
 
-	
-	private static final class AnywareCellRenderer extends DefaultTableCellRenderer
-	{
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-		{
-			if(value instanceof Anyware aw)
-			{
-				return super.getTableCellRendererComponent(table, aw.getBaseName(), isSelected, hasFocus, row, column);
-			}
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		}
-	}
+    /** The Constant columnsWidths. */
+    protected static final int[] columnsWidths = new int[] { -20, 40, 200, -45, 40, -20 };
 
-	@RequiredArgsConstructor
-	private static final class SoftwareCellRenderer extends DefaultTableCellRenderer
-	{
-		/** The Constant folder_closed_green. */
-		private static final ImageIcon folder_closed_green = MainFrame.getIcon("/jrm/resicons/folder_closed_green.png"); //$NON-NLS-1$
-		
-		/** The Constant folder_closed_orange. */
-		private static final ImageIcon folder_closed_orange = MainFrame.getIcon("/jrm/resicons/folder_closed_orange.png"); //$NON-NLS-1$
-		
-		/** The Constant folder_closed_red. */
-		private static final ImageIcon folder_closed_red = MainFrame.getIcon("/jrm/resicons/folder_closed_red.png"); //$NON-NLS-1$
-		
-		/** The Constant folder_closed_gray. */
-		private static final ImageIcon folder_closed_gray = MainFrame.getIcon("/jrm/resicons/folder_closed_gray.png"); //$NON-NLS-1$
+    /** The Constant columnsRenderers. */
+    protected static final TableCellRenderer[] columnsRenderers = new TableCellRenderer[] { new SoftwareCellRenderer(false), new AnywareCellRenderer(), null,
+            new CenteredTableCellRenderer(), new SoftwareCellRenderer(true), null };
 
-		private final boolean withName;
-		
-		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column)
-		{
-			if(value instanceof Software sw)
-			{
-				super.getTableCellRendererComponent(table, withName?sw.getBaseName():"", isSelected, hasFocus, row, column); //$NON-NLS-1$
-				switch(((Software) value).getStatus())
-				{
-					case COMPLETE:
-						setIcon(folder_closed_green);
-						break;
-					case PARTIAL:
-						setIcon(folder_closed_orange);
-						break;
-					case MISSING:
-						setIcon(folder_closed_red);
-						break;
-					case UNKNOWN:
-					default:
-						setIcon(folder_closed_gray);
-						break;
-				}
-				return this;
-			}
-			setIcon(null);
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		}
-	}
+    /**
+     * Instantiates a new software list renderer.
+     */
+    private SoftwareListRenderer() {
+    }
+
+    private static final class AnywareCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+            if (value instanceof Anyware aw) {
+                return super.getTableCellRendererComponent(table, aw.getBaseName(), isSelected, hasFocus, row, column);
+            }
+            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static final class SoftwareCellRenderer extends DefaultTableCellRenderer {
+        /** The Constant folder_closed_green. */
+        private static final ImageIcon folder_closed_green = MainFrame.getIcon("/jrm/resicons/folder_closed_green.png"); //$NON-NLS-1$
+
+        /** The Constant folder_closed_orange. */
+        private static final ImageIcon folder_closed_orange = MainFrame.getIcon("/jrm/resicons/folder_closed_orange.png"); //$NON-NLS-1$
+
+        /** The Constant folder_closed_red. */
+        private static final ImageIcon folder_closed_red = MainFrame.getIcon("/jrm/resicons/folder_closed_red.png"); //$NON-NLS-1$
+
+        /** The Constant folder_closed_gray. */
+        private static final ImageIcon folder_closed_gray = MainFrame.getIcon("/jrm/resicons/folder_closed_gray.png"); //$NON-NLS-1$
+
+        private final boolean withName;
+
+        @Override
+        public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+            if (value instanceof Software sw) {
+                super.getTableCellRendererComponent(table, withName ? sw.getBaseName() : "", isSelected, hasFocus, row, column); //$NON-NLS-1$
+                switch (((Software) value).getStatus()) {
+                    case COMPLETE:
+                        setIcon(folder_closed_green);
+                        break;
+                    case PARTIAL:
+                        setIcon(folder_closed_orange);
+                        break;
+                    case MISSING:
+                        setIcon(folder_closed_red);
+                        break;
+                    case UNKNOWN:
+                    default:
+                        setIcon(folder_closed_gray);
+                        break;
+                }
+                return this;
+            }
+            setIcon(null);
+            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        }
+    }
 
 }
