@@ -36,67 +36,54 @@ import jtrrntzip.TrrntZipStatus;
  * @author optyfr
  *
  */
-public class TZipContainer extends ContainerAction
-{
-	private long dataSize;
+public class TZipContainer extends ContainerAction {
+    private long dataSize;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param container
-	 *            the container to tzip
-	 * @param format
-	 *            the desired format (should be always {@link FormatOptions#TZIP}
-	 *            otherwise nothing will happen)
-	 * @param dataSize
-	 *            the uncompressed data size of all entries to process
-	 */
-	public TZipContainer(final Container container, final FormatOptions format, final long dataSize)
-	{
-		super(container, format);
-		this.dataSize = dataSize;
-	}
+    /**
+     * Constructor
+     * 
+     * @param container the container to tzip
+     * @param format    the desired format (should be always
+     *                  {@link FormatOptions#TZIP} otherwise nothing will happen)
+     * @param dataSize  the uncompressed data size of all entries to process
+     */
+    public TZipContainer(final Container container, final FormatOptions format, final long dataSize) {
+        super(container, format);
+        this.dataSize = dataSize;
+    }
 
-	@Override
-	public boolean doAction(final Session session, final ProgressHandler handler)
-	{
-		if (container.getType() == Container.Type.ZIP && format == FormatOptions.TZIP)
-		{
-			handler.setProgress(toDocument(toNoBR(String.format(escape("TorrentZipping %s [%s]"), toBlue(escape(container.getRelAW().getFullName(container.getFile().getName()))), toPurple(escape(container.getRelAW().getDescription())))))); //$NON-NLS-1$
-			try
-			{
-				if (container.getFile().exists())
-				{
-					final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).process(container.getFile());
-					if (!status.contains(TrrntZipStatus.VALIDTRRNTZIP))
-						Log.info(()->String.format("%-64s => %s%n", container.getRelFile(), status.toString())); //$NON-NLS-1$
-				}
-				return true;
-			}
-			catch (final IOException e)
-			{
-				Log.err(container.getRelFile());
-				Log.err(e.getMessage(), e);
-			}
-		}
-		return false;
-	}
+    @Override
+    public boolean doAction(final Session session, final ProgressHandler handler) {
+        if (container.getType() == Container.Type.ZIP && format == FormatOptions.TZIP) {
+            handler.setProgress(toDocument(toNoBR(String.format(escape("TorrentZipping %s [%s]"), toBlue(escape(container.getRelAW().getFullName(container.getFile().getName()))), //$NON-NLS-1$
+                    toPurple(escape(container.getRelAW().getDescription()))))));
+            try {
+                if (container.getFile().exists()) {
+                    final Set<TrrntZipStatus> status = new TorrentZip(new ProgressTZipCallBack(handler), new SimpleTorrentZipOptions()).process(container.getFile());
+                    if (!status.contains(TrrntZipStatus.VALIDTRRNTZIP))
+                        Log.info(() -> String.format("%-64s => %s%n", container.getRelFile(), status.toString())); //$NON-NLS-1$
+                }
+                return true;
+            } catch (final IOException e) {
+                Log.err(container.getRelFile());
+                Log.err(e.getMessage(), e);
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public long estimatedSize()
-	{
-		return dataSize < Long.MAX_VALUE ? dataSize : 0;
-	}
-	
-	@Override
-	public boolean equals(Object obj)
-	{
-		return super.equals(obj);
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
-	}
+    @Override
+    public long estimatedSize() {
+        return dataSize < Long.MAX_VALUE ? dataSize : 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

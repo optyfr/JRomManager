@@ -21,30 +21,27 @@ import java.nio.MappedByteBuffer;
 
 /**
  * Concrete implementation of the CHD file header parser for CHD version 5.
- * Extracts only the SHA-1 checksum at the offset specified by version 5 of the format,
- * as MD5 checksum support was deprecated and removed in CHD version 5.
+ * Extracts only the SHA-1 checksum at the offset specified by version 5 of the
+ * format, as MD5 checksum support was deprecated and removed in CHD version 5.
  * 
  * @author optyfr
  */
-class CHDHeaderV5 extends CHDHeaderSHA1
-{
-	/**
-	 * Constructs a CHD version 5 header parser, copying core tag/length/version properties
-	 * from a base parsed CHD header and extracting its SHA-1 checksum.
-	 *
-	 * @param bb the mapped byte buffer pointing to the start of the CHD file
-	 * @param hdr the base CHD header containing generic parsed properties
-	 */
-	public CHDHeaderV5(final MappedByteBuffer bb, final CHDHeader hdr)
-	{
-		super(bb);
-		this.tag = hdr.tag;
-		this.len = hdr.len;
-		this.version = hdr.version;
-		
-		if (bb.remaining() >= getLen() - 16)
-		{
-			this.sha1 = getHash(bb, 84, 20);
-		}
-	}
+class CHDHeaderV5 extends CHDHeaderSHA1 {
+    /**
+     * Constructs a CHD version 5 header parser, copying core tag/length/version
+     * properties from a base parsed CHD header and extracting its SHA-1 checksum.
+     *
+     * @param bb  the mapped byte buffer pointing to the start of the CHD file
+     * @param hdr the base CHD header containing generic parsed properties
+     */
+    public CHDHeaderV5(final MappedByteBuffer bb, final CHDHeader hdr) {
+        super(bb);
+        this.tag = hdr.tag;
+        this.len = hdr.len;
+        this.version = hdr.version;
+
+        if (bb.remaining() >= getLen() - 16) {
+            this.sha1 = getHash(bb, 84, 20);
+        }
+    }
 }

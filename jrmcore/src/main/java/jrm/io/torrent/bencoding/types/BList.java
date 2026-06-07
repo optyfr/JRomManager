@@ -23,112 +23,104 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Representation of a bencoded list.
- * Stores a list of {@link IBencodable} objects, preserving order.
+ * Representation of a bencoded list. Stores a list of {@link IBencodable}
+ * objects, preserving order.
  * 
  * @author Christophe De Troyer
  * @author Optyfr
  */
-public class BList implements IBencodable
-{
-	/**
-	 * The internal backing list of bencodable objects.
-	 */
-	private final List<IBencodable> list;
+public class BList implements IBencodable {
+    /**
+     * The internal backing list of bencodable objects.
+     */
+    private final List<IBencodable> list;
 
-	/**
-	 * Constructs a new, empty bencoded list.
-	 */
-	public BList()
-	{
-		this.list = new LinkedList<>();
-	}
+    /**
+     * Constructs a new, empty bencoded list.
+     */
+    public BList() {
+        this.list = new LinkedList<>();
+    }
 
-	// Logic methods
+    // Logic methods
 
-	/**
-	 * Returns an iterator over the elements in this list.
-	 *
-	 * @return an iterator of {@link IBencodable} elements
-	 */
-	public Iterator<IBencodable> getIterator()
-	{
-		return list.iterator();
-	}
+    /**
+     * Returns an iterator over the elements in this list.
+     *
+     * @return an iterator of {@link IBencodable} elements
+     */
+    public Iterator<IBencodable> getIterator() {
+        return list.iterator();
+    }
 
-	/**
-	 * Adds a bencodable element to the end of this list.
-	 *
-	 * @param o the bencodable element to add
-	 */
-	public void add(IBencodable o)
-	{
-		this.list.add(o);
-	}
+    /**
+     * Adds a bencodable element to the end of this list.
+     *
+     * @param o the bencodable element to add
+     */
+    public void add(IBencodable o) {
+        this.list.add(o);
+    }
 
-	// Bencoding
+    // Bencoding
 
-	/**
-	 * Returns the bencoded string format of this list.
-	 * Format: {@code l<elements>e}.
-	 *
-	 * @return the standard bencoded string representation
-	 */
-	public String bencodedString()
-	{
-		final var sb = new StringBuilder();
+    /**
+     * Returns the bencoded string format of this list. Format:
+     * {@code l<elements>e}.
+     *
+     * @return the standard bencoded string representation
+     */
+    public String bencodedString() {
+        final var sb = new StringBuilder();
 
-		sb.append("l"); //$NON-NLS-1$
+        sb.append("l"); //$NON-NLS-1$
 
-		for (final var entry : this.list)
-			sb.append(entry.bencodedString());
+        for (final var entry : this.list)
+            sb.append(entry.bencodedString());
 
-		sb.append("e"); //$NON-NLS-1$
+        sb.append("e"); //$NON-NLS-1$
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 
-	/**
-	 * Encodes this list into the standard bencoded byte array format.
-	 * Begins with 'l', followed by the concatenated bencoded elements, ending with 'e'.
-	 *
-	 * @return the bencoded byte array
-	 */
-	public byte[] bencode()
-	{
-		// Get the total size of the keys and values.
-		final var bytes = new ArrayList<Byte>();
-		bytes.add((byte) 'l');
-		for (final var entry : this.list)
-			for (byte b : entry.bencode())
-				bytes.add(b);
-		bytes.add((byte) 'e');
+    /**
+     * Encodes this list into the standard bencoded byte array format. Begins with
+     * 'l', followed by the concatenated bencoded elements, ending with 'e'.
+     *
+     * @return the bencoded byte array
+     */
+    public byte[] bencode() {
+        // Get the total size of the keys and values.
+        final var bytes = new ArrayList<Byte>();
+        bytes.add((byte) 'l');
+        for (final var entry : this.list)
+            for (byte b : entry.bencode())
+                bytes.add(b);
+        bytes.add((byte) 'e');
 
-		final var bencoded = new byte[bytes.size()];
+        final var bencoded = new byte[bytes.size()];
 
-		for (var i = 0; i < bytes.size(); i++)
-			bencoded[i] = bytes.get(i);
+        for (var i = 0; i < bytes.size(); i++)
+            bencoded[i] = bytes.get(i);
 
-		return bencoded;
-	}
-	// Overridden methods
+        return bencoded;
+    }
+    // Overridden methods
 
-	/**
-	 * Returns a readable string representation of this list.
-	 *
-	 * @return the formatted list string
-	 */
-	@Override
-	public String toString()
-	{
-		final var sb = new StringBuilder();
-		sb.append("("); //$NON-NLS-1$
-		for (Object entry : this.list)
-		{
-			sb.append(entry.toString());
-		}
-		sb.append(") "); //$NON-NLS-1$
+    /**
+     * Returns a readable string representation of this list.
+     *
+     * @return the formatted list string
+     */
+    @Override
+    public String toString() {
+        final var sb = new StringBuilder();
+        sb.append("("); //$NON-NLS-1$
+        for (Object entry : this.list) {
+            sb.append(entry.toString());
+        }
+        sb.append(") "); //$NON-NLS-1$
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 }

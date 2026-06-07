@@ -28,103 +28,88 @@ import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**
  * The external SevenZip archive class.<br>
- * If possible, wrap over {@link NArchive} via {@link SevenZipNArchive} to use SevenZipJBinding.<br>
+ * If possible, wrap over {@link NArchive} via {@link SevenZipNArchive} to use
+ * SevenZipJBinding.<br>
  * Otherwise will try to use external 7z executable if available...<br>
- * If command line is used, the archive will be extracted to temporary directory upon first write operation,
- * then entirely recreated from temporary directory upon archive's {@link #close()} operation 
+ * If command line is used, the archive will be extracted to temporary directory
+ * upon first write operation, then entirely recreated from temporary directory
+ * upon archive's {@link #close()} operation
+ * 
  * @author optyfr
  *
  */
-public class SevenZipArchive implements Archive
-{
-	private @Getter SevenZipNArchive native7Zip = null;
+public class SevenZipArchive implements Archive {
+    private @Getter SevenZipNArchive native7Zip = null;
 
-	public SevenZipArchive(final Session session, final File archive) throws IOException
-	{
-		this(session, archive, false, null);
-	}
+    public SevenZipArchive(final Session session, final File archive) throws IOException {
+        this(session, archive, false, null);
+    }
 
-	public SevenZipArchive(final Session session, final File archive, ProgressNarchiveCallBack cb) throws IOException
-	{
-		this(session, archive, false, cb);
-	}
+    public SevenZipArchive(final Session session, final File archive, ProgressNarchiveCallBack cb) throws IOException {
+        this(session, archive, false, cb);
+    }
 
-	public SevenZipArchive(final Session session, final File archive, final boolean readonly, ProgressNarchiveCallBack cb) throws IOException
-	{
-		try
-		{
-			native7Zip = new SevenZipNArchive(session, archive, readonly, cb);
-		}
-		catch(final SevenZipNativeInitializationException e)
-		{
-			Log.err(e.getMessage(), e);
-			throw new IOException("7zip not supported on that platform"); //$NON-NLS-1$
-		}
-	}
+    public SevenZipArchive(final Session session, final File archive, final boolean readonly, ProgressNarchiveCallBack cb) throws IOException {
+        try {
+            native7Zip = new SevenZipNArchive(session, archive, readonly, cb);
+        } catch (final SevenZipNativeInitializationException e) {
+            Log.err(e.getMessage(), e);
+            throw new IOException("7zip not supported on that platform"); //$NON-NLS-1$
+        }
+    }
 
-	@Override
-	public void close() throws IOException
-	{
-		native7Zip.close();
-	}
+    @Override
+    public void close() throws IOException {
+        native7Zip.close();
+    }
 
-	@Override
-	public File getTempDir() throws IOException
-	{
-		return native7Zip.getTempDir();
-	}
+    @Override
+    public File getTempDir() throws IOException {
+        return native7Zip.getTempDir();
+    }
 
-	@Override
-	public int extract() throws IOException
-	{
-		return native7Zip.extract();
-	}
-	
-	@Override
-	public File extract(final String entry) throws IOException
-	{
-		return native7Zip.extract(entry);
-	}
+    @Override
+    public int extract() throws IOException {
+        return native7Zip.extract();
+    }
 
-	@Override
-	public InputStream extractStdOut(final String entry) throws IOException
-	{
-		return native7Zip.extractStdOut(entry);
-	}
+    @Override
+    public File extract(final String entry) throws IOException {
+        return native7Zip.extract(entry);
+    }
 
-	@Override
-	public int add(final String entry) throws IOException
-	{
-		return native7Zip.add(entry);
-	}
+    @Override
+    public InputStream extractStdOut(final String entry) throws IOException {
+        return native7Zip.extractStdOut(entry);
+    }
 
-	@Override
-	public int add(final File baseDir, final String entry) throws IOException
-	{
-		return native7Zip.add(baseDir, entry);
-	}
+    @Override
+    public int add(final String entry) throws IOException {
+        return native7Zip.add(entry);
+    }
 
-	@Override
-	public int addStdIn(final InputStream src, final String entry) throws IOException
-	{
-		return native7Zip.addStdIn(src, entry);
-	}
+    @Override
+    public int add(final File baseDir, final String entry) throws IOException {
+        return native7Zip.add(baseDir, entry);
+    }
 
-	@Override
-	public int delete(final String entry) throws IOException
-	{
-		return native7Zip.delete(entry);
-	}
+    @Override
+    public int addStdIn(final InputStream src, final String entry) throws IOException {
+        return native7Zip.addStdIn(src, entry);
+    }
 
-	@Override
-	public int rename(final String entry, final String newname) throws IOException
-	{
-		return native7Zip.rename(entry, newname);
-	}
+    @Override
+    public int delete(final String entry) throws IOException {
+        return native7Zip.delete(entry);
+    }
 
-	@Override
-	public int duplicate(final String entry, final String newname) throws IOException
-	{
-		return native7Zip.duplicate(entry, newname);
-	}
+    @Override
+    public int rename(final String entry, final String newname) throws IOException {
+        return native7Zip.rename(entry, newname);
+    }
+
+    @Override
+    public int duplicate(final String entry, final String newname) throws IOException {
+        return native7Zip.duplicate(entry, newname);
+    }
 }

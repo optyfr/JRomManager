@@ -19,23 +19,25 @@ package jrm.profile.data;
 import java.io.Serializable;
 
 /**
- * Enumerates the dynamic scan status levels of an {@link EntityBase}.
- * These status values track the detection results across scanned file system containers.
+ * Enumerates the dynamic scan status levels of an {@link EntityBase}. These
+ * status values track the detection results across scanned file system
+ * containers.
  *
  * @author optyfr
  */
-public enum EntityStatus implements Serializable
-{
-	/**
-	 * The scan status is unknown or has not yet been processed.
-	 */
-	UNKNOWN,
-	/**
-	 * The entity was not found, or it was found with incorrect properties (e.g. mismatched hashes or wrong sizes).
-	 */
-	KO,
-	/**
-	 * The entity was successfully found and validated with perfect matching properties.
-	 */
-	OK
+public enum EntityStatus implements Serializable {
+    /**
+     * The scan status is unknown or has not yet been processed.
+     */
+    UNKNOWN,
+    /**
+     * The entity was not found, or it was found with incorrect properties (e.g.
+     * mismatched hashes or wrong sizes).
+     */
+    KO,
+    /**
+     * The entity was successfully found and validated with perfect matching
+     * properties.
+     */
+    OK
 }

@@ -17,22 +17,21 @@
 package jrm.profile.scan;
 
 /**
- * Exception thrown when a critical error occurs during a profile or directory scan operation,
- * such as missing path inputs, invalid directories, or misconfigured scanning properties.
+ * Exception thrown when a critical error occurs during a profile or directory
+ * scan operation, such as missing path inputs, invalid directories, or
+ * misconfigured scanning properties.
  * 
  * @author optyfr
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class ScanException extends Exception
-{
-	/**
-	 * Constructs a new {@code ScanException} with the specified detail message.
-	 * 
-	 * @param message the detail message explaining the reason for the exception.
-	 */
-	public ScanException(String message)
-	{
-		super(message);
-	}
+public class ScanException extends Exception {
+    /**
+     * Constructs a new {@code ScanException} with the specified detail message.
+     * 
+     * @param message the detail message explaining the reason for the exception.
+     */
+    public ScanException(String message) {
+        super(message);
+    }
 }

@@ -21,13 +21,12 @@ package jrm.aui.progress;
  *
  * @author optyfr
  */
-public interface StatusHandler
-{
-	
-	/**
-	 * Sets the status.
-	 *
-	 * @param text the new status
-	 */
-	public void setStatus(String text);
+public interface StatusHandler {
+
+    /**
+     * Sets the status.
+     *
+     * @param text the new status
+     */
+    public void setStatus(String text);
 }

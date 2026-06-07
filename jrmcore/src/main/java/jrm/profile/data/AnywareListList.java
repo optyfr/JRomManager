@@ -27,100 +27,103 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A list of {@link Anyware} objects lists.
- * Represents a parent container aggregating collections of software or arcade machines.
+ * A list of {@link Anyware} objects lists. Represents a parent container
+ * aggregating collections of software or arcade machines.
  * 
  * @author optyfr
  *
- * @param <T> extends {@link AnywareList} (generally a {@link Machine} or a {@link Software})
+ * @param <T> extends {@link AnywareList} (generally a {@link Machine} or a
+ *            {@link Software})
  */
 @SuppressWarnings("serial")
-public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> implements Serializable, AWList<T>
-{
-	/**
-	 * The profile associated with this list of lists.
-	 * Used to retrieve filter levels and configuration metrics.
-	 * 
-	 * @param profile the profile to set
-	 * @return the associated profile
-	 */
-	protected @Getter @Setter Profile profile;
+public abstract class AnywareListList<T extends AnywareList<? extends Anyware>> implements Serializable, AWList<T> {
+    /**
+     * The profile associated with this list of lists. Used to retrieve filter
+     * levels and configuration metrics.
+     * 
+     * @param profile the profile to set
+     * @return the associated profile
+     */
+    protected @Getter @Setter Profile profile;
 
-	/**
-	 * {@link T} list cache (according current {@link Profile#filterListLists})
-	 */
-	protected transient List<T> filteredList;
+    /**
+     * {@link T} list cache (according current {@link Profile#filterListLists})
+     */
+    protected transient List<T> filteredList;
 
-	/**
-	 * The constructor, will initialize transients fields.
-	 * 
-	 * @param profile the {@link Profile} to associate with this list of lists
-	 */
-	protected AnywareListList(Profile profile)
-	{
-		this.profile = profile;
-		initTransient();
-	}
+    /**
+     * The constructor, will initialize transients fields.
+     * 
+     * @param profile the {@link Profile} to associate with this list of lists
+     */
+    protected AnywareListList(Profile profile) {
+        this.profile = profile;
+        initTransient();
+    }
 
-	/**
-	 * the Serializable method for special serialization handling (in that case : initialize transient default values) 
-	 * @param in the serialization inputstream
-	 * @throws IOException if an I/O error occurs
-	 * @throws ClassNotFoundException if the class of a serialized object cannot be found
-	 */
-	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		in.defaultReadObject();
-		initTransient();
-	}
+    /**
+     * the Serializable method for special serialization handling (in that case :
+     * initialize transient default values)
+     * 
+     * @param in the serialization inputstream
+     * @throws IOException            if an I/O error occurs
+     * @throws ClassNotFoundException if the class of a serialized object cannot be
+     *                                found
+     */
+    private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        initTransient();
+    }
 
-	/**
-	 * The method called to initialize transient and static fields.
-	 */
-	protected void initTransient()
-	{
-		filteredList = null;
-	}
+    /**
+     * The method called to initialize transient and static fields.
+     */
+    protected void initTransient() {
+        filteredList = null;
+    }
 
-	/**
-	 * resets {@link T} list cache and fire a TableChanged event to listeners.
-	 */
-	public abstract void resetCache();
-	
-	/**
-	 * resets {@link T} list cache and fire a TableChanged event to listeners.
-	 * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
-	 */
-	public abstract void setFilterCache(final Set<AnywareStatus> filter);
+    /**
+     * resets {@link T} list cache and fire a TableChanged event to listeners.
+     */
+    public abstract void resetCache();
 
-	/**
-	 * Counts the number of items in this list of lists.
-	 * 
-	 * @return the total number of lists as an integer
-	 */
-	public abstract int count();
-	
-	/**
-	 * Gets the {@link AnywareList} object at the specified index.
-	 * 
-	 * @param i the index of the object to retrieve
-	 * @return the {@link AnywareList} at the specified index
-	 */
-	public abstract AnywareList<? extends Anyware> getObject(int i);	//NOSONAR
+    /**
+     * resets {@link T} list cache and fire a TableChanged event to listeners.
+     * 
+     * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to
+     *               apply
+     */
+    public abstract void setFilterCache(final Set<AnywareStatus> filter);
 
-	/**
-	 * Gets the description of the item at the specified index.
-	 * 
-	 * @param i the index of the item
-	 * @return a {@link String} containing the description
-	 */
-	public abstract String getDescription(int i);
+    /**
+     * Counts the number of items in this list of lists.
+     * 
+     * @return the total number of lists as an integer
+     */
+    public abstract int count();
 
-	/**
-	 * Gets the total number of possessed/correct elements for the item at the specified index as a formatted string.
-	 * 
-	 * @param i the index of the item
-	 * @return a formatted {@link String} representing the owned elements count
-	 */
-	public abstract String getHaveTot(int i);
+    /**
+     * Gets the {@link AnywareList} object at the specified index.
+     * 
+     * @param i the index of the object to retrieve
+     * @return the {@link AnywareList} at the specified index
+     */
+    public abstract AnywareList<? extends Anyware> getObject(int i); // NOSONAR
+
+    /**
+     * Gets the description of the item at the specified index.
+     * 
+     * @param i the index of the item
+     * @return a {@link String} containing the description
+     */
+    public abstract String getDescription(int i);
+
+    /**
+     * Gets the total number of possessed/correct elements for the item at the
+     * specified index as a formatted string.
+     * 
+     * @param i the index of the item
+     * @return a formatted {@link String} representing the owned elements count
+     */
+    public abstract String getHaveTot(int i);
 }

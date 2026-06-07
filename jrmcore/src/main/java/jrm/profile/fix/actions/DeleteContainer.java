@@ -31,106 +31,87 @@ import lombok.val;
 
 /**
  * Delete a container (will all its entries)
+ * 
  * @author optyfr
  *
  */
-public class DeleteContainer extends ContainerAction
-{
+public class DeleteContainer extends ContainerAction {
 
-	/**
-	 * constructor
-	 * @param container to delete
-	 * @param format format of the container
-	 */
-	public DeleteContainer(final Container container, final FormatOptions format)
-	{
-		super(container, format);
-	}
+    /**
+     * constructor
+     * 
+     * @param container to delete
+     * @param format    format of the container
+     */
+    public DeleteContainer(final Container container, final FormatOptions format) {
+        super(container, format);
+    }
 
-	/**
-	 * shortcut static method to get an instance of {@link DeleteContainer}
-	 * @param action the potentially already existing {@link DeleteContainer} 
-	 * @param container the container to backup
-	 * @param format the format of the container
-	 * @return a {@link DeleteContainer}
-	 */
-	public static DeleteContainer getInstance(DeleteContainer action, final Container container, final FormatOptions format)
-	{
-		if(action == null)
-			action = new DeleteContainer(container, format);
-		return action;
-	}
+    /**
+     * shortcut static method to get an instance of {@link DeleteContainer}
+     * 
+     * @param action    the potentially already existing {@link DeleteContainer}
+     * @param container the container to backup
+     * @param format    the format of the container
+     * @return a {@link DeleteContainer}
+     */
+    public static DeleteContainer getInstance(DeleteContainer action, final Container container, final FormatOptions format) {
+        if (action == null)
+            action = new DeleteContainer(container, format);
+        return action;
+    }
 
-	@Override
-	public boolean doAction(final Session session, final ProgressHandler handler)
-	{
-		handler.setProgress(toDocument(toNoBR(String.format(escape(session.getMsgs().getString("DeleteContainer.Deleting")), toBlue(escape(container.getFile().getName())))))); //$NON-NLS-1$
-		if(container.getType() == Container.Type.ZIP || container.getType() == Container.Type.SEVENZIP || container.getType() == Container.Type.UNK)
-		{
-			try
-			{
-				return Files.deleteIfExists(container.getFile().toPath());
-			}
-			catch (IOException e1)
-			{
-				Log.err(() -> String.format("failed to delete %s", container.getFile()));
-				return false;
-			}
-		}
-		else if(container.getType() == Container.Type.DIR)
-		{
-			return doActionDir();
-		}
-		else if(container.getType() == Container.Type.FAKE)
-		{
-			return doActionFake();
-		}
-		return false;
-	}
+    @Override
+    public boolean doAction(final Session session, final ProgressHandler handler) {
+        handler.setProgress(toDocument(toNoBR(String.format(escape(session.getMsgs().getString("DeleteContainer.Deleting")), toBlue(escape(container.getFile().getName())))))); //$NON-NLS-1$
+        if (container.getType() == Container.Type.ZIP || container.getType() == Container.Type.SEVENZIP || container.getType() == Container.Type.UNK) {
+            try {
+                return Files.deleteIfExists(container.getFile().toPath());
+            } catch (IOException e1) {
+                Log.err(() -> String.format("failed to delete %s", container.getFile()));
+                return false;
+            }
+        } else if (container.getType() == Container.Type.DIR) {
+            return doActionDir();
+        } else if (container.getType() == Container.Type.FAKE) {
+            return doActionFake();
+        }
+        return false;
+    }
 
-	/**
-	 * 
-	 */
-	private boolean doActionFake()
-	{
-		for(val entry : container.getEntries())
-		{
-			try
-			{
-				if(!Files.deleteIfExists(container.getFile().getParentFile().toPath().resolve(entry.getFile())))
-					return false;
-			}
-			catch(final IOException e)
-			{
-				Log.err("failed to delete " + container.getRelFile()); //$NON-NLS-1$
-				return false;
-			}
-		}
-		return true;
-	}
+    /**
+     * 
+     */
+    private boolean doActionFake() {
+        for (val entry : container.getEntries()) {
+            try {
+                if (!Files.deleteIfExists(container.getFile().getParentFile().toPath().resolve(entry.getFile())))
+                    return false;
+            } catch (final IOException e) {
+                Log.err("failed to delete " + container.getRelFile()); //$NON-NLS-1$
+                return false;
+            }
+        }
+        return true;
+    }
 
-	/**
-	 * @return
-	 */
-	private boolean doActionDir()
-	{
-		try
-		{
-			FileUtils.deleteDirectory(container.getFile());
-			return true;
-		}
-		catch(final IOException e)
-		{
-			Log.err("failed to delete " + container.getRelFile() + " ("+e.getMessage()+")"); //$NON-NLS-1$
-			if(container.getFile().exists())
-				return FileUtils.deleteQuietly(container.getFile());
-			return false;
-		}
-	}
+    /**
+     * @return
+     */
+    private boolean doActionDir() {
+        try {
+            FileUtils.deleteDirectory(container.getFile());
+            return true;
+        } catch (final IOException e) {
+            Log.err("failed to delete " + container.getRelFile() + " (" + e.getMessage() + ")"); //$NON-NLS-1$
+            if (container.getFile().exists())
+                return FileUtils.deleteQuietly(container.getFile());
+            return false;
+        }
+    }
 
-	@Override
-	public String toString()
-	{
-		return String.format(Messages.getString("DeleteContainer.Delete"), container); //$NON-NLS-1$
-	}
+    @Override
+    public String toString() {
+        return String.format(Messages.getString("DeleteContainer.Delete"), container); //$NON-NLS-1$
+    }
 }

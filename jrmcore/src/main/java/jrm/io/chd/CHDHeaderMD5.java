@@ -20,37 +20,35 @@ import java.nio.MappedByteBuffer;
 */
 
 /**
- * An intermediate representation of CHD file headers that include an MD5 checksum.
- * Provides storage and retrieval methods for the MD5 digest of the raw, uncompressed data.
+ * An intermediate representation of CHD file headers that include an MD5
+ * checksum. Provides storage and retrieval methods for the MD5 digest of the
+ * raw, uncompressed data.
  * 
  * @author optyfr
  */
-class CHDHeaderMD5 extends CHDHeader
-{
-	/**
-	 * The hexadecimal MD5 digest of the raw uncompressed data.
-	 */
-	protected String md5;
-	
-	/**
-	 * Constructs a CHD header parser supporting MD5 digest storage.
-	 *
-	 * @param bb the mapped byte buffer pointing to the start of the CHD file
-	 */
-	public CHDHeaderMD5(final MappedByteBuffer bb)
-	{
-		super(bb);
-	}
-	
-	/**
-	 * Retrieves the MD5 digest of the raw, uncompressed data represented by this CHD,
-	 * as parsed from the header.
-	 *
-	 * @return the MD5 hexadecimal string representation
-	 */
-	@Override
-	public String getMD5()
-	{
-		return md5;
-	}
+class CHDHeaderMD5 extends CHDHeader {
+    /**
+     * The hexadecimal MD5 digest of the raw uncompressed data.
+     */
+    protected String md5;
+
+    /**
+     * Constructs a CHD header parser supporting MD5 digest storage.
+     *
+     * @param bb the mapped byte buffer pointing to the start of the CHD file
+     */
+    public CHDHeaderMD5(final MappedByteBuffer bb) {
+        super(bb);
+    }
+
+    /**
+     * Retrieves the MD5 digest of the raw, uncompressed data represented by this
+     * CHD, as parsed from the header.
+     *
+     * @return the MD5 hexadecimal string representation
+     */
+    @Override
+    public String getMD5() {
+        return md5;
+    }
 }

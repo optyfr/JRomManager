@@ -21,109 +21,107 @@ import java.io.Serializable;
 import jrm.profile.Profile;
 
 /**
- * The abstract base class for {@link Anyware}, its main purpose is to define parent relationship.
- * Concrete subclasses represent either a Machine or Software object within the retro-gaming database.
+ * The abstract base class for {@link Anyware}, its main purpose is to define
+ * parent relationship. Concrete subclasses represent either a Machine or
+ * Software object within the retro-gaming database.
  * 
  * @author optyfr
  *
  */
-public abstract class AnywareBase extends NameBase implements Serializable
-{
-	private static final long serialVersionUID = 1L;
-	
-	/**
-	 * {@link AnywareBase} can have parent of the same type.
-	 * This represents parent-clone relationship where this is the clone of the parent.
-	 */
-	protected transient AnywareBase parent = null;
-	
-	/**
-	 * Gets the parent casted according to the given class.
-	 * 
-	 * @param type the class to cast, must extend {@link AnywareBase}
-	 * @param <T> a class which extends {@link AnywareBase}
-	 * @return the parent casted to the specified type, or {@code null} if no parent is set
-	 */
-	protected <T extends AnywareBase> T getParent(final Class<T> type)
-	{
-		return type.cast(parent);
-	}
-	
-	/**
-	 * Sets the parent of this object.
-	 * 
-	 * @param parent an object which is an instance of {@link AnywareBase}
-	 * @param <T> a class which extends {@link AnywareBase}
-	 */
-	public <T extends AnywareBase> void setParent(T parent)
-	{
-		this.parent = parent;
-	}
+public abstract class AnywareBase extends NameBase implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Gets the parent of this object.
-	 * 
-	 * @return the parent or null if not set
-	 */
-	public abstract AnywareBase getParent();
+    /**
+     * {@link AnywareBase} can have parent of the same type. This represents
+     * parent-clone relationship where this is the clone of the parent.
+     */
+    protected transient AnywareBase parent = null;
 
-	/**
-	 * Gets the name of this object, eventually concatenated with its list name.
-	 * 
-	 * @return the full name of this object as a {@link String}
-	 */
-	public abstract String getFullName();
-	
-	/**
-	 * Gets the extended filename of this object, it will eventually concatenate with its list name.
-	 * 
-	 * @param filename the filename to use
-	 * @return the full filename of this object as a {@link String}
-	 */
-	public abstract String getFullName(final String filename);
-	
-	/**
-	 * Gets the description of this object.
-	 * 
-	 * @return a {@link CharSequence} containing the description
-	 */
-	public abstract CharSequence getDescription();
-	
-	/**
-	 * Gets the status of this object.
-	 * 
-	 * @return an {@link AnywareStatus} describing the status of this object
-	 */
-	public abstract AnywareStatus getStatus();
+    /**
+     * Gets the parent casted according to the given class.
+     * 
+     * @param type the class to cast, must extend {@link AnywareBase}
+     * @param <T>  a class which extends {@link AnywareBase}
+     * @return the parent casted to the specified type, or {@code null} if no parent
+     *         is set
+     */
+    protected <T extends AnywareBase> T getParent(final Class<T> type) {
+        return type.cast(parent);
+    }
 
-	/**
-	 * Gets the active profile associated with this object.
-	 * 
-	 * @return the {@link Profile} associated with this object
-	 */
-	public abstract Profile getProfile();
-	
-	/**
-	 * Compares the specified object with this object for equality.
-	 * 
-	 * @param obj the object to compare with
-	 * @return {@code true} if the objects are equal, {@code false} otherwise
-	 */
-	@Override
-	public boolean equals(Object obj)
-	{
-		return super.equals(obj);
-	}
-	
-	/**
-	 * Returns the hash code value for this object.
-	 * 
-	 * @return the hash code value of this object
-	 */
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
-	}
+    /**
+     * Sets the parent of this object.
+     * 
+     * @param parent an object which is an instance of {@link AnywareBase}
+     * @param <T>    a class which extends {@link AnywareBase}
+     */
+    public <T extends AnywareBase> void setParent(T parent) {
+        this.parent = parent;
+    }
+
+    /**
+     * Gets the parent of this object.
+     * 
+     * @return the parent or null if not set
+     */
+    public abstract AnywareBase getParent();
+
+    /**
+     * Gets the name of this object, eventually concatenated with its list name.
+     * 
+     * @return the full name of this object as a {@link String}
+     */
+    public abstract String getFullName();
+
+    /**
+     * Gets the extended filename of this object, it will eventually concatenate
+     * with its list name.
+     * 
+     * @param filename the filename to use
+     * @return the full filename of this object as a {@link String}
+     */
+    public abstract String getFullName(final String filename);
+
+    /**
+     * Gets the description of this object.
+     * 
+     * @return a {@link CharSequence} containing the description
+     */
+    public abstract CharSequence getDescription();
+
+    /**
+     * Gets the status of this object.
+     * 
+     * @return an {@link AnywareStatus} describing the status of this object
+     */
+    public abstract AnywareStatus getStatus();
+
+    /**
+     * Gets the active profile associated with this object.
+     * 
+     * @return the {@link Profile} associated with this object
+     */
+    public abstract Profile getProfile();
+
+    /**
+     * Compares the specified object with this object for equality.
+     * 
+     * @param obj the object to compare with
+     * @return {@code true} if the objects are equal, {@code false} otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    /**
+     * Returns the hash code value for this object.
+     * 
+     * @return the hash code value of this object
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
 }

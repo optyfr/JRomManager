@@ -6,20 +6,19 @@ package jrm.io.torrent.options;
  * 
  * @author optyfr
  */
-public enum TrntChkMode
-{
-	/**
-	 * Verify matches using file names/relative directory paths.
-	 */
-	FILENAME,
+public enum TrntChkMode {
+    /**
+     * Verify matches using file names/relative directory paths.
+     */
+    FILENAME,
 
-	/**
-	 * Verify matches using file sizes in bytes.
-	 */
-	FILESIZE,
+    /**
+     * Verify matches using file sizes in bytes.
+     */
+    FILESIZE,
 
-	/**
-	 * Verify matches using cryptographic SHA-1 piece hashes.
-	 */
-	SHA1
+    /**
+     * Verify matches using cryptographic SHA-1 piece hashes.
+     */
+    SHA1
 }

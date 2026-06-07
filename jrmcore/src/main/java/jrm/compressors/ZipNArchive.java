@@ -25,19 +25,17 @@ import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 /**
  * Zip native archive class, sould not be directly used
+ * 
  * @author optyfr
  */
-class ZipNArchive extends NArchive
-{
+class ZipNArchive extends NArchive {
 
-	public ZipNArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException
-	{
-		super(session, archive);
-	}
+    public ZipNArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException {
+        super(session, archive);
+    }
 
-	public ZipNArchive(final Session session, final File archive, final boolean readonly, ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException
-	{
-		super(session, archive, readonly, cb);
-	}
+    public ZipNArchive(final Session session, final File archive, final boolean readonly, ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException {
+        super(session, archive, readonly, cb);
+    }
 
 }

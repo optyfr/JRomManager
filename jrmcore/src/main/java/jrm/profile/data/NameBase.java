@@ -25,127 +25,121 @@ import java.io.Serializable;
  *
  * @author optyfr
  */
-abstract class NameBase implements Serializable, Comparable<NameBase>
-{
-	private static final long serialVersionUID = 1L;
-	
-	/**
-	 * The name of the entity.
-	 */
-	protected String name = ""; // required //$NON-NLS-1$
+abstract class NameBase implements Serializable, Comparable<NameBase> {
+    private static final long serialVersionUID = 1L;
 
-	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
-		new ObjectStreamField("name", String.class)
-	};
+    /**
+     * The name of the entity.
+     */
+    protected String name = ""; // required //$NON-NLS-1$
 
-	/**
-	 * Writes the entity name during serialization.
-	 *
-	 * @param stream the object output stream
-	 * @throws IOException if an I/O error occurs
-	 */
-	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
-	{
-		final var fields = stream.putFields();
-		fields.put("name", name);
-		stream.writeFields();
-	}
+    private static final ObjectStreamField[] serialPersistentFields = { // NOSONAR
+            new ObjectStreamField("name", String.class)
+    };
 
-	/**
-	 * Reads the entity name during deserialization.
-	 *
-	 * @param stream the object input stream
-	 * @throws IOException if an I/O error occurs
-	 * @throws ClassNotFoundException if the class cannot be located
-	 */
-	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
-	{
-		final var fields = stream.readFields();
-		name = (String) fields.get("name","");
-	}
+    /**
+     * Writes the entity name during serialization.
+     *
+     * @param stream the object output stream
+     * @throws IOException if an I/O error occurs
+     */
+    private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+        final var fields = stream.putFields();
+        fields.put("name", name);
+        stream.writeFields();
+    }
 
-	/**
-	 * Retrieves the forged name of the entity, which may be modified depending on its concrete subclass implementation.
-	 *
-	 * @return the name of the entity
-	 */
-	public abstract String getName();
+    /**
+     * Reads the entity name during deserialization.
+     *
+     * @param stream the object input stream
+     * @throws IOException            if an I/O error occurs
+     * @throws ClassNotFoundException if the class cannot be located
+     */
+    private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        final var fields = stream.readFields();
+        name = (String) fields.get("name", "");
+    }
 
-	/**
-	 * Retrieves the untouched (original, non-forged) name of the entity.
-	 *
-	 * @return the name as defined initially by {@link #setName(String)}
-	 */
-	public final String getBaseName()
-	{
-		return name;
-	}
+    /**
+     * Retrieves the forged name of the entity, which may be modified depending on
+     * its concrete subclass implementation.
+     *
+     * @return the name of the entity
+     */
+    public abstract String getName();
 
-	/**
-	 * Retrieves a normalized version of the name where backslashes are replaced by forward slashes.
-	 *
-	 * @return the normalized name string
-	 */
-	public final String getNormalizedName()
-	{
-		return getName().replace('\\', '/');
-	}
-	
-	/**
-	 * Sets the name of the entity.
-	 *
-	 * @param name the name to set
-	 */
-	public final void setName(final String name)
-	{
-		this.name = name;
-	}
+    /**
+     * Retrieves the untouched (original, non-forged) name of the entity.
+     *
+     * @return the name as defined initially by {@link #setName(String)}
+     */
+    public final String getBaseName() {
+        return name;
+    }
 
-	/**
-	 * Compares this entity with another named entity by name lexicographically.
-	 *
-	 * @param o the other entity to compare with
-	 * @return a negative integer, zero, or a positive integer as this name is less than, equal to, or greater than the specified entity's name
-	 */
-	@Override
-	public final int compareTo(final NameBase o)
-	{
-		return name.compareTo(o.name);
-	}
-	
-	/**
-	 * Indicates whether some other object is "equal to" this one by comparing their name strings.
-	 *
-	 * @param obj the reference object with which to compare
-	 * @return {@code true} if names match, {@code false} otherwise
-	 */
-	@Override
-	public boolean equals(Object obj)
-	{
-		if(obj instanceof NameBase nb)
-			return name.equals(nb.name);
-		return super.equals(obj);
-	}
-	
-	/**
-	 * Returns a hash code value based on the entity's name.
-	 *
-	 * @return a hash code value for this entity
-	 */
-	@Override
-	public int hashCode()
-	{
-		return name.hashCode();
-	}
-	
-	/**
-	 * Returns a string representation of this entity, which is its forged name.
-	 *
-	 * @return the name of the entity
-	 */
-	@Override
-	public String toString()
-	{
-		return getName();
-	}
+    /**
+     * Retrieves a normalized version of the name where backslashes are replaced by
+     * forward slashes.
+     *
+     * @return the normalized name string
+     */
+    public final String getNormalizedName() {
+        return getName().replace('\\', '/');
+    }
+
+    /**
+     * Sets the name of the entity.
+     *
+     * @param name the name to set
+     */
+    public final void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
+     * Compares this entity with another named entity by name lexicographically.
+     *
+     * @param o the other entity to compare with
+     * @return a negative integer, zero, or a positive integer as this name is less
+     *         than, equal to, or greater than the specified entity's name
+     */
+    @Override
+    public final int compareTo(final NameBase o) {
+        return name.compareTo(o.name);
+    }
+
+    /**
+     * Indicates whether some other object is "equal to" this one by comparing their
+     * name strings.
+     *
+     * @param obj the reference object with which to compare
+     * @return {@code true} if names match, {@code false} otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof NameBase nb)
+            return name.equals(nb.name);
+        return super.equals(obj);
+    }
+
+    /**
+     * Returns a hash code value based on the entity's name.
+     *
+     * @return a hash code value for this entity
+     */
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    /**
+     * Returns a string representation of this entity, which is its forged name.
+     *
+     * @return the name of the entity
+     */
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

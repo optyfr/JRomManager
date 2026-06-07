@@ -6,20 +6,18 @@ package jrm.io.torrent;
  * 
  * @author optyfr
  */
-public class TorrentException extends Exception
-{
-	/**
-	 * Unique identifier for class serialization.
-	 */
-	private static final long serialVersionUID = 6735232930219484803L;
+public class TorrentException extends Exception {
+    /**
+     * Unique identifier for class serialization.
+     */
+    private static final long serialVersionUID = 6735232930219484803L;
 
-	/**
-	 * Constructs a new TorrentException with the specified detail message.
-	 *
-	 * @param message the detail error message
-	 */
-	public TorrentException(String message)
-	{
-		super(message);
-	}
+    /**
+     * Constructs a new TorrentException with the specified detail message.
+     *
+     * @param message the detail error message
+     */
+    public TorrentException(String message) {
+        super(message);
+    }
 }

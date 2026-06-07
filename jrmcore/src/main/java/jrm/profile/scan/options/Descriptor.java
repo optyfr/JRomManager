@@ -17,18 +17,18 @@
 package jrm.profile.scan.options;
 
 /**
- * An interface representing a describable component or option within the ROM scanning and management system.
- * Implementations of this interface provide a localized or user-friendly text description of their purpose.
+ * An interface representing a describable component or option within the ROM
+ * scanning and management system. Implementations of this interface provide a
+ * localized or user-friendly text description of their purpose.
  * 
  * @author optyfr
  * @since 1.0
  */
-public interface Descriptor
-{
-	/**
-	 * Retrieves the user-friendly description of this component or option.
-	 * 
-	 * @return a {@link String} containing the text description of this component.
-	 */
-	public String getDesc();
+public interface Descriptor {
+    /**
+     * Retrieves the user-friendly description of this component or option.
+     * 
+     * @return a {@link String} containing the text description of this component.
+     */
+    public String getDesc();
 }

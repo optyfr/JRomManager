@@ -21,15 +21,14 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Represents a parsed BitTorrent metainfo file (.torrent).
- * Holds all metadata regarding the trackers, files, piece hashes, sizes,
- * creation details, and the info-hash of the torrent.
+ * Represents a parsed BitTorrent metainfo file (.torrent). Holds all metadata
+ * regarding the trackers, files, piece hashes, sizes, creation details, and the
+ * info-hash of the torrent.
  * 
  * @author Christophe De Troyer
  * @author Optyfr
  */
-public class Torrent
-{
+public class Torrent {
     /**
      * The announce URL of the primary tracker.
      */
@@ -56,7 +55,8 @@ public class Torrent
     private List<String> pieces;
 
     /**
-     * Flag indicating whether the torrent represents a single file or a multi-file layout.
+     * Flag indicating whether the torrent represents a single file or a multi-file
+     * layout.
      */
     private boolean singleFileTorrent;
 
@@ -66,7 +66,8 @@ public class Torrent
     private Long totalSize;
 
     /**
-     * The list of individual files included in a multi-file torrent, or null if single-file.
+     * The list of individual files included in a multi-file torrent, or null if
+     * single-file.
      */
     private List<TorrentFile> fileList;
 
@@ -76,7 +77,8 @@ public class Torrent
     private String comment;
 
     /**
-     * An optional string identifying the creator or program that produced the torrent.
+     * An optional string identifying the creator or program that produced the
+     * torrent.
      */
     private String createdBy;
 
@@ -102,8 +104,7 @@ public class Torrent
      * 
      * @return the list of {@link TorrentFile} objects
      */
-    public List<TorrentFile> getFileList()
-    {
+    public List<TorrentFile> getFileList() {
         return fileList;
     }
 
@@ -112,8 +113,7 @@ public class Torrent
      * 
      * @param fileList the list of {@link TorrentFile} objects to set
      */
-    public void setFileList(List<TorrentFile> fileList)
-    {
+    public void setFileList(List<TorrentFile> fileList) {
         this.fileList = fileList;
     }
 
@@ -122,8 +122,7 @@ public class Torrent
      * 
      * @return the primary tracker announce URL
      */
-    public String getAnnounce()
-    {
+    public String getAnnounce() {
         return announce;
     }
 
@@ -132,8 +131,7 @@ public class Torrent
      * 
      * @param announce the primary tracker announce URL to set
      */
-    public void setAnnounce(String announce)
-    {
+    public void setAnnounce(String announce) {
         this.announce = announce;
     }
 
@@ -142,8 +140,7 @@ public class Torrent
      * 
      * @return the suggested content name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
@@ -152,8 +149,7 @@ public class Torrent
      * 
      * @param name the suggested content name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -162,8 +158,7 @@ public class Torrent
      * 
      * @return the size of each piece
      */
-    public Long getPieceLength()
-    {
+    public Long getPieceLength() {
         return pieceLength;
     }
 
@@ -172,8 +167,7 @@ public class Torrent
      * 
      * @param pieceLength the size of each piece to set
      */
-    public void setPieceLength(Long pieceLength)
-    {
+    public void setPieceLength(Long pieceLength) {
         this.pieceLength = pieceLength;
     }
 
@@ -182,8 +176,7 @@ public class Torrent
      * 
      * @return the raw pieces byte array
      */
-    public byte[] getPiecesBlob()
-    {
+    public byte[] getPiecesBlob() {
         return piecesBlob;
     }
 
@@ -192,8 +185,7 @@ public class Torrent
      * 
      * @param piecesBlob the raw pieces byte array to set
      */
-    public void setPiecesBlob(byte[] piecesBlob)
-    {
+    public void setPiecesBlob(byte[] piecesBlob) {
         this.piecesBlob = piecesBlob;
     }
 
@@ -202,8 +194,7 @@ public class Torrent
      * 
      * @return the list of piece hashes
      */
-    public List<String> getPieces()
-    {
+    public List<String> getPieces() {
         return pieces;
     }
 
@@ -212,8 +203,7 @@ public class Torrent
      * 
      * @param pieces the list of piece hashes to set
      */
-    public void setPieces(List<String> pieces)
-    {
+    public void setPieces(List<String> pieces) {
         this.pieces = pieces;
     }
 
@@ -222,8 +212,7 @@ public class Torrent
      * 
      * @return {@code true} if single-file, otherwise {@code false}
      */
-    public boolean isSingleFileTorrent()
-    {
+    public boolean isSingleFileTorrent() {
         return singleFileTorrent;
     }
 
@@ -232,8 +221,7 @@ public class Torrent
      * 
      * @param singleFileTorrent {@code true} if single-file, otherwise {@code false}
      */
-    public void setSingleFileTorrent(boolean singleFileTorrent)
-    {
+    public void setSingleFileTorrent(boolean singleFileTorrent) {
         this.singleFileTorrent = singleFileTorrent;
     }
 
@@ -242,8 +230,7 @@ public class Torrent
      * 
      * @return the total torrent size
      */
-    public Long getTotalSize()
-    {
+    public Long getTotalSize() {
         return totalSize;
     }
 
@@ -252,8 +239,7 @@ public class Torrent
      * 
      * @param totalSize the total torrent size to set
      */
-    public void setTotalSize(Long totalSize)
-    {
+    public void setTotalSize(Long totalSize) {
         this.totalSize = totalSize;
     }
 
@@ -262,8 +248,7 @@ public class Torrent
      * 
      * @return the comment description, or null if none
      */
-    public String getComment()
-    {
+    public String getComment() {
         return comment;
     }
 
@@ -272,8 +257,7 @@ public class Torrent
      * 
      * @param comment the comment description to set
      */
-    public void setComment(String comment)
-    {
+    public void setComment(String comment) {
         this.comment = comment;
     }
 
@@ -282,8 +266,7 @@ public class Torrent
      * 
      * @return the creator's program name/signature, or null
      */
-    public String getCreatedBy()
-    {
+    public String getCreatedBy() {
         return createdBy;
     }
 
@@ -292,8 +275,7 @@ public class Torrent
      * 
      * @param createdBy the creator's program name/signature to set
      */
-    public void setCreatedBy(String createdBy)
-    {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
@@ -302,8 +284,7 @@ public class Torrent
      * 
      * @return the creation {@link Date}, or null
      */
-    public Date getCreationDate()
-    {
+    public Date getCreationDate() {
         return creationDate;
     }
 
@@ -312,8 +293,7 @@ public class Torrent
      * 
      * @param creationDate the creation {@link Date} to set
      */
-    public void setCreationDate(Date creationDate)
-    {
+    public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
 
@@ -322,8 +302,7 @@ public class Torrent
      * 
      * @return the announce-list containing list of trackers
      */
-    public List<String> getAnnounceList()
-    {
+    public List<String> getAnnounceList() {
         return announceList;
     }
 
@@ -332,8 +311,7 @@ public class Torrent
      * 
      * @param announceList the announce-list containing list of trackers to set
      */
-    public void setAnnounceList(List<String> announceList)
-    {
+    public void setAnnounceList(List<String> announceList) {
         this.announceList = announceList;
     }
 
@@ -342,8 +320,7 @@ public class Torrent
      * 
      * @return the info-hash hexadecimal string
      */
-    public String getInfoHash()
-    {
+    public String getInfoHash() {
         return infoHash;
     }
 
@@ -352,8 +329,7 @@ public class Torrent
      * 
      * @param infoHash the info-hash hexadecimal string to set
      */
-    public void setInfoHash(String infoHash)
-    {
+    public void setInfoHash(String infoHash) {
         this.infoHash = infoHash;
     }
 }

@@ -19,54 +19,51 @@ package jrm.profile.filter;
 import jrm.profile.data.PropertyStub;
 
 /**
- * Represents a player count or multiplayer capability mode (e.g., 2 Players, 4 Players, etc.),
- * grouping all compatible retro gaming machines/games matching that mode.
+ * Represents a player count or multiplayer capability mode (e.g., 2 Players, 4
+ * Players, etc.), grouping all compatible retro gaming machines/games matching
+ * that mode.
  * <p>
- * This class maps games categorized under specific player numbers/modes as defined in the
- * <code>nplayers.ini</code> configuration file.
+ * This class maps games categorized under specific player numbers/modes as
+ * defined in the <code>nplayers.ini</code> configuration file.
  * </p>
  * 
  * @author optyfr
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public final class NPlayer extends GamesList implements PropertyStub
-{
-	/**
-	 * The name of this multiplayer capability or player count mode.
-	 */
-	public final String name;
-	
-	/**
-	 * Constructs a new {@code NPlayer} instance with the specified mode name.
-	 * 
-	 * @param name the descriptive name of the player mode
-	 */
-	public NPlayer(final String name)
-	{
-		this.name = name;
-	}
+public final class NPlayer extends GamesList implements PropertyStub {
+    /**
+     * The name of this multiplayer capability or player count mode.
+     */
+    public final String name;
 
-	/**
-	 * Returns a string representation of this multiplayer mode, including its name
-	 * and the total number of games classified under it.
-	 * 
-	 * @return a string combining the name and game count of this player mode
-	 */
-	@Override
-	public String toString()
-	{
-		return name + " (" + games.size() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-	}
+    /**
+     * Constructs a new {@code NPlayer} instance with the specified mode name.
+     * 
+     * @param name the descriptive name of the player mode
+     */
+    public NPlayer(final String name) {
+        this.name = name;
+    }
 
-	/**
-	 * Resolves the configuration property key associated with this player filter.
-	 * 
-	 * @return the fully qualified configuration property key string
-	 */
-	@Override
-	public String getPropertyName()
-	{
-		return "filter.nplayer." + name; //$NON-NLS-1$
-	}
+    /**
+     * Returns a string representation of this multiplayer mode, including its name
+     * and the total number of games classified under it.
+     * 
+     * @return a string combining the name and game count of this player mode
+     */
+    @Override
+    public String toString() {
+        return name + " (" + games.size() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    /**
+     * Resolves the configuration property key associated with this player filter.
+     * 
+     * @return the fully qualified configuration property key string
+     */
+    @Override
+    public String getPropertyName() {
+        return "filter.nplayer." + name; //$NON-NLS-1$
+    }
 }

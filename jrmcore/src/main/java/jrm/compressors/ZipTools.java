@@ -1,24 +1,20 @@
 package jrm.compressors;
 
-public class ZipTools
-{
-	private ZipTools() 
-	{
-	}
-	
-	public static String toZipEntry(String name)
-	{
-		name = name.replace('\\', '/');
-		if(name.startsWith("/"))
-			name = name.substring(1);
-		return name;
-	}
+public class ZipTools {
+    private ZipTools() {
+    }
 
-	public static String toEntry(String name)
-	{
-		name = name.replace('\\', '/');
-		if(!name.startsWith("/"))
-			name = '/' + name;
-		return name;
-	}
+    public static String toZipEntry(String name) {
+        name = name.replace('\\', '/');
+        if (name.startsWith("/"))
+            name = name.substring(1);
+        return name;
+    }
+
+    public static String toEntry(String name) {
+        name = name.replace('\\', '/');
+        if (!name.startsWith("/"))
+            name = '/' + name;
+        return name;
+    }
 }

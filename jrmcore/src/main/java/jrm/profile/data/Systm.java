@@ -19,79 +19,78 @@ package jrm.profile.data;
 import java.io.Serializable;
 
 /**
- * Interface defining supported System types inside a profile workspace.
- * Linked selectable systems expose a unique property mapping to properties stores.
+ * Interface defining supported System types inside a profile workspace. Linked
+ * selectable systems expose a unique property mapping to properties stores.
  * 
  * @author optyfr
  * @since 1.0
  */
-public interface Systm extends Serializable, PropertyStub
-{
-	/**
-	 * System classification types.
-	 * 
-	 * @author optyfr
-	 * @since 1.0
-	 */
-	public enum Type
-	{
-		/**
-		 * Standard arcade or console machine.
-		 */
-		STANDARD,
-		
-		/**
-		 * Electro-Mechanical machine.
-		 */
-		MECHANICAL,
-		
-		/**
-		 * Device pseudo-machine (such as controllers, floppy disk controllers, memory card units).
-		 */
-		DEVICE,
-		
-		/**
-		 * Basic Input/Output System image.
-		 */
-		BIOS,
-		
-		/**
-		 * MESS or MAME Software list collections.
-		 */
-		SOFTWARELIST
-	}
+public interface Systm extends Serializable, PropertyStub {
+    /**
+     * System classification types.
+     * 
+     * @author optyfr
+     * @since 1.0
+     */
+    public enum Type {
+        /**
+         * Standard arcade or console machine.
+         */
+        STANDARD,
 
-	/**
-	 * Get the type of the system.
-	 * 
-	 * @return the system {@link Type} representation
-	 */
-	public Type getType();
+        /**
+         * Electro-Mechanical machine.
+         */
+        MECHANICAL,
 
-	/**
-	 * Get the system self-reference.
-	 * 
-	 * @return the resolved {@link Systm} instance
-	 */
-	public Systm getSystem();
+        /**
+         * Device pseudo-machine (such as controllers, floppy disk controllers, memory
+         * card units).
+         */
+        DEVICE,
 
-	/**
-	 * Get the name of the system.
-	 * 
-	 * @return the system name as a String
-	 */
-	public String getName();
+        /**
+         * Basic Input/Output System image.
+         */
+        BIOS,
 
-	/**
-	 * Get the default unique preference property key according to its type and name.
-	 * 
-	 * @return the preference properties key String
-	 */
-	@Override
-	public default String getPropertyName()
-	{
-		if(getType()==Type.SOFTWARELIST)
-			return "filter.systems.swlist." + getName();
-		return "filter.systems." + getName(); //$NON-NLS-1$
-	}
+        /**
+         * MESS or MAME Software list collections.
+         */
+        SOFTWARELIST
+    }
+
+    /**
+     * Get the type of the system.
+     * 
+     * @return the system {@link Type} representation
+     */
+    public Type getType();
+
+    /**
+     * Get the system self-reference.
+     * 
+     * @return the resolved {@link Systm} instance
+     */
+    public Systm getSystem();
+
+    /**
+     * Get the name of the system.
+     * 
+     * @return the system name as a String
+     */
+    public String getName();
+
+    /**
+     * Get the default unique preference property key according to its type and
+     * name.
+     * 
+     * @return the preference properties key String
+     */
+    @Override
+    public default String getPropertyName() {
+        if (getType() == Type.SOFTWARELIST)
+            return "filter.systems.swlist." + getName();
+        return "filter.systems." + getName(); //$NON-NLS-1$
+    }
 }

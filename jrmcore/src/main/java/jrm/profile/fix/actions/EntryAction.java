@@ -28,100 +28,100 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
 
 /**
- * Base abstract class representing a corrective action applied to an individual entry
- * nested inside a game/ROM container (e.g., adding, deleting, renaming, or duplicating files).
+ * Base abstract class representing a corrective action applied to an individual
+ * entry nested inside a game/ROM container (e.g., adding, deleting, renaming,
+ * or duplicating files).
  * <p>
- * Subclasses implement specific methods to perform actions on various targets: general archives,
- * standard directories/paths, zip files, or virtual zip file systems.
+ * Subclasses implement specific methods to perform actions on various targets:
+ * general archives, standard directories/paths, zip files, or virtual zip file
+ * systems.
  * </p>
  * 
  * @author optyfr
  * @since 1.0
  */
-public abstract class EntryAction implements StatusRendererFactory
-{
-	/**
-	 * Default fallback estimated entry action size in bytes.
-	 */
-	private static final long ESTIMATED_SIZE = 0L;
-	
-	/**
-	 * The target entry on which this action is applied.
-	 */
-	final Entry entry;
-	
-	/**
-	 * The parent {@link ContainerAction} containing this entry action.
-	 */
-	ContainerAction parent;
+public abstract class EntryAction implements StatusRendererFactory {
+    /**
+     * Default fallback estimated entry action size in bytes.
+     */
+    private static final long ESTIMATED_SIZE = 0L;
 
-	/**
-	 * Constructs a new {@code EntryAction} associated with the specified target entry.
-	 * 
-	 * @param entry the target game/ROM file entry
-	 */
-	protected EntryAction(final Entry entry)
-	{
-		this.entry = entry;
-	}
+    /**
+     * The target entry on which this action is applied.
+     */
+    final Entry entry;
 
-	/**
-	 * Performs the specific action on the entry in a general compressed archive.
-	 * 
-	 * @param session the current active session
-	 * @param archive the target compressed archive wrapper
-	 * @param handler the UI progress status indicator
-	 * @param i the current progression step
-	 * @param max the total progression steps
-	 * @return {@code true} if the action succeeded, otherwise {@code false}
-	 */
-	public abstract boolean doAction(final Session session, Archive archive, ProgressHandler handler, int i, int max);
+    /**
+     * The parent {@link ContainerAction} containing this entry action.
+     */
+    ContainerAction parent;
 
-	/**
-	 * Performs the specific action on the entry in a target directory path on disk.
-	 * 
-	 * @param session the current active session
-	 * @param target the target parent folder path
-	 * @param handler the UI progress status indicator
-	 * @param i the current progression step
-	 * @param max the total progression steps
-	 * @return {@code true} if the action succeeded, otherwise {@code false}
-	 */
-	public abstract boolean doAction(final Session session, Path target, ProgressHandler handler, int i, int max);
+    /**
+     * Constructs a new {@code EntryAction} associated with the specified target
+     * entry.
+     * 
+     * @param entry the target game/ROM file entry
+     */
+    protected EntryAction(final Entry entry) {
+        this.entry = entry;
+    }
 
-	/**
-	 * Performs the specific action on the entry in a ZipFile archive.
-	 * 
-	 * @param session the current active session
-	 * @param zipf the target zip file instance
-	 * @param zipp the configuration parameters for the zip file
-	 * @param handler the UI progress status indicator
-	 * @param i the current progression step
-	 * @param max the total progression steps
-	 * @return {@code true} if the action succeeded, otherwise {@code false}
-	 */
-	public abstract boolean doAction(final Session session, final ZipFile zipf, final ZipParameters zipp, ProgressHandler handler, int i, int max);
+    /**
+     * Performs the specific action on the entry in a general compressed archive.
+     * 
+     * @param session the current active session
+     * @param archive the target compressed archive wrapper
+     * @param handler the UI progress status indicator
+     * @param i       the current progression step
+     * @param max     the total progression steps
+     * @return {@code true} if the action succeeded, otherwise {@code false}
+     */
+    public abstract boolean doAction(final Session session, Archive archive, ProgressHandler handler, int i, int max);
 
-	/**
-	 * Performs the specific action on the entry in a virtual zip FileSystem.
-	 * 
-	 * @param session the current active session
-	 * @param fs the target virtual zip file system context
-	 * @param handler the UI progress status indicator
-	 * @param i the current progression step
-	 * @param max the total progression steps
-	 * @return {@code true} if the action succeeded, otherwise {@code false}
-	 */
-	public abstract boolean doAction(final Session session, FileSystem fs, ProgressHandler handler, int i, int max);
+    /**
+     * Performs the specific action on the entry in a target directory path on disk.
+     * 
+     * @param session the current active session
+     * @param target  the target parent folder path
+     * @param handler the UI progress status indicator
+     * @param i       the current progression step
+     * @param max     the total progression steps
+     * @return {@code true} if the action succeeded, otherwise {@code false}
+     */
+    public abstract boolean doAction(final Session session, Path target, ProgressHandler handler, int i, int max);
 
-	/**
-	 * Returns the estimated size in bytes of the entry to process.
-	 * 
-	 * @return the estimated size in bytes
-	 */
-	public long estimatedSize()
-	{
-		return ESTIMATED_SIZE;
-	}
+    /**
+     * Performs the specific action on the entry in a ZipFile archive.
+     * 
+     * @param session the current active session
+     * @param zipf    the target zip file instance
+     * @param zipp    the configuration parameters for the zip file
+     * @param handler the UI progress status indicator
+     * @param i       the current progression step
+     * @param max     the total progression steps
+     * @return {@code true} if the action succeeded, otherwise {@code false}
+     */
+    public abstract boolean doAction(final Session session, final ZipFile zipf, final ZipParameters zipp, ProgressHandler handler, int i, int max);
+
+    /**
+     * Performs the specific action on the entry in a virtual zip FileSystem.
+     * 
+     * @param session the current active session
+     * @param fs      the target virtual zip file system context
+     * @param handler the UI progress status indicator
+     * @param i       the current progression step
+     * @param max     the total progression steps
+     * @return {@code true} if the action succeeded, otherwise {@code false}
+     */
+    public abstract boolean doAction(final Session session, FileSystem fs, ProgressHandler handler, int i, int max);
+
+    /**
+     * Returns the estimated size in bytes of the entry to process.
+     * 
+     * @return the estimated size in bytes
+     */
+    public long estimatedSize() {
+        return ESTIMATED_SIZE;
+    }
 
 }

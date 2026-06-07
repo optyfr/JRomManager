@@ -21,42 +21,41 @@ import java.io.Serializable;
 import jrm.profile.Profile;
 
 /**
- * Interface definition for linking selectable data classes with profile properties getter/setter.
- * Provides a standardized mechanism to query and mutate boolean preferences associated with specific
- * profiles.
+ * Interface definition for linking selectable data classes with profile
+ * properties getter/setter. Provides a standardized mechanism to query and
+ * mutate boolean preferences associated with specific profiles.
  * 
  * @author optyfr
  * @since 1.0
  */
-public interface PropertyStub extends Serializable
-{
-	/**
-	 * Get the defined property name of the current class.
-	 * 
-	 * @return the name of the property as a String
-	 */
-	public String getPropertyName();
+public interface PropertyStub extends Serializable {
+    /**
+     * Get the defined property name of the current class.
+     * 
+     * @return the name of the property as a String
+     */
+    public String getPropertyName();
 
-	/**
-	 * Get the selection state in profile properties according to {@link #getPropertyName()}.
-	 * 
-	 * @param profile the profile to read the property from
-	 * @return true if selected, false otherwise
-	 */
-	public default boolean isSelected(final Profile profile)
-	{
-		return profile.getProperty(getPropertyName(), true);
-	}
+    /**
+     * Get the selection state in profile properties according to
+     * {@link #getPropertyName()}.
+     * 
+     * @param profile the profile to read the property from
+     * @return true if selected, false otherwise
+     */
+    public default boolean isSelected(final Profile profile) {
+        return profile.getProperty(getPropertyName(), true);
+    }
 
-	/**
-	 * Set the selection state in profile properties according to {@link #getPropertyName()}.
-	 * 
-	 * @param profile the profile to set the property in
-	 * @param selected the selection state to set
-	 */
-	public default void setSelected(final Profile profile, final boolean selected)
-	{
-		profile.setProperty(getPropertyName(), selected);
-	}
+    /**
+     * Set the selection state in profile properties according to
+     * {@link #getPropertyName()}.
+     * 
+     * @param profile  the profile to set the property in
+     * @param selected the selection state to set
+     */
+    public default void setSelected(final Profile profile, final boolean selected) {
+        profile.setProperty(getPropertyName(), selected);
+    }
 
 }

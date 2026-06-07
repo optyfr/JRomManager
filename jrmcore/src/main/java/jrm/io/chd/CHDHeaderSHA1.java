@@ -20,38 +20,35 @@ import java.nio.MappedByteBuffer;
 */
 
 /**
- * An intermediate representation of CHD file headers that include both MD5 and SHA-1 checksums.
- * Inherits MD5 storage from {@link CHDHeaderMD5} and adds storage and retrieval methods
- * for the SHA-1 digest.
+ * An intermediate representation of CHD file headers that include both MD5 and
+ * SHA-1 checksums. Inherits MD5 storage from {@link CHDHeaderMD5} and adds
+ * storage and retrieval methods for the SHA-1 digest.
  * 
  * @author optyfr
  */
-class CHDHeaderSHA1 extends CHDHeaderMD5
-{
-	/**
-	 * The hexadecimal SHA-1 digest of the raw uncompressed data.
-	 */
-	protected String sha1;
-	
-	/**
-	 * Constructs a CHD header parser supporting both MD5 and SHA-1 digest storage.
-	 *
-	 * @param bb the mapped byte buffer pointing to the start of the CHD file
-	 */
-	public CHDHeaderSHA1(final MappedByteBuffer bb)
-	{
-		super(bb);
-	}
-	
-	/**
-	 * Retrieves the SHA-1 digest of the raw, uncompressed data represented by this CHD,
-	 * as parsed from the header.
-	 *
-	 * @return the SHA-1 hexadecimal string representation
-	 */
-	@Override
-	public String getSHA1()
-	{
-		return sha1;
-	}
+class CHDHeaderSHA1 extends CHDHeaderMD5 {
+    /**
+     * The hexadecimal SHA-1 digest of the raw uncompressed data.
+     */
+    protected String sha1;
+
+    /**
+     * Constructs a CHD header parser supporting both MD5 and SHA-1 digest storage.
+     *
+     * @param bb the mapped byte buffer pointing to the start of the CHD file
+     */
+    public CHDHeaderSHA1(final MappedByteBuffer bb) {
+        super(bb);
+    }
+
+    /**
+     * Retrieves the SHA-1 digest of the raw, uncompressed data represented by this
+     * CHD, as parsed from the header.
+     *
+     * @return the SHA-1 hexadecimal string representation
+     */
+    @Override
+    public String getSHA1() {
+        return sha1;
+    }
 }

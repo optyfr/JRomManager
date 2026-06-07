@@ -26,269 +26,267 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * The abstract common base class for {@link Rom} and {@link Disk}.
- * This class extends {@link EntityBase} and manages standard retro game files properties,
- * such as file sizes, CRC, MD5, and SHA-1 checksums, dump status, and merge behaviors.
+ * The abstract common base class for {@link Rom} and {@link Disk}. This class
+ * extends {@link EntityBase} and manages standard retro game files properties,
+ * such as file sizes, CRC, MD5, and SHA-1 checksums, dump status, and merge
+ * behaviors.
  *
  * @author optyfr
  */
-public abstract class Entity extends EntityBase implements Serializable
-{
-	/**
-	 * Serialization field name for dump status.
-	 */
-	protected static final String STATUS_STR = "status";
+public abstract class Entity extends EntityBase implements Serializable {
+    /**
+     * Serialization field name for dump status.
+     */
+    protected static final String STATUS_STR = "status";
 
-	/**
-	 * Serialization field name for merge target name.
-	 */
-	protected static final String MERGE_STR = "merge";
+    /**
+     * Serialization field name for merge target name.
+     */
+    protected static final String MERGE_STR = "merge";
 
-	/**
-	 * Serialization field name for MD5 checksum.
-	 */
-	protected static final String MD5_STR = "md5";
+    /**
+     * Serialization field name for MD5 checksum.
+     */
+    protected static final String MD5_STR = "md5";
 
-	/**
-	 * Serialization field name for SHA-1 checksum.
-	 */
-	protected static final String SHA1_STR = "sha1";
+    /**
+     * Serialization field name for SHA-1 checksum.
+     */
+    protected static final String SHA1_STR = "sha1";
 
-	/**
-	 * Serialization field name for CRC32 checksum.
-	 */
-	protected static final String CRC_STR = "crc";
+    /**
+     * Serialization field name for CRC32 checksum.
+     */
+    protected static final String CRC_STR = "crc";
 
-	/**
-	 * Serialization field name for file size.
-	 */
-	protected static final String SIZE_STR = "size";
+    /**
+     * Serialization field name for file size.
+     */
+    protected static final String SIZE_STR = "size";
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * The file size in bytes, defaults to 0 (always 0 for disks).
-	 *
-	 * @param size the file size in bytes to set
-	 * @return the file size in bytes
-	 */
-	protected @Getter @Setter long size = 0;
+    /**
+     * The file size in bytes, defaults to 0 (always 0 for disks).
+     *
+     * @param size the file size in bytes to set
+     * @return the file size in bytes
+     */
+    protected @Getter @Setter long size = 0;
 
-	/**
-	 * The CRC32 value as a lowercase hexadecimal {@link String}, or null if none is defined (e.g. for disks).
-	 *
-	 * @param crc the CRC32 hexadecimal string to set
-	 * @return the CRC32 hexadecimal string
-	 */
-	protected @Getter @Setter String crc = null;
+    /**
+     * The CRC32 value as a lowercase hexadecimal {@link String}, or null if none is
+     * defined (e.g. for disks).
+     *
+     * @param crc the CRC32 hexadecimal string to set
+     * @return the CRC32 hexadecimal string
+     */
+    protected @Getter @Setter String crc = null;
 
-	/**
-	 * The SHA-1 checksum value as a lowercase hexadecimal {@link String}, or null if none is defined.
-	 *
-	 * @param sha1 the SHA-1 hexadecimal string to set
-	 * @return the SHA-1 hexadecimal string
-	 */
-	protected @Getter @Setter String sha1 = null;
+    /**
+     * The SHA-1 checksum value as a lowercase hexadecimal {@link String}, or null
+     * if none is defined.
+     *
+     * @param sha1 the SHA-1 hexadecimal string to set
+     * @return the SHA-1 hexadecimal string
+     */
+    protected @Getter @Setter String sha1 = null;
 
-	/**
-	 * The MD5 checksum value as a lowercase hexadecimal {@link String}, or null if none is defined.
-	 *
-	 * @param md5 the MD5 hexadecimal string to set
-	 * @return the MD5 hexadecimal string
-	 */
-	protected @Getter @Setter String md5 = null;
+    /**
+     * The MD5 checksum value as a lowercase hexadecimal {@link String}, or null if
+     * none is defined.
+     *
+     * @param md5 the MD5 hexadecimal string to set
+     * @return the MD5 hexadecimal string
+     */
+    protected @Getter @Setter String md5 = null;
 
-	/**
-	 * The merge name target of this entity, or null if no explicit merge is defined.
-	 *
-	 * @param merge the merge target name to set
-	 * @return the merge target name
-	 */
-	protected @Getter @Setter String merge = null;
+    /**
+     * The merge name target of this entity, or null if no explicit merge is
+     * defined.
+     *
+     * @param merge the merge target name to set
+     * @return the merge target name
+     */
+    protected @Getter @Setter String merge = null;
 
-	/**
-	 * The dump status of this entity, defaulting to {@link Status#good} when not defined.
-	 *
-	 * @param dumpStatus the dump status to set
-	 * @return the dump status of the entity
-	 */
-	protected @Getter @Setter Status dumpStatus = Status.good;
+    /**
+     * The dump status of this entity, defaulting to {@link Status#good} when not
+     * defined.
+     *
+     * @param dumpStatus the dump status to set
+     * @return the dump status of the entity
+     */
+    protected @Getter @Setter Status dumpStatus = Status.good;
 
-	/**
-	 * Enumeration defining the dump status of a game rom or disk.
-	 */
-	public enum Status implements Serializable
-	{
-		/**
-		 * Bad dump (faulty, incomplete, or corrupted dump).
-		 */
-		baddump,	//NOSONAR
-		/**
-		 * No dump is known to exist yet.
-		 */
-		nodump,	//NOSONAR
-		/**
-		 * The dump is verified as good.
-		 */
-		good,	//NOSONAR
-		/**
-		 * The dump is good and has been verified (applicable only in logiqx formats).
-		 */
-		verified;	//NOSONAR
+    /**
+     * Enumeration defining the dump status of a game rom or disk.
+     */
+    public enum Status implements Serializable {
+        /**
+         * Bad dump (faulty, incomplete, or corrupted dump).
+         */
+        baddump, // NOSONAR
+        /**
+         * No dump is known to exist yet.
+         */
+        nodump, // NOSONAR
+        /**
+         * The dump is verified as good.
+         */
+        good, // NOSONAR
+        /**
+         * The dump is good and has been verified (applicable only in logiqx formats).
+         */
+        verified; // NOSONAR
 
-		/**
-		 * Maps the status value for XML output according to the requested export format.
-		 *
-		 * @param is_mame {@code true} if the export format is MAME XML, {@code false} for other formats
-		 * @return the mapped {@link Status}, or {@code null} if good / default status should be skipped in the XML output
-		 */
-		public Status getXML(final boolean is_mame)
-		{
-			return (Status.good == this || (is_mame && Status.verified == this)) ? null : this;
-		}
-	}
+        /**
+         * Maps the status value for XML output according to the requested export
+         * format.
+         *
+         * @param is_mame {@code true} if the export format is MAME XML, {@code false}
+         *                for other formats
+         * @return the mapped {@link Status}, or {@code null} if good / default status
+         *         should be skipped in the XML output
+         */
+        public Status getXML(final boolean is_mame) {
+            return (Status.good == this || (is_mame && Status.verified == this)) ? null : this;
+        }
+    }
 
-	private static final ObjectStreamField[] serialPersistentFields = {	//NOSONAR
-		new ObjectStreamField(SIZE_STR, long.class),
-		new ObjectStreamField(CRC_STR, String.class),
-		new ObjectStreamField(SHA1_STR, String.class),
-		new ObjectStreamField(MD5_STR, String.class),
-		new ObjectStreamField(MERGE_STR, String.class),
-		new ObjectStreamField(STATUS_STR, Status.class)
-	};
+    private static final ObjectStreamField[] serialPersistentFields = { // NOSONAR
+            new ObjectStreamField(SIZE_STR, long.class),
+            new ObjectStreamField(CRC_STR, String.class),
+            new ObjectStreamField(SHA1_STR, String.class),
+            new ObjectStreamField(MD5_STR, String.class),
+            new ObjectStreamField(MERGE_STR, String.class),
+            new ObjectStreamField(STATUS_STR, Status.class)
+    };
 
-	/**
-	 * Custom serialization writer.
-	 *
-	 * @param stream the object output stream
-	 * @throws IOException if an I/O error occurs
-	 */
-	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException
-	{
-		final var fields = stream.putFields();
-		fields.put(SIZE_STR, size);
-		fields.put(CRC_STR, crc);
-		fields.put(SHA1_STR, sha1);
-		fields.put(MD5_STR, md5);
-		fields.put(MERGE_STR, merge);
-		fields.put(STATUS_STR, dumpStatus);
-		stream.writeFields();
-	}
+    /**
+     * Custom serialization writer.
+     *
+     * @param stream the object output stream
+     * @throws IOException if an I/O error occurs
+     */
+    private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+        final var fields = stream.putFields();
+        fields.put(SIZE_STR, size);
+        fields.put(CRC_STR, crc);
+        fields.put(SHA1_STR, sha1);
+        fields.put(MD5_STR, md5);
+        fields.put(MERGE_STR, merge);
+        fields.put(STATUS_STR, dumpStatus);
+        stream.writeFields();
+    }
 
-	/**
-	 * Custom serialization reader.
-	 *
-	 * @param stream the object input stream
-	 * @throws IOException if an I/O error occurs
-	 * @throws ClassNotFoundException if the class cannot be located
-	 */
-	private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
-	{
-		final var fields = stream.readFields();
-		size = fields.get(SIZE_STR, 0L);
-		crc = (String)fields.get(CRC_STR, null);
-		sha1 = (String)fields.get(SHA1_STR, null);
-		md5 = (String)fields.get(MD5_STR, null);
-		merge = (String)fields.get(MERGE_STR, null);
-		dumpStatus = (Status)fields.get(STATUS_STR, Status.good);
-	}
+    /**
+     * Custom serialization reader.
+     *
+     * @param stream the object input stream
+     * @throws IOException            if an I/O error occurs
+     * @throws ClassNotFoundException if the class cannot be located
+     */
+    private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        final var fields = stream.readFields();
+        size = fields.get(SIZE_STR, 0L);
+        crc = (String) fields.get(CRC_STR, null);
+        sha1 = (String) fields.get(SHA1_STR, null);
+        md5 = (String) fields.get(MD5_STR, null);
+        merge = (String) fields.get(MERGE_STR, null);
+        dumpStatus = (Status) fields.get(STATUS_STR, Status.good);
+    }
 
-	/**
-	 * Collision mode status.
-	 */
-	private transient boolean collision = false;
+    /**
+     * Collision mode status.
+     */
+    private transient boolean collision = false;
 
-	/**
-	 * Single supported constructor for Entity subclasses.
-	 *
-	 * @param parent the required {@link Anyware} parent set (Machine or Software)
-	 */
-	protected Entity(final Anyware parent)
-	{
-		super(parent);
-	}
+    /**
+     * Single supported constructor for Entity subclasses.
+     *
+     * @param parent the required {@link Anyware} parent set (Machine or Software)
+     */
+    protected Entity(final Anyware parent) {
+        super(parent);
+    }
 
-	/**
-	 * Enables collision mode for this entity and propagates it to parents or clone families
-	 * depending on the configured {@link ProfileSettings#getHashCollisionMode()}.
-	 */
-	public void setCollisionMode()
-	{
-		if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.SINGLECLONE)
-			getParent().setCollisionMode(false);
-		else if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.ALLCLONES)
-			getParent().setCollisionMode(true);
-		collision = true;
-	}
+    /**
+     * Enables collision mode for this entity and propagates it to parents or clone
+     * families depending on the configured
+     * {@link ProfileSettings#getHashCollisionMode()}.
+     */
+    public void setCollisionMode() {
+        if (getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.SINGLECLONE)
+            getParent().setCollisionMode(false);
+        else if (getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.ALLCLONES)
+            getParent().setCollisionMode(true);
+        collision = true;
+    }
 
-	/**
-	 * Checks if collision mode is currently active for this entity.
-	 *
-	 * @param dumber {@code true} to assume collision mode for very dumb strategies, {@code false} otherwise
-	 * @return {@code true} if collision mode is active, {@code false} otherwise
-	 */
-	public boolean isCollisionMode(boolean dumber)
-	{
-		if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.SINGLECLONE)
-			return getParent().isCollisionMode();
-		else if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.ALLCLONES)
-			return getParent().isCollisionMode();
-		else if(dumber)
-		{
-			if(getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMBER)
-				return true;
-		}
-		else 
-		{
-			if (getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.HALFDUMB
-				|| getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMB
-				|| getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMBER)
-				return true;
-		}
-		return collision;
-	}
+    /**
+     * Checks if collision mode is currently active for this entity.
+     *
+     * @param dumber {@code true} to assume collision mode for very dumb strategies,
+     *               {@code false} otherwise
+     * @return {@code true} if collision mode is active, {@code false} otherwise
+     */
+    public boolean isCollisionMode(boolean dumber) {
+        if (getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.SINGLECLONE)
+            return getParent().isCollisionMode();
+        else if (getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.ALLCLONES)
+            return getParent().isCollisionMode();
+        else if (dumber) {
+            if (getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMBER)
+                return true;
+        } else {
+            if (getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.HALFDUMB
+                    || getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMB
+                    || getParent().profile.getSettings().getHashCollisionMode() == HashCollisionOptions.DUMBER)
+                return true;
+        }
+        return collision;
+    }
 
-	/**
-	 * Resets both the {@link #collision} status flag and the internal {@link EntityBase#ownStatus}.
-	 */
-	void resetCollisionMode()
-	{
-		collision = false;
-		ownStatus = EntityStatus.UNKNOWN;
-	}
+    /**
+     * Resets both the {@link #collision} status flag and the internal
+     * {@link EntityBase#ownStatus}.
+     */
+    void resetCollisionMode() {
+        collision = false;
+        ownStatus = EntityStatus.UNKNOWN;
+    }
 
-	/**
-	 * Retrieves the Anyware parent of this entity.
-	 *
-	 * @return the parent {@link Anyware}
-	 */
-	@Override
-	public Anyware getParent()
-	{
-		return getParent(Anyware.class);
-	}
+    /**
+     * Retrieves the Anyware parent of this entity.
+     *
+     * @return the parent {@link Anyware}
+     */
+    @Override
+    public Anyware getParent() {
+        return getParent(Anyware.class);
+    }
 
-	/**
-	 * Indicates whether some other object is "equal to" this one.
-	 *
-	 * @param obj the reference object with which to compare
-	 * @return {@code true} if this object is equal to the obj argument; {@code false} otherwise
-	 */
-	@Override
-	public boolean equals(Object obj)
-	{
-		return super.equals(obj);
-	}
+    /**
+     * Indicates whether some other object is "equal to" this one.
+     *
+     * @param obj the reference object with which to compare
+     * @return {@code true} if this object is equal to the obj argument;
+     *         {@code false} otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 
-	/**
-	 * Returns a hash code value for the entity.
-	 *
-	 * @return a hash code value for this entity
-	 */
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
-	}
-	
+    /**
+     * Returns a hash code value for the entity.
+     *
+     * @return a hash code value for this entity
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 }

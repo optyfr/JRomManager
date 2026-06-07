@@ -38,356 +38,337 @@ import jrm.xml.SimpleAttribute;
 import lombok.Getter;
 
 /**
- * A SoftwareList is a specialized {@link AnywareList} containing {@link Software} definitions.
- * It maps software items by their unique name, tracks their compatibility/merging properties,
- * and handles filtering based on active profile settings (e.g., clone/disk exclusions or minimum support levels).
+ * A SoftwareList is a specialized {@link AnywareList} containing
+ * {@link Software} definitions. It maps software items by their unique name,
+ * tracks their compatibility/merging properties, and handles filtering based on
+ * active profile settings (e.g., clone/disk exclusions or minimum support
+ * levels).
  * 
  * @author optyfr
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public final class SoftwareList extends AnywareList<Software> implements Systm, Serializable
-{
-	/**
-	 * Description of the software list.
-	 * 
-	 * @return the description string builder
-	 */
-	private final @Getter StringBuilder description = new StringBuilder();
+public final class SoftwareList extends AnywareList<Software> implements Systm, Serializable {
+    /**
+     * Description of the software list.
+     * 
+     * @return the description string builder
+     */
+    private final @Getter StringBuilder description = new StringBuilder();
 
-	/**
-	 * The {@link ArrayList} of {@link Software} items in the list.
-	 */
-	private final List<Software> swList = new ArrayList<>();
-	
-	/**
-	 * The by-name {@link HashMap} of {@link Software} items.
-	 */
-	private final Map<String, Software> swByName = new HashMap<>();
+    /**
+     * The {@link ArrayList} of {@link Software} items in the list.
+     */
+    private final List<Software> swList = new ArrayList<>();
 
-	/**
-	 * The constructor, initializing transient fields.
-	 * 
-	 * @param profile the parent Profile
-	 */
-	public SoftwareList(Profile profile)
-	{
-		super(profile);
-		initTransient();
-	}
+    /**
+     * The by-name {@link HashMap} of {@link Software} items.
+     */
+    private final Map<String, Software> swByName = new HashMap<>();
 
-	/**
-	 * Custom deserialization method to restore and initialize transient default values.
-	 * 
-	 * @param in the serialization input stream
-	 * @throws IOException if an I/O error occurs
-	 * @throws ClassNotFoundException if class resolution fails
-	 */
-	private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		in.defaultReadObject();
-		initTransient();
-	}
+    /**
+     * The constructor, initializing transient fields.
+     * 
+     * @param profile the parent Profile
+     */
+    public SoftwareList(Profile profile) {
+        super(profile);
+        initTransient();
+    }
 
-	/**
-	 * Adds a software item to the list, registering it under its unique name.
-	 * 
-	 * @param software the software item to add
-	 * @return true if added successfully, false otherwise
-	 */
-	@Override
-	public boolean add(final Software software)
-	{
-		software.setSl(this);
-		swByName.put(software.name, software);
-		return swList.add(software);
-	}
+    /**
+     * Custom deserialization method to restore and initialize transient default
+     * values.
+     * 
+     * @param in the serialization input stream
+     * @throws IOException            if an I/O error occurs
+     * @throws ClassNotFoundException if class resolution fails
+     */
+    private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        initTransient();
+    }
 
-	/**
-	 * Retrieves the raw list of software items.
-	 * 
-	 * @return the software list
-	 */
-	@Override
-	public List<Software> getList()
-	{
-		return swList;
-	}
+    /**
+     * Adds a software item to the list, registering it under its unique name.
+     * 
+     * @param software the software item to add
+     * @return true if added successfully, false otherwise
+     */
+    @Override
+    public boolean add(final Software software) {
+        software.setSl(this);
+        swByName.put(software.name, software);
+        return swList.add(software);
+    }
 
-	/**
-	 * Retrieves the system type of software lists.
-	 * 
-	 * @return Type.SOFTWARELIST
-	 */
-	@Override
-	public Type getType()
-	{
-		return Type.SOFTWARELIST;
-	}
+    /**
+     * Retrieves the raw list of software items.
+     * 
+     * @return the software list
+     */
+    @Override
+    public List<Software> getList() {
+        return swList;
+    }
 
-	/**
-	 * Retrieves the software list self-reference as a system type.
-	 * 
-	 * @return this SoftwareList
-	 */
-	@Override
-	public Systm getSystem()
-	{
-		return this;
-	}
+    /**
+     * Retrieves the system type of software lists.
+     * 
+     * @return Type.SOFTWARELIST
+     */
+    @Override
+    public Type getType() {
+        return Type.SOFTWARELIST;
+    }
 
-	/**
-	 * Formats the software list into a descriptive string representation.
-	 * 
-	 * @return the formatted description string
-	 */
-	@Override
-	public String toString()
-	{
-		return "[" + getType() + "] " + description.toString(); //$NON-NLS-1$ //$NON-NLS-2$
-	}
+    /**
+     * Retrieves the software list self-reference as a system type.
+     * 
+     * @return this SoftwareList
+     */
+    @Override
+    public Systm getSystem() {
+        return this;
+    }
 
-	/**
-	 * Retrieves the name of this software list.
-	 * 
-	 * @return the software list name
-	 */
-	@Override
-	public String getName()
-	{
-		return name;
-	}
+    /**
+     * Formats the software list into a descriptive string representation.
+     * 
+     * @return the formatted description string
+     */
+    @Override
+    public String toString() {
+        return "[" + getType() + "] " + description.toString(); //$NON-NLS-1$ //$NON-NLS-2$
+    }
 
-	/**
-	 * Private filter options struct mapping system profile options to performance flags.
-	 * 
-	 * @author optyfr
-	 * @since 1.0
-	 */
-	private class FilterOptions
-	{
-		/** Indicates whether clones should be included in filters. */
-		final boolean filterIncludeClones = profile.getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class); //$NON-NLS-1$
-		
-		/** Indicates whether software with disks should be included. */
-		final boolean filterIncludeDisks = profile.getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class); //$NON-NLS-1$
-		
-		/** The minimum supported level required for software inclusion. */
-		final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, String.class)); //$NON-NLS-1$
-		
-		/** The minimum release year boundary. */
-		final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); //$NON-NLS-1$ //$NON-NLS-2$
-		
-		/** The maximum release year boundary. */
-		final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	/**
-	 * Evaluates and streams software items filtered against current profile preferences.
-	 * 
-	 * @return a filtered stream of Software
-	 */
-	@Override
-	public Stream<Software> getFilteredStream()
-	{
-		final var options = new FilterOptions();
-		
-		return getList().stream().filter(t -> {
-			if(!getYearFilter(options, t))
-				return false;
-			if(options.filterMinSoftwareSupportedLevel==Supported.partial && t.getSupported()==Supported.no)	// exclude support=no software if min software support is partial
-				return false;
-			if(options.filterMinSoftwareSupportedLevel==Supported.yes && t.getSupported()!=Supported.yes) // exclude support!=yes if min software support is yes
-				return false;
-			if(!options.filterIncludeClones && t.isClone())	// exclude clones machines
-				return false;
-			if(!options.filterIncludeDisks && t.getDisks().size()>0)	// exclude softwares with disks
-				return false;
-			return t.getSystem().isSelected(profile);	// exclude software for which their software list were not selected
-		});
-	}
+    /**
+     * Retrieves the name of this software list.
+     * 
+     * @return the software list name
+     */
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Applies minimum and maximum release year filters on software items.
-	 * 
-	 * @param options the active filter options
-	 * @param t the target software item
-	 * @return true if the software matches the year bounds, false otherwise
-	 */
-	private boolean getYearFilter(final FilterOptions options, Software t)
-	{
-		if(t.year.length()>0)
-		{	// exclude machines outside defined year range
-			if(options.filterYearMin.compareTo(t.year.toString())>0)
-				return false;
-			if(options.filterYearMax.compareTo(t.year.toString())<0)
-				return false;
-		}
-		return true;
-	}
+    /**
+     * Private filter options struct mapping system profile options to performance
+     * flags.
+     * 
+     * @author optyfr
+     * @since 1.0
+     */
+    private class FilterOptions {
+        /** Indicates whether clones should be included in filters. */
+        final boolean filterIncludeClones = profile.getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class); // $NON-NLS-1$
 
-	/**
-	 * Resolves and caches the filtered software list matching status and year rules.
-	 * 
-	 * @return the filtered software items list
-	 */
-	@Override
-	public List<Software> getFilteredList()
-	{
-		if(filteredList == null)
-			filteredList = getFilteredStream().filter(t -> profile.getFilterList().contains(t.getStatus())).sorted().collect(Collectors.toList());
-		return filteredList;
-	}
+        /** Indicates whether software with disks should be included. */
+        final boolean filterIncludeDisks = profile.getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class); // $NON-NLS-1$
 
-	/**
-	 * Counts all active software items matching profile filters.
-	 * 
-	 * @return the filtered items count
-	 */
-	@Override
-	public long countAll()
-	{
-		return getFilteredStream().count();
-	}
+        /** The minimum supported level required for software inclusion. */
+        final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, String.class)); // $NON-NLS-1$
 
-	/**
-	 * Counts complete software items matching profile filters.
-	 * 
-	 * @return complete software items count
-	 */
-	@Override
-	public long countHave()
-	{
-		return getFilteredStream().filter(t -> t.getStatus()==AnywareStatus.COMPLETE).count();
-	}
+        /** The minimum release year boundary. */
+        final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); // $NON-NLS-1$ //$NON-NLS-2$
 
-	/**
-	 * Export the software list inside a XML document.
-	 * 
-	 * @param writer the EnhancedXMLStreamWriter used to write the XML output
-	 * @param modes the export configurations
-	 * @param progress the UI progress indicator
-	 * @throws XMLStreamException if an XML serialization error occurs
-	 */
-	public void export(final EnhancedXMLStreamWriter writer, Set<ExportMode> modes, final ProgressHandler progress) throws XMLStreamException
-	{
-		writer.writeStartElement("softwarelist", //$NON-NLS-1$
-				new SimpleAttribute("name", name), //$NON-NLS-1$
-				new SimpleAttribute("description", description) //$NON-NLS-1$
-		);
-		final List<Software> list = modes.contains(ExportMode.FILTERED) ? getFilteredStream().toList() : getList();
-		for (final Software s : list) {
-			if (progress.isCancel())
-				break;
-			progress.setProgress(String.format(profile.getSession().getMsgs().getString("SoftwareList.Exporting_%s"), //$NON-NLS-1$
-					s.getFullName()), progress.getCurrent() + 1);
-			if (modes.contains(ExportMode.ALL)
-				|| (modes.contains(ExportMode.FILTERED) && s.isSelected())
-				|| (modes.contains(ExportMode.MISSING) && s.getStatus() != AnywareStatus.COMPLETE && s.getStatus() != AnywareStatus.UNKNOWN)
-				|| (modes.contains(ExportMode.HAVE) && s.getStatus() != AnywareStatus.MISSING && s.getStatus() != AnywareStatus.UNKNOWN)
-			)
-				s.export(writer, null, modes);
-		}
-		writer.writeEndElement();
-	}
+        /** The maximum release year boundary. */
+        final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); // $NON-NLS-1$ //$NON-NLS-2$
+    }
 
-	/**
-	 * Checks if the list contains a software item with the specified name.
-	 * 
-	 * @param name the software name
-	 * @return true if found, false otherwise
-	 */
-	@Override
-	public boolean containsName(final String name)
-	{
-		return swByName.containsKey(name);
-	}
+    /**
+     * Evaluates and streams software items filtered against current profile
+     * preferences.
+     * 
+     * @return a filtered stream of Software
+     */
+    @Override
+    public Stream<Software> getFilteredStream() {
+        final var options = new FilterOptions();
 
-	/**
-	 * Retrieves the software item with the specified name.
-	 * 
-	 * @param name the software name
-	 * @return the matching Software item, or null if not found
-	 */
-	@Override
-	public Software getByName(String name)
-	{
-		return swByName.get(name);
-	}
+        return getList().stream().filter(t -> {
+            if (!getYearFilter(options, t))
+                return false;
+            if (options.filterMinSoftwareSupportedLevel == Supported.partial && t.getSupported() == Supported.no) // exclude support=no software if min software support is partial
+                return false;
+            if (options.filterMinSoftwareSupportedLevel == Supported.yes && t.getSupported() != Supported.yes) // exclude support!=yes if min software support is yes
+                return false;
+            if (!options.filterIncludeClones && t.isClone()) // exclude clones machines
+                return false;
+            if (!options.filterIncludeDisks && t.getDisks().size() > 0) // exclude softwares with disks
+                return false;
+            return t.getSystem().isSelected(profile); // exclude software for which their software list were not selected
+        });
+    }
 
-	/**
-	 * Registers a software item in the name map.
-	 * 
-	 * @param t the software item to register
-	 * @return the previously registered Software item, or null if none
-	 */
-	@Override
-	public Software putByName(Software t)
-	{
-		return swByName.put(t.name, t);
-	}
-	
-	/** Named map filtered cache. */
-	private transient Map<String, Software> swFilteredByName = null;
+    /**
+     * Applies minimum and maximum release year filters on software items.
+     * 
+     * @param options the active filter options
+     * @param t       the target software item
+     * @return true if the software matches the year bounds, false otherwise
+     */
+    private boolean getYearFilter(final FilterOptions options, Software t) {
+        if (t.year.length() > 0) { // exclude machines outside defined year range
+            if (options.filterYearMin.compareTo(t.year.toString()) > 0)
+                return false;
+            if (options.filterYearMax.compareTo(t.year.toString()) < 0)
+                return false;
+        }
+        return true;
+    }
 
-	/**
-	 * Resets and populates the named filtered cache based on active filtered stream.
-	 */
-	@Override
-	public void resetFilteredName()
-	{
-		swFilteredByName = getFilteredStream().collect(Collectors.toMap(Software::getBaseName, Function.identity()));
-	}
+    /**
+     * Resolves and caches the filtered software list matching status and year
+     * rules.
+     * 
+     * @return the filtered software items list
+     */
+    @Override
+    public List<Software> getFilteredList() {
+        if (filteredList == null)
+            filteredList = getFilteredStream().filter(t -> profile.getFilterList().contains(t.getStatus())).sorted().collect(Collectors.toList());
+        return filteredList;
+    }
 
-	/**
-	 * Checks if the list contains a software item with the specified filtered name.
-	 * 
-	 * @param name the filtered software name
-	 * @return true if found, false otherwise
-	 */
-	@Override
-	public boolean containsFilteredName(String name)
-	{
-		if(swFilteredByName==null)
-			resetFilteredName();
-		return swFilteredByName.containsKey(name);
-	}
+    /**
+     * Counts all active software items matching profile filters.
+     * 
+     * @return the filtered items count
+     */
+    @Override
+    public long countAll() {
+        return getFilteredStream().count();
+    }
 
-	/**
-	 * Retrieves the software item with the specified filtered name.
-	 * 
-	 * @param name the filtered software name
-	 * @return the matching Software item, or null if not found
-	 */
-	@Override
-	public Software getFilteredByName(String name)
-	{
-		if(swFilteredByName==null)
-			resetFilteredName();
-		return swFilteredByName.get(name);
-	}
+    /**
+     * Counts complete software items matching profile filters.
+     * 
+     * @return complete software items count
+     */
+    @Override
+    public long countHave() {
+        return getFilteredStream().filter(t -> t.getStatus() == AnywareStatus.COMPLETE).count();
+    }
 
-	/**
-	 * Compares the specified object with this software list for equality.
-	 * 
-	 * @param obj the reference object
-	 * @return true if equivalent, false otherwise
-	 */
-	@Override
-	public boolean equals(Object obj)
-	{
-		return super.equals(obj);
-	}
-	
-	/**
-	 * Returns the hash code value for this software list.
-	 * 
-	 * @return the hash code value
-	 */
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
-	}
-	
+    /**
+     * Export the software list inside a XML document.
+     * 
+     * @param writer   the EnhancedXMLStreamWriter used to write the XML output
+     * @param modes    the export configurations
+     * @param progress the UI progress indicator
+     * @throws XMLStreamException if an XML serialization error occurs
+     */
+    public void export(final EnhancedXMLStreamWriter writer, Set<ExportMode> modes, final ProgressHandler progress) throws XMLStreamException {
+        writer.writeStartElement("softwarelist", //$NON-NLS-1$
+                new SimpleAttribute("name", name), //$NON-NLS-1$
+                new SimpleAttribute("description", description) //$NON-NLS-1$
+        );
+        final List<Software> list = modes.contains(ExportMode.FILTERED) ? getFilteredStream().toList() : getList();
+        for (final Software s : list) {
+            if (progress.isCancel())
+                break;
+            progress.setProgress(String.format(profile.getSession().getMsgs().getString("SoftwareList.Exporting_%s"), //$NON-NLS-1$
+                    s.getFullName()), progress.getCurrent() + 1);
+            if (modes.contains(ExportMode.ALL)
+                    || (modes.contains(ExportMode.FILTERED) && s.isSelected())
+                    || (modes.contains(ExportMode.MISSING) && s.getStatus() != AnywareStatus.COMPLETE && s.getStatus() != AnywareStatus.UNKNOWN)
+                    || (modes.contains(ExportMode.HAVE) && s.getStatus() != AnywareStatus.MISSING && s.getStatus() != AnywareStatus.UNKNOWN))
+                s.export(writer, null, modes);
+        }
+        writer.writeEndElement();
+    }
+
+    /**
+     * Checks if the list contains a software item with the specified name.
+     * 
+     * @param name the software name
+     * @return true if found, false otherwise
+     */
+    @Override
+    public boolean containsName(final String name) {
+        return swByName.containsKey(name);
+    }
+
+    /**
+     * Retrieves the software item with the specified name.
+     * 
+     * @param name the software name
+     * @return the matching Software item, or null if not found
+     */
+    @Override
+    public Software getByName(String name) {
+        return swByName.get(name);
+    }
+
+    /**
+     * Registers a software item in the name map.
+     * 
+     * @param t the software item to register
+     * @return the previously registered Software item, or null if none
+     */
+    @Override
+    public Software putByName(Software t) {
+        return swByName.put(t.name, t);
+    }
+
+    /** Named map filtered cache. */
+    private transient Map<String, Software> swFilteredByName = null;
+
+    /**
+     * Resets and populates the named filtered cache based on active filtered
+     * stream.
+     */
+    @Override
+    public void resetFilteredName() {
+        swFilteredByName = getFilteredStream().collect(Collectors.toMap(Software::getBaseName, Function.identity()));
+    }
+
+    /**
+     * Checks if the list contains a software item with the specified filtered name.
+     * 
+     * @param name the filtered software name
+     * @return true if found, false otherwise
+     */
+    @Override
+    public boolean containsFilteredName(String name) {
+        if (swFilteredByName == null)
+            resetFilteredName();
+        return swFilteredByName.containsKey(name);
+    }
+
+    /**
+     * Retrieves the software item with the specified filtered name.
+     * 
+     * @param name the filtered software name
+     * @return the matching Software item, or null if not found
+     */
+    @Override
+    public Software getFilteredByName(String name) {
+        if (swFilteredByName == null)
+            resetFilteredName();
+        return swFilteredByName.get(name);
+    }
+
+    /**
+     * Compares the specified object with this software list for equality.
+     * 
+     * @param obj the reference object
+     * @return true if equivalent, false otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    /**
+     * Returns the hash code value for this software list.
+     * 
+     * @return the hash code value
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 }

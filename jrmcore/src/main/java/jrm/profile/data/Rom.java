@@ -30,428 +30,405 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Rom entity definition representing a read-only memory chip file inside a retro-gaming system or software list.
- * This class extends {@link Entity} and encapsulates ROM-specific attributes like offsets, bios associations, and loading flags.
+ * Rom entity definition representing a read-only memory chip file inside a
+ * retro-gaming system or software list. This class extends {@link Entity} and
+ * encapsulates ROM-specific attributes like offsets, bios associations, and
+ * loading flags.
  * 
  * @author optyfr
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class Rom extends Entity implements Serializable
-{
-	/**
-	 * XML attribute name for memory offset.
-	 */
-	private static final String OFFSET_STR = "offset";
-	
-	/**
-	 * XML attribute name for ROM name.
-	 */
-	private static final String NAME_STR = "name";
-	
-	/**
-	 * XML element name for ROM entries.
-	 */
-	private static final String ROM_STR = "rom";
-	
-	/**
-	 * The name of the BIOS, otherwise null if the ROM is not associated with a BIOS.
-	 * 
-	 * @param bios the BIOS name to set
-	 * @return the BIOS name
-	 */
-	protected @Getter @Setter String bios = null;
-	
-	/**
-	 * The in-memory offset, kept for XML export.
-	 * 
-	 * @param offset the in-memory offset to set
-	 * @return the in-memory offset
-	 */
-	protected @Getter @Setter Long offset = null;
-	
-	/**
-	 * The in-memory load flag, kept for XML export.
-	 * 
-	 * @param loadflag the load flag to set
-	 * @return the load flag
-	 */
-	protected @Getter @Setter LoadFlag loadflag = null;
-	
-	/**
-	 * The value to fill according to the load flag (software ROM only, kept for XML export).
-	 * 
-	 * @param value the fill value to set
-	 * @return the fill value
-	 */
-	protected @Getter @Setter String value = null;
-	
-	/**
-	 * Indicates whether this ROM is optional.
-	 * 
-	 * @param optional true if the ROM is optional, false otherwise
-	 * @return true if the ROM is optional, false otherwise
-	 */
-	protected @Getter @Setter boolean optional = false;
-	
-	/**
-	 * The memory region where this ROM belongs, kept for XML export.
-	 * 
-	 * @param region the memory region to set
-	 * @return the memory region
-	 */
-	protected @Getter @Setter String region = null;
-	
-	/**
-	 * The dump date of this ROM, kept for XML export.
-	 * 
-	 * @param date the dump date to set
-	 * @return the dump date
-	 */
-	protected @Getter @Setter String date = null;
+public class Rom extends Entity implements Serializable {
+    /**
+     * XML attribute name for memory offset.
+     */
+    private static final String OFFSET_STR = "offset";
 
-	/**
-	 * Possible Load Flags definitions.
-	 * Definitions are uppercase to avoid java keyword collisions (e.g., continue),
-	 * but are serialized as lowercase strings.
-	 * 
-	 * @author optyfr
-	 * @since 1.0
-	 */
-	public enum LoadFlag implements Serializable
-	{
-		/**
-		 * Load 16-bit byte.
-		 */
-		LOAD16_BYTE,
-		
-		/**
-		 * Load 16-bit word.
-		 */
-		LOAD16_WORD,
-		
-		/**
-		 * Load 16-bit word with swapped bytes.
-		 */
-		LOAD16_WORD_SWAP,
-		
-		/**
-		 * Load 32-bit byte.
-		 */
-		LOAD32_BYTE,
-		
-		/**
-		 * Load 32-bit word.
-		 */
-		LOAD32_WORD,
-		
-		/**
-		 * Load 32-bit word with swapped bytes.
-		 */
-		LOAD32_WORD_SWAP,
-		
-		/**
-		 * Load 32-bit double-word.
-		 */
-		LOAD32_DWORD,
-		
-		/**
-		 * Load 64-bit word.
-		 */
-		LOAD64_WORD,
-		
-		/**
-		 * Load 64-bit word with swapped bytes.
-		 */
-		LOAD64_WORD_SWAP,
-		
-		/**
-		 * Reload action.
-		 */
-		RELOAD,
-		
-		/**
-		 * Fill action.
-		 */
-		FILL,
-		
-		/**
-		 * Continue action.
-		 */
-		CONTINUE,
-		
-		/**
-		 * Reload plain action.
-		 */
-		RELOAD_PLAIN,
-		
-		/**
-		 * Ignore action.
-		 */
-		IGNORE;
+    /**
+     * XML attribute name for ROM name.
+     */
+    private static final String NAME_STR = "name";
 
-		@Override
-		public String toString()
-		{
-			return name().toLowerCase();
-		}
+    /**
+     * XML element name for ROM entries.
+     */
+    private static final String ROM_STR = "rom";
 
-		/**
-		 * Resolves the given string value into its matching LoadFlag.
-		 * 
-		 * @param value the string value to match
-		 * @return the matching LoadFlag enum element
-		 * @throws IllegalArgumentException if no match is found
-		 */
-		public static LoadFlag getEnum(final String value)
-		{
-			for (final LoadFlag v : LoadFlag.values())
-				if (v.name().equalsIgnoreCase(value))
-					return v;
-			throw new IllegalArgumentException();
-		}
-	}
+    /**
+     * The name of the BIOS, otherwise null if the ROM is not associated with a
+     * BIOS.
+     * 
+     * @param bios the BIOS name to set
+     * @return the BIOS name
+     */
+    protected @Getter @Setter String bios = null;
 
-	/**
-	 * Constructor for Rom with its associated parent Anyware.
-	 * 
-	 * @param parent the non-null parent system or game
-	 */
-	public Rom(final Anyware parent)
-	{
-		super(parent);
-	}
+    /**
+     * The in-memory offset, kept for XML export.
+     * 
+     * @param offset the in-memory offset to set
+     * @return the in-memory offset
+     */
+    protected @Getter @Setter Long offset = null;
 
-	/**
-	 * Get the ROM name. Includes the parent name if using merge mode and the ROM represents
-	 * a clone colliding with its parent.
-	 * 
-	 * @return the name of the ROM
-	 */
-	@Override
-	public String getName()
-	{
-		if (parent.getProfile().getSettings()!=null && parent.getProfile().getSettings().getMergeMode().isMerge())
-		{
-			if (merge == null)
-			{
-				if (isCollisionMode(false) && getParent().isClone())
-				{
-					return parent.name + "/" + name; //$NON-NLS-1$
-				}
-			}
-			else if (Boolean.FALSE.equals(parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class))) //$NON-NLS-1$
-				return merge;
-		}
-		return name;
-	}
+    /**
+     * The in-memory load flag, kept for XML export.
+     * 
+     * @param loadflag the load flag to set
+     * @return the load flag
+     */
+    protected @Getter @Setter LoadFlag loadflag = null;
 
-	/**
-	 * Get the full ROM name. Includes the parent name if merge mode is enabled, regardless of collisions.
-	 * 
-	 * @return the full hierarchical path/name of the ROM
-	 */
-	public String getFullName()
-	{
-		if (getParent().profile.getSettings()!=null && getParent().profile.getSettings().getMergeMode().isMerge())
-		{
-			if (merge != null && !parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class)) //$NON-NLS-1$
-				return parent.name + "/" + merge; //$NON-NLS-1$
-			return parent.name + "/" + name; //$NON-NLS-1$
-		}
-		return name;
-	}
+    /**
+     * The value to fill according to the load flag (software ROM only, kept for XML
+     * export).
+     * 
+     * @param value the fill value to set
+     * @return the fill value
+     */
+    protected @Getter @Setter String value = null;
 
-	/**
-	 * Evaluates whether this ROM is equivalent to another object based on checksums (SHA1, MD5, or CRC and size).
-	 * Falls back to reference equality checks.
-	 * 
-	 * @param obj the reference object to compare with
-	 * @return true if equivalent, false otherwise
-	 */
-	@Override
-	public boolean equals(final Object obj)
-	{
-		if (obj instanceof Rom rom)
-		{
-			if (rom.sha1 != null && sha1 != null)
-				return rom.sha1.equals(sha1);
-			if (rom.md5 != null && md5 != null)
-				return rom.md5.equals(md5);
-			if (rom.crc != null && crc != null)
-				return rom.crc.equals(crc) && rom.size == size;
-		}
-		return super.equals(obj);
-	}
+    /**
+     * Indicates whether this ROM is optional.
+     * 
+     * @param optional true if the ROM is optional, false otherwise
+     * @return true if the ROM is optional, false otherwise
+     */
+    protected @Getter @Setter boolean optional = false;
 
-	/**
-	 * Returns the hash code based on the best available checksum.
-	 * 
-	 * @return the hash code
-	 */
-	@Override
-	public int hashCode()
-	{
-		if (sha1 != null)
-			return sha1.hashCode();
-		if (md5 != null)
-			return md5.hashCode();
-		if (crc != null)
-			return crc.hashCode();
-		return super.hashCode();
-	}
+    /**
+     * The memory region where this ROM belongs, kept for XML export.
+     * 
+     * @param region the memory region to set
+     * @return the memory region
+     */
+    protected @Getter @Setter String region = null;
 
-	/**
-	 * Get the latest available hash string value for this ROM.
-	 * 
-	 * @return the hash string (SHA1, MD5, or CRC) or name if no checksums are available
-	 */
-	public String hashString()
-	{
-		if (sha1 != null)
-			return sha1;
-		if (md5 != null)
-			return md5;
-		if (crc != null)
-			return crc;
-		return getName();
-	}
+    /**
+     * The dump date of this ROM, kept for XML export.
+     * 
+     * @param date the dump date to set
+     * @return the dump date
+     */
+    protected @Getter @Setter String date = null;
 
-	/**
-	 * Converts a list of ROMs into a map indexed by their normalized names.
-	 * 
-	 * @param roms the list of ROMs to map
-	 * @return a map of ROMs by name
-	 */
-	public static Map<String, Rom> getRomsByName(final List<Rom> roms)
-	{
-		return roms.stream().collect(Collectors.toMap(Rom::getNormalizedName, r -> r, (n, r) -> n));
-	}
+    /**
+     * Possible Load Flags definitions. Definitions are uppercase to avoid java
+     * keyword collisions (e.g., continue), but are serialized as lowercase strings.
+     * 
+     * @author optyfr
+     * @since 1.0
+     */
+    public enum LoadFlag implements Serializable {
+        /**
+         * Load 16-bit byte.
+         */
+        LOAD16_BYTE,
 
-	/**
-	 * Tries to find the ROM status recursively across parents and also in clones (if in merged mode).
-	 * 
-	 * @param parent the Anyware parent of the ROM
-	 * @param rom the Rom whose status is to be resolved
-	 * @return the resolved EntityStatus, or null if not found
-	 */
-	private EntityStatus findRomStatus(final Anyware parent, final Rom rom)
-	{
-		for (final Rom r : parent.getRoms())
-		{
-			if (rom != r && rom.equals(r))
-			{
-				if(r.ownStatus != EntityStatus.UNKNOWN)
-					return r.ownStatus;
-				break;
-			}
-		}
-		if (parent.parent == null)
-		{
-			if (parent.isRomOf() && rom.merge != null)
-				return EntityStatus.OK;
-			return null;
-		}
-		// find same rom in parent clone (if any and recursively)
-		final var status = findRomStatusMerge(parent, rom);
-		if (status != null)
-			return status;
-		for (final Rom r : parent.getParent().getRoms())
-		{
-			if (rom.equals(r))
-				return r.getStatus();
-		}
-		if (parent.parent.parent != null)
-			return findRomStatus(parent.getParent(), rom);
-		return null;
-	}
+        /**
+         * Load 16-bit word.
+         */
+        LOAD16_WORD,
 
-	/**
-	 * Resolves ROM status across clones in merged mode.
-	 * 
-	 * @param parent the parent Anyware system
-	 * @param rom the Rom whose status is to be resolved
-	 * @return the clone status or null if not in merge mode or not resolved
-	 */
-	private EntityStatus findRomStatusMerge(final Anyware parent, final Rom rom)
-	{
-		if (!getParent().profile.getSettings().getMergeMode().isMerge())
-			return null;
-		return parent.getParent().getCloneRomStatus(rom);
-	}
+        /**
+         * Load 16-bit word with swapped bytes.
+         */
+        LOAD16_WORD_SWAP,
 
-	/**
-	 * Returns the final status of this ROM, resolving it dynamically from parent/clones if necessary.
-	 * 
-	 * @return the resolved EntityStatus
-	 */
-	@Override
-	public EntityStatus getStatus()
-	{
-		if (name.isEmpty())
-			return EntityStatus.OK;
-		if (dumpStatus == Status.nodump)
-			return EntityStatus.OK;
-		if (ownStatus == EntityStatus.UNKNOWN)
-		{
-			final EntityStatus status = findRomStatus(getParent(), this);
-			if (status != null)
-				return status;
-		}
-		return ownStatus;
-	}
+        /**
+         * Load 32-bit byte.
+         */
+        LOAD32_BYTE,
 
-	/**
-	 * Export the ROM definition as a XML element inside a DAT file structure.
-	 * 
-	 * @param writer the EnhancedXMLStreamWriter used to write the XML output
-	 * @param is_mame true if writing MAME-compatible XML format, false for Logiqx format
-	 * @throws XMLStreamException if an XML stream error occurs
-	 */
-	public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException
-	{
-		if (parent instanceof Software)
-		{
-			writer.writeElement(ROM_STR, //$NON-NLS-1$
-					new SimpleAttribute(NAME_STR, name), //$NON-NLS-1$
-					new SimpleAttribute(SIZE_STR, size), //$NON-NLS-1$
-					new SimpleAttribute(CRC_STR, crc), //$NON-NLS-1$
-					new SimpleAttribute(SHA1_STR, sha1), //$NON-NLS-1$
-					new SimpleAttribute(MERGE_STR, merge), //$NON-NLS-1$
-					new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), //$NON-NLS-1$
-					new SimpleAttribute("value", value), //$NON-NLS-1$
-					new SimpleAttribute("loadflag", loadflag), //$NON-NLS-1$
-					new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
-			);
-		}
-		else if (is_mame)
-		{
-			writer.writeElement(ROM_STR, //$NON-NLS-1$
-					new SimpleAttribute(NAME_STR, name), //$NON-NLS-1$
-					new SimpleAttribute("bios", bios), //$NON-NLS-1$
-					new SimpleAttribute(SIZE_STR, size), //$NON-NLS-1$
-					new SimpleAttribute(CRC_STR, crc), //$NON-NLS-1$
-					new SimpleAttribute(SHA1_STR, sha1), //$NON-NLS-1$
-					new SimpleAttribute(MERGE_STR, merge), //$NON-NLS-1$
-					new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), //$NON-NLS-1$
-					new SimpleAttribute("optional", optional ? "yes" : null), //$NON-NLS-1$ //$NON-NLS-2$
-					new SimpleAttribute("region", region), //$NON-NLS-1$
-					new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
-			);
-		}
-		else
-		{
-			writer.writeElement(ROM_STR, //$NON-NLS-1$
-					new SimpleAttribute(NAME_STR, name), //$NON-NLS-1$
-					new SimpleAttribute(SIZE_STR, size), //$NON-NLS-1$
-					new SimpleAttribute(CRC_STR, crc), //$NON-NLS-1$
-					new SimpleAttribute(SHA1_STR, sha1), //$NON-NLS-1$
-					new SimpleAttribute(MD5_STR, md5), //$NON-NLS-1$
-					new SimpleAttribute(MERGE_STR, merge), //$NON-NLS-1$
-					new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), //$NON-NLS-1$
-					new SimpleAttribute("date", date) //$NON-NLS-1$
-			);
-		}
-	}
+        /**
+         * Load 32-bit word.
+         */
+        LOAD32_WORD,
+
+        /**
+         * Load 32-bit word with swapped bytes.
+         */
+        LOAD32_WORD_SWAP,
+
+        /**
+         * Load 32-bit double-word.
+         */
+        LOAD32_DWORD,
+
+        /**
+         * Load 64-bit word.
+         */
+        LOAD64_WORD,
+
+        /**
+         * Load 64-bit word with swapped bytes.
+         */
+        LOAD64_WORD_SWAP,
+
+        /**
+         * Reload action.
+         */
+        RELOAD,
+
+        /**
+         * Fill action.
+         */
+        FILL,
+
+        /**
+         * Continue action.
+         */
+        CONTINUE,
+
+        /**
+         * Reload plain action.
+         */
+        RELOAD_PLAIN,
+
+        /**
+         * Ignore action.
+         */
+        IGNORE;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
+
+        /**
+         * Resolves the given string value into its matching LoadFlag.
+         * 
+         * @param value the string value to match
+         * @return the matching LoadFlag enum element
+         * @throws IllegalArgumentException if no match is found
+         */
+        public static LoadFlag getEnum(final String value) {
+            for (final LoadFlag v : LoadFlag.values())
+                if (v.name().equalsIgnoreCase(value))
+                    return v;
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /**
+     * Constructor for Rom with its associated parent Anyware.
+     * 
+     * @param parent the non-null parent system or game
+     */
+    public Rom(final Anyware parent) {
+        super(parent);
+    }
+
+    /**
+     * Get the ROM name. Includes the parent name if using merge mode and the ROM
+     * represents a clone colliding with its parent.
+     * 
+     * @return the name of the ROM
+     */
+    @Override
+    public String getName() {
+        if (parent.getProfile().getSettings() != null && parent.getProfile().getSettings().getMergeMode().isMerge()) {
+            if (merge == null) {
+                if (isCollisionMode(false) && getParent().isClone()) {
+                    return parent.name + "/" + name; //$NON-NLS-1$
+                }
+            } else if (Boolean.FALSE.equals(parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class))) // $NON-NLS-1$
+                return merge;
+        }
+        return name;
+    }
+
+    /**
+     * Get the full ROM name. Includes the parent name if merge mode is enabled,
+     * regardless of collisions.
+     * 
+     * @return the full hierarchical path/name of the ROM
+     */
+    public String getFullName() {
+        if (getParent().profile.getSettings() != null && getParent().profile.getSettings().getMergeMode().isMerge()) {
+            if (merge != null && !parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class)) // $NON-NLS-1$
+                return parent.name + "/" + merge; //$NON-NLS-1$
+            return parent.name + "/" + name; //$NON-NLS-1$
+        }
+        return name;
+    }
+
+    /**
+     * Evaluates whether this ROM is equivalent to another object based on checksums
+     * (SHA1, MD5, or CRC and size). Falls back to reference equality checks.
+     * 
+     * @param obj the reference object to compare with
+     * @return true if equivalent, false otherwise
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof Rom rom) {
+            if (rom.sha1 != null && sha1 != null)
+                return rom.sha1.equals(sha1);
+            if (rom.md5 != null && md5 != null)
+                return rom.md5.equals(md5);
+            if (rom.crc != null && crc != null)
+                return rom.crc.equals(crc) && rom.size == size;
+        }
+        return super.equals(obj);
+    }
+
+    /**
+     * Returns the hash code based on the best available checksum.
+     * 
+     * @return the hash code
+     */
+    @Override
+    public int hashCode() {
+        if (sha1 != null)
+            return sha1.hashCode();
+        if (md5 != null)
+            return md5.hashCode();
+        if (crc != null)
+            return crc.hashCode();
+        return super.hashCode();
+    }
+
+    /**
+     * Get the latest available hash string value for this ROM.
+     * 
+     * @return the hash string (SHA1, MD5, or CRC) or name if no checksums are
+     *         available
+     */
+    public String hashString() {
+        if (sha1 != null)
+            return sha1;
+        if (md5 != null)
+            return md5;
+        if (crc != null)
+            return crc;
+        return getName();
+    }
+
+    /**
+     * Converts a list of ROMs into a map indexed by their normalized names.
+     * 
+     * @param roms the list of ROMs to map
+     * @return a map of ROMs by name
+     */
+    public static Map<String, Rom> getRomsByName(final List<Rom> roms) {
+        return roms.stream().collect(Collectors.toMap(Rom::getNormalizedName, r -> r, (n, r) -> n));
+    }
+
+    /**
+     * Tries to find the ROM status recursively across parents and also in clones
+     * (if in merged mode).
+     * 
+     * @param parent the Anyware parent of the ROM
+     * @param rom    the Rom whose status is to be resolved
+     * @return the resolved EntityStatus, or null if not found
+     */
+    private EntityStatus findRomStatus(final Anyware parent, final Rom rom) {
+        for (final Rom r : parent.getRoms()) {
+            if (rom != r && rom.equals(r)) {
+                if (r.ownStatus != EntityStatus.UNKNOWN)
+                    return r.ownStatus;
+                break;
+            }
+        }
+        if (parent.parent == null) {
+            if (parent.isRomOf() && rom.merge != null)
+                return EntityStatus.OK;
+            return null;
+        }
+        // find same rom in parent clone (if any and recursively)
+        final var status = findRomStatusMerge(parent, rom);
+        if (status != null)
+            return status;
+        for (final Rom r : parent.getParent().getRoms()) {
+            if (rom.equals(r))
+                return r.getStatus();
+        }
+        if (parent.parent.parent != null)
+            return findRomStatus(parent.getParent(), rom);
+        return null;
+    }
+
+    /**
+     * Resolves ROM status across clones in merged mode.
+     * 
+     * @param parent the parent Anyware system
+     * @param rom    the Rom whose status is to be resolved
+     * @return the clone status or null if not in merge mode or not resolved
+     */
+    private EntityStatus findRomStatusMerge(final Anyware parent, final Rom rom) {
+        if (!getParent().profile.getSettings().getMergeMode().isMerge())
+            return null;
+        return parent.getParent().getCloneRomStatus(rom);
+    }
+
+    /**
+     * Returns the final status of this ROM, resolving it dynamically from
+     * parent/clones if necessary.
+     * 
+     * @return the resolved EntityStatus
+     */
+    @Override
+    public EntityStatus getStatus() {
+        if (name.isEmpty())
+            return EntityStatus.OK;
+        if (dumpStatus == Status.nodump)
+            return EntityStatus.OK;
+        if (ownStatus == EntityStatus.UNKNOWN) {
+            final EntityStatus status = findRomStatus(getParent(), this);
+            if (status != null)
+                return status;
+        }
+        return ownStatus;
+    }
+
+    /**
+     * Export the ROM definition as a XML element inside a DAT file structure.
+     * 
+     * @param writer  the EnhancedXMLStreamWriter used to write the XML output
+     * @param is_mame true if writing MAME-compatible XML format, false for Logiqx
+     *                format
+     * @throws XMLStreamException if an XML stream error occurs
+     */
+    public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException {
+        if (parent instanceof Software) {
+            writer.writeElement(ROM_STR, // $NON-NLS-1$
+                    new SimpleAttribute(NAME_STR, name), // $NON-NLS-1$
+                    new SimpleAttribute(SIZE_STR, size), // $NON-NLS-1$
+                    new SimpleAttribute(CRC_STR, crc), // $NON-NLS-1$
+                    new SimpleAttribute(SHA1_STR, sha1), // $NON-NLS-1$
+                    new SimpleAttribute(MERGE_STR, merge), // $NON-NLS-1$
+                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), // $NON-NLS-1$
+                    new SimpleAttribute("value", value), //$NON-NLS-1$
+                    new SimpleAttribute("loadflag", loadflag), //$NON-NLS-1$
+                    new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
+            );
+        } else if (is_mame) {
+            writer.writeElement(ROM_STR, // $NON-NLS-1$
+                    new SimpleAttribute(NAME_STR, name), // $NON-NLS-1$
+                    new SimpleAttribute("bios", bios), //$NON-NLS-1$
+                    new SimpleAttribute(SIZE_STR, size), // $NON-NLS-1$
+                    new SimpleAttribute(CRC_STR, crc), // $NON-NLS-1$
+                    new SimpleAttribute(SHA1_STR, sha1), // $NON-NLS-1$
+                    new SimpleAttribute(MERGE_STR, merge), // $NON-NLS-1$
+                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), // $NON-NLS-1$
+                    new SimpleAttribute("optional", optional ? "yes" : null), //$NON-NLS-1$ //$NON-NLS-2$
+                    new SimpleAttribute("region", region), //$NON-NLS-1$
+                    new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
+            );
+        } else {
+            writer.writeElement(ROM_STR, // $NON-NLS-1$
+                    new SimpleAttribute(NAME_STR, name), // $NON-NLS-1$
+                    new SimpleAttribute(SIZE_STR, size), // $NON-NLS-1$
+                    new SimpleAttribute(CRC_STR, crc), // $NON-NLS-1$
+                    new SimpleAttribute(SHA1_STR, sha1), // $NON-NLS-1$
+                    new SimpleAttribute(MD5_STR, md5), // $NON-NLS-1$
+                    new SimpleAttribute(MERGE_STR, merge), // $NON-NLS-1$
+                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), // $NON-NLS-1$
+                    new SimpleAttribute("date", date) //$NON-NLS-1$
+            );
+        }
+    }
 
 }

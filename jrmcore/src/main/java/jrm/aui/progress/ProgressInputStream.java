@@ -9,71 +9,62 @@ import java.io.InputStream;
  *
  * @author optyfr
  */
-public final class ProgressInputStream extends FilterInputStream
-{
-	
-	/** The value. */
-	private int value;
-	
-	/** Progress handler inteface */
-	private ProgressHandler progress;
+public final class ProgressInputStream extends FilterInputStream {
 
-	/**
-	 * Instantiates a new progress input stream.
-	 *
-	 * @param in the in
-	 * @param len the len
-	 */
-	public ProgressInputStream(final InputStream in, final Integer len, final ProgressHandler progress)
-	{
-		super(in);
-		this.progress = progress;
-		value = 0;
-		progress.setProgress(null, value, len);
-	}
+    /** The value. */
+    private int value;
 
-	@Override
-	public int read() throws IOException
-	{
-		final int ret = super.read();
-		if (ret != -1)
-			progress.setProgress(null, ++value);
-		return ret;
-	}
+    /** Progress handler inteface */
+    private ProgressHandler progress;
 
-	@Override
-	public int read(final byte[] b) throws IOException
-	{
-		final int ret = super.read(b);
-		if (ret != -1)
-		{
-			value += ret;
-			progress.setProgress(null, value);
-		}
-		return ret;
-	}
+    /**
+     * Instantiates a new progress input stream.
+     *
+     * @param in  the in
+     * @param len the len
+     */
+    public ProgressInputStream(final InputStream in, final Integer len, final ProgressHandler progress) {
+        super(in);
+        this.progress = progress;
+        value = 0;
+        progress.setProgress(null, value, len);
+    }
 
-	@Override
-	public int read(final byte[] b, final int off, final int len) throws IOException
-	{
-		final int ret = super.read(b, off, len);
-		if (ret != -1)
-		{
-			value += ret;
-			progress.setProgress(null, value);
-		}
-		return ret;
-	}
+    @Override
+    public int read() throws IOException {
+        final int ret = super.read();
+        if (ret != -1)
+            progress.setProgress(null, ++value);
+        return ret;
+    }
 
-	@Override
-	public long skip(final long n) throws IOException
-	{
-		final long ret = super.skip(n);
-		if (ret != -1)
-		{
-			value += ret;
-			progress.setProgress(null, value);
-		}
-		return ret;
-	}
+    @Override
+    public int read(final byte[] b) throws IOException {
+        final int ret = super.read(b);
+        if (ret != -1) {
+            value += ret;
+            progress.setProgress(null, value);
+        }
+        return ret;
+    }
+
+    @Override
+    public int read(final byte[] b, final int off, final int len) throws IOException {
+        final int ret = super.read(b, off, len);
+        if (ret != -1) {
+            value += ret;
+            progress.setProgress(null, value);
+        }
+        return ret;
+    }
+
+    @Override
+    public long skip(final long n) throws IOException {
+        final long ret = super.skip(n);
+        if (ret != -1) {
+            value += ret;
+            progress.setProgress(null, value);
+        }
+        return ret;
+    }
 }

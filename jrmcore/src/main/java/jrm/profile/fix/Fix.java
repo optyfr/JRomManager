@@ -40,124 +40,120 @@ import lombok.val;
  * Orchestrates the application of fixes, repairs, and container actions
  * determined by a prior scan across the user's ROM and game sets.
  * <p>
- * This class coordinates virtual multi-threaded execution pools to perform parallel processing of queued actions,
- * updates visual progress bars, backups altered data, and stores session timing statistics.
+ * This class coordinates virtual multi-threaded execution pools to perform
+ * parallel processing of queued actions, updates visual progress bars, backups
+ * altered data, and stores session timing statistics.
  * </p>
  * 
  * @author optyfr
  * @since 1.0
  */
-public class Fix
-{
-	/**
-	 * Retain the scan result from which this class will apply fixes from defined actions.
-	 */
-	private final Scan currScan;
+public class Fix {
+    /**
+     * Retain the scan result from which this class will apply fixes from defined
+     * actions.
+     */
+    private final Scan currScan;
 
-	/**
-	 * Constructs a new {@code Fix} coordinator and immediately launches the fixing pipeline.
-	 * 
-	 * @param currProfile the active {@link Profile} from which settings are read and updated
-	 * @param currScan the active {@link Scan} containing action definitions to process
-	 * @param progress the UI progress feedback visual handler
-	 */
-	public Fix(final Profile currProfile, final Scan currScan, final ProgressHandler progress)
-	{
-		this.currScan = currScan;
+    /**
+     * Constructs a new {@code Fix} coordinator and immediately launches the fixing
+     * pipeline.
+     * 
+     * @param currProfile the active {@link Profile} from which settings are read
+     *                    and updated
+     * @param currScan    the active {@link Scan} containing action definitions to
+     *                    process
+     * @param progress    the UI progress feedback visual handler
+     */
+    public Fix(final Profile currProfile, final Scan currScan, final ProgressHandler progress) {
+        this.currScan = currScan;
 
-		val useParallelism = currProfile.getProperty(ProfileSettingsEnum.use_parallelism, Boolean.class); // $NON-NLS-1$
-		val nThreads = useParallelism ? currProfile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
+        val useParallelism = currProfile.getProperty(ProfileSettingsEnum.use_parallelism, Boolean.class); // $NON-NLS-1$
+        val nThreads = useParallelism ? currProfile.getSession().getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 
-		final long start = System.currentTimeMillis();
-		
-		/*
-		 * Initialize global progression
-		 */
-		final var i = new AtomicInteger(0);
-		final var max = new AtomicInteger(0);
-		currScan.actions.forEach(actions -> {
-			max.addAndGet(actions.size());
-			actions.forEach(action->max.addAndGet(action.count() + (int)(action.estimatedSize()>>20)));
-		});
-		progress.setProgress(currProfile.getSession().getMsgs().getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
-		
-		// foreach ordered action groups
-		currScan.actions.forEach(actions -> {
-			if(!actions.isEmpty())
-			{
-				final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
-				// resets progression parallelism (needed since thread IDs may change between two parallel streaming)
-				progress.setInfos(nThreads, useParallelism);
-				try (final var mt = new MultiThreadingVirtual<ContainerAction>("fix", progress, nThreads, action -> doAction(currProfile, progress, i, done, action)))
-				{
-					mt.start(actions.stream().sorted(ContainerAction.rcomparator()));
-				}
-				// close all open FS from backup (if the last actions was backup)
-				if (!done.isEmpty() && done.get(0) instanceof BackupContainer)
-					BackupContainer.closeAllFS();
-				// remove all done actions
-				actions.removeAll(done);
-				// this actions group is finished, clear progression status
-				progress.clearInfos();
-				if (!actions.isEmpty())
-					Log.warn(() -> "Missed " + actions.size() + " actions"); //$NON-NLS-1$
-			}
-		});		
-		
-		// reset progression to normal before leaving
-		progress.setInfos(1,false);
-		// set stats last fixed date to 'now'
-		currProfile.getNfo().getStats().setFixed(new Date());
-		
-		// output to console timing information
-		Log.info(() -> "Fix total duration for " + currProfile.getNfo().getName() + " : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
-	}
+        final long start = System.currentTimeMillis();
 
-	/**
-	 * Internal worker method executing a single container action in the multi-threading pool context.
-	 * 
-	 * @param currProfile the active {@link Profile} context
-	 * @param progress the active UI progress status tracker
-	 * @param i global task progression counter
-	 * @param done thread-safe list storing successfully processed actions
-	 * @param action the actual container repair task to apply
-	 */
-	private void doAction(final Profile currProfile, final ProgressHandler progress, final AtomicInteger i, final List<ContainerAction> done, ContainerAction action)
-	{
-		if (progress.isCancel())
-			return;
-		try
-		{
-			if (!action.doAction(currProfile.getSession(), progress)) // do action...
-			{
-				Log.warn(()-> "Action " + action.toString() +" has failed, remaining actions processing will be cancelled");
-				progress.doCancel(); // ... and cancel all if it failed
-			}
-			else
-				done.add(action); // add to "done" list successful action
-			progress.setProgress("", i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression
-		}
-		catch (final BreakException be)
-		{	// special catch case from BreakException thrown from underlying streams
-			progress.doCancel();
-		}
-		catch (final Exception e)
-		{	// oups! something unexpected happened
-			progress.setProgress("");
-			Log.err(e.getMessage(), e);
-		}
-	}
+        /*
+         * Initialize global progression
+         */
+        final var i = new AtomicInteger(0);
+        final var max = new AtomicInteger(0);
+        currScan.actions.forEach(actions -> {
+            max.addAndGet(actions.size());
+            actions.forEach(action -> max.addAndGet(action.count() + (int) (action.estimatedSize() >> 20)));
+        });
+        progress.setProgress(currProfile.getSession().getMsgs().getString("Fix.Fixing"), i.get(), max.get()); //$NON-NLS-1$
 
-	/**
-	 * Returns the count of remaining actions that have not yet been executed.
-	 * 
-	 * @return the number of pending actions, or 0 if all were processed successfully
-	 */
-	public int getActionsRemain()
-	{
-		final var actionsRemain = new AtomicInteger(0);
-		currScan.actions.forEach(actions -> actionsRemain.addAndGet(actions.size()));
-		return actionsRemain.get();
-	}
+        // foreach ordered action groups
+        currScan.actions.forEach(actions -> {
+            if (!actions.isEmpty()) {
+                final List<ContainerAction> done = Collections.synchronizedList(new ArrayList<ContainerAction>());
+                // resets progression parallelism (needed since thread IDs may change between
+                // two parallel streaming)
+                progress.setInfos(nThreads, useParallelism);
+                try (final var mt = new MultiThreadingVirtual<ContainerAction>("fix", progress, nThreads, action -> doAction(currProfile, progress, i, done, action))) {
+                    mt.start(actions.stream().sorted(ContainerAction.rcomparator()));
+                }
+                // close all open FS from backup (if the last actions was backup)
+                if (!done.isEmpty() && done.get(0) instanceof BackupContainer)
+                    BackupContainer.closeAllFS();
+                // remove all done actions
+                actions.removeAll(done);
+                // this actions group is finished, clear progression status
+                progress.clearInfos();
+                if (!actions.isEmpty())
+                    Log.warn(() -> "Missed " + actions.size() + " actions"); //$NON-NLS-1$
+            }
+        });
+
+        // reset progression to normal before leaving
+        progress.setInfos(1, false);
+        // set stats last fixed date to 'now'
+        currProfile.getNfo().getStats().setFixed(new Date());
+
+        // output to console timing information
+        Log.info(() -> "Fix total duration for " + currProfile.getNfo().getName() + " : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
+    }
+
+    /**
+     * Internal worker method executing a single container action in the
+     * multi-threading pool context.
+     * 
+     * @param currProfile the active {@link Profile} context
+     * @param progress    the active UI progress status tracker
+     * @param i           global task progression counter
+     * @param done        thread-safe list storing successfully processed actions
+     * @param action      the actual container repair task to apply
+     */
+    private void doAction(final Profile currProfile, final ProgressHandler progress, final AtomicInteger i, final List<ContainerAction> done, ContainerAction action) {
+        if (progress.isCancel())
+            return;
+        try {
+            if (!action.doAction(currProfile.getSession(), progress)) // do action...
+            {
+                Log.warn(() -> "Action " + action.toString() + " has failed, remaining actions processing will be cancelled");
+                progress.doCancel(); // ... and cancel all if it failed
+            } else
+                done.add(action); // add to "done" list successful action
+            progress.setProgress("", i.addAndGet(1 + action.count() + (int) (action.estimatedSize() >> 20))); // update progression
+        } catch (final BreakException be) { // special catch case from BreakException thrown from underlying streams
+            progress.doCancel();
+        } catch (final Exception e) { // oups! something unexpected happened
+            progress.setProgress("");
+            Log.err(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Returns the count of remaining actions that have not yet been executed.
+     * 
+     * @return the number of pending actions, or 0 if all were processed
+     *         successfully
+     */
+    public int getActionsRemain() {
+        final var actionsRemain = new AtomicInteger(0);
+        currScan.actions.forEach(actions -> actionsRemain.addAndGet(actions.size()));
+        return actionsRemain.get();
+    }
 
 }

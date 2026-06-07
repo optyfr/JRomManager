@@ -16,35 +16,45 @@
  */
 
 /**
- * Provides the domain model classes and data structures representing arcade and computer systems,
- * machines, software, and their associated sub-entities (such as ROMs, Disks, and Samples) for 
- * JRomManager profiles.
+ * Provides the domain model classes and data structures representing arcade and
+ * computer systems, machines, software, and their associated sub-entities (such
+ * as ROMs, Disks, and Samples) for JRomManager profiles.
  * 
  * <p>
- * This package forms the core representation of emulator metadata database files (DAT files) inside the application.
- * The primary abstraction is {@link jrm.profile.data.Anyware}, which serves as the common base class for 
+ * This package forms the core representation of emulator metadata database
+ * files (DAT files) inside the application. The primary abstraction is
+ * {@link jrm.profile.data.Anyware}, which serves as the common base class for
  * systems and games (e.g., Arcade Machines or Software List entries).
  * </p>
  * 
  * <h2>Key Concepts and Structure</h2>
  * <ul>
- *   <li><b>Systems and Entities:</b> An {@link jrm.profile.data.Anyware} is composed of zero or more 
- *   {@link jrm.profile.data.Rom}s, {@link jrm.profile.data.Disk}s, and {@link jrm.profile.data.Sample}s. These entities
- *   inherit from {@link jrm.profile.data.EntityBase} and implement status tracking.</li>
- *   
- *   <li><b>Parent-Clone Relationships:</b> Many systems are variations of a parent game. The model keeps 
- *   track of clone states, referencing the parent system to support diverse merging schemes during file scanning and reconstruction.</li>
- *   
- *   <li><b>BIOS and Device Relationships:</b> Some systems depend on shared BIOS files or hardware device components 
- *   which are nested and fetched during validation and file filtering.</li>
- *   
- *   <li><b>Merging Modes support:</b> Support is provided for different rom merging styles, including:
- *     <ul>
- *       <li><i>Split:</i> Clone zip files only contain ROMs that are unique to them, whereas parent zip files contain the common ROMs.</li>
- *       <li><i>Merge:</i> Clone ROMs are merged directly into the parent's zip file.</li>
- *       <li><i>No Merge:</i> Clone zip files contain all required ROMs, repeating files that also exist in the parent.</li>
- *     </ul>
- *   </li>
+ * <li><b>Systems and Entities:</b> An {@link jrm.profile.data.Anyware} is
+ * composed of zero or more {@link jrm.profile.data.Rom}s,
+ * {@link jrm.profile.data.Disk}s, and {@link jrm.profile.data.Sample}s. These
+ * entities inherit from {@link jrm.profile.data.EntityBase} and implement
+ * status tracking.</li>
+ * 
+ * <li><b>Parent-Clone Relationships:</b> Many systems are variations of a
+ * parent game. The model keeps track of clone states, referencing the parent
+ * system to support diverse merging schemes during file scanning and
+ * reconstruction.</li>
+ * 
+ * <li><b>BIOS and Device Relationships:</b> Some systems depend on shared BIOS
+ * files or hardware device components which are nested and fetched during
+ * validation and file filtering.</li>
+ * 
+ * <li><b>Merging Modes support:</b> Support is provided for different rom
+ * merging styles, including:
+ * <ul>
+ * <li><i>Split:</i> Clone zip files only contain ROMs that are unique to them,
+ * whereas parent zip files contain the common ROMs.</li>
+ * <li><i>Merge:</i> Clone ROMs are merged directly into the parent's zip
+ * file.</li>
+ * <li><i>No Merge:</i> Clone zip files contain all required ROMs, repeating
+ * files that also exist in the parent.</li>
+ * </ul>
+ * </li>
  * </ul>
  * 
  * @author optyfr

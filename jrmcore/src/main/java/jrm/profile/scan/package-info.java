@@ -16,9 +16,10 @@
  */
 
 /**
- * Contains core directory scanners, DAT-to-directory exporters, and repair detection systems.
- * This package implements parallel file and archive inspection algorithms, hashing strategies (CRC32, MD5, SHA-1),
- * and MAME-compatible SoftwareList / XML database builders.
+ * Contains core directory scanners, DAT-to-directory exporters, and repair
+ * detection systems. This package implements parallel file and archive
+ * inspection algorithms, hashing strategies (CRC32, MD5, SHA-1), and
+ * MAME-compatible SoftwareList / XML database builders.
  *
  * @author optyfr
  * @since 1.0

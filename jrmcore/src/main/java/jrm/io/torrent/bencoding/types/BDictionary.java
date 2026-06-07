@@ -22,122 +22,114 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Representation of a bencoded dictionary.
- * Maps {@link BByteString} keys to any other {@link IBencodable} values, preserving order.
+ * Representation of a bencoded dictionary. Maps {@link BByteString} keys to any
+ * other {@link IBencodable} values, preserving order.
  * 
  * @author Christophe De Troyer
  * @author Optyfr
  */
-public class BDictionary implements IBencodable
-{
-	/**
-	 * The internal backing map storing the key-value associations.
-	 * Uses LinkedHashMap to preserve the insertion order of keys.
-	 */
-	private final Map<BByteString, IBencodable> dictionary;
+public class BDictionary implements IBencodable {
+    /**
+     * The internal backing map storing the key-value associations. Uses
+     * LinkedHashMap to preserve the insertion order of keys.
+     */
+    private final Map<BByteString, IBencodable> dictionary;
 
-	/**
-	 * Constructs a new, empty bencoded dictionary.
-	 */
-	public BDictionary()
-	{
-		// LinkedHashMap to preserve order.
-		this.dictionary = new LinkedHashMap<>();
-	}
+    /**
+     * Constructs a new, empty bencoded dictionary.
+     */
+    public BDictionary() {
+        // LinkedHashMap to preserve order.
+        this.dictionary = new LinkedHashMap<>();
+    }
 
-	// Logic methods
+    // Logic methods
 
-	/**
-	 * Adds a key-value entry to this dictionary.
-	 *
-	 * @param key the byte string key
-	 * @param value the bencodable value associated with the key
-	 */
-	public void add(BByteString key, IBencodable value)
-	{
-		this.dictionary.put(key, value);
-	}
+    /**
+     * Adds a key-value entry to this dictionary.
+     *
+     * @param key   the byte string key
+     * @param value the bencodable value associated with the key
+     */
+    public void add(BByteString key, IBencodable value) {
+        this.dictionary.put(key, value);
+    }
 
-	/**
-	 * Finds and retrieves a value associated with the specified key.
-	 *
-	 * @param key the byte string key to look up
-	 * @return the associated bencodable object, or {@code null} if not found
-	 */
-	public Object find(BByteString key)
-	{
-		return dictionary.get(key);
-	}
+    /**
+     * Finds and retrieves a value associated with the specified key.
+     *
+     * @param key the byte string key to look up
+     * @return the associated bencodable object, or {@code null} if not found
+     */
+    public Object find(BByteString key) {
+        return dictionary.get(key);
+    }
 
-	// Bencoding
+    // Bencoding
 
-	/**
-	 * Returns the bencoded string format of this dictionary.
-	 * Format: {@code d<key1><value1>...<keyN><valueN>e} where all keys are strings.
-	 *
-	 * @return the standard bencoded string representation
-	 */
-	public String bencodedString()
-	{
-		final var sb = new StringBuilder();
-		sb.append("d"); //$NON-NLS-1$
-		for (Map.Entry<BByteString, IBencodable> entry : this.dictionary.entrySet())
-		{
-			sb.append(entry.getKey().bencodedString());
-			sb.append(entry.getValue().bencodedString());
-		}
-		sb.append("e"); //$NON-NLS-1$
-		return sb.toString();
-	}
+    /**
+     * Returns the bencoded string format of this dictionary. Format:
+     * {@code d<key1><value1>...<keyN><valueN>e} where all keys are strings.
+     *
+     * @return the standard bencoded string representation
+     */
+    public String bencodedString() {
+        final var sb = new StringBuilder();
+        sb.append("d"); //$NON-NLS-1$
+        for (Map.Entry<BByteString, IBencodable> entry : this.dictionary.entrySet()) {
+            sb.append(entry.getKey().bencodedString());
+            sb.append(entry.getValue().bencodedString());
+        }
+        sb.append("e"); //$NON-NLS-1$
+        return sb.toString();
+    }
 
-	/**
-	 * Encodes this dictionary into the standard bencoded byte array format.
-	 * Begins with 'd', followed by the concatenated bencoded keys and values, ending with 'e'.
-	 *
-	 * @return the bencoded byte array
-	 */
-	public byte[] bencode()
-	{
-		// Get the total size of the keys and values.
-		final var bytes = new ArrayList<Byte>();
-		bytes.add((byte) 'd');
+    /**
+     * Encodes this dictionary into the standard bencoded byte array format. Begins
+     * with 'd', followed by the concatenated bencoded keys and values, ending with
+     * 'e'.
+     *
+     * @return the bencoded byte array
+     */
+    public byte[] bencode() {
+        // Get the total size of the keys and values.
+        final var bytes = new ArrayList<Byte>();
+        bytes.add((byte) 'd');
 
-		for (Map.Entry<BByteString, IBencodable> entry : this.dictionary.entrySet())
-		{
-			final var keyBencoded = entry.getKey().bencode();
-			final var valBencoded = entry.getValue().bencode();
-			for (byte b : keyBencoded)
-				bytes.add(b);
-			for (byte b : valBencoded)
-				bytes.add(b);
-		}
-		bytes.add((byte) 'e');
-		var bencoded = new byte[bytes.size()];
+        for (Map.Entry<BByteString, IBencodable> entry : this.dictionary.entrySet()) {
+            final var keyBencoded = entry.getKey().bencode();
+            final var valBencoded = entry.getValue().bencode();
+            for (byte b : keyBencoded)
+                bytes.add(b);
+            for (byte b : valBencoded)
+                bytes.add(b);
+        }
+        bytes.add((byte) 'e');
+        var bencoded = new byte[bytes.size()];
 
-		for (var i = 0; i < bytes.size(); i++)
-			bencoded[i] = bytes.get(i);
+        for (var i = 0; i < bytes.size(); i++)
+            bencoded[i] = bytes.get(i);
 
-		return bencoded;
-	}
+        return bencoded;
+    }
 
-	// Overridden methods
+    // Overridden methods
 
-	/**
-	 * Returns a readable multi-line string representation of this dictionary's contents.
-	 *
-	 * @return the formatted string
-	 */
-	@Override
-	public String toString()
-	{
-		final var sb = new StringBuilder();
-		sb.append("\n[\n"); //$NON-NLS-1$
-		for (Map.Entry<BByteString, IBencodable> entry : this.dictionary.entrySet())
-		{
-			sb.append(entry.getKey()).append(" :: ").append(entry.getValue()).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		sb.append("]"); //$NON-NLS-1$
+    /**
+     * Returns a readable multi-line string representation of this dictionary's
+     * contents.
+     *
+     * @return the formatted string
+     */
+    @Override
+    public String toString() {
+        final var sb = new StringBuilder();
+        sb.append("\n[\n"); //$NON-NLS-1$
+        for (Map.Entry<BByteString, IBencodable> entry : this.dictionary.entrySet()) {
+            sb.append(entry.getKey()).append(" :: ").append(entry.getValue()).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        sb.append("]"); //$NON-NLS-1$
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 }

@@ -34,104 +34,86 @@ import net.lingala.zip4j.model.ZipParameters;
 
 /**
  * Delete an entry from its container
+ * 
  * @author optyfr
  *
  */
-public class DeleteEntry extends EntryAction
-{
-	private static final String DELETE_S_AT_S_FAILED = "delete %s@%s failed";
-	private static final String DELETE_ENTRY_DELETING = "DeleteEntry.Deleting";
+public class DeleteEntry extends EntryAction {
+    private static final String DELETE_S_AT_S_FAILED = "delete %s@%s failed";
+    private static final String DELETE_ENTRY_DELETING = "DeleteEntry.Deleting";
 
-	/**
-	 * constructor
-	 * @param entry the entry to delete
-	 */
-	public DeleteEntry(final Entry entry)
-	{
-		super(entry);
-	}
+    /**
+     * constructor
+     * 
+     * @param entry the entry to delete
+     */
+    public DeleteEntry(final Entry entry) {
+        super(entry);
+    }
 
-	@Override
-	public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max)
-	{
-		Path path = null;
-		try
-		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); //$NON-NLS-1$
-			path = dstfs.getPath(entry.getFile());
-			Files.deleteIfExists(path);
-			return true;
-		}
-		catch(final Exception e)
-		{
-			Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-		return false;
-	}
+    @Override
+    public boolean doAction(final Session session, final FileSystem dstfs, final ProgressHandler handler, int i, int max) {
+        Path path = null;
+        try {
+            handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); // $NON-NLS-1$
+            path = dstfs.getPath(entry.getFile());
+            Files.deleteIfExists(path);
+            return true;
+        } catch (final Exception e) {
+            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); // $NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
+        return false;
+    }
 
-	@Override
-	public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max)
-	{
-		Path path = null;
-		try
-		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); //$NON-NLS-1$
-			Log.info(() -> "remove " + entry.getFile() + " from " + zipf.getFile());
-			final var ziphdr = zipf.getFileHeader(ZipTools.toZipEntry(entry.getFile()));
-			if (ziphdr != null)
-				zipf.removeFile(ziphdr);
-			else
-			{
-				Log.info(() -> "ziphdr not found");
-				Log.info(zipf.getFileHeaders().stream().map(FileHeader::getFileName).collect(Collectors.joining(", ")));
-			}
-			return true;
-		}
-		catch(final Exception e)
-		{
-			Log.err(e.getMessage(), e);
-			Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-		return false;
-	}
+    @Override
+    public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max) {
+        Path path = null;
+        try {
+            handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); // $NON-NLS-1$
+            Log.info(() -> "remove " + entry.getFile() + " from " + zipf.getFile());
+            final var ziphdr = zipf.getFileHeader(ZipTools.toZipEntry(entry.getFile()));
+            if (ziphdr != null)
+                zipf.removeFile(ziphdr);
+            else {
+                Log.info(() -> "ziphdr not found");
+                Log.info(zipf.getFileHeaders().stream().map(FileHeader::getFileName).collect(Collectors.joining(", ")));
+            }
+            return true;
+        } catch (final Exception e) {
+            Log.err(e.getMessage(), e);
+            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); // $NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
+        return false;
+    }
 
-	@Override
-	public boolean doAction(final Session session, final Path target, final ProgressHandler handler, int i, int max)
-	{
-		Path path = null;
-		try
-		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); //$NON-NLS-1$
-			path = target.resolve(entry.getFile());
-			Files.deleteIfExists(path);
-			return true;
-		}
-		catch(final Exception e)
-		{
-			Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-		return false;
-	}
+    @Override
+    public boolean doAction(final Session session, final Path target, final ProgressHandler handler, int i, int max) {
+        Path path = null;
+        try {
+            handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); // $NON-NLS-1$
+            path = target.resolve(entry.getFile());
+            Files.deleteIfExists(path);
+            return true;
+        } catch (final Exception e) {
+            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); // $NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
+        return false;
+    }
 
-	@Override
-	public boolean doAction(final Session session, final Archive archive, final ProgressHandler handler, int i, int max)
-	{
-		try
-		{
-			handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); //$NON-NLS-1$
-			return archive.delete(entry.getFile()) == 0;
-		}
-		catch(final Exception e)
-		{
-			Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), entry.getRelFile())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-		return false;
-	}
+    @Override
+    public boolean doAction(final Session session, final Archive archive, final ProgressHandler handler, int i, int max) {
+        try {
+            handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); // $NON-NLS-1$
+            return archive.delete(entry.getFile()) == 0;
+        } catch (final Exception e) {
+            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), entry.getRelFile())); // $NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
+        return false;
+    }
 
-	@Override
-	public String toString()
-	{
-		return String.format(Messages.getString("DeleteEntry.Delete"), entry); //$NON-NLS-1$
-	}
+    @Override
+    public String toString() {
+        return String.format(Messages.getString("DeleteEntry.Delete"), entry); //$NON-NLS-1$
+    }
 
 }

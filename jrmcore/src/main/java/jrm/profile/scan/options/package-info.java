@@ -17,11 +17,13 @@
 
 /**
  * Provides option types, descriptor contracts, and settings configurations
- * governing the directory scanning, file rebuilding, format exports, automation pipeline
- * execution levels, and parent/clone resource merging styles.
+ * governing the directory scanning, file rebuilding, format exports, automation
+ * pipeline execution levels, and parent/clone resource merging styles.
  *
- * <p>These configurations control how ROM verification, repair, and hashing strategies
- * are handled within the core domain scanning layers.</p>
+ * <p>
+ * These configurations control how ROM verification, repair, and hashing
+ * strategies are handled within the core domain scanning layers.
+ * </p>
  *
  * @author optyfr
  * @since 1.0

@@ -21,36 +21,36 @@ import java.io.Serializable;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
- * Describes a filesystem directory that can eventually be linked to an {@link AnywareBase} set.
- * This class inherits from {@link Container} and represents uncompressed folders.
+ * Describes a filesystem directory that can eventually be linked to an
+ * {@link AnywareBase} set. This class inherits from {@link Container} and
+ * represents uncompressed folders.
  *
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public class Directory extends Container implements Serializable
-{
-	/**
-	 * Constructs a directory where the related database set is known.
-	 *
-	 * @param file the directory {@link File} object
-	 * @param relfile the relativized/relative directory path reference to show to the user
-	 * @param m the corresponding {@link AnywareBase} set
-	 */
-	public Directory(final File file, final File relfile, final AnywareBase m)
-	{
-		super(Type.DIR, file, relfile, m);
-	}
+public class Directory extends Container implements Serializable {
+    /**
+     * Constructs a directory where the related database set is known.
+     *
+     * @param file    the directory {@link File} object
+     * @param relfile the relativized/relative directory path reference to show to
+     *                the user
+     * @param m       the corresponding {@link AnywareBase} set
+     */
+    public Directory(final File file, final File relfile, final AnywareBase m) {
+        super(Type.DIR, file, relfile, m);
+    }
 
-	/**
-	 * Constructs a directory with no related database set.
-	 *
-	 * @param file the directory {@link File} object
-	 * @param relfile the relativized/relative directory path reference to show to the user
-	 * @param attr the directory basic file attributes
-	 */
-	public Directory(final File file, final File relfile, final BasicFileAttributes attr)
-	{
-		super(Type.DIR, file, relfile, attr);
-	}
+    /**
+     * Constructs a directory with no related database set.
+     *
+     * @param file    the directory {@link File} object
+     * @param relfile the relativized/relative directory path reference to show to
+     *                the user
+     * @param attr    the directory basic file attributes
+     */
+    public Directory(final File file, final File relfile, final BasicFileAttributes attr) {
+        super(Type.DIR, file, relfile, attr);
+    }
 
 }

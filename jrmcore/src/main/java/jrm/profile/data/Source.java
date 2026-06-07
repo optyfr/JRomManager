@@ -5,75 +5,72 @@ import java.util.Optional;
 import lombok.Getter;
 
 /**
- * A Source defines an origin metadata DAT source database used for importing files or generating profiles.
- * It tracks instances counts and maps name segments to properties keys.
+ * A Source defines an origin metadata DAT source database used for importing
+ * files or generating profiles. It tracks instances counts and maps name
+ * segments to properties keys.
  * 
  * @author optyfr
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public final class Source implements PropertyStub
-{
-	/**
-	 * Name of the source file or database.
-	 * 
-	 * @return the name of the source
-	 */
-	private final @Getter String name;
-	
-	/**
-	 * Instance count of games/systems referencing this source.
-	 * 
-	 * @return the count of references
-	 */
-	private @Getter int count = 1;
+public final class Source implements PropertyStub {
+    /**
+     * Name of the source file or database.
+     * 
+     * @return the name of the source
+     */
+    private final @Getter String name;
 
-	/**
-	 * Resolved property name linked to profile configurations.
-	 */
-	private final String propname;
+    /**
+     * Instance count of games/systems referencing this source.
+     * 
+     * @return the count of references
+     */
+    private @Getter int count = 1;
 
-	/**
-	 * Constructs a Source instance with a normalized property name mapping.
-	 * 
-	 * @param name the non-null name of the source
-	 */
-	public Source(String name)
-	{
-		this.name = name;
-		this.propname = "filter.sources." + name.replace('/', '_').substring(0, Optional.of(name.lastIndexOf('.')).filter(idx -> idx > 0).orElse(name.length()));
-	}
+    /**
+     * Resolved property name linked to profile configurations.
+     */
+    private final String propname;
 
-	/**
-	 * Increments the reference count of this source.
-	 * 
-	 * @return this Source instance for chaining
-	 */
-	public Source inc()
-	{
-		count++;
-		return this;
-	}
-	
-	/**
-	 * Get the property name of the current class.
-	 * 
-	 * @return the property name
-	 */
-	@Override
-	public String getPropertyName()
-	{
-		return propname;
-	}
+    /**
+     * Constructs a Source instance with a normalized property name mapping.
+     * 
+     * @param name the non-null name of the source
+     */
+    public Source(String name) {
+        this.name = name;
+        this.propname = "filter.sources." + name.replace('/', '_').substring(0, Optional.of(name.lastIndexOf('.')).filter(idx -> idx > 0).orElse(name.length()));
+    }
 
-	/**
-	 * Format into a user-readable string containing the source name and its reference count.
-	 * 
-	 * @return formatted description string
-	 */
-	@Override
-	public String toString()
-	{
-		return name + " (" + count + ")";
-	}
+    /**
+     * Increments the reference count of this source.
+     * 
+     * @return this Source instance for chaining
+     */
+    public Source inc() {
+        count++;
+        return this;
+    }
+
+    /**
+     * Get the property name of the current class.
+     * 
+     * @return the property name
+     */
+    @Override
+    public String getPropertyName() {
+        return propname;
+    }
+
+    /**
+     * Format into a user-readable string containing the source name and its
+     * reference count.
+     * 
+     * @return formatted description string
+     */
+    @Override
+    public String toString() {
+        return name + " (" + count + ")";
+    }
 }

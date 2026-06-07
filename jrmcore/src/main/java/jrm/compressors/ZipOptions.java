@@ -21,24 +21,23 @@ import lombok.Getter;
 
 /**
  * Zip supported levels of compression
+ * 
  * @author optyfr
  *
  */
-public enum ZipOptions
-{
-	STORE(Messages.getString("ZipOptions.STORE"), 0), //$NON-NLS-1$
-	FASTEST(Messages.getString("ZipOptions.FASTEST"), 1), //$NON-NLS-1$
-	FAST(Messages.getString("ZipOptions.FAST"), 3), //$NON-NLS-1$
-	NORMAL(Messages.getString("ZipOptions.NORMAL"), 5), //$NON-NLS-1$
-	MAXIMUM(Messages.getString("ZipOptions.MAXIMUM"), 7), //$NON-NLS-1$
-	ULTRA(Messages.getString("ZipOptions.ULTRA"), 9); //$NON-NLS-1$
+public enum ZipOptions {
+    STORE(Messages.getString("ZipOptions.STORE"), 0), //$NON-NLS-1$
+    FASTEST(Messages.getString("ZipOptions.FASTEST"), 1), //$NON-NLS-1$
+    FAST(Messages.getString("ZipOptions.FAST"), 3), //$NON-NLS-1$
+    NORMAL(Messages.getString("ZipOptions.NORMAL"), 5), //$NON-NLS-1$
+    MAXIMUM(Messages.getString("ZipOptions.MAXIMUM"), 7), //$NON-NLS-1$
+    ULTRA(Messages.getString("ZipOptions.ULTRA"), 9); //$NON-NLS-1$
 
-	private @Getter String desc;
-	private @Getter int level;
+    private @Getter String desc;
+    private @Getter int level;
 
-	private ZipOptions(final String desc, final int level)
-	{
-		this.desc = desc;
-		this.level = level;
-	}
+    private ZipOptions(final String desc, final int level) {
+        this.desc = desc;
+        this.level = level;
+    }
 }
