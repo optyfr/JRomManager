@@ -2,12 +2,13 @@ plugins {
 	id 'java' 
 	id 'application'
 	id "org.sonarqube"
-	id "de.undercouch.download" version "5.6.0"
+	id "de.undercouch.download" version "latest.release"
 	id "com.netflix.nebula.ospackage" version "11.11.2"
 	id "io.freefair.lombok" version "8.14.2"
 	id 'org.openjfx.javafxplugin' version '0.1.0'
 	id "org.beryx.jlink" version "3.1.3" apply false
 	id 'jacoco'
+    id "io.github.sgtsilvio.gradle.javadoc-links" version "0.10.0"
 }
 
 sonar {
@@ -93,7 +94,7 @@ repositories {
 			password = "\u0067hp_6DEjEzjpKxxDeQ5s39Wfm3wOMRTrxH2L20xf"
 		}
 	}
-	maven { url "https://jitpack.io" }
+	maven { url = "https://jitpack.io" }
 }
 
 configurations.all {
@@ -128,6 +129,15 @@ subprojects {
 	    targetCompatibility = JavaVersion.VERSION_21
 	}
 
+    tasks.withType(JavaCompile).configureEach {
+  //      options.compilerArgs += ['-Xlint:deprecation']
+        options.encoding = 'UTF-8'
+        options.release = (project.name == 'WebClient') ? 17 : 21
+    }
+    tasks.withType(AbstractTestTask).configureEach {
+        failOnNoDiscoveredTests = false
+    }
+
 	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
 	repositories {
 		mavenCentral()
@@ -138,7 +148,7 @@ subprojects {
 				password = "\u0067hp_6DEjEzjpKxxDeQ5s39Wfm3wOMRTrxH2L20xf"
 			}
 		}
-		maven { url "https://jitpack.io" }
+		maven { url = "https://jitpack.io" }
 	}
 
 	test {
@@ -193,20 +203,20 @@ project(':jrmcore') {
 	apply plugin: "eclipse"
 
 	dependencies {
-		implementation group: 'com.github.optyfr', name:'sevenzipjbindingallinone', version:'1.1'
-		implementation group: 'com.github.optyfr', name:'jtrrntzip', version:'1.3.1'
-		implementation group: 'commons-codec', name:'commons-codec', version:'1.+'
-		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
-		implementation group: 'org.apache.commons', name: 'commons-text', version:'1.+'
-		implementation group: 'org.apache.commons', name: 'commons-compress', version:'1.+'
+		implementation 'com.github.optyfr:sevenzipjbindingallinone:1.1'
+		implementation 'com.github.optyfr:jtrrntzip:1.3.1'
+		implementation 'commons-codec:commons-codec:1.+'
+		implementation 'commons-io:commons-io:2.+'
+		implementation 'org.apache.commons:commons-text:1.+'
+		implementation 'org.apache.commons:commons-compress:1.+'
 	//	implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding'
-		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
-		implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.+'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-		implementation group: 'net.lingala.zip4j', name: 'zip4j', version: 'latest.release'
+		implementation 'one.util:streamex:0.8.+'
+		implementation 'com.sun.activation:javax.activation:1.2.+'
+		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+		implementation 'net.lingala.zip4j:zip4j:latest.release'
 	
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
+		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
+		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
 		testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
 	}
 	jar {
@@ -218,8 +228,18 @@ project(':jrmcore') {
 		}
 	}
 	javadoc {
-		exclude '**/LICENSE'
-		source = sourceSets.main.allJava
+        dependsOn delombok
+        source = fileTree("$buildDir/generated/sources/delombok") {
+            include '**/*.java'
+        }
+        exclude '**/LICENSE'
+        options {
+            encoding = 'UTF-8'
+            memberLevel = JavadocMemberLevel.PUBLIC
+            outputLevel = JavadocOutputLevel.QUIET
+            addBooleanOption('Xdoclint:all', true)
+            addBooleanOption('html5', true)
+        }
 	}
 	apply plugin:'jacoco'
 }
@@ -243,13 +263,13 @@ project(':jrmcli') {
 	}
 	dependencies {
 		implementation project(':jrmcore')
-		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
-		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
-		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
+		implementation 'com.beust:jcommander:1.+'
+		implementation 'commons-io:commons-io:2.+'
+		implementation 'org.apache.commons:commons-lang3:3.+'
+		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 	
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
+		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
+		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
 	}
 	apply plugin: 'application'
@@ -309,16 +329,16 @@ project(':jrmstandalone') {
 	dependencies {
 		implementation project(':jrmcore')
 		implementation project(':res-icons')
-		implementation group: 'commons-codec', name:'commons-codec', version:'1.+'
-		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
-		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
-		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
-		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-		implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.+'
+		implementation 'commons-codec:commons-codec:1.+'
+		implementation 'com.beust:jcommander:1.+'
+		implementation 'commons-io:commons-io:2.+'
+		implementation 'org.apache.commons:commons-lang3:3.+'
+		implementation 'one.util:streamex:0.8.+'
+		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+		implementation 'com.sun.activation:javax.activation:1.2.+'
 	
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
-		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
+		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
+		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
 	}
 	apply plugin: 'application'
@@ -369,12 +389,12 @@ project(':jrmfx') {
 	dependencies {
 		implementation project(':jrmcore')
 		implementation project(':res-icons')
-		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
-		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
-		implementation group: 'org.apache.commons', name: 'commons-text', version:'1.+'
-		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
-		implementation group: 'com.google.code.gson', name: 'gson', version: 'latest.release'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
+		implementation 'com.beust:jcommander:1.+'
+		implementation 'commons-io:commons-io:2.+'
+		implementation 'org.apache.commons:commons-text:1.+'
+		implementation 'org.apache.commons:commons-lang3:3.+'
+		implementation 'com.google.code.gson:gson:latest.release'
+		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 	}
 	apply plugin: 'application'
 	application.mainClass='jrm.fx.JRomManager'
@@ -397,47 +417,52 @@ project(':jrmfx') {
 }
 
 project(':jrmserver') {
+
+
 	apply plugin: "io.freefair.lombok"
 
 	apply plugin: "eclipse"
 
+    def wcjar = project(':WebClient').jar;
 	dependencies {
 		implementation project(':jrmcore')
 		implementation project(':res-icons')
-		implementation group: 'com.beust', name: 'jcommander', version:'1.+'
-		implementation group: 'commons-io', name: 'commons-io', version:'2.+'
-		implementation group: 'commons-daemon', name:'commons-daemon', version: 'latest.release'
-		implementation group: 'org.apache.commons', name: 'commons-lang3', version:'3.+'
-		implementation group: 'org.eclipse.jetty', name:'jetty-server', version:'12.+'
-		implementation group: 'org.eclipse.jetty.ee9', name: 'jetty-ee9-servlet', version: '12.+'
-		implementation group: 'org.eclipse.jetty', name:'jetty-security', version:'12.+'
-		implementation group: 'org.eclipse.jetty', name:'jetty-session', version:'12.+'
-		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-server', version:'12.+'
-		implementation group: 'org.eclipse.jetty', name:'jetty-alpn-conscrypt-server', version:'12.+'
-		implementation group: 'org.eclipse.jetty.http2', name:'jetty-http2-server', version:'12.+'
-		implementation group: 'com.eclipsesource.minimal-json', name: 'minimal-json', version: '0.9.5'
-		implementation group: 'com.google.code.gson', name: 'gson', version: 'latest.release'
-		implementation group: 'one.util', name: 'streamex', version: '0.8.+'
-		implementation group: 'commons-dbutils', name:'commons-dbutils', version: 'latest.release'
-		implementation group: 'com.h2database', name:'h2', version: '2.2.+'
-		implementation group: 'org.mindrot', name:'jbcrypt', version:'0.4'
-		implementation group: 'net.java.dev.jna', name:'jna', version: 'latest.release'
-		implementation group: 'de.mkammerer', name:'argon2-jvm', version: 'latest.release'
-		implementation group: 'ch.qos.logback', name:'logback-core', version: 'latest.release'
-		implementation group: 'ch.qos.logback', name:'logback-classic', version: 'latest.release'
-		implementation files(project(':WebClient').jar)
+		implementation 'com.beust:jcommander:1.+'
+		implementation 'commons-io:commons-io:2.+'
+		implementation 'commons-daemon:commons-daemon:latest.release'
+		implementation 'org.apache.commons:commons-lang3:3.+'
+		implementation 'org.eclipse.jetty:jetty-server:12.+'
+		implementation 'org.eclipse.jetty.ee9:jetty-ee9-servlet:12.+'
+		implementation 'org.eclipse.jetty:jetty-security:12.+'
+		implementation 'org.eclipse.jetty:jetty-session:12.+'
+		implementation 'org.eclipse.jetty:jetty-alpn-server:12.+'
+		implementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server:12.+'
+		implementation 'org.eclipse.jetty.http2:jetty-http2-server:12.+'
+		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+		implementation 'com.google.code.gson:gson:latest.release'
+		implementation 'one.util:streamex:0.8.+'
+		implementation 'commons-dbutils:commons-dbutils:latest.release'
+		implementation 'com.h2database:h2:2.2.+'
+		implementation 'org.mindrot:jbcrypt:0.4'
+		implementation 'net.java.dev.jna:jna:latest.release'
+		implementation 'de.mkammerer:argon2-jvm:latest.release'
+		implementation 'ch.qos.logback:logback-core:latest.release'
+		implementation 'ch.qos.logback:logback-classic:latest.release'
+		implementation files(wcjar)
 
-		testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version:'12.+'
-		testImplementation group: 'org.eclipse.jetty', name: 'jetty-http', version:'12.+'
-		testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.+'
+		testImplementation 'org.eclipse.jetty:jetty-client:12.+'
+		testImplementation 'org.eclipse.jetty:jetty-http:12.+'
+		testImplementation 'org.awaitility:awaitility:4.+'
     	testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
     	testRuntimeOnly("org.junit.platform:junit-platform-launcher:latest.release")
-//		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version: 'latest.release'
-//		testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: 'latest.release'
+//		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
+//		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
 	}
 	
 	apply plugin: 'jacoco'
 	test {
+	    dependsOn ':WebClient:build'
+	
 		useJUnitPlatform {
 			includeEngines 'junit-jupiter'
 		}
@@ -453,10 +478,10 @@ project(':jrmserver') {
 	               TestLogEvent.PASSED,
 	               TestLogEvent.SKIPPED,
 	               TestLogEvent.STANDARD_OUT
-	        exceptionFormat TestExceptionFormat.FULL
-	        showExceptions true
-	        showCauses true
-	        showStackTraces true
+	        exceptionFormat = TestExceptionFormat.FULL
+	        showExceptions = true
+	        showCauses = true
+	        showStackTraces = true
 	
 	        // set options for log level DEBUG and INFO
 	        debug {
@@ -466,19 +491,21 @@ project(':jrmserver') {
 	                   TestLogEvent.SKIPPED,
 	                   TestLogEvent.STANDARD_ERROR,
 	                   TestLogEvent.STANDARD_OUT
-	            exceptionFormat TestExceptionFormat.FULL
+	            exceptionFormat = TestExceptionFormat.FULL
 	        }
 	        info.events = debug.events
 	        info.exceptionFormat = debug.exceptionFormat
 	
-	        afterSuite { desc, result ->
-	            if (!desc.parent) { // will match the outermost suite
-	                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-	                def startItem = '|  ', endItem = '  |'
-	                def repeatLength = startItem.length() + output.length() + endItem.length()
-	                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-	            }
-	        }
+            addTestListener(new TestListener() {
+                void aftersuite(TestDescriptor desc, TestResult result) {
+                    if (!desc.parent) { // will match the outermost suite
+                        def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                        def startItem = '|  ', endItem = '  |'
+                        def repeatLength = startItem.length() + output.length() + endItem.length()
+                        println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+                    }
+                }
+            })
 	    }
 	    systemProperty "JRomManager.rootPath", "${rootDir}"
 	    systemProperty "file.encoding", "utf-8"
@@ -620,21 +647,21 @@ distributions {
 			if (os.isLinux()) {
 				from ("${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix") {
 					include 'jsvc'
-					fileMode = 0755
+                    filePermissions {unix(0755)}
 				}
 			}
 			from ("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows") {
-				fileMode = 0755
+                filePermissions {unix(0755)}
 			}
 			from ('dist/logs') {
 				include '.do_not_delete'
 				into 'logs'
-				dirMode = 0777
+				dirPermissions {unix(0777)}
 			}
 			from ('dist') {
 				include '*.bat'
 				include '*.sh'
-				fileMode = 0755
+                filePermissions {unix(0755)}
 			}
 		}
 	}
@@ -658,20 +685,20 @@ distributions {
 			}
 			from (jar)
 			from ("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows") {
-				fileMode = 0755
+                filePermissions {unix(0755)}
 			}
 			from ('dist/logs') {
 				include '.do_not_delete'
 				into 'logs'
-				dirMode = 0777
+                dirPermissions {unix(0777)}
 			}
 			from ('dist') {
 				include '*.bat'
-				fileMode = 0755
+                filePermissions {unix(0755)}
 			}
 			from ('dist/full') {
 				include '*.bat'
-				fileMode = 0755
+                filePermissions {unix(0755)}
 			}
 		}
 	}
@@ -696,20 +723,20 @@ distributions {
 			from (jar)
 			from ("${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix") {
 				include 'jsvc'
-				fileMode = 0755
+                filePermissions {unix(0755)}
 			}
 			from ('dist/logs') {
 				include '.do_not_delete'
 				into 'logs'
-				dirMode = 0777
+                dirPermissions {unix(0777)}
 			}
 			from ('dist') {
 				include '*.sh'
-				fileMode = 0755
+                filePermissions {unix(0755)}
 			}
 			from ('dist/full') {
 				include '*.sh'
-				fileMode = 0755
+                filePermissions {unix(0755)}
 			}
 		}
 	}
@@ -768,6 +795,8 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
 	options.links 'https://docs.oracle.com/en/java/javase/21/docs/api', 'https://openjfx.io/javadoc/21/'
 	options.addStringOption 'Xdoclint:none', '-quiet'
 	
+	dependsOn subprojects.findAll { it.javadoc.enabled }.collect { it.javadoc }
+	
 	def projectsWithJavadoc = subprojects.findAll { it.javadoc.enabled }
 	source = projectsWithJavadoc.collect { it.sourceSets.main.allJava }
 	classpath = files(projectsWithJavadoc.collect { it.sourceSets.main.compileClasspath })
@@ -800,18 +829,18 @@ build.dependsOn installDist
 apply plugin: 'com.netflix.nebula.ospackage'
 
 ospackage {
-	packageName 'jrommanager'
-	packageDescription 'A Mame and Retrogaming Rom Manager, Java alternative to ClrMamePro'
-	release '1'
-	type= BINARY
-	license 'GPL-2'
-	vendor 'optyfr'
-	packager 'optyfr'
-	maintainer 'optyfr'
-	user 'root'
-	permissionGroup 'root'
+	packageName = 'jrommanager'
+	packageDescription = 'A Mame and Retrogaming Rom Manager, Java alternative to ClrMamePro'
+	release = '1'
+	type = BINARY
+	license = 'GPL-2'
+	vendor = 'optyfr'
+	packager = 'optyfr'
+	maintainer = 'optyfr'
+	user = 'root'
+	permissionGroup = 'root'
+    url = 'https://github.com/optyfr/JRomManager'
 	into '/opt/jrommanager'
-	url 'https://github.com/optyfr/JRomManager'
 	from (configurations.noarchConfig) {
 		into('lib')
 		exclude '*.zip'
@@ -822,7 +851,7 @@ ospackage {
 		include '*.bat'
 		include '*.sh'
 		include '*.shconf'
-		fileMode = 0755
+		filePermissions { unix(0755) }
 	}
 	from ('dist') {
 		include name+'.desktop'
