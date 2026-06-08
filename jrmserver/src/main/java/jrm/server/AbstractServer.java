@@ -147,18 +147,19 @@ public abstract class AbstractServer implements Daemon {
         }
     }
 
-    /**
-     *  Checks if the server is currently started by verifying that the jettyserver instance is not null and is in a started state.
-     *  @return {@link boolean}
-     */
+    /** Checks if the server is currently started and running.
+    * This method verifies that the jettyserver instance is not null and that it is in a started state, indicating that the server has been initialized and is currently running.
+    * @return {@code true} if the server has been initialized and is started;
+    * {@code false} otherwise
+    */
     public static final synchronized boolean isStarted() {
         return jettyserver != null && jettyserver.isStarted();
 
     }
 
-    /**
-     * Checks if the server is currently stopped by verifying that the jettyserver instance is null, indicating that it has not been initialized or has been terminated.
-     * @return {@link boolean}
+    /** Checks if the server is currently stopped.
+     * This method checks if the jettyserver instance is null, which indicates that the server has not been initialized or has been terminated. If the jettyserver is null, it means that the server is stopped; otherwise, it is still running.
+     * @return {@code true} if the server is stopped (i.e., jettyserver is null); {@code false} otherwise
      */
     public static final synchronized boolean isStopped() {
         return jettyserver == null;

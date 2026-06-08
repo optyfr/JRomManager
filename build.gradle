@@ -3,7 +3,7 @@ plugins {
 	id 'application'
 	id "org.sonarqube"
 	id "de.undercouch.download" version "latest.release"
-	id "com.netflix.nebula.ospackage" version "11.11.2"
+	id "com.netflix.nebula.ospackage" version "12.3.0"
 	id "io.freefair.lombok" version "8.14.2"
 	id 'org.openjfx.javafxplugin' version '0.1.0'
 	id "org.beryx.jlink" version "3.1.3" apply false
@@ -190,13 +190,13 @@ subprojects {
 		archiveFileName = 'jrm-' + project.name + '-' + project.version + '.jar'
 	}
 }
-
+/*
 project(':WebClient') {
 	sonar {
 		skipProject = true
 	}
 }
-
+*/
 project(':jrmcore') {
 	apply plugin: "io.freefair.lombok"
 
@@ -418,10 +418,10 @@ project(':jrmfx') {
 
 project(':jrmserver') {
 
-
 	apply plugin: "io.freefair.lombok"
-
 	apply plugin: "eclipse"
+
+    compileJava.dependsOn project(':WebClient').build 
 
     def wcjar = project(':WebClient').jar;
 	dependencies {
