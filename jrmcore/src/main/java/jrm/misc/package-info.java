@@ -15,7 +15,6 @@
  * <li>Adaptive and virtual thread pools ({@link jrm.misc.MultiThreading},
  * {@link jrm.misc.MultiThreadingVirtual})</li>
  * </ul>
- * </p>
  * 
  * @author optyfr
  */

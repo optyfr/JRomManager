@@ -47,6 +47,10 @@ public class Log {
      * logging level, the message, and any associated stack traces.
      */
     public static class Formatter extends java.util.logging.Formatter {
+        
+        /** Constructs a new Formatter instance with default settings. This constructor does not perform any specific initialization and can be used to create a basic log formatter for formatting log records in a consistent manner. */
+        public Formatter() { /* default constructor */ }
+        
         /**
          * Formats the given log record into a single-line string with a trailing
          * newline. Supports formatting embedded exception stack traces.

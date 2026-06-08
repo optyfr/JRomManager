@@ -20,6 +20,8 @@ import lombok.Getter;
  * @since 1.0
  */
 public abstract class Note implements StatusRendererFactory, Serializable {
+    
+    /** Serial version UID for serialization backward compatibility of Note records. */
     private static final long serialVersionUID = 2L;
 
     /**
@@ -34,6 +36,9 @@ public abstract class Note implements StatusRendererFactory, Serializable {
      */
     transient int id = -1;
 
+    /** Default constructor for Note. This constructor does not perform any specific initialization and is intended to be used by subclasses that will provide concrete implementations of the abstract methods defined in this class. */
+    protected Note() { /* default constructor */ }
+    
     /**
      * Gets a short abbreviation code representing the type of this note (e.g.,
      * "OK", "MISS", "UNNEED", "ADD").

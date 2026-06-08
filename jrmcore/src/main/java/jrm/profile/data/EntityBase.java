@@ -31,7 +31,9 @@ import jrm.misc.Log;
  * @author optyfr
  */
 public abstract class EntityBase extends NameBase implements Serializable {
+    /** The field name for ownStatus used in custom serialization. */
     private static final String OWN_STATUS = "own_status";
+    /** The serial version UID for serialization compatibility. */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -44,6 +46,7 @@ public abstract class EntityBase extends NameBase implements Serializable {
      */
     protected transient AnywareBase parent;
 
+    /** The serial persistent fields for custom serialization, defining the ownStatus field. */
     private static final ObjectStreamField[] serialPersistentFields = { // NOSONAR
             new ObjectStreamField(OWN_STATUS, EntityStatus.class)
     };

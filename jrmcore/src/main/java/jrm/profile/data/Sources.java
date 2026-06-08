@@ -42,4 +42,7 @@ public class Sources implements Serializable, Iterable<Source> {
     public Iterator<Source> iterator() {
         return srces.iterator();
     }
+    
+    /** Default constructor for Sources. Initializes an empty collection of sources. */
+    public Sources() { /* default constructor */ }
 }

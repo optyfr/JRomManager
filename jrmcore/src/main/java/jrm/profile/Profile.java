@@ -297,31 +297,83 @@ public class Profile implements Serializable, StatusRendererFactory {
      * SAX Handler mapping parsed XML tags back into profile domain components.
      */
     private class ProfileHandler extends DefaultHandler {
+        /** XML tag name for ROM elements. */
         private static final String STATUS = "status";
 
+        /** Map for tracking ROMs by their CRC values to identify suspicious cases where identical CRCs map to different SHA1/MD5 signatures. */
         private final HashMap<String, Rom> romsByCRC = new HashMap<>();
+
+        /** Flags and temporary variables used during XML parsing to track the current context and state of the parsing process. These include flags for whether the parser is currently within certain XML elements (e.g., description, year, manufacturer) and references to the current machine, software, ROM, disk, etc., being parsed. The romsByCRC map is used to track ROMs by their CRC values for identifying suspicious cases. */
         private boolean inDescription = false;
+        
+        /** Flag indicating whether the parser is currently within a "year" XML element. This flag is used to track the context of parsing and to determine when to capture year information for machines or software entries. */
         private boolean inYear = false;
+        
+        /** Flag indicating whether the parser is currently within a "manufacturer" XML element. This flag is used to track the context of parsing and to determine when to capture manufacturer information for machines or software entries. */
         private boolean inManufacturer = false;
+        
+        /** Flag indicating whether the parser is currently within a "publisher" XML element. This flag is used to track the context of parsing and to determine when to capture publisher information for software entries. */
         private boolean inPublisher = false;
+        
+        /** Flag indicating whether the parser is currently within a "header" XML element. This flag is used to track the context of parsing header information. */    
         private boolean inHeader = false;
+
+        /** Flag indicating whether the parser is currently within a "cabinet" dipswitch element. This flag is used to track the context of parsing cabinet-related dipswitches. */
         private boolean inCabinetDipSW = false;
+        
+        /** Set of cabinet types currently being parsed within a "cabinet" dipswitch element. This set is used to track the specific cabinet types associated with the dipswitches being parsed, allowing for proper association of dipswitch settings with the relevant machine configurations. */
         private final EnumSet<CabinetType> cabTypeSet = EnumSet.noneOf(CabinetType.class);
+        
+        /** Reference to the currently parsed software list. This variable is used to keep track of the active software list being parsed in the XML, allowing for proper association of software entries and their related data with the correct software list context. */
         private SoftwareList currSoftwareList = null;
+        
+        /** Reference to the currently parsed software entry. This variable is used to keep track of the active software entry being parsed in the XML, allowing for proper association of ROMs, disks, and other related data with the correct software entry context. */
         private Software currSoftware = null;
+        
+        /** Reference to the currently parsed software part. This variable is used to keep track of the active software part being parsed in the XML, allowing for proper association of data areas, disk areas, and other related information with the correct software part context. */
         private Software.Part currPart = null;
+        
+        /** Reference to the currently parsed software part data area. This variable is used to keep track of the active data area being parsed within a software part, allowing for proper association of ROMs and other related data with the correct data area context. */
         private Software.Part.DataArea currDataArea = null;
+        
+        /** Reference to the currently parsed software part disk area. This variable is used to keep track of the active disk area being parsed within a software part, allowing for proper association of disks and other related data with the correct disk area context. */
         private Software.Part.DiskArea currDiskArea = null;
+        
+        /** Reference to the currently parsed machine. This variable is used to keep track of the active machine being parsed in the XML, allowing for proper association of software lists, ROMs, disks, and other related data with the correct machine context. */
         private Machine currMachine = null;
+        
+        /**
+         * Reference to the currently parsed device. This variable is used to keep track of the active device
+         * being parsed within a machine, allowing for proper association of device-related elements (such as 
+         * ROMs or disks) with the correct device context.
+         */
         private Device currDevice = null;
+        
+        /** Reference to the currently parsed sample set. This variable is used to keep track of the active sample set being parsed in the XML, allowing for proper association of sample files and related data with the correct sample set context. */
         private Samples currSampleSet = null;
+
+        /** Reference to the currently parsed ROM. This variable is used to keep track of the active ROM being parsed in the XML, allowing for proper association of ROM attributes and related data with the correct ROM context. */
         private Rom currRom = null;
+        
+        /** Reference to the currently parsed disk. This variable is used to keep track of the active disk being parsed in the XML, allowing for proper association of disk attributes and related data with the correct disk context. */
         private Disk currDisk = null;
+        
+        /** Reference to the currently parsed slot. This variable is used to keep track of the active slot being parsed within a machine, allowing for proper association of slot options and related data with the correct slot context. */
         private Slot currSlot = null;
+        
+        /**
+         * Set of parsed ROM names for the current machine, software, or device,
+         * used to keep track of processed ROMs and detect or prevent duplicates.
+         */
         private final HashSet<String> roms = new HashSet<>();
+        
+        /** Set of disk names currently being parsed. This set is used to track the specific disk names associated with the disks being parsed, allowing for proper association of disk attributes and related data with the correct disk context. */
         private final HashSet<String> disks = new HashSet<>();
+        
+        /** Current XML tag name being processed. This variable is used to keep track of the active XML tag being parsed, allowing for context-aware processing of attributes and content based on the specific tag being handled. */
         private String currTag;
 
+        /** Progress handler reference for monitoring and reporting progress during the XML parsing process. This variable is used to interact with the progress handler to provide updates on the parsing progress, report any errors encountered, and manage cancellation requests if necessary. */
         private final ProgressHandler handler;
 
         /**
@@ -333,6 +385,16 @@ public class Profile implements Serializable, StatusRendererFactory {
             this.handler = handler;
         }
 
+        /**
+         * Intercepts the start of XML elements to parse and delegate metadata attributes 
+         * to their respective profile component builder methods.
+         *
+         * @param uri        the Namespace URI, or the empty string if the element has no Namespace URI or if Namespace processing is not being performed
+         * @param localName  the local name (without prefix), or the empty string if Namespace processing is not being performed
+         * @param qName      the qualified name (with prefix), or the empty string if qualified names are not available
+         * @param attributes the attributes attached to the element
+         * @throws SAXException if any parsing or configuration error occurs during processing
+         */
         @Override
         public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException {
             try {
@@ -342,7 +404,7 @@ public class Profile implements Serializable, StatusRendererFactory {
                         startDatfile(attributes);
                         break;
                     case "header":
-                        startHeader(attributes);
+                        startHeader();
                         break;
                     case "softwarelist":
                         startSoftwareList(attributes);
@@ -366,7 +428,7 @@ public class Profile implements Serializable, StatusRendererFactory {
                         startMachine(attributes);
                         break;
                     case DESCRIPTION:
-                        startDescription(attributes);
+                        startDescription();
                         break;
                     case "year":
                         startYear();
@@ -875,7 +937,7 @@ public class Profile implements Serializable, StatusRendererFactory {
          * 
          * @param attributes element attributes list
          */
-        private void startHeader(@SuppressWarnings("unused") final Attributes attributes) {
+        private void startHeader() {
             inHeader = true;
         }
 
@@ -1090,7 +1152,7 @@ public class Profile implements Serializable, StatusRendererFactory {
          * 
          * @param attributes element attributes list
          */
-        private void startDescription(@SuppressWarnings("unused") Attributes attributes) {
+        private void startDescription() {
             if (currMachine == null && currSoftware == null && currSoftwareList == null)
                 return;
             inDescription = true;
@@ -1701,6 +1763,10 @@ public class Profile implements Serializable, StatusRendererFactory {
         return settings.getProperty(property, String.class);
     }
 
+    
+    /**
+     * Cached hash code of the profile settings used to detect modifications.
+     */
     private int propsHashCode = 0;
 
     /**

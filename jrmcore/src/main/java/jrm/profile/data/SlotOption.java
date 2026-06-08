@@ -85,4 +85,11 @@ public class SlotOption extends NameBase implements Serializable {
     public int hashCode() {
         return super.hashCode();
     }
+    
+    /**
+     * Constructs a new SlotOption with default values.
+     */
+    public SlotOption() {
+        super();
+    }
 }

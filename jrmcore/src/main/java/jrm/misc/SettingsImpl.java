@@ -12,6 +12,10 @@ import java.util.Properties;
  * @author optyfr
  */
 public abstract class SettingsImpl {
+    
+    /** Constructs a new SettingsImpl instance. Subclasses should provide concrete implementations for the abstract methods to handle the underlying property storage and retrieval. */
+    protected SettingsImpl() { /* default constructor */ }
+    
     /**
      * Returns the underlying {@link Properties} store.
      * 

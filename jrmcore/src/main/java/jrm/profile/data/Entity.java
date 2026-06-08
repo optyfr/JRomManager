@@ -64,6 +64,7 @@ public abstract class Entity extends EntityBase implements Serializable {
      */
     protected static final String SIZE_STR = "size";
 
+    /** Serial version UID for serialization compatibility. */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -154,6 +155,7 @@ public abstract class Entity extends EntityBase implements Serializable {
         }
     }
 
+    /** Defines the serializable fields for custom serialization. */
     private static final ObjectStreamField[] serialPersistentFields = { // NOSONAR
             new ObjectStreamField(SIZE_STR, long.class),
             new ObjectStreamField(CRC_STR, String.class),

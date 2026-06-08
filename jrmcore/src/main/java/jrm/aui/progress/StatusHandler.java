@@ -16,13 +16,8 @@
  */
 package jrm.aui.progress;
 
-/**
- * The Interface StatusHandler.
- *
- * @author optyfr
- */
+/** Status handler interface. */
 public interface StatusHandler {
-
     /**
      * Sets the status.
      *

@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author optyfr
  * @since 1.0
  */
-interface IniProcessor {
+public interface IniProcessor {
     /**
      * Returns the specific INI section header (including brackets, e.g.,
      * {@code [Category]}) that this processor is responsible for parsing.

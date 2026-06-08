@@ -97,6 +97,13 @@ public class Torrent {
      */
     private String infoHash;
 
+    /**
+     * Constructs a new Torrent object with default values. The fields of the Torrent object are initialized to their default values (null for objects and false for boolean).
+     */
+    public Torrent() {
+        // Default constructor
+    }
+    
     // Getters and setters
 
     /**

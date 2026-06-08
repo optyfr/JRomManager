@@ -3,7 +3,6 @@ package jrm.batch;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystems;
@@ -44,26 +43,58 @@ import jrm.misc.UnitRenderer;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 
+/**
+ * * Torrent checker component to manage torrent file validity.
+ * @param <T> the type of source-destination result to be processed, which must extend AbstractSrcDstResult. This allows the TorrentChecker to work with various types of results that contain source and destination information for torrent checking operations.
+ */
 public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRenderer, StatusRendererFactory {
+    /** the message key for piece progression during torrent checking */
     private static final String TORRENT_CHECKER_PIECE_PROGRESSION = "TorrentChecker.PieceProgression";
+    /** the message key for indicating that the torrent check is complete */
     private static final String TORRENT_CHECKER_RESULT_COMPLETE = "TorrentChecker.ResultComplete";
+
+    /** Atomic integer to track the number of pieces currently being processed */
     private final AtomicInteger processing = new AtomicInteger();
+    /** Atomic integer to track the current piece being processed */
     private final AtomicInteger current = new AtomicInteger();
+    /** the active user session */
     private final Session session;
+    /** the set of options to control the behavior of the torrent checker */
     private final Set<Options> options;
+    /** the mode of checking to be performed (e.g., filename, file size, SHA1) */
     private final TrntChkMode mode;
 
+    /**
+     * Enumeration of options for the torrent checker, including removing unknown
+     * files, removing wrong sized files, and detecting archived folders.
+     */
     public enum Options {
-        REMOVEUNKNOWNFILES, REMOVEWRONGSIZEDFILES, DETECTARCHIVEDFOLDERS;
+        /** Option to remove files that are not listed in the torrent file */
+        REMOVEUNKNOWNFILES,
+        /**
+         * Option to remove files that have a size different from what is specified in
+         * the torrent file
+         */
+        REMOVEWRONGSIZEDFILES,
+        /**
+         * Option to detect folders that are likely to be archives based on the torrent
+         * file structure
+         */
+        DETECTARCHIVEDFOLDERS;
     }
 
     /**
-     * Check a dir versus torrent data
-     * 
-     * @param progress the progressions handler
-     * @param sdrl     the data obtained from SDRTableModel
-     * @param mode     the check mode (see {@link TrntChkMode}
-     * @param updater  the result interface
+     * Constructs a TorrentChecker with the specified parameters.
+     *
+     * @param session  the active user session
+     * @param progress the handler for reporting progress during the torrent
+     *                 checking process
+     * @param sdrl     the list of source-destination results to process
+     * @param mode     the mode of checking to be performed (e.g., filename, file
+     *                 size, SHA1)
+     * @param updater  the interface for updating results in the user interface
+     * @param options  the set of options to control the behavior of the torrent
+     *                 checker
      */
     public TorrentChecker(final Session session, final ProgressHandler progress, List<T> sdrl, TrntChkMode mode, ResultColUpdater updater, Set<Options> options) {
         this.session = session;
@@ -92,12 +123,18 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
     }
 
     /**
-     * @param progress
-     * @param mode
-     * @param sdr
-     * @return
-     * @throws IOException
-     * @throws TorrentException
+     * Performs a verification check on the specified source-destination result. It
+     * parses the torrent file, optionally detects and extracts archives, and
+     * verifies the files using either simple file-level checks or piece-by-piece
+     * SHA-1 hashing.
+     *
+     * @param progress the progress handler for reporting verification progress
+     * @param sdr      the source-destination result containing the torrent source
+     *                 and destination paths
+     * @return a string message summarizing the results of the check operation
+     * @throws IOException      if an I/O error occurs during file checking or
+     *                          reading
+     * @throws TorrentException if an error occurs while parsing the torrent file
      */
     private String check(final ProgressHandler progress, final T sdr) throws IOException, TorrentException {
         if (sdr.getSrc() == null || sdr.getDst() == null)
@@ -120,30 +157,58 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
         return result;
     }
 
+    /**
+     * Data container for storing state and accumulated statistics during file-level
+     * torrent verification.
+     */
     private class CheckFilesData {
+        /** Counter for the number of files that are correctly verified */
         int ok = 0;
+        /** Counter for the total number of files to be checked */
         long missingBytes = 0L;
+        /** Counter for the number of files that are missing */
         int missingFiles = 0;
+        /**
+         * Counter for the number of files that have a size different from what is
+         * specified in the torrent file
+         */
         int wrongSizedFiles = 0;
+        /** Set of paths that are expected to be present based on the torrent file */
         final Set<Path> paths = new HashSet<>();
+        /**
+         * Total number of files to be checked, initialized based on the size of the
+         * torrent file list
+         */
         final int total;
 
+        /**
+         * Constructs a CheckFilesData instance and initializes the total number of
+         * files to be checked based on the provided list of torrent files.
+         *
+         * @param tfiles the list of torrent files to be checked
+         */
         public CheckFilesData(final List<TorrentFile> tfiles) {
             total = tfiles.size();
         }
     }
 
     /**
-     * @param progress
-     * @param mode
-     * @param sdr
-     * @param options
-     * @param src
-     * @param dst
-     * @param report
-     * @param tfiles
-     * @return
-     * @throws IOException
+     * Performs file-level verification of the files specified in the torrent file
+     * against the files present in the destination directory. It updates the
+     * progress handler with the current status and accumulates statistics on the
+     * number of files that are correctly verified, missing, or have size
+     * mismatches. It also handles the removal of unknown files if the corresponding
+     * option is enabled.
+     *
+     * @param progress the progress handler for reporting verification progress
+     * @param sdr      the source-destination result containing the torrent source
+     *                 and destination paths
+     * @param src      the source file representing the torrent file
+     * @param dst      the destination directory where the files should be located
+     * @param report   the report object for recording verification results
+     * @param tfiles   the list of torrent files to be checked
+     * @return a string message summarizing the results of the file-level check
+     * @throws IOException if an I/O error occurs during file checking or reading
      */
     private String checkFiles(final ProgressHandler progress, final T sdr, final File src, final File dst, final TrntChkReport report, final List<TorrentFile> tfiles)
             throws IOException {
@@ -172,13 +237,21 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
     }
 
     /**
-     * @param data
-     * @param src
-     * @param dst
-     * @param tfile
-     * @param report
-     * @param progress
-     * @throws IOException
+     * Checks the existence and size of a single file specified in the torrent file
+     * against the corresponding file in the destination directory. It updates the
+     * progress handler with the current status and accumulates statistics on the
+     * number of files that are correctly verified, missing, or have size
+     * mismatches. It also handles the removal of wrong sized files if the
+     * corresponding option is enabled.
+     *
+     * @param data     the CheckFilesData object for accumulating verification
+     *                 statistics
+     * @param src      the source file representing the torrent file
+     * @param dst      the destination directory where the files should be located
+     * @param tfile    the TorrentFile object representing the file to be checked
+     * @param report   the report object for recording verification results
+     * @param progress the progress handler for reporting verification progress
+     * @throws IOException if an I/O error occurs during file checking or reading
      */
     private void checkFilesFile(CheckFilesData data, final File src, final File dst, TorrentFile tfile, final TrntChkReport report, final ProgressHandler progress)
             throws IOException {
@@ -211,21 +284,64 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
         }
     }
 
+    /**
+     * Data container for storing state, buffers, hash digests, and statistics
+     * during piece-by-piece SHA-1 block verification of torrent files.
+     */
     private class CheckBlocksData {
+        /** the current block being processed in the report */
         Child block;
+        /** the current child node representing the file being processed */
         Child node = null;
+        /**
+         * Counter for the number of bytes that are missing based on the piece
+         * verification
+         */
         long missingBytes = 0L;
+        /**
+         * Counter for the number of bytes remaining to be read for the current piece
+         */
         long toGo;
+        /** Counter for the number of pieces that have been processed */
         int pieceCnt = 0;
+        /**
+         * Counter for the number of pieces that are valid according to their SHA-1 hash
+         */
         int pieceValid = 0;
+        /** Buffer for reading file data during hashing */
         final byte[] buffer = new byte[8192];
+        /** the MessageDigest instance for computing SHA-1 hashes */
         final MessageDigest md;
+        /**
+         * Atomic boolean to indicate whether the current piece is valid based on file
+         * checks
+         */
         final AtomicBoolean valid = new AtomicBoolean(true);
+        /**
+         * Counter for the number of files that have a size different from what is
+         * specified in the torrent file during piece verification
+         */
         final AtomicInteger wrongSizedFiles = new AtomicInteger();
+        /**
+         * Set of paths that are expected to be present based on the torrent file during
+         * piece verification
+         */
         final Set<Path> paths = new HashSet<>();
+        /** the length of each piece as specified in the torrent file */
         final long pieceLength;
+        /** the list of SHA-1 hashes for each piece as specified in the torrent file */
         final List<String> pieces;
 
+        /**
+         * Constructs a CheckBlocksData instance and initializes the MessageDigest for
+         * SHA-1 hashing, the piece length, and the list of piece hashes based on the
+         * provided torrent file.
+         *
+         * @param torrent the Torrent object containing the piece length and piece
+         *                hashes
+         * @throws NoSuchAlgorithmException if the SHA-1 algorithm is not available in
+         *                                  the environment
+         */
         public CheckBlocksData(Torrent torrent) throws NoSuchAlgorithmException {
             md = MessageDigest.getInstance("SHA-1"); // NOSONAR
             pieceLength = torrent.getPieceLength();
@@ -234,15 +350,24 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
     }
 
     /**
-     * @param progress
-     * @param sdr
-     * @param options
-     * @param src
-     * @param dst
-     * @param report
-     * @param torrent
-     * @param tfiles
-     * @return
+     * Performs piece-by-piece SHA-1 block verification of the files specified in
+     * the torrent file against the files present in the destination directory. It
+     * updates the progress handler with the current status and accumulates
+     * statistics on the number of pieces that are valid, missing bytes, and files
+     * with size mismatches. It also handles the removal of unknown files if the
+     * corresponding option is enabled.
+     *
+     * @param progress the progress handler for reporting verification progress
+     * @param sdr      the source-destination result containing the torrent source
+     *                 and destination paths
+     * @param src      the source file representing the torrent file
+     * @param dst      the destination directory where the files should be located
+     * @param report   the report object for recording verification results
+     * @param torrent  the Torrent object containing piece information for
+     *                 verification
+     * @param tfiles   the list of torrent files to be checked
+     * @return a string message summarizing the results of the block-level check
+     * @throws IOException if an I/O error occurs during file checking or reading
      */
     private String checkBlocks(final ProgressHandler progress, final T sdr, final File src, final File dst, final TrntChkReport report, final Torrent torrent,
             final List<TorrentFile> tfiles) {
@@ -294,13 +419,21 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
     }
 
     /**
-     * @param data
-     * @param src
-     * @param dst
-     * @param tfile
-     * @param report
-     * @param progress
-     * @throws IOException
+     * Checks the blocks of a single file specified in the torrent file against the
+     * corresponding file in the destination directory using piece-by-piece SHA-1
+     * hashing. It updates the progress handler with the current status and
+     * accumulates statistics on the number of pieces that are valid, missing bytes,
+     * and files with size mismatches. It also handles the removal of wrong sized
+     * files if the corresponding option is enabled.
+     *
+     * @param data     the CheckBlocksData object for accumulating verification
+     *                 statistics and state
+     * @param src      the source file representing the torrent file
+     * @param dst      the destination directory where the files should be located
+     * @param tfile    the TorrentFile object representing the file to be checked
+     * @param report   the report object for recording verification results
+     * @param progress the progress handler for reporting verification progress
+     * @throws IOException if an I/O error occurs during file checking or reading
      */
     private void checkBlocksFile(final CheckBlocksData data, final File src, final File dst, TorrentFile tfile, final TrntChkReport report, final ProgressHandler progress)
             throws IOException {
@@ -352,11 +485,14 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
     }
 
     /**
-     * @param md
-     * @param buffer
-     * @param in
-     * @param toRead
-     * @throws IOException
+     * Reads a specified number of bytes from the input stream and updates the
+     * message digest.
+     *
+     * @param md     the MessageDigest instance to update
+     * @param buffer the temporary buffer used to read and process stream chunks
+     * @param in     the input stream containing the file data to hash
+     * @param toRead the number of bytes to read and hash
+     * @throws IOException if an I/O error occurs while reading from the stream
      */
     private void hashStream(final MessageDigest md, final byte[] buffer, BufferedInputStream in, long toRead) throws IOException {
         if (in != null) {
@@ -369,16 +505,21 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
     }
 
     /**
-     * @param options
-     * @param wrongSizedFiles
-     * @param node
-     * @param valid
-     * @param tfile
-     * @param in
-     * @param file
-     * @return
-     * @throws IOException
-     * @throws FileNotFoundException
+     * Opens a buffered input stream for the specified file after performing initial
+     * size and existence checks. If the file is missing or has an incorrect size,
+     * the state and report node are updated, and null is returned.
+     *
+     * @param options         the set of active checker options to determine
+     *                        behavior (e.g., removing wrong-sized files)
+     * @param wrongSizedFiles the counter for tracking files with mismatched sizes
+     * @param node            the report node representing the file to update with
+     *                        checking status
+     * @param valid           the validation flag to be cleared if checks fail
+     * @param tfile           the expected torrent file information
+     * @param file            the path to the physical file on disk
+     * @return a {@link BufferedInputStream} for the file, or {@code null} if the
+     *         file is invalid or missing
+     * @throws IOException if an I/O error occurs during file access or deletion
      */
     private BufferedInputStream getFileStram(Set<Options> options, AtomicInteger wrongSizedFiles, Child node, AtomicBoolean valid, TorrentFile tfile, Path file)
             throws IOException {
@@ -396,6 +537,21 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
         return null;
     }
 
+    /**
+     * Removes files from the destination directory that are not listed in the
+     * torrent file. It walks through the destination directory and collects files
+     * that are not present in the set of expected paths. It updates the report with
+     * the list of unknown files and their sizes, and optionally deletes them from
+     * disk.
+     *
+     * @param report the report object for recording unknown files
+     * @param paths  the set of expected file paths based on the torrent file
+     * @param sdr    the source-destination result containing the torrent source and
+     *               destination paths
+     * @param remove a flag indicating whether to actually delete the unknown files
+     * @return the number of unknown files that were found (and possibly removed)
+     * @throws IOException if an I/O error occurs during file access or deletion
+     */
     private int removeUnknownFiles(final TrntChkReport report, final Set<Path> paths, final T sdr, final boolean remove) throws IOException {
         final var filesToRemove = new ArrayList<Path>();
         final var dst = PathAbstractor.getAbsolutePath(session, sdr.getDst());
@@ -428,6 +584,19 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
         return count;
     }
 
+    /**
+     * Detects potential archive folders based on the structure of the torrent file
+     * and the presence of corresponding .zip files in the destination directory. It
+     * identifies folders that are likely to be archives and optionally extracts
+     * them if the unarchive flag is set.
+     *
+     * @param sdr       the source-destination result containing the torrent source
+     *                  and destination paths
+     * @param tfiles    the list of torrent files to analyze for potential archive
+     *                  detection
+     * @param unarchive a flag indicating whether to automatically extract detected
+     *                  archives
+     */
     private void detectArchives(final T sdr, final List<TorrentFile> tfiles, final boolean unarchive) {
         final var components = new HashSet<String>();
         final var archives = new HashSet<Path>();
@@ -464,8 +633,12 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
     }
 
     /**
-     * @param archives
-     * @param file
+     * Checks if a corresponding .zip archive exists for the given file or directory
+     * path, and adds its path to the set of archives if found.
+     *
+     * @param archives the set of discovered archive file paths
+     * @param file     the path of the file or folder to check for a matching
+     *                 archive
      */
     private void isArchive(final HashSet<Path> archives, Path file) {
         final Path parent = file.getParent();
@@ -480,9 +653,11 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
         }
     }
 
-    /**
-     * @param archive
-     */
+
+    /** Unarchives the specified zip file into a subdirectory with the same name.
+     *
+     * @param archive the path to the zip archive file to be extracted
+     */        
     private void unarchive(Path archive) {
         try {
             Path parent = archive.getParent();
@@ -497,6 +672,12 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
         }
     }
 
+    /** Extracts the contents of a ZIP file into a specified destination directory.
+     *
+     * @param zipFile the path to the ZIP file to extract
+     * @param destDir the path to the directory where the contents should be extracted
+     * @throws IOException if an I/O error occurs during extraction
+     */
     private void unzip(final Path zipFile, final Path destDir) throws IOException {
         if (Files.notExists(destDir)) {
             Files.createDirectories(destDir);

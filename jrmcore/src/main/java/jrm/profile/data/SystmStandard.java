@@ -71,4 +71,7 @@ public class SystmStandard implements Systm, Serializable {
     public String getName() {
         return "standard"; //$NON-NLS-1$
     }
+    
+    /** Default constructor for SystmStandard. This constructor does not perform any specific initialization and is used to create instances of the SystmStandard class. */
+    public SystmStandard() { /* default constructor */ }
 }

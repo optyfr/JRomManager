@@ -32,7 +32,7 @@ public interface Archive extends Closeable, AutoCloseable {
      * get a suitable Temporary directory
      * 
      * @return the Temporary directory as {@link File}
-     * @throws IOException
+     * @throws IOException in case of IO error, can happen if no suitable temp directory is found
      */
     public File getTempDir() throws IOException;
 
@@ -40,7 +40,7 @@ public interface Archive extends Closeable, AutoCloseable {
      * Extract all files from Archive
      * 
      * @return 0 for success, -1 for error
-     * @throws IOException
+     * @throws IOException in case of IO error
      */
     public int extract() throws IOException;
 
@@ -49,7 +49,7 @@ public interface Archive extends Closeable, AutoCloseable {
      * 
      * @param entry the file entry name including path as stored in archive
      * @return the {@link File} extracted
-     * @throws IOException
+     * @throws IOException in case of IO error, can happen if entry not found or entry is a directory
      */
     public File extract(String entry) throws IOException;
 
@@ -58,7 +58,7 @@ public interface Archive extends Closeable, AutoCloseable {
      * 
      * @param entry the file entry name including path as stored in archive
      * @return the resulting {@link InputStream}
-     * @throws IOException
+     * @throws IOException in case of IO error, can happen if entry not found or entry is a directory
      */
     public InputStream extractStdOut(String entry) throws IOException;
 
@@ -71,7 +71,7 @@ public interface Archive extends Closeable, AutoCloseable {
      *              to be a file
      * @return 0 for success, anything else for error, -1 is reserved for read only
      *         archives
-     * @throws IOException
+     * @throws IOException in case of IO error, can happen if entry not found or entry is a directory
      */
     public default int add(String entry) throws IOException {
         return add(getTempDir(), entry);
@@ -86,7 +86,7 @@ public interface Archive extends Closeable, AutoCloseable {
      *                have to be a file
      * @return 0 for success, anything else for error, -1 is reserved for read only
      *         archives
-     * @throws IOException
+     * @throws IOException in case of IO error, can happen if entry not found or entry is a directory
      */
     public int add(File baseDir, String entry) throws IOException;
 
@@ -98,7 +98,7 @@ public interface Archive extends Closeable, AutoCloseable {
      * @param entry the entry name (with path)
      * @return 0 for success, anything else for error, -1 is reserved for read only
      *         archives
-     * @throws IOException
+     * @throws IOException in case of IO error, can happen if entry already exists or entry is a directory
      */
     public int addStdIn(InputStream src, String entry) throws IOException;
 

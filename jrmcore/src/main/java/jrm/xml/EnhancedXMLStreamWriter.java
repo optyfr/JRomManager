@@ -32,7 +32,6 @@ import javax.xml.stream.XMLStreamWriter;
  * The writer keeps track of the document's state structure to determine when to
  * add indentation and carriage returns automatically, preventing developers
  * from manually having to write structural spaces and newlines.
- * </p>
  * <p>
  * <b>State Machine Design:</b> This wrapper acts as a structural state-machine
  * with three states:
@@ -46,7 +45,6 @@ import javax.xml.stream.XMLStreamWriter;
  * </ul>
  * Whenever elements are nested, the previous states are preserved on an
  * internal stack so that end element tags are indented symmetrically.
- * </p>
  *
  * @author optyfr
  * @since 1.0

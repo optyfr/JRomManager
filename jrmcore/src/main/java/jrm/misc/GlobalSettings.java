@@ -75,16 +75,12 @@ public class GlobalSettings extends Settings implements SystemSettings {
     /**
      * Returns the base directory path where user settings and system configurations
      * are saved.
-     * <p>
-     * Depending on configuration flags:
+     * <p> Depending on configuration flags:
      * <ul>
-     * <li>If server mode is active, it uses the path in system property
-     * {@code jrommanager.dir}, falling back to {@code user.dir}.</li>
-     * <li>If multi-user mode is active, it uses {@code .jrommanager} under the
-     * user's home folder.</li>
+     * <li>If server mode is active, it uses the path in system property {@code jrommanager.dir}, falling back to {@code user.dir}.</li>
+     * <li>If multi-user mode is active, it uses {@code .jrommanager} under the user's home folder.</li>
      * <li>Otherwise, it defaults to the current working directory {@code "."}.</li>
      * </ul>
-     * </p>
      * 
      * @return the resolved base directory path
      */

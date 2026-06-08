@@ -6,8 +6,12 @@ import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Listener for session events. Creates a WebSession for each new session and closes it when the session is destroyed.
+ */
 @RequiredArgsConstructor
 public class SessionListener implements HttpSessionListener {
+    /** Whether to create a multi-session WebSession (with a shared session ID) or a single-session WebSession (with a unique session ID). */
     final boolean multi;
 
     @Override

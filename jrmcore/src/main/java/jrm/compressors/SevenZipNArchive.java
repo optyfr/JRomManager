@@ -23,21 +23,46 @@ import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.security.Session;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
-/**
- * SevenZip native archive class, should not be used directly
+
+/** 
+ * SevenZip native archive class, should not be used directly.
  * 
- * @author optyfr
+ * @author optyfr      
  */
 public class SevenZipNArchive extends NArchive {
 
+    /** Constructs a new SevenZipNArchive instance with the specified session and archive file. This constructor initializes the archive in read-write mode by default.
+     * 
+     * @param session the Session object representing the current user session, used for authentication and access control during archive operations
+     * @param archive the File object representing the archive file to be opened and managed by this instance
+     * @throws IOException if an I/O error occurs while accessing the archive file
+     * @throws SevenZipNativeInitializationException if an error occurs during the initialization of the SevenZip native library
+     */
     public SevenZipNArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException {
         super(session, archive);
     }
 
+    /** Constructs a new SevenZipNArchive instance with the specified session, archive file, and read-only flag. This constructor allows for specifying whether the archive should be opened in read-only mode or not.
+     * 
+     * @param session the Session object representing the current user session, used for authentication and access control during archive operations
+     * @param archive the File object representing the archive file to be opened and managed by this instance
+     * @param readonly a boolean flag indicating whether the archive should be opened in read-only mode (true) or read-write mode (false)
+     * @throws IOException if an I/O error occurs while accessing the archive file
+     * @throws SevenZipNativeInitializationException if an error occurs during the initialization of the SevenZip native library
+     */
     public SevenZipNArchive(final Session session, final File archive, final boolean readonly) throws IOException, SevenZipNativeInitializationException {
         super(session, archive, readonly, null);
     }
 
+    /** Constructs a new SevenZipNArchive instance with the specified session, archive file, read-only flag, and progress callback. This constructor allows for specifying whether the archive should be opened in read-only mode and provides a callback for tracking progress during archive operations.
+     * 
+     * @param session the Session object representing the current user session, used for authentication and access control during archive operations
+     * @param archive the File object representing the archive file to be opened and managed by this instance
+     * @param readonly a boolean flag indicating whether the archive should be opened in read-only mode (true) or read-write mode (false)
+     * @param cb a ProgressNarchiveCallBack instance used for tracking progress during archive operations, allowing for updates on the status of ongoing tasks
+     * @throws IOException if an I/O error occurs while accessing the archive file
+     * @throws SevenZipNativeInitializationException if an error occurs during the initialization of the SevenZip native library
+     */
     public SevenZipNArchive(final Session session, final File archive, final boolean readonly, ProgressNarchiveCallBack cb)
             throws IOException, SevenZipNativeInitializationException {
         super(session, archive, readonly, cb);

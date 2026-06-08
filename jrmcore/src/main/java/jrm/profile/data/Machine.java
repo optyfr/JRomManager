@@ -225,6 +225,10 @@ public class Machine extends Anyware implements Serializable {
          * @return the filter string
          */
         private String filter;
+        
+        /** Constructs a new SWList instance with default values. This constructor does not perform any specific initialization and can be used to create a basic software list reference for a machine. The fields of the SWList instance will need to be set manually after using this constructor.
+         */
+        public SWList() { /* default constructor */ }
     }
 
     /**
@@ -471,9 +475,9 @@ public class Machine extends Anyware implements Serializable {
                 new SimpleAttribute("sampleof", sampleof) //$NON-NLS-1$
         );
         writer.writeElement("description", description); //$NON-NLS-1$
-        if (year != null && year.length() > 0)
+        if (year != null && !year.isEmpty())
             writer.writeElement("year", year); //$NON-NLS-1$
-        if (manufacturer.length() > 0)
+        if (!manufacturer.isEmpty())
             writer.writeElement("manufacturer", manufacturer); //$NON-NLS-1$
         final var missing = modes.contains(ExportMode.MISSING);
         final var have = modes.contains(ExportMode.HAVE);
@@ -505,9 +509,9 @@ public class Machine extends Anyware implements Serializable {
                 new SimpleAttribute("sampleof", sampleof) //$NON-NLS-1$
         );
         writer.writeElement("description", description); //$NON-NLS-1$
-        if (year != null && year.length() > 0)
+        if (year != null && !year.isEmpty())
             writer.writeElement("year", year); //$NON-NLS-1$
-        if (manufacturer.length() > 0)
+        if (!manufacturer.isEmpty())
             writer.writeElement("manufacturer", manufacturer); //$NON-NLS-1$
         final var missing = modes.contains(ExportMode.MISSING);
         final var have = modes.contains(ExportMode.HAVE);

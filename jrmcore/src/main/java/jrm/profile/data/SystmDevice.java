@@ -26,7 +26,7 @@ import java.io.Serializable;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class SystmDevice implements Systm, Serializable {
+public class SystmDevice implements Systm, Serializable { //NOSONAR
     /**
      * The static DEVICE instance.
      */
@@ -72,4 +72,7 @@ public class SystmDevice implements Systm, Serializable {
         return "device"; //$NON-NLS-1$
     }
 
+    /** Default constructor for SystmDevice. This constructor does not perform any specific initialization and is used to create instances of the SystmDevice class. */
+    public SystmDevice() { /* default constructor */ }
+    
 }

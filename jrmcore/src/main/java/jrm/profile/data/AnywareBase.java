@@ -124,4 +124,10 @@ public abstract class AnywareBase extends NameBase implements Serializable {
         return super.hashCode();
     }
 
+    /**
+     * Constructs a new AnywareBase object with default values.
+     */
+    public AnywareBase() {
+        super();
+    }
 }

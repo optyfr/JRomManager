@@ -60,4 +60,9 @@ public class Slot extends ArrayList<SlotOption> implements Serializable {
     public int hashCode() {
         return super.hashCode();
     }
+
+    /** Constructs a new Slot with no options and an empty name. */
+    public Slot() {
+        super();
+    }
 }

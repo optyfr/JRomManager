@@ -20,16 +20,20 @@ import java.io.InputStream;
 
 import jrm.misc.OffsetProvider;
 
-/**
- * The Interface ProgressHandler.
- *
- * @author optyfr
- */
+/** Progress handler interface. */
 public interface ProgressHandler {
+    /** Options for the progress handler. These options can be used to configure the behavior of the progress handler, such as enabling lazy updates or other features that may affect how progress is tracked and displayed. The specific options available may depend on the implementation of the ProgressHandler interface. */
     public enum Option {
+        /** Enables lazy updates for the progress handler, which may improve performance by reducing the frequency of progress updates. When this option is enabled, the progress handler may choose to update the progress display less frequently, such as only when a certain threshold of progress has been reached or after a certain amount of time has passed. This can help to reduce overhead and improve responsiveness in situations where frequent updates may be costly or unnecessary. */
         LAZY;
     }
 
+    /**
+     * Sets the options.
+     *
+     * @param first the first
+     * @param rest  the rest
+     */
     public void setOptions(Option first, Option... rest);
 
     /**
@@ -124,72 +128,89 @@ public interface ProgressHandler {
     public void setProgress3(String msg, Integer val, Integer max);
 
     /**
-     * Gets the value.
+     * Gets the current value of the primary progress bar.
      *
-     * @return the value
+     * @return the current progress value of the primary progress bar
      */
+
     public int getCurrent();
 
     /**
-     * Gets the value 2.
+     * Gets the current value of the second progress bar.
      *
-     * @return the value 2
+     * @return the current progress value of the second progress bar
      */
     public int getCurrent2();
 
     /**
-     * Gets the value 3.
+     * Gets the current value of the third progress bar.
      *
-     * @return the value 3
+     * @return the current progress value of the third progress bar
      */
     public int getCurrent3();
 
     /**
-     * Checks if is cancel.
+     * Is cancel?
      *
-     * @return true, if is cancel
+     * @return true if the progress has been cancelled, false otherwise
      */
     public boolean isCancel();
 
     /**
-     * Cancel.
+     * Do cancel.
      */
     public void doCancel();
 
     /**
-     * Set Can Cancel.
-     * 
-     * @param canCancel set if we can cancel or not
+     * Sets whether the progress can be cancelled.
+     *
+     * @param canCancel true if the progress can be cancelled, false otherwise
      */
     public void canCancel(boolean canCancel);
 
     /**
-     * Can Cancel?
-     * 
-     * @return true if we can cancel
+     * Can cancel?
+     *
+     * @return true if the progress can be cancelled, false otherwise
      */
     public boolean canCancel();
 
     /**
      * Gets the input stream.
      *
-     * @param in  the in
-     * @param len the len
-     * @return the input stream
+     * @param in  the input stream to wrap with progress tracking
+     * @param len the length of the input stream, used for progress tracking
+     * @return an InputStream that tracks progress based on the provided input
+     *         stream and length
      */
     public InputStream getInputStream(InputStream in, Integer len);
 
     /**
-     * Destroy or hide the progress
+     * Closes the progress handler and releases any resources associated with it.
+     * This method should be called when the progress tracking is complete or when
+     * the handler is no longer needed to ensure proper cleanup and resource
+     * management.
      */
     public void close();
 
     /**
-     * add an error to show when closing progress
-     * 
-     * @param error
+     * Adds an error message to the progress handler. This method can be used to
+     * report errors that occur during the progress tracking process, allowing the
+     * handler to display or log the error messages as needed.
+     *
+     * @param error the error message to add to the progress handler
      */
     public void addError(String error);
 
+    /**
+     * Sets the offset provider for the progress handler. The offset provider is
+     * used to track the progress of operations that involve offsets, such as
+     * reading from a file or processing a stream. By setting the offset provider,
+     * the progress handler can update its progress tracking based on the current
+     * offset provided by the offset provider.
+     *
+     * @param offsetProvider the OffsetProvider instance to be used by the progress
+     *                       handler for tracking offsets
+     */
     public void setOffsetProvider(OffsetProvider offsetProvider);
 }

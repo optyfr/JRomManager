@@ -23,19 +23,32 @@ import jrm.aui.progress.ProgressNarchiveCallBack;
 import jrm.security.Session;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
-/**
- * Zip native archive class, sould not be directly used
+/** * Zip native archive class, should not be used directly.
  * 
  * @author optyfr
  */
 class ZipNArchive extends NArchive {
 
+    /** Constructs a new ZipNArchive instance with the specified session and archive file. This constructor initializes the archive in read-write mode by default.
+     * 
+     * @param session the Session object representing the current user session, used for authentication and access control during archive operations
+     * @param archive the File object representing the archive file to be opened and managed by this instance
+     * @throws IOException if an I/O error occurs while accessing the archive file
+     * @throws SevenZipNativeInitializationException if an error occurs during the initialization of the SevenZip native library
+     */
     public ZipNArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException {
         super(session, archive);
     }
 
+    /** Constructs a new ZipNArchive instance with the specified session, archive file, and read-only flag. This constructor allows for specifying whether the archive should be opened in read-only mode or not.
+     * 
+     * @param session the Session object representing the current user session, used for authentication and access control during archive operations
+     * @param archive the File object representing the archive file to be opened and managed by this instance
+     * @param readonly a boolean flag indicating whether the archive should be opened in read-only mode (true) or read-write mode (false)
+     * @throws IOException if an I/O error occurs while accessing the archive file
+     * @throws SevenZipNativeInitializationException if an error occurs during the initialization of the SevenZip native library
+     */
     public ZipNArchive(final Session session, final File archive, final boolean readonly, ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException {
         super(session, archive, readonly, cb);
     }
-
 }

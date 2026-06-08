@@ -25,6 +25,10 @@ import jrm.profile.data.AnywareList;
  * @since 1.0
  */
 public abstract class Keywords {
+    
+    /** Constructs a new Keywords instance with default settings. This constructor does not perform any specific initialization and can be used to create an instance of the Keywords class for analyzing game descriptions and filtering lists based on extracted keywords. */
+    protected Keywords() { /* default constructor */ }
+    
     /**
      * Regex pattern to match the base name and subsequent parentheses-enclosed tags
      * in descriptions.

@@ -123,4 +123,12 @@ public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samp
     public Samples getFilteredByName(String name) {
         return getByName(name);
     }
+    
+    /**
+     * Constructs a new empty SamplesList. This constructor initializes the internal
+     * map to store sample sets by their unique names.
+     */
+    public SamplesList() {
+        // default constructor
+    }
 }

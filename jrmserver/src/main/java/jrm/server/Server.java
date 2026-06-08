@@ -1,7 +1,6 @@
 package jrm.server;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -38,17 +37,29 @@ import jrm.server.shared.handlers.DownloadServlet;
 import jrm.server.shared.handlers.ImageServlet;
 import jrm.server.shared.handlers.UploadServlet;
 
+/**
+ * Main server class
+ */
 public class Server extends AbstractServer {
+    /** default HTTP port */
     private static final int HTTP_PORT_DEFAULT = 8080;
+    /** port for HTTP */
     private static int httpPort = HTTP_PORT_DEFAULT;
+    /** default bind to all addresses */
     private static final String BIND_DEFAULT = "0.0.0.0";
+    /** bind to address or host */
     private static String bind = BIND_DEFAULT;
+    /** number of simultaneous connections allowed */
     private static int connLimit = 50;
 
+    
+    /** sessions map */
     static final Map<String, WebSession> sessions = new HashMap<>();
 
+    /** environment properties */
     private static final DefaultEnvironmentProperties env = DefaultEnvironmentProperties.getInstance(Server.class);
 
+    /** Command line arguments */
     @Parameters(separators = " =")
     public static class Args {
         @Parameter(names = { "-c", "--client", "--clientPath" }, arity = 1, description = "Client path")
@@ -63,6 +74,10 @@ public class Server extends AbstractServer {
         private String bind = BIND_DEFAULT;
     }
 
+    /**
+     * Initialize arguments from environment variables
+     * @param jArgs
+     */
     private static void initFromEnv(Args jArgs) {
         Optional.ofNullable(env.getProperty("jrm.server.clientpath", jArgs.clientPath)).ifPresent(v -> jArgs.clientPath = v);
         Optional.ofNullable(env.getProperty("jrm.server.workpath", jArgs.workPath)).ifPresent(v -> jArgs.workPath = v);
@@ -72,10 +87,10 @@ public class Server extends AbstractServer {
     }
 
     /**
+     * Parse command line arguments and environment variables
      * @param args
      * @throws NumberFormatException
      * @throws IOException
-     * @throws URISyntaxException
      */
     public static void parseArgs(String... args) throws NumberFormatException, IOException {
         final var jArgs = new Args();
@@ -120,6 +135,7 @@ public class Server extends AbstractServer {
     }
 
     /**
+     * Initialize the server
      * @throws Exception
      */
     public static void initialize() throws Exception {
@@ -206,6 +222,11 @@ public class Server extends AbstractServer {
         }
     }
 
+    /**
+     * Windows service entry point
+     * @param args
+     * @throws Exception
+     */
     static void windowsService(String[] args) throws Exception {
         Log.info(() -> "WINDOW SERVICE " + Stream.of(args).collect(Collectors.joining(" ")));
         var cmd = "start";
@@ -224,6 +245,10 @@ public class Server extends AbstractServer {
         }
     }
 
+    /**
+     * Start the server in windows service mode
+     * @throws Exception
+     */
     static void windowsStart() throws Exception {
         Log.info("WIN START");
         initialize();
@@ -234,6 +259,10 @@ public class Server extends AbstractServer {
         }
     }
 
+    /**
+     * Stop the server in windows service mode
+     * @throws Exception
+     */
     static void windowsStop() throws Exception {
         Log.info("WIN STOP");
         terminate();

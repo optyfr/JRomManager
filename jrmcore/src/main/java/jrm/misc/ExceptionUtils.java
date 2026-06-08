@@ -5,14 +5,11 @@ import java.util.function.Function;
 
 import lombok.experimental.UtilityClass;
 
+
 /**
  * Utility class providing helper methods to safely execute functions or
  * consumers that might throw exceptions, with fallback values or alternative
  * actions.
- * <p>
- * This class uses Lombok's {@link UtilityClass} annotation to generate a
- * private constructor and make all methods static.
- * </p>
  * 
  * @author optyfr
  */

@@ -26,7 +26,7 @@ import java.io.Serializable;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class SystmMechanical implements Systm, Serializable {
+public class SystmMechanical implements Systm, Serializable { //NOSONAR
     /**
      * The static MECHANICAL instance.
      */
@@ -71,4 +71,7 @@ public class SystmMechanical implements Systm, Serializable {
     public String getName() {
         return "mechanical"; //$NON-NLS-1$
     }
+    
+    /** Default constructor for SystmMechanical. This constructor does not perform any specific initialization and is used to create instances of the SystmMechanical class. */
+    public SystmMechanical() { /* default constructor */ }
 }

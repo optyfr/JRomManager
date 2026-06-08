@@ -88,6 +88,11 @@ public final class Ideone {
         }
     }
 
+    /** Constructs a new Ideone instance with an empty list of intervals. */
+    public Ideone() {
+        /* default constructor */
+    }
+    
     /**
      * Adds a new interval to the list of intervals to be merged.
      * 

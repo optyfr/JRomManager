@@ -14,10 +14,6 @@ import lombok.experimental.UtilityClass;
 /**
  * Utility class providing helper methods to resolve and manipulate {@link URI}
  * instances and file paths, checking existence, and reading file contents.
- * <p>
- * This class uses Lombok's {@link UtilityClass} annotation to generate a
- * private constructor and make all methods static.
- * </p>
  * 
  * @author optyfr
  */

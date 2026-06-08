@@ -91,6 +91,9 @@ public final class Device implements Serializable {
      */
     private @Getter @Setter List<Extension> extensions = new ArrayList<>();
 
+    /** Constructs a new Device instance with default values. This constructor initializes the type, tag, intrface, fixedImage, mandatory, and instance fields to null, and the extensions list to an empty ArrayList. This allows for the creation of a Device object that can be populated with specific details as needed. */
+    public Device() { /* default constructor */ }
+    
     /**
      * Describes a specific instance of a {@link Device}, detailing its name and
      * brief representation.
@@ -111,6 +114,9 @@ public final class Device implements Serializable {
          * @return the brief name of the instance
          */
         protected @Getter @Setter String briefname = null;
+        
+        /** Constructs a new Instance object with default values. This constructor initializes the name and briefname fields to null, allowing for the creation of an Instance object that can be populated with specific details as needed. */
+        public Instance() { /* default constructor */ }
     }
 
     /**
@@ -124,5 +130,8 @@ public final class Device implements Serializable {
          * @return the file extension name
          */
         protected @Getter @Setter String name;
+        
+        /** Constructs a new Extension object with default values. This constructor initializes the name field to null, allowing for the creation of an Extension object that can be populated with specific details as needed. */
+        public Extension() { /* default constructor */ }
     }
 }

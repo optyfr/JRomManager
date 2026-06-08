@@ -186,6 +186,9 @@ public class Software extends Anyware implements Serializable {
              * @return the list of ROMs
              */
             private @Getter List<Rom> roms = new ArrayList<>();
+            
+            /** Default constructor for DataArea. Initializes the data area with default values. */
+            public DataArea() { /* default constructor */ }
         }
 
         /**
@@ -208,6 +211,9 @@ public class Software extends Anyware implements Serializable {
              * @return the list of disks
              */
             private @Getter List<Disk> disks = new ArrayList<>();
+            
+            /** Default constructor for DiskArea. Initializes the disk area with default values. */
+            public DiskArea() { /* default constructor */ }
         }
 
         /**
@@ -238,6 +244,9 @@ public class Software extends Anyware implements Serializable {
          * @return the list of disk areas
          */
         private @Getter List<DiskArea> diskareas = new ArrayList<>();
+        
+        /** Default constructor for Part. Initializes the part with default values. */
+        public Part() { /* default constructor */ }
     }
 
     /**
