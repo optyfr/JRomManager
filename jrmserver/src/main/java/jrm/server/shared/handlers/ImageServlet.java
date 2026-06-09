@@ -47,10 +47,29 @@ public class ImageServlet extends HttpServlet {
         return true;
     }
 
+    private static URI resolveRequestedResourceUri(String requestUri) throws URISyntaxException {
+        if (requestUri == null || requestUri.length() <= 8) {
+            throw new URISyntaxException(String.valueOf(requestUri), "Invalid request URI");
+        }
+        String resourcePath = requestUri.substring(8);
+        if (resourcePath.isEmpty() || resourcePath.contains("..") || resourcePath.contains("\\") || resourcePath.contains(":")
+                || resourcePath.contains("\0") || resourcePath.startsWith("//")) {
+            throw new URISyntaxException(resourcePath, "Disallowed resource path");
+        }
+
+        URI baseUri = getURI();
+        URI resolved = URI.create(baseUri.toString() + resourcePath).normalize();
+        String basePrefix = baseUri.toString();
+        if (!resolved.toString().startsWith(basePrefix)) {
+            throw new URISyntaxException(resourcePath, "Resolved path escapes base URI");
+        }
+        return resolved;
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            val uri = URI.create(getURI() + req.getRequestURI().substring(8));
+            val uri = resolveRequestedResourceUri(req.getRequestURI());
             val url = uri.toURL();
             val urlconn = url.openConnection();
             urlconn.setDoInput(true);
