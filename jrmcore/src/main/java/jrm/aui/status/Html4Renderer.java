@@ -68,11 +68,17 @@ public class Html4Renderer implements StatusRenderer {
                 internalProgress(width, i, max), escape(msg));
     }
 
-    /** Escapes the given character sequence to make it safe for inclusion in HTML output. This method utilizes string escaping to convert special characters into their corresponding HTML entities, preventing issues such as XSS attacks or improper rendering when the input contains characters that have special meaning in HTML.
+    /**
+     * Generates the internal HTML table representation of the progress bar.
+     * <p>
+     * This method constructs a styled HTML table with a fixed layout to visually represent the progress.
+     * It calculates the width of the completed progress indicator based on the current progress and maximum value.
      *
-     * @param str the character sequence to be escaped
-     * @return a String representing the escaped version of the input character sequence
-     */        
+     * @param width the base width of the progress bar in pixels
+     * @param i     the current progress value
+     * @param max   the maximum progress value
+     * @return a String containing the HTML table representing the progress indicator
+     */
     protected String internalProgress(final int width, final long i, final long max) {
         return String.format(
                 "<table cellpadding=0 cellspacing=0 style='width:%dpx;font-size:2px;border:1px solid gray;table-layout:fixed'><tr><td style='width:%dpx;height:2px;background-color:#00ff00'></td><td></td></table>",

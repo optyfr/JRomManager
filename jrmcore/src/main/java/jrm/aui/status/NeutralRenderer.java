@@ -58,7 +58,12 @@ public class NeutralRenderer implements StatusRenderer {
         return toDocument(internalProgress(width, i, max) + " " + escape(msg));
     }
 
-    /** Generates a progress element in a simple XML-like format based on the provided width, current progress value, and maximum value. This method constructs a string that represents a progress bar using the <progress> tag, where the width attribute specifies the width of the progress bar, the value attribute indicates the current progress, and the max attribute defines the maximum value for the progress. The resulting string will have the format "<progress width="width" value="i" max="max"></progress>", where "width", "i", and "max" are replaced with the corresponding input values.
+    /** Generates a progress element in a simple XML-like format based on the provided width,
+     *  current progress value, and maximum value. This method constructs a string that represents
+     *  a progress bar using the &lt;progress&gt; tag, where the width attribute specifies the width of 
+     *  the progress bar, the value attribute indicates the current progress, and the max attribute 
+     *  defines the maximum value for the progress. The resulting string will have the format 
+     *  "&lt;progress width="width" value="i" max="max"&gt;&lt;/progress&gt;", where "width", "i", and "max" are replaced with the corresponding input values.
      * @param width the width of the progress bar
      * @param i the current progress value
      * @param max the maximum value for the progress

@@ -6,7 +6,7 @@ plugins {
 	id "com.netflix.nebula.ospackage" version "12.3.0"
 	id "io.freefair.lombok" version "9.5.0"
 	id 'org.openjfx.javafxplugin' version '0.1.0'
-	id "org.beryx.jlink" version "4.0.2" apply false
+	id "org.beryx.jlink" version "3.2.1" apply false
 	id 'jacoco'
     id "io.github.sgtsilvio.gradle.javadoc-links" version "0.10.0"
 }
@@ -229,7 +229,7 @@ project(':jrmcore') {
 	}
 	javadoc {
         dependsOn delombok
-        source = fileTree("$buildDir/generated/sources/delombok") {
+        source = fileTree("$buildDir/generated/sources/delombok/java/main") {
             include '**/*.java'
         }
         exclude '**/LICENSE'
@@ -282,10 +282,20 @@ project(':jrmcli') {
 			)
 		}
 	}
-	javadoc {
-		exclude '**/*.properties'
-		source = sourceSets.main.allJava
-	}
+    javadoc {
+        dependsOn delombok
+        source = fileTree("$buildDir/generated/sources/delombok/java/main") {
+            include '**/*.java'
+        }
+        exclude '**/*.properties'
+        options {
+            encoding = 'UTF-8'
+            memberLevel = JavadocMemberLevel.PUBLIC
+            outputLevel = JavadocOutputLevel.QUIET
+            addBooleanOption('Xdoclint:all', true)
+            addBooleanOption('html5', true)
+        }
+    }
 	apply plugin:'jacoco'
 	
 }
@@ -351,6 +361,20 @@ project(':jrmstandalone') {
 			)
 		}
 	}
+    javadoc {
+        dependsOn delombok
+        source = fileTree("$buildDir/generated/sources/delombok/java/main") {
+            include '**/*.java'
+        }
+        exclude '**/LICENSE'
+        options {
+            encoding = 'UTF-8'
+            memberLevel = JavadocMemberLevel.PUBLIC
+            outputLevel = JavadocOutputLevel.QUIET
+            addBooleanOption('Xdoclint:all', true)
+            addBooleanOption('html5', true)
+        }
+    }
 	apply plugin:'jacoco'
 }
 
@@ -409,10 +433,21 @@ project(':jrmfx') {
 			)
 		}
 	}
-	javadoc {
-		exclude '**/*.fxml'
-		source = sourceSets.main.allJava
-	}
+    javadoc {
+        dependsOn delombok
+        source = fileTree("$buildDir/generated/sources/delombok/java/main") {
+            include '**/*.java'
+        }
+        exclude '**/*.fxml'
+        exclude '**/*.css'
+        options {
+            encoding = 'UTF-8'
+            memberLevel = JavadocMemberLevel.PUBLIC
+            outputLevel = JavadocOutputLevel.QUIET
+            addBooleanOption('Xdoclint:all', true)
+            addBooleanOption('html5', true)
+        }
+    }
 	apply plugin:'jacoco'
 }
 
@@ -458,6 +493,20 @@ project(':jrmserver') {
 //		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
 //		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
 	}
+    javadoc {
+        dependsOn delombok
+        source = fileTree("$buildDir/generated/sources/delombok/java/main") {
+            include '**/*.java'
+        }
+        exclude '**/LICENSE'
+        options {
+            encoding = 'UTF-8'
+            memberLevel = JavadocMemberLevel.PUBLIC
+            outputLevel = JavadocOutputLevel.QUIET
+            addBooleanOption('Xdoclint:all', true)
+            addBooleanOption('html5', true)
+        }
+    }
 	
 	apply plugin: 'jacoco'
 	test {
@@ -796,15 +845,16 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
 	title = "$project.name $version API"
 	options.author true
 	options.links 'https://docs.oracle.com/en/java/javase/21/docs/api', 'https://openjfx.io/javadoc/21/'
-	options.addStringOption 'Xdoclint:none', '-quiet'
+//	options.addStringOption 'Xdoclint:none', '-quiet'
 	
 	dependsOn subprojects.findAll { it.javadoc.enabled }.collect { it.javadoc }
 	
 	def projectsWithJavadoc = subprojects.findAll { it.javadoc.enabled }
-	source = projectsWithJavadoc.collect { it.sourceSets.main.allJava }
+    source = projectsWithJavadoc.collect { it.buildDir.toPath().resolve("generated/sources/delombok/java/main").toFile() }
 	classpath = files(projectsWithJavadoc.collect { it.sourceSets.main.compileClasspath })
 	includes = projectsWithJavadoc.collectMany { it.javadoc.getIncludes() }
 	excludes = projectsWithJavadoc.collectMany { it.javadoc.getExcludes() }
+	
 	
 /*	subprojects.each { proj ->
 		proj.tasks.withType(Javadoc).each { javadocTask ->
