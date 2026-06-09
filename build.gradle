@@ -6,7 +6,7 @@ plugins {
 	id "com.netflix.nebula.ospackage" version "12.3.0"
 	id "io.freefair.lombok" version "9.5.0"
 	id 'org.openjfx.javafxplugin' version '0.1.0'
-	id "org.beryx.jlink" version "3.2.1" apply false
+	id "org.beryx.jlink" version "4.0.2" apply false
 	id 'jacoco'
     id "io.github.sgtsilvio.gradle.javadoc-links" version "0.10.0"
 }
