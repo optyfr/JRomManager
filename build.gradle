@@ -477,8 +477,8 @@ project(':jrmserver') {
 	        events TestLogEvent.FAILED,
 	               TestLogEvent.PASSED,
 	               TestLogEvent.SKIPPED,
-	               TestLogEvent.STANDARD_OUT
-	        exceptionFormat = TestExceptionFormat.FULL
+	               TestLogEvent.STANDARD_ERROR
+	        exceptionFormat = TestExceptionFormat.SHORT
 	        showExceptions = true
 	        showCauses = true
 	        showStackTraces = true
@@ -492,6 +492,9 @@ project(':jrmserver') {
 	                   TestLogEvent.STANDARD_ERROR,
 	                   TestLogEvent.STANDARD_OUT
 	            exceptionFormat = TestExceptionFormat.FULL
+                showExceptions = true
+                showCauses = true
+                showStackTraces = true
 	        }
 	        info.events = debug.events
 	        info.exceptionFormat = debug.exceptionFormat
