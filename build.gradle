@@ -442,7 +442,7 @@ project(':jrmserver') {
 		implementation 'com.google.code.gson:gson:latest.release'
 		implementation 'one.util:streamex:0.8.+'
 		implementation 'commons-dbutils:commons-dbutils:latest.release'
-		implementation 'com.h2database:h2:2.2.+'
+		implementation 'com.h2database:h2:2.4.+'
 		implementation 'org.mindrot:jbcrypt:0.4'
 		implementation 'net.java.dev.jna:jna:latest.release'
 		implementation 'de.mkammerer:argon2-jvm:latest.release'
