@@ -235,10 +235,11 @@ project(':jrmcore') {
         exclude '**/LICENSE'
         options {
             encoding = 'UTF-8'
-            memberLevel = JavadocMemberLevel.PUBLIC
+            memberLevel = JavadocMemberLevel.PACKAGE
             outputLevel = JavadocOutputLevel.QUIET
             addBooleanOption('Xdoclint:all', true)
             addBooleanOption('html5', true)
+            addStringOption('Xmaxwarns', '0')
         }
 	}
 	apply plugin:'jacoco'
@@ -290,10 +291,10 @@ project(':jrmcli') {
         exclude '**/*.properties'
         options {
             encoding = 'UTF-8'
-            memberLevel = JavadocMemberLevel.PUBLIC
+            memberLevel = JavadocMemberLevel.PACKAGE
             outputLevel = JavadocOutputLevel.QUIET
-            addBooleanOption('Xdoclint:all', true)
-            addBooleanOption('html5', true)
+            addBooleanOption('Xdoclint', true)
+            addStringOption('Xmaxwarns', '0')
         }
     }
 	apply plugin:'jacoco'
@@ -369,10 +370,10 @@ project(':jrmstandalone') {
         exclude '**/LICENSE'
         options {
             encoding = 'UTF-8'
-            memberLevel = JavadocMemberLevel.PUBLIC
+            memberLevel = JavadocMemberLevel.PACKAGE
             outputLevel = JavadocOutputLevel.QUIET
-            addBooleanOption('Xdoclint:all', true)
-            addBooleanOption('html5', true)
+            addBooleanOption('Xdoclint', true)
+            addStringOption('Xmaxwarns', '0')
         }
     }
 	apply plugin:'jacoco'
@@ -442,10 +443,10 @@ project(':jrmfx') {
         exclude '**/*.css'
         options {
             encoding = 'UTF-8'
-            memberLevel = JavadocMemberLevel.PUBLIC
+            memberLevel = JavadocMemberLevel.PACKAGE
             outputLevel = JavadocOutputLevel.QUIET
-            addBooleanOption('Xdoclint:all', true)
-            addBooleanOption('html5', true)
+            addBooleanOption('Xdoclint', true)
+            addStringOption('Xmaxwarns', '0')
         }
     }
 	apply plugin:'jacoco'
@@ -501,10 +502,10 @@ project(':jrmserver') {
         exclude '**/LICENSE'
         options {
             encoding = 'UTF-8'
-            memberLevel = JavadocMemberLevel.PUBLIC
+            memberLevel = JavadocMemberLevel.PACKAGE
             outputLevel = JavadocOutputLevel.QUIET
-            addBooleanOption('Xdoclint:all', true)
-            addBooleanOption('html5', true)
+            addBooleanOption('Xdoclint', true)
+            addStringOption('Xmaxwarns', '0')
         }
     }
 	
