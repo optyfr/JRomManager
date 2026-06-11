@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -51,16 +52,21 @@ public class ImageServlet extends HttpServlet {
         if (requestUri == null || requestUri.length() <= 8) {
             throw new URISyntaxException(String.valueOf(requestUri), "Invalid request URI");
         }
-        String resourcePath = requestUri.substring(8);
-        if (resourcePath.isEmpty() || resourcePath.contains("..") || resourcePath.contains("\\") || resourcePath.contains(":")
-                || resourcePath.contains("\0") || resourcePath.startsWith("//")) {
+
+        String resourcePath = URLDecoder.decode(requestUri.substring(8), java.nio.charset.StandardCharsets.UTF_8);
+        if (resourcePath.isEmpty() || !resourcePath.startsWith("/") || resourcePath.contains("\\") || resourcePath.contains("\0")) {
             throw new URISyntaxException(resourcePath, "Disallowed resource path");
         }
 
-        URI baseUri = getURI();
-        URI resolved = URI.create(baseUri.toString() + resourcePath).normalize();
-        String basePrefix = baseUri.toString();
-        if (!resolved.toString().startsWith(basePrefix)) {
+        URI baseUri = getURI().normalize();
+        URI resolved = baseUri.resolve("." + resourcePath).normalize();
+
+        String basePath = baseUri.getPath() == null ? "" : baseUri.getPath();
+        String resolvedPath = resolved.getPath() == null ? "" : resolved.getPath();
+        if (!resolvedPath.startsWith(basePath)
+                || !baseUri.getScheme().equalsIgnoreCase(resolved.getScheme())
+                || (baseUri.getHost() != null && !baseUri.getHost().equalsIgnoreCase(resolved.getHost()))
+                || baseUri.getPort() != resolved.getPort()) {
             throw new URISyntaxException(resourcePath, "Resolved path escapes base URI");
         }
         return resolved;
@@ -71,6 +77,10 @@ public class ImageServlet extends HttpServlet {
         try {
             val uri = resolveRequestedResourceUri(req.getRequestURI());
             val url = uri.toURL();
+            String scheme = uri.getScheme();
+            if (scheme == null || !(scheme.equalsIgnoreCase("jrt") || scheme.equalsIgnoreCase("jar") || scheme.equalsIgnoreCase("file"))) {
+                throw new IOException("Unsupported URI scheme");
+            }
             val urlconn = url.openConnection();
             urlconn.setDoInput(true);
             if (urlconn.getContentLength() == 0) {
