@@ -11,16 +11,40 @@ import jrm.profile.report.Subject;
 import jrm.profile.report.SubjectSet;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 
+/**
+ * Handles XML responses for fetching hierarchical report trees within the server datasources subsystem.
+ * Provides paginated node retrieval for root subjects and child notes, supporting detail extraction operations.
+ */
 public class ReportTreeXMLResponse extends XMLResponse {
 
+    /** Constant representing a single data record element in the XML response. */
     private static final String RECORD = "record";
+    /** Constant representing the parent identifier attribute/key. */
     private static final String PARENT_ID = "ParentID";
+    /** Constant representing the status indicator for subject sets. */
     private static final String STATUS = "status";
 
+    /**
+     * Constructs a {@code ReportTreeXMLResponse} bound to the provided request.
+     * Initializes the underlying XML writer and path abstraction layer.
+     *
+     * @param request the incoming XML request containing session and operation data
+     * @throws IOException if an I/O error occurs during initialization
+     * @throws XMLStreamException if an error occurs while initializing the XML stream writer
+     */
     public ReportTreeXMLResponse(XMLRequest request) throws IOException, XMLStreamException {
         super(request);
     }
 
+    /**
+     * Fetches and serializes the report tree structure based on the provided operation parameters.
+     * Dispatches to either root-level pagination or specific child node retrieval depending on {@code parentID}.
+     * Supports loading temporary reports from an external source file if specified in the operation data.
+     *
+     * @param operation the parsed XML operation containing parameters such as pagination rows and source file paths
+     * @throws XMLStreamException if an error occurs while writing the XML response
+     * @throws IOException if an I/O error occurs during temporary report loading or path resolution
+     */
     @Override
     protected void fetch(Operation operation) throws XMLStreamException, IOException {
         writer.writeStartElement("response");
@@ -46,9 +70,12 @@ public class ReportTreeXMLResponse extends XMLResponse {
     }
 
     /**
-     * @param report
-     * @param parentID
-     * @throws XMLStreamException
+     * Retrieves and writes the child nodes (notes) belonging to a specific parent subject into the XML response.
+     * Calculates pagination metadata and serializes each note as a record element with attributes including ID, title, class, and folder status.
+     *
+     * @param report the active or temporary report containing the filtered subject hierarchy
+     * @param parentID the unique identifier of the parent subject whose children are being fetched
+     * @throws XMLStreamException if an error occurs while writing XML elements or attributes
      */
     private void fetchNode(Report report, final int parentID) throws XMLStreamException {
         final var subject = report.getHandler().getFilteredReport().findSubject(parentID);
@@ -72,10 +99,12 @@ public class ReportTreeXMLResponse extends XMLResponse {
     }
 
     /**
-     * @param operation
-     * @param report
-     * @param parentID
-     * @throws XMLStreamException
+     * Retrieves and writes the root-level subjects of the report into the XML response.
+     * Computes pagination boundaries, overall statistics, and serializes each subject as a record with status and fixability indicators.
+     *
+     * @param operation the current XML operation providing pagination parameters (start/end row)
+     * @param report the active or temporary report containing the top-level subjects
+     * @throws XMLStreamException if an error occurs while writing XML elements or attributes
      */
     private void fetchRoot(Operation operation, Report report) throws XMLStreamException {
         int start;
@@ -109,6 +138,14 @@ public class ReportTreeXMLResponse extends XMLResponse {
         }
     }
 
+    /**
+     * Handles custom operations specifically dedicated to extracting detailed information for a single report node.
+     * Loads the appropriate report context, resolves the parent subject, and writes the detailed metadata (name, hashes, CDATA body) if the matching ID is found.
+     *
+     * @param operation the custom operation containing the target node ID and optional source file reference
+     * @throws XMLStreamException if an error occurs while constructing the detailed XML record
+     * @throws IOException if an I/O error occurs during report context resolution or loading
+     */
     @Override
     protected void custom(Operation operation) throws XMLStreamException, IOException {
         if ("detail".equals(operation.getOperationId().toString())) {

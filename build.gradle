@@ -63,8 +63,8 @@ codeCoverageReport.dependsOn {
 apply plugin: 'java'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 apply plugin: 'eclipse'
@@ -125,14 +125,14 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 subprojects {
 	apply plugin: 'java'
 	java {
-	    sourceCompatibility = JavaVersion.VERSION_21
-	    targetCompatibility = JavaVersion.VERSION_21
+	    sourceCompatibility = JavaVersion.VERSION_25
+	    targetCompatibility = JavaVersion.VERSION_25
 	}
 
     tasks.withType(JavaCompile).configureEach {
   //      options.compilerArgs += ['-Xlint:deprecation']
         options.encoding = 'UTF-8'
-        options.release = (project.name == 'WebClient') ? 17 : 21
+        options.release = (project.name == 'WebClient') ? 17 : java.targetCompatibility.majorVersion.toInteger()
     }
     tasks.withType(AbstractTestTask).configureEach {
         failOnNoDiscoveredTests = false
@@ -240,6 +240,7 @@ project(':jrmcore') {
             addBooleanOption('Xdoclint:all', true)
             addBooleanOption('html5', true)
             addStringOption('Xmaxwarns', '0')
+            addBooleanOption('-syntax-highlight', true)
         }
 	}
 	apply plugin:'jacoco'
@@ -295,6 +296,7 @@ project(':jrmcli') {
             outputLevel = JavadocOutputLevel.QUIET
             addBooleanOption('Xdoclint', true)
             addStringOption('Xmaxwarns', '0')
+            addBooleanOption('-syntax-highlight', true)
         }
     }
 	apply plugin:'jacoco'
@@ -374,6 +376,7 @@ project(':jrmstandalone') {
             outputLevel = JavadocOutputLevel.QUIET
             addBooleanOption('Xdoclint', true)
             addStringOption('Xmaxwarns', '0')
+            addBooleanOption('-syntax-highlight', true)
         }
     }
 	apply plugin:'jacoco'
@@ -447,6 +450,7 @@ project(':jrmfx') {
             outputLevel = JavadocOutputLevel.QUIET
             addBooleanOption('Xdoclint', true)
             addStringOption('Xmaxwarns', '0')
+            addBooleanOption('-syntax-highlight', true)
         }
     }
 	apply plugin:'jacoco'
@@ -506,6 +510,7 @@ project(':jrmserver') {
             outputLevel = JavadocOutputLevel.QUIET
             addBooleanOption('Xdoclint', true)
             addStringOption('Xmaxwarns', '0')
+            addBooleanOption('-syntax-highlight', true)
         }
     }
 	

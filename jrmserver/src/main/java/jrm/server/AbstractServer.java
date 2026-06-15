@@ -29,33 +29,93 @@ import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 
 /**
- * AbstractServer is the base class for both FullServer and AdminServer, providing common functionalities such as resource loading, server management, and shutdown handling.
+ * Abstract base class for all server implementations in the JRomManager web
+ * server framework. This class implements the Apache Commons
+ * {@link org.apache.commons.daemon.Daemon Daemon} interface and provides
+ * shared infrastructure used by both {@link jrm.fullserver.FullServer
+ * FullServer} and the administrative server variant.
+ *
+ * <p>
+ * Common functionality includes:
+ * </p>
+ * <ul>
+ * <li>Static resource resolution from the filesystem, classpath, or Java
+ * module (JRT) runtime image.</li>
+ * <li>Jetty {@link Server} lifecycle management (start, stop, join).</li>
+ * <li>GZIP compression handler factory for HTTP response optimization.</li>
+ * <li>Graceful shutdown via a JVM shutdown hook and an interactive console
+ * stop command (in debug/Windows modes).</li>
+ * <li>Working directory and log path resolution.</li>
+ * </ul>
+ *
+ * <p>
+ * Subclasses are expected to implement the concrete server initialization
+ * logic (servlet registration, connector configuration, etc.) and invoke the
+ * shared helpers provided here.
+ * </p>
+ *
+ * @since 1.0
+ * @see jrm.fullserver.FullServer
  */
 public abstract class AbstractServer implements Daemon {
 
-    /** Constants for servlet initialization parameters */
+    /** Servlet init-parameter name controlling precompressed resource serving. */
     private static final String PRECOMPRESSED = "precompressed";
+
+    /** Servlet init-parameter name enabling HTTP byte-range request support. */
     private static final String ACCEPT_RANGES = "acceptRanges";
+
+    /** Servlet init-parameter name controlling directory listing permission. */
     private static final String DIR_ALLOWED = "dirAllowed";
+
+    /** Reusable string constant {@code "true"} for servlet init-parameters. */
     private static final String TRUE = "true";
+
+    /** Reusable string constant {@code "false"} for servlet init-parameters. */
     private static final String FALSE = "false";
 
-    /** The path to the client resources, which can be set via configuration or defaults to embedded resources. */
+    /**
+     * Optional filesystem path to the client-side web resources (HTML, CSS,
+     * JavaScript). When {@code null}, the server falls back to embedded
+     * classpath or module resources.
+     */
     protected static String clientPath;
-    /** Shared Server instance used by both FullServer and AdminServer to manage the HTTP server lifecycle. */
+
+    /**
+     * Shared Jetty {@link Server} instance used by all server variants to
+     * manage the HTTP server lifecycle. A {@code null} value indicates that
+     * the server has not been initialized or has been terminated.
+     */
     protected static Server jettyserver = null;
-    /** Flag to enable debug mode, which allows for easier shutdown during development and testing. */
+
+    /**
+     * Debug-mode flag. When {@code true}, the server waits for an interactive
+     * console "stop" command instead of blocking on
+     * {@link Server#join() join}, facilitating easier shutdown during
+     * development and testing.
+     */
     protected static boolean debug;
 
     /**
-     * Protected constructor to prevent direct instantiation of AbstractServer, as it is intended to be subclassed by specific server implementations.
+     * Protected no-argument constructor. Prevents direct instantiation of
+     * this abstract class; subclasses must provide their own constructors.
      */
     protected AbstractServer() { /* No implementation needed for abstract class */
     }
 
     /**
-     * Creates and configures a ServletHolder for serving static content, with parameters set to disable directory listing, enable range requests, and support precompressed files.
-     * @return
+     * Creates and configures a {@link ServletHolder} for serving static
+     * content via Jetty's {@link DefaultServlet}. The holder is pre-configured
+     * to:
+     * <ul>
+     * <li>Disable directory listing ({@code dirAllowed=false}).</li>
+     * <li>Enable HTTP byte-range requests ({@code acceptRanges=true}).</li>
+     * <li>Serve precompressed variants when available
+     * ({@code precompressed=true}).</li>
+     * </ul>
+     *
+     * @return a fully configured {@link ServletHolder} ready for registration
+     *         in a servlet context
      */
     protected static ServletHolder holderStatic() {
         final var holderStatic = new ServletHolder("static", DefaultServlet.class);
@@ -66,7 +126,15 @@ public abstract class AbstractServer implements Daemon {
     }
 
     /**
-     * @return {@link GzipHandler}
+     * Creates a {@link GzipHandler} configured for HTTP response compression.
+     * The handler is set up to compress responses for {@code GET} and
+     * {@code POST} methods and includes common web content MIME types
+     * (HTML, plain text, XML, CSS, JavaScript, and JSON). Both the inflate
+     * buffer size and the minimum response size threshold for compression are
+     * set to 2048 bytes.
+     *
+     * @return a configured {@link GzipHandler} ready to wrap a servlet context
+     *         handler
      */
     @SuppressWarnings("removal")
     protected static GzipHandler gzipHandler() {
@@ -79,8 +147,12 @@ public abstract class AbstractServer implements Daemon {
     }
 
     /**
-     * get working path
-     * @return {@link Path}
+     * Resolves the working directory path for the server. The path is
+     * determined by checking the {@code jrommanager.dir} system property
+     * first; if not set, it falls back to the {@code user.dir} system
+     * property (the JVM's current working directory).
+     *
+     * @return a {@link Path} representing the server's working directory
      */
     protected static Path getWorkPath() {
         String base = System.getProperty("jrommanager.dir");
@@ -90,9 +162,14 @@ public abstract class AbstractServer implements Daemon {
     }
 
     /**
-     * Creates the logs directory if it does not exist and returns its path as a string.
-     * @return {@link String}
-     * @throws IOException
+     * Resolves and creates (if necessary) the logs directory under the
+     * server's working path. The directory is created recursively using
+     * {@link Files#createDirectories(Path, java.nio.file.attribute.FileAttribute[])
+     * Files.createDirectories} if it does not already exist.
+     *
+     * @return the absolute path to the logs directory as a {@link String}
+     *
+     * @throws IOException if the logs directory cannot be created
      */
     protected static String getLogPath() throws IOException {
         final var path = getWorkPath().resolve("logs");
@@ -101,9 +178,30 @@ public abstract class AbstractServer implements Daemon {
     }
 
     /**
-     * Adds a shutdown hook to gracefully stop the server when the application is terminated. In debug mode or on Windows, it waits for a "stop" command from the console to halt the server, while in production it waits for the server thread to join.
-     * @throws InterruptedException
-     * @throws JettyException
+     * Registers a JVM shutdown hook for graceful server termination and then
+     * blocks the calling thread until a stop signal is received.
+     *
+     * <p>
+     * The shutdown hook invokes {@link #terminate()} to close all active
+     * {@link WebSession WebSession} instances and stop the Jetty server.
+     * </p>
+     *
+     * <p>
+     * The blocking behavior depends on the runtime environment:
+     * </p>
+     * <ul>
+     * <li><b>Debug mode or Windows:</b> Reads from {@code System.in} in a
+     * loop, waiting for the user to type "stop" (case-insensitive), then
+     * calls {@link System#exit(int)}.</li>
+     * <li><b>Production (non-Windows):</b> Calls
+     * {@link Server#join() jettyserver.join()} to block until the server
+     * thread completes.</li>
+     * </ul>
+     *
+     * @throws InterruptedException if the calling thread is interrupted while
+     *         waiting
+     * @throws JettyException       if an unexpected error occurs during the
+     *         wait loop (wraps the original exception)
      */
     protected static void waitStop() throws InterruptedException, JettyException {
         try {
@@ -112,7 +210,7 @@ public abstract class AbstractServer implements Daemon {
                     try {
                         terminate();
                         Log.info("Server stopped.");
-                    } catch (Exception e) {
+                    } catch (Exception _) {
                         // ignore
                     }
                 }
@@ -135,8 +233,23 @@ public abstract class AbstractServer implements Daemon {
     }
 
     /**
-     * terminate the server
-     * @throws Exception
+     * Terminates the server by closing all active web sessions and stopping
+     * the Jetty {@link Server} instance. This method is {@code synchronized}
+     * to prevent concurrent termination attempts.
+     *
+     * <p>
+     * The method performs the following steps:
+     * </p>
+     * <ol>
+     * <li>Calls {@link WebSession#closeAll()} to close every active session
+     * and set the global termination flag.</li>
+     * <li>If the Jetty server is not {@code null} and is currently started,
+     * invokes {@link Server#stop()} to shut it down gracefully.</li>
+     * <li>Sets the {@link #jettyserver} reference to {@code null} to indicate
+     * that the server has been fully terminated.</li>
+     * </ol>
+     *
+     * @throws Exception if an error occurs while stopping the Jetty server
      */
     public static synchronized void terminate() throws Exception {
         WebSession.closeAll();
@@ -147,19 +260,28 @@ public abstract class AbstractServer implements Daemon {
         }
     }
 
-    /** Checks if the server is currently started and running.
-    * This method verifies that the jettyserver instance is not null and that it is in a started state, indicating that the server has been initialized and is currently running.
-    * @return {@code true} if the server has been initialized and is started;
-    * {@code false} otherwise
-    */
+    /**
+     * Checks whether the Jetty server has been initialized and is currently
+     * running. A server is considered started when the {@link #jettyserver}
+     * reference is not {@code null} and
+     * {@link Server#isStarted() jettyserver.isStarted()} returns {@code true}.
+     *
+     * @return {@code true} if the server has been initialized and is in a
+     *         started state; {@code false} otherwise
+     */
     public static final synchronized boolean isStarted() {
         return jettyserver != null && jettyserver.isStarted();
 
     }
 
-    /** Checks if the server is currently stopped.
-     * This method checks if the jettyserver instance is null, which indicates that the server has not been initialized or has been terminated. If the jettyserver is null, it means that the server is stopped; otherwise, it is still running.
-     * @return {@code true} if the server is stopped (i.e., jettyserver is null); {@code false} otherwise
+    /**
+     * Checks whether the Jetty server is currently stopped. A server is
+     * considered stopped when the {@link #jettyserver} reference is
+     * {@code null}, indicating that it has either never been initialized or
+     * has been fully terminated via {@link #terminate()}.
+     *
+     * @return {@code true} if the server is stopped (i.e., {@code jettyserver}
+     *         is {@code null}); {@code false} otherwise
      */
     public static final synchronized boolean isStopped() {
         return jettyserver == null;
@@ -167,33 +289,73 @@ public abstract class AbstractServer implements Daemon {
     }
 
     /**
-     * Custom exception class for handling Jetty-related errors, providing constructors for various error scenarios including message-only and message with cause.
+     * Custom exception class for wrapping Jetty-related errors that occur
+     * during server lifecycle operations (startup, shutdown, join). Extends
+     * {@link Exception} and provides standard message and cause constructors.
      */
     @SuppressWarnings("serial")
     protected static class JettyException extends Exception {
-        /** Default constructor for JettyException, allowing for instantiation without a message or cause. */
+        /**
+         * Constructs a new {@code JettyException} with no detail message or
+         * cause.
+         */
         public JettyException() {
             super();
         }
 
-        /** Constructor for JettyException that accepts a message describing the error. */
+        /**
+         * Constructs a new {@code JettyException} with the specified detail
+         * message.
+         *
+         * @param message the detail message describing the error
+         */
         public JettyException(String message) {
             super(message);
         }
 
-        /** Constructor for JettyException that accepts both a message and a cause, allowing for chaining exceptions. */
+        /**
+         * Constructs a new {@code JettyException} with the specified detail
+         * message and underlying cause.
+         *
+         * @param message the detail message describing the error
+         * @param cause   the underlying cause of this exception
+         */
         public JettyException(String message, Throwable cause) {
             super(message, cause);
         }
     }
 
     /**
-     * Retrieves a Resource object representing the client path, checking various locations such as the provided path, classloader resources, and embedded resources within the JRT filesystem. If the resource cannot be found in any of these locations, a FileNotFoundException is thrown.
-     * @param resourceFactory The ResourceFactory used to create Resource instances.
-     * @param path The optional path to the client resources, which can be specified by the user or configuration.
-     * @return {@link Resource}
-     * @throws IOException
-     * @throws URISyntaxException
+     * Resolves the client web-resource path by searching multiple locations in
+     * priority order:
+     * <ol>
+     * <li>The explicit {@code path} argument (filesystem or classpath).</li>
+     * <li>The Java module runtime image at
+     * {@code jrt:/jrm.merged.module/webclient/}.</li>
+     * <li>The classpath resource {@code /webclient/} relative to
+     * {@link FullServer}.</li>
+     * </ol>
+     *
+     * <p>
+     * Each candidate is validated via {@link Resources#exists(Resource)}
+     * before being returned. If none of the candidates resolve to an existing
+     * resource, a {@link FileNotFoundException} is thrown.
+     * </p>
+     *
+     * @param resourceFactory the {@link ResourceFactory} used to create
+     *        {@link Resource} instances from paths, URIs, or classpath
+     *        entries
+     * @param path            an optional explicit path to the client
+     *        resources; may be {@code null} to rely on embedded defaults
+     *
+     * @return a {@link Resource} pointing to the resolved client web-resource
+     *         directory
+     *
+     * @throws IOException        if an I/O error occurs while resolving the
+     *         resource
+     * @throws URISyntaxException if the resource URI cannot be parsed
+     * @throws FileNotFoundException if no valid client resource path can be
+     *         found in any of the searched locations
      */
     protected static Resource getClientPath(ResourceFactory resourceFactory, String path) throws IOException, URISyntaxException {
         Resource resource;
@@ -220,11 +382,32 @@ public abstract class AbstractServer implements Daemon {
     }
 
     /**
-     * Retrieves a Resource object representing the certificates path, checking various locations such as the provided path, classloader resources, and embedded resources within the JRT filesystem. If the resource cannot be found in any of these locations, a FileNotFoundException is thrown.
-     * @param path The optional path to the certificate file, which can be specified by the user or configuration.
-     * @return {@link Resource}
-     * @throws IOException
-     * @throws URISyntaxException
+     * Resolves the TLS/SSL certificate file path by searching multiple
+     * locations in priority order:
+     * <ol>
+     * <li>The explicit {@code path} argument (filesystem or classpath).</li>
+     * <li>The Java module runtime image at
+     * {@code jrt:/jrm.merged.module/certs/localhost.pfx}.</li>
+     * <li>The classpath resource {@code /certs/localhost.pfx} relative to
+     * {@link FullServer}.</li>
+     * </ol>
+     *
+     * <p>
+     * Each candidate is validated via {@link Resources#exists(Resource)}
+     * before being returned. If none of the candidates resolve to an existing
+     * resource, a {@link FileNotFoundException} is thrown.
+     * </p>
+     *
+     * @param path an optional explicit path to the certificate file; may be
+     *        {@code null} to rely on embedded defaults
+     *
+     * @return a {@link Resource} pointing to the resolved certificate file
+     *
+     * @throws URISyntaxException  if the resource URI cannot be parsed
+     * @throws IOException         if an I/O error occurs while resolving the
+     *         resource
+     * @throws FileNotFoundException if no valid certificate path can be found
+     *         in any of the searched locations
      */
     protected static Resource getCertsPath(String path) throws URISyntaxException, IOException {
         Resource resource;
@@ -250,19 +433,42 @@ public abstract class AbstractServer implements Daemon {
     }
 
     /**
-     * Converts a given string path to a Path object, handling various URI schemes such as "jrt:", "file:", and "jar:". If the path cannot be converted directly, it attempts to create a new filesystem for the URI and then returns the corresponding Path. If all attempts fail, it returns null.
-     * @param path The string representation of the path to be converted to a Path object.
-     * @return {@link Path}
+     * Converts a string path representation into a {@link Path} object,
+     * handling multiple URI schemes including {@code jrt:}, {@code file:},
+     * and {@code jar:}.
+     *
+     * <p>
+     * If the path string begins with one of the recognized URI scheme
+     * prefixes, it is parsed as a {@link URI} and converted to a {@link Path}
+     * via {@link Path#of(URI)}. If the underlying filesystem does not yet
+     * exist (e.g., a JAR or JRT filesystem), a new
+     * {@link java.nio.file.FileSystem FileSystem} is created on-the-fly using
+     * {@link FileSystems#newFileSystem(URI, java.util.Map)
+     * FileSystems.newFileSystem}.
+     * </p>
+     *
+     * <p>
+     * Plain filesystem paths (without a URI scheme prefix) are resolved via
+     * {@link Paths#get(String, String...) Paths.get}.
+     * </p>
+     *
+     * @param path the string representation of the path to convert; may be a
+     *        URI string (e.g., {@code "jrt:/..."}, {@code "jar:file:/..."})
+     *        or a plain filesystem path
+     *
+     * @return a {@link Path} corresponding to the given string, or
+     *         {@code null} if the path cannot be resolved (e.g., the
+     *         filesystem cannot be created)
      */
     protected static Path getPath(String path) {
         try {
             return path.startsWith("jrt:") || path.startsWith("file:") || path.startsWith("jar:") ? Path.of(URI.create(path)) : Paths.get(path);
-        } catch (FileSystemNotFoundException e) {
+        } catch (FileSystemNotFoundException _) {
             final var uri = URI.create(path);
             try {
                 FileSystems.newFileSystem(uri, Collections.emptyMap());
                 return Path.of(uri);
-            } catch (IOException e1) {
+            } catch (IOException _) {
                 return null;
             }
         }

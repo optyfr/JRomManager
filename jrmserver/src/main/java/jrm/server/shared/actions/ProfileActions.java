@@ -31,17 +31,114 @@ import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
 import lombok.val;
 
+/**
+ * Action handler for profile management operations in the ROM manager web server.
+ * <p>
+ * This class processes incoming JSON action commands related to ROM profile lifecycle management, including importing profiles from
+ * MAME, loading existing profiles, scanning ROM collections against profile definitions, fixing ROM organization issues, and
+ * managing profile settings.
+ * </p>
+ * <p>
+ * <b>Retro-Gaming Context:</b>
+ * </p>
+ * <ul>
+ * <li><b>Profile:</b> A configuration file (typically .nfo format) that defines expected ROM sets, systems, sources, and filtering
+ * rules for a ROM collection</li>
+ * <li><b>Import:</b> Creating a new profile from MAME's built-in ROM database, optionally including software lists</li>
+ * <li><b>Scan:</b> Comparing actual ROM files against the profile's expected ROM set to identify missing, unneeded, or incorrect
+ * files</li>
+ * <li><b>Fix:</b> Automatically organizing, renaming, or moving ROM files to match the profile's expected structure</li>
+ * </ul>
+ * <p>
+ * <b>Thread Safety:</b> Long-running operations (import, load, scan, fix) execute in background worker threads via the
+ * {@link Worker} class. Progress updates are sent to the client via WebSocket messages. The main thread remains responsive during
+ * these operations.
+ * </p>
+ *
+ * @author optyfr
+ * 
+ * @see ActionsMgr
+ * @see WebSession
+ * @see PathAbstractor
+ * @see ProfileNFO
+ * @see Scan
+ * @see Fix
+ */
 public class ProfileActions extends PathAbstractor {
+    /** JSON key for success status in response messages. */
     private static final String SUCCESS = "success";
+
+    /** JSON key for parent directory path in request and response messages. */
     private static final String PARENT = "parent";
+
+    /** JSON key for parameter object containing operation-specific data. */
     private static final String PARAMS = "params";
+
+    /**
+     * The {@link ActionsMgr} instance used for managing session interactions and WebSocket communications.
+     */
     private final ActionsMgr ws;
 
+    /**
+     * Constructs a new {@code ProfileActions} instance with the specified actions manager.
+     * <p>
+     * This constructor also initializes the parent {@link PathAbstractor} with the session context from the actions manager,
+     * enabling path resolution and security validation.
+     * </p>
+     *
+     * @param ws the {@link ActionsMgr} instance to use for managing session interactions and communications, must not be null
+     */
     public ProfileActions(ActionsMgr ws) {
         super(ws.getSession());
         this.ws = ws;
     }
 
+    /**
+     * Imports a ROM profile from MAME's built-in database.
+     * <p>
+     * This method launches a background worker thread that:
+     * </p>
+     * <ol>
+     * <li>Locates the MAME executable in the system PATH</li>
+     * <li>Creates a new profile by importing MAME's ROM database</li>
+     * <li>Optionally imports software lists (if the "sl" parameter is true)</li>
+     * <li>Copies the profile and ROM files to the specified parent directory</li>
+     * <li>Saves the profile configuration and notifies the client</li>
+     * </ol>
+     * <p>
+     * <b>Incoming WebSocket message:</b>
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.import",
+     *     "params": {
+     *         "parent": "%work/profiles",
+     *         "sl": true
+     *     }
+     * }
+     * </code>
+     * </pre>
+     * <p>
+     * <b>Outgoing WebSocket messages:</b>
+     * </p>
+     * <ul>
+     * <li>{@code Progress.*} - Progress updates during import</li>
+     * <li>{@code Profile.imported} - Notification that import completed successfully</li>
+     * <li>{@code Global.warn} - Warning if MAME not found or import failed</li>
+     * </ul>
+     * <p>
+     * <b>Error Handling:</b>
+     * </p>
+     * <ul>
+     * <li>{@link BreakException} - User cancelled the operation (silently ignored)</li>
+     * <li>{@link IOException} - File system errors are logged and reported as warnings</li>
+     * <li>MAME not found - Warning message sent to client</li>
+     * </ul>
+     *
+     * @param jso the JSON object containing import parameters
+     */
     public void imprt(JsonObject jso) {
         (ws.getSession().setWorker(new Worker(() -> {
             WebSession session = ws.getSession();
@@ -74,12 +171,19 @@ public class ProfileActions extends PathAbstractor {
     }
 
     /**
-     * @param session
-     * @param jsobj
-     * @param sl
-     * @param imprt
-     * @throws SecurityException
-     * @throws IOException
+     * Performs the actual profile import operation.
+     * <p>
+     * This method copies the imported profile file and associated ROM/software list files to the target directory, updates the
+     * profile configuration with the original MAME file paths, and notifies the client upon successful completion.
+     * </p>
+     *
+     * @param session the active web session
+     * @param jsobj the JSON parameters object containing parent directory and software list settings
+     * @param sl {@code true} to import software lists, {@code false} otherwise
+     * @param imprt the import handler containing the generated profile and ROM files
+     * 
+     * @throws SecurityException if path validation fails (potential directory traversal attack)
+     * @throws IOException if file copying or deletion fails
      */
     private void doImport(WebSession session, JsonObject jsobj, final boolean sl, final Import imprt) throws SecurityException, IOException {
         final var parent = getAbsolutePath(
@@ -107,6 +211,51 @@ public class ProfileActions extends PathAbstractor {
         }
     }
 
+    /**
+     * Loads an existing ROM profile from disk.
+     * <p>
+     * This method launches a background worker thread that:
+     * </p>
+     * <ol>
+     * <li>Saves the current profile's settings (if one is loaded)</li>
+     * <li>Resolves the profile file path from the JSON parameters</li>
+     * <li>Loads the profile and initializes the report handler</li>
+     * <li>Loads associated CatVer and NPlayers metadata files</li>
+     * <li>Notifies the client with the loaded profile's structure and settings</li>
+     * </ol>
+     * <p>
+     * <b>Incoming WebSocket message:</b>
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.load",
+     *     "params": {
+     *         "parent": "%work/profiles",
+     *         "file": "myprofile.nfo"
+     *     }
+     * }
+     * </code>
+     * </pre>
+     * <p>
+     * <b>Outgoing WebSocket messages:</b>
+     * </p>
+     * <ul>
+     * <li>{@code Progress.*} - Progress updates during profile loading</li>
+     * <li>{@code Profile.loaded} - Notification with profile structure (systems, sources, years, settings)</li>
+     * <li>{@code CatVer.loaded} - Notification that CatVer metadata was loaded (if available)</li>
+     * <li>{@code NPlayers.loaded} - Notification that NPlayers metadata was loaded (if available)</li>
+     * </ul>
+     * <p>
+     * <b>Error Handling:</b>
+     * </p>
+     * <ul>
+     * <li>{@link BreakException} - User cancelled the operation (silently ignored)</li>
+     * </ul>
+     *
+     * @param jso the JSON object containing load parameters
+     */
     public void load(JsonObject jso) {
         (ws.getSession().setWorker(new Worker(() -> {
             WebSession session = ws.getSession();
@@ -134,6 +283,37 @@ public class ProfileActions extends PathAbstractor {
         }))).start();
     }
 
+    /**
+     * Imports profile settings from an external configuration file.
+     * <p>
+     * This method loads scan and filter settings from the specified path and applies them to the current profile. It also reloads
+     * CatVer and NPlayers metadata files if they are referenced in the imported settings.
+     * </p>
+     * <p>
+     * <b>Incoming WebSocket message:</b>
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.importSettings",
+     *     "params": {
+     *         "path": "%work/settings/myprofile.settings"
+     *     }
+     * }
+     * </code>
+     * </pre>
+     * <p>
+     * <b>Outgoing WebSocket messages:</b>
+     * </p>
+     * <ul>
+     * <li>{@code Profile.loaded} - Notification with updated profile settings</li>
+     * <li>{@code CatVer.loaded} - Notification that CatVer metadata was reloaded (if applicable)</li>
+     * <li>{@code NPlayers.loaded} - Notification that NPlayers metadata was reloaded (if applicable)</li>
+     * </ul>
+     *
+     * @param jso the JSON object containing the settings file path
+     */
     public void importSettings(JsonObject jso) {
         WebSession session = ws.getSession();
         if (session.getCurrProfile() != null) {
@@ -149,6 +329,29 @@ public class ProfileActions extends PathAbstractor {
         }
     }
 
+    /**
+     * Exports the current profile's settings to an external configuration file.
+     * <p>
+     * This method saves the current profile's scan and filter settings to the specified path, allowing them to be imported later or
+     * shared with other users.
+     * </p>
+     * <p>
+     * <b>Incoming WebSocket message:</b>
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.exportSettings",
+     *     "params": {
+     *         "path": "%work/settings/myprofile.settings"
+     *     }
+     * }
+     * </code>
+     * </pre>
+     *
+     * @param jso the JSON object containing the export file path
+     */
     public void exportSettings(JsonObject jso) {
         WebSession session = ws.getSession();
         if (session.getCurrProfile() != null) {
@@ -159,6 +362,52 @@ public class ProfileActions extends PathAbstractor {
         }
     }
 
+    /**
+     * Scans the ROM collection against the current profile to identify missing, unneeded, or incorrect files.
+     * <p>
+     * This method launches a background worker thread that:
+     * </p>
+     * <ol>
+     * <li>Creates a new {@link Scan} instance for the current profile</li>
+     * <li>Executes the scan operation, comparing actual ROM files against the profile's expected ROM set</li>
+     * <li>Generates a list of actions needed to fix the ROM collection (rename, move, delete, etc.)</li>
+     * <li>Notifies the client with the scan results and action count</li>
+     * <li>Optionally triggers an automatic fix operation based on automation settings</li>
+     * </ol>
+     * <p>
+     * <b>Incoming WebSocket message:</b>
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.scan",
+     *     "params": {}
+     * }
+     * </code>
+     * </pre>
+     * <p>
+     * <b>Outgoing WebSocket messages:</b>
+     * </p>
+     * <ul>
+     * <li>{@code Progress.*} - Progress updates during scanning</li>
+     * <li>{@code Profile.scanned} - Notification with scan results and action count</li>
+     * </ul>
+     * <p>
+     * <b>Error Handling:</b>
+     * </p>
+     * <ul>
+     * <li>{@link BreakException} - User cancelled the operation (silently ignored)</li>
+     * <li>{@link ScanException} - Scan errors are added to the progress handler's error list</li>
+     * </ul>
+     * <p>
+     * <b>Automation:</b> If the profile's automation settings specify {@link ScanAutomation#hasFix()}, and the scan found actions
+     * to perform, this method automatically calls {@link #fix(JsonObject)} after the scan completes.
+     * </p>
+     *
+     * @param jso the JSON object containing scan parameters (currently unused)
+     * @param automate {@code true} to enable automatic fix after scan, {@code false} to scan only
+     */
     public void scan(JsonObject jso, final boolean automate) {
         (ws.getSession().setWorker(new Worker(() -> {
             WebSession session = ws.getSession();
@@ -180,6 +429,50 @@ public class ProfileActions extends PathAbstractor {
         }))).start();
     }
 
+    /**
+     * Fixes ROM collection issues identified by the previous scan operation.
+     * <p>
+     * This method launches a background worker thread that:
+     * </p>
+     * <ol>
+     * <li>Rescans the profile if properties have changed since the last scan</li>
+     * <li>Creates a new {@link Fix} instance to process the scan's action list</li>
+     * <li>Executes the fix operation, performing file operations (rename, move, delete, etc.)</li>
+     * <li>Notifies the client with the remaining action count</li>
+     * <li>Optionally triggers a rescan based on automation settings</li>
+     * </ol>
+     * <p>
+     * <b>Incoming WebSocket message:</b>
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.fix",
+     *     "params": {}
+     * }
+     * </code>
+     * </pre>
+     * <p>
+     * <b>Outgoing WebSocket messages:</b>
+     * </p>
+     * <ul>
+     * <li>{@code Progress.*} - Progress updates during fixing</li>
+     * <li>{@code Profile.fixed} - Notification with remaining action count</li>
+     * </ul>
+     * <p>
+     * <b>Error Handling:</b>
+     * </p>
+     * <ul>
+     * <li>{@link ScanException} - Scan errors during rescan are added to the progress handler's error list</li>
+     * </ul>
+     * <p>
+     * <b>Automation:</b> If the profile's automation settings specify {@link ScanAutomation#hasScanAgain()}, this method
+     * automatically calls {@link #scan(JsonObject, boolean)} after the fix completes to verify the ROM collection state.
+     * </p>
+     *
+     * @param jso the JSON object containing fix parameters (currently unused)
+     */
     public void fix(JsonObject jso) {
         (ws.getSession().setWorker(new Worker(() -> {
             final var session = ws.getSession();
@@ -206,6 +499,42 @@ public class ProfileActions extends PathAbstractor {
         }))).start();
     }
 
+    /**
+     * Updates profile settings properties from a JSON object.
+     * <p>
+     * This method processes a JSON object containing key-value pairs representing profile settings. It supports multiple JSON value
+     * types:
+     * </p>
+     * <ul>
+     * <li><b>Boolean:</b> {@code true} or {@code false}</li>
+     * <li><b>Number:</b> Integer values</li>
+     * <li><b>String:</b> Text values</li>
+     * <li><b>Other:</b> Serialized to string via {@code toString()}</li>
+     * </ul>
+     * <p>
+     * If a "profile" parameter is provided, the settings are saved to a standalone profile settings file. Otherwise, the settings
+     * are applied to the current profile and saved.
+     * </p>
+     * <p>
+     * <b>Incoming WebSocket message:</b>
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.setProperty",
+     *     "profile": "%work/profiles/myprofile.settings",
+     *     "params": {
+     *         "filter_missing": true,
+     *         "filter_unneeded": false,
+     *         "source_path": "%work/roms"
+     *     }
+     * }
+     * </code>
+     * </pre>
+     *
+     * @param jso the JSON object containing the profile path (optional) and property settings
+     */
     public void setProperty(JsonObject jso) {
         final var profile = jso.getString("profile", null);
         ProfileSettings settings = profile != null ? new ProfileSettings() : ws.getSession().getCurrProfile().getSettings();
@@ -231,6 +560,46 @@ public class ProfileActions extends PathAbstractor {
         }
     }
 
+    /**
+     * Notifies the client that a profile has been loaded.
+     * <p>
+     * This method sends a WebSocket message with the command {@code "Profile.loaded"} containing the profile's structure and
+     * settings. The message includes:
+     * </p>
+     * <ul>
+     * <li><b>success:</b> Boolean indicating whether a profile was loaded</li>
+     * <li><b>name:</b> Profile name (if loaded)</li>
+     * <li><b>systems:</b> Array of ROM systems with name, selection state, property name, and type</li>
+     * <li><b>sources:</b> Array of ROM sources with name, selection state, and property name</li>
+     * <li><b>years:</b> Array of years present in the ROM collection (sorted)</li>
+     * <li><b>settings:</b> Current profile settings as a JSON object</li>
+     * </ul>
+     * <p>
+     * Example outgoing WebSocket message:
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.loaded",
+     *     "params": {
+     *         "success": true,
+     *         "name": "MAME 0.230",
+     *         "systems": [
+     *             {"name": "Arcade", "selected": true, "property": "system.arcade", "type": "ARCADE"}
+     *         ],
+     *         "sources": [
+     *             {"name": "ROMs", "selected": true, "property": "source.roms"}
+     *         ],
+     *         "years": ["1980", "1981", "1982"],
+     *         "settings": {...}
+     *     }
+     * }
+     * </code>
+     * </pre>
+     *
+     * @param profile the loaded profile, or {@code null} if no profile was loaded
+     */
     public void loaded(final jrm.profile.Profile profile) {
         try {
             if (ws.isOpen()) {
@@ -277,6 +646,37 @@ public class ProfileActions extends PathAbstractor {
         }
     }
 
+    /**
+     * Notifies the client that a scan operation has completed.
+     * <p>
+     * This method sends a WebSocket message with the command {@code "Profile.scanned"} containing the scan results. The message
+     * includes:
+     * </p>
+     * <ul>
+     * <li><b>success:</b> Boolean indicating whether the scan completed successfully</li>
+     * <li><b>actions:</b> Total number of actions identified by the scan (if successful)</li>
+     * <li><b>report:</b> Boolean indicating whether a detailed report was generated</li>
+     * </ul>
+     * <p>
+     * Example outgoing WebSocket message:
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.scanned",
+     *     "params": {
+     *         "success": true,
+     *         "actions": 42,
+     *         "report": true
+     *     }
+     * }
+     * </code>
+     * </pre>
+     *
+     * @param scan the completed scan, or {@code null} if the scan failed or was cancelled
+     * @param hasReport {@code true} if a detailed report was generated, {@code false} otherwise
+     */
     void scanned(final Scan scan, final boolean hasReport) {
         try {
             if (ws.isOpen()) {
@@ -296,6 +696,34 @@ public class ProfileActions extends PathAbstractor {
         }
     }
 
+    /**
+     * Notifies the client that a fix operation has completed.
+     * <p>
+     * This method sends a WebSocket message with the command {@code "Profile.fixed"} containing the fix results. The message
+     * includes:
+     * </p>
+     * <ul>
+     * <li><b>success:</b> Boolean indicating whether the fix completed successfully</li>
+     * <li><b>actions:</b> Number of remaining actions that could not be fixed (if successful)</li>
+     * </ul>
+     * <p>
+     * Example outgoing WebSocket message:
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.fixed",
+     *     "params": {
+     *         "success": true,
+     *         "actions": 5
+     *     }
+     * }
+     * </code>
+     * </pre>
+     *
+     * @param fix the completed fix operation, or {@code null} if the fix failed or was cancelled
+     */
     void fixed(final Fix fix) {
         try {
             if (ws.isOpen()) {
@@ -313,6 +741,36 @@ public class ProfileActions extends PathAbstractor {
         }
     }
 
+    /**
+     * Notifies the client that a profile import operation has completed.
+     * <p>
+     * This method sends a WebSocket message with the command {@code "Profile.imported"} containing the imported profile file
+     * information. The message includes:
+     * </p>
+     * <ul>
+     * <li><b>path:</b> Full path to the imported profile file</li>
+     * <li><b>parent:</b> Parent directory path</li>
+     * <li><b>name:</b> Profile file name</li>
+     * </ul>
+     * <p>
+     * Example outgoing WebSocket message:
+     * </p>
+     * 
+     * <pre>
+     * <code class='language-json'>
+     * {
+     *     "cmd": "Profile.imported",
+     *     "params": {
+     *         "path": "/home/user/profiles/mame.nfo",
+     *         "parent": "/home/user/profiles",
+     *         "name": "mame.nfo"
+     *     }
+     * }
+     * </code>
+     * </pre>
+     *
+     * @param file the imported profile file
+     */
     void imported(final File file) {
         try {
             if (ws.isOpen()) {

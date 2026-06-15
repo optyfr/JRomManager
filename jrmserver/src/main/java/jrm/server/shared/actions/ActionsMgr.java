@@ -11,57 +11,80 @@ import jrm.server.shared.WebSession;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Interface for managing and routing JSON actions and commands within a web
- * session.
+ * Interface for managing and routing JSON actions and commands within a web session.
+ * <p>
+ * This interface extends {@link SessionStub} to provide capabilities for processing, routing, and responding to various client
+ * command requests.
+ * </p>
+ * <p>
+ * <b>Command Routing:</b> The {@link #processActions(ActionsMgr, JsonObject)} method routes incoming JSON commands to appropriate
+ * action handlers based on the "cmd" field. Supported commands include:
+ * </p>
+ * <ul>
+ * <li><b>Global.*</b> - System-wide operations (property updates, memory management, garbage collection)</li>
+ * <li><b>Profile.*</b> - Profile lifecycle operations (import, load, scan, fix, settings management)</li>
+ * <li><b>Report.*</b> - Report filtering and display operations</li>
+ * <li><b>CatVer.*</b> - Category/version metadata management</li>
+ * <li><b>NPlayers.*</b> - Player count metadata management</li>
+ * <li><b>Progress.*</b> - Progress tracking and cancellation</li>
+ * <li><b>Dat2Dir.*</b> - DAT file to directory conversion</li>
+ * <li><b>Dir2Dat.*</b> - Directory to DAT file conversion</li>
+ * <li><b>TrntChk.*</b> - Torrent file verification</li>
+ * <li><b>Compressor.*</b> - ROM compression operations</li>
+ * </ul>
+ *
+ * @author optyfr
+ * 
+ * @see SessionStub
+ * @see WebSession
  */
 public interface ActionsMgr extends SessionStub {
 
     /**
-     * Sends a message to the client. This is used by the actions to send responses
-     * back to the client. @param msg the message to send to the client
+     * Sends a message to the client. This is used by action handlers to transmit responses back to the active client session.
      * 
-     * @param msg the message to send to the client
+     * @param msg the message string to send to the client
+     * 
+     * @throws IOException if an I/O error occurs during transmission
      */
     public void send(String msg) throws IOException;
 
     /**
-     * Sends a message to the client if the session is open. This is used by the
-     * actions to send responses back to the client without throwing an exception if
-     * the session is closed. @param msg the message to send to the client
+     * Sends a message to the client if the session is open. This is used by action handlers to transmit responses back to the
+     * client without raising errors if the connection is terminated.
      * 
-     * @param msg the message to send to the client
+     * @param msg the message string to send to the client
+     * 
+     * @throws IOException if an I/O error occurs
      */
     public void sendOptional(String msg) throws IOException;
 
     /**
-     * Checks if the session is open. This is used by the actions to check if the
-     * session is open before sending a message to the client. @return true if the
-     * session is open, false otherwise
+     * Checks if the session is currently open and active.
      * 
-     * @return true if the session is open, false otherwise
+     * @return {@code true} if the session is open, {@code false} otherwise
      */
     public boolean isOpen();
 
     /**
-     * Gets the WebSession associated with this ActionsMgr. This is used by the
-     * actions to access the session information and data. @return the WebSession
-     * associated with this ActionsMgr
+     * Gets the {@link WebSession} associated with this {@code ActionsMgr}. This is used by action handlers to access session
+     * configurations and active states.
      * 
-     * @return the WebSession associated with this ActionsMgr
+     * @return the associated {@link WebSession} instance
      */
     public WebSession getSession();
 
     /**
-     * Processes a JSON object containing a command and its parameters, routing it
-     * to the appropriate action handler based on the "cmd" field. This method
-     * updates the last action time in the session and handles various commands such
-     * as setting properties, importing/exporting profiles, managing reports, and
-     * starting specific actions. If an unknown command is received, it logs an
-     * error message. @param mgr the ActionsMgr instance to use for processing the
-     * actions
+     * Processes a JSON object containing a command and its parameters, routing it to the appropriate action handler based on the
+     * "cmd" field.
+     * <p>
+     * This method updates the last action timestamp in the session and handles various commands such as setting properties,
+     * importing/exporting profiles, managing reports, and starting specific backend actions. If an unknown command is received, it
+     * logs an error message.
+     * </p>
      * 
-     * @param mgr the ActionsMgr instance to use for processing the actions
-     * @param jso the JsonObject containing the command and its parameters
+     * @param mgr the {@code ActionsMgr} instance to use for processing the actions
+     * @param jso the {@link JsonObject} containing the command and its parameters
      */
     public default void processActions(ActionsMgr mgr, JsonObject jso) {
         try {
@@ -100,20 +123,49 @@ public interface ActionsMgr extends SessionStub {
         }
     }
 
+    /**
+     * Represents the JSON-serializable result of an update action sent back to the client.
+     */
     @RequiredArgsConstructor
     static class UpdateResult {
+
+        /**
+         * The command identifier associated with this update result.
+         */
         final String cmd;
+
+        /**
+         * The parameter details nested within the update result.
+         */
         final Params params;
 
+        /**
+         * Nested parameter details containing row index and action operation results.
+         */
         @RequiredArgsConstructor
         static class Params {
+
+            /**
+             * The targeted data row index.
+             */
             final int row;
+
+            /**
+             * The textual result or status description of the execution.
+             */
             final String result;
         }
     }
 
+    /**
+     * Represents a single standalone client command request wrapper containing only the command name.
+     */
     @RequiredArgsConstructor
     static class SingleCmd {
+
+        /**
+         * The name of the command to trigger.
+         */
         final String cmd;
     }
 

@@ -16,11 +16,60 @@ import jrm.server.shared.actions.NPlayersActions;
 import jrm.server.shared.actions.ProfileActions;
 import jrm.server.shared.lpr.LongPollingReqMgr;
 
+/**
+ * Servlet responsible for handling client action requests and long polling communication.
+ * <p>
+ * This servlet manages three types of endpoints:
+ * <ul>
+ * <li><b>/actions/cmd</b> - Processes JSON command requests from clients</li>
+ * <li><b>/actions/init</b> - Initializes session and establishes long polling connection</li>
+ * <li><b>/actions/lpr</b> - Long polling request endpoint for server-to-client notifications</li>
+ * </ul>
+ * <p>
+ * The long polling mechanism allows the server to push notifications to clients efficiently by holding HTTP connections open until
+ * messages are available or a timeout occurs.
+ * 
+ * @author JRM Project
+ * 
+ * @version 1.0
+ * 
+ * @since 1.0
+ * 
+ * @see WebSession
+ * @see LongPollingReqMgr
+ */
 @SuppressWarnings("serial")
 public class ActionServlet extends HttpServlet {
 
+    /**
+     * MIME type constant for JSON responses ({@code "application/json"}).
+     * <p>
+     * Used to set the {@code Content-Type} header in responses and to validate the {@code Content-Type} header of incoming requests
+     * on the {@code /actions/cmd} endpoint.
+     */
     private static final String APPLICATION_JSON = "application/json";
 
+    /**
+     * Handles POST requests for processing client commands.
+     * <p>
+     * This method processes JSON command requests sent to the /actions/cmd endpoint. It validates the request content length and
+     * type, then delegates command processing to the {@link LongPollingReqMgr} associated with the current session.
+     * <p>
+     * HTTP status codes returned:
+     * <ul>
+     * <li>{@code 411 Length Required} - if content length is negative (long)</li>
+     * <li>{@code 413 Request Entity Too Large} - if content length exceeds int range</li>
+     * <li>{@code 400 Bad Request} - if content type is not application/json, or if body is empty</li>
+     * <li>{@code 501 Not Implemented} - if request URI does not match /actions/cmd</li>
+     * <li>{@code 200 OK} - command processed successfully</li>
+     * <li>{@code 500 Internal Server Error} - on unexpected exceptions</li>
+     * </ul>
+     * 
+     * @param req the HTTP servlet request containing the JSON command
+     * @param resp the HTTP servlet response for sending acknowledgment
+     * 
+     * @throws ServletException if a servlet-specific error occurs
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         try {
@@ -43,11 +92,33 @@ public class ActionServlet extends HttpServlet {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             } else
                 resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
-        } catch (Exception e) {
+        } catch (Exception _) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * Handles GET requests for session initialization and long polling.
+     * <p>
+     * This method processes two types of GET requests:
+     * <ul>
+     * <li><b>/actions/init</b> - Initializes the session with profile data and establishes long polling</li>
+     * <li><b>/actions/lpr</b> - Handles long polling requests for server-to-client notifications</li>
+     * </ul>
+     * <p>
+     * HTTP status codes returned:
+     * <ul>
+     * <li>{@code 200 OK} - request processed successfully</li>
+     * <li>{@code 410 Gone} - if the server is terminating</li>
+     * <li>{@code 501 Not Implemented} - if request URI does not match known endpoints</li>
+     * <li>{@code 500 Internal Server Error} - on unexpected exceptions</li>
+     * </ul>
+     * 
+     * @param req the HTTP servlet request
+     * @param resp the HTTP servlet response
+     * 
+     * @throws ServletException if a servlet-specific error occurs
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         try {
@@ -66,16 +137,23 @@ public class ActionServlet extends HttpServlet {
                     resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
                     break;
             }
-        } catch (Exception e) {
+        } catch (Exception _) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * @param resp
-     * @param sess
-     * @throws InterruptedException
-     * @throws IOException
+     * Initializes the session with profile-related actions and worker progress.
+     * <p>
+     * This method performs the following initialization tasks:
+     * <ul>
+     * <li>Loads profile actions if a current profile is set</li>
+     * <li>Loads category/version actions for the current profile</li>
+     * <li>Loads N-players actions for the current profile</li>
+     * <li>Reloads worker progress if a worker thread is active</li>
+     * </ul>
+     * 
+     * @param sess the web session to initialize
      */
     private void doInit(WebSession sess) {
         final var cmd = new LongPollingReqMgr(sess);
@@ -89,10 +167,21 @@ public class ActionServlet extends HttpServlet {
     }
 
     /**
-     * @param resp
-     * @param sess
-     * @throws InterruptedException
-     * @throws IOException
+     * Handles long polling requests to deliver server-to-client notifications.
+     * <p>
+     * This method implements a long polling mechanism where:
+     * <ul>
+     * <li>The connection is held open for up to 20 seconds waiting for messages</li>
+     * <li>Multiple messages (up to 100) can be batched in a single response</li>
+     * <li>Messages are encapsulated in a single JSON response</li>
+     * <li>If the server is terminating, a GONE status is returned</li>
+     * </ul>
+     * 
+     * @param resp the HTTP servlet response for sending notifications
+     * @param sess the web session containing the message queue
+     * 
+     * @throws InterruptedException if the thread is interrupted while waiting for messages
+     * @throws IOException if an I/O error occurs while sending the response
      */
     private void doLPR(HttpServletResponse resp, WebSession sess) {
         if (WebSession.isTerminate()) {
@@ -114,18 +203,24 @@ public class ActionServlet extends HttpServlet {
                 msg = encapsulate(msgs);
                 sendResp(resp, msg);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException _) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             Thread.currentThread().interrupt();
-        } catch (IOException e) {
+        } catch (IOException _) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * @param resp
-     * @param msg
-     * @throws IOException
+     * Sends the HTTP response with the specified message content.
+     * <p>
+     * This method sets the appropriate response headers and writes the message to the response output stream. If the message is
+     * null, it sends an empty response with zero content length.
+     * 
+     * @param resp the HTTP servlet response
+     * @param msg the message content to send, or null for empty response
+     * 
+     * @throws IOException if an I/O error occurs while writing the response
      */
     private void sendResp(HttpServletResponse resp, String msg) throws IOException {
         resp.setContentType(APPLICATION_JSON);
@@ -138,8 +233,14 @@ public class ActionServlet extends HttpServlet {
     }
 
     /**
-     * @param msgs
-     * @return
+     * Encapsulates multiple messages into a single JSON response.
+     * <p>
+     * If multiple messages are provided, they are wrapped in a Global.multiCMD JSON structure. If only one message is present, it
+     * is returned as-is.
+     * 
+     * @param msgs the list of messages to encapsulate
+     * 
+     * @return the encapsulated JSON string, or the single message if only one exists
      */
     private String encapsulate(final java.util.ArrayList<java.lang.String> msgs) {
         String msg;

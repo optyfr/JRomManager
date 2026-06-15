@@ -22,13 +22,30 @@ import jrm.security.PathAbstractor;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
 
+/**
+ * Handles actions related to compressing files within the web session. Manages the compression process, including starting the
+ * process, handling different compression formats, updating progress, and sending results back to the client.
+ */
 public class CompressorActions {
+    /** The parent {@link ActionsMgr} instance managing this action handler. */
     private final ActionsMgr ws;
 
+    /**
+     * Constructs a new {@link CompressorActions} instance.
+     *
+     * @param ws The {@link ActionsMgr} instance responsible for managing this action handler.
+     */
     public CompressorActions(ActionsMgr ws) {
         this.ws = ws;
     }
 
+    /**
+     * Starts the compression process for the files in the cached compressor list. This method initiates a background worker thread
+     * to handle the compression asynchronously. It retrieves user settings for format, force option, and threading, sets up
+     * progress tracking, clears previous results, and executes the compression tasks in parallel if configured.
+     *
+     * @param jso A JSON object containing parameters for the start command (currently unused).
+     */
     public void start(JsonObject jso) // NOSONAR
     {
         (ws.getSession().setWorker(new Worker(() -> {
@@ -52,7 +69,7 @@ public class CompressorActions {
                     mt.start(ws.getSession().getCachedCompressorList().values().stream());
                 }
 
-            } catch (BreakException e) {
+            } catch (BreakException _) { // user requested to stop the process
                 session.getWorker().progress.doCancel();
             } finally {
                 session.getWorker().progress.close();
@@ -62,13 +79,17 @@ public class CompressorActions {
     }
 
     /**
-     * @param session
-     * @param format
-     * @param force
-     * @param cnt
-     * @param compressor
-     * @param values
-     * @param fr
+     * Performs the actual compression logic for a single file result ({@link FileResult}). It determines the current file's index,
+     * gets the absolute path, sets up callback functions for updating results and file paths, and delegates to specific format
+     * handling methods based on the configured {@link CompressorFormat}.
+     *
+     * @param session The current {@link WebSession}.
+     * @param format The target {@link CompressorFormat} (SEVENZIP, ZIP, TZIP).
+     * @param force Whether to force the compression even if the target format already matches.
+     * @param cnt An {@link AtomicInteger} to track the number of processed files.
+     * @param compressor The {@link Compressor} instance performing the operations.
+     * @param values The list of all {@link FileResult}s to determine the index.
+     * @param fr The specific {@link FileResult} representing the file to compress.
      */
     private void doCompress(final WebSession session, final CompressorFormat format, final boolean force, final AtomicInteger cnt, final Compressor compressor,
             List<FileResult> values, FileResult fr) {
@@ -86,22 +107,15 @@ public class CompressorActions {
                 updateFile(i, fr.getFile());
             };
             switch (format) {
-                case SEVENZIP: {
-                    doCompress2SevenZip(force, compressor, file, cb, scb);
-                    break;
-                }
-                case ZIP: {
-                    doCompress2Zip(force, compressor, file, cb, scb);
-                    break;
-                }
-                case TZIP: {
-                    doCompress2TZip(force, compressor, file, cb, scb);
-                    break;
-                }
+                case SEVENZIP -> doCompress2SevenZip(force, compressor, file, cb, scb);
+                case ZIP -> doCompress2Zip(force, compressor, file, cb, scb);
+                case TZIP -> doCompress2TZip(force, compressor, file, cb, scb);
+                default -> {
+                    /* nothing to do */}
             }
-        } catch (BreakException e) {
+        } catch (BreakException _) { // user requested to stop the process
             session.getWorker().progress.doCancel();
-        } catch (final Exception e) { // oups! something unexpected happened
+        } catch (final Exception e) { // oops! something unexpected happened
             Log.err(e.getMessage(), e);
         } finally {
             cnt.incrementAndGet();
@@ -109,12 +123,16 @@ public class CompressorActions {
     }
 
     /**
-     * @param force
-     * @param compressor
-     * @param file
-     * @param cb
-     * @param scb
-     * @throws IllegalArgumentException
+     * Handles the conversion of a file to the TZIP format. If the source file is already a ZIP, it converts it directly to TZIP.
+     * Otherwise, it first converts the source file to ZIP (using 7-Zip internally) and then converts the resulting ZIP to TZIP.
+     *
+     * @param force Whether to force the conversion even if the target format already matches.
+     * @param compressor The {@link Compressor} instance performing the operations.
+     * @param file The source {@link File} to be converted.
+     * @param cb The callback to update the compression result text.
+     * @param scb The callback to update the source file path during intermediate steps.
+     * 
+     * @throws IllegalArgumentException if the input file is invalid.
      */
     private void doCompress2TZip(final boolean force, final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb)
             throws IllegalArgumentException {
@@ -128,12 +146,17 @@ public class CompressorActions {
     }
 
     /**
-     * @param force
-     * @param compressor
-     * @param file
-     * @param cb
-     * @param scb
-     * @throws IllegalArgumentException
+     * Handles the conversion of a file to the ZIP format. If the source file is already a ZIP and force is true, it re-compresses
+     * the ZIP. If the source file is already a ZIP and force is false, it skips the file. Otherwise, it converts the source file
+     * (assumed to be 7z) to ZIP.
+     *
+     * @param force Whether to force the conversion even if the target format already matches.
+     * @param compressor The {@link Compressor} instance performing the operations.
+     * @param file The source {@link File} to be converted.
+     * @param cb The callback to update the compression result text.
+     * @param scb The callback to update the source file path during intermediate steps.
+     * 
+     * @throws IllegalArgumentException if the input file is invalid.
      */
     private void doCompress2Zip(final boolean force, final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb)
             throws IllegalArgumentException {
@@ -147,31 +170,38 @@ public class CompressorActions {
     }
 
     /**
-     * @param force
-     * @param compressor
-     * @param file
-     * @param cb
-     * @param scb
-     * @throws IllegalArgumentException
+     * Handles the conversion of a file to the SEVENZIP format. If the source file is already a 7z and force is true, it
+     * re-compresses the 7z. If the source file is already a 7z and force is false, it skips the file. If the source file is a ZIP,
+     * it converts it to 7z. For other formats, it assumes the input is already in a compatible format and re-compresses it.
+     *
+     * @param force Whether to force the conversion even if the target format already matches.
+     * @param compressor The {@link Compressor} instance performing the operations.
+     * @param file The source {@link File} to be converted.
+     * @param cb The callback to update the compression result text.
+     * @param scb The callback to update the source file path during intermediate steps.
+     * 
+     * @throws IllegalArgumentException if the input file is invalid.
      */
     private void doCompress2SevenZip(final boolean force, final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb)
             throws IllegalArgumentException {
         switch (FilenameUtils.getExtension(file.getName())) {
-            case "zip":
-                compressor.zip2SevenZip(file, cb, scb);
-                break;
-            case "7z":
+            case "zip" -> compressor.zip2SevenZip(file, cb, scb);
+            case "7z" -> {
                 if (force)
                     compressor.sevenZip2SevenZip(file, cb, scb);
                 else
                     cb.apply("Skipped");
-                break;
-            default:
-                compressor.sevenZip2SevenZip(file, cb, scb);
-                break;
+            }
+            default -> compressor.sevenZip2SevenZip(file, cb, scb);
         }
     }
 
+    /**
+     * Sends a message to the client to update the displayed file path for a specific row.
+     *
+     * @param row The index (0-based) of the row in the client-side table/list.
+     * @param file The new {@link Path} of the file to display.
+     */
     void updateFile(int row, Path file) {
         try {
             if (ws.isOpen()) {
@@ -188,6 +218,12 @@ public class CompressorActions {
         }
     }
 
+    /**
+     * Sends a message to the client to update the displayed result text for a specific row.
+     *
+     * @param row The index (0-based) of the row in the client-side table/list.
+     * @param result The new result string to display (e.g., "Success", "Error", "Skipped").
+     */
     void updateResult(int row, String result) {
         try {
             if (ws.isOpen()) {
@@ -204,6 +240,9 @@ public class CompressorActions {
         }
     }
 
+    /**
+     * Sends a message to the client to clear the results display.
+     */
     void clearResults() {
         try {
             if (ws.isOpen()) {
@@ -216,6 +255,9 @@ public class CompressorActions {
         }
     }
 
+    /**
+     * Sends a message to the client indicating the end of the compression process.
+     */
     void end() {
         try {
             if (ws.isOpen()) {

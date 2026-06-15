@@ -11,12 +11,32 @@ import jrm.aui.basic.SrcDstResult;
 import jrm.misc.SettingsEnum;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 
+/**
+ * XML response handler for batch transaction check Source-Destination Results (SDR).
+ * <p>
+ * This class processes XML requests to manage the list of source and destination paths
+ * used in batch transaction check operations, supporting fetch, add, update, and remove operations.
+ * </p>
+ */
 public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
 
+    /**
+     * Constructs a new batch transaction check SDR XML response.
+     *
+     * @param request the XML request containing the operation to process
+     * @throws IOException if an I/O error occurs during initialization
+     * @throws XMLStreamException if an XML stream error occurs during initialization
+     */
     public BatchTrntChkSDRXMLResponse(XMLRequest request) throws IOException, XMLStreamException {
         super(request);
     }
 
+    /**
+     * Fetches the current list of transaction check SDRs and writes them to the XML response.
+     *
+     * @param operation the operation containing request parameters
+     * @throws XMLStreamException if an error occurs while writing the XML stream
+     */
     @Override
     protected void fetch(Operation operation) throws XMLStreamException {
         SDRList<SrcDstResult> sdrl = SrcDstResult.fromJSON(request.getSession().getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
@@ -24,6 +44,12 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
         writeResponse(operation, sdrl);
     }
 
+    /**
+     * Adds a new source-destination result to the settings if it does not already exist.
+     *
+     * @param operation the operation containing the "src" data to add
+     * @throws XMLStreamException if an error occurs while writing the XML stream
+     */
     @Override
     protected void add(Operation operation) throws XMLStreamException {
         if (operation.hasData("src")) {
@@ -36,12 +62,20 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
                 request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(sdrl));
                 request.getSession().getUser().getSettings().saveSettings();
                 writeResponseSingle(sdr);
-            } else
+            } else {
                 failure("Entry already exists");
-        } else
+            }
+        } else {
             failure(SRC_IS_MISSING_IN_REQUEST);
+        }
     }
 
+    /**
+     * Updates an existing source-destination result identified by its ID.
+     *
+     * @param operation the operation containing the "id" of the entry to update, and optionally "src", "dst", or "selected"
+     * @throws XMLStreamException if an error occurs while writing the XML stream
+     */
     @Override
     protected void update(Operation operation) throws XMLStreamException {
         if (!operation.hasData("id")) {
@@ -60,17 +94,26 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
             return;
         }
         final AbstractSrcDstResult sdr = candidate.get();
-        if (operation.hasData("src"))
+        if (operation.hasData("src")) {
             sdr.setSrc(operation.getData("src"));
-        if (operation.hasData("dst"))
+        }
+        if (operation.hasData("dst")) {
             sdr.setDst(operation.getData("dst"));
-        if (operation.hasData(SELECTED))
+        }
+        if (operation.hasData(SELECTED)) {
             sdr.setSelected(Boolean.parseBoolean(operation.getData(SELECTED)));
+        }
         request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(sdrl));
         request.getSession().getUser().getSettings().saveSettings();
         writeResponseSingle(sdr);
     }
 
+    /**
+     * Removes a source-destination result from the settings by its ID.
+     *
+     * @param operation the operation containing the "id" of the entry to remove
+     * @throws XMLStreamException if an error occurs while writing the XML stream
+     */
     @Override
     protected void remove(Operation operation) throws XMLStreamException {
         if (operation.hasData("id")) {
@@ -83,10 +126,11 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
                 request.getSession().getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(sdrl));
                 request.getSession().getUser().getSettings().saveSettings();
                 writeResponseKey(sdr);
-
-            } else
+            } else {
                 failure("not in the list");
-        } else
+            }
+        } else {
             failure(SRC_IS_MISSING_IN_REQUEST);
+        }
     }
 }

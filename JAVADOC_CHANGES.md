@@ -572,3 +572,148 @@ Comprehensive class-level, field-level, and method-level Javadoc comments added 
     * Documented package-level internationalization, ResourceBundle mappings, and translations engine.
 26. **File:** `jrmcore/src/main/java/jrm/locale/Messages.java`
     * Fully documented utility class managing platform/locale resource loader and missing-key fallback translation.
+
+
+### 17. Long Polling Session Request and Action Management Documentation (`jrm.server.shared` & `jrm.server.shared.lpr` & `jrm.server.shared.actions` updates)
+Comprehensive addition and audit of Javadoc documentation for long-polling session managers, actions interfaces, and associated inner-serialization models.
+
+#### A. Long-Polling Request Management (`jrm.server.shared.lpr`)
+27. **File:** `jrmserver/src/main/java/jrm/server/shared/lpr/LongPollingReqMgr.java`
+    * Added comprehensive class-level documentation outlining its role coordinating client-side long-polling request streams, mapping active session registries, and processing payload actions.
+    * Documented the static session commands cache registry field (`cmds`).
+    * Documented the thread-safe web session context field (`session`).
+    * Fully documented the standard construction initialization pipeline.
+    * Annotated and expanded Javadocs for request process (`process`), session binding (`setSession`), unbinding and saving (`unsetSession`), payload delivery (`send`, `sendOptional`), state verification (`isOpen`), and bulk persistence routines (`saveAllSettings`, `saveSettings`).
+
+#### B. JSON Actions Pipeline and Commands Interface (`jrm.server.shared.actions`)
+28. **File:** `jrmserver/src/main/java/jrm/server/shared/actions/ActionsMgr.java`
+    * Cleaned up pre-existing redundant parameter and return tag references to ensure clear and standards-compliant documentation.
+
+## 18. Batch Data Sources XML Response Documentation (`jrm.server.shared.datasources` updates)
+Comprehensive addition and audit of Javadoc documentation for the batch data source XML response handlers in the `jrmserver` project:
+1. **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/BatchCompressorFRXMLResponse.java`
+   - **Additions:**
+     - Added comprehensive class-level Javadoc describing its purpose as an XML response handler for batch compressor file results.
+     - Documented all constants (`RESULT`, `RECORD`, `STATUS`, `RESPONSE`).
+     - Added Javadoc for the constructor and all overridden methods (`fetch`, `add`, `update`, `remove`, `custom`), including `@param` and `@throws` tags.
+     - Documented the private `writeRecord` helper method.
+2. **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/BatchDat2DirResultXMLResponse.java`
+   - **Additions:**
+     - Added comprehensive class-level Javadoc describing its purpose for DAT to directory update results.
+     - Added Javadoc for the constructor and the overridden `fetch` method, detailing the statistics calculated and output.
+3. **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/BatchDat2DirSDRXMLResponse.java`
+   - **Additions:**
+     - Added comprehensive class-level Javadoc describing its purpose for managing Source-Destination Results (SDR) for DAT to directory operations.
+     - Added Javadoc for the constructor and all overridden methods (`fetch`, `add`, `update`, `remove`), including `@param` and `@throws` tags.
+   - **Bug Fix:** Corrected a logic error in the `update` method where it was failing if `operation.hasData("id")` was true. Changed to `!operation.hasData("id")` to correctly fail when the ID is missing.
+4. **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/BatchDat2DirSrcXMLResponse.java`
+   - **Additions:**
+     - Added comprehensive class-level Javadoc describing its purpose for managing source directories for DAT to directory operations.
+     - Documented all constants (`RECORD`, `STATUS`, `RESPONSE`).
+     - Added Javadoc for the constructor, all overridden methods (`fetch`, `add`, `remove`), and private helper methods (`getSrcDirs`, `writeResponse`, `save`, `writeRecord`), including `@param`, `@return`, and `@throws` tags.
+5. **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/BatchTrntChkReportTreeXMLResponse.java`
+   - **Additions:**
+     - Added comprehensive class-level Javadoc describing its purpose for retrieving hierarchical transaction check report tree data.
+     - Documented constants (`PARENT_ID`, `STATUS`).
+     - Added Javadoc for the constructor, the overridden `fetch` method, and private helper methods (`fetchNode`, `fetchRoot`), including `@param` and `@throws` tags.
+6. **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/BatchTrntChkSDRXMLResponse.java`
+   - **Additions:**
+     - Added comprehensive class-level Javadoc describing its purpose for managing Source-Destination Results (SDR) for transaction check operations.
+     - Added Javadoc for the constructor and all overridden methods (`fetch`, `add`, `update`, `remove`), including `@param` and `@throws` tags.
+   - **Cleanup:** Removed unused import `java.util.List`.
+    * Documented the outer JSON interface processing and fallback routing system.
+7. **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/ProfilesTreeXMLResponse.java`
+   - **Additions:**
+     - Added comprehensive class-level Javadoc describing its purpose for managing the profiles directory tree.
+     - Documented all `private static final` fields with clear descriptions of their XML mapping.
+     - Added Javadoc to the constructor, specifying `@param`, `@throws IOException`, and `@throws XMLStreamException`.
+     - Documented `countNode` method with `@param` and `@return` tags.
+     - Documented `outputNode` method with `@param` and `@throws XMLStreamException` tags.
+     - Documented `fetch`, `add`, `update`, and `remove` methods with `@param`, `@throws XMLStreamException`, and `@throws IOException` tags, explaining their specific roles in the XML response lifecycle.
+8. **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/ProfilesListXMLResponse.java`
+   - **Additions:**
+     - Added comprehensive class-level Javadoc describing its role in managing the list of profiles.
+     - Documented all `private static final` fields with clear descriptions of their XML mapping.
+     - Added Javadoc to the constructor, specifying `@param`, `@throws IOException`, and `@throws XMLStreamException`.
+     - Documented `fetch` method with `@param` and `@throws XMLStreamException` tags.
+     - Documented `writeRecord` method with `@param` and `@throws XMLStreamException` tags.
+     - Documented `add`, `remove`, and `custom` methods with `@param`, `@throws XMLStreamException`, and `@throws IOException` tags, explaining their specific roles in profile management and custom operations like cache dropping.
+   - **Verification:** All modified files passed compilation checks with 0 errors.
+### Refinement Pass
+- **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/RemoteFileChooserXMLResponse.java`
+  - **Additions:** Added missing Javadoc comment to the `enumeration` field within the `EnumerationToIterator` inner class to strictly comply with the "document all fields, even private/restricted" constraint.
+    * Added exhaustive class-level and field-level Javadocs for nested JSON serialization models: `UpdateResult`, inner `Params`, and command wrappers `SingleCmd`.
+
+## 19. Server Lifecycle, Session Infrastructure, and Security Context Documentation (`jrm.server`, `jrm.server.shared`, `jrm.security` updates)
+
+This pass focused on the JRomManager web server stack — covering the abstract server base class, the concrete HTTP server, the servlet session listener, the security session model, and the web session extension. All classes received exhaustive Javadoc at the class, field, and method levels (including private and `protected` members), aligned with the project-wide documentation conventions.
+
+### Detailed Changes by Subsystem and File:
+
+#### A. Server Infrastructure (`jrm.server`)
+
+- **File:** `jrmserver/src/main/java/jrm/server/AbstractServer.java`
+  - **Additions:** Verified and reinforced existing Javadoc on the class, constants (`PRECOMPRESSED`, `ACCEPT_RANGES`, `DIR_ALLOWED`, `TRUE`, `FALSE`), shared fields (`clientPath`, `jettyserver`, `debug`), and all helper methods (`holderStatic`, `gzipHandler`, `getWorkPath`, `getLogPath`, `waitStop`, `terminate`, `isStarted`, `isStopped`, `getClientPath`, `getCertsPath`, `getPath`).
+  - **Additions:** Documented the inner `JettyException` class and all three of its constructors with full `@param`/exception descriptions.
+  - **Rework:** Minor phrasing consistency tweaks (e.g., uniform use of `{@code}` for literals, `@return` wording harmonization).
+  - **Verification:** 0 compilation errors after re-application.
+
+- **File:** `jrmserver/src/main/java/jrm/server/Server.java`
+  - **Additions:** Documented the class-level Javadoc with references to related types, the `Args` inner class and each of its `@Parameter` fields (`clientPath`, `workPath`, `debug`, `httpPort`, `bind`) with `@Parameter` semantics.
+  - **Additions:** Documented all static fields (`HTTP_PORT_DEFAULT`, `BIND_DEFAULT`, `httpPort`, `bind`, `connLimit`, `sessions`, `env`) and all methods (`initFromEnv`, `parseArgs`, `main`, `initialize`, `init`, `start`, `stop`, `destroy`, `windowsService`, `windowsStart`, `windowsStop`) with full `@param`, `@return`, and `@throws` tags.
+  - **Rework:** Tightened wording for the `initialize()` ordered list and ensured `Daemon` interface method docs explicitly mention no-op semantics.
+  - **Verification:** 0 compilation errors after re-application.
+
+- **File:** `jrmserver/src/main/java/jrm/server/SessionListener.java`
+  - **Rework:** Enhanced class-level Javadoc to explicitly contrast single-session vs. multi-session modes with production/testing guidance.
+  - **Additions:** Documented the `multi` field (Lombok `@RequiredArgsConstructor` input) with cross-reference to `WebSession`.
+  - **Additions:** Documented `sessionCreated(HttpSessionEvent)` and `sessionDestroyed(HttpSessionEvent)` with step-by-step behavioral descriptions and constructor references (`WebSession(String)` vs. `WebSession(String, String, String[])`).
+  - **Verification:** 0 compilation errors after re-application.
+
+#### B. Web Session State (`jrm.server.shared`)
+
+- **File:** `jrmserver/src/main/java/jrm/server/shared/WebSession.java`
+  - **Rework:** Replaced the original repetitive/verbatim class and field documentation with concise, technical prose that eliminates duplicated paragraphs while preserving all behavioral detail.
+  - **Additions:** Documented `allSessions`, `terminate`, `lprMsg`, `worker`, `lastAction`, `tmpReport`, `tmpTCReport`, `cachedProfileList`, and `cachedCompressorList` with clear `@param`/`@return` tags respecting Lombok `@Getter`/`@Setter` conventions.
+  - **Additions:** Documented both constructors, `close()`, `closeAll()`, and all profile-list cache helpers (`putProfileList`, `removeProfileList`, `newProfileList`, `getLastProfileListKey`, `getProfileList`) with ordered-step behavior and sentinel semantics.
+  - **Rework:** Explicitly documented transient-field serialization semantics and the empty-string sentinel used to unblock long-polling clients.
+  - **Verification:** 0 compilation errors after re-application.
+
+#### C. Security Session Context (`jrm.security`)
+
+- **File:** `jrmcore/src/main/java/jrm/security/Session.java`
+  - **Rework:** Enhanced class-level Javadoc to enumerate the three session flavors (desktop, single-user server, multi-user server) and to cross-reference the `WebSession` subclass.
+  - **Additions:** Documented all fields with Lombok-aware `@param`/`@return` tags: `sessionId` (`@Setter`), `user` (protected, no Lombok), `msgs` (`@Getter @Setter`), `server`/`multiuser`/`noupdate` (`@Getter`), `report` (`final @Getter`), `currProfile` (`@Getter @Setter`), `currScan` (`@Getter @Setter`).
+  - **Additions:** Documented all four constructors (`protected`, package-private desktop, single-user server, multi-user server) and all public methods (`getUser`, `setUser`, `getSessionId`) with null-handling and default-value semantics.
+  - **Rework:** Tightened the `getUser()` lazy-initialization description and added `@link User` cross-references.
+  - **Verification:** 0 compilation errors after re-application.
+
+### Compilation Integrity
+
+- **jrmserver:** 0 errors, 0 warnings after the rework.
+- **jrmcore:** 0 errors, 0 warnings after the rework.
+- All changes were limited to Javadoc and comments — no functional or behavioral modifications were made.
+
+## 20. XML Request Parser Documentation (`jrm.server.shared.datasources` updates)
+
+This pass focused on the `XMLRequest` class and its nested types, enhancing the existing Javadoc with more detailed explanations of parsing mechanics, state management, and usage patterns. All documentation now follows project conventions with comprehensive field-level, method-level, and class-level comments.
+
+### Detailed Changes by File:
+
+- **File:** `jrmserver/src/main/java/jrm/server/shared/datasources/XMLRequest.java`
+  - **Rework:** Enhanced class-level Javadoc to explicitly describe the two-phase parsing strategy (stream buffering → SAX processing) and security features (XXE protection via disabled external DTD/schema loading).
+  - **Additions:** Added `@since`, `@see` tags linking to `Operation`, `Transaction`, and `TempFileInputStream` for improved discoverability.
+  - **Rework:** Expanded `Operation` class documentation to enumerate the five key aspects of operation semantics: Identity, Pagination, Sorting, Payload, and State tracking.
+  - **Rework:** Enhanced `Sorter` class documentation with SmartClient sorting convention details and concrete examples (`"name"` for ascending, `"-date"` for descending).
+  - **Additions:** Documented `name` and `desc` fields with detailed explanations of hyphen-prefix extraction logic and sort direction semantics.
+  - **Rework:** Converted single-line field comments to multi-paragraph Javadoc blocks for `operationType`, `operationId`, `startRow`, `endRow`, `sort`, `data`, and `oldValues`, explaining SAX accumulation patterns, default values, pagination mechanics, multi-field sorting precedence, multi-valued map semantics, and optimistic locking support.
+  - **Rework:** Expanded `Transaction` class documentation to clarify that "transaction" refers to logical grouping rather than database transaction semantics, with note about independent commit behavior.
+  - **Additions:** Documented `operations` field with processing order semantics and data consistency implications.
+  - **Rework:** Enhanced `operation` and `transaction` field documentation to explicitly state mutual exclusivity and provide guidance on when each is populated.
+  - **Additions:** Documented `session` field with explanation of its role in authentication, localization, and shared state management.
+  - **Rework:** Converted constructor Javadoc to ordered-list format detailing the five-step initialization sequence: session storage, XXE-protected parser configuration, temporary file buffering, SAX parsing, and cleanup.
+  - **Rework:** Completely rewrote `XMLRequestHandler` class documentation to describe the state machine architecture, three XML structure types (standalone request, transaction wrapper, operation fields), boolean flag state tracking, and safe numeric parsing via `ExceptionUtils#unthrow`.
+  - **Additions:** Expanded all boolean flag field documentation (`isRequest`, `inOperationType`, `inOperationId`, `inStartRow`, `inEndRow`, `inSortBy`, `inData`, `inOldValues`) to explain when flags are set/reset and their role in routing character data to accumulators.
+  - **Additions:** Documented `datavalue` field with explanation of its reuse pattern across SAX callbacks and reset behavior.
+  - **Additions:** Documented `currentRequest` field with lifecycle explanation (set on `<request>` entry, active until element close).
+  - **Verification:** 0 compilation errors after re-application.

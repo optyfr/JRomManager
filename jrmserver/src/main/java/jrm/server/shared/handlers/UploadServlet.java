@@ -22,15 +22,109 @@ import jrm.security.PathAbstractor;
 import jrm.server.shared.WebSession;
 import lombok.val;
 
+/**
+ * Servlet handler for file upload operations in the JRM web server.
+ * <p>
+ * This servlet manages file uploads through HTTP POST and PUT requests to the "/upload/" endpoint. It performs validation checks
+ * including path writability, destination directory existence, available disk space, and file size verification before accepting
+ * uploads.
+ * </p>
+ * <p>
+ * The upload process is split into two phases:
+ * <ul>
+ * <li>POST request: Validates the upload parameters and checks preconditions</li>
+ * <li>PUT request: Performs the actual file transfer and writes to disk</li>
+ * </ul>
+ * <p>
+ * <strong>Custom HTTP Headers Protocol:</strong><br>
+ * Clients must send the following custom headers with upload requests:
+ * <ul>
+ * <li>{@code x-file-name}: URL-encoded filename of the file being uploaded</li>
+ * <li>{@code x-file-parent}: URL-encoded parent directory path where the file should be saved</li>
+ * <li>{@code x-file-size}: Expected file size in bytes (optional, used for validation)</li>
+ * </ul>
+ * All responses are returned as JSON objects containing {@code status} and {@code extstatus} fields.
+ * 
+ * @author JRM Project
+ * 
+ * @version 1.0
+ * 
+ * @since 1.0
+ * 
+ * @see WebSession
+ * @see PathAbstractor
+ */
 @SuppressWarnings("serial")
 public class UploadServlet extends HttpServlet {
+
+    /**
+     * Character encoding used for URL decoding of HTTP headers.
+     * <p>
+     * UTF-8 encoding ensures proper handling of international characters in filenames and file paths transmitted via custom HTTP
+     * headers (x-file-name, x-file-parent).
+     * </p>
+     */
     private static final String UTF_8 = "UTF-8";
 
+    /**
+     * Data structure representing the result of an upload operation.
+     * <p>
+     * This package-private class encapsulates the status code and extended status message that are serialized to JSON via
+     * {@link Gson} and returned to the client as an HTTP response. The status field indicates the outcome of the operation, while
+     * extstatus provides additional details or error messages.
+     * </p>
+     */
     static class Result {
+        /**
+         * Status code indicating the outcome of the upload operation.
+         * <p>
+         * Status codes:
+         * <ul>
+         * <li>-1: Uninitialized/default state</li>
+         * <li>0: Success, continue with upload</li>
+         * <li>3: Upload completed successfully</li>
+         * <li>6: Error - destination is not an existing directory</li>
+         * <li>7: Error - insufficient disk space</li>
+         * <li>8: Error - invalid path (InvalidPathException)</li>
+         * <li>9: Error - invalid filename (IOException)</li>
+         * <li>10: Error - initialization parameter missing or invalid</li>
+         * <li>11: Error - target location is read-only</li>
+         * <li>20: Error - I/O exception during upload</li>
+         * <li>21: Error - file size mismatch</li>
+         * </ul>
+         */
         int status = -1;
+
+        /**
+         * Extended status message providing additional details about the operation result.
+         * <p>
+         * Contains human-readable messages describing success, continuation status, or detailed error information for
+         * troubleshooting.
+         * </p>
+         */
         String extstatus = "";
     }
 
+    /**
+     * Handles HTTP POST requests for upload initialization and validation.
+     * <p>
+     * This method processes POST requests to the "/upload/" endpoint. It validates the upload parameters and performs pre-upload
+     * checks including:
+     * <ul>
+     * <li>Verifies the "init" parameter is present and set to "1"</li>
+     * <li>Validates the target directory is writable</li>
+     * <li>Confirms the destination directory exists</li>
+     * <li>Checks available disk space is sufficient for the upload</li>
+     * <li>Validates the filename and path are syntactically correct</li>
+     * </ul>
+     * The method returns a JSON response with status code and message. If the request URI does not match "/upload/", the request is
+     * delegated to the parent class implementation via {@link #superPost}.
+     * 
+     * @param req the HTTP servlet request containing upload parameters and headers
+     * @param resp the HTTP servlet response for returning JSON status
+     * 
+     * @see #checkRequest
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         if ("/upload/".equals(req.getRequestURI())) {
@@ -56,8 +150,14 @@ public class UploadServlet extends HttpServlet {
     }
 
     /**
-     * @param req
-     * @param resp
+     * Delegates to the parent class doPost method with exception handling.
+     * <p>
+     * This helper method is called when the request URI does not match the "/upload/" endpoint. It wraps the superclass doPost call
+     * to handle any ServletException or IOException that may occur. Errors are logged using the {@link Log} utility for debugging
+     * and monitoring purposes.
+     * 
+     * @param req the HTTP servlet request
+     * @param resp the HTTP servlet response
      */
     private void superPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
@@ -68,8 +168,13 @@ public class UploadServlet extends HttpServlet {
     }
 
     /**
-     * @param resp
-     * @param e
+     * Sends an HTTP 500 Internal Server Error response and logs the exception.
+     * <p>
+     * This method handles I/O errors that occur during response generation. If sending the error response itself fails, the
+     * secondary exception is logged but not propagated to avoid masking the original error.
+     * 
+     * @param resp the HTTP servlet response
+     * @param e the I/O exception that triggered the error response
      */
     private void internalError(HttpServletResponse resp, IOException e) {
         try {
@@ -80,10 +185,23 @@ public class UploadServlet extends HttpServlet {
     }
 
     /**
-     * @param req
-     * @param pathAbstractor
-     * @param result
-     * @throws SecurityException
+     * Validates upload request parameters and checks preconditions before file transfer.
+     * <p>
+     * This method performs comprehensive validation of the upload request:
+     * <ul>
+     * <li>Extracts and decodes filename and parent directory from HTTP headers</li>
+     * <li>Verifies the target directory is writable according to the user's session</li>
+     * <li>Confirms the destination directory exists on the filesystem</li>
+     * <li>Checks that sufficient disk space is available for the file</li>
+     * <li>Validates the file path is syntactically correct</li>
+     * </ul>
+     * Results are stored in the provided Result object with appropriate status codes.
+     * 
+     * @param req the HTTP servlet request containing headers x-file-name, x-file-parent, and x-file-size
+     * @param pathAbstractor the path abstractor for resolving and validating file paths
+     * @param result the result object to populate with status code and message
+     * 
+     * @throws SecurityException if path validation fails due to security restrictions
      */
     private void checkRequest(HttpServletRequest req, final PathAbstractor pathAbstractor, final Result result) {
         try {
@@ -112,28 +230,55 @@ public class UploadServlet extends HttpServlet {
                 result.status = 11;
                 result.extstatus = "Is read only";
             }
-        } catch (NoSuchFileException e) { // that's ok
-        } catch (InvalidPathException e) { // invalid filename (case 1)
+        } catch (NoSuchFileException _) { // File does not exist yet, which is acceptable for new uploads
+        } catch (InvalidPathException e) { // Invalid path syntax detected during path resolution
             result.status = 8;
             result.extstatus = e.getMessage();
-        } catch (IOException e) { // invalid filename (case 2)
+        } catch (IOException e) { // I/O error occurred while accessing file metadata
             result.status = 9;
             result.extstatus = e.getMessage();
         }
     }
 
     /**
-     * @param req
-     * @return
+     * Extracts the expected file size from the HTTP request headers.
+     * <p>
+     * Parses the "x-file-size" header to obtain the expected file size in bytes. This value is used for disk space validation and
+     * post-upload size verification. If the header is missing or contains invalid data, returns -1 to indicate that size validation
+     * should be skipped.
+     * 
+     * @param req the HTTP servlet request containing the x-file-size header
+     * 
+     * @return the expected file size in bytes, or -1 if the header is invalid or missing
      */
     private long getXFileSize(HttpServletRequest req) {
         try {
             return Long.parseLong(req.getHeader("x-file-size"));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             return -1;
         }
     }
 
+    /**
+     * Handles HTTP PUT requests for actual file upload and disk writing.
+     * <p>
+     * This method processes PUT requests to the "/upload/" endpoint to perform the actual file transfer. It:
+     * <ul>
+     * <li>Extracts and decodes filename and parent directory from HTTP headers</li>
+     * <li>Validates the target directory is writable</li>
+     * <li>Creates any necessary parent directories for the target file</li>
+     * <li>Streams the request body to the target file on disk</li>
+     * <li>Verifies the uploaded file size matches the expected size</li>
+     * <li>Deletes the file if upload fails or size verification fails</li>
+     * </ul>
+     * Returns a JSON response with the final upload status. If the request URI does not match "/upload/", the request is delegated
+     * to the parent class implementation via {@link #superPost}.
+     * 
+     * @param req the HTTP servlet request containing the file data and metadata headers
+     * @param resp the HTTP servlet response for returning JSON status
+     * 
+     * @see #doUpload
+     */
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         if ("/upload/".equals(req.getRequestURI())) {
@@ -165,10 +310,24 @@ public class UploadServlet extends HttpServlet {
     }
 
     /**
-     * @param req
-     * @param result
-     * @param filename
-     * @param filepath
+     * Performs the actual file upload by streaming request data to disk.
+     * <p>
+     * This method handles the core file transfer operation:
+     * <ul>
+     * <li>Opens the target file for writing with CREATE and TRUNCATE options</li>
+     * <li>Streams the HTTP request input stream to the file using buffered I/O</li>
+     * <li>Tracks the number of bytes written for size verification</li>
+     * <li>Sets success status (3) if upload completes without errors</li>
+     * <li>Verifies written size matches expected size from x-file-size header</li>
+     * <li>Sets error status (21) if size mismatch is detected</li>
+     * </ul>
+     * The method uses try-with-resources to ensure proper stream closure and handles I/O exceptions gracefully with appropriate
+     * error reporting.
+     * 
+     * @param req the HTTP servlet request containing the file data stream
+     * @param result the result object to populate with upload status
+     * @param filename the name of the file being uploaded (for status messages)
+     * @param filepath the absolute path where the file should be written
      */
     private void doUpload(HttpServletRequest req, final Result result, final String filename, final Path filepath) {
         long filesize = getXFileSize(req);

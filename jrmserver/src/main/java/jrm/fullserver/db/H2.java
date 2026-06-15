@@ -16,19 +16,53 @@ import jrm.misc.SystemSettings;
 import lombok.NonNull;
 import lombok.val;
 
+/**
+ * H2 Database implementation.
+ * <p>
+ * H2 is an embedded Java database that can be used for development and testing
+ * purposes. It supports in-memory and file-based databases, and provides a
+ * simple API for connecting and managing databases. This class implements the
+ * DB interface to provide H2-specific functionality for connecting to and
+ * managing H2 databases.
+ * <p>
+ * The connectToDB method establishes a connection to an H2 database, with
+ * options to drop the database before connecting, ensure safe connections, and
+ * check if the database exists. The dropDB method allows for dropping an H2
+ * database by deleting its files. The shouldDropDB method checks if the H2
+ * database needs to be rebuilt based on changes to access files.
+ * 
+ * @author jrm
+ * @version 1.0
+ * @since 2024-06
+ */
 class H2 extends DB {
+    /**
+     * Constructs a new H2 database instance with the specified SystemSettings.
+     * 
+     * @param settings The SystemSettings object containing configuration for the
+     *                 database.
+     */
     public H2(SystemSettings settings) {
         super(settings);
     }
 
     /**
-     * Open connection to the H2 database
+     * Connects to an H2 database with the specified name and options. It constructs
+     * the JDBC URL based on the provided parameters and opens a connection to the
+     * database. If the drop option is true, it drops the existing database before
+     * connecting. The safe option determines whether to use safe connection
+     * settings, and the ifexists option checks if the database exists before
+     * connecting.
      * 
-     * @param name the name the database to open
-     * @param drop if true, delete the database before
-     * @return a {@link Connection} object
-     * @throws IOException
-     * @throws SQLException
+     * @param name     The name of the database to connect to.
+     * @param drop     Whether to drop the existing database before connecting.
+     * @param safe     Whether to use safe connection settings.
+     * @param ifexists Whether to check if the database exists before connecting.
+     * @return A Connection object representing the connection to the H2 database.
+     * @throws IOException  If an I/O error occurs while dropping the database or
+     *                      checking for its existence.
+     * @throws SQLException If a database access error occurs while connecting to
+     *                      the database.
      */
     @Override
     public Connection connectToDB(final String name, final boolean drop, final boolean safe, final boolean ifexists) throws IOException, SQLException {
@@ -47,10 +81,10 @@ class H2 extends DB {
     }
 
     /**
-     * Drop H2 Database by delete its files
+     * Drops the H2 database by deleting its associated files.
      * 
-     * @param name name of the database to drop
-     * @throws IOException as it may fails if Db is openened elsewhere
+     * @param name The name of the database to drop.
+     * @throws IOException If an I/O error occurs while deleting the files.
      */
     @Override
     public void dropDB(String name) throws IOException {
@@ -58,6 +92,20 @@ class H2 extends DB {
             file.delete();
     }
 
+    /**
+     * Determines whether the H2 database should be dropped based on changes to
+     * access files. It checks the creation time of the database files and compares
+     * it with the last modified time of the source access file and the capture
+     * access file. If the source access file or the capture access file is more
+     * recent than the database files, it indicates that the database should be
+     * dropped and rebuilt.
+     * 
+     * @param cpsPath     The path to the source access file.
+     * @param capturePath The path to the capture access file.
+     * @return true if the database should be dropped, false otherwise.
+     * @throws IOException If an I/O error occurs while checking the file
+     *                     attributes.
+     */
     @Override
     public boolean shouldDropDB(final @NonNull Path cpsPath, final Path capturePath) throws IOException {
         final var name = cpsPath.getFileName().toString();
@@ -72,6 +120,19 @@ class H2 extends DB {
         return (capturePath != null && capturePath.toFile().lastModified() > created); // drop si le capture access est plus récente
     }
 
+    /**
+     * Retrieves the file path for the H2 database based on the provided name and
+     * options. It resolves the database path by replacing any placeholders in the
+     * name with the appropriate values from the settings, and then constructs the
+     * full path to the database file. If the name is not an absolute path, it
+     * resolves it relative to the work path or base path depending on the file
+     * extension. The full option determines whether to append the ".mv.db"
+     * extension to the resolved name.
+     * 
+     * @param name The name of the database.
+     * @param full Whether to append the ".mv.db" extension to the resolved name.
+     * @return The Path object representing the file path to the H2 database.
+     */
     private Path getDBPath(String name, final boolean full) {
         if (name.contains("%w"))
             name = name.replace("%w", getSettings().getWorkPath().toString());
@@ -91,6 +152,18 @@ class H2 extends DB {
         }
     }
 
+    /**
+     * Resolves the database name by appending or removing the ".mv.db" extension
+     * based on the provided options. If the full option is true and the name does
+     * not already end with ".db", it appends ".mv.db" to the name. If the full
+     * option is false and the name ends with ".db", it removes the ".db" extension
+     * from the name. Otherwise, it returns the name as is.
+     * 
+     * @param name The name of the database.
+     * @param full Whether to append or remove the ".mv.db" extension based on the
+     *             name.
+     * @return The Path object representing the resolved database name.
+     */
     private Path resolveName(String name, final boolean full) {
         if (full && !name.endsWith(".db"))
             return Paths.get(name + ".mv.db");
@@ -100,6 +173,17 @@ class H2 extends DB {
             return Paths.get(name);
     }
 
+    /**
+     * Retrieves the file path for the H2 database based on the provided name. This
+     * method is a convenience overload of the getDBPath method that defaults the
+     * full parameter to false. It resolves the database path by replacing any
+     * placeholders in the name with the appropriate values from the settings, and
+     * then constructs the full path to the database file without appending the
+     * ".mv.db" extension.
+     * 
+     * @param name The name of the database.
+     * @return The Path object representing the file path to the H2 database.
+     */
     private Path getDBPath(final String name) {
         return getDBPath(name, false);
     }

@@ -13,17 +13,43 @@ import jrm.profile.manager.ProfileNFO;
 import jrm.server.shared.datasources.XMLRequest.Operation;
 import lombok.val;
 
+/**
+ * Handles XML responses for managing the list of profiles.
+ * This class processes operations such as fetching the list of profiles,
+ * adding new profiles, removing existing profiles, and performing custom operations
+ * like dropping the cache for a specific profile.
+ */
 public class ProfilesListXMLResponse extends XMLResponse {
 
+    /** XML element name for the operation status. */
     private static final String STATUS = "status";
+    
+    /** XML element name for the root response wrapper. */
     private static final String RESPONSE = "response";
+    
+    /** XML attribute name for the parent directory identifier. */
     private static final String PARENT = "Parent";
+    
+    /** XML element name for the xmlfiles directory context. */
     private static final String XMLFILES = "xmlfiles";
 
+    /**
+     * Constructs a new ProfilesListXMLResponse.
+     *
+     * @param request the incoming XML request containing operation details
+     * @throws IOException if an I/O error occurs during initialization
+     * @throws XMLStreamException if an XML writing error occurs during initialization
+     */
     public ProfilesListXMLResponse(XMLRequest request) throws IOException, XMLStreamException {
         super(request);
     }
 
+    /**
+     * Fetches the list of profiles in the specified directory and writes it to the XML response.
+     *
+     * @param operation the operation details from the request, potentially containing the parent directory path
+     * @throws XMLStreamException if an error occurs while writing the XML response
+     */
     @Override
     protected void fetch(Operation operation) throws XMLStreamException {
         Path dir = request.getSession().getUser().getSettings().getWorkPath().resolve(XMLFILES).toAbsolutePath().normalize();
@@ -44,8 +70,10 @@ public class ProfilesListXMLResponse extends XMLResponse {
     }
 
     /**
-     * @param nfo
-     * @throws XMLStreamException
+     * Writes the XML representation of a single profile record.
+     *
+     * @param nfo the profile NFO object containing the metadata to be written
+     * @throws XMLStreamException if an error occurs while writing to the XML stream
      */
     private void writeRecord(final ProfileNFO nfo) throws XMLStreamException {
         writer.writeEmptyElement("record");
@@ -61,6 +89,12 @@ public class ProfilesListXMLResponse extends XMLResponse {
         writer.writeAttribute("fixed", nfo.getHTMLFixed());
     }
 
+    /**
+     * Adds a new profile to the list by copying a source file to the target directory.
+     *
+     * @param operation the operation details containing the source path, target parent directory, and target file name
+     * @throws XMLStreamException if an error occurs while writing the XML response
+     */
     @Override
     protected void add(Operation operation) throws XMLStreamException {
         if (operation.hasData("Src")) {
@@ -89,6 +123,12 @@ public class ProfilesListXMLResponse extends XMLResponse {
             failure("Src is needed");
     }
 
+    /**
+     * Removes an existing profile from the list and deletes its associated files.
+     *
+     * @param operation the operation details containing the parent directory and the file name to remove
+     * @throws XMLStreamException if an error occurs while writing the XML response
+     */
     @Override
     protected void remove(Operation operation) throws XMLStreamException {
         Path dir = request.getSession().getUser().getSettings().getWorkPath().resolve(XMLFILES).toAbsolutePath().normalize();
@@ -112,6 +152,13 @@ public class ProfilesListXMLResponse extends XMLResponse {
             failure("Can't delete current loaded profile");
     }
 
+    /**
+     * Performs custom operations on a profile, such as dropping its cache file.
+     *
+     * @param operation the operation details containing the custom operation ID and target file information
+     * @throws XMLStreamException if an error occurs while writing the XML response
+     * @throws IOException if an I/O error occurs while accessing the file system
+     */
     @Override
     protected void custom(Operation operation) throws XMLStreamException, IOException {
         if ("DropCache".equals(operation.getOperationId().toString())) {

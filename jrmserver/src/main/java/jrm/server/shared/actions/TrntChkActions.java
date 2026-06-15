@@ -18,13 +18,105 @@ import jrm.misc.SettingsEnum;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
 
+/**
+ * Handles WebSocket actions for Torrent Checker operations.
+ * <p>
+ * This class manages the process of verifying that the contents of a directory match the files described by a torrent file. In the
+ * retro-gaming context, torrent files are commonly used to distribute large ROM sets (collections of game ROMs for emulators). The
+ * torrent checker verifies that each file in the destination directory matches the expected checksums and sizes defined in the
+ * torrent metadata, and can optionally clean up unexpected or incorrectly-sized files.
+ * </p>
+ * <h2>Retro-Gaming Context:</h2>
+ * <ul>
+ * <li><strong>Torrent File:</strong> A BitTorrent metadata file ({@code .torrent}) containing file names, sizes, and piece hashes
+ * for a ROM set distribution</li>
+ * <li><strong>Torrent Check:</strong> A verification process that compares files on disk against the torrent's expected file list
+ * and checksums</li>
+ * <li><strong>SrcDstResult (SDR):</strong> Mapping between source torrent files and destination directories to verify</li>
+ * <li><strong>TrntChkMode:</strong> The checking mode that determines how files are verified (e.g., by file-level checksums or by
+ * block-level piece hashes)</li>
+ * </ul>
+ * <h2>WebSocket Protocol:</h2>
+ * <p>
+ * This class processes incoming JSON messages with the following structure:
+ * </p>
+ * 
+ * <pre><code class="language-json">
+ * {
+ *   "cmd": "TrntChk.start",
+ *   "params": { ... }
+ * }
+ * </code></pre>
+ * <p>
+ * Response messages are sent back with commands like:
+ * </p>
+ * <ul>
+ * <li>{@code TrntChk.updateResult} - Updates a specific row's verification result</li>
+ * <li>{@code TrntChk.clearResults} - Clears all result statuses</li>
+ * <li>{@code TrntChk.end} - Signals operation completion</li>
+ * </ul>
+ * <h3>Thread Safety:</h3>
+ * <p>
+ * The {@link #start(JsonObject)} method spawns a background worker thread via {@link Worker}. The operation can be cancelled by
+ * invoking {@code ProgressHandler.doCancel()}, which causes a {@link BreakException} to be thrown within the worker thread. The
+ * {@link ResultColUpdater} callback is invoked from within the worker thread and synchronizes result persistence with WebSocket
+ * message sending. All WebSocket message sending is guarded by {@link ActionsMgr#isOpen()} checks.
+ * </p>
+ * 
+ * @see TorrentChecker
+ * @see TrntChkMode
+ * @see SrcDstResult
+ * @see ProgressActions
+ * @see ActionsMgr
+ * @see WebSession
+ * @see Log
+ */
 public class TrntChkActions {
+    /** The WebSocket action manager for sending messages and accessing the session. */
     private final ActionsMgr ws;
 
+    /**
+     * Constructs a new TrntChkActions handler.
+     *
+     * @param ws the WebSocket action manager for communication
+     */
     public TrntChkActions(ActionsMgr ws) {
         this.ws = ws;
     }
 
+    /**
+     * Initiates a torrent verification operation.
+     * <p>
+     * This method runs the operation in a background worker thread. The process:
+     * </p>
+     * <ol>
+     * <li>Loads the checking mode ({@link TrntChkMode}) from user settings</li>
+     * <li>Builds an {@link EnumSet} of {@link TorrentChecker.Options} based on user preferences:
+     * <ul>
+     * <li>{@code REMOVEUNKNOWNFILES} - Delete files not listed in the torrent</li>
+     * <li>{@code REMOVEWRONGSIZEDFILES} - Delete files whose size doesn't match the torrent</li>
+     * <li>{@code DETECTARCHIVEDFOLDERS} - Detect folders that are actually archived content</li>
+     * </ul>
+     * </li>
+     * <li>Loads the {@link SrcDstResult} mappings (torrent file &rarr; destination directory) from settings</li>
+     * <li>Executes the {@link TorrentChecker} with a {@link ResultColUpdater} callback that persists and broadcasts result updates
+     * to the client</li>
+     * <li>Cleans up resources and notifies the client upon completion</li>
+     * </ol>
+     * <h4>Error Handling:</h4>
+     * <ul>
+     * <li>{@link BreakException}: Caught silently — indicates the user cancelled the operation via the progress handler</li>
+     * <li>Any other exceptions propagate from {@link TorrentChecker} and are not caught here; the {@code finally} block still
+     * ensures cleanup and client notification</li>
+     * </ul>
+     * <h4>Thread Safety:</h4>
+     * <p>
+     * This method spawns a worker thread via {@link WebSession#setWorker(Worker)}. The {@link ResultColUpdater} callback is invoked
+     * from within the worker thread and synchronizes result persistence with WebSocket message sending.
+     * </p>
+     *
+     * @param jso the incoming JSON message (currently unused, reserved for future parameters)
+     */
     public void start(JsonObject jso) {
         (ws.getSession().setWorker(new Worker(() -> {
             WebSession session = ws.getSession();
@@ -68,6 +160,35 @@ public class TrntChkActions {
         }))).start();
     }
 
+    /**
+     * Sends a result update message for a specific SDR row to the client.
+     * <p>
+     * This method notifies the client about the verification status of a specific torrent-to-directory mapping entry. The result
+     * typically indicates whether the directory contents match the torrent specification (e.g., "Complete", "Missing files", or a
+     * detailed error description).
+     * </p>
+     * <h4>Response JSON Structure:</h4>
+     * 
+     * <pre><code class="language-json">
+     * {
+     *   "cmd": "TrntChk.updateResult",
+     *   "params": {
+     *     "row": 0,
+     *     "result": "Complete" | "Missing files" | "Error description"
+     *   }
+     * }
+     * </code></pre>
+     * 
+     * <h4>Error Handling:</h4>
+     * <ul>
+     * <li>If the WebSocket connection is closed ({@link ActionsMgr#isOpen()} returns {@code false}), the message is silently
+     * dropped</li>
+     * <li>If the WebSocket message cannot be sent, the {@link IOException} is logged via {@link Log#err(String, Throwable)}</li>
+     * </ul>
+     *
+     * @param row the zero-based index of the SDR entry being updated
+     * @param result the verification result message (e.g., "Complete", "Missing files", or an error description)
+     */
     void updateResult(int row, String result) {
         try {
             if (ws.isOpen()) {
@@ -84,6 +205,26 @@ public class TrntChkActions {
         }
     }
 
+    /**
+     * Sends a message to clear all result statuses in the client UI.
+     * <p>
+     * This is typically called at the beginning of a new torrent check operation or when the user explicitly requests a results
+     * reset. The client should clear all previously displayed verification results from its table view.
+     * </p>
+     * <h4>Response JSON Structure:</h4>
+     * 
+     * <pre><code class="language-json">
+     * {
+     *   "cmd": "TrntChk.clearResults"
+     * }
+     * </code></pre>
+     * 
+     * <h4>Error Handling:</h4>
+     * <ul>
+     * <li>If the WebSocket connection is closed, the message is silently dropped</li>
+     * <li>If the WebSocket message cannot be sent, the {@link IOException} is logged via {@link Log#err(String, Throwable)}</li>
+     * </ul>
+     */
     void clearResults() {
         try {
             if (ws.isOpen()) {
@@ -96,6 +237,27 @@ public class TrntChkActions {
         }
     }
 
+    /**
+     * Sends a message signaling the end of the torrent verification operation.
+     * <p>
+     * The client uses this signal to re-enable UI controls, stop progress indicators, and finalize any pending UI updates. This
+     * method is always called from the {@code finally} block of {@link #start(JsonObject)}, ensuring it is sent regardless of
+     * whether the operation completed successfully, was cancelled, or encountered an error.
+     * </p>
+     * <h4>Response JSON Structure:</h4>
+     * 
+     * <pre><code class="language-json">
+     * {
+     *   "cmd": "TrntChk.end"
+     * }
+     * </code></pre>
+     * 
+     * <h4>Error Handling:</h4>
+     * <ul>
+     * <li>If the WebSocket connection is closed, the message is silently dropped</li>
+     * <li>If the WebSocket message cannot be sent, the {@link IOException} is logged via {@link Log#err(String, Throwable)}</li>
+     * </ul>
+     */
     void end() {
         try {
             if (ws.isOpen()) {
